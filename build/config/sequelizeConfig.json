@@ -1,0 +1,10 @@
+{
+    "database": "fund_db",
+    "username": "postgres",
+    "password": "postgres",
+    "params": {
+        "host": "localhost",
+        "dialect": "postgres",
+        "operatorsAliases": false
+    }
+}
