@@ -14,7 +14,7 @@ module.exports = {
       description: {
         type: Sequelize.STRING
       },
-      accountTypeId: {
+      account_type_id: {
         type: Sequelize.INTEGER,
         references: {
           model: "account_types",
@@ -22,15 +22,15 @@ module.exports = {
         },
         index: true
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      parentId: {
+      parent_id: {
         allowNull: true,
         type: Sequelize.INTEGER,
         references: {

@@ -5,23 +5,23 @@ module.exports = (sequelize, DataTypes) => {
     {
       name: DataTypes.STRING,
       description: DataTypes.STRING,
-      accountTypeId: DataTypes.INTEGER,
-      parentId: DataTypes.INTEGER
+      account_type_id: DataTypes.INTEGER,
+      parent_id: DataTypes.INTEGER
     },
-    { tableName: "accounts" }
+    { tableName: "accounts", createdAt: "created_at", updatedAt: "updated_at" }
   );
   Account.associate = function(models) {
     // Associations Can be Defined Here
     Account.hasMany(models.Account, {
       as: "children",
-      foreignKey: "parentId"
+      foreignKey: "parent_id"
     });
     Account.belongsTo(models.Account, {
       as: "parent",
-      foreignKey: "parentId"
+      foreignKey: "parent_id"
     });
-    Account.hasMany(models.Ledger, { foreignKey: "accountId" });
-    Account.belongsTo(models.AccountType, { foreignKey: "accountTypeId" });
+    Account.hasMany(models.Ledger, { foreignKey: "account_id" });
+    Account.belongsTo(models.AccountType, { foreignKey: "account_type_id" });
   };
   return Account;
 };

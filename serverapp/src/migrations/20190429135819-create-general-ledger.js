@@ -11,35 +11,35 @@ module.exports = {
       value: {
         type: Sequelize.DOUBLE
       },
-      effectiveDate: {
+      effective_date: {
         type: Sequelize.DATE
       },
-      fundId: {
+      fund_id: {
         type: Sequelize.INTEGER,
         references: {
           model: "funds",
           key: "id"
         }
       },
-      accountId: {
+      account_id: {
         type: Sequelize.INTEGER,
         references: {
           model: "accounts",
           key: "id"
         }
       },
-      customerId: {
+      customer_id: {
         type: Sequelize.INTEGER,
         references: {
           model: "customers",
           key: "id"
         }
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }

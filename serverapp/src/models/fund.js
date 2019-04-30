@@ -6,11 +6,11 @@ module.exports = (sequelize, DataTypes) => {
       name: DataTypes.STRING,
       description: DataTypes.STRING
     },
-    { tableName: "funds" }
+    { tableName: "funds", createdAt: "created_at", updatedAt: "updated_at" }
   );
   Fund.associate = function(models) {
     // Associations Can be Defined Here
-    Fund.hasMany(models.Ledger, { foreignKey: "fundId" });
+    Fund.hasMany(models.Ledger, { foreignKey: "fund_id" });
   };
   return Fund;
 };

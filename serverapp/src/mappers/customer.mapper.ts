@@ -1,29 +1,29 @@
 import * as moment from "moment";
 
-interface Customer {
+export interface ICustomer {
   id: number;
   email: string;
-  firstName: string;
-  lastName: string;
-  createdAt: string;
+  first_name: string;
+  last_name: string;
+  created_at: string;
 }
 
 export class CustomerMapper {
   public map(array: Array<object>): Array<object> {
     const arrayList: Array<object> = array.map(
-      (element: Customer): Customer => this.mapCustomer(element)
+      (element: ICustomer): ICustomer => this.mapCustomer(element)
     );
 
     return arrayList;
   }
 
-  private mapCustomer(data: Customer): Customer {
+  public mapCustomer(data: ICustomer): ICustomer {
     return {
       id: data.id || null,
       email: data.email || null,
-      firstName: data.firstName || null,
-      lastName: data.lastName || null,
-      createdAt: moment(data.createdAt).fromNow() || null
+      first_name: data.first_name || null,
+      last_name: data.last_name || null,
+      created_at: moment(data.created_at).fromNow() || null
     };
   }
 }

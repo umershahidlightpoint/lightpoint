@@ -2,8 +2,8 @@ export class Helper {
   public success(
     code: number,
     message: string,
-    data: Array<object>,
-    meta: object
+    data: Array<object> | object,
+    meta?: object
   ): object {
     return data instanceof Array
       ? {
