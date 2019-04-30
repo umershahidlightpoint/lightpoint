@@ -1,7 +1,7 @@
 node_modules
-serverapp/build
 dist
 log
 logs
+serverapp/build
 serverapp/src/config
 serverapp/package-lock.json
