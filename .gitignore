@@ -1,5 +1,7 @@
 node_modules
-build
+serverapp/build
 dist
 log
 logs
+serverapp/src/config
+serverapp/package-lock.json
