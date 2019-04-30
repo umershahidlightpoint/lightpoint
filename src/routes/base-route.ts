@@ -1,1 +1,1 @@
-export const BASE_USER_ROUTE = "/api/v1/users";
+export const BASE_CUSTOMERS_ROUTE = "/api/v1/customers";

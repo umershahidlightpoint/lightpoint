@@ -1,13 +1,19 @@
 {
-  "database": "fund_db",
-  "username": "postgres",
-  "password": "postgres",
-  "params": {
-    "host": "localhost",
-    "dialect": "postgres",
-    "operatorsAliases": false
-  },
   "development": {
+    "database": "fund_db",
+    "username": "postgres",
+    "password": "postgres",
+    "host": "localhost",
+    "dialect": "postgres"
+  },
+  "test": {
+    "database": "fund_db",
+    "username": "postgres",
+    "password": "postgres",
+    "host": "localhost",
+    "dialect": "postgres"
+  },
+  "production": {
     "database": "fund_db",
     "username": "postgres",
     "password": "postgres",
