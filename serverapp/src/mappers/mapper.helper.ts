@@ -25,9 +25,9 @@ export class MapperHelper {
     return await arrayList;
   }
 
-  private async parseMeta(list) {
+  private async parseMeta(meta) {
     return await {
-      list
+      meta
     };
   }
 }

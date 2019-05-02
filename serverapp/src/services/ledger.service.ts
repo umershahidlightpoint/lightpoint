@@ -2,7 +2,7 @@ import { Ledger, Fund, Account, Customer } from "../models";
 import { ILedgerForm, ISearchForm } from "../form/iledger.form";
 import { ILedgerService } from "./iledger.service";
 import { ServiceHelper } from "../helpers/service.helper";
-import { RuntimeExceptions } from "../exceptions/runtime_exceptions";
+import { RecordNotFoundException } from "../exceptions/record_not_found_exception";
 
 interface IList {
   data: Array<Ledger>;
@@ -16,17 +16,17 @@ export class LedgerService implements ILedgerService {
     try {
       const fund = await Fund.findByPk(input.fund_id);
       if (!fund) {
-        throw new RuntimeExceptions("Fund with this ID not Found.", 404);
+        throw new RecordNotFoundException("Fund with this ID not Found.");
       }
 
       const account = await Account.findByPk(input.account_id);
       if (!account) {
-        throw new RuntimeExceptions("Account with this ID not Found.", 404);
+        throw new RecordNotFoundException("Account with this ID not Found.");
       }
 
       const customer = await Customer.findByPk(input.customer_id);
       if (!customer) {
-        throw new RuntimeExceptions("Customer with this ID not Found.", 404);
+        throw new RecordNotFoundException("Customer with this ID not Found.");
       }
 
       const currentLedger: Ledger = await Ledger.create(input);
@@ -79,7 +79,7 @@ export class LedgerService implements ILedgerService {
       });
 
       if (!ledger) {
-        throw new RuntimeExceptions("Record not Found", 404);
+        throw new RecordNotFoundException("Record not Found");
       }
 
       return Promise.resolve(ledger);

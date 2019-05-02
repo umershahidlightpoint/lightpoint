@@ -60,12 +60,7 @@ export class LedgerController {
       return res
         .status(200)
         .send(
-          this.helper.success(
-            200,
-            "ledgers Found Successfully.",
-            mappedFeed,
-            result.meta
-          )
+          this.helper.success(200, "Ledgers Found Successfully.", mappedFeed)
         );
     } catch (error) {
       const code = error.code ? error.code : 500;
