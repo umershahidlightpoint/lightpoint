@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, Router } from "express";
 import { ICustomerForm, ISearchForm } from "../form/icustomer.form";
 import { CustomerService } from "../services/customer.service";
 import { Customer } from "../models";
@@ -11,6 +11,15 @@ export class CustomerController {
   public mapperHelper: MapperHelper = new MapperHelper();
   public customerMapper: CustomerMapper = new CustomerMapper();
   public helper: Helper = new Helper();
+
+  public getRoutes(): Router {
+    const router = Router();
+    router.get("", this.search);
+    router.post("", this.create);
+    router.get("/:customer_id", this.findById);
+    return router;
+  }
+
 
   public create = async (req: Request, res: Response) => {
     try {
