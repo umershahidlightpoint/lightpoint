@@ -1,47 +1,13 @@
 import * as moment from "moment";
-
-export interface ILedger {
-  id: number;
-  value: number;
-  effective_date: string;
-  fund: IFund;
-  account: IAccount;
-  customer: ICustomer;
-  created_at: string;
-}
-
-export interface ILedgerElement {
-  id: number;
-  value: number;
-  effective_date: string;
-  Fund: IFund;
-  Account: IAccount;
-  Customer: ICustomer;
-  created_at: string;
-}
-
-export interface IFund {
-  id: number;
-  name: string;
-}
-
-export interface IAccount {
-  id: number;
-  name: string;
-}
-
-export interface ICustomer {
-  id: number;
-  first_name: string;
-  firs: string;
-}
+import { LedgerInstance } from "../models/Types/Ledger";
+import { LedgerDTO } from "./Types/Ledger";
 
 export class LedgerMapper {
-  public mapFull(item: ILedgerElement): ILedger {
+  public mapFull(data: LedgerInstance): LedgerDTO {
     return;
   }
 
-  public async mapItem(data: ILedgerElement): Promise<ILedger> {
+  public async mapItem(data: LedgerInstance): Promise<LedgerDTO> {
     return await {
       id: data.id || null,
       value: data.value || null,
@@ -57,8 +23,7 @@ export class LedgerMapper {
       customer: {
         id: data.Customer.id,
         name: `${data.Customer.first_name}`
-      },
-      created_at: moment(data.created_at).fromNow() || null
+      }
     };
   }
 }

@@ -1,23 +1,17 @@
 import * as moment from "moment";
-
-export interface IFund {
-  id: number;
-  name: string;
-  description: string;
-  created_at: string;
-}
+import { FundInstance } from "../models/Types/Fund";
+import { FundDTO } from "./Types/Fund";
 
 export class FundMapper {
-  public mapFull(array: IFund): IFund {
+  public mapFull(data: FundInstance): FundDTO {
     return;
   }
 
-  public async mapItem(data: IFund): Promise<IFund> {
+  public async mapItem(data: FundInstance): Promise<FundDTO> {
     return await {
       id: data.id || null,
       name: data.name || null,
-      description: data.description || null,
-      created_at: moment(data.created_at).fromNow() || null
+      description: data.description || null
     };
   }
 }
