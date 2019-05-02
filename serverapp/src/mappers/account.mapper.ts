@@ -1,28 +1,21 @@
 import * as moment from "moment";
-
-export interface IAccount {
-  id: number;
-  name: string;
-  account_type: object;
-}
-
-export interface IAccountElement {
-  id: number;
-  name: string;
-  AccountType: object;
-  Account: object;
-}
+import { AccountInstance } from "../models/Types/Account";
+import { AccountDTO } from "./Types/Account";
 
 export class AccountMapper {
-  public mapFull(item: IAccountElement): IAccount {
+  public mapFull(data: AccountInstance): AccountDTO {
     return;
   }
 
-  public async mapItem(data: IAccountElement): Promise<IAccount> {
+  public async mapItem(data: AccountInstance): Promise<AccountDTO> {
     return await {
       id: data.id || null,
       name: data.name || null,
-      account_type: data.AccountType || null
+      accountType: {
+        id: data.accountType.id,
+        name: data.accountType.name,
+        description: data.accountType.description
+      }
     };
   }
 }

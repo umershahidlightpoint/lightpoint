@@ -15,12 +15,17 @@ export class LedgerController implements IController {
 
   public getRouter(): Router {
     const apiRouter = Router();
-    apiRouter.get("", async (req: Request, res: Response) => this.search(req, res));
-    apiRouter.post("", async (req: Request, res: Response) => this.create(req, res));
-    apiRouter.get("/:ledger_id", async (req: Request, res: Response) => this.findById(req, res));
+    apiRouter.get("", async (req: Request, res: Response) =>
+      this.search(req, res)
+    );
+    apiRouter.post("", async (req: Request, res: Response) =>
+      this.create(req, res)
+    );
+    apiRouter.get("/:ledger_id", async (req: Request, res: Response) =>
+      this.findById(req, res)
+    );
     return apiRouter;
   }
-
 
   private create = async (req: Request, res: Response) => {
     try {
@@ -40,11 +45,7 @@ export class LedgerController implements IController {
       });
       const mappedFeed: ILedger = await this.ledgerMapper.mapItem(result);
 
-      return res
-        .status(200)
-        .send(
-          this.helper.success(200, "Ledger Created Successfully.", mappedFeed)
-        );
+      return res.status(200).json(mappedFeed);
     } catch (error) {
       const code = error.code ? error.code : 500;
       const mappedError = this.helper.error(code, error.message);
@@ -82,11 +83,7 @@ export class LedgerController implements IController {
       const result: Ledger = await this.ledgerService.findById(id);
       const mappedFeed: ILedger = await this.ledgerMapper.mapItem(result);
 
-      return res
-        .status(200)
-        .send(
-          this.helper.success(200, "Ledger Found Successfully.", mappedFeed)
-        );
+      return res.status(200).json(mappedFeed);
     } catch (error) {
       const code = error.code ? error.code : 500;
       const mappedError = this.helper.error(code, error.message);

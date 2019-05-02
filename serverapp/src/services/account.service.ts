@@ -27,7 +27,7 @@ export class AccountService implements IAccountService {
       const accounts: Account = await Account.findAndCountAll({
         ...sorting,
         ...pagination,
-        include: [AccountType]
+        include: [{ model: AccountType, as: "accountType" }]
       });
 
       const meta = this.serviceHelper.meta(
