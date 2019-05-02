@@ -21,7 +21,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "parent_id"
     });
     Account.hasMany(models.Ledger, { foreignKey: "account_id" });
-    Account.belongsTo(models.AccountType, { foreignKey: "account_type_id" });
+    Account.belongsTo(models.AccountType, {
+      foreignKey: "account_type_id",
+      as: "accountType"
+    });
   };
   return Account;
 };

@@ -18,7 +18,7 @@ interface Meta {
 export class ServiceHelper {
   public pagination(pageNumber: number): Pagination {
     const page: number = Number(pageNumber) ? Number(pageNumber) : 1;
-    const limit: number = 10;
+    const limit: number = 40;
     const offset: number = limit * (page - 1);
     return {
       limit,

@@ -11,7 +11,7 @@ export class LedgerMapper {
     return await {
       id: data.id || null,
       value: data.value || null,
-      effective_date: data.effective_date || null,
+      effectiveDate: data.effective_date || null,
       fund: {
         id: data.Fund.id,
         name: data.Fund.name

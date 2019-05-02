@@ -11,7 +11,7 @@ export class FundMapper {
     return await {
       id: data.id || null,
       name: data.name || null,
-      description: data.description || null
+      notes: data.description || null
     };
   }
 }
