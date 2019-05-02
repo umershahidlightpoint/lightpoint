@@ -1,8 +1,8 @@
 <div *ngIf="ledgerGrid" class="div primeng-datatable-container">
-  <p-table scrollable="true" scrollHeight="400px" [columns]="ledgerCols" [value]="ledger" (onLazyLoad)="getLegderByFundId(null,$event)">
+  <p-table scrollable="true" scrollHeight="400px" [columns]="ledgerCols" [value]="ledger"
+    (onLazyLoad)="getLegderByFundId(null,$event)">
     <ng-template pTemplate="header" let-columns>
       <tr>
-        <th style="width:2.5em"></th>
         <th *ngFor="let col of columns" pReorderableColumn>
           {{col.header}}
         </th>

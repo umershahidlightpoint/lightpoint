@@ -22,7 +22,6 @@ export class CustomerMapper {
       firstName: data.first_name || null,
       lastName: data.last_name || null,
       name: `${data.first_name} ${data.last_name}`,
-      initials: `${data.first_name[0].toLow}`;
       created_at: moment(data.created_at).fromNow() || null
     };
   }
