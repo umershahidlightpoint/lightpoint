@@ -15,9 +15,9 @@ export class LedgerController implements IController {
 
   public getRouter(): Router {
     const apiRouter = Router();
-    apiRouter.get("", async (req: Request, res: Response) =>
-      this.search(req, res)
-    );
+    apiRouter.post("", this.create);
+    apiRouter.get("", this.search);
+    apiRouter.get("/:ledger_id", this.findById);
     return apiRouter;
   }
 
