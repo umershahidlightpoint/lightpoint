@@ -1,16 +1,25 @@
-import { Request, Response } from "express";
-import { ICustomerForm, ISearchForm } from "../form/icustomer.form";
-import { CustomerService } from "../services/customer.service";
-import { Customer } from "../models";
-import { MapperHelper, IList } from "../mappers/mapper.helper";
-import { CustomerMapper, ICustomer } from "../mappers/customer.mapper";
-import { Helper } from "../helpers/index";
+import { Request, Response, Router } from "express";
+import { ICustomerForm, ISearchForm } from "../../form/icustomer.form";
+import { CustomerService } from "../../services/customer.service";
+import { Customer } from "../../models";
+import { MapperHelper, IList } from "../../mappers/mapper.helper";
+import { CustomerMapper, ICustomer } from "../../mappers/customer.mapper";
+import { Helper } from "../../helpers/index";
 
 export class CustomerController {
   public customerService: CustomerService = new CustomerService();
   public mapperHelper: MapperHelper = new MapperHelper();
   public customerMapper: CustomerMapper = new CustomerMapper();
   public helper: Helper = new Helper();
+
+  public getRouter(): Router {
+    const router = Router();
+    router.get("", this.search);
+    router.post("", this.create);
+    router.get("/:customer_id", this.findById);
+    return router;
+  }
+
 
   public create = async (req: Request, res: Response) => {
     try {
