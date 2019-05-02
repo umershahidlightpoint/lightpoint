@@ -9,7 +9,7 @@ export class MapperHelper {
     const meta = await this.parseMeta(list.meta);
     return {
       data,
-      meta
+      ...meta
     };
   }
 
