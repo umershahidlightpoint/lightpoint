@@ -15,13 +15,14 @@ export class LedgerController implements IController {
 
   public getRouter(): Router {
     const apiRouter = Router();
-    apiRouter.post("", this.create);
-    apiRouter.get("", this.search);
-    apiRouter.get("/:ledger_id", this.findById);
+    apiRouter.get("", async (req: Request, res: Response) => this.search(req, res));
+    apiRouter.post("", async (req: Request, res: Response) => this.create(req, res));
+    apiRouter.get("/:ledger_id", async (req: Request, res: Response) => this.findById(req, res));
     return apiRouter;
   }
 
-  public create = async (req: Request, res: Response) => {
+
+  private create = async (req: Request, res: Response) => {
     try {
       const {
         value,
@@ -75,7 +76,7 @@ export class LedgerController implements IController {
     }
   };
 
-  public findById = async (req: Request, res: Response) => {
+  private findById = async (req: Request, res: Response) => {
     try {
       const id: number = req.params.ledger_id;
       const result: Ledger = await this.ledgerService.findById(id);
