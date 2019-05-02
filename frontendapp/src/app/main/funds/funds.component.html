@@ -2,7 +2,7 @@
   <p-table [columns]="fundsCols" [value]="funds" [reorderableColumns]="true" class="selectable-grid funds-grid">
     <ng-template pTemplate="header" let-columns>
       <tr>
-        <th style="width:2.5em"></th>
+
         <th *ngFor="let col of columns" pReorderableColumn>
           {{col.header}}
         </th>
@@ -10,8 +10,7 @@
     </ng-template>
     <ng-template pTemplate="body" let-rowData let-columns="columns" let-expanded="expanded" let-index="rowIndex">
       <tr [pReorderableRow]="index">
-        <td>
-        </td>
+
 
         <td (click)="getFundLeadger(rowData.id)" *ngFor="let col of columns">
           {{rowData[col.field]}}

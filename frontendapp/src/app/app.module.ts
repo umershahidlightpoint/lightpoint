@@ -9,11 +9,19 @@ import { TableModule } from 'primeng/table';
 import { HttpClientModule } from '@angular/common/http';
 import { FinancePocServiceProxy } from '../shared/service-proxies/service-proxies';
 import { LedgerComponent } from './main/ledger/ledger.component';
+import {
+  ModalModule,
+  PopoverModule,
+  TabsModule,
+  TooltipModule
+} from "ngx-bootstrap";
+import { LegderModalComponent } from './main/legder-modal/legder-modal.component';
 @NgModule({
   declarations: [
     AppComponent,
     FundsComponent,
-    LedgerComponent
+    LedgerComponent,
+    LegderModalComponent
   ],
   imports: [
     BrowserModule,
@@ -21,7 +29,8 @@ import { LedgerComponent } from './main/ledger/ledger.component';
     TableModule,
     PaginatorModule,
     HttpClientModule,
-    AngularFontAwesomeModule
+    AngularFontAwesomeModule,
+    ModalModule.forRoot()
   ],
   providers: [FinancePocServiceProxy],
   bootstrap: [AppComponent]

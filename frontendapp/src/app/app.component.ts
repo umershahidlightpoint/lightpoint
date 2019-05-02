@@ -1,10 +1,11 @@
-import { Component, OnInit, Injector } from '@angular/core';
+import { Component, OnInit, Injector, ViewChild } from '@angular/core';
 import { FinancePocServiceProxy } from '../shared/service-proxies/service-proxies';
 import { PaginatorModule } from 'primeng/paginator';
 import { PrimengTableHelper } from '../shared/helpers/PrimengTableHelper';
 import { AppComponentBase } from '../shared/common/app-component-base';
 import { LazyLoadEvent } from 'primeng/components/common/lazyloadevent';
 import { FundsComponent } from './main/funds/funds.component';
+import { LegderModalComponent } from './main/legder-modal/legder-modal.component';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +14,7 @@ import { FundsComponent } from './main/funds/funds.component';
 })
 export class AppComponent extends AppComponentBase {
   title = 'AccountApp';
-
+  @ViewChild('applegdermodal') applegdermodal: LegderModalComponent;
   fundId: any;
   ledger: any[];
   ledgerCols: any[];
@@ -48,7 +49,7 @@ export class AppComponent extends AppComponentBase {
   }
 
   createLedger() {
-    this.ledgerInput = true;
+    this.applegdermodal.show();
   }
 
   initializeCol() {
