@@ -1,4 +1,4 @@
-export class CustomError extends Error {
+export class RuntimeExceptions extends Error {
   public code: number;
 
   constructor(message: string, code: number) {

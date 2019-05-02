@@ -1,8 +1,8 @@
-import * as Sequelize from "sequelize";
 import { Customer } from "../models";
 import { ICustomerForm, ISearchForm } from "../form/icustomer.form";
 import { ICustomerService } from "../services/icustomer.service";
 import { ServiceHelper } from "../helpers/service.helper";
+import { RuntimeExceptions } from "../exceptions/runtime_exceptions";
 
 interface IList {
   data: Array<Customer>;
@@ -28,7 +28,9 @@ export class CustomerService implements ICustomerService {
       const keyword: string = params.keyword ? params.keyword : "";
       const sorting = this.serviceHelper.sorting(
         params.sort,
-        params.sort_direction
+        params.sort_direction,
+        "first_name",
+        "ASC"
       );
       const pagination = this.serviceHelper.pagination(params.page);
 
@@ -42,6 +44,7 @@ export class CustomerService implements ICustomerService {
         params.page,
         pagination.limit
       );
+
       result.data = customers.rows;
       result.meta = meta;
       return Promise.resolve(result);
@@ -53,6 +56,11 @@ export class CustomerService implements ICustomerService {
   public findById = async (id: number): Promise<Customer> => {
     try {
       const customer: Customer = await Customer.findByPk(id);
+
+      if (!customer) {
+        throw new RuntimeExceptions("Record not Found", 404);
+      }
+
       return Promise.resolve(customer);
     } catch (error) {
       if (error) return Promise.reject(error);
@@ -64,6 +72,10 @@ export class CustomerService implements ICustomerService {
       const customer: Customer = await Customer.findOne({
         where: { email }
       });
+
+      if (!customer) {
+        throw new RuntimeExceptions("Record not Found", 404);
+      }
 
       return Promise.resolve(customer);
     } catch (error) {

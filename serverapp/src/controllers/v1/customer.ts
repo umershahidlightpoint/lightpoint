@@ -1,16 +1,27 @@
-import { Request, Response } from "express";
-import { ICustomerForm, ISearchForm } from "../form/icustomer.form";
-import { CustomerService } from "../services/customer.service";
-import { Customer } from "../models";
-import { CustomerMapper, ICustomer } from "../mappers/customer.mapper";
-import { Helper } from "../helpers/index";
+import { Request, Response, Router } from "express";
+import { ICustomerForm, ISearchForm } from "../../form/icustomer.form";
+import { CustomerService } from "../../services/customer.service";
+import { Customer } from "../../models";
+import { MapperHelper, IList } from "../../mappers/mapper.helper";
+import { CustomerMapper, ICustomer } from "../../mappers/customer.mapper";
+import { Helper } from "../../helpers/index";
+import { IController } from "./icontroller";
 
-export class CustomerController {
+export class CustomerController implements IController {
   public customerService: CustomerService = new CustomerService();
+  public mapperHelper: MapperHelper = new MapperHelper();
   public customerMapper: CustomerMapper = new CustomerMapper();
   public helper: Helper = new Helper();
 
-  public createCustomer = async (req: Request, res: Response) => {
+  public getRouter(): Router {
+    const router = Router();
+    router.get("", this.search);
+    router.post("", this.create);
+    router.get("/:customer_id", this.findById);
+    return router;
+  }
+
+  public create = async (req: Request, res: Response) => {
     try {
       const { first_name, last_name, email }: ICustomerForm = req.body;
       const result: Customer = await this.customerService.create({
@@ -18,16 +29,12 @@ export class CustomerController {
         last_name,
         email
       });
-      const mappedFeed: ICustomer = this.customerMapper.mapCustomer(result);
+      const mappedFeed: ICustomer = await this.customerMapper.mapItem(result);
 
       return res
         .status(200)
         .send(
-          this.helper.success(
-            200,
-            "Customers Created Successfully.",
-            mappedFeed
-          )
+          this.helper.success(200, "Customer Created Successfully.", mappedFeed)
         );
     } catch (error) {
       const code = error.code ? error.code : 500;
@@ -37,7 +44,7 @@ export class CustomerController {
     }
   };
 
-  public searchCustomer = async (req: Request, res: Response) => {
+  public search = async (req: Request, res: Response) => {
     try {
       const { page, keyword, sort, sort_direction } = req.query;
       const result: Customer = await this.customerService.search({
@@ -46,18 +53,11 @@ export class CustomerController {
         sort,
         sort_direction
       });
-      const mappedFeed = this.customerMapper.map(result.data);
-
-      return res
-        .status(200)
-        .send(
-          this.helper.success(
-            200,
-            "Customers Found Successfully.",
-            mappedFeed,
-            result.meta
-          )
-        );
+      const mapped: IList = await this.mapperHelper.paginate(
+        result,
+        this.customerMapper.mapItem
+      );
+      return res.status(200).json(mapped);
     } catch (error) {
       const code = error.code ? error.code : 500;
       const mappedError = this.helper.error(code, error.message);
@@ -66,16 +66,16 @@ export class CustomerController {
     }
   };
 
-  public findCustomerById = async (req: Request, res: Response) => {
+  public findById = async (req: Request, res: Response) => {
     try {
       const id: number = req.params.customer_id;
       const result: Customer = await this.customerService.findById(id);
-      const mappedFeed: ICustomer = this.customerMapper.mapCustomer(result);
+      const mappedFeed: ICustomer = await this.customerMapper.mapItem(result);
 
       return res
         .status(200)
         .send(
-          this.helper.success(200, "Customers Found Successfully.", mappedFeed)
+          this.helper.success(200, "Customer Found Successfully.", mappedFeed)
         );
     } catch (error) {
       const code = error.code ? error.code : 500;
@@ -85,16 +85,16 @@ export class CustomerController {
     }
   };
 
-  public findCustomerByEmail = async (req: Request, res: Response) => {
+  public findByEmail = async (req: Request, res: Response) => {
     try {
       const email: string = req.query.email;
       const result: Customer = await this.customerService.findByEmail(email);
-      const mappedFeed: ICustomer = this.customerMapper.mapCustomer(result);
+      const mappedFeed: ICustomer = await this.customerMapper.mapItem(result);
 
       return res
         .status(200)
         .send(
-          this.helper.success(200, "Customers Found Successfully.", mappedFeed)
+          this.helper.success(200, "Customer Found Successfully.", mappedFeed)
         );
     } catch (error) {
       const code = error.code ? error.code : 500;
