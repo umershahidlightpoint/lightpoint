@@ -1,0 +1,106 @@
+import { Request, Response } from "express";
+import { ICustomerForm, ISearchForm } from "../form/icustomer.form";
+import { CustomerService } from "../services/customer.service";
+import { Customer } from "../models";
+import { CustomerMapper, ICustomer } from "../mappers/customer.mapper";
+import { Helper } from "../helpers/index";
+
+export class CustomerController {
+  public customerService: CustomerService = new CustomerService();
+  public customerMapper: CustomerMapper = new CustomerMapper();
+  public helper: Helper = new Helper();
+
+  public createCustomer = async (req: Request, res: Response) => {
+    try {
+      const { first_name, last_name, email }: ICustomerForm = req.body;
+      const result: Customer = await this.customerService.create({
+        first_name,
+        last_name,
+        email
+      });
+      const mappedFeed: ICustomer = this.customerMapper.mapCustomer(result);
+
+      return res
+        .status(200)
+        .send(
+          this.helper.success(
+            200,
+            "Customers Created Successfully.",
+            mappedFeed
+          )
+        );
+    } catch (error) {
+      const code = error.code ? error.code : 500;
+      const mappedError = this.helper.error(code, error.message);
+
+      return res.status(code).send(mappedError);
+    }
+  };
+
+  public searchCustomer = async (req: Request, res: Response) => {
+    try {
+      const { page, keyword, sort, sort_direction } = req.query;
+      const result: Customer = await this.customerService.search({
+        page,
+        keyword,
+        sort,
+        sort_direction
+      });
+      const mappedFeed = this.customerMapper.map(result.data);
+
+      return res
+        .status(200)
+        .send(
+          this.helper.success(
+            200,
+            "Customers Found Successfully.",
+            mappedFeed,
+            result.meta
+          )
+        );
+    } catch (error) {
+      const code = error.code ? error.code : 500;
+      const mappedError = this.helper.error(code, error.message);
+
+      return res.status(code).send(mappedError);
+    }
+  };
+
+  public findCustomerById = async (req: Request, res: Response) => {
+    try {
+      const id: number = req.params.customer_id;
+      const result: Customer = await this.customerService.findById(id);
+      const mappedFeed: ICustomer = this.customerMapper.mapCustomer(result);
+
+      return res
+        .status(200)
+        .send(
+          this.helper.success(200, "Customers Found Successfully.", mappedFeed)
+        );
+    } catch (error) {
+      const code = error.code ? error.code : 500;
+      const mappedError = this.helper.error(code, error.message);
+
+      return res.status(code).send(mappedError);
+    }
+  };
+
+  public findCustomerByEmail = async (req: Request, res: Response) => {
+    try {
+      const email: string = req.query.email;
+      const result: Customer = await this.customerService.findByEmail(email);
+      const mappedFeed: ICustomer = this.customerMapper.mapCustomer(result);
+
+      return res
+        .status(200)
+        .send(
+          this.helper.success(200, "Customers Found Successfully.", mappedFeed)
+        );
+    } catch (error) {
+      const code = error.code ? error.code : 500;
+      const mappedError = this.helper.error(code, error.message);
+
+      return res.status(code).send(mappedError);
+    }
+  };
+}

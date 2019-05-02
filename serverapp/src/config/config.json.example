@@ -1,0 +1,23 @@
+{
+  "development": {
+    "database": "finance_db",
+    "username": "postgres",
+    "password": "postgres",
+    "host": "localhost",
+    "dialect": "postgres"
+  },
+  "test": {
+    "database": "finance_db_test",
+    "username": "",
+    "password": "",
+    "host": "",
+    "dialect": "postgres"
+  },
+  "production": {
+    "database": "",
+    "username": "",
+    "password": "",
+    "host": "",
+    "dialect": "postgres"
+  }
+}
