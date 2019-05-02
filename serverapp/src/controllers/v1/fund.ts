@@ -27,21 +27,12 @@ export class FundController implements IController {
         sort,
         sort_direction
       });
-      const mappedFeed = await this.mapperHelper.paginate(
+      const mapped = await this.mapperHelper.paginate(
         result,
         this.fundMapper.mapItem
       );
 
-      return res
-        .status(200)
-        .send(
-          this.helper.success(
-            200,
-            "Funds Found Successfully.",
-            mappedFeed,
-            result.meta
-          )
-        );
+      return res.status(200).json(mapped);
     } catch (error) {
       const code = error.code ? error.code : 500;
       const mappedError = this.helper.error(code, error.message);

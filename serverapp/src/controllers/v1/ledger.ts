@@ -61,16 +61,12 @@ export class LedgerController implements IController {
         sort,
         sort_direction
       });
-      const mappedFeed: IList = await this.mapperHelper.paginate(
+      const mapped: IList = await this.mapperHelper.paginate(
         result,
         this.ledgerMapper.mapItem
       );
 
-      return res
-        .status(200)
-        .send(
-          this.helper.success(200, "Ledgers Found Successfully.", mappedFeed)
-        );
+      return res.status(200).json(mapped);
     } catch (error) {
       const code = error.code ? error.code : 500;
       const mappedError = this.helper.error(code, error.message);

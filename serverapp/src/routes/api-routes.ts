@@ -19,6 +19,7 @@ export class Routes {
     apiRouter.get("", (req: Request, res: Response) => {
       return res.json({ "m": "Welcome Finance API" });
     });
+
     apiRouter.use("/customers", this.customerController.getRouter());
     apiRouter.use("/funds", this.fundController.getRouter());
     apiRouter.use("/ledgers", this.ledgerController.getRouter());
@@ -33,11 +34,11 @@ export class Routes {
           message: "TypeScript App API"
         });
       });
-  
+
       app.route(BASE_CUSTOMERS_ROUTE).post(this.customerController.create);
-  
+
       app.route(BASE_CUSTOMERS_ROUTE).get(this.customerController.search);
-  
+
       app
         .route(`${BASE_CUSTOMERS_ROUTE}/email`)
         .get(this.customerController.findByEmail);
