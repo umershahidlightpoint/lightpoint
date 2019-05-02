@@ -1,10 +1,10 @@
 import { Request, Response, Router } from "express";
-import { ICustomerForm, ISearchForm } from "../form/icustomer.form";
-import { CustomerService } from "../services/customer.service";
-import { Customer } from "../models";
-import { MapperHelper, IList } from "../mappers/mapper.helper";
-import { CustomerMapper, ICustomer } from "../mappers/customer.mapper";
-import { Helper } from "../helpers/index";
+import { ICustomerForm, ISearchForm } from "../../form/icustomer.form";
+import { CustomerService } from "../../services/customer.service";
+import { Customer } from "../../models";
+import { MapperHelper, IList } from "../../mappers/mapper.helper";
+import { CustomerMapper, ICustomer } from "../../mappers/customer.mapper";
+import { Helper } from "../../helpers/index";
 
 export class CustomerController {
   public customerService: CustomerService = new CustomerService();
@@ -12,7 +12,7 @@ export class CustomerController {
   public customerMapper: CustomerMapper = new CustomerMapper();
   public helper: Helper = new Helper();
 
-  public getRoutes(): Router {
+  public getRouter(): Router {
     const router = Router();
     router.get("", this.search);
     router.post("", this.create);

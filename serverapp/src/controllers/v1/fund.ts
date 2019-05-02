@@ -1,17 +1,24 @@
-import { Request, Response } from "express";
-import { FundService } from "../services/fund.service";
-import { Fund } from "../models";
-import { MapperHelper, IList } from "../mappers/mapper.helper";
-import { FundMapper, IFund } from "../mappers/fund.mapper";
-import { Helper } from "../helpers/index";
+import { Request, Response, Router } from "express";
+import { FundService } from "../../services/fund.service";
+import { Fund } from "../../models";
+import { MapperHelper, IList } from "../../mappers/mapper.helper";
+import { FundMapper, IFund } from "../../mappers/fund.mapper";
+import { Helper } from "../../helpers/index";
 
 export class FundController {
-  public fundService: FundService = new FundService();
-  public mapperHelper: MapperHelper = new MapperHelper();
-  public fundMapper: FundMapper = new FundMapper();
-  public helper: Helper = new Helper();
+  private fundService: FundService = new FundService();
+  private mapperHelper: MapperHelper = new MapperHelper();
+  private fundMapper: FundMapper = new FundMapper();
+  private helper: Helper = new Helper();
 
-  public search = async (req: Request, res: Response) => {
+  public getRouter(): Router {
+    const router = Router();
+    router.get("", this.search);
+    return router;
+  }
+
+
+  private search = async (req: Request, res: Response) => {
     try {
       const { page, keyword, sort, sort_direction } = req.query;
       const result: Fund = await this.fundService.search({

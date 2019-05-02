@@ -4,8 +4,8 @@ import {
   BASE_LEDGERS_ROUTE,
   BASE_CUSTOMERS_ROUTE
 } from "./base-route";
-import { CustomerController } from "../controllers/customer";
-import { FundController } from "../controllers/fund";
+import { CustomerController } from "../controllers/v1/customer";
+import { FundController } from "../controllers/v1/fund";
 import { LedgerController } from "../controllers/v1/ledger";
 import { LedgerMiddleware } from "../middlewares/ledger.middleware";
 
@@ -19,8 +19,8 @@ export class Routes {
     apiRouter.get("", (req: Request, res: Response) => {
       return res.json({ "m": "Welcome Finance API" });
     });
-    apiRouter.use("/customers", this.customerController.getRoutes());
-    //apiRouter.use("/funds");
+    apiRouter.use("/customers", this.customerController.getRouter());
+    apiRouter.use("/funds", this.fundController.getRouter());
     //apiRouter.use("/ledgers");
     //apiRouter.use("/accounts");
     return apiRouter;
