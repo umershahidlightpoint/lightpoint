@@ -3,7 +3,8 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  remoteServerUrl: 'http://175.10.21.239:3000/v1'
 };
 
 /*
