@@ -21,8 +21,8 @@ export class Routes {
     });
     apiRouter.use("/customers", this.customerController.getRouter());
     apiRouter.use("/funds", this.fundController.getRouter());
-    //apiRouter.use("/ledgers");
-    //apiRouter.use("/accounts");
+    apiRouter.use("/ledgers", this.ledgerController.getRouter());
+    //apiRouter.use("/accounts", this.accountController.getRouter());
     return apiRouter;
   }
 

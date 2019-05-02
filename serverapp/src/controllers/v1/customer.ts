@@ -5,8 +5,9 @@ import { Customer } from "../../models";
 import { MapperHelper, IList } from "../../mappers/mapper.helper";
 import { CustomerMapper, ICustomer } from "../../mappers/customer.mapper";
 import { Helper } from "../../helpers/index";
+import { IController } from './icontroller';
 
-export class CustomerController {
+export class CustomerController implements IController {
   public customerService: CustomerService = new CustomerService();
   public mapperHelper: MapperHelper = new MapperHelper();
   public customerMapper: CustomerMapper = new CustomerMapper();

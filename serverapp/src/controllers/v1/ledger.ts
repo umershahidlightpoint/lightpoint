@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, Router } from "express";
 import { ILedgerForm } from "../../form/iledger.form";
 import { LedgerService } from "../../services/ledger.service";
 import { Ledger } from "../../models";
@@ -7,10 +7,17 @@ import { LedgerMapper, ILedger } from "../../mappers/ledger.mapper";
 import { Helper } from "../../helpers/index";
 
 export class LedgerController {
-  public ledgerService: LedgerService = new LedgerService();
-  public mapperHelper: MapperHelper = new MapperHelper();
-  public ledgerMapper: LedgerMapper = new LedgerMapper();
-  public helper: Helper = new Helper();
+  private ledgerService: LedgerService = new LedgerService();
+  private mapperHelper: MapperHelper = new MapperHelper();
+  private ledgerMapper: LedgerMapper = new LedgerMapper();
+  private helper: Helper = new Helper();
+
+  public getRouter(): Router {
+    const apiRouter = Router();
+    apiRouter.get("", async (req: Request, res: Response) => this.search(req, res));
+    return apiRouter;
+  }
+
 
   public create = async (req: Request, res: Response) => {
     try {
@@ -43,7 +50,7 @@ export class LedgerController {
     }
   };
 
-  public search = async (req: Request, res: Response) => {
+  private search = async (req: Request, res: Response) => {
     try {
       const { page, keyword, sort, sort_direction } = req.query;
       const result: Ledger = await this.ledgerService.search({
