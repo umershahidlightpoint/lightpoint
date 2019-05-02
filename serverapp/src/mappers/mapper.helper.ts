@@ -5,7 +5,6 @@ export interface IList {
 
 export class MapperHelper {
   public async paginate(list: IList, callback) {
-    console.log(list.data);
     const data = await this.mapList(list.data, callback);
     const meta = await this.parseMeta(list.meta);
     return {
@@ -18,8 +17,10 @@ export class MapperHelper {
     array: Array<object>,
     callback
   ): Promise<Array<object>> {
-    const arrayList: Array<object> = array.map(
-      async (element: object): Promise<object> => await callback(element)
+    const arrayList: Promise<Array<object>> = Promise.all(
+      array.map(
+        async (element: object): Promise<object> => await callback(element)
+      )
     );
     return await arrayList;
   }

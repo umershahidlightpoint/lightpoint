@@ -7,6 +7,7 @@ import {
 import { CustomerController } from "../controllers/customer";
 import { FundController } from "../controllers/fund";
 import { LedgerController } from "../controllers/ledger";
+import { LedgerMiddleware } from "../middlewares/ledger.middleware";
 
 export class Routes {
   public customerController: CustomerController = new CustomerController();

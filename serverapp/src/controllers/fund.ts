@@ -1,11 +1,13 @@
 import { Request, Response } from "express";
 import { FundService } from "../services/fund.service";
 import { Fund } from "../models";
+import { MapperHelper, IList } from "../mappers/mapper.helper";
 import { FundMapper, IFund } from "../mappers/fund.mapper";
 import { Helper } from "../helpers/index";
 
 export class FundController {
   public fundService: FundService = new FundService();
+  public mapperHelper: MapperHelper = new MapperHelper();
   public fundMapper: FundMapper = new FundMapper();
   public helper: Helper = new Helper();
 
@@ -18,7 +20,10 @@ export class FundController {
         sort,
         sort_direction
       });
-      const mappedFeed = this.fundMapper.map(result.data);
+      const mappedFeed = await this.mapperHelper.paginate(
+        result,
+        this.fundMapper.mapItem
+      );
 
       return res
         .status(200)

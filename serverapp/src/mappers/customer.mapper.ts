@@ -9,16 +9,12 @@ export interface ICustomer {
 }
 
 export class CustomerMapper {
-  public map(array: Array<object>): Array<object> {
-    const arrayList: Array<object> = array.map(
-      (element: ICustomer): ICustomer => this.mapCustomer(element)
-    );
-
-    return arrayList;
+  public mapFull(array: ICustomer): ICustomer {
+    return;
   }
 
-  public mapCustomer(data: ICustomer): ICustomer {
-    return {
+  public async mapItem(data: ICustomer): Promise<ICustomer> {
+    return await {
       id: data.id || null,
       email: data.email || null,
       first_name: data.first_name || null,

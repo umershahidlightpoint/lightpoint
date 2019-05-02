@@ -2,11 +2,13 @@ import { Request, Response } from "express";
 import { ICustomerForm, ISearchForm } from "../form/icustomer.form";
 import { CustomerService } from "../services/customer.service";
 import { Customer } from "../models";
+import { MapperHelper, IList } from "../mappers/mapper.helper";
 import { CustomerMapper, ICustomer } from "../mappers/customer.mapper";
 import { Helper } from "../helpers/index";
 
 export class CustomerController {
   public customerService: CustomerService = new CustomerService();
+  public mapperHelper: MapperHelper = new MapperHelper();
   public customerMapper: CustomerMapper = new CustomerMapper();
   public helper: Helper = new Helper();
 
@@ -18,16 +20,12 @@ export class CustomerController {
         last_name,
         email
       });
-      const mappedFeed: ICustomer = this.customerMapper.mapCustomer(result);
+      const mappedFeed: ICustomer = await this.customerMapper.mapItem(result);
 
       return res
         .status(200)
         .send(
-          this.helper.success(
-            200,
-            "Customer Created Successfully.",
-            mappedFeed
-          )
+          this.helper.success(200, "Customer Created Successfully.", mappedFeed)
         );
     } catch (error) {
       const code = error.code ? error.code : 500;
@@ -46,7 +44,10 @@ export class CustomerController {
         sort,
         sort_direction
       });
-      const mappedFeed = this.customerMapper.map(result.data);
+      const mappedFeed: IList = await this.mapperHelper.paginate(
+        result,
+        this.customerMapper.mapItem
+      );
 
       return res
         .status(200)
@@ -70,7 +71,7 @@ export class CustomerController {
     try {
       const id: number = req.params.customer_id;
       const result: Customer = await this.customerService.findById(id);
-      const mappedFeed: ICustomer = this.customerMapper.mapCustomer(result);
+      const mappedFeed: ICustomer = await this.customerMapper.mapItem(result);
 
       return res
         .status(200)
@@ -89,7 +90,7 @@ export class CustomerController {
     try {
       const email: string = req.query.email;
       const result: Customer = await this.customerService.findByEmail(email);
-      const mappedFeed: ICustomer = this.customerMapper.mapCustomer(result);
+      const mappedFeed: ICustomer = await this.customerMapper.mapItem(result);
 
       return res
         .status(200)

@@ -2,6 +2,7 @@ import { Customer } from "../models";
 import { ICustomerForm, ISearchForm } from "../form/icustomer.form";
 import { ICustomerService } from "../services/icustomer.service";
 import { ServiceHelper } from "../helpers/service.helper";
+import { RuntimeExceptions } from "../exceptions/runtime_exceptions";
 
 interface IList {
   data: Array<Customer>;
@@ -55,6 +56,11 @@ export class CustomerService implements ICustomerService {
   public findById = async (id: number): Promise<Customer> => {
     try {
       const customer: Customer = await Customer.findByPk(id);
+
+      if (!customer) {
+        throw new RuntimeExceptions("Record not Found", 404);
+      }
+
       return Promise.resolve(customer);
     } catch (error) {
       if (error) return Promise.reject(error);
@@ -66,6 +72,10 @@ export class CustomerService implements ICustomerService {
       const customer: Customer = await Customer.findOne({
         where: { email }
       });
+
+      if (!customer) {
+        throw new RuntimeExceptions("Record not Found", 404);
+      }
 
       return Promise.resolve(customer);
     } catch (error) {

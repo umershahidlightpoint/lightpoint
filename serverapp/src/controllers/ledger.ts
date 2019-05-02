@@ -2,14 +2,14 @@ import { Request, Response } from "express";
 import { ILedgerForm } from "../form/iledger.form";
 import { LedgerService } from "../services/ledger.service";
 import { Ledger } from "../models";
-import { LedgerMapper, ILedger } from "../mappers/ledger.mapper";
 import { MapperHelper, IList } from "../mappers/mapper.helper";
+import { LedgerMapper, ILedger } from "../mappers/ledger.mapper";
 import { Helper } from "../helpers/index";
 
 export class LedgerController {
   public ledgerService: LedgerService = new LedgerService();
-  public ledgerMapper: LedgerMapper = new LedgerMapper();
   public mapperHelper: MapperHelper = new MapperHelper();
+  public ledgerMapper: LedgerMapper = new LedgerMapper();
   public helper: Helper = new Helper();
 
   public create = async (req: Request, res: Response) => {
@@ -79,7 +79,7 @@ export class LedgerController {
     try {
       const id: number = req.params.ledger_id;
       const result: Ledger = await this.ledgerService.findById(id);
-      const mappedFeed: ILedger = this.ledgerMapper.mapLedger(result);
+      const mappedFeed: ILedger = await this.ledgerMapper.mapItem(result);
 
       return res
         .status(200)

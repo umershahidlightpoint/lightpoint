@@ -8,16 +8,12 @@ export interface IFund {
 }
 
 export class FundMapper {
-  public map(array: Array<object>): Array<object> {
-    const arrayList: Array<object> = array.map(
-      (element: IFund): IFund => this.mapFund(element)
-    );
-
-    return arrayList;
+  public mapFull(array: IFund): IFund {
+    return;
   }
 
-  public mapFund(data: IFund): IFund {
-    return {
+  public async mapItem(data: IFund): Promise<IFund> {
+    return await {
       id: data.id || null,
       name: data.name || null,
       description: data.description || null,

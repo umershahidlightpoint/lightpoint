@@ -77,6 +77,11 @@ export class LedgerService implements ILedgerService {
       const ledger: Ledger = await Ledger.findByPk(id, {
         include: [Fund, Account, Customer]
       });
+
+      if (!ledger) {
+        throw new RuntimeExceptions("Record not Found", 404);
+      }
+
       return Promise.resolve(ledger);
     } catch (error) {
       if (error) return Promise.reject(error);
