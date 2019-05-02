@@ -6,7 +6,7 @@ import {
 } from "./base-route";
 import { CustomerController } from "../controllers/customer";
 import { FundController } from "../controllers/fund";
-import { LedgerController } from "../controllers/ledger";
+import { LedgerController } from "../controllers/v1/ledger";
 import { LedgerMiddleware } from "../middlewares/ledger.middleware";
 
 export class Routes {
