@@ -10,7 +10,6 @@ class App {
   constructor() {
     this.app = express();
     this.config();
-    this.appRoute.routes(this.app);
   }
 
   private config = (): void => {
