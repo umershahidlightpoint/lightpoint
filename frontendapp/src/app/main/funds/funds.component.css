@@ -1,0 +1,7 @@
+.funds-grid tr:hover {
+  background-color: #FF7F00;
+}
+
+.funds-grid tr.selected {
+  background-color: #FF7F00;
+}

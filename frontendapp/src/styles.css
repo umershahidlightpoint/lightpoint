@@ -2,5 +2,20 @@
 @import "../node_modules/primeng/resources/primeng.min.css";
 @import "../node_modules/primeng/resources/themes/bootstrap/theme.css";
 @import '../node_modules/primeng/resources/themes/omega/theme.css';
-@import 'bootstrap'
+@import 'bootstrap';
+@import '../node_modules/font-awesome/css/font-awesome.css';
 /* @import "../node_modules/primeng/resources/component/table/table.css"; */
+
+
+
+.margin-top-50 {
+    margin-top: 50px !important;
+}
+
+.margin-top-15 {
+    margin-top: 15px !important;
+}
+
+body {
+    margin: 20px;
+}
