@@ -4,8 +4,9 @@ import { Fund } from "../../models";
 import { MapperHelper, IList } from "../../mappers/mapper.helper";
 import { FundMapper, IFund } from "../../mappers/fund.mapper";
 import { Helper } from "../../helpers/index";
+import { IController } from "./icontroller";
 
-export class FundController {
+export class FundController implements IController {
   private fundService: FundService = new FundService();
   private mapperHelper: MapperHelper = new MapperHelper();
   private fundMapper: FundMapper = new FundMapper();
@@ -16,7 +17,6 @@ export class FundController {
     router.get("", this.search);
     return router;
   }
-
 
   private search = async (req: Request, res: Response) => {
     try {

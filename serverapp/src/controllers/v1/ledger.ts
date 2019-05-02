@@ -5,8 +5,9 @@ import { Ledger } from "../../models";
 import { MapperHelper, IList } from "../../mappers/mapper.helper";
 import { LedgerMapper, ILedger } from "../../mappers/ledger.mapper";
 import { Helper } from "../../helpers/index";
+import { IController } from "./icontroller";
 
-export class LedgerController {
+export class LedgerController implements IController {
   private ledgerService: LedgerService = new LedgerService();
   private mapperHelper: MapperHelper = new MapperHelper();
   private ledgerMapper: LedgerMapper = new LedgerMapper();
@@ -14,10 +15,11 @@ export class LedgerController {
 
   public getRouter(): Router {
     const apiRouter = Router();
-    apiRouter.get("", async (req: Request, res: Response) => this.search(req, res));
+    apiRouter.get("", async (req: Request, res: Response) =>
+      this.search(req, res)
+    );
     return apiRouter;
   }
-
 
   public create = async (req: Request, res: Response) => {
     try {
