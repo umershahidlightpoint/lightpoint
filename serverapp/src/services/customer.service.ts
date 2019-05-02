@@ -1,4 +1,3 @@
-import * as Sequelize from "sequelize";
 import { Customer } from "../models";
 import { ICustomerForm, ISearchForm } from "../form/icustomer.form";
 import { ICustomerService } from "../services/icustomer.service";
@@ -28,7 +27,9 @@ export class CustomerService implements ICustomerService {
       const keyword: string = params.keyword ? params.keyword : "";
       const sorting = this.serviceHelper.sorting(
         params.sort,
-        params.sort_direction
+        params.sort_direction,
+        "first_name",
+        "ASC"
       );
       const pagination = this.serviceHelper.pagination(params.page);
 
@@ -42,6 +43,7 @@ export class CustomerService implements ICustomerService {
         params.page,
         pagination.limit
       );
+
       result.data = customers.rows;
       result.meta = meta;
       return Promise.resolve(result);

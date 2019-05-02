@@ -9,10 +9,10 @@ interface Sorting {
 
 interface Meta {
   total: number;
-  page: number;
-  limit: number;
-  next: number;
   pages: number;
+  limit: number;
+  page: number;
+  next: number;
 }
 
 export class ServiceHelper {
@@ -26,25 +26,31 @@ export class ServiceHelper {
     };
   }
 
-  public sorting(sorting: string, sorting_direction: string): Sorting {
-    const sort: string = sorting ? sorting : "first_name";
+  public sorting(
+    sorting_column: string,
+    sorting_direction: string,
+    default_column: string,
+    default_direction: string
+  ): Sorting {
+    const sort: string = sorting_column ? sorting_column : default_column;
     const sort_direction: string = sorting_direction
       ? sorting_direction
-      : "ASC";
+      : default_direction;
     return {
       order: [[sort, sort_direction]]
     };
   }
 
-  public meta(count: number, pageNumber: number, pageLimit: number): Meta {
-    const pages: number = Math.ceil(count / pageLimit);
-    const next = Number(pageNumber) < pages ? Number(pageNumber) + 1 : null;
+  public meta(total: number, pageNumber: number, pageLimit: number): Meta {
+    const page = Number(pageNumber) ? Number(pageNumber) : 1;
+    const pages: number = Math.ceil(total / pageLimit);
+    const next = page < pages ? page + 1 : null;
     return {
-      total: count,
-      page: pageNumber,
+      total,
+      pages,
       limit: pageLimit,
-      next,
-      pages
+      page,
+      next
     };
   }
 }

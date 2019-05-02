@@ -10,7 +10,7 @@ export class CustomerController {
   public customerMapper: CustomerMapper = new CustomerMapper();
   public helper: Helper = new Helper();
 
-  public createCustomer = async (req: Request, res: Response) => {
+  public create = async (req: Request, res: Response) => {
     try {
       const { first_name, last_name, email }: ICustomerForm = req.body;
       const result: Customer = await this.customerService.create({
@@ -25,7 +25,7 @@ export class CustomerController {
         .send(
           this.helper.success(
             200,
-            "Customers Created Successfully.",
+            "Customer Created Successfully.",
             mappedFeed
           )
         );
@@ -37,7 +37,7 @@ export class CustomerController {
     }
   };
 
-  public searchCustomer = async (req: Request, res: Response) => {
+  public search = async (req: Request, res: Response) => {
     try {
       const { page, keyword, sort, sort_direction } = req.query;
       const result: Customer = await this.customerService.search({
@@ -66,7 +66,7 @@ export class CustomerController {
     }
   };
 
-  public findCustomerById = async (req: Request, res: Response) => {
+  public findById = async (req: Request, res: Response) => {
     try {
       const id: number = req.params.customer_id;
       const result: Customer = await this.customerService.findById(id);
@@ -75,7 +75,7 @@ export class CustomerController {
       return res
         .status(200)
         .send(
-          this.helper.success(200, "Customers Found Successfully.", mappedFeed)
+          this.helper.success(200, "Customer Found Successfully.", mappedFeed)
         );
     } catch (error) {
       const code = error.code ? error.code : 500;
@@ -85,7 +85,7 @@ export class CustomerController {
     }
   };
 
-  public findCustomerByEmail = async (req: Request, res: Response) => {
+  public findByEmail = async (req: Request, res: Response) => {
     try {
       const email: string = req.query.email;
       const result: Customer = await this.customerService.findByEmail(email);
@@ -94,7 +94,7 @@ export class CustomerController {
       return res
         .status(200)
         .send(
-          this.helper.success(200, "Customers Found Successfully.", mappedFeed)
+          this.helper.success(200, "Customer Found Successfully.", mappedFeed)
         );
     } catch (error) {
       const code = error.code ? error.code : 500;
