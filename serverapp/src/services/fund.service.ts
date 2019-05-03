@@ -2,6 +2,8 @@ import { Fund } from "../models";
 import { ISearchForm } from "../form/isearch.form";
 import { IFundService } from "../services/ifund.service";
 import { ServiceHelper } from "../helpers/service.helper";
+import { Op } from "sequelize";
+import * as _ from "lodash";
 
 interface IList {
   data: Array<Fund>;
@@ -22,10 +24,17 @@ export class FundService implements IFundService {
         "ASC"
       );
       const pagination = this.serviceHelper.pagination(params.page);
+      const critiera = {};
+      if (!_.isEmpty(params.keyword)) {
+        critiera["name"] = { [Op.iLike]: `%${params.keyword}%` };
+      }
 
       const funds: Fund = await Fund.findAndCountAll({
         ...sorting,
-        ...pagination
+        ...pagination,
+        where: {
+          ...critiera
+        }
       });
 
       const meta = this.serviceHelper.meta(

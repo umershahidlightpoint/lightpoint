@@ -26,6 +26,7 @@ export class MapperHelper {
   }
 
   private async parseMeta(meta) {
+    meta.next = meta.next || 1;
     return await {
       meta
     };
