@@ -28,9 +28,12 @@ export class LedgerController implements IController {
     apiRouter.put("", async (req: Request, res: Response) =>
       this.edit(req, res)
     );
-    apiRouter.get("/:ledger_id", async (req: Request, res: Response) =>
-      this.findById(req, res)
+    apiRouter.get("/group", async (req: Request, res: Response) =>
+      this.group(req, res)
     );
+    // apiRouter.get("/:ledger_id", async (req: Request, res: Response) =>
+    //   this.findById(req, res)
+    // );
     return apiRouter;
   }
 
@@ -113,6 +116,24 @@ export class LedgerController implements IController {
       const mapped: IList = await this.mapperHelper.paginate(
         result,
         this.ledgerMapper.mapItem
+      );
+
+      return res.status(200).json(mapped);
+    } catch (error) {
+      const code = error.code ? error.code : 500;
+      const mappedError = this.helper.error(code, error.message);
+
+      return res.status(code).send(mappedError);
+    }
+  };
+
+  private group = async (req: Request, res: Response) => {
+    try {
+      const { page } = req.query;
+      const result: Ledger = await this.ledgerService.group(page);
+      const mapped: IList = await this.mapperHelper.paginate(
+        result,
+        this.ledgerMapper.mapGroupedItem
       );
 
       return res.status(200).json(mapped);

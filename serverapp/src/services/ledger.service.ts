@@ -1,3 +1,4 @@
+import * as Sequelize from "sequelize";
 import { Ledger, Fund, Account, Customer } from "../models";
 import { ILedgerForm } from "../form/iledger.form";
 import { ILedgerSearchForm } from "../form/iledgersearch.form";
@@ -111,6 +112,33 @@ export class LedgerService implements ILedgerService {
       const meta = this.serviceHelper.meta(
         ledgers.count,
         params.page,
+        pagination.limit
+      );
+
+      result.data = ledgers.rows;
+      result.meta = meta;
+      return Promise.resolve(result);
+    } catch (error) {
+      if (error) return Promise.reject(error);
+    }
+  };
+
+  public group = async (page: number): Promise<IList> => {
+    try {
+      const result: IList = { data: [], meta: {} };
+      const pagination = this.serviceHelper.pagination(page);
+
+      const ledgers: Ledger = await Ledger.findAndCountAll({
+        ...pagination,
+        attributes: [
+          [Sequelize.fn("SUM", Sequelize.col("Ledger.value")), "value"]
+        ],
+        group: ["Account.id"],
+        include: [{ model: Account, attributes: ["id", "name"] }]
+      });
+      const meta = this.serviceHelper.meta(
+        ledgers.count.length,
+        page,
         pagination.limit
       );
 
