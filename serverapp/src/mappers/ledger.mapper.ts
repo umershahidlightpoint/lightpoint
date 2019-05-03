@@ -1,6 +1,6 @@
-import * as moment from "moment";
 import { LedgerInstance } from "../models/Types/Ledger";
 import { LedgerDTO, GroupedLedgerDTO } from "./Types/Ledger";
+import * as moment from "moment";
 
 export class LedgerMapper {
   public mapFull(data: LedgerInstance): LedgerDTO {
@@ -11,7 +11,7 @@ export class LedgerMapper {
     return await {
       id: data.id || null,
       value: data.value || null,
-      effectiveDate: data.effective_date || null,
+      effectiveDate: moment(data.effective_date).format("YYYY-MM-DD"),
       fund: {
         id: data.Fund.id,
         name: data.Fund.name
