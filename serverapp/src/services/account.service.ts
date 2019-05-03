@@ -1,8 +1,10 @@
 import { AccountType, Account } from "../models";
-import { ISearchForm } from "../form/iaccount.form";
+import { ISearchForm } from "../form/isearch.form";
 import { IAccountService } from "../services/iaccount.service";
 import { ServiceHelper } from "../helpers/service.helper";
 import { RuntimeExceptions } from "../exceptions/runtime_exceptions";
+import { Op } from "sequelize";
+import * as _ from "lodash";
 
 interface IList {
   data: Array<Account>;
@@ -23,10 +25,16 @@ export class AccountService implements IAccountService {
         "ASC"
       );
       const pagination = this.serviceHelper.pagination(params.page);
-
+      const critiera = {};
+      if (!_.isEmpty(params.keyword)) {
+        critiera["name"] = { [Op.iLike]: `%${params.keyword}%` };
+      }
       const accounts: Account = await Account.findAndCountAll({
         ...sorting,
         ...pagination,
+        where: {
+          ...critiera
+        },
         include: [{ model: AccountType, as: "accountType" }]
       });
 
@@ -44,5 +52,5 @@ export class AccountService implements IAccountService {
     }
   };
 
-  public findById = async (id: number): Promise<Account> => {};
+  public findById = async (id: number): Promise<Account> => { };
 }

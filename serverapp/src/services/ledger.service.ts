@@ -1,8 +1,10 @@
-import { Ledger, Fund, Account, Customer } from "../models";
-import { ILedgerForm, ISearchForm } from "../form/iledger.form";
+import { Ledger, Fund, Account, Customer, AccountType } from "../models";
+import { ILedgerForm } from "../form/iledger.form";
+import { ILedgerSearchForm } from "../form/iledgersearch.form";
 import { ILedgerService } from "./iledger.service";
 import { ServiceHelper } from "../helpers/service.helper";
 import { RecordNotFoundException } from "../exceptions/record_not_found_exception";
+import * as _ from "lodash";
 
 interface IList {
   data: Array<Ledger>;
@@ -28,11 +30,42 @@ export class LedgerService implements ILedgerService {
       if (!customer) {
         throw new RecordNotFoundException("Customer with this ID not Found.");
       }
-
       const currentLedger: Ledger = await Ledger.create(input);
-      const ledger: Ledger = await Ledger.findByPk(currentLedger.id, {
-        include: [Fund, Account, Customer]
-      });
+      const ledger: Ledger = await this.findById(currentLedger.id);
+      return Promise.resolve(ledger);
+    } catch (error) {
+      if (error) return Promise.reject(error);
+    }
+  };
+
+  public edit = async (input: ILedgerForm): Promise<Ledger> => {
+    try {
+      const currentLedger = await Ledger.findByPk(input.id);
+      if (!currentLedger) {
+        throw new RecordNotFoundException("Ledger with this ID not Found.");
+      }
+
+      const fund = await Fund.findByPk(input.fund_id);
+      if (!fund) {
+        throw new RecordNotFoundException("Fund with this ID not Found.");
+      }
+
+      const account = await Account.findByPk(input.account_id);
+      if (!account) {
+        throw new RecordNotFoundException("Account with this ID not Found.");
+      }
+
+      const customer = await Customer.findByPk(input.customer_id);
+      if (!customer) {
+        throw new RecordNotFoundException("Customer with this ID not Found.");
+      }
+      currentLedger.customer_id = input.customer_id;
+      currentLedger.account_id = input.account_id;
+      currentLedger.fund_id = input.fund_id;
+      currentLedger.value = input.value;
+      currentLedger.effectiveDate = input.effective_date;
+      await currentLedger.save();
+      const ledger: Ledger = await this.findById(currentLedger.id);
 
       return Promise.resolve(ledger);
     } catch (error) {
@@ -40,7 +73,7 @@ export class LedgerService implements ILedgerService {
     }
   };
 
-  public search = async (params: ISearchForm): Promise<IList> => {
+  public search = async (params: ILedgerSearchForm): Promise<IList> => {
     try {
       const result: IList = { data: [], meta: {} };
       const keyword: string = params.keyword ? params.keyword : "";
@@ -51,11 +84,24 @@ export class LedgerService implements ILedgerService {
         "ASC"
       );
       const pagination = this.serviceHelper.pagination(params.page);
+      const criteria = {};
+      if (!_.isEmpty(params.fund_id)) {
+        criteria["fund_id"] = params.fund_id;
+      }
+      if (!_.isEmpty(params.account_id)) {
+        criteria["account_id"] = params.account_id;
+      }
+      if (!_.isEmpty(params.customer_id)) {
+        criteria["customer_id"] = params.customer_id;
+      }
 
       const ledgers: Ledger = await Ledger.findAndCountAll({
         ...sorting,
         ...pagination,
-        include: [Fund, Account, Customer]
+        where: {
+          ...criteria
+        },
+        include: [Fund, Customer, { model: Account, include: [{ model: AccountType, as: "accountType" }] }]
       });
 
       const meta = this.serviceHelper.meta(
@@ -75,7 +121,7 @@ export class LedgerService implements ILedgerService {
   public findById = async (id: number): Promise<Ledger> => {
     try {
       const ledger: Ledger = await Ledger.findByPk(id, {
-        include: [Fund, Account, Customer]
+        include: [Fund, Customer, { model: Account, include: [{ model: AccountType, as: "accountType" }] }]
       });
 
       if (!ledger) {

@@ -1,9 +1,11 @@
 import { Customer } from "../models";
-import { ICustomerForm, ISearchForm } from "../form/icustomer.form";
+import { ICustomerForm } from "../form/icustomer.form";
+import { ISearchForm } from "../form/isearch.form";
 import { ICustomerService } from "../services/icustomer.service";
 import { ServiceHelper } from "../helpers/service.helper";
 import { RuntimeExceptions } from "../exceptions/runtime_exceptions";
-
+import * as _ from "lodash";
+import { Op } from "sequelize";
 interface IList {
   data: Array<Customer>;
   meta: object;
@@ -33,10 +35,20 @@ export class CustomerService implements ICustomerService {
         "ASC"
       );
       const pagination = this.serviceHelper.pagination(params.page);
-
+      const critiera = {};
+      if (!_.isEmpty(params.keyword)) {
+        critiera[Op.or] = [
+          { "first_name": { [Op.iLike]: `%${params.keyword}%` } },
+          { "last_name": { [Op.iLike]: `%${params.keyword}%` } },
+          { "email": { [Op.iLike]: `%${params.keyword}%` } },
+        ];
+      }
       const customers: Customer = await Customer.findAndCountAll({
         ...sorting,
-        ...pagination
+        ...pagination,
+        where: {
+          ...critiera
+        }
       });
 
       const meta = this.serviceHelper.meta(

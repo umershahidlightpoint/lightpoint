@@ -1,21 +1,6 @@
-interface Pagination {
-  limit: number;
-  offset: number;
-}
+import { IServiceHelper, Pagination, Sorting, Meta } from "./iservice.helper";
 
-interface Sorting {
-  order: Array<Array<string>>;
-}
-
-interface Meta {
-  total: number;
-  pages: number;
-  limit: number;
-  page: number;
-  next: number;
-}
-
-export class ServiceHelper {
+export class ServiceHelper implements IServiceHelper {
   public pagination(pageNumber: number): Pagination {
     const page: number = Number(pageNumber) ? Number(pageNumber) : 1;
     const limit: number = 40;

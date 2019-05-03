@@ -1,13 +1,15 @@
 import { Request, Response, Router } from "express";
 import { ILedgerForm } from "../../form/iledger.form";
+import { LedgerMiddleware } from "../../middlewares/ledger.middleware";
 import { LedgerService } from "../../services/ledger.service";
 import { Ledger } from "../../models";
 import { MapperHelper, IList } from "../../mappers/mapper.helper";
-import { LedgerMapper, ILedger } from "../../mappers/ledger.mapper";
+import { LedgerMapper } from "../../mappers/ledger.mapper";
 import { Helper } from "../../helpers/index";
 import { IController } from "./icontroller";
 
 export class LedgerController implements IController {
+  public ledgerMiddleware: LedgerMiddleware = new LedgerMiddleware();
   private ledgerService: LedgerService = new LedgerService();
   private mapperHelper: MapperHelper = new MapperHelper();
   private ledgerMapper: LedgerMapper = new LedgerMapper();
@@ -18,8 +20,13 @@ export class LedgerController implements IController {
     apiRouter.get("", async (req: Request, res: Response) =>
       this.search(req, res)
     );
-    apiRouter.post("", async (req: Request, res: Response) =>
-      this.create(req, res)
+    apiRouter.post(
+      "",
+      this.ledgerMiddleware.validateCreate,
+      async (req: Request, res: Response) => this.create(req, res)
+    );
+    apiRouter.put("", async (req: Request, res: Response) =>
+      this.edit(req, res)
     );
     apiRouter.get("/:ledger_id", async (req: Request, res: Response) =>
       this.findById(req, res)
@@ -43,7 +50,36 @@ export class LedgerController implements IController {
         account_id,
         customer_id
       });
-      const mappedFeed: ILedger = await this.ledgerMapper.mapItem(result);
+      const mappedFeed: Ledger = await this.ledgerMapper.mapItem(result);
+
+      return res.status(200).json(mappedFeed);
+    } catch (error) {
+      const code = error.code ? error.code : 500;
+      const mappedError = this.helper.error(code, error.message);
+
+      return res.status(code).send(mappedError);
+    }
+  };
+
+  private edit = async (req: Request, res: Response) => {
+    try {
+      const {
+        id,
+        value,
+        effective_date,
+        fund_id,
+        account_id,
+        customer_id
+      }: ILedgerForm = req.body;
+      const result: Ledger = await this.ledgerService.edit({
+        id,
+        value,
+        effective_date,
+        fund_id,
+        account_id,
+        customer_id
+      });
+      const mappedFeed: Ledger = await this.ledgerMapper.mapItem(result);
 
       return res.status(200).json(mappedFeed);
     } catch (error) {
@@ -56,12 +92,23 @@ export class LedgerController implements IController {
 
   private search = async (req: Request, res: Response) => {
     try {
-      const { page, keyword, sort, sort_direction } = req.query;
+      const {
+        page,
+        keyword,
+        sort,
+        sort_direction,
+        fund_id,
+        account_id,
+        customer_id
+      } = req.query;
       const result: Ledger = await this.ledgerService.search({
         page,
         keyword,
         sort,
-        sort_direction
+        sort_direction,
+        fund_id,
+        account_id,
+        customer_id
       });
       const mapped: IList = await this.mapperHelper.paginate(
         result,
@@ -81,7 +128,7 @@ export class LedgerController implements IController {
     try {
       const id: number = req.params.ledger_id;
       const result: Ledger = await this.ledgerService.findById(id);
-      const mappedFeed: ILedger = await this.ledgerMapper.mapItem(result);
+      const mappedFeed: Ledger = await this.ledgerMapper.mapItem(result);
 
       return res.status(200).json(mappedFeed);
     } catch (error) {

@@ -1,9 +1,9 @@
 import { Request, Response, Router } from "express";
-import { ICustomerForm, ISearchForm } from "../../form/icustomer.form";
+import { ICustomerForm } from "../../form/icustomer.form";
 import { CustomerService } from "../../services/customer.service";
 import { Customer } from "../../models";
 import { MapperHelper, IList } from "../../mappers/mapper.helper";
-import { CustomerMapper, ICustomer } from "../../mappers/customer.mapper";
+import { CustomerMapper } from "../../mappers/customer.mapper";
 import { Helper } from "../../helpers/index";
 import { IController } from "./icontroller";
 
@@ -29,7 +29,7 @@ export class CustomerController implements IController {
         last_name,
         email
       });
-      const mappedFeed: ICustomer = await this.customerMapper.mapItem(result);
+      const mappedFeed: Customer = await this.customerMapper.mapItem(result);
 
       return res
         .status(200)
@@ -70,7 +70,7 @@ export class CustomerController implements IController {
     try {
       const id: number = req.params.customer_id;
       const result: Customer = await this.customerService.findById(id);
-      const mappedFeed: ICustomer = await this.customerMapper.mapItem(result);
+      const mappedFeed: Customer = await this.customerMapper.mapItem(result);
 
       return res
         .status(200)
@@ -89,7 +89,7 @@ export class CustomerController implements IController {
     try {
       const email: string = req.query.email;
       const result: Customer = await this.customerService.findByEmail(email);
-      const mappedFeed: ICustomer = await this.customerMapper.mapItem(result);
+      const mappedFeed: Customer = await this.customerMapper.mapItem(result);
 
       return res
         .status(200)

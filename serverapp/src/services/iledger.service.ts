@@ -1,4 +1,5 @@
-import { ILedgerForm, ISearchForm } from "../form/iledger.form";
+import { ILedgerForm } from "../form/iledger.form";
+import { ISearchForm } from "../form/isearch.form";
 
 export interface ILedgerService {
   create(input: ILedgerForm);

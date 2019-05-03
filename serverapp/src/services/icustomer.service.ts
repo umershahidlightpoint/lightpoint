@@ -1,4 +1,5 @@
-import { ICustomerForm, ISearchForm } from "../form/icustomer.form";
+import { ICustomerForm } from "../form/icustomer.form";
+import { ISearchForm } from "../form/isearch.form";
 
 export interface ICustomerService {
   create(input: ICustomerForm);
