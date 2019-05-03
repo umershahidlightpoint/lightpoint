@@ -49,6 +49,7 @@ export class AppComponent extends AppComponentBase {
   }
 
   createLedger() {
+    debugger
     this.applegdermodal.show();
   }
 
