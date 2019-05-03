@@ -1,6 +1,6 @@
 import * as moment from "moment";
 import { LedgerInstance } from "../models/Types/Ledger";
-import { LedgerDTO } from "./Types/Ledger";
+import { LedgerDTO, GroupedLedgerDTO } from "./Types/Ledger";
 
 export class LedgerMapper {
   public mapFull(data: LedgerInstance): LedgerDTO {
@@ -28,6 +28,14 @@ export class LedgerMapper {
         id: data.Customer.id,
         name: `${data.Customer.first_name} ${data.Customer.last_name}`
       }
+    };
+  }
+
+  public async mapGroupedItem(data: LedgerInstance): Promise<GroupedLedgerDTO> {
+    return await {
+      id: data.Account.id || null,
+      name: data.Account.name || null,
+      value: data.value || null
     };
   }
 }

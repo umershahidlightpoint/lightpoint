@@ -27,9 +27,9 @@ export class ServiceHelper implements IServiceHelper {
   }
 
   public meta(total: number, pageNumber: number, pageLimit: number): Meta {
-    const page = Number(pageNumber) ? Number(pageNumber) : 1;
+    const page: number = Number(pageNumber) ? Number(pageNumber) : 1;
     const pages: number = Math.ceil(total / pageLimit);
-    const next = page < pages ? page + 1 : null;
+    const next: number = page < pages ? page + 1 : null;
     return {
       total,
       pages,
