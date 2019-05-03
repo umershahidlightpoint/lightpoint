@@ -4,7 +4,7 @@
 </div>
 <div class="row margin-top-50">
   <div class="col-md-5">
-    <app-funds (event)="appledegr.getLegderByFundId($event)"></app-funds>
+    <app-funds (event)="appledegr.getLegderByFundId($event);applegdermodal.getFundId($event)"></app-funds>
   </div>
   <div class="col-md-7">
     <app-ledger #appledegr></app-ledger>

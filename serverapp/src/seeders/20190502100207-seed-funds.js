@@ -4,7 +4,7 @@ const faker = require("faker");
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    const fundsData = ["Q1-2018", "Q2-2018", "Q3-2018", "Q4-2018", "Q1-2019"];
+    const fundsData = ['ASIA_FCS', 'LP', 'MBFund'];
     const funds = [];
     fundsData.forEach(fundData => {
       const fundObject = {
