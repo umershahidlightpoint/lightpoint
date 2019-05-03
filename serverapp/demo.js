@@ -161,7 +161,7 @@ const importFunds = async funds => {
 (async () => {
   const fundNames = ["ASIA_FCS", "LP", "MBFund"];
   const savedFunds = await importFunds(fundNames);
-  const customers = await importCustomers(20);
+  const customers = await importCustomers(5);
   const accounts = await createAccountTypes(accountTypes);
   Promise.all(accounts).then(async t => {
     const funds = await Fund.findAll();
