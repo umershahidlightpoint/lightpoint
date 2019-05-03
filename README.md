@@ -10,8 +10,8 @@ npx sequelize db:drop<br />
 npx sequelize db:create<br />
 npx sequelize db:migrate<br />
 npx sequelize db:seed:all<br />
-npm demo.js
-PORT=3000 npm run dev<br />
+npm demo.js <br />
+npm run dev<br />
 </code>
 ## Angular App Setup
 <code>
