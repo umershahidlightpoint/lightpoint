@@ -1,5 +1,6 @@
 import { Request, Response, Router } from "express";
 import { ILedgerForm } from "../../form/iledger.form";
+import { LedgerMiddleware } from "../../middlewares/ledger.middleware";
 import { LedgerService } from "../../services/ledger.service";
 import { Ledger } from "../../models";
 import { MapperHelper, IList } from "../../mappers/mapper.helper";
@@ -8,6 +9,7 @@ import { Helper } from "../../helpers/index";
 import { IController } from "./icontroller";
 
 export class LedgerController implements IController {
+  public ledgerMiddleware: LedgerMiddleware = new LedgerMiddleware();
   private ledgerService: LedgerService = new LedgerService();
   private mapperHelper: MapperHelper = new MapperHelper();
   private ledgerMapper: LedgerMapper = new LedgerMapper();
@@ -18,8 +20,10 @@ export class LedgerController implements IController {
     apiRouter.get("", async (req: Request, res: Response) =>
       this.search(req, res)
     );
-    apiRouter.post("", async (req: Request, res: Response) =>
-      this.create(req, res)
+    apiRouter.post(
+      "",
+      this.ledgerMiddleware.validateCreate,
+      async (req: Request, res: Response) => this.create(req, res)
     );
     apiRouter.put("", async (req: Request, res: Response) =>
       this.edit(req, res)
