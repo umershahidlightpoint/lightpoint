@@ -26,7 +26,7 @@ export class LedgerMapper {
       },
       customer: {
         id: data.Customer.id,
-        name: `${data.Customer.first_name}`
+        name: `${data.Customer.first_name} ${data.Customer.last_name}`
       }
     };
   }
