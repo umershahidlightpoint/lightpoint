@@ -10,6 +10,7 @@ import * as moment from "moment";
 export class LegderModalComponent implements OnInit {
 
   active = false;
+  @ViewChild("accountInput") accountInput;
   @ViewChild('modal') modal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
   @Input() fundId: any;
@@ -30,6 +31,7 @@ export class LegderModalComponent implements OnInit {
 
 
   onShown() {
+    this.accountInput.focusInput();
 
   }
 
