@@ -26,7 +26,8 @@ npm run dev<br />
 </ol>
 
 ## Angular App Setup
-<code>
-npm install <br />
+<pre>
+cd frontendapp
+npm install
 npm start
-</code>
+</pre>
