@@ -2,6 +2,9 @@
   <p-table scrollable="true" scrollHeight="400px" [reorderableColumns]="true" [columns]="ledgerCols" [value]="ledger" (onLazyLoad)="getLegderByFundId(null,$event)">
     <ng-template pTemplate="header" let-columns>
       <tr>
+        <th style="width: 70px;">
+          Actions
+        </th>
         <th *ngFor="let col of columns" pReorderableColumn>
           {{col.header}}
         </th>
@@ -9,6 +12,13 @@
     </ng-template>
     <ng-template pTemplate="body" let-rowData let-columns="columns" let-expanded="expanded" let-index="rowIndex">
       <tr [pReorderableRow]="index">
+        <td style="width: 70px">
+          <div class="btn-group dropdown">
+            <button (click)="editLedger(rowData.id)" class="btn btn-md">
+              <i class="fa fa-gear settings_icon"></i>
+            </button>
+          </div>
+        </td>
         <td *ngFor="let col of columns">
           {{rowData[col.field]}}
         </td>
@@ -22,4 +32,5 @@
       <b>Total Count</b>{{1200}}
     </span>
   </div> -->
+  <app-legder-modal #applegdermodal></app-legder-modal>
 </div>

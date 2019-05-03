@@ -9,5 +9,5 @@
   <div class="col-md-7">
     <app-ledger #appledegr></app-ledger>
   </div>
-  <app-legder-modal #applegdermodal></app-legder-modal>
+  <app-legder-modal #applegdermodal (modalClose)="appledegr.getLegderByFundId()"></app-legder-modal>
 </div>

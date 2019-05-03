@@ -18,7 +18,7 @@ export class FinancePocServiceProxy {
     }
 
     getLedger(id: string, page: number) {
-        let url_ = this.baseUrl + "/ledger?fund={id}&page=" + page;
+        let url_ = this.baseUrl + "/ledgers?fund={id}&page=" + page;
         url_ = url_.replace('{id}', id);
 
         let options_: any = {
@@ -85,7 +85,7 @@ export class FinancePocServiceProxy {
     }
 
     createLedger(data: LedgerInput) {
-        let url_ = this.baseUrl + "/ledger";
+        let url_ = this.baseUrl + "/ledgers";
         const content_ = JSON.stringify(data);
         let options_: any = {
             body: content_,
@@ -98,6 +98,37 @@ export class FinancePocServiceProxy {
         };
         return this.http.post(url_, content_, options_).pipe(map((response: any) => response));
 
+    }
+    updateLedger(ledgerId: number | undefined, data: LedgerInput) {
+        let url_ = this.baseUrl + "/ledgers/{ledgerId}";
+        const content_ = JSON.stringify(data);
+        let options_: any = {
+            body: content_,
+            observe: "response",
+            responseType: "json",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+        return this.http.post(url_, content_, options_).pipe(map((response: any) => response));
+    }
+    getLedgerById(id) {
+        let url_ = this.baseUrl + "/ledgers/";
+        if (id !== undefined)
+            url_ += encodeURIComponent(id)
+
+
+        let options_: any = {
+            observe: "response",
+            responseType: "json",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.get(url_).pipe(map((response: any) => response));
     }
 
 }

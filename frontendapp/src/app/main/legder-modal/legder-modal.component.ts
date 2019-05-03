@@ -13,6 +13,7 @@ export class LegderModalComponent implements OnInit {
   @ViewChild('modal') modal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
   @Input() fundId: any;
+  @Input() ledgerId: any;
   tempAccountNumber: "";
   tempCustomerNumber: "";
   accounts: any[];
@@ -53,20 +54,41 @@ export class LegderModalComponent implements OnInit {
   }
 
   save() {
-    debugger
+
     this.ledger.effectiveDate = moment(this.effectiveDate);
     this.ledger.customer = this.customer.id;
     this.ledger.account = this.account.id;
+    if (this.ledgerId > 0 || this.ledgerId !== undefined) {
+      this._service.updateLedger(this.ledgerId, this.ledger).subscribe(res => {
+        debugger
+      })
+    }
     this._service.createLedger(this.ledger).subscribe(res => {
-
+      this.close();
+      this.modalClose.emit(res);
     })
 
   }
 
   show() {
+    if (this.ledgerId)
+      this.getLedgerById(this.ledgerId);
     this.active = true;
     this.modal.show();
   }
+
+  getLedgerById(id) {
+    debugger
+    this._service.getLedgerById(id).subscribe(result => {
+      debugger
+      this.ledger.effectiveDate = moment(result.effectiveDate);
+      this.customer = result.customer;
+      this.account = result.account;
+      this.ledger.value = result.value;
+    })
+  }
+
+
   close() {
     this.active = false;
     this.modalClose.emit(true);
