@@ -18,7 +18,7 @@ export class FinancePocServiceProxy {
     }
 
     getLedger(id: string, page: number) {
-        let url_ = this.baseUrl + "/ledgers?fund={id}&page=" + page;
+        let url_ = this.baseUrl + "/ledgers?fund_id={id}&page=" + page;
         url_ = url_.replace('{id}', id);
 
         let options_: any = {

@@ -46,10 +46,12 @@ export class LedgerComponent implements AppComponentBase {
     if (fundId != null) { this.fundId = fundId; }
     // this.primengTableHelper.defaultRecordsCountPerPage = 40;
     this._fundsService.getLedger(this.fundId, 0).subscribe(result => {
+      debugger
       // this.primengTableHelper.totalRecordsCount = result.meta.total;
       // this.primengTableHelper.records = result.meta.limit;
       this.ledger = result.data.map(item => ({
         account: item.account.name,
+        accountType: item.accountType.name,
         accountId: item.account.id,
         customer: item.customer.name,
         customerId: item.customer.Id,
@@ -72,6 +74,7 @@ export class LedgerComponent implements AppComponentBase {
 
     this.ledgerCols = [
       { field: 'account', header: 'Account' },
+      { field: 'accountType', header: 'Account Type' },
       { field: 'customer', header: 'Customer' },
       { field: 'value', header: 'Value' },
       { field: 'effectiveDate', header: 'Effective Date' }
