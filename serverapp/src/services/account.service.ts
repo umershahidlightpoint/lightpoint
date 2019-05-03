@@ -1,5 +1,5 @@
 import { AccountType, Account } from "../models";
-import { ISearchForm } from "../form/iaccount.form";
+import { ISearchForm } from "../form/isearch.form";
 import { IAccountService } from "../services/iaccount.service";
 import { ServiceHelper } from "../helpers/service.helper";
 import { RuntimeExceptions } from "../exceptions/runtime_exceptions";

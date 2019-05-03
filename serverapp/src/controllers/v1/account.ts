@@ -2,7 +2,7 @@ import { Request, Response, Router } from "express";
 import { Account } from "../../models";
 import { AccountService } from "../../services/account.service";
 import { MapperHelper, IList } from "../../mappers/mapper.helper";
-import { AccountMapper, IAccount } from "../../mappers/account.mapper";
+import { AccountMapper } from "../../mappers/account.mapper";
 import { Helper } from "../../helpers/index";
 import { IController } from "./icontroller";
 

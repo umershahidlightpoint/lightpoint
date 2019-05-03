@@ -2,7 +2,7 @@ import { Request, Response, Router } from "express";
 import { FundService } from "../../services/fund.service";
 import { Fund } from "../../models";
 import { MapperHelper, IList } from "../../mappers/mapper.helper";
-import { FundMapper, IFund } from "../../mappers/fund.mapper";
+import { FundMapper } from "../../mappers/fund.mapper";
 import { Helper } from "../../helpers/index";
 import { IController } from "./icontroller";
 

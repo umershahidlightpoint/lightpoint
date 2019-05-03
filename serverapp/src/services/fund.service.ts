@@ -1,5 +1,5 @@
 import { Fund } from "../models";
-import { ISearchForm } from "../form/ifund.form";
+import { ISearchForm } from "../form/isearch.form";
 import { IFundService } from "../services/ifund.service";
 import { ServiceHelper } from "../helpers/service.helper";
 
