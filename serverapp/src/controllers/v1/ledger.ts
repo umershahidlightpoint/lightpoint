@@ -31,9 +31,9 @@ export class LedgerController implements IController {
     apiRouter.get("/group", async (req: Request, res: Response) =>
       this.group(req, res)
     );
-    // apiRouter.get("/:ledger_id", async (req: Request, res: Response) =>
-    //   this.findById(req, res)
-    // );
+    apiRouter.get("/:ledger_id", async (req: Request, res: Response) =>
+      this.findById(req, res)
+    );
     return apiRouter;
   }
 
