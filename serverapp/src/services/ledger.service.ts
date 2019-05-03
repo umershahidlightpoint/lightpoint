@@ -101,7 +101,7 @@ export class LedgerService implements ILedgerService {
         where: {
           ...criteria
         },
-        include: [Fund, Account, Customer, { model: Account, include: [AccountType] }]
+        include: [Fund, Customer, { model: Account, include: [{ model: AccountType, as: "accountType" }] }]
       });
 
       const meta = this.serviceHelper.meta(
@@ -121,7 +121,7 @@ export class LedgerService implements ILedgerService {
   public findById = async (id: number): Promise<Ledger> => {
     try {
       const ledger: Ledger = await Ledger.findByPk(id, {
-        include: [Fund, Account, Customer]
+        include: [Fund, Customer, { model: Account, include: [{ model: AccountType, as: "accountType" }] }]
       });
 
       if (!ledger) {
