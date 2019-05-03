@@ -5,6 +5,7 @@ import { AppComponentBase } from '../../../shared/common/app-component-base';
 import { PrimengTableHelper } from '../../../shared/helpers/PrimengTableHelper';
 import { DialogModule, Dialog } from 'primeng/dialog'
 import { LegderModalComponent } from '../legder-modal/legder-modal.component';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-ledger',
@@ -56,7 +57,7 @@ export class LedgerComponent implements AppComponentBase {
         customer: item.customer.name,
         customerId: item.customer.Id,
         value: item.value,
-        effectiveDate: item.effectiveDate,
+        effectiveDate: moment(item.effectiveDate).format('MMM-DD-YYYY'),
         id: item.id
       }));
       this.ledgerGrid = true;

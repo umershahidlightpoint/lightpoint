@@ -50,23 +50,27 @@ export class LegderModalComponent implements OnInit {
   }
 
   getFundId(event) {
-    this.ledger.fund = event;
+    this.ledger.fund_id = event;
   }
 
   save() {
 
-    this.ledger.effectiveDate = moment(this.effectiveDate);
-    this.ledger.customer = this.customer.id;
-    this.ledger.account = this.account.id;
+    this.ledger.effectiveDate = moment(this.effectiveDate).format('YYYY-MM-DD');
+    this.ledger.customer_id = this.customer.id;
+    this.ledger.account_id = this.account.id;
     if (this.ledgerId > 0 || this.ledgerId !== undefined) {
       this._service.updateLedger(this.ledgerId, this.ledger).subscribe(res => {
         debugger
       })
     }
-    this._service.createLedger(this.ledger).subscribe(res => {
-      this.close();
-      this.modalClose.emit(res);
-    })
+    else {
+      this._service.createLedger(this.ledger).subscribe(res => {
+        debugger
+        this.modalClose.emit(res);
+      });
+    }
+
+    this.close();
 
   }
 
@@ -80,11 +84,12 @@ export class LegderModalComponent implements OnInit {
   getLedgerById(id) {
     debugger
     this._service.getLedgerById(id).subscribe(result => {
-      debugger
-      this.ledger.effectiveDate = moment(result.effectiveDate);
+      this.ledger.effectiveDate = moment(result.effectiveDate).format('MM-DD-YYYY');
+
       this.customer = result.customer;
       this.account = result.account;
       this.ledger.value = result.value;
+      this.ledger.fund_id = result.fund.id;
     })
   }
 

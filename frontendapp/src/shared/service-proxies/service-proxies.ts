@@ -135,8 +135,8 @@ export class FinancePocServiceProxy {
 
 export class LedgerInput {
     value: number | undefined
-    customer: string | undefined
-    account: string | undefined
-    fund: string | undefined
-    effectiveDate: moment.Moment | undefined;
+    customer_id: string | undefined
+    account_id: string | undefined
+    fund_id: string | undefined
+    effectiveDate: any | undefined;
 }
