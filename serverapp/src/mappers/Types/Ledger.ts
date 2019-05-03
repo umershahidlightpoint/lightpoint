@@ -14,3 +14,9 @@ export interface LedgerDTO {
   create_at?: Date;
   updated_at?: Date;
 }
+
+export interface GroupedLedgerDTO {
+  id: number;
+  name: string;
+  value: number;
+}
