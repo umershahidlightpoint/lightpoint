@@ -41,7 +41,6 @@ export class LedgerComponent implements AppComponentBase {
     this.displayDialog = true;
   }
   getLegderByFundId(fundId?: string, event?: LazyLoadEvent) {
-    debugger
     if (fundId != null) { this.fundId = fundId; }
     // this.primengTableHelper.defaultRecordsCountPerPage = 40;
     this._fundsService.getLedger(this.fundId, 0).subscribe(result => {
