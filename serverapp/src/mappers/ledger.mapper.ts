@@ -1,4 +1,3 @@
-import * as moment from "moment";
 import { LedgerInstance } from "../models/Types/Ledger";
 import { LedgerDTO, GroupedLedgerDTO } from "./Types/Ledger";
 import * as moment from "moment";
