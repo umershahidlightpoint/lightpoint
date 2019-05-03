@@ -121,14 +121,6 @@ module.exports = {
           description: "",
           account_type_id: accountTypeRow.id
         });
-        // account.children.forEach(async (child, index) => {
-        //   const childAccountRow = await Account.create({
-        //     name: child,
-        //     description: "",
-        //     account_type_id: accountTypeRow.id,
-        //     parent_id: accountRow.id
-        //   });
-        // });
       });
     });
 

@@ -1,30 +1,33 @@
 "use strict";
-const { Fund, Account, Customer } = require("../models");
+const { Fund, Account, Customer, Ledger } = require("../models");
+const faker = require("faker"); 
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    const ledgers = [];
+   
     const funds = await Fund.findAll();
     const accounts = await Account.findAll();
     const customers = await Customer.findAll();
-    const min = Math.ceil(100);
-    const max = Math.floor(1000);
-    for (let i = 0; i < 10; i++) {
-      funds.forEach(async (fund, index) => {
-        const ledgerObject = {
-          value: Math.floor(Math.random() * (max - min + 1)) + min,
-          effective_date: new Date(),
-          fund_id: fund.id,
-          account_id: accounts[index].id,
-          customer_id: customers[index].id,
-          created_at: new Date(),
-          updated_at: new Date()
-        };
 
-        ledgers.push(ledgerObject);
+    customers.forEach(async(customer) => {
+      const customerLedgers = [];
+      funds.forEach(async (fund, index) => {
+        accounts.forEach( async( account ) => {
+          const ledgerObject = new Ledger(
+            {
+              value: faker.finance.amount(100, 1000, 2),
+              effective_date: faker.date.recent(365),
+              fund_id: fund.id,
+              account_id: account.id,
+              customer_id: customer.id,
+            }
+          );
+          await ledgerObject.save();
+        });
       });
-    }
-    return queryInterface.bulkInsert("ledgers", ledgers, {});
+      //queryInterface.bulkInsert("ledgers", customerLedgers, {});
+    });
+    return queryInterface.sequelize.query("SELECT * FROM ledgers");
   },
 
   down: (queryInterface, Sequelize) => {
