@@ -20,6 +20,10 @@ export class LedgerMapper {
         id: data.Account.id,
         name: data.Account.name
       },
+      accountType: {
+        id: data.AccountType.id,
+        name: data.AccountType.name
+      },
       customer: {
         id: data.Customer.id,
         name: `${data.Customer.first_name}`

@@ -1,4 +1,4 @@
-import { Ledger, Fund, Account, Customer } from "../models";
+import { Ledger, Fund, Account, Customer, AccountType } from "../models";
 import { ILedgerForm } from "../form/iledger.form";
 import { ILedgerSearchForm } from "../form/iledgersearch.form";
 import { ILedgerService } from "./iledger.service";
@@ -30,12 +30,8 @@ export class LedgerService implements ILedgerService {
       if (!customer) {
         throw new RecordNotFoundException("Customer with this ID not Found.");
       }
-
       const currentLedger: Ledger = await Ledger.create(input);
-      const ledger: Ledger = await Ledger.findByPk(currentLedger.id, {
-        include: [Fund, Account, Customer]
-      });
-
+      const ledger: Ledger = await this.findById(currentLedger.id);
       return Promise.resolve(ledger);
     } catch (error) {
       if (error) return Promise.reject(error);
@@ -63,13 +59,13 @@ export class LedgerService implements ILedgerService {
       if (!customer) {
         throw new RecordNotFoundException("Customer with this ID not Found.");
       }
-
-      const updatedLedger: Ledger = await Ledger.update(input, {
-        where: { id: currentLedger.id }
-      });
-      const ledger: Ledger = await Ledger.findByPk(currentLedger.id, {
-        include: [Fund, Account, Customer]
-      });
+      currentLedger.customer_id = input.customer_id;
+      currentLedger.account_id = input.account_id;
+      currentLedger.fund_id = input.fund_id;
+      currentLedger.value = input.value;
+      currentLedger.effectiveDate = input.effective_date;
+      await currentLedger.save();
+      const ledger: Ledger = await this.findById(currentLedger.id);
 
       return Promise.resolve(ledger);
     } catch (error) {
@@ -105,7 +101,7 @@ export class LedgerService implements ILedgerService {
         where: {
           ...criteria
         },
-        include: [Fund, Account, Customer]
+        include: [Fund, Account, Customer, { model: Account, include: [AccountType] }]
       });
 
       const meta = this.serviceHelper.meta(

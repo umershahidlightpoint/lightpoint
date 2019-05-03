@@ -10,6 +10,7 @@ export interface LedgerDTO {
   fund: RecordDTO;
   account: RecordDTO;
   customer: RecordDTO;
+  accountType: RecordDTO;
   create_at?: Date;
   updated_at?: Date;
 }
