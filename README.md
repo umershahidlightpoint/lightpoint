@@ -3,6 +3,8 @@ for accounting / finance POC
 
 
 ## Server app Setup
+Navigate to directory serverapp/src/config.
+Make a copy of "config.json.example" as "config.json" and change your development configurations accordingly.
 <code>
 cd serverapp <br />
 npm install <br />
