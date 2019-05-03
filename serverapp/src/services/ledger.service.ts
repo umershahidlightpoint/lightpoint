@@ -31,7 +31,14 @@ export class LedgerService implements ILedgerService {
       if (!customer) {
         throw new RecordNotFoundException("Customer with this ID not Found.");
       }
-      const currentLedger: Ledger = await Ledger.create(input);
+      const params = {
+        value: input.value,
+        effective_date: input.effectiveDate,
+        customer_id: input.customer_id,
+        account_id: input.account_id,
+        fund_id: input.fund_id
+      };
+      const currentLedger: Ledger = await Ledger.create(params);
       const ledger: Ledger = await this.findById(currentLedger.id);
       return Promise.resolve(ledger);
     } catch (error) {
@@ -64,7 +71,7 @@ export class LedgerService implements ILedgerService {
       currentLedger.account_id = input.account_id;
       currentLedger.fund_id = input.fund_id;
       currentLedger.value = input.value;
-      currentLedger.effectiveDate = input.effective_date;
+      currentLedger.effective_date = input.effectiveDate;
       await currentLedger.save();
       const ledger: Ledger = await this.findById(currentLedger.id);
 

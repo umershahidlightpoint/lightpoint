@@ -41,14 +41,14 @@ export class LedgerController implements IController {
     try {
       const {
         value,
-        effective_date,
+        effectiveDate,
         fund_id,
         account_id,
         customer_id
       }: ILedgerForm = req.body;
       const result: Ledger = await this.ledgerService.create({
         value,
-        effective_date,
+        effectiveDate,
         fund_id,
         account_id,
         customer_id
@@ -69,7 +69,7 @@ export class LedgerController implements IController {
       const {
         id,
         value,
-        effective_date,
+        effectiveDate,
         fund_id,
         account_id,
         customer_id
@@ -77,7 +77,7 @@ export class LedgerController implements IController {
       const result: Ledger = await this.ledgerService.edit({
         id,
         value,
-        effective_date,
+        effectiveDate,
         fund_id,
         account_id,
         customer_id
