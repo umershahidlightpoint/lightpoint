@@ -1,4 +1,4 @@
-import { ISearchForm } from "../form/iaccount.form";
+import { ISearchForm } from "../form/isearch.form";
 
 export interface IAccountService {
   search(params: ISearchForm);

@@ -1,5 +1,5 @@
 import { Request, Response, Router } from "express";
-import { ICustomerForm, ISearchForm } from "../../form/icustomer.form";
+import { ICustomerForm } from "../../form/icustomer.form";
 import { CustomerService } from "../../services/customer.service";
 import { Customer } from "../../models";
 import { MapperHelper, IList } from "../../mappers/mapper.helper";
