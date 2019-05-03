@@ -20,7 +20,7 @@ export class LegderModalComponent implements OnInit {
   customers: any[];
   account: any;
   customer: any;
-  effectiveDate: any;
+  effectiveDate = new Date();
   value: number;
   ledger: LedgerInput = new LedgerInput();
   constructor(private _service: FinancePocServiceProxy) { }
@@ -84,7 +84,7 @@ export class LegderModalComponent implements OnInit {
   getLedgerById(id) {
     debugger
     this._service.getLedgerById(id).subscribe(result => {
-      this.ledger.effectiveDate = moment(result.effectiveDate).format('MM-DD-YYYY');
+      this.ledger.effectiveDate = result.effectiveDate;
 
       this.customer = result.customer;
       this.account = result.account;
