@@ -6,7 +6,7 @@ import { RecordDTO } from "./Record";
 export interface LedgerDTO {
   id: number;
   value: number;
-  effectiveDate: Date;
+  effectiveDate: string;
   fund: RecordDTO;
   account: RecordDTO;
   customer: RecordDTO;

@@ -146,7 +146,8 @@ const importFunds = async funds => {
       return existing;
     }
     const fundObject = {
-      name: fundName
+      name: fundName,
+      description: faker.lorem.sentence()
     };
     const fundRecord = new Fund(fundObject);
     return await fundRecord.save();

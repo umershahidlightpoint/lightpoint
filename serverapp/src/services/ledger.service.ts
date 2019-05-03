@@ -81,8 +81,8 @@ export class LedgerService implements ILedgerService {
       const sorting = this.serviceHelper.sorting(
         params.sort,
         params.sort_direction,
-        "value",
-        "ASC"
+        "effective_date",
+        "DESC"
       );
       const pagination = this.serviceHelper.pagination(params.page);
       const criteria = {};
