@@ -106,8 +106,11 @@ export class FinancePocServiceProxy {
         return this.http.post(url_, content_, options_).pipe(map((response: any) => response));
 
     }
-    updateLedger(ledgerId: number | undefined, data: LedgerInput) {
-        let url_ = this.baseUrl + "/ledgers/{ledgerId}";
+    updateLedger(ledgerId: any | undefined, data: LedgerInput) {
+        debugger
+        let url_ = this.baseUrl + "/ledgers/";
+        if (ledgerId !== undefined)
+            url_ += encodeURIComponent(ledgerId);
         const content_ = JSON.stringify(data);
         let options_: any = {
             body: content_,
@@ -118,7 +121,7 @@ export class FinancePocServiceProxy {
                 "Accept": "application/json"
             })
         };
-        return this.http.post(url_, content_, options_).pipe(map((response: any) => response));
+        return this.http.put(url_, content_, options_).pipe(map((response: any) => response));
     }
     getLedgerById(id) {
         let url_ = this.baseUrl + "/ledgers/";
