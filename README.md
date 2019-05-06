@@ -25,10 +25,10 @@ npm run dev<br />
 
 ## Running Unit Tests
 <p>In order to run unit tests.</p>
-<code>
+<pre>
 cd serverapp <br />
 npm run test<br />
-</code>
+<pre>
 
 ## API Endpoints
 <ol>
