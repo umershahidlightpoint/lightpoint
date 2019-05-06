@@ -2,6 +2,7 @@ import * as chai from "chai";
 import chaiHttp = require("chai-http");
 import app from "../app";
 import { Fund, Account, Ledger, Customer } from "../models";
+import moment = require("moment");
 
 chai.use(chaiHttp);
 const should = chai.should();
@@ -38,7 +39,7 @@ describe("Ledgers", () => {
       const customer = await Customer.findAll();
       const ledger = {
         value: 40,
-        effectiveDate: new Date(),
+        effectiveDate: moment(new Date()).format("YYYY-MM-DD"),
         fund_id: fund[0].id,
         account_id: account[0].id,
         customer_id: customer[0].id
