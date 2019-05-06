@@ -17,10 +17,17 @@ export class FinancePocServiceProxy {
         this.baseUrl = API_BASE_URL
     }
 
-    getLedger(id: string, page: number) {
-        let url_ = this.baseUrl + "/ledgers?fund_id={id}&page=" + page;
-        url_ = url_.replace('{id}', id);
+    getLedger(id: string, page: number, customer_id: number | undefined, account_id: number | undefined) {
 
+        let url_ = this.baseUrl + "/ledgers?fund_id={id}&page=" + page + "&";
+
+        url_ = url_.replace('{id}', id);
+        if (customer_id !== undefined) {
+            url_ += "customer_id=" + encodeURIComponent("" + customer_id) + "&";
+        }
+        if (account_id !== undefined) {
+            url_ += "account_id=" + encodeURIComponent("" + account_id);
+        }
         let options_: any = {
             observe: "response",
             responseType: "json",
@@ -130,6 +137,7 @@ export class FinancePocServiceProxy {
 
         return this.http.get(url_).pipe(map((response: any) => response));
     }
+
 
 }
 

@@ -9,6 +9,19 @@
           {{col.header}}
         </th>
       </tr>
+      <tr>
+        <th></th>
+        <th *ngFor="let col of columns" [ngSwitch]="col.field">
+
+          <p-autoComplete appendTo="body" *ngSwitchCase="'account'" placeholder="Search..." #accountInput class="font-size-12" [ngStyle]="{'border-color': 'red'}"
+            [(ngModel)]="tempAccountSearch" (onClear)="onClearAccounts()" (onSelect)="accountSelect($event)" [suggestions]="accounts"
+            field="name" name="accountName" (completeMethod)="onSearchAccount($event)" [style]="{'width':'95%'}" [inputStyle]="{'width': '100%'}"></p-autoComplete>
+          <p-autoComplete appendTo="body" *ngSwitchCase="'customer'" (onClear)="onClearCustomers()" placeholder="Search..." class="font-size-12"
+            [ngStyle]="{'border-color': 'red'}" [(ngModel)]="tempCustomerSearch" [suggestions]="customers" field="name" name="customerName"
+            (onSelect)="customerSelect($event)" (completeMethod)="onSearchCustomer($event)" [style]="{'width':'95%'}" [inputStyle]="{'width': '100%'}">
+          </p-autoComplete>
+        </th>
+      </tr>
     </ng-template>
     <ng-template pTemplate="body" let-rowData let-columns="columns" let-expanded="expanded" let-index="rowIndex">
       <tr [pReorderableRow]="index">

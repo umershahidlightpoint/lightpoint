@@ -22,6 +22,14 @@ export class LedgerComponent implements AppComponentBase {
   ledgerGrid = false;
   ledgerInput = false;
   displayDialog: boolean;
+  tempAccountNumber: "";
+  tempCustomerNumber: "";
+  accounts: any[];
+  customers: any[];
+  accountSearch = { id: undefined };
+  customerSearch = { id: undefined };
+  tempCustomerSearch = "";
+  tempAccountSearch = "";
   @ViewChild('applegdermodal') applegdermodal: LegderModalComponent;
   constructor(injector: Injector,
     private _fundsService: FinancePocServiceProxy) {
@@ -34,20 +42,33 @@ export class LedgerComponent implements AppComponentBase {
     this.displayDialog = true;
 
   }
-  delete() {
-
-    this.displayDialog = false;
-  }
   showDialogToAdd() {
     this.newLedger = true;
 
     this.displayDialog = true;
   }
+
+  customerSelect(event: any) {
+    this.customerSearch.id = event.id;
+    this.getLegderByFundId(this.fundId);
+  }
+  accountSelect(event: any) {
+    this.accountSearch.id = event.id;
+    this.getLegderByFundId(this.fundId);
+  }
+  onClearAccounts() {
+    this.accountSearch.id = undefined
+    this.getLegderByFundId(this.fundId);
+  }
+  onClearCustomers() {
+    this.customerSearch.id = undefined
+    this.getLegderByFundId(this.fundId);
+  }
   getLegderByFundId(fundId?: string, event?: LazyLoadEvent) {
     if (fundId != null) { this.fundId = fundId; }
     // this.primengTableHelper.defaultRecordsCountPerPage = 40;
-    this._fundsService.getLedger(this.fundId, 0).subscribe(result => {
-      debugger
+
+    this._fundsService.getLedger(this.fundId, 0, this.customerSearch.id, this.accountSearch.id).subscribe(result => {
       // this.primengTableHelper.totalRecordsCount = result.meta.total;
       // this.primengTableHelper.records = result.meta.limit;
       this.ledger = result.data.map(item => ({
@@ -81,8 +102,26 @@ export class LedgerComponent implements AppComponentBase {
       { field: 'effectiveDate', header: 'Effective Date' }
     ];
   }
+
+  onSearchAccount(event): void {
+    debugger
+    this.tempAccountNumber = event.query;
+    this._fundsService.getAccounts(event.query).subscribe(result => {
+      this.accounts = result.data;
+    });
+  }
+
+  onSearchCustomer(event): void {
+    debugger
+    this.tempCustomerNumber = event.query;
+    this._fundsService.getCustomers(event.query).subscribe(result => {
+      this.customers = result.data;
+    });
+  }
   ngOnInit() {
+
     this.initializeCol();
   }
+
 
 }
