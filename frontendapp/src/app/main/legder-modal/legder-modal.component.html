@@ -1,31 +1,40 @@
-<div bsModal #modal="bs-modal" (onShown)="onShown()" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal"
-  aria-hidden="true" [config]="{backdrop: 'static'}">
+<div bsModal #modal="bs-modal" (onShown)="onShown()" class="modal fade" tabindex="-1" role="dialog"
+  aria-labelledby="modal" aria-hidden="true" [config]="{backdrop: 'static'}">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>Ledger Showcase</h3>
+        <h3>Ledger</h3>
       </div>
       <div class="modal-body" *ngIf="active">
-        <div class="row">
-          <div class="col-md-12  margin-bottom-10">
-            <label class="margin-15">Account* </label>
-            <p-autoComplete placeholder="Search..." [forceSelection]="true" [ngStyle]="{'border-color': 'red'}" [(ngModel)]="account"
-              [suggestions]="accounts" field="name" name="accountName" (completeMethod)="onSearchAccount($event)"></p-autoComplete>
+        <div class="form-group row required">
+          <label class="col-sm-3 col-form-label text-right control-label">Account</label>
+          <div class="col-sm-9">
+            <p-autoComplete placeholder="Search..." #accountInput [forceSelection]="true"
+              [ngStyle]="{'border-color': 'red'}" [(ngModel)]="account" [suggestions]="accounts" field="name"
+              name="accountName" (completeMethod)="onSearchAccount($event)" [style]="{'width':'95%'}"
+              [inputStyle]="{'width': '100%'}"></p-autoComplete>
           </div>
-          <div class="col-md-12  margin-bottom-10">
-            <label class="margin-15">Customer* </label>
-            <p-autoComplete placeholder="Search..." [forceSelection]="true" [ngStyle]="{'border-color': 'red'}" [(ngModel)]="customer"
-              [suggestions]="customers" field="name" name="customerName" (completeMethod)="onSearchCustomer($event)"></p-autoComplete>
+        </div>
+        <div class="form-group row required">
+          <label class="col-sm-3 col-form-label text-right control-label">Customer</label>
+          <div class="col-sm-9">
+            <p-autoComplete placeholder="Search..." [forceSelection]="true" [ngStyle]="{'border-color': 'red'}"
+              [(ngModel)]="customer" [suggestions]="customers" field="name" name="customerName"
+              (completeMethod)="onSearchCustomer($event)" [style]="{'width':'95%'}" [inputStyle]="{'width': '100%'}">
+            </p-autoComplete>
           </div>
-
-
-          <div class="col-md-12  margin-bottom-10">
-            <label class="margin-15">Value* </label>
-            <input class="form-control value-input" type="number" name="value" [(ngModel)]="ledger.value">
+        </div>
+        <div class="form-group row required">
+          <label class="col-sm-3 col-form-label text-right control-label">Value</label>
+          <div class="col-sm-3">
+            <input class="form-control" type="number" name="value" [(ngModel)]="ledger.value">
           </div>
-          <div class="col-md-12  margin-bottom-10">
-            <label class="margin-15">Effective Date* </label>
-            <p-calendar [(ngModel)]="effectiveDate" dateFormat="mm-dd-yy"></p-calendar>
+        </div>
+        <div class="form-group row required">
+          <label class="col-sm-3 col-form-label text-right control-label">Effective Date</label>
+          <div class="col-sm-9">
+            <p-calendar [(ngModel)]="effectiveDate" dateFormat="mm-dd-yy" [showIcon]="true" [readonlyInput]="true">
+            </p-calendar>
           </div>
         </div>
       </div>
@@ -36,7 +45,6 @@
           <span>Save</span>
         </button>
       </div>
-
     </div>
   </div>
 </div>

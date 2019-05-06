@@ -16,17 +16,26 @@
 .margin-top-15 {
     margin-top: 15px !important;
 }
+
 .margin-bottom-10 {
     margin-bottom: 10px !important;
 }
+
 .margin-15 {
     margin: 15px !important;
 }
-.value-input{
+
+.value-input {
     margin-left: 18px;
     width: 58% !important;
     display: initial;
 }
+
 body {
     margin: 20px;
+}
+
+.form-group.required .control-label:after {
+    content: "*";
+    color: red;
 }

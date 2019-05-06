@@ -1,20 +1,27 @@
 # finance
 for accounting / finance POC
-
+## Prerequisite
+<ol>
+<li>Postgres DB Server</li>
+<li>NodeJs 8+</li>
+<li>NPM</li>
+<li>Git</li>
+</ol>
 
 ## Server app Setup
-Navigate to directory serverapp/src/config.
+<p>Navigate to directory serverapp/src/config.
 Make a copy of "config.json.example" as "config.json" and change your development configurations accordingly.
-<code>
-cd serverapp <br />
-npm install <br />
+</p>
+<pre>
+cd serverapp <br/>
+npm install <br/>
 npx sequelize db:drop<br />
 npx sequelize db:create<br />
 npx sequelize db:migrate<br />
 npx sequelize db:seed:all<br />
 npm demo.js <br />
 npm run dev<br />
-</code>
+</pre>
 
 ## Running Unit Tests
 In order to run unit tests.
@@ -32,7 +39,8 @@ npm run test<br />
 </ol>
 
 ## Angular App Setup
-<code>
-npm install <br />
+<pre>
+cd frontendapp
+npm install
 npm start
-</code>
+</pre>
