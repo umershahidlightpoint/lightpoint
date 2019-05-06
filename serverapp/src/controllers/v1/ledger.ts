@@ -22,12 +22,12 @@ export class LedgerController implements IController {
     );
     apiRouter.post(
       "",
-      this.ledgerMiddleware.validateCreate,
+      this.ledgerMiddleware.validate,
       async (req: Request, res: Response) => this.create(req, res)
     );
     apiRouter.put(
       "/:ledger_id",
-      this.ledgerMiddleware.validateEdit,
+      this.ledgerMiddleware.validate,
       async (req: Request, res: Response) => this.edit(req, res)
     );
     apiRouter.get("/group", async (req: Request, res: Response) =>
