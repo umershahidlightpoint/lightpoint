@@ -28,7 +28,7 @@ npm run dev<br />
 <pre>
 cd serverapp <br />
 npm run test<br />
-<pre>
+</pre>
 
 ## API Endpoints
 <ol>
