@@ -1,5 +1,6 @@
 <div *ngIf="isLoading ">
-  <p-table [columns]="fundsCols" [value]="funds" [reorderableColumns]="true" class="selectable-grid funds-grid">
+  <p-table [columns]="fundsCols" [value]="funds" [reorderableColumns]="true" selectionMode="single"
+    class="selectable-grid funds-grid" dataKey="id">
     <ng-template pTemplate="header" let-columns>
       <tr>
 
@@ -9,9 +10,7 @@
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-rowData let-columns="columns" let-expanded="expanded" let-index="rowIndex">
-      <tr [pReorderableRow]="index">
-
-
+      <tr [pReorderableRow]="index" [pSelectableRow]="rowData">
         <td (click)="getFundLeadger(rowData.id)" *ngFor="let col of columns">
           {{rowData[col.field]}}
         </td>
