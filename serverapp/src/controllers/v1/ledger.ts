@@ -131,8 +131,12 @@ export class LedgerController implements IController {
 
   private group = async (req: Request, res: Response) => {
     try {
-      const { page } = req.query;
-      const result: Ledger = await this.ledgerService.group(page);
+      const { fund_id, group_by, page } = req.query;
+      const result: Ledger = await this.ledgerService.group({
+        fund_id,
+        group_by,
+        page
+      });
       const mapped: IList = await this.mapperHelper.paginate(
         result,
         this.ledgerMapper.mapGroupedItem
