@@ -4,6 +4,7 @@
 @import '../node_modules/primeng/resources/themes/omega/theme.css';
 @import 'bootstrap';
 @import '../node_modules/font-awesome/css/font-awesome.css';
+
 /* @import '~/angular-notifier/styles'; */
 /* @import "../node_modules/primeng/resources/component/table/table.css"; */
 
@@ -16,26 +17,20 @@
 .margin-top-15 {
     margin-top: 15px !important;
 }
-
 .margin-bottom-10 {
     margin-bottom: 10px !important;
 }
-
 .margin-15 {
     margin: 15px !important;
 }
-
-.value-input {
+.value-input{
     margin-left: 18px;
     width: 58% !important;
     display: initial;
 }
-
+.font-size-12{
+    font-size : 12px
+}
 body {
     margin: 20px;
-}
-
-.form-group.required .control-label:after {
-    content: "*";
-    color: red;
 }

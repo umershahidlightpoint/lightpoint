@@ -62,12 +62,11 @@ export class LegderModalComponent implements OnInit {
     this.ledger.account_id = this.account.id;
     if (this.ledgerId > 0 || this.ledgerId !== undefined) {
       this._service.updateLedger(this.ledgerId, this.ledger).subscribe(res => {
-        debugger
-      })
+        this.modalClose.emit(res);
+      });
     }
     else {
       this._service.createLedger(this.ledger).subscribe(res => {
-        debugger
         this.modalClose.emit(res);
       });
     }

@@ -30,18 +30,23 @@ import {
   TooltipModule
 } from "ngx-bootstrap";
 import { LegderModalComponent } from './main/legder-modal/legder-modal.component';
+import { AngularSplitModule } from 'angular-split';
+import {PanelModule} from 'primeng/panel';
+import { GroupByAccountComponent } from './main/group-by-account/group-by-account.component';
 @NgModule({
   declarations: [
     AppComponent,
     FundsComponent,
     LedgerComponent,
-    LegderModalComponent
+    LegderModalComponent,
+    GroupByAccountComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     TableModule,
     PaginatorModule,
+    PanelModule,
     HttpClientModule,
     AngularFontAwesomeModule,
     ModalModule.forRoot(),
@@ -54,6 +59,7 @@ import { LegderModalComponent } from './main/legder-modal/legder-modal.component
     ScheduleModule,
     TabViewModule, BrowserAnimationsModule,
     NoopAnimationsModule,
+    AngularSplitModule.forRoot(),
     CalendarModule
   ],
   providers: [FinancePocServiceProxy],

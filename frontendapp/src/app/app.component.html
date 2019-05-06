@@ -2,12 +2,25 @@
   <button (click)="createLedger()" class="btn btn-primary blue">
     <i class="fa fa-plus"></i> Create Ledger</button>
 </div>
+
 <div class="row margin-top-50">
-  <div class="col-md-5">
-    <app-funds (event)="appledegr.getLegderByFundId($event);applegdermodal.getFundId($event)"></app-funds>
+  <div style="width: auto; height: auto;">
+    <as-split direction="horizontal">
+      <as-split-area size="auto">
+        <as-split direction="horizontal">
+          <as-split-area size="auto">
+            <div class="col-md-12">
+              <app-funds (event)="appledegr.getLegderByFundId($event);applegdermodal.getFundId($event)"></app-funds>
+            </div>
+          </as-split-area>
+          <as-split-area size="auto">
+            <div class="col-md-12">
+              <app-ledger #appledegr></app-ledger>
+            </div>
+          </as-split-area>
+        </as-split>
+      </as-split-area>
+    </as-split>
+    <app-legder-modal #applegdermodal (modalClose)="appledegr.getLegderByFundId()"></app-legder-modal>
   </div>
-  <div class="col-md-7">
-    <app-ledger #appledegr></app-ledger>
-  </div>
-  <app-legder-modal #applegdermodal (modalClose)="appledegr.getLegderByFundId()"></app-legder-modal>
 </div>

@@ -569,6 +569,12 @@ angular-notifier@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/angular-notifier/-/angular-notifier-4.1.1.tgz#127e6c50acab9fe70e784d0e7f4996860f8f93a0"
 
+angular-split@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/angular-split/-/angular-split-3.0.0.tgz#6b2c74ef6484f03705b7ee2d84c9e4405b9ddeb1"
+  dependencies:
+    tslib "^1.9.0"
+
 ansi-colors@^3.0.0:
   version "3.2.4"
   resolved "https://registry.yarnpkg.com/ansi-colors/-/ansi-colors-3.2.4.tgz#e3a3da4bfbae6c86a9c285625de124a234026fbf"
