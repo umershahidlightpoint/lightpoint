@@ -16,6 +16,13 @@ npm demo.js <br />
 npm run dev<br />
 </code>
 
+## Running Unit Tests
+In order to run unit tests.
+<code>
+cd serverapp <br />
+npm run test<br />
+</code>
+
 ## API Endpoints
 <ol>
 <li>http://localhost:8080/v1/customers</li>
