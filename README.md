@@ -24,7 +24,7 @@ npm run dev<br />
 </pre>
 
 ## Running Unit Tests
-In order to run unit tests.
+<p>In order to run unit tests.</p>
 <code>
 cd serverapp <br />
 npm run test<br />
