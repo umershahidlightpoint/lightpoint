@@ -30,6 +30,11 @@ export class FundsComponent implements OnInit {
       this.isLoading = true;
     });
   }
+
+  onRowSelect(event) {
+    console.log(event);
+  }
+
   initializeCol() {
     this.fundsCols = [
       { field: 'name', header: 'Name' },
