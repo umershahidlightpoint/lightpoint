@@ -18,37 +18,37 @@ export class LedgerMiddleware {
 
     if (!value) {
       const mappedError = this.helper.error(400, "Value is Missing");
-      res.status(400).json(mappedError);
+      return res.status(400).json(mappedError);
     }
 
     if (isNaN(value)) {
       const mappedError = this.helper.error(400, "Value is not Valid");
-      res.status(400).json(mappedError);
+      return res.status(400).json(mappedError);
     }
 
     if (!effectiveDate) {
       const mappedError = this.helper.error(400, "Effective Date is Missing");
-      res.status(400).json(mappedError);
+      return res.status(400).json(mappedError);
     }
 
     if (!moment(effectiveDate, this.dateFormat, true).isValid()) {
       const mappedError = this.helper.error(400, "Effective Date is not Valid");
-      res.status(400).json(mappedError);
+      return res.status(400).json(mappedError);
     }
 
     if (!fund_id) {
       const mappedError = this.helper.error(400, "Fund ID is Missing");
-      res.status(400).json(mappedError);
+      return res.status(400).json(mappedError);
     }
 
     if (!account_id) {
       const mappedError = this.helper.error(400, "Account ID is Missing");
-      res.status(400).json(mappedError);
+      return res.status(400).json(mappedError);
     }
 
     if (!customer_id) {
       const mappedError = this.helper.error(400, "Customer ID is Missing");
-      res.status(400).json(mappedError);
+      return res.status(400).json(mappedError);
     }
 
     next();
