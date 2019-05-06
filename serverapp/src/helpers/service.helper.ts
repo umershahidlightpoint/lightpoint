@@ -26,14 +26,14 @@ export class ServiceHelper implements IServiceHelper {
     };
   }
 
-  public meta(total: number, pageNumber: number, pageLimit: number): Meta {
+  public meta(total: number, pageNumber: number, limit: number): Meta {
     const page: number = Number(pageNumber) ? Number(pageNumber) : 1;
-    const pages: number = Math.ceil(total / pageLimit);
-    const next: number = page < pages ? page + 1 : null;
+    const pages: number = Math.ceil(total / limit);
+    const next: number | string = page < pages ? page + 1 : "none";
     return {
       total,
       pages,
-      limit: pageLimit,
+      limit,
       page,
       next
     };

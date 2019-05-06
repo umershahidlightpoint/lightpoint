@@ -12,7 +12,7 @@ export interface Meta {
   pages: number;
   limit: number;
   page: number;
-  next: number;
+  next: number | string;
 }
 
 export interface IServiceHelper {

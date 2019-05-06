@@ -25,8 +25,10 @@ export class LedgerController implements IController {
       this.ledgerMiddleware.validateCreate,
       async (req: Request, res: Response) => this.create(req, res)
     );
-    apiRouter.put("", async (req: Request, res: Response) =>
-      this.edit(req, res)
+    apiRouter.put(
+      "/:ledger_id",
+      this.ledgerMiddleware.validateEdit,
+      async (req: Request, res: Response) => this.edit(req, res)
     );
     apiRouter.get("/group", async (req: Request, res: Response) =>
       this.group(req, res)
@@ -66,8 +68,8 @@ export class LedgerController implements IController {
 
   private edit = async (req: Request, res: Response) => {
     try {
+      const id: number = req.params.ledger_id;
       const {
-        id,
         value,
         effectiveDate,
         fund_id,
