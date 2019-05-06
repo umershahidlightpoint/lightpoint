@@ -2,6 +2,7 @@ import * as Sequelize from "sequelize";
 import { Ledger, Fund, Account, Customer, AccountType } from "../models";
 import { ILedgerForm } from "../form/iledger.form";
 import { ILedgerSearchForm } from "../form/iledgersearch.form";
+import { ILedgerGroupForm } from "../form/iledgergroup.form";
 import { ILedgerService } from "./iledger.service";
 import { ServiceHelper } from "../helpers/service.helper";
 import { RecordNotFoundException } from "../exceptions/record_not_found_exception";
@@ -137,22 +138,45 @@ export class LedgerService implements ILedgerService {
     }
   };
 
-  public group = async (page: number): Promise<IList> => {
+  public group = async (input: ILedgerGroupForm): Promise<IList> => {
     try {
       const result: IList = { data: [], meta: {} };
-      const pagination = this.serviceHelper.pagination(page);
+      const pagination = this.serviceHelper.pagination(input.page);
+      let group_by = {};
+      if (input.group_by === "account") {
+        group_by = {
+          group: ["Account.id"],
+          include: [{ model: Account, attributes: ["id", "name"] }]
+        };
+      }
+      if (input.group_by === "customer") {
+        group_by = {
+          group: ["Customer.id"],
+          include: [
+            { model: Customer, attributes: ["id", "first_name", "last_name"] }
+          ]
+        };
+      }
+      if (input.group_by === "account_type") {
+        group_by = {
+          group: ["Account.id"],
+          include: [{ model: Account, attributes: ["id", "name"] }]
+        };
+      }
 
       const ledgers: Ledger = await Ledger.findAndCountAll({
         ...pagination,
+        where: {
+          fund_id: input.fund_id
+        },
         attributes: [
           [Sequelize.fn("SUM", Sequelize.col("Ledger.value")), "value"]
         ],
-        group: ["Account.id"],
-        include: [{ model: Account, attributes: ["id", "name"] }]
+        ...group_by
       });
       const meta = this.serviceHelper.meta(
         ledgers.count.length,
-        page,
+        input.page,
         pagination.limit
       );
 
