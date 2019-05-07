@@ -57,7 +57,7 @@ export class LegderModalComponent implements OnInit {
   }
 
   save() {
-
+    debugger
     this.ledger.effectiveDate = moment(this.effectiveDate).format('YYYY-MM-DD');
     this.ledger.customer_id = this.customer.id;
     this.ledger.account_id = this.account.id;

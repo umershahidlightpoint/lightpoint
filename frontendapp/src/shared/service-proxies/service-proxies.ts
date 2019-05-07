@@ -57,7 +57,7 @@ export class FinancePocServiceProxy {
 
     createLedger(data: LedgerInput) {
         const url = this.baseUrl + '/ledgers';
-        return this.http.post(url, { params: data }).pipe(map((response: any) => response));
+        return this.http.post(url, data).pipe(map((response: any) => response));
 
     }
     updateLedger(ledgerId: any | undefined, data: LedgerInput) {
