@@ -38,6 +38,9 @@ import { UpdateLedgerModalComponent } from './main/update-ledger-modal/update-le
 
 import { MessagesModule } from 'primeng/messages';
 import { MessageModule } from 'primeng/message';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -55,6 +58,7 @@ import { MessageModule } from 'primeng/message';
     MessageModule,
     PanelModule,
     HttpClientModule,
+    ToastModule,
     AngularFontAwesomeModule,
     ModalModule.forRoot(),
     AutoCompleteModule,
@@ -71,7 +75,8 @@ import { MessageModule } from 'primeng/message';
     AngularSplitModule.forRoot(),
     CalendarModule
   ],
-  providers: [FinancePocServiceProxy],
+  providers: [FinancePocServiceProxy, MessageService],
+
   bootstrap: [AppComponent]
 })
 export class AppModule { }
