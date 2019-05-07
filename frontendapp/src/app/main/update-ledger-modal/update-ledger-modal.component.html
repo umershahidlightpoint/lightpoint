@@ -7,7 +7,15 @@
           <p-autoComplete required placeholder="Search..." #accountInput [forceSelection]="true"
             [ngStyle]="{'border-color': 'red'}" [(ngModel)]="account" [suggestions]="accounts" field="name"
             name="accountName" (completeMethod)="onSearchAccount($event)" [inputStyle]="{'width': '80%'}"
-            [dropdown]="true"></p-autoComplete>
+            [dropdown]="true">
+            <ng-template let-account pTemplate="accountTemplate">
+              <div class="ui-helper-clearfix" style="border-bottom:1px solid #D5D5D5">
+                <div style="margin:10px 10px 0 0">{{account.name}}
+                  <small>{{account.accountType.name}}</small>
+                </div>
+              </div>
+            </ng-template>
+          </p-autoComplete>
         </div>
       </div>
       <div class="form-group row required">
@@ -16,6 +24,13 @@
           <p-autoComplete required placeholder="Search..." [forceSelection]="true" [ngStyle]="{'border-color': 'red'}"
             [(ngModel)]="customer" [suggestions]="customers" field="name" name="customerName"
             (completeMethod)="onSearchCustomer($event)" [inputStyle]="{'width': '80%'}" [dropdown]="true">
+            <ng-template let-customer pTemplate="customerTemplate">
+              <div class="ui-helper-clearfix" style="border-bottom:1px solid #D5D5D5">
+                <div style="margin:10px 10px 0 0">{{customer.name}} <br />
+                  <small><i class="fa fa-envelope-o"></i> {{customer.email}}</small>
+                </div>
+              </div>
+            </ng-template>
           </p-autoComplete>
         </div>
       </div>
@@ -37,8 +52,7 @@
     <div class="modal-footer">
       <button type="button" class="btn btn-secondary" (click)="close()">Cancel</button>
       <button type="submit" class="btn btn-primary" [disabled]="!roleForm.form.valid">
-        <i class="fa fa-save"></i>
-        <span>Save</span>
+        <i class="fa fa-save"></i> Save
       </button>
     </div>
   </form>
