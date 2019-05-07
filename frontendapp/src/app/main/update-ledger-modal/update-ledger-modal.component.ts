@@ -1,6 +1,8 @@
 import { Component, OnInit, ViewChild, Output, Input, EventEmitter, ViewEncapsulation } from '@angular/core';
 import { LedgerInput, FinancePocServiceProxy } from 'src/shared/service-proxies/service-proxies';
 import * as moment from "moment";
+import { MessageService } from 'primeng/primeng';
+
 
 @Component({
   selector: 'app-update-ledger-modal',
@@ -25,7 +27,7 @@ export class UpdateLedgerModalComponent implements OnInit {
   effectiveDate = new Date();
   value: number;
   ledger: LedgerInput = new LedgerInput();
-  constructor(private _service: FinancePocServiceProxy) { }
+  constructor(private _service: FinancePocServiceProxy, private messageService: MessageService) { }
 
   ngOnInit() {
   }
@@ -63,7 +65,7 @@ export class UpdateLedgerModalComponent implements OnInit {
     this.ledger.account_id = this.account.id;
     if (this.ledgerId > 0 || this.ledgerId !== undefined) {
       this._service.updateLedger(this.ledgerId, this.ledger).subscribe(res => {
-        this.modalClose.emit(res);
+        this.modalClose.emit(this.ledger.fund_id);
       });
     }
     else {

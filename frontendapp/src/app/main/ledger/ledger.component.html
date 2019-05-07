@@ -73,7 +73,7 @@
       <ng-template pTemplate="rowexpansion" let-rowData let-columns="columns">
         <tr>
           <td (click)="$event.stopPropagation();" [attr.colspan]="columns.length + 1">
-            <app-update-ledger-modal #appupdateledgermodal (modalClose)="getLegderByFundId()"></app-update-ledger-modal>
+            <app-update-ledger-modal #appupdateledgermodal (modalClose)="getLegderByFundId(fundId)"></app-update-ledger-modal>
           </td>
         </tr>
       </ng-template>

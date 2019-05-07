@@ -101,6 +101,7 @@ export class LedgerComponent implements AppComponentBase, OnInit {
    * @param event 
    */
   getLegderByFundId(fundId?: string, event?: LazyLoadEvent) {
+    debugger
     if (fundId != null) { this.fundId = fundId; }
     console.log(`${this.fundId} --- fundId`, event);
     //this.loading = true;
