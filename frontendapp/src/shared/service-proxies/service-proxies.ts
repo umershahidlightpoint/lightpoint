@@ -30,20 +30,13 @@ export class FinancePocServiceProxy {
         }
         return this.http.get(url, { params }).pipe(map((response: any) => response));
     }
-    groupByCustomer(id) {
-        debugger
-        let url_ = this.baseUrl + "/ledgers/group?fund_id={id}&group_by=customer";
-        url_ = url_.replace('{id}', id);
-        let options_: any = {
-            observe: "response",
-            responseType: "json",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
 
-        return this.http.get(url_).pipe(map((response: any) => response));
+    groupByCustomer(id) {
+        const url = this.baseUrl + '/ledgers/group';
+        const params: any = {};
+        params.fund_id = id;
+        params.group_by = 'customer';
+        return this.http.get(url, { params }).pipe(map((response: any) => response));
     }
     getFunds() {
         const url = this.baseUrl + '/funds';
