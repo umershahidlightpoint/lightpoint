@@ -62,7 +62,7 @@ export class FinancePocServiceProxy {
     }
     updateLedger(ledgerId: any | undefined, data: LedgerInput) {
         const url = this.baseUrl + '/ledgers/' + ledgerId;
-        return this.http.put(url, { params: data }).pipe(map((response: any) => response));
+        return this.http.put(url, data).pipe(map((response: any) => response));
     }
 
     getLedgerById(id) {

@@ -15,47 +15,37 @@
         <tr>
           <th></th>
           <th *ngFor="let col of columns" [ngSwitch]="col.field">
-            <<<<<<< HEAD <p-autoComplete appendTo="body" *ngSwitchCase="'account'" placeholder="Search..." #accountInput class="font-size-12"
-              [ngStyle]="{'border-color': 'red'}" [(ngModel)]="tempAccountSearch" (onClear)="onClearAccounts()" (onSelect)="accountSelect($event)"
-              [suggestions]="accounts" field="name" name="accountName" (completeMethod)="onSearchAccount($event)" [style]="{'width':'95%'}"
-              [inputStyle]="{'width': '100%'}">
-              </p-autoComplete>
-              <p-autoComplete appendTo="body" *ngSwitchCase="'customer'" (onClear)="onClearCustomers()" placeholder="Search..." class="font-size-12"
-                [ngStyle]="{'border-color': 'red'}" [(ngModel)]="tempCustomerSearch" [suggestions]="customers" field="name"
-                name="customerName" (onSelect)="customerSelect($event)" (completeMethod)="onSearchCustomer($event)" [style]="{'width':'95%'}"
-                [inputStyle]="{'width': '100%'}">
-                =======
-                <p-autoComplete appendTo="body" *ngSwitchCase="'account'" placeholder="Search..." #accountInput class="font-size-12" [ngStyle]="{'border-color': 'red'}"
-                  [(ngModel)]="tempAccountSearch" field="name" (onClear)="onClearAccounts(dtLedger)" (onSelect)="accountSelect($event, dtLedger)"
-                  [suggestions]="accounts" name="accountName" (completeMethod)="onSearchAccount($event)" [dropdown]="true">
-                  <ng-template let-account pTemplate="accountTemplate">
-                    <div class="ui-helper-clearfix" style="border-bottom:1px solid #D5D5D5">
-                      <div style="margin:10px 10px 0 0">{{account.name}}
-                        <small>{{account.accountType.name}}</small>
-                      </div>
-                    </div>
-                  </ng-template>
-                </p-autoComplete>
-
-                <p-autoComplete appendTo="body" *ngSwitchCase="'customer'" (onClear)="onClearCustomers(dtLedger)" placeholder="Search..."
-                  class="font-size-12" [ngStyle]="{'border-color': 'red'}" [(ngModel)]="tempCustomerSearch" [suggestions]="customers"
-                  field="name" name="customerName" (onSelect)="customerSelect($event, dtLedger)" (completeMethod)="onSearchCustomer($event)"
-                  [dropdown]="true">
-                </p-autoComplete>
-
-                <p-autoComplete appendTo="body" *ngSwitchCase="'accountType'" (onClear)="accountTypeId=undefined;onFilterClear('account_type_id', dtLedger)"
-                  placeholder="Show All" class="font-size-12" [ngStyle]="{'border-color': 'red'}" [(ngModel)]="accountTypeModel"
-                  [suggestions]="accountTypeSuggestions" field="name" (onSelect)="onAccountTypeChange($event, dtLedger)" [dropdown]="true"
-                  (completeMethod)="onSearchAccountType($event)">
-                  >>>>>>> 14644d8c69b0da469b462c341fcdd1bc191e40fa
-                </p-autoComplete>
-
-                <div *ngSwitchCase="'value'">
-                  > {{valueFilter}}
-                  <i class="fa fa-close" (click)="valueFilter=null;dtLedger.filter(null, 'value', col.filterMatchMode)"
-                    style="cursor:pointer" *ngIf="valueFilter"></i>
-                  <p-slider [style]="{'width':'100%','margin-top':'8px'}" [(ngModel)]="value" [min]="0" [max]="1000" (onChange)="onValueChange($event, dtLedger)"></p-slider>
+            <p-autoComplete appendTo="body" *ngSwitchCase="'account'" placeholder="Search..." #accountInput class="font-size-12" [ngStyle]="{'border-color': 'red'}"
+              [(ngModel)]="tempAccountSearch" field="name" (onClear)="onClearAccounts(dtLedger)" (onSelect)="accountSelect($event, dtLedger)"
+              [suggestions]="accounts" name="accountName" (completeMethod)="onSearchAccount($event)" [dropdown]="true">
+              <ng-template let-account pTemplate="accountTemplate">
+                <div class="ui-helper-clearfix" style="border-bottom:1px solid #D5D5D5">
+                  <div style="margin:10px 10px 0 0">{{account.name}}
+                    <small>{{account.accountType.name}}</small>
+                  </div>
                 </div>
+              </ng-template>
+            </p-autoComplete>
+
+            <p-autoComplete appendTo="body" *ngSwitchCase="'customer'" (onClear)="onClearCustomers(dtLedger)" placeholder="Search..."
+              class="font-size-12" [ngStyle]="{'border-color': 'red'}" [(ngModel)]="tempCustomerSearch" [suggestions]="customers"
+              field="name" name="customerName" (onSelect)="customerSelect($event, dtLedger)" (completeMethod)="onSearchCustomer($event)"
+              [dropdown]="true">
+            </p-autoComplete>
+
+            <p-autoComplete appendTo="body" *ngSwitchCase="'accountType'" (onClear)="accountTypeId=undefined;onFilterClear('account_type_id', dtLedger)"
+              placeholder="Show All" class="font-size-12" [ngStyle]="{'border-color': 'red'}" [(ngModel)]="accountTypeModel"
+              [suggestions]="accountTypeSuggestions" field="name" (onSelect)="onAccountTypeChange($event, dtLedger)" [dropdown]="true"
+              (completeMethod)="onSearchAccountType($event)">
+
+            </p-autoComplete>
+
+            <div *ngSwitchCase="'value'">
+              > {{valueFilter}}
+              <i class="fa fa-close" (click)="valueFilter=null;dtLedger.filter(null, 'value', col.filterMatchMode)" style="cursor:pointer"
+                *ngIf="valueFilter"></i>
+              <p-slider [style]="{'width':'100%','margin-top':'8px'}" [(ngModel)]="value" [min]="0" [max]="1000" (onChange)="onValueChange($event, dtLedger)"></p-slider>
+            </div>
 
           </th>
         </tr>
@@ -81,7 +71,7 @@
       <ng-template pTemplate="rowexpansion" let-rowData let-columns="columns">
         <tr>
           <td (click)="$event.stopPropagation();" [attr.colspan]="columns.length + 1">
-            <app-update-ledger-modal #appupdateledgermodal></app-update-ledger-modal>
+            <app-update-ledger-modal #appupdateledgermodal (modalClose)="getLegderByFundId()"></app-update-ledger-modal>
           </td>
         </tr>
       </ng-template>

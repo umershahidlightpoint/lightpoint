@@ -34,7 +34,7 @@ export class AppComponent extends AppComponentBase {
   getLegderByFundId(fundId?: string, event?: LazyLoadEvent) {
     if (fundId != null) { this.fundId = fundId; }
     this.primengTableHelper.defaultRecordsCountPerPage = 40;
-    this._fundsService.getLedger(this.fundId, 0, undefined, undefined).subscribe(result => {
+    this._fundsService.getLedger(this.fundId, 0, {}).subscribe(result => {
       this.primengTableHelper.totalRecordsCount = result.meta.total;
       this.primengTableHelper.records = result.meta.limit;
       this.ledger = result.data.map(item => ({
