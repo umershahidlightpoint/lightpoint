@@ -110,21 +110,31 @@ export class LedgerService implements ILedgerService {
       if (_.isNumber(_.toNumber(params.value)) && params.value > 0) {
         criteria["value"] = { [Sequelize.Op.gte]: _.toNumber(params.value) };
       }
+      const accountTypeCriteria = {};
+      if (!_.isEmpty(params.account_type_id)) {
+        accountTypeCriteria["account_type_id"] = params.account_type_id;
+      }
 
       const ledgers: Ledger = await Ledger.findAndCountAll({
         ...sorting,
         ...pagination,
-        where: {
-          ...criteria
-        },
         include: [
           Fund,
           Customer,
           {
             model: Account,
-            include: [{ model: AccountType, as: "accountType" }]
+            where: { ...accountTypeCriteria },
+            include: [
+              {
+                model: AccountType,
+                as: "accountType"
+              }
+            ]
           }
-        ]
+        ],
+        where: {
+          ...criteria
+        }
       });
 
       const meta = this.serviceHelper.meta(
@@ -132,6 +142,7 @@ export class LedgerService implements ILedgerService {
         params.page,
         pagination.limit
       );
+      //console.log("&&&&&&&&&&", ledgers);
 
       result.data = ledgers.rows;
       result.meta = meta;

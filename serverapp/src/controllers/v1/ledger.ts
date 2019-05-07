@@ -105,6 +105,7 @@ export class LedgerController implements IController {
         fund_id,
         account_id,
         customer_id,
+        account_type_id,
         value
       } = req.query;
       const result: Ledger = await this.ledgerService.search({
@@ -115,6 +116,7 @@ export class LedgerController implements IController {
         fund_id,
         account_id,
         customer_id,
+        account_type_id,
         value
       });
       const mapped: IList = await this.mapperHelper.paginate(
