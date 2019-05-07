@@ -4,8 +4,9 @@
       <div class="form-group row required">
         <label class="col-sm-3 col-form-label text-right control-label">Account</label>
         <div class="col-sm-9">
-          <p-autoComplete required placeholder="Search..." #accountInput [forceSelection]="true" [ngStyle]="{'border-color': 'red'}"
-            [(ngModel)]="account" [suggestions]="accounts" field="name" name="accountName" (completeMethod)="onSearchAccount($event)"
+          <p-autoComplete required placeholder="Search..." #accountInput [forceSelection]="true"
+            [ngStyle]="{'border-color': 'red'}" [(ngModel)]="account" [suggestions]="accounts" field="name"
+            name="accountName" (completeMethod)="onSearchAccount($event)" [style]="{'width':'80%'}"
             [inputStyle]="{'width': '80%'}" [dropdown]="true">
             <ng-template let-account pTemplate="accountTemplate">
               <div class="ui-helper-clearfix" style="border-bottom:1px solid #D5D5D5">
@@ -20,8 +21,9 @@
       <div class="form-group row required">
         <label class="col-sm-3 col-form-label text-right control-label">User</label>
         <div class="col-sm-9">
-          <p-autoComplete required placeholder="Search..." [forceSelection]="true" [ngStyle]="{'border-color': 'red'}" [(ngModel)]="customer"
-            [suggestions]="customers" field="name" name="customerName" (completeMethod)="onSearchCustomer($event)" [inputStyle]="{'width': '80%'}"
+          <p-autoComplete required placeholder="Search..." [forceSelection]="true" [ngStyle]="{'border-color': 'red'}"
+            [(ngModel)]="customer" [suggestions]="customers" field="name" name="customerName"
+            (completeMethod)="onSearchCustomer($event)" [style]="{'width':'80%'}" [inputStyle]="{'width': '80%'}"
             [dropdown]="true">
             <ng-template let-customer pTemplate="customerTemplate">
               <div class="ui-helper-clearfix" style="border-bottom:1px solid #D5D5D5">
@@ -44,8 +46,8 @@
       <div class="form-group row required">
         <label class="col-sm-3 col-form-label text-right control-label">Effective Date</label>
         <div class="col-sm-9">
-          <p-calendar appendTo="body" required [(ngModel)]="effectiveDate" name="effectiveDate" dateFormat="mm-dd-yy" [showIcon]="true"
-            [readonlyInput]="true">
+          <p-calendar appendTo="body" required [(ngModel)]="effectiveDate" name="effectiveDate" dateFormat="mm-dd-yy"
+            [showIcon]="true" [readonlyInput]="true">
           </p-calendar>
         </div>
       </div>
