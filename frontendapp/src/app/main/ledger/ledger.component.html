@@ -1,8 +1,9 @@
 <div *ngIf="ledgerGrid" class="div primeng-datatable-container">
   <p-panel header="Ledger" [toggleable]="true" [style]="{'padding':'inherit'}" class="ledger-panel no-padding">
     <p-table scrollable="true" [style]="{'padding':'inherit'}" scrollHeight="400px" [rows]="itemPerPage"
-      [totalRecords]="totalRecords" [loading]="loading" [reorderableColumns]="true" [columns]="ledgerCols"
-      [value]="ledger" (onLazyLoad)="getLegderByFundId(null,$event)">
+      [paginator]="false" [totalRecords]="totalRecords" [loading]="loading" [reorderableColumns]="true"
+      [columns]="ledgerCols" [lazy]="true" [value]="ledger" [virtualScroll]="true"
+      (onLazyLoad)="getLegderByFundId(fundId, $event)">
       <ng-template pTemplate="header" let-columns>
         <tr>
           <th style="width: 70px;">

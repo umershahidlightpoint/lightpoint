@@ -12,7 +12,7 @@ import * as moment from 'moment';
   templateUrl: './ledger.component.html',
   styleUrls: ['./ledger.component.css']
 })
-export class LedgerComponent implements AppComponentBase {
+export class LedgerComponent implements AppComponentBase, OnInit {
   newLedger: boolean;
   primengTableHelper: PrimengTableHelper;
 
@@ -69,16 +69,26 @@ export class LedgerComponent implements AppComponentBase {
     this.customerSearch.id = undefined
     this.getLegderByFundId(this.fundId);
   }
+
+  /**
+   * 
+   * @param fundId 
+   * @param event 
+   */
   getLegderByFundId(fundId?: string, event?: LazyLoadEvent) {
     if (fundId != null) { this.fundId = fundId; }
-    this.loading = true;
+    console.log(`${this.fundId} --- fundId`, event);
+    //this.loading = true;
     // this.primengTableHelper.defaultRecordsCountPerPage = 40;
-
-    this._fundsService.getLedger(this.fundId, 0, this.customerSearch.id, this.accountSearch.id).subscribe(result => {
-
+    let page = 1;
+    if (event) {
+      let first = event.first;
+      let itemPerPage = event.rows;
+      page = (first / itemPerPage) + 1;
+    }
+    this._fundsService.getLedger(this.fundId, page, this.customerSearch.id, this.accountSearch.id).subscribe(result => {
       this.totalRecords = result.meta.total;
       this.itemPerPage = result.meta.limit;
-
       this.ledger = result.data.map(item => ({
         account: item.account.name,
         accountType: item.accountType.name,
@@ -100,7 +110,6 @@ export class LedgerComponent implements AppComponentBase {
   }
 
   initializeCol() {
-
     this.ledgerCols = [
       { field: 'account', header: 'Account' },
       { field: 'accountType', header: 'Account Type' },
@@ -111,7 +120,6 @@ export class LedgerComponent implements AppComponentBase {
   }
 
   onSearchAccount(event): void {
-    debugger
     this.tempAccountNumber = event.query;
     this._fundsService.getAccounts(event.query).subscribe(result => {
       this.accounts = result.data;
@@ -119,14 +127,13 @@ export class LedgerComponent implements AppComponentBase {
   }
 
   onSearchCustomer(event): void {
-    debugger
     this.tempCustomerNumber = event.query;
     this._fundsService.getCustomers(event.query).subscribe(result => {
       this.customers = result.data;
     });
   }
-  ngOnInit() {
 
+  ngOnInit() {
     this.initializeCol();
   }
 

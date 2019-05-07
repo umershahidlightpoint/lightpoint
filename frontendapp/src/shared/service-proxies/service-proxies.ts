@@ -18,7 +18,7 @@ export class FinancePocServiceProxy {
     }
 
     getLedger(id: string, page: number, customer_id: number | undefined, account_id: number | undefined) {
-
+        let params = {};
         let url_ = this.baseUrl + "/ledgers?fund_id={id}&page=" + page + "&";
 
         url_ = url_.replace('{id}', id);
@@ -37,7 +37,7 @@ export class FinancePocServiceProxy {
             })
         };
 
-        return this.http.get(url_).pipe(map((response: any) => response));
+        return this.http.get(url_, { params }).pipe(map((response: any) => response));
 
     }
 
