@@ -43,7 +43,7 @@
             </p-autoComplete>
 
             <div *ngSwitchCase="'value'">
-              {{valueFilter}} <i class="fa fa-close"
+              > {{valueFilter}} <i class="fa fa-close"
                 (click)="valueFilter=null;dtLedger.filter(null, 'value', col.filterMatchMode)" style="cursor:pointer"
                 *ngIf="valueFilter"></i>
               <p-slider [style]="{'width':'100%','margin-top':'8px'}" [(ngModel)]="value" [min]="0" [max]="1000"
