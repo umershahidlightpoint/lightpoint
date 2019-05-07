@@ -18,17 +18,17 @@ import {
   ScheduleModule,
   TabViewModule,
   CalendarModule
-} from "primeng/primeng";
+} from 'primeng/primeng';
 import {
   BrowserAnimationsModule,
   NoopAnimationsModule
-} from "@angular/platform-browser/animations";
+} from '@angular/platform-browser/animations';
 import {
   ModalModule,
   PopoverModule,
   TabsModule,
   TooltipModule
-} from "ngx-bootstrap";
+} from 'ngx-bootstrap';
 import { LegderModalComponent } from './main/legder-modal/legder-modal.component';
 import { AngularSplitModule } from 'angular-split';
 import { PanelModule } from 'primeng/panel';
