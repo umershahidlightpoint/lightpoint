@@ -46,5 +46,12 @@ export class LedgerMapper {
         value: data.value || null
       };
     }
+    if (data["Account.account_type_id"]) {
+      return await {
+        id: data["Account.account_type_id"] || null,
+        name: data["AccountType.name"] || null,
+        value: data.value || null
+      };
+    }
   }
 }
