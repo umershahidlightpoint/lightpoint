@@ -1,26 +1,27 @@
-<div class="col-xs-6 margin-top-15 text-right">
-  <button (click)="createLedger()" class="btn btn-primary blue">
-    <i class="fa fa-plus"></i> Create Ledger</button>
-</div>
+<div mwlDroppable (drop)="this.droppedData = $event.dropData">
+  <span [hidden]="droppedData">Drop here</span>
+  <span [hidden]="!droppedData">Item dropped here with data: "{{ droppedData }}"!</span>
 
-<div class="row margin-top-50">
-  <div style="width: auto; height: auto;">
-    <as-split direction="horizontal">
-      <as-split-area size="auto">
-        <as-split direction="horizontal">
-          <as-split-area size="auto">
+  <div class="col-xs-6 margin-top-15 text-right">
+    <button (click)="createLedger()" class="btn btn-primary blue">
+      <i class="fa fa-plus"></i> Create Ledger</button>
+    <div class="row margin-top-50">
+      <div style="width: auto; height: auto;">
+        <as-split direction="horizontal" restrictMove="true">
+          <as-split-area size="30">
             <div class="col-md-12">
               <app-funds (event)="appledegr.getLegderByFundId($event);applegdermodal.getFundId($event)"></app-funds>
             </div>
           </as-split-area>
-          <as-split-area size="auto">
+          <as-split-area size="auto" size="70">
             <div class="col-md-12">
               <app-ledger #appledegr></app-ledger>
             </div>
           </as-split-area>
         </as-split>
-      </as-split-area>
-    </as-split>
-    <app-legder-modal #applegdermodal (modalClose)="appledegr.getLegderByFundId()"></app-legder-modal>
-  </div>
-</div>
+        <app-legder-modal #applegdermodal (modalClose)="appledegr.getLegderByFundId()"></app-legder-modal>
+      </div>
+
+
+
+    </div>

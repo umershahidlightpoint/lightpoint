@@ -1,3 +1,26 @@
-<p>
-  group-by-account works!
-</p>
+<p-table [value]="account" dataKey="account">
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Vin</th>
+      <th>Year</th>
+      <th>Color</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-expanded="expanded" let-columns="columns">
+    <tr class="ui-widget-header" *ngIf="rowGroupMetadata[rowData.account].index === rowIndex">
+      <td colspan="3">
+        <a href="#" [pRowToggler]="rowData">
+          <i [ngClass]="expanded ? 'fa fa-fw fa-chevron-circle-down' : 'fa fa-fw fa-chevron-circle-right'"></i>
+          <span>{{rowData.account}}</span>
+        </a>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="rowexpansion" let-rowData let-rowIndex="rowIndex">
+    <tr>
+      <td>{{rowData.value}}</td>
+      <td>{{rowData.year}}</td>
+      <td>{{rowData.color}}</td>
+    </tr>
+  </ng-template>
+</p-table>
