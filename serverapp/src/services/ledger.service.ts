@@ -108,7 +108,7 @@ export class LedgerService implements ILedgerService {
         criteria["customer_id"] = params.customer_id;
       }
       if (_.isNumber(_.toNumber(params.value)) && params.value > 0) {
-        //criteria["value"] = { Sequelize.Op.gte: _.toNumber(params.value) };
+        criteria["value"] = { [Sequelize.Op.gte]: _.toNumber(params.value) };
       }
 
       const ledgers: Ledger = await Ledger.findAndCountAll({
@@ -193,7 +193,7 @@ export class LedgerService implements ILedgerService {
         await Promise.all(
           ledgers.rows.map(async element => {
             const ledger = await AccountType.findByPk(
-              element["Account.account_type_id"],
+              element["Account.account_type_id"]
             );
             return (element["AccountType.name"] = ledger.name);
           })
