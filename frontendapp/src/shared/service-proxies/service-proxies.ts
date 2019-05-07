@@ -17,17 +17,10 @@ export class FinancePocServiceProxy {
         this.baseUrl = API_BASE_URL;
     }
 
-    getLedger(id: string, page: number, customer_id: number | undefined, account_id: number | undefined) {
-        const params: any = {};
+    getLedger(id: string, page: number, params: any = {}) {
         params.page = page;
         params.fund_id = id;
         const url = this.baseUrl + '/ledgers';
-        if (customer_id !== undefined) {
-            params.customer_id = customer_id;
-        }
-        if (account_id !== undefined) {
-            params.account_id = account_id;
-        }
         return this.http.get(url, { params }).pipe(map((response: any) => response));
     }
 

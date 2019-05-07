@@ -107,6 +107,9 @@ export class LedgerService implements ILedgerService {
       if (!_.isEmpty(params.customer_id)) {
         criteria["customer_id"] = params.customer_id;
       }
+      if (_.isNumber(_.toNumber(params.value)) && params.value > 0) {
+        //criteria["value"] = { Sequelize.Op.gte: _.toNumber(params.value) };
+      }
 
       const ledgers: Ledger = await Ledger.findAndCountAll({
         ...sorting,

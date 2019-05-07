@@ -3,7 +3,7 @@ import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-
 import { LazyLoadEvent } from 'primeng/components/common/lazyloadevent';
 import { AppComponentBase } from '../../../shared/common/app-component-base';
 import { PrimengTableHelper } from '../../../shared/helpers/PrimengTableHelper';
-import { DialogModule, Dialog } from 'primeng/dialog'
+import { DialogModule, Dialog } from 'primeng/dialog';
 import { LegderModalComponent } from '../legder-modal/legder-modal.component';
 import * as moment from 'moment';
 
@@ -20,6 +20,9 @@ export class LedgerComponent implements AppComponentBase, OnInit {
   itemPerPage: number;
   loading: boolean;
 
+  valueTimeout: any;
+  valueFilter: number;
+
   @Input() fundId: any;
   ledger: any[];
   ledgerCols: any[];
@@ -27,14 +30,16 @@ export class LedgerComponent implements AppComponentBase, OnInit {
   ledgerGrid = false;
   ledgerInput = false;
   displayDialog: boolean;
-  tempAccountNumber: "";
-  tempCustomerNumber: "";
+  tempAccountNumber: '';
+  tempCustomerNumber: '';
   accounts: any[];
   customers: any[];
   accountSearch = { id: undefined };
   customerSearch = { id: undefined };
-  tempCustomerSearch = "";
-  tempAccountSearch = "";
+  tempCustomerSearch = '';
+  tempAccountSearch = '';
+
+
   @Output() droppable = new EventEmitter<any>();
   @ViewChild('applegdermodal') applegdermodal: LegderModalComponent;
   constructor(injector: Injector,
@@ -54,14 +59,16 @@ export class LedgerComponent implements AppComponentBase, OnInit {
     this.displayDialog = true;
   }
 
-  customerSelect(event: any) {
+  customerSelect(event: any, dtLedger) {
+    dtLedger.filter(event.id, 'customer_id');
     this.customerSearch.id = event.id;
-    this.getLegderByFundId(this.fundId);
   }
-  accountSelect(event: any) {
+
+  accountSelect(event: any, dtLedger) {
+    dtLedger.filter(event.id, 'account_id');
     this.accountSearch.id = event.id;
-    this.getLegderByFundId(this.fundId);
   }
+
   onClearAccounts() {
     this.accountSearch.id = undefined
     this.getLegderByFundId(this.fundId);
@@ -87,7 +94,18 @@ export class LedgerComponent implements AppComponentBase, OnInit {
       const itemPerPage = event.rows;
       page = (first / itemPerPage) + 1;
     }
-    this._fundsService.getLedger(this.fundId, page, this.customerSearch.id, this.accountSearch.id).subscribe(result => {
+    const params: any = {};
+    if (this.customerSearch.id) {
+      params.customer_id = this.customerSearch.id;
+    }
+    if (this.accountSearch.id) {
+      params.account_id = this.accountSearch.id;
+    }
+    if (this.valueFilter) {
+      params.value = this.valueFilter;
+    }
+
+    this._fundsService.getLedger(this.fundId, page, params).subscribe(result => {
       this.totalRecords = result.meta.total;
       this.itemPerPage = result.meta.limit;
       this.ledger = result.data.map(item => ({
@@ -134,9 +152,25 @@ export class LedgerComponent implements AppComponentBase, OnInit {
     });
   }
 
+  onFilterChange(event, dtLedger): void {
+    this.valueTimeout = setTimeout(() => {
+      this.valueFilter = event.value;
+      dtLedger.filter(event.value, 'value', 'gt');
+    }, 250);
+  }
+
   ngOnInit() {
     this.initializeCol();
+    this.resetFilter();
   }
+
+  resetFilter(): void {
+    this.valueTimeout = null;
+    this.valueFilter = null;
+    this.accountSearch.id = undefined;
+    this.customerSearch.id = undefined;
+  }
+
   dragEnd(header: string) {
     if (header === "Account") {
       this.droppable.emit(true);

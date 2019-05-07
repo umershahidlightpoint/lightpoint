@@ -1,6 +1,6 @@
 <div *ngIf="ledgerGrid" class="div primeng-datatable-container">
   <p-panel header="Ledger" [toggleable]="true" [style]="{'padding':'inherit'}" class="ledger-panel no-padding">
-    <p-table scrollable="true" [style]="{'padding':'inherit'}" scrollHeight="400px" [rows]="itemPerPage"
+    <p-table #dtLedger scrollable="true" [style]="{'padding':'inherit'}" scrollHeight="400px" [rows]="itemPerPage"
       [paginator]="false" [totalRecords]="totalRecords" [loading]="loading" [reorderableColumns]="true"
       [columns]="ledgerCols" [lazy]="true" [value]="ledger" [virtualScroll]="true"
       (onLazyLoad)="getLegderByFundId(fundId, $event)" dataKey="id">
@@ -18,15 +18,24 @@
           <th *ngFor="let col of columns" [ngSwitch]="col.field">
             <p-autoComplete appendTo="body" *ngSwitchCase="'account'" placeholder="Search..." #accountInput
               class="font-size-12" [ngStyle]="{'border-color': 'red'}" [(ngModel)]="tempAccountSearch"
-              (onClear)="onClearAccounts()" (onSelect)="accountSelect($event)" [suggestions]="accounts" field="name"
-              name="accountName" (completeMethod)="onSearchAccount($event)" [style]="{'width':'95%'}"
+              (onClear)="onClearAccounts()" (onSelect)="accountSelect($event, dtLedger)" [suggestions]="accounts"
+              field="name" name="accountName" (completeMethod)="onSearchAccount($event)" [style]="{'width':'95%'}"
               [inputStyle]="{'width': '100%'}"></p-autoComplete>
             <p-autoComplete appendTo="body" *ngSwitchCase="'customer'" (onClear)="onClearCustomers()"
               placeholder="Search..." class="font-size-12" [ngStyle]="{'border-color': 'red'}"
               [(ngModel)]="tempCustomerSearch" [suggestions]="customers" field="name" name="customerName"
-              (onSelect)="customerSelect($event)" (completeMethod)="onSearchCustomer($event)" [style]="{'width':'95%'}"
-              [inputStyle]="{'width': '100%'}">
+              (onSelect)="customerSelect($event, dtLedger)" (completeMethod)="onSearchCustomer($event)"
+              [style]="{'width':'95%'}" [inputStyle]="{'width': '100%'}">
             </p-autoComplete>
+
+            <div *ngSwitchCase="'value'">
+              {{valueFilter}} <i class="fa fa-close"
+                (click)="valueFilter=null;dtLedger.filter(null, col.field, col.filterMatchMode)" style="cursor:pointer"
+                *ngIf="valueFilter"></i>
+              <p-slider [style]="{'width':'100%','margin-top':'8px'}" [(ngModel)]="value" [min]="0" [max]="10000"
+                (onChange)="onFilterChange($event, dtLedger)"></p-slider>
+            </div>
+
           </th>
         </tr>
       </ng-template>

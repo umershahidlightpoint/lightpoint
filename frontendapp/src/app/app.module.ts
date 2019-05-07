@@ -19,6 +19,7 @@ import {
   TabViewModule,
   CalendarModule
 } from 'primeng/primeng';
+import { SliderModule } from 'primeng/slider';
 import {
   BrowserAnimationsModule,
   NoopAnimationsModule
@@ -61,6 +62,7 @@ import { DragAndDropModule } from 'angular-draggable-droppable';
     TabViewModule, BrowserAnimationsModule,
     NoopAnimationsModule,
     DragAndDropModule,
+    SliderModule,
     AngularSplitModule.forRoot(),
     CalendarModule
   ],
