@@ -6,19 +6,15 @@
 <div class="row margin-top-50">
   <div style="width: auto; height: auto;">
     <as-split direction="horizontal">
-      <as-split-area size="auto">
-        <as-split direction="horizontal">
-          <as-split-area size="auto">
-            <div class="col-md-12">
-              <app-funds (event)="appledegr.getLegderByFundId($event);applegdermodal.getFundId($event)"></app-funds>
-            </div>
-          </as-split-area>
-          <as-split-area size="auto">
-            <div class="col-md-12">
-              <app-ledger #appledegr></app-ledger>
-            </div>
-          </as-split-area>
-        </as-split>
+      <as-split-area size="30">
+        <div class="col-md-12">
+          <app-funds (event)="appledegr.getLegderByFundId($event);applegdermodal.getFundId($event)"></app-funds>
+        </div>
+      </as-split-area>
+      <as-split-area size="auto" size="70">
+        <div class="col-md-12">
+          <app-ledger #appledegr></app-ledger>
+        </div>
       </as-split-area>
     </as-split>
     <app-legder-modal #applegdermodal (modalClose)="appledegr.getLegderByFundId()"></app-legder-modal>

@@ -15,6 +15,11 @@ import * as moment from 'moment';
 export class LedgerComponent implements AppComponentBase {
   newLedger: boolean;
   primengTableHelper: PrimengTableHelper;
+
+  totalRecords: number;
+  itemPerPage: number;
+  loading: boolean;
+
   @Input() fundId: any;
   ledger: any[];
   ledgerCols: any[];
@@ -66,11 +71,14 @@ export class LedgerComponent implements AppComponentBase {
   }
   getLegderByFundId(fundId?: string, event?: LazyLoadEvent) {
     if (fundId != null) { this.fundId = fundId; }
+    this.loading = true;
     // this.primengTableHelper.defaultRecordsCountPerPage = 40;
 
     this._fundsService.getLedger(this.fundId, 0, this.customerSearch.id, this.accountSearch.id).subscribe(result => {
-      // this.primengTableHelper.totalRecordsCount = result.meta.total;
-      // this.primengTableHelper.records = result.meta.limit;
+
+      this.totalRecords = result.meta.total;
+      this.itemPerPage = result.meta.limit;
+
       this.ledger = result.data.map(item => ({
         account: item.account.name,
         accountType: item.accountType.name,
@@ -82,12 +90,11 @@ export class LedgerComponent implements AppComponentBase {
         id: item.id
       }));
       this.ledgerGrid = true;
-
-    })
+      this.loading = false;
+    });
   }
 
   editLedger(id: number) {
-    debugger
     this.applegdermodal.ledgerId = id;
     this.applegdermodal.show();
   }
