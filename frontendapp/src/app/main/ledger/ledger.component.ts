@@ -32,10 +32,16 @@ export class LedgerComponent implements AppComponentBase, OnInit {
   displayDialog: boolean;
   tempAccountNumber: '';
   tempCustomerNumber: '';
+
+  accountTypeModel: string;
+  accountTypeSuggestions: any[];
+
   accounts: any[];
   customers: any[];
   accountSearch = { id: undefined };
   customerSearch = { id: undefined };
+  accountTypeId = undefined;
+
   tempCustomerSearch = '';
   tempAccountSearch = '';
 
@@ -69,14 +75,16 @@ export class LedgerComponent implements AppComponentBase, OnInit {
     this.accountSearch.id = event.id;
   }
 
-  onClearAccounts() {
-    this.accountSearch.id = undefined
-    this.getLegderByFundId(this.fundId);
+  onClearAccounts(dtLedger) {
+    this.accountSearch.id = undefined;
+    dtLedger.filter(null, 'account_id');
   }
-  onClearCustomers() {
-    this.customerSearch.id = undefined
-    this.getLegderByFundId(this.fundId);
+
+  onClearCustomers(dtLedger) {
+    this.customerSearch.id = undefined;
+    dtLedger.filter(null, 'customer_id');
   }
+
 
   /**
    * 
@@ -100,6 +108,9 @@ export class LedgerComponent implements AppComponentBase, OnInit {
     }
     if (this.accountSearch.id) {
       params.account_id = this.accountSearch.id;
+    }
+    if (this.accountTypeId) {
+      params.account_type_id = this.accountTypeId;
     }
     if (this.valueFilter) {
       params.value = this.valueFilter;
@@ -152,12 +163,29 @@ export class LedgerComponent implements AppComponentBase, OnInit {
     });
   }
 
-  onFilterChange(event, dtLedger): void {
+  onSearchAccountType(event): void {
+    console.log(event);
+    this._fundsService.getAccountTypes(event.query).subscribe(result => {
+      this.accountTypeSuggestions = result.data;
+    });
+  }
+
+  onValueChange(event, dtLedger): void {
     this.valueTimeout = setTimeout(() => {
       this.valueFilter = event.value;
       dtLedger.filter(event.value, 'value', 'gt');
     }, 250);
   }
+
+  onAccountTypeChange(event, dtLedger): void {
+    this.accountTypeId = event.id;
+    dtLedger.filter(event.id, 'account_type_id', 'eq');
+  }
+
+  onFilterClear(attribute, dtLedger): void {
+    dtLedger.filter(null, attribute);
+  }
+
 
   ngOnInit() {
     this.initializeCol();

@@ -36,6 +36,7 @@ export class FinancePocServiceProxy {
         return this.http.get(url).pipe(map((response: any) => response));
 
     }
+
     getAccounts(keyword: string | null | undefined) {
         const url = this.baseUrl + '/accounts';
         const params: any = {};
@@ -67,6 +68,15 @@ export class FinancePocServiceProxy {
     getLedgerById(id) {
         const url = this.baseUrl + '/ledgers/' + id;
         return this.http.get(url).pipe(map((response: any) => response));
+    }
+
+    getAccountTypes(keyword: string) {
+        const url = this.baseUrl + '/accounts';
+        const params: any = {};
+        if (keyword !== undefined) {
+            params.keyword = keyword;
+        }
+        return this.http.get(url, { params }).pipe(map((response: any) => response));
     }
 
 }
