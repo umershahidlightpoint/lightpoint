@@ -71,7 +71,7 @@ export class FinancePocServiceProxy {
     }
 
     getAccountTypes(keyword: string) {
-        const url = this.baseUrl + '/accounts';
+        const url = this.baseUrl + '/account_types';
         const params: any = {};
         if (keyword !== undefined) {
             params.keyword = keyword;
