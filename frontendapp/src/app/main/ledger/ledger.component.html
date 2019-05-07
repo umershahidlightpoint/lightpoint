@@ -59,12 +59,9 @@
         <tr [pReorderableRow]="index" style="height:30px">
           <td style="width: 70px">
             <div class="btn-group dropdown">
-              <button (click)="editLedger(rowData.id)" class="btn btn-md">
-                <i class="fa fa-gear settings_icon"></i>
+              <button (click)="getLedgerById(rowData.id)" [pRowToggler]="rowData">
+                <i class="fa fa-edit"></i>
               </button>
-              <a (click)="getLedgerById(rowData.id)" href="#" [pRowToggler]="rowData">Expand
-                <i [ngClass]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></i>
-              </a>
             </div>
           </td>
           <td *ngFor="let col of columns">

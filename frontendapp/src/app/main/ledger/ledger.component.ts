@@ -28,6 +28,8 @@ export class LedgerComponent implements AppComponentBase, OnInit {
   valueTimeout: any;
   valueFilter: number;
 
+  expandedItems: any[];
+
   @Input() fundId: any;
   ledger: any[];
   ledgerCols: any[];

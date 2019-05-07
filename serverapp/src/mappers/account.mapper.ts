@@ -14,7 +14,6 @@ export class AccountMapper {
       accountType: {
         id: data.accountType.id,
         name: data.accountType.name,
-        description: data.accountType.description
       }
     };
   }
