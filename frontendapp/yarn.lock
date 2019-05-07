@@ -4554,6 +4554,10 @@ postcss@7.0.14, postcss@^7.0.0, postcss@^7.0.1, postcss@^7.0.13:
     source-map "^0.6.1"
     supports-color "^6.1.0"
 
+primeicons@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/primeicons/-/primeicons-1.0.0.tgz#90061f168ef6227f21f0a7db8204ffa85cd27aec"
+
 primeng@^7.1.2:
   version "7.1.2"
   resolved "https://registry.yarnpkg.com/primeng/-/primeng-7.1.2.tgz#0aa78bb1550d3fcaccdf2af394115faaf54e2751"

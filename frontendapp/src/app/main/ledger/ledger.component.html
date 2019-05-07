@@ -8,7 +8,7 @@
           <th style="width: 70px;">
             Actions
           </th>
-          <th *ngFor="let col of columns" mwlDraggable (dragEnd)="dragEnd(col.header)" pReorderableColumn>
+          <th *ngFor="let col of columns" pReorderableColumn>
             {{col.header}}
           </th>
         </tr>
