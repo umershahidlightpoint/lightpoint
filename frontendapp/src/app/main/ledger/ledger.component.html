@@ -1,13 +1,12 @@
 <div *ngIf="ledgerGrid" class="div primeng-datatable-container">
-  <p-panel header="Ledger" [toggleable]="true" [style]="{'padding':'inherit'}">
-    <p-table scrollable="true" [style]="{'padding':'inherit'}" scrollHeight="400px" [reorderableColumns]="true" [columns]="ledgerCols"
-      [value]="ledger" (onLazyLoad)="getLegderByFundId(null,$event)">
+  <p-panel header="Ledger" [toggleable]="true">
+    <p-table scrollable="true" scrollHeight="400px" [reorderableColumns]="true" [columns]="ledgerCols" [value]="ledger" (onLazyLoad)="getLegderByFundId(null,$event)">
       <ng-template pTemplate="header" let-columns>
         <tr>
           <th style="width: 70px;">
             Actions
           </th>
-          <th *ngFor="let col of columns" pReorderableColumn>
+          <th *ngFor="let col of columns" mwlDraggable (dragEnd)="dragEnd(col.header)" pReorderableColumn>
             {{col.header}}
           </th>
         </tr>

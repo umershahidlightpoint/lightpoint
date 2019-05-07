@@ -31,8 +31,9 @@ import {
 } from "ngx-bootstrap";
 import { LegderModalComponent } from './main/legder-modal/legder-modal.component';
 import { AngularSplitModule } from 'angular-split';
-import {PanelModule} from 'primeng/panel';
+import { PanelModule } from 'primeng/panel';
 import { GroupByAccountComponent } from './main/group-by-account/group-by-account.component';
+import { DragAndDropModule } from 'angular-draggable-droppable';
 @NgModule({
   declarations: [
     AppComponent,
@@ -59,6 +60,7 @@ import { GroupByAccountComponent } from './main/group-by-account/group-by-accoun
     ScheduleModule,
     TabViewModule, BrowserAnimationsModule,
     NoopAnimationsModule,
+    DragAndDropModule,
     AngularSplitModule.forRoot(),
     CalendarModule
   ],

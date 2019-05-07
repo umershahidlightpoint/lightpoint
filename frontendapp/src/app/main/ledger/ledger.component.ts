@@ -1,4 +1,4 @@
-import { Component, OnInit, Injector, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, Injector, Input, ViewChild, EventEmitter, Output } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { LazyLoadEvent } from 'primeng/components/common/lazyloadevent';
 import { AppComponentBase } from '../../../shared/common/app-component-base';
@@ -30,6 +30,7 @@ export class LedgerComponent implements AppComponentBase {
   customerSearch = { id: undefined };
   tempCustomerSearch = "";
   tempAccountSearch = "";
+  @Output() droppable = new EventEmitter<any>();
   @ViewChild('applegdermodal') applegdermodal: LegderModalComponent;
   constructor(injector: Injector,
     private _fundsService: FinancePocServiceProxy) {
@@ -87,7 +88,6 @@ export class LedgerComponent implements AppComponentBase {
   }
 
   editLedger(id: number) {
-    debugger
     this.applegdermodal.ledgerId = id;
     this.applegdermodal.show();
   }
@@ -104,7 +104,6 @@ export class LedgerComponent implements AppComponentBase {
   }
 
   onSearchAccount(event): void {
-    debugger
     this.tempAccountNumber = event.query;
     this._fundsService.getAccounts(event.query).subscribe(result => {
       this.accounts = result.data;
@@ -112,7 +111,6 @@ export class LedgerComponent implements AppComponentBase {
   }
 
   onSearchCustomer(event): void {
-    debugger
     this.tempCustomerNumber = event.query;
     this._fundsService.getCustomers(event.query).subscribe(result => {
       this.customers = result.data;
@@ -121,6 +119,13 @@ export class LedgerComponent implements AppComponentBase {
   ngOnInit() {
 
     this.initializeCol();
+  }
+  dragEnd(header: string) {
+    if (header === "Account") {
+      this.droppable.emit(true);
+
+    }
+
   }
 
 

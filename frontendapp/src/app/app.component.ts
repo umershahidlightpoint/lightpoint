@@ -19,9 +19,11 @@ export class AppComponent extends AppComponentBase {
   ledger: any[];
   ledgerCols: any[];
   fundsCols: any[];
+  accountGrid = false;
   primengTableHelper: PrimengTableHelper;
   ledgerGrid = false;
   ledgerInput = false;
+  droppedData: string;
   constructor(injector: Injector,
     private _fundsService: FinancePocServiceProxy) {
     super(injector);
@@ -64,5 +66,9 @@ export class AppComponent extends AppComponentBase {
   }
   ngOnInit() {
     this.initializeCol();
+  }
+  accountGroupByGrid() {
+    debugger
+    this.accountGrid = true;
   }
 }
