@@ -81,6 +81,10 @@ export class LegderModalComponent implements OnInit {
       this.getLedgerById(this.ledgerId);
     this.active = true;
     this.modal.show();
+    this.account = [];
+    this.customer = [];
+    this.ledger.value = null;
+
   }
 
   getLedgerById(id) {

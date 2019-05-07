@@ -64,7 +64,8 @@ export class UpdateLedgerModalComponent implements OnInit {
     this.ledger.account_id = this.account.id;
     if (this.ledgerId > 0 || this.ledgerId !== undefined) {
       this._service.updateLedger(this.ledgerId, this.ledger).subscribe(res => {
-        this.modalClose.emit(this.ledger.fund_id);
+        this.modalClose.emit(true);
+        this.close();
       });
     }
     else {

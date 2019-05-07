@@ -103,6 +103,14 @@ export class LedgerComponent implements AppComponentBase, OnInit {
   }
 
 
+  onSave(fundId) {
+    this.ledger = null;
+    this.loading = true;
+    setTimeout(() => {
+      this.getLegderByFundId(fundId);
+    }, 250);
+  }
+
   /**
    * 
    * @param fundId 
@@ -136,7 +144,7 @@ export class LedgerComponent implements AppComponentBase, OnInit {
     this._fundsService.getLedger(this.fundId, page, params).subscribe(result => {
       this.totalRecords = result.meta.total;
       this.itemPerPage = result.meta.limit;
-
+      this.ledger = [];
       this.ledger = result.data.map(item => ({
         account: item.account.name,
         accountType: item.accountType.name,
@@ -147,6 +155,7 @@ export class LedgerComponent implements AppComponentBase, OnInit {
         effectiveDate: moment(item.effectiveDate).format('MMM-DD-YYYY'),
         id: item.id
       }));
+
       debugger;
 
       this.ledgerGrid = true;
