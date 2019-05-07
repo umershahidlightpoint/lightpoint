@@ -32,19 +32,10 @@ export class LedgerMapper {
   }
 
   public async mapGroupedItem(data: LedgerInstance): Promise<GroupedLedgerDTO> {
-    if (data["Account"]) {
-      return await {
-        id: data.Account.id || null,
-        name: data.Account.name || null,
-        value: data.value || null
-      };
-    }
-    if (data["Customer"]) {
-      return await {
-        id: data.Customer.id || null,
-        name: `${data.Customer.first_name} ${data.Customer.last_name}` || null,
-        value: data.value || null
-      };
-    }
+    return await {
+      id: data.Account.id || null,
+      name: data.Account.name || null,
+      value: data.value || null
+    };
   }
 }
