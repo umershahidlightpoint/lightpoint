@@ -107,21 +107,34 @@ export class LedgerService implements ILedgerService {
       if (!_.isEmpty(params.customer_id)) {
         criteria["customer_id"] = params.customer_id;
       }
+      if (_.isNumber(_.toNumber(params.value)) && params.value > 0) {
+        criteria["value"] = { [Sequelize.Op.gte]: _.toNumber(params.value) };
+      }
+      const accountTypeCriteria = {};
+      if (!_.isEmpty(params.account_type_id)) {
+        accountTypeCriteria["account_type_id"] = params.account_type_id;
+      }
 
       const ledgers: Ledger = await Ledger.findAndCountAll({
         ...sorting,
         ...pagination,
-        where: {
-          ...criteria
-        },
         include: [
           Fund,
           Customer,
           {
             model: Account,
-            include: [{ model: AccountType, as: "accountType" }]
+            where: { ...accountTypeCriteria },
+            include: [
+              {
+                model: AccountType,
+                as: "accountType"
+              }
+            ]
           }
-        ]
+        ],
+        where: {
+          ...criteria
+        }
       });
 
       const meta = this.serviceHelper.meta(
@@ -129,6 +142,7 @@ export class LedgerService implements ILedgerService {
         params.page,
         pagination.limit
       );
+      //console.log("&&&&&&&&&&", ledgers);
 
       result.data = ledgers.rows;
       result.meta = meta;
@@ -145,22 +159,28 @@ export class LedgerService implements ILedgerService {
       let group_by = {};
       if (input.group_by === "account") {
         group_by = {
-          group: ["Account.id"],
-          include: [{ model: Account, attributes: ["id", "name"] }]
+          include: [{ model: Account, attributes: ["id", "name"] }],
+          group: ["Account.id"]
         };
       }
       if (input.group_by === "customer") {
         group_by = {
-          group: ["Customer.id"],
           include: [
             { model: Customer, attributes: ["id", "first_name", "last_name"] }
-          ]
+          ],
+          group: ["Customer.id"]
         };
       }
       if (input.group_by === "account_type") {
         group_by = {
-          group: ["Account.id"],
-          include: [{ model: Account, attributes: ["id", "name"] }]
+          include: [
+            {
+              model: Account,
+              attributes: ["account_type_id"]
+            }
+          ],
+          raw: true,
+          group: ["Account.account_type_id"]
         };
       }
 
@@ -179,6 +199,17 @@ export class LedgerService implements ILedgerService {
         input.page,
         pagination.limit
       );
+
+      if (input.group_by === "account_type") {
+        await Promise.all(
+          ledgers.rows.map(async element => {
+            const ledger = await AccountType.findByPk(
+              element["Account.account_type_id"]
+            );
+            return (element["AccountType.name"] = ledger.name);
+          })
+        );
+      }
 
       result.data = ledgers.rows;
       result.meta = meta;

@@ -3,7 +3,7 @@ import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-
 import { LazyLoadEvent } from 'primeng/components/common/lazyloadevent';
 import { AppComponentBase } from '../../../shared/common/app-component-base';
 import { PrimengTableHelper } from '../../../shared/helpers/PrimengTableHelper';
-import { DialogModule, Dialog } from 'primeng/dialog'
+import { DialogModule, Dialog } from 'primeng/dialog';
 import { LegderModalComponent } from '../legder-modal/legder-modal.component';
 import * as moment from 'moment';
 import { UpdateLedgerModalComponent } from '../update-ledger-modal/update-ledger-modal.component';
@@ -24,6 +24,10 @@ export class LedgerComponent implements AppComponentBase, OnInit {
   loading: boolean;
   @ViewChild('appupdateledgermodal') appupdateledgermodal: UpdateLedgerModalComponent;
   @ViewChild("accountInput") accountInput;
+
+  valueTimeout: any;
+  valueFilter: number;
+
   @Input() fundId: any;
   ledger: any[];
   ledgerCols: any[];
@@ -31,16 +35,24 @@ export class LedgerComponent implements AppComponentBase, OnInit {
   ledgerGrid = false;
   ledgerInput = false;
   displayDialog: boolean;
-  tempAccountNumber: "";
-  tempCustomerNumber: "";
+  tempAccountNumber: '';
+  tempCustomerNumber: '';
+
+  accountTypeModel: string;
+  accountTypeSuggestions: any[];
+
   accounts: any[];
   customers: any[];
   expAccounts: any[];
   expCustomers: any[];
   accountSearch = { id: undefined };
   customerSearch = { id: undefined };
-  tempCustomerSearch = "";
-  tempAccountSearch = "";
+  accountTypeId = undefined;
+
+  tempCustomerSearch = '';
+  tempAccountSearch = '';
+
+
   @Output() droppable = new EventEmitter<any>();
   @ViewChild('applegdermodal') applegdermodal: LegderModalComponent;
   constructor(injector: Injector,
@@ -60,22 +72,26 @@ export class LedgerComponent implements AppComponentBase, OnInit {
     this.displayDialog = true;
   }
 
-  customerSelect(event: any) {
+  customerSelect(event: any, dtLedger) {
+    dtLedger.filter(event.id, 'customer_id');
     this.customerSearch.id = event.id;
-    this.getLegderByFundId(this.fundId);
   }
-  accountSelect(event: any) {
+
+  accountSelect(event: any, dtLedger) {
+    dtLedger.filter(event.id, 'account_id');
     this.accountSearch.id = event.id;
-    this.getLegderByFundId(this.fundId);
   }
-  onClearAccounts() {
-    this.accountSearch.id = undefined
-    this.getLegderByFundId(this.fundId);
+
+  onClearAccounts(dtLedger) {
+    this.accountSearch.id = undefined;
+    dtLedger.filter(null, 'account_id');
   }
-  onClearCustomers() {
-    this.customerSearch.id = undefined
-    this.getLegderByFundId(this.fundId);
+
+  onClearCustomers(dtLedger) {
+    this.customerSearch.id = undefined;
+    dtLedger.filter(null, 'customer_id');
   }
+
 
   /**
    * 
@@ -89,11 +105,23 @@ export class LedgerComponent implements AppComponentBase, OnInit {
     // this.primengTableHelper.defaultRecordsCountPerPage = 40;
     let page = 1;
     if (event) {
-      const first = event.first;
-      const itemPerPage = event.rows;
-      page = (first / itemPerPage) + 1;
+      page = (event.first / event.rows) + 1;
     }
-    this._fundsService.getLedger(this.fundId, page, this.customerSearch.id, this.accountSearch.id).subscribe(result => {
+    const params: any = {};
+    if (this.customerSearch.id) {
+      params.customer_id = this.customerSearch.id;
+    }
+    if (this.accountSearch.id) {
+      params.account_id = this.accountSearch.id;
+    }
+    if (this.accountTypeId) {
+      params.account_type_id = this.accountTypeId;
+    }
+    if (this.valueFilter) {
+      params.value = this.valueFilter;
+    }
+
+    this._fundsService.getLedger(this.fundId, page, params).subscribe(result => {
       this.totalRecords = result.meta.total;
       this.itemPerPage = result.meta.limit;
       this.ledger = result.data.map(item => ({
@@ -140,16 +168,47 @@ export class LedgerComponent implements AppComponentBase, OnInit {
     });
   }
 
-
-
   getLedgerById(id) {
     this._fundsService.getLedgerById(id).subscribe(result => {
       this.appupdateledgermodal.getFormData(result);
     })
   }
+
+  onSearchAccountType(event): void {
+    console.log(event);
+    this._fundsService.getAccountTypes(event.query).subscribe(result => {
+      this.accountTypeSuggestions = result.data;
+    });
+  }
+
+  onValueChange(event, dtLedger): void {
+    this.valueTimeout = setTimeout(() => {
+      this.valueFilter = event.value;
+      dtLedger.filter(event.value, 'value', 'gt');
+    }, 250);
+  }
+
+  onAccountTypeChange(event, dtLedger): void {
+    this.accountTypeId = event.id;
+    dtLedger.filter(event.id, 'account_type_id', 'eq');
+  }
+
+  onFilterClear(attribute, dtLedger): void {
+    dtLedger.filter(null, attribute);
+  }
+
   ngOnInit() {
     this.initializeCol();
+    this.resetFilter();
   }
+
+  resetFilter(): void {
+    this.valueTimeout = null;
+    this.valueFilter = null;
+    this.accountSearch.id = undefined;
+    this.customerSearch.id = undefined;
+  }
+
   dragEnd(header: string) {
     if (header === "Account") {
       this.droppable.emit(true);
