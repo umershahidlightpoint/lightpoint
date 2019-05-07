@@ -51,7 +51,6 @@ export class AppComponent extends AppComponentBase {
   }
 
   createLedger() {
-    debugger
     this.applegdermodal.show();
   }
 
@@ -68,7 +67,6 @@ export class AppComponent extends AppComponentBase {
     this.initializeCol();
   }
   accountGroupByGrid() {
-    debugger
     this.accountGrid = true;
   }
 }

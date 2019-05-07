@@ -58,7 +58,6 @@ export class UpdateLedgerModalComponent implements OnInit {
   }
 
   save() {
-    debugger
     this.ledger.effectiveDate = moment(this.effectiveDate).format('YYYY-MM-DD');
     this.ledger.customer_id = this.customer.id;
     this.ledger.account_id = this.account.id;
@@ -83,7 +82,6 @@ export class UpdateLedgerModalComponent implements OnInit {
   }
 
   getFormData(event: any) {
-    debugger
     this.customer = event.customer;
     this.account = event.account;
     this.ledger.value = event.value;
