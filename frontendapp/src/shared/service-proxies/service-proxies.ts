@@ -14,31 +14,21 @@ export class FinancePocServiceProxy {
 
     constructor(http: HttpClient) {
         this.http = http;
-        this.baseUrl = API_BASE_URL
+        this.baseUrl = API_BASE_URL;
     }
 
     getLedger(id: string, page: number, customer_id: number | undefined, account_id: number | undefined) {
-        let params = {};
-        let url_ = this.baseUrl + "/ledgers?fund_id={id}&page=" + page + "&";
-
-        url_ = url_.replace('{id}', id);
+        const params: any = {};
+        params.page = page;
+        params.fund_id = id;
+        const url = this.baseUrl + '/ledgers';
         if (customer_id !== undefined) {
-            url_ += "customer_id=" + encodeURIComponent("" + customer_id) + "&";
+            params.customer_id = customer_id;
         }
         if (account_id !== undefined) {
-            url_ += "account_id=" + encodeURIComponent("" + account_id);
+            params.account_id = account_id;
         }
-        let options_: any = {
-            observe: "response",
-            responseType: "json",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.get(url_, { params }).pipe(map((response: any) => response));
-
+        return this.http.get(url, { params }).pipe(map((response: any) => response));
     }
     groupByCustomer(id) {
         debugger
@@ -56,105 +46,42 @@ export class FinancePocServiceProxy {
         return this.http.get(url_).pipe(map((response: any) => response));
     }
     getFunds() {
-        let url_ = this.baseUrl + "/funds";
-
-        let options_: any = {
-            observe: "response",
-            responseType: "json",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.get(url_).pipe(map((response: any) => response));
+        const url = this.baseUrl + '/funds';
+        return this.http.get(url).pipe(map((response: any) => response));
 
     }
-    getAccounts(searchTerm: string | null | undefined) {
-        let url_ = this.baseUrl + "/accounts?keyword=";
-        if (searchTerm !== undefined)
-            url_ += encodeURIComponent(searchTerm)
-
-
-        let options_: any = {
-            observe: "response",
-            responseType: "json",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.get(url_).pipe(map((response: any) => response));
+    getAccounts(keyword: string | null | undefined) {
+        const url = this.baseUrl + '/accounts';
+        const params: any = {};
+        if (keyword !== undefined) {
+            params.keyword = keyword;
+        }
+        return this.http.get(url, { params }).pipe(map((response: any) => response));
     }
-    getCustomers(searchTerm: string | null | undefined) {
-        let url_ = this.baseUrl + "/customers?keyword=";
-        if (searchTerm !== undefined)
-            url_ += encodeURIComponent(searchTerm)
 
-
-        let options_: any = {
-            observe: "response",
-            responseType: "json",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.get(url_).pipe(map((response: any) => response));
+    getCustomers(keyword: string | null | undefined) {
+        const url = this.baseUrl + '/customers';
+        const params: any = {};
+        if (keyword !== undefined) {
+            params.keyword = keyword;
+        }
+        return this.http.get(url).pipe(map((response: any) => response));
     }
 
     createLedger(data: LedgerInput) {
-        let url_ = this.baseUrl + "/ledgers";
-        const content_ = JSON.stringify(data);
-        let options_: any = {
-            body: content_,
-            observe: "response",
-            responseType: "json",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-        return this.http.post(url_, content_, options_).pipe(map((response: any) => response));
+        const url = this.baseUrl + '/ledgers';
+        return this.http.post(url, { params: data }).pipe(map((response: any) => response));
 
     }
     updateLedger(ledgerId: any | undefined, data: LedgerInput) {
-        debugger
-        let url_ = this.baseUrl + "/ledgers/";
-        if (ledgerId !== undefined)
-            url_ += encodeURIComponent(ledgerId);
-        const content_ = JSON.stringify(data);
-        let options_: any = {
-            body: content_,
-            observe: "response",
-            responseType: "json",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-        return this.http.put(url_, content_, options_).pipe(map((response: any) => response));
+        const url = this.baseUrl + '/ledgers/' + ledgerId;
+        return this.http.put(url, { params: data }).pipe(map((response: any) => response));
     }
+
     getLedgerById(id) {
-        let url_ = this.baseUrl + "/ledgers/";
-        if (id !== undefined)
-            url_ += encodeURIComponent(id)
-
-
-        let options_: any = {
-            observe: "response",
-            responseType: "json",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.get(url_).pipe(map((response: any) => response));
+        const url = this.baseUrl + '/ledgers/' + id;
+        return this.http.get(url).pipe(map((response: any) => response));
     }
-
 
 }
 
