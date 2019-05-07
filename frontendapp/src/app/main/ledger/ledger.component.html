@@ -1,9 +1,8 @@
 <div *ngIf="ledgerGrid" class="div primeng-datatable-container">
   <p-panel header="Ledger" [style]="{'padding':'inherit'}" class="ledger-panel no-padding">
-    <p-table #dtLedger scrollable="true" [style]="{'padding':'inherit'}" scrollHeight="400px" [rows]="40"
-      [paginator]="false" [totalRecords]="totalRecords" [loading]="loading" [reorderableColumns]="true"
-      [columns]="ledgerCols" [lazy]="true" [value]="ledger" [virtualScroll]="true"
-      (onLazyLoad)="getLegderByFundId(fundId, $event)" dataKey="id" [expandedRowKeys]="expandedRows">
+    <p-table #dtLedger scrollable="true" [style]="{'padding':'inherit'}" scrollHeight="400px" [rows]="40" [paginator]="false"
+      [totalRecords]="totalRecords" [loading]="loading" [reorderableColumns]="true" [columns]="ledgerCols" [lazy]="true" [value]="ledger"
+      [virtualScroll]="true" (onLazyLoad)="getLegderByFundId(fundId, $event)" dataKey="id" [expandedRowKeys]="expandedRows">
       <ng-template pTemplate="header" let-columns>
         <tr>
           <th style="width: 70px;">
@@ -16,9 +15,8 @@
         <tr>
           <th></th>
           <th *ngFor="let col of columns" [ngSwitch]="col.field">
-            <p-autoComplete appendTo="body" *ngSwitchCase="'account'" placeholder="Search..." #accountInput
-              class="font-size-12" [ngStyle]="{'border-color': 'red'}" [(ngModel)]="tempAccountSearch" field="name"
-              (onClear)="onClearAccounts(dtLedger)" (onSelect)="accountSelect($event, dtLedger)"
+            <p-autoComplete appendTo="body" *ngSwitchCase="'account'" placeholder="Search..." #accountInput class="font-size-12" [ngStyle]="{'border-color': 'red'}"
+              [(ngModel)]="tempAccountSearch" field="name" (onClear)="onClearAccounts(dtLedger)" (onSelect)="accountSelect($event, dtLedger)"
               [suggestions]="accounts" name="accountName" (completeMethod)="onSearchAccount($event)" [dropdown]="true">
               <ng-template let-account pTemplate="accountTemplate">
                 <div class="ui-helper-clearfix" style="border-bottom:1px solid #D5D5D5">
@@ -29,10 +27,9 @@
               </ng-template>
             </p-autoComplete>
 
-            <p-autoComplete appendTo="body" *ngSwitchCase="'customer'" (onClear)="onClearCustomers(dtLedger)"
-              placeholder="Search..." class="font-size-12" [ngStyle]="{'border-color': 'red'}"
-              [(ngModel)]="tempCustomerSearch" [suggestions]="customers" field="name" name="customerName"
-              (onSelect)="customerSelect($event, dtLedger)" (completeMethod)="onSearchCustomer($event)"
+            <p-autoComplete appendTo="body" *ngSwitchCase="'customer'" (onClear)="onClearCustomers(dtLedger)" placeholder="Search..."
+              class="font-size-12" [ngStyle]="{'border-color': 'red'}" [(ngModel)]="tempCustomerSearch" [suggestions]="customers"
+              field="name" name="customerName" (onSelect)="customerSelect($event, dtLedger)" (completeMethod)="onSearchCustomer($event)"
               [dropdown]="true">
               <ng-template let-customer pTemplate="customerTemplate">
                 <div class="ui-helper-clearfix" style="border-bottom:1px solid #D5D5D5">
@@ -45,20 +42,18 @@
               </ng-template>
             </p-autoComplete>
 
-            <p-autoComplete appendTo="body" *ngSwitchCase="'accountType'"
-              (onClear)="accountTypeId=undefined;onFilterClear('account_type_id', dtLedger)" placeholder="Show All"
-              class="font-size-12" [ngStyle]="{'border-color': 'red'}" [(ngModel)]="accountTypeModel"
-              [suggestions]="accountTypeSuggestions" field="name" (onSelect)="onAccountTypeChange($event, dtLedger)"
-              [dropdown]="true" (completeMethod)="onSearchAccountType($event)">
+            <p-autoComplete appendTo="body" *ngSwitchCase="'accountType'" (onClear)="accountTypeId=undefined;onFilterClear('account_type_id', dtLedger)"
+              placeholder="Show All" class="font-size-12" [ngStyle]="{'border-color': 'red'}" [(ngModel)]="accountTypeModel"
+              [suggestions]="accountTypeSuggestions" field="name" (onSelect)="onAccountTypeChange($event, dtLedger)" [dropdown]="true"
+              (completeMethod)="onSearchAccountType($event)">
 
             </p-autoComplete>
 
             <div *ngSwitchCase="'value'">
               > {{valueFilter}}
-              <i class="fa fa-close" (click)="valueFilter=null;dtLedger.filter(null, 'value', col.filterMatchMode)"
-                style="cursor:pointer" *ngIf="valueFilter"></i>
-              <p-slider [style]="{'width':'100%','margin-top':'8px'}" [(ngModel)]="value" [min]="0" [max]="1000"
-                (onChange)="onValueChange($event, dtLedger)"></p-slider>
+              <i class="fa fa-close" (click)="valueFilter=null;dtLedger.filter(null, 'value', col.filterMatchMode)" style="cursor:pointer"
+                *ngIf="valueFilter"></i>
+              <p-slider [style]="{'width':'100%','margin-top':'6px','font-size':'12px'}" [(ngModel)]="value" [min]="0" [max]="1000" (onChange)="onValueChange($event, dtLedger)"></p-slider>
             </div>
 
           </th>
