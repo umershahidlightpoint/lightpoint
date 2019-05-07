@@ -27,7 +27,8 @@
       <div class="form-group row required">
         <label class="col-sm-3 col-form-label text-right control-label">Effective Date</label>
         <div class="col-sm-9">
-          <p-calendar required [(ngModel)]="effectiveDate" name="effectiveDate" dateFormat="mm-dd-yy" [showIcon]="true" [readonlyInput]="true">
+          <p-calendar appendTo="body" required [(ngModel)]="effectiveDate" name="effectiveDate" dateFormat="mm-dd-yy" [showIcon]="true"
+            [readonlyInput]="true">
           </p-calendar>
         </div>
       </div>

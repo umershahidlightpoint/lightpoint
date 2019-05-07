@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild, Output, Input, EventEmitter, ViewEncapsulation } from '@angular/core';
 import { LedgerInput, FinancePocServiceProxy } from 'src/shared/service-proxies/service-proxies';
 import * as moment from "moment";
-import { MessageService } from 'primeng/primeng';
 
 
 @Component({
@@ -27,7 +26,7 @@ export class UpdateLedgerModalComponent implements OnInit {
   effectiveDate = new Date();
   value: number;
   ledger: LedgerInput = new LedgerInput();
-  constructor(private _service: FinancePocServiceProxy, private messageService: MessageService) { }
+  constructor(private _service: FinancePocServiceProxy) { }
 
   ngOnInit() {
   }
@@ -87,7 +86,7 @@ export class UpdateLedgerModalComponent implements OnInit {
     this.customer = event.customer;
     this.account = event.account;
     this.ledger.value = event.value;
-    this.effectiveDate = event.effectiveDate;
+    this.effectiveDate = new Date(event.effectiveDate);
     this.ledgerId = event.id;
     this.ledger.fund_id = event.fund.id;
   }

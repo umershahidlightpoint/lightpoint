@@ -1,5 +1,5 @@
 <div *ngIf="isLoading ">
-  <p-panel header="Funds" [toggleable]="true">
+  <p-panel header="Funds">
     <p-table [columns]="fundsCols" [value]="funds" [reorderableColumns]="true" selectionMode="single" class="selectable-grid funds-grid"
       dataKey="id">
       <ng-template pTemplate="header" let-columns>
