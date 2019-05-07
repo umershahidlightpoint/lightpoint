@@ -83,8 +83,8 @@ export class LedgerComponent implements AppComponentBase, OnInit {
     // this.primengTableHelper.defaultRecordsCountPerPage = 40;
     let page = 1;
     if (event) {
-      let first = event.first;
-      let itemPerPage = event.rows;
+      const first = event.first;
+      const itemPerPage = event.rows;
       page = (first / itemPerPage) + 1;
     }
     this._fundsService.getLedger(this.fundId, page, this.customerSearch.id, this.accountSearch.id).subscribe(result => {

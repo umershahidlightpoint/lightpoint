@@ -1,8 +1,9 @@
 <div *ngIf="ledgerGrid" class="div primeng-datatable-container">
   <p-panel header="Ledger" [toggleable]="true" [style]="{'padding':'inherit'}" class="ledger-panel no-padding">
-    <p-table scrollable="true" [style]="{'padding':'inherit'}" scrollHeight="400px" [rows]="itemPerPage" [paginator]="false"
-      [totalRecords]="totalRecords" [loading]="loading" [reorderableColumns]="true" [columns]="ledgerCols" [lazy]="true" [value]="ledger"
-      [virtualScroll]="true" (onLazyLoad)="getLegderByFundId(fundId, $event)">
+    <p-table scrollable="true" [style]="{'padding':'inherit'}" scrollHeight="400px" [rows]="itemPerPage"
+      [paginator]="false" [totalRecords]="totalRecords" [loading]="loading" [reorderableColumns]="true"
+      [columns]="ledgerCols" [lazy]="true" [value]="ledger" [virtualScroll]="true"
+      (onLazyLoad)="getLegderByFundId(fundId, $event)" dataKey="id">
       <ng-template pTemplate="header" let-columns>
         <tr>
           <th style="width: 70px;">
@@ -15,12 +16,16 @@
         <tr>
           <th></th>
           <th *ngFor="let col of columns" [ngSwitch]="col.field">
-            <p-autoComplete appendTo="body" *ngSwitchCase="'account'" placeholder="Search..." #accountInput class="font-size-12" [ngStyle]="{'border-color': 'red'}"
-              [(ngModel)]="tempAccountSearch" (onClear)="onClearAccounts()" (onSelect)="accountSelect($event)" [suggestions]="accounts"
-              field="name" name="accountName" (completeMethod)="onSearchAccount($event)" [style]="{'width':'95%'}" [inputStyle]="{'width': '100%'}"></p-autoComplete>
-            <p-autoComplete appendTo="body" *ngSwitchCase="'customer'" (onClear)="onClearCustomers()" placeholder="Search..." class="font-size-12"
-              [ngStyle]="{'border-color': 'red'}" [(ngModel)]="tempCustomerSearch" [suggestions]="customers" field="name" name="customerName"
-              (onSelect)="customerSelect($event)" (completeMethod)="onSearchCustomer($event)" [style]="{'width':'95%'}" [inputStyle]="{'width': '100%'}">
+            <p-autoComplete appendTo="body" *ngSwitchCase="'account'" placeholder="Search..." #accountInput
+              class="font-size-12" [ngStyle]="{'border-color': 'red'}" [(ngModel)]="tempAccountSearch"
+              (onClear)="onClearAccounts()" (onSelect)="accountSelect($event)" [suggestions]="accounts" field="name"
+              name="accountName" (completeMethod)="onSearchAccount($event)" [style]="{'width':'95%'}"
+              [inputStyle]="{'width': '100%'}"></p-autoComplete>
+            <p-autoComplete appendTo="body" *ngSwitchCase="'customer'" (onClear)="onClearCustomers()"
+              placeholder="Search..." class="font-size-12" [ngStyle]="{'border-color': 'red'}"
+              [(ngModel)]="tempCustomerSearch" [suggestions]="customers" field="name" name="customerName"
+              (onSelect)="customerSelect($event)" (completeMethod)="onSearchCustomer($event)" [style]="{'width':'95%'}"
+              [inputStyle]="{'width': '100%'}">
             </p-autoComplete>
           </th>
         </tr>
@@ -32,6 +37,9 @@
               <button (click)="editLedger(rowData.id)" class="btn btn-md">
                 <i class="fa fa-gear settings_icon"></i>
               </button>
+              <a href="#" [pRowToggler]="rowData">Expand
+                <i [ngClass]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></i>
+              </a>
             </div>
           </td>
           <td *ngFor="let col of columns">
@@ -39,6 +47,32 @@
           </td>
         </tr>
       </ng-template>
+
+      <ng-template pTemplate="rowexpansion" let-rowData let-columns="columns">
+        <tr>
+          <td [attr.colspan]="columns.length + 1">
+            <div class="ui-g ui-fluid" style="font-size:16px;padding:20px">
+              <div class="ui-g-12 ui-md-9">
+                <div class="ui-g">
+                  <div class="ui-g-12">
+                    <b>Vin:</b> {{rowData.vin}}
+                  </div>
+                  <div class="ui-g-12">
+                    <b>Year:</b> {{rowData.year}}
+                  </div>
+                  <div class="ui-g-12">
+                    <b>Brand:</b> {{rowData.brand}}
+                  </div>
+                  <div class="ui-g-12">
+                    <b>Color:</b> {{rowData.color}}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
     </p-table>
   </p-panel>
 
