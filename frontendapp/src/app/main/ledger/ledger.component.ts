@@ -24,9 +24,11 @@ export class LedgerComponent implements AppComponentBase, OnInit {
   loading: boolean;
   @ViewChild('appupdateledgermodal') appupdateledgermodal: UpdateLedgerModalComponent;
   @ViewChild("accountInput") accountInput;
+  @ViewChild("dtLedger") dtLedger;
 
   valueTimeout: any;
   valueFilter: number;
+  expandedRows: {} = {};
 
   expandedItems: any[];
 
@@ -103,131 +105,132 @@ export class LedgerComponent implements AppComponentBase, OnInit {
   }
 
 
-  onSave(fundId) {
-    this.ledger = null;
-    this.loading = true;
-    setTimeout(() => {
-      this.getLegderByFundId(fundId);
-    }, 250);
-  }
-
-  /**
-   * 
-   * @param fundId 
-   * @param event 
-   */
-  getLegderByFundId(fundId?: string, event?: LazyLoadEvent) {
-    if (fundId != null) { this.fundId = fundId; }
-    console.log(`${this.fundId} --- fundId`, event);
-    //this.loading = true;
-    // this.primengTableHelper.defaultRecordsCountPerPage = 40;
-    let page = 1;
-    if (event) {
-      page = Math.ceil(event.first / 40) + 1;
-    }
-    const params: any = {};
-    if (this.customerSearch.id) {
-      params.customer_id = this.customerSearch.id;
-    }
-    if (this.accountSearch.id) {
-      params.account_id = this.accountSearch.id;
-    }
-    if (this.accountTypeId) {
-      params.account_type_id = this.accountTypeId;
-    }
-    if (this.valueFilter) {
-      params.value = this.valueFilter;
+    onSave(fundId) {
+      this.ledger = null;
+      this.loading = true;
+      this.expandedRows = {};
+      setTimeout(() => {
+        this.getLegderByFundId(fundId);
+      }, 250);
     }
 
-    console.log(`Page No is ${page}`)
-    this._fundsService.getLedger(this.fundId, page, params).subscribe(result => {
-      this.totalRecords = result.meta.total;
-      this.itemPerPage = result.meta.limit;
-      this.ledger = [];
-      this.ledger = result.data.map(item => ({
-        account: item.account.name,
-        accountType: item.accountType.name,
-        accountId: item.account.id,
-        customer: item.customer.name,
-        customerId: item.customer.Id,
-        value: item.value,
-        effectiveDate: moment(item.effectiveDate).format('MMM-DD-YYYY'),
-        id: item.id
-      }));
+    /**
+     * 
+     * @param fundId 
+     * @param event 
+     */
+    getLegderByFundId(fundId ?: string, event ?: LazyLoadEvent) {
+      if (fundId != null) { this.fundId = fundId; }
+      console.log(`${this.fundId} --- fundId`, event);
+      //this.loading = true;
+      // this.primengTableHelper.defaultRecordsCountPerPage = 40;
+      let page = 1;
+      if (event) {
+        page = Math.ceil(event.first / 40) + 1;
+      }
+      const params: any = {};
+      if (this.customerSearch.id) {
+        params.customer_id = this.customerSearch.id;
+      }
+      if (this.accountSearch.id) {
+        params.account_id = this.accountSearch.id;
+      }
+      if (this.accountTypeId) {
+        params.account_type_id = this.accountTypeId;
+      }
+      if (this.valueFilter) {
+        params.value = this.valueFilter;
+      }
+
+      console.log(`Page No is ${page}`)
+      this._fundsService.getLedger(this.fundId, page, params).subscribe(result => {
+        this.totalRecords = result.meta.total;
+        this.itemPerPage = result.meta.limit;
+        this.ledger = [];
+        this.ledger = result.data.map(item => ({
+          account: item.account.name,
+          accountType: item.accountType.name,
+          accountId: item.account.id,
+          customer: item.customer.name,
+          customerId: item.customer.Id,
+          value: item.value,
+          effectiveDate: moment(item.effectiveDate).format('MMM-DD-YYYY'),
+          id: item.id
+        }));
 
 
 
-      this.ledgerGrid = true;
-      this.loading = false;
-    });
-  }
+        this.ledgerGrid = true;
+        this.loading = false;
+      });
+    }
 
-  editLedger(id: number) {
-    this.applegdermodal.ledgerId = id;
-    this.applegdermodal.show();
-  }
+    editLedger(id: number) {
+      this.applegdermodal.ledgerId = id;
+      this.applegdermodal.show();
+    }
 
-  initializeCol() {
-    this.ledgerCols = [
-      { field: 'account', header: 'Account' },
-      { field: 'accountType', header: 'Account Type' },
-      { field: 'customer', header: 'Customer' },
-      { field: 'value', header: 'Value' },
-      { field: 'effectiveDate', header: 'Effective Date' }
-    ];
-  }
+    initializeCol() {
+      this.ledgerCols = [
+        { field: 'account', header: 'Account' },
+        { field: 'accountType', header: 'Account Type' },
+        { field: 'customer', header: 'Customer' },
+        { field: 'value', header: 'Value' },
+        { field: 'effectiveDate', header: 'Effective Date' }
+      ];
+    }
 
-  onSearchAccount(event): void {
-    this.tempAccountNumber = event.query;
-    this._fundsService.getAccounts(event.query).subscribe(result => {
-      this.accounts = result.data;
-    });
-  }
+    onSearchAccount(event): void {
+      this.tempAccountNumber = event.query;
+      this._fundsService.getAccounts(event.query).subscribe(result => {
+        this.accounts = result.data;
+      });
+    }
 
-  onSearchCustomer(event): void {
-    this.tempCustomerNumber = event.query;
-    this._fundsService.getCustomers(event.query).subscribe(result => {
-      this.customers = result.data;
-    });
-  }
+    onSearchCustomer(event): void {
+      this.tempCustomerNumber = event.query;
+      this._fundsService.getCustomers(event.query).subscribe(result => {
+        this.customers = result.data;
+      });
+    }
 
-  getLedgerById(id) {
+    getLedgerById(id) {
 
-    this._fundsService.getLedgerById(id).subscribe(result => {
-      this.appupdateledgermodal && this.appupdateledgermodal.getFormData(result);
-    })
-  }
-
-  onSearchAccountType(event): void {
+      this._fundsService.getLedgerById(id).subscribe(result => {
+        this.appupdateledgermodal && this.appupdateledgermodal.getFormData(result);
+      })
+    } 
+  
+onSearchAccountType(event): void {
     console.log(event);
-    this._fundsService.getAccountTypes(event.query).subscribe(result => {
-      this.accountTypeSuggestions = result.data;
-    });
-  }
+  this._fundsService.getAccountTypes(event.query).subscribe(result => {
+    this.accountTypeSuggestions = result.data;
+  });
+}
 
-  onValueChange(event, dtLedger): void {
-    this.valueTimeout = setTimeout(() => {
-      this.valueFilter = event.value;
+onValueChange(event, dtLedger): void {
+  this.valueTimeout = setTimeout(() => {
+    this.valueFilter = event.value;
       dtLedger.filter(event.value, 'value', 'gt');
-    }, 250);
-  }
+  }, 250);
+}
 
   onAccountTypeChange(event, dtLedger): void {
     this.accountTypeId = event.id;
-    dtLedger.filter(event.id, 'account_type_id', 'eq');
+  dtLedger.filter(event.id, 'account_type_id', 'eq');
+}
+
+onFilterClear(attribute, dtLedger): void {
+dtLedger.filter(null, attribute);
   }
 
-  onFilterClear(attribute, dtLedger): void {
-    dtLedger.filter(null, attribute);
-  }
-
-  ngOnInit() {
-    this.initializeCol();
+ngOnInit() {
+  this.initializeCol();
     this.resetFilter();
   }
-
+  
   resetFilter(): void {
-    this.valueTimeout = null;
+  this.valueTimeout = null;
     this.valueFilter = null;
     this.accountSearch.id = undefined;
     this.customerSearch.id = undefined;
