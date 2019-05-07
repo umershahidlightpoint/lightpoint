@@ -12,9 +12,14 @@ import * as moment from 'moment';
   templateUrl: './ledger.component.html',
   styleUrls: ['./ledger.component.css']
 })
-export class LedgerComponent implements AppComponentBase {
+export class LedgerComponent implements AppComponentBase, OnInit {
   newLedger: boolean;
   primengTableHelper: PrimengTableHelper;
+
+  totalRecords: number;
+  itemPerPage: number;
+  loading: boolean;
+
   @Input() fundId: any;
   ledger: any[];
   ledgerCols: any[];
@@ -65,13 +70,26 @@ export class LedgerComponent implements AppComponentBase {
     this.customerSearch.id = undefined
     this.getLegderByFundId(this.fundId);
   }
+
+  /**
+   * 
+   * @param fundId 
+   * @param event 
+   */
   getLegderByFundId(fundId?: string, event?: LazyLoadEvent) {
     if (fundId != null) { this.fundId = fundId; }
+    console.log(`${this.fundId} --- fundId`, event);
+    //this.loading = true;
     // this.primengTableHelper.defaultRecordsCountPerPage = 40;
-
-    this._fundsService.getLedger(this.fundId, 0, this.customerSearch.id, this.accountSearch.id).subscribe(result => {
-      // this.primengTableHelper.totalRecordsCount = result.meta.total;
-      // this.primengTableHelper.records = result.meta.limit;
+    let page = 1;
+    if (event) {
+      let first = event.first;
+      let itemPerPage = event.rows;
+      page = (first / itemPerPage) + 1;
+    }
+    this._fundsService.getLedger(this.fundId, page, this.customerSearch.id, this.accountSearch.id).subscribe(result => {
+      this.totalRecords = result.meta.total;
+      this.itemPerPage = result.meta.limit;
       this.ledger = result.data.map(item => ({
         account: item.account.name,
         accountType: item.accountType.name,
@@ -83,8 +101,8 @@ export class LedgerComponent implements AppComponentBase {
         id: item.id
       }));
       this.ledgerGrid = true;
-
-    })
+      this.loading = false;
+    });
   }
 
   editLedger(id: number) {
@@ -93,7 +111,6 @@ export class LedgerComponent implements AppComponentBase {
   }
 
   initializeCol() {
-
     this.ledgerCols = [
       { field: 'account', header: 'Account' },
       { field: 'accountType', header: 'Account Type' },
@@ -116,8 +133,8 @@ export class LedgerComponent implements AppComponentBase {
       this.customers = result.data;
     });
   }
-  ngOnInit() {
 
+  ngOnInit() {
     this.initializeCol();
   }
   dragEnd(header: string) {
