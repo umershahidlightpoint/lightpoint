@@ -3,3 +3,5 @@ dist
 build
 log
 config.json
+.nyc_output
+coverage

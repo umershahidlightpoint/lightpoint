@@ -9,7 +9,7 @@ const should = chai.should();
 
 describe("Ledgers", () => {
   describe("GET /v1/ledgers", () => {
-    it("Get all the Ledgers", done => {
+    it("Get all the Ledgers", () => {
       chai
         .request(app)
         .get("/v1/ledgers")
@@ -27,7 +27,6 @@ describe("Ledgers", () => {
             res.body.data[0].should.have.property("account");
             res.body.data[0].should.have.property("customer");
           }
-          done();
         });
     });
   });
