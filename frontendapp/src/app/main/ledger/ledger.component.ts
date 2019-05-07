@@ -106,7 +106,7 @@ export class LedgerComponent implements AppComponentBase, OnInit {
     // this.primengTableHelper.defaultRecordsCountPerPage = 40;
     let page = 1;
     if (event) {
-      page = (event.first / event.rows) + 1;
+      page = Math.ceil(event.first / 40) + 1;
     }
     const params: any = {};
     if (this.customerSearch.id) {
@@ -122,6 +122,7 @@ export class LedgerComponent implements AppComponentBase, OnInit {
       params.value = this.valueFilter;
     }
 
+    console.log(`Page No is ${page}`)
     this._fundsService.getLedger(this.fundId, page, params).subscribe(result => {
       this.totalRecords = result.meta.total;
       this.itemPerPage = result.meta.limit;
