@@ -34,13 +34,15 @@ import { AngularSplitModule } from 'angular-split';
 import { PanelModule } from 'primeng/panel';
 import { GroupByAccountComponent } from './main/group-by-account/group-by-account.component';
 import { DragAndDropModule } from 'angular-draggable-droppable';
+import { UpdateLedgerModalComponent } from './main/update-ledger-modal/update-ledger-modal.component';
 @NgModule({
   declarations: [
     AppComponent,
     FundsComponent,
     LedgerComponent,
     LegderModalComponent,
-    GroupByAccountComponent
+    GroupByAccountComponent,
+    UpdateLedgerModalComponent
   ],
   imports: [
     BrowserModule,

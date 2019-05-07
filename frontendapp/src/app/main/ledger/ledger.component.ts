@@ -1,4 +1,4 @@
-import { Component, OnInit, Injector, Input, ViewChild, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Injector, Input, ViewChild, EventEmitter, Output, ViewEncapsulation } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { LazyLoadEvent } from 'primeng/components/common/lazyloadevent';
 import { AppComponentBase } from '../../../shared/common/app-component-base';
@@ -6,11 +6,14 @@ import { PrimengTableHelper } from '../../../shared/helpers/PrimengTableHelper';
 import { DialogModule, Dialog } from 'primeng/dialog'
 import { LegderModalComponent } from '../legder-modal/legder-modal.component';
 import * as moment from 'moment';
+import { UpdateLedgerModalComponent } from '../update-ledger-modal/update-ledger-modal.component';
 
 @Component({
   selector: 'app-ledger',
   templateUrl: './ledger.component.html',
-  styleUrls: ['./ledger.component.css']
+  styleUrls: ['./ledger.component.css'],
+  encapsulation: ViewEncapsulation.None
+
 })
 export class LedgerComponent implements AppComponentBase, OnInit {
   newLedger: boolean;
@@ -19,7 +22,8 @@ export class LedgerComponent implements AppComponentBase, OnInit {
   totalRecords: number;
   itemPerPage: number;
   loading: boolean;
-
+  @ViewChild('appupdateledgermodal') appupdateledgermodal: UpdateLedgerModalComponent;
+  @ViewChild("accountInput") accountInput;
   @Input() fundId: any;
   ledger: any[];
   ledgerCols: any[];
@@ -31,6 +35,8 @@ export class LedgerComponent implements AppComponentBase, OnInit {
   tempCustomerNumber: "";
   accounts: any[];
   customers: any[];
+  expAccounts: any[];
+  expCustomers: any[];
   accountSearch = { id: undefined };
   customerSearch = { id: undefined };
   tempCustomerSearch = "";
@@ -134,6 +140,13 @@ export class LedgerComponent implements AppComponentBase, OnInit {
     });
   }
 
+
+
+  getLedgerById(id) {
+    this._fundsService.getLedgerById(id).subscribe(result => {
+      this.appupdateledgermodal.getFormData(result);
+    })
+  }
   ngOnInit() {
     this.initializeCol();
   }

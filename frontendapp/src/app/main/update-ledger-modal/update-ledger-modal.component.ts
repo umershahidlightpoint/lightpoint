@@ -1,18 +1,18 @@
-import { Component, OnInit, ViewChild, Output, EventEmitter, Input } from '@angular/core';
-import { ModalDirective } from 'ngx-bootstrap';
-import { FinancePocServiceProxy, LedgerInput } from '../../../shared/service-proxies/service-proxies';
+import { Component, OnInit, ViewChild, Output, Input, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { LedgerInput, FinancePocServiceProxy } from 'src/shared/service-proxies/service-proxies';
 import * as moment from "moment";
 
 @Component({
-  selector: 'app-legder-modal',
-  templateUrl: './legder-modal.component.html',
-  styleUrls: ['./legder-modal.component.css']
+  selector: 'app-update-ledger-modal',
+  templateUrl: './update-ledger-modal.component.html',
+  styleUrls: ['./update-ledger-modal.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
-export class LegderModalComponent implements OnInit {
+export class UpdateLedgerModalComponent implements OnInit {
+
 
   active = false;
   @ViewChild("accountInput") accountInput;
-  @ViewChild('modal') modal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
   @Input() fundId: any;
   @Input() ledgerId: any;
@@ -57,7 +57,7 @@ export class LegderModalComponent implements OnInit {
   }
 
   save() {
-
+    debugger
     this.ledger.effectiveDate = moment(this.effectiveDate).format('YYYY-MM-DD');
     this.ledger.customer_id = this.customer.id;
     this.ledger.account_id = this.account.id;
@@ -77,28 +77,22 @@ export class LegderModalComponent implements OnInit {
   }
 
   show() {
-    if (this.ledgerId)
-      this.getLedgerById(this.ledgerId);
-    this.active = true;
-    this.modal.show();
+
   }
 
-  getLedgerById(id) {
+  getFormData(event: any) {
     debugger
-    this._service.getLedgerById(id).subscribe(result => {
-      this.ledger.effectiveDate = result.effectiveDate;
-
-      this.customer = result.customer;
-      this.account = result.account;
-      this.ledger.value = result.value;
-      this.ledger.fund_id = result.fund.id;
-    })
+    this.customer = event.customer;
+    this.account = event.account;
+    this.ledger.value = event.value;
+    this.effectiveDate = event.effectiveDate;
+    this.ledgerId = event.id;
+    this.ledger.fund_id = event.fund.id;
   }
 
 
   close() {
     this.active = false;
     this.modalClose.emit(true);
-    this.modal.hide();
   }
 }
