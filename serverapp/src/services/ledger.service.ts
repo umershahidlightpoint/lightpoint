@@ -142,7 +142,6 @@ export class LedgerService implements ILedgerService {
         params.page,
         pagination.limit
       );
-      //console.log("&&&&&&&&&&", ledgers);
 
       result.data = ledgers.rows;
       result.meta = meta;
@@ -176,11 +175,18 @@ export class LedgerService implements ILedgerService {
           include: [
             {
               model: Account,
-              attributes: ["account_type_id"]
+              attributes: [],
+              include: [
+                {
+                  model: AccountType,
+                  as: "accountType",
+                  attributes: ["id", "name"]
+                }
+              ]
             }
           ],
-          raw: true,
-          group: ["Account.account_type_id"]
+          group: ["Account->accountType.id"],
+          raw: true
         };
       }
 
@@ -199,17 +205,6 @@ export class LedgerService implements ILedgerService {
         input.page,
         pagination.limit
       );
-
-      if (input.group_by === "account_type") {
-        await Promise.all(
-          ledgers.rows.map(async element => {
-            const ledger = await AccountType.findByPk(
-              element["Account.account_type_id"]
-            );
-            return (element["AccountType.name"] = ledger.name);
-          })
-        );
-      }
 
       result.data = ledgers.rows;
       result.meta = meta;

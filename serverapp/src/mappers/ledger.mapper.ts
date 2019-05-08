@@ -46,10 +46,10 @@ export class LedgerMapper {
         value: data.value || null
       };
     }
-    if (data["Account.account_type_id"]) {
+    if (data["Account.accountType.id"]) {
       return await {
-        id: data["Account.account_type_id"] || null,
-        name: data["AccountType.name"] || null,
+        id: data["Account.accountType.id"] || null,
+        name: data["Account.accountType.name"] || null,
         value: data.value || null
       };
     }
