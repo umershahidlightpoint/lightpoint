@@ -27,6 +27,8 @@ npm run dev<br />
 <p>In order to run unit tests.</p>
 <pre>
 cd serverapp <br />
+npx sequelize db:create --env=test<br />
+npx sequelize db:migrate --env=test<br />
 npm run test<br />
 </pre>
 

@@ -9,7 +9,7 @@
     "dev": "ts-node-dev --respawn --transpileOnly ./src/server.ts",
     "start": "node ./build/server.js",
     "prod": "npm run build && npm run start",
-    "test": "nyc mocha -r ts-node/register src/**/*.test.ts"
+    "test": "NODE_ENV=test nyc mocha --exit -r ts-node/register src/**/*.test.ts"
   },
   "author": "Usman Anwar",
   "license": "ISC",
