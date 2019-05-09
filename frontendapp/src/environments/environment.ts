@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  remoteServerUrl: 'http://localhost:8080/v1'
+  remoteServerUrl: 'http://localhost:3000/v1'
 };
 
 /*

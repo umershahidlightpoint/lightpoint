@@ -4,6 +4,9 @@ import { ILedgerForm } from "../form/iledger.form";
 import { ILedgerSearchForm } from "../form/iledgersearch.form";
 import { ILedgerGroupForm } from "../form/iledgergroup.form";
 import { ILedgerService } from "./iledger.service";
+import { ISortableService } from "./isortable.service";
+import { IGroupingService } from "./igrouping.service";
+import { Sorting } from "../helpers/iservice.helper";
 import { ServiceHelper } from "../helpers/service.helper";
 import { RecordNotFoundException } from "../exceptions/record_not_found_exception";
 import * as _ from "lodash";
@@ -13,7 +16,8 @@ interface IList {
   meta: object;
 }
 
-export class LedgerService implements ILedgerService {
+export class LedgerService
+  implements ILedgerService, ISortableService, IGroupingService {
   public serviceHelper: ServiceHelper = new ServiceHelper();
 
   public create = async (input: ILedgerForm): Promise<Ledger> => {
@@ -90,7 +94,7 @@ export class LedgerService implements ILedgerService {
     try {
       const result: IList = { data: [], meta: {} };
       const keyword: string = params.keyword ? params.keyword : "";
-      const sorting = this.serviceHelper.sorting(
+      const sorting: Sorting = this.sorting(
         params.sort,
         params.sort_direction,
         "effective_date",
@@ -155,40 +159,7 @@ export class LedgerService implements ILedgerService {
     try {
       const result: IList = { data: [], meta: {} };
       const pagination = this.serviceHelper.pagination(input.page);
-      let group_by = {};
-      if (input.group_by === "account") {
-        group_by = {
-          include: [{ model: Account, attributes: ["id", "name"] }],
-          group: ["Account.id"]
-        };
-      }
-      if (input.group_by === "customer") {
-        group_by = {
-          include: [
-            { model: Customer, attributes: ["id", "first_name", "last_name"] }
-          ],
-          group: ["Customer.id"]
-        };
-      }
-      if (input.group_by === "account_type") {
-        group_by = {
-          include: [
-            {
-              model: Account,
-              attributes: [],
-              include: [
-                {
-                  model: AccountType,
-                  as: "accountType",
-                  attributes: ["id", "name"]
-                }
-              ]
-            }
-          ],
-          group: ["Account->accountType.id"],
-          raw: true
-        };
-      }
+      const group_by: object = this.grouping(input.group_by);
 
       const ledgers: Ledger = await Ledger.findAndCountAll({
         ...pagination,
@@ -236,4 +207,72 @@ export class LedgerService implements ILedgerService {
       if (error) return Promise.reject(error);
     }
   };
+
+  public sorting(
+    sorting_column: string,
+    sorting_direction: string,
+    default_column: string,
+    default_direction: string
+  ): Sorting {
+    let order = [[default_column, default_direction]];
+    const sort_direction: string = sorting_direction
+      ? sorting_direction
+      : default_direction;
+    if (sorting_column === "ledger") {
+      order = [["effective_date", sort_direction]];
+    }
+    if (sorting_column === "fund") {
+      order = [[Fund, "name", sort_direction]];
+    }
+    if (sorting_column === "account") {
+      order = [[Account, "name", sort_direction]];
+    }
+    if (sorting_column === "customer") {
+      order = [[Customer, "first_name", sort_direction]];
+    }
+    if (sorting_column === "account_type") {
+      order = [[Account, "accountType", "name", sort_direction]];
+    }
+    return {
+      order
+    };
+  }
+
+  public grouping(group_by_column: string): object {
+    let group_by = {};
+    if (group_by_column === "account") {
+      group_by = {
+        include: [{ model: Account, attributes: ["id", "name"] }],
+        group: ["Account.id"]
+      };
+    }
+    if (group_by_column === "customer") {
+      group_by = {
+        include: [
+          { model: Customer, attributes: ["id", "first_name", "last_name"] }
+        ],
+        group: ["Customer.id"]
+      };
+    }
+    if (group_by_column === "account_type") {
+      group_by = {
+        include: [
+          {
+            model: Account,
+            attributes: [],
+            include: [
+              {
+                model: AccountType,
+                as: "accountType",
+                attributes: ["id", "name"]
+              }
+            ]
+          }
+        ],
+        group: ["Account->accountType.id"],
+        raw: true
+      };
+    }
+    return group_by;
+  }
 }
