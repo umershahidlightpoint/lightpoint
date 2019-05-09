@@ -3,8 +3,8 @@ import chaiHttp = require("chai-http");
 import app from "../app";
 import { Fund, AccountType, Account, Ledger, Customer } from "../models";
 import * as faker from "faker";
+import * as moment from "moment";
 import { delay } from "bluebird";
-import moment = require('moment');
 
 chai.use(chaiHttp);
 const should = chai.should();
@@ -84,6 +84,7 @@ describe("Ledgers", () => {
       }
     ];
     const funds = ["Q1-2018", "Q2-2018", "Q3-2018", "Q4-2018", "Q1-2019"];
+
     Promise.all(
       await accountTypes.map(async accountType => {
         let accountTypeRecord = await AccountType.findOne({
@@ -124,7 +125,7 @@ describe("Ledgers", () => {
         return await fundRecord.save();
       })
     );
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 5; i++) {
       const customer = new Customer({
         email: faker.internet.email(),
         password: faker.internet.password(),
@@ -133,9 +134,6 @@ describe("Ledgers", () => {
       });
       await customer.save();
     }
-
-    delay(5000);
-    console.log("RUNNING ENVIRONMENT :: ", process.env.NODE_ENV);
   });
 
   describe("GET /v1/ledgers", () => {
@@ -190,12 +188,12 @@ describe("Ledgers", () => {
   });
 
   describe("/POST /v1/ledgers", () => {
-    it("Create a New Ledger", async () => {
+    it("Create a New Ledger - Pass", async () => {
       const fund = await Fund.findAll();
       const account = await Account.findAll();
       const customer = await Customer.findAll();
       const ledger = {
-        value: 40,
+        value: faker.finance.amount(100, 1000, 2),
         effectiveDate: moment(new Date()).format("YYYY-MM-DD"),
         fund_id: fund[0].id,
         account_id: account[0].id,
@@ -220,24 +218,61 @@ describe("Ledgers", () => {
     });
   });
 
-  // describe("GET /v1/ledgers/:ledger_id", () => {
-  //   it("Get a Ledger By Id", async () => {
-  //     const ledger = await Ledger.findAll();
-  //     chai
-  //       .request(app)
-  //       .get("/v1/ledgers/" + ledger[0].id)
-  //       .set("Content-Type", "application/json")
-  //       .end((err, res) => {
-  //         res.should.have.status(200);
-  //         res.should.be.json;
-  //         res.body.should.be.a("object");
-  //         res.body.should.have.property("id");
-  //         res.body.should.have.property("value");
-  //         res.body.should.have.property("effectiveDate");
-  //         res.body.should.have.property("fund");
-  //         res.body.should.have.property("account");
-  //         res.body.should.have.property("customer");
-  //       });
-  //   });
-  // });
+  describe("/POST /v1/ledgers", () => {
+    it("Create a New Ledger - Fail", async () => {
+      const fund = await Fund.findAll();
+      const account = await Account.findAll();
+      const customer = await Customer.findAll();
+      const ledger = {};
+      chai
+        .request(app)
+        .post("/v1/ledgers")
+        .set("Content-Type", "application/x-www-form-urlencoded")
+        .send(ledger)
+        .end((err, res) => {
+          res.should.have.status(400);
+          res.should.be.json;
+          res.body.should.be.a("object");
+          res.body.should.have.property("code");
+          res.body.should.have.property("message");
+        });
+    });
+  });
+
+  describe("GET /v1/ledgers/:ledger_id", () => {
+    it("Get a Ledger By Id - Pass", async () => {
+      const ledger = await Ledger.findAll();
+      chai
+        .request(app)
+        .get("/v1/ledgers/" + ledger[0].id)
+        .set("Content-Type", "application/json")
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.should.be.json;
+          res.body.should.be.a("object");
+          res.body.should.have.property("id");
+          res.body.should.have.property("value");
+          res.body.should.have.property("effectiveDate");
+          res.body.should.have.property("fund");
+          res.body.should.have.property("account");
+          res.body.should.have.property("customer");
+        });
+    });
+  });
+
+  describe("GET /v1/ledgers/:ledger_id", () => {
+    it("Get a Ledger By Id - Fail", async () => {
+      chai
+        .request(app)
+        .get("/v1/ledgers/" + 0)
+        .set("Content-Type", "application/json")
+        .end((err, res) => {
+          res.should.have.status(404);
+          res.should.be.json;
+          res.body.should.be.a("object");
+          res.body.should.have.property("code");
+          res.body.should.have.property("message");
+        });
+    });
+  });
 });
