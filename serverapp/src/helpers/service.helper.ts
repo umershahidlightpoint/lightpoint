@@ -1,3 +1,4 @@
+import { Fund, Account, AccountType, Customer } from "../models";
 import { IServiceHelper, Pagination, Sorting, Meta } from "./iservice.helper";
 
 export class ServiceHelper implements IServiceHelper {
@@ -17,12 +18,27 @@ export class ServiceHelper implements IServiceHelper {
     default_column: string,
     default_direction: string
   ): Sorting {
-    const sort: string = sorting_column ? sorting_column : default_column;
+    let order = [[default_column, default_direction]];
     const sort_direction: string = sorting_direction
       ? sorting_direction
       : default_direction;
+    if (sorting_column === "ledger") {
+      order = [["effective_date", sort_direction]];
+    }
+    if (sorting_column === "fund") {
+      order = [[Fund, "name", sort_direction]];
+    }
+    if (sorting_column === "account") {
+      order = [[Account, "name", sort_direction]];
+    }
+    if (sorting_column === "customer") {
+      order = [[Customer, "first_name", sort_direction]];
+    }
+    if (sorting_column === "account_type") {
+      order = [[Account, "accountType", "name", sort_direction]];
+    }
     return {
-      order: [[sort, sort_direction]]
+      order
     };
   }
 
