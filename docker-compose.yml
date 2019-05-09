@@ -1,0 +1,48 @@
+version: "3"
+services: 
+  serverapp:
+    container_name: app
+    build:
+      context: ./serverapp/
+      dockerfile: Dockerfile
+    volumes:
+      - ./data-dir/logs/:/app/logs
+    working_dir: /app
+    command: "npm run dev"
+    environment: 
+      NODE_ENV: "development"
+      host: "finanace_postgres"
+      username: "postgres"
+      password: "postgres"
+      dialect: "postgres"
+      url: "postgres://postgres:postgres@db:5432/finance_docker_db"
+      port: 3000
+    ports: 
+      - 3000:3000
+    depends_on:
+      - finanace_postgres
+    links:
+      - finanace_postgres:db
+  angularapp:
+    container_name: frontend
+    build:
+      context: ./frontendapp/
+      dockerfile: Dockerfile
+    environment: 
+      API_BASE_URL: "http://localhost/api"
+    depends_on:
+      - serverapp
+    links:
+      - serverapp:serverapp
+    volumes:
+      - ./data-dir/nginx/logs:/var/log/nginx
+    ports: 
+      - 80:80
+  finanace_postgres:
+    container_name: finanace_postgres
+    restart: always
+    image: mdillon/postgis:11-alpine
+    volumes:
+      - ./data-dir:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"

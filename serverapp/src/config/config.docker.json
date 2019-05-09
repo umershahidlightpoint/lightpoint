@@ -5,7 +5,8 @@
     "password": "postgres",
     "host": "localhost",
     "dialect": "postgres",
-    "logging": false
+    "logging": false,
+    "use_env_variable": "url"
   },
   "test": {
     "database": "finance_db_test",
@@ -21,6 +22,6 @@
     "password": "",
     "host": "",
     "dialect": "postgres",
-    "logging": false,
+    "logging": false
   }
 }
