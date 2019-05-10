@@ -43,6 +43,6 @@ services:
     restart: always
     image: mdillon/postgis:11-alpine
     volumes:
-      - ./data-dir:/var/lib/postgresql/data
+      - ./data-dir/postgres:/var/lib/postgresql/data
     ports:
       - "5432:5432"
