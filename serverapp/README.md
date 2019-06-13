@@ -8,6 +8,10 @@ for accounting / finance POC
 
 ## Docker database Setup
 <p>Use following commands for database setup</p>
+<p>To create database</p>
+<pre>
+npm run create-db
+</pre>
 <p>To start database</p>
 <pre>
 npm run start-db
