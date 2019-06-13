@@ -10,7 +10,7 @@
     "start": "node ./build/server.js",
     "prod": "npm run build && npm run start",
     "test": "NODE_ENV=test nyc mocha --exit -r ts-node/register src/**/*.test.ts",
-    "start-db": "docker run -d -p 5432:5432 -v $pwd/data-dir:/var/lib/postgresql/data --name finance_postgres postgres:11-alpine -d || true",
+    "start-db": "docker run -d -p 5432:5432 -v $pwd/data-dir:/var/lib/postgresql/data --name finance_postgres postgres:11-alpine || true",
     "stop-db": "docker stop finance_postgres || true",
     "show-db": "docker ps -a || true"
   },
