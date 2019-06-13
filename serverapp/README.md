@@ -3,13 +3,20 @@ for accounting / finance POC
 ## Prerequisite
 <ol>
 <li>Docker</li>
-<a>https://docs.docker.com/install/</a>
+<a href='https://docs.docker.com/install/'>https://docs.docker.com/install/</a>
 </ol>
 
 ## Docker database Setup
 <p>Use following commands for database setup</p>
+<p>To start database</p>
 <pre>
-<p>To start database</p>npm run start-db<br />
-<p>To stop database</p>npm run stop-db<br />
-<p>To show database status</p>npm run show-db<br />
+npm run start-db
+</pre>
+<p>To stop database</p>
+<pre>
+npm run stop-db
+</pre>
+<p>To show database status</p>
+<pre>
+npm run show-db
 </pre>
