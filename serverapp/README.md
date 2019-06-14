@@ -2,12 +2,32 @@
 for accounting / finance POC
 ## Prerequisite
 <ol>
+<li>NodeJs 8+</li>
+<li>NPM</li>
+<li>Git</li>
 <li>Docker</li>
 <a href='https://docs.docker.com/install/'>https://docs.docker.com/install/</a>
 </ol>
 
-## Docker database Setup
-<p>Use following commands for database setup</p>
+## Server app Setup
+<p>Navigate to directory serverapp/src/config.
+Make a copy of "config.json.example" as "config.json" and change your development configurations accordingly.
+</p>
+<p>Use following commands for setup</p>
+
+<pre>
+cd serverapp <br/>
+npm install <br/>
+npm run create-db <br/>
+npx sequelize db:drop<br />
+npx sequelize db:create<br />
+npx sequelize db:migrate<br />
+npx sequelize db:seed:all<br />
+npm run setup-db <br />
+npm run dev<br />
+</pre>
+
+## Docker Database Commands
 <p>To create database</p>
 <pre>
 npm run create-db
@@ -24,3 +44,24 @@ npm run stop-db
 <pre>
 npm run show-db
 </pre>
+<p>To delete database</p>
+<pre>
+npm run delete-db
+</pre>
+
+## Running Unit Tests
+<p>In order to run unit tests.</p>
+<pre>
+cd serverapp <br />
+npx sequelize db:create --env=test<br />
+npx sequelize db:migrate --env=test<br />
+npm run test<br />
+</pre>
+
+## API Endpoints
+<ol>
+<li>http://localhost:3000/v1/customers</li>
+<li>http://localhost:3000/v1/funds</li>
+<li>http://localhost:3000/v1/accounts</li>
+<li>http://localhost:3000/v1/ledgers</li>
+</ol>
