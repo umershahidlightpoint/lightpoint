@@ -11,7 +11,7 @@
     "prod": "npm run build && npm run start",
     "test": "NODE_ENV=test nyc mocha --exit -r ts-node/register src/**/*.test.ts",
     "create-db": "docker run -d -p 5432:5432 -v ./data-dir:/var/lib/postgresql/data --name finance_postgres postgres:11-alpine",
-    "delete-db": "docker rm finance_postgres",
+    "delete-db": "docker rm finance_postgres -f",
     "setup-db": "node demo.js",
     "start-db": "docker start finance_postgres",
     "stop-db": "docker stop finance_postgres",
