@@ -11,7 +11,7 @@ services:
     command: "npm run dev"
     environment: 
       NODE_ENV: "development"
-      host: "finanace_postgres"
+      host: "finance_postgres"
       username: "postgres"
       password: "postgres"
       dialect: "postgres"
@@ -20,9 +20,9 @@ services:
     ports: 
       - 3000:3000
     depends_on:
-      - finanace_postgres
+      - finance_postgres
     links:
-      - finanace_postgres:db
+      - finance_postgres:db
   angularapp:
     container_name: frontend
     build:
@@ -38,8 +38,8 @@ services:
       - ./data-dir/nginx/logs:/var/log/nginx
     ports: 
       - 80:80
-  finanace_postgres:
-    container_name: finanace_postgres
+  finance_postgres:
+    container_name: finance_postgres
     restart: always
     image: mdillon/postgis:11-alpine
     volumes:

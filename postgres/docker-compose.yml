@@ -1,10 +1,12 @@
 version: "3"
 services:
-  finanace_postgres:
-    container_name: finanace_postgres
+  finance_postgres:
+    container_name: finance_postgres
     restart: always
     image: mdillon/postgis:11-alpine
     volumes:
-      - ./data-dir:/var/lib/postgresql/data
+      - data-dir:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+volumes:
+  data-dir:

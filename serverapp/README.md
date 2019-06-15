@@ -2,11 +2,17 @@
 for accounting / finance POC
 ## Prerequisite
 <ol>
-<li>NodeJs 8+</li>
-<li>NPM</li>
-<li>Git</li>
-<li>Docker</li>
+<li><strong>NodeJs 8+</strong></li>
+<li><strong>NPM</strong></li>
+<li><strong>Git</strong></li>
+<li><strong>Docker 17+</strong>
 <a href='https://docs.docker.com/install/'>https://docs.docker.com/install/</a>
+<br>
+</li>
+<li><strong>Docker Compose</strong>
+<a href='https://docs.docker.com/compose/install/'>https://docs.docker.com/compose/install/</a>
+<br>
+</li>
 </ol>
 
 ## Server app Setup
