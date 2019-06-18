@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>frontendapp</title>
+    <base href="/" />
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/site.css" rel="stylesheet" />
+</head>
+<body>
+    <app>Loading...</app>
+
+    <script src="_framework/blazor.webassembly.js"></script>
+    <script>
+        window.ConvertArray = (win1251Array) => {
+            var win1251decoder = new TextDecoder('windows-1251');
+            var bytes = new Uint8Array(win1251Array);
+            var decodedArray = win1251decoder.decode(bytes);
+            console.log(decodedArray);
+            return decodedArray;
+        };
+
+        window.exampleJsFunctions = {
+  showPrompt: function (text) {
+    return prompt(text, '');
+  },
+            displayWelcome: function (welcomeMessage) {
+                alert(welcomeMessage);
+    document.getElementById('welcome').innerText = welcomeMessage;
+  },
+  returnArrayAsyncJs: function () {
+    DotNet.invokeMethodAsync('BlazorSample', 'ReturnArrayAsync')
+      .then(data => {
+        data.push(4);
+          console.log(data);
+    });
+  },
+  sayHello: function (dotnetHelper) {
+    return dotnetHelper.invokeMethodAsync('SayHello')
+      .then(r => console.log(r));
+  }
+};
+    </script>
+
+</body>
+</html>

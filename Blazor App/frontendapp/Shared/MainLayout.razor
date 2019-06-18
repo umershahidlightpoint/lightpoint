@@ -1,0 +1,146 @@
+@inherits LayoutComponentBase
+@inject IModalService ModalService
+@inject IModalService Modal
+
+@inject HttpClient httpClient
+
+
+<BlazoredModal />
+<div class="main">
+    <div class="top-row px-4" style="
+    position: relative;">
+        <button class=" ml-md-auto btn btn-primary" onclick="@(ShowModal)"><span class="oi oi-plus m-r-5" aria-hidden="true"></span>Create Ledger</button>
+    </div>
+
+    @if (fData == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+<div class="content px-4 row">
+    <div class="table-wrapper-left">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var item in fData)
+                {
+                    <tr  class="active" onclick="@(() => selectAccount(item.Id))">
+                        <td>@item.Name</td>
+                        <td>@item.Notes</td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+    <div class="table-space"> </div>
+    <div class="table-wrapper-right">
+        <table class="table custom-table">
+            <thead>
+                <tr>
+                    <th>Actions</th>
+                    <th>Account</th>
+                    <th>Account Type</th>
+                    <th>User</th>
+                    <th>Value</th>
+                    <th>Effective Date</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var data in lData)
+                {
+                <tr>
+                    <td  class="cursor-pointer" onclick="@(() => selectLedger(data.Id))"><span class="oi oi-task m-r-5" aria-hidden="true" ></span></td>
+                    <td>@data.Account.Name</td>
+                    <td>@data.AccountType.Name</td>
+                    <td>@data.Customer.Name</td>
+                    <td>@data.Value</td>
+                    <td>@data.EffectiveDate</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+        </div>
+
+    </div>
+
+    }
+</div>
+@functions {
+    private long SelectedAcountID = 1;
+    private long SelectLedgerID;
+    private FundsData selectedFund;
+    List<FundsData> fData = new List<FundsData>();
+    List<LedgerProp> lData = new List<LedgerProp>();
+    List<SingleLedgerProps> SData = new List<SingleLedgerProps>();
+    private FormExample FormModel = new FormExample();
+    protected override async Task OnInitAsync()
+    {
+        await load();
+        await getLedgerById(SelectedAcountID);
+    }
+
+    protected async Task load()
+    {
+        String ss = await httpClient.GetStringAsync($"http://175.10.20.130:3000/v1/funds");
+        var funds = Funds.FromJson(ss);
+        fData = funds.Data;
+
+    }
+
+    protected async Task getLedgerById(long id)
+    {
+
+        String stResult = await httpClient.GetStringAsync($"http://175.10.20.130:3000/v1/ledgers?fund_id="+id);
+        Console.WriteLine(stResult);
+        Console.WriteLine(SelectedAcountID);
+        var getLedgers = GetLedgers.FromJson(stResult);
+        //Console.WriteLine(getLedgers);
+
+        lData = getLedgers.Data;
+         this.StateHasChanged();
+    }
+
+    protected async Task selectAccount(long id)
+    {
+        SelectedAcountID = id;
+        getLedgerById(id);
+    }
+
+        protected async Task selectLedger(long id)
+    {
+        SelectLedgerID = id;
+        Console.WriteLine(SelectLedgerID);
+
+        String stResult = await httpClient.GetStringAsync($"http://175.10.20.130:3000/v1/ledgers/"+SelectLedgerID);
+        Console.WriteLine(stResult);
+        var getLedgerById = SingleLedgerProps.FromJson(stResult);
+        Console.WriteLine(getLedgerById);
+
+       // var parameters = new ModalParameters();
+       // parameters.Add("getAccountByID", getLedgerById);
+       // Modal.Show("Ledger", typeof(SignUpForm), parameters);
+        var parameters = new ModalParameters();
+        parameters.Add("AccountID", SelectedAcountID);
+        Modal.Show("Ledger", typeof(SignUpForm), parameters);
+    }
+
+    protected async Task Show(string id)
+    {
+    }
+
+    void ShowModal()
+    {
+        var parameters = new ModalParameters();
+        parameters.Add("AccountID", SelectedAcountID);
+        Modal.Show("Ledger", typeof(SignUpForm), parameters);
+    }
+}

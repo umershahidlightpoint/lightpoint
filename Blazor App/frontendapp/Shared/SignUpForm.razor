@@ -1,0 +1,180 @@
+﻿@page "/create"
+@inject IModalService ModalService
+@inject HttpClient httpClient
+@inject IJSRuntime JsRuntime
+ 
+<div>
+
+    <div class="form-group row">
+        <div class="col-sm-3 allign-right mt-08">
+            <label for="data">Account</label>
+        </div>
+        <div class="col-sm-7">
+
+            <BlazoredTypeahead SearchMethod="@GetPeopleLocal"
+                   @bind-Value="@selecteddata"
+                    Debounce="500"
+                    Placeholder="Search...">
+                <SelectedTemplate Context="Datum">
+                    @Datum.Name
+                </SelectedTemplate>
+                <ResultTemplate Context="Datum">
+                    @Datum.Name @Datum.Name
+                </ResultTemplate>
+            </BlazoredTypeahead>
+
+             
+
+        </div>
+    </div>
+
+    <div class="form-group row">
+            <div class="col-sm-3 allign-right mt-08">
+                <label for="user">User</label>
+            </div>
+            <div class="col-sm-7">
+                <BlazoredTypeahead SearchMethod="@getCustomers"
+                                   @bind-Value="@selectedCustomer"
+                                   Debounce="500"
+                                   Placeholder="Search...">
+                    <SelectedTemplate Context="Cust">
+                        @Cust.Name
+                    </SelectedTemplate>
+                    <ResultTemplate Context="Cust">
+                        @Cust.Name
+                        @Cust.Email
+                    </ResultTemplate>
+                </BlazoredTypeahead>
+
+                
+            </div>
+        </div>
+
+    <div class="form-group row">
+        <div class="col-sm-3 allign-right mt-08">
+            <label for="value">Value</label>
+        </div>
+        <div class="col-sm-3">
+            <input type="number" @bind="@value_index" class="form-control" id="value_index" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-sm-3 allign-right mt-08">
+            <label for="first-name">Effective Date</label>
+        </div>
+        <div class="col-sm-5">
+            <input type="date" @bind="@_effectiveDate" class="form-control" id="date" />
+        </div>
+    </div>
+
+</div>
+<div class="modal-footer allign-right">
+    <button onclick="@Cancel" class="btn btn-secondary">Cancel</button>
+    <button onclick="@createLedger" class="btn btn-primary">Submit</button>
+</div>
+
+
+@functions {
+        private long AccountID = 0;
+        private SingleLedgerProps getAccountByID;
+
+        private int value_index { get; set; } = 0;
+        DateTime _effectiveDate;
+
+        [CascadingParameter] ModalParameters Parameters { get; set; }
+
+        string baseUrl = $"http://175.10.20.130:3000/v1/ledgers";
+
+        private List<Person> People = new List<Person>();
+        private Datum selecteddata;
+        private Cust selectedCustomer;
+        private Person SelectedPerson;
+        private FormExample FormModel = new FormExample();
+
+        protected override void OnInit() {
+            AccountID = Parameters.Get<long>("AccountID");
+            //getAccountByID = Parameters.Get<long>("getAccountByID");
+
+        }
+
+        List<Datum> lDatum = new List<Datum>();
+        List<Cust> lCust = new List<Cust>();
+
+        private async Task<List<Datum>> GetPeopleLocal(string searchText)
+        {
+            string stResult = "";
+            stResult = await httpClient.GetStringAsync($"http://175.10.20.130:3000/v1/accounts");
+            var temperaturses = Temperatures.FromJson(stResult);
+            lDatum= await Task.FromResult(temperaturses.Data.Where(x => x.Name.ToLower().Contains(searchText.ToLower())).ToList());
+
+            Console.WriteLine(lDatum.FirstOrDefault().Name);
+            return lDatum;
+
+        }
+
+        private async Task<List<Cust>> getCustomers(string searchText)
+        {
+            string stResult = "";
+            stResult = await httpClient.GetStringAsync($"http://175.10.20.130:3000/v1/customers");
+            var customers = Customers.FromJson(stResult);
+            lCust= await Task.FromResult(customers.Data.Where(x => x.Name.ToLower().Contains(searchText.ToLower())).ToList());
+
+            return lCust;
+
+        }
+
+        private async Task<List<Person>> GetPeopleLocal2(string searchText)
+        {
+            return await Task.FromResult(People.Where(x => x.Firstname.ToLower().Contains(searchText.ToLower())).ToList());
+        }
+
+
+        protected async Task createLedger(){
+
+
+            LedgerInput ledgers = new LedgerInput()
+            {
+                value = value_index,
+                customer_id = selectedCustomer.Id,
+                account_id = selecteddata.Id,
+                fund_id = AccountID,
+                effectiveDate = _effectiveDate.ToString("yyyy-MM-dd")  //"2019-12-06"
+
+        };
+
+
+        this.StateHasChanged();
+        Console.WriteLine(value_index);
+        Console.WriteLine(selectedCustomer.Id);
+        Console.WriteLine(selecteddata.Id);
+        Console.WriteLine(AccountID);
+         
+
+
+      LedgerInput rr=   await httpClient.PostJsonAsync< LedgerInput >(  baseUrl, ledgers);
+       // var response = new HttpClient().PostAsJsonAsync<bool>(baseUrl, ledgers).Result;
+       
+            Console.WriteLine("Response"
+                );
+            Console.WriteLine(rr.account_id
+                );
+
+    }
+
+
+    void Done()
+    {
+
+    }
+
+    void Cancel()
+    {
+
+        ModalService.Close(ModalResult.Cancel());
+    }
+
+}
+@code {
+
+}
