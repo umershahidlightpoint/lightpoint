@@ -4,7 +4,7 @@
 //
 //    using QuickType;
 //
-//    var temperatures = Temperatures.FromJson(jsonString);
+//    var TempAccount = TempAccount.FromJson(jsonString);
 
 namespace CustomersType
 {

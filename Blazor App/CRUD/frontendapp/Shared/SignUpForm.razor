@@ -145,7 +145,7 @@
     {
         string stResult = "";
         stResult = await httpClient.GetStringAsync($"http://175.10.20.130:3000/v1/accounts");
-        var temperaturses = Temperatures.FromJson(stResult);
+        var temperaturses = TempAccount.FromJson(stResult);
         lDatum= await Task.FromResult(temperaturses.Data.Where(x => x.Name.ToLower().Contains(searchText.ToLower())).ToList());
 
         Console.WriteLine(lDatum.FirstOrDefault().Name);

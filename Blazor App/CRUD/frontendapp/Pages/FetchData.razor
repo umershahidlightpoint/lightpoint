@@ -130,6 +130,7 @@
     }
 </div>
 @functions {
+    private string basePath = "http://175.10.20.130:3000/v1/";
     private long SelectedFoundID = 1;
     private long SelectLedgerID;
     private FundsData selectedFund;
@@ -145,7 +146,7 @@
 
     protected async Task load()
     {
-        String ss = await httpClient.GetStringAsync($"http://175.10.20.130:3000/v1/funds");
+        String ss = await httpClient.GetStringAsync(basePath+"funds");
         var funds = Funds.FromJson(ss);
         fData = funds.Data;
 
@@ -165,7 +166,7 @@
     protected async Task getLedgerById(long id)
     {
 
-        String stResult = await httpClient.GetStringAsync($"http://175.10.20.130:3000/v1/ledgers?fund_id=" + id);
+        String stResult = await httpClient.GetStringAsync(basePath+"ledgers?fund_id=" + id);
         Console.WriteLine(stResult);
         Console.WriteLine(SelectedFoundID);
         var getLedgers = GetLedgers.FromJson(stResult);
@@ -186,7 +187,7 @@
         SelectLedgerID = id;
         Console.WriteLine(SelectLedgerID);
 
-        String stResult = await httpClient.GetStringAsync($"http://175.10.20.130:3000/v1/ledgers/" + SelectLedgerID);
+        String stResult = await httpClient.GetStringAsync(basePath+"ledgers/" + SelectLedgerID);
 
         var getLedgerById = SingleLedgerProps.FromJson(stResult);
         //  Console.WriteLine(getLedgerById);

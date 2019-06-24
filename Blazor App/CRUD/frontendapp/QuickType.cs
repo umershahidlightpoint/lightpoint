@@ -42,7 +42,7 @@ namespace QuickType
         public string Name { get; set; }
     }
 
-    public partial class Temperatures
+    public partial class TempAccount
     {
         public static Temperatures FromJson(string json) => JsonConvert.DeserializeObject<Temperatures>(json, QuickType.Converter.Settings);
     }
