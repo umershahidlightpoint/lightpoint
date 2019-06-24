@@ -1,0 +1,77 @@
+﻿@page "/"
+
+@inject HttpClient Http
+
+
+@if (lst_LedgerProp == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <h4>VirtualScroll with @lst_LedgerProp.Count() items</h4>
+
+    <table style="width:100%">
+        <thead>
+            <tr  class="blazor-grid-header" style="width:100%">
+                
+                <th style="width:20%">Account</th>
+                <th style="width:20%">Account Type</th>
+                <th style="width:20%">User</th>
+                <th style="width:20%">Value</th>
+                <th style="width:20%">Effective Date</th>
+            </tr>
+        </thead>
+    </table>
+    <VirtualScroll style="height: 300px;" ItemType="LedgerProp" Items="@lst_LedgerProp" ItemHeight="30">
+         
+        <td style="width:20%">@context.Account.Name</td>
+        <td style="width:20%">@context.AccountType.Name</td>
+        <td style="width:20%">@context.Customer.Name</td>
+        <td style="width:20%">@context.Value</td>
+        <td style="width:20%">@context.EffectiveDate</td>
+
+    </VirtualScroll>
+
+}
+@functions
+{
+    List<LedgerProp> lst_LedgerProp ;
+    List<LedgerProp> lst_LedgerProp_temp = new List< LedgerProp>();
+    LedgerProp oLedgerProp;
+    LedgersType. Account oAccount;
+
+    long number = 1;
+
+    protected override async Task OnInitAsync()
+    {
+
+        lst_LedgerProp = null;
+        // oAccount.
+        for(int i=0; i < 1000; i++)
+        {
+            oLedgerProp = new LedgerProp
+            {
+                Id = number++,
+                Account = new LedgersType.Account { Id = number, Name = "Account " + number },
+                Customer = new LedgersType.Customer { Id = number, Name = "Customer " + number },
+                AccountType = new LedgersType.AccountType { Id = number, Name = "Account Type " + number }
+
+            };
+
+            lst_LedgerProp_temp.Add(oLedgerProp);
+
+        }
+
+        lst_LedgerProp = lst_LedgerProp_temp;
+
+
+
+    }
+
+
+         }
+
+
+
+

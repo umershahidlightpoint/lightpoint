@@ -1,0 +1,33 @@
+﻿@typeparam ItemType
+@using System
+@using System.Linq
+@using System.Runtime.InteropServices.ComTypes
+@using Microsoft.AspNetCore.Components
+@inherits BaseVirtualScroll<ItemType>
+
+
+<div class="@(Class) blazor-virtual-scroll" style="@Style" ref="Ref">
+    @if (ScrollViewResult != null)
+    {
+
+        <table class="blazor-virtual-scroll-content" style="height: @(ScrollViewResult.Height)px ;width:100%">
+
+            @foreach (var item in Items.Skip(ScrollViewResult.SkipItems).Take(ScrollViewResult.TakeItems).Select((item, index) => new { item, index }))
+            {
+                <tr style="height: @(ItemHeight)px; top: @((ScrollViewResult.SkipItems + item.index) * ItemHeight)px;;width:100%" class=" blazor-virtual-scroll-item ">
+                    @ChildContent(item.item)
+                </tr>
+            }
+        </table>
+    }
+</div>
+
+
+
+@functions
+{
+
+
+
+
+}
