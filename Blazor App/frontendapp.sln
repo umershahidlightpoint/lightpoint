@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29006.145
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "frontendapp", "frontendapp\frontendapp.csproj", "{6CAEE008-A7A3-4DDC-9FF6-8D2C91DF9B76}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "frontendapp", "frontendapp\frontendapp.csproj", "{6CAEE008-A7A3-4DDC-9FF6-8D2C91DF9B76}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.Shared", "Shared\Sample.Shared.csproj", "{329B4D28-A792-4002-BA7A-70A57FEE0FE2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorGridComponent", "BlazorGridComponent\BlazorGridComponent.csproj", "{7EA32AE4-43DF-469D-9EC7-80FCCF3282AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{329B4D28-A792-4002-BA7A-70A57FEE0FE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{329B4D28-A792-4002-BA7A-70A57FEE0FE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{329B4D28-A792-4002-BA7A-70A57FEE0FE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EA32AE4-43DF-469D-9EC7-80FCCF3282AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EA32AE4-43DF-469D-9EC7-80FCCF3282AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EA32AE4-43DF-469D-9EC7-80FCCF3282AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EA32AE4-43DF-469D-9EC7-80FCCF3282AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

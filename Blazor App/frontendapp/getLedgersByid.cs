@@ -21,7 +21,7 @@ namespace LedgersIdType
         public long Id { get; set; }
 
         [JsonProperty("value")]
-        public double Value { get; set; }
+        public int Value { get; set; }
 
         [JsonProperty("effectiveDate")]
         public DateTimeOffset EffectiveDate { get; set; }

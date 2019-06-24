@@ -1,55 +1,236 @@
 ﻿@page "/fetchdata"
-@inject HttpClient Http
- 
-<h1>Weather forecast</h1>
+@inherits LayoutComponentBase
+@inject IModalService Modal
+@inject HttpClient httpClient
 
-<p>This component demonstrates fetching data from the server.</p>
 
-@if (forecasts == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
 
-@code {
-    WeatherForecast[] forecasts;
+<BlazoredModal />
+<div class="main">
+    <div class="top-row px-4" style="
+    position: relative;">
+        <button class=" ml-md-auto btn btn-primary" onclick="@(ShowModal)"><span class="oi oi-plus m-r-5" aria-hidden="true"></span>Create Ledger</button>
+    </div>
 
-    protected override async Task OnInitAsync()
+    @if (fData == null)
     {
-        forecasts = await Http.GetJsonAsync<WeatherForecast[]>("sample-data/weather.json");
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+
+<div class="table-wrapper-left">
+
+    <select class="form-control d-flex" onchange="@DoStuff">
+
+
+        @foreach (var item in fData)
+        {
+            <option value=@item.Id>@item.Name</option>
+            @*<tr class="active" onclick="@(() => selectAccount(item.Id))">
+                    <td>@item.Name</td>
+                    <td>@item.Notes</td>
+                </tr>*@
+        }
+
+
+    </select>
+
+    @*<table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var item in fData)
+                {
+                    <tr class="active" onclick="@(() => selectAccount(item.Id))">
+                        <td>@item.Name</td>
+                        <td>@item.Notes</td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>*@
+
+</div>
+
     }
 
-    class WeatherForecast
+    @if (lData == null)
     {
-        public DateTime Date { get; set; }
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
 
-        public int TemperatureC { get; set; }
+       
 
-        public int TemperatureF { get; set; }
+        <div class="content  row">
 
-        public string Summary { get; set; }
+
+
+            <div class="table-space"> </div>
+
+
+            <BlazorGrid Items="@lData" PageSize="4">
+                <GridHeader>
+                    <th>Actions</th>
+                    <th>Account</th>
+                    <th>Account Type</th>
+                    <th>User</th>
+                    <th>Value</th>
+                    <th>Effective Date</th>
+                </GridHeader>
+                <GridRow>
+                    
+                    <td class="cursor-pointer" onclick="@(() => selectLedger(context.Id))"><span class="oi oi-task m-r-5" aria-hidden="true"></span>@context.Id</td>
+                    <td>@context.Account.Name</td>
+                    <td>@context.AccountType.Name</td>
+                    <td>@context.Customer.Name</td>
+                    <td>@context.Value</td>
+                    <td>@context.EffectiveDate</td>
+
+                </GridRow>
+            </BlazorGrid>
+
+            @*<table class="table custom-table">
+                    <thead>
+                        <tr>
+                            <th>Actions</th>
+                            <th>Account</th>
+                            <th>Account Type</th>
+                            <th>User</th>
+                            <th>Value</th>
+                            <th>Effective Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (var data in lData)
+                        {
+                            <tr>
+                                <td class="cursor-pointer" onclick="@(() => selectLedger(data.Id))"><span class="oi oi-task m-r-5" aria-hidden="true"></span>@data.Id</td>
+                                <td>@data.Account.Name</td>
+                                <td>@data.AccountType.Name</td>
+                                <td>@data.Customer.Name</td>
+                                <td>@data.Value</td>
+                                <td>@data.EffectiveDate</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>*@
+
+
+        </div>
+
+    }
+</div>
+@functions {
+    private long SelectedFoundID = 1;
+    private long SelectLedgerID;
+    private FundsData selectedFund;
+    List<FundsData> fData = new List<FundsData>();
+    List<LedgerProp> lData ;
+    List<SingleLedgerProps> SData = new List<SingleLedgerProps>();
+    private FormExample FormModel = new FormExample();
+    protected override async Task OnInitAsync()
+    {
+        await load();
+        await getLedgerById(SelectedFoundID);
+    }
+
+    protected async Task load()
+    {
+        String ss = await httpClient.GetStringAsync($"http://175.10.20.130:3000/v1/funds");
+        var funds = Funds.FromJson(ss);
+        fData = funds.Data;
+
+    }
+
+    protected async Task DoStuff(UIChangeEventArgs e)
+    {
+        lData = null;
+        this.StateHasChanged();
+        int selectedID = Convert.ToInt32(e.Value);
+
+        SelectedFoundID = selectedID;
+        await getLedgerById(selectedID);
+
+    }
+
+    protected async Task getLedgerById(long id)
+    {
+
+        String stResult = await httpClient.GetStringAsync($"http://175.10.20.130:3000/v1/ledgers?fund_id=" + id);
+        Console.WriteLine(stResult);
+        Console.WriteLine(SelectedFoundID);
+        var getLedgers = GetLedgers.FromJson(stResult);
+        //Console.WriteLine(getLedgers);
+
+        lData = getLedgers.Data;
+        this.StateHasChanged();
+    }
+
+    //protected async Task selectAccount(long id)
+    //{
+    //    SelectedFoundID = id;
+    //    getLedgerById(id);
+    //}
+
+    protected async Task selectLedger(long id)
+    {
+        SelectLedgerID = id;
+        Console.WriteLine(SelectLedgerID);
+
+        String stResult = await httpClient.GetStringAsync($"http://175.10.20.130:3000/v1/ledgers/" + SelectLedgerID);
+
+        var getLedgerById = SingleLedgerProps.FromJson(stResult);
+        //  Console.WriteLine(getLedgerById);
+        Console.WriteLine(getLedgerById.Value);
+        // Console.WriteLine(getLedgerById.Customer.Name);
+        //Console.WriteLine(getLedgerById.Customer.Id);
+        //Console.WriteLine(getLedgerById.Account.Id);
+        // Console.WriteLine(getLedgerById.Account.Name);
+
+
+        var parameters = new ModalParameters();
+        parameters.Add("AccountID", getLedgerById.Account.Id);
+        parameters.Add("AccountName", getLedgerById.Account.Name);
+        parameters.Add("CustomerID", getLedgerById.Customer.Id);
+        parameters.Add("CustomerName", getLedgerById.Customer.Name);
+        parameters.Add("value_index", getLedgerById.Value);
+        //Console.WriteLine(getLedgerById.EffectiveDate.ToString("yyyy/MM/dd"));
+        parameters.Add("SelectLedgerID", SelectLedgerID);
+
+
+
+        parameters.Add("EffectiveDate", getLedgerById.EffectiveDate.ToString("yyyy/MM/dd"));
+        //  var parameters = new ModalParameters();
+        // parameters.Add("getAccountByID", getLedgerById);
+        parameters.Add("SelectedFoundID", SelectedFoundID);
+        Modal.Show("Ledger", typeof(SignUpForm), parameters);
+    }
+
+    protected async Task Show(string id)
+    {
+    }
+
+    void ShowModal()
+    {
+        var parameters = new ModalParameters();
+        parameters.Add("SelectedFoundID", SelectedFoundID);
+
+        Modal.OnClose += ModalClosed;
+        Modal.Show("Ledger", typeof(SignUpForm), parameters);
+    }
+
+    void ModalClosed(ModalResult modalResult)
+    {
+
+        getLedgerById(SelectedFoundID).GetAwaiter();
     }
 }

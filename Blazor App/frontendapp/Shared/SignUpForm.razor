@@ -11,8 +11,8 @@
         </div>
         <div class="col-sm-7">
 
-            <BlazoredTypeahead SearchMethod="@GetPeopleLocal"
-                   @bind-Value="@selecteddata"
+            <BlazoredTypeahead SearchMethod="@GetAccounts"
+                   @bind-Value="@selecteAccount"
                     Debounce="500"
                     Placeholder="Search...">
                 <SelectedTemplate Context="Datum">
@@ -63,8 +63,8 @@
         <div class="col-sm-3 allign-right mt-08">
             <label for="first-name">Effective Date</label>
         </div>
-        <div class="col-sm-5">
-            <input type="date" @bind="@_effectiveDate" class="form-control" id="date" />
+        <div class="col-sm-5"> 
+            <input type="date" bind="@_effectiveDate" class="form-control"   />
         </div>
     </div>
 
@@ -76,89 +76,132 @@
 
 
 @functions {
-        private long AccountID = 0;
-        private SingleLedgerProps getAccountByID;
+    private long SelectedFoundID = 0;
+    long SelectLedgerID = 0;
 
-        private int value_index { get; set; } = 0;
-        DateTime _effectiveDate;
+    private double value_index { get; set; } = 0;
+    DateTime _effectiveDate;
 
-        [CascadingParameter] ModalParameters Parameters { get; set; }
+    [CascadingParameter] ModalParameters Parameters { get; set; }
 
-        string baseUrl = $"http://175.10.20.130:3000/v1/ledgers";
+    string baseUrl = $"http://175.10.20.130:3000/v1/ledgers";
 
-        private List<Person> People = new List<Person>();
-        private Datum selecteddata;
-        private Cust selectedCustomer;
-        private Person SelectedPerson;
-        private FormExample FormModel = new FormExample();
 
-        protected override void OnInit() {
-            AccountID = Parameters.Get<long>("AccountID");
-            //getAccountByID = Parameters.Get<long>("getAccountByID");
+    private Datum selecteAccount;
+    private Cust selectedCustomer;
 
-        }
+    private FormExample FormModel = new FormExample();
 
-        List<Datum> lDatum = new List<Datum>();
-        List<Cust> lCust = new List<Cust>();
-
-        private async Task<List<Datum>> GetPeopleLocal(string searchText)
+    protected override void OnInit() {
+        SelectedFoundID = Parameters.Get<long>("SelectedFoundID");
+        try
         {
-            string stResult = "";
-            stResult = await httpClient.GetStringAsync($"http://175.10.20.130:3000/v1/accounts");
-            var temperaturses = Temperatures.FromJson(stResult);
-            lDatum= await Task.FromResult(temperaturses.Data.Where(x => x.Name.ToLower().Contains(searchText.ToLower())).ToList());
-
-            Console.WriteLine(lDatum.FirstOrDefault().Name);
-            return lDatum;
+            SelectLedgerID = Parameters.Get<long>("SelectLedgerID");
 
         }
-
-        private async Task<List<Cust>> getCustomers(string searchText)
+        catch(Exception ex)
         {
-            string stResult = "";
-            stResult = await httpClient.GetStringAsync($"http://175.10.20.130:3000/v1/customers");
-            var customers = Customers.FromJson(stResult);
-            lCust= await Task.FromResult(customers.Data.Where(x => x.Name.ToLower().Contains(searchText.ToLower())).ToList());
-
-            return lCust;
-
+            SelectLedgerID = 0;
         }
 
-        private async Task<List<Person>> GetPeopleLocal2(string searchText)
+        
+        selectedCustomer = new Cust();
+        selecteAccount = new Datum();
+        // Console.WriteLine( "idddd" +  Parameters.Get<long>("CustomerID"));
+        try
         {
-            return await Task.FromResult(People.Where(x => x.Firstname.ToLower().Contains(searchText.ToLower())).ToList());
-        }
-
-
-        protected async Task createLedger(){
-
-
-            LedgerInput ledgers = new LedgerInput()
+            if (SelectLedgerID > 0)
             {
-                value = value_index,
-                customer_id = selectedCustomer.Id,
-                account_id = selecteddata.Id,
-                fund_id = AccountID,
-                effectiveDate = _effectiveDate.ToString("yyyy-MM-dd")  //"2019-12-06"
+                selectedCustomer.Id = Parameters.Get<long>("CustomerID");
+                selectedCustomer.Name = Parameters.Get<string>("CustomerName");
+                selecteAccount.Id = Parameters.Get<long>("AccountID");
+
+                selecteAccount.Name = Parameters.Get<string>("AccountName");
+                object stVindex = Parameters.Get<object>("value_index");
+                value_index = double.Parse(stVindex.ToString());
+                string d = "01/01/2019";
+                _effectiveDate = DateTime.Parse(d); //  Parameters.Get<DateTime>("EffectiveDate");
+                this.StateHasChanged();
+
+            }
+
+        }
+        catch(Exception  ex)
+        {
+            Console.WriteLine(ex.Message.ToString());
+
+        }
+        // selectedCustomer.Name = Parameters.Get<string>("CustomerName");
+
+
+        //    getAccountByID = Parameters.Get<long>("getAccountByID");
+
+    }
+
+    List<Datum> lDatum = new List<Datum>();
+    List<Cust> lCust = new List<Cust>();
+
+    private async Task<List<Datum>> GetAccounts(string searchText)
+    {
+        string stResult = "";
+        stResult = await httpClient.GetStringAsync($"http://175.10.20.130:3000/v1/accounts");
+        var temperaturses = Temperatures.FromJson(stResult);
+        lDatum= await Task.FromResult(temperaturses.Data.Where(x => x.Name.ToLower().Contains(searchText.ToLower())).ToList());
+
+        Console.WriteLine(lDatum.FirstOrDefault().Name);
+        return lDatum;
+
+    }
+
+    private async Task<List<Cust>> getCustomers(string searchText)
+    {
+        string stResult = "";
+        stResult = await httpClient.GetStringAsync($"http://175.10.20.130:3000/v1/customers");
+        var customers = Customers.FromJson(stResult);
+        lCust= await Task.FromResult(customers.Data.Where(x => x.Name.ToLower().Contains(searchText.ToLower())).ToList());
+
+        return lCust;
+
+    }
+
+
+
+
+    protected async Task createLedger(){
+
+
+        LedgerInput ledgers = new LedgerInput()
+        {
+            id = SelectLedgerID,
+            value = value_index,
+            customer_id = selectedCustomer.Id,
+            account_id = selecteAccount.Id,
+            fund_id = SelectedFoundID,
+            effectiveDate = "2019-12-05" //"2019-01-01"// _effectiveDate.ToString("yyyy-MM-dd")  //"2019-12-06"
 
         };
 
 
         this.StateHasChanged();
-        Console.WriteLine(value_index);
-        Console.WriteLine(selectedCustomer.Id);
-        Console.WriteLine(selecteddata.Id);
-        Console.WriteLine(AccountID);
-         
+        Console.WriteLine("SelectLedgerID="+SelectLedgerID);
+        Console.WriteLine("value_index="+value_index);
+        Console.WriteLine("selectedCustomer.Id="+selectedCustomer.Id);
+        Console.WriteLine("selecteAccount.Id="+selecteAccount.Id);
+        Console.WriteLine("SelectedFoundID="+SelectedFoundID);
+        Console.WriteLine(_effectiveDate.ToString("yyyy-MM-dd") );
+        LedgerInput rr;
+        if (SelectLedgerID > 0)
+        {
+              rr = await httpClient.PutJsonAsync<LedgerInput>("http://175.10.20.130:3000/v1/ledgers/" + SelectLedgerID, ledgers);
+        }
+        else
+        {
+               rr = await httpClient.PostJsonAsync<LedgerInput>("http://175.10.20.130:3000/v1/ledgers/", ledgers);
+        }
+        //  LedgerInput rr=   await httpClient.PostJsonAsync< LedgerInput >(  baseUrl, ledgers);
+        // var response = new HttpClient().PostAsJsonAsync<bool>(baseUrl, ledgers).Result;
 
-
-      LedgerInput rr=   await httpClient.PostJsonAsync< LedgerInput >(  baseUrl, ledgers);
-       // var response = new HttpClient().PostAsJsonAsync<bool>(baseUrl, ledgers).Result;
-       
-            Console.WriteLine("Response"
-                );
-            Console.WriteLine(rr.account_id
-                );
+        ModalService.Close(ModalResult.Ok(rr)  );
 
     }
 
