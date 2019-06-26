@@ -47,6 +47,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\Account.cs" />
+    <Compile Include="Models\Journal.cs" />
+    <Compile Include="Models\Ledger.cs" />
+    <Compile Include="Models\Transaction.cs" />
+    <Compile Include="Posting.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using ConsoleApp1.Models;
+using Newtonsoft.Json;
+using PostingEngine;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -11,72 +13,14 @@ using System.Threading.Tasks;
 namespace ConsoleApp1
 {
     // "TradePrice":0.0,"TradeDate":"2019-06-21T00:00:00","Trader":"BMAY","Status":"Executed","Commission":0.0,"Fees":0.0,"NetMoney":0.0,"UpdatedOn":"2019-06-21T14:42:29.697"
-    public class Transaction
-    {
-        public string LpOrderId { get; set; }
-        public string Action { get; set; }
-        public string Symbol { get; set; }
-        public string Side { get; set; }
-        public double Quantity { get; set; }
-        public string SecurityType { get; set; }
-        public string CustodianCode { get; set; }
-        public string ExecutionBroker { get; set; }
-        public string TradeId { get; set; }
-        public string Fund { get; set; }
-        public string PMCode { get; set; }
-        public string PortfolioCode { get; set; }
-
-        public string Status { get; set; }
-    }
+    
 
     /// <summary>
     /// Model that knows how to insert / update it's self
     /// keep the model simple
     /// </summary>
-    public class Journal
-    {
-        public int Id { get; set; }
 
-        public String Source { get; set; }
-        public Account Account { get; set; }
-        public DateTime When { get; set; }
-        public double Value { get; set; }
-
-        public KeyValuePair<string, SqlParameter[]> Insert
-        {
-            get
-            {
-                var sql = "insert into journal () values ()";
-                var sqlParams = new SqlParameter[]
-                {
-                    new SqlParameter()
-                };
-
-                return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);
-            }
-        }
-
-        public KeyValuePair<string, SqlParameter[]> Update
-        {
-            get
-            {
-                var sql = "update journal set a=b, c=d where id = @id";
-                var sqlParams = new SqlParameter[]
-                {
-                    new SqlParameter()
-                };
-
-                return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);
-            }
-        }
-
-    }
-
-    public class Account
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-    }
+    
 
     public class AccountToFrom
     {
@@ -92,12 +36,13 @@ namespace ConsoleApp1
 
         static void Main(string[] args)
         {
-            //RunAsync().GetAwaiter().GetResult();
-
             connection = new SqlConnection(connectionString);
             connection.Open();
 
-            Setup(connection);
+            RunAsync(connection).GetAwaiter().GetResult();
+
+
+            //Setup(connection);
 
 
             
@@ -105,7 +50,6 @@ namespace ConsoleApp1
             var reader = query.ExecuteReader();
             while (reader.NextResult())
             {
-
             }
 
             connection.Close();
@@ -127,56 +71,18 @@ namespace ConsoleApp1
 
         }
 
-        /// <summary>
-        /// Process the transaction recieved, it will generate two offesting journal entries.
-        /// </summary>
-        /// <param name="element"></param>
-        private static void ProcessTransaction(Transaction element)
-        {
-            // For each row in the database determine the account Id associated with that Transaction, this is going to be based on some rules
-            var existingJournals = GetJournals(element);
 
-            if (existingJournals.Count() > 0)
-            {
-                // need to remove those entries
-
-                // And recreate them
-            }
-            else
-            {
-                var accountToFrom = GetFromToAccount(element);
-
-                var debit = new Journal
-                {
-                    Source = element.LpOrderId,
-                    Account = accountToFrom.From,
-                    Value = element.Quantity * -1
-                };
-
-                var credit = new Journal
-                {
-                    Source = element.LpOrderId,
-                    Account = accountToFrom.To,
-                    Value = element.Quantity
-                };
-
-                // Now have two entries / credit / debit
-
-                // Need to save both now
-            }
-        }
-
-        static async Task RunAsync()
+        static async Task RunAsync(SqlConnection connection)
         {
             var result = await GetResults();
 
             var elements = JsonConvert.DeserializeObject<Transaction[]>(result);
 
-            foreach( var element in elements)
+            foreach( var element in elements.Where(e=>!e.SecurityType.Equals("Journal")) )
             {
                 try
                 {
-                    ProcessTransaction(element);
+                    new Posting().Process(element, connection);
                 } catch ( Exception exe )
                 {
                     // Capture the exception and keep going
@@ -187,15 +93,6 @@ namespace ConsoleApp1
             Console.WriteLine(elements);
         }
 
-        private static Journal[] GetJournals(Transaction element)
-        {
-            return new Journal[] { new Journal { }, new Journal { } };
-        }
-
-        private static AccountToFrom GetFromToAccount(Transaction element)
-        {
-            return new AccountToFrom();
-        }
 
         private static async Task<string> GetResults()
         {
