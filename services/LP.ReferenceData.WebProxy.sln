@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2016
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LP.ReferenceData.WebProxy", "LP.ReferenceData.WebProxy\LP.ReferenceData.WebProxy.csproj", "{2F6508E5-CE0B-42F3-8463-51F4361BABA2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostingEngine", "PostingEngine\PostingEngine.csproj", "{D8D81D4B-4D9B-4D3B-9321-00DBA39455EC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2F6508E5-CE0B-42F3-8463-51F4361BABA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F6508E5-CE0B-42F3-8463-51F4361BABA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F6508E5-CE0B-42F3-8463-51F4361BABA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F6508E5-CE0B-42F3-8463-51F4361BABA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8D81D4B-4D9B-4D3B-9321-00DBA39455EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8D81D4B-4D9B-4D3B-9321-00DBA39455EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8D81D4B-4D9B-4D3B-9321-00DBA39455EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8D81D4B-4D9B-4D3B-9321-00DBA39455EC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0A853847-F30F-4FDD-9FE6-B6817E001BB8}
+	EndGlobalSection
+EndGlobal
