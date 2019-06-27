@@ -1,0 +1,15 @@
+version: "3"
+services:
+  finance_sql:
+    container_name: finance_sql
+    restart: always
+    image: microsoft/mssql-server-windows-express
+    environment:
+        SA_PASSWORD: "mypassword"
+        ACCEPT_EULA: "Y"
+#    volumes:
+#      - ./data-dir:/var/lib/sql/data
+    ports:
+      - "1433:1433"
+#volumes:
+#  data-dir:
