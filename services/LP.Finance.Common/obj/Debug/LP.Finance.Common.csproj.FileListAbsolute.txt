@@ -1,8 +1,0 @@
-C:\development\LightPoint\finance\services\LP.Finance.Common\bin\Debug\LP.Finance.Common.dll
-C:\development\LightPoint\finance\services\LP.Finance.Common\bin\Debug\LP.Finance.Common.pdb
-C:\development\LightPoint\finance\services\LP.Finance.Common\bin\Debug\Newtonsoft.Json.dll
-C:\development\LightPoint\finance\services\LP.Finance.Common\bin\Debug\Newtonsoft.Json.xml
-C:\development\LightPoint\finance\services\LP.Finance.Common\obj\Debug\LP.Finance.Common.csproj.CoreCompileInputs.cache
-C:\development\LightPoint\finance\services\LP.Finance.Common\obj\Debug\LP.Finance.Common.csproj.CopyComplete
-C:\development\LightPoint\finance\services\LP.Finance.Common\obj\Debug\LP.Finance.Common.dll
-C:\development\LightPoint\finance\services\LP.Finance.Common\obj\Debug\LP.Finance.Common.pdb
