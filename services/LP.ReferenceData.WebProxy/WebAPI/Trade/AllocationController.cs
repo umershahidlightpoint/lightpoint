@@ -63,7 +63,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             var startdate = date.ToString("MM-dd-yyyy") + " 09:00";
             var enddate = date.ToString("MM-dd-yyyy") + " 16:30";
 
-            var query = $@"select LpOrderId, Action, Symbol, Side, Quantity, SecurityType, CustodianCode, ExecutionBroker, TradeId, Fund, PMCode, PortfolioCode, TradePrice, TradeDate, Trader, Status, Commission, Fees, NetMoney, UpdatedOn from Allocation nolock
+            var query = $@"select LpOrderId, Action, Symbol, Side, Quantity, SecurityType, CustodianCode, ExecutionBroker, TradeId, Fund, PMCode, PortfolioCode, TradePrice, TradeDate, SettleDate, Trader, Status, Commission, Fees, NetMoney, UpdatedOn from Allocation nolock
                 order by UpdatedOn desc";
 
             using (var con = new SqlConnection(connectionString))
@@ -129,7 +129,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
     /// </summary>
     public class AllocationController : ApiController
     {
-        private ITradeController controller = new AllocationControllerStub();
+        private ITradeController controller = new AllocationControllerService();
 
         public AllocationController()
         {

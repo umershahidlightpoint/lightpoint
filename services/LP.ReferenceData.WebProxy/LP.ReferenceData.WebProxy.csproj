@@ -64,6 +64,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebAPI\EnvironmentController.cs" />
+    <Compile Include="WebAPI\RefDataController.cs" />
     <Compile Include="WebAPI\Trade\AllocationController.cs" />
     <Compile Include="WebAPI\Trade\TradeController.cs" />
     <Compile Include="WebAPI\SecurityDataController.cs" />
@@ -74,6 +75,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Data\all.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\broker.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\custodian.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\fund.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Data\trades.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
