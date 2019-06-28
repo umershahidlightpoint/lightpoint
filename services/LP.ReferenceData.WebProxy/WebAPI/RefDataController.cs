@@ -70,7 +70,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI
                     {
                         funds = GetData(connectionString, "fund"),
                         custodians = GetData(connectionString, "custodian"),
-                        broker = GetData(connectionString, "broker"),
+                        brokers = GetData(connectionString, "broker"),
                     };
                     Utils.Save(result, "all");
                     break;

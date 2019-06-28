@@ -134,7 +134,8 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
     /// </summary>
     public class TradeController : ApiController
     {
-        private ITradeController controller = new TradeControllerService();
+        // Mock Service
+        private ITradeController controller = new TradeControllerStub();
 
         public TradeController()
         {
