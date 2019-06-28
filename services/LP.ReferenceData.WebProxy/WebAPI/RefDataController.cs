@@ -9,41 +9,10 @@ using System.Configuration;
 using System.Data;
 using System.Security.Principal;
 using System.Threading;
+using LP.Finance.Common;
 
 namespace LP.ReferenceData.WebProxy.WebAPI
 {
-    public class Utils
-    {
-        public static object GetFile(string filename)
-        {
-            var content = "{}";
-
-            var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
-
-            var folder = currentDir + "Data" + Path.DirectorySeparatorChar + $"{filename}.json";
-            if (File.Exists(folder))
-                content = File.ReadAllText(folder);
-
-            dynamic json = JsonConvert.DeserializeObject(content);
-
-            return json;
-        }
-
-        public static void Save(object json, string filename)
-        {
-            var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
-
-            var folder = currentDir + "Data" + Path.DirectorySeparatorChar + $"{filename}.json";
-
-            if (File.Exists(folder))
-                File.Delete(folder);
-
-            var result = JsonConvert.SerializeObject(json);
-
-            File.WriteAllText(folder, result);
-        }
-
-    }
     /// <summary>
     /// Deliver the tiles / links resources to the logged in user
     /// </summary>
