@@ -69,7 +69,7 @@
     <Compile Include="WebAPI\Trade\TradeController.cs" />
     <Compile Include="WebAPI\SecurityDataController.cs" />
     <Compile Include="WebAPI\ProfileController.cs" />
-    <Compile Include="WebAPI\HelloController.cs" />
+    <Compile Include="WebAPI\PingController.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Hubs\Class1.cs" />
   </ItemGroup>
