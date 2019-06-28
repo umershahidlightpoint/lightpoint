@@ -1,15 +1,15 @@
 version: "3"
 services:
   finance_sql:
-    container_name: finance_sql
+    container_name: finance_sqlserver
     restart: always
-    image: microsoft/mssql-server-windows-express
+    image: mcr.microsoft.com/mssql/server:2017-latest-ubuntu
     environment:
-        SA_PASSWORD: "mypassword"
+        SA_PASSWORD: "P@ssw0rd"
         ACCEPT_EULA: "Y"
-#    volumes:
-#      - ./data-dir:/var/lib/sql/data
+    volumes:
+      - ./data-dir:/var/opt/mssql/data
     ports:
       - "1433:1433"
-#volumes:
-#  data-dir:
+volumes:
+  data-dir:
