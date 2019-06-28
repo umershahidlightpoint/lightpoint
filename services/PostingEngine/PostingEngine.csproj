@@ -48,7 +48,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\Account.cs" />
+    <Compile Include="Models\DBActions.cs" />
+    <Compile Include="Models\IDbAction.cs" />
     <Compile Include="Models\Journal.cs" />
+    <Compile Include="Models\JournalLog.cs" />
     <Compile Include="Models\Ledger.cs" />
     <Compile Include="Models\Transaction.cs" />
     <Compile Include="Posting.cs" />

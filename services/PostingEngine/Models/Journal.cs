@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace ConsoleApp1.Models
 {
-    public class Journal
+
+    public class Journal : IDbAction
     {
         public int Id { get; set; }
 
@@ -47,14 +48,7 @@ namespace ConsoleApp1.Models
             }
         }
 
-        public int NumberOfRows { get; set; }
-
-        public void Save(SqlConnection connection) {
-            var D = Insert;
-            var command = new SqlCommand(D.Key, connection);
-            command.Parameters.AddRange(D.Value);
-            NumberOfRows = command.ExecuteNonQuery();
-       }
+        public KeyValuePair<string, SqlParameter[]> Delete => throw new NotImplementedException();
     }
 
 }

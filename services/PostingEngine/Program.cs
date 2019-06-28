@@ -78,17 +78,21 @@ namespace ConsoleApp1
 
             var elements = JsonConvert.DeserializeObject<Transaction[]>(result);
 
+            var transaction = connection.BeginTransaction();
+
             foreach( var element in elements.Where(e=>!e.SecurityType.Equals("Journal")) )
             {
                 try
                 {
-                    new Posting().Process(element, connection);
+                    new Posting().Process(element, connection, transaction);
                 } catch ( Exception exe )
                 {
                     // Capture the exception and keep going
                     Error(exe, element);
                 }
             }
+
+            transaction.Commit();
 
             Console.WriteLine(elements);
         }
