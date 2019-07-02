@@ -9,6 +9,7 @@ using System.Configuration;
 using System.Data;
 using System.Security.Principal;
 using System.Threading;
+using LP.Finance.Common;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -21,17 +22,7 @@ namespace LP.Finance.WebProxy.WebAPI
     {
         public object Data(string symbol)
         {
-            var content = "{}";
-
-            var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
-
-            var folder = currentDir + "MockData" + Path.DirectorySeparatorChar + "ledgers.json";
-            if (File.Exists(folder))
-                content = File.ReadAllText(folder);
-
-            dynamic json = JsonConvert.DeserializeObject(content);
-
-            return json;
+            return Utils.GetFile("ledgers");
         }
     }
 
@@ -47,6 +38,7 @@ namespace LP.Finance.WebProxy.WebAPI
             {
                 case "ALL":
                     result = AllData();
+                    Utils.Save(result, "ledgers");
                     break;
             }
 
@@ -55,28 +47,9 @@ namespace LP.Finance.WebProxy.WebAPI
 
         private object AllData()
         {
-            var content = "{}";
-             
             var query = $@"SELECT * FROM [ledger]";
 
-            using (var con = new SqlConnection(connectionString))
-            {
-                var sda = new SqlDataAdapter(query, con);
-                var dataTable = new DataTable();
-                con.Open();
-                sda.Fill(dataTable);
-                con.Close();
-
-                var jsonResult = JsonConvert.SerializeObject(dataTable);
-                content = jsonResult;
-
-                Console.WriteLine("Done");
-            }
-
-
-            dynamic json = JsonConvert.DeserializeObject(content);
-
-            return json;
+            return Utils.RunQuery(connectionString, query);
         }
     }
 

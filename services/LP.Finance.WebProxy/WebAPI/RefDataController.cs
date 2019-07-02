@@ -37,62 +37,27 @@ namespace LP.Finance.WebProxy.WebAPI
                 case "all":
                     result = new
                     {
-                        funds = GetData(connectionString, "fund"),
-                        custodians = GetData(connectionString, "custodian"),
-                        brokers = GetData(connectionString, "broker"),
+                        funds = Utils.GetTable(connectionString, "fund"),
+                        custodians = Utils.GetTable(connectionString, "custodian"),
+                        brokers = Utils.GetTable(connectionString, "broker"),
                     };
                     Utils.Save(result, "all");
                     break;
                 case "fund":
-                    result = GetData(connectionString, "fund");
+                    result = Utils.GetTable(connectionString, "fund");
                     Utils.Save(result, "fund");
                     break;
                 case "custodian":
-                    result = GetData(connectionString, "custodian");
+                    result = Utils.GetTable(connectionString, "custodian");
                     Utils.Save(result, "custodian");
                     break;
                 case "broker":
-                    result = GetData(connectionString, "broker");
+                    result = Utils.GetTable(connectionString, "broker");
                     Utils.Save(result, "broker");
                     break;
             }
 
             return result;
-        }
-
-        private object GetData(string connection, string tablename)
-        {
-            var content = "{}";
-
-            var date = DateTime.Now.Date;
-
-            while (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
-                date = date.AddDays(-1);
-
-            var startdate = date.ToString("MM-dd-yyyy") + " 09:00";
-            var enddate = date.ToString("MM-dd-yyyy") + " 16:30";
-
-            var query = $@"select * from {tablename} nolock";
-
-            using (var con = new SqlConnection(connection))
-            {
-                var sda = new SqlDataAdapter(query, con);
-                var dataTable = new DataTable();
-                con.Open();
-                sda.Fill(dataTable);
-                con.Close();
-
-                var jsonResult = JsonConvert.SerializeObject(dataTable);
-                content = jsonResult;
-
-                Console.WriteLine("Done");
-            }
-
-
-            dynamic json = JsonConvert.DeserializeObject(content);
-
-            return json;
-
         }
     }
 }
