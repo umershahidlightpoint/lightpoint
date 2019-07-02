@@ -19,11 +19,10 @@ namespace LP.ReferenceData.WebProxy.WebAPI
     public class RefDataController : ApiController
     {
         private const string portfolioCode = "Portfolio A";
-        private readonly string connectionString;
+        private readonly string connectionString = ConfigurationManager.ConnectionStrings["PositionMasterDb"].ToString();
 
         public RefDataController()
         {
-            connectionString = ConfigurationManager.ConnectionStrings["PositionMasterDb"].ToString();
         }
 
         [HttpGet]
@@ -40,12 +39,17 @@ namespace LP.ReferenceData.WebProxy.WebAPI
                         funds = GetData(connectionString, "fund"),
                         custodians = GetData(connectionString, "custodian"),
                         brokers = GetData(connectionString, "broker"),
+                        portfolios = GetData(connectionString, "portfolio"),
                     };
                     Utils.Save(result, "all");
                     break;
                 case "fund":
                     result = GetData(connectionString, "fund");
                     Utils.Save(result, "fund");
+                    break;
+                case "portfolio":
+                    result = GetData(connectionString, "portfolio");
+                    Utils.Save(result, "portfolio");
                     break;
                 case "custodian":
                     result = GetData(connectionString, "custodian");

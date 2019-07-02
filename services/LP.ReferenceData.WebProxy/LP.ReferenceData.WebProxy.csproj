@@ -66,7 +66,6 @@
     <Compile Include="WebAPI\EnvironmentController.cs" />
     <Compile Include="WebAPI\RefDataController.cs" />
     <Compile Include="WebAPI\Trade\AllocationController.cs" />
-    <Compile Include="WebAPI\Trade\JournalController.cs" />
     <Compile Include="WebAPI\Trade\TradeController.cs" />
     <Compile Include="WebAPI\SecurityDataController.cs" />
     <Compile Include="WebAPI\ProfileController.cs" />
