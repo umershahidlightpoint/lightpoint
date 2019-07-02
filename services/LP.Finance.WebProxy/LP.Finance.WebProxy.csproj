@@ -78,6 +78,8 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WebAPI\AccountController.cs" />
+    <Compile Include="WebAPI\LedgerController.cs" />
     <Compile Include="WebAPI\JournalController.cs" />
     <Compile Include="WebAPI\RefDataController.cs" />
     <Compile Include="WebAPI\PingController.cs" />
