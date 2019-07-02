@@ -12,8 +12,6 @@ namespace LP.ReferenceData.WebProxy
     {
         public void Configuration(IAppBuilder app)
         {
-            app.MapSignalR();
-
             // Configure Web API for self-host.
             var config = new HttpConfiguration();
             var corsOptions = new CorsOptions
@@ -29,6 +27,8 @@ namespace LP.ReferenceData.WebProxy
                     })
                 }
             };
+
+            // This will map out to http://localhost:9999/signalr 
 
             app.Map("/signalr", map =>
             {
@@ -97,7 +97,6 @@ namespace LP.ReferenceData.WebProxy
             );
 
             app.UseCors(corsOptions);
-
             app.UseWebApi(config);
         }
     }
