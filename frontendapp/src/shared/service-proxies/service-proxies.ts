@@ -24,6 +24,13 @@ export class FinancePocServiceProxy {
         return this.http.get(url, { params }).pipe(map((response: any) => response));
     }
 
+    getJournal() {
+         
+        const url =   'http://localhost:9091/api/journal/data/ALL';
+        return this.http.get(url ).pipe(map((response: any) => response));
+    }
+
+
     groupByCustomer(id) {
         const url = this.baseUrl + '/ledgers/group';
         const params: any = {};

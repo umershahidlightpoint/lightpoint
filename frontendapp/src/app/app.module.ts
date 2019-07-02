@@ -8,6 +8,8 @@ import { TableModule } from 'primeng/table';
 import { HttpClientModule } from '@angular/common/http';
 import { FinancePocServiceProxy } from '../shared/service-proxies/service-proxies';
 import { LedgerComponent } from './main/ledger/ledger.component';
+ 
+
 import {
   AutoCompleteModule,
   EditorModule,
@@ -40,6 +42,7 @@ import { MessagesModule } from 'primeng/messages';
 import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { JournalComponent } from './main/journal/journal.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +50,8 @@ import { MessageService } from 'primeng/api';
     FundsComponent,
     LedgerComponent,
     LegderModalComponent,
-    UpdateLedgerModalComponent
+    UpdateLedgerModalComponent,
+    JournalComponent
   ],
   imports: [
     BrowserModule,

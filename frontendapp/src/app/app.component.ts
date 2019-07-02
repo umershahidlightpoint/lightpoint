@@ -6,6 +6,7 @@ import { AppComponentBase } from '../shared/common/app-component-base';
 import { LazyLoadEvent } from 'primeng/components/common/lazyloadevent';
 import { FundsComponent } from './main/funds/funds.component';
 import { LegderModalComponent } from './main/legder-modal/legder-modal.component';
+import { JournalComponent } from './main/journal/journal.component';
 
 @Component({
   selector: 'app-root',
@@ -15,6 +16,7 @@ import { LegderModalComponent } from './main/legder-modal/legder-modal.component
 export class AppComponent extends AppComponentBase {
   title = 'AccountApp';
   @ViewChild('applegdermodal') applegdermodal: LegderModalComponent;
+  @ViewChild('app-journal') appjournal: JournalComponent;
   fundId: any;
   ledger: any[];
   ledgerCols: any[];
@@ -56,12 +58,7 @@ export class AppComponent extends AppComponentBase {
 
   initializeCol() {
 
-    this.ledgerCols = [
-      { field: 'account', header: 'Account' },
-      { field: 'customer', header: 'Customer' },
-      { field: 'value', header: 'Value' },
-      { field: 'effectiveDate', header: 'Effective Date' }
-    ];
+    
   }
   ngOnInit() {
     this.initializeCol();
