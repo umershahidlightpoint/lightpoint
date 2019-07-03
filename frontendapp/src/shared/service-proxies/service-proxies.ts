@@ -24,9 +24,22 @@ export class FinancePocServiceProxy {
         return this.http.get(url, { params }).pipe(map((response: any) => response));
     }
 
-    getJournal() {
-         
-        const url =   'http://localhost:9091/api/journal/data/ALL';
+    getJournals(symbal : any, accountId : any| null | undefined,valueFilter : any| null | undefined) {
+        let searchStart : any;
+        searchStart = false;
+        let url =   'http://localhost:9092/api/journal/data/'+symbal;
+        if (accountId != null)
+        {  
+            url = url +'/?accountId='+accountId;
+            searchStart= true;
+        }
+        if (valueFilter != null)
+        {  
+            if (searchStart){ url = url +'&value='+valueFilter;}else{ url = url +'/?value='+valueFilter;}
+        }
+    
+        
+
         return this.http.get(url ).pipe(map((response: any) => response));
     }
 
@@ -43,6 +56,16 @@ export class FinancePocServiceProxy {
         return this.http.get(url).pipe(map((response: any) => response));
 
     }
+
+    getAccount(keyword: string | null | undefined) {
+        const url =  'http://localhost:9092/api/account/data/Search/?search='+keyword;
+        const params: any = {};
+        if (keyword !== undefined) {
+            params.keyword = keyword;
+        }
+        return this.http.get(url).pipe(map((response: any) => response));
+    }
+
 
     getAccounts(keyword: string | null | undefined) {
         const url = this.baseUrl + '/accounts';

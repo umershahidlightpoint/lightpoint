@@ -1,29 +1,6 @@
-<div class="d-flex text-right mb-4">
-  <button (click)="createLedger()" class="btn btn-primary blue ml-auto">
-    <i class="fa fa-plus"></i> Create Ledger</button>
-</div>
 <div class="row">
-  <div style="width: auto; height: auto;">
-    <as-split direction="horizontal">
-      <as-split-area size="30">
-        <div class="col-md-12">
-          <app-funds (event)="appledegr.getLegderByFundId($event);applegdermodal.getFundId($event)"></app-funds>
-        </div>
-      </as-split-area>
-      <as-split-area size="auto" size="70">
-        <div class="col-md-12">
-          <app-ledger #appledegr></app-ledger>
-        </div>
-      </as-split-area>
-    </as-split>
-  </div>
+<app-journal #appjournal></app-journal>
+
 </div>
-<ol>
-  <li>Funds Grid: Rows are clickable and Ledger Grid is populated on selected Fund</li>
-  <li>Ledger Grid: Columns Ordering</li>
-  <li>Ledger Grid: Filters</li>
-  <li>Ledger Grid: Pagination - Lazy Loading + Virtual Scroll</li>
-  <li>Ledger Grid: Row Expand on Edit</li>
-  <li>Ledger Grid: Create Ledger Entry Modal</li>
-</ol>
-<app-legder-modal #applegdermodal (modalClose)="appledegr.getLegderByFundId()"></app-legder-modal>
+
+ 

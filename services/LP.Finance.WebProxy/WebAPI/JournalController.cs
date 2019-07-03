@@ -15,12 +15,12 @@ namespace LP.Finance.WebProxy.WebAPI
 {
     public interface IJournalController
     {
-        object Data(string symbol);
+        object Data(string symbol, int accountId = 0, int value=0);
     }
 
     public class JournalControllerStub : IJournalController
     {
-        public object Data(string symbol)
+        public object Data(string symbol, int accountId = 0, int value = 0)
         {
             return Utils.GetFile("journals");
         }
@@ -30,7 +30,7 @@ namespace LP.Finance.WebProxy.WebAPI
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
-        public object Data(string symbol)
+        public object Data(string symbol, int accountId = 0, int value = 0)
         {
             dynamic result = JsonConvert.DeserializeObject("{}");
 
@@ -40,6 +40,11 @@ namespace LP.Finance.WebProxy.WebAPI
                     result = AllData();
                     Utils.Save(result, "journals");
                     break;
+                case "Search":
+                    result = SearchData(accountId, value);
+                    Utils.Save(result, "journals");
+                    break;
+
                 default:
                     result = Only(symbol);
                     break;
@@ -50,11 +55,25 @@ namespace LP.Finance.WebProxy.WebAPI
 
         private object AllData()
         {
-            var query = $@"SELECT [journal].[id]  ,[account_id], [account].[name] as accountName  ,[value]  ,[source] ,[when] FROM [journal]  join account  on [journal]. [account_id] = account.id   ";
-
+            var query = $@"SELECT [journal].[id]  ,[account_id],[account_category].[name] as AccountType,  [account].[name] as accountName  ,[value]  ,[source] ,[when] FROM [journal]  join account  on [journal]. [account_id] = account.id join [account_category] on  [account].account_category_id = [account_category] .id ";
             return Utils.RunQuery(connectionString, query);
         }
 
+        private object SearchData(int accountId=0 , int value = 0)
+        {
+            bool whereAdded = false;
+            var query = $@"SELECT [journal].[id]  ,[account_id],[account_category].[name] as AccountType,  [account].[name] as accountName  ,[value]  ,[source] ,[when] FROM [journal]  join account  on [journal]. [account_id] = account.id join [account_category] on  [account].account_category_id = [account_category] .id " ;
+            if (accountId > 0 || value > 0)
+            {
+                query = query + "where";
+            }
+            if (accountId > 0)
+            { query = query + "   account.id = " + accountId; whereAdded = true; }
+            if (value > 0)
+            { if (whereAdded) { query = query + " and  [journal].[value] > " + value; } else { query = query + "  [journal].[value] > " + value; } }
+            return Utils.RunQuery(connectionString, query);
+        }
+         
         private object Only(string orderId)
         {
             var content = "{}";
@@ -107,9 +126,9 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [HttpGet]
         [ActionName("data")]
-        public object Data(string symbol)
+        public object Data(string symbol,int accountId =0 ,int value=0)
         {
-            return controller.Data(symbol);
+            return controller.Data(symbol, accountId, value);
         }
 
     }

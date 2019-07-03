@@ -15,12 +15,12 @@ namespace LP.Finance.WebProxy.WebAPI
 {
     public interface IAccountController
     {
-        object Data(string symbol);
+        object Data(string symbol,string search="");
     }
 
     public class AccountControllerStub : IAccountController
     {
-        public object Data(string symbol)
+        public object Data(string symbol, string search = "")
         {
             return Utils.GetFile("accounts");
         }
@@ -30,7 +30,7 @@ namespace LP.Finance.WebProxy.WebAPI
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
-        public object Data(string symbol)
+        public object Data(string symbol, string search = "")
         {
             dynamic result = JsonConvert.DeserializeObject("{}");
 
@@ -39,6 +39,11 @@ namespace LP.Finance.WebProxy.WebAPI
                 case "ALL":
                     result = AllData();
                     Utils.Save(result, "accounts");
+                    break;
+                case "Search":
+                    result = Search(search);
+                     
+
                     break;
             }
 
@@ -51,6 +56,14 @@ namespace LP.Finance.WebProxy.WebAPI
 
             return Utils.GetTable(connectionString, "account");
         }
+
+        private object Search(string search)
+        {
+            var query = $@"SELECT * FROM [account] where [name] like '%"+ search + "%'";
+
+            return Utils.GetTable(connectionString, "account");
+        }
+
     }
 
 
@@ -68,9 +81,9 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [HttpGet]
         [ActionName("data")]
-        public object Data(string symbol)
+        public object Data(string symbol, string search = "")
         {
-            return controller.Data(symbol);
+            return controller.Data(symbol, search);
         }
 
     }
