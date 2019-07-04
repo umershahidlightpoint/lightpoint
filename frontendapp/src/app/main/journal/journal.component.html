@@ -2,17 +2,16 @@
   <p-panel header="journals" [style]="{'padding':'inherit'}" class="ledger-panel no-padding">
     <p-table #dtjournal scrollable="true" [style]="{'padding':'inherit'}" scrollHeight="400px" [rows]="40"
       [paginator]="false" [totalRecords]="totalRecords" [loading]="loading" [reorderableColumns]="true"
-      [columns]="journalCols" [lazy]="true" [value]="journals" [virtualScroll]="true"
-       dataKey="id"   dataKey="id" [customSort]="true">
-      <ng-template pTemplate="header" let-columns>
+      [columns]="journalCols" [lazy]="true" (onLazyLoad)="getJournals( $event)" [value]="journals" [virtualScroll]="true"
+       dataKey="id"   dataKey="id" [customSort]="true" (sortFunction)="customSort($event)">
+      <ng-template pTemplate="header" let-columns >
         <tr>
           <th style="width: 70px;">
             Actions
           </th>
-          <th *ngFor="let col of columns" pReorderableColumn  [pSortableColumn]="col.field">
+          <th *ngFor="let col of columns" pReorderableColumn  [pSortableColumn]="col.field"  [ngStyle]="{'width': col.width}">
             {{col.header}}
-             
-         
+            <p-sortIcon  *ngIf="col.field == 'when' || col.field == 'source'" [field]="col.field"></p-sortIcon>
           </th>
         </tr>
          
@@ -57,25 +56,34 @@
               </button>
             </div>
           </td>
-          <td *ngFor="let col of columns">
+          <td *ngFor="let col of columns"  [ngStyle]="{'width': col.width}">
             <a  style="cursor: pointer;" *ngIf="col.field == 'source'"> {{rowData[col.field]}}</a>
-            <div *ngIf="col.field != 'source'">{{rowData[col.field]}}</div> 
+            <div *ngIf="col.field != 'source' && col.field != 'debit' && col.field != 'credit'"> {{rowData[col.field]}} </div> 
+            <div *ngIf="col.field == 'debit' || col.field == 'credit'" style="text-align: right">
+                {{ rowData[col.field] | number }}
+              </div> 
+             
+             
           </td>
         </tr>
       </ng-template>
 
      
-     <!--  <ng-template pTemplate="footer" let-columns>
+      <ng-template pTemplate="footer" let-columns>
           <tr>
             <td style="width: 70px;"></td>
               <td *ngFor="let col of columns">
-                  sad
+             <span *ngIf="col.field == 'debit'" > {{this.totalDebit }}</span>    
+             <span *ngIf="col.field == 'credit'" > {{this.totalCredit }}</span>    
+
+
+                 
               </td>
           </tr>
       </ng-template>
-       <ng-template pTemplate="summary">
-          There are   cars
-      </ng-template>-->
+         <ng-template pTemplate="summary">
+          Total Records:  {{this.totalRecords}}  
+      </ng-template> 
     </p-table>
   </p-panel>
 

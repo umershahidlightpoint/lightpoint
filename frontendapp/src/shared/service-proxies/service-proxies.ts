@@ -24,18 +24,21 @@ export class FinancePocServiceProxy {
         return this.http.get(url, { params }).pipe(map((response: any) => response));
     }
 
-    getJournals(symbal : any, accountId : any| null | undefined,valueFilter : any| null | undefined) {
-        let searchStart : any;
-        searchStart = false;
-        let url =   'http://localhost:9092/api/journal/data/'+symbal;
+    getJournals(symbal : any,pageNumber : any| null | undefined, pageSize  : any| null | undefined,
+        accountId : any| null | undefined,valueFilter : any| null | undefined, 
+        sortColum : any| null | undefined,sortDirection: any| null | undefined) {
+        //let searchStart : any;
+        //searchStart = false;
+        let url =   'http://localhost:9092/api/journal/data/'+symbal+'/?pageNumber='+pageNumber+'&pageSize='+pageSize+'&sortColum='+sortColum+'&sortDirection='+sortDirection ;
         if (accountId != null)
         {  
-            url = url +'/?accountId='+accountId;
-            searchStart= true;
+            url = url +'&accountId='+accountId;
+            //searchStart= true;
         }
         if (valueFilter != null)
         {  
-            if (searchStart){ url = url +'&value='+valueFilter;}else{ url = url +'/?value='+valueFilter;}
+            url = url +'&value='+valueFilter;
+            //if (searchStart){ url = url +'&value='+valueFilter;}else{ url = url +'/?value='+valueFilter;}
         }
     
         

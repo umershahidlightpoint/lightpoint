@@ -10,6 +10,11 @@ using System.Threading.Tasks;
 
 namespace LP.Finance.Common
 {
+    public class metaData
+    {
+        public int total { get; set; }
+        
+    }
     public class MathFnc
     {
         public static decimal Truncate(decimal value, int decimals)
@@ -22,13 +27,25 @@ namespace LP.Finance.Common
 
     public class Utils
     {
-        public static object Wrap(object payload)
+        public static object Wrap(object payload,object metaData)
         {
             return new
             {
                 when = DateTime.Now,
                 by = "",
                 payload = payload,
+                meta = metaData
+            };
+        }
+
+        public static object GridWrap(object payload, object metaData)
+        {
+            return new
+            {
+                when = DateTime.Now,
+                by = "",
+                data = payload,
+                meta = metaData
             };
         }
 
@@ -62,29 +79,31 @@ namespace LP.Finance.Common
 
             var result = JsonConvert.SerializeObject(json);
 
-            File.WriteAllText(file, result);
+           // File.WriteAllText(file, result);
         }
 
-        public static object RunQuery(string connection, string query)
+        public static object RunQuery(string connection, string query, SqlParameter[] paramters =null )
         {
             var content = "{}";
-
+            var metaData = new metaData();
             using (var con = new SqlConnection(connection))
             {
                 var sda = new SqlDataAdapter(query, con);
+                if (paramters != null)  { sda.SelectCommand.Parameters.AddRange(paramters); }
                 var dataTable = new DataTable();
                 con.Open();
                 sda.Fill(dataTable);
                 con.Close();
-
+               
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
                 content = jsonResult;              
             }
 
             dynamic json = JsonConvert.DeserializeObject(content);
 
-            return Utils.Wrap(json);
+            return Utils.Wrap(json, metaData);
         }
+         
 
         public static object GetTable (string connection, string tablename)
         {

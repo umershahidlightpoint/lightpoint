@@ -51,6 +51,7 @@
     <Compile Include="Model\JournalLog.cs" />
     <Compile Include="Model\Ledger.cs" />
     <Compile Include="Model\Transaction.cs" />
+    <Compile Include="SqlHelper.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

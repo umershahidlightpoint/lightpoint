@@ -6,6 +6,7 @@ import { PrimengTableHelper } from '../../../shared/helpers/PrimengTableHelper';
  
 import * as moment from 'moment';
 import { AngularFontAwesomeComponent } from 'angular-font-awesome';
+import { convertActionBinding } from '@angular/compiler/src/compiler_util/expression_converter';
  
 
 @Component({
@@ -32,7 +33,11 @@ export class JournalComponent implements OnInit {
   symbal :string;
   valueTimeout: any;
   valueFilter: number;
-
+  pageSize:any;
+  totalCredit:number;
+  totalDebit:number;
+  sortColum:any;
+  sortDirection:any;
   constructor(injector: Injector,
     private _fundsService: FinancePocServiceProxy) {
     (injector);
@@ -42,6 +47,9 @@ export class JournalComponent implements OnInit {
   ngOnInit() {
     this.accountSearch.id=0;
     this.valueFilter= 0;
+    this.pageSize=100;
+    this.sortColum="id";
+    this.sortDirection="asc";
     setTimeout(() => {
      
       this.getJournals( );
@@ -52,44 +60,55 @@ export class JournalComponent implements OnInit {
 
   initializeCol() {
     this.journalCols = [
-      { field: 'source', header: 'source' },
+      { field: 'source', header: 'Source' },
       { field: 'AccountType', header: 'Account Type' },
       { field: 'accountName', header: 'Account Name' },
       { field: 'when', header: 'when'  },
-      { field: 'value', header: 'Value' } 
+      { field: 'debit', header: 'Debit'   } ,
+      { field: 'credit', header: 'Credit' } 
     ];
- 
+     
   }
-  getJournals(   event?: LazyLoadEvent) {
+  getJournals(event?: LazyLoadEvent) {
     debugger;
     this.journalGrid = true;
     let page = 1;
     if (event) {
-      page = Math.ceil(event.first / 40) + 1;
+      this.sortColum  = event.sortField;
+      this.sortDirection = event.sortOrder ;
+      page = Math.ceil(event.first / 100) + 1;
     }
     const params: any = {};
     this.setSymbal();
     this.loading = true;
-   // console.log(`Page No is ${page}`)
-    this._fundsService.getJournals(this.symbal  , this.accountSearch.id, this.valueFilter ).subscribe(result => {
-      this.totalRecords = 50 ;//result.meta.total;
-      this.itemPerPage = 10;//  result.meta.limit;
+    
+    this._fundsService.getJournals(this.symbal,page, this.pageSize , this.accountSearch.id, this.valueFilter,this.sortColum,this.sortDirection ).subscribe(result => {
+      
+      this.totalRecords = result.meta.total ;//result.meta.total;
+      this.itemPerPage = 100;//  result.meta.limit;
       this.journals = [];
-      debugger;
-      console.log(result.payload);
-      this.journals = result.payload.map(item => ({
+       
+       
+      this.journals = result.data.map(item => ({
         id: item.id,
         source:item.source,
         AccountType:item.AccountType,
         accountName: item.accountName ,
         accountId: item.account_id,
-        value: item.value,
+        debit:item.value < 0 ? item.value :'' ,
+        credit: item.value >0 ? item.value : '',
         //when: moment(item.when).format('MMM-DD-YYYY hh:mm:ss A Z')
-        when: moment(item.when).format("MMM-DD-YYYY")
+        when: moment(item.when).format("MMM-DD-YYYY"),
+        
         
 
       }));
- 
+      this.totalCredit =0;
+      this.totalDebit=0;
+      this.journals.forEach(element => {
+        this.totalCredit +=  Number( element.credit);
+        this.totalDebit += Number( element.debit);
+       });
       this.journalGrid = true;
       this.loading = false;
     });
@@ -102,11 +121,18 @@ export class JournalComponent implements OnInit {
     });
   }
 
+  customSort(event): void {
+     console.log(event);
+     debugger;
+     let dd =event.id;
+   
+  }
+   
   accountSelect(event: any, dtJournal) {
 
     dtJournal.filter(event.id, 'account_id');
     this.accountSearch.id = event.id;
-    this.symbal='Search';
+    this.symbal='ALL';
     setTimeout(() => {
       this.getJournals( );
     }, 250);
@@ -136,7 +162,7 @@ export class JournalComponent implements OnInit {
     this.symbal='ALL';
     if (this.accountSearch.id > 0 || this.valueFilter > 0)
         {
-          this.symbal='Search';
+          this.symbal='ALL';
         }
   }
 
