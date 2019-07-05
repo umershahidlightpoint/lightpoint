@@ -71,16 +71,23 @@ export class JournalComponent implements OnInit {
   }
   getJournals(event?: LazyLoadEvent) {
     debugger;
+    let page = 1;
+    if (event) {
+      if( event.sortField )
+      if (event.sortField != "when" && event.sortField != "source" ){
+        this.sortColum="id";
+        this.sortDirection=1;
+        return ;
+      }
+      this.sortColum = event.sortField;
+    this.sortDirection=event.sortOrder;
+    }
+  
+
 if(!this.loading) {
     this.loading = true;
     this.journalGrid = true;
-    let page = 1;
-    if (event) {
-      this.sortColum  = event.sortField;
-      this.sortDirection = event.sortOrder ;
-      page = Math.ceil(event.first / 100) + 1;
-    }
-     
+    
     if (this.sortColum != "when" && this.sortColum != "source" ){
       this.sortColum="id";
       this.sortDirection=1;
@@ -172,6 +179,11 @@ if(!this.loading) {
         {
           this.symbal='ALL';
         }
+  }
+  onGoToPage2()
+  {
+     alert("To show popup");
+
   }
 
 }

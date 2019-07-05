@@ -57,7 +57,7 @@
             </div>
           </td>
           <td *ngFor="let col of columns"  [ngStyle]="{'width': col.width}">
-            <a  style="cursor: pointer;" *ngIf="col.field == 'source'"> {{rowData[col.field]}}</a>
+            <span  style="cursor: pointer;" (click)="onGoToPage2()" *ngIf="col.field == 'source'"> {{rowData[col.field]}}</span>
             <div *ngIf="col.field != 'source' && col.field != 'debit' && col.field != 'credit'"> {{rowData[col.field]}} </div> 
             <div *ngIf="col.field == 'debit' || col.field == 'credit'" style="text-align: right">
                 {{ rowData[col.field] | number }}
