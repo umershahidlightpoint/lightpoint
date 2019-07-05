@@ -49,7 +49,7 @@ export class JournalComponent implements OnInit {
     this.valueFilter= 0;
     this.pageSize=100;
     this.sortColum="id";
-    this.sortDirection="asc";
+    this.sortDirection= 0;
     setTimeout(() => {
      
       this.getJournals( );
@@ -71,12 +71,19 @@ export class JournalComponent implements OnInit {
   }
   getJournals(event?: LazyLoadEvent) {
     debugger;
+if(!this.loading) {
+    this.loading = true;
     this.journalGrid = true;
     let page = 1;
     if (event) {
       this.sortColum  = event.sortField;
       this.sortDirection = event.sortOrder ;
       page = Math.ceil(event.first / 100) + 1;
+    }
+     
+    if (this.sortColum != "when" && this.sortColum != "source" ){
+      this.sortColum="id";
+      this.sortDirection=1;
     }
     const params: any = {};
     this.setSymbal();
@@ -112,6 +119,7 @@ export class JournalComponent implements OnInit {
       this.journalGrid = true;
       this.loading = false;
     });
+  }
   }
 
   onSearchAccount(event): void {

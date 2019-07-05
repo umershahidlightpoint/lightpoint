@@ -81,8 +81,31 @@ namespace LP.Finance.WebProxy.WebAPI
                 else { query = query + "  [journal].[value] > " + @value; }
                 sqlParams.Add(new SqlParameter("@value", @value));
             }
-            sqlParams.Add(new SqlParameter("accountId", accountId));
-            query = query + "  ORDER BY id OFFSET(@pageNumber -1) * @pageSize ROWS FETCH NEXT @pageSize  ROWS ONLY";
+             
+
+            if (sortColum == "id" &&   sortDirection == "1")
+            {
+                query = query + "  ORDER BY  [journal].[id] asc " ;
+            }
+            if (sortColum == "source" && sortDirection == "1")
+            {
+                query = query + "  ORDER BY  [journal].[source] asc ";
+            }
+            if (sortColum == "source" && sortDirection == "-1")
+            {
+                query = query + "  ORDER BY  [journal].[source] desc ";
+            }
+            if (sortColum == "when" && sortDirection == "1")
+            {
+                query = query + "  ORDER BY  [journal].[when] asc ";
+            }
+            if (sortColum == "when" && sortDirection == "-1")
+            {
+                query = query + "  ORDER BY  [journal].[when] desc ";
+            }
+
+
+            query = query + "   OFFSET(@pageNumber -1) * @pageSize ROWS FETCH NEXT @pageSize  ROWS ONLY";
 
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
             metaData.total = Convert.ToInt32(dataTable.Rows[0][0]);
