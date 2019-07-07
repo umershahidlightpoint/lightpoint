@@ -90,7 +90,7 @@ namespace LP.ReferenceData.WebProxy
 
             config.Routes.MapHttpRoute(
                 name: "SecurityData-Queries",
-                routeTemplate: "api/{controller}/data/{symbol}",
+                routeTemplate: "api/{controller}/data/{refdata}",
                 defaults: new
                 {
                 }

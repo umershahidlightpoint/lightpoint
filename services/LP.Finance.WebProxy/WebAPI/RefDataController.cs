@@ -13,26 +13,48 @@ using LP.Finance.Common;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
+    interface IRefData
+    {
+        object Data(string refdata);
+    }
+
+    public class RefDataController : ApiController, IRefData
+    {
+        IRefData proxy = new RefDataMock();
+
+        [HttpGet]
+        [ActionName("data")]
+        public object Data(string refdata)
+        {
+            return proxy.Data(refdata);
+        }
+    }
+
+    public class RefDataMock : IRefData
+    {
+        public object Data(string refdata)
+        {
+            return Utils.GetFile(refdata);
+        }
+    }
+
     /// <summary>
     /// Deliver the tiles / links resources to the logged in user
     /// </summary>
-    public class RefDataController : ApiController
+    public class RefDataService : IRefData
     {
-        private const string portfolioCode = "Portfolio A";
         private readonly string connectionString;
 
-        public RefDataController()
+        public RefDataService()
         {
             connectionString = ConfigurationManager.ConnectionStrings["PositionMasterDb"].ToString();
         }
 
-        [HttpGet]
-        [ActionName("data")]
-        public object Data(string symbol)
+        public object Data(string refdata)
         {
             dynamic result = JsonConvert.DeserializeObject("{}");
 
-            switch (symbol.ToLower())
+            switch (refdata.ToLower())
             {
                 case "all":
                     result = new

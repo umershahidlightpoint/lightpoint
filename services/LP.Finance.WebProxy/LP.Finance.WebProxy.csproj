@@ -87,6 +87,18 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="Docs\README.md" />
+    <None Include="MockData\all.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="MockData\broker.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="MockData\custodian.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="MockData\fund.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNet.SignalR.SelfHost">
@@ -125,7 +137,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Hubs\" />
-    <Folder Include="MockData\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

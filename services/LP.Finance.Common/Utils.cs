@@ -79,7 +79,13 @@ namespace LP.Finance.Common
 
             var result = JsonConvert.SerializeObject(json);
 
-           // File.WriteAllText(file, result);
+            try
+            {
+                File.WriteAllText(file, result);
+            } catch ( Exception ex )
+            {
+                Console.WriteLine(ex);
+            }
         }
 
         public static object RunQuery(string connection, string query, SqlParameter[] paramters =null )
@@ -101,6 +107,7 @@ namespace LP.Finance.Common
 
             dynamic json = JsonConvert.DeserializeObject(content);
 
+            /// This wraps the results into an envelope that contains additional metadata
             return Utils.Wrap(json, metaData);
         }
          
