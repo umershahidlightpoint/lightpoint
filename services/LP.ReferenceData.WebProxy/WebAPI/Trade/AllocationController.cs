@@ -20,7 +20,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
 
-            var folder = currentDir + "Data" + Path.DirectorySeparatorChar + "allocations.json";
+            var folder = currentDir + "MockData" + Path.DirectorySeparatorChar + "allocations.json";
             if (File.Exists(folder))
                 content = File.ReadAllText(folder);
 
