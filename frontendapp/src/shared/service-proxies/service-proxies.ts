@@ -24,6 +24,11 @@ export class FinancePocServiceProxy {
         return this.http.get(url, { params }).pipe(map((response: any) => response));
     }
 
+    getFunds() {
+        const url = encodeURI('http://localhost:9092/api/refdata/data?refdata=fund');
+        return this.http.get(url).pipe(map((response: any) => response));
+    }
+
     getJournals(symbal : any,pageNumber : any| null | undefined, pageSize  : any| null | undefined,
         accountId : any| null | undefined,valueFilter : any| null | undefined, 
         sortColum : any| null | undefined,sortDirection: any| null | undefined) {
@@ -53,11 +58,6 @@ export class FinancePocServiceProxy {
         params.fund_id = id;
         params.group_by = 'customer';
         return this.http.get(url, { params }).pipe(map((response: any) => response));
-    }
-    getFunds() {
-        const url = this.baseUrl + '/funds';
-        return this.http.get(url).pipe(map((response: any) => response));
-
     }
 
     getAccount(keyword: string | null | undefined) {

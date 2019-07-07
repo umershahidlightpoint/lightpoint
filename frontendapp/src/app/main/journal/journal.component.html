@@ -1,98 +1,119 @@
 <div *ngIf="journalGrid" class="div primeng-datatable-container">
-  <p-panel header="journals" [style]="{'padding':'inherit'}" class="ledger-panel no-padding">
-    <p-table #dtjournal scrollable="true" [style]="{'padding':'inherit'}" scrollHeight="400px" [rows]="40"
-      [paginator]="false" [totalRecords]="totalRecords" [loading]="loading" [reorderableColumns]="true"
-      [columns]="journalCols" [lazy]="true" (onLazyLoad)="getJournals( $event)" [value]="journals" [virtualScroll]="true"
-       dataKey="id"   dataKey="id" [customSort]="true" (sortFunction)="customSort($event)">
-      <ng-template pTemplate="header" let-columns >
-        <tr>
-          <th style="width: 70px;">
-            Actions
-          </th>
-          <th *ngFor="let col of columns" pReorderableColumn  [pSortableColumn]="col.field"  [ngStyle]="{'width': col.width}">
-            {{col.header}}
-            <p-sortIcon  *ngIf="col.field == 'when' || col.field == 'source'" [field]="col.field"></p-sortIcon>
-          </th>
-        </tr>
-         
-        <tr>
-          <th></th>
-          <th *ngFor="let col of columns" [ngSwitch]="col.field">
-           
-            <p-autoComplete appendTo="body" *ngSwitchCase="'accountName'" placeholder="Search..." #accountInput
-            class="font-size-12" [ngStyle]="{'border-color': 'red'}" [(ngModel)]="tempAccountSearch" field="name"
-            (onClear)="onClearAccounts(dtjournal)" (onSelect)="accountSelect($event, dtjournal)"
-            [suggestions]="accounts" name="accountName" (completeMethod)="onSearchAccount($event)" [dropdown]="true">
-            <ng-template let-account pTemplate="accountTemplate">
-              <div class="ui-helper-clearfix" style="border-bottom:1px solid #D5D5D5">
-                <div style="margin:10px 10px 0 0">{{account.name}}
-                 
-                </div>
+
+
+<p-panel header="Fund Selection" [style]="{'padding':'inherit'}" class="ledger-panel no-padding">
+    <select>
+        <option [ngValue]="null" disabled>All Funds</option>
+        <option *ngFor="let fund of funds" [ngValue]="fund.FundCode">
+          {{ fund.FundCode }}
+        </option>
+      </select>
+</p-panel>
+
+<p-panel header="Reference Data" [style]="{'padding':'inherit','height':'200px'}" class="ledger-panel no-padding">
+    <p-tabView>
+        <p-tabPanel header="Accounts">
+        </p-tabPanel>
+        <p-tabPanel header="Brokers">
+        </p-tabPanel>
+        <p-tabPanel header="Custodian">
+        </p-tabPanel>
+      </p-tabView>
+  </p-panel>
+  
+  <p-panel header="Posting Engine Results" [style]="{'padding':'inherit'}" class="ledger-panel no-padding">
+    <p-tabView>
+      <p-tabPanel header="Journals">
+          <p-table #dtjournal scrollable="true" [style]="{'padding':'inherit'}" scrollHeight="400px" [rows]="40"
+          [paginator]="false" [totalRecords]="totalRecords" [loading]="loading" [reorderableColumns]="true"
+          [columns]="journalCols" [lazy]="true" (onLazyLoad)="getJournals( $event)" [value]="journals" [virtualScroll]="true"
+           dataKey="id"   dataKey="id" [customSort]="true" (sortFunction)="customSort($event)">
+          <ng-template pTemplate="header" let-columns >
+            <tr>
+              <th style="width: 70px;">
+                Actions
+              </th>
+              <th *ngFor="let col of columns" pReorderableColumn  [pSortableColumn]="col.field"  [ngStyle]="{'width': col.width}">
+                {{col.header}}
+                <p-sortIcon  *ngIf="col.field == 'when' || col.field == 'source'" [field]="col.field"></p-sortIcon>
+              </th>
+            </tr>
+             
+            <tr>
+              <th></th>
+              <th *ngFor="let col of columns" [ngSwitch]="col.field">
+               
+                <p-autoComplete appendTo="body" *ngSwitchCase="'accountName'" placeholder="Search..." #accountInput
+                class="font-size-12" [ngStyle]="{'border-color': 'red'}" [(ngModel)]="tempAccountSearch" field="name"
+                (onClear)="onClearAccounts(dtjournal)" (onSelect)="accountSelect($event, dtjournal)"
+                [suggestions]="accounts" name="accountName" (completeMethod)="onSearchAccount($event)" [dropdown]="true">
+                <ng-template let-account pTemplate="accountTemplate">
+                  <div class="ui-helper-clearfix" style="border-bottom:1px solid #D5D5D5">
+                    <div style="margin:10px 10px 0 0">{{account.name}}
+                     
+                    </div>
+                  </div>
+                </ng-template>
+              </p-autoComplete>
+    
+              <div *ngSwitchCase="'when'">
+          
               </div>
-            </ng-template>
-          </p-autoComplete>
-
-          <div *ngSwitchCase="'when'">
-      
-          </div>
-
-        <div *ngSwitchCase="'value'">
-          > {{valueFilter}}
-          <i class="fa fa-close" (click)="valueFilter=null;dtjournal.filter(null, 'value', col.filterMatchMode)"
-            style="cursor:pointer" *ngIf="valueFilter"></i>
-          <p-slider [style]="{'width':'100%','margin-top':'6px','font-size':'12px', 'margin-bottom': '20px'}"
-            [(ngModel)]="value" [min]="0" [max]="1000" (onChange)="onValueChange($event, dtjournal)"></p-slider>
-        </div>
-      </th> 
-        </tr>
-
-      </ng-template>
-      <ng-template pTemplate="body" let-rowData let-columns="columns" let-expanded="expanded" let-index="rowIndex">
-        <tr [pReorderableRow]="index" style="height:30px">
-          <td style="width: 70px">
-            <div class="btn-group dropdown">
-              <button   >
-                <i class="fa fa-edit"></i>
-              </button>
+    
+            <div *ngSwitchCase="'value'">
+              > {{valueFilter}}
+              <i class="fa fa-close" (click)="valueFilter=null;dtjournal.filter(null, 'value', col.filterMatchMode)"
+                style="cursor:pointer" *ngIf="valueFilter"></i>
+              <p-slider [style]="{'width':'100%','margin-top':'6px','font-size':'12px', 'margin-bottom': '20px'}"
+                [(ngModel)]="value" [min]="0" [max]="1000" (onChange)="onValueChange($event, dtjournal)"></p-slider>
             </div>
-          </td>
-          <td *ngFor="let col of columns"  [ngStyle]="{'width': col.width}">
-            <span  style="cursor: pointer;" (click)="onGoToPage2()" *ngIf="col.field == 'source'"> {{rowData[col.field]}}</span>
-            <div *ngIf="col.field != 'source' && col.field != 'debit' && col.field != 'credit'"> {{rowData[col.field]}} </div> 
-            <div *ngIf="col.field == 'debit' || col.field == 'credit'" style="text-align: right">
-                {{ rowData[col.field] | number }}
-              </div> 
-             
-             
-          </td>
-        </tr>
-      </ng-template>
-
-     
-      <ng-template pTemplate="footer" let-columns>
-          <tr>
-            <td style="width: 70px;"></td>
-              <td *ngFor="let col of columns">
-             <span *ngIf="col.field == 'debit'" > {{this.totalDebit }}</span>    
-             <span *ngIf="col.field == 'credit'" > {{this.totalCredit }}</span>    
-
-
+          </th> 
+            </tr>
+    
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-columns="columns" let-expanded="expanded" let-index="rowIndex">
+            <tr [pReorderableRow]="index" style="height:30px">
+              <td style="width: 70px">
+                <div class="btn-group dropdown">
+                  <button   >
+                    <i class="fa fa-edit"></i>
+                  </button>
+                </div>
+              </td>
+              <td *ngFor="let col of columns"  [ngStyle]="{'width': col.width}">
+                <span  style="cursor: pointer;" (click)="onGoToPage2()" *ngIf="col.field == 'source'"> {{rowData[col.field]}}</span>
+                <div *ngIf="col.field != 'source' && col.field != 'debit' && col.field != 'credit'"> {{rowData[col.field]}} </div> 
+                <div *ngIf="col.field == 'debit' || col.field == 'credit'" style="text-align: right">
+                    {{ rowData[col.field] | number }}
+                  </div> 
+                 
                  
               </td>
-          </tr>
-      </ng-template>
-         <ng-template pTemplate="summary">
-          Total Records:  {{this.totalRecords}}  
-      </ng-template> 
-    </p-table>
+            </tr>
+          </ng-template>
+    
+         
+          <ng-template pTemplate="footer" let-columns>
+              <tr>
+                <td style="width: 70px;"></td>
+                  <td *ngFor="let col of columns">
+                 <div *ngIf="col.field == 'debit'" style="text-align: right"> {{this.totalDebit | number }}</div>    
+                 <div *ngIf="col.field == 'credit'" style="text-align: right"> {{this.totalCredit | number }}</div>    
+    
+    
+                     
+                  </td>
+              </tr>
+          </ng-template>
+             <ng-template pTemplate="summary">
+               <div style="text-align: right">
+                  Total Records:  {{this.totalRecords}}  
+              </div>
+          </ng-template> 
+        </p-table>
+    
+      </p-tabPanel>
+    </p-tabView>
   </p-panel>
-
-
-
-  <!-- <div class="primeng-paging-container">
-    <span class="total-records-count">
-      <b>Total Count</b>{{1200}}
-    </span>
-  </div> -->
 
 </div>

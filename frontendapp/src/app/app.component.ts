@@ -14,7 +14,7 @@ import { JournalComponent } from './main/journal/journal.component';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent extends AppComponentBase {
-  title = 'AccountApp';
+  title = 'Finance';
   @ViewChild('applegdermodal') applegdermodal: LegderModalComponent;
   @ViewChild('app-journal') appjournal: JournalComponent;
   fundId: any;
