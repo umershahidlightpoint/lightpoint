@@ -4,6 +4,8 @@
 @import '../node_modules/primeng/resources/themes/omega/theme.css';
 @import 'bootstrap';
 @import '../node_modules/font-awesome/css/font-awesome.css';
+@import "~ag-grid-community/dist/styles/ag-grid.css";
+@import "~ag-grid-community/dist/styles/ag-theme-balham.css";
 
 /* @import '~/angular-notifier/styles'; */
 /* @import "../node_modules/primeng/resources/component/table/table.css"; */

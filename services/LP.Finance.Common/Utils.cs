@@ -38,14 +38,15 @@ namespace LP.Finance.Common
             };
         }
 
-        public static object GridWrap(object payload, object metaData)
+        public static object GridWrap(object payload, object metaData, object stats)
         {
             return new
             {
                 when = DateTime.Now,
                 by = "",
                 data = payload,
-                meta = metaData
+                meta = metaData,
+                stats= stats
             };
         }
 

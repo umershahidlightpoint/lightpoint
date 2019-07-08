@@ -8,10 +8,11 @@ import { TableModule } from 'primeng/table';
 import { HttpClientModule } from '@angular/common/http';
 import { FinancePocServiceProxy } from '../shared/service-proxies/service-proxies';
 import { LedgerComponent } from './main/ledger/ledger.component';
- 
+import { AgGridModule } from 'ag-grid-angular';
 
 import {
   AutoCompleteModule,
+  
   EditorModule,
   InputMaskModule,
   PaginatorModule,
@@ -43,6 +44,8 @@ import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { JournalComponent } from './main/journal/journal.component';
+import { AgGridExampleComponent } from './main/ag-grid-example/ag-grid-example.component';
+
 
 @NgModule({
   declarations: [
@@ -51,10 +54,12 @@ import { JournalComponent } from './main/journal/journal.component';
     LedgerComponent,
     LegderModalComponent,
     UpdateLedgerModalComponent,
-    JournalComponent
+    JournalComponent,
+    AgGridExampleComponent
   ],
   imports: [
     BrowserModule,
+    AgGridModule.withComponents([]),
     AppRoutingModule,
     TableModule,
     PaginatorModule,

@@ -7,6 +7,7 @@ import { LazyLoadEvent } from 'primeng/components/common/lazyloadevent';
 import { FundsComponent } from './main/funds/funds.component';
 import { LegderModalComponent } from './main/legder-modal/legder-modal.component';
 import { JournalComponent } from './main/journal/journal.component';
+import { AgGridExampleComponent } from './main/ag-grid-example/ag-grid-example.component';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +18,9 @@ export class AppComponent extends AppComponentBase {
   title = 'Finance';
   @ViewChild('applegdermodal') applegdermodal: LegderModalComponent;
   @ViewChild('app-journal') appjournal: JournalComponent;
+  @ViewChild('app-ag-grid-example') agGridExample:AgGridExampleComponent
+  
+
   fundId: any;
   ledger: any[];
   ledgerCols: any[];

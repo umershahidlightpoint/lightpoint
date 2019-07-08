@@ -28,6 +28,13 @@ namespace LP.Finance.WebProxy.WebAPI
         }
     }
 
+    public class journalStats
+    {
+        public int totalDebit { get; set; }
+        public int totalCredit { get; set; }
+
+    }
+
     public class JournalControllerService : IJournalController
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
@@ -56,8 +63,11 @@ namespace LP.Finance.WebProxy.WebAPI
         {
 
             metaData metaData = new metaData();
+            journalStats journalStats = new journalStats();
             bool whereAdded = false;
-            var query = $@"SELECT overall_count = COUNT(*) OVER() , [journal].[id]  ,[account_id],[account_category].[name] as AccountType,  [account].[name] as accountName  ,[value]  ,[source] ,[when] FROM [journal]  join account  on [journal]. [account_id] = account.id join [account_category] on  [account].account_category_id = [account_category] .id ";
+
+            var query = $@"select d.overall_count   , (sum(d.debit)  OVER()) as totalDebit,(sum(d.credit)  OVER()) as totalCredit, d.debit,d.credit, d.[id]  ,d.[account_id],d.AccountType,  d.accountName  ,d.[value]  ,d.[source] ,d.[when]  from(";
+            query = query+ "SELECT overall_count = COUNT(*) OVER() ,(CASE WHEN value < 0 THEN value else 0 END  ) debit,(CASE WHEN value > 0 THEN value else 0 END  )  credit, [journal].[id]  ,[account_id],[account_category].[name] as AccountType,  [account].[name] as accountName  ,[value]  ,[source] ,[when] FROM [journal]  join account  on [journal]. [account_id] = account.id join [account_category] on  [account].account_category_id = [account_category] .id ";
 
             List<SqlParameter> sqlParams = new List<SqlParameter>() ;
             sqlParams.Add ( new SqlParameter("pageNumber", pageNumber));
@@ -104,16 +114,21 @@ namespace LP.Finance.WebProxy.WebAPI
                 query = query + "  ORDER BY  [journal].[when] desc ";
             }
 
+            if (pageSize > 0)
+            {
+                query = query + "   OFFSET(@pageNumber -1) * @pageSize ROWS FETCH NEXT @pageSize  ROWS ONLY";
+            }
 
-            query = query + "   OFFSET(@pageNumber -1) * @pageSize ROWS FETCH NEXT @pageSize  ROWS ONLY";
-
+            query = query + " ) as d";
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
             metaData.total = Convert.ToInt32(dataTable.Rows[0][0]);
+            journalStats.totalCredit = Convert.ToInt32(dataTable.Rows[0]["totalDebit"]);
+            journalStats.totalDebit = Convert.ToInt32(dataTable.Rows[0]["totalCredit"]);
             var jsonResult = JsonConvert.SerializeObject(dataTable);
              
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
-            return Utils.GridWrap(json, metaData);
+            return Utils.GridWrap(json, metaData, journalStats);
 
             //return Utils.RunQuery(connectionString, query, sqlParams.ToArray());
         }
@@ -171,9 +186,9 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [HttpGet]
         [ActionName("data")]
-        public object Data(string symbol,int pageNumber,int pageSize,string sortColum ="id",string sortDirection= "asc", int accountId =0 ,int value=0)
+        public object Data(string refdata, int pageNumber,int pageSize,string sortColum ="id",string sortDirection= "asc", int accountId =0 ,int value=0)
         {
-            return controller.Data(symbol, pageNumber, pageSize, sortColum, sortDirection,accountId, value);
+            return controller.Data(refdata, pageNumber, pageSize, sortColum, sortDirection,accountId, value);
         }
 
     }
