@@ -1,6 +1,7 @@
 import {  Component,ElementRef, OnInit, Injector, Input, ViewChild, EventEmitter, Output, ViewEncapsulation} from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
-import { GridOptions } from 'ag-grid-community';
+import {GridOptions} from "ag-grid-community";
+ 
 import * as moment from 'moment';
 
 @Component({
@@ -13,9 +14,20 @@ export class AgGridExampleComponent implements OnInit {
   constructor(injector: Injector,
     private _fundsService: FinancePocServiceProxy) {
     (injector);
-    
-  };
+    this.gridOptions = <GridOptions>{
+      rowData: null,
+      columnDefs: this.columnDefs,
+      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
+      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
+      onGridReady: () => { this.gridOptions.api.sizeColumnsToFit(); },
+      onFirstDataRendered: (params) => {params.api.sizeColumnsToFit();},
+      enableFilter: true,
+      animateRows: true
+                         };
   
+  };
+  private gridOptions: GridOptions;
+
   ranges: any = {
     'Today': [moment(), moment()],
     'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
@@ -98,7 +110,7 @@ export class AgGridExampleComponent implements OnInit {
        
   ];
 
-   
+    
 
  
   setWidthAndHeight(width, height) {
@@ -148,8 +160,7 @@ ngOnInit() {
      //when: moment(item.when).format('MMM-DD-YYYY hh:mm:ss A Z')
      when: moment(item.when).format("MMM-DD-YYYY"),
       
-   }));
-
+   })); 
       
     this.bottomData = [
       {
@@ -162,29 +173,26 @@ ngOnInit() {
       }
     ];
 });  
-this.topOptions.alignedGrids.push(this.bottomOptions);
-this.bottomOptions.alignedGrids.push(this.topOptions);
  
  
 }
  
  
-  onGridReady(params) {
+  /*onGridReady(params) {
      
   this.gridApi = params.api;
   this.gridColumnApi = params.columnApi;
 
   params.api.sizeColumnsToFit();
-}
+}*/
    public isExternalFilterPresent()
    {
-     debugger;
-    this.startDate=this.startDate;
+     
       return true;
    }
    public ngModelChange(e)
    {
-     debugger;
+     
      this.startDate=e.startDate;
      this.endDate=e.endDate
      this.topGrid.api.onFilterChanged();
@@ -192,7 +200,7 @@ this.bottomOptions.alignedGrids.push(this.topOptions);
 
  public doesExternalFilterPass(node)
  {
-  debugger;
+   debugger
    if(this.startDate)
     if (asDate(node.data.when) < this.startDate )
     {return false;}

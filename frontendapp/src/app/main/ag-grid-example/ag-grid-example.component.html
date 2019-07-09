@@ -12,14 +12,12 @@
 <ag-grid-angular 
 style="width: 100%;  height: 100%;"
 class="ag-theme-balham"
-[gridOptions]="topOptions"
+[gridOptions]="gridOptions"
 #topGrid
 [rowData]="rowData" 
-[columnDefs]="columnDefs"
- [onGridReady]="onGridReady"
-[isExternalFilterPresent]="isExternalFilterPresent"
-[doesExternalFilterPass]="doesExternalFilterPass"
-(firstDataRendered)="onFirstDataRendered($event)">
+  
+
+>
       
 </ag-grid-angular>
  
