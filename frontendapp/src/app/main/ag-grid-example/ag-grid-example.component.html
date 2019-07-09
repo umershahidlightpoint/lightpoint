@@ -1,7 +1,13 @@
  
  
   
-  
+  <input type="text" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
+  [showCustomRangeLabel]="true"
+  [alwaysShowCalendars]="true"  [showClearButton]="true"   placeholder="Choose date"
+  (ngModelChange)="ngModelChange($event)"
+  class="form-control"/>
+
+
 <div [ngStyle]="style">
 <ag-grid-angular 
 style="width: 100%;  height: 100%;"
@@ -10,7 +16,9 @@ class="ag-theme-balham"
 #topGrid
 [rowData]="rowData" 
 [columnDefs]="columnDefs"
- 
+ [onGridReady]="onGridReady"
+[isExternalFilterPresent]="isExternalFilterPresent"
+[doesExternalFilterPass]="doesExternalFilterPass"
 (firstDataRendered)="onFirstDataRendered($event)">
       
 </ag-grid-angular>

@@ -9,7 +9,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { FinancePocServiceProxy } from '../shared/service-proxies/service-proxies';
 import { LedgerComponent } from './main/ledger/ledger.component';
 import { AgGridModule } from 'ag-grid-angular';
-
+import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import {
   AutoCompleteModule,
   
@@ -60,6 +60,7 @@ import { AgGridExampleComponent } from './main/ag-grid-example/ag-grid-example.c
   imports: [
     BrowserModule,
     AgGridModule.withComponents([]),
+    NgxDaterangepickerMd.forRoot(),
     AppRoutingModule,
     TableModule,
     PaginatorModule,
