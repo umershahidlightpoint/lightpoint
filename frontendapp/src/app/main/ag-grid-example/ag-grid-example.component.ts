@@ -1,8 +1,11 @@
-import {  Component,ElementRef, OnInit, Injector, Input, ViewChild, EventEmitter, Output, ViewEncapsulation} from '@angular/core';
+import {  Component,TemplateRef,ElementRef, OnInit, Injector, Input, ViewChild, EventEmitter, Output, ViewEncapsulation} from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import {GridOptions} from "ag-grid-community";
+import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
+
  
 import * as moment from 'moment';
+import { debug } from 'util';
 
 @Component({
   selector: 'app-ag-grid-example',
@@ -24,6 +27,7 @@ export class AgGridExampleComponent implements OnInit {
       enableFilter: true,
       animateRows: true
                          };
+  //this.selected = {startDate: moment().subtract(6, 'days'), endDate: moment().subtract(1, 'days')};
   
   };
   private gridOptions: GridOptions;
@@ -48,10 +52,13 @@ export class AgGridExampleComponent implements OnInit {
   totalRecords: number;
   topOptions = {alignedGrids: [], suppressHorizontalScroll: true};
   bottomOptions = {alignedGrids: []};
-    
+ 
+  selected: {startDate: moment.Moment, endDate: moment.Moment};
 
   @ViewChild('topGrid') topGrid;
   @ViewChild('bottomGrid') bottomGrid;
+  @ViewChild('dateRangPicker') dateRangPicker;
+  @ViewChild('greetCell') greetCell: TemplateRef<any>;
    
   totalCredit:number;
   totalDebit:number;
@@ -63,7 +70,7 @@ export class AgGridExampleComponent implements OnInit {
   pageSize:any;
   accountSearch = { id: undefined };
   valueFilter: number;
-  
+  funds:any;
   sortColum:any;
   sortDirection:any;
   page: any;
@@ -78,7 +85,9 @@ export class AgGridExampleComponent implements OnInit {
 
   columnDefs = [
       
-    { field: 'source', headerName: 'Source', sortable: true, filter: true},
+    { field: 'source', headerName: 'Source',   colId: 'greet', 
+    sortable: true, filter: true 
+  },
     { field: 'AccountType', headerName: 'Account Type',sortable: true, filter: true },
     { field: 'accountName', headerName: 'Account Name',sortable: true, filter: true },
     { field: 'when', headerName: 'when' ,sortable: true,  
@@ -140,7 +149,12 @@ ngOnInit() {
  this.valueFilter=0;
  this.sortColum="";
  this.sortDirection="";
-
+ this._fundsService.getFunds().subscribe ( result => {
+ 
+  this.funds = result.payload.map( item => ({
+    FundCode:item.FundCode,
+  }));
+});
  this._fundsService.getJournals(this.symbal,this.page, this.pageSize , this.accountSearch.id,
  this.valueFilter,this.sortColum,this.sortDirection ).subscribe(result => {
   this.totalRecords = result.meta.total;//result.meta.total;
@@ -158,7 +172,8 @@ ngOnInit() {
      debit:  item.debit   ,
      credit:   item.credit,
      //when: moment(item.when).format('MMM-DD-YYYY hh:mm:ss A Z')
-     when: moment(item.when).format("MMM-DD-YYYY"),
+    //when: moment(item.when).format("MMM-DD-YYYY"),
+    when: moment(item.when).format("MM-DD-YYYY")
       
    })); 
       
@@ -197,22 +212,44 @@ ngOnInit() {
      this.endDate=e.endDate
      this.topGrid.api.onFilterChanged();
    }
-
+  
  public doesExternalFilterPass(node)
  {
    debugger
-   if(this.startDate)
-    if (asDate(node.data.when) < this.startDate )
-    {return false;}
-    return true;
-
+  
+if(this.startDate){
+    
+  var cellDate = new Date(node.data.when);
+  var td =this.startDate.toDate() ;
+       if (this.startDate.toDate()  <= cellDate  &&  this.endDate.toDate()  >= cellDate  )
+        {return true;}else{return false }
+   }
+ return true;
  }
 
+ public clearFilters() {
+  this.startDate = null;
+  this.endDate= null;
+  //this.selectedDaterange.clear()
+  this.topGrid.api.setFilterModel(null);
+  this.topGrid.api.onFilterChanged();
+  this.startDate = null;
+
+   }
+ 
+   greet(row: any) {
+    //alert(`${ row.country } says "${ row.greeting }!`);
+    alert("For show popup");
+  }
 }
 
+
 function asDate (dateAsString){
-  var splitFields = dateAsString.split("/");
-  return new Date(splitFields[2], splitFields[1], splitFields[0]);
+  debugger;
+  var splitFields = dateAsString.split("-");
+ //var m= this.MONTHS[splitFields[0]];
+
+  return new Date(splitFields[1],  splitFields[0]  , splitFields[2]);
 }
 function currencyFormatter(params) {
   return     formatNumber(params.value);

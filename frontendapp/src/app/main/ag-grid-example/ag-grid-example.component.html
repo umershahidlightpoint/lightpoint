@@ -1,37 +1,68 @@
  
+     
+    
+    <p-tabView [ngStyle]="style">
+        <p-tabPanel header="Journal" [ngStyle]="style">
+            <div  class="row" >
+                    <div class="col-3"  >
+                            <select class="form-control">
+                                    <option [ngValue]="null" disabled>All Funds</option>
+                                    <option *ngFor="let fund of funds" [ngValue]="fund.FundCode">
+                                      {{ fund.FundCode }}
+                                    </option>
+                                  </select>
+                         
+                         </div>
+
+                         <div  class="col-5"   > 
+                                <input type="text" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
+                                [showCustomRangeLabel]="true" #dateRangPicker  name="selectedDaterange"
+                                [alwaysShowCalendars]="true"  [showClearButton]="true"   placeholder="Choose date"
+                                (ngModelChange)="ngModelChange($event)"    [(ngModel)]="selected" 
+                                class="form-control"/>
+                                </div>
+
+                                <div  class="col-2" >     
+                                        <button (click)="clearFilters( )" class="btn btn-info" type="button">Clear</button>
+                                       </div>  
+
+            </div>
+     
  
-  
-  <input type="text" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
-  [showCustomRangeLabel]="true"
-  [alwaysShowCalendars]="true"  [showClearButton]="true"   placeholder="Choose date"
-  (ngModelChange)="ngModelChange($event)"
-  class="form-control"/>
+<div style="clear: both"></div>
+ <div  #divToMeasure style="height: 500px; width: 100%;">
+        <ag-grid-angular 
+        style="width: 100%; height: 100%"
+        class="ag-theme-balham"
+        [gridOptions]="gridOptions"
+        #topGrid
+        [rowData]="rowData"  >
+             
+        </ag-grid-angular>
+        
+        <ag-grid-angular
+                   style="width: 100%; height: 50px"
+                   #bottomGrid
+                   class="ag-theme-balham"
+                   [rowData]="bottomData"
+                   [gridOptions]="bottomOptions"
+                   headerHeight="0"
+                   [rowStyle]="{ fontWeight: 'bold' }"
+                   [columnDefs]="columnDefs" 
+                   (firstDataRendered)="onFirstDataRendered($event)">
+        </ag-grid-angular>
+        
+        
+        
+    </div>
 
-
-<div [ngStyle]="style">
-<ag-grid-angular 
-style="width: 100%;  height: 100%;"
-class="ag-theme-balham"
-[gridOptions]="gridOptions"
-#topGrid
-[rowData]="rowData" 
-  
-
->
+        </p-tabPanel>
+        <p-tabPanel header="Ledger">
+        </p-tabPanel>
+         
+      </p-tabView>
+ 
       
-</ag-grid-angular>
- 
-<ag-grid-angular
-            style="width: 100%; height: 50px"
-            #bottomGrid
-            class="ag-theme-balham"
-            [rowData]="bottomData"
-            [gridOptions]="bottomOptions"
-            headerHeight="0"
-            [rowStyle]="{ fontWeight: 'bold' }"
-            [columnDefs]="columnDefs" 
-            (firstDataRendered)="onFirstDataRendered($event)">
-            </ag-grid-angular>
-
-</div>
- 
+<ng-template #greetCell let-row>
+        <button (click)="greet(row)">row.source</button>
+      </ng-template>

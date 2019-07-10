@@ -10,6 +10,7 @@ import { FinancePocServiceProxy } from '../shared/service-proxies/service-proxie
 import { LedgerComponent } from './main/ledger/ledger.component';
 import { AgGridModule } from 'ag-grid-angular';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import { TemplateRendererComponent } from './template-renderer/template-renderer.component';
 import {
   AutoCompleteModule,
   
@@ -55,10 +56,14 @@ import { AgGridExampleComponent } from './main/ag-grid-example/ag-grid-example.c
     LegderModalComponent,
     UpdateLedgerModalComponent,
     JournalComponent,
-    AgGridExampleComponent
+    AgGridExampleComponent,
+    TemplateRendererComponent
   ],
   imports: [
     BrowserModule,
+    AgGridModule.withComponents([
+      TemplateRendererComponent
+    ]),
     AgGridModule.withComponents([]),
     NgxDaterangepickerMd.forRoot(),
     AppRoutingModule,
