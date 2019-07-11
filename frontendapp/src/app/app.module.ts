@@ -9,6 +9,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { FinancePocServiceProxy } from '../shared/service-proxies/service-proxies';
 import { LedgerComponent } from './main/ledger/ledger.component';
 import { AgGridModule } from 'ag-grid-angular';
+ 
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { TemplateRendererComponent } from './template-renderer/template-renderer.component';
 import {
@@ -46,7 +47,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { JournalComponent } from './main/journal/journal.component';
 import { AgGridExampleComponent } from './main/ag-grid-example/ag-grid-example.component';
-
+import { AgPivotGridExampleComponent } from './main/ag-pivot-grid-example/ag-pivot-grid-example.component';
 
 @NgModule({
   declarations: [
@@ -57,7 +58,8 @@ import { AgGridExampleComponent } from './main/ag-grid-example/ag-grid-example.c
     UpdateLedgerModalComponent,
     JournalComponent,
     AgGridExampleComponent,
-    TemplateRendererComponent
+    TemplateRendererComponent,
+    AgPivotGridExampleComponent
   ],
   imports: [
     BrowserModule,
