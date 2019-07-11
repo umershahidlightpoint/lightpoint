@@ -6,6 +6,7 @@ import { TemplateRendererComponent } from '../../template-renderer/template-rend
  
 import * as moment from 'moment';
 import { debug } from 'util';
+import { $ } from 'protractor';
 
 @Component({
   selector: 'app-ag-grid-example',
@@ -25,21 +26,26 @@ export class AgGridExampleComponent implements OnInit {
       onGridReady: () => { this.gridOptions.api.sizeColumnsToFit(); },
       onFirstDataRendered: (params) => {params.api.sizeColumnsToFit();},
       enableFilter: true,
-      animateRows: true
+      animateRows: true,
+      alignedGrids: [], 
+      suppressHorizontalScroll: true
                          };
   //this.selected = {startDate: moment().subtract(6, 'days'), endDate: moment().subtract(1, 'days')};
   
   };
+  
+  
   private gridOptions: GridOptions;
 
   ranges: any = {
-    'Today': [moment(), moment()],
-    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-    'This Month': [moment().startOf('month'), moment().endOf('month')],
-    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-    'This Year': [moment().startOf('year'), moment()]
+    //'Today': [moment(), moment()],
+    //'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+   // 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+   // 'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+   'Inception to Date' :[moment("01-01-1901", "MM-DD-YYYY"), moment().endOf('month')],
+   'Month to Date' : [moment().startOf('month'), moment().endOf('month')],
+   // 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+    'Year to Date': [moment().startOf('year'), moment()]
   }
   
  
@@ -50,16 +56,20 @@ export class AgGridExampleComponent implements OnInit {
   private defaultColDef;
   private rowData: [];
   totalRecords: number;
-  topOptions = {alignedGrids: [], suppressHorizontalScroll: true};
+  //topOptions = {alignedGrids: [], suppressHorizontalScroll: true};
+  
   bottomOptions = {alignedGrids: []};
- 
+  
+
+
   selected: {startDate: moment.Moment, endDate: moment.Moment};
 
   @ViewChild('topGrid') topGrid;
   @ViewChild('bottomGrid') bottomGrid;
   @ViewChild('dateRangPicker') dateRangPicker;
   @ViewChild('greetCell') greetCell: TemplateRef<any>;
-   
+  @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
+
   totalCredit:number;
   totalDebit:number;
   bottomData  :any;
@@ -83,9 +93,17 @@ export class AgGridExampleComponent implements OnInit {
     boxSizing: 'border-box'
 };
 
+styleForHight = {
+  marginTop: '20px',
+  width: '100%',
+  height:'calc(100vh - 235px)',
+  boxSizing: 'border-box'
+};
+
+
   columnDefs = [
       
-    { field: 'source', headerName: 'Source',   colId: 'greet', 
+    { field: 'source', headerName: 'Source',    
     sortable: true, filter: true 
   },
     { field: 'AccountType', headerName: 'Account Type',sortable: true, filter: true },
@@ -118,9 +136,8 @@ export class AgGridExampleComponent implements OnInit {
 
        
   ];
-
+ 
     
-
  
   setWidthAndHeight(width, height) {
     this.style = {
@@ -139,7 +156,10 @@ ngOnInit() {
     sortable: true,
     resizable: true
   };
-   
+  //align scroll of grid and footer grid
+  this.gridOptions.alignedGrids.push(this.bottomOptions);
+  this.bottomOptions.alignedGrids.push(this.gridOptions);
+
  this.symbal= "ALL";
   
  
@@ -215,7 +235,7 @@ ngOnInit() {
   
  public doesExternalFilterPass(node)
  {
-   debugger
+ 
   
 if(this.startDate){
     
@@ -228,13 +248,17 @@ if(this.startDate){
  }
 
  public clearFilters() {
+  debugger;
+   
   this.startDate = null;
   this.endDate= null;
-  //this.selectedDaterange.clear()
+//  this.dateRangPicker.
   this.topGrid.api.setFilterModel(null);
   this.topGrid.api.onFilterChanged();
   this.startDate = null;
-
+  //this.dateRangPicker.value = '';
+  //this.selected=[];
+  //this.selected = {startDate:null, endDate: null};
    }
  
    greet(row: any) {
