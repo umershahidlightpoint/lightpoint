@@ -15,7 +15,7 @@
                          </div>
 
                          <div  class="col-6"   > 
-                                <input type="text" autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
+                                <input type="text" #selectedDaterange   autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
                                 [showCustomRangeLabel]="true" #dateRangPicker   name="selectedDaterange"
                                   [showClearButton]="true"   placeholder="Choose date" [alwaysShowCalendars]="true"
                                 (ngModelChange)="ngModelChange($event)"    
@@ -72,5 +72,8 @@
  
       
 <ng-template #greetCell let-row>
-        <button (click)="greet(row)">row.source</button>
+     <div (click)="greet(row)" style="cursor: pointer"> {{row.source}} </div>
+     
+    
+        
       </ng-template>

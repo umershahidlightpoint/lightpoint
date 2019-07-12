@@ -14,6 +14,7 @@ import { debug } from 'util';
 })
 
 export class AgPivotGridExampleComponent implements OnInit {
+  pivotPanelShow: string;
   constructor(injector: Injector,
     private _fundsService: FinancePocServiceProxy) {
     (injector);
@@ -29,6 +30,7 @@ export class AgPivotGridExampleComponent implements OnInit {
       alignedGrids: [], 
       suppressHorizontalScroll: true
                          };
+                         this.sideBar = "columns";
   //this.selected = {startDate: moment().subtract(6, 'days'), endDate: moment().subtract(1, 'days')};
   
   };
@@ -53,7 +55,12 @@ export class AgPivotGridExampleComponent implements OnInit {
   private gridColumnApi;
   private defaultColDef;
   private rowData: [];
+  private sideBar;
   totalRecords: number;
+  rowGroupPanelShow: any ; 
+   
+  pivotColumnGroupTotals: any ; 
+  pivotRowTotals : any ; 
   //topOptions = {alignedGrids: [], suppressHorizontalScroll: true};
   
   bottomOptions = {alignedGrids: []};
@@ -94,20 +101,20 @@ export class AgPivotGridExampleComponent implements OnInit {
 styleForHight = {
   marginTop: '20px',
   width: '100%',
-  height:'calc(100vh - 235px)',
+  height:'calc(100vh - 200px)',
   boxSizing: 'border-box'
 };
 
 
   columnDefs = [
       
+      
     { field: 'source', headerName: 'Source',   colId: 'greet',  sortable: true },
-    { field: 'AccountType', headerName: 'Account Type',sortable: true,  pivot: true,
+    { field: 'AccountType', headerName: 'Account Type',sortable: true, enableRowGroup: true, pivot: true,
     enablePivot: true},
-    { field: 'accountName', headerName: 'Account Name',sortable: true, rowGroup: true,
-    enableRowGroup: true    },
-    { field: 'when', headerName: 'when' ,sortable: true,   rowGroup: true,
-    enableRowGroup: true,
+    { field: 'accountName', headerName: 'Account Name',sortable: true,  enableRowGroup: true,
+    rowGroup: true  },
+    { field: 'when', headerName: 'when' ,sortable: true,   rowGroup: true,  enableRowGroup: true,
     enablePivot: true,  
     filter:'agDateColumnFilter', filterParams:{
       comparator:function (filterLocalDateAtMidnight, cellValue){
@@ -156,6 +163,11 @@ ngOnInit() {
     sortable: true,
     resizable: true
   };
+  this.rowGroupPanelShow ="always";
+  
+    this.pivotPanelShow = "always";
+    this.pivotColumnGroupTotals = "after";
+    this.pivotRowTotals = "before";
   //align scroll of grid and footer grid
   this.gridOptions.alignedGrids.push(this.bottomOptions);
   this.bottomOptions.alignedGrids.push(this.gridOptions);
@@ -252,7 +264,7 @@ if(this.startDate){
    
   this.startDate = null;
   this.endDate= null;
-  //this.selectedDaterange.clear()
+   //this.selectedDaterange.clear()
   this.topGrid.api.setFilterModel(null);
   this.topGrid.api.onFilterChanged();
   this.startDate = null;

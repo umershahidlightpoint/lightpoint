@@ -5,6 +5,11 @@
                class="ag-theme-balham"
                [gridOptions]="gridOptions"
                [pivotMode]="true"
+               [rowGroupPanelShow]="rowGroupPanelShow"
+      [pivotPanelShow]="pivotPanelShow"
+      [pivotColumnGroupTotals]="pivotColumnGroupTotals"
+      [pivotRowTotals]="pivotRowTotals"
+               [sideBar]="sideBar"
                #topGrid
                [rowData]="rowData"  >
                     
@@ -27,5 +32,5 @@
            </div>
        </div>
 <ng-template #greetCell let-row>
-        <button (click)="greet(row)">row.source</button>
+        <button (click)="greet(row)">AWAIS --- {{row.source}}</button>
       </ng-template>

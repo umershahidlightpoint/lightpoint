@@ -1,4 +1,5 @@
-import {  Component,TemplateRef,ElementRef, OnInit, Injector, Input, ViewChild, EventEmitter, Output, ViewEncapsulation} from '@angular/core';
+import {  Component,TemplateRef,ElementRef, OnInit, Injector, Input, ViewChild, EventEmitter, 
+  Output, ViewEncapsulation,AfterViewInit} from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import {GridOptions} from "ag-grid-community";
 import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
@@ -14,13 +15,14 @@ import { $ } from 'protractor';
   styleUrls: ['./ag-grid-example.component.css'],
 })
 
-export class AgGridExampleComponent implements OnInit {
+export class AgGridExampleComponent implements OnInit,AfterViewInit {
+ 
   constructor(injector: Injector,
     private _fundsService: FinancePocServiceProxy) {
     (injector);
     this.gridOptions = <GridOptions>{
       rowData: null,
-      columnDefs: this.columnDefs,
+     // columnDefs: this.columnDefs,
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       onGridReady: () => { this.gridOptions.api.sizeColumnsToFit(); },
@@ -42,10 +44,11 @@ export class AgGridExampleComponent implements OnInit {
     //'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
    // 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
    // 'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-   'Inception to Date' :[moment("01-01-1901", "MM-DD-YYYY"), moment().endOf('month')],
-   'Month to Date' : [moment().startOf('month'), moment().endOf('month')],
+   'IDB' :[moment("01-01-1901", "MM-DD-YYYY"), moment().endOf('month')],
+   'YDB': [moment().startOf('year'), moment()],
+   'MDB' : [moment().startOf('month'), moment().endOf('month')]
    // 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-    'Year to Date': [moment().startOf('year'), moment()]
+    
   }
   
  
@@ -56,9 +59,10 @@ export class AgGridExampleComponent implements OnInit {
   private defaultColDef;
   private rowData: [];
   totalRecords: number;
+  columnDefs :any;
   //topOptions = {alignedGrids: [], suppressHorizontalScroll: true};
   
-  bottomOptions = {alignedGrids: []};
+ 
   
 
 
@@ -66,7 +70,7 @@ export class AgGridExampleComponent implements OnInit {
 
   @ViewChild('topGrid') topGrid;
   @ViewChild('bottomGrid') bottomGrid;
-  @ViewChild('dateRangPicker') dateRangPicker;
+  @ViewChild('selectedDaterange') dateRangPicker;
   @ViewChild('greetCell') greetCell: TemplateRef<any>;
   @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
 
@@ -75,7 +79,7 @@ export class AgGridExampleComponent implements OnInit {
   bottomData  :any;
   startDate:any;
   endDate:any;
-
+  bottomOptions:any;
   symbal :string;
   pageSize:any;
   accountSearch = { id: undefined };
@@ -99,45 +103,7 @@ styleForHight = {
   height:'calc(100vh - 235px)',
   boxSizing: 'border-box'
 };
-
-
-  columnDefs = [
-      
-    { field: 'source', headerName: 'Source',    
-    sortable: true, filter: true 
-  },
-    { field: 'AccountType', headerName: 'Account Type',sortable: true, filter: true },
-    { field: 'accountName', headerName: 'Account Name',sortable: true, filter: true },
-    { field: 'when', headerName: 'when' ,sortable: true,  
-    filter:'agDateColumnFilter', filterParams:{
-      comparator:function (filterLocalDateAtMidnight, cellValue){
-          var dateAsString = cellValue;
-          var dateParts  = dateAsString.split("/");
-          var cellDate = new Date(Number(dateParts[2]), Number(dateParts[1]) - 1, Number(dateParts[0]));
-           
-          if (filterLocalDateAtMidnight.getTime() == cellDate.getTime()) {
-              return 0
-          }
-
-          if (cellDate < filterLocalDateAtMidnight) {
-              return -1;
-          }
-
-          if (cellDate > filterLocalDateAtMidnight) {
-              return 1;
-          }
-      }
-  }},
-  
-  
    
-    { field: 'debit', headerName: 'Debit' , valueFormatter: currencyFormatter, cellStyle: {'text-align': 'right' } ,cellClass: "number-cell" } ,
-    { field: 'credit', headerName: 'Credit',  valueFormatter: currencyFormatter,cellStyle: {'text-align': 'right' }, cellClass: "number-cell"} 
-
-       
-  ];
- 
-    
  
   setWidthAndHeight(width, height) {
     this.style = {
@@ -150,15 +116,60 @@ styleForHight = {
 onFirstDataRendered(params) {
   params.api.sizeColumnsToFit();
 }
+ngOnInit()
+{
 
-ngOnInit() {  
+  this. bottomOptions = {alignedGrids: []};
+  this.gridOptions.alignedGrids.push(this.bottomOptions);
+  this.bottomOptions.alignedGrids.push(this.gridOptions);
+}
+
+ngAfterViewInit()
+{
+  this.gridOptions.api.setColumnDefs(
+    [
+      { field: 'source', headerName: 'Source',  sortable: true, filter: true ,
+      cellRendererFramework: TemplateRendererComponent, cellRendererParams: {
+        ngTemplate: this.greetCell  }
+    },
+      { field: 'AccountType', headerName: 'Account Type',sortable: true, filter: true },
+      { field: 'accountName', headerName: 'Account Name',sortable: true, filter: true },
+      { field: 'when', headerName: 'when' ,sortable: true,  
+      filter:'agDateColumnFilter', filterParams:{
+        comparator:function (filterLocalDateAtMidnight, cellValue){
+            var dateAsString = cellValue;
+            var dateParts  = dateAsString.split("/");
+            var cellDate = new Date(Number(dateParts[2]), Number(dateParts[1]) - 1, Number(dateParts[0]));
+             
+            if (filterLocalDateAtMidnight.getTime() == cellDate.getTime()) {
+                return 0
+            }
+  
+            if (cellDate < filterLocalDateAtMidnight) {
+                return -1;
+            }
+  
+            if (cellDate > filterLocalDateAtMidnight) {
+                return 1;
+            }
+        }
+    }},
+     
+      { field: 'debit', headerName: 'Debit' , valueFormatter: currencyFormatter, cellStyle: {'text-align': 'right' } ,cellClass: "number-cell" } ,
+      { field: 'credit', headerName: 'Credit',  valueFormatter: currencyFormatter,cellStyle: {'text-align': 'right' }, cellClass: "number-cell"} 
+  
+         
+    ]
+  
+  );
+ 
+  this.columnDefs =this.gridOptions.api.getColumnDef;
+
   this.defaultColDef = {
     sortable: true,
     resizable: true
   };
-  //align scroll of grid and footer grid
-  this.gridOptions.alignedGrids.push(this.bottomOptions);
-  this.bottomOptions.alignedGrids.push(this.gridOptions);
+ 
 
  this.symbal= "ALL";
   
@@ -210,7 +221,16 @@ ngOnInit() {
 });  
  
  
+ //align scroll of grid and footer grid
+ 
 }
+
+
+
+
+
+
+  
  
  
   /*onGridReady(params) {
@@ -252,11 +272,15 @@ if(this.startDate){
    
   this.startDate = null;
   this.endDate= null;
-//  this.dateRangPicker.
+  //this.dateRangPicker.clear();
   this.topGrid.api.setFilterModel(null);
   this.topGrid.api.onFilterChanged();
   this.startDate = null;
-  //this.dateRangPicker.value = '';
+  this.dateRangPicker.value = '';
+   //this.selectedDaterange.
+   this.startDate="";
+   this.endDate="";
+   this.selected= {startDate: this.startDate, endDate: this.endDate};
   //this.selected=[];
   //this.selected = {startDate:null, endDate: null};
    }
