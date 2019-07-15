@@ -1,6 +1,6 @@
  
      
-    
+    <form>
     <p-tabView [ngStyle]="style">
         <p-tabPanel header="Journal" [ngStyle]="style">
             <div  class="row" >
@@ -15,7 +15,7 @@
                          </div>
 
                          <div  class="col-6"   > 
-                                <input type="text" #selectedDaterange   autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
+                                <input type="text" #selectedDaterange    autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
                                 [showCustomRangeLabel]="true" #dateRangPicker   name="selectedDaterange"
                                   [showClearButton]="true"   placeholder="Choose date" [alwaysShowCalendars]="true"
                                 (ngModelChange)="ngModelChange($event)"    
@@ -62,7 +62,7 @@
         <p-tabPanel header="Ledger">
         </p-tabPanel>
          
-        <p-tabPanel header="Pivat Grid Example">
+        <p-tabPanel header="Pivot Grid Example">
             <app-pivot-ag-grid-example #agpivotGridExample style="height: 100%"  ></app-pivot-ag-grid-example>
         </p-tabPanel>
          
@@ -77,3 +77,4 @@
     
         
       </ng-template>
+    </form>

@@ -1,5 +1,7 @@
-import {  Component,TemplateRef,ElementRef, OnInit, Injector, Input, ViewChild, EventEmitter, Output, ViewEncapsulation} from '@angular/core';
+import {  Component,TemplateRef,ElementRef, OnInit,AfterViewInit,
+   Injector, Input, ViewChild, EventEmitter, Output, ViewEncapsulation} from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
+
 import {GridOptions} from "ag-grid-community";
 import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
 
@@ -13,14 +15,15 @@ import { debug } from 'util';
   styleUrls: ['./ag-pivot-grid-example.component.css'],
 })
 
-export class AgPivotGridExampleComponent implements OnInit {
+export class AgPivotGridExampleComponent implements OnInit ,AfterViewInit {
   pivotPanelShow: string;
   constructor(injector: Injector,
     private _fundsService: FinancePocServiceProxy) {
     (injector);
+    this.sideBar = true;
     this.gridOptions = <GridOptions>{
       rowData: null,
-      columnDefs: this.columnDefs,
+      //columnDefs: this.columnDefs,
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       onGridReady: () => { this.gridOptions.api.sizeColumnsToFit(); },
@@ -30,14 +33,20 @@ export class AgPivotGridExampleComponent implements OnInit {
       alignedGrids: [], 
       suppressHorizontalScroll: true
                          };
-                         this.sideBar = "columns";
+                        
+                         this.gridOptions.defaultColDef = {
+                          sortable: true,
+                          resizable: true,
+                          filter: true
+                        };
+                       
   //this.selected = {startDate: moment().subtract(6, 'days'), endDate: moment().subtract(1, 'days')};
   
   };
   
   
   private gridOptions: GridOptions;
-
+   
   ranges: any = {
     'Today': [moment(), moment()],
     'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
@@ -74,7 +83,7 @@ export class AgPivotGridExampleComponent implements OnInit {
   @ViewChild('dateRangPicker') dateRangPicker;
   @ViewChild('greetCell') greetCell: TemplateRef<any>;
   @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
-
+  columnDefs :any;
   totalCredit:number;
   totalDebit:number;
   bottomData  :any;
@@ -105,15 +114,17 @@ styleForHight = {
   boxSizing: 'border-box'
 };
 
-
-  columnDefs = [
+ngAfterViewInit()
+{
+   
+  this.gridOptions.api.setColumnDefs( [
       
       
     { field: 'source', headerName: 'Source',   colId: 'greet',  sortable: true },
     { field: 'AccountType', headerName: 'Account Type',sortable: true, enableRowGroup: true, pivot: true,
-    enablePivot: true},
+    enablePivot: true,filter: true },
     { field: 'accountName', headerName: 'Account Name',sortable: true,  enableRowGroup: true,
-    rowGroup: true  },
+    rowGroup: true ,filter: true  },
     { field: 'when', headerName: 'when' ,sortable: true,   rowGroup: true,  enableRowGroup: true,
     enablePivot: true,  
     filter:'agDateColumnFilter', filterParams:{
@@ -142,27 +153,24 @@ styleForHight = {
     { field: 'credit',aggFunc: "sum", headerName: 'Credit',  valueFormatter: currencyFormatter,cellStyle: {'text-align': 'right' }, cellClass: "number-cell"} 
 
        
-  ];
- 
-    
- 
-  setWidthAndHeight(width, height) {
-    this.style = {
-        marginTop: '20px',
-        width: width,
-        height: height,
-        boxSizing: 'border-box'
-    };
-}
-onFirstDataRendered(params) {
-  params.api.sizeColumnsToFit();
-}
+  ]);
+  
+  this.columnDefs =(
+    [
+      { field: 'source', headerName: 'Source'  },
+   
+      { field: 'AccountType', headerName: 'Account Type' },
+      { field: 'accountName', headerName: 'Account Name' },
+      { field: 'when', headerName: 'when' ,sortable: true },
+     
+      { field: 'debit', headerName: 'Debit' , valueFormatter: currencyFormatter, cellStyle: {'text-align': 'right' } ,cellClass: "number-cell" } ,
+      { field: 'credit', headerName: 'Credit',  valueFormatter: currencyFormatter,cellStyle: {'text-align': 'right' }, cellClass: "number-cell"} 
+  
+         
+    ]
+  
+  );
 
-ngOnInit() {  
-  this.defaultColDef = {
-    sortable: true,
-    resizable: true
-  };
   this.rowGroupPanelShow ="always";
   
     this.pivotPanelShow = "always";
@@ -194,7 +202,7 @@ ngOnInit() {
   this.totalDebit= result.stats.totalDebit;
 
    this.rowData = [];
-     
+    
    this.rowData = result.data.map(item => ({
      id: item.id,
      source:item.source,
@@ -208,7 +216,7 @@ ngOnInit() {
     when: moment(item.when).format("MM-DD-YYYY")
       
    })); 
-      
+     
     this.bottomData = [
       {
         source: 'Total Records:' + this.totalRecords,
@@ -223,15 +231,25 @@ ngOnInit() {
  
  
 }
- 
- 
-  /*onGridReady(params) {
-     
-  this.gridApi = params.api;
-  this.gridColumnApi = params.columnApi;
 
+
+setWidthAndHeight(width, height) {
+  this.style = {
+      marginTop: '20px',
+      width: width,
+      height: height,
+      boxSizing: 'border-box'
+  };
+}
+ 
+ngOnInit() {  
+}
+ 
+ 
+public onFirstDataRendered(params) {
   params.api.sizeColumnsToFit();
-}*/
+}
+
    public isExternalFilterPresent()
    {
      
@@ -259,17 +277,6 @@ if(this.startDate){
  return true;
  }
 
- public clearFilters() {
-  debugger;
-   
-  this.startDate = null;
-  this.endDate= null;
-   //this.selectedDaterange.clear()
-  this.topGrid.api.setFilterModel(null);
-  this.topGrid.api.onFilterChanged();
-  this.startDate = null;
-
-   }
  
    greet(row: any) {
     //alert(`${ row.country } says "${ row.greeting }!`);

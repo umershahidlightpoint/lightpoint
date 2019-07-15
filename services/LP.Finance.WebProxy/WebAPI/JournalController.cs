@@ -37,8 +37,8 @@ namespace LP.Finance.WebProxy.WebAPI
 
     public class JournalControllerService : IJournalController
     {
-        private readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
-        public SqlHelper sqlHelper = new SqlHelper(ConfigurationManager.ConnectionStrings["FinanceDB"].ToString());
+       private readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+       public SqlHelper sqlHelper = new SqlHelper(ConfigurationManager.ConnectionStrings["FinanceDB"].ToString());
         public object Data(string symbol,int pageNumber,int pageSize, string sortColum = "id", string sortDirection = "asc", int accountId = 0, int value = 0)
         {
             dynamic result = JsonConvert.DeserializeObject("{}");

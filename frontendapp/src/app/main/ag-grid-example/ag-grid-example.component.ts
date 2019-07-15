@@ -39,19 +39,20 @@ export class AgGridExampleComponent implements OnInit,AfterViewInit {
   
   private gridOptions: GridOptions;
 
+   bottomOptions = {alignedGrids: []};
   ranges: any = {
     //'Today': [moment(), moment()],
     //'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
    // 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
    // 'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-   'IDB' :[moment("01-01-1901", "MM-DD-YYYY"), moment().endOf('month')],
-   'YDB': [moment().startOf('year'), moment()],
-   'MDB' : [moment().startOf('month'), moment().endOf('month')]
+   'ITB' :[moment("01-01-1901", "MM-DD-YYYY"), moment().endOf('month')],
+   'YTB': [moment().startOf('year'), moment()],
+   'MTB' : [moment().startOf('month'), moment().endOf('month')]
    // 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
     
   }
   
- 
+  //selected= {startDate: moment("01-01-1901", "MM-DD-YYYY") , endDate:moment()};
  // selected: {startDate: moment().startOf('month'), endDate: moment()};
 
   private gridApi;
@@ -79,7 +80,7 @@ export class AgGridExampleComponent implements OnInit,AfterViewInit {
   bottomData  :any;
   startDate:any;
   endDate:any;
-  bottomOptions:any;
+  bsValue : Date[];
   symbal :string;
   pageSize:any;
   accountSearch = { id: undefined };
@@ -90,6 +91,7 @@ export class AgGridExampleComponent implements OnInit,AfterViewInit {
   page: any;
    
   title = 'app';
+
   style = {
     marginTop: '20px',
     width: '100%',
@@ -119,9 +121,7 @@ onFirstDataRendered(params) {
 ngOnInit()
 {
 
-  this. bottomOptions = {alignedGrids: []};
-  this.gridOptions.alignedGrids.push(this.bottomOptions);
-  this.bottomOptions.alignedGrids.push(this.gridOptions);
+ 
 }
 
 ngAfterViewInit()
@@ -162,8 +162,25 @@ ngAfterViewInit()
     ]
   
   );
+
+  this.columnDefs =(
+    [
+      { field: 'source', headerName: 'Source'  },
+   
+      { field: 'AccountType', headerName: 'Account Type' },
+      { field: 'accountName', headerName: 'Account Name' },
+      { field: 'when', headerName: 'when' ,sortable: true },
+     
+      { field: 'debit', headerName: 'Debit' , valueFormatter: currencyFormatter, cellStyle: {'text-align': 'right' } ,cellClass: "number-cell" } ,
+      { field: 'credit', headerName: 'Credit',  valueFormatter: currencyFormatter,cellStyle: {'text-align': 'right' }, cellClass: "number-cell"} 
+  
+         
+    ]
+  
+  );
+
  
-  this.columnDefs =this.gridOptions.api.getColumnDef;
+  //this.columnDefs =this.gridOptions.api.getColumnDef;
 
   this.defaultColDef = {
     sortable: true,
@@ -219,27 +236,15 @@ ngAfterViewInit()
       }
     ];
 });  
- 
- 
+//columnDefs: this.gridOptions.columnDefs,
+this.gridOptions.alignedGrids.push(this.bottomOptions);
+this.bottomOptions.alignedGrids.push(this.gridOptions);
  //align scroll of grid and footer grid
  
 }
 
-
-
-
-
-
   
- 
- 
-  /*onGridReady(params) {
-     
-  this.gridApi = params.api;
-  this.gridColumnApi = params.columnApi;
-
-  params.api.sizeColumnsToFit();
-}*/
+   
    public isExternalFilterPresent()
    {
      
@@ -247,7 +252,7 @@ ngAfterViewInit()
    }
    public ngModelChange(e)
    {
-     
+     debugger;
      this.startDate=e.startDate;
      this.endDate=e.endDate
      this.topGrid.api.onFilterChanged();
@@ -269,8 +274,10 @@ if(this.startDate){
 
  public clearFilters() {
   debugger;
+  this.selected = null;
    
-  this.startDate = null;
+   
+  this.startDate.value = '';
   this.endDate= null;
   //this.dateRangPicker.clear();
   this.topGrid.api.setFilterModel(null);
@@ -280,7 +287,7 @@ if(this.startDate){
    //this.selectedDaterange.
    this.startDate="";
    this.endDate="";
-   this.selected= {startDate: this.startDate, endDate: this.endDate};
+   //this.selected= {startDate: this.startDate, endDate: this.endDate};
   //this.selected=[];
   //this.selected = {startDate:null, endDate: null};
    }
