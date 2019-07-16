@@ -4,11 +4,10 @@ import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-
 
 import {GridOptions} from "ag-grid-community";
 import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
-
+ 
  
 import * as moment from 'moment';
-import { debug } from 'util';
-
+ 
 @Component({
   selector: 'app-pivot-ag-grid-example',
   templateUrl: './ag-pivot-grid-example.component.html',
@@ -120,12 +119,15 @@ ngAfterViewInit()
   this.gridOptions.api.setColumnDefs( [
       
       
-    { field: 'source', headerName: 'Source',   colId: 'greet',  sortable: true },
-    { field: 'AccountType', headerName: 'Account Type',sortable: true, enableRowGroup: true, pivot: true,
+    { field: 'source', headerName: 'Source',   colId: 'greet',  sortable: true ,
+    cellRendererFramework: TemplateRendererComponent, cellRendererParams: {
+      ngTemplate: this.greetCell  }
+  },
+    { field: 'AccountType', headerName: 'Account Type',sortable: true, enableRowGroup: true, 
     enablePivot: true,filter: true },
     { field: 'accountName', headerName: 'Account Name',sortable: true,  enableRowGroup: true,
-    rowGroup: true ,filter: true  },
-    { field: 'when', headerName: 'when' ,sortable: true,   rowGroup: true,  enableRowGroup: true,
+     filter: true  },
+    { field: 'when', headerName: 'when' ,sortable: true,      enableRowGroup: true,
     enablePivot: true,  
     filter:'agDateColumnFilter', filterParams:{
       comparator:function (filterLocalDateAtMidnight, cellValue){
