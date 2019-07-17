@@ -25,7 +25,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
 
-            var folder = currentDir + "Data" + Path.DirectorySeparatorChar + "trades.json";
+            var folder = currentDir + "MockData" + Path.DirectorySeparatorChar + "trades.json";
             if (File.Exists(folder))
                 content = File.ReadAllText(folder);
 

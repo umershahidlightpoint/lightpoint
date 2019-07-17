@@ -46,7 +46,13 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { JournalComponent } from './main/journal/journal.component';
 import { AgGridExampleComponent } from './main/ag-grid-example/ag-grid-example.component';
-
+import { FinanceGridComponent } from './finance-grid/finance-grid.component';
+import { LedgerFormComponent } from './ledger-form/ledger-form.component'; 
+import { CreateAccountComponent } from './ledger-form/create-account/create-account.component';
+import { UpdateAccountComponent } from './ledger-form/update-account/update-account.component';
+import { DeleteAccountComponent } from './ledger-form/delete-account/delete-account.component';
+import { ViewAccountComponent } from './ledger-form/view-account/view-account.component';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -57,7 +63,13 @@ import { AgGridExampleComponent } from './main/ag-grid-example/ag-grid-example.c
     UpdateLedgerModalComponent,
     JournalComponent,
     AgGridExampleComponent,
-    TemplateRendererComponent
+    TemplateRendererComponent,
+    FinanceGridComponent,
+    LedgerFormComponent,
+    CreateAccountComponent,
+    UpdateAccountComponent,
+    DeleteAccountComponent,
+    ViewAccountComponent
   ],
   imports: [
     BrowserModule,
@@ -74,6 +86,8 @@ import { AgGridExampleComponent } from './main/ag-grid-example/ag-grid-example.c
     PanelModule,
     HttpClientModule,
     ToastModule,
+    FormsModule,
+    ReactiveFormsModule,
     AngularFontAwesomeModule,
     ModalModule.forRoot(),
     AutoCompleteModule,

@@ -1,0 +1,47 @@
+
+
+<form [formGroup]="ledgerForm" (ngSubmit)="onAdd()">
+    <div class="form-group">
+      <div class="row">
+        <div class="col-sm-3">
+            <label> Name </label>
+        </div>
+        <div class="col-sm-9">
+            <input type="text" class="form-control" formControlName="name" />
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+            <div class="row">
+              <div class="col-sm-3">
+                  <label> Description </label>
+              </div>
+              <div class="col-sm-9">
+                <input type="text" class="form-control" formControlName="description" />
+              </div>
+            </div>
+    </div>
+        
+    <div class="form-group">
+        <div class="row">
+          <div class="col-sm-3">
+              <label> Account Type </label>
+          </div>
+          <div class="col-sm-9">
+              <select class="custom-select" (change)="changeAccountType($event)" formControlName="accountType">
+                  <option value="" disabled>Choose your account type</option>
+                  <option *ngFor="let names of accountTypeNames" [ngValue]="names">{{names}}</option>
+              </select>
+          </div>
+        </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-6">
+      </div>
+      <div class="col-sm-6">
+        <button class="btn btn-primary"> Add Account </button>
+      </div>
+    </div>
+  </form>

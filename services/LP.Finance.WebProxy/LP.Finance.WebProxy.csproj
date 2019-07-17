@@ -83,6 +83,9 @@
     <Compile Include="WebAPI\RefDataController.cs" />
     <Compile Include="WebAPI\PingController.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="WebAPI\Services\AccountControllerService.cs" />
+    <Compile Include="WebAPI\Services\IAccountControllerService.cs" />
+    <Compile Include="WebAPI\Stubs\AccountControllerStub.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

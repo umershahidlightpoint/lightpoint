@@ -112,6 +112,11 @@ export class FinancePocServiceProxy {
         return this.http.get(url, { params }).pipe(map((response: any) => response));
     }
 
+    getAllAccounts() {
+        const url =  'http://localhost:9092/api/account' ;
+        return this.http.get(url,).pipe(map((response: any) => response));
+    }
+
 }
 
 export class LedgerInput {

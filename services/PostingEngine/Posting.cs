@@ -28,7 +28,6 @@ namespace PostingEngine
 
                 var debit = new Journal
                 {
-                    Fund = element.Fund,
                     Source = element.LpOrderId,
                     Account = accountToFrom.From,
                     When = element.TradeDate,
@@ -39,7 +38,6 @@ namespace PostingEngine
 
                 var credit = new Journal
                 {
-                    Fund = element.Fund,
                     Source = element.LpOrderId,
                     Account = accountToFrom.To,
                     When = element.TradeDate,
