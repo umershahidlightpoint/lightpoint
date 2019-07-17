@@ -32,11 +32,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object GetAccounts()
         {
-            var query = $@"SELECT [account].[id], [account].[name], [account].[description],
-                        [account_category].[name] AS 'category',
-                        (SELECT count(*) FROM journal WHERE [journal].[account_id] = [account].[id]) AS 'associated_ledgers'
-                        FROM [Finance].[dbo].[account] 
-                        JOIN [Finance].[dbo].[account_category] ON [account].[id] = [account_category].[id]";
+            var query = 
+$@"SELECT [account].[id]
+	,[account_category].[name] AS 'category'
+	,[account].[name]
+	,[account].[description]
+    ,(SELECT count(*) FROM journal WHERE [journal].[account_id] = [account].[id]) AS 'associated_ledgers'
+FROM [Finance].[dbo].[account] 
+JOIN [Finance].[dbo].[account_category] ON [account].[account_category_id] = [account_category].[id]";
 
             return Utils.RunQuery(connectionString, query);
         }

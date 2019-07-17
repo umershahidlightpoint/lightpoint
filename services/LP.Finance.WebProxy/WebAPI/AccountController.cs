@@ -6,7 +6,7 @@ namespace LP.Finance.WebProxy.WebAPI
     /// <summary>
     /// Deliver the tiles / links resources to the logged in user
     /// </summary>
-    public class AccountController : ApiController
+    public class AccountController : ApiController, IAccountControllerService
     {
         // Mock Service
         //private IJournalController controller = new JournalControllerStub();

@@ -10,10 +10,10 @@ export class ViewAccountComponent implements OnInit, AfterViewInit {
   rowData = [];
   data
   columnDefs = [
-    {headerName: 'Name', field: 'Name' },
-    {headerName: 'Description', field: 'Description' },
-    {headerName: 'Category', field: 'Category'},
-    {headerName: 'AssociatedLedgers', field: 'AssociatedLedgers'}
+    {headerName: 'Name', field: 'Name',sortable: true, filter: true },
+    {headerName: 'Description', field: 'Description',sortable: true, filter: true },
+    {headerName: 'Category', field: 'Category',sortable: true, filter: true},
+    {headerName: 'AssociatedLedgers', field: 'AssociatedLedgers',sortable: true, filter: true}
   ];
   @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
   constructor(
