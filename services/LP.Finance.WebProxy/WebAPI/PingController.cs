@@ -13,4 +13,13 @@ namespace LP.ReferenceData.WebProxy.WebAPI
             return new string[] { "Ping", "Version 1.0", "Finance WebProxy" };
         }
     }
+
+    public class GridConfigController : ApiController
+    {
+        // GET api/hello
+        public object Get()
+        {
+            return new { };
+        }
+    }
 }

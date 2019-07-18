@@ -66,8 +66,31 @@ namespace LP.Finance.WebProxy.WebAPI
             journalStats journalStats = new journalStats();
             bool whereAdded = false;
 
-            var query = $@"select d.overall_count   , (sum(d.debit)  OVER()) as totalDebit,(sum(d.credit)  OVER()) as totalCredit, d.debit,d.credit, d.[id]  ,d.[account_id],d.AccountType,  d.accountName  ,d.[value]  ,d.[source] ,d.[when]  from(";
-            query = query+ "SELECT overall_count = COUNT(*) OVER() ,(CASE WHEN value < 0 THEN value else 0 END  ) debit,(CASE WHEN value > 0 THEN value else 0 END  )  credit, [journal].[id]  ,[account_id],[account_category].[name] as AccountType,  [account].[name] as accountName  ,[value]  ,[source] ,[when] FROM [journal]  join account  on [journal]. [account_id] = account.id join [account_category] on  [account].account_category_id = [account_category] .id ";
+            var query = $@"select 
+                                d.overall_count   , 
+                                (sum(d.debit)  OVER()) as totalDebit,
+                                (sum(d.credit)  OVER()) as totalCredit, 
+                                d.debit,
+                                d.credit, 
+                                d.[id],
+                                d.[account_id],
+                                d.[fund],
+                                d.AccountType,
+                                d.accountName,
+                                d.[value]  ,d.[source] ,d.[when]  from(
+                SELECT overall_count = COUNT(*) OVER() ,
+                        (CASE WHEN value < 0 THEN value else 0 END  ) debit,
+                        (CASE WHEN value > 0 THEN value else 0 END  ) credit, 
+                        [journal].[id]  ,
+                        [account_id],
+                        [fund],
+                        [account_category].[name] as AccountType,  
+                        [account].[name] as accountName  ,
+                        [value]  ,
+                        [source] ,
+                        [when] FROM [journal]  
+                join account  on [journal]. [account_id] = account.id 
+                join [account_category] on  [account].account_category_id = [account_category] .id ";
 
             List<SqlParameter> sqlParams = new List<SqlParameter>() ;
             sqlParams.Add ( new SqlParameter("pageNumber", pageNumber));

@@ -4,6 +4,14 @@ using System.Data.SqlClient;
 
 namespace SqlDAL.Core
 {
+    public static class SQLConnectionHelper
+    {
+        public static DataTable Table(this SqlConnection connection, string queryname)
+        {
+            return null;
+        }
+    }
+
     public class SqlHelper
     {
         private string ConnectionString { get; set; }

@@ -127,9 +127,9 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
     /// <summary>
     /// Deliver the tiles / links resources to the logged in user
     /// </summary>
-    public class AllocationController : ApiController
+    public class AllocationController : ApiController, ITradeController
     {
-        private ITradeController controller = new AllocationControllerService();
+        private ITradeController controller = new AllocationControllerStub();
 
         public AllocationController()
         {

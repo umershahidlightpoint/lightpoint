@@ -30,5 +30,14 @@ namespace LP.Finance.Common.Models
         public double Commission { get; set; }
         public double Fees { get; set; }
         public string Status { get; set; }
+
+        public string Long
+        {
+            get
+            {
+                if (Quantity < 0) return "Long";
+                return "Short";
+            }
+        }
     }
 }

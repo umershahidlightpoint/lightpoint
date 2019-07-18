@@ -12,6 +12,18 @@ using System.Threading;
 
 namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 {
+    internal class TradeCache
+    {
+        static TradeCache()
+        {
+            CachedResult = null;
+            LastUpdate = DateTime.Now;
+        }
+
+        internal static object CachedResult;
+        internal static DateTime LastUpdate;
+    }
+
     public interface ITradeController
     {
         object Data(string symbol);
@@ -132,7 +144,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
     /// <summary>
     /// Deliver the tiles / links resources to the logged in user
     /// </summary>
-    public class TradeController : ApiController
+    public class TradeController : ApiController, ITradeController
     {
         // Mock Service
         private ITradeController controller = new TradeControllerStub();
@@ -145,7 +157,13 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
         [ActionName("data")]
         public object Data(string symbol)
         {
-            return controller.Data(symbol);
+            if (TradeCache.CachedResult == null || DateTime.Now > TradeCache.LastUpdate.AddMinutes(5))
+            {
+                TradeCache.CachedResult = controller.Data(symbol);
+                TradeCache.LastUpdate = DateTime.Now;
+            }
+
+            return TradeCache.CachedResult;
         }
 
     }

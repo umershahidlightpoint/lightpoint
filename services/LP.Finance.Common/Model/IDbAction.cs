@@ -10,4 +10,14 @@ namespace LP.Finance.Common.Models
         KeyValuePair<string, SqlParameter[]> Delete { get; }
     }
 
+    public interface IDbActionSaveUpdate
+    {
+        KeyValuePair<string, SqlParameter[]> SaveUpdate { get; }
+    }
+
+    public interface IDbActionIdentity
+    {
+        KeyValuePair<string, SqlParameter[]> Identity { get; }
+    }
+
 }

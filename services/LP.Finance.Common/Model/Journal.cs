@@ -7,27 +7,34 @@ using System.Threading.Tasks;
 
 namespace LP.Finance.Common.Models
 {
-
     public class Journal : IDbAction
     {
         public int Id { get; set; }
-
-        public String Source { get; set; }
         public Account Account { get; set; }
-        public DateTime When { get; set; }
         public double Value { get; set; }
+
+        public String Fund { get; set; }
+        public String Source { get; set; }
+        public DateTime When { get; set; }
+
+        public string GeneratedBy { get; set; }
 
         public KeyValuePair<string, SqlParameter[]> Insert
         {
             get
             {
-                var sql = "insert into journal (source, account_id, value, [when]) values (@source, @account_id, @value, @when)";
+                var sql = @"insert into journal 
+                            (source, account_id, value, [when], generated_by, fund) 
+                            values 
+                            (@source, @account_id, @value, @when, @generated_by, @fund)";
                 var sqlParams = new SqlParameter[]
                 {
+                    new SqlParameter("fund", Fund),
                     new SqlParameter("source", Source),
                     new SqlParameter("account_id", Account.Id),
                     new SqlParameter("value", Value),
                     new SqlParameter("when", When),
+                    new SqlParameter("generated_by", GeneratedBy),
             };
 
                 return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);
