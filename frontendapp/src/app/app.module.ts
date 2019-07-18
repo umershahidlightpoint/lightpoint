@@ -49,9 +49,6 @@ import { AgGridExampleComponent } from './main/ag-grid-example/ag-grid-example.c
 import { FinanceGridComponent } from './finance-grid/finance-grid.component';
 import { LedgerFormComponent } from './ledger-form/ledger-form.component'; 
 import { CreateAccountComponent } from './ledger-form/create-account/create-account.component';
-import { UpdateAccountComponent } from './ledger-form/update-account/update-account.component';
-import { DeleteAccountComponent } from './ledger-form/delete-account/delete-account.component';
-import { ViewAccountComponent } from './ledger-form/view-account/view-account.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 @NgModule({
@@ -66,15 +63,12 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
     TemplateRendererComponent,
     FinanceGridComponent,
     LedgerFormComponent,
-    CreateAccountComponent,
-    UpdateAccountComponent,
-    DeleteAccountComponent,
-    ViewAccountComponent
+    CreateAccountComponent
   ],
   imports: [
     BrowserModule,
     AgGridModule.withComponents([
-      TemplateRendererComponent
+      TemplateRendererComponent,
     ]),
     AgGridModule.withComponents([]),
     NgxDaterangepickerMd.forRoot(),

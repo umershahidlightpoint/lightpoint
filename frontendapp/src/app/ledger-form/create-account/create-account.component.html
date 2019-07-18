@@ -1,47 +1,61 @@
 
-
-<form [formGroup]="ledgerForm" (ngSubmit)="onAdd()">
-    <div class="form-group">
-      <div class="row">
-        <div class="col-sm-3">
-            <label> Name </label>
+<div bsModal #modal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal"
+  aria-hidden="true" [config]="{backdrop: 'static'}">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form 
+        #roleForm="ngForm" 
+        [formGroup]="ledgerForm" 
+        (ngSubmit)="onAdd()" 
+        >
+        <div class="modal-header">
+          <h3 *ngIf="editCase">Edit Account</h3>
+          <h3 *ngIf="!editCase">Create Account</h3>
         </div>
-        <div class="col-sm-9">
-            <input type="text" class="form-control" formControlName="name" />
-        </div>
-      </div>
-    </div>
-
-    <div class="form-group">
+        <div class="modal-body">
+          <div class="form-group">
             <div class="row">
               <div class="col-sm-3">
-                  <label> Description </label>
+                  <label> Name </label>
               </div>
               <div class="col-sm-9">
-                <input type="text" class="form-control" formControlName="description" />
+                  <input type="text" class="form-control" formControlName="name" />
               </div>
             </div>
-    </div>
-        
-    <div class="form-group">
-        <div class="row">
-          <div class="col-sm-3">
-              <label> Account Type </label>
           </div>
-          <div class="col-sm-9">
-              <select class="custom-select" (change)="changeAccountType($event)" formControlName="accountType">
-                  <option value="" disabled>Choose your account type</option>
-                  <option *ngFor="let names of accountTypeNames" [ngValue]="names">{{names}}</option>
-              </select>
+      
+          <div class="form-group">
+                  <div class="row">
+                    <div class="col-sm-3">
+                        <label> Description </label>
+                    </div>
+                    <div class="col-sm-9">
+                      <input type="text" class="form-control" formControlName="description" />
+                    </div>
+                  </div>
+          </div>
+              
+          <div class="form-group">
+              <div class="row">
+                <div class="col-sm-3">
+                    <label> Account Type </label>
+                </div>
+                <div class="col-sm-9">
+                    <select class="custom-select" (change)="changeAccountType($event)" formControlName="category">
+                        <option value="" disabled>Choose your account type</option>
+                        <option *ngFor="let names of accountTypeNames" [ngValue]="names">{{names}}</option>
+                    </select>
+                </div>
+              </div>
           </div>
         </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="close()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="!roleForm.form.valid">
+            <i class="fa fa-save"></i> Save
+          </button>
+        </div>
+      </form>
     </div>
-    
-    <div class="row">
-      <div class="col-sm-6">
-      </div>
-      <div class="col-sm-6">
-        <button class="btn btn-primary"> Add Account </button>
-      </div>
-    </div>
-  </form>
+  </div>
+</div>

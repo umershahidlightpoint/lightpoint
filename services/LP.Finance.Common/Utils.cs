@@ -1,12 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LP.Finance.Common
 {
@@ -89,19 +85,20 @@ namespace LP.Finance.Common
             }
         }
 
-        public static object RunQuery(string connection, string query, SqlParameter[] paramters =null )
+        public static object RunQuery(string connection, string query, SqlParameter[] parameters = null )
         {
             var content = "{}";
             var metaData = new metaData();
             using (var con = new SqlConnection(connection))
             {
                 var sda = new SqlDataAdapter(query, con);
-                if (paramters != null)  { sda.SelectCommand.Parameters.AddRange(paramters); }
+                if (parameters != null)  { sda.SelectCommand.Parameters.AddRange(parameters); }
                 var dataTable = new DataTable();
                 con.Open();
                 sda.Fill(dataTable);
                 con.Close();
-               
+                
+                metaData.total = GetMetaData(dataTable);
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
                 content = jsonResult;              
             }
@@ -118,6 +115,16 @@ namespace LP.Finance.Common
             var query = $@"select * from {tablename} nolock";
 
             return RunQuery(connection, query);
+        }
+
+        private static int GetMetaData (DataTable dataTable)
+        {
+            var total = dataTable.Columns.Contains("total") && dataTable.Rows.Count > 0 ? Convert.ToInt32(dataTable.Rows[0]["total"]) : 0;
+            
+            if (dataTable.Columns.Contains("total")) 
+                dataTable.Columns.Remove("total");
+            
+            return total;
         }
 
     }
