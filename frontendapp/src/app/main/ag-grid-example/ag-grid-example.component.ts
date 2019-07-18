@@ -42,10 +42,10 @@ export class AgGridExampleComponent implements OnInit {
     //'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
    // 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
    // 'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-   'Inception to Date' :[moment("01-01-1901", "MM-DD-YYYY"), moment().endOf('month')],
-   'Month to Date' : [moment().startOf('month'), moment().endOf('month')],
+   'ITD' :[moment("01-01-1901", "MM-DD-YYYY"), moment().endOf('month')],
    // 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-    'Year to Date': [moment().startOf('year'), moment()]
+    'YTD': [moment().startOf('year'), moment()],
+    'MTD' : [moment().startOf('month'), moment().endOf('month')],
   }
   
  
