@@ -18,15 +18,17 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [HttpGet]
         [ActionName("data")]
-        public object Data(string symbol, string search = "")
+        public object Data(string symbol, int pageNumber, int pageSize, string accountName, string accountCategory,
+            string search = "")
         {
-            return controller.Data(symbol, search);
+            return controller.Data(symbol, pageNumber, pageSize, accountName, accountCategory, search);
         }
 
         [HttpGet]
-        public object GetAccounts()
+        public object GetAccounts(int pageNumber = 1, int pageSize = 10, string accountName = "",
+            string accountCategory = "")
         {
-            return controller.Data("Accounts");
+            return controller.Data("Accounts", pageNumber, pageSize, accountName, accountCategory);
         }
     }
 }

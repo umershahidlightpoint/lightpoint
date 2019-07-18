@@ -1,14 +1,28 @@
 
-<h1>Accounts</h1>
-
 <div class="row">
   <div class="col-sm-3">
-    <button class="btn btn-primary" (click)="addAccount()">Add Account</button>
-  </div>
-  <div class="col-sm-3">
-      <button class="btn btn-info" (click)="viewAccount()">Show Accounts</button>
+      <button (click)="addAccount()" class="btn btn-primary blue ml-auto">
+          <i class="fa fa-plus"></i> Add Account
+      </button>
   </div>
 </div>
 
 <hr/>
+
+<div  #divToMeasure >
+  <div [ngStyle]="styleForHight"> 
+    <ag-grid-angular
+        style="width: 80%; height: 500px;" 
+        class="ag-theme-balham"
+        [gridOptions]="gridOptions"
+        >
+    </ag-grid-angular>
+    <ng-template #actionButtons let-row>
+      <button style="height: 21px" class="btn btn-info" (click)="editRow(row)">Edit</button>
+      <button style="height: 21px" [disabled]="row.HasJournal == 'Yes'" class="btn btn-danger" (click)="deleteRow(row)">Delete</button>
+    </ng-template>
+  </div>
+</div>
+<app-create-account #createModal ></app-create-account>
+
 <router-outlet></router-outlet>

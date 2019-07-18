@@ -1,4 +1,6 @@
-﻿using System.Configuration;
+﻿using System.Collections.Generic;
+using System.Configuration;
+using System.Data.SqlClient;
 using LP.Finance.Common;
 using Newtonsoft.Json;
 
@@ -8,7 +10,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
-        public object Data(string symbol, string search = "")
+        public object Data(string symbol, int pageNumber, int pageSize, string accountName, string accountCategory,
+            string search = "")
         {
             dynamic result = JsonConvert.DeserializeObject("{}");
 
@@ -22,7 +25,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     result = Search(search);
                     break;
                 case "Accounts":
-                    result = GetAccounts();
+                    result = GetAccounts(pageNumber, pageSize, accountName, accountCategory);
                     Utils.Save(result, "accounts");
                     break;
             }
@@ -30,18 +33,34 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return result;
         }
 
-        public object GetAccounts()
+        public object GetAccounts(int pageNumber, int pageSize, string accountName, string accountCategory)
         {
-            var query = 
-$@"SELECT [account].[id]
-	,[account_category].[name] AS 'category'
-	,[account].[name]
-	,[account].[description]
-    ,(SELECT count(*) FROM journal WHERE [journal].[account_id] = [account].[id]) AS 'associated_ledgers'
-FROM [Finance].[dbo].[account] 
-JOIN [Finance].[dbo].[account_category] ON [account].[account_category_id] = [account_category].[id]";
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+            {
+                new SqlParameter("pageNumber", pageNumber), new SqlParameter("pageSize", pageSize),
+                new SqlParameter("accountName", accountName), new SqlParameter("accountCategory", accountCategory)
+            };
 
-            return Utils.RunQuery(connectionString, query);
+            var query = $@"SELECT total = COUNT(*) OVER()
+                        ,[account].[id]
+                        ,[account].[name]
+	                    ,[account].[description]
+	                    ,[account_category].[name] AS 'category' 
+	                    ,CASE WHEN EXISTS (SELECT [journal].[id] FROM [journal] WHERE [journal].[account_id] = [account].[id])
+	                    THEN 'Yes' 
+	                    ELSE 'No'
+	                    END AS 'has_journal'
+                        FROM [account] JOIN [account_category] ON [account].[account_category_id] = [account_category].[id]";
+
+            query += accountName.Length > 0 ? " WHERE [account].[name] LIKE '%'+@accountName+'%'" : "";
+
+            query += accountName.Length > 0
+                ? (accountCategory.Length > 0 ? " AND [account_category].[name] LIKE '%'+@accountCategory+'%'" : "")
+                : (accountCategory.Length > 0 ? " WHERE [account_category].[name] LIKE '%'+@accountCategory+'%'" : "");
+
+            query += " ORDER BY [account].[id] OFFSET(@pageNumber - 1) * @pageSize ROWS FETCH NEXT @pageSize ROWS ONLY";
+
+            return Utils.RunQuery(connectionString, query, sqlParameters.ToArray());
         }
 
         private object AllData()
