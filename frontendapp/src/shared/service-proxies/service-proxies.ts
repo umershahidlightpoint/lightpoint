@@ -46,8 +46,26 @@ export class FinancePocServiceProxy {
             //if (searchStart){ url = url +'&value='+valueFilter;}else{ url = url +'/?value='+valueFilter;}
         }
     
-        
+        return this.http.get(url ).pipe(map((response: any) => response));
+    }
 
+    getJournalLogs(symbal : any,pageNumber : any| null | undefined, pageSize  : any| null | undefined,
+        accountId : any| null | undefined,valueFilter : any| null | undefined, 
+        sortColum : any| null | undefined,sortDirection: any| null | undefined) {
+        //let searchStart : any;
+        //searchStart = false;
+        let url =   'http://localhost:9092/api/journallog/data/'+symbal+'/?pageNumber='+pageNumber+'&pageSize='+pageSize+'&sortColum='+sortColum+'&sortDirection='+sortDirection ;
+        if (accountId != null)
+        {  
+            url = url +'&accountId='+accountId;
+            //searchStart= true;
+        }
+        if (valueFilter != null)
+        {  
+            url = url +'&value='+valueFilter;
+            //if (searchStart){ url = url +'&value='+valueFilter;}else{ url = url +'/?value='+valueFilter;}
+        }
+    
         return this.http.get(url ).pipe(map((response: any) => response));
     }
 

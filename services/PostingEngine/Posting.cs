@@ -1,5 +1,6 @@
 ﻿using ConsoleApp1;
 using LP.Finance.Common.Models;
+using System;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,18 @@ namespace PostingEngine
         {
             this._connection = connection;
             this._transaction = transaction;
+        }
+
+        public void SaveAccountDetails(Account account)
+        {
+            account.SaveUpdate(_connection, _transaction);
+            account.Id = account.Identity(_connection, _transaction);
+            foreach (var tag in account.Tags)
+            {
+                tag.Account = account;
+                //tag.Tag.Save(_connection, _transaction);
+                tag.Save(_connection, _transaction);
+            }
         }
 
         /// <summary>
@@ -35,10 +48,9 @@ namespace PostingEngine
             else
             {
                 var accountToFrom = GetFromToAccount(element);
-                accountToFrom.From.SaveUpdate(_connection, _transaction);
-                accountToFrom.From.Id = accountToFrom.From.Identity(_connection, _transaction);
-                accountToFrom.To.Id = accountToFrom.To.SaveUpdate(_connection, _transaction);
-                accountToFrom.To.Id = accountToFrom.To.Identity(_connection, _transaction);
+
+                SaveAccountDetails(accountToFrom.From);
+                SaveAccountDetails(accountToFrom.To);
 
                 var debit = new Journal
                 {
@@ -75,40 +87,49 @@ namespace PostingEngine
             return new Journal[] { };
         }
 
+        /// <summary>
+        /// Create an account based on the Account Definition and the past Transaction 
+        /// </summary>
+        /// <param name="def">Account Template</param>
+        /// <param name="transaction">Transaction</param>
+        /// <returns>An account based on the definition</returns>
+        private Account CreateAccount( AccountDef def, Transaction transaction)
+        {
+            var type = transaction.GetType();
+
+            var tags = new System.Collections.Generic.List<AccountTag>();
+
+            // Create a tag to identify the account
+            foreach (var tag in def.Tags)
+            {
+                var property = type.GetProperty(tag.PropertyName);
+                var value = property.GetValue(transaction);
+                if (value != null)
+                {
+                    tags.Add(new AccountTag { Tag = tag, TagValue = value.ToString() });
+                }
+            }
+
+            var name = String.Join("-", tags.Select(t => t.TagValue));
+
+            var assetAccount = new Account { Category = def.AccountCategory, Description = name, Name = name };
+
+            assetAccount.Tags = tags;
+
+            return assetAccount;
+        }
+
         private AccountToFrom GetFromToAccount(Transaction element)
         {
             var type = element.GetType();
             var accountDefs = AccountDef.Defaults;
 
-            var assetAccountDef = accountDefs.Where(i => i.AccountCategory == AccountCategory.AC_ASSET).First();
-            var assetAccountName = new StringBuilder();
+            var assetAccount = CreateAccount(accountDefs.Where(i => i.AccountCategory == AccountCategory.AC_ASSET).First(), element);
 
-            // Create a tag to identify the account
-            foreach (var tag in assetAccountDef.Tags)
-            {
-                var property = type.GetProperty(tag.PropertyName);
-                var value = property.GetValue(element);
-                assetAccountName.Append(value).Append("-");
-            }
-            var assetAccount = new Account { Category = assetAccountDef.AccountCategory, Description = assetAccountName.ToString(), Name = assetAccountName.ToString() };
 
             if (element.SecurityType.Equals("Journals"))
             {
-
-                var expencesAccountDef = accountDefs.Where(i => i.AccountCategory == AccountCategory.AC_EXPENCES).First();
-                var expencesAccountName = new StringBuilder();
-
-                // Create a tag to identify the account
-                foreach (var tag in expencesAccountDef.Tags)
-                {
-                    var property = type.GetProperty(tag.PropertyName);
-                    var value = property.GetValue(element);
-                    expencesAccountName.Append(value).Append("-");
-
-                }
-
-                var expencesAccount = new Account { Category = expencesAccountDef.AccountCategory, Description = expencesAccountName.ToString(), Name = expencesAccountName.ToString() };
-
+                var expencesAccount = CreateAccount(accountDefs.Where(i => i.AccountCategory == AccountCategory.AC_EXPENCES).First(), element);
 
                 // The symbol will determine how to generate the Journal entry for these elements.
                 switch (element.Symbol.ToUpper())
@@ -134,21 +155,7 @@ namespace PostingEngine
                 };
             }
 
-
-            var liabilitiesAccountDef = accountDefs.Where(i => i.AccountCategory == AccountCategory.AC_LIABILITY).First();
-
-
-            var liabilitiesAccountName = new StringBuilder();
-
-            // Create a tag to identify the account
-            foreach (var tag in liabilitiesAccountDef.Tags)
-            {
-                var property = type.GetProperty(tag.PropertyName);
-                var value = property.GetValue(element);
-                liabilitiesAccountName.Append(value).Append("-");
-            }
-
-            var liabilitiesAccount = new Account { Category = liabilitiesAccountDef.AccountCategory, Description = liabilitiesAccountName.ToString(), Name = liabilitiesAccountName.ToString() };
+            var liabilitiesAccount = CreateAccount(accountDefs.Where(i => i.AccountCategory == AccountCategory.AC_LIABILITY).First(), element);
 
             return new AccountToFrom
             {

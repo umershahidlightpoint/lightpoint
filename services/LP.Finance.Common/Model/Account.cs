@@ -18,110 +18,6 @@ namespace LP.Finance.Common.Models
 
         public KeyValuePair<string, SqlParameter[]> Delete => throw new NotImplementedException();
     }
-    /// <summary>
-    /// Definition of Account Structure
-    /// </summary>
-    public class AccountDef : IDbAction
-    {
-        public static AccountDef Default
-        {
-            get
-            {
-                return new AccountDef { Tags = new AccountDefTag[] {
-                    new AccountDefTag { PropertyName = "SecurityType"},
-                    new AccountDefTag { PropertyName = "CustodianCode"},
-                    new AccountDefTag { PropertyName = "ExecutionBroker"},
-                    new AccountDefTag { PropertyName = "Fund"},
-                }
-                };
-            }
-        }
-
-        /// <summary>
-        /// For each of the Account Categories we have a defined AccountDef, this is the set of fields that make up the account definition
-        /// </summary>
-        public static AccountDef[] Defaults
-        {
-            get
-            {
-                return new AccountDef[]
-                {
-                    new AccountDef
-                    {
-                        AccountCategory = 1, // Asset
-                        Tags = new AccountDefTag[] 
-                        {
-                            new AccountDefTag { PropertyName = "SecurityType"},
-                            new AccountDefTag { PropertyName = "Symbol"},
-                            new AccountDefTag { PropertyName = "CustodianCode"},
-                            new AccountDefTag { PropertyName = "ExecutionBroker"},
-                            new AccountDefTag { PropertyName = "Long"},
-                        }
-                    },
-                    new AccountDef
-                    {
-                        AccountCategory = 2, // Liability
-                        Tags = new AccountDefTag[]
-                        {
-                            new AccountDefTag { PropertyName = "SecurityType"},
-                            new AccountDefTag { PropertyName = "CustodianCode"},
-                            new AccountDefTag { PropertyName = "ExecutionBroker"},
-                            new AccountDefTag { PropertyName = "Fund"},
-                        }
-                    },
-                    new AccountDef
-                    {
-                        AccountCategory = 3, // Equity
-                        Tags = new AccountDefTag[]
-                        {
-                            new AccountDefTag { PropertyName = "SecurityType"},
-                            new AccountDefTag { PropertyName = "CustodianCode"},
-                            new AccountDefTag { PropertyName = "ExecutionBroker"},
-                            new AccountDefTag { PropertyName = "Fund"},
-                        }
-                    },
-                    new AccountDef
-                    {
-                        AccountCategory = 4, // Revenues
-                        Tags = new AccountDefTag[]
-                        {
-                            new AccountDefTag { PropertyName = "SecurityType"},
-                            new AccountDefTag { PropertyName = "CustodianCode"},
-                            new AccountDefTag { PropertyName = "ExecutionBroker"},
-                            new AccountDefTag { PropertyName = "Fund"},
-                        }
-                    },
-                    new AccountDef
-                    {
-                        AccountCategory = 5, // Expences
-                        Tags = new AccountDefTag[]
-                        {
-                            new AccountDefTag { PropertyName = "SecurityType"},
-                            new AccountDefTag { PropertyName = "Symbol"},
-                            new AccountDefTag { PropertyName = "CustodianCode"},
-                            new AccountDefTag { PropertyName = "Fund"},
-                        }
-                    }
-                };
-            }
-        }
-
-        public AccountDef()
-        {
-        }
-
-        public int AccountCategory { get; set; }
-
-        public AccountDefTag[] Tags { get; set; }
-
-        public string ColumnName { get; set; }
-
-        public KeyValuePair<string, SqlParameter[]> Insert => throw new NotImplementedException();
-
-        public KeyValuePair<string, SqlParameter[]> Update => throw new NotImplementedException();
-
-        public KeyValuePair<string, SqlParameter[]> Delete => throw new NotImplementedException();
-    }
 
     public class Account : IDbAction, IDbActionSaveUpdate, IDbActionIdentity
     {
@@ -132,6 +28,8 @@ namespace LP.Finance.Common.Models
         public string Name { get; set; }
         [Required]
         public string Description { get; set; }
+
+        public List<AccountTag> Tags { get; set; }
 
         public KeyValuePair<string, SqlParameter[]> Insert
         {
@@ -206,5 +104,32 @@ namespace LP.Finance.Common.Models
                 return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);
             }
         }
+    }
+
+    public class AccountTag : IDbAction
+    {
+        public Account Account { get; set; }
+        public Tag Tag { get; set; }
+        public string TagValue { get; set; }
+
+        public KeyValuePair<string, SqlParameter[]> Insert
+        {
+            get
+            {
+                var sql = "insert into account_tag (account_id, tag_id, tag_value) values (@account_id, @tag_id, @tag_value)";
+                var sqlParams = new SqlParameter[]
+                {
+                    new SqlParameter("account_id", Account.Id),
+                    new SqlParameter("tag_id", Tag.Id),
+                    new SqlParameter("tag_value", TagValue),
+            };
+
+                return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);
+            }
+        }
+
+        public KeyValuePair<string, SqlParameter[]> Update => throw new NotImplementedException();
+
+        public KeyValuePair<string, SqlParameter[]> Delete => throw new NotImplementedException();
     }
 }

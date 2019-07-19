@@ -25,26 +25,42 @@ namespace ConsoleApp1
             {
                 connection.Open();
 
+                // Cleanout all data
                 Cleanup(connection);
 
-                var all = AccountCategory.Seed(connection);
+                // Setup key data tables
+                Setup(connection);
 
-                RunAsync(connection).GetAwaiter().GetResult();
+                AccountCategory.Load(connection);
+                Tag.Load(connection);
+
+                var transaction = connection.BeginTransaction();
+                var sw = new Stopwatch();
+                
+                new JournalLog() { Action = "Starting Batch Posting Engine -- Allocations", ActionOn = DateTime.Now }.Save(connection, transaction);
+                // Run the allocations pass first
+                sw.Start();
+                var count = RunAsync(connection, transaction, allocationsURL).GetAwaiter().GetResult();
+                sw.Stop();
+                new JournalLog() { Action = $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms processing {count} records", ActionOn = DateTime.Now }.Save(connection, transaction);
+
+
+                new JournalLog() { Action = "Starting Batch Posting Engine -- Trades", ActionOn = DateTime.Now }.Save(connection, transaction);
+                sw.Reset();
+                // RUn the trades pass next
+                count = RunAsync(connection, transaction, tradesURL).GetAwaiter().GetResult();
+                sw.Stop();
+                new JournalLog() { Action = $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms", ActionOn = DateTime.Now }.Save(connection, transaction);
+
+                transaction.Commit();
+
+                Console.WriteLine("Completed / Press Enter to Finish");
+                Console.ReadKey();
             }
         }
 
-        /// <summary>
-        /// Cleanup, reset the state of the database so that we can repopulate as we test the posting rules
-        /// </summary>
-        /// <param name="connection"></param>
-        private static void Cleanup(SqlConnection connection)
+        private static void Setup(SqlConnection connection)
         {
-            new SqlCommand("delete from ledger", connection).ExecuteNonQuery();
-            new SqlCommand("delete from journal", connection).ExecuteNonQuery();
-            new SqlCommand("delete from account", connection).ExecuteNonQuery();
-            new SqlCommand("delete from account_category", connection).ExecuteNonQuery();
-
-            // Now lets setup the data
             var transaction = connection.BeginTransaction();
             new AccountCategory { Id = AccountCategory.AC_ASSET, Name = "Asset" }.Save(connection, transaction);
             new AccountCategory { Id = AccountCategory.AC_LIABILITY, Name = "Liability" }.Save(connection, transaction);
@@ -53,7 +69,27 @@ namespace ConsoleApp1
             new AccountCategory { Id = AccountCategory.AC_EXPENCES, Name = "Expences" }.Save(connection, transaction);
             transaction.Commit();
 
-            // Accounts should be created dynamically based on the account definitions
+            transaction = connection.BeginTransaction();
+            new Tag { TypeName = "Transaction", PropertyName = "SecurityType", PkName = "unknown" }.Save(connection, transaction);
+            new Tag { TypeName = "Transaction", PropertyName = "Symbol", PkName = "unknown" }.Save(connection, transaction);
+            new Tag { TypeName = "Transaction", PropertyName = "CustodianCode", PkName = "unknown" }.Save(connection, transaction);
+            new Tag { TypeName = "Transaction", PropertyName = "Fund", PkName = "unknown" }.Save(connection, transaction);
+            new Tag { TypeName = "Transaction", PropertyName = "ExecutionBroker", PkName = "unknown" }.Save(connection, transaction);
+            transaction.Commit();
+        }
+
+        /// <summary>
+        /// Cleanup, reset the state of the database so that we can repopulate as we test the posting rules
+        /// </summary>
+        /// <param name="connection"></param>
+        private static void Cleanup(SqlConnection connection)
+        {
+            new SqlCommand("delete from account_tag", connection).ExecuteNonQuery();
+            new SqlCommand("delete from ledger", connection).ExecuteNonQuery();
+            new SqlCommand("delete from journal", connection).ExecuteNonQuery();
+            new SqlCommand("delete from account", connection).ExecuteNonQuery();
+            new SqlCommand("delete from tag", connection).ExecuteNonQuery();
+            new SqlCommand("delete from account_category", connection).ExecuteNonQuery();
         }
 
         private static void Error(Exception ex, Transaction element)
@@ -62,17 +98,11 @@ namespace ConsoleApp1
         }
 
 
-        static async Task RunAsync(SqlConnection connection)
+        static async Task<int> RunAsync(SqlConnection connection, SqlTransaction transaction, string transactionsURI)
         {
-            var result = await GetTransactions();
+            var result = await GetTransactions(transactionsURI);
 
             var elements = JsonConvert.DeserializeObject<Transaction[]>(result);
-
-            var transaction = connection.BeginTransaction();
-            new JournalLog() { Action = "Starting Batch Posting Engine", ActionOn = DateTime.Now }.Save(connection, transaction);
-
-            var sw = new Stopwatch();
-            sw.Start();
 
             foreach ( var element in elements )
             {
@@ -87,15 +117,9 @@ namespace ConsoleApp1
                 }
             }
 
-            sw.Stop();
-
             new JournalLog() { Action = $"Processed # {elements.Count()} transactions", ActionOn = DateTime.Now }.Save(connection, transaction);
-            new JournalLog() { Action = $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms", ActionOn = DateTime.Now }.Save(connection, transaction);
 
-            transaction.Commit();
-
-            Console.WriteLine("Completed / Press Enter to Finish");
-            Console.ReadKey();
+            return elements.Count();
         }
 
 

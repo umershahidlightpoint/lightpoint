@@ -13,6 +13,12 @@ go
 drop table [dbo].[ledger]
 go
 
+drop table [dbo].[account_def_tag]
+go
+
+drop table [dbo].[account_def]
+go
+
 drop table [dbo].[account_tag]
 go
 
@@ -25,7 +31,7 @@ go
 drop table [dbo].[account_category]
 go
 
-/****** Object:  Table [dbo].[account]    Script Date: 7/18/2019 1:09:54 PM ******/
+/****** Object:  Table [dbo].[account]    Script Date: 7/19/2019 7:05:38 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -41,7 +47,7 @@ CREATE TABLE [dbo].[account](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[account_category]    Script Date: 7/18/2019 1:09:54 PM ******/
+/****** Object:  Table [dbo].[account_category]    Script Date: 7/19/2019 7:05:38 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -55,23 +61,53 @@ CREATE TABLE [dbo].[account_category](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[account_tag]    Script Date: 7/18/2019 1:09:54 PM ******/
+/****** Object:  Table [dbo].[account_def]    Script Date: 7/19/2019 7:05:38 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[account_def](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[account_category_id] [int] NOT NULL,
+	[description] [varchar](255) NULL,
+ CONSTRAINT [PK_account_def] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[account_def_tag]    Script Date: 7/19/2019 7:05:38 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[account_def_tag](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[account_def_id] [int] NOT NULL,
+	[tag_id] [int] NOT NULL,
+ CONSTRAINT [PK_account_def_tag] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[account_tag]    Script Date: 7/19/2019 7:05:38 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[account_tag](
-	[id] [int] NOT NULL,
+	[id] [int] IDENTITY(1,1) NOT NULL,
 	[account_id] [int] NOT NULL,
 	[tag_id] [int] NOT NULL,
-	[tag_value] [int] NOT NULL,
+	[tag_value] [varchar](50) NOT NULL,
  CONSTRAINT [PK_account_tag] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[journal]    Script Date: 7/18/2019 1:09:54 PM ******/
+/****** Object:  Table [dbo].[journal]    Script Date: 7/19/2019 7:05:38 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -90,7 +126,7 @@ CREATE TABLE [dbo].[journal](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[journal_log]    Script Date: 7/18/2019 1:09:54 PM ******/
+/****** Object:  Table [dbo].[journal_log]    Script Date: 7/19/2019 7:05:38 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -105,7 +141,7 @@ CREATE TABLE [dbo].[journal_log](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[ledger]    Script Date: 7/18/2019 1:09:54 PM ******/
+/****** Object:  Table [dbo].[ledger]    Script Date: 7/19/2019 7:05:38 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -120,13 +156,13 @@ CREATE TABLE [dbo].[ledger](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tag]    Script Date: 7/18/2019 1:09:54 PM ******/
+/****** Object:  Table [dbo].[tag]    Script Date: 7/19/2019 7:05:38 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[tag](
-	[id] [int] NOT NULL,
+	[id] [int] IDENTITY(1,1) NOT NULL,
 	[table_name] [varchar](50) NOT NULL,
 	[pk_name] [varchar](50) NOT NULL,
 	[column_name] [varchar](50) NOT NULL,
@@ -142,6 +178,16 @@ ALTER TABLE [dbo].[account]  WITH CHECK ADD  CONSTRAINT [FK_account_account_cate
 REFERENCES [dbo].[account_category] ([id])
 GO
 ALTER TABLE [dbo].[account] CHECK CONSTRAINT [FK_account_account_category]
+GO
+ALTER TABLE [dbo].[account_def_tag]  WITH CHECK ADD  CONSTRAINT [FK_account_def_tag_account_def] FOREIGN KEY([account_def_id])
+REFERENCES [dbo].[account_def] ([id])
+GO
+ALTER TABLE [dbo].[account_def_tag] CHECK CONSTRAINT [FK_account_def_tag_account_def]
+GO
+ALTER TABLE [dbo].[account_def_tag]  WITH CHECK ADD  CONSTRAINT [FK_account_def_tag_tag] FOREIGN KEY([tag_id])
+REFERENCES [dbo].[tag] ([id])
+GO
+ALTER TABLE [dbo].[account_def_tag] CHECK CONSTRAINT [FK_account_def_tag_tag]
 GO
 ALTER TABLE [dbo].[account_tag]  WITH CHECK ADD  CONSTRAINT [FK_account_tag_account] FOREIGN KEY([account_id])
 REFERENCES [dbo].[account] ([id])
