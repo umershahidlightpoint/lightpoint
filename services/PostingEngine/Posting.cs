@@ -24,8 +24,8 @@ namespace PostingEngine
             foreach (var tag in account.Tags)
             {
                 tag.Account = account;
-                tag.Tag.Save(_connection, _transaction);
-                tag.Save(_connection, _transaction);
+                //tag.Tag.Save(_connection, _transaction);
+                //tag.Save(_connection, _transaction);
             }
         }
 
