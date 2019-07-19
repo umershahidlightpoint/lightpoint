@@ -132,6 +132,8 @@ namespace LP.Finance.Common.Models
         public string Name { get; set; }
         public string Description { get; set; }
 
+        public List<AccountTag> Tags { get; set; }
+
         public KeyValuePair<string, SqlParameter[]> Insert
         {
             get
@@ -179,6 +181,61 @@ namespace LP.Finance.Common.Models
                 return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);
             }
         }
+
+        public KeyValuePair<string, SqlParameter[]> Delete => throw new NotImplementedException();
+    }
+
+    public class Tag : IDbAction
+    {
+        public int Id { get; set; }
+        public string TypeName { get; set; }
+        public string PkName { get; set; }
+        public string PropertyName { get; set; }
+
+        public KeyValuePair<string, SqlParameter[]> Insert
+        {
+            get
+            {
+                var sql = "insert into tag (table_name, pk_name, column_name) values (@table_name, @pk_name, @column_name)";
+                var sqlParams = new SqlParameter[]
+                {
+                    new SqlParameter("table_name", TypeName),
+                    new SqlParameter("pk_name", PkName),
+                    new SqlParameter("column_name", PropertyName)
+            };
+
+                return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);
+            }
+        }
+
+        public KeyValuePair<string, SqlParameter[]> Update => throw new NotImplementedException();
+
+        public KeyValuePair<string, SqlParameter[]> Delete => throw new NotImplementedException();
+    }
+
+    public class AccountTag : IDbAction
+    {
+        public Account Account { get; set; }
+        public Tag Tag { get; set; }
+        public string TagValue { get; set; }
+
+        public KeyValuePair<string, SqlParameter[]> Insert
+        {
+            get
+            {
+                var sql = "insert into account_tag (account_id, tag_id, tag_value) values (@account_id, @tag_id, @tag_value)";
+                var sqlParams = new SqlParameter[]
+                {
+                    new SqlParameter("account_id", Account.Id),
+                    new SqlParameter("tag_id", Tag.Id),
+                    new SqlParameter("tag_value", TagValue),
+            };
+
+                return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);
+            }
+        }
+
+        public KeyValuePair<string, SqlParameter[]> Update => throw new NotImplementedException();
 
         public KeyValuePair<string, SqlParameter[]> Delete => throw new NotImplementedException();
     }

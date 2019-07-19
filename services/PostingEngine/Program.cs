@@ -29,7 +29,28 @@ namespace ConsoleApp1
 
                 var all = AccountCategory.Seed(connection);
 
-                RunAsync(connection).GetAwaiter().GetResult();
+                var transaction = connection.BeginTransaction();
+                var sw = new Stopwatch();
+                
+                new JournalLog() { Action = "Starting Batch Posting Engine -- Allocations", ActionOn = DateTime.Now }.Save(connection, transaction);
+                // Run the allocations pass first
+                sw.Start();
+                var count = RunAsync(connection, transaction, allocationsURL).GetAwaiter().GetResult();
+                sw.Stop();
+                new JournalLog() { Action = $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms processing {count} records", ActionOn = DateTime.Now }.Save(connection, transaction);
+
+
+                new JournalLog() { Action = "Starting Batch Posting Engine -- Trades", ActionOn = DateTime.Now }.Save(connection, transaction);
+                sw.Reset();
+                // RUn the trades pass next
+                count = RunAsync(connection, transaction, tradesURL).GetAwaiter().GetResult();
+                sw.Stop();
+                new JournalLog() { Action = $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms", ActionOn = DateTime.Now }.Save(connection, transaction);
+
+                transaction.Commit();
+
+                Console.WriteLine("Completed / Press Enter to Finish");
+                Console.ReadKey();
             }
         }
 
@@ -39,9 +60,11 @@ namespace ConsoleApp1
         /// <param name="connection"></param>
         private static void Cleanup(SqlConnection connection)
         {
+            new SqlCommand("delete from account_tag", connection).ExecuteNonQuery();
             new SqlCommand("delete from ledger", connection).ExecuteNonQuery();
             new SqlCommand("delete from journal", connection).ExecuteNonQuery();
             new SqlCommand("delete from account", connection).ExecuteNonQuery();
+            new SqlCommand("delete from tag", connection).ExecuteNonQuery();
             new SqlCommand("delete from account_category", connection).ExecuteNonQuery();
 
             // Now lets setup the data
@@ -53,6 +76,11 @@ namespace ConsoleApp1
             new AccountCategory { Id = AccountCategory.AC_EXPENCES, Name = "Expences" }.Save(connection, transaction);
             transaction.Commit();
 
+            transaction = connection.BeginTransaction();
+            new Tag { TypeName = "Transaction", PropertyName="BrokerCode", PkName="unknown" }.Save(connection, transaction);
+            new Tag { TypeName = "Transaction", PropertyName = "TradePrice", PkName = "unknown" }.Save(connection, transaction);
+            transaction.Commit();
+
             // Accounts should be created dynamically based on the account definitions
         }
 
@@ -62,17 +90,11 @@ namespace ConsoleApp1
         }
 
 
-        static async Task RunAsync(SqlConnection connection)
+        static async Task<int> RunAsync(SqlConnection connection, SqlTransaction transaction, string transactionsURI)
         {
-            var result = await GetTransactions();
+            var result = await GetTransactions(transactionsURI);
 
             var elements = JsonConvert.DeserializeObject<Transaction[]>(result);
-
-            var transaction = connection.BeginTransaction();
-            new JournalLog() { Action = "Starting Batch Posting Engine", ActionOn = DateTime.Now }.Save(connection, transaction);
-
-            var sw = new Stopwatch();
-            sw.Start();
 
             foreach ( var element in elements )
             {
@@ -87,15 +109,9 @@ namespace ConsoleApp1
                 }
             }
 
-            sw.Stop();
-
             new JournalLog() { Action = $"Processed # {elements.Count()} transactions", ActionOn = DateTime.Now }.Save(connection, transaction);
-            new JournalLog() { Action = $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms", ActionOn = DateTime.Now }.Save(connection, transaction);
 
-            transaction.Commit();
-
-            Console.WriteLine("Completed / Press Enter to Finish");
-            Console.ReadKey();
+            return elements.Count();
         }
 
 
