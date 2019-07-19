@@ -47,6 +47,7 @@ import { MessageService } from 'primeng/api';
 import { JournalComponent } from './main/journal/journal.component';
 import { AgGridExampleComponent } from './main/ag-grid-example/ag-grid-example.component';
 import { FinanceGridComponent } from './finance-grid/finance-grid.component';
+import { RunLogsComponent } from './runlogs/runlogs.component';
 import { LedgerFormComponent } from './ledger-form/ledger-form.component'; 
 import { CreateAccountComponent } from './ledger-form/create-account/create-account.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -63,7 +64,8 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
     TemplateRendererComponent,
     FinanceGridComponent,
     LedgerFormComponent,
-    CreateAccountComponent
+    CreateAccountComponent,
+    RunLogsComponent
   ],
   imports: [
     BrowserModule,

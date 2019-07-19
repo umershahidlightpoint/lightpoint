@@ -13,11 +13,12 @@ namespace LP.Finance.Common.Models
         public static readonly int AC_EXPENCES = 5;
 
         private static AccountCategory[] _categories;
+        private static Tag[] _tags;
         public static AccountCategory[] Categories { get { return _categories; } }
         public int Id { get; set; }
         public string Name { get; set; }
 
-        public static AccountCategory[] Seed(SqlConnection connection)
+        public static AccountCategory[] Load(SqlConnection connection)
         {
             var list = new List<AccountCategory>();
 

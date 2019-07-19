@@ -1,5 +1,6 @@
 ﻿using ConsoleApp1;
 using LP.Finance.Common.Models;
+using System;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
@@ -25,7 +26,7 @@ namespace PostingEngine
             {
                 tag.Account = account;
                 //tag.Tag.Save(_connection, _transaction);
-                //tag.Save(_connection, _transaction);
+                tag.Save(_connection, _transaction);
             }
         }
 
@@ -96,7 +97,6 @@ namespace PostingEngine
         {
             var type = transaction.GetType();
 
-            var accountName = new StringBuilder();
             var tags = new System.Collections.Generic.List<AccountTag>();
 
             // Create a tag to identify the account
@@ -106,11 +106,13 @@ namespace PostingEngine
                 var value = property.GetValue(transaction);
                 if (value != null)
                 {
-                    tags.Add(new AccountTag { Tag = new Tag { PkName = "unknown", PropertyName = tag.PropertyName, TypeName = "Transaction" }, TagValue = value.ToString() });
-                    accountName.Append(value).Append("-");
+                    tags.Add(new AccountTag { Tag = tag, TagValue = value.ToString() });
                 }
             }
-            var assetAccount = new Account { Category = def.AccountCategory, Description = accountName.ToString(), Name = accountName.ToString() };
+
+            var name = String.Join("-", tags.Select(t => t.TagValue));
+
+            var assetAccount = new Account { Category = def.AccountCategory, Description = name, Name = name };
 
             assetAccount.Tags = tags;
 

@@ -25,7 +25,7 @@ namespace LP.Finance.WebProxy.WebAPI
         }
 
         [HttpGet]
-        public object GetAccounts(int pageNumber = 1, int pageSize = 10, string accountName = "",
+        public object GetAccounts(int pageNumber = 1, int pageSize = 10000, string accountName = "",
             string accountCategory = "")
         {
             return controller.Data("Accounts", pageNumber, pageSize, accountName, accountCategory);

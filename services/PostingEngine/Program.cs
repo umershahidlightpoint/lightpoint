@@ -25,9 +25,14 @@ namespace ConsoleApp1
             {
                 connection.Open();
 
+                // Cleanout all data
                 Cleanup(connection);
 
-                var all = AccountCategory.Seed(connection);
+                // Setup key data tables
+                Setup(connection);
+
+                AccountCategory.Load(connection);
+                Tag.Load(connection);
 
                 var transaction = connection.BeginTransaction();
                 var sw = new Stopwatch();
@@ -54,6 +59,25 @@ namespace ConsoleApp1
             }
         }
 
+        private static void Setup(SqlConnection connection)
+        {
+            var transaction = connection.BeginTransaction();
+            new AccountCategory { Id = AccountCategory.AC_ASSET, Name = "Asset" }.Save(connection, transaction);
+            new AccountCategory { Id = AccountCategory.AC_LIABILITY, Name = "Liability" }.Save(connection, transaction);
+            new AccountCategory { Id = AccountCategory.AC_EQUITY, Name = "Equity" }.Save(connection, transaction);
+            new AccountCategory { Id = AccountCategory.AC_REVENUES, Name = "Revenues" }.Save(connection, transaction);
+            new AccountCategory { Id = AccountCategory.AC_EXPENCES, Name = "Expences" }.Save(connection, transaction);
+            transaction.Commit();
+
+            transaction = connection.BeginTransaction();
+            new Tag { TypeName = "Transaction", PropertyName = "SecurityType", PkName = "unknown" }.Save(connection, transaction);
+            new Tag { TypeName = "Transaction", PropertyName = "Symbol", PkName = "unknown" }.Save(connection, transaction);
+            new Tag { TypeName = "Transaction", PropertyName = "CustodianCode", PkName = "unknown" }.Save(connection, transaction);
+            new Tag { TypeName = "Transaction", PropertyName = "Fund", PkName = "unknown" }.Save(connection, transaction);
+            new Tag { TypeName = "Transaction", PropertyName = "ExecutionBroker", PkName = "unknown" }.Save(connection, transaction);
+            transaction.Commit();
+        }
+
         /// <summary>
         /// Cleanup, reset the state of the database so that we can repopulate as we test the posting rules
         /// </summary>
@@ -66,22 +90,6 @@ namespace ConsoleApp1
             new SqlCommand("delete from account", connection).ExecuteNonQuery();
             new SqlCommand("delete from tag", connection).ExecuteNonQuery();
             new SqlCommand("delete from account_category", connection).ExecuteNonQuery();
-
-            // Now lets setup the data
-            var transaction = connection.BeginTransaction();
-            new AccountCategory { Id = AccountCategory.AC_ASSET, Name = "Asset" }.Save(connection, transaction);
-            new AccountCategory { Id = AccountCategory.AC_LIABILITY, Name = "Liability" }.Save(connection, transaction);
-            new AccountCategory { Id = AccountCategory.AC_EQUITY, Name = "Equity" }.Save(connection, transaction);
-            new AccountCategory { Id = AccountCategory.AC_REVENUES, Name = "Revenues" }.Save(connection, transaction);
-            new AccountCategory { Id = AccountCategory.AC_EXPENCES, Name = "Expences" }.Save(connection, transaction);
-            transaction.Commit();
-
-            transaction = connection.BeginTransaction();
-            new Tag { TypeName = "Transaction", PropertyName="BrokerCode", PkName="unknown" }.Save(connection, transaction);
-            new Tag { TypeName = "Transaction", PropertyName = "TradePrice", PkName = "unknown" }.Save(connection, transaction);
-            transaction.Commit();
-
-            // Accounts should be created dynamically based on the account definitions
         }
 
         private static void Error(Exception ex, Transaction element)
