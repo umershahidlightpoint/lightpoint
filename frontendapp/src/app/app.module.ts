@@ -46,6 +46,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { JournalComponent } from './main/journal/journal.component';
 import { AgGridExampleComponent } from './main/ag-grid-example/ag-grid-example.component';
+import { LogsComponent } from './main/logs/logs.component';
 import { FinanceGridComponent } from './finance-grid/finance-grid.component';
 import { RunLogsComponent } from './runlogs/runlogs.component';
 import { LedgerFormComponent } from './ledger-form/ledger-form.component'; 
@@ -62,6 +63,7 @@ import { ToastrModule } from 'ngx-toastr';
     UpdateLedgerModalComponent,
     JournalComponent,
     AgGridExampleComponent,
+    LogsComponent,
     TemplateRendererComponent,
     FinanceGridComponent,
     LedgerFormComponent,

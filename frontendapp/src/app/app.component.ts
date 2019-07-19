@@ -8,6 +8,7 @@ import { FundsComponent } from './main/funds/funds.component';
 import { LegderModalComponent } from './main/legder-modal/legder-modal.component';
 import { JournalComponent } from './main/journal/journal.component';
 import { AgGridExampleComponent } from './main/ag-grid-example/ag-grid-example.component';
+import { LogsComponent } from './main/logs/logs.component';
 
 @Component({
   selector: 'app-root',

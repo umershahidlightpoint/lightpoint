@@ -1,0 +1,12 @@
+<p-tabView [ngStyle]="style">
+  <p-tabPanel header="PostingEngine Logs" [ngStyle]="style">
+    <div style="clear: both"></div>
+    <div #divToMeasure>
+      <div [ngStyle]="styleForHight">
+        <ag-grid-angular style="width: 100%; height: 100%" class="ag-theme-balham" [gridOptions]="gridOptions" #topGrid
+          [rowData]="rowData">
+        </ag-grid-angular>
+      </div>
+    </div>
+  </p-tabPanel>
+</p-tabView>

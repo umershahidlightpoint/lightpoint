@@ -7,7 +7,7 @@ import { LazyLoadEvent } from 'primeng/components/common/lazyloadevent';
 import { FundsComponent } from '../main/funds/funds.component';
 import { LegderModalComponent } from '../main/legder-modal/legder-modal.component';
 import { JournalComponent } from '../main/journal/journal.component';
-import { AgGridExampleComponent } from '../main/ag-grid-example/ag-grid-example.component';
+import { LogsComponent } from '../main/logs/logs.component';
 
 @Component({
   selector: 'app-runlogs',
@@ -16,9 +16,7 @@ import { AgGridExampleComponent } from '../main/ag-grid-example/ag-grid-example.
 })
 export class RunLogsComponent implements OnInit {
   title = 'Finance';
-  //@ViewChild('applegdermodal') applegdermodal: LegderModalComponent;
-  //@ViewChild('app-journal') appjournal: JournalComponent;
-  //@ViewChild('app-ag-grid-example') agGridExample:AgGridExampleComponent
+  @ViewChild('app-logs') agGridExample:LogsComponent
   
 
   fundId: any;
@@ -57,7 +55,7 @@ export class RunLogsComponent implements OnInit {
   }
 
   createLedger() {
-    this.applegdermodal.show();
+    //this.applegdermodal.show();
   }
 
   initializeCol() {
@@ -66,7 +64,7 @@ export class RunLogsComponent implements OnInit {
   ngOnInit() {
     this.initializeCol();
   }
-  
+
   accountGroupByGrid() {
     this.accountGrid = true;
   }
