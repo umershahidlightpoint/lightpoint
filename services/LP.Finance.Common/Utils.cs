@@ -9,13 +9,13 @@ namespace LP.Finance.Common
     public class metaData
     {
         public int total { get; set; }
-        
     }
+
     public class MathFnc
     {
         public static decimal Truncate(decimal value, int decimals)
         {
-            decimal factor = (decimal)Math.Pow(10, decimals);
+            decimal factor = (decimal) Math.Pow(10, decimals);
             decimal result = Math.Truncate(factor * value) / factor;
             return result;
         }
@@ -23,7 +23,7 @@ namespace LP.Finance.Common
 
     public class Utils
     {
-        public static object Wrap(object payload,object metaData)
+        public static object Wrap(object payload, object metaData)
         {
             return new
             {
@@ -42,7 +42,7 @@ namespace LP.Finance.Common
                 by = "",
                 data = payload,
                 meta = metaData,
-                stats= stats
+                stats = stats
             };
         }
 
@@ -79,28 +79,33 @@ namespace LP.Finance.Common
             try
             {
                 File.WriteAllText(file, result);
-            } catch ( Exception ex )
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
         }
 
-        public static object RunQuery(string connection, string query, SqlParameter[] parameters = null )
+        public static object RunQuery(string connection, string query, SqlParameter[] parameters = null)
         {
             var content = "{}";
             var metaData = new metaData();
             using (var con = new SqlConnection(connection))
             {
                 var sda = new SqlDataAdapter(query, con);
-                if (parameters != null)  { sda.SelectCommand.Parameters.AddRange(parameters); }
+                if (parameters != null)
+                {
+                    sda.SelectCommand.Parameters.AddRange(parameters);
+                }
+
                 var dataTable = new DataTable();
                 con.Open();
                 sda.Fill(dataTable);
                 con.Close();
-                
+
                 metaData.total = GetMetaData(dataTable);
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
-                content = jsonResult;              
+                content = jsonResult;
             }
 
             dynamic json = JsonConvert.DeserializeObject(content);
@@ -108,24 +113,25 @@ namespace LP.Finance.Common
             /// This wraps the results into an envelope that contains additional metadata
             return Utils.Wrap(json, metaData);
         }
-         
 
-        public static object GetTable (string connection, string tablename)
+
+        public static object GetTable(string connection, string tablename)
         {
             var query = $@"select * from {tablename} nolock";
 
             return RunQuery(connection, query);
         }
 
-        private static int GetMetaData (DataTable dataTable)
+        private static int GetMetaData(DataTable dataTable)
         {
-            var total = dataTable.Columns.Contains("total") && dataTable.Rows.Count > 0 ? Convert.ToInt32(dataTable.Rows[0]["total"]) : 0;
-            
-            if (dataTable.Columns.Contains("total")) 
+            var total = dataTable.Columns.Contains("total") && dataTable.Rows.Count > 0
+                ? Convert.ToInt32(dataTable.Rows[0]["total"])
+                : 0;
+
+            if (dataTable.Columns.Contains("total"))
                 dataTable.Columns.Remove("total");
-            
+
             return total;
         }
-
     }
 }

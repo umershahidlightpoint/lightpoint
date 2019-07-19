@@ -1,12 +1,12 @@
 
 <div bsModal #modal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal"
   aria-hidden="true" [config]="{backdrop: 'static'}">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-dialog-centered" id="modal-lg">
     <div class="modal-content">
       <form 
         #roleForm="ngForm" 
         [formGroup]="ledgerForm" 
-        (ngSubmit)="onAdd()" 
+        (ngSubmit)="onSave()" 
         >
         <div class="modal-header">
           <h3 *ngIf="editCase">Edit Account</h3>
@@ -18,7 +18,10 @@
               <div class="col-sm-3">
                   <label> Name </label>
               </div>
-              <div class="col-sm-9">
+              <div *ngIf="editCase" class="col-sm-9">
+                  <label><strong>{{ nameLabel }}</strong></label>
+                </div>
+              <div *ngIf="!editCase" class="col-sm-9">
                   <input type="text" class="form-control" formControlName="name" />
               </div>
             </div>
@@ -40,10 +43,14 @@
                 <div class="col-sm-3">
                     <label> Account Type </label>
                 </div>
-                <div class="col-sm-9">
-                    <select class="custom-select" (change)="changeAccountType($event)" formControlName="category">
+                <div *ngIf="editCase" class="col-sm-9">
+                  <label style="font: bold"><strong>{{ categoryLabel }}</strong></label>
+                </div>
+                <div *ngIf="!editCase" class="col-sm-9">
+                    <select class="custom-select" (change)="changeAccountType($event)" 
+                        formControlName="category">
                         <option value="" disabled>Choose your account type</option>
-                        <option *ngFor="let names of accountTypeNames" [ngValue]="names">{{names}}</option>
+                        <option *ngFor="let names of accountTypeNames" [ngValue]="names">{{names.type}}</option>
                     </select>
                 </div>
               </div>

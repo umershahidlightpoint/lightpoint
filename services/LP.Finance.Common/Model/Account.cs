@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LP.Finance.Common.Models
 {
@@ -128,8 +126,11 @@ namespace LP.Finance.Common.Models
     public class Account : IDbAction, IDbActionSaveUpdate, IDbActionIdentity
     {
         public int Id { get; set; }
+        [Required]
         public int Category { get; set; }
+        [Required]
         public string Name { get; set; }
+        [Required]
         public string Description { get; set; }
 
         public KeyValuePair<string, SqlParameter[]> Insert
@@ -148,7 +149,19 @@ namespace LP.Finance.Common.Models
             }
         }
 
-        public KeyValuePair<string, SqlParameter[]> Update => throw new NotImplementedException();
+        public KeyValuePair<string, SqlParameter[]> Update
+        {
+            get { var sql = @"update account set description=@description where name=@name";
+                var sqlParams = new SqlParameter[]
+                {
+                    new SqlParameter("id", Id),
+                    new SqlParameter("name", Name),
+                    new SqlParameter("description", Description),
+                    new SqlParameter("category", Category),
+                };
+
+                return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams); }
+        }
 
         public KeyValuePair<string, SqlParameter[]> SaveUpdate
         {
@@ -180,6 +193,18 @@ namespace LP.Finance.Common.Models
             }
         }
 
-        public KeyValuePair<string, SqlParameter[]> Delete => throw new NotImplementedException();
+        public KeyValuePair<string, SqlParameter[]> Delete
+        {
+            get
+            {
+                var sql = @"delete from account where name=@name";
+                var sqlParams = new SqlParameter[]
+                {
+                    new SqlParameter("name", Name),
+                };
+
+                return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);
+            }
+        }
     }
 }

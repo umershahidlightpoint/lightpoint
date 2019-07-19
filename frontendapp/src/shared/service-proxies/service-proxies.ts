@@ -91,8 +91,8 @@ export class FinancePocServiceProxy {
     createLedger(data: LedgerInput) {
         const url = this.baseUrl + '/ledgers';
         return this.http.post(url, data).pipe(map((response: any) => response));
-
     }
+
     updateLedger(ledgerId: any | undefined, data: LedgerInput) {
         const url = this.baseUrl + '/ledgers/' + ledgerId;
         return this.http.put(url, data).pipe(map((response: any) => response));
@@ -115,6 +115,21 @@ export class FinancePocServiceProxy {
     getAllAccounts() {
         const url =  'http://localhost:9092/api/account' ;
         return this.http.get(url,).pipe(map((response: any) => response));
+    }
+
+    createAccount(data) {
+        const url =  'http://localhost:9092/api/account' ;
+        return this.http.post(url,data).pipe(map((response: any) => response));
+    }
+
+    editAccount(params) {
+        const url =  'http://localhost:9092/api/account/'+params.id ;
+        return this.http.put(url,params).pipe(map((response: any) => response));
+    }
+
+    deleteAccount(id) {
+        const url =  'http://localhost:9092/api/account/'+id ;
+        return this.http.delete(url).pipe(map((response: any) => response));
     }
 
 }

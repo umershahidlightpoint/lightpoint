@@ -9,20 +9,21 @@
 
 <hr/>
 
-<div  #divToMeasure >
+
+<div #divToMeasure>
   <div [ngStyle]="styleForHight"> 
     <ag-grid-angular
-        style="width: 80%; height: 500px;" 
+        style="width: 76%; height: 100%"
         class="ag-theme-balham"
         [gridOptions]="gridOptions"
         >
     </ag-grid-angular>
     <ng-template #actionButtons let-row>
       <button style="height: 21px" class="btn btn-info" (click)="editRow(row)">Edit</button>
-      <button style="height: 21px" [disabled]="row.HasJournal == 'Yes'" class="btn btn-danger" (click)="deleteRow(row)">Delete</button>
+      <button [disabled]="row.has_journal == 'Yes'" style="height: 21px" class="btn btn-danger" (click)="deleteRow(row)">Delete</button>
     </ng-template>
   </div>
 </div>
-<app-create-account #createModal ></app-create-account>
+<app-create-account #createModal (modalClose)="refreshGrid()" ></app-create-account>
 
 <router-outlet></router-outlet>

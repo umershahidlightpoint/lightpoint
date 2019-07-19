@@ -40,6 +40,8 @@ namespace LP.ReferenceData.WebProxy
             config.Formatters.Clear();
             config.Formatters.Add(new JsonMediaTypeFormatter());
 
+            config.MapHttpAttributeRoutes();
+
             config.Routes.MapHttpRoute(
               name: "DefaultApi",
               routeTemplate: "api/{controller}/{name}",

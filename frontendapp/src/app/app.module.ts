@@ -50,6 +50,7 @@ import { FinanceGridComponent } from './finance-grid/finance-grid.component';
 import { LedgerFormComponent } from './ledger-form/ledger-form.component'; 
 import { CreateAccountComponent } from './ledger-form/create-account/create-account.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [
@@ -96,7 +97,8 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
     DragAndDropModule,
     SliderModule,
     AngularSplitModule.forRoot(),
-    CalendarModule
+    CalendarModule,
+    ToastrModule.forRoot()
   ],
   providers: [FinancePocServiceProxy, MessageService],
 

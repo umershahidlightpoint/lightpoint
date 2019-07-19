@@ -60,13 +60,13 @@ export class AppComponent extends AppComponentBase {
     this.applegdermodal.show();
   }
 
-  initializeCol() {
-
-    
+  initializeCol() {    
   }
+
   ngOnInit() {
     this.initializeCol();
   }
+  
   accountGroupByGrid() {
     this.accountGrid = true;
   }

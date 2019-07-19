@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Data.SqlClient;
 using LP.Finance.Common;
+using LP.Finance.Common.Models;
 using Newtonsoft.Json;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
@@ -10,8 +11,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
-        public object Data(string symbol, int pageNumber, int pageSize, string accountName, string accountCategory,
-            string search = "")
+        public object Data(string symbol, string search = "")
         {
             dynamic result = JsonConvert.DeserializeObject("{}");
 
@@ -23,10 +23,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     break;
                 case "Search":
                     result = Search(search);
-                    break;
-                case "Accounts":
-                    result = GetAccounts(pageNumber, pageSize, accountName, accountCategory);
-                    Utils.Save(result, "accounts");
                     break;
             }
 
@@ -58,7 +54,54 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 ? (accountCategory.Length > 0 ? " AND [account_category].[name] LIKE '%'+@accountCategory+'%'" : "")
                 : (accountCategory.Length > 0 ? " WHERE [account_category].[name] LIKE '%'+@accountCategory+'%'" : "");
 
-            query += " ORDER BY [account].[id] OFFSET(@pageNumber - 1) * @pageSize ROWS FETCH NEXT @pageSize ROWS ONLY";
+            query += " ORDER BY [account].[id] DESC OFFSET(@pageNumber - 1) * @pageSize ROWS FETCH NEXT @pageSize ROWS ONLY";
+
+            return Utils.RunQuery(connectionString, query, sqlParameters.ToArray());
+        }
+
+        public object CreateAccount(Account account)
+        {
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+            {
+                new SqlParameter("name", account.Name), new SqlParameter("description", account.Description),
+                new SqlParameter("category", account.Category)
+            };
+
+            var query = $@"INSERT INTO [account]
+                        ([name]
+                        ,[description]
+                        ,[account_category_id])
+                        VALUES
+                        (@name
+                        ,@description
+                        ,@category)";
+
+            return Utils.RunQuery(connectionString, query, sqlParameters.ToArray());
+        }
+
+        public object UpdateAccount(int id, Account account)
+        {
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+            {
+                new SqlParameter("id", id), new SqlParameter("description", account.Description)
+            };
+
+            var query = $@"UPDATE [account]
+                        SET [description] = @description
+                        WHERE [id] = @id";
+
+            return Utils.RunQuery(connectionString, query, sqlParameters.ToArray());
+        }
+
+        public object DeleteAccount(int id)
+        {
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+            {
+                new SqlParameter("id", id)
+            };
+
+            var query = $@"DELETE FROM [dbo].[account]
+                        WHERE [id] = @id";
 
             return Utils.RunQuery(connectionString, query, sqlParameters.ToArray());
         }
