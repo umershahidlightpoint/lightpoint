@@ -41,7 +41,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         ,[account].[id]
                         ,[account].[name]
 	                    ,[account].[description]
-	                    ,[account_category].[name] AS 'category' 
+	                    ,[account_category].[name] AS 'category'
+                        ,[account_category].[id] AS 'category_id'
 	                    ,CASE WHEN EXISTS (SELECT [journal].[id] FROM [journal] WHERE [journal].[account_id] = [account].[id])
 	                    THEN 'Yes' 
 	                    ELSE 'No'

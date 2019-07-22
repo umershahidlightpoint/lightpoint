@@ -1,4 +1,4 @@
-
+<!----- Navbar start ----->
 <div class="row">
   <div class="col-sm-3">
       <button (click)="addAccount()" class="btn btn-primary blue ml-auto">
@@ -6,24 +6,33 @@
       </button>
   </div>
 </div>
-
+<!----- Navbar end ----->
 <hr/>
 
-
+<!----- Div To Measure Identifier starts ----->
 <div #divToMeasure>
+  <!----- Style For Height ----->
   <div [ngStyle]="styleForHight"> 
+    <!----- Ag Grid Start ----->
     <ag-grid-angular
-        style="width: 76%; height: 100%"
+        style="height: 100%; width: 100%"
         class="ag-theme-balham"
         [gridOptions]="gridOptions"
         >
     </ag-grid-angular>
+    <!----- Action buttons ----->
     <ng-template #actionButtons let-row>
-      <button style="height: 21px" class="btn btn-info" (click)="editRow(row)">Edit</button>
-      <button [disabled]="row.has_journal == 'Yes'" style="height: 21px" class="btn btn-danger" (click)="deleteRow(row)">Delete</button>
+      <button class="btn btn-info fixHeight" (click)="editRow(row)">Edit</button>
+      <button 
+        [disabled]="row.has_journal == 'Yes'" 
+        class="btn btn-danger fixHeight" 
+        (click)="deleteRow(row)">
+          Delete
+      </button>
     </ng-template>
   </div>
 </div>
-<app-create-account #createModal (modalClose)="refreshGrid()" ></app-create-account>
+<!----- Div To Measure Identifier ends ----->
 
+<app-create-account #createModal (modalClose)="getData()" ></app-create-account>
 <router-outlet></router-outlet>

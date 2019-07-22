@@ -5,8 +5,13 @@ export interface Account {
 }
 
 export interface EditAccount {
-  id: number,
+  id: number;
   name: string;
   description: string;
   category: number;
+}
+
+export interface AccountCategory {
+  id: number;
+  name: string;
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef, TemplateRef  } from '@angular/core';
+import { Component, OnInit, Inject, ViewChild, ElementRef, TemplateRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { CreateAccountComponent } from '../ledger-form/create-account/create-account.component'
 import { FinancePocServiceProxy } from '../../shared/service-proxies/service-proxies';
@@ -37,7 +37,7 @@ export class LedgerFormComponent implements OnInit {
   constructor(
     @Inject(Router) private router: Router, 
     private financePocServiceProxy: FinancePocServiceProxy,
-    private toastrService:  ToastrService 
+    private toastrService:  ToastrService
     ) {
    }
    
@@ -45,10 +45,11 @@ export class LedgerFormComponent implements OnInit {
   ngAfterViewInit(): void {
     this.gridOptions.api.setColumnDefs([
       {headerName: 'Id', field: 'Id', hide: true },
-      {headerName: 'Name', field: 'Name',sortable: true, filter: true },
-      {headerName: 'Description', field: 'Description',sortable: true, filter: true },
-      {headerName: 'Category', field: 'Category',sortable: true, filter: true},
-      {headerName: 'Has Journal', field: 'has_journal',sortable: true, filter: true},
+      {headerName: 'Name', field: 'Name', sortable: true, filter: true },
+      {headerName: 'Description_Id', field: 'Description_Id', hide: true, sortable: true, filter: true },
+      {headerName: 'Description', field: 'Description', sortable: true, filter: true },
+      {headerName: 'Category', field: 'Category', sortable: true, filter: true},
+      {headerName: 'Has Journal', field: 'has_journal', sortable: true, filter: true},
       {
         headerName: "Actions",
         cellRendererFramework: TemplateRendererComponent,
@@ -64,43 +65,42 @@ export class LedgerFormComponent implements OnInit {
   }
 
   getData(){
-    this.data = this.financePocServiceProxy.getAllAccounts().subscribe(result => {
-      console.log('Result payload',result.payload) 
-      this.data =  result.payload  
-      this.rowData = this.data.map(result => ({
-        Id: result.id,
-        Name: result.name,
-        Description: result.description,
-        Category: result.category,
-        has_journal: result.has_journal
-      }))
-      this.gridOptions.api.setRowData(this.rowData)
-    })
+    setTimeout(()=> {
+      this.data = this.financePocServiceProxy.getAllAccounts().subscribe(result => {
+        this.data =  result.payload;
+        this.rowData = this.data.map(result => ({
+          Id: result.id,
+          Name: result.name,
+          Description: result.description,
+          Category: result.category,
+          Category_Id: result.category_id,
+          has_journal: result.has_journal
+        }))
+        this.gridOptions.api.setRowData(this.rowData);
+      })
+    },100)
   }
 
   editRow(row){
-    console.log('===> Edit',row)
     this.router.navigateByUrl('/accounts/create-account')
     this.createAccount.show(row)
   }
 
   deleteRow(row){
     this.financePocServiceProxy.deleteAccount(row.Id).subscribe(response => {
-      console.log('delete response',response)
-      if(response){
-        this.toastrService.success('Account deleted successfully!')
-      }
-    })
+    if(response.isSuccessful){
+      this.toastrService.success('Account deleted successfully!')
+      this.getData()
+    }
+    else {
+      this.toastrService.error('Account deleted failed!')
+    }}, error => {
+    this.toastrService.error('Something went wrong. Try again later!')  
+  })    
   }
 
   addAccount(){
     this.router.navigateByUrl('/accounts/create-account')
     this.createAccount.show({})
-  }
-
-  refreshGrid(){
-    console.log('grid fresh') 
-    // this.getData(); 
-    // this.gridOptions.api.setRowData(this.data)
   }
 }

@@ -44,13 +44,13 @@
                     <label> Account Type </label>
                 </div>
                 <div *ngIf="editCase" class="col-sm-9">
-                  <label style="font: bold"><strong>{{ categoryLabel }}</strong></label>
+                  <label style="font: bold"><strong>{{ categoryLabel.name }}</strong></label>
                 </div>
                 <div *ngIf="!editCase" class="col-sm-9">
-                    <select class="custom-select" (change)="changeAccountType($event)" 
+                    <select class="custom-select" 
                         formControlName="category">
                         <option value="" disabled>Choose your account type</option>
-                        <option *ngFor="let names of accountTypeNames" [ngValue]="names">{{names.type}}</option>
+                        <option *ngFor="let names of accountTypeNames" [ngValue]="names">{{names.name}}</option>
                     </select>
                 </div>
               </div>
