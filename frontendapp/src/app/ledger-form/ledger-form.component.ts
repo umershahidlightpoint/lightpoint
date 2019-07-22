@@ -15,7 +15,9 @@ export class LedgerFormComponent implements OnInit {
   @ViewChild('createModal') createAccount: CreateAccountComponent;
   rowData = [];
   data: any
-  gridOptions = <GridOptions>{};
+  gridOptions = <GridOptions>{
+    onFirstDataRendered: (params) => { params.api.sizeColumnsToFit(); }
+  };
 
   @ViewChild('actionButtons') actionButtons: TemplateRef<any>;  
   @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
@@ -93,7 +95,7 @@ export class LedgerFormComponent implements OnInit {
       this.getData()
     }
     else {
-      this.toastrService.error('Account deleted failed!')
+      this.toastrService.error('Account deletion failed!')
     }}, error => {
     this.toastrService.error('Something went wrong. Try again later!')  
   })    
@@ -102,5 +104,9 @@ export class LedgerFormComponent implements OnInit {
   addAccount(){
     this.router.navigateByUrl('/accounts/create-account')
     this.createAccount.show({})
+  }
+
+  onFirstDataRendered(params) {
+    params.api.sizeColumnsToFit();
   }
 }

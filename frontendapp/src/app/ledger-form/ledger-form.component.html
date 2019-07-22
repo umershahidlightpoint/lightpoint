@@ -9,30 +9,34 @@
 <!----- Navbar end ----->
 <hr/>
 
-<!----- Div To Measure Identifier starts ----->
-<div #divToMeasure>
-  <!----- Style For Height ----->
-  <div [ngStyle]="styleForHight"> 
-    <!----- Ag Grid Start ----->
-    <ag-grid-angular
-        style="height: 100%; width: 100%"
-        class="ag-theme-balham"
-        [gridOptions]="gridOptions"
-        >
-    </ag-grid-angular>
-    <!----- Action buttons ----->
-    <ng-template #actionButtons let-row>
-      <button class="btn btn-info fixHeight" (click)="editRow(row)">Edit</button>
-      <button 
-        [disabled]="row.has_journal == 'Yes'" 
-        class="btn btn-danger fixHeight" 
-        (click)="deleteRow(row)">
-          Delete
-      </button>
-    </ng-template>
-  </div>
-</div>
-<!----- Div To Measure Identifier ends ----->
+<p-tabView [ngStyle]="style">
+    <p-tabPanel header="Accounts" [ngStyle]="style">  
+      <!----- Div To Measure Identifier starts ----->
+      <div #divToMeasure>
+        <!----- Style For Height ----->
+        <div [ngStyle]="styleForHight"> 
+          <!----- Ag Grid Start ----->
+          <ag-grid-angular
+              class="ag-theme-balham"
+              style="height: 100%; width: 100%"
+              [gridOptions]="gridOptions"
+              >
+          </ag-grid-angular>
+          <!----- Action buttons ----->
+          <ng-template #actionButtons let-row>
+            <button class="btn btn-info fixHeight" (click)="editRow(row)">Edit</button>
+            <button 
+              [disabled]="row.has_journal == 'Yes'" 
+              class="btn btn-danger fixHeight" 
+              (click)="deleteRow(row)">
+                Delete
+            </button>
+          </ng-template>
+        </div>
+      </div>
+      <!----- Div To Measure Identifier ends ----->
+    </p-tabPanel>
+  </p-tabView>
 
 <app-create-account #createModal (modalClose)="getData()" ></app-create-account>
 <router-outlet></router-outlet>
