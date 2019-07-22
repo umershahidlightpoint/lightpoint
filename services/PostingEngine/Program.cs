@@ -40,13 +40,17 @@ namespace ConsoleApp1
                 new JournalLog() { Action = "Starting Batch Posting Engine -- Allocations", ActionOn = DateTime.Now }.Save(connection, transaction);
                 // Run the allocations pass first
                 sw.Start();
-                var count = RunAsync(connection, transaction, allocationsURL).GetAwaiter().GetResult();
+
+                // Skip allocations for the moment
+                //var count = RunAsync(connection, transaction, allocationsURL).GetAwaiter().GetResult();
+                var count = 0;
                 sw.Stop();
                 new JournalLog() { Action = $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms processing {count} records", ActionOn = DateTime.Now }.Save(connection, transaction);
 
 
                 new JournalLog() { Action = "Starting Batch Posting Engine -- Trades", ActionOn = DateTime.Now }.Save(connection, transaction);
                 sw.Reset();
+                sw.Start();
                 // RUn the trades pass next
                 count = RunAsync(connection, transaction, tradesURL).GetAwaiter().GetResult();
                 sw.Stop();

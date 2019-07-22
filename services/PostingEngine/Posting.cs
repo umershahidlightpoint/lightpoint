@@ -52,33 +52,34 @@ namespace PostingEngine
                 SaveAccountDetails(accountToFrom.From);
                 SaveAccountDetails(accountToFrom.To);
 
-                var debit = new Journal
+                if (element.Commission != 0.0)
                 {
-                    Source = element.LpOrderId,
-                    Account = accountToFrom.From,
-                    When = element.TradeDate,
-                    Value = element.Commission * -1,
-                    GeneratedBy = "system",
-                    Fund = element.Fund,
-                };
+                    var debit = new Journal
+                    {
+                        Source = element.LpOrderId,
+                        Account = accountToFrom.From,
+                        When = element.TradeDate,
+                        Value = element.Commission * -1,
+                        GeneratedBy = "system",
+                        Fund = element.Fund,
+                    };
 
-                debit.Save(_connection, _transaction);
+                    debit.Save(_connection, _transaction);
 
-                var credit = new Journal
+                    var credit = new Journal
+                    {
+                        Source = element.LpOrderId,
+                        Account = accountToFrom.To,
+                        When = element.TradeDate,
+                        Value = element.Commission,
+                        GeneratedBy = "system",
+                        Fund = element.Fund,
+                    };
+                    credit.Save(_connection, _transaction);
+                } else
                 {
-                    Source = element.LpOrderId,
-                    Account = accountToFrom.To,
-                    When = element.TradeDate,
-                    Value = element.Commission,
-                    GeneratedBy = "system",
-                    Fund = element.Fund,
-                };
 
-                credit.Save(_connection, _transaction);
-
-                // Now have two entries / credit / debit
-
-                // Need to save both now
+                }
             }
         }
 
