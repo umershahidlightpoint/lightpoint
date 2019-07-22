@@ -150,6 +150,10 @@ export class FinancePocServiceProxy {
         return this.http.delete(url).pipe(map((response: any) => response));
     }
 
+    accountCategories() {
+        const url =  'http://localhost:9092/api/account_category/' ;
+        return this.http.get(url).pipe(map((response: any) => response));
+    }
 }
 
 export class LedgerInput {
