@@ -23,14 +23,27 @@ namespace LP.Finance.Common
 
     public class Utils
     {
-        public static object Wrap(object payload, object metaData)
+        public static object Wrap(bool status, object payload, object metaData)
         {
             return new
             {
                 when = DateTime.Now,
                 by = "",
-                payload = payload,
+                isSuccessful = status,
+                message = status ? "The Request was Successful" : "The Request Failed! Try Again",
+                payload,
                 meta = metaData
+            };
+        }
+
+        public static object Wrap(bool status)
+        {
+            return new
+            {
+                when = DateTime.Now,
+                by = "",
+                isSuccessful = status,
+                message = status ? "The Request was Successful" : "The Request Failed! Try Again",
             };
         }
 
@@ -98,6 +111,7 @@ namespace LP.Finance.Common
 
         public static object RunQuery(string connection, string query, SqlParameter[] parameters = null)
         {
+            var status = false;
             var content = "{}";
             var metaData = new metaData();
             using (var con = new SqlConnection(connection))
@@ -108,22 +122,29 @@ namespace LP.Finance.Common
                     sda.SelectCommand.Parameters.AddRange(parameters);
                 }
 
-                var dataTable = new DataTable();
-                con.Open();
-                sda.Fill(dataTable);
-                con.Close();
+                try
+                {
+                    var dataTable = new DataTable();
+                    con.Open();
+                    sda.Fill(dataTable);
+                    con.Close();
 
-                metaData.total = GetMetaData(dataTable);
-                var jsonResult = JsonConvert.SerializeObject(dataTable);
-                content = jsonResult;
+                    metaData.total = GetMetaData(dataTable);
+                    var jsonResult = JsonConvert.SerializeObject(dataTable);
+                    content = jsonResult;
+                    status = true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"RunQuery Exception :: {ex}");
+                }
             }
 
             dynamic json = JsonConvert.DeserializeObject(content);
 
-            /// This wraps the results into an envelope that contains additional metadata
-            return Utils.Wrap(json, metaData);
+            // This Wraps the Results into an Envelope that Contains Additional Metadata
+            return json.Count > 0 ? Utils.Wrap(status, json, metaData) : Utils.Wrap(status);
         }
-
 
         public static object GetTable(string connection, string tablename)
         {
