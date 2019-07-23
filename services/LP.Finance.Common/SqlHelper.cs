@@ -36,7 +36,8 @@ namespace SqlDAL.Core
             return CreateParameter(name, size, value, dbType, ParameterDirection.Input);
         }
 
-        public SqlParameter CreateParameter(string name, int size, object value, DbType dbType, ParameterDirection direction)
+        public SqlParameter CreateParameter(string name, int size, object value, DbType dbType,
+            ParameterDirection direction)
         {
             return new SqlParameter
             {
@@ -100,7 +101,8 @@ namespace SqlDAL.Core
             }
         }
 
-        public IDataReader GetDataReader(string commandText, CommandType commandType, SqlParameter[] parameters, out SqlConnection connection)
+        public IDataReader GetDataReader(string commandText, CommandType commandType, SqlParameter[] parameters,
+            out SqlConnection connection)
         {
             IDataReader reader = null;
             connection = new SqlConnection(ConnectionString);
@@ -117,7 +119,7 @@ namespace SqlDAL.Core
             }
 
             reader = command.ExecuteReader();
-            
+
             return reader;
         }
 
@@ -165,7 +167,7 @@ namespace SqlDAL.Core
             }
         }
 
-        public int Insert(string commandText, CommandType commandType, SqlParameter[] parameters, out int lastId)
+        public void Insert(string commandText, CommandType commandType, SqlParameter[] parameters, out int lastId)
         {
             lastId = 0;
             using (var connection = new SqlConnection(ConnectionString))
@@ -187,8 +189,6 @@ namespace SqlDAL.Core
                     lastId = Convert.ToInt32(newId);
                 }
             }
-
-            return lastId;
         }
 
         public long Insert(string commandText, CommandType commandType, SqlParameter[] parameters, out long lastId)
@@ -253,7 +253,8 @@ namespace SqlDAL.Core
             }
         }
 
-        public void InsertWithTransaction(string commandText, CommandType commandType, IsolationLevel isolationLevel, SqlParameter[] parameters)
+        public void InsertWithTransaction(string commandText, CommandType commandType, IsolationLevel isolationLevel,
+            SqlParameter[] parameters)
         {
             SqlTransaction transactionScope = null;
             using (var connection = new SqlConnection(ConnectionString))
@@ -347,7 +348,8 @@ namespace SqlDAL.Core
             }
         }
 
-        public void UpdateWithTransaction(string commandText, CommandType commandType, IsolationLevel isolationLevel, SqlParameter[] parameters)
+        public void UpdateWithTransaction(string commandText, CommandType commandType, IsolationLevel isolationLevel,
+            SqlParameter[] parameters)
         {
             SqlTransaction transactionScope = null;
             using (var connection = new SqlConnection(ConnectionString))
@@ -383,7 +385,7 @@ namespace SqlDAL.Core
             }
         }
 
-        public object GetScalarValue(string commandText, CommandType commandType, SqlParameter[] parameters= null)
+        public object GetScalarValue(string commandText, CommandType commandType, SqlParameter[] parameters = null)
         {
             using (var connection = new SqlConnection(ConnectionString))
             {

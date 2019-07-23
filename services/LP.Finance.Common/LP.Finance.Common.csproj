@@ -45,6 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dtos\AccountDto.cs" />
+    <Compile Include="Dtos\TagDto.cs" />
     <Compile Include="Model\Account.cs" />
     <Compile Include="Model\AccountCategory.cs" />
     <Compile Include="Model\AccountDef.cs" />

@@ -23,27 +23,27 @@ namespace LP.Finance.Common
 
     public class Utils
     {
-        public static object Wrap(bool status, object payload, object metaData)
+        public static object Wrap(bool status, object payload, object metaData, string message = null)
         {
             return new
             {
                 when = DateTime.Now,
                 by = "",
                 isSuccessful = status,
-                message = status ? "The Request was Successful" : "The Request Failed! Try Again",
+                message = message ?? (status ? "The Request was Successful" : "The Request Failed! Try Again"),
                 payload,
                 meta = metaData
             };
         }
 
-        public static object Wrap(bool status)
+        public static object Wrap(bool status, string message = null)
         {
             return new
             {
                 when = DateTime.Now,
                 by = "",
                 isSuccessful = status,
-                message = status ? "The Request was Successful" : "The Request Failed! Try Again",
+                message = message ?? (status ? "The Request was Successful" : "The Request Failed! Try Again"),
             };
         }
 

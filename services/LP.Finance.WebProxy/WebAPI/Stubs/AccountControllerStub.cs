@@ -1,4 +1,5 @@
 ﻿using LP.Finance.Common;
+using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Models;
 using LP.Finance.WebProxy.WebAPI.Services;
 
@@ -16,7 +17,7 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
             return Utils.GetFile("accounts");
         }
 
-        public object CreateAccount(Account account)
+        public object CreateAccount(AccountDto account)
         {
             throw new System.NotImplementedException();
         }
