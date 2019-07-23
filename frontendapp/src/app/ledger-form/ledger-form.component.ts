@@ -95,7 +95,7 @@ export class LedgerFormComponent implements OnInit {
       this.getData()
     }
     else {
-      this.toastrService.error('Account deletion failed!')
+      this.toastrService.error('Account deleted failed!')
     }}, error => {
     this.toastrService.error('Something went wrong. Try again later!')  
   })    

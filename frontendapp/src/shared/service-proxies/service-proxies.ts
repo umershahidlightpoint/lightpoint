@@ -154,6 +154,11 @@ export class FinancePocServiceProxy {
         const url =  'http://localhost:9092/api/account_category/' ;
         return this.http.get(url).pipe(map((response: any) => response));
     }
+
+    accountTags(){
+        const url = 'http://localhost:9092/api/account_def' ;
+        return this.http.get(url).pipe(map((response: any) => response));
+    }
 }
 
 export class LedgerInput {

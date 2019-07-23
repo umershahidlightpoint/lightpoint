@@ -1,5 +1,19 @@
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Component, OnInit, ViewChild, Output, EventEmitter, Inject } from '@angular/core';
+import { 
+  FormControl, 
+  FormGroup, 
+  Validators,
+  FormArray,
+  FormBuilder
+ } from '@angular/forms';
+import { 
+  Component, 
+  OnInit, 
+  ViewChild, 
+  Output, 
+  Input, 
+  EventEmitter, 
+  Inject 
+} from '@angular/core';
 import { ModalDirective } from 'ngx-bootstrap';
 import { Router } from '@angular/router';
 import { Account, EditAccount, AccountCategory } from '../../../shared/Types/account'
@@ -18,25 +32,68 @@ export class CreateAccountComponent implements OnInit {
   nameLabel: string
   Label: string
   accountTypeNames: any
+  accountTypeTags: any
   ledgerForm = new FormGroup({
-    name: new FormControl('', Validators.required),
+    name: new FormControl(''),
     description: new FormControl('',Validators.required),
-    category: new FormControl('', Validators.required),
+    category: new FormControl('', Validators.required)
   })
   accountInstance: Account
   editAccountInstance: EditAccount
   @ViewChild('modal') modal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
-
+  //-----------------------\\
+  accountForm: FormGroup;
+  tags: FormArray;
+  
+  
   constructor(
     @Inject(Router) private router: Router,
+    @Inject(FormBuilder) private formBuilder: FormBuilder,
     private financePocServiceProxy: FinancePocServiceProxy,
     private toastrService:  ToastrService 
   ) { 
   }
 
   ngOnInit() {
+    this.accountForm = this.formBuilder.group({
+      tags: this.formBuilder.array([]),
+    })
     this.getAccountCategories()
+  }
+
+  createTag(tag): FormGroup {
+    return this.formBuilder.group({
+      tags: tag
+    })
+  }
+
+  addTag(selectedAccTags): void{
+    const control = <FormArray>this.accountForm.controls['tags'];
+    for(let i = control.length-1; i >= 0; i--) {
+      control.removeAt(i)
+    }
+    this.tags = this.accountForm.get('tags') as FormArray
+    selectedAccTags.forEach(tag => {
+      this.tags.push(this.createTag(tag))
+    });
+  }
+
+  accTypeSelect(type){
+    let selectedAccId = type.slice(0,1)
+    this.financePocServiceProxy.accountTags().subscribe(response => {
+      this.accountTypeTags = response.payload.filter(payload => {
+        if(payload.account_def_id == selectedAccId){
+          payload['isChecked'] = false
+          payload['description'] = ''
+          return payload
+        }
+      })
+      this.addTag(this.accountTypeTags)
+      this.tags = this.accountForm.get('tagList') as FormArray;
+    }, error => {
+      this.toastrService.error('Something went wrong. Try again later!')
+    })
   }
 
   getAccountCategories(){
@@ -129,6 +186,15 @@ export class CreateAccountComponent implements OnInit {
     this.ledgerForm.controls['name'].enable();
     this.ledgerForm.controls['category'].enable();
     this.editCase = false
+    this.accountTypeTags = null
+  }
+
+  onTagSelect(selectedTag){
+    let selectedTagIndex = this.accountTypeTags.findIndex(tag => tag.tag_id === selectedTag.tag_id )
+    this.accountTypeTags[selectedTagIndex].isChecked = !this.accountTypeTags[selectedTagIndex].isChecked
+  }
+
+  onTagValueChange(event,id){
   }
 }
 

@@ -14,20 +14,6 @@
         </div>
         <div class="modal-body">
           <div class="form-group">
-            <div class="row">
-              <div class="col-sm-3">
-                  <label> Name </label>
-              </div>
-              <div *ngIf="editCase" class="col-sm-9">
-                  <label><strong>{{ nameLabel }}</strong></label>
-                </div>
-              <div *ngIf="!editCase" class="col-sm-9">
-                  <input type="text" class="form-control" formControlName="name" />
-              </div>
-            </div>
-          </div>
-      
-          <div class="form-group">
                   <div class="row">
                     <div class="col-sm-3">
                         <label> Description </label>
@@ -47,22 +33,63 @@
                   <label style="font: bold"><strong>{{ categoryLabel.name }}</strong></label>
                 </div>
                 <div *ngIf="!editCase" class="col-sm-9">
-                    <select class="custom-select" 
+                    <select class="custom-select"
+                        #type 
+                        (change)="accTypeSelect(type.value)"
                         formControlName="category">
                         <option value="" disabled>Choose your account type</option>
-                        <option *ngFor="let names of accountTypeNames" [ngValue]="names">{{names.name}}</option>
+                        <option *ngFor="let type of accountTypeNames" [ngValue]="type">{{type.name}}</option>
                     </select>
                 </div>
               </div>
           </div>
+
+          <div class="form-group">
+            <div *ngIf="!editCase && accountTypeTags" class="row">
+                <div class="col-sm-5">
+                </div>
+                <div class="col-sm-02 mb-2">
+                  <label><strong> Account Tag </strong></label>
+                </div>
+                <div class="col-sm-5">                  
+                </div>
+            </div>
+
+            <form *ngIf="!editCase" [formGroup]="accountForm">
+                <div formArrayName="tags"> 
+                  <div *ngFor="let instance of accountForm.get('tags').value; let i = index;">
+                    <div class="row mb-3">
+                      <div class="col-sm-4">
+                          <label><input class="mr-4" (click)="onTagSelect(instance.tags)" type="checkbox"> {{instance.tags.tag_name}} </label>
+                        </div>
+                        <div class="col-sm-8">
+                          <input class="form-control"
+                            [attr.disabled]="!instance.tags.isChecked ? 'true' : null" 
+                            (input)="onTagValueChange($event.target.value, instance.tags.tag_id)" 
+                            value="{{instance.tags.description}}" placeholder="Tag description">
+                        </div>
+                    </div>
+                  </div>
+                </div>
+            </form>
+
+            <!-- <div class="row mb-3" *ngFor="let tag of accountTypeTags">
+                <div class="col-sm-4">
+                  <label><input class="mr-4" (click)="onTagSelect(tag)" type="checkbox" value="tag">{{ tag.tag_name }}</label>
+                </div>
+                <div class="col-sm-8">    
+                  <input [attr.disabled]="!tag.isChecked ? 'true' : null" (ngModalChange)="onTagValueChange()" class="form-control" type="text" /> 
+                </div>
+            </div> -->
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="close()">Cancel</button>
-          <button type="submit" class="btn btn-primary" [disabled]="!roleForm.form.valid">
+          <button type="submit" class="btn btn-primary" [disabled]="false">
             <i class="fa fa-save"></i> Save
           </button>
         </div>
-      </form>
+      </form >
     </div>
   </div>
 </div>
