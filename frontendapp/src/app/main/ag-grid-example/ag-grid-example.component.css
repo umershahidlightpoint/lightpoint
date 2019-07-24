@@ -2,3 +2,11 @@ body, html{
     margin: 0; padding: 0; height: 100%;
 }
  
+.md-datepicker-input-container {
+    width: 150px;
+}
+
+.mat-datepicker-content .mat-calendar
+{ 
+     zoom: 0.50;
+}

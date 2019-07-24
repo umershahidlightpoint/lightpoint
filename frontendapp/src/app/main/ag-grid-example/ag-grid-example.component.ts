@@ -18,18 +18,26 @@ export class AgGridExampleComponent implements OnInit {
   constructor(injector: Injector,
     private _fundsService: FinancePocServiceProxy) {
     (injector);
+    this.sideBar = true;
     this.gridOptions = <GridOptions>{
       rowData: null,
-      columnDefs: this.columnDefs,
+      //columnDefs: this.columnDefs,
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       onGridReady: () => { this.gridOptions.api.sizeColumnsToFit(); },
-      onFirstDataRendered: (params) => { params.api.sizeColumnsToFit(); },
+      onFirstDataRendered: (params) => {params.api.sizeColumnsToFit();},
       enableFilter: true,
       animateRows: true,
-      alignedGrids: [],
+      alignedGrids: [], 
       suppressHorizontalScroll: true
-    };
+                         };
+                        
+                         this.gridOptions.defaultColDef = {
+                          sortable: true,
+                          resizable: true,
+                          filter: true
+                        };
+                       
     //this.selected = {startDate: moment().subtract(6, 'days'), endDate: moment().subtract(1, 'days')};
 
   };
@@ -56,8 +64,13 @@ export class AgGridExampleComponent implements OnInit {
   private defaultColDef;
   private rowData: [];
   private selectedValue;
-
   totalRecords: number;
+  rowGroupPanelShow: any ; 
+  sideBar:any;
+  pivotPanelShow:any;
+  pivotColumnGroupTotals: any ; 
+  pivotRowTotals : any ; 
+  DateRangeLable: any;
   //topOptions = {alignedGrids: [], suppressHorizontalScroll: true};
 
   bottomOptions = { alignedGrids: [] };
@@ -71,7 +84,7 @@ export class AgGridExampleComponent implements OnInit {
   @ViewChild('dateRangPicker') dateRangPicker;
   @ViewChild('greetCell') greetCell: TemplateRef<any>;
   @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
-
+  columnDefs :any;
   totalCredit: number;
   totalDebit: number;
   bottomData: any;
@@ -99,56 +112,145 @@ export class AgGridExampleComponent implements OnInit {
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 235px)',
+    height: 'calc(100vh - 245px)',
     boxSizing: 'border-box'
   };
 
 
-  columnDefs = [
-
-    { field: 'source', headerName: 'Source', sortable: true, filter: true },
-    {
-      field: 'fund', headerName: 'Fund', sortable: true, filter: 'agStringColumnFilter', filterParams: {
-        comparator: function (filterFund, cellValue) {
-          var fundAsString = cellValue;
-
-          if (filterFund === fundAsString) {
-            return 0
-          }
-        }
-      }
+  ngAfterViewInit()
+  {
+     
+    this.gridOptions.api.setColumnDefs( [
+        
+        
+      { field: 'source', headerName: 'Source',   colId: 'greet',  sortable: true ,
+      cellRendererFramework: TemplateRendererComponent, cellRendererParams: {
+        ngTemplate: this.greetCell  }
     },
-    { field: 'AccountType', headerName: 'Account Type', sortable: true, filter: true },
-    { field: 'accountName', headerName: 'Account Name', sortable: true, filter: true },
-    {
-      field: 'when', headerName: 'when', sortable: true,
-      filter: 'agDateColumnFilter', filterParams: {
-        comparator: function (filterLocalDateAtMidnight, cellValue) {
-          var dateAsString = cellValue;
-          var dateParts = dateAsString.split("/");
-          var cellDate = new Date(Number(dateParts[2]), Number(dateParts[1]) - 1, Number(dateParts[0]));
-
-          if (filterLocalDateAtMidnight.getTime() == cellDate.getTime()) {
-            return 0
-          }
-
-          if (cellDate < filterLocalDateAtMidnight) {
-            return -1;
-          }
-
-          if (cellDate > filterLocalDateAtMidnight) {
-            return 1;
-          }
+      { field: 'AccountType', headerName: 'Account Type',sortable: true, enableRowGroup: true, 
+      enablePivot: true,filter: true },
+      { field: 'accountName', headerName: 'Account Name',sortable: true,  enableRowGroup: true,
+       filter: true  },
+      { field: 'when', headerName: 'when' ,sortable: true,      enableRowGroup: true,
+      enablePivot: true,  
+      filter:'agDateColumnFilter', filterParams:{
+        comparator:function (filterLocalDateAtMidnight, cellValue){
+            var dateAsString = cellValue;
+            var dateParts  = dateAsString.split("/");
+            var cellDate = new Date(Number(dateParts[2]), Number(dateParts[1]) - 1, Number(dateParts[0]));
+             
+            if (filterLocalDateAtMidnight.getTime() == cellDate.getTime()) {
+                return 0
+            }
+  
+            if (cellDate < filterLocalDateAtMidnight) {
+                return -1;
+            }
+  
+            if (cellDate > filterLocalDateAtMidnight) {
+                return 1;
+            }
         }
-      }
-    },
+    }},
+    
+    
+     
+      { field: 'debit',aggFunc: "sum", headerName: 'Debit' , valueFormatter: currencyFormatter, cellStyle: {'text-align': 'right' } ,cellClass: "number-cell" } ,
+      { field: 'credit',aggFunc: "sum", headerName: 'Credit',  valueFormatter: currencyFormatter,cellStyle: {'text-align': 'right' }, cellClass: "number-cell"} 
+  
+         
+    ]);
+    
+    this.columnDefs =(
+      [
+        { field: 'source', headerName: 'Source'  },
+     
+        { field: 'AccountType', headerName: 'Account Type' },
+        { field: 'accountName', headerName: 'Account Name' },
+        { field: 'when', headerName: 'when' ,sortable: true },
+       
+        { field: 'debit', headerName: 'Debit' , valueFormatter: currencyFormatter, cellStyle: {'text-align': 'right' } ,cellClass: "number-cell" } ,
+        { field: 'credit', headerName: 'Credit',  valueFormatter: currencyFormatter,cellStyle: {'text-align': 'right' }, cellClass: "number-cell"} 
+    
+           
+      ]
+    
+    );
+  
+    this.rowGroupPanelShow ="always";
+    
+      this.pivotPanelShow = "always";
+      this.pivotColumnGroupTotals = "after";
+      this.pivotRowTotals = "before";
+    //align scroll of grid and footer grid
+    this.gridOptions.alignedGrids.push(this.bottomOptions);
+    this.bottomOptions.alignedGrids.push(this.gridOptions);
+  
+   this.symbal= "ALL";
+    
+   
+   this.page=0;
+   this.pageSize=0;
+   this.accountSearch.id=0;
+   this.valueFilter=0;
+   this.sortColum="";
+   this.sortDirection="";
+   this._fundsService.getFunds().subscribe ( result => {
+   
+    this.funds = result.payload.map( item => ({
+      FundCode:item.FundCode,
+    }));
+  });
+   this._fundsService.getJournals(this.symbal,this.page, this.pageSize , this.accountSearch.id,
+   this.valueFilter,this.sortColum,this.sortDirection ).subscribe(result => {
+    this.totalRecords = result.meta.total;//result.meta.total;
+    this.totalCredit= result.stats.totalCredit;
+    this.totalDebit= result.stats.totalDebit;
+  
+     this.rowData = [];
+      
+     this.rowData = result.data.map(item => ({
+       id: item.id,
+       source:item.source,
+       AccountType:item.AccountType,
+       accountName: item.accountName ,
+       accountId: item.account_id,
+       debit:  item.debit   ,
+       credit:   item.credit,
+       //when: moment(item.when).format('MMM-DD-YYYY hh:mm:ss A Z')
+      //when: moment(item.when).format("MMM-DD-YYYY"),
+      when: moment(item.when).format("MM-DD-YYYY")
+        
+     })); 
+       
+      this.bottomData = [
+        {
+          source: 'Total Records:' + this.totalRecords,
+          AccountType: '',
+          accountName: '',
+            when: '',
+            debit: this.totalCredit ,
+            credit:this.totalDebit ,
+        }
+      ];
+  });  
+   
+   
+  }
+  public getRangeLable() {
+    debugger;
+    this.DateRangeLable = '';
 
-    { field: 'debit', headerName: 'Debit', valueFormatter: currencyFormatter, cellStyle: { 'text-align': 'right' }, cellClass: "number-cell" },
-    { field: 'credit', headerName: 'Credit', valueFormatter: currencyFormatter, cellStyle: { 'text-align': 'right' }, cellClass: "number-cell" }
-  ];
+    if (moment("01-01-1901", "MM-DD-YYYY").diff(this.startDate, 'days') == 0 && moment().diff(this.endDate, 'days') == 0)
+      this.DateRangeLable = 'ITB';
+
+    if (moment().startOf('year').diff(this.startDate, 'days') == 0 && moment().diff(this.endDate, 'days') == 0)
+      this.DateRangeLable = 'YTB';
+    if (moment().startOf('month').diff(this.startDate, 'days') == 0 && moment().diff(this.endDate, 'days') == 0)
+      this.DateRangeLable = 'MTB';
 
 
-
+  }
   setWidthAndHeight(width, height) {
     this.style = {
       marginTop: '20px',
@@ -161,68 +263,17 @@ export class AgGridExampleComponent implements OnInit {
     params.api.sizeColumnsToFit();
   }
 
-  ngOnInit() {
-    this.defaultColDef = {
-      sortable: true,
-      resizable: true
+  onBtExport() {
+     
+    var params = {
+      fileName: "Test File",
+      sheetName: "First Sheet" 
+      
     };
-    //align scroll of grid and footer grid
-    this.gridOptions.alignedGrids.push(this.bottomOptions);
-    this.bottomOptions.alignedGrids.push(this.gridOptions);
-
-    this.symbal = "ALL";
-
-
-    this.page = 0;
-    this.pageSize = 0;
-    this.accountSearch.id = 0;
-    this.valueFilter = 0;
-    this.sortColum = "";
-    this.sortDirection = "";
-    this._fundsService.getFunds().subscribe(result => {
-
-      this.funds = result.payload.map(item => ({
-        FundCode: item.FundCode,
-      }));
-    });
-    this._fundsService.getJournals(this.symbal, this.page, this.pageSize, this.accountSearch.id,
-      this.valueFilter, this.sortColum, this.sortDirection).subscribe(result => {
-        this.totalRecords = result.meta.total;//result.meta.total;
-        this.totalCredit = result.stats.totalCredit;
-        this.totalDebit = result.stats.totalDebit;
-
-        this.rowData = [];
-
-        this.rowData = result.data.map(item => ({
-          id: item.id,
-          source: item.source,
-          fund: item.fund,
-          AccountType: item.AccountType,
-          accountName: item.accountName,
-          accountId: item.account_id,
-          debit: item.debit,
-          credit: item.credit,
-          //when: moment(item.when).format('MMM-DD-YYYY hh:mm:ss A Z')
-          //when: moment(item.when).format("MMM-DD-YYYY"),
-          when: moment(item.when).format("MM-DD-YYYY")
-
-        }));
-
-        this.bottomData = [
-          {
-            source: 'Total Records:' + this.totalRecords,
-            fund: '',
-            AccountType: '',
-            accountName: '',
-            when: '',
-            debit: this.totalCredit,
-            credit: this.totalDebit,
-          }
-        ];
-      });
-
-
+    this.gridOptions.api.exportDataAsExcel(params);
   }
+ngOnInit() {  
+}
 
 
   /*onGridReady(params) {
@@ -241,6 +292,7 @@ export class AgGridExampleComponent implements OnInit {
     this.startDate = e.startDate;
     this.endDate = e.endDate
     this.topGrid.api.onFilterChanged();
+    this.getRangeLable();
   }
 
   public ngModelChangeFund(e) {
@@ -267,17 +319,19 @@ export class AgGridExampleComponent implements OnInit {
   public clearFilters() {
     debugger;
 
-    this.startDate = null;
-    this.fund = null;
+    this.gridOptions.api.redrawRows();
+    this.DateRangeLable = "";
+    this.selected = null;
+    this.startDate.value = '';
     this.endDate = null;
 
-    //  this.dateRangPicker.
     this.topGrid.api.setFilterModel(null);
     this.topGrid.api.onFilterChanged();
     this.startDate = null;
-    //this.dateRangPicker.value = '';
-    //this.selected=[];
-    //this.selected = {startDate:null, endDate: null};
+    this.dateRangPicker.value = '';
+
+    this.startDate = "";
+    this.endDate = "";
   }
 
   greet(row: any) {

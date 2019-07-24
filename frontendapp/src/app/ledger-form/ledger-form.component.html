@@ -5,14 +5,18 @@
           <i class="fa fa-plus"></i> Add Account
       </button>
   </div>
+ 
 </div>
 <!----- Navbar end ----->
 <hr/>
-
+ 
 <p-tabView [ngStyle]="style">
+    
     <p-tabPanel header="Accounts" [ngStyle]="style">  
+       
       <!----- Div To Measure Identifier starts ----->
       <div #divToMeasure>
+          <label  style="width: 100% ;text-align: right;  " > <button (click)="onBtExport()">Export to Excel</button> </label>
         <!----- Style For Height ----->
         <div [ngStyle]="styleForHight"> 
           <!----- Ag Grid Start ----->

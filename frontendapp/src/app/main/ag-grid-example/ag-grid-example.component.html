@@ -1,8 +1,8 @@
-<p-tabView [ngStyle]="style">
+ <p-tabView [ngStyle]="style">
   <p-tabPanel header="Journal" [ngStyle]="style">
     <div class="row">
-      <div class="col-3">
-        <select class="form-control" (ngModelChange)="ngModelChangeFund($event)" [ngModel]="selectedFund">
+      <div class="col-md-2">
+        <select class="form-control"   [ngModel]="selectedFund">
           <option [ngValue]="null" disabled>All Funds</option>
           <option *ngFor="let fund of funds" [ngValue]="fund.FundCode">
             {{ fund.FundCode }}
@@ -10,31 +10,41 @@
         </select>
 
       </div>
-
-      <div class="col-6">
+      <label class="col-md-1 " style="text-align: right"> {{DateRangeLable}} </label>
+      <div class="col-md-6">
+          <form>
         <input type="text" autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
           [showCustomRangeLabel]="true" #dateRangPicker name="selectedDaterange" [showClearButton]="true"
           placeholder="Choose date" [alwaysShowCalendars]="true" (ngModelChange)="ngModelChange($event)"
-          class="form-control" />
+          class="form-control" /></form>
       </div>
 
-      <div class="col-2">
+      <div class="col-1">
         <button (click)="clearFilters( )" class="btn btn-info" type="button">Clear</button>
       </div>
-
+      <div class="col-2">
+       <button (click)="onBtExport()" class="btn btn-info">Export to Excel</button>  
     </div>
-
+  </div>
 
     <div style="clear: both"></div>
     <div #divToMeasure>
       <div [ngStyle]="styleForHight">
-        <ag-grid-angular style="width: 100%; height: 100%" class="ag-theme-balham" [gridOptions]="gridOptions" #topGrid
+        <ag-grid-angular style="width: 100%; height: 100%" class="ag-theme-balham" 
+        [gridOptions]="gridOptions" #topGrid
+        [rowGroupPanelShow]="rowGroupPanelShow"
+        [pivotPanelShow]="pivotPanelShow"
+        [pivotColumnGroupTotals]="pivotColumnGroupTotals"
+        [pivotRowTotals]="pivotRowTotals"
+        [sideBar]="sideBar"
           [rowData]="rowData">
         </ag-grid-angular>
-
+ 
         <ag-grid-angular style="width: 100%; height: 50px" #bottomGrid class="ag-theme-balham" [rowData]="bottomData"
           [gridOptions]="bottomOptions" headerHeight="0" [rowStyle]="{ fontWeight: 'bold' }" [columnDefs]="columnDefs"
-          (firstDataRendered)="onFirstDataRendered($event)">
+          (firstDataRendered)="onFirstDataRendered($event)"
+         
+          >
         </ag-grid-angular>
 
 
@@ -49,5 +59,6 @@
 
 
 <ng-template #greetCell let-row>
-  <button (click)="greet(row)">row.source</button>
+   
+  <div (click)="greet(row)" style="cursor: pointer"> {{row.source}} </div>
 </ng-template>

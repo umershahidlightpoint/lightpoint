@@ -109,4 +109,17 @@ export class LedgerFormComponent implements OnInit {
   onFirstDataRendered(params) {
     params.api.sizeColumnsToFit();
   }
+
+  onBtExport() {
+     
+    var params = {
+      fileName: "Test File",
+      sheetName: "First Sheet",
+      columnKeys: ['Name','Description','Category','has_journal']
+    };
+    this.gridOptions.api.exportDataAsExcel(params);
+  }
+
+  
+
 }
