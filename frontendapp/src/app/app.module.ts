@@ -49,6 +49,7 @@ import { AgGridExampleComponent } from './main/ag-grid-example/ag-grid-example.c
 import { LogsComponent } from './main/logs/logs.component';
 import { FinanceGridComponent } from './finance-grid/finance-grid.component';
 import { RunLogsComponent } from './runlogs/runlogs.component';
+import { ReportsComponent } from './reports/reports.component';
 import { LedgerFormComponent } from './ledger-form/ledger-form.component'; 
 import { CreateAccountComponent } from './ledger-form/create-account/create-account.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -68,7 +69,8 @@ import { ToastrModule } from 'ngx-toastr';
     FinanceGridComponent,
     LedgerFormComponent,
     CreateAccountComponent,
-    RunLogsComponent
+    RunLogsComponent,
+    ReportsComponent
   ],
   imports: [
     BrowserModule,
