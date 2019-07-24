@@ -13,7 +13,7 @@ namespace LP.Finance.WebProxy.WebAPI
     {
         // Mock Service
         //private IJournalController controller = new JournalControllerStub();
-        private readonly IAccountControllerService controller = new AccountControllerService();
+        private readonly IAccountControllerService controller = new AccountService();
 
         public AccountController()
         {
@@ -28,7 +28,7 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [Route("")]
         [HttpGet]
-        public object GetAccounts(int pageNumber = 1, int pageSize = 40, string accountName = "",
+        public object GetAccounts(int pageNumber = 1, int pageSize = 1000, string accountName = "",
             string accountCategory = "")
         {
             return controller.GetAccounts(pageNumber, pageSize, accountName, accountCategory);

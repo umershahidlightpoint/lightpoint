@@ -12,7 +12,7 @@ using SqlDAL.Core;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
-    class AccountControllerService : IAccountControllerService
+    class AccountService : IAccountControllerService
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
@@ -36,6 +36,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object GetAccounts(int pageNumber, int pageSize, string accountName, string accountCategory)
         {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
             List<SqlParameter> sqlParameters = new List<SqlParameter>
             {
                 new SqlParameter("pageNumber", pageNumber), new SqlParameter("pageSize", pageSize),
@@ -43,16 +44,19 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             };
 
             var query = $@"SELECT total = COUNT(*) OVER()
-                        ,[account].[id]
+                        ,[account].[id] AS 'account_id'
                         ,[account].[name]
 	                    ,[account].[description]
                         ,[account_category].[id] AS 'category_id'
 	                    ,[account_category].[name] AS 'category' 
+                        ,[account_tag].[tag_id]
+						,[account_tag].[tag_value]
 	                    ,CASE WHEN EXISTS (SELECT [journal].[id] FROM [journal] WHERE [journal].[account_id] = [account].[id])
 	                    THEN 'Yes' 
 	                    ELSE 'No'
 	                    END AS 'has_journal'
-                        FROM [account] JOIN [account_category] ON [account].[account_category_id] = [account_category].[id]";
+                        FROM [account] JOIN [account_category] ON [account].[account_category_id] = [account_category].[id]
+                        JOIN [account_tag] ON [account].[id] = [account_tag].[account_id]";
 
             query += accountName.Length > 0 ? " WHERE [account].[name] LIKE '%'+@accountName+'%'" : "";
 
@@ -63,10 +67,42 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             query +=
                 " ORDER BY [account].[id] DESC OFFSET(@pageNumber - 1) * @pageSize ROWS FETCH NEXT @pageSize ROWS ONLY";
 
-            return Utils.RunQuery(connectionString, query, sqlParameters.ToArray());
+            List<AccountOutputDto> accounts = new List<AccountOutputDto>();
+            using (var reader =
+                sqlHelper.GetDataReader(query, CommandType.Text, sqlParameters.ToArray(), out var sqlConnection))
+            {
+                while (reader.Read())
+                {
+                    accounts.Add(new AccountOutputDto
+                    {
+                        AccountId = (int) reader["account_id"],
+                        AccountName = reader["name"].ToString(),
+                        Description = reader["description"].ToString(),
+                        CategoryId = (int) reader["category_id"],
+                        Category = reader["category"].ToString(),
+                        HasJournal = reader["has_journal"].ToString(),
+                        Tags = new List<TagDto>
+                            {new TagDto {Id = (int) reader["tag_id"], Value = reader["tag_value"].ToString()}}
+                    });
+                }
+            }
+
+            var result = accounts.GroupBy(account => account.AccountId)
+                .Select(group => new AccountOutputDto
+                {
+                    AccountId = group.Key,
+                    AccountName = group.FirstOrDefault()?.AccountName,
+                    Description = group.FirstOrDefault()?.Description,
+                    CategoryId = group.FirstOrDefault().CategoryId,
+                    Category = group.FirstOrDefault()?.Category,
+                    HasJournal = group.FirstOrDefault()?.HasJournal,
+                    Tags = group.SelectMany(tag => tag.Tags).ToList()
+                })
+                .ToList();
+
+            return Utils.Wrap(true, result, 0);
         }
 
-        // Still Work is in Progress
         public object CreateAccount(AccountDto account)
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);
@@ -87,18 +123,27 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         ,@description
                         ,@category)
                         SELECT SCOPE_IDENTITY() AS 'Identity'";
-            int accountId = 0;
-            sqlHelper.Insert(accountQuery, CommandType.Text, accountParameters.ToArray(), out accountId);
+            sqlHelper.Insert(accountQuery, CommandType.Text, accountParameters.ToArray(), out int accountId);
 
-            foreach (var accountTag in account.Tags)
+            if (accountId == 0)
             {
-                List<SqlParameter> tagParameters = new List<SqlParameter>
-                {
-                    new SqlParameter("accountId", accountId), new SqlParameter("tagId", accountTag.Id),
-                    new SqlParameter("tagValue", accountTag.Value)
-                };
+                return Utils.Wrap(false);
+            }
 
-                var tagQuery = $@"INSERT INTO [account_tag]
+            try
+            {
+                sqlHelper.CreateConnection();
+                sqlHelper.OpenConnection();
+                sqlHelper.SqlBeginTransaction();
+                foreach (var accountTag in account.Tags)
+                {
+                    List<SqlParameter> tagParameters = new List<SqlParameter>
+                    {
+                        new SqlParameter("accountId", accountId), new SqlParameter("tagId", accountTag.Id),
+                        new SqlParameter("tagValue", accountTag.Value)
+                    };
+
+                    var tagQuery = $@"INSERT INTO [account_tag]
                                 ([account_id]
                                 ,[tag_id]
                                 ,[tag_value])
@@ -107,7 +152,18 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                 ,@tagId
                                 ,@tagValue)";
 
-                sqlHelper.Insert(tagQuery, CommandType.Text, tagParameters.ToArray());
+                    sqlHelper.InsertWithTransaction(tagQuery, CommandType.Text, tagParameters.ToArray());
+                }
+
+                sqlHelper.SqlCommitTransaction();
+                sqlHelper.CloseConnection();
+            }
+            catch (Exception ex)
+            {
+                sqlHelper.SqlRollbackTransaction();
+                sqlHelper.CloseConnection();
+                Console.WriteLine($"SQL Rollback Transaction Exception: {ex}");
+                return Utils.Wrap(false);
             }
 
             return Utils.Wrap(true);
@@ -129,24 +185,60 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object DeleteAccount(int id)
         {
-            List<SqlParameter> sqlParameters = new List<SqlParameter>
-            {
-                new SqlParameter("id", id)
-            };
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
 
-            if (AccountHasJournal(id))
+            if (CanBeDeleted(id))
             {
                 return Utils.Wrap(false, "An Account having Journal cannot be Deleted");
             }
 
-            var query = $@"DELETE FROM [dbo].[account]
+            try
+            {
+                sqlHelper.CreateConnection();
+                sqlHelper.OpenConnection();
+                sqlHelper.SqlBeginTransaction();
+
+                List<SqlParameter> tagParameters = new List<SqlParameter>
+                {
+                    new SqlParameter("id", id)
+                };
+
+                List<SqlParameter> accountParameters = new List<SqlParameter>
+                {
+                    new SqlParameter("id", id)
+                };
+
+                var tagQuery = $@"DELETE FROM [dbo].[account_tag]
+                                WHERE [account_tag].[account_id] = @id";
+
+                var accountQuery = $@"DELETE FROM [dbo].[account]
                         WHERE [id] = @id";
 
-            return Utils.RunQuery(connectionString, query, sqlParameters.ToArray());
+                sqlHelper.DeleteWithTransaction(tagQuery, CommandType.Text, tagParameters.ToArray());
+                sqlHelper.DeleteWithTransaction(accountQuery, CommandType.Text, accountParameters.ToArray());
+
+                sqlHelper.SqlCommitTransaction();
+                sqlHelper.CloseConnection();
+            }
+            catch (Exception ex)
+            {
+                sqlHelper.SqlRollbackTransaction();
+                sqlHelper.CloseConnection();
+                Console.WriteLine($"SQL Rollback Transaction Exception: {ex}");
+                return Utils.Wrap(false);
+            }
+
+            return Utils.Wrap(true);
+        }
+
+        private bool CanBeDeleted(int id)
+        {
+            return AccountHasJournal(id);
         }
 
         private bool AccountHasJournal(int id)
         {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
             List<SqlParameter> sqlParameters = new List<SqlParameter>
             {
                 new SqlParameter("id", id)
@@ -154,18 +246,16 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             var query = $@"SELECT 
                         CASE WHEN EXISTS 
-                        (SELECT [journal].[id] FROM [journal] WHERE [journal].[account_id] = [account].[id])
+                        (SELECT TOP 1 [journal].[id] FROM [journal] WHERE [journal].[account_id] = [account].[id])
 	                    THEN 'true'
                         ELSE 'false'
 	                    END AS 'has_journal'
                         FROM [account] JOIN [account_category] ON [account].[account_category_id] = [account_category].[id]
 	                    WHERE [account].[id] = @id";
 
-            var result = Utils.RunQuery(connectionString, query, sqlParameters.ToArray());
-            dynamic hasJournal = result?.GetType().GetProperty("payload")?.GetValue(result, null);
+            var hasJournal = sqlHelper.GetScalarValue(query, CommandType.Text, sqlParameters.ToArray());
 
-
-            return hasJournal == null || (bool) hasJournal[0].has_journal;
+            return Convert.ToBoolean(hasJournal);
         }
 
         private object AllData()

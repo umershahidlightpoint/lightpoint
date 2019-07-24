@@ -15,15 +15,47 @@ namespace SqlDAL.Core
     public class SqlHelper
     {
         private string ConnectionString { get; set; }
+        private SqlConnection SqlConnection { get; set; }
+        private SqlTransaction SqlTransaction { get; set; }
 
         public SqlHelper(string connectionString)
         {
             ConnectionString = connectionString;
         }
 
-        public void CloseConnection(SqlConnection connection)
+        public void CreateConnection()
         {
-            connection.Close();
+            SqlConnection = new SqlConnection(ConnectionString);
+        }
+
+        public void OpenConnection()
+        {
+            SqlConnection.Open();
+        }
+
+        public void VerifyConnection()
+        {
+            if (SqlConnection == null) CreateConnection();
+        }
+
+        public void SqlBeginTransaction()
+        {
+            SqlTransaction = SqlConnection.BeginTransaction();
+        }
+
+        public void SqlCommitTransaction()
+        {
+            SqlTransaction.Commit();
+        }
+
+        public void SqlRollbackTransaction()
+        {
+            SqlTransaction.Rollback();
+        }
+
+        public void CloseConnection()
+        {
+            SqlConnection.Close();
         }
 
         public SqlParameter CreateParameter(string name, object value, DbType dbType)
@@ -145,6 +177,23 @@ namespace SqlDAL.Core
             }
         }
 
+        public void DeleteWithTransaction(string commandText, CommandType commandType, SqlParameter[] parameters = null)
+        {
+            using (var command = new SqlCommand(commandText, SqlConnection, SqlTransaction))
+            {
+                command.CommandType = commandType;
+                if (parameters != null)
+                {
+                    foreach (var parameter in parameters)
+                    {
+                        command.Parameters.Add(parameter);
+                    }
+                }
+
+                command.ExecuteNonQuery();
+            }
+        }
+
         public void Insert(string commandText, CommandType commandType, SqlParameter[] parameters)
         {
             using (var connection = new SqlConnection(ConnectionString))
@@ -219,36 +268,24 @@ namespace SqlDAL.Core
 
         public void InsertWithTransaction(string commandText, CommandType commandType, SqlParameter[] parameters)
         {
-            SqlTransaction transactionScope = null;
-            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(commandText, SqlConnection, SqlTransaction))
             {
-                connection.Open();
-                transactionScope = connection.BeginTransaction();
-
-                using (var command = new SqlCommand(commandText, connection))
+                command.CommandType = commandType;
+                if (parameters != null)
                 {
-                    command.CommandType = commandType;
-                    if (parameters != null)
+                    foreach (var parameter in parameters)
                     {
-                        foreach (var parameter in parameters)
-                        {
-                            command.Parameters.Add(parameter);
-                        }
+                        command.Parameters.Add(parameter);
                     }
+                }
 
-                    try
-                    {
-                        command.ExecuteNonQuery();
-                        transactionScope.Commit();
-                    }
-                    catch (Exception)
-                    {
-                        transactionScope.Rollback();
-                    }
-                    finally
-                    {
-                        connection.Close();
-                    }
+                try
+                {
+                    command.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Insert with Transaction Exception: {ex}");
                 }
             }
         }

@@ -5,6 +5,7 @@ import { FinancePocServiceProxy } from '../../shared/service-proxies/service-pro
 import { GridOptions } from "ag-grid-community";
 import { TemplateRendererComponent } from '../template-renderer/template-renderer.component'
 import { ToastrService } from 'ngx-toastr';
+import { max } from 'moment';
 
 @Component({
   selector: 'app-ledger-form',
@@ -32,7 +33,7 @@ export class LedgerFormComponent implements OnInit {
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height:'calc(100vh - 235px)',
+    height:'calc(100vh - 260px)',
     boxSizing: 'border-box'
   };
 
@@ -48,10 +49,13 @@ export class LedgerFormComponent implements OnInit {
     this.gridOptions.api.setColumnDefs([
       {headerName: 'Id', field: 'Id', hide: true },
       {headerName: 'Name', field: 'Name', sortable: true, filter: true },
-      {headerName: 'Description_Id', field: 'Description_Id', hide: true, sortable: true, filter: true },
+      {headerName: 'Description_Id', field: 'Description_Id', hide: true },
       {headerName: 'Description', field: 'Description', sortable: true, filter: true },
-      {headerName: 'Category', field: 'Category', sortable: true, filter: true},
-      {headerName: 'Has Journal', field: 'has_journal', sortable: true, filter: true},
+      {headerName: 'Category', field: 'Category', sortable: true, filter: true },
+      {headerName: 'Category Id', field: 'Category_Id', hide: true },
+      {headerName: 'Category', field: 'Category', hide: true },
+      {headerName: 'Has Journal', field: 'has_journal', sortable: true, filter: true },
+      {headerName: 'Tags', field: 'Tags', hide: true },
       {
         headerName: "Actions",
         cellRendererFramework: TemplateRendererComponent,
@@ -70,13 +74,15 @@ export class LedgerFormComponent implements OnInit {
     setTimeout(()=> {
       this.data = this.financePocServiceProxy.getAllAccounts().subscribe(result => {
         this.data =  result.payload;
+        //console.log('API result ==>',this.data)
         this.rowData = this.data.map(result => ({
-          Id: result.id,
-          Name: result.name,
-          Description: result.description,
-          Category: result.category,
-          Category_Id: result.category_id,
-          has_journal: result.has_journal
+          Id: result.AccountId,
+          Name: result.AccountName,
+          Description: result.Description,
+          Category: result.Category,
+          Category_Id: result.CategoryId,
+          has_journal: result.HasJournal,
+          Tags: result.Tags
         }))
         this.gridOptions.api.setRowData(this.rowData);
       })
