@@ -12,9 +12,7 @@ namespace LP.Finance.Common.Models
         public static readonly int AC_REVENUES = 4;
         public static readonly int AC_EXPENCES = 5;
 
-        private static AccountCategory[] _categories;
-        private static Tag[] _tags;
-        public static AccountCategory[] Categories { get { return _categories; } }
+        public static AccountCategory[] Categories { get; private set; }
         public int Id { get; set; }
         public string Name { get; set; }
 
@@ -33,9 +31,9 @@ namespace LP.Finance.Common.Models
             }
             reader.Close();
 
-            _categories = list.ToArray();
+            Categories = list.ToArray();
 
-            return _categories;
+            return Categories;
         }
 
         public KeyValuePair<string, SqlParameter[]> Insert

@@ -19,12 +19,15 @@ namespace LP.Finance.Common.Models
         public double TradePrice { get; set; }
         public double NetPrice { get; set; }
         public double SettleNetPrice { get; set; }
-        //public double LocalNetNotional { get; set; }
+
+        public double NetMoney { get; set; }
+
         //public double ContractSize { get; set; }
 
         public string Symbol { get; set; }
         public string Side { get; set; }
         public double Quantity { get; set; }
+        public double LocalNetNotional { get; set; }
         public string SecurityType { get; set; }
 
         // Determines the Bank
@@ -37,7 +40,7 @@ namespace LP.Finance.Common.Models
         public string PortfolioCode { get; set; }
 
         public DateTime TradeDate { get; set; }
-        public DateTime SettlementDate { get; set; }
+        public DateTime SettleDate { get; set; }
 
         public double Commission { get; set; }
         public double Fees { get; set; }

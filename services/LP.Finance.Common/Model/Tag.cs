@@ -29,6 +29,7 @@ namespace LP.Finance.Common.Models
             reader.Close();
 
             _tags = list;
+            _tags.Add(new Tag { Id = -1, TypeName = "undefined", PkName = "undefined", PropertyName = "empty" });
 
             return _tags;
         }

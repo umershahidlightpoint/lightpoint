@@ -9,6 +9,7 @@ using System.Configuration;
 using System.Data;
 using System.Security.Principal;
 using System.Threading;
+using LP.Finance.Common;
 
 namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 {
@@ -16,17 +17,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
     {
         public object Data(string symbol)
         {
-            var content = "{}";
-
-            var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
-
-            var folder = currentDir + "MockData" + Path.DirectorySeparatorChar + "allocations.json";
-            if (File.Exists(folder))
-                content = File.ReadAllText(folder);
-
-            dynamic json = JsonConvert.DeserializeObject(content);
-
-            return json;
+            return Utils.GetFile("allocations");
         }
     }
 
@@ -48,6 +39,8 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
                     break;
             }
 
+            Utils.Save(result, "allocations");
+
             return result;
         }
 
@@ -63,7 +56,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             var startdate = date.ToString("MM-dd-yyyy") + " 09:00";
             var enddate = date.ToString("MM-dd-yyyy") + " 16:30";
 
-            var query = $@"select LpOrderId, Action, Symbol, Side, Quantity, SecurityType, CustodianCode, ExecutionBroker, TradeId, Fund, PMCode, PortfolioCode, TradePrice, TradeDate, SettleDate, Trader, Status, Commission, Fees, NetMoney, UpdatedOn from Allocation nolock
+            var query = $@"select LpOrderId, Action, Symbol, Side, Quantity, SecurityType, CustodianCode, ExecutionBroker, TradeId, Fund, PMCode, PortfolioCode, TradePrice, TradeDate, SettleDate, Trader, Status, Commission, Fees, NetMoney, UpdatedOn, COALESCE(LocalNetNotional,0) as LocalNetNotional from Allocation nolock
                 order by UpdatedOn desc";
 
             using (var con = new SqlConnection(connectionString))
@@ -129,7 +122,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
     /// </summary>
     public class AllocationController : ApiController, ITradeController
     {
-        private ITradeController controller = new AllocationControllerStub();
+        private ITradeController controller = new AllocationControllerService();
 
         public AllocationController()
         {
