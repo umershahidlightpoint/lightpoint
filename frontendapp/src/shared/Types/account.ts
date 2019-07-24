@@ -1,7 +1,12 @@
-export interface Account {
-  name: string;
+export interface CreateAccount {
   description: string;
   category: number;
+  tags: [
+    {
+      id: number,
+      value: string
+    }
+  ]
 }
 
 export interface EditAccount {

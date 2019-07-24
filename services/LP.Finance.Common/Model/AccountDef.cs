@@ -21,7 +21,7 @@ namespace LP.Finance.Common.Models
                 {
                     new AccountDef
                     {
-                        AccountCategory = 1, // Asset
+                        AccountCategory = LP.Finance.Common.Models.AccountCategory.AC_ASSET, // Asset
                         Tags = new Tag[]
                         {
                             Tag.Tags.Where(t=>t.PropertyName.Equals("SecurityType")).First(),
@@ -32,46 +32,42 @@ namespace LP.Finance.Common.Models
                     },
                     new AccountDef
                     {
-                        AccountCategory = 2, // Liability
+                        AccountCategory = LP.Finance.Common.Models.AccountCategory.AC_LIABILITY, // Liability
                         Tags = new Tag[]
                         {
                             Tag.Tags.Where(t=>t.PropertyName.Equals("SecurityType")).First(),
                             Tag.Tags.Where(t=>t.PropertyName.Equals("CustodianCode")).First(),
                             Tag.Tags.Where(t=>t.PropertyName.Equals("ExecutionBroker")).First(),
-                            Tag.Tags.Where(t=>t.PropertyName.Equals("Fund")).First(),
                         }
                     },
                     new AccountDef
                     {
-                        AccountCategory = 3, // Equity
+                        AccountCategory = LP.Finance.Common.Models.AccountCategory.AC_EQUITY, // Equity
                         Tags = new Tag[]
                         {
                             Tag.Tags.Where(t=>t.PropertyName.Equals("SecurityType")).First(),
                             Tag.Tags.Where(t=>t.PropertyName.Equals("CustodianCode")).First(),
                             Tag.Tags.Where(t=>t.PropertyName.Equals("ExecutionBroker")).First(),
-                            Tag.Tags.Where(t=>t.PropertyName.Equals("Fund")).First(),
                         }
                     },
                     new AccountDef
                     {
-                        AccountCategory = 4, // Revenues
+                        AccountCategory = LP.Finance.Common.Models.AccountCategory.AC_REVENUES, // Revenues
                         Tags = new Tag[]
                         {
                             Tag.Tags.Where(t=>t.PropertyName.Equals("SecurityType")).First(),
                             Tag.Tags.Where(t=>t.PropertyName.Equals("CustodianCode")).First(),
                             Tag.Tags.Where(t=>t.PropertyName.Equals("ExecutionBroker")).First(),
-                            Tag.Tags.Where(t=>t.PropertyName.Equals("Fund")).First(),
                         }
                     },
                     new AccountDef
                     {
-                        AccountCategory = 5, // Expences
+                        AccountCategory = LP.Finance.Common.Models.AccountCategory.AC_EXPENCES, // Expences
                         Tags = new Tag[]
                         {
                             Tag.Tags.Where(t=>t.PropertyName.Equals("SecurityType")).First(),
                             Tag.Tags.Where(t=>t.PropertyName.Equals("Symbol")).First(),
                             Tag.Tags.Where(t=>t.PropertyName.Equals("CustodianCode")).First(),
-                            Tag.Tags.Where(t=>t.PropertyName.Equals("Fund")).First(),
                         }
                     }
                 };

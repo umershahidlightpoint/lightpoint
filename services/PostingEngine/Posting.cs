@@ -1,21 +1,27 @@
 ﻿using ConsoleApp1;
 using LP.Finance.Common.Models;
 using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 
 namespace PostingEngine
 {
+    public class PostingEnvironment
+    {
+        public DateTime ValueDate { get; set; }
+    }
+
     class Posting
     {
-        private SqlConnection _connection;
-        private SqlTransaction _transaction;
+        private readonly SqlConnection _connection;
+        private readonly SqlTransaction _transaction;
 
         public Posting(SqlConnection connection, SqlTransaction transaction)
         {
-            this._connection = connection;
-            this._transaction = transaction;
+            _connection = connection;
+            _transaction = transaction;
         }
 
         public void SaveAccountDetails(Account account)
@@ -30,56 +36,134 @@ namespace PostingEngine
             }
         }
 
-        /// <summary>
-        /// Process the transaction recieved, it will generate two offesting journal entries.
-        /// </summary>
-        /// <param name="element"></param>
-        public void Process(Transaction element)
+        public void ProcessTradeEvent(PostingEnvironment env, Transaction element)
         {
-            // For each row in the database determine the account Id associated with that Transaction, this is going to be based on some rules
-            var existingJournals = GetJournals(element);
+            var accountToFrom = GetFromToAccount(element);
 
-            if (existingJournals.Count() > 0)
+            SaveAccountDetails(accountToFrom.From);
+            SaveAccountDetails(accountToFrom.To);
+
+            if (element.NetMoney != 0.0)
             {
-                // need to remove those entries
+                var debit = new Journal
+                {
+                    Source = element.LpOrderId,
+                    Account = accountToFrom.From,
+                    When = env.ValueDate,
+                    Value = element.NetMoney * -1,
+                    GeneratedBy = "system",
+                    Fund = element.Fund,
+                };
 
-                // And recreate them
+                debit.Save(_connection, _transaction);
+
+                var credit = new Journal
+                {
+                    Source = element.LpOrderId,
+                    Account = accountToFrom.To,
+                    When = env.ValueDate,
+                    Value = element.NetMoney,
+                    GeneratedBy = "system",
+                    Fund = element.Fund,
+                };
+                credit.Save(_connection, _transaction);
             }
-            else
+        }
+
+        public void ProcessSettlementEvent(PostingEnvironment env, Transaction element)
+        {
+            var accountToFrom = GetFromToAccount(element);
+
+            SaveAccountDetails(accountToFrom.From);
+            SaveAccountDetails(accountToFrom.To);
+
+            if (element.NetMoney != 0.0)
             {
-                var accountToFrom = GetFromToAccount(element);
-
-                SaveAccountDetails(accountToFrom.From);
-                SaveAccountDetails(accountToFrom.To);
-
-                if (element.Commission != 0.0)
+                var debit = new Journal
                 {
-                    var debit = new Journal
-                    {
-                        Source = element.LpOrderId,
-                        Account = accountToFrom.From,
-                        When = element.TradeDate,
-                        Value = element.Commission * -1,
-                        GeneratedBy = "system",
-                        Fund = element.Fund,
-                    };
+                    Source = element.LpOrderId,
+                    Account = accountToFrom.From,
+                    When = env.ValueDate,
+                    Value = element.NetMoney * -1,
+                    GeneratedBy = "system",
+                    Fund = element.Fund,
+                };
 
-                    debit.Save(_connection, _transaction);
+                debit.Save(_connection, _transaction);
 
-                    var credit = new Journal
-                    {
-                        Source = element.LpOrderId,
-                        Account = accountToFrom.To,
-                        When = element.TradeDate,
-                        Value = element.Commission,
-                        GeneratedBy = "system",
-                        Fund = element.Fund,
-                    };
-                    credit.Save(_connection, _transaction);
-                } else
+                var credit = new Journal
                 {
+                    Source = element.LpOrderId,
+                    Account = accountToFrom.To,
+                    When = env.ValueDate,
+                    Value = element.NetMoney,
+                    GeneratedBy = "system",
+                    Fund = element.Fund,
+                };
+                credit.Save(_connection, _transaction);
+            }
+        }
+        public void ProcessPnl(PostingEnvironment env, Transaction element)
+        {
+        }
 
+        public void ProcessLegacyJournalEvent(PostingEnvironment env, Transaction element)
+        {
+            var accountToFrom = GetFromToAccount(element);
+
+            SaveAccountDetails(accountToFrom.From);
+            SaveAccountDetails(accountToFrom.To);
+
+            var debit = new Journal
+            {
+                Source = element.LpOrderId,
+                Account = accountToFrom.From,
+                When = env.ValueDate,
+                Value = element.LocalNetNotional * -1,
+                GeneratedBy = "system",
+                Fund = element.Fund,
+            };
+            debit.Save(_connection, _transaction);
+
+            var credit = new Journal
+            {
+                Source = element.LpOrderId,
+                Account = accountToFrom.To,
+                When = env.ValueDate,
+                Value = element.LocalNetNotional,
+                GeneratedBy = "system",
+                Fund = element.Fund,
+            };
+            credit.Save(_connection, _transaction);
+        }
+
+        /// <summary>
+        /// Based on the environment we need to determine what to do.
+        /// </summary>
+        /// <param name="env"></param>
+        /// <param name="element"></param>
+        public void Process (PostingEnvironment env, Transaction element)
+        {
+            if ( env.ValueDate == element.TradeDate.Date)
+            {
+                if (element.SecurityType.Equals("Journals"))
+                {
+                    ProcessLegacyJournalEvent(env, element);
+                    return;
                 }
+                // Initial amount Cash and Asset
+                ProcessTradeEvent(env, element);
+            } else if ( env.ValueDate == element.SettleDate.Date)
+            {
+                ProcessSettlementEvent(env, element);
+                // We are settling so we need to do move from unrealized to realized
+            } else if ( env.ValueDate > element.TradeDate.Date && env.ValueDate < element.SettleDate.Date)
+            {
+                ProcessPnl(env, element);
+                // Determine change in the price and post a P&L
+            } else
+            {
+                //Console.WriteLine($"Trade ignored {element.TradeDate}");
             }
         }
 
@@ -87,6 +171,9 @@ namespace PostingEngine
         {
             return new Journal[] { };
         }
+
+        // Collect a list of accounts that are generated
+        private static readonly Dictionary<string, Account> accounts = new Dictionary<string, Account>();
 
         /// <summary>
         /// Create an account based on the Account Definition and the past Transaction 
@@ -113,11 +200,21 @@ namespace PostingEngine
 
             var name = String.Join("-", tags.Select(t => t.TagValue));
 
-            var assetAccount = new Account { Category = def.AccountCategory, Description = name, Name = name };
+            // Lets check to see if we have created this account already
+            if ( accounts.ContainsKey(name))
+            {
+                Console.WriteLine($"Using an existing account {name}");
 
-            assetAccount.Tags = tags;
+                return accounts[name];
+            }
 
-            return assetAccount;
+            var account = new Account { Category = def.AccountCategory, Description = name, Name = name };
+
+            account.Tags = tags;
+
+            accounts.Add(name, account);
+
+            return account;
         }
 
         private AccountToFrom GetFromToAccount(Transaction element)
@@ -126,7 +223,6 @@ namespace PostingEngine
             var accountDefs = AccountDef.Defaults;
 
             var assetAccount = CreateAccount(accountDefs.Where(i => i.AccountCategory == AccountCategory.AC_ASSET).First(), element);
-
 
             if (element.SecurityType.Equals("Journals"))
             {

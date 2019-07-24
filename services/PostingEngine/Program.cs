@@ -108,12 +108,46 @@ namespace ConsoleApp1
 
             var elements = JsonConvert.DeserializeObject<Transaction[]>(result);
 
-            foreach ( var element in elements )
+            var postingEnv = new PostingEnvironment() { ValueDate = DateTime.Now.Date };
+
+            var minTradeDate = elements.Min(i => i.TradeDate.Date);
+            var maxTradeDate = elements.Max(i => i.TradeDate.Date);
+
+            var maxSettleDate = elements.Max(i => i.SettleDate.Date);
+
+            var startDate = minTradeDate;
+            var endDate = DateTime.Now.Date;
+
+            var tradeData = elements.OrderBy(i => i.TradeDate.Date).ToList();
+
+            while ( startDate <= endDate )
+            {
+                Console.WriteLine($"Processing for ValueDate {startDate}");
+
+                postingEnv.ValueDate = startDate;
+
+                foreach (var element in tradeData)
+                {
+                    try
+                    {
+                        new Posting(connection, transaction).Process(postingEnv, element);
+                    }
+                    catch (Exception exe)
+                    {
+                        Error(exe, element);
+                    }
+                }
+
+                startDate = startDate.AddDays(1);
+            }
+
+            /// Need to get the Trades in order so that we can move forward in time
+            foreach ( var element in elements.OrderBy(i=>i.TradeDate.Date))
             {
                 try
                 {
                     //Console.WriteLine($"Processing {element.SecurityType} / {element.Symbol}");
-                    new Posting(connection, transaction).Process(element);
+                    new Posting(connection, transaction).Process(postingEnv, element);
                 } catch ( Exception exe )
                 {
                     // Capture the exception and keep going

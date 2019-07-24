@@ -30,8 +30,8 @@ namespace LP.Finance.WebProxy.WebAPI
 
     public class journalStats
     {
-        public int totalDebit { get; set; }
-        public int totalCredit { get; set; }
+        public double totalDebit { get; set; }
+        public double totalCredit { get; set; }
 
     }
 
@@ -145,8 +145,8 @@ namespace LP.Finance.WebProxy.WebAPI
             query = query + " ) as d";
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
             metaData.total = Convert.ToInt32(dataTable.Rows[0][0]);
-            journalStats.totalCredit = Convert.ToInt32(dataTable.Rows[0]["totalDebit"]);
-            journalStats.totalDebit = Convert.ToInt32(dataTable.Rows[0]["totalCredit"]);
+            journalStats.totalCredit = Convert.ToDouble(dataTable.Rows[0]["totalDebit"]);
+            journalStats.totalDebit = Convert.ToDouble(dataTable.Rows[0]["totalCredit"]);
             var jsonResult = JsonConvert.SerializeObject(dataTable);
              
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
