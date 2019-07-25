@@ -1,6 +1,5 @@
 ﻿using System.Web.Http;
 using LP.Finance.Common.Dtos;
-using LP.Finance.Common.Models;
 using LP.Finance.WebProxy.WebAPI.Services;
 
 namespace LP.Finance.WebProxy.WebAPI
@@ -43,13 +42,13 @@ namespace LP.Finance.WebProxy.WebAPI
                 : controller.CreateAccount(account);
         }
 
-        [Route("{name:int}")]
+        [Route("{id:int}")]
         [HttpPut]
-        public object UpdateAccount(int name, Account account)
+        public object UpdateAccount(int id, AccountDto account)
         {
             return !ModelState.IsValid || account == null
                 ? BadRequest(ModelState)
-                : controller.UpdateAccount(name, account);
+                : controller.UpdateAccount(id, account);
         }
 
         [Route("{id:int}")]

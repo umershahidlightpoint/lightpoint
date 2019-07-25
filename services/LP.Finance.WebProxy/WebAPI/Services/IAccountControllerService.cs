@@ -1,5 +1,4 @@
 ﻿using LP.Finance.Common.Dtos;
-using LP.Finance.Common.Models;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
@@ -11,7 +10,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         object CreateAccount(AccountDto account);
 
-        object UpdateAccount(int id, Account account);
+        object UpdateAccount(int id, AccountDto account);
 
         object DeleteAccount(int id);
     }
