@@ -144,7 +144,7 @@ export class LedgerComponent implements AppComponentBase, OnInit {
 
     console.log(`Page No is ${page}`)
     this._fundsService.getLedger(this.fundId, page, params).subscribe(result => {
-      this.totalRecords = result.meta.total;
+      this.totalRecords = result.meta.Total;
       this.itemPerPage = result.meta.limit;
       this.ledger = [];
       this.ledger = result.data.map(item => ({
