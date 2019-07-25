@@ -6,7 +6,7 @@ namespace SqlDAL.Core
 {
     public static class SQLConnectionHelper
     {
-        public static DataTable Table(this SqlConnection connection, string queryname)
+        public static DataTable Table(this SqlConnection connection, string queryName)
         {
             return null;
         }
@@ -36,6 +36,7 @@ namespace SqlDAL.Core
         public void VerifyConnection()
         {
             if (SqlConnection == null) CreateConnection();
+            if (SqlConnection.State == ConnectionState.Closed) OpenConnection();
         }
 
         public void SqlBeginTransaction()
@@ -98,11 +99,11 @@ namespace SqlDAL.Core
                         }
                     }
 
-                    var dataset = new DataSet();
-                    var dataAdaper = new SqlDataAdapter(command);
-                    dataAdaper.Fill(dataset);
+                    var dataSet = new DataSet();
+                    var dataAdapter = new SqlDataAdapter(command);
+                    dataAdapter.Fill(dataSet);
 
-                    return dataset.Tables[0];
+                    return dataSet.Tables[0];
                 }
             }
         }
@@ -124,11 +125,11 @@ namespace SqlDAL.Core
                         }
                     }
 
-                    var dataset = new DataSet();
-                    var dataAdaper = new SqlDataAdapter(command);
-                    dataAdaper.Fill(dataset);
+                    var dataSet = new DataSet();
+                    var dataAdapter = new SqlDataAdapter(command);
+                    dataAdapter.Fill(dataSet);
 
-                    return dataset;
+                    return dataSet;
                 }
             }
         }
@@ -157,28 +158,6 @@ namespace SqlDAL.Core
 
         public void Delete(string commandText, CommandType commandType, SqlParameter[] parameters = null)
         {
-            using (var connection = new SqlConnection(ConnectionString))
-            {
-                connection.Open();
-
-                using (var command = new SqlCommand(commandText, connection))
-                {
-                    command.CommandType = commandType;
-                    if (parameters != null)
-                    {
-                        foreach (var parameter in parameters)
-                        {
-                            command.Parameters.Add(parameter);
-                        }
-                    }
-
-                    command.ExecuteNonQuery();
-                }
-            }
-        }
-
-        public void DeleteWithTransaction(string commandText, CommandType commandType, SqlParameter[] parameters = null)
-        {
             using (var command = new SqlCommand(commandText, SqlConnection, SqlTransaction))
             {
                 command.CommandType = commandType;
@@ -190,28 +169,14 @@ namespace SqlDAL.Core
                     }
                 }
 
-                command.ExecuteNonQuery();
-            }
-        }
-
-        public void Insert(string commandText, CommandType commandType, SqlParameter[] parameters)
-        {
-            using (var connection = new SqlConnection(ConnectionString))
-            {
-                connection.Open();
-
-                using (var command = new SqlCommand(commandText, connection))
+                try
                 {
-                    command.CommandType = commandType;
-                    if (parameters != null)
-                    {
-                        foreach (var parameter in parameters)
-                        {
-                            command.Parameters.Add(parameter);
-                        }
-                    }
-
                     command.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Delete with Transaction Exception: {ex}");
+                    throw;
                 }
             }
         }
@@ -219,54 +184,58 @@ namespace SqlDAL.Core
         public void Insert(string commandText, CommandType commandType, SqlParameter[] parameters, out int lastId)
         {
             lastId = 0;
-            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(commandText, SqlConnection, SqlTransaction))
             {
-                connection.Open();
-
-                using (var command = new SqlCommand(commandText, connection))
+                command.CommandType = commandType;
+                if (parameters != null)
                 {
-                    command.CommandType = commandType;
-                    if (parameters != null)
+                    foreach (var parameter in parameters)
                     {
-                        foreach (var parameter in parameters)
-                        {
-                            command.Parameters.Add(parameter);
-                        }
+                        command.Parameters.Add(parameter);
                     }
+                }
 
+                try
+                {
                     object newId = command.ExecuteScalar();
                     lastId = Convert.ToInt32(newId);
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Insert with Transaction Exception: {ex}");
+                    throw;
+                }
             }
         }
 
-        public long Insert(string commandText, CommandType commandType, SqlParameter[] parameters, out long lastId)
+        public void Insert(string commandText, CommandType commandType, SqlParameter[] parameters, out long lastId)
         {
             lastId = 0;
-            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(commandText, SqlConnection, SqlTransaction))
             {
-                connection.Open();
-
-                using (var command = new SqlCommand(commandText, connection))
+                command.CommandType = commandType;
+                if (parameters != null)
                 {
-                    command.CommandType = commandType;
-                    if (parameters != null)
+                    foreach (var parameter in parameters)
                     {
-                        foreach (var parameter in parameters)
-                        {
-                            command.Parameters.Add(parameter);
-                        }
+                        command.Parameters.Add(parameter);
                     }
+                }
 
+                try
+                {
                     object newId = command.ExecuteScalar();
                     lastId = Convert.ToInt64(newId);
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Insert with Transaction Exception: {ex}");
+                    throw;
+                }
             }
-
-            return lastId;
         }
 
-        public void InsertWithTransaction(string commandText, CommandType commandType, SqlParameter[] parameters)
+        public void Insert(string commandText, CommandType commandType, SqlParameter[] parameters)
         {
             using (var command = new SqlCommand(commandText, SqlConnection, SqlTransaction))
             {
@@ -286,6 +255,7 @@ namespace SqlDAL.Core
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Insert with Transaction Exception: {ex}");
+                    throw;
                 }
             }
         }
@@ -329,58 +299,25 @@ namespace SqlDAL.Core
 
         public void Update(string commandText, CommandType commandType, SqlParameter[] parameters)
         {
-            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(commandText, SqlConnection, SqlTransaction))
             {
-                connection.Open();
-
-                using (var command = new SqlCommand(commandText, connection))
+                command.CommandType = commandType;
+                if (parameters != null)
                 {
-                    command.CommandType = commandType;
-                    if (parameters != null)
+                    foreach (var parameter in parameters)
                     {
-                        foreach (var parameter in parameters)
-                        {
-                            command.Parameters.Add(parameter);
-                        }
+                        command.Parameters.Add(parameter);
                     }
+                }
 
+                try
+                {
                     command.ExecuteNonQuery();
                 }
-            }
-        }
-
-        public void UpdateWithTransaction(string commandText, CommandType commandType, SqlParameter[] parameters)
-        {
-            SqlTransaction transactionScope = null;
-            using (var connection = new SqlConnection(ConnectionString))
-            {
-                connection.Open();
-                transactionScope = connection.BeginTransaction();
-
-                using (var command = new SqlCommand(commandText, connection))
+                catch (Exception ex)
                 {
-                    command.CommandType = commandType;
-                    if (parameters != null)
-                    {
-                        foreach (var parameter in parameters)
-                        {
-                            command.Parameters.Add(parameter);
-                        }
-                    }
-
-                    try
-                    {
-                        command.ExecuteNonQuery();
-                        transactionScope.Commit();
-                    }
-                    catch (Exception)
-                    {
-                        transactionScope.Rollback();
-                    }
-                    finally
-                    {
-                        connection.Close();
-                    }
+                    Console.WriteLine($"Update with Transaction Exception: {ex}");
+                    throw;
                 }
             }
         }
