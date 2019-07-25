@@ -11,9 +11,14 @@ export interface CreateAccount {
 
 export interface EditAccount {
   id: number;
-  name: string;
   description: string;
   category: number;
+  tags: [
+    {
+      id: number,
+      value: string
+    }
+  ]
 }
 
 export interface AccountCategory {

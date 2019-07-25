@@ -238,7 +238,6 @@ export class AgGridExampleComponent implements OnInit {
    
   }
   public getRangeLable() {
-    debugger;
     this.DateRangeLable = '';
 
     if (moment("01-01-1901", "MM-DD-YYYY").diff(this.startDate, 'days') == 0 && moment().diff(this.endDate, 'days') == 0)
@@ -317,7 +316,6 @@ ngOnInit() {
   }
 
   public clearFilters() {
-    debugger;
 
     this.gridOptions.api.redrawRows();
     this.DateRangeLable = "";
@@ -342,7 +340,6 @@ ngOnInit() {
 
 
 function asDate(dateAsString) {
-  debugger;
   var splitFields = dateAsString.split("-");
   //var m= this.MONTHS[splitFields[0]];
 
