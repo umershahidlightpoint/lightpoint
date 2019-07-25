@@ -50,10 +50,10 @@ export class AgGridExampleComponent implements OnInit {
     //'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
     // 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
     // 'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-    'ITD': [moment("01-01-1901", "MM-DD-YYYY"), moment().endOf('month')],
+    'ITD': [moment("01-01-1901", "MM-DD-YYYY"), moment()],
     // 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
     'YTD': [moment().startOf('year'), moment()],
-    'MTD': [moment().startOf('month'), moment().endOf('month')],
+    'MTD': [moment().startOf('month'), moment()],
   }
 
 
@@ -112,7 +112,7 @@ export class AgGridExampleComponent implements OnInit {
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 245px)',
+    height: 'calc(100vh - 260px)',
     boxSizing: 'border-box'
   };
 
@@ -203,7 +203,7 @@ export class AgGridExampleComponent implements OnInit {
   });
    this._fundsService.getJournals(this.symbal,this.page, this.pageSize , this.accountSearch.id,
    this.valueFilter,this.sortColum,this.sortDirection ).subscribe(result => {
-    this.totalRecords = result.meta.total;//result.meta.total;
+    this.totalRecords = result.meta.Total;//result.meta.total;
     this.totalCredit= result.stats.totalCredit;
     this.totalDebit= result.stats.totalDebit;
   

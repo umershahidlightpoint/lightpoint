@@ -6,9 +6,9 @@ using System.IO;
 
 namespace LP.Finance.Common
 {
-    public class metaData
+    public class MetaData
     {
-        public int total { get; set; }
+        public int Total { get; set; }
     }
 
     public class MathFnc
@@ -113,7 +113,7 @@ namespace LP.Finance.Common
         {
             var status = false;
             var content = "{}";
-            var metaData = new metaData();
+            var metaData = new MetaData();
             using (var con = new SqlConnection(connection))
             {
                 var sda = new SqlDataAdapter(query, con);
@@ -129,7 +129,7 @@ namespace LP.Finance.Common
                     sda.Fill(dataTable);
                     con.Close();
 
-                    metaData.total = GetMetaData(dataTable);
+                    metaData.Total = GetMetaData(dataTable);
                     var jsonResult = JsonConvert.SerializeObject(dataTable);
                     content = jsonResult;
                     status = true;

@@ -108,7 +108,7 @@ export class JournalComponent implements OnInit {
 
       this._fundsService.getJournals(this.symbal, page, this.pageSize, this.accountSearch.id, this.valueFilter, this.sortColum, this.sortDirection).subscribe(result => {
 
-        this.totalRecords = result.meta.total;//result.meta.total;
+        this.totalRecords = result.meta.Total;//result.meta.total;
         this.itemPerPage = 100;//  result.meta.limit;
         this.journals = [];
 

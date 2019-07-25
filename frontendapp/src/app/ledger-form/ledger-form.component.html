@@ -5,7 +5,14 @@
           <i class="fa fa-plus"></i> Add Account
       </button>
   </div>
- 
+  <div class="col-sm-6"></div>
+ <div class="col-sm-3" style="text-align:right"  >   
+   <button (click)="onBtExport()" class="btn btn-info ml-auto">
+      <i class="fa fa-angle-double-down" style="font-size:24px"></i> Export to Excel</button>  
+    
+
+  
+  </div>
 </div>
 <!----- Navbar end ----->
 <hr/>
@@ -16,7 +23,7 @@
        
       <!----- Div To Measure Identifier starts ----->
       <div #divToMeasure>
-          <label  style="width: 100% ;text-align: right;  " > <button (click)="onBtExport()">Export to Excel</button> </label>
+         
         <!----- Style For Height ----->
         <div [ngStyle]="styleForHight"> 
           <!----- Ag Grid Start ----->

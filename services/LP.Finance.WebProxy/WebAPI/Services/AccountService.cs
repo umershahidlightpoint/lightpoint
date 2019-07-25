@@ -14,6 +14,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
     class AccountService : IAccountControllerService
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public object Data(string symbol, string search = "")
         {
@@ -67,13 +68,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 " ORDER BY [account].[id] DESC OFFSET(@pageNumber - 1) * @pageSize ROWS FETCH NEXT @pageSize ROWS ONLY";
 
             List<AccountOutputDto> accounts = new List<AccountOutputDto>();
-            metaData metaData = new metaData();
+            MetaData meta = new MetaData();
             using (var reader =
                 sqlHelper.GetDataReader(query, CommandType.Text, sqlParameters.ToArray(), out var sqlConnection))
             {
                 while (reader.Read())
                 {
-                    metaData.total = (int) reader["total"];
+                    meta.Total = (int) reader["total"];
                     accounts.Add(new AccountOutputDto
                     {
                         AccountId = (int) reader["account_id"],
@@ -101,7 +102,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 })
                 .ToList();
 
-            return Utils.Wrap(true, result, metaData);
+            Logger.Info($"GetAccounts Executed at {DateTime.Now}");
+            return Utils.Wrap(true, result, meta);
         }
 
         public object CreateAccount(AccountDto account)

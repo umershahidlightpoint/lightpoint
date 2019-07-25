@@ -42,7 +42,7 @@ export class AppComponent extends AppComponentBase {
     if (fundId != null) { this.fundId = fundId; }
     this.primengTableHelper.defaultRecordsCountPerPage = 40;
     this._fundsService.getLedger(this.fundId, 0, {}).subscribe(result => {
-      this.primengTableHelper.totalRecordsCount = result.meta.total;
+      this.primengTableHelper.totalRecordsCount = result.meta.Total;
       this.primengTableHelper.records = result.meta.limit;
       this.ledger = result.data.map(item => ({
         account: item.account.name,

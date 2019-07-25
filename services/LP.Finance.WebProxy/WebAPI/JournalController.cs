@@ -62,7 +62,7 @@ namespace LP.Finance.WebProxy.WebAPI
         private object AllData(int pageNumber,int pageSize, string sortColum = "id", string sortDirection = "asc", int accountId = 0, int value = 0)
         {
 
-            metaData metaData = new metaData();
+            MetaData metaData = new MetaData();
             journalStats journalStats = new journalStats();
             bool whereAdded = false;
 
@@ -144,7 +144,7 @@ namespace LP.Finance.WebProxy.WebAPI
 
             query = query + " ) as d";
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
-            metaData.total = Convert.ToInt32(dataTable.Rows[0][0]);
+            metaData.Total = Convert.ToInt32(dataTable.Rows[0][0]);
             journalStats.totalCredit = Convert.ToDouble(dataTable.Rows[0]["totalDebit"]);
             journalStats.totalDebit = Convert.ToDouble(dataTable.Rows[0]["totalCredit"]);
             var jsonResult = JsonConvert.SerializeObject(dataTable);
