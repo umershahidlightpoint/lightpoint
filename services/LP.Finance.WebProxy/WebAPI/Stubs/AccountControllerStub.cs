@@ -1,6 +1,5 @@
 ﻿using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
-using LP.Finance.Common.Models;
 using LP.Finance.WebProxy.WebAPI.Services;
 
 namespace LP.Finance.WebProxy.WebAPI.Stubs
@@ -22,7 +21,7 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
             throw new System.NotImplementedException();
         }
 
-        public object UpdateAccount(int id, Account account)
+        public object UpdateAccount(int id, AccountDto account)
         {
             throw new System.NotImplementedException();
         }

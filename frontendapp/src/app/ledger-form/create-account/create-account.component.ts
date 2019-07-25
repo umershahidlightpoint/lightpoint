@@ -15,7 +15,7 @@ import {
 } from '@angular/core';
 import { ModalDirective } from 'ngx-bootstrap';
 import { Router } from '@angular/router';
-import { CreateAccount, EditAccount, AccountCategory } from '../../../shared/Types/account'
+import { CreateAccount, EditAccount } from '../../../shared/Types/account'
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { ToastrService } from 'ngx-toastr';
 
@@ -27,14 +27,15 @@ import { ToastrService } from 'ngx-toastr';
 export class CreateAccountComponent implements OnInit {
   editCase: boolean = false
   categoryLabel: any
-  clickedAccountId: number
   nameLabel: string
-  Label: string
+  clickedAccountId: number
+  rowDataSelected: any
+  
   accountTypeNames: any
   accountTypeTags: any
   
   ledgerForm = new FormGroup({
-    name: new FormControl(''),
+    //name: new FormControl(''),
     description: new FormControl('',Validators.required),
     category: new FormControl('', Validators.required)
   })
@@ -43,7 +44,7 @@ export class CreateAccountComponent implements OnInit {
   editAccountInstance: EditAccount
   @ViewChild('modal') modal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
-  //-----------------------\\
+  // Form Aray attributes
   accountForm: FormGroup;
   tags: FormArray;
   
@@ -68,12 +69,22 @@ export class CreateAccountComponent implements OnInit {
   }
 
   createTag(tag): FormGroup {
-    let formGroup = this.formBuilder.group({
-      account_cateory_id: this.formBuilder.control(tag.account_cateory_id),
-      account_def_id: this.formBuilder.control(tag.account_def_id),
+    let formGroup
+    if(this.editCase){
+      formGroup = this.formBuilder.group({
+        description: this.formBuilder.control(tag.description),
+        isChecked: this.formBuilder.control(tag.isChecked),
+        tag_id: this.formBuilder.control(tag.tag_id),
+        tag_name: this.formBuilder.control(tag.tag_name),
+      });
+      return formGroup
+    }
+    formGroup = this.formBuilder.group({
+      // account_cateory_id: this.formBuilder.control(tag.account_cateory_id),
+      // account_def_id: this.formBuilder.control(tag.account_def_id),
       description: this.formBuilder.control(tag.description),
       isChecked: this.formBuilder.control(tag.isChecked),
-      table_name:this.formBuilder.control(tag.table_name),
+      //table_name:this.formBuilder.control(tag.table_name),
       tag_id: this.formBuilder.control(tag.tag_id),
       tag_name: this.formBuilder.control(tag.tag_name),
     });
@@ -90,20 +101,29 @@ export class CreateAccountComponent implements OnInit {
     });
   }
 
-  accTypeSelect(type){
-    let selectedAccId = type.slice(0,1)
-    this.financePocServiceProxy.accountTags().subscribe(response => {
-      this.accountTypeTags = response.payload.filter(payload => {
-        if(payload.account_def_id == selectedAccId){
-          payload['isChecked'] = false
-          payload['description'] = ''
-          return payload
-        }
-      })
-      this.addTag(this.accountTypeTags)
-    }, error => {
-      this.toastrService.error('Something went wrong. Try again later!')
-    })
+  getAccountTags(type){
+    let flag = typeof(type) === "string" ? false : true
+    if(!flag && type.slice(0,1) == this.rowDataSelected.Category_Id){
+      this.hasExistingAccount(this.rowDataSelected)
+    }
+    else if(this.editCase && flag){
+      this.hasExistingAccount(type)
+    }
+    else {
+      let selectedAccId = type.slice(0,1)
+      this.financePocServiceProxy.accountTags().subscribe(response => {
+        this.accountTypeTags = response.payload.filter(payload => {
+          if(payload.account_def_id == selectedAccId){
+            payload['isChecked'] = false
+            payload['description'] = ''
+            return payload
+          }
+        })
+        this.addTag(this.accountTypeTags)
+      }, error => {
+        this.toastrService.error('Something went wrong. Try again later!')
+      })  
+    }
   }
 
   getAccountCategories(){
@@ -117,26 +137,53 @@ export class CreateAccountComponent implements OnInit {
     })
   }
 
+  hasExistingAccount(accountData){
+    this.financePocServiceProxy.accountTags().subscribe(response => {
+      this.accountTypeTags = response.payload.filter(payload => {
+        if(payload.account_category_id == accountData.Category_Id){
+          payload['isChecked'] = false
+          payload['description'] = ''
+          return payload
+        }
+      })
+      this.accountTypeTags.map(accountTag => {
+        this.rowDataSelected.Tags.forEach(tag => {
+          if(tag.Id == accountTag.tag_id){
+            accountTag['isChecked'] = true
+            accountTag['description'] = tag.Value    
+          }
+        })
+      })
+      this.addTag(this.accountTypeTags)
+    }, error => {
+      this.toastrService.error('Something went wrong. Try again later!')
+    })
+  }
+
   show(rowSelected) {
-    console.log('selected row ',rowSelected)
+    this.rowDataSelected = rowSelected
     this.clickedAccountId = rowSelected.Id
     if(Object.keys(rowSelected).length !== 0){
       this.editCase = true
-      this.ledgerForm.patchValue({
-        'name': rowSelected.Name,
+      this.ledgerForm.setValue({
         'description': rowSelected.Description,
-        'category': rowSelected.Category
+        'category': {
+          id: rowSelected.Category_Id,
+          name: rowSelected.Category
+        }
       })
       this.nameLabel = rowSelected.Name
-      this.categoryLabel = { id: rowSelected.Category_Id, name: rowSelected.Category }
-      this.ledgerForm.controls['name'].disable();
-      this.ledgerForm.controls['category'].disable();
+      this.categoryLabel = rowSelected.Category
+      this.getAccountTags(rowSelected)
+      //this.addTag(rowSelected.Tags)
+      //this.categoryLabel = { id: rowSelected.Category_Id, name: rowSelected.Category }
+      //this.ledgerForm.controls['name'].disable();
     }
     this.modal.show();
   }
 
   onShown() {
-    this.ledgerForm.value.name.focusInput();
+    this.ledgerForm.value.description.focusInput();
   }
 
   close() {
@@ -148,12 +195,23 @@ export class CreateAccountComponent implements OnInit {
   }
 
   onSave(){
+  let formValues = this.accountForm.value.tagsList
+    let tagsObject = formValues.filter(tag =>
+      {
+        if(tag.isChecked === true){
+          return { id: tag.tag_id, value: tag.description }
+        }
+      }
+    )
+    let tagObjectToSend = tagsObject.map(tag => {
+      return { id: tag.tag_id, value: tag.description }
+    })
     if(this.editCase){
       this.editAccountInstance = {
         id: this.clickedAccountId,
-        name: this.nameLabel,
         description: this.ledgerForm.value.description,
-        category: this.categoryLabel.id
+        category: this.ledgerForm.value.category.id,
+        tags: tagObjectToSend
       }
       this.financePocServiceProxy.editAccount(this.editAccountInstance).subscribe(response => {
         if(response.isSuccessful){
@@ -167,23 +225,11 @@ export class CreateAccountComponent implements OnInit {
       })
     }
     else{
-      let formValues = this.accountForm.value.tagsList
-      let tagsObject = formValues.filter(tag =>
-        {
-          if(tag.isChecked === true){
-            return { id: tag.tag_id, value: tag.description }
-          }
-        }
-      )
-      let tagObjectToSend = tagsObject.map(tag => {
-        return { id: tag.tag_id, value: tag.description }
-      })
       this.accountInstance = {
         description: this.ledgerForm.value.description,
         category: this.ledgerForm.value.category.id,
         tags: tagObjectToSend
       }
-      console.log('create account instance',this.accountInstance)
       this.financePocServiceProxy.createAccount(this.accountInstance).subscribe(response => {
         if(response.isSuccessful){
           this.toastrService.success('Account created successfully!')
@@ -203,13 +249,14 @@ export class CreateAccountComponent implements OnInit {
   }
 
   clearForm(){
-    this.ledgerForm.controls['name'].reset();
+    //this.ledgerForm.controls['name'].reset();
     this.ledgerForm.controls['description'].reset();
     this.ledgerForm.controls['category'].reset();
-    this.ledgerForm.controls['name'].enable();
+    //this.ledgerForm.controls['name'].enable();
     this.accountForm.reset()
     this.editCase = false
     this.accountTypeTags = null
+    this.categoryLabel = null
   }
 }
 

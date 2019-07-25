@@ -6,7 +6,6 @@ using System.Data.SqlClient;
 using System.Linq;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
-using LP.Finance.Common.Models;
 using Newtonsoft.Json;
 using SqlDAL.Core;
 
@@ -68,11 +67,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 " ORDER BY [account].[id] DESC OFFSET(@pageNumber - 1) * @pageSize ROWS FETCH NEXT @pageSize ROWS ONLY";
 
             List<AccountOutputDto> accounts = new List<AccountOutputDto>();
+            metaData metaData = new metaData();
             using (var reader =
                 sqlHelper.GetDataReader(query, CommandType.Text, sqlParameters.ToArray(), out var sqlConnection))
             {
                 while (reader.Read())
                 {
+                    metaData.total = (int) reader["total"];
                     accounts.Add(new AccountOutputDto
                     {
                         AccountId = (int) reader["account_id"],
@@ -100,21 +101,25 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 })
                 .ToList();
 
-            return Utils.Wrap(true, result, 0);
+            return Utils.Wrap(true, result, metaData);
         }
 
         public object CreateAccount(AccountDto account)
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);
-
-            var accountName = String.Join("-", account.Tags.Select(tag => tag.Value));
-            List<SqlParameter> accountParameters = new List<SqlParameter>
+            try
             {
-                new SqlParameter("name", accountName), new SqlParameter("description", account.Description),
-                new SqlParameter("category", account.Category)
-            };
+                sqlHelper.VerifyConnection();
+                sqlHelper.SqlBeginTransaction();
 
-            var accountQuery = $@"INSERT INTO [account]
+                var accountName = String.Join("-", account.Tags.Select(tag => tag.Value));
+                List<SqlParameter> accountParameters = new List<SqlParameter>
+                {
+                    new SqlParameter("name", accountName), new SqlParameter("description", account.Description),
+                    new SqlParameter("category", account.Category)
+                };
+
+                var accountQuery = $@"INSERT INTO [account]
                         ([name]
                         ,[description]
                         ,[account_category_id])
@@ -123,18 +128,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         ,@description
                         ,@category)
                         SELECT SCOPE_IDENTITY() AS 'Identity'";
-            sqlHelper.Insert(accountQuery, CommandType.Text, accountParameters.ToArray(), out int accountId);
 
-            if (accountId == 0)
-            {
-                return Utils.Wrap(false);
-            }
+                sqlHelper.Insert(accountQuery, CommandType.Text, accountParameters.ToArray(), out int accountId);
 
-            try
-            {
-                sqlHelper.CreateConnection();
-                sqlHelper.OpenConnection();
-                sqlHelper.SqlBeginTransaction();
                 foreach (var accountTag in account.Tags)
                 {
                     List<SqlParameter> tagParameters = new List<SqlParameter>
@@ -152,7 +148,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                 ,@tagId
                                 ,@tagValue)";
 
-                    sqlHelper.InsertWithTransaction(tagQuery, CommandType.Text, tagParameters.ToArray());
+                    sqlHelper.Insert(tagQuery, CommandType.Text, tagParameters.ToArray());
                 }
 
                 sqlHelper.SqlCommitTransaction();
@@ -169,18 +165,71 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return Utils.Wrap(true);
         }
 
-        public object UpdateAccount(int id, Account account)
+        public object UpdateAccount(int id, AccountDto account)
         {
-            List<SqlParameter> sqlParameters = new List<SqlParameter>
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+            try
             {
-                new SqlParameter("id", id), new SqlParameter("description", account.Description)
-            };
+                sqlHelper.VerifyConnection();
+                sqlHelper.SqlBeginTransaction();
 
-            var query = $@"UPDATE [account]
-                        SET [description] = @description
-                        WHERE [id] = @id";
+                var accountName = String.Join("-", account.Tags.Select(tag => tag.Value));
+                List<SqlParameter> accountParameters = new List<SqlParameter>
+                {
+                    new SqlParameter("id", id), new SqlParameter("name", accountName),
+                    new SqlParameter("description", account.Description),
+                    new SqlParameter("category", account.Category)
+                };
 
-            return Utils.RunQuery(connectionString, query, sqlParameters.ToArray());
+                List<SqlParameter> tagDeleteParameters = new List<SqlParameter>
+                {
+                    new SqlParameter("id", id)
+                };
+
+                var accountQuery = $@"UPDATE [account]
+                                    SET [name] = @name
+                                    ,[description] = @description
+                                    ,[account_category_id] = @category
+                                    WHERE [id] = @id";
+
+                var tagDeleteQuery = $@"DELETE FROM [account_tag]
+                                    WHERE [account_tag].[account_id] = @id";
+
+                sqlHelper.Update(accountQuery, CommandType.Text, accountParameters.ToArray());
+                sqlHelper.Delete(tagDeleteQuery, CommandType.Text, tagDeleteParameters.ToArray());
+
+                foreach (var accountTag in account.Tags)
+                {
+                    List<SqlParameter> tagParameters = new List<SqlParameter>
+                    {
+                        new SqlParameter("accountId", id), new SqlParameter("tagId", accountTag.Id),
+                        new SqlParameter("tagValue", accountTag.Value)
+                    };
+
+                    var tagQuery = $@"INSERT INTO [account_tag]
+                                ([account_id]
+                                ,[tag_id]
+                                ,[tag_value])
+                                VALUES
+                                (@accountId
+                                ,@tagId
+                                ,@tagValue)";
+
+                    sqlHelper.Insert(tagQuery, CommandType.Text, tagParameters.ToArray());
+                }
+
+                sqlHelper.SqlCommitTransaction();
+                sqlHelper.CloseConnection();
+            }
+            catch (Exception ex)
+            {
+                sqlHelper.SqlRollbackTransaction();
+                sqlHelper.CloseConnection();
+                Console.WriteLine($"SQL Rollback Transaction Exception: {ex}");
+                return Utils.Wrap(false);
+            }
+
+            return Utils.Wrap(true);
         }
 
         public object DeleteAccount(int id)
@@ -194,8 +243,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             try
             {
-                sqlHelper.CreateConnection();
-                sqlHelper.OpenConnection();
+                sqlHelper.VerifyConnection();
                 sqlHelper.SqlBeginTransaction();
 
                 List<SqlParameter> tagParameters = new List<SqlParameter>
@@ -208,14 +256,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("id", id)
                 };
 
-                var tagQuery = $@"DELETE FROM [dbo].[account_tag]
+                var tagQuery = $@"DELETE FROM [account_tag]
                                 WHERE [account_tag].[account_id] = @id";
 
-                var accountQuery = $@"DELETE FROM [dbo].[account]
-                        WHERE [id] = @id";
+                var accountQuery = $@"DELETE FROM [account]
+                                    WHERE [id] = @id";
 
-                sqlHelper.DeleteWithTransaction(tagQuery, CommandType.Text, tagParameters.ToArray());
-                sqlHelper.DeleteWithTransaction(accountQuery, CommandType.Text, accountParameters.ToArray());
+                sqlHelper.Delete(tagQuery, CommandType.Text, tagParameters.ToArray());
+                sqlHelper.Delete(accountQuery, CommandType.Text, accountParameters.ToArray());
 
                 sqlHelper.SqlCommitTransaction();
                 sqlHelper.CloseConnection();
@@ -239,6 +287,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         private bool AccountHasJournal(int id)
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);
+
             List<SqlParameter> sqlParameters = new List<SqlParameter>
             {
                 new SqlParameter("id", id)
