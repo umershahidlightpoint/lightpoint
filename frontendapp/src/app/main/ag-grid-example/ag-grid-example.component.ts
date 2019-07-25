@@ -112,7 +112,7 @@ export class AgGridExampleComponent implements OnInit {
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 245px)',
+    height: 'calc(100vh - 260px)',
     boxSizing: 'border-box'
   };
 
