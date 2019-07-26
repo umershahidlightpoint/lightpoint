@@ -5,14 +5,12 @@ using LP.Finance.WebProxy.WebAPI.Services;
 namespace LP.Finance.WebProxy.WebAPI
 {
     /// <summary>
-    /// Deliver the tiles / links resources to the logged in user
+    /// Deliver the Tiles / Links Resources to the Logged In User
     /// </summary>
     [RoutePrefix("api/account")]
-    public class AccountController : ApiController, IAccountControllerService
+    public class AccountController : ApiController, IAccountService
     {
-        // Mock Service
-        //private IJournalController controller = new JournalControllerStub();
-        private readonly IAccountControllerService controller = new AccountService();
+        private readonly IAccountService controller = new AccountService();
 
         public AccountController()
         {
@@ -35,7 +33,7 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [Route("")]
         [HttpPost]
-        public object CreateAccount(AccountDto account)
+        public object CreateAccount(AccountInputDto account)
         {
             return !ModelState.IsValid || account == null
                 ? BadRequest(ModelState)
@@ -44,11 +42,20 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [Route("{id:int}")]
         [HttpPut]
-        public object UpdateAccount(int id, AccountDto account)
+        public object UpdateAccount(int id, AccountInputDto account)
         {
             return !ModelState.IsValid || account == null
                 ? BadRequest(ModelState)
                 : controller.UpdateAccount(id, account);
+        }
+
+        [Route("{id:int}")]
+        [HttpPatch]
+        public object PatchAccount(int id, AccountInputPatchDto account)
+        {
+            return !ModelState.IsValid || account == null
+                ? BadRequest(ModelState)
+                : controller.PatchAccount(id, account);
         }
 
         [Route("{id:int}")]

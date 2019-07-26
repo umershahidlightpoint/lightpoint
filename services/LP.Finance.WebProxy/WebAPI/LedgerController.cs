@@ -5,11 +5,12 @@ namespace LP.Finance.WebProxy.WebAPI
     /// <summary>
     /// 
     /// </summary>
-    public class LedgerController : ApiController, ILedgerController
+    public class LedgerController : ApiController, ILedgerService
     {
         // Mock Service
-        //private IJournalController controller = new JournalControllerStub();
-        private ILedgerController controller = new LedgerControllerService();
+        // private IJournalController controller = new JournalControllerStub();
+        private ILedgerService controller = new LedgerService();
+
         public LedgerController()
         {
         }
@@ -20,6 +21,5 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return controller.Data(symbol);
         }
-
     }
 }

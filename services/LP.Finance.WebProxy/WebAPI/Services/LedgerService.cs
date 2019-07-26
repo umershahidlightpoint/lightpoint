@@ -4,7 +4,7 @@ using LP.Finance.Common;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
-    public class LedgerControllerService : ILedgerController
+    public class LedgerService : ILedgerService
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 

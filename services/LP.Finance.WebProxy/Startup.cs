@@ -43,27 +43,28 @@ namespace LP.ReferenceData.WebProxy
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
-              name: "DefaultApi",
-              routeTemplate: "api/{controller}/{name}",
-              defaults: new { name = RouteParameter.Optional }
+                name: "DefaultApi",
+                routeTemplate: "api/{controller}/{name}",
+                defaults: new {name = RouteParameter.Optional}
             );
 
             config.Routes.MapHttpRoute(
-              name: "SymbolMap-map",
-              routeTemplate: "api/{controller}/map/{product}",
-              defaults: new {
-                  product = RouteParameter.Optional
-              }
+                name: "SymbolMap-map",
+                routeTemplate: "api/{controller}/map/{product}",
+                defaults: new
+                {
+                    product = RouteParameter.Optional
+                }
             );
 
             config.Routes.MapHttpRoute(
-              name: "SymbolMap-top",
-              routeTemplate: "api/{controller}/top/{product}/{count}",
-              defaults: new
-              {
-                  product = RouteParameter.Optional,
-                  count = RouteParameter.Optional
-              }
+                name: "SymbolMap-top",
+                routeTemplate: "api/{controller}/top/{product}/{count}",
+                defaults: new
+                {
+                    product = RouteParameter.Optional,
+                    count = RouteParameter.Optional
+                }
             );
 
             config.Routes.MapHttpRoute(
@@ -97,8 +98,6 @@ namespace LP.ReferenceData.WebProxy
                 {
                 }
             );
-            
-
 
             app.UseCors(corsOptions);
             app.UseWebApi(config);

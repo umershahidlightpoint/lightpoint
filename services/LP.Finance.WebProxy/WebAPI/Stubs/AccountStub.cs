@@ -4,7 +4,7 @@ using LP.Finance.WebProxy.WebAPI.Services;
 
 namespace LP.Finance.WebProxy.WebAPI.Stubs
 {
-    class AccountControllerStub : IAccountControllerService
+    class AccountStub : IAccountService
     {
         public object Data(string symbol, string search = "")
         {
@@ -16,12 +16,17 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
             return Utils.GetFile("accounts");
         }
 
-        public object CreateAccount(AccountDto account)
+        public object CreateAccount(AccountInputDto account)
         {
             throw new System.NotImplementedException();
         }
 
-        public object UpdateAccount(int id, AccountDto account)
+        public object UpdateAccount(int id, AccountInputDto account)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public object PatchAccount(int id, AccountInputPatchDto account)
         {
             throw new System.NotImplementedException();
         }
