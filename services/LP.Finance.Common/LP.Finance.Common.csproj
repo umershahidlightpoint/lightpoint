@@ -49,6 +49,7 @@
     <Compile Include="Dtos\AccountDto.cs" />
     <Compile Include="Dtos\TagDto.cs" />
     <Compile Include="Model\Account.cs" />
+    <Compile Include="Model\AccountType.cs" />
     <Compile Include="Model\AccountCategory.cs" />
     <Compile Include="Model\AccountDef.cs" />
     <Compile Include="Model\AccountToFrom.cs" />

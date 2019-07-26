@@ -23,7 +23,7 @@ namespace LP.Finance.Common.Models
     {
         public int Id { get; set; }
         [Required]
-        public int Category { get; set; }
+        public AccountType Type { get; set; }
         [Required]
         public string Name { get; set; }
         [Required]
@@ -35,12 +35,12 @@ namespace LP.Finance.Common.Models
         {
             get
             {
-                var sql = "insert into account (name, description, account_category_id) values (@name, @description, @category)";
+                var sql = "insert into account (name, description, account_type_id) values (@name, @description, @type)";
                 var sqlParams = new SqlParameter[]
                 {
                     new SqlParameter("name", Name),
                     new SqlParameter("description", Description),
-                    new SqlParameter("category", Category),
+                    new SqlParameter("type", Type.Id),
             };
 
                 return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);
@@ -55,7 +55,7 @@ namespace LP.Finance.Common.Models
                     new SqlParameter("id", Id),
                     new SqlParameter("name", Name),
                     new SqlParameter("description", Description),
-                    new SqlParameter("category", Category),
+                    new SqlParameter("category", Type.Id),
                 };
 
                 return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams); }
@@ -70,7 +70,7 @@ namespace LP.Finance.Common.Models
                     new SqlParameter("id", Id),
                     new SqlParameter("name", Name),
                     new SqlParameter("description", Description),
-                    new SqlParameter("category", Category),
+                    new SqlParameter("category", Type.Id),
             };
 
                 return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);

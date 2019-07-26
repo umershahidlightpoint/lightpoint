@@ -1,45 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
 
 namespace LP.Finance.Common.Models
 {
-    public class AccountCategory : IDbAction
+    public class AccountType : IDbAction
     {
-        public static readonly int AC_ASSET = 1;
-        public static readonly int AC_LIABILITY = 2;
-        public static readonly int AC_EQUITY = 3;
-        public static readonly int AC_REVENUES = 4;
-        public static readonly int AC_EXPENCES = 5;
-
-        public static AccountCategory Find(int id)
-        {
-            return Categories.Where(i => i.Id == id).FirstOrDefault();
-        }
-
-        public static AccountCategory[] Categories { get; private set; }
         public int Id { get; set; }
         public string Name { get; set; }
+        public AccountCategory Category { get; set; }
 
-        public static AccountCategory[] Load(SqlConnection connection)
+        private readonly static List<AccountType> _all = new List<AccountType>();
+
+        public static List<AccountType> All { get { return _all; } }
+
+        public static AccountType[] Load(SqlConnection connection)
         {
-            var list = new List<AccountCategory>();
+            var list = new List<AccountType>();
 
-            var query = new SqlCommand("select * from account_category", connection);
+            var query = new SqlCommand("select id, name, account_category_id from account_type", connection);
             var reader = query.ExecuteReader(System.Data.CommandBehavior.SingleResult);
 
             while (reader.Read())
             {
-                list.Add(new AccountCategory {
+                list.Add(new AccountType
+                {
                 Id = reader.GetFieldValue<Int32>(0),
-                Name = reader.GetFieldValue<string>(1)});
+                Name = reader.GetFieldValue<string>(1),
+                Category = AccountCategory.Find(reader.GetFieldValue<Int32>(2))
+                });
             }
             reader.Close();
 
-            Categories = list.ToArray();
+            All.AddRange(list);
 
-            return Categories;
+            return All.ToArray();
         }
 
         public KeyValuePair<string, SqlParameter[]> Insert
