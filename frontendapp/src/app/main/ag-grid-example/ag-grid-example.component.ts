@@ -18,7 +18,25 @@ export class AgGridExampleComponent implements OnInit {
   constructor(injector: Injector,
     private _fundsService: FinancePocServiceProxy) {
     (injector);
-    this.sideBar = true;
+    this.sideBar =  {
+      toolPanels: [
+          {
+              id: 'columns',
+              labelDefault: 'Columns',
+              labelKey: 'columns',
+              iconKey: 'columns',
+              toolPanel: 'agColumnsToolPanel',
+          },
+          {
+              id: 'filters',
+              labelDefault: 'Filters',
+              labelKey: 'filters',
+              iconKey: 'filter',
+              toolPanel: 'agFiltersToolPanel',
+          }
+      ],
+      defaultToolPanel: ''
+  };
     this.gridOptions = <GridOptions>{
       rowData: null,
       //columnDefs: this.columnDefs,
@@ -159,7 +177,9 @@ export class AgGridExampleComponent implements OnInit {
       { field: 'credit',aggFunc: "sum", headerName: 'Credit',  valueFormatter: currencyFormatter,cellStyle: {'text-align': 'right' }, cellClass: "number-cell"} 
   
          
-    ]);
+    ],
+    
+    );
     
     this.columnDefs =(
       [
