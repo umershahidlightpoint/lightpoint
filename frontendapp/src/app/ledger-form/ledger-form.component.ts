@@ -33,7 +33,7 @@ export class LedgerFormComponent implements OnInit {
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height:'calc(100vh - 260px)',
+    height:'calc(100vh - 270px)',
     boxSizing: 'border-box'
   };
 

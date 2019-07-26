@@ -30,6 +30,7 @@ export class CreateAccountComponent implements OnInit {
   nameLabel: string
   clickedAccountId: number
   rowDataSelected: any
+  noAccountDef: boolean = false
   
   accountTypeNames: any
   accountTypeTags: any
@@ -112,6 +113,10 @@ export class CreateAccountComponent implements OnInit {
     else {
       let selectedAccId = type.slice(0,1)
       this.financePocServiceProxy.accountTags().subscribe(response => {
+        if(response.payload.length < 1){
+          this.noAccountDef = true
+          return
+        }
         this.accountTypeTags = response.payload.filter(payload => {
           if(payload.account_def_id == selectedAccId){
             payload['isChecked'] = false
@@ -130,6 +135,7 @@ export class CreateAccountComponent implements OnInit {
     this.financePocServiceProxy.accountCategories().subscribe(response => {
       if(response.isSuccessful){
         this.accountTypeNames = response.payload
+        console.log('this.accountTypeNames',this.accountTypeNames)
       }
       else {
         this.toastrService.error('Failed to fetch account categories!')
@@ -139,6 +145,10 @@ export class CreateAccountComponent implements OnInit {
 
   hasExistingAccount(accountData){
     this.financePocServiceProxy.accountTags().subscribe(response => {
+      if(response.payload.length < 1){
+        this.noAccountDef = true
+        return
+      }
       this.accountTypeTags = response.payload.filter(payload => {
         if(payload.account_category_id == accountData.Category_Id){
           payload['isChecked'] = false
