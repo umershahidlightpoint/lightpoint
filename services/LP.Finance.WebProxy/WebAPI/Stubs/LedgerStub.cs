@@ -2,7 +2,7 @@
 
 namespace LP.Finance.WebProxy.WebAPI
 {
-    public class LedgerControllerStub : ILedgerController
+    public class LedgerStub : ILedgerService
     {
         public object Data(string symbol)
         {

@@ -2,15 +2,17 @@
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
-    public interface IAccountControllerService
+    public interface IAccountService
     {
         object Data(string symbol, string search = "");
 
         object GetAccounts(int pageNumber, int pageSize, string accountName, string accountCategory);
 
-        object CreateAccount(AccountDto account);
+        object CreateAccount(AccountInputDto account);
 
-        object UpdateAccount(int id, AccountDto account);
+        object UpdateAccount(int id, AccountInputDto account);
+
+        object PatchAccount(int id, AccountInputPatchDto account);
 
         object DeleteAccount(int id);
     }

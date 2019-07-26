@@ -81,21 +81,21 @@
     <Compile Include="WebAPI\AccountCategoryController.cs" />
     <Compile Include="WebAPI\AccountController.cs" />
     <Compile Include="WebAPI\JournalLogController.cs" />
-    <Compile Include="WebAPI\Services\AccountDefControllerService.cs" />
-    <Compile Include="WebAPI\Services\AccountCategoryControllerService.cs" />
-    <Compile Include="WebAPI\Services\IAccountDefControllerService.cs" />
-    <Compile Include="WebAPI\Services\IAccountCategoryControllerService.cs" />
-    <Compile Include="WebAPI\Services\ILedgerController.cs" />
+    <Compile Include="WebAPI\Services\AccountDefService.cs" />
+    <Compile Include="WebAPI\Services\AccountCategoryService.cs" />
+    <Compile Include="WebAPI\Services\IAccountDefService.cs" />
+    <Compile Include="WebAPI\Services\IAccountCategoryService.cs" />
+    <Compile Include="WebAPI\Services\ILedgerService.cs" />
     <Compile Include="WebAPI\LedgerController.cs" />
     <Compile Include="WebAPI\JournalController.cs" />
-    <Compile Include="WebAPI\Services\LedgerControllerService.cs" />
-    <Compile Include="WebAPI\Stubs\LedgerControllerStub.cs" />
+    <Compile Include="WebAPI\Services\LedgerService.cs" />
+    <Compile Include="WebAPI\Stubs\LedgerStub.cs" />
     <Compile Include="WebAPI\RefDataController.cs" />
     <Compile Include="WebAPI\PingController.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="WebAPI\Services\AccountService.cs" />
-    <Compile Include="WebAPI\Services\IAccountControllerService.cs" />
-    <Compile Include="WebAPI\Stubs\AccountControllerStub.cs" />
+    <Compile Include="WebAPI\Services\IAccountService.cs" />
+    <Compile Include="WebAPI\Stubs\AccountStub.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

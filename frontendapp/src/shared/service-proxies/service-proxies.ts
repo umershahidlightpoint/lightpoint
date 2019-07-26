@@ -145,6 +145,11 @@ export class FinancePocServiceProxy {
         return this.http.put(url,params).pipe(map((response: any) => response));
     }
 
+    patchAccount(id,params) {
+        const url =  'http://localhost:9092/api/account/'+id ;
+        return this.http.patch(url,params).pipe(map((response: any) => response));
+    }
+
     deleteAccount(id) {
         const url =  'http://localhost:9092/api/account/'+id ;
         return this.http.delete(url).pipe(map((response: any) => response));

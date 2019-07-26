@@ -56,6 +56,8 @@ export class LedgerFormComponent implements OnInit {
       {headerName: 'Category', field: 'Category', hide: true },
       {headerName: 'Has Journal', field: 'has_journal', sortable: true, filter: true },
       {headerName: 'Tags', field: 'Tags', hide: true },
+      {headerName: 'CanDeleted', field: 'CanDeleted', hide: true },
+      {headerName: 'CanEdited', field: 'CanEdited', hide: true },
       {
         headerName: "Actions",
         cellRendererFramework: TemplateRendererComponent,
@@ -74,7 +76,6 @@ export class LedgerFormComponent implements OnInit {
     setTimeout(()=> {
       this.data = this.financePocServiceProxy.getAllAccounts().subscribe(result => {
         this.data =  result.payload;
-        //console.log('API result ==>',this.data)
         this.rowData = this.data.map(result => ({
           Id: result.AccountId,
           Name: result.AccountName,
@@ -82,7 +83,9 @@ export class LedgerFormComponent implements OnInit {
           Category: result.Category,
           Category_Id: result.CategoryId,
           has_journal: result.HasJournal,
-          Tags: result.Tags
+          Tags: result.Tags,
+          CanDeleted: result.CanDeleted,
+          CanEdited: result.CanEdited
         }))
         this.gridOptions.api.setRowData(this.rowData);
       })

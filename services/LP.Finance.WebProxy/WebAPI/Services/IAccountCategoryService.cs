@@ -1,6 +1,6 @@
 ﻿namespace LP.Finance.WebProxy.WebAPI.Services
 {
-    public interface IAccountCategoryControllerService
+    public interface IAccountCategoryService
     {
         object GetAccountCategories(string accountCategoryName);
     }

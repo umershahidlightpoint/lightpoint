@@ -5,7 +5,7 @@ using LP.Finance.Common;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
-    class AccountCategoryControllerService : IAccountCategoryControllerService
+    class AccountCategoryService : IAccountCategoryService
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 

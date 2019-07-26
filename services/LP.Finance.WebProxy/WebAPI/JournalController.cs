@@ -1,14 +1,9 @@
-﻿using System.Collections;
-using System.Linq;
-using System;
+﻿using System;
 using System.Web.Http;
-using System.IO;
 using Newtonsoft.Json;
 using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Security.Principal;
-using System.Threading;
 using LP.Finance.Common;
 using System.Collections.Generic;
 using SqlDAL.Core;
@@ -17,12 +12,14 @@ namespace LP.Finance.WebProxy.WebAPI
 {
     public interface IJournalController
     {
-        object Data(string symbol, int pageNumber, int pageSize, string sortColum = "id", string sortDirection = "asc", int accountId = 0, int value=0);
+        object Data(string symbol, int pageNumber, int pageSize, string sortColum = "id", string sortDirection = "asc",
+            int accountId = 0, int value = 0);
     }
 
     public class JournalControllerStub : IJournalController
     {
-        public object Data(string symbol, int pageNumber, int pageSize, string sortColum = "id", string sortDirection = "asc", int accountId = 0, int value = 0)
+        public object Data(string symbol, int pageNumber, int pageSize, string sortColum = "id",
+            string sortDirection = "asc", int accountId = 0, int value = 0)
         {
             return Utils.GetFile("journals");
         }
@@ -32,24 +29,25 @@ namespace LP.Finance.WebProxy.WebAPI
     {
         public double totalDebit { get; set; }
         public double totalCredit { get; set; }
-
     }
 
     public class JournalControllerService : IJournalController
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
         public SqlHelper sqlHelper = new SqlHelper(ConfigurationManager.ConnectionStrings["FinanceDB"].ToString());
-        public object Data(string symbol,int pageNumber,int pageSize, string sortColum = "id", string sortDirection = "asc", int accountId = 0, int value = 0)
+
+        public object Data(string symbol, int pageNumber, int pageSize, string sortColum = "id",
+            string sortDirection = "asc", int accountId = 0, int value = 0)
         {
             dynamic result = JsonConvert.DeserializeObject("{}");
 
             switch (symbol)
             {
                 case "ALL":
-                    result = AllData(pageNumber, pageSize, sortColum, sortDirection ,accountId, value);
+                    result = AllData(pageNumber, pageSize, sortColum, sortDirection, accountId, value);
                     Utils.Save(result, "journals");
                     break;
-                
+
 
                 default:
                     result = Only(symbol);
@@ -59,9 +57,9 @@ namespace LP.Finance.WebProxy.WebAPI
             return result;
         }
 
-        private object AllData(int pageNumber,int pageSize, string sortColum = "id", string sortDirection = "asc", int accountId = 0, int value = 0)
+        private object AllData(int pageNumber, int pageSize, string sortColum = "id", string sortDirection = "asc",
+            int accountId = 0, int value = 0)
         {
-
             MetaData metaData = new MetaData();
             journalStats journalStats = new journalStats();
             bool whereAdded = false;
@@ -92,46 +90,57 @@ namespace LP.Finance.WebProxy.WebAPI
                 join account  on [journal]. [account_id] = account.id 
                 join [account_category] on  [account].account_category_id = [account_category] .id ";
 
-            List<SqlParameter> sqlParams = new List<SqlParameter>() ;
-            sqlParams.Add ( new SqlParameter("pageNumber", pageNumber));
+            List<SqlParameter> sqlParams = new List<SqlParameter>();
+            sqlParams.Add(new SqlParameter("pageNumber", pageNumber));
             sqlParams.Add(new SqlParameter("pageSize", pageSize));
-              
+
             if (accountId > 0 || value > 0)
             {
                 query = query + "where";
             }
+
             if (accountId > 0)
             {
-                query = query + "   account.id = @accountId"; whereAdded = true;
+                query = query + "   account.id = @accountId";
+                whereAdded = true;
                 sqlParams.Add(new SqlParameter("accountId", accountId));
             }
+
             if (value > 0)
             {
                 if (whereAdded)
                 {
                     query = query + " and  [journal].[value] > @value";
                 }
-                else { query = query + "  [journal].[value] > " + @value; }
+                else
+                {
+                    query = query + "  [journal].[value] > " + @value;
+                }
+
                 sqlParams.Add(new SqlParameter("@value", @value));
             }
-             
 
-            if (sortColum == "id" &&   sortDirection == "1")
+
+            if (sortColum == "id" && sortDirection == "1")
             {
-                query = query + "  ORDER BY  [journal].[id] asc " ;
+                query = query + "  ORDER BY  [journal].[id] asc ";
             }
+
             if (sortColum == "source" && sortDirection == "1")
             {
                 query = query + "  ORDER BY  [journal].[source] asc ";
             }
+
             if (sortColum == "source" && sortDirection == "-1")
             {
                 query = query + "  ORDER BY  [journal].[source] desc ";
             }
+
             if (sortColum == "when" && sortDirection == "1")
             {
                 query = query + "  ORDER BY  [journal].[when] asc ";
             }
+
             if (sortColum == "when" && sortDirection == "-1")
             {
                 query = query + "  ORDER BY  [journal].[when] desc ";
@@ -148,7 +157,7 @@ namespace LP.Finance.WebProxy.WebAPI
             journalStats.totalCredit = Convert.ToDouble(dataTable.Rows[0]["totalDebit"]);
             journalStats.totalDebit = Convert.ToDouble(dataTable.Rows[0]["totalCredit"]);
             var jsonResult = JsonConvert.SerializeObject(dataTable);
-             
+
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
             return Utils.GridWrap(json, metaData, journalStats);
@@ -156,7 +165,7 @@ namespace LP.Finance.WebProxy.WebAPI
             //return Utils.RunQuery(connectionString, query, sqlParams.ToArray());
         }
 
-      
+
         private object Only(string orderId)
         {
             var content = "{}";
@@ -169,7 +178,8 @@ namespace LP.Finance.WebProxy.WebAPI
             var startdate = date.ToString("MM-dd-yyyy") + " 09:00";
             var enddate = date.ToString("MM-dd-yyyy") + " 16:30";
 
-            var query = $@"select LpOrderId, Action, Symbol, Side, Quantity, SecurityType, CustodianCode, ExecutionBroker, TradeId, Fund, PMCode, PortfolioCode, TradePrice, TradeDate, Trader, Status, Commission, Fees, NetMoney, UpdatedOn from Trade nolock
+            var query =
+                $@"select LpOrderId, Action, Symbol, Side, Quantity, SecurityType, CustodianCode, ExecutionBroker, TradeId, Fund, PMCode, PortfolioCode, TradePrice, TradeDate, Trader, Status, Commission, Fees, NetMoney, UpdatedOn from Trade nolock
                 where LPOrderId='{orderId}'
                 order by UpdatedOn desc";
 
@@ -196,23 +206,24 @@ namespace LP.Finance.WebProxy.WebAPI
 
 
     /// <summary>
-    /// Deliver the tiles / links resources to the logged in user
+    /// Deliver the Tiles / Links Resources to the Logged In User
     /// </summary>
     public class JournalController : ApiController
     {
         // Mock Service
-        //private IJournalController controller = new JournalControllerStub();
+        // private IJournalController controller = new JournalControllerStub();
         private IJournalController controller = new JournalControllerService();
+
         public JournalController()
         {
         }
 
         [HttpGet]
         [ActionName("data")]
-        public object Data(string refdata, int pageNumber,int pageSize,string sortColum ="id",string sortDirection= "asc", int accountId =0 ,int value=0)
+        public object Data(string refdata, int pageNumber, int pageSize, string sortColum = "id",
+            string sortDirection = "asc", int accountId = 0, int value = 0)
         {
-            return controller.Data(refdata, pageNumber, pageSize, sortColum, sortDirection,accountId, value);
+            return controller.Data(refdata, pageNumber, pageSize, sortColum, sortDirection, accountId, value);
         }
-
     }
 }
