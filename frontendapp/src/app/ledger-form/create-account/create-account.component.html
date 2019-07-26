@@ -34,14 +34,17 @@
                 <div class="col-sm-3">
                     <label> Account Type </label>
                 </div>
+                
                 <!-- <div *ngIf="editCase" class="col-sm-9">
                   <label style="font: bold"><strong>{{ categoryLabel.name }}</strong></label>
                 </div> -->
+                
                 <div class="col-sm-9">
                     <select class="custom-select"
                         #type 
                         (change)="getAccountTags(type.value)"
                         formControlName="category"
+                        [attr.disabled]="canEditAccount === false ? true : null"
                         >
                         <option *ngIf="!editCase" hidden [value]=""  selected>Choose your account type</option>
                         <option 
@@ -55,7 +58,7 @@
               </div>
           </div>
 
-          <!-- Error message for no accounr definition -->
+          <!-- Error message for account having no definition -->
           <div *ngIf="noAccountDef" class="row mt-4">
               <div class="col-sm-3">
                 
@@ -67,7 +70,7 @@
 
           <!------- Account Tag ------->
           <div class="form-group">
-            <div *ngIf="!editCase && accountTypeTags" class="row">
+            <div *ngIf="accountTypeTags && canModifyLedger" class="row"> 
                 <div class="col-sm-5">
                 </div>
                 <div class="col-sm-02 mb-2">
@@ -76,22 +79,21 @@
                 <div class="col-sm-5">                  
                 </div>
             </div>
-
-            <!------- Array Form for Tags ------->
-            <form *ngIf="!editCase && accountTypeTags || editCase" [formGroup]="accountForm">
+          
+            <div *ngIf="!editCase && accountTypeTags && canEditAccount || editCase && canEditAccount">
                 <div formArrayName="tagsList"> 
                   <div *ngFor="let instance of tags.controls; let i = index;" [formGroupName]="i">
                     <div class="row mb-3">
                       <div class="col-sm-4">
                           <label><input class="mr-4" formControlName="isChecked" type="checkbox"> 
-                            {{instance.value.tag_name}} 
+                            {{instance.value.tagName}} 
                           </label>
                         </div>
                         <div *ngIf="!editCase" class="col-sm-8">
                           <input class="form-control"
                             [attr.disabled]="!instance.value.isChecked ? true : null"
                             formControlName="description"
-                            placeholder="Enter {{instance.value.tag_name}}"
+                            placeholder="Enter {{instance.value.tagName}}"
                             >
                         </div>
                         <div *ngIf="editCase" class="col-sm-8">
@@ -104,7 +106,36 @@
                     </div>
                   </div>
                 </div>
-            </form>
+              </div>
+          
+            <!------- Array Form for Tags ------->
+            <!-- <form *ngIf="!editCase && accountTypeTags || editCase" [formGroup]="accountForm">
+                <div formArrayName="tagsList"> 
+                  <div *ngFor="let instance of tags.controls; let i = index;" [formGroupName]="i">
+                    <div class="row mb-3">
+                      <div class="col-sm-4">
+                          <label><input class="mr-4" formControlName="instance.value.isChecked" type="checkbox"> 
+                            {{instance.value.tag_name}} 
+                          </label>
+                        </div>
+                        <div *ngIf="!editCase" class="col-sm-8">
+                          <input class="form-control"
+                            [attr.disabled]="!instance.value.isChecked ? true : null"
+                            formControlName="description"
+                            placeholder="Enter {{instance.value.accountTags.TagName}}"
+                            >
+                        </div>
+                        <div *ngIf="editCase" class="col-sm-8">
+                          <input class="form-control"
+                            [attr.disabled]="!instance.value.isChecked ? true : null"
+                            formControlName="description"
+                            [value]="instance.value.description"
+                            >
+                        </div>
+                    </div>
+                  </div>
+                </div>
+            </form> -->
           </div>
         </div>
 

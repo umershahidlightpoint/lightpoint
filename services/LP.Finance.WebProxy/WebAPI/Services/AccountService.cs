@@ -11,7 +11,7 @@ using SqlDAL.Core;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
-    class AccountService : IAccountControllerService
+    class AccountService : IAccountService
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
@@ -87,6 +87,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                             {new TagDto {Id = (int) reader["tag_id"], Value = reader["tag_value"].ToString()}}
                     });
                 }
+
+                reader.Close();
+                sqlConnection.Close();
             }
 
             var result = accounts.GroupBy(account => account.AccountId)
@@ -95,9 +98,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     AccountId = group.Key,
                     AccountName = group.FirstOrDefault()?.AccountName,
                     Description = group.FirstOrDefault()?.Description,
-                    CategoryId = group.FirstOrDefault().CategoryId,
+                    CategoryId = group.FirstOrDefault()?.CategoryId,
                     Category = group.FirstOrDefault()?.Category,
                     HasJournal = group.FirstOrDefault()?.HasJournal,
+                    CanDeleted = group.FirstOrDefault()?.HasJournal == "No",
+                    CanEdited = group.FirstOrDefault()?.HasJournal == "No",
                     Tags = group.SelectMany(tag => tag.Tags).ToList()
                 })
                 .ToList();
@@ -106,7 +111,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return Utils.Wrap(true, result, meta);
         }
 
-        public object CreateAccount(AccountDto account)
+        public object CreateAccount(AccountInputDto account)
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);
             try
@@ -167,9 +172,15 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return Utils.Wrap(true);
         }
 
-        public object UpdateAccount(int id, AccountDto account)
+        public object UpdateAccount(int id, AccountInputDto account)
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);
+
+            if (AccountHasJournal(id))
+            {
+                return Utils.Wrap(false, "An Account having Journal cannot be Edited");
+            }
+
             try
             {
                 sqlHelper.VerifyConnection();
@@ -234,11 +245,41 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return Utils.Wrap(true);
         }
 
+        public object PatchAccount(int id, AccountInputPatchDto account)
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+
+            List<SqlParameter> accountParameters = new List<SqlParameter>
+            {
+                new SqlParameter("id", id), new SqlParameter("description", account.Description)
+            };
+
+            var accountQuery = $@"UPDATE [account]
+                                    SET [description] = @description
+                                    WHERE [id] = @id";
+
+            try
+            {
+                sqlHelper.VerifyConnection();
+
+                sqlHelper.Update(accountQuery, CommandType.Text, accountParameters.ToArray());
+            }
+            catch (Exception ex)
+            {
+                sqlHelper.CloseConnection();
+
+                Console.WriteLine($"Patch Account Exception: {ex}");
+                return Utils.Wrap(false);
+            }
+
+            return Utils.Wrap(true);
+        }
+
         public object DeleteAccount(int id)
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);
 
-            if (CanBeDeleted(id))
+            if (AccountHasJournal(id))
             {
                 return Utils.Wrap(false, "An Account having Journal cannot be Deleted");
             }
@@ -279,11 +320,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
 
             return Utils.Wrap(true);
-        }
-
-        private bool CanBeDeleted(int id)
-        {
-            return AccountHasJournal(id);
         }
 
         private bool AccountHasJournal(int id)
