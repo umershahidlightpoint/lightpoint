@@ -1,5 +1,6 @@
 ﻿using ConsoleApp1;
 using LP.Finance.Common.Models;
+using PostingEngine.PostingRules;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -8,9 +9,18 @@ using System.Text;
 
 namespace PostingEngine
 {
-    public class PostingEnvironment
+    public class PostingEngineEnvironment
     {
         public DateTime ValueDate { get; set; }
+        public AccountCategory[] Categories { get; internal set; }
+        public List<AccountType> Types { get; internal set; }
+
+        // Map of Product type to IPostingRule
+        public Dictionary<string, IPostingRule> rules = new Dictionary<string, IPostingRule>
+        {
+            {"Common Stock", new CommonStock() },
+            {"Journals", new FakeJournals() }
+        };
     }
 
     class Posting
@@ -36,7 +46,7 @@ namespace PostingEngine
             }
         }
 
-        public void ProcessTradeEvent(PostingEnvironment env, Transaction element)
+        public void ProcessTradeEvent(PostingEngineEnvironment env, Transaction element)
         {
             var accountToFrom = GetFromToAccount(element);
 
@@ -70,7 +80,7 @@ namespace PostingEngine
             }
         }
 
-        public void ProcessSettlementEvent(PostingEnvironment env, Transaction element)
+        public void ProcessSettlementEvent(PostingEngineEnvironment env, Transaction element)
         {
             var accountToFrom = GetFromToAccount(element);
 
@@ -103,11 +113,11 @@ namespace PostingEngine
                 credit.Save(_connection, _transaction);
             }
         }
-        public void ProcessPnl(PostingEnvironment env, Transaction element)
+        public void ProcessPnl(PostingEngineEnvironment env, Transaction element)
         {
         }
 
-        public void ProcessLegacyJournalEvent(PostingEnvironment env, Transaction element)
+        public void ProcessLegacyJournalEvent(PostingEngineEnvironment env, Transaction element)
         {
             var accountToFrom = GetFromToAccount(element);
 
@@ -142,10 +152,15 @@ namespace PostingEngine
         /// </summary>
         /// <param name="env"></param>
         /// <param name="element"></param>
-        public void Process (PostingEnvironment env, Transaction element)
+        public void Process (PostingEngineEnvironment env, Transaction element)
         {
+            // Find me the rule
+            var rule = env.rules.Where(i => i.Key.Equals(element.SecurityType)).FirstOrDefault().Value;
+
             if ( env.ValueDate == element.TradeDate.Date)
             {
+                if (rule != null) rule.TradeDateEvent(env, element);
+
                 if (element.SecurityType.Equals("Journals"))
                 {
                     ProcessLegacyJournalEvent(env, element);
@@ -155,6 +170,11 @@ namespace PostingEngine
                 ProcessTradeEvent(env, element);
             } else if ( env.ValueDate == element.SettleDate.Date)
             {
+                if (element.SecurityType.Equals("Common Stock"))
+                {
+                    new CommonStock().SettlementDateEvent(env, element);
+                }
+
                 ProcessSettlementEvent(env, element);
                 // We are settling so we need to do move from unrealized to realized
             } else if ( env.ValueDate > element.TradeDate.Date && env.ValueDate < element.SettleDate.Date)
@@ -174,6 +194,16 @@ namespace PostingEngine
 
         // Collect a list of accounts that are generated
         private static readonly Dictionary<string, Account> accounts = new Dictionary<string, Account>();
+
+        private Account FindAccount( string accountName, Transaction element)
+        {
+            var accountType = AccountType.All.Where(i => i.Name.ToLowerInvariant().Equals(accountName.ToLowerInvariant())).FirstOrDefault();
+
+            // Now we have the account type, so now need to create the account details
+            var account = new Account { Type = accountType };
+
+            return null;
+        }
 
         /// <summary>
         /// Create an account based on the Account Definition and the past Transaction 
@@ -208,7 +238,10 @@ namespace PostingEngine
                 return accounts[name];
             }
 
-            var account = new Account { Category = def.AccountCategory, Description = name, Name = name };
+            var account = new Account {
+                // Need to revisit this ASAP
+                //Type = def.AccountCategory,
+                Description = name, Name = name };
 
             account.Tags = tags;
 

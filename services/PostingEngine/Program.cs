@@ -1,6 +1,7 @@
 ﻿using LP.Finance.Common.Models;
 using Newtonsoft.Json;
 using PostingEngine;
+using PostingEngine.PostingRules;
 using System;
 using System.Configuration;
 using System.Data.SqlClient;
@@ -26,7 +27,7 @@ namespace ConsoleApp1
                 connection.Open();
 
                 // Cleanout all data
-                Cleanup(connection);
+                // Cleanup(connection);
 
                 // Setup key data tables
                 Setup(connection);
@@ -65,21 +66,19 @@ namespace ConsoleApp1
 
         private static void Setup(SqlConnection connection)
         {
-            var transaction = connection.BeginTransaction();
-            new AccountCategory { Id = AccountCategory.AC_ASSET, Name = "Asset" }.Save(connection, transaction);
-            new AccountCategory { Id = AccountCategory.AC_LIABILITY, Name = "Liability" }.Save(connection, transaction);
-            new AccountCategory { Id = AccountCategory.AC_EQUITY, Name = "Equity" }.Save(connection, transaction);
-            new AccountCategory { Id = AccountCategory.AC_REVENUES, Name = "Revenues" }.Save(connection, transaction);
-            new AccountCategory { Id = AccountCategory.AC_EXPENCES, Name = "Expences" }.Save(connection, transaction);
-            transaction.Commit();
+            // Pre load AccountCategory and AccountType
+            var categories = AccountCategory.Load(connection);
+            var accountTypes = AccountType.Load(connection);
 
-            transaction = connection.BeginTransaction();
+            var transaction = connection.BeginTransaction();
             new Tag { TypeName = "Transaction", PropertyName = "SecurityType", PkName = "unknown" }.Save(connection, transaction);
             new Tag { TypeName = "Transaction", PropertyName = "Symbol", PkName = "unknown" }.Save(connection, transaction);
             new Tag { TypeName = "Transaction", PropertyName = "CustodianCode", PkName = "unknown" }.Save(connection, transaction);
             new Tag { TypeName = "Transaction", PropertyName = "Fund", PkName = "unknown" }.Save(connection, transaction);
             new Tag { TypeName = "Transaction", PropertyName = "ExecutionBroker", PkName = "unknown" }.Save(connection, transaction);
             transaction.Commit();
+
+
         }
 
         /// <summary>
@@ -108,7 +107,11 @@ namespace ConsoleApp1
 
             var elements = JsonConvert.DeserializeObject<Transaction[]>(result);
 
-            var postingEnv = new PostingEnvironment() { ValueDate = DateTime.Now.Date };
+            var postingEnv = new PostingEngineEnvironment {
+                Categories = AccountCategory.Categories,
+                Types = AccountType.All,
+                ValueDate = DateTime.Now.Date
+            };
 
             var minTradeDate = elements.Min(i => i.TradeDate.Date);
             var maxTradeDate = elements.Max(i => i.TradeDate.Date);
