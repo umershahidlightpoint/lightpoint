@@ -1,6 +1,6 @@
 ﻿namespace LP.Finance.WebProxy.WebAPI
 {
-    public interface ILedgerController
+    public interface ILedgerService
     {
         object Data(string symbol);
     }

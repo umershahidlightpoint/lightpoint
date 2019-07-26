@@ -4,9 +4,9 @@ using LP.Finance.WebProxy.WebAPI.Services;
 namespace LP.Finance.WebProxy.WebAPI
 {
     [RoutePrefix("api/account_def")]
-    public class AccountDefController : ApiController, IAccountDefControllerService
+    public class AccountDefController : ApiController, IAccountDefService
     {
-        private readonly IAccountDefControllerService controller = new AccountDefControllerService();
+        private readonly IAccountDefService controller = new AccountDefService();
 
         public AccountDefController()
         {

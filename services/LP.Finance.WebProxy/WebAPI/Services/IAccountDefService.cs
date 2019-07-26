@@ -1,6 +1,6 @@
 ﻿namespace LP.Finance.WebProxy.WebAPI.Services
 {
-    public interface IAccountDefControllerService
+    public interface IAccountDefService
     {
         object GetAccountDefs();
     }
