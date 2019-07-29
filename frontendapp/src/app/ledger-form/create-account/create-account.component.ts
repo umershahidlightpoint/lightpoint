@@ -9,41 +9,54 @@ import {
   Component,
   OnInit,
   ViewChild,
+  Input,
   Output,
   EventEmitter,
-  Inject
+  Inject,
+  OnDestroy
 } from "@angular/core";
 import { ModalDirective } from "ngx-bootstrap";
 import { Router } from "@angular/router";
-import { CreateAccount, EditAccount } from "../../../shared/Types/account";
+import {
+  CreateAccount,
+  EditAccount,
+  AccountCategory,
+  GridRowData,
+  AccountTag
+} from "../../../shared/Models/account";
 import { FinancePocServiceProxy } from "../../../shared/service-proxies/service-proxies";
 import { ToastrService } from "ngx-toastr";
+import { Subscription, Subject } from "rxjs";
+import { takeWhile } from "rxjs/operators";
 
 @Component({
   selector: "app-create-account",
   templateUrl: "./create-account.component.html",
   styleUrls: ["./create-account.component.css"]
 })
-export class CreateAccountComponent implements OnInit {
+export class CreateAccountComponent implements OnInit, OnDestroy {
   editCase: boolean = false;
-  categoryLabel: any;
+  categoryLabel: string;
   nameLabel: string;
-  clickedAccountId: number;
-  rowDataSelected: any;
   noAccountDef: boolean = false;
   canEditAccount: boolean = true;
+  clickedAccountId: number;
+  //For unsubscribing all subscriptions
+  isSubscriptionAlive: boolean;
 
-  accountTypeNames: any;
-  accountTypeTags: any;
-
+  //Account Model
+  rowDataSelected: GridRowData;
+  accountCategories: AccountCategory;
+  accountTypeTags; //: AccountTag
   accountInstance: CreateAccount;
   editAccountInstance: EditAccount;
+
+  @Input("selectedAccCategory") selectedAccountCategory: AccountCategory;
   @ViewChild("modal") modal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
 
-  // Form Aray attributes
-  accountForm: FormGroup;
   ledgerForm: FormGroup;
+  // Form Aray attributes
   tags: FormArray;
 
   constructor(
@@ -51,11 +64,14 @@ export class CreateAccountComponent implements OnInit {
     @Inject(FormBuilder) private formBuilder: FormBuilder,
     private financePocServiceProxy: FinancePocServiceProxy,
     private toastrService: ToastrService
-  ) {}
+  ) {
+    this.isSubscriptionAlive = true;
+  }
 
   ngOnInit() {
     this.buildForm();
     this.getAccountCategories();
+    //console.log('==child',this.selectedAccountCategory)
   }
 
   buildForm() {
@@ -71,25 +87,13 @@ export class CreateAccountComponent implements OnInit {
   }
 
   createTag(tag): FormGroup {
-    let formGroup;
-    if (this.editCase) {
-      formGroup = this.formBuilder.group({
-        description: this.formBuilder.control(tag.description),
-        tagTable: this.formBuilder.control(tag.TableName),
-        isChecked: this.formBuilder.control(tag.isChecked),
-        tagId: this.formBuilder.control(tag.TagId),
-        tagName: this.formBuilder.control(tag.TagName)
-      });
-      return formGroup;
-    }
-    formGroup = this.formBuilder.group({
+    return this.formBuilder.group({
       description: this.formBuilder.control(tag.description),
       isChecked: this.formBuilder.control(tag.isChecked),
       tagTable: this.formBuilder.control(tag.TableName),
       tagId: this.formBuilder.control(tag.TagId),
       tagName: this.formBuilder.control(tag.TagName)
     });
-    return formGroup;
   }
 
   addTag(selectedAccTags): void {
@@ -116,21 +120,72 @@ export class CreateAccountComponent implements OnInit {
     } else if (this.editCase && flag) {
       this.hasExistingAccount(type);
     } else {
-      let selectedCategoryId = type.slice(0, 1);
-      this.financePocServiceProxy.accountTags().subscribe(
+      let selectedAccId = type.slice(0, 1);
+      this.financePocServiceProxy
+        .accountTags()
+        .pipe(takeWhile(() => this.isSubscriptionAlive))
+        .subscribe(
+          response => {
+            if (response.payload.length < 1) {
+              this.noAccountDef = true;
+              return;
+            }
+            this.accountTypeTags = response.payload.filter(payload => {
+              if (payload.AccountCategoryId == selectedAccId) {
+                payload.AccountTags.map(tag => {
+                  tag["isChecked"] = false;
+                  tag["description"] = "";
+                });
+                return payload;
+              }
+            });
+            this.addTag(this.accountTypeTags);
+          },
+          error => {
+            this.toastrService.error("Something went wrong. Try again later!");
+          }
+        );
+    }
+  }
+
+  getAccountCategories() {
+    this.financePocServiceProxy
+      .accountCategories()
+      .pipe(takeWhile(() => this.isSubscriptionAlive))
+      .subscribe(response => {
+        if (response.isSuccessful) {
+          this.accountCategories = response.payload;
+        } else {
+          this.toastrService.error("Failed to fetch account categories!");
+        }
+      });
+  }
+
+  hasExistingAccount(accountData) {
+    this.financePocServiceProxy
+      .accountTags()
+      .pipe(takeWhile(() => this.isSubscriptionAlive))
+      .subscribe(
         response => {
           if (response.payload.length < 1) {
             this.noAccountDef = true;
             return;
           }
           this.accountTypeTags = response.payload.filter(payload => {
-            if (payload.AccountCategoryId == selectedCategoryId) {
-              payload.AccountTags.map(tag => {
-                tag["isChecked"] = false;
-                tag["description"] = "";
-              });
+            if (payload.AccountCategoryId == accountData.Category_Id) {
               return payload;
             }
+          });
+
+          this.accountTypeTags.map(accountTag => {
+            this.rowDataSelected.Tags.forEach(tag => {
+              accountTag.AccountTags.forEach(accTag => {
+                if (tag.Id == accTag.TagId) {
+                  accTag["isChecked"] = true;
+                  accTag["description"] = tag.Value;
+                }
+              });
+            });
           });
           this.addTag(this.accountTypeTags);
         },
@@ -138,47 +193,6 @@ export class CreateAccountComponent implements OnInit {
           this.toastrService.error("Something went wrong. Try again later!");
         }
       );
-    }
-  }
-
-  getAccountCategories() {
-    this.financePocServiceProxy.accountCategories().subscribe(response => {
-      if (response.isSuccessful) {
-        this.accountTypeNames = response.payload;
-      } else {
-        this.toastrService.error("Failed to fetch account categories!");
-      }
-    });
-  }
-
-  hasExistingAccount(accountData) {
-    this.financePocServiceProxy.accountTags().subscribe(
-      response => {
-        if (response.payload.length < 1) {
-          this.noAccountDef = true;
-          return;
-        }
-        this.accountTypeTags = response.payload.filter(payload => {
-          if (payload.AccountCategoryId == accountData.Category_Id) {
-            return payload;
-          }
-        });
-        this.accountTypeTags.map(accountTag => {
-          this.rowDataSelected.Tags.forEach(tag => {
-            accountTag.AccountTags.forEach(accTag => {
-              if (tag.Id == accTag.TagId) {
-                accTag["isChecked"] = true;
-                accTag["description"] = tag.Value;
-              }
-            });
-          });
-        });
-        this.addTag(this.accountTypeTags);
-      },
-      error => {
-        this.toastrService.error("Something went wrong. Try again later!");
-      }
-    );
   }
 
   show(rowSelected) {
@@ -298,10 +312,13 @@ export class CreateAccountComponent implements OnInit {
     this.ledgerForm.controls["description"].reset();
     this.ledgerForm.controls["category"].reset();
     //this.ledgerForm.controls['name'].enable();
-    //this.accountForm.reset()
     this.canEditAccount = true;
     this.editCase = false;
     this.accountTypeTags = null;
     this.categoryLabel = null;
+  }
+
+  ngOnDestroy() {
+    this.isSubscriptionAlive = false;
   }
 }
