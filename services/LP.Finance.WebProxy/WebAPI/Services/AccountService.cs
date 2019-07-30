@@ -49,13 +49,17 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 	                    ,[account].[description]
                         ,[account_category].[id] AS 'category_id'
 	                    ,[account_category].[name] AS 'category' 
+                        ,[account_type].[id] AS 'type_id'
+	                    ,[account_type].[name] AS 'type' 
                         ,[account_tag].[tag_id]
 						,[account_tag].[tag_value]
 	                    ,CASE WHEN EXISTS (SELECT [journal].[id] FROM [journal] WHERE [journal].[account_id] = [account].[id])
 	                    THEN 'Yes' 
 	                    ELSE 'No'
 	                    END AS 'has_journal'
-                        FROM [account] JOIN [account_category] ON [account].[account_category_id] = [account_category].[id]
+                        FROM [account] 
+                        JOIN [account_type] ON [account].[account_type_id] = [account_type].[id]
+                        JOIN [account_category] ON [account_type].[account_category_id] = [account_category].[id]
                         JOIN [account_tag] ON [account].[id] = [account_tag].[account_id]";
 
             query += accountName.Length > 0 ? " WHERE [account].[name] LIKE '%'+@accountName+'%'" : "";
@@ -337,7 +341,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 	                    THEN 'true'
                         ELSE 'false'
 	                    END AS 'has_journal'
-                        FROM [account] JOIN [account_category] ON [account].[account_category_id] = [account_category].[id]
+                        FROM [account] JOIN [account_ty] ON [account].[account_category_id] = [account_category].[id]
 	                    WHERE [account].[id] = @id";
 
             var hasJournal = sqlHelper.GetScalarValue(query, CommandType.Text, sqlParameters.ToArray());

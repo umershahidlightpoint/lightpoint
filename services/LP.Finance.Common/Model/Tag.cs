@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
 
 namespace LP.Finance.Common.Models
 {
     public class Tag : IDbAction
     {
+        public static Tag Find(string name)
+        {
+            return Tags.Where(i => i.PropertyName.Equals(name)).FirstOrDefault();
+        }
+
         public static List<Tag> Tags {  get { return _tags; } }
         private static List<Tag> _tags = null;
 

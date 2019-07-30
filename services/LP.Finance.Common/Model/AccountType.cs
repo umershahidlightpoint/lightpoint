@@ -25,9 +25,9 @@ namespace LP.Finance.Common.Models
             {
                 list.Add(new AccountType
                 {
-                Id = reader.GetFieldValue<Int32>(0),
+                Id = reader.GetFieldValue<int>(0),
                 Name = reader.GetFieldValue<string>(1),
-                Category = AccountCategory.Find(reader.GetFieldValue<Int32>(2))
+                Category = AccountCategory.Find(reader.GetFieldValue<int>(2))
                 });
             }
             reader.Close();

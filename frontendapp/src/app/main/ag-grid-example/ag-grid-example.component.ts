@@ -145,6 +145,11 @@ export class AgGridExampleComponent implements OnInit {
       cellRendererFramework: TemplateRendererComponent, cellRendererParams: {
         ngTemplate: this.greetCell  }
     },
+    { field: 'fund', headerName: 'Fund',sortable: true, enableRowGroup: true, 
+    enablePivot: true,filter: true },
+  { field: 'AccountCategory', headerName: 'Category',sortable: true, enableRowGroup: true, 
+    enablePivot: true,filter: true },
+
       { field: 'AccountType', headerName: 'Account Type',sortable: true, enableRowGroup: true, 
       enablePivot: true,filter: true },
       { field: 'accountName', headerName: 'Account Name',sortable: true,  enableRowGroup: true,
@@ -184,7 +189,8 @@ export class AgGridExampleComponent implements OnInit {
     this.columnDefs =(
       [
         { field: 'source', headerName: 'Source'  },
-     
+        { field: 'fund', headerName: 'Fund' },
+        { field: 'AccountCategory', headerName: 'Category' },
         { field: 'AccountType', headerName: 'Account Type' },
         { field: 'accountName', headerName: 'Account Name' },
         { field: 'when', headerName: 'when' ,sortable: true },
@@ -232,6 +238,8 @@ export class AgGridExampleComponent implements OnInit {
      this.rowData = result.data.map(item => ({
        id: item.id,
        source:item.source,
+       fund:item.fund,
+       AccountCategory:item.AccountCategory,
        AccountType:item.AccountType,
        accountName: item.accountName ,
        accountId: item.account_id,

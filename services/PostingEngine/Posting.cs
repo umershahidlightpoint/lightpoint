@@ -11,6 +11,12 @@ namespace PostingEngine
 {
     public class PostingEngineEnvironment
     {
+        public PostingEngineEnvironment(SqlConnection connection, SqlTransaction transaction)
+        {
+            Connection = connection;
+            Transaction = transaction;
+        }
+
         public DateTime ValueDate { get; set; }
         public AccountCategory[] Categories { get; internal set; }
         public List<AccountType> Types { get; internal set; }
@@ -21,132 +27,13 @@ namespace PostingEngine
             {"Common Stock", new CommonStock() },
             {"Journals", new FakeJournals() }
         };
+
+        public SqlConnection Connection { get; private set; }
+        public SqlTransaction Transaction { get; private set; }
     }
 
     class Posting
     {
-        private readonly SqlConnection _connection;
-        private readonly SqlTransaction _transaction;
-
-        public Posting(SqlConnection connection, SqlTransaction transaction)
-        {
-            _connection = connection;
-            _transaction = transaction;
-        }
-
-        public void SaveAccountDetails(Account account)
-        {
-            account.SaveUpdate(_connection, _transaction);
-            account.Id = account.Identity(_connection, _transaction);
-            foreach (var tag in account.Tags)
-            {
-                tag.Account = account;
-                //tag.Tag.Save(_connection, _transaction);
-                tag.Save(_connection, _transaction);
-            }
-        }
-
-        public void ProcessTradeEvent(PostingEngineEnvironment env, Transaction element)
-        {
-            var accountToFrom = GetFromToAccount(element);
-
-            SaveAccountDetails(accountToFrom.From);
-            SaveAccountDetails(accountToFrom.To);
-
-            if (element.NetMoney != 0.0)
-            {
-                var debit = new Journal
-                {
-                    Source = element.LpOrderId,
-                    Account = accountToFrom.From,
-                    When = env.ValueDate,
-                    Value = element.NetMoney * -1,
-                    GeneratedBy = "system",
-                    Fund = element.Fund,
-                };
-
-                debit.Save(_connection, _transaction);
-
-                var credit = new Journal
-                {
-                    Source = element.LpOrderId,
-                    Account = accountToFrom.To,
-                    When = env.ValueDate,
-                    Value = element.NetMoney,
-                    GeneratedBy = "system",
-                    Fund = element.Fund,
-                };
-                credit.Save(_connection, _transaction);
-            }
-        }
-
-        public void ProcessSettlementEvent(PostingEngineEnvironment env, Transaction element)
-        {
-            var accountToFrom = GetFromToAccount(element);
-
-            SaveAccountDetails(accountToFrom.From);
-            SaveAccountDetails(accountToFrom.To);
-
-            if (element.NetMoney != 0.0)
-            {
-                var debit = new Journal
-                {
-                    Source = element.LpOrderId,
-                    Account = accountToFrom.From,
-                    When = env.ValueDate,
-                    Value = element.NetMoney * -1,
-                    GeneratedBy = "system",
-                    Fund = element.Fund,
-                };
-
-                debit.Save(_connection, _transaction);
-
-                var credit = new Journal
-                {
-                    Source = element.LpOrderId,
-                    Account = accountToFrom.To,
-                    When = env.ValueDate,
-                    Value = element.NetMoney,
-                    GeneratedBy = "system",
-                    Fund = element.Fund,
-                };
-                credit.Save(_connection, _transaction);
-            }
-        }
-        public void ProcessPnl(PostingEngineEnvironment env, Transaction element)
-        {
-        }
-
-        public void ProcessLegacyJournalEvent(PostingEngineEnvironment env, Transaction element)
-        {
-            var accountToFrom = GetFromToAccount(element);
-
-            SaveAccountDetails(accountToFrom.From);
-            SaveAccountDetails(accountToFrom.To);
-
-            var debit = new Journal
-            {
-                Source = element.LpOrderId,
-                Account = accountToFrom.From,
-                When = env.ValueDate,
-                Value = element.LocalNetNotional * -1,
-                GeneratedBy = "system",
-                Fund = element.Fund,
-            };
-            debit.Save(_connection, _transaction);
-
-            var credit = new Journal
-            {
-                Source = element.LpOrderId,
-                Account = accountToFrom.To,
-                When = env.ValueDate,
-                Value = element.LocalNetNotional,
-                GeneratedBy = "system",
-                Fund = element.Fund,
-            };
-            credit.Save(_connection, _transaction);
-        }
-
         /// <summary>
         /// Based on the environment we need to determine what to do.
         /// </summary>
@@ -159,31 +46,50 @@ namespace PostingEngine
 
             if ( env.ValueDate == element.TradeDate.Date)
             {
-                if (rule != null) rule.TradeDateEvent(env, element);
-
-                if (element.SecurityType.Equals("Journals"))
+                try
                 {
-                    ProcessLegacyJournalEvent(env, element);
-                    return;
+                    if (rule != null)
+                        rule.TradeDateEvent(env, element);
+                    else
+                        Console.WriteLine($"No rule associated with {element.SecurityType}");
                 }
-                // Initial amount Cash and Asset
-                ProcessTradeEvent(env, element);
-            } else if ( env.ValueDate == element.SettleDate.Date)
-            {
-                if (element.SecurityType.Equals("Common Stock"))
+                catch (Exception ex)
                 {
-                    new CommonStock().SettlementDateEvent(env, element);
+                    Console.WriteLine($"Unable to process the Event for Trade Date {ex.Message}");
+                }
+            }
+            else if ( env.ValueDate == element.SettleDate.Date)
+            {
+                try
+                {
+                    if (rule != null)
+                        rule.SettlementDateEvent(env, element);
+                    else
+                        Console.WriteLine($"No rule associated with {element.SecurityType}");
+                }
+                catch ( Exception ex )
+                {
+                    Console.WriteLine($"Unable to process the Event for Settlement Date {ex.Message}");
+                }
+            }
+            else if ( env.ValueDate > element.TradeDate.Date && env.ValueDate < element.SettleDate.Date)
+            {
+                try
+                {
+                    if (rule != null)
+                        rule.DailyEvent(env, element);
+                    else
+                        Console.WriteLine($"No rule associated with {element.SecurityType}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Unable to process the Event for Daily Event {ex.Message}");
                 }
 
-                ProcessSettlementEvent(env, element);
-                // We are settling so we need to do move from unrealized to realized
-            } else if ( env.ValueDate > element.TradeDate.Date && env.ValueDate < element.SettleDate.Date)
+            }
+            else
             {
-                ProcessPnl(env, element);
-                // Determine change in the price and post a P&L
-            } else
-            {
-                //Console.WriteLine($"Trade ignored {element.TradeDate}");
+                Console.WriteLine($"Trade ignored {element.TradeDate}");
             }
         }
 
@@ -192,8 +98,6 @@ namespace PostingEngine
             return new Journal[] { };
         }
 
-        // Collect a list of accounts that are generated
-        private static readonly Dictionary<string, Account> accounts = new Dictionary<string, Account>();
 
         private Account FindAccount( string accountName, Transaction element)
         {
@@ -203,95 +107,6 @@ namespace PostingEngine
             var account = new Account { Type = accountType };
 
             return null;
-        }
-
-        /// <summary>
-        /// Create an account based on the Account Definition and the past Transaction 
-        /// </summary>
-        /// <param name="def">Account Template</param>
-        /// <param name="transaction">Transaction</param>
-        /// <returns>An account based on the definition</returns>
-        private Account CreateAccount( AccountDef def, Transaction transaction)
-        {
-            var type = transaction.GetType();
-
-            var tags = new System.Collections.Generic.List<AccountTag>();
-
-            // Create a tag to identify the account
-            foreach (var tag in def.Tags)
-            {
-                var property = type.GetProperty(tag.PropertyName);
-                var value = property.GetValue(transaction);
-                if (value != null)
-                {
-                    tags.Add(new AccountTag { Tag = tag, TagValue = value.ToString() });
-                }
-            }
-
-            var name = String.Join("-", tags.Select(t => t.TagValue));
-
-            // Lets check to see if we have created this account already
-            if ( accounts.ContainsKey(name))
-            {
-                Console.WriteLine($"Using an existing account {name}");
-
-                return accounts[name];
-            }
-
-            var account = new Account {
-                // Need to revisit this ASAP
-                //Type = def.AccountCategory,
-                Description = name, Name = name };
-
-            account.Tags = tags;
-
-            accounts.Add(name, account);
-
-            return account;
-        }
-
-        private AccountToFrom GetFromToAccount(Transaction element)
-        {
-            var type = element.GetType();
-            var accountDefs = AccountDef.Defaults;
-
-            var assetAccount = CreateAccount(accountDefs.Where(i => i.AccountCategory == AccountCategory.AC_ASSET).First(), element);
-
-            if (element.SecurityType.Equals("Journals"))
-            {
-                var expencesAccount = CreateAccount(accountDefs.Where(i => i.AccountCategory == AccountCategory.AC_EXPENCES).First(), element);
-
-                // The symbol will determine how to generate the Journal entry for these elements.
-                switch (element.Symbol.ToUpper())
-                {
-                    case "ZZ_ACCOUNTING_FEES":
-                        break;
-                    case "ZZ_ADMINISTRATIVE_FEES":
-                        break;
-                    case "ZZ_BANK_SERVICE_FEES":
-                        break;
-                    case "ZZ_INVESTOR_CONTRIBUTIONS":
-                        break;
-                    case "ZZ_CUSTODY_FEES":
-                        break;
-                    default:
-                        break;
-                }
-
-                return new AccountToFrom
-                {
-                    From = assetAccount,
-                    To = expencesAccount
-                };
-            }
-
-            var liabilitiesAccount = CreateAccount(accountDefs.Where(i => i.AccountCategory == AccountCategory.AC_LIABILITY).First(), element);
-
-            return new AccountToFrom
-            {
-                From = assetAccount,
-                To = liabilitiesAccount
-            };
         }
     }
 }
