@@ -105,6 +105,8 @@ export class LedgerFormComponent implements OnInit, OnDestroy {
           CanEdited: result.CanEdited
         }))
         this.gridOptions.api.setRowData(this.rowData);
+      }, error => {
+        this.toastrService.error('Something went wrong. Try again later!') 
       })
     },100)
   }

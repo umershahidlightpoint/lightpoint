@@ -4,7 +4,7 @@
   <div class="modal-dialog modal-dialog-centered" id="modal-lg">
     <div class="modal-content">
       <!------ Form ------>
-      <form #roleForm="ngForm" [formGroup]="ledgerForm" (ngSubmit)="onSave()">
+      <form #roleForm="ngForm" [formGroup]="accountForm" (ngSubmit)="onSave()">
         <!------- Modal Header ------->
         <div class="modal-header">
           <h3 *ngIf="editCase">Edit Account</h3>
@@ -19,7 +19,7 @@
                 <label> Description </label>
               </div>
               <div class="col-sm-9">
-                <input type="text" class="form-control" formControlName="description" />
+                <input type="text" class="form-control" formControlName="description" #_description />
               </div>
             </div>
           </div>

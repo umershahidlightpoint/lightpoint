@@ -13,7 +13,8 @@ import {
   Output,
   EventEmitter,
   Inject,
-  OnDestroy
+  OnDestroy,
+  ElementRef
 } from "@angular/core";
 import { ModalDirective } from "ngx-bootstrap";
 import { Router } from "@angular/router";
@@ -53,9 +54,10 @@ export class CreateAccountComponent implements OnInit, OnDestroy {
 
   @Input("selectedAccCategory") selectedAccountCategory: AccountCategory;
   @ViewChild("modal") modal: ModalDirective;
+  @ViewChild("_description") descriptionRef: ElementRef;
   @Output() modalClose = new EventEmitter<any>();
 
-  ledgerForm: FormGroup;
+  accountForm: FormGroup;
   // Form Aray attributes
   tags: FormArray;
 
@@ -71,11 +73,10 @@ export class CreateAccountComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.buildForm();
     this.getAccountCategories();
-    //console.log('==child',this.selectedAccountCategory)
   }
 
   buildForm() {
-    this.ledgerForm = this.formBuilder.group({
+    this.accountForm = this.formBuilder.group({
       //name: new FormControl(''),
       description: new FormControl("", Validators.required),
       category: new FormControl("", Validators.required),
@@ -83,7 +84,7 @@ export class CreateAccountComponent implements OnInit, OnDestroy {
       accountCategoryId: new FormControl(""),
       tagsList: this.formBuilder.array([])
     });
-    this.tags = this.ledgerForm.get("tagsList") as FormArray;
+    this.tags = this.accountForm.get("tagsList") as FormArray;
   }
 
   createTag(tag): FormGroup {
@@ -97,13 +98,13 @@ export class CreateAccountComponent implements OnInit, OnDestroy {
   }
 
   addTag(selectedAccTags): void {
-    const control = <FormArray>this.ledgerForm.controls["tagsList"];
+    const control = <FormArray>this.accountForm.controls["tagsList"];
     for (let i = control.length - 1; i >= 0; i--) {
       control.removeAt(i);
     }
 
     selectedAccTags.forEach(accTag => {
-      this.ledgerForm.patchValue({
+      this.accountForm.patchValue({
         accountDefId: accTag.AccountDefId,
         accountCategoryId: accTag.AccountCategoryId
       });
@@ -202,7 +203,7 @@ export class CreateAccountComponent implements OnInit, OnDestroy {
       this.canEditAccount = rowSelected.CanDeleted;
       this.categoryLabel = this.canEditAccount ? null : rowSelected.Category;
       this.editCase = true;
-      this.ledgerForm.patchValue({
+      this.accountForm.patchValue({
         description: rowSelected.Description,
         category: {
           id: rowSelected.Category_Id,
@@ -216,10 +217,6 @@ export class CreateAccountComponent implements OnInit, OnDestroy {
     this.modal.show();
   }
 
-  onShown() {
-    this.ledgerForm.value.description.focusInput();
-  }
-
   close() {
     this.modalClose.emit(true);
     this.modal.hide();
@@ -228,7 +225,7 @@ export class CreateAccountComponent implements OnInit, OnDestroy {
   }
 
   onSave() {
-    let formValues = this.ledgerForm.value.tagsList;
+    let formValues = this.accountForm.value.tagsList;
     let tagsObject = formValues.filter(tag => {
       if (tag.isChecked === true) {
         return { id: tag.tag_id, value: tag.description };
@@ -240,7 +237,7 @@ export class CreateAccountComponent implements OnInit, OnDestroy {
     if (this.editCase) {
       if (!this.canEditAccount) {
         let patchAccountObj = {
-          description: this.ledgerForm.value.description
+          description: this.accountForm.value.description
         };
         this.financePocServiceProxy
           .patchAccount(this.clickedAccountId, patchAccountObj)
@@ -261,8 +258,8 @@ export class CreateAccountComponent implements OnInit, OnDestroy {
       } else {
         this.editAccountInstance = {
           id: this.clickedAccountId,
-          description: this.ledgerForm.value.description,
-          category: this.ledgerForm.value.category.id,
+          description: this.accountForm.value.description,
+          category: this.accountForm.value.category.id,
           tags: tagObjectToSend
         };
         this.financePocServiceProxy
@@ -284,8 +281,8 @@ export class CreateAccountComponent implements OnInit, OnDestroy {
       }
     } else {
       this.accountInstance = {
-        description: this.ledgerForm.value.description,
-        category: this.ledgerForm.value.category.id,
+        description: this.accountForm.value.description,
+        category: this.accountForm.value.category.id,
         tags: tagObjectToSend
       };
       this.financePocServiceProxy.createAccount(this.accountInstance).subscribe(
@@ -308,10 +305,10 @@ export class CreateAccountComponent implements OnInit, OnDestroy {
   }
 
   clearForm() {
-    //this.ledgerForm.controls['name'].reset();
-    this.ledgerForm.controls["description"].reset();
-    this.ledgerForm.controls["category"].reset();
-    //this.ledgerForm.controls['name'].enable();
+    //this.accountForm.controls['name'].reset();
+    this.accountForm.controls["description"].reset();
+    this.accountForm.controls["category"].reset();
+    //this.accountForm.controls['name'].enable();
     this.canEditAccount = true;
     this.editCase = false;
     this.accountTypeTags = null;
