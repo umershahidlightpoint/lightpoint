@@ -1,9 +1,10 @@
-import { Component, TemplateRef, ElementRef, OnInit, Injector, Input, ViewChild, EventEmitter, Output, ViewEncapsulation } from '@angular/core';
+import { Component, TemplateRef, ElementRef, OnInit, Injector, Input, ViewChild, 
+  EventEmitter, Output, ViewEncapsulation } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from "ag-grid-community";
 import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
 
-
+import "ag-grid-enterprise";
 import * as moment from 'moment';
 import { debug } from 'util';
 import { $ } from 'protractor';
@@ -37,12 +38,76 @@ export class AgGridExampleComponent implements OnInit {
       ],
       defaultToolPanel: ''
   };
+  
     this.gridOptions = <GridOptions>{
       rowData: null,
       //columnDefs: this.columnDefs,
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      onGridReady: () => { this.gridOptions.api.sizeColumnsToFit(); },
+      onGridReady: (params) => { 
+        this.gridApi = params.api;
+        this.gridColumnApi = params.columnApi;
+        this.gridOptions.api.sizeColumnsToFit();
+       
+        this.gridOptions.excelStyles= [
+          {
+           
+              id: "twoDecimalPlaces",
+              numberFormat: { format: "#,##0" }
+             
+          },
+          {
+            id: "greenBackground",
+            interior: {
+              
+              color: "#b5e6b5",
+              pattern: "Solid"
+            }
+
+          },
+          {
+            id: "redFont",
+            font: {
+              fontName: "Calibri Light",
+              
+              italic: true,
+              color: "#ff0000"
+            }
+          },
+
+          {
+            id: "header",
+            interior: {
+              color: "#CCCCCC",
+              pattern: "Solid"
+            },
+            borders: {
+              borderBottom: {
+                color: "#5687f5",
+                lineStyle: "Continuous",
+                weight: 1
+              },
+              borderLeft: {
+                color: "#5687f5",
+                lineStyle: "Continuous",
+                weight: 1
+              },
+              borderRight: {
+                color: "#5687f5",
+                lineStyle: "Continuous",
+                weight: 1
+              },
+              borderTop: {
+                color: "#5687f5",
+                lineStyle: "Continuous",
+                weight: 1
+              }
+            }
+          },
+        
+        
+        ];
+      },
       onFirstDataRendered: (params) => {params.api.sizeColumnsToFit();},
       enableFilter: true,
       animateRows: true,
@@ -109,7 +174,7 @@ export class AgGridExampleComponent implements OnInit {
   startDate: any;
   fund:any;
   endDate: any;
-
+     
   symbal: string;
   pageSize: any;
   accountSearch = { id: undefined };
@@ -137,7 +202,8 @@ export class AgGridExampleComponent implements OnInit {
 
   ngAfterViewInit()
   {
-     
+    
+
     this.gridOptions.api.setColumnDefs( [
         
         
@@ -173,11 +239,23 @@ export class AgGridExampleComponent implements OnInit {
     
     
      
-      { field: 'debit',aggFunc: "sum", headerName: 'Debit' , valueFormatter: currencyFormatter, cellStyle: {'text-align': 'right' } ,cellClass: "number-cell" } ,
-      { field: 'credit',aggFunc: "sum", headerName: 'Credit',  valueFormatter: currencyFormatter,cellStyle: {'text-align': 'right' }, cellClass: "number-cell"} 
-  
-         
-    ],
+      { field: 'debit',aggFunc: "sum", headerName: 'Debit' , 
+      valueFormatter: currencyFormatter, cellStyle: {'text-align': 'right' } ,
+      cellClass: "twoDecimalPlaces" ,
+      cellClassRules: {
+        greenBackground: function(params) { return params.value < -300; },
+        redFont: function(params) { return params.value > -300; }
+      },
+
+    } ,
+      { field: 'credit', aggFunc: "sum", headerName: 'Credit' , valueFormatter: currencyFormatter,
+      cellClass: "twoDecimalPlaces" ,
+    cellClassRules: { greenBackground: function(params) { return params.value > 300; },
+      redFont: function(params) { return params.value < 300; }
+    }
+  } 
+ 
+    ]
     
     );
     
@@ -185,20 +263,19 @@ export class AgGridExampleComponent implements OnInit {
       [
         { field: 'source', headerName: 'Source'  },
      
-        { field: 'AccountType', headerName: 'Account Type' },
+        { field: 'AccountType',maxWidth: 150 , headerName: 'Account Type' },
         { field: 'accountName', headerName: 'Account Name' },
-        { field: 'when', headerName: 'when' ,sortable: true },
+        { field: 'when', maxWidth: 120 ,headerName: 'when' ,sortable: true },
        
-        { field: 'debit', headerName: 'Debit' , valueFormatter: currencyFormatter, cellStyle: {'text-align': 'right' } ,cellClass: "number-cell" } ,
-        { field: 'credit', headerName: 'Credit',  valueFormatter: currencyFormatter,cellStyle: {'text-align': 'right' }, cellClass: "number-cell"} 
+        { field: 'debit', headerName: 'Debit' , valueFormatter: currencyFormatter, cellStyle: {'text-align': 'right' } ,cellClass: "twoDecimalPlaces" } ,
+        { field: 'credit', headerName: 'Credit',  valueFormatter: currencyFormatter,cellStyle: {'text-align': 'right' }, cellClass: "twoDecimalPlaces"} 
     
            
       ]
     
     );
   
-    this.rowGroupPanelShow ="always";
-    
+      this.rowGroupPanelShow ="after";
       this.pivotPanelShow = "always";
       this.pivotColumnGroupTotals = "after";
       this.pivotRowTotals = "before";
@@ -253,6 +330,7 @@ export class AgGridExampleComponent implements OnInit {
             credit:this.totalDebit ,
         }
       ];
+      
   });  
    
    
@@ -281,14 +359,19 @@ export class AgGridExampleComponent implements OnInit {
   onFirstDataRendered(params) {
     params.api.sizeColumnsToFit();
   }
-
+  
   onBtExport() {
      
     var params = {
       fileName: "Test File",
-      sheetName: "First Sheet" 
-      
+      sheetName: "First Sheet" ,
+       
     };
+     
+    
+ 
+
+
     this.gridOptions.api.exportDataAsExcel(params);
   }
 ngOnInit() {  
@@ -334,7 +417,7 @@ ngOnInit() {
 
     return true;
   }
-
+   
   public clearFilters() {
 
     this.gridOptions.api.redrawRows();

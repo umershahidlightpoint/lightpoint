@@ -10,3 +10,13 @@ body, html{
 { 
      zoom: 0.50;
 }
+ 
+  ::ng-deep.greenBackground {
+    background-color: #b5e6b5;
+  }
+  
+  ::ng-deep .redFont {
+    color: red;
+    font-style: italic;
+     
+  }
