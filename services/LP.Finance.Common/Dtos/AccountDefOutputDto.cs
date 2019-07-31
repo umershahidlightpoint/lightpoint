@@ -6,6 +6,6 @@ namespace LP.Finance.Common.Dtos
     {
         public int? AccountDefId { get; set; }
         public int? AccountCategoryId { get; set; }
-        public List<AccountTagDto> AccountTags { get; set; }
+        public List<AccountDefTagOutputDto> AccountTags { get; set; }
     }
 }

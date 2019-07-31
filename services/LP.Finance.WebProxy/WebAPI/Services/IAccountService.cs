@@ -8,6 +8,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         object GetAccounts(int pageNumber, int pageSize, string accountName, string accountCategory);
 
+        object GetAccount(int id);
+
         object CreateAccount(AccountInputDto account);
 
         object UpdateAccount(int id, AccountInputDto account);

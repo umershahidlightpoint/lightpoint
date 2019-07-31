@@ -16,6 +16,11 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
             return Utils.GetFile("accounts");
         }
 
+        public object GetAccount(int id)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public object CreateAccount(AccountInputDto account)
         {
             throw new System.NotImplementedException();

@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-
-namespace LP.Finance.Common.Dtos
+﻿namespace LP.Finance.Common.Dtos
 {
-    public class AccountOutputDto
+    public class AccountsOutputDto
     {
         public int AccountId { get; set; }
         public string AccountName { get; set; }
@@ -14,6 +12,5 @@ namespace LP.Finance.Common.Dtos
         public string HasJournal { get; set; }
         public bool CanDeleted { get; set; }
         public bool CanEdited { get; set; }
-        public List<AccountTagOutputDto> Tags { get; set; }
     }
 }

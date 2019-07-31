@@ -77,12 +77,18 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WebAPI\AccountTagController.cs" />
+    <Compile Include="WebAPI\AccountTypeController.cs" />
     <Compile Include="WebAPI\AccountDefController.cs" />
     <Compile Include="WebAPI\AccountCategoryController.cs" />
     <Compile Include="WebAPI\AccountController.cs" />
     <Compile Include="WebAPI\JournalLogController.cs" />
+    <Compile Include="WebAPI\Services\AccountTagService.cs" />
+    <Compile Include="WebAPI\Services\AccountTypeService.cs" />
     <Compile Include="WebAPI\Services\AccountDefService.cs" />
     <Compile Include="WebAPI\Services\AccountCategoryService.cs" />
+    <Compile Include="WebAPI\Services\IAccountTagService.cs" />
+    <Compile Include="WebAPI\Services\IAccountTypeService.cs" />
     <Compile Include="WebAPI\Services\IAccountDefService.cs" />
     <Compile Include="WebAPI\Services\IAccountCategoryService.cs" />
     <Compile Include="WebAPI\Services\ILedgerService.cs" />

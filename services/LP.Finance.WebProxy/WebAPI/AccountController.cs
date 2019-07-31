@@ -25,10 +25,17 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [Route("")]
         [HttpGet]
-        public object GetAccounts(int pageNumber = 1, int pageSize = 1000, string accountName = "",
+        public object GetAccounts(int pageNumber = 1, int pageSize = 40, string accountName = "",
             string accountCategory = "")
         {
             return controller.GetAccounts(pageNumber, pageSize, accountName, accountCategory);
+        }
+
+        [Route("{id:int}")]
+        [HttpGet]
+        public object GetAccount(int id)
+        {
+            return controller.GetAccount(id);
         }
 
         [Route("")]

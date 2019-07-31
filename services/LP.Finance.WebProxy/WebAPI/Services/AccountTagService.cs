@@ -8,29 +8,29 @@ using SqlDAL.Core;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
-    class AccountCategoryService : IAccountCategoryService
+    class AccountTagService : IAccountTagService
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
-        public object GetAccountCategories(string accountCategoryName)
+        public object GetAccountTags(string accountTagName)
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);
 
             List<SqlParameter> sqlParameters = new List<SqlParameter>
             {
-                new SqlParameter("accountCategoryName", accountCategoryName)
+                new SqlParameter("accountTagName", accountTagName)
             };
 
-            var query = $@"SELECT total = COUNT(*) OVER() 
+            var query = $@"SELECT total = COUNT(*) OVER()
                         ,[id]
-                        ,[name]
-                        FROM [account_category]";
+                        ,[column_name] AS 'name'
+                        FROM [tag]";
 
-            query += accountCategoryName.Length > 0
-                ? "WHERE [account_category].[name] LIKE '%'+@accountCategoryName+'%'"
+            query += accountTagName.Length > 0
+                ? "WHERE [tag].[column_name] LIKE '%'+@accountTagName+'%'"
                 : "";
 
-            List<AccountCategoryOutputDto> accountCategories = new List<AccountCategoryOutputDto>();
+            List<TagOutputDto> tags = new List<TagOutputDto>();
             MetaData meta = new MetaData();
             using (var reader =
                 sqlHelper.GetDataReader(query, CommandType.Text, sqlParameters.ToArray(), out var sqlConnection))
@@ -38,7 +38,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 while (reader.Read())
                 {
                     meta.Total = (int) reader["total"];
-                    accountCategories.Add(new AccountCategoryOutputDto
+                    tags.Add(new TagOutputDto
                     {
                         Id = (int) reader["id"],
                         Name = reader["name"].ToString(),
@@ -49,7 +49,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlConnection.Close();
             }
 
-            return Utils.Wrap(true, accountCategories, meta);
+            return Utils.Wrap(true, tags, meta);
         }
     }
 }
