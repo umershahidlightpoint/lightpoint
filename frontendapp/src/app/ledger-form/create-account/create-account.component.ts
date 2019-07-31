@@ -338,12 +338,17 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
     this.accountForm.controls["description"].reset();
     this.accountForm.controls["category"].reset();
     this.accountForm.controls["accountType"].reset();
+    this.accountForm.controls["tagsList"].reset();
     this.canEditAccount = true;
     this.editCase = false;
     this.accountTypeTags = null;
     this.categoryLabel = null;
     this.accountTags = null
     this.noAccountDef = false
+    const control = <FormArray>this.accountForm.controls["tagsList"];
+    for (let i = control.length - 1; i >= 0; i--) {      
+        control.removeAt(i)
+    }
   }
 
   accountTagSelected(tag){
