@@ -4,11 +4,11 @@
   <div class="modal-dialog modal-dialog-centered" id="modal-lg">
     <div class="modal-content">
       <!------ Form ------>
-      <form #roleForm="ngForm" [formGroup]="ledgerForm" (ngSubmit)="onSave()">
+      <form #roleForm="ngForm" [formGroup]="accountForm" (ngSubmit)="onSave()">
         <!------- Modal Header ------->
         <div class="modal-header">
           <h3 *ngIf="editCase">Edit Account</h3>
-          <h3 *ngIf="!editCase">Create Account ({{ selectedAccountCategory?.name }})</h3>
+          <h3 *ngIf="!editCase">Create Account ({{ selectedAccountCategory?.Name }})</h3>
         </div>
         <!------- Modal Body ------->
         <div class="modal-body">
@@ -35,13 +35,17 @@
                 </div> -->
 
               <div class="col-sm-9">
-                <select class="custom-select" #type (change)="getAccountTags(type.value)" formControlName="category"
+                <select 
+                  class="custom-select" 
+                  #type 
+                  (change)="getAccountTags(type.value)" 
+                  formControlName="category"
                   [attr.disabled]="canEditAccount === false ? true : null">
-                  <option *ngIf="!editCase" hidden [value]="" selected>Choose your account type</option>
-                  <option *ngFor="let type of accountCategories" [selected]="type.name === categoryLabel"
-                    [ngValue]="type">
-                    {{type.name}}
-                  </option>
+                    <option *ngIf="!editCase" hidden [value]="">Choose your account type</option>
+                    <option *ngFor="let type of accountTypes" [selected]="type.Name === categoryLabel"
+                      [ngValue]="type">
+                      {{type.Name}}
+                    </option>
                 </select>
               </div>
             </div>
@@ -59,17 +63,72 @@
 
           <!------- Account Tag ------->
           <div class="form-group">
-            <div *ngIf="accountTypeTags && canModifyLedger" class="row">
+            <!-- <div *ngIf="accountTypeTags && canModifyLedger" class="row"> -->
+            <div *ngIf="accountTypeTags" class="row">
               <div class="col-sm-5">
+                  <hr />
               </div>
               <div class="col-sm-02 mb-2">
-                <label><strong> Account Tag </strong></label>
+                <label><strong> Account Tag </strong></label>                
               </div>
               <div class="col-sm-5">
+                  <hr />
               </div>
             </div>
 
-            <div *ngIf="!editCase && accountTypeTags && canEditAccount || editCase && canEditAccount">
+            <!------- Account Tag Types ------->
+            <div class="form-group" *ngIf="this.accountTags">
+                <div class="row">
+                  <div class="col-sm-4">
+                    <label> Account Tags </label>
+                  </div>
+    
+                  <!-- <div *ngIf="editCase" class="col-sm-9">
+                      <label style="font: bold"><strong>{{ categoryLabel.name }}</strong></label>
+                    </div> -->
+                  <div class="col-sm-7 btn-group" dropdown>
+                        <button id="button-basic" 
+                          dropdownToggle type="button" 
+                          class="btn btn-sm btn-primary dropdown-toggle"
+                          aria-controls="dropdown-basic">
+                            Add Tag <span class="caret"></span>
+                        </button>
+                        <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu ml-3"
+                            role="menu" aria-labelledby="button-basic">
+                            <li *ngFor="let tag of accountTags" role="menuitem">
+                              <button *ngIf="!tag.isChecked" type="button" class="dropdown-item" (click)="accountTagSelected(tag)">
+                                  {{ tag.Name }}
+                              </button>
+                            </li>
+                        </ul>
+                  </div>
+                </div>
+            </div>
+
+            <div *ngIf="!editCase || editCase && canEditAccount">
+              <div formArrayName="tagsList">
+                <div *ngFor="let instance of tags.controls; let i = index;" [formGroupName]="i">
+                  <div class="row mb-3">
+                    <div class="col-sm-4">
+                      <label><input class="mr-4" formControlName="isChecked" (click)="unCheck(instance.value)" type="checkbox">
+                        {{instance.value.tagName}}
+                      </label>
+                    </div>
+                    <div *ngIf="!editCase" class="col-sm-8">
+                      <input class="form-control" [attr.disabled]="!instance.value.isChecked ? true : null"
+                        formControlName="description" placeholder="Enter {{instance.value.tagName}}">
+                    </div>
+                    <div *ngIf="editCase" class="col-sm-8">
+                      <input class="form-control" [attr.disabled]="!instance.value.isChecked ? true : null"
+                        formControlName="description" [value]="instance.value.description">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+              
+            <!-- For futher use -->
+            <!-- <div *ngIf="!editCase && accountTypeTags && canEditAccount || editCase && canEditAccount">
               <div formArrayName="tagsList">
                 <div *ngFor="let instance of tags.controls; let i = index;" [formGroupName]="i">
                   <div class="row mb-3">
@@ -89,7 +148,7 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </div> -->
 
             <!------- Array Form for Tags ------->
             <!-- <form *ngIf="!editCase && accountTypeTags || editCase" [formGroup]="accountForm">
@@ -125,7 +184,7 @@
         <!------- Modal Footer ------->
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="close()">Cancel</button>
-          <button type="submit" class="btn btn-primary" [disabled]="!roleForm.valid">
+          <button type="submit" class="btn btn-primary" >
             <i class="fa fa-save"></i> Save
           </button>
         </div>

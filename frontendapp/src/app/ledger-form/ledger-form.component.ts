@@ -60,7 +60,6 @@ export class LedgerFormComponent implements OnInit, OnDestroy {
       {headerName: 'Category Id', field: 'Category_Id', hide: true },
       {headerName: 'Category', field: 'Category', hide: true },
       {headerName: 'Has Journal', field: 'has_journal', sortable: true, filter: true },
-      {headerName: 'Tags', field: 'Tags', hide: true },
       {headerName: 'CanDeleted', field: 'CanDeleted', hide: true },
       {headerName: 'CanEdited', field: 'CanEdited', hide: true },
       {
@@ -98,9 +97,10 @@ export class LedgerFormComponent implements OnInit, OnDestroy {
           Name: result.AccountName,
           Description: result.Description,
           Category: result.Category,
+          Type_Id: result.TypeId,
+          Type: result.Type,
           Category_Id: result.CategoryId,
           has_journal: result.HasJournal,
-          Tags: result.Tags,
           CanDeleted: result.CanDeleted,
           CanEdited: result.CanEdited
         }))
