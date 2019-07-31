@@ -98,7 +98,8 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
     MultiSelectModule,
     ListboxModule,
     ScheduleModule,
-    TabViewModule, BrowserAnimationsModule,
+    TabViewModule, 
+    BrowserAnimationsModule,
     NoopAnimationsModule,
     DragAndDropModule,
     SliderModule,
@@ -107,8 +108,10 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
     ToastrModule.forRoot(),
     BsDropdownModule.forRoot()
   ],
-  providers: [FinancePocServiceProxy, MessageService],
-
+  providers: [
+    FinancePocServiceProxy, 
+    MessageService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,7 +1,7 @@
 
 export interface CreateAccount {
   description: string;
-  category: number;
+  type: number;
   tags: [
     {
       id: number,
@@ -23,8 +23,8 @@ export interface EditAccount {
 }
 
 export interface AccountCategory {
-  id: number;
-  name: string;
+  Id: number;
+  Name: string;
 }
 
 export interface GridRowData {

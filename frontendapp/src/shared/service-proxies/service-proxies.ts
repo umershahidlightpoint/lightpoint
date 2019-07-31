@@ -1,7 +1,6 @@
-import { map, filter, switchMap } from 'rxjs/operators'
-import { Observable } from 'rxjs';
-import { Injectable, Inject, Optional, InjectionToken } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams, HttpResponse, HttpResponseBase, HttpErrorResponse } from '@angular/common/http';
+import { map } from 'rxjs/operators'
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 
 export const API_BASE_URL = environment.remoteServerUrl;
@@ -135,6 +134,7 @@ export class FinancePocServiceProxy {
     }
 
     createAccount(data) {
+        console.log('create acc data',data)
         const url =  this.baseUrl+'/account' ;
         return this.http.post(url,data).pipe(map((response: any) => response));
     }
@@ -160,7 +160,13 @@ export class FinancePocServiceProxy {
     }
 
     accountTags(){
-        const url = this.baseUrl+'/account_def' ;
+        //const url = this.baseUrl+'/account_def' ;
+        const url = this.baseUrl+'/account_tag' ;
+        return this.http.get(url).pipe(map((response: any) => response));
+    }
+
+    accountTypes(id){
+        const url = this.baseUrl+'/account_type?accountCategoryId='+id ;
         return this.http.get(url).pipe(map((response: any) => response));
     }
 }
