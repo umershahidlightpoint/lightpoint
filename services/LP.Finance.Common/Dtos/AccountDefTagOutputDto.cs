@@ -1,6 +1,6 @@
 ﻿namespace LP.Finance.Common.Dtos
 {
-    public class AccountTagDto
+    public class AccountDefTagOutputDto
     {
         public int? TagId { get; set; }
         public string TableName { get; set; }

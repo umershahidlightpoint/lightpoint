@@ -37,9 +37,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     {
                         AccountDefId = (int) reader["account_def_id"],
                         AccountCategoryId = (int) reader["account_category_id"],
-                        AccountTags = new List<AccountTagDto>
+                        AccountTags = new List<AccountDefTagOutputDto>
                         {
-                            new AccountTagDto
+                            new AccountDefTagOutputDto
                             {
                                 TagId = (int) reader["tag_id"], TableName = reader["table_name"].ToString(),
                                 TagName = reader["tag_name"].ToString()
