@@ -1,24 +1,30 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef, TemplateRef } from '@angular/core';
+import { Component, OnInit, Inject, ViewChild, ElementRef, TemplateRef, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { CreateAccountComponent } from '../ledger-form/create-account/create-account.component'
 import { FinancePocServiceProxy } from '../../shared/service-proxies/service-proxies';
 import { GridOptions } from "ag-grid-community";
 import { TemplateRendererComponent } from '../template-renderer/template-renderer.component'
 import { ToastrService } from 'ngx-toastr';
-import { max } from 'moment';
+import { Subscription } from 'rxjs';
+import { GridRowData, AccountCategory } from '../../shared/Models/account';
+import { takeWhile } from 'rxjs/operators';
 
 @Component({
   selector: 'app-ledger-form',
   templateUrl: './ledger-form.component.html',
   styleUrls: ['./ledger-form.component.css']
 })
-export class LedgerFormComponent implements OnInit {
+export class LedgerFormComponent implements OnInit, OnDestroy {
   @ViewChild('createModal') createAccount: CreateAccountComponent;
-  rowData = [];
-  data: any
+  rowData: Array<GridRowData>
+  getAllAccountSub: Subscription
   gridOptions = <GridOptions>{
     onFirstDataRendered: (params) => { params.api.sizeColumnsToFit(); }
   };
+  accountCategories: AccountCategory;
+  selectedAccountCategory: AccountCategory
+  //For unsubscribing all subscriptions
+  isSubscriptionAlive: boolean
 
   @ViewChild('actionButtons') actionButtons: TemplateRef<any>;  
   @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
@@ -44,7 +50,6 @@ export class LedgerFormComponent implements OnInit {
     ) {
    }
    
-
   ngAfterViewInit(): void {
     this.gridOptions.api.setColumnDefs([
       {headerName: 'Id', field: 'Id', hide: true },
@@ -55,7 +60,6 @@ export class LedgerFormComponent implements OnInit {
       {headerName: 'Category Id', field: 'Category_Id', hide: true },
       {headerName: 'Category', field: 'Category', hide: true },
       {headerName: 'Has Journal', field: 'has_journal', sortable: true, filter: true },
-      {headerName: 'Tags', field: 'Tags', hide: true },
       {headerName: 'CanDeleted', field: 'CanDeleted', hide: true },
       {headerName: 'CanEdited', field: 'CanEdited', hide: true },
       {
@@ -69,21 +73,34 @@ export class LedgerFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getData();
+    this.getAccountsRecord();
+    this.getAccountCategories();
   }
 
-  getData(){
+  getAccountCategories(){
+    this.financePocServiceProxy.accountCategories()
+    .subscribe(response => {
+      if(response.isSuccessful){
+        this.accountCategories = response.payload
+      }
+      else {
+        this.toastrService.error('Failed to fetch account categories!')
+      }
+    })
+  }
+
+  getAccountsRecord(){
     setTimeout(()=> {
-      this.data = this.financePocServiceProxy.getAllAccounts().subscribe(result => {
-        this.data =  result.payload;
-        this.rowData = this.data.map(result => ({
+    this.getAllAccountSub = this.financePocServiceProxy.getAllAccounts().subscribe(result => {
+        this.rowData = result.payload.map(result => ({
           Id: result.AccountId,
           Name: result.AccountName,
           Description: result.Description,
           Category: result.Category,
+          Type_Id: result.TypeId,
+          Type: result.Type,
           Category_Id: result.CategoryId,
           has_journal: result.HasJournal,
-          Tags: result.Tags,
           CanDeleted: result.CanDeleted,
           CanEdited: result.CanEdited
         }))
@@ -101,7 +118,7 @@ export class LedgerFormComponent implements OnInit {
     this.financePocServiceProxy.deleteAccount(row.Id).subscribe(response => {
     if(response.isSuccessful){
       this.toastrService.success('Account deleted successfully!')
-      this.getData()
+      this.getAccountsRecord()
     }
     else {
       this.toastrService.error('Account deleted failed!')
@@ -120,7 +137,6 @@ export class LedgerFormComponent implements OnInit {
   }
 
   onBtExport() {
-     
     var params = {
       fileName: "Test File",
       sheetName: "First Sheet",
@@ -129,6 +145,13 @@ export class LedgerFormComponent implements OnInit {
     this.gridOptions.api.exportDataAsExcel(params);
   }
 
-  
+  accountCategorySelected(instance){
+    this.selectedAccountCategory = instance
+    this.router.navigateByUrl('/accounts/create-account')
+    this.createAccount.show({})
+  }
 
+  ngOnDestroy(){
+    this.getAllAccountSub.unsubscribe()
+  } 
 }

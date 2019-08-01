@@ -8,37 +8,39 @@ using SqlDAL.Core;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
-    class AccountCategoryService : IAccountCategoryService
+    class AccountTypeService : IAccountTypeService
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
-        public object GetAccountCategories(string accountCategoryName)
+        public object GetAccountTypes(int? accountCategoryId)
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);
 
             List<SqlParameter> sqlParameters = new List<SqlParameter>
             {
-                new SqlParameter("accountCategoryName", accountCategoryName)
+                new SqlParameter("accountCategoryId", accountCategoryId)
             };
+
+            var parameters = accountCategoryId != null ? sqlParameters.ToArray() : null;
 
             var query = $@"SELECT total = COUNT(*) OVER() 
                         ,[id]
                         ,[name]
-                        FROM [account_category]";
+                        FROM [account_type]";
 
-            query += accountCategoryName.Length > 0
-                ? "WHERE [account_category].[name] LIKE '%'+@accountCategoryName+'%'"
+            query += accountCategoryId != null
+                ? "WHERE [account_type].[account_category_id] = @accountCategoryId"
                 : "";
 
-            List<AccountCategoryOutputDto> accountCategories = new List<AccountCategoryOutputDto>();
+            List<AccountTypeOutputDto> accountTypes = new List<AccountTypeOutputDto>();
             MetaData meta = new MetaData();
             using (var reader =
-                sqlHelper.GetDataReader(query, CommandType.Text, sqlParameters.ToArray(), out var sqlConnection))
+                sqlHelper.GetDataReader(query, CommandType.Text, parameters, out var sqlConnection))
             {
                 while (reader.Read())
                 {
                     meta.Total = (int) reader["total"];
-                    accountCategories.Add(new AccountCategoryOutputDto
+                    accountTypes.Add(new AccountTypeOutputDto
                     {
                         Id = (int) reader["id"],
                         Name = reader["name"].ToString(),
@@ -49,7 +51,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlConnection.Close();
             }
 
-            return Utils.Wrap(true, accountCategories, meta);
+            return Utils.Wrap(true, accountTypes, meta);
         }
     }
 }

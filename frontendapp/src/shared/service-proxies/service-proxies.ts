@@ -1,9 +1,7 @@
-import { map, filter, switchMap } from 'rxjs/operators'
-import { Observable } from 'rxjs';
-import { Injectable, Inject, Optional, InjectionToken } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams, HttpResponse, HttpResponseBase, HttpErrorResponse } from '@angular/common/http';
+import { map } from 'rxjs/operators'
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import * as moment from 'moment';
 
 export const API_BASE_URL = environment.remoteServerUrl;
 
@@ -25,7 +23,7 @@ export class FinancePocServiceProxy {
     }
 
     getFunds() {
-        const url = encodeURI('http://localhost:9092/api/refdata/data?refdata=fund');
+        const url = encodeURI(this.baseUrl+'/refdata/data?refdata=fund');
         return this.http.get(url).pipe(map((response: any) => response));
     }
 
@@ -34,7 +32,7 @@ export class FinancePocServiceProxy {
         sortColum : any| null | undefined,sortDirection: any| null | undefined) {
         //let searchStart : any;
         //searchStart = false;
-        let url =   'http://localhost:9092/api/journal/data/'+symbal+'/?pageNumber='+pageNumber+'&pageSize='+pageSize+'&sortColum='+sortColum+'&sortDirection='+sortDirection ;
+        let url =   this.baseUrl+'/journal/data/'+symbal+'/?pageNumber='+pageNumber+'&pageSize='+pageSize+'&sortColum='+sortColum+'&sortDirection='+sortDirection ;
         if (accountId != null)
         {  
             url = url +'&accountId='+accountId;
@@ -54,7 +52,7 @@ export class FinancePocServiceProxy {
         sortColum : any| null | undefined,sortDirection: any| null | undefined) {
         //let searchStart : any;
         //searchStart = false;
-        let url =   'http://localhost:9092/api/journallog/data/'+symbal+'/?pageNumber='+pageNumber+'&pageSize='+pageSize+'&sortColum='+sortColum+'&sortDirection='+sortDirection ;
+        let url =   this.baseUrl+'/journallog/data/'+symbal+'/?pageNumber='+pageNumber+'&pageSize='+pageSize+'&sortColum='+sortColum+'&sortDirection='+sortDirection ;
         if (accountId != null)
         {  
             url = url +'&accountId='+accountId;
@@ -79,7 +77,7 @@ export class FinancePocServiceProxy {
     }
 
     getAccount(keyword: string | null | undefined) {
-        const url =  'http://localhost:9092/api/account/data/Search/?search='+keyword;
+        const url =  this.baseUrl+'/account/data/Search/?search='+keyword;
         const params: any = {};
         if (keyword !== undefined) {
             params.keyword = keyword;
@@ -131,37 +129,44 @@ export class FinancePocServiceProxy {
     }
 
     getAllAccounts() {
-        const url =  'http://localhost:9092/api/account' ;
+        const url =  this.baseUrl+'/account' ;
         return this.http.get(url,).pipe(map((response: any) => response));
     }
 
     createAccount(data) {
-        const url =  'http://localhost:9092/api/account' ;
+        console.log('create acc data',data)
+        const url =  this.baseUrl+'/account' ;
         return this.http.post(url,data).pipe(map((response: any) => response));
     }
 
     editAccount(params) {
-        const url =  'http://localhost:9092/api/account/'+params.id ;
+        const url =  this.baseUrl+'/account/'+params.id ;
         return this.http.put(url,params).pipe(map((response: any) => response));
     }
 
     patchAccount(id,params) {
-        const url =  'http://localhost:9092/api/account/'+id ;
+        const url =  this.baseUrl+'/account/'+id ;
         return this.http.patch(url,params).pipe(map((response: any) => response));
     }
 
     deleteAccount(id) {
-        const url =  'http://localhost:9092/api/account/'+id ;
+        const url =  this.baseUrl+'/account/'+id ;
         return this.http.delete(url).pipe(map((response: any) => response));
     }
 
     accountCategories() {
-        const url =  'http://localhost:9092/api/account_category/' ;
+        const url =  this.baseUrl+'/account_category/' ;
         return this.http.get(url).pipe(map((response: any) => response));
     }
 
     accountTags(){
-        const url = 'http://localhost:9092/api/account_def' ;
+        //const url = this.baseUrl+'/account_def' ;
+        const url = this.baseUrl+'/account_tag' ;
+        return this.http.get(url).pipe(map((response: any) => response));
+    }
+
+    accountTypes(id){
+        const url = this.baseUrl+'/account_type?accountCategoryId='+id ;
         return this.http.get(url).pipe(map((response: any) => response));
     }
 }

@@ -32,7 +32,7 @@ export class AgGridExampleComponent implements OnInit {
   pinnedBottomRowData;
    gridOptions: GridOptions;
   filterChange :any;
-   getRowStyle;
+   
   //topOptions = {alignedGrids: [], suppressHorizontalScroll: true};
 
  // bottomOptions = { alignedGrids: [] };
@@ -87,6 +87,7 @@ export class AgGridExampleComponent implements OnInit {
     // 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
     'YTD': [moment().startOf('year'), moment()],
     'MTD': [moment().startOf('month'), moment()],
+    'Today': [moment(), moment()]
   }
 
   constructor(injector: Injector,
@@ -337,12 +338,7 @@ this.api.setPinnedBottomRowData(this.pinnedBottomRowData );
       ]
     
     );
-    this.getRowStyle = function(params) {
-      debugger;
-      if (params.node.rowPinned) {
-        return { "font-weight": "bold" };
-      }
-    };
+   
       this.rowGroupPanelShow ="after";
       this.pivotPanelShow = "always";
       this.pivotColumnGroupTotals = "after";
@@ -418,14 +414,22 @@ this.api.setPinnedBottomRowData(this.pinnedBottomRowData );
     this.DateRangeLable = '';
 
     if (moment("01-01-1901", "MM-DD-YYYY").diff(this.startDate, 'days') == 0 && moment().diff(this.endDate, 'days') == 0)
-      this.DateRangeLable = 'ITB';
-
+     { this.DateRangeLable = 'ITD';
+      return;
+  }
     if (moment().startOf('year').diff(this.startDate, 'days') == 0 && moment().diff(this.endDate, 'days') == 0)
-      this.DateRangeLable = 'YTB';
+      {this.DateRangeLable = 'YTD';
+      return;
+}
     if (moment().startOf('month').diff(this.startDate, 'days') == 0 && moment().diff(this.endDate, 'days') == 0)
-      this.DateRangeLable = 'MTB';
+     { this.DateRangeLable = 'MTD';
+      return;
+}
+      if (moment().diff(this.startDate, 'days') == 0 && moment().diff(this.endDate, 'days') == 0)
+     {this.DateRangeLable = 'Today';
 
-
+      return;
+  }
   }
   setWidthAndHeight(width, height) {
     this.style = {
@@ -443,8 +447,7 @@ this.api.setPinnedBottomRowData(this.pinnedBottomRowData );
      
     var params = {
       fileName: "Test File",
-      sheetName: "First Sheet" ,
-       
+      sheetName: "First Sheet"  
     };
      
     
@@ -471,6 +474,8 @@ ngOnInit() {
   }
 
   public ngModelChange(e) {
+    debugger;
+    
     this.startDate = e.startDate;
     this.endDate = e.endDate
     this.topGrid.api.onFilterChanged();

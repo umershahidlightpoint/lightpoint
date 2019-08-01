@@ -13,7 +13,6 @@ import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { TemplateRendererComponent } from './template-renderer/template-renderer.component';
 import {
   AutoCompleteModule,
-  
   EditorModule,
   InputMaskModule,
   PaginatorModule,
@@ -54,6 +53,7 @@ import { LedgerFormComponent } from './ledger-form/ledger-form.component';
 import { CreateAccountComponent } from './ledger-form/create-account/create-account.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { ToastrModule } from 'ngx-toastr';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
 @NgModule({
   declarations: [
@@ -98,16 +98,20 @@ import { ToastrModule } from 'ngx-toastr';
     MultiSelectModule,
     ListboxModule,
     ScheduleModule,
-    TabViewModule, BrowserAnimationsModule,
+    TabViewModule, 
+    BrowserAnimationsModule,
     NoopAnimationsModule,
     DragAndDropModule,
     SliderModule,
     AngularSplitModule.forRoot(),
     CalendarModule,
-    ToastrModule.forRoot()
+    ToastrModule.forRoot(),
+    BsDropdownModule.forRoot()
   ],
-  providers: [FinancePocServiceProxy, MessageService],
-
+  providers: [
+    FinancePocServiceProxy, 
+    MessageService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

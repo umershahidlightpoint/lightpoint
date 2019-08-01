@@ -48,8 +48,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Posting.cs" />
+    <Compile Include="Utilities\AccountUtils.cs" />
     <Compile Include="PostingRules\CommonStock.cs" />
+    <Compile Include="PostingRules\FakeJournals.cs" />
     <Compile Include="PostingRules\IPostingRule.cs" />
+    <Compile Include="Utilities\Utils.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

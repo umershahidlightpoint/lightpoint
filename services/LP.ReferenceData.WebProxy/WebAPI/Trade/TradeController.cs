@@ -140,10 +140,11 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
     public class TradeController : ApiController, ITradeController
     {
         // Mock Service
-        private ITradeController controller = new TradeControllerService();
+        private readonly ITradeController controller;
 
         public TradeController()
         {
+            controller = ControllerFactory.Get<ITradeController, TradeControllerStub, TradeControllerService>();
         }
 
         [HttpGet]

@@ -107,11 +107,6 @@ namespace ConsoleApp1
 
             var elements = JsonConvert.DeserializeObject<Transaction[]>(result);
 
-            var postingEnv = new PostingEngineEnvironment {
-                Categories = AccountCategory.Categories,
-                Types = AccountType.All,
-                ValueDate = DateTime.Now.Date
-            };
 
             var minTradeDate = elements.Min(i => i.TradeDate.Date);
             var maxTradeDate = elements.Max(i => i.TradeDate.Date);
@@ -123,6 +118,13 @@ namespace ConsoleApp1
 
             var tradeData = elements.OrderBy(i => i.TradeDate.Date).ToList();
 
+            var postingEnv = new PostingEngineEnvironment(connection, transaction)
+            {
+                Categories = AccountCategory.Categories,
+                Types = AccountType.All,
+                ValueDate = DateTime.Now.Date,
+            };
+
             while ( startDate <= endDate )
             {
                 Console.WriteLine($"Processing for ValueDate {startDate}");
@@ -133,7 +135,7 @@ namespace ConsoleApp1
                 {
                     try
                     {
-                        new Posting(connection, transaction).Process(postingEnv, element);
+                        new Posting().Process(postingEnv, element);
                     }
                     catch (Exception exe)
                     {
@@ -150,7 +152,7 @@ namespace ConsoleApp1
                 try
                 {
                     //Console.WriteLine($"Processing {element.SecurityType} / {element.Symbol}");
-                    new Posting(connection, transaction).Process(postingEnv, element);
+                    new Posting().Process(postingEnv, element);
                 } catch ( Exception exe )
                 {
                     // Capture the exception and keep going

@@ -122,10 +122,11 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
     /// </summary>
     public class AllocationController : ApiController, ITradeController
     {
-        private ITradeController controller = new AllocationControllerService();
+        private readonly ITradeController controller;
 
         public AllocationController()
         {
+            controller = ControllerFactory.Get<ITradeController, AllocationControllerStub, AllocationControllerService>();
         }
 
         [HttpGet]
@@ -135,5 +136,25 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             return controller.Data(symbol);
         }
 
+    }
+
+    /// <summary>
+    /// Determines if we are to use the Mock or the Service
+    /// </summary>
+    public class ControllerFactory
+    {
+        private static readonly string MOCK = ConfigurationManager.AppSettings["Mock"];
+
+        public static I Get<I, M, S>()
+            where M : I, new()
+            where S : I, new()
+        {
+            if (string.IsNullOrEmpty(MOCK))
+            {
+                return new S();
+            }
+
+            return new M();
+        }
     }
 }

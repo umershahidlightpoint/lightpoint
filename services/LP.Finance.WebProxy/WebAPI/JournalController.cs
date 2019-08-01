@@ -73,22 +73,28 @@ namespace LP.Finance.WebProxy.WebAPI
                                 d.[id],
                                 d.[account_id],
                                 d.[fund],
+                                d.AccountCategory,
                                 d.AccountType,
                                 d.accountName,
-                                d.[value]  ,d.[source] ,d.[when]  from(
+                                d.[value],
+                                d.[source],
+                                d.[when]
+                                from(
                 SELECT overall_count = COUNT(*) OVER() ,
                         (CASE WHEN value < 0 THEN value else 0 END  ) debit,
                         (CASE WHEN value > 0 THEN value else 0 END  ) credit, 
                         [journal].[id]  ,
                         [account_id],
                         [fund],
-                        [account_category].[name] as AccountType,  
+                        [account_category].[name] as AccountCategory,  
+                        [account_type].[name] as AccountType,  
                         [account].[name] as accountName  ,
                         [value]  ,
                         [source] ,
                         [when] FROM [journal]  
                 join account  on [journal]. [account_id] = account.id 
-                join [account_category] on  [account].account_category_id = [account_category] .id ";
+                join [account_type] on  [account].account_type_id = [account_type].id
+                join [account_category] on  [account_type].account_category_id = [account_category].id ";
 
             List<SqlParameter> sqlParams = new List<SqlParameter>();
             sqlParams.Add(new SqlParameter("pageNumber", pageNumber));
