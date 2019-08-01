@@ -38,7 +38,6 @@ import { AngularSplitModule } from 'angular-split';
 import { PanelModule } from 'primeng/panel';
 import { DragAndDropModule } from 'angular-draggable-droppable';
 import { UpdateLedgerModalComponent } from './main/update-ledger-modal/update-ledger-modal.component';
-
 import { MessagesModule } from 'primeng/messages';
 import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
@@ -49,11 +48,11 @@ import { LogsComponent } from './main/logs/logs.component';
 import { FinanceGridComponent } from './finance-grid/finance-grid.component';
 import { RunLogsComponent } from './runlogs/runlogs.component';
 import { ReportsComponent } from './reports/reports.component';
-import { LedgerFormComponent } from './ledger-form/ledger-form.component'; 
-import { CreateAccountComponent } from './ledger-form/create-account/create-account.component';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToastrModule } from 'ngx-toastr';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { AccountComponent } from './main/accounts/account.component';
+import { CreateAccountComponent } from './main/accounts/create-account/create-account.component';
 
 @NgModule({
   declarations: [
@@ -67,7 +66,7 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
     LogsComponent,
     TemplateRendererComponent,
     FinanceGridComponent,
-    LedgerFormComponent,
+    AccountComponent,
     CreateAccountComponent,
     RunLogsComponent,
     ReportsComponent
