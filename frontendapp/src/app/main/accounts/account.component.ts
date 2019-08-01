@@ -1,33 +1,32 @@
 import { Component, OnInit, Inject, ViewChild, ElementRef, TemplateRef, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { CreateAccountComponent } from '../ledger-form/create-account/create-account.component'
-import { FinancePocServiceProxy } from '../../shared/service-proxies/service-proxies';
+import { CreateAccountComponent } from './create-account/create-account.component'
+import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from "ag-grid-community";
-import { TemplateRendererComponent } from '../template-renderer/template-renderer.component'
+import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component'
 import { ToastrService } from 'ngx-toastr';
-import { Subscription } from 'rxjs';
-import { GridRowData, AccountCategory } from '../../shared/Models/account';
+import { GridRowData, AccountCategory } from '../../../shared/Models/account';
 import { takeWhile } from 'rxjs/operators';
 
 @Component({
   selector: 'app-ledger-form',
-  templateUrl: './ledger-form.component.html',
-  styleUrls: ['./ledger-form.component.css']
+  templateUrl: './account.component.html',
+  styleUrls: ['./account.component.css']
 })
-export class LedgerFormComponent implements OnInit, OnDestroy {
-  @ViewChild('createModal') createAccount: CreateAccountComponent;
+
+export class AccountComponent implements OnInit, OnDestroy {
   rowData: Array<GridRowData>
-  getAllAccountSub: Subscription
   gridOptions = <GridOptions>{
-    onFirstDataRendered: (params) => { params.api.sizeColumnsToFit(); }
-  };
-  accountCategories: AccountCategory;
+    onFirstDataRendered: (params) => { params.api.sizeColumnsToFit() }
+  }
+  accountCategories: AccountCategory
   selectedAccountCategory: AccountCategory
   //For unsubscribing all subscriptions
   isSubscriptionAlive: boolean
 
-  @ViewChild('actionButtons') actionButtons: TemplateRef<any>;  
-  @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
+  @ViewChild('createModal') createAccount: CreateAccountComponent
+  @ViewChild('actionButtons') actionButtons: TemplateRef<any>
+  @ViewChild('divToMeasure') divToMeasureElement: ElementRef
 
   style = {
     marginTop: '20px',
@@ -48,20 +47,21 @@ export class LedgerFormComponent implements OnInit, OnDestroy {
     private financePocServiceProxy: FinancePocServiceProxy,
     private toastrService:  ToastrService
     ) {
+      this.isSubscriptionAlive = true
    }
    
   ngAfterViewInit(): void {
     this.gridOptions.api.setColumnDefs([
-      {headerName: 'Id', field: 'Id', hide: true },
-      {headerName: 'Name', field: 'Name', sortable: true, filter: true },
-      {headerName: 'Description_Id', field: 'Description_Id', hide: true },
-      {headerName: 'Description', field: 'Description', sortable: true, filter: true },
-      {headerName: 'Category', field: 'Category', sortable: true, filter: true },
-      {headerName: 'Category Id', field: 'Category_Id', hide: true },
-      {headerName: 'Category', field: 'Category', hide: true },
-      {headerName: 'Has Journal', field: 'has_journal', sortable: true, filter: true },
-      {headerName: 'CanDeleted', field: 'CanDeleted', hide: true },
-      {headerName: 'CanEdited', field: 'CanEdited', hide: true },
+      { headerName: 'Account Id', field: 'accountId', hide: true },
+      { headerName: 'Name', field: 'accountName', sortable: true, filter: true },
+      { headerName: 'Description_Id', field: 'descriptionId', hide: true },
+      { headerName: 'Description', field: 'description', sortable: true, filter: true },
+      { headerName: 'Category', field: 'category', sortable: true, filter: true },
+      { headerName: 'Category Id', field: 'categoryId', hide: true },
+      { headerName: 'Category', field: 'category', hide: true },
+      { headerName: 'Has Journal', field: 'hasJournal', sortable: true, filter: true },
+      { headerName: 'CanDeleted', field: 'canDeleted', hide: true },
+      { headerName: 'CanEdited', field: 'canEdited', hide: true },
       {
         headerName: "Actions",
         cellRendererFramework: TemplateRendererComponent,
@@ -69,16 +69,16 @@ export class LedgerFormComponent implements OnInit, OnDestroy {
           ngTemplate: this.actionButtons
         }
       }
-    ]);
+    ])
   }
 
   ngOnInit() {
-    this.getAccountsRecord();
-    this.getAccountCategories();
+    this.getAccountsRecord()
+    this.getAccountCategories()
   }
 
   getAccountCategories(){
-    this.financePocServiceProxy.accountCategories()
+    this.financePocServiceProxy.accountCategories().pipe(takeWhile(() => this.isSubscriptionAlive))
     .subscribe(response => {
       if(response.isSuccessful){
         this.accountCategories = response.payload
@@ -91,20 +91,21 @@ export class LedgerFormComponent implements OnInit, OnDestroy {
 
   getAccountsRecord(){
     setTimeout(()=> {
-    this.getAllAccountSub = this.financePocServiceProxy.getAllAccounts().subscribe(result => {
+    this.financePocServiceProxy.getAllAccounts().pipe(takeWhile(() => this.isSubscriptionAlive))
+    .subscribe(result => {
         this.rowData = result.payload.map(result => ({
-          Id: result.AccountId,
-          Name: result.AccountName,
-          Description: result.Description,
-          Category: result.Category,
-          Type_Id: result.TypeId,
-          Type: result.Type,
-          Category_Id: result.CategoryId,
-          has_journal: result.HasJournal,
-          CanDeleted: result.CanDeleted,
-          CanEdited: result.CanEdited
+          accountId: result.AccountId,
+          accountName: result.AccountName,
+          description: result.Description,
+          category: result.Category,
+          typeId: result.TypeId,
+          type: result.Type,
+          categoryId: result.CategoryId,
+          hasJournal: result.HasJournal,
+          canDeleted: result.CanDeleted,
+          canEdited: result.CanEdited
         }))
-        this.gridOptions.api.setRowData(this.rowData);
+        this.gridOptions.api.setRowData(this.rowData)
       })
     },100)
   }
@@ -115,7 +116,7 @@ export class LedgerFormComponent implements OnInit, OnDestroy {
   }
 
   deleteRow(row){
-    this.financePocServiceProxy.deleteAccount(row.Id).subscribe(response => {
+    this.financePocServiceProxy.deleteAccount(row.accountId).subscribe(response => {
     if(response.isSuccessful){
       this.toastrService.success('Account deleted successfully!')
       this.getAccountsRecord()
@@ -133,7 +134,7 @@ export class LedgerFormComponent implements OnInit, OnDestroy {
   }
 
   onFirstDataRendered(params) {
-    params.api.sizeColumnsToFit();
+    params.api.sizeColumnsToFit()
   }
 
   onBtExport() {
@@ -141,8 +142,8 @@ export class LedgerFormComponent implements OnInit, OnDestroy {
       fileName: "Test File",
       sheetName: "First Sheet",
       columnKeys: ['Name','Description','Category','has_journal']
-    };
-    this.gridOptions.api.exportDataAsExcel(params);
+    }
+    this.gridOptions.api.exportDataAsExcel(params)
   }
 
   accountCategorySelected(instance){
@@ -152,6 +153,6 @@ export class LedgerFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(){
-    this.getAllAccountSub.unsubscribe()
+    this.isSubscriptionAlive = false
   } 
 }

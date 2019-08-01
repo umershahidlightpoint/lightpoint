@@ -1,6 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LedgerFormComponent } from './ledger-form.component';
+import { LedgerFormComponent } from './account.component';
 
 describe('LedgerFormComponent', () => {
   let component: LedgerFormComponent;

@@ -11,7 +11,7 @@
         </button>
         <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu ml-3"
             role="menu" aria-labelledby="button-basic">
-            <li role="menuitem"><button class="dropdown-item" >Account Categories</button></li>
+            <li role="menuitem"><button class="dropdown-item disabled" >Select Account Category</button></li>
             <div class="dropdown-divider"></div>
             <li *ngFor="let accountCategory of accountCategories" role="menuitem">
               <button class="dropdown-item" (click)="accountCategorySelected(accountCategory)">
@@ -58,7 +58,7 @@
           <ng-template #actionButtons let-row>
             <button class="btn btn-info fixHeight" (click)="editRow(row)">Edit</button>
             <button 
-              [disabled]="row.has_journal == 'Yes'" 
+              [disabled]="row.hasJournal == 'Yes'" 
               class="btn btn-danger fixHeight" 
               (click)="deleteRow(row)">
                 Delete
