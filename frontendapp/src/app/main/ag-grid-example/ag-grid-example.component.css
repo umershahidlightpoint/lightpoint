@@ -20,3 +20,11 @@ body, html{
     font-style: italic;
      
   }
+
+  ::ng-deep .footerRow {
+    
+    font-weight: bold;
+     
+  }
+
+  

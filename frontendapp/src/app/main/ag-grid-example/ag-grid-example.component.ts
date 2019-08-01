@@ -16,6 +16,79 @@ import { $ } from 'protractor';
 })
 
 export class AgGridExampleComponent implements OnInit {
+ 
+  private gridApi;
+  private gridColumnApi;
+  private defaultColDef;
+  private rowData: [];
+  private selectedValue;
+  totalRecords: number;
+  rowGroupPanelShow: any ; 
+  sideBar:any;
+  pivotPanelShow:any;
+  pivotColumnGroupTotals: any ; 
+  pivotRowTotals : any ; 
+  DateRangeLable: any;
+  pinnedBottomRowData;
+   gridOptions: GridOptions;
+  filterChange :any;
+   getRowStyle;
+  //topOptions = {alignedGrids: [], suppressHorizontalScroll: true};
+
+ // bottomOptions = { alignedGrids: [] };
+ 
+  selected: { startDate: moment.Moment, endDate: moment.Moment };
+
+  @ViewChild('topGrid') topGrid;
+ // @ViewChild('bottomGrid') bottomGrid;
+  @ViewChild('dateRangPicker') dateRangPicker;
+  @ViewChild('greetCell') greetCell: TemplateRef<any>;
+  @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
+  columnDefs :any;
+  totalCredit: number;
+  totalDebit: number;
+  bottomData: any;
+  startDate: any;
+  fund:any;
+  endDate: any;
+     
+  symbal: string;
+  pageSize: any;
+  accountSearch = { id: undefined };
+  valueFilter: number;
+  funds: any;
+  sortColum: any;
+  sortDirection: any;
+  page: any;
+
+  title = 'app';
+  style = {
+    marginTop: '20px',
+    width: '100%',
+    height: '100%',
+    boxSizing: 'border-box'
+  };
+
+  styleForHight = {
+    marginTop: '20px',
+    width: '100%',
+    height: 'calc(100vh - 260px)',
+    boxSizing: 'border-box'
+  };
+
+ 
+
+  ranges: any = {
+    //'Today': [moment(), moment()],
+    //'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+    // 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+    // 'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+    'ITD': [moment("01-01-1901", "MM-DD-YYYY"), moment()],
+    // 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+    'YTD': [moment().startOf('year'), moment()],
+    'MTD': [moment().startOf('month'), moment()],
+  }
+
   constructor(injector: Injector,
     private _fundsService: FinancePocServiceProxy) {
     (injector);
@@ -41,20 +114,38 @@ export class AgGridExampleComponent implements OnInit {
   
     this.gridOptions = <GridOptions>{
       rowData: null,
+     
+/*      onFilterChanged: function() {  
+
+        this.gridOptions.api.forEachNodeAfterFilter( function(rowNode, index) {
+          console.log('node ' + rowNode.data.debit + ' passes the filter');
+      } )},
+
+*/
+
+      
       //columnDefs: this.columnDefs,
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       onGridReady: (params) => { 
         this.gridApi = params.api;
+    
         this.gridColumnApi = params.columnApi;
         this.gridOptions.api.sizeColumnsToFit();
-       
+         
         this.gridOptions.excelStyles= [
           {
            
               id: "twoDecimalPlaces",
               numberFormat: { format: "#,##0" }
              
+          },
+          {
+
+            id:"footerRow",
+            font: {
+              bold:true,
+            }
           },
           {
             id: "greenBackground",
@@ -125,91 +216,60 @@ export class AgGridExampleComponent implements OnInit {
 
   };
 
+  
+  public onBtForEachNodeAfterFilter ()
+  { this.gridOptions.api.forEachNodeAfterFilter( function(rowNode, index) {
+    console.log('node ' + rowNode.data.debit + ' passes the filter');
+});
+}
 
-  private gridOptions: GridOptions;
-
-  ranges: any = {
-    //'Today': [moment(), moment()],
-    //'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-    // 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-    // 'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-    'ITD': [moment("01-01-1901", "MM-DD-YYYY"), moment()],
-    // 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-    'YTD': [moment().startOf('year'), moment()],
-    'MTD': [moment().startOf('month'), moment()],
-  }
+ 
 
 
   // selected: {startDate: moment().startOf('month'), endDate: moment()};
 
-  private gridApi;
-  private gridColumnApi;
-  private defaultColDef;
-  private rowData: [];
-  private selectedValue;
-  totalRecords: number;
-  rowGroupPanelShow: any ; 
-  sideBar:any;
-  pivotPanelShow:any;
-  pivotColumnGroupTotals: any ; 
-  pivotRowTotals : any ; 
-  DateRangeLable: any;
-  //topOptions = {alignedGrids: [], suppressHorizontalScroll: true};
-
-  bottomOptions = { alignedGrids: [] };
-
-
-
-  selected: { startDate: moment.Moment, endDate: moment.Moment };
-
-  @ViewChild('topGrid') topGrid;
-  @ViewChild('bottomGrid') bottomGrid;
-  @ViewChild('dateRangPicker') dateRangPicker;
-  @ViewChild('greetCell') greetCell: TemplateRef<any>;
-  @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
-  columnDefs :any;
-  totalCredit: number;
-  totalDebit: number;
-  bottomData: any;
-  startDate: any;
-  fund:any;
-  endDate: any;
-     
-  symbal: string;
-  pageSize: any;
-  accountSearch = { id: undefined };
-  valueFilter: number;
-  funds: any;
-  sortColum: any;
-  sortDirection: any;
-  page: any;
-
-  title = 'app';
-  style = {
-    marginTop: '20px',
-    width: '100%',
-    height: '100%',
-    boxSizing: 'border-box'
-  };
-
-  styleForHight = {
-    marginTop: '20px',
-    width: '100%',
-    height: 'calc(100vh - 260px)',
-    boxSizing: 'border-box'
-  };
-
-
   ngAfterViewInit()
   {
     
+    this.gridOptions.onFilterChanged =function(){
+     
+     let tTotal= 0;
+     let tCredit=0;
+     let tDebit=0;
+this.api.forEachNodeAfterFilter( function(rowNode, index) {
+   
+  tTotal+=1;
+  tCredit += rowNode.data.credit ;
+  tDebit += rowNode.data.debit ;
+ // console.log('node ' + rowNode.data.debit + ' passes the filter');
+});
+      
+this.pinnedBottomRowData = [
+  {
+    source: 'Total Records: ' + tTotal,
+    AccountType: '',
+    accountName: '',
+      when: '',
+      debit: tDebit ,
+      credit:tCredit ,
+  }
+];
+this.api.setPinnedBottomRowData(this.pinnedBottomRowData );
+
+    };
+       
+
 
     this.gridOptions.api.setColumnDefs( [
         
         
       { field: 'source', headerName: 'Source',   colId: 'greet',  sortable: true ,
       cellRendererFramework: TemplateRendererComponent, cellRendererParams: {
-        ngTemplate: this.greetCell  }
+        ngTemplate: this.greetCell  } ,
+        cellClassRules: {
+         
+          footerRow:function(params) {  if (params.node.rowPinned) return true; else return false; }
+        },
     },
       { field: 'AccountType', headerName: 'Account Type',sortable: true, enableRowGroup: true, 
       enablePivot: true,filter: true },
@@ -243,22 +303,25 @@ export class AgGridExampleComponent implements OnInit {
       valueFormatter: currencyFormatter, cellStyle: {'text-align': 'right' } ,
       cellClass: "twoDecimalPlaces" ,
       cellClassRules: {
-        greenBackground: function(params) { return params.value < -300; },
-        redFont: function(params) { return params.value > -300; }
+        greenBackground: function(params) {  if (params.node.rowPinned) return false; else return params.value < -300; },
+        redFont: function(params) {  if (params.node.rowPinned) return false; else return params.value > -300; },
+        footerRow:function(params) {  if (params.node.rowPinned) return true; else return false; }
       },
 
     } ,
       { field: 'credit', aggFunc: "sum", headerName: 'Credit' , valueFormatter: currencyFormatter,
       cellClass: "twoDecimalPlaces" ,
-    cellClassRules: { greenBackground: function(params) { return params.value > 300; },
-      redFont: function(params) { return params.value < 300; }
-    }
+    cellClassRules: { greenBackground: function(params) { if (params.node.rowPinned) return false; else return params.value > 300; },
+      redFont: function(params) {if (params.node.rowPinned)return false; else return params.value < 300; } ,
+        footerRow:function(params) {  if (params.node.rowPinned) return true; else return false; }
+    }  
   } 
- 
+  
     ]
     
     );
-    
+     
+
     this.columnDefs =(
       [
         { field: 'source', headerName: 'Source'  },
@@ -274,14 +337,19 @@ export class AgGridExampleComponent implements OnInit {
       ]
     
     );
-  
+    this.getRowStyle = function(params) {
+      debugger;
+      if (params.node.rowPinned) {
+        return { "font-weight": "bold" };
+      }
+    };
       this.rowGroupPanelShow ="after";
       this.pivotPanelShow = "always";
       this.pivotColumnGroupTotals = "after";
       this.pivotRowTotals = "before";
     //align scroll of grid and footer grid
-    this.gridOptions.alignedGrids.push(this.bottomOptions);
-    this.bottomOptions.alignedGrids.push(this.gridOptions);
+   // this.gridOptions.alignedGrids.push(this.bottomOptions);
+   // this.bottomOptions.alignedGrids.push(this.gridOptions);
   
    this.symbal= "ALL";
     
@@ -320,6 +388,17 @@ export class AgGridExampleComponent implements OnInit {
         
      })); 
        
+     this.pinnedBottomRowData = [
+      {
+        source: 'Total Records:' + this.totalRecords,
+        AccountType: '',
+        accountName: '',
+          when: '',
+          debit: this.totalCredit ,
+          credit:this.totalDebit ,
+      }
+    ];
+    this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData );
       this.bottomData = [
         {
           source: 'Total Records:' + this.totalRecords,
@@ -333,7 +412,7 @@ export class AgGridExampleComponent implements OnInit {
       
   });  
    
-   
+ 
   }
   public getRangeLable() {
     this.DateRangeLable = '';
@@ -359,7 +438,7 @@ export class AgGridExampleComponent implements OnInit {
   onFirstDataRendered(params) {
     params.api.sizeColumnsToFit();
   }
-  
+ 
   onBtExport() {
      
     var params = {
@@ -374,6 +453,7 @@ export class AgGridExampleComponent implements OnInit {
 
     this.gridOptions.api.exportDataAsExcel(params);
   }
+ 
 ngOnInit() {  
 }
 
@@ -403,7 +483,7 @@ ngOnInit() {
   }
 
   public doesExternalFilterPass(node) {
-
+    
     if (this.startDate) {
       var cellDate = new Date(node.data.when);
       var td = this.startDate.toDate();
