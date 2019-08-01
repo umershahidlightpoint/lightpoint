@@ -1,0 +1,205 @@
+<!------ Modal Div ------>
+<div bsModal #modal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true"
+  [config]="{backdrop: 'static'}">
+  <div class="modal-dialog modal-dialog-centered" id="modal-lg">
+    <div class="modal-content">
+      <!------ Form ------>
+      <form #roleForm="ngForm" [formGroup]="accountForm" (ngSubmit)="onSave()">
+        <!------- Modal Header ------->
+        <div class="modal-header">
+          <h3 *ngIf="editCase">Edit Account</h3>
+          <h3 *ngIf="!editCase">Create Account ({{ selectedAccountCategory?.Name }})</h3>
+        </div>
+        <!------- Modal Body ------->
+        <div class="modal-body">
+          <!------- Description Field ------->
+          <div class="form-group">
+            <div class="row">
+              <div class="col-sm-3">
+                <label> Description </label>
+              </div>
+              <div class="col-sm-9">
+                <input type="text" class="form-control" formControlName="description" />
+              </div>
+            </div>
+          </div>
+          <!------- Account Type ------->
+          <div class="form-group">
+            <div class="row">
+              <div class="col-sm-3">
+                <label> Account Type </label>
+              </div>
+
+              <div *ngIf="editCase && !canEditAccount" class="col-sm-9">
+                  <label style="font: bold"><strong>{{ categoryLabel }}</strong></label>
+              </div>
+
+              <div *ngIf="editCase && canEditAccount || !editCase" class="col-sm-9">
+                <select 
+                  class="custom-select" 
+                  #type 
+                  (change)="getAccountTags(type.value)" 
+                  formControlName="category"
+                  [attr.disabled]="canEditAccount === false ? true : null">
+                    <option *ngIf="!editCase" hidden [value]="">Choose your account type</option>
+                    <option *ngFor="let type of accountTypes" [selected]="type.Name === categoryLabel"
+                      [ngValue]="type">
+                      {{type.Name}}
+                    </option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Error message for account having no definition -->
+          <div *ngIf="noAccountDef" class="row mt-4">
+            <div class="col-sm-3">
+
+            </div>
+            <div class="col-sm-9 ml-4">
+              <label style="color: red">Account definition is missing.<strong> Please contact support.</strong></label>
+            </div>
+          </div>
+
+          <!------- Account Tag ------->
+          <div *ngIf="accountTypeTags && canEditAccount" >
+            <div class="form-group">
+              <div class="row">
+                <div class="col-sm-5">
+                    <hr />
+                </div>
+                <div class="col-sm-02 mb-2">
+                  <label><strong> Account Tag </strong></label>                
+                </div>
+                <div class="col-sm-5">
+                    <hr />
+                </div>
+              </div>
+
+              <!------- Account Tag Types ------->
+              <div class="form-group">
+                  <div class="row">
+                    <div class="col-sm-4">
+                      <label> Account Tags </label>
+                    </div>
+      
+                    <!-- <div *ngIf="editCase" class="col-sm-9">
+                        <label style="font: bold"><strong>{{ categoryLabel.name }}</strong></label>
+                      </div> -->
+                    <div class="col-sm-7 btn-group" dropdown>
+                          <button id="button-basic" 
+                            dropdownToggle type="button" 
+                            class="btn btn-sm btn-primary dropdown-toggle"
+                            aria-controls="dropdown-basic">
+                              Add Tag <span class="caret"></span>
+                          </button>
+                          <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu ml-3"
+                              role="menu" aria-labelledby="button-basic">
+                              <li *ngFor="let tag of accountTags" role="menuitem">
+                                <button *ngIf="!tag.isChecked" type="button" class="dropdown-item" (click)="accountTagSelected(tag)">
+                                    {{ tag.Name }}
+                                </button>
+                              </li>
+                          </ul>
+                    </div>
+                  </div>
+              </div>
+
+              <div *ngIf="!editCase || editCase && canEditAccount">
+                <div formArrayName="tagsList">
+                  <div *ngFor="let instance of tags.controls; let i = index;" [formGroupName]="i">
+                    <div class="row mb-3">
+                      <div class="col-sm-4">
+                        <button 
+                          type="button"
+                          class="tag-label"
+                          aria-label="Close"
+                          (click)="unCheck(instance.value)" 
+                          type="button">
+                          <span class="cross-button" aria-hidden="true">
+                            <strong>x</strong>
+                          </span>
+                        </button>
+                        <label>
+                            {{instance.value.tagName}}
+                          </label>                          
+                      </div>
+                      <div *ngIf="!editCase" class="col-sm-8">
+                        <input class="form-control" [attr.disabled]="!instance.value.isChecked ? true : null"
+                          formControlName="description" placeholder="Enter {{instance.value.tagName}}">
+                      </div>
+                      <div *ngIf="editCase" class="col-sm-8">
+                        <input class="form-control" [attr.disabled]="!instance.value.isChecked ? true : null"
+                          formControlName="description" [value]="instance.value.description">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+                
+              <!-- For futher use -->
+              <!-- <div *ngIf="!editCase && accountTypeTags && canEditAccount || editCase && canEditAccount">
+                <div formArrayName="tagsList">
+                  <div *ngFor="let instance of tags.controls; let i = index;" [formGroupName]="i">
+                    <div class="row mb-3">
+                      <div class="col-sm-4">
+                        <label><input class="mr-4" formControlName="isChecked" type="checkbox">
+                          {{instance.value.tagName}}
+                        </label>
+                      </div>
+                      <div *ngIf="!editCase" class="col-sm-8">
+                        <input class="form-control" [attr.disabled]="!instance.value.isChecked ? true : null"
+                          formControlName="description" placeholder="Enter {{instance.value.tagName}}">
+                      </div>
+                      <div *ngIf="editCase" class="col-sm-8">
+                        <input class="form-control" [attr.disabled]="!instance.value.isChecked ? true : null"
+                          formControlName="description" [value]="instance.value.description">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div> -->
+
+              <!------- Array Form for Tags ------->
+              <!-- <form *ngIf="!editCase && accountTypeTags || editCase" [formGroup]="accountForm">
+                  <div formArrayName="tagsList"> 
+                    <div *ngFor="let instance of tags.controls; let i = index;" [formGroupName]="i">
+                      <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <label><input class="mr-4" formControlName="instance.value.isChecked" type="checkbox"> 
+                              {{instance.value.tag_name}} 
+                            </label>
+                          </div>
+                          <div *ngIf="!editCase" class="col-sm-8">
+                            <input class="form-control"
+                              [attr.disabled]="!instance.value.isChecked ? true : null"
+                              formControlName="description"
+                              placeholder="Enter {{instance.value.accountTags.TagName}}"
+                              >
+                          </div>
+                          <div *ngIf="editCase" class="col-sm-8">
+                            <input class="form-control"
+                              [attr.disabled]="!instance.value.isChecked ? true : null"
+                              formControlName="description"
+                              [value]="instance.value.description"
+                              >
+                          </div>
+                      </div>
+                    </div>
+                  </div>
+              </form> -->
+            </div>
+          </div>
+        </div>
+
+        <!------- Modal Footer ------->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="close()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="!roleForm.valid">
+            <i class="fa fa-save"></i> Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

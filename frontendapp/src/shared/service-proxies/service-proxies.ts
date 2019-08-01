@@ -134,7 +134,6 @@ export class FinancePocServiceProxy {
     }
 
     createAccount(data) {
-        console.log('create acc data',data)
         const url =  this.baseUrl+'/account' ;
         return this.http.post(url,data).pipe(map((response: any) => response));
     }
