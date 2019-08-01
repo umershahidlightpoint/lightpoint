@@ -187,21 +187,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.VerifyConnection();
                 sqlHelper.SqlBeginTransaction();
 
-                List<SqlParameter> accountTypeParameters = new List<SqlParameter>
-                {
-                    new SqlParameter("type", account.Type)
-                };
-
-                var accountTypeQuery = $@"SELECT [name]
-                                        FROM [account_type]
-                                        WHERE [account_type].[id] = @type";
-
-                var accountTypeName =
-                    sqlHelper.GetScalarValue(accountTypeQuery, CommandType.Text, accountTypeParameters.ToArray());
-
-                var accountName = account.Tags.Count > 0
-                    ? String.Join("-", account.Tags.Select(tag => tag.Value))
-                    : accountTypeName;
+                var accountName = GetAccountName(account.Tags, account.Type);
                 List<SqlParameter> accountParameters = new List<SqlParameter>
                 {
                     new SqlParameter("name", accountName), new SqlParameter("description", account.Description),
@@ -271,12 +257,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.VerifyConnection();
                 sqlHelper.SqlBeginTransaction();
 
-                var accountName = String.Join("-", account.Tags.Select(tag => tag.Value));
+                var accountName = GetAccountName(account.Tags, account.Type);
                 List<SqlParameter> accountParameters = new List<SqlParameter>
                 {
                     new SqlParameter("id", id), new SqlParameter("name", accountName),
                     new SqlParameter("description", account.Description),
-                    new SqlParameter("category", account.Type)
+                    new SqlParameter("type", account.Type)
                 };
 
                 List<SqlParameter> tagDeleteParameters = new List<SqlParameter>
@@ -287,7 +273,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var accountQuery = $@"UPDATE [account]
                                     SET [name] = @name
                                     ,[description] = @description
-                                    ,[account_category_id] = @category
+                                    ,[account_type_id] = @type
                                     WHERE [id] = @id";
 
                 var tagDeleteQuery = $@"DELETE FROM [account_tag]
@@ -296,15 +282,17 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.Update(accountQuery, CommandType.Text, accountParameters.ToArray());
                 sqlHelper.Delete(tagDeleteQuery, CommandType.Text, tagDeleteParameters.ToArray());
 
-                foreach (var accountTag in account.Tags)
+                if (account.Tags.Count > 0)
                 {
-                    List<SqlParameter> tagParameters = new List<SqlParameter>
+                    foreach (var accountTag in account.Tags)
                     {
-                        new SqlParameter("accountId", id), new SqlParameter("tagId", accountTag.Id),
-                        new SqlParameter("tagValue", accountTag.Value)
-                    };
+                        List<SqlParameter> tagParameters = new List<SqlParameter>
+                        {
+                            new SqlParameter("accountId", id), new SqlParameter("tagId", accountTag.Id),
+                            new SqlParameter("tagValue", accountTag.Value)
+                        };
 
-                    var tagQuery = $@"INSERT INTO [account_tag]
+                        var tagQuery = $@"INSERT INTO [account_tag]
                                 ([account_id]
                                 ,[tag_id]
                                 ,[tag_value])
@@ -313,7 +301,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                 ,@tagId
                                 ,@tagValue)";
 
-                    sqlHelper.Insert(tagQuery, CommandType.Text, tagParameters.ToArray());
+                        sqlHelper.Insert(tagQuery, CommandType.Text, tagParameters.ToArray());
+                    }
                 }
 
                 sqlHelper.SqlCommitTransaction();
@@ -427,6 +416,32 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var hasJournal = sqlHelper.GetScalarValue(query, CommandType.Text, sqlParameters.ToArray());
 
             return Convert.ToBoolean(hasJournal);
+        }
+
+        private string GetAccountName(List<AccountTagInputDto> accountTags, int? accountType)
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+
+            var accountTypeName = "";
+            if (accountTags.Count == 0)
+            {
+                List<SqlParameter> accountTypeParameters = new List<SqlParameter>
+                {
+                    new SqlParameter("type", accountType)
+                };
+
+                var accountTypeQuery = $@"SELECT [name]
+                                        FROM [account_type]
+                                        WHERE [account_type].[id] = @type";
+
+                accountTypeName =
+                    sqlHelper.GetScalarValue(accountTypeQuery, CommandType.Text, accountTypeParameters.ToArray())
+                        .ToString();
+            }
+
+            return accountTags.Count > 0
+                ? String.Join("-", accountTags.Select(tag => tag.Value))
+                : accountTypeName;
         }
 
         private object AllData()
