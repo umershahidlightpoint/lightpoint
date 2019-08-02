@@ -58,7 +58,6 @@ export class AccountComponent implements OnInit, OnDestroy {
       { headerName: 'Description', field: 'description', sortable: true, filter: true },
       { headerName: 'Category', field: 'category', sortable: true, filter: true },
       { headerName: 'Category Id', field: 'categoryId', hide: true },
-      { headerName: 'Category', field: 'category', hide: true },
       { headerName: 'Has Journal', field: 'hasJournal', sortable: true, filter: true },
       { headerName: 'CanDeleted', field: 'canDeleted', hide: true },
       { headerName: 'CanEdited', field: 'canEdited', hide: true },
@@ -146,8 +145,11 @@ export class AccountComponent implements OnInit, OnDestroy {
     this.gridOptions.api.exportDataAsExcel(params)
   }
 
-  accountCategorySelected(instance){
-    this.selectedAccountCategory = instance
+  accountCategorySelected(category){
+    this.selectedAccountCategory =  {
+      id: category.Id,
+      name: category.Name
+    } 
     this.router.navigateByUrl('/accounts/create-account')
     this.createAccount.show({})
   }

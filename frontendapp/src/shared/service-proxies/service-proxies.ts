@@ -133,6 +133,11 @@ export class FinancePocServiceProxy {
         return this.http.get(url,).pipe(map((response: any) => response));
     }
 
+    getAccountTags(id) {
+        const url =  this.baseUrl+'/account/'+id ;
+        return this.http.get(url,).pipe(map((response: any) => response));
+    }
+
     createAccount(data) {
         const url =  this.baseUrl+'/account' ;
         return this.http.post(url,data).pipe(map((response: any) => response));

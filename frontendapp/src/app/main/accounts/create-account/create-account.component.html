@@ -8,7 +8,7 @@
         <!------- Modal Header ------->
         <div class="modal-header">
           <h3 *ngIf="editCase">Edit Account</h3>
-          <h3 *ngIf="!editCase">Create Account ({{ selectedAccountCategory?.Name }})</h3>
+          <h3 *ngIf="!editCase">Create Account ({{ selectedAccountCategory?.name }})</h3>
         </div>
         <!------- Modal Body ------->
         <div class="modal-body">
@@ -31,22 +31,24 @@
               </div>
 
               <div *ngIf="editCase && !canEditAccount" class="col-sm-9">
-                  <label style="font: bold"><strong>{{ categoryLabel }}</strong></label>
+                  <label style="font: bold"><strong>{{ accTypeLabel }}</strong></label>
               </div>
 
               <div *ngIf="editCase && canEditAccount || !editCase" class="col-sm-9">
-                <select 
+                <select [(ngModel)]="accTypeId" 
                   class="custom-select" 
                   #type 
                   (change)="getAccountTags(type.value)" 
-                  formControlName="category"
+                  formControlName="type"
                   [attr.disabled]="canEditAccount === false ? true : null">
                     <option *ngIf="!editCase" hidden [value]="">Choose your account type</option>
-                    <option *ngFor="let type of accountTypes" [selected]="type.Name === categoryLabel"
-                      [ngValue]="type">
-                      {{type.Name}}
+                    <option *ngFor="let accType of accountTypes" 
+                      [ngValue]="accType.Id">
+                      {{ accType.Name }}
                     </option>
+                    
                 </select>
+                
               </div>
             </div>
           </div>
@@ -84,7 +86,7 @@
                     </div>
       
                     <!-- <div *ngIf="editCase" class="col-sm-9">
-                        <label style="font: bold"><strong>{{ categoryLabel.name }}</strong></label>
+                        <label style="font: bold"><strong>{{ accTypeLabel.name }}</strong></label>
                       </div> -->
                     <div class="col-sm-7 btn-group" dropdown>
                           <button id="button-basic" 
@@ -106,7 +108,7 @@
               </div>
 
               <div *ngIf="!editCase || editCase && canEditAccount">
-                <div formArrayName="tagsList">
+                <div style="overflow-y: auto; overflow-x: hidden; max-height: 180px" formArrayName="tagsList">
                   <div *ngFor="let instance of tags.controls; let i = index;" [formGroupName]="i">
                     <div class="row mb-3">
                       <div class="col-sm-4">
@@ -159,35 +161,6 @@
                   </div>
                 </div>
               </div> -->
-
-              <!------- Array Form for Tags ------->
-              <!-- <form *ngIf="!editCase && accountTypeTags || editCase" [formGroup]="accountForm">
-                  <div formArrayName="tagsList"> 
-                    <div *ngFor="let instance of tags.controls; let i = index;" [formGroupName]="i">
-                      <div class="row mb-3">
-                        <div class="col-sm-4">
-                            <label><input class="mr-4" formControlName="instance.value.isChecked" type="checkbox"> 
-                              {{instance.value.tag_name}} 
-                            </label>
-                          </div>
-                          <div *ngIf="!editCase" class="col-sm-8">
-                            <input class="form-control"
-                              [attr.disabled]="!instance.value.isChecked ? true : null"
-                              formControlName="description"
-                              placeholder="Enter {{instance.value.accountTags.TagName}}"
-                              >
-                          </div>
-                          <div *ngIf="editCase" class="col-sm-8">
-                            <input class="form-control"
-                              [attr.disabled]="!instance.value.isChecked ? true : null"
-                              formControlName="description"
-                              [value]="instance.value.description"
-                              >
-                          </div>
-                      </div>
-                    </div>
-                  </div>
-              </form> -->
             </div>
           </div>
         </div>

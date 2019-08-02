@@ -13,7 +13,7 @@ export interface CreateAccount {
 export interface EditAccount {
   id: number;
   description: string;
-  category: number;
+  type: number;
   tags: [
     {
       id: number,
@@ -32,6 +32,8 @@ export interface GridRowData {
   name: string,
   description: string,
   category: string,
+  type: string,
+  typeId: number,
   categoryId: number,
   hasJournal: string,
   Tags: [{

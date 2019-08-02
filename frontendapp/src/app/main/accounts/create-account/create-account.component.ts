@@ -37,11 +37,11 @@ import { takeWhile } from "rxjs/operators";
 
 export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
   editCase: boolean = false;
-  categoryLabel: string;
+  accTypeLabel: string;
+  accTypeId: number;
   nameLabel: string;
   noAccountDef: boolean = false;
   canEditAccount: boolean = true;
-  clickedAccountId: number;
   //For unsubscribing all subscriptions
   isSubscriptionAlive: boolean;
 
@@ -78,15 +78,15 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
     this.accountForm = this.formBuilder.group({
       //name: new FormControl(''),
       description: new FormControl("", Validators.required),
-      category: new FormControl("", Validators.required),
+      type: new FormControl("", Validators.required),
       tagsList: this.formBuilder.array([])
     });
     this.tags = this.accountForm.get("tagsList") as FormArray;
   }
 
-  getAccountTypes() {
+  getAccountTypes(selectedAccountCategoryId) {
     this.financePocServiceProxy
-      .accountTypes(this.selectedAccountCategory.id)
+      .accountTypes(selectedAccountCategoryId)
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {
         if (response.isSuccessful) {
@@ -110,24 +110,6 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
     selectedAccTags['description'] = ''
     selectedAccTags['isChecked'] = true
     this.tags.push(this.createTag(selectedAccTags))
- 
-    // const control = <FormArray>this.accountForm.controls["tagsList"];
-    // for (let i = control.length - 1; i >= 0; i--) {
-    //   control.removeAt(i);
-    // }
-
-    // selectedAccTags.forEach(accTag => {
-    //   this.accountForm.patchValue({
-    //     accountDefId: accTag.AccountDefId,
-    //     accountCategoryId: accTag.AccountCategoryId
-    //   });
-    //   accTag.AccountTags.forEach(tag => {
-    //     this.tags.push(this.createTag(tag));
-    //   });
-    // });
-    //selectedAccTags.forEach(tag => {
-    // this.tags.push(this.createTag(selectedAccTags))
-    //})
   }
 
   deleteTag(tagToDelete){
@@ -146,49 +128,8 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   getAccountTags(type) {
-    let flag = typeof type === "string" ? false : true;
-    if (!flag && type.slice(0, 1) == this.rowDataSelected.categoryId) {
-      this.hasExistingAccount(this.rowDataSelected);
-    } else if (this.editCase && flag) {
-      this.hasExistingAccount(type);
-    } else {
-      let selectedAccId = type.slice(0, 1);
+    if (this.editCase) {
       this.financePocServiceProxy
-        .accountTags()
-        .pipe(takeWhile(() => this.isSubscriptionAlive))
-        .subscribe(
-          response => {
-            if (response.payload.length < 1) {
-              this.noAccountDef = true;
-              return;
-            }
-            this.accountTags = response.payload
-            this.accountTypeTags = response.payload.map(payload => {
-              //if (payload.AccountCategoryId == selectedAccId) {
-                //payload.AccountTags.map(tag => {
-                payload["isChecked"] = false;
-                payload["description"] = "";
-                //});
-                return payload;
-              //}
-            });
-            //this.addTag(this.accountTypeTags);
-          },
-          error => {
-            this.toastrService.error("Something went wrong. Try again later!");
-          }
-        );
-    }
-  }
-
-  hasExistingAccount(accountData) {
-    // if(accountData.accountName === accountData.description){
-    //   this.accountForm.patchValue({
-    //     description: accountData.accountName,
-    //     category: accountData.categories
-    //   })
-    // }
-    this.financePocServiceProxy
       .accountTags()
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(
@@ -197,23 +138,31 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
             this.noAccountDef = true;
             return;
           }
-          //this.accountTypeTags = response.payload
           this.accountTags = response.payload
-          // this.accountTypeTags = response.payload.filter(payload => {
-          //   if (payload.AccountCategoryId == accountData.Category_Id) {
-          //     return payload;
-          //   }
-          // });
-
-          // this.accountTypeTags.map(accountTag => {
-          //   this.rowDataSelected.Tags.forEach(tag => {
-          //     accountTag.AccountTags.forEach(accTag => {
-          //       if (tag.Id == accTag.TagId) {
-          //         accTag["isChecked"] = true;
-          //         accTag["description"] = tag.Value;
-          //       }
-          //     });
-          //   });
+          this.accountTypeTags = response.payload            
+          this.hasExistingAccount(this.rowDataSelected)
+        },
+        error => {
+          this.toastrService.error("Something went wrong. Try again later!");
+        }
+      );
+    } else {
+      this.financePocServiceProxy
+      .accountTags()
+      .pipe(takeWhile(() => this.isSubscriptionAlive))
+      .subscribe(
+        response => {
+          if (response.payload.length < 1) {
+            this.noAccountDef = true;
+            return;
+          }
+          this.accountTags = response.payload
+          this.accountTypeTags = response.payload            
+          // this.accountTypeTags = this.accountTags
+          // this.accountTypeTags.map(payload => {
+          //   payload["isChecked"] = false;
+          //   payload["description"] = "";
+          //   return payload;
           // });
           //this.addTag(this.accountTypeTags);
         },
@@ -221,26 +170,55 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
           this.toastrService.error("Something went wrong. Try again later!");
         }
       );
+    }
+  }
+
+  hasExistingAccount(accountData) {
+    this.financePocServiceProxy.getAccountTags(accountData.accountId)
+    .subscribe(response => {
+        const { payload } = response
+        const { Tags } = payload[0]
+        if(Tags.length > 0){
+          let temp = this.accountTags
+          temp.map(accountTags => {
+            Tags.forEach(tag => {
+              if(tag.Id === accountTags.Id){
+                accountTags['isChecked'] = true
+                accountTags['description'] = tag['Value']
+                return accountTags
+              }    
+            })
+          })
+          temp = temp.filter(tag => {
+            if(tag.hasOwnProperty('isChecked')){              
+              return tag
+            }
+          })
+          temp.forEach(tag => {
+            this.tags.push(this.createTag(tag))
+          })
+        }
+    })
   }
 
   show(rowSelected) {
-    console.log('selected row data',rowSelected)
     this.rowDataSelected = rowSelected;
-    this.clickedAccountId = rowSelected.Id;
     if (Object.keys(rowSelected).length !== 0) {
       this.canEditAccount = rowSelected.canDeleted;
-      this.categoryLabel = !this.canEditAccount ? null : rowSelected.type;
+      this.accTypeLabel = !this.canEditAccount ? null : rowSelected.type;
       this.editCase = true;
+      this.getAccountTypes(rowSelected.categoryId);
+      this.getAccountTags(rowSelected);    
       this.accountForm.patchValue({
         description: rowSelected.description,
-        category: {
-          id: rowSelected.categoryId,
-          name: rowSelected.category
+        type: {
+          id: rowSelected.typeId,
+          name: rowSelected.type
         }
       });
       this.nameLabel = rowSelected.accountName;
-      this.categoryLabel = rowSelected.category;
-      this.getAccountTags(rowSelected);
+      this.accTypeId = rowSelected.typeId
+      this.accTypeLabel = rowSelected.type
     }
     this.modal.show();
   }
@@ -272,7 +250,7 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
           description: this.accountForm.value.description
         };
         this.financePocServiceProxy
-          .patchAccount(this.clickedAccountId, patchAccountObj)
+          .patchAccount(this.rowDataSelected.accountId, patchAccountObj)
           .subscribe(
             response => {
               if (response.isSuccessful) {
@@ -289,9 +267,9 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
           );
       } else {
         this.editAccountInstance = {
-          id: this.clickedAccountId,
+          id: this.rowDataSelected.accountId,
           description: this.accountForm.value.description,
-          category: this.accountForm.value.category.id,
+          type: this.accountForm.value.type || this.rowDataSelected.typeId,
           tags: tagObjectToSend
         };
         this.financePocServiceProxy
@@ -314,7 +292,7 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
     } else {
       this.accountInstance = {
         description: this.accountForm.value.description,
-        type: this.accountForm.value.category.Id,
+        type: this.accountForm.value.type,
         tags: tagObjectToSend
       };
       this.financePocServiceProxy.createAccount(this.accountInstance).subscribe(
@@ -340,14 +318,14 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
     //this.accountForm.controls['name'].reset()
     //this.accountForm.controls['name'].enable()
     this.accountForm.controls["description"].reset()
-    this.accountForm.controls["category"].reset()
+    this.accountForm.controls["type"].reset()
     this.accountForm.controls["tagsList"].reset()
     this.clearTagsListArray()
     this.accountTags = null
     this.canEditAccount = true
     this.editCase = false
     this.accountTypeTags = null
-    this.categoryLabel = null
+    this.accTypeLabel = null
     this.accountTags = null
     this.noAccountDef = false
   }
@@ -373,7 +351,7 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnChanges(){
     if(this.selectedAccountCategory){
-      this.getAccountTypes()
+      this.getAccountTypes(this.selectedAccountCategory.id)
     }
   }
 }
