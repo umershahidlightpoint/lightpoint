@@ -2,10 +2,10 @@
   <p-tabPanel header="Journal" [ngStyle]="style">
     <div class="row ">
       <div class="col-md-2">
-        <select class="form-control"   [ngModel]="selectedFund">
-          <option [ngValue]="null" disabled>All Funds</option>
-          <option *ngFor="let fund of funds" [ngValue]="fund.FundCode">
-            {{ fund.FundCode }}
+        <select class="form-control" [(ngModel)]="fund" (ngModelChange)="ngModelChangeFund($event)">
+          <option [ngValue]="null">All Funds</option>
+          <option *ngFor="let f of funds" [ngValue]="f.FundCode">
+            {{ f.FundCode }}
           </option>
         </select>
 

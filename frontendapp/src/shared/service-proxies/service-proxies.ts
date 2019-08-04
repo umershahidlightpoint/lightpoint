@@ -44,7 +44,7 @@ export class FinancePocServiceProxy {
             //if (searchStart){ url = url +'&value='+valueFilter;}else{ url = url +'/?value='+valueFilter;}
         }
     
-        return this.http.get(url ).pipe(map((response: any) => response));
+        return this.http.get(url).pipe(map((response: any) => response));
     }
 
     getJournalLogs(symbal : any,pageNumber : any| null | undefined, pageSize  : any| null | undefined,
