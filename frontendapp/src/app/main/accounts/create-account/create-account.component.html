@@ -9,34 +9,24 @@
         <div class="modal-header">
           <h3 *ngIf="editCase">Edit Account</h3>
           <h3 *ngIf="!editCase">Create Account ({{ selectedAccountCategory?.name }})</h3>
+          <button type="button" class="close" data-dismiss="modal" (click)="close()">&times;</button>
         </div>
         <!------- Modal Body ------->
         <div class="modal-body">
-          <!------- Description Field ------->
-          <div class="form-group">
-            <div class="row">
-              <div class="col-sm-3">
-                <label> Description </label>
-              </div>
-              <div class="col-sm-9">
-                <input type="text" class="form-control" formControlName="description" />
-              </div>
-            </div>
-          </div>
           <!------- Account Type ------->
           <div class="form-group">
             <div class="row">
               <div class="col-sm-3">
                 <label> Account Type </label>
               </div>
-
+              <!------- Account Type Label for Accounts Having Journals ------->
               <div *ngIf="editCase && !canEditAccount" class="col-sm-9">
                   <label style="font: bold"><strong>{{ accTypeLabel }}</strong></label>
               </div>
-
+              <!------- Account Type Drop Down ------->
               <div *ngIf="editCase && canEditAccount || !editCase" class="col-sm-9">
                 <select [(ngModel)]="accTypeId" 
-                  class="custom-select" 
+                  class="custom-select"
                   #type 
                   (change)="getAccountTags(type.value)" 
                   formControlName="type"
@@ -45,18 +35,25 @@
                     <option *ngFor="let accType of accountTypes" 
                       [ngValue]="accType.Id">
                       {{ accType.Name }}
-                    </option>
-                    
-                </select>
-                
+                    </option>                    
+                </select>              
               </div>
             </div>
           </div>
-
+          <!------- Description Field ------->
+          <div class="form-group">
+            <div class="row">
+              <div class="col-sm-3">
+                <label> Account Description </label>
+              </div>
+              <div class="col-sm-9">
+                <input type="text" class="form-control" formControlName="description" />
+              </div>
+            </div>
+          </div>
           <!-- Error message for account having no definition -->
           <div *ngIf="noAccountDef" class="row mt-4">
             <div class="col-sm-3">
-
             </div>
             <div class="col-sm-9 ml-4">
               <label style="color: red">Account definition is missing.<strong> Please contact support.</strong></label>
@@ -84,29 +81,26 @@
                     <div class="col-sm-4">
                       <label> Account Tags </label>
                     </div>
-      
-                    <!-- <div *ngIf="editCase" class="col-sm-9">
-                        <label style="font: bold"><strong>{{ accTypeLabel.name }}</strong></label>
-                      </div> -->
+                    <!------- Account Tags Drop Down ------->
                     <div class="col-sm-7 btn-group" dropdown>
-                          <button id="button-basic" 
-                            dropdownToggle type="button" 
-                            class="btn btn-sm btn-primary dropdown-toggle"
-                            aria-controls="dropdown-basic">
-                              Add Tag <span class="caret"></span>
-                          </button>
-                          <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu ml-3"
-                              role="menu" aria-labelledby="button-basic">
-                              <li *ngFor="let tag of accountTags" role="menuitem">
-                                <button *ngIf="!tag.isChecked" type="button" class="dropdown-item" (click)="accountTagSelected(tag)">
-                                    {{ tag.Name }}
-                                </button>
-                              </li>
-                          </ul>
+                      <button id="button-basic" 
+                        dropdownToggle type="button" 
+                        class="btn btn-sm btn-primary dropdown-toggle" style="max-height: 100px"
+                        aria-controls="dropdown-basic">
+                          Add Tag <span class="caret"></span>
+                      </button>
+                      <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu ml-3"
+                          role="menu" aria-labelledby="button-basic">
+                          <li *ngFor="let tag of accountTags" role="menuitem">
+                            <button *ngIf="!tag.isChecked" type="button" class="dropdown-item" (click)="accountTagSelected(tag)">
+                                {{ tag.Name }}
+                            </button>
+                          </li>
+                      </ul>
                     </div>
                   </div>
               </div>
-
+              <!------- Account Tag Field ------->
               <div *ngIf="!editCase || editCase && canEditAccount">
                 <div style="overflow-y: auto; overflow-x: hidden; max-height: 180px" formArrayName="tagsList">
                   <div *ngFor="let instance of tags.controls; let i = index;" [formGroupName]="i">

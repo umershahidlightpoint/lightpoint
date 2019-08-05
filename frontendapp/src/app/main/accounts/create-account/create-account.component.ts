@@ -42,10 +42,10 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
   nameLabel: string;
   noAccountDef: boolean = false;
   canEditAccount: boolean = true;
-  //For unsubscribing all subscriptions
+  // For unsubscribing all subscriptions
   isSubscriptionAlive: boolean;
 
-  //Account Model
+  // Account Model
   rowDataSelected: GridRowData;
   accountTypes: AccountCategory;
   accountTags: Array<AccountTag>;
@@ -76,7 +76,6 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
 
   buildForm() {
     this.accountForm = this.formBuilder.group({
-      //name: new FormControl(''),
       description: new FormControl("", Validators.required),
       type: new FormControl("", Validators.required),
       tagsList: this.formBuilder.array([])
@@ -127,7 +126,7 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
     })
   }
 
-  getAccountTags(type) {
+  getAccountTags() {
     if (this.editCase) {
       this.financePocServiceProxy
       .accountTags()
@@ -208,7 +207,7 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
       this.accTypeLabel = !this.canEditAccount ? null : rowSelected.type;
       this.editCase = true;
       this.getAccountTypes(rowSelected.categoryId);
-      this.getAccountTags(rowSelected);    
+      this.getAccountTags();    
       this.accountForm.patchValue({
         description: rowSelected.description,
         type: {
@@ -228,9 +227,8 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   close() {
-    this.modalClose.emit(true);
     this.modal.hide();
-    setTimeout(() => this.clearForm(), 1000);
+    setTimeout(() => this.clearForm(), 250);
     this.router.navigateByUrl("/accounts");
   }
 
@@ -315,11 +313,8 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   clearForm() {
-    //this.accountForm.controls['name'].reset()
-    //this.accountForm.controls['name'].enable()
     this.accountForm.controls["description"].reset()
     this.accountForm.controls["type"].reset()
-    this.accountForm.controls["tagsList"].reset()
     this.clearTagsListArray()
     this.accountTags = null
     this.canEditAccount = true
@@ -328,6 +323,7 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
     this.accTypeLabel = null
     this.accountTags = null
     this.noAccountDef = false
+    this.accTypeId = null 
   }
 
   clearTagsListArray(){
