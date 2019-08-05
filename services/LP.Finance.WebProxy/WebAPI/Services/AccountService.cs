@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Text;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
 using Newtonsoft.Json;
@@ -43,7 +44,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 new SqlParameter("accountName", accountName), new SqlParameter("accountCategory", accountCategory)
             };
 
-            var query = $@"SELECT total = COUNT(*) OVER()
+            var query = new StringBuilder($@"SELECT total = COUNT(*) OVER()
                         ,[account].[id] AS 'account_id'
                         ,[account].[name]
 	                    ,[account].[description]
@@ -57,21 +58,22 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 	                    END AS 'has_journal'
                         FROM [account]
 						LEFT JOIN [account_type] ON [account].[account_type_id] = [account_type].[id]
-						LEFT JOIN [account_category] ON [account_type].[account_category_id] = [account_category].[id]";
+						LEFT JOIN [account_category] ON [account_type].[account_category_id] = [account_category].[id]");
 
-            query += accountName.Length > 0 ? " WHERE [account].[name] LIKE '%'+@accountName+'%'" : "";
+            query.Append(accountName.Length > 0 ? " WHERE [account].[name] LIKE '%'+@accountName+'%'" : "");
 
-            query += accountName.Length > 0
+            query.Append(accountName.Length > 0
                 ? (accountCategory.Length > 0 ? " AND [account_category].[name] LIKE '%'+@accountCategory+'%'" : "")
-                : (accountCategory.Length > 0 ? " WHERE [account_category].[name] LIKE '%'+@accountCategory+'%'" : "");
+                : (accountCategory.Length > 0 ? " WHERE [account_category].[name] LIKE '%'+@accountCategory+'%'" : ""));
 
-            query +=
-                " ORDER BY [account].[id] DESC OFFSET(@pageNumber - 1) * @pageSize ROWS FETCH NEXT @pageSize ROWS ONLY";
+            query.Append(
+                " ORDER BY [account].[id] DESC OFFSET(@pageNumber - 1) * @pageSize ROWS FETCH NEXT @pageSize ROWS ONLY");
 
             List<AccountsOutputDto> accounts = new List<AccountsOutputDto>();
             MetaData meta = new MetaData();
             using (var reader =
-                sqlHelper.GetDataReader(query, CommandType.Text, sqlParameters.ToArray(), out var sqlConnection))
+                sqlHelper.GetDataReader(query.ToString(), CommandType.Text, sqlParameters.ToArray(),
+                    out var sqlConnection))
             {
                 while (reader.Read())
                 {
@@ -420,28 +422,26 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         private string GetAccountName(List<AccountTagInputDto> accountTags, int? accountType)
         {
-            SqlHelper sqlHelper = new SqlHelper(connectionString);
-
-            var accountTypeName = "";
-            if (accountTags.Count == 0)
-            {
-                List<SqlParameter> accountTypeParameters = new List<SqlParameter>
-                {
-                    new SqlParameter("type", accountType)
-                };
-
-                var accountTypeQuery = $@"SELECT [name]
-                                        FROM [account_type]
-                                        WHERE [account_type].[id] = @type";
-
-                accountTypeName =
-                    sqlHelper.GetScalarValue(accountTypeQuery, CommandType.Text, accountTypeParameters.ToArray())
-                        .ToString();
-            }
-
             return accountTags.Count > 0
                 ? String.Join("-", accountTags.Select(tag => tag.Value))
-                : accountTypeName;
+                : GetAccountTypeName(accountType);
+        }
+
+        private string GetAccountTypeName(int? accountTypeId)
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+
+            List<SqlParameter> accountTypeParameters = new List<SqlParameter>
+            {
+                new SqlParameter("typeId", accountTypeId)
+            };
+
+            var accountTypeQuery = $@"SELECT [name]
+                                        FROM [account_type]
+                                        WHERE [account_type].[id] = @typeId";
+
+            return sqlHelper.GetScalarValue(accountTypeQuery, CommandType.Text, accountTypeParameters.ToArray())
+                .ToString();
         }
 
         private object AllData()
