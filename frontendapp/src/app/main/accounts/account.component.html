@@ -1,14 +1,12 @@
 <!----- Navbar start ----->
 <div class="row">
   <div class="col-sm-2 btn-group" dropdown>
-      <!-- <button (click)="addAccount()" class="btn btn-primary blue ml-auto">
-          <i class="fa fa-plus"></i> Add Account
-      </button> -->
-      <!-- <div  -->
+        <!-- Create Account Button -->
         <button id="button-basic" dropdownToggle type="button" class="btn btn-sm btn-primary dropdown-toggle"
                 aria-controls="dropdown-basic">
           Create Account <span class="caret"></span>
         </button>
+        <!----- Create Category Dropdown ----->        
         <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu ml-3"
             role="menu" aria-labelledby="button-basic">
             <li role="menuitem"><button class="dropdown-item disabled" >Select Account Category</button></li>
@@ -19,29 +17,13 @@
               </button>
             </li>
         </ul>
-      <!-- <select 
-        class="form-control" 
-        #accCategory 
-        (change)="selectedAccountCategory(accCategory.value)">
-          <option [ngValue]="null" selected="Account Categories" disabled>Account Categories</option>
-          <option *ngFor="let accountCategory of accountCategories" [ngValue]="accountCategory">
-            {{ accountCategory.name }}   
-          </option>
-      </select> -->
-  </div>
-  <div class="col-sm-7"></div>
- <div class="col-sm-3" style="text-align:right"  >   
-   <button (click)="onBtExport()" class="btn btn-info ml-auto">
-      <i class="fa fa-angle-double-down" style="font-size:24px"></i> Export to Excel</button>    
   </div>
 </div>
+<hr />
 <!----- Navbar end ----->
-<hr/>
  
 <p-tabView [ngStyle]="style">
-    
     <p-tabPanel header="Accounts" [ngStyle]="style">  
-       
       <!----- Div To Measure Identifier starts ----->
       <div #divToMeasure>
          
@@ -70,5 +52,6 @@
     </p-tabPanel>
   </p-tabView>
 
+<!----- Create Account Component Tag ----->            
 <app-create-account #createModal [selectedAccCategory]="selectedAccountCategory" (modalClose)="getAccountsRecord()"></app-create-account>
 <router-outlet></router-outlet>
