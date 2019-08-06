@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
+using LP.Finance.Common.Mappers;
 using Newtonsoft.Json;
 using SqlDAL.Core;
 
@@ -15,6 +16,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
     class AccountService : IAccountService
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+        private readonly EntityMapper mapper = new EntityMapper();
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public object Data(string symbol, string search = "")
@@ -78,19 +80,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 while (reader.Read())
                 {
                     meta.Total = (int) reader["total"];
-                    accounts.Add(new AccountsOutputDto
-                    {
-                        AccountId = (int) reader["account_id"],
-                        AccountName = reader["name"].ToString(),
-                        Description = reader["description"].ToString(),
-                        TypeId = (int) reader["type_id"],
-                        Type = reader["type"].ToString(),
-                        CategoryId = (int) reader["category_id"],
-                        Category = reader["category"].ToString(),
-                        HasJournal = reader["has_journal"].ToString(),
-                        CanDeleted = reader["has_journal"].ToString() == "No",
-                        CanEdited = reader["has_journal"].ToString() == "No",
-                    });
+                    accounts.Add(mapper.MapAccounts(reader));
                 }
 
                 reader.Close();
@@ -134,26 +124,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 while (reader.Read())
                 {
-                    account.Add(new AccountOutputDto
-                    {
-                        AccountId = (int) reader["account_id"],
-                        AccountName = reader["name"].ToString(),
-                        Description = reader["description"].ToString(),
-                        TypeId = (int) reader["type_id"],
-                        Type = reader["type"].ToString(),
-                        CategoryId = (int) reader["category_id"],
-                        Category = reader["category"].ToString(),
-                        HasJournal = reader["has_journal"].ToString(),
-                        CanDeleted = reader["has_journal"].ToString() == "No",
-                        CanEdited = reader["has_journal"].ToString() == "No",
-                        Tags = reader["tag_id"] == DBNull.Value
-                            ? new List<AccountTagOutputDto>()
-                            : new List<AccountTagOutputDto>
-                            {
-                                new AccountTagOutputDto
-                                    {Id = (int) reader["tag_id"], Value = reader["tag_value"].ToString()}
-                            }
-                    });
+                    account.Add(mapper.MapAccount(reader));
                 }
 
                 reader.Close();
