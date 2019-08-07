@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using LP.Finance.Common;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -22,8 +23,15 @@ namespace PostingEngine
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["PriceMasterDB"].ToString();
 
+        private readonly bool Mock = true;
+
         public Dictionary<string, FxRate> Get(DateTime now)
         {
+            if ( Mock )
+            {
+                return Utils.GetFile<Dictionary<string, FxRate>>("fxrates");
+            }
+
             var maxdate = now.ToString("MM-dd-yyyy 23:59:59");
 
             var sql = $@"select c.CurrencyCode, fx.FxRate, fx.*, p.SourceName from [PriceMaster].[dbo].[FXRate] fx
@@ -56,6 +64,8 @@ order by c.CurrencyCode desc
                 reader.Close();
                 con.Close();
             }
+
+            Utils.Save(list, "fxrates");
 
             return list;
         }

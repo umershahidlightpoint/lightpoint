@@ -95,6 +95,21 @@ namespace LP.Finance.Common
             return json;
         }
 
+        public static T GetFile<T>(string filename)
+        {
+            var content = "{}";
+
+            var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
+
+            var folder = currentDir + "MockData" + Path.DirectorySeparatorChar + $"{filename}.json";
+            if (File.Exists(folder))
+                content = File.ReadAllText(folder);
+
+            T json = JsonConvert.DeserializeObject<T>(content);
+
+            return json;
+        }
+
         public static void Save(object json, string filename)
         {
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
