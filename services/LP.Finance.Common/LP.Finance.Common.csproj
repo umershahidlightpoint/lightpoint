@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CustomValidators\MinimumElementsAttribute.cs" />
+    <Compile Include="Dtos\JournalInputDto.cs" />
     <Compile Include="Dtos\AccountOutputDto.cs" />
     <Compile Include="Dtos\AccountTagOutputDto.cs" />
     <Compile Include="Dtos\TagOutputDto.cs" />
