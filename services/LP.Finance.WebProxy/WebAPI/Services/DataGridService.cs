@@ -24,34 +24,50 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 sqlHelper.VerifyConnection();
 
-                List<SqlParameter> DataGridParameters = new List<SqlParameter>
+                StringBuilder DataGridInsert = new StringBuilder();
+                List<SqlParameter> DataGridParameters;
+
+                if (oDataGridStatusDto.Id > 0)
                 {
-                     new SqlParameter("id", oDataGridStatusDto.Id),
-                    new SqlParameter("gridId", oDataGridStatusDto.GridId),
-                    new SqlParameter("grid_name", oDataGridStatusDto.GridName),
+                    DataGridParameters = new List<SqlParameter>
+                       {
+                             new SqlParameter("id", oDataGridStatusDto.Id),
 
-                    new SqlParameter("grid_layout_name", oDataGridStatusDto.GridLayoutName),
+                            new SqlParameter("pivot_mode", oDataGridStatusDto.PivotMode),
+                            new SqlParameter("column_state", oDataGridStatusDto.ColumnState),
+                            new SqlParameter("group_state", oDataGridStatusDto.GroupState),
+                            new SqlParameter("sort_state", oDataGridStatusDto.SortState),
+                            new SqlParameter("filter_state", oDataGridStatusDto.FilterState)
+                        };
 
-                    
-                    new SqlParameter("userId", oDataGridStatusDto.UserId),
-                    new SqlParameter("pivot_mode", oDataGridStatusDto.PivotMode),
-                    new SqlParameter("column_state", oDataGridStatusDto.ColumnState),
-                    new SqlParameter("group_state", oDataGridStatusDto.GroupState),
-                    new SqlParameter("sort_state", oDataGridStatusDto.SortState),
-                    new SqlParameter("filter_state", oDataGridStatusDto.FilterState)
-                };
-
-                StringBuilder DataGridInsert = new StringBuilder(
-                    $@"IF EXISTS (SELECT * FROM [data_grid_layouts] WHERE id= @id )
-                          BEGIN        UPDATE [data_grid_layouts] SET [pivot_mode]  = @pivot_mode,[column_state]= @column_state  
+                    DataGridInsert = new StringBuilder(
+                       $@"  UPDATE [data_grid_layouts] SET [pivot_mode]  = @pivot_mode,[column_state]= @column_state  
                                                                ,[group_state]  = @group_state ,[sort_state] = @sort_state
                                                                ,[filter_state] = @filter_state 
                                               WHERE  id= @id  ;
-                                                 SELECT   @@ROWCOUNT ;
-                                                   END
-                                                    ELSE
-                                                   BEGIN
-                                                INSERT INTO  [data_grid_layouts]
+                                                 SELECT   @@ROWCOUNT ; ");
+
+                }
+                else
+                {
+                    DataGridParameters = new List<SqlParameter>
+                       {
+                                 new SqlParameter("id", oDataGridStatusDto.Id),
+                                new SqlParameter("gridId", oDataGridStatusDto.GridId),
+                                new SqlParameter("grid_name", oDataGridStatusDto.GridName),
+
+                                new SqlParameter("grid_layout_name", oDataGridStatusDto.GridLayoutName),
+
+
+                                new SqlParameter("userId", oDataGridStatusDto.UserId),
+                                new SqlParameter("pivot_mode", oDataGridStatusDto.PivotMode),
+                                new SqlParameter("column_state", oDataGridStatusDto.ColumnState),
+                                new SqlParameter("group_state", oDataGridStatusDto.GroupState),
+                                new SqlParameter("sort_state", oDataGridStatusDto.SortState),
+                                new SqlParameter("filter_state", oDataGridStatusDto.FilterState)
+                       };
+                    DataGridInsert = new StringBuilder(
+                       $@"  INSERT INTO  [data_grid_layouts]
                                                                         ([grid_name] 
                                                                         ,[userId]  
                                                                         ,[grid_id]
@@ -73,7 +89,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                                                         ,@filter_state
                                                                         ,@grid_layout_name);
                                                                         SELECT SCOPE_IDENTITY() AS 'Identity' 
-                                                                          END ");
+                                                                          ");
+
+                }
+
+
 
                 sqlHelper.Insert(DataGridInsert.ToString(), CommandType.Text, DataGridParameters.ToArray(), out int dataGridId);
                 sqlHelper.CloseConnection();
@@ -85,6 +105,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 Console.WriteLine($"SQL Rollback Transaction Exception: {ex}");
                 return Utils.Wrap(false);
             }
+
 
             return Utils.Wrap(true);
         }

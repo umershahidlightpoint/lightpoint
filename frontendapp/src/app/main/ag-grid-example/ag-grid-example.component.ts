@@ -1,7 +1,8 @@
 import {
   Component, TemplateRef, ElementRef, OnInit, Injector, Input, ViewChild,
-  EventEmitter, Output, ViewEncapsulation, ChangeDetectorRef
+   EventEmitter, Output, ViewEncapsulation, ChangeDetectorRef
 } from '@angular/core';
+import { ModalDirective } from "ngx-bootstrap";
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from "ag-grid-community";
 import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
@@ -37,7 +38,7 @@ export class AgGridExampleComponent implements OnInit {
   private ledgerRowData: [];
   private selectedValue;
   private columns: any;
-
+  layoutName:any;
   totalRecords: number;
   rowGroupPanelShow: any;
   sideBar: any;
@@ -66,6 +67,7 @@ export class AgGridExampleComponent implements OnInit {
   @ViewChild('greetCell') greetCell: TemplateRef<any>;
   @ViewChild('divToMeasureJournal') divToMeasureElement: ElementRef;
   @ViewChild('divToMeasureLedger') divToMeasureElementLedger: ElementRef;
+  @ViewChild("modal") modal: ModalDirective;
   columnDefs: any;
   totalCredit: number;
   totalDebit: number;
@@ -565,17 +567,9 @@ export class AgGridExampleComponent implements OnInit {
       localThis.funds = localfunds;
       localThis.cdRef.detectChanges();
     });
-    this._fundsService.getGridLayouts(1,1).subscribe(result => {
-      debugger;
-      let gridLayout = result.payload.map(item => ({
-        FundCode: item.oDataGridStatusDto,
-      }));
-      
-      this.gridLayouts = result.payload;
-      localThis.cdRef.detectChanges();
-    });
-
     
+
+    this.getLayout();
     this._fundsService.getJournals(this.symbol, this.page, this.pageSize, this.accountSearch.id,
       this.valueFilter, this.sortColum, this.sortDirection).subscribe(result => {
 
@@ -697,6 +691,20 @@ export class AgGridExampleComponent implements OnInit {
 
 
   }
+
+  getLayout()
+{
+  this._fundsService.getGridLayouts(1,1).subscribe(result => {
+    debugger;
+    let gridLayout = result.payload.map(item => ({
+      FundCode: item.oDataGridStatusDto,
+    }));
+    
+    this.gridLayouts = result.payload;
+    this.cdRef.detectChanges();
+  });
+}
+
   public getRangeLable() {
     this.DateRangeLable = '';
 
@@ -739,9 +747,37 @@ export class AgGridExampleComponent implements OnInit {
    
     this.gridOptions.api.exportDataAsExcel(params);
   }
-
-  onSaveState() {
+  onCreateNew()
+  {
     debugger;
+    this.layoutName="";
+    this.modal.show(); 
+    return;
+
+  }
+  closeModal()
+  {
+    this.modal.hide();
+
+  }
+  
+  onNewSave()
+  {
+    if (this.layoutName == "")
+    {
+      this.toastrService.error("Please enter name");
+    }
+     
+    this.onSaveState(0);
+  }
+  onEditSave()
+  {
+    this.onSaveState(this.gridLayoutID);
+  }
+
+  onSaveState(gridLayout_ID) {
+   
+   
    this.savedPivotMode = JSON.stringify(this.gridColumnApi.isPivotMode());
    this.columnState = JSON.stringify(this.gridOptions.columnApi.getColumnState())
    this.groupState =  JSON.stringify(this.gridOptions.columnApi.getColumnGroupState());
@@ -749,9 +785,9 @@ export class AgGridExampleComponent implements OnInit {
    this.filterState = JSON.stringify( this.gridOptions.api.getFilterModel());
  
    this.oDataGridStatusDto = {
-    Id:this.gridLayoutID,
+    Id: gridLayout_ID,
     GridId:GridName.Journal,
-    GridLayoutName:'Journal Layout',
+    GridLayoutName:this.layoutName,
     UserId: 1,
     GridName: 'Journal',
     PivotMode : this.savedPivotMode,
@@ -766,6 +802,8 @@ export class AgGridExampleComponent implements OnInit {
       debugger;
       if (response.isSuccessful) {
         this.toastrService.success("Status saved successfully!");
+        this.closeModal();
+    this.getLayout();
       } else {
         this.toastrService.error("Failed to save status!");
       }

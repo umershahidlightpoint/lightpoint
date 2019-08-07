@@ -12,7 +12,7 @@ export class LegderModalComponent implements OnInit {
 
   active = false;
   @ViewChild("accountInput") accountInput;
-  @ViewChild('modal') modal: ModalDirective;
+  @ViewChild('modal') modal:ModalDirective ;
   @Output() modalClose = new EventEmitter<any>();
   @Input() fundId: any;
   @Input() ledgerId: any;
