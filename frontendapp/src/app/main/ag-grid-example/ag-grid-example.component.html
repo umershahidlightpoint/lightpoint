@@ -1,4 +1,5 @@
- <p-tabView [ngStyle]="style">
+
+ <p-tabView [ngStyle]="style"  class="info-audit-tabview col-md-4">
   <p-tabPanel header="Journal" [ngStyle]="style">
     <div class="row ">
       <div class="col-md-2">
@@ -8,7 +9,12 @@
             {{ f.FundCode }}
           </option>
         </select>
-
+        <select class="form-control" [(ngModel)]="gridLayouts" (ngModelChange)="RestoreLayout($event)">
+          <option [ngValue]="o"></option>
+          <option *ngFor="let l of gridLayouts" [ngValue]="l.Id">
+            {{ l.GridLayoutName }}
+          </option>
+        </select>
       </div>
       <label class="col-md-1 " style="text-align: right"> {{DateRangeLable}} </label>
       <div class="col-md-6">
@@ -23,9 +29,13 @@
         <button (click)="clearFilters( )" class="btn btn-info" type="button">Clear</button>
        
       </div>
-      <div class="col-2">
+      <div class="col-sm-1">
        <button (click)="onBtExport()" class="btn btn-info">Export to Excel</button>  
     </div>
+    <div class="col-sm-1">
+      <button (click)="onSaveState()" class="btn btn-info">Save State</button>  
+       
+   </div>
   </div>
 
     <div style="clear: both"></div>
@@ -52,7 +62,7 @@
   </p-tabPanel>
   <p-tabPanel header="Ledger">
   </p-tabPanel>
-
+  
 </p-tabView>
 
 

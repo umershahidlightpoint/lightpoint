@@ -5,9 +5,10 @@ import {
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from "ag-grid-community";
 import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
-
+import { ToastrService } from "ngx-toastr";
 import "ag-grid-enterprise";
 import * as moment from 'moment';
+import { GridName } from   "../../../shared/utils/AppEnums"
 import { debug } from 'util';
 import { $ } from 'protractor';
 
@@ -18,7 +19,7 @@ import { $ } from 'protractor';
 })
 
 export class AgGridExampleComponent implements OnInit {
-
+ 
   private gridApi;
   private gridColumnApi;
   private defaultColDef;
@@ -34,7 +35,9 @@ export class AgGridExampleComponent implements OnInit {
   pinnedBottomRowData;
   gridOptions: GridOptions;
   filterChange: any;
-
+  oDataGridStatusDto:any;
+  gridLayouts:any;
+  gridLayoutID :any= 0;
   //topOptions = {alignedGrids: [], suppressHorizontalScroll: true};
 
   // bottomOptions = { alignedGrids: [] };
@@ -78,7 +81,11 @@ export class AgGridExampleComponent implements OnInit {
     boxSizing: 'border-box'
   };
 
-
+  savedPivotMode:any;
+  columnState:any;
+  groupState:any;
+  sortState:any;
+  filterState:any;
 
   ranges: any = {
     //'Today': [moment(), moment()],
@@ -91,11 +98,12 @@ export class AgGridExampleComponent implements OnInit {
     'MTD': [moment().startOf('month'), moment()],
     'Today': [moment(), moment()]
   }
-
+  
   constructor(injector: Injector,
     private cdRef: ChangeDetectorRef,
-    private _fundsService: FinancePocServiceProxy) {
+    private _fundsService: FinancePocServiceProxy, private toastrService: ToastrService) {
     (injector);
+    
     this.sideBar = {
       toolPanels: [
         {
@@ -155,18 +163,18 @@ export class AgGridExampleComponent implements OnInit {
             id: "greenBackground",
             interior: {
 
-              color: "#b5e6b5",
-              pattern: "Solid"
+            //  color: "#b5e6b5",
+             // pattern: "Solid"
             }
 
           },
           {
             id: "redFont",
             font: {
-              fontName: "Calibri Light",
+             // fontName: "Calibri Light",
 
-              italic: true,
-              color: "#ff0000"
+            //  italic: true,
+             // color: "#ff0000"
             }
           },
 
@@ -220,16 +228,7 @@ export class AgGridExampleComponent implements OnInit {
 
   };
 
-
-  public onBtForEachNodeAfterFilter() {
-    this.gridOptions.api.forEachNodeAfterFilter(function (rowNode, index) {
-      console.log('node ' + rowNode.data.debit + ' passes the filter');
-    });
-  }
-
-
-
-
+  
   // selected: {startDate: moment().startOf('month'), endDate: moment()};
 
   ngAfterViewInit() {
@@ -324,21 +323,21 @@ export class AgGridExampleComponent implements OnInit {
         field: 'debit', aggFunc: "sum", headerName: 'Debit',
         valueFormatter: currencyFormatter, cellStyle: { 'text-align': 'right' },
         cellClass: "twoDecimalPlaces",
-        cellClassRules: {
-          greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value < -300; },
-          redFont: function (params) { if (params.node.rowPinned) return false; else return params.value > -300; },
-          footerRow: function (params) { if (params.node.rowPinned) return true; else return false; }
-        },
+      //  cellClassRules: {
+        //  greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value < -300; },
+        //  redFont: function (params) { if (params.node.rowPinned) return false; else return params.value > -300; },
+        //  footerRow: function (params) { if (params.node.rowPinned) return true; else return false; }
+       // },
 
       },
       {
         field: 'credit', aggFunc: "sum", headerName: 'Credit', valueFormatter: currencyFormatter,
         cellClass: "twoDecimalPlaces",
-        cellClassRules: {
-          greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
-          redFont: function (params) { if (params.node.rowPinned) return false; else return params.value < 300; },
-          footerRow: function (params) { if (params.node.rowPinned) return true; else return false; }
-        }
+       // cellClassRules: {
+         // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
+         // redFont: function (params) { if (params.node.rowPinned) return false; else return params.value < 300; },
+        //  footerRow: function (params) { if (params.node.rowPinned) return true; else return false; }
+       // }
       }
 
     ]
@@ -374,7 +373,7 @@ export class AgGridExampleComponent implements OnInit {
     this.symbal = "ALL";
 
     let localThis = this;
-
+    
     this.page = 0;
     this.pageSize = 0;
     this.accountSearch.id = 0;
@@ -389,6 +388,16 @@ export class AgGridExampleComponent implements OnInit {
       localThis.funds = localfunds;
       localThis.cdRef.detectChanges();
     });
+    this._fundsService.getGridLayouts(1,1).subscribe(result => {
+      debugger;
+      let gridLayout = result.payload.map(item => ({
+        FundCode: item.oDataGridStatusDto,
+      }));
+      
+      this.gridLayouts = result.payload;
+      localThis.cdRef.detectChanges();
+    });
+
     this._fundsService.getJournals(this.symbal, this.page, this.pageSize, this.accountSearch.id,
       this.valueFilter, this.sortColum, this.sortDirection).subscribe(result => {
         this.totalRecords = result.meta.Total;//result.meta.Total;
@@ -478,13 +487,89 @@ export class AgGridExampleComponent implements OnInit {
       fileName: "Test File",
       sheetName: "First Sheet"
     };
-
-
-
-
-
+   
     this.gridOptions.api.exportDataAsExcel(params);
   }
+
+  onSaveState() {
+    debugger;
+   this.savedPivotMode = JSON.stringify(this.gridColumnApi.isPivotMode());
+   this.columnState = JSON.stringify(this.gridOptions.columnApi.getColumnState())
+   this.groupState =  JSON.stringify(this.gridOptions.columnApi.getColumnGroupState());
+   this.sortState =  JSON.stringify(this.gridOptions.api.getSortModel());
+   this.filterState = JSON.stringify( this.gridOptions.api.getFilterModel());
+ 
+   this.oDataGridStatusDto = {
+    Id:this.gridLayoutID,
+    GridId:GridName.Journal,
+    GridLayoutName:'Journal Layout',
+    UserId: 1,
+    GridName: 'Journal',
+    PivotMode : this.savedPivotMode,
+    ColumnState : this.columnState,
+    GroupState : this.groupState,
+    SortState : this.sortState,
+    FilterState:  this.filterState
+  };
+
+  this._fundsService.SaveDataGridState(this.oDataGridStatusDto).subscribe(
+    response => {
+      debugger;
+      if (response.isSuccessful) {
+        this.toastrService.success("Status saved successfully!");
+      } else {
+        this.toastrService.error("Failed to save status!");
+      }
+    },
+    error => {
+      this.toastrService.error("Something went wrong. Try again later!");
+    }
+  );
+
+  }
+  RestoreLayout(e)
+  {
+    debugger;
+    this.gridLayoutID = e;
+     this._fundsService.GetAGridLayout(e)
+     .subscribe(response => {
+       debugger;
+        
+       this.gridOptions.columnApi.setColumnState(JSON.parse(response.payload.ColumnState) );
+       this.gridOptions.columnApi.setPivotMode(JSON.parse(response.payload.PivotMode) );
+       this.gridOptions.columnApi.setColumnGroupState(JSON.parse(response.payload.GroupState) );
+       this.gridOptions.api.setSortModel(JSON.parse(response.payload.SortState) );
+       this.gridOptions.api.setFilterModel(JSON.parse(response.payload.FilterState) );
+       
+         //  let dd = response;
+ 
+     });
+ 
+  }
+  onRestore() {
+
+    this._fundsService.getDataGridStatus(1)
+    .subscribe(response => {
+      debugger;
+       
+      this.gridOptions.columnApi.setColumnState(JSON.parse(response.payload.ColumnState) );
+      this.gridOptions.columnApi.setPivotMode(JSON.parse(response.payload.PivotMode) );
+      this.gridOptions.columnApi.setColumnGroupState(JSON.parse(response.payload.GroupState) );
+      this.gridOptions.api.setSortModel(JSON.parse(response.payload.SortState) );
+      this.gridOptions.api.setFilterModel(JSON.parse(response.payload.FilterState) );
+      
+        //  let dd = response;
+
+    });
+
+    // this.gridColumnApi.setPivotMode(JSON.parse(this.savedPivotMode));
+    // this.gridOptions.columnApi.setColumnState(JSON.parse(this.columnState) );
+    // this.gridOptions.columnApi.setColumnGroupState(JSON.parse(this.groupState));
+    // this.gridOptions.api.setSortModel(JSON.parse(this.sortState));
+    // this.gridOptions.api.setFilterModel(JSON.parse(this.filterState));
+   }
+
+
 
   ngOnInit() {
   }
@@ -503,7 +588,7 @@ export class AgGridExampleComponent implements OnInit {
   }
 
   public ngModelChange(e) {
-    debugger;
+   
 
     this.startDate = e.startDate;
     this.endDate = e.endDate

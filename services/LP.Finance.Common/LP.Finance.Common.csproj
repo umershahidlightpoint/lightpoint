@@ -48,6 +48,7 @@
     <Compile Include="CustomValidators\MinimumElementsAttribute.cs" />
     <Compile Include="Dtos\AccountOutputDto.cs" />
     <Compile Include="Dtos\AccountTagOutputDto.cs" />
+    <Compile Include="Dtos\DataGridStatusDto.cs" />
     <Compile Include="Dtos\TagOutputDto.cs" />
     <Compile Include="Dtos\AccountTypeOutputDto.cs" />
     <Compile Include="Dtos\AccountCategoryOutputDto.cs" />
