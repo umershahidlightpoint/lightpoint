@@ -54,6 +54,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { AccountComponent } from './main/accounts/account.component';
 import { CreateAccountComponent } from './main/accounts/create-account/create-account.component';
+import { JournalModalComponent } from './main/ag-grid-example/journal-modal/journal-modal.component';
 
 @NgModule({
   declarations: [
@@ -71,7 +72,8 @@ import { CreateAccountComponent } from './main/accounts/create-account/create-ac
     AccountComponent,
     CreateAccountComponent,
     RunLogsComponent,
-    ReportsComponent
+    ReportsComponent,
+    JournalModalComponent
   ],
   imports: [
     BrowserModule,

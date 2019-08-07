@@ -27,6 +27,11 @@ export class FinancePocServiceProxy {
         return this.http.get(url).pipe(map((response: any) => response));
     }
 
+    createJounal(data){
+        const url = this.baseUrl + '/journal';
+        return this.http.post(url, data).pipe(map((response: any) => response));
+    }
+
     getJournals(symbal : any,pageNumber : any| null | undefined, pageSize  : any| null | undefined,
         accountId : any| null | undefined,valueFilter : any| null | undefined, 
         sortColum : any| null | undefined,sortDirection: any| null | undefined) {

@@ -66,6 +66,7 @@ export class AgGridExampleComponent implements OnInit {
   @ViewChild('greetCell') greetCell: TemplateRef<any>;
   @ViewChild('divToMeasureJournal') divToMeasureElement: ElementRef;
   @ViewChild('divToMeasureLedger') divToMeasureElementLedger: ElementRef;
+  @ViewChild('journalModal') jounalModal: JournalModalComponent
   columnDefs: any;
   totalCredit: number;
   totalDebit: number;
@@ -509,7 +510,11 @@ export class AgGridExampleComponent implements OnInit {
 
   // selected: {startDate: moment().startOf('month'), endDate: moment()};
 
-  ngAfterViewInit() {
+  ngAfterViewInit(){
+    this.getAllData();
+  }
+
+  getAllData() {
 
     this.gridOptions.onFilterChanged = function () {
 
@@ -884,6 +889,15 @@ export class AgGridExampleComponent implements OnInit {
   greet(row: any) {
     //alert(`${ row.country } says "${ row.greeting }!`);
     alert("For show popup");
+  }
+
+  openJournalModal(){
+    this.jounalModal.openModal()
+  }
+
+  closeJournalModal(){
+    console.log('closeJournalModal')
+    this.getAllData()
   }
 }
 

@@ -1,0 +1,109 @@
+<!------ Modal Div ------>
+<div bsModal #modal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true"
+  [config]="{backdrop: 'static'}">
+  <div class="modal-dialog modal-dialog-centered" id="modal-lg">
+    <div class="modal-content">
+      <!------ Form ------>
+      <form #form="ngForm" (ngSubmit)="saveJournal()"  [formGroup]="journalForm">
+        <!------- Modal Header ------->
+        <div class="modal-header">
+          <h3>Create Journal</h3>
+          <button type="button" class="close" data-dismiss="modal" (click)="closeModal()">&times;</button>
+        </div>
+        <!------- Modal Body ------->
+        <div class="modal-body">
+          <!------- Fund From Group ------->
+          <div class="form-group">
+              <div class="row">
+              <!------- Fund Label ------->
+                <div class="col-sm-3">
+                  <label> Fund </label>
+                </div>
+                <!------- Fund Drop Down ------->
+                <div class="col-sm-9">
+                  <!-- <select [(ngModel)]="accTypeId"  -->
+                  <select                 
+                    class="custom-select"
+                    formControlName="fund"                
+                    >
+                      <option hidden [value]="">Choose your fund type</option>
+                      <option *ngFor="let fund of funds" 
+                        [ngValue]="fund.FundCode">
+                        {{ fund.FundCode }}
+                      </option>                    
+                  </select>              
+                </div>
+              </div>
+          </div>
+          <!------- From Account From Group ------->
+          <div class="form-group">
+            <div class="row">
+              <!------- From Account Label ------->
+              <div class="col-sm-3">
+                <label> Account From </label>
+              </div>
+              <!------- From Account Drop Down ------->
+              <div class="col-sm-9">
+                <!-- <select [(ngModel)]="accTypeId"  -->
+                <select class="custom-select"                
+                  formControlName="fromAccount"  
+                  (change)=onAccountSelect(value)            
+                  >
+                    <option hidden [value]="">Choose your account type</option>
+                    <option *ngFor="let account of allAccounts" 
+                      [ngValue]="account.AccountId">
+                      {{ account.AccountName }}
+                    </option>                    
+                </select>              
+              </div>
+            </div>
+          </div>
+          <!------- To Account From Group ------->
+          <div class="form-group">
+              <!------- To Account Label ------->
+              <div class="row">
+                <div class="col-sm-3">
+                  <label> Account To </label>
+                </div>
+                <!------- TO Account Drop Down ------->
+                <div class="col-sm-9">
+                  <!-- <select [(ngModel)]="accTypeId"  -->
+                  <select class="custom-select"
+                    formControlName="toAccount"
+                    >
+                      <option hidden [value]="">Choose your account type</option>
+                      <option *ngFor="let account of allAccounts" 
+                        [ngValue]="account.AccountId">
+                        {{ account.AccountName }}
+                      </option>                    
+                  </select>              
+                </div>
+              </div>
+          </div>
+
+          <!------- Value From Group------->
+          <div class="form-group">
+              <div class="row">
+                <!------- Value Label ------->                
+                <div class="col-sm-3">
+                  <label> Value </label>
+                </div>
+                <!------- Value Input ------->
+                <div class="col-sm-9">
+                  <input class="form-control" formControlName="value" type="number" step=".07">              
+                </div>
+              </div>
+            </div>
+        </div>
+
+        <!------- Modal Footer ------->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="!form.valid">
+            <i class="fa fa-save"></i> Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
