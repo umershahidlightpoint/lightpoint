@@ -1,14 +1,25 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 
 namespace LP.Finance.Common
 {
+    public class ColumnDef
+    {
+        public string field { get; set; }
+        public string headerName { get; set; }
+        public bool filter { get; set; }
+
+        public string Type { get; set; }
+    }
     public class MetaData
     {
         public int Total { get; set; }
+
+        public List<ColumnDef> Columns { get;set;}
     }
 
     public class MathFnc
@@ -80,6 +91,21 @@ namespace LP.Finance.Common
                 content = File.ReadAllText(folder);
 
             dynamic json = JsonConvert.DeserializeObject(content);
+
+            return json;
+        }
+
+        public static T GetFile<T>(string filename)
+        {
+            var content = "{}";
+
+            var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
+
+            var folder = currentDir + "MockData" + Path.DirectorySeparatorChar + $"{filename}.json";
+            if (File.Exists(folder))
+                content = File.ReadAllText(folder);
+
+            T json = JsonConvert.DeserializeObject<T>(content);
 
             return json;
         }

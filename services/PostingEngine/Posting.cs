@@ -15,11 +15,15 @@ namespace PostingEngine
         {
             Connection = connection;
             Transaction = transaction;
+
+            Messages = new Dictionary<string, int>();
         }
 
         public DateTime ValueDate { get; set; }
         public AccountCategory[] Categories { get; internal set; }
         public List<AccountType> Types { get; internal set; }
+
+        public Dictionary<string, FxRate> FxRates { get; set; }
 
         // Map of Product type to IPostingRule
         public Dictionary<string, IPostingRule> rules = new Dictionary<string, IPostingRule>
@@ -30,6 +34,18 @@ namespace PostingEngine
 
         public SqlConnection Connection { get; private set; }
         public SqlTransaction Transaction { get; private set; }
+
+        public void AddMessage(string message)
+        {
+            if ( Messages.ContainsKey(message))
+            {
+                Messages[message] = Messages[message] + 1;
+            } else
+            {
+                Messages.Add(message, 1);
+            }
+        }
+        public Dictionary<string, int> Messages { get; private set; }
     }
 
     class Posting
@@ -44,6 +60,12 @@ namespace PostingEngine
             // Find me the rule
             var rule = env.rules.Where(i => i.Key.Equals(element.SecurityType)).FirstOrDefault().Value;
 
+            if ( !element.TradeType.ToLower().Equals("trade"))
+            {
+                env.AddMessage($"Skipping Trade {element.TradeType}");
+                return;
+            }
+
             if ( env.ValueDate == element.TradeDate.Date)
             {
                 try
@@ -51,11 +73,11 @@ namespace PostingEngine
                     if (rule != null)
                         rule.TradeDateEvent(env, element);
                     else
-                        Console.WriteLine($"No rule associated with {element.SecurityType}");
+                        env.AddMessage($"No rule associated with {element.SecurityType}");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Unable to process the Event for Trade Date {ex.Message}");
+                    env.AddMessage($"Unable to process the Event for Trade Date {ex.Message}");
                 }
             }
             else if ( env.ValueDate == element.SettleDate.Date)
@@ -65,11 +87,11 @@ namespace PostingEngine
                     if (rule != null)
                         rule.SettlementDateEvent(env, element);
                     else
-                        Console.WriteLine($"No rule associated with {element.SecurityType}");
+                        env.AddMessage($"No rule associated with {element.SecurityType}");
                 }
                 catch ( Exception ex )
                 {
-                    Console.WriteLine($"Unable to process the Event for Settlement Date {ex.Message}");
+                    env.AddMessage($"Unable to process the Event for Settlement Date {ex.Message}");
                 }
             }
             else if ( env.ValueDate > element.TradeDate.Date && env.ValueDate < element.SettleDate.Date)
@@ -79,17 +101,17 @@ namespace PostingEngine
                     if (rule != null)
                         rule.DailyEvent(env, element);
                     else
-                        Console.WriteLine($"No rule associated with {element.SecurityType}");
+                        env.AddMessage($"No rule associated with {element.SecurityType}");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Unable to process the Event for Daily Event {ex.Message}");
+                    env.AddMessage($"Unable to process the Event for Daily Event {ex.Message}");
                 }
 
             }
             else
             {
-                Console.WriteLine($"Trade ignored {element.TradeDate}");
+                env.AddMessage($"Trade ignored ValueDate = {env.ValueDate}, TradeDate = {element.TradeDate}, Settledate = {element.SettleDate}");
             }
         }
 

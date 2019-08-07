@@ -11,20 +11,33 @@ import * as moment from 'moment';
 import { GridName } from   "../../../shared/utils/AppEnums"
 import { debug } from 'util';
 import { $ } from 'protractor';
+import { analyzeAndValidateNgModules } from '@angular/compiler';
+import { listLazyRoutes } from '@angular/compiler/src/aot/lazy_routes';
+
+class GridConfiguration {
+  private gridApi;
+}
+
 
 @Component({
   selector: 'app-ag-grid-example',
   templateUrl: './ag-grid-example.component.html',
   styleUrls: ['./ag-grid-example.component.css'],
 })
-
 export class AgGridExampleComponent implements OnInit {
- 
+
+  private gridConfiguration:GridConfiguration = new GridConfiguration();
+
   private gridApi;
+  private ledgerGridApi;
+
   private gridColumnApi;
   private defaultColDef;
   private rowData: [];
+  private ledgerRowData: [];
   private selectedValue;
+  private columns: any;
+
   totalRecords: number;
   rowGroupPanelShow: any;
   sideBar: any;
@@ -34,21 +47,25 @@ export class AgGridExampleComponent implements OnInit {
   DateRangeLable: any;
   pinnedBottomRowData;
   gridOptions: GridOptions;
+  ledgerGridOptions: GridOptions;
   filterChange: any;
   oDataGridStatusDto:any;
   gridLayouts:any;
   gridLayoutID :any= 0;
+  rowSelection:string = "single";
+
   //topOptions = {alignedGrids: [], suppressHorizontalScroll: true};
 
   // bottomOptions = { alignedGrids: [] };
 
   selected: { startDate: moment.Moment, endDate: moment.Moment };
 
-  @ViewChild('topGrid') topGrid;
+  @ViewChild('journalGrid') journalGrid;
   // @ViewChild('bottomGrid') bottomGrid;
   @ViewChild('dateRangPicker') dateRangPicker;
   @ViewChild('greetCell') greetCell: TemplateRef<any>;
-  @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
+  @ViewChild('divToMeasureJournal') divToMeasureElement: ElementRef;
+  @ViewChild('divToMeasureLedger') divToMeasureElementLedger: ElementRef;
   columnDefs: any;
   totalCredit: number;
   totalDebit: number;
@@ -57,7 +74,7 @@ export class AgGridExampleComponent implements OnInit {
   fund: any;
   endDate: any;
 
-  symbal: string;
+  symbol: string;
   pageSize: any;
   accountSearch = { id: undefined };
   valueFilter: number;
@@ -88,12 +105,7 @@ export class AgGridExampleComponent implements OnInit {
   filterState:any;
 
   ranges: any = {
-    //'Today': [moment(), moment()],
-    //'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-    // 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-    // 'Last 30 Days': [moment().subtract(29, 'days'), moment()],
     'ITD': [moment("01-01-1901", "MM-DD-YYYY"), moment()],
-    // 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
     'YTD': [moment().startOf('year'), moment()],
     'MTD': [moment().startOf('month'), moment()],
     'Today': [moment(), moment()]
@@ -104,6 +116,9 @@ export class AgGridExampleComponent implements OnInit {
     private _fundsService: FinancePocServiceProxy, private toastrService: ToastrService) {
     (injector);
     
+   
+
+    // Setup of the SideBar
     this.sideBar = {
       toolPanels: [
         {
@@ -139,11 +154,13 @@ export class AgGridExampleComponent implements OnInit {
       //columnDefs: this.columnDefs,
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
+
       onGridReady: (params) => {
         this.gridApi = params.api;
 
         this.gridColumnApi = params.columnApi;
-        this.gridOptions.api.sizeColumnsToFit();
+        //this.gridOptions.api.sizeColumnsToFit();
+        
 
         this.gridOptions.excelStyles = [
           {
@@ -211,24 +228,285 @@ export class AgGridExampleComponent implements OnInit {
 
         ];
       },
-      onFirstDataRendered: (params) => { params.api.sizeColumnsToFit(); },
+      onFirstDataRendered: (params) => { 
+        //params.api.sizeColumnsToFit(); 
+
+        params.api.forEachNode(function(node) {
+              node.expanded = true;
+          }
+        );
+
+        params.api.onGroupExpandedOrCollapsed();
+      },
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
-      suppressHorizontalScroll: true
+      suppressHorizontalScroll: false,
+      defaultColDef: {
+        sortable: true,
+        resizable: true,
+        filter: true
+      }
     };
 
-    this.gridOptions.defaultColDef = {
+    this.ledgerGridOptions = <GridOptions>{
+      rowData: null,
+
+      /*      onFilterChanged: function() {  
+      
+              this.gridOptions.api.forEachNodeAfterFilter( function(rowNode, index) {
+                console.log('node ' + rowNode.data.debit + ' passes the filter');
+            } )},
+      
+      */
+
+
+  
+  // selected: {startDate: moment().startOf('month'), endDate: moment()};
+      //columnDefs: this.columnDefs,
+      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
+      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
+      onGridReady: (params) => {
+        this.ledgerGridApi = params.api;
+
+        this.gridColumnApi = params.columnApi;
+        this.ledgerGridApi.api.sizeColumnsToFit();
+
+        this.ledgerGridOptions.excelStyles = [
+          {
+
+            id: "twoDecimalPlaces",
+            numberFormat: { format: "#,##0" }
+
+          },
+          {
+
+            id: "footerRow",
+            font: {
+              bold: true,
+            }
+          },
+          {
+            id: "greenBackground",
+            interior: {
+
+              color: "#b5e6b5",
+              pattern: "Solid"
+            }
+
+          },
+          {
+            id: "redFont",
+            font: {
+              fontName: "Calibri Light",
+
+              italic: true,
+              color: "#ff0000"
+            }
+          },
+
+          {
+            id: "header",
+            interior: {
+              color: "#CCCCCC",
+              pattern: "Solid"
+            },
+            borders: {
+              borderBottom: {
+                color: "#5687f5",
+                lineStyle: "Continuous",
+                weight: 1
+              },
+              borderLeft: {
+                color: "#5687f5",
+                lineStyle: "Continuous",
+                weight: 1
+              },
+              borderRight: {
+                color: "#5687f5",
+                lineStyle: "Continuous",
+                weight: 1
+              },
+              borderTop: {
+                color: "#5687f5",
+                lineStyle: "Continuous",
+                weight: 1
+              }
+            }
+          },
+
+
+        ];
+      },
+      onFirstDataRendered: (params) => { 
+        //params.api.sizeColumnsToFit(); 
+      },
+      enableFilter: true,
+      animateRows: true,
+      alignedGrids: [],
+      suppressHorizontalScroll: false
+    };
+
+    this.ledgerGridOptions.defaultColDef = {
       sortable: true,
       resizable: true,
       filter: true
     };
 
-    //this.selected = {startDate: moment().subtract(6, 'days'), endDate: moment().subtract(1, 'days')};
-
   };
 
-  
+
+  public onBtForEachNodeAfterFilter() {
+    this.gridOptions.api.forEachNodeAfterFilter(function (rowNode, index) {
+      console.log('node ' + rowNode.data.debit + ' passes the filter');
+    });
+  }
+
+
+  /*
+  Drives the columns that will be defined on the UI, and what can be done with those fields
+  */
+  ignoreFields = ["id", "totalDebit", "totalCredit", "overall_count", "account_id", "value", "LpOrderId"];
+
+  customizeColumns(columns:any) {
+    let colDefs =     [
+      {
+        field: 'source', minWidth: 300, headerName: 'Source', colId: 'greet',
+        /*
+        cellRendererFramework: TemplateRendererComponent, cellRendererParams: {
+          ngTemplate: this.greetCell
+        },
+        cellClassRules: {
+          footerRow: function (params) { if (params.node.rowPinned) return true; else return false; }
+        },
+        */
+      },
+      {
+        field: 'fund', headerName: 'Fund', enableRowGroup: true, enablePivot: true, filter: true,
+        width:120,
+      },
+      {
+        field: 'AccountCategory', headerName: 'Category', enableRowGroup:true,
+        //rowGroup:true,
+        width:100,
+        enablePivot: true, filter: true
+      },
+
+      {
+        field: 'AccountType', headerName: 'Type', enableRowGroup: true,
+        //rowGroup:true,
+        width:200,
+        enablePivot: true, filter: true
+      },
+      { field: 'accountName', headerName: 'Account Name', sortable: true, enableRowGroup: true,filter: true },
+      {
+        field: 'when', headerName: 'when', sortable: true, enableRowGroup: true,
+        width:100,
+        enablePivot: true,
+        filter: 'agDateColumnFilter', filterParams: {
+          comparator: function (filterLocalDateAtMidnight, cellValue) {
+            var dateAsString = cellValue;
+            var dateParts = dateAsString.split("/");
+            var cellDate = new Date(Number(dateParts[2]), Number(dateParts[1]) - 1, Number(dateParts[0]));
+
+            if (filterLocalDateAtMidnight.getTime() == cellDate.getTime()) {
+              return 0
+            }
+
+            if (cellDate < filterLocalDateAtMidnight) {
+              return -1;
+            }
+
+            if (cellDate > filterLocalDateAtMidnight) {
+              return 1;
+            }
+          }
+        }
+      },
+      {
+        field: 'debit', aggFunc: "sum", headerName: '$Debit',
+        valueFormatter: currencyFormatter, 
+        width:100,
+        cellStyle: { 'text-align': 'right' },
+        cellClass: "twoDecimalPlaces",
+        cellClassRules: {
+          //greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value < -300; },
+          greenFont: function (params) { if (params.node.rowPinned) return false; else return params.value > 0; },
+          redFont: function (params) { if (params.node.rowPinned) return false; else return params.value < 0; },
+          footerRow: function (params) { if (params.node.rowPinned) return true; else return false; }
+        },
+
+      },
+      {
+        field: 'credit', aggFunc: "sum", headerName: '$Credit', valueFormatter: currencyFormatter,
+        width:100,
+        cellStyle: { 'text-align': 'right' },
+        cellClass: "twoDecimalPlaces",
+        cellClassRules: {
+          //greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
+          greenFont: function (params) { if (params.node.rowPinned) return false; else return params.value > 0; },
+          redFont: function (params) { if (params.node.rowPinned) return false; else return params.value < 0 ; },
+          footerRow: function (params) { if (params.node.rowPinned) return true; else return false; }
+        }
+      },
+
+      { field: 'TradeCurrency', 
+      width:100,
+      headerName: 'Trade Ccy', sortable: true, enableRowGroup: true,filter: true },
+      { field: 'SettleCurrency', headerName: 'Settle Ccy', sortable: true, enableRowGroup: true,filter: true, width:100    },
+      { field: 'Symbol', headerName: 'Symbol', sortable: true, enableRowGroup: true,filter: true },
+      { field: 'Side', headerName: 'Side', sortable: true, enableRowGroup: true,filter: true, width:100 },
+    ];
+
+    let cdefs = Object.assign([], colDefs);
+
+    for ( var i in this.columns) {
+      let column = this.columns[i];
+
+      // Check to see if it's an ignored field
+      if ( this.ignoreFields.filter(i=>i == column.field).length== 0) {
+
+      // Check to see if we have not already defined it
+      if ( cdefs.filter(i=>i.field == column.field).length == 0)
+      {
+        let clone = {... colDefs[0]};
+        clone.field = column.field;
+        clone.headerName = column.headerName;
+        clone.filter = column.filter;
+        clone.colId = undefined;
+        if ( column.Type == "System.Int32" || column.Type == "System.Decimal" || column.Type == "System.Double") {
+          clone.cellStyle =  { 'text-align': 'right' };
+          clone.cellClass =  "twoDecimalPlaces";
+          clone.valueFormatter = currencyFormatter;
+          clone.cellClassRules = {
+            //greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
+            greenFont: function (params) { if (params.node.rowPinned) return false; else return params.value > 0; },
+            redFont: function (params) { if (params.node.rowPinned) return false; else return params.value < 0 ; },
+            footerRow: function (params) { if (params.node.rowPinned) return true; else return false; }
+          }
+        } 
+        else if ( column.Type == "System.DateTime")
+        {
+          clone.enableRowGroup =  true;
+          clone.cellStyle =  { 'text-align': 'right' };
+          clone.cellClass =  "twoDecimalPlaces";
+          clone.minWidth = 50;
+        } else {
+          clone.enableRowGroup =  true;
+        }
+
+        cdefs.push( clone );
+      }
+
+        
+      }
+    }
+
+    debugger;
+
+    this.gridOptions.api.setColumnDefs(cdefs);
+  }
+
   // selected: {startDate: moment().startOf('month'), endDate: moment()};
 
   ngAfterViewInit() {
@@ -256,121 +534,20 @@ export class AgGridExampleComponent implements OnInit {
           credit: tCredit,
         }
       ];
-      this.api.setPinnedBottomRowData(this.pinnedBottomRowData);
+      //this.api.setPinnedBottomRowData(this.pinnedBottomRowData);
 
     };
-
-
-
-    this.gridOptions.api.setColumnDefs([
-
-
-      {
-        field: 'source', headerName: 'Source', colId: 'greet', sortable: true,
-        cellRendererFramework: TemplateRendererComponent, cellRendererParams: {
-          ngTemplate: this.greetCell
-        },
-        cellClassRules: {
-
-          footerRow: function (params) { if (params.node.rowPinned) return true; else return false; }
-        },
-      },
-      {
-        field: 'Fund', headerName: 'Fund', sortable: true, enableRowGroup: true,
-        enablePivot: true, filter: true
-      },
-
-      {
-        field: 'AccountCategory', headerName: 'Category', sortable: true, enableRowGroup: true,
-        enablePivot: true, filter: true
-      },
-
-      {
-        field: 'AccountType', headerName: 'Type', sortable: true, enableRowGroup: true,
-        enablePivot: true, filter: true
-      },
-      {
-        field: 'accountName', headerName: 'Account Name', sortable: true, enableRowGroup: true,
-        filter: true
-      },
-      {
-        field: 'when', headerName: 'when', sortable: true, enableRowGroup: true,
-        enablePivot: true,
-        filter: 'agDateColumnFilter', filterParams: {
-          comparator: function (filterLocalDateAtMidnight, cellValue) {
-            var dateAsString = cellValue;
-            var dateParts = dateAsString.split("/");
-            var cellDate = new Date(Number(dateParts[2]), Number(dateParts[1]) - 1, Number(dateParts[0]));
-
-            if (filterLocalDateAtMidnight.getTime() == cellDate.getTime()) {
-              return 0
-            }
-
-            if (cellDate < filterLocalDateAtMidnight) {
-              return -1;
-            }
-
-            if (cellDate > filterLocalDateAtMidnight) {
-              return 1;
-            }
-          }
-        }
-      },
-
-
-
-      {
-        field: 'debit', aggFunc: "sum", headerName: 'Debit',
-        valueFormatter: currencyFormatter, cellStyle: { 'text-align': 'right' },
-        cellClass: "twoDecimalPlaces",
-      //  cellClassRules: {
-        //  greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value < -300; },
-        //  redFont: function (params) { if (params.node.rowPinned) return false; else return params.value > -300; },
-        //  footerRow: function (params) { if (params.node.rowPinned) return true; else return false; }
-       // },
-
-      },
-      {
-        field: 'credit', aggFunc: "sum", headerName: 'Credit', valueFormatter: currencyFormatter,
-        cellClass: "twoDecimalPlaces",
-       // cellClassRules: {
-         // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
-         // redFont: function (params) { if (params.node.rowPinned) return false; else return params.value < 300; },
-        //  footerRow: function (params) { if (params.node.rowPinned) return true; else return false; }
-       // }
-      }
-
-    ]
-
-    );
-
-
-    this.columnDefs = (
-      [
-        { field: 'source', headerName: 'Source' },
-
-        { field: 'AccountCategory', maxWidth: 150, headerName: 'Category' },
-        { field: 'AccountType', maxWidth: 150, headerName: 'Account Type' },
-        { field: 'accountName', headerName: 'Account Name' },
-        { field: 'when', maxWidth: 120, headerName: 'when', sortable: true },
-
-        { field: 'debit', headerName: 'Debit', valueFormatter: currencyFormatter, cellStyle: { 'text-align': 'right' }, cellClass: "twoDecimalPlaces" },
-        { field: 'credit', headerName: 'Credit', valueFormatter: currencyFormatter, cellStyle: { 'text-align': 'right' }, cellClass: "twoDecimalPlaces" }
-
-
-      ]
-
-    );
 
     this.rowGroupPanelShow = "after";
     this.pivotPanelShow = "always";
     this.pivotColumnGroupTotals = "after";
     this.pivotRowTotals = "before";
+    
     //align scroll of grid and footer grid
     // this.gridOptions.alignedGrids.push(this.bottomOptions);
     // this.bottomOptions.alignedGrids.push(this.gridOptions);
 
-    this.symbal = "ALL";
+    this.symbol = "ALL";
 
     let localThis = this;
     
@@ -398,14 +575,63 @@ export class AgGridExampleComponent implements OnInit {
       localThis.cdRef.detectChanges();
     });
 
-    this._fundsService.getJournals(this.symbal, this.page, this.pageSize, this.accountSearch.id,
+    
+    this._fundsService.getJournals(this.symbol, this.page, this.pageSize, this.accountSearch.id,
       this.valueFilter, this.sortColum, this.sortDirection).subscribe(result => {
-        this.totalRecords = result.meta.Total;//result.meta.Total;
+
+        this.columns = result.meta.Columns;
+
+        this.totalRecords = result.meta.Total;
         this.totalCredit = result.stats.totalCredit;
         this.totalDebit = result.stats.totalDebit;
 
         this.rowData = [];
+        this.ledgerRowData = [];
 
+        debugger
+
+        let someArray = [];
+
+
+        for ( var item in result.data ) {
+          let someObject = {};
+          for ( var i in this.columns) {
+            let field = this.columns[i].field;
+            if ( this.columns[i].Type == "System.DateTime") {
+              someObject[field] = moment(result.data[item][field]).format("MM-DD-YYYY");
+            } else {
+              someObject[field] = result.data[item][field];
+            }
+          }
+          someArray.push(someObject);
+        }
+
+        this.customizeColumns(this.columns);
+
+        this.rowData = someArray as [];
+
+        /*
+        this.rowData = result.data.map(item => (
+          {
+          id: item.id,
+          source: item.source,
+          Fund: item.fund,
+          AccountCategory: item.AccountCategory,
+          AccountType: item.AccountType,
+          accountName: item.accountName,
+          accountId: item.account_id,
+          debit: item.debit,
+          credit: item.credit,
+          TradeCurrency: item.TradeCurrency,
+          SettleCurrency: item.SettleCurrency,
+          Side: item.Side,
+          Symbol: item.Symbol,
+          when: moment(item.when).format("MM-DD-YYYY")
+        }
+        ));
+       */
+
+        /*
         this.rowData = result.data.map(item => ({
           id: item.id,
           source: item.source,
@@ -416,11 +642,34 @@ export class AgGridExampleComponent implements OnInit {
           accountId: item.account_id,
           debit: item.debit,
           credit: item.credit,
-          //when: moment(item.when).format('MMM-DD-YYYY hh:mm:ss A Z')
-          //when: moment(item.when).format("MMM-DD-YYYY"),
+          TradeCurrency: item.TradeCurrency,
+          SettleCurrency: item.SettleCurrency,
+          Side: item.Side,
+          Symbol: item.Symbol,
           when: moment(item.when).format("MM-DD-YYYY")
-
         }));
+        */
+
+        this.ledgerRowData = result.data.map(item => ({
+          id: item.id,
+          source: item.source,
+          Fund: item.fund,
+          AccountCategory: item.AccountCategory,
+          AccountType: item.AccountType,
+          accountName: item.accountName,
+          accountId: item.account_id,
+          debit: item.debit,
+          credit: item.credit,
+          TradeCurrency: item.TradeCurrency,
+          SettleCurrency: item.SettleCurrency,
+          Side: item.Side,
+          Symbol: item.Symbol,
+          when: moment(item.when).format("MM-DD-YYYY")
+        }));
+
+        debugger
+
+        this.ledgerGridOptions.rowData = this.ledgerRowData;
 
         this.pinnedBottomRowData = [
           {
@@ -432,7 +681,7 @@ export class AgGridExampleComponent implements OnInit {
             credit: this.totalDebit,
           }
         ];
-        this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
+        //this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
         this.bottomData = [
           {
             source: 'Total Records:' + this.totalRecords,
@@ -574,17 +823,8 @@ export class AgGridExampleComponent implements OnInit {
   ngOnInit() {
   }
 
-
-  /*onGridReady(params) {
-     
-  this.gridApi = params.api;
-  this.gridColumnApi = params.columnApi;
-
-  params.api.sizeColumnsToFit();
-}*/
   public isExternalFilterPresent() {
-
-    return true;
+     return true;
   }
 
   public ngModelChange(e) {
@@ -592,13 +832,13 @@ export class AgGridExampleComponent implements OnInit {
 
     this.startDate = e.startDate;
     this.endDate = e.endDate
-    this.topGrid.api.onFilterChanged();
+    this.journalGrid.api.onFilterChanged();
     this.getRangeLable();
   }
 
   public ngModelChangeFund(e) {
     this.fund = e;
-    this.topGrid.api.onFilterChanged();
+    this.journalGrid.api.onFilterChanged();
   }
 
   public doesExternalFilterPass(node:any) {
@@ -631,8 +871,8 @@ export class AgGridExampleComponent implements OnInit {
     this.endDate = null;
     this.fund = null;
 
-    this.topGrid.api.setFilterModel(null);
-    this.topGrid.api.onFilterChanged();
+    this.journalGrid.api.setFilterModel(null);
+    this.journalGrid.api.onFilterChanged();
     this.startDate = null;
     this.dateRangPicker.value = '';
 
@@ -653,9 +893,11 @@ function asDate(dateAsString) {
 
   return new Date(splitFields[1], splitFields[0], splitFields[2]);
 }
+
 function currencyFormatter(params) {
   return formatNumber(params.value);
 }
+
 function formatNumber(number) {
   return number == 0 ? '' : Math.floor(number)
     .toString()

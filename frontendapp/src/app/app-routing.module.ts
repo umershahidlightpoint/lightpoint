@@ -9,9 +9,11 @@ import { CreateAccountComponent } from './main/accounts/create-account/create-ac
  
  
 import { AgGridExampleComponent } from  './main/ag-grid-example/ag-grid-example.component';;
+import { TrialGridExampleComponent } from  './main/trial-balance/trial-balance.component';;
 
 const routes: Routes = [
   { path: 'journals-ledgers', component: AgGridExampleComponent },
+  { path: 'trialBalance', component: TrialGridExampleComponent },
   { path: 'runlogs', component: RunLogsComponent },
   { path: 'reports', component: ReportsComponent },
   { path: 'accounts', component: AccountComponent, 

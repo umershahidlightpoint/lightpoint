@@ -37,13 +37,21 @@ namespace ConsoleApp1
 
                 var transaction = connection.BeginTransaction();
                 var sw = new Stopwatch();
-                
+
+                var postingEnv = new PostingEngineEnvironment(connection, transaction)
+                {
+                    Categories = AccountCategory.Categories,
+                    Types = AccountType.All,
+                    ValueDate = DateTime.Now.Date,
+                    FxRates = new FxRates().Get(DateTime.Now.Date)
+                };
+
                 new JournalLog() { Action = "Starting Batch Posting Engine -- Allocations", ActionOn = DateTime.Now }.Save(connection, transaction);
                 // Run the allocations pass first
                 sw.Start();
 
                 // Skip allocations for the moment
-                //var count = RunAsync(connection, transaction, allocationsURL).GetAwaiter().GetResult();
+                //var count = RunAsync(connection, transaction, postingEnv, allocationsURL).GetAwaiter().GetResult();
                 var count = 0;
                 sw.Stop();
                 new JournalLog() { Action = $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms processing {count} records", ActionOn = DateTime.Now }.Save(connection, transaction);
@@ -53,7 +61,7 @@ namespace ConsoleApp1
                 sw.Reset();
                 sw.Start();
                 // RUn the trades pass next
-                count = RunAsync(connection, transaction, tradesURL).GetAwaiter().GetResult();
+                count = RunAsync(connection, transaction, postingEnv, tradesURL).GetAwaiter().GetResult();
                 sw.Stop();
                 new JournalLog() { Action = $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms", ActionOn = DateTime.Now }.Save(connection, transaction);
 
@@ -101,7 +109,7 @@ namespace ConsoleApp1
         }
 
 
-        static async Task<int> RunAsync(SqlConnection connection, SqlTransaction transaction, string transactionsURI)
+        static async Task<int> RunAsync(SqlConnection connection, SqlTransaction transaction, PostingEngineEnvironment postingEnv, string transactionsURI)
         {
             var result = await GetTransactions(transactionsURI);
 
@@ -118,18 +126,12 @@ namespace ConsoleApp1
 
             var tradeData = elements.OrderBy(i => i.TradeDate.Date).ToList();
 
-            var postingEnv = new PostingEngineEnvironment(connection, transaction)
-            {
-                Categories = AccountCategory.Categories,
-                Types = AccountType.All,
-                ValueDate = DateTime.Now.Date,
-            };
-
             while ( startDate <= endDate )
             {
                 Console.WriteLine($"Processing for ValueDate {startDate}");
 
                 postingEnv.ValueDate = startDate;
+                postingEnv.FxRates = new FxRates().Get(startDate);
 
                 foreach (var element in tradeData)
                 {
@@ -144,20 +146,6 @@ namespace ConsoleApp1
                 }
 
                 startDate = startDate.AddDays(1);
-            }
-
-            /// Need to get the Trades in order so that we can move forward in time
-            foreach ( var element in elements.OrderBy(i=>i.TradeDate.Date))
-            {
-                try
-                {
-                    //Console.WriteLine($"Processing {element.SecurityType} / {element.Symbol}");
-                    new Posting().Process(postingEnv, element);
-                } catch ( Exception exe )
-                {
-                    // Capture the exception and keep going
-                    Error(exe, element);
-                }
             }
 
             new JournalLog() { Action = $"Processed # {elements.Count()} transactions", ActionOn = DateTime.Now }.Save(connection, transaction);

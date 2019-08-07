@@ -12,7 +12,6 @@ import {
   Input,
   Output,
   EventEmitter,
-  Inject,
   OnDestroy,
   OnChanges
 } from "@angular/core";
@@ -39,17 +38,16 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
   editCase: boolean = false;
   accTypeLabel: string;
   accTypeId: number;
-  nameLabel: string;
+  accountCategory: string;
   noAccountDef: boolean = false;
   canEditAccount: boolean = true;
-  //For unsubscribing all subscriptions
+  // For unsubscribing all subscriptions
   isSubscriptionAlive: boolean;
 
-  //Account Model
+  // Account Model
   rowDataSelected: GridRowData;
   accountTypes: AccountCategory;
   accountTags: Array<AccountTag>;
-  accountTypeTags; //: AccountTag
   accountInstance: CreateAccount;
   editAccountInstance: EditAccount;
 
@@ -62,8 +60,8 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
   tags: FormArray;
 
   constructor(
-    @Inject(Router) private router: Router,
-    @Inject(FormBuilder) private formBuilder: FormBuilder,
+    private router: Router,
+    private formBuilder: FormBuilder,
     private financePocServiceProxy: FinancePocServiceProxy,
     private toastrService: ToastrService
   ) {
@@ -76,7 +74,6 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
 
   buildForm() {
     this.accountForm = this.formBuilder.group({
-      //name: new FormControl(''),
       description: new FormControl("", Validators.required),
       type: new FormControl("", Validators.required),
       tagsList: this.formBuilder.array([])
@@ -127,7 +124,8 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
     })
   }
 
-  getAccountTags(type) {
+  getAccountTags(typeId) {
+    const accTypeId = typeId
     if (this.editCase) {
       this.financePocServiceProxy
       .accountTags()
@@ -139,13 +137,17 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
             return;
           }
           this.accountTags = response.payload
-          this.accountTypeTags = response.payload            
-          this.hasExistingAccount(this.rowDataSelected)
+          if( accTypeId !== this.rowDataSelected.typeId ){
+            this.clearTagsListArray() 
+          }
+          else{
+            this.hasExistingAccount(this.rowDataSelected)
+          }          
         },
         error => {
           this.toastrService.error("Something went wrong. Try again later!");
         }
-      );
+      );            
     } else {
       this.financePocServiceProxy
       .accountTags()
@@ -157,14 +159,6 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
             return;
           }
           this.accountTags = response.payload
-          this.accountTypeTags = response.payload            
-          // this.accountTypeTags = this.accountTags
-          // this.accountTypeTags.map(payload => {
-          //   payload["isChecked"] = false;
-          //   payload["description"] = "";
-          //   return payload;
-          // });
-          //this.addTag(this.accountTypeTags);
         },
         error => {
           this.toastrService.error("Something went wrong. Try again later!");
@@ -204,11 +198,12 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
   show(rowSelected) {
     this.rowDataSelected = rowSelected;
     if (Object.keys(rowSelected).length !== 0) {
+      this.accountCategory = rowSelected.category 
       this.canEditAccount = rowSelected.canDeleted;
       this.accTypeLabel = !this.canEditAccount ? null : rowSelected.type;
       this.editCase = true;
       this.getAccountTypes(rowSelected.categoryId);
-      this.getAccountTags(rowSelected);    
+      this.getAccountTags(rowSelected.typeId);    
       this.accountForm.patchValue({
         description: rowSelected.description,
         type: {
@@ -216,7 +211,6 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
           name: rowSelected.type
         }
       });
-      this.nameLabel = rowSelected.accountName;
       this.accTypeId = rowSelected.typeId
       this.accTypeLabel = rowSelected.type
     }
@@ -228,9 +222,8 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   close() {
-    this.modalClose.emit(true);
     this.modal.hide();
-    setTimeout(() => this.clearForm(), 1000);
+    setTimeout(() => this.clearForm(), 250);
     this.router.navigateByUrl("/accounts");
   }
 
@@ -315,19 +308,16 @@ export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   clearForm() {
-    //this.accountForm.controls['name'].reset()
-    //this.accountForm.controls['name'].enable()
     this.accountForm.controls["description"].reset()
     this.accountForm.controls["type"].reset()
-    this.accountForm.controls["tagsList"].reset()
     this.clearTagsListArray()
     this.accountTags = null
     this.canEditAccount = true
     this.editCase = false
-    this.accountTypeTags = null
     this.accTypeLabel = null
     this.accountTags = null
     this.noAccountDef = false
+    this.accTypeId = null 
   }
 
   clearTagsListArray(){

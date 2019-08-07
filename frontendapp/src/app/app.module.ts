@@ -44,6 +44,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { JournalComponent } from './main/journal/journal.component';
 import { AgGridExampleComponent } from './main/ag-grid-example/ag-grid-example.component';
+import { TrialGridExampleComponent } from './main/trial-balance/trial-balance.component';
 import { LogsComponent } from './main/logs/logs.component';
 import { FinanceGridComponent } from './finance-grid/finance-grid.component';
 import { RunLogsComponent } from './runlogs/runlogs.component';
@@ -63,6 +64,7 @@ import { CreateAccountComponent } from './main/accounts/create-account/create-ac
     UpdateLedgerModalComponent,
     JournalComponent,
     AgGridExampleComponent,
+    TrialGridExampleComponent,
     LogsComponent,
     TemplateRendererComponent,
     FinanceGridComponent,

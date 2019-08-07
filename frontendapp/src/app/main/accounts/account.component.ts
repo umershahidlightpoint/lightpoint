@@ -52,13 +52,13 @@ export class AccountComponent implements OnInit, OnDestroy {
    
   ngAfterViewInit(): void {
     this.gridOptions.api.setColumnDefs([
-      { headerName: 'Account Id', field: 'accountId', hide: true },
-      { headerName: 'Name', field: 'accountName', sortable: true, filter: true },
-      { headerName: 'Description_Id', field: 'descriptionId', hide: true },
-      { headerName: 'Description', field: 'description', sortable: true, filter: true },
-      { headerName: 'Category', field: 'category', sortable: true, filter: true },
+      { headerName: 'Account Id', field: 'accountId', resizable: true , hide: true },
+      { headerName: 'Name', field: 'accountName', resizable: true, sortable: true, filter: true },
+      { headerName: 'Description', field: 'description', resizable: true, sortable: true, filter: true },
       { headerName: 'Category Id', field: 'categoryId', hide: true },
-      { headerName: 'Has Journal', field: 'hasJournal', sortable: true, filter: true },
+      { headerName: 'Category', field: 'category', resizable: true, sortable: true, filter: true },
+      { headerName: 'Has Journal', field: 'hasJournal', resizable: true, sortable: true, filter: true },
+      { headerName: 'Account Type', field: 'type', resizable: true, sortable: true, filter: true },
       { headerName: 'CanDeleted', field: 'canDeleted', hide: true },
       { headerName: 'CanEdited', field: 'canEdited', hide: true },
       {
@@ -96,10 +96,10 @@ export class AccountComponent implements OnInit, OnDestroy {
           accountId: result.AccountId,
           accountName: result.AccountName,
           description: result.Description,
+          categoryId: result.CategoryId,
           category: result.Category,
           typeId: result.TypeId,
           type: result.Type,
-          categoryId: result.CategoryId,
           hasJournal: result.HasJournal,
           canDeleted: result.CanDeleted,
           canEdited: result.CanEdited
