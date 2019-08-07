@@ -8,12 +8,7 @@
             {{ f.FundCode }}
           </option>
         </select>
-        <select class="form-control" [(ngModel)]="gridLayouts" (ngModelChange)="RestoreLayout($event)">
-          <option [ngValue]="o"></option>
-          <option *ngFor="let l of gridLayouts" [ngValue]="l.Id">
-            {{ l.GridLayoutName }}
-          </option>
-        </select>
+        
       </div>
       <label class="col-md-1 " style="text-align: right"> {{DateRangeLable}} </label>
       <div class="col-md-6">
@@ -28,15 +23,38 @@
         <button (click)="clearFilters( )" class="btn btn-info" type="button">Clear</button>
        
       </div>
-      <div class="col-sm-1">
+      <div class="col-sm-2">
        <button (click)="onBtExport()" class="btn btn-info">Export to Excel</button>  
     </div>
-    <div class="col-sm-1">
-      <button (click)="onSaveState()" class="btn btn-info">Save State</button>  
-       
-   </div>
+    
+  
+  
+  
+  
   </div>
+  <div>
 
+    </div>
+  <div class="row" style="margin-top: 5px">
+      <div class="col-3">
+      <select class="form-control" [(ngModel)]="gridLayouts" (ngModelChange)="RestoreLayout($event)">
+          <option [ngValue]="0"  selected >Select layout</option>
+          <option *ngFor="let l of gridLayouts" [ngValue]="l.Id">
+            {{ l.GridLayoutName }}
+          </option>
+        </select>
+      </div>
+      <div class="col-5">
+          <button (click)="onSaveState()" class="btn btn-info">Save</button>  
+          <button style="margin-left: 5px;" (click)="onSaveState()" class="btn btn-info">New</button> 
+      </div>
+      <div class="col-1">
+           
+      </div>
+  <div>
+
+  </div>
+  </div>
     <div style="clear: both"></div>
     <div #divToMeasureJournal>
       <div [ngStyle]="styleForHight">

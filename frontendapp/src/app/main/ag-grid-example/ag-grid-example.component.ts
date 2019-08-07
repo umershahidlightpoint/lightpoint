@@ -94,7 +94,7 @@ export class AgGridExampleComponent implements OnInit {
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 260px)',
+    height: 'calc(100vh - 270px)',
     boxSizing: 'border-box'
   };
 
@@ -779,6 +779,7 @@ export class AgGridExampleComponent implements OnInit {
   RestoreLayout(e)
   {
     debugger;
+    if (e > 0){
     this.gridLayoutID = e;
      this._fundsService.GetAGridLayout(e)
      .subscribe(response => {
@@ -793,7 +794,7 @@ export class AgGridExampleComponent implements OnInit {
          //  let dd = response;
  
      });
- 
+    }
   }
   onRestore() {
 
