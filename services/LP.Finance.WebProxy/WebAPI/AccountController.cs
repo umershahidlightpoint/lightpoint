@@ -43,7 +43,7 @@ namespace LP.Finance.WebProxy.WebAPI
         public object CreateAccount(AccountInputDto account)
         {
             return !ModelState.IsValid || account == null
-                ? BadRequest(ModelState)
+                ? BadRequest(ModelState)    
                 : controller.CreateAccount(account);
         }
 

@@ -173,6 +173,27 @@ export class FinancePocServiceProxy {
         const url = this.baseUrl+'/account_type?accountCategoryId='+id ;
         return this.http.get(url).pipe(map((response: any) => response));
     }
+
+    SaveDataGridState(data) {
+        const url =  this.baseUrl+'/DataGrid' ;
+        return this.http.post(url,data).pipe(map((response: any) => response));
+    }
+
+    getDataGridStatus(id) {
+        const url =  this.baseUrl+'/DataGrid/'+id ;
+        return this.http.get(url,).pipe(map((response: any) => response));
+    }
+
+    getGridLayouts(gridId, userid) {
+        const url = encodeURI(this.baseUrl+'/DataGrid/GetDataGridLayouts?gridId='+gridId+'&userId='+userid );
+        return this.http.get(url).pipe(map((response: any) => response));
+    }
+
+    GetAGridLayout(id) {
+        const url =  this.baseUrl+'/DataGrid/GetAGridLayout?id='+id ;
+        return this.http.get(url,).pipe(map((response: any) => response));
+    }
+
 }
 
 export class LedgerInput {
