@@ -36,7 +36,7 @@ go
 
 USE [Finance]
 GO
-/****** Object:  Table [dbo].[account]    Script Date: 7/30/2019 4:27:35 AM ******/
+/****** Object:  Table [dbo].[account]    Script Date: 8/6/2019 10:28:52 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -52,7 +52,7 @@ CREATE TABLE [dbo].[account](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[account_category]    Script Date: 7/30/2019 4:27:36 AM ******/
+/****** Object:  Table [dbo].[account_category]    Script Date: 8/6/2019 10:28:52 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -66,7 +66,7 @@ CREATE TABLE [dbo].[account_category](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[account_def]    Script Date: 7/30/2019 4:27:36 AM ******/
+/****** Object:  Table [dbo].[account_def]    Script Date: 8/6/2019 10:28:52 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -81,7 +81,7 @@ CREATE TABLE [dbo].[account_def](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[account_def_tag]    Script Date: 7/30/2019 4:27:36 AM ******/
+/****** Object:  Table [dbo].[account_def_tag]    Script Date: 8/6/2019 10:28:52 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -96,7 +96,7 @@ CREATE TABLE [dbo].[account_def_tag](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[account_tag]    Script Date: 7/30/2019 4:27:36 AM ******/
+/****** Object:  Table [dbo].[account_tag]    Script Date: 8/6/2019 10:28:52 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -112,7 +112,7 @@ CREATE TABLE [dbo].[account_tag](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[account_type]    Script Date: 7/30/2019 4:27:36 AM ******/
+/****** Object:  Table [dbo].[account_type]    Script Date: 8/6/2019 10:28:52 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -127,7 +127,7 @@ CREATE TABLE [dbo].[account_type](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[journal]    Script Date: 7/30/2019 4:27:36 AM ******/
+/****** Object:  Table [dbo].[journal]    Script Date: 8/6/2019 10:28:52 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -135,9 +135,11 @@ GO
 CREATE TABLE [dbo].[journal](
 	[id] [int] IDENTITY(1,1) NOT NULL,
 	[account_id] [int] NOT NULL,
-	[value] [numeric](18, 0) NOT NULL,
+	[value] [decimal](22, 9) NOT NULL,
 	[source] [varchar](50) NOT NULL,
 	[when] [datetime] NOT NULL,
+	[fx_currency] [varchar](3) NOT NULL,
+	[fxrate] [decimal](22, 9) NOT NULL,
 	[fund] [varchar](50) NOT NULL,
 	[generated_by] [varchar](20) NOT NULL,
  CONSTRAINT [PK_journal] PRIMARY KEY CLUSTERED 
@@ -146,7 +148,7 @@ CREATE TABLE [dbo].[journal](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[journal_log]    Script Date: 7/30/2019 4:27:36 AM ******/
+/****** Object:  Table [dbo].[journal_log]    Script Date: 8/6/2019 10:28:52 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -161,7 +163,7 @@ CREATE TABLE [dbo].[journal_log](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[ledger]    Script Date: 7/30/2019 4:27:36 AM ******/
+/****** Object:  Table [dbo].[ledger]    Script Date: 8/6/2019 10:28:52 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -176,7 +178,7 @@ CREATE TABLE [dbo].[ledger](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tag]    Script Date: 7/30/2019 4:27:36 AM ******/
+/****** Object:  Table [dbo].[tag]    Script Date: 8/6/2019 10:28:52 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -191,6 +193,10 @@ CREATE TABLE [dbo].[tag](
 	[id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[journal] ADD  CONSTRAINT [DF_journal_fx_currency]  DEFAULT ('USD') FOR [fx_currency]
+GO
+ALTER TABLE [dbo].[journal] ADD  CONSTRAINT [DF_journal_fxrate]  DEFAULT ((1.0)) FOR [fxrate]
 GO
 ALTER TABLE [dbo].[journal] ADD  CONSTRAINT [DF_journal_generated_by]  DEFAULT ('system') FOR [generated_by]
 GO
