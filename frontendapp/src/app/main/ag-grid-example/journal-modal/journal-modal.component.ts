@@ -77,8 +77,10 @@ export class JournalModalComponent implements OnInit {
       //console.log('create journal response',response)
       if(response.isSuccessful){        
         this.toastrService.success('Journal is created successfully !')
+        this.clearForm();
         this.modal.hide()
-        this.modalClose.emit(true);     
+        this.modalClose.emit(true);
+        this.clearForm();
       }
       else {
         this.toastrService.success('Journal is created successfully !')        
