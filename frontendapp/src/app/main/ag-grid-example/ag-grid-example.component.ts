@@ -14,6 +14,7 @@ import { debug } from 'util';
 import { $ } from 'protractor';
 import { analyzeAndValidateNgModules } from '@angular/compiler';
 import { listLazyRoutes } from '@angular/compiler/src/aot/lazy_routes';
+import { JournalModalComponent } from './journal-modal/journal-modal.component';
 
 class GridConfiguration {
   private gridApi;
@@ -68,7 +69,7 @@ export class AgGridExampleComponent implements OnInit {
   @ViewChild('divToMeasureJournal') divToMeasureElement: ElementRef;
   @ViewChild('divToMeasureLedger') divToMeasureElementLedger: ElementRef;
   @ViewChild("modal") modal: ModalDirective;
-   
+  @ViewChild('journalModal') jounalModal: JournalModalComponent;
   columnDefs: any;
   totalCredit: number;
   totalDebit: number;
@@ -929,7 +930,14 @@ export class AgGridExampleComponent implements OnInit {
     alert("For show popup");
   }
 
-      
+  openJournalModal(){
+    this.jounalModal.openModal()
+  }
+
+   closeJournalModal(){
+    console.log('closeJournalModal')
+    this.getAllData()
+  }
 }
 
 
