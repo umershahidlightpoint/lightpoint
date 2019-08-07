@@ -1,5 +1,7 @@
- <p-tabView [ngStyle]="style">
-  <p-tabPanel header="Journals" >
+<button class="btn btn-primary" type="button" (click)="openJournalModal()"> Create Journal </button>
+<hr />
+<p-tabView [ngStyle]="style">
+  <p-tabPanel header="Journals">
     <div class="row ">
       <div class="col-md-2">
         <select class="form-control" [(ngModel)]="fund" (ngModelChange)="ngModelChangeFund($event)">
@@ -8,34 +10,34 @@
             {{ f.FundCode }}
           </option>
         </select>
-        
+
       </div>
       <label class="col-md-1 " style="text-align: right"> {{DateRangeLable}} </label>
       <div class="col-md-6">
-          <form>
-        <input type="text" autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
-          [showCustomRangeLabel]="true" #dateRangPicker name="selectedDaterange" [showClearButton]="true"
-          placeholder="Choose date" [alwaysShowCalendars]="true" (ngModelChange)="ngModelChange($event)"
-          class="form-control" /></form>
+        <form>
+          <input type="text" autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
+            [showCustomRangeLabel]="true" #dateRangPicker name="selectedDaterange" [showClearButton]="true"
+            placeholder="Choose date" [alwaysShowCalendars]="true" (ngModelChange)="ngModelChange($event)"
+            class="form-control" /></form>
       </div>
 
       <div class="col-1">
         <button (click)="clearFilters( )" class="btn btn-info" type="button">Clear</button>
-       
+
       </div>
       <div class="col-sm-2">
-       <button (click)="onBtExport()" class="btn btn-info">Export to Excel</button>  
-    </div>
-    
-  
-  
-  
-  
-  </div>
-  <div>
+        <button (click)="onBtExport()" class="btn btn-info">Export to Excel</button>
+      </div>
+
+
+
+
 
     </div>
-  <div class="row" style="margin-top: 5px">
+    <div>
+
+    </div>
+    <div class="row" style="margin-top: 5px">
       <div class="col-3">
       <select class="form-control" [(ngModel)]="gridLayoutID" (ngModelChange)="RestoreLayout($event)">
           <option [ngValue]="0"  selected >Select layout</option>
@@ -49,33 +51,24 @@
           <button style="margin-left: 5px;" (click)="onCreateNew()" class="btn btn-info">New</button> 
       </div>
       <div class="col-1">
-           
-      </div>
-  <div>
 
-  </div>
-  </div>
+      </div>
+      <div>
+
+      </div>
+    </div>
     <div style="clear: both"></div>
     <div #divToMeasureJournal>
       <div [ngStyle]="styleForHight">
-        <ag-grid-angular #journalGrid
-        style="width: 100%; height: 100%" 
-        class="ag-theme-balham" 
-        [gridOptions]="gridOptions" 
-        [rowGroupPanelShow]="rowGroupPanelShow"
-        [pivotPanelShow]="pivotPanelShow"
-        [pivotColumnGroupTotals]="pivotColumnGroupTotals"
-        [pivotRowTotals]="pivotRowTotals"
-        [sideBar]="sideBar"
-        [rowData]="rowData"
-        [rowSelection]="rowSelection"
-        [getRowStyle]="getRowStyle"
-        >
-        <!--
+        <ag-grid-angular #journalGrid style="width: 100%; height: 100%" class="ag-theme-balham"
+          [gridOptions]="gridOptions" [rowGroupPanelShow]="rowGroupPanelShow" [pivotPanelShow]="pivotPanelShow"
+          [pivotColumnGroupTotals]="pivotColumnGroupTotals" [pivotRowTotals]="pivotRowTotals" [sideBar]="sideBar"
+          [rowData]="rowData" [rowSelection]="rowSelection" [getRowStyle]="getRowStyle">
+          <!--
           [pinnedBottomRowData]="pinnedBottomRowData"
         -->
         </ag-grid-angular>
-  
+
 
       </div>
     </div>

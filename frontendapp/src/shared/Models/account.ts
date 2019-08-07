@@ -48,3 +48,8 @@ export interface AccountTag {
   Id: number,
   Value: string
 }
+
+export interface Fund {
+  fundId: number,
+  fundCode: string
+}
