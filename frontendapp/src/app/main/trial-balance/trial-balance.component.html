@@ -1,0 +1,64 @@
+ <p-tabView [ngStyle]="style">
+  <p-tabPanel header="Trial Balance" >
+    <div class="row ">
+      <div class="col-md-2">
+        <select class="form-control" [(ngModel)]="fund" (ngModelChange)="ngModelChangeFund($event)">
+          <option [ngValue]="null">All Funds</option>
+          <option *ngFor="let f of funds" [ngValue]="f.FundCode">
+            {{ f.FundCode }}
+          </option>
+        </select>
+
+      </div>
+      <label class="col-md-1 " style="text-align: right"> {{DateRangeLable}} </label>
+      <div class="col-md-6">
+          <form>
+        <input type="text" autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
+          [showCustomRangeLabel]="true" #dateRangPicker name="selectedDaterange" [showClearButton]="true"
+          placeholder="Choose date" [alwaysShowCalendars]="true" (ngModelChange)="ngModelChange($event)"
+          class="form-control" /></form>
+      </div>
+
+      <div class="col-1">
+        <button (click)="clearFilters( )" class="btn btn-info" type="button">Clear</button>
+       
+      </div>
+      <div class="col-2">
+       <button (click)="onBtExport()" class="btn btn-info">Export to Excel</button>  
+    </div>
+  </div>
+
+    <div style="clear: both"></div>
+    <div #divToMeasureJournal>
+      <div [ngStyle]="styleForHight">
+        <ag-grid-angular #journalGrid
+        style="width: 100%; height: 100%" 
+        class="ag-theme-balham" 
+        [gridOptions]="gridOptions" 
+        [rowGroupPanelShow]="rowGroupPanelShow"
+        [sideBar]="sideBar"
+        [rowData]="rowData"
+        [rowSelection]="rowSelection"
+        [getRowStyle]="getRowStyle"
+        >
+        <!--
+          [pinnedBottomRowData]="pinnedBottomRowData"
+          [pivotPanelShow]="pivotPanelShow"
+          [pivotColumnGroupTotals]="pivotColumnGroupTotals"
+          [pivotRowTotals]="pivotRowTotals"
+        -->
+        </ag-grid-angular>
+  
+
+      </div>
+    </div>
+  </p-tabPanel>
+
+</p-tabView>
+
+
+<ng-template #greetCell let-row>
+  <!-- 
+    <div (click)="greet(row)" style="cursor: pointer"> {{row.source}} </div>
+  -->
+</ng-template>

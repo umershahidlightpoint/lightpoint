@@ -1,5 +1,5 @@
  <p-tabView [ngStyle]="style">
-  <p-tabPanel header="Journal" [ngStyle]="style">
+  <p-tabPanel header="Journals" >
     <div class="row ">
       <div class="col-md-2">
         <select class="form-control" [(ngModel)]="fund" (ngModelChange)="ngModelChangeFund($event)">
@@ -29,34 +29,36 @@
   </div>
 
     <div style="clear: both"></div>
-    <div #divToMeasure>
+    <div #divToMeasureJournal>
       <div [ngStyle]="styleForHight">
-        <ag-grid-angular style="width: 100%; height: 100%" class="ag-theme-balham" 
-        [gridOptions]="gridOptions" #topGrid
+        <ag-grid-angular #journalGrid
+        style="width: 100%; height: 100%" 
+        class="ag-theme-balham" 
+        [gridOptions]="gridOptions" 
         [rowGroupPanelShow]="rowGroupPanelShow"
         [pivotPanelShow]="pivotPanelShow"
         [pivotColumnGroupTotals]="pivotColumnGroupTotals"
         [pivotRowTotals]="pivotRowTotals"
         [sideBar]="sideBar"
-          [rowData]="rowData"
-          [pinnedBottomRowData]="pinnedBottomRowData"
-          [getRowStyle]="getRowStyle"
-         
-        
+        [rowData]="rowData"
+        [rowSelection]="rowSelection"
+        [getRowStyle]="getRowStyle"
         >
+        <!--
+          [pinnedBottomRowData]="pinnedBottomRowData"
+        -->
         </ag-grid-angular>
   
 
       </div>
     </div>
   </p-tabPanel>
-  <p-tabPanel header="Ledger">
-  </p-tabPanel>
 
 </p-tabView>
 
 
 <ng-template #greetCell let-row>
-   
-  <div (click)="greet(row)" style="cursor: pointer"> {{row.source}} </div>
+  <!-- 
+    <div (click)="greet(row)" style="cursor: pointer"> {{row.source}} </div>
+  -->
 </ng-template>

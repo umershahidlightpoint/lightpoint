@@ -1,14 +1,25 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 
 namespace LP.Finance.Common
 {
+    public class ColumnDef
+    {
+        public string field { get; set; }
+        public string headerName { get; set; }
+        public bool filter { get; set; }
+
+        public string Type { get; set; }
+    }
     public class MetaData
     {
         public int Total { get; set; }
+
+        public List<ColumnDef> Columns { get;set;}
     }
 
     public class MathFnc

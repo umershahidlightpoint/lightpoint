@@ -50,8 +50,6 @@ namespace PostingEngine.PostingRules.Utilities
             // Lets check to see if we have created this account already
             if (accounts.ContainsKey(name))
             {
-                Console.WriteLine($"Using an existing account {name}");
-
                 return accounts[name];
             }
 
@@ -103,8 +101,6 @@ namespace PostingEngine.PostingRules.Utilities
             // Lets check to see if we have created this account already
             if (accounts.ContainsKey(name))
             {
-                Console.WriteLine($"Using an existing account {name}");
-
                 return accounts[name];
             }
 

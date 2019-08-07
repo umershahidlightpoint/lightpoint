@@ -7,6 +7,10 @@ using System.Data;
 using LP.Finance.Common;
 using System.Collections.Generic;
 using SqlDAL.Core;
+using System.Threading.Tasks;
+using System.Net.Http;
+using LP.Finance.Common.Models;
+using System.Linq;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -159,6 +163,48 @@ namespace LP.Finance.WebProxy.WebAPI
 
             query = query + " ) as d";
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+
+            var result = GetTransactions(tradesURL);
+            result.Wait();
+
+            var elements = JsonConvert.DeserializeObject<Transaction[]>(result.Result);
+
+            var proeprties = typeof(Transaction).GetProperties();
+            foreach( var prop in proeprties)
+            {
+                dataTable.Columns.Add(prop.Name, prop.PropertyType);
+            }
+
+            metaData.Columns = new List<ColumnDef>();
+            foreach( DataColumn col in dataTable.Columns)
+            {
+                metaData.Columns.Add(new ColumnDef
+                {
+                    filter = true,
+                    headerName = col.ColumnName, // This will be driven by a data dictionary that will provide the write names in the System
+                    field = col.ColumnName,
+                    Type = col.DataType.ToString()
+                });
+            }
+
+            foreach (var element in dataTable.Rows)
+            {
+                var dataRow = element as DataRow;
+
+                var found = elements.Where(e => e.LpOrderId == dataRow["source"].ToString()).FirstOrDefault();
+                if ( found != null )
+                {
+                    // Copy data to the row
+
+                    foreach (var prop in proeprties)
+                    {
+                        dataRow[prop.Name] = prop.GetValue(found);
+                    }
+
+                }
+            }
+
+
             metaData.Total = Convert.ToInt32(dataTable.Rows[0][0]);
             journalStats.totalCredit = Convert.ToDouble(dataTable.Rows[0]["totalDebit"]);
             journalStats.totalDebit = Convert.ToDouble(dataTable.Rows[0]["totalCredit"]);
@@ -166,11 +212,30 @@ namespace LP.Finance.WebProxy.WebAPI
 
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
-            return Utils.GridWrap(json, metaData, journalStats);
+            var returnResult = Utils.GridWrap(json, metaData, journalStats);
 
-            //return Utils.RunQuery(connectionString, query, sqlParams.ToArray());
+            Utils.Save(returnResult, "journal_for_ui");
+
+            return returnResult;
         }
 
+        private static readonly string tradesURL = "http://localhost:9091/api/trade/data/ALL";
+        private static readonly string allocationsURL = "http://localhost:9091/api/allocation/data/ALL";
+
+        private static async Task<string> GetTransactions(string webURI)
+        {
+            Task<string> result = null;
+
+            var client = new HttpClient();
+
+            HttpResponseMessage response = await client.GetAsync(webURI);
+            if (response.IsSuccessStatusCode)
+            {
+                result = response.Content.ReadAsStringAsync();
+            }
+
+            return await result;
+        }
 
         private object Only(string orderId)
         {

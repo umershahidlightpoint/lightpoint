@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FxRates.cs" />
     <Compile Include="Posting.cs" />
     <Compile Include="Utilities\AccountUtils.cs" />
     <Compile Include="PostingRules\CommonStock.cs" />

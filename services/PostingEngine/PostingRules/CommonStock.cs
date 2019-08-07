@@ -22,6 +22,19 @@ namespace PostingEngine.PostingRules
             new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
             new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
 
+            // This is the fully loaded value to tbe posting
+            //var netMoney = (element.Quantity * element.TradePrice) + element.Commission + element.Fees;
+
+            double fxrate = 1.0;
+
+            // Lets get fx rate if needed
+            if (!element.SettleCurrency.Equals("USD"))
+            {
+                fxrate = Convert.ToDouble(env.FxRates[element.SettleCurrency].Rate);
+            }
+
+            var moneyUSD = element.NetMoney / fxrate;
+
             if (element.NetMoney != 0.0)
             {
                 var debit = new Journal
@@ -29,7 +42,9 @@ namespace PostingEngine.PostingRules
                     Source = element.LpOrderId,
                     Account = accountToFrom.From,
                     When = env.ValueDate,
-                    Value = element.NetMoney * -1,
+                    FxCurrency = element.SettleCurrency,
+                    FxRate = fxrate,
+                    Value = moneyUSD * -1,
                     GeneratedBy = "system",
                     Fund = element.Fund,
                 };
@@ -39,7 +54,9 @@ namespace PostingEngine.PostingRules
                     Source = element.LpOrderId,
                     Account = accountToFrom.To,
                     When = env.ValueDate,
-                    Value = element.NetMoney,
+                    FxCurrency = element.SettleCurrency,
+                    FxRate = fxrate,
+                    Value = moneyUSD,
                     GeneratedBy = "system",
                     Fund = element.Fund,
                 };
@@ -56,9 +73,9 @@ namespace PostingEngine.PostingRules
             var listOfFromTags = new List<Tag> {
              };
 
-            var listOfToTags = new List<Tag> {
-                Tag.Find("CustodianCode"),
-             };
+            var listOfToTags = new List<Tag>
+            {
+            };
 
             var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("LONG POSITIONS AT COST")).FirstOrDefault(), listOfFromTags, element);
 
@@ -78,11 +95,11 @@ namespace PostingEngine.PostingRules
 
             var listOfFromTags = new List<Tag>
             {
-                Tag.Find("CustodianCode"),
+                //Tag.Find("CustodianCode"),
             };
 
             var listOfToTags = new List<Tag> {
-                Tag.Find("CustodianCode"),
+                //Tag.Find("CustodianCode"),
              };
 
             var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfFromTags, element);
@@ -103,29 +120,57 @@ namespace PostingEngine.PostingRules
             new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
             new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
 
+            double fxrate = 1.0;
+
+            // Lets get fx rate if needed
+            if ( !element.TradeCurrency.Equals("USD"))
+            {
+                fxrate = Convert.ToDouble(env.FxRates[element.TradeCurrency].Rate);
+            }
+
             if (element.NetMoney != 0.0)
             {
-                var debit = new Journal
-                {
-                    Source = element.LpOrderId,
-                    Account = accountToFrom.From,
-                    When = env.ValueDate,
-                    Value = element.NetMoney * -1,
-                    GeneratedBy = "system",
-                    Fund = element.Fund,
-                };
+                var moneyUSD = (element.NetMoney / fxrate);
 
-                var credit = new Journal
+                if ( element.Side.ToLower().Equals("buy"))
                 {
-                    Source = element.LpOrderId,
-                    Account = accountToFrom.To,
-                    When = env.ValueDate,
-                    Value = element.NetMoney,
-                    GeneratedBy = "system",
-                    Fund = element.Fund,
-                };
+                    var debit = new Journal
+                    {
+                        Source = element.LpOrderId,
+                        Account = accountToFrom.From,
+                        When = env.ValueDate,
+                        Value = moneyUSD * -1,
+                        FxCurrency = element.TradeCurrency,
+                        FxRate = fxrate,
+                        GeneratedBy = "system",
+                        Fund = element.Fund,
+                    };
 
-                new Journal[] { debit, credit }.Save(env);
+                    var credit = new Journal
+                    {
+                        Source = element.LpOrderId,
+                        Account = accountToFrom.To,
+                        When = env.ValueDate,
+                        FxCurrency = element.TradeCurrency,
+                        FxRate = fxrate,
+                        Value = moneyUSD,
+                        GeneratedBy = "system",
+                        Fund = element.Fund,
+                    };
+
+                    new Journal[] { debit, credit }.Save(env);
+                }
+                else if (element.Side.ToLower().Equals("sell"))
+                {
+
+                }
+                else if (element.Side.ToLower().Equals("short"))
+                {
+
+                }
+                else if (element.Side.ToLower().Equals("cover"))
+                {
+                }
             }
         }
     }
