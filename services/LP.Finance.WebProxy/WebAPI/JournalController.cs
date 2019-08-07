@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using LP.Finance.Common.Models;
 using System.Linq;
+using LP.Finance.Common.Dtos;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -18,6 +19,8 @@ namespace LP.Finance.WebProxy.WebAPI
     {
         object Data(string symbol, int pageNumber, int pageSize, string sortColum = "id", string sortDirection = "asc",
             int accountId = 0, int value = 0);
+
+        object AddJournal(JournalInputDto journal);
     }
 
     public class JournalControllerStub : IJournalController
@@ -26,6 +29,11 @@ namespace LP.Finance.WebProxy.WebAPI
             string sortDirection = "asc", int accountId = 0, int value = 0)
         {
             return Utils.GetFile("journals");
+        }
+
+        public object AddJournal(JournalInputDto journal)
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -59,6 +67,75 @@ namespace LP.Finance.WebProxy.WebAPI
             }
 
             return result;
+        }
+
+        public object AddJournal(JournalInputDto journal)
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+            try
+            {
+                sqlHelper.VerifyConnection();
+                sqlHelper.SqlBeginTransaction();
+
+                var source = Guid.NewGuid().ToString().ToLower();
+                var when = DateTime.Now.ToString("MM-dd-yyyy");
+                var fxCurrency = "USD";
+                var fxRate = "1.000000000";
+                var generatedBy = "user";
+
+                List<SqlParameter> accountFromParameters = new List<SqlParameter>
+                {
+                    new SqlParameter("accountId", journal.AccountFrom),
+                    new SqlParameter("value", (journal.Value * -1)),
+                    new SqlParameter("source", source),
+                    new SqlParameter("when", when),
+                    new SqlParameter("fxCurrency", fxCurrency),
+                    new SqlParameter("fxRate", fxRate),
+                    new SqlParameter("fund", journal.Fund),
+                    new SqlParameter("generatedBy", generatedBy)
+                };
+
+                List<SqlParameter> accountToParameters = new List<SqlParameter>
+                {
+                    new SqlParameter("accountId", journal.AccountTo),
+                    new SqlParameter("value", journal.Value),
+                    new SqlParameter("source", source),
+                    new SqlParameter("when", when),
+                    new SqlParameter("fxCurrency", fxCurrency),
+                    new SqlParameter("fxRate", fxRate),
+                    new SqlParameter("fund", journal.Fund),
+                    new SqlParameter("generatedBy", generatedBy)
+                };
+
+                var accountFromQuery = $@"INSERT INTO [journal]
+                                    ([account_id], [value], [source], [when], [fx_currency]
+                                    ,[fxrate], [fund], [generated_by])
+                                    VALUES
+                                    (@accountId, @value, @source, @when, @fxCurrency
+                                    ,@fxRate, @fund, @generatedBy)";
+
+                var accountToQuery = $@"INSERT INTO [journal]
+                                    ([account_id], [value], [source], [when], [fx_currency]
+                                    ,[fxrate], [fund], [generated_by])
+                                    VALUES
+                                    (@accountId, @value, @source, @when, @fxCurrency
+                                    ,@fxRate, @fund, @generatedBy)";
+
+                sqlHelper.Insert(accountFromQuery, CommandType.Text, accountFromParameters.ToArray());
+                sqlHelper.Insert(accountToQuery, CommandType.Text, accountToParameters.ToArray());
+
+                sqlHelper.SqlCommitTransaction();
+                sqlHelper.CloseConnection();
+            }
+            catch (Exception ex)
+            {
+                sqlHelper.SqlRollbackTransaction();
+                sqlHelper.CloseConnection();
+                Console.WriteLine($"SQL Rollback Transaction Exception: {ex}");
+                return Utils.Wrap(false);
+            }
+
+            return Utils.Wrap(true);
         }
 
         private object AllData(int pageNumber, int pageSize, string sortColum = "id", string sortDirection = "asc",
@@ -161,7 +238,7 @@ namespace LP.Finance.WebProxy.WebAPI
                 query = query + "   OFFSET(@pageNumber -1) * @pageSize ROWS FETCH NEXT @pageSize  ROWS ONLY";
             }
 
-            query = query + " ) as d";
+            query = query + " ) as d ORDER BY  [d].[id] desc";
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
 
             var result = GetTransactions(tradesURL);
@@ -170,18 +247,19 @@ namespace LP.Finance.WebProxy.WebAPI
             var elements = JsonConvert.DeserializeObject<Transaction[]>(result.Result);
 
             var proeprties = typeof(Transaction).GetProperties();
-            foreach( var prop in proeprties)
+            foreach (var prop in proeprties)
             {
                 dataTable.Columns.Add(prop.Name, prop.PropertyType);
             }
 
             metaData.Columns = new List<ColumnDef>();
-            foreach( DataColumn col in dataTable.Columns)
+            foreach (DataColumn col in dataTable.Columns)
             {
                 metaData.Columns.Add(new ColumnDef
                 {
                     filter = true,
-                    headerName = col.ColumnName, // This will be driven by a data dictionary that will provide the write names in the System
+                    headerName =
+                        col.ColumnName, // This will be driven by a data dictionary that will provide the write names in the System
                     field = col.ColumnName,
                     Type = col.DataType.ToString()
                 });
@@ -192,7 +270,7 @@ namespace LP.Finance.WebProxy.WebAPI
                 var dataRow = element as DataRow;
 
                 var found = elements.Where(e => e.LpOrderId == dataRow["source"].ToString()).FirstOrDefault();
-                if ( found != null )
+                if (found != null)
                 {
                     // Copy data to the row
 
@@ -200,7 +278,6 @@ namespace LP.Finance.WebProxy.WebAPI
                     {
                         dataRow[prop.Name] = prop.GetValue(found);
                     }
-
                 }
             }
 
@@ -295,6 +372,14 @@ namespace LP.Finance.WebProxy.WebAPI
             string sortDirection = "asc", int accountId = 0, int value = 0)
         {
             return controller.Data(refdata, pageNumber, pageSize, sortColum, sortDirection, accountId, value);
+        }
+
+        [HttpPost]
+        public object AddJournal(JournalInputDto journal)
+        {
+            return !ModelState.IsValid || journal == null
+                ? BadRequest(ModelState)
+                : controller.AddJournal(journal);
         }
     }
 }
