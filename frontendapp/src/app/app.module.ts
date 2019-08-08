@@ -78,9 +78,8 @@ import { JournalModalComponent } from './main/ag-grid-example/journal-modal/jour
   imports: [
     BrowserModule,
     AgGridModule.withComponents([
-      TemplateRendererComponent,
+      TemplateRendererComponent
     ]),
-    AgGridModule.withComponents([]),
     NgxDaterangepickerMd.forRoot(),
     AppRoutingModule,
     TableModule,

@@ -4,7 +4,7 @@ import {
 } from '@angular/core';
 import { ModalDirective } from "ngx-bootstrap";
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
-import { GridOptions } from "ag-grid-community";
+import { GridOptions, IToolPanel } from "ag-grid-community";
 import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
 import { ToastrService } from "ngx-toastr";
 import "ag-grid-enterprise";
@@ -39,6 +39,7 @@ export class AgGridExampleComponent implements OnInit {
   private ledgerRowData: [];
   private selectedValue;
   private columns: any;
+
   layoutName:any;
   totalRecords: number;
   rowGroupPanelShow: any;
@@ -98,7 +99,7 @@ export class AgGridExampleComponent implements OnInit {
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 270px)',
+    height: 'calc(100vh - 300px)',
     boxSizing: 'border-box'
   };
 
@@ -117,7 +118,8 @@ export class AgGridExampleComponent implements OnInit {
   
   constructor(injector: Injector,
     private cdRef: ChangeDetectorRef,
-    private _fundsService: FinancePocServiceProxy, private toastrService: ToastrService) {
+    private _fundsService: FinancePocServiceProxy, private toastrService: ToastrService
+    ) {
     (injector);
     
    
@@ -145,6 +147,7 @@ export class AgGridExampleComponent implements OnInit {
 
     this.gridOptions = <GridOptions>{
       rowData: null,
+      onCellDoubleClicked: this.openEditModal,
 
       /*      onFilterChanged: function() {  
       
@@ -255,7 +258,6 @@ export class AgGridExampleComponent implements OnInit {
 
     this.ledgerGridOptions = <GridOptions>{
       rowData: null,
-
       /*      onFilterChanged: function() {  
       
               this.gridOptions.api.forEachNodeAfterFilter( function(rowNode, index) {
@@ -506,7 +508,6 @@ export class AgGridExampleComponent implements OnInit {
       }
     }
 
-    debugger;
 
     this.gridOptions.api.setColumnDefs(cdefs);
   }
@@ -588,7 +589,6 @@ export class AgGridExampleComponent implements OnInit {
         this.rowData = [];
         this.ledgerRowData = [];
 
-        debugger
 
         let someArray = [];
 
@@ -667,7 +667,6 @@ export class AgGridExampleComponent implements OnInit {
           when: moment(item.when).format("MM-DD-YYYY")
         }));
 
-        debugger
 
         this.ledgerGridOptions.rowData = this.ledgerRowData;
 
@@ -701,7 +700,6 @@ export class AgGridExampleComponent implements OnInit {
   getLayout()
 {
   this._fundsService.getGridLayouts(1,1).subscribe(result => {
-    debugger;
     let gridLayout = result.payload.map(item => ({
       FundCode: item.oDataGridStatusDto,
     }));
@@ -755,7 +753,6 @@ export class AgGridExampleComponent implements OnInit {
   }
   onCreateNew()
   {
-    debugger;
     this.layoutName="";
     this.modal.show(); 
     return;
@@ -805,7 +802,6 @@ export class AgGridExampleComponent implements OnInit {
 
   this._fundsService.SaveDataGridState(this.oDataGridStatusDto).subscribe(
     response => {
-      debugger;
       if (response.isSuccessful) {
         this.toastrService.success("Status saved successfully!");
         this.closeModal();
@@ -822,12 +818,10 @@ export class AgGridExampleComponent implements OnInit {
   }
   RestoreLayout(e)
   {
-    debugger;
     if (e > 0){
     this.gridLayoutID = e;
      this._fundsService.GetAGridLayout(e)
      .subscribe(response => {
-       debugger;
         
        this.gridOptions.columnApi.setColumnState(JSON.parse(response.payload.ColumnState) );
        this.gridOptions.columnApi.setPivotMode(JSON.parse(response.payload.PivotMode) );
@@ -843,9 +837,7 @@ export class AgGridExampleComponent implements OnInit {
   onRestore() {
 
     this._fundsService.getDataGridStatus(1)
-    .subscribe(response => {
-      debugger;
-       
+    .subscribe(response => {       
       this.gridOptions.columnApi.setColumnState(JSON.parse(response.payload.ColumnState) );
       this.gridOptions.columnApi.setPivotMode(JSON.parse(response.payload.PivotMode) );
       this.gridOptions.columnApi.setColumnGroupState(JSON.parse(response.payload.GroupState) );
@@ -898,7 +890,6 @@ export class AgGridExampleComponent implements OnInit {
 
     if (result === true) {
       if (this.fund) {
-        debugger
         let cellFund = node.data.Fund;
         result = this.fund === cellFund;
       }
@@ -931,12 +922,15 @@ export class AgGridExampleComponent implements OnInit {
   }
 
   openJournalModal(){
-    this.jounalModal.openModal()
+    this.jounalModal.openModal({})
   }
 
    closeJournalModal(){
-    console.log('closeJournalModal')
     this.getAllData()
+  }
+
+  openEditModal = (row) => {
+    this.jounalModal.openModal(row.data)
   }
 }
 
@@ -957,3 +951,4 @@ function formatNumber(number) {
     .toString()
     .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 }
+
