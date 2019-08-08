@@ -51,5 +51,34 @@ namespace LP.Finance.Common.Mappers
 
             return accountOutputDto;
         }
+
+        public JournalOutputDto MapJournal(IDataReader reader)
+        {
+            var journalOutputDto = new JournalOutputDto
+            {
+                Source = reader["source"].ToString(),
+                When = reader["when"].ToString(),
+                FxCurrency = reader["fx_currency"].ToString(),
+                FxRate = Convert.ToDecimal(reader["fxrate"]),
+                Fund = reader["fund"].ToString(),
+                GeneratedBy = reader["generated_by"].ToString(),
+                JournalAccounts = new List<JournalAccountOutputDto>
+                {
+                    new JournalAccountOutputDto
+                    {
+                        JournalId = Convert.ToInt32(reader["id"]),
+                        AccountFromId = Convert.ToDecimal(reader["value"]) < 0
+                            ? Convert.ToInt32(reader["account_id"])
+                            : (int?) null,
+                        AccountToId = Convert.ToDecimal(reader["value"]) > 0
+                            ? Convert.ToInt32(reader["account_id"])
+                            : (int?) null,
+                        Value = Convert.ToDecimal(reader["value"])
+                    }
+                }
+            };
+
+            return journalOutputDto;
+        }
     }
 }
