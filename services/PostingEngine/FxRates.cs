@@ -23,7 +23,7 @@ namespace PostingEngine
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["PriceMasterDB"].ToString();
 
-        private readonly bool Mock = true;
+        private readonly bool Mock = false;
 
         public Dictionary<string, FxRate> Get(DateTime now)
         {
