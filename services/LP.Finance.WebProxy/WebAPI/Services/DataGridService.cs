@@ -156,7 +156,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                      
                 };
 
-            var query = $@" SELECT [id]  ,[grid_name] ,[grid_layout_name] ,[grid_id], [is_public]
+            var query = $@" SELECT [id]  ,[grid_name] ,[grid_layout_name] ,[grid_id], isnull([is_public],0) as [is_public] 
                                   FROM [dbo].[data_grid_layouts] where grid_id = @gridId and userid = @userId";
              
            

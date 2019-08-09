@@ -58,7 +58,7 @@ export class AgGridExampleComponent implements OnInit {
   filterChange: any;
   oDataGridStatusDto:any;
   gridLayouts:any;
-  gridLayoutID :any= 0;
+   
   rowSelection:string = "single";
 
   //topOptions = {alignedGrids: [], suppressHorizontalScroll: true};

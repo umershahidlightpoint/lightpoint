@@ -16,7 +16,7 @@ import { DataService } from "../../shared/common/data.service";
 export class GridLayoutMenuComponent implements IToolPanel{
   private params: IToolPanelParams;
   test:string; 
- public gridLayoutID :any;
+ public gridLayoutID :any=0;
  public gridpppppp :any;
  layoutName:any;
  canUpdateLayout: any
@@ -55,14 +55,12 @@ export class GridLayoutMenuComponent implements IToolPanel{
     console.log('successfully executed.');
     this.test = 'Me';
 }
-
+ 
     getLayout():void
   {
     this._FinanceService.getGridLayouts(1,1).subscribe(result => {
       
-      let gridLayout = result.payload.map(item => ({
-        FundCode: item.oDataGridStatusDto,
-      }));
+       
       
       this.gridLayouts = result.payload;
       this.cdRef.detectChanges();
@@ -75,10 +73,19 @@ export class GridLayoutMenuComponent implements IToolPanel{
   {
     console.log('e ==>',e)
     if (e){
-    this.canUpdateLayout = e.IsPublic
-    console.log('this.canUpdateLayout',this.canUpdateLayout)
+    //this.canUpdateLayout = e.IsPublic
+     
+   for(var i=0;i < this.gridLayouts.length ; i++)
+            {
+              if(this.gridLayouts[ i].Id == e) 
+              {
+                this.canUpdateLayout = this.gridLayouts[ i].IsPublic;
+              } 
+            }
+            debugger;
+ 
     this.gridLayoutID = e;
-    this._FinanceService.GetAGridLayout(e.Id)
+    this._FinanceService.GetAGridLayout(e)
     .subscribe(response => {
       
        
@@ -109,7 +116,7 @@ public onSaveState(gridLayout_ID) {
     
 
     let oDataGridStatusDto = {
-     Id: gridLayout_ID.Id,
+     Id: gridLayout_ID,
      GridId: GridName.Journal,
      GridLayoutName: this.layoutName,
      IsPublic: this.isPublic,
