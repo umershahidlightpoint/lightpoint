@@ -374,7 +374,6 @@ export class TrialGridExampleComponent implements OnInit {
       }
     }
 
-    debugger;
 
     this.gridOptions.api.setColumnDefs(cdefs);
   }
@@ -570,8 +569,7 @@ export class TrialGridExampleComponent implements OnInit {
     }
 
     if (result === true) {
-      if (this.fund) {
-        debugger
+      if (this.fund) {      
         let cellFund = node.data.Fund;
         result = this.fund === cellFund;
       }

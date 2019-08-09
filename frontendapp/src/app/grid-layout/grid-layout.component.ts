@@ -23,7 +23,7 @@ export class GridLayoutComponent implements OnInit {
       @ViewChild("modal") modal: ModalDirective;
   ngOnInit() {
       this.getLayout();
-      debugger;
+    
       // this.DataService.gridColumnApi.subscribe(obj => obj = this.gridOptions)
       // this.DataService.changeMessage(this.gridOptions );
       // let dsf= this.DataService.gridColumnApi ;
@@ -34,7 +34,7 @@ export class GridLayoutComponent implements OnInit {
  public getLayout()
   {
     this._FinanceService.getGridLayouts(1,1).subscribe(result => {
-      debugger;
+      
       let gridLayout = result.payload.map(item => ({
         FundCode: item.oDataGridStatusDto,
       }));
@@ -45,12 +45,12 @@ export class GridLayoutComponent implements OnInit {
   }
   public RestoreLayout(e)
           {
-            debugger;
+           
             if (e > 0){
             this.gridLayoutID = e;
             this._FinanceService.GetAGridLayout(e)
             .subscribe(response => {
-              debugger;
+              
                 
               this.gridOptions.columnApi.setColumnState(JSON.parse(response.payload.ColumnState) );
               this.gridOptions.columnApi.setPivotMode(JSON.parse(response.payload.PivotMode) );
@@ -85,7 +85,7 @@ export class GridLayoutComponent implements OnInit {
 
            this._FinanceService.SaveDataGridState(oDataGridStatusDto).subscribe(
             response => {
-              debugger;
+              
               if (response.isSuccessful) {
                 this.toastrService.success("Status saved successfully!");
                this. getLayout();
@@ -113,7 +113,7 @@ export class GridLayoutComponent implements OnInit {
 
           onCreateNew()
           {
-            debugger;
+            
             this.layoutName="";
             this.modal.show(); 
             return;

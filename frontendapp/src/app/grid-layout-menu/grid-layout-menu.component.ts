@@ -19,6 +19,12 @@ export class GridLayoutMenuComponent implements IToolPanel{
  public gridLayoutID :any;
  public gridpppppp :any;
  layoutName:any;
+ canUpdateLayout: any
+ isPublic: boolean = false
+ isNewLayout: boolean = false
+
+ public:boolean
+ 
  gridLayouts :any;
  @Input("gridOptionsss") gridOptionsss: any;
  
@@ -31,11 +37,10 @@ export class GridLayoutMenuComponent implements IToolPanel{
    
   agInit(params: IToolPanelParams): void {
   this.params = params;
-debugger;
-   
-  debugger;
-    this.params.api.addEventListener('modelUpdated', this.getLayout.bind(this));
-    this.DataService.gridColumnApi.subscribe(obj => this.gridOptionsss = obj)
+ 
+  
+  this.params.api.addEventListener('modelUpdated', this.getLayout.bind(this));
+  this.DataService.gridColumnApi.subscribe(obj => this.gridOptionsss = obj)
   //let dsf= this.DataService.gridColumnApi ;
   }
   // ngOnChanges(){
@@ -54,7 +59,7 @@ debugger;
     getLayout():void
   {
     this._FinanceService.getGridLayouts(1,1).subscribe(result => {
-      debugger;
+      
       let gridLayout = result.payload.map(item => ({
         FundCode: item.oDataGridStatusDto,
       }));
@@ -68,12 +73,14 @@ debugger;
    
   public RestoreLayout(e)
   {
-    debugger;
-    if (e > 0){
+    console.log('e ==>',e)
+    if (e){
+    this.canUpdateLayout = e.IsPublic
+    console.log('this.canUpdateLayout',this.canUpdateLayout)
     this.gridLayoutID = e;
-    this._FinanceService.GetAGridLayout(e)
+    this._FinanceService.GetAGridLayout(e.Id)
     .subscribe(response => {
-      debugger;
+      
        
       this.gridOptionsss.columnApi.setColumnState(JSON.parse(response.payload.ColumnState) );
       this.gridOptionsss.columnApi.setPivotMode(JSON.parse(response.payload.PivotMode) );
@@ -87,16 +94,25 @@ debugger;
     }
   }
   onEditSave()
-        {
-          this.onSaveState(this.gridLayoutID);
-        }
-public   onSaveState(gridLayout_ID) {
+    {
+      if(this.canUpdateLayout){
+        this.toastrService.error("Public Gridlayouts are not editable!");
+      }
+      else {
+        this.onSaveState(this.gridLayoutID);
+      }      
+    }
+public onSaveState(gridLayout_ID) {
 
+    console.log('isPublic',this.isPublic)
+    console.log('layoutName',this.layoutName)
+    
 
     let oDataGridStatusDto = {
-     Id: gridLayout_ID,
-     GridId:GridName.Journal,
-     GridLayoutName:this.layoutName,
+     Id: gridLayout_ID.Id,
+     GridId: GridName.Journal,
+     GridLayoutName: this.layoutName,
+     IsPublic: this.isPublic,
      UserId: 1,
      GridName: 'Journal',
      PivotMode : JSON.stringify(this.gridOptionsss.columnApi.isPivotMode()),
@@ -108,12 +124,13 @@ public   onSaveState(gridLayout_ID) {
 
    this._FinanceService.SaveDataGridState(oDataGridStatusDto).subscribe(
     response => {
-      debugger;
+      
       if (response.isSuccessful) {
         this.toastrService.success("Status saved successfully!");
-       this. getLayout();
+        this. getLayout();
+        this.isNewLayout = false
         this.closeModal();
-    this.getLayout();
+        this.getLayout();
       } else {
         this.toastrService.error("Failed to save status!");
       }
@@ -130,15 +147,17 @@ public   onSaveState(gridLayout_ID) {
     {
       this.toastrService.error("Please enter name");
     }
-     
+
     this.onSaveState(0);
   }
 
+
+
   onCreateNew()
   {
-    debugger;
+    this.isNewLayout = !this.isNewLayout
     this.layoutName="";
-    this.modal.show(); 
+    //this.modal.show(); 
     return;
 
   }

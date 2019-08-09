@@ -444,7 +444,6 @@ export class AgGridExampleComponent implements OnInit {
       resizable: true,
       filter: true
     };
-    debugger;
     this.frameworkComponents = { customToolPanel : GridLayoutMenuComponent  };
   //  this.frameworkComponents.customToolPanel.ngBaseDef.inputs.gridOptions = this.gridOptions;
     //this.frameworkComponents[0].gridOptions = this.gridOptions;
@@ -907,7 +906,6 @@ export class AgGridExampleComponent implements OnInit {
 
   public clearFilters() {
  
-    debugger;
     let dafsdf =this.journalGrid.frameworkComponents.customToolPanel.ngBaseDef;
     this.gridOptions.api.redrawRows();
     this.DateRangeLable = "";
