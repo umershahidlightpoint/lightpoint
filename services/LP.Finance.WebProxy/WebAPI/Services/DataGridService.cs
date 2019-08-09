@@ -37,34 +37,31 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                             new SqlParameter("column_state", oDataGridStatusDto.ColumnState),
                             new SqlParameter("group_state", oDataGridStatusDto.GroupState),
                             new SqlParameter("sort_state", oDataGridStatusDto.SortState),
-                            new SqlParameter("filter_state", oDataGridStatusDto.FilterState)
+                            new SqlParameter("filter_state", oDataGridStatusDto.FilterState),
                         };
 
                     DataGridInsert = new StringBuilder(
-                       $@"  UPDATE [data_grid_layouts] SET [pivot_mode]  = @pivot_mode,[column_state]= @column_state  
-                                                               ,[group_state]  = @group_state ,[sort_state] = @sort_state
-                                                               ,[filter_state] = @filter_state 
-                                              WHERE  id= @id  ;
-                                                 SELECT   @@ROWCOUNT ; ");
-
+                       $@"UPDATE [data_grid_layouts] 
+                        SET [pivot_mode] = @pivot_mode,[column_state]= @column_state  
+                        ,[group_state]  = @group_state ,[sort_state] = @sort_state
+                        ,[filter_state] = @filter_state
+                        WHERE  id= @id; SELECT   @@ROWCOUNT;");
                 }
                 else
                 {
                     DataGridParameters = new List<SqlParameter>
                        {
-                                 new SqlParameter("id", oDataGridStatusDto.Id),
+                                new SqlParameter("id", oDataGridStatusDto.Id),
                                 new SqlParameter("gridId", oDataGridStatusDto.GridId),
                                 new SqlParameter("grid_name", oDataGridStatusDto.GridName),
-
                                 new SqlParameter("grid_layout_name", oDataGridStatusDto.GridLayoutName),
-
-
                                 new SqlParameter("userId", oDataGridStatusDto.UserId),
                                 new SqlParameter("pivot_mode", oDataGridStatusDto.PivotMode),
                                 new SqlParameter("column_state", oDataGridStatusDto.ColumnState),
                                 new SqlParameter("group_state", oDataGridStatusDto.GroupState),
                                 new SqlParameter("sort_state", oDataGridStatusDto.SortState),
-                                new SqlParameter("filter_state", oDataGridStatusDto.FilterState)
+                                new SqlParameter("filter_state", oDataGridStatusDto.FilterState),
+                                new SqlParameter("is_public", oDataGridStatusDto.IsPublic ? 1 : 0)
                        };
                     DataGridInsert = new StringBuilder(
                        $@"  INSERT INTO  [data_grid_layouts]
@@ -77,6 +74,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                                                         ,[sort_state] 
                                                                         ,[filter_state]
                                                                         ,[grid_layout_name]
+                                                                        ,[is_public]
                                                                          )
                                                                         VALUES
                                                                         (@grid_name
@@ -87,7 +85,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                                                         ,@group_state
                                                                         ,@sort_state
                                                                         ,@filter_state
-                                                                        ,@grid_layout_name);
+                                                                        ,@grid_layout_name
+                                                                        ,@is_public);
                                                                         SELECT SCOPE_IDENTITY() AS 'Identity' 
                                                                           ");
 
@@ -157,7 +156,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                      
                 };
 
-            var query = $@" SELECT [id]  ,[grid_name] ,[grid_layout_name] ,[grid_id]
+            var query = $@" SELECT [id]  ,[grid_name] ,[grid_layout_name] ,[grid_id], isnull([is_public],0) as [is_public] 
                                   FROM [dbo].[data_grid_layouts] where grid_id = @gridId and userid = @userId";
              
            
@@ -174,6 +173,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     oDataGridStatusDto.GridName = reader["grid_name"].ToString();
                     oDataGridStatusDto.GridId = Convert.ToInt32(reader["grid_id"]);
                     oDataGridStatusDto.GridLayoutName = reader["grid_layout_name"].ToString();
+                    oDataGridStatusDto.IsPublic = Convert.ToBoolean(reader["is_public"]);
                     lDataGridStatusDto.Add(oDataGridStatusDto);
                 }
 

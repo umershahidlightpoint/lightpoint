@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+
 namespace LP.Finance.Common.Dtos
 {
     enum GridName
@@ -22,7 +18,7 @@ namespace LP.Finance.Common.Dtos
         public string GroupState { get; set; }
         public string SortState { get; set; }
         public string FilterState { get; set; }
-
         public string GridLayoutName { get; set; }
+        public bool IsPublic { get; set; }
     }
 }
