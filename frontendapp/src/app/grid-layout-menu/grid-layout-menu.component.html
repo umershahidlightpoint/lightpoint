@@ -2,7 +2,7 @@
     <span ref="eText" class="ag-header-cell-text">
     </span>
 </div>
-<div class="row mx-auto form-group"  *ngIf="!isNewLayout" >
+<div class="row mx-auto form-group"    *ngIf="!isNewLayout" >
     <select class="form-control" [(ngModel)]="gridLayoutID" (ngModelChange)="RestoreLayout($event)">
         <option [ngValue]="0" selected>Select layout</option>
         <option *ngFor="let l of gridLayouts" [ngValue]="l.Id">
