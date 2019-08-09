@@ -75,7 +75,7 @@ export class AgGridExampleComponent implements OnInit {
   @ViewChild('divToMeasureLedger') divToMeasureElementLedger: ElementRef;
   @ViewChild("modal") modal: ModalDirective;
   @ViewChild('journalModal') jounalModal: JournalModalComponent;
-  @ViewChild('AppGridLayout') AppGridLayout: GridLayoutComponent;
+  // @ViewChild('AppGridLayout') AppGridLayout: GridLayoutComponent;
 
    
 
@@ -605,7 +605,7 @@ export class AgGridExampleComponent implements OnInit {
   ngAfterViewInit(){
     this.getAllData();
      
- this.AppGridLayout.gridOptions=this.gridOptions ;
+  // this.AppGridLayout.gridOptions=this.gridOptions ;
 
  this.dataService.gridColumnApi.subscribe(obj => obj = this.gridOptions)
       this.dataService.changeMessage(this.gridOptions );
@@ -896,12 +896,12 @@ export class AgGridExampleComponent implements OnInit {
     return result;
   }
 
-  public restoreLayout(id)
-  {
+  // public restoreLayout(id)
+  // {
 
-    this.AppGridLayout.RestoreLayout(id);
+  //   this.AppGridLayout.RestoreLayout(id);
 
-  }
+  // }
 
   public clearFilters() {
  
