@@ -42,6 +42,11 @@ export class FinancePocServiceProxy {
         return this.http.put(url, data).pipe(map((response: any) => response));        
     }
 
+    deleteJournal(source){
+        const url = this.baseUrl + '/journal/'+source;
+        return this.http.delete(url).pipe(map((response: any) => response));        
+    }
+
     getJournals(symbal : any,pageNumber : any| null | undefined, pageSize  : any| null | undefined,
         accountId : any| null | undefined,valueFilter : any| null | undefined, 
         sortColum : any| null | undefined,sortDirection: any| null | undefined) {

@@ -75,7 +75,7 @@ export class AgGridExampleComponent implements OnInit {
   @ViewChild('divToMeasureLedger') divToMeasureElementLedger: ElementRef;
   @ViewChild("modal") modal: ModalDirective;
   @ViewChild('journalModal') jounalModal: JournalModalComponent;
-  @ViewChild('AppGridLayout') AppGridLayout: GridLayoutComponent;
+  // @ViewChild('AppGridLayout') AppGridLayout: GridLayoutComponent;
 
    
 
@@ -87,7 +87,7 @@ export class AgGridExampleComponent implements OnInit {
   totalDebit: number;
   bottomData: any;
   startDate: any;
-  fund: any;
+  fund: any = 'All Funds';
   endDate: any;
 
   symbol: string;
@@ -110,7 +110,7 @@ export class AgGridExampleComponent implements OnInit {
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 300px)',
+    height: 'calc(100vh - 260px)',
     boxSizing: 'border-box'
   };
  
@@ -605,7 +605,7 @@ export class AgGridExampleComponent implements OnInit {
   ngAfterViewInit(){
     this.getAllData();
      
- this.AppGridLayout.gridOptions=this.gridOptions ;
+  // this.AppGridLayout.gridOptions=this.gridOptions ;
 
  this.dataService.gridColumnApi.subscribe(obj => obj = this.gridOptions)
       this.dataService.changeMessage(this.gridOptions );
@@ -665,7 +665,6 @@ export class AgGridExampleComponent implements OnInit {
     this.sortColum = "";
     this.sortDirection = "";
     this._fundsService.getFunds().subscribe(result => {
-
       let localfunds = result.payload.map(item => ({
         FundCode: item.FundCode,
       }));
@@ -888,7 +887,7 @@ export class AgGridExampleComponent implements OnInit {
     }
 
     if (result === true) {
-      if (this.fund) {
+      if (this.fund !== 'All Funds' ) {
         let cellFund = node.data.Fund;
         result = this.fund === cellFund;
       }
@@ -897,12 +896,12 @@ export class AgGridExampleComponent implements OnInit {
     return result;
   }
 
-  public restoreLayout(id)
-  {
+  // public restoreLayout(id)
+  // {
 
-    this.AppGridLayout.RestoreLayout(id);
+  //   this.AppGridLayout.RestoreLayout(id);
 
-  }
+  // }
 
   public clearFilters() {
  
