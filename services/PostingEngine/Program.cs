@@ -54,7 +54,7 @@ namespace ConsoleApp1
                 //var count = RunAsync(connection, transaction, postingEnv, allocationsURL).GetAwaiter().GetResult();
                 var count = 0;
                 sw.Stop();
-                new JournalLog() { Action = $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms processing {count} records", ActionOn = DateTime.Now }.Save(connection, transaction);
+                //new JournalLog() { Action = $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms processing {count} records", ActionOn = DateTime.Now }.Save(connection, transaction);
 
 
                 new JournalLog() { Action = "Starting Batch Posting Engine -- Trades", ActionOn = DateTime.Now }.Save(connection, transaction);
@@ -64,6 +64,12 @@ namespace ConsoleApp1
                 count = RunAsync(connection, transaction, postingEnv, tradesURL).GetAwaiter().GetResult();
                 sw.Stop();
                 new JournalLog() { Action = $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms", ActionOn = DateTime.Now }.Save(connection, transaction);
+
+                // Save the messages accumulated during the Run
+                foreach(var message in postingEnv.Messages)
+                {
+                    new JournalLog() { Action = $" Error : {message.Key}, Count : {message.Value}", ActionOn = DateTime.Now }.Save(connection, transaction);
+                }
 
                 transaction.Commit();
 
