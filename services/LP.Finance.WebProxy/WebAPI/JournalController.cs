@@ -12,6 +12,7 @@ using System.Net.Http;
 using LP.Finance.Common.Models;
 using System.Linq;
 using LP.Finance.Common.Dtos;
+using LP.Finance.Common.Mappers;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -20,7 +21,10 @@ namespace LP.Finance.WebProxy.WebAPI
         object Data(string symbol, int pageNumber, int pageSize, string sortColum = "id", string sortDirection = "asc",
             int accountId = 0, int value = 0);
 
+        object GetJournal(Guid source);
         object AddJournal(JournalInputDto journal);
+        object UpdateJournal(Guid source, JournalInputDto journal);
+        object DeleteJournal(Guid source);
     }
 
     public class JournalControllerStub : IJournalController
@@ -31,7 +35,22 @@ namespace LP.Finance.WebProxy.WebAPI
             return Utils.GetFile("journals");
         }
 
+        public object GetJournal(Guid source)
+        {
+            throw new NotImplementedException();
+        }
+
         public object AddJournal(JournalInputDto journal)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object UpdateJournal(Guid source, JournalInputDto journal)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object DeleteJournal(Guid source)
         {
             throw new NotImplementedException();
         }
@@ -47,6 +66,7 @@ namespace LP.Finance.WebProxy.WebAPI
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
         public SqlHelper sqlHelper = new SqlHelper(ConfigurationManager.ConnectionStrings["FinanceDB"].ToString());
+        private readonly EntityMapper mapper = new EntityMapper();
 
         public object Data(string symbol, int pageNumber, int pageSize, string sortColum = "id",
             string sortDirection = "asc", int accountId = 0, int value = 0)
@@ -67,6 +87,55 @@ namespace LP.Finance.WebProxy.WebAPI
             }
 
             return result;
+        }
+
+        public object GetJournal(Guid source)
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+            {
+                new SqlParameter("source", source.ToString())
+            };
+
+            var query = $@"SELECT [id]
+                        ,[account_id] 
+                        ,[value]
+                        ,[source]
+                        ,[when]
+                        ,[fx_currency]
+                        ,[fxrate]
+                        ,[fund]
+                        ,[generated_by] 
+                        FROM [journal]
+                        WHERE [journal].[source] = @source";
+
+            List<JournalOutputDto> journal = new List<JournalOutputDto>();
+            using (var reader =
+                sqlHelper.GetDataReader(query, CommandType.Text, sqlParameters.ToArray(), out var sqlConnection))
+            {
+                while (reader.Read())
+                {
+                    journal.Add(mapper.MapJournal(reader));
+                }
+
+                reader.Close();
+                sqlConnection.Close();
+            }
+
+            var result = journal.GroupBy(journals => journals.Source)
+                .Select(group => new JournalOutputDto
+                {
+                    Source = group.Key,
+                    When = group.FirstOrDefault()?.When,
+                    FxCurrency = group.FirstOrDefault()?.FxCurrency,
+                    FxRate = group.FirstOrDefault()?.FxRate,
+                    Fund = group.FirstOrDefault()?.Fund,
+                    GeneratedBy = group.FirstOrDefault()?.GeneratedBy,
+                    JournalAccounts = group.SelectMany(journalAccount => journalAccount.JournalAccounts).ToList()
+                })
+                .ToList();
+
+            return Utils.Wrap(true, result, null);
         }
 
         public object AddJournal(JournalInputDto journal)
@@ -107,22 +176,15 @@ namespace LP.Finance.WebProxy.WebAPI
                     new SqlParameter("generatedBy", generatedBy)
                 };
 
-                var accountFromQuery = $@"INSERT INTO [journal]
+                var query = $@"INSERT INTO [journal]
                                     ([account_id], [value], [source], [when], [fx_currency]
                                     ,[fxrate], [fund], [generated_by])
                                     VALUES
                                     (@accountId, @value, @source, @when, @fxCurrency
                                     ,@fxRate, @fund, @generatedBy)";
 
-                var accountToQuery = $@"INSERT INTO [journal]
-                                    ([account_id], [value], [source], [when], [fx_currency]
-                                    ,[fxrate], [fund], [generated_by])
-                                    VALUES
-                                    (@accountId, @value, @source, @when, @fxCurrency
-                                    ,@fxRate, @fund, @generatedBy)";
-
-                sqlHelper.Insert(accountFromQuery, CommandType.Text, accountFromParameters.ToArray());
-                sqlHelper.Insert(accountToQuery, CommandType.Text, accountToParameters.ToArray());
+                sqlHelper.Insert(query, CommandType.Text, accountFromParameters.ToArray());
+                sqlHelper.Insert(query, CommandType.Text, accountToParameters.ToArray());
 
                 sqlHelper.SqlCommitTransaction();
                 sqlHelper.CloseConnection();
@@ -136,6 +198,128 @@ namespace LP.Finance.WebProxy.WebAPI
             }
 
             return Utils.Wrap(true);
+        }
+
+        public object UpdateJournal(Guid source, JournalInputDto journal)
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+
+            if (!IsModifiable(source))
+            {
+                return Utils.Wrap(false, "System Generated Journals are not Editable");
+            }
+
+            try
+            {
+                sqlHelper.VerifyConnection();
+                sqlHelper.SqlBeginTransaction();
+
+                var when = DateTime.Now.ToString("MM-dd-yyyy");
+
+                List<SqlParameter> accountFromParameters = new List<SqlParameter>
+                {
+                    new SqlParameter("accountId", journal.AccountFrom),
+                    new SqlParameter("value", (journal.Value * -1)),
+                    new SqlParameter("when", when),
+                    new SqlParameter("fund", journal.Fund),
+                    new SqlParameter("source", source.ToString()),
+                };
+
+                List<SqlParameter> accountToParameters = new List<SqlParameter>
+                {
+                    new SqlParameter("accountId", journal.AccountTo),
+                    new SqlParameter("value", journal.Value),
+                    new SqlParameter("when", when),
+                    new SqlParameter("fund", journal.Fund),
+                    new SqlParameter("source", source.ToString()),
+                };
+
+                var accountFromQuery = $@"UPDATE [journal]
+                            SET [account_id] = @accountId
+                            ,[value] = @value
+                            ,[when] = @when
+                            ,[fund] = @fund
+                            WHERE [journal].[source] = @source AND [journal].[value] < 0";
+
+                var accountToQuery = $@"UPDATE [journal]
+                            SET [account_id] = @accountId
+                            ,[value] = @value
+                            ,[when] = @when
+                            ,[fund] = @fund
+                            WHERE [journal].[source] = @source AND [journal].[value] > 0";
+
+                sqlHelper.Update(accountFromQuery, CommandType.Text, accountFromParameters.ToArray());
+                sqlHelper.Update(accountToQuery, CommandType.Text, accountToParameters.ToArray());
+
+                sqlHelper.SqlCommitTransaction();
+                sqlHelper.CloseConnection();
+            }
+            catch (Exception ex)
+            {
+                sqlHelper.SqlRollbackTransaction();
+                sqlHelper.CloseConnection();
+                Console.WriteLine($"SQL Rollback Transaction Exception: {ex}");
+                return Utils.Wrap(false);
+            }
+
+            return Utils.Wrap(true);
+        }
+
+        public object DeleteJournal(Guid source)
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+
+            if (!IsModifiable(source))
+            {
+                return Utils.Wrap(false, "System Generated Journals are not Editable");
+            }
+
+            try
+            {
+                sqlHelper.VerifyConnection();
+
+                List<SqlParameter> journalParameters = new List<SqlParameter>
+                {
+                    new SqlParameter("source", source.ToString())
+                };
+
+                var journalQuery = $@"DELETE FROM [journal]
+                                    WHERE [journal].[source] = @source";
+
+                sqlHelper.Delete(journalQuery, CommandType.Text, journalParameters.ToArray());
+
+                sqlHelper.CloseConnection();
+            }
+            catch (Exception ex)
+            {
+                sqlHelper.CloseConnection();
+                Console.WriteLine($"SQL Exception: {ex}");
+                return Utils.Wrap(false);
+            }
+
+            return Utils.Wrap(true);
+        }
+
+        private bool IsModifiable(Guid source)
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+            {
+                new SqlParameter("source", source.ToString())
+            };
+
+            var query = $@"SELECT 
+                        CASE WHEN [journal].[generated_by] = 'user'
+	                    THEN 'true'
+	                    ELSE 'false'
+	                    END AS 'is_modifiable'
+                        FROM [journal]
+	                    WHERE [journal].[source] = @source";
+
+            var modifiable = sqlHelper.GetScalarValue(query, CommandType.Text, sqlParameters.ToArray());
+
+            return Convert.ToBoolean(modifiable);
         }
 
         private object AllData(int pageNumber, int pageSize, string sortColum = "id", string sortDirection = "asc",
@@ -159,7 +343,8 @@ namespace LP.Finance.WebProxy.WebAPI
                                 d.accountName,
                                 d.[value],
                                 d.[source],
-                                d.[when]
+                                d.[when],
+                                d.modifiable
                                 from(
                 SELECT overall_count = COUNT(*) OVER() ,
                         (CASE WHEN value < 0 THEN value else 0 END  ) debit,
@@ -172,7 +357,9 @@ namespace LP.Finance.WebProxy.WebAPI
                         [account].[name] as accountName  ,
                         [value]  ,
                         [source] ,
-                        [when] FROM [journal]  
+                        [when],
+                        (CASE WHEN [journal].[generated_by] = 'user' THEN 'true' else 'false' END  ) modifiable
+                        FROM [journal]
                 join account  on [journal]. [account_id] = account.id 
                 join [account_type] on  [account].account_type_id = [account_type].id
                 join [account_category] on  [account_type].account_category_id = [account_category].id ";
@@ -281,7 +468,6 @@ namespace LP.Finance.WebProxy.WebAPI
                 }
             }
 
-
             metaData.Total = Convert.ToInt32(dataTable.Rows[0][0]);
             journalStats.totalCredit = Convert.ToDouble(dataTable.Rows[0]["totalDebit"]);
             journalStats.totalDebit = Convert.ToDouble(dataTable.Rows[0]["totalCredit"]);
@@ -345,17 +531,16 @@ namespace LP.Finance.WebProxy.WebAPI
                 Console.WriteLine("Done");
             }
 
-
             dynamic json = JsonConvert.DeserializeObject(content);
 
             return json;
         }
     }
 
-
     /// <summary>
     /// Deliver the Tiles / Links Resources to the Logged In User
     /// </summary>
+    [RoutePrefix("api/journal")]
     public class JournalController : ApiController
     {
         // Mock Service
@@ -366,12 +551,19 @@ namespace LP.Finance.WebProxy.WebAPI
         {
         }
 
+        [Route("data/{refData}")]
         [HttpGet]
-        [ActionName("data")]
-        public object Data(string refdata, int pageNumber, int pageSize, string sortColum = "id",
+        public object Data(string refData, int pageNumber, int pageSize, string sortColum = "id",
             string sortDirection = "asc", int accountId = 0, int value = 0)
         {
-            return controller.Data(refdata, pageNumber, pageSize, sortColum, sortDirection, accountId, value);
+            return controller.Data(refData, pageNumber, pageSize, sortColum, sortDirection, accountId, value);
+        }
+
+        [Route("{source:guid}")]
+        [HttpGet]
+        public object GetAccount(Guid source)
+        {
+            return controller.GetJournal(source);
         }
 
         [HttpPost]
@@ -380,6 +572,22 @@ namespace LP.Finance.WebProxy.WebAPI
             return !ModelState.IsValid || journal == null
                 ? BadRequest(ModelState)
                 : controller.AddJournal(journal);
+        }
+
+        [Route("{source:guid}")]
+        [HttpPut]
+        public object UpdateJournal(Guid source, [FromBody] JournalInputDto journal)
+        {
+            return !ModelState.IsValid || journal == null
+                ? BadRequest(ModelState)
+                : controller.UpdateJournal(source, journal);
+        }
+
+        [Route("{source:guid}")]
+        [HttpDelete]
+        public object DeleteJournal(Guid source)
+        {
+            return controller.DeleteJournal(source);
         }
     }
 }

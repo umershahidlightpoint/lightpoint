@@ -4,7 +4,7 @@ import {
 } from '@angular/core';
 import { ModalDirective } from "ngx-bootstrap";
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
-import { GridOptions } from "ag-grid-community";
+import { GridOptions, IToolPanel } from "ag-grid-community";
 import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
 import { ToastrService } from "ngx-toastr";
 import "ag-grid-enterprise";
@@ -43,6 +43,7 @@ export class AgGridExampleComponent implements OnInit {
   private ledgerRowData: [];
   private selectedValue;
   private columns: any;
+
   layoutName:any;
   totalRecords: number;
   rowGroupPanelShow: any;
@@ -109,7 +110,7 @@ export class AgGridExampleComponent implements OnInit {
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 270px)',
+    height: 'calc(100vh - 300px)',
     boxSizing: 'border-box'
   };
  
@@ -160,6 +161,7 @@ export class AgGridExampleComponent implements OnInit {
     
     this.gridOptions = <GridOptions>{
       rowData: null,
+      onCellDoubleClicked: this.openEditModal,
 
       /*      onFilterChanged: function() {  
       
@@ -359,7 +361,6 @@ export class AgGridExampleComponent implements OnInit {
 
 
         ];
-
 
         this.ledgerGridApi.api.sizeColumnsToFit();
 
@@ -687,7 +688,6 @@ export class AgGridExampleComponent implements OnInit {
         this.rowData = [];
         this.ledgerRowData = [];
 
-        debugger
 
         let someArray = [];
 
@@ -766,7 +766,6 @@ export class AgGridExampleComponent implements OnInit {
           when: moment(item.when).format("MM-DD-YYYY")
         }));
 
-        debugger
 
         this.ledgerGridOptions.rowData = this.ledgerRowData;
 
@@ -891,7 +890,6 @@ export class AgGridExampleComponent implements OnInit {
 
     if (result === true) {
       if (this.fund) {
-        debugger
         let cellFund = node.data.Fund;
         result = this.fund === cellFund;
       }
@@ -933,12 +931,15 @@ export class AgGridExampleComponent implements OnInit {
   }
 
   openJournalModal(){
-    this.jounalModal.openModal()
+    this.jounalModal.openModal({})
   }
 
    closeJournalModal(){
-    console.log('closeJournalModal')
     this.getAllData()
+  }
+
+  openEditModal = (row) => {
+    this.jounalModal.openModal(row.data)
   }
 }
 
@@ -959,3 +960,4 @@ function formatNumber(number) {
     .toString()
     .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 }
+

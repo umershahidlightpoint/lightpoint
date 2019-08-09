@@ -7,7 +7,8 @@
       <form #form="ngForm" (ngSubmit)="saveJournal()"  [formGroup]="journalForm">
         <!------- Modal Header ------->
         <div class="modal-header">
-          <h3>Create Journal</h3>
+          <h3 *ngIf="!editJournal"> Create Journal </h3>
+          <h3 *ngIf="editJournal"> Edit Journal </h3>
           <button type="button" class="close" data-dismiss="modal" (click)="closeModal()">&times;</button>
         </div>
         <!------- Modal Body ------->
@@ -24,7 +25,8 @@
                   <!-- <select [(ngModel)]="accTypeId"  -->
                   <select                 
                     class="custom-select"
-                    formControlName="fund"                
+                    formControlName="fund"   
+                    [(ngModel)]="accountFund"                                 
                     >
                       <option hidden [value]="">Choose your fund type</option>
                       <option *ngFor="let fund of funds" 
@@ -44,16 +46,18 @@
               </div>
               <!------- From Account Drop Down ------->
               <div class="col-sm-9">
-                <!-- <select [(ngModel)]="accTypeId"  -->
                 <select class="custom-select"                
-                  formControlName="fromAccount"  
-                  (change)=onAccountSelect(value)            
+                  formControlName="fromAccount"
+                  [(ngModel)]="fromAccountId"  
+                  (change)=onAccountSelect()            
                   >
                     <option hidden [value]="">Choose your account type</option>
-                    <option *ngFor="let account of allAccounts" 
+                    <ng-container *ngFor="let account of allAccounts; trackBy: trackByFn">
+                    <option *ngIf="account.AccountId !== toAccountCheck" 
                       [ngValue]="account.AccountId">
-                      {{ account.AccountName }}
-                    </option>                    
+                       {{ account.AccountName }} 
+                    </option>     
+                    </ng-container>               
                 </select>              
               </div>
             </div>
@@ -67,15 +71,18 @@
                 </div>
                 <!------- TO Account Drop Down ------->
                 <div class="col-sm-9">
-                  <!-- <select [(ngModel)]="accTypeId"  -->
                   <select class="custom-select"
                     formControlName="toAccount"
+                    (change)=onAccountSelect()
+                    [(ngModel)]="toAccountId"
                     >
-                      <option hidden [value]="">Choose your account type</option>
-                      <option *ngFor="let account of allAccounts" 
-                        [ngValue]="account.AccountId">
-                        {{ account.AccountName }}
-                      </option>                    
+                      <ng-container *ngFor="let account of allAccounts; trackBy: trackByFn">
+                        <option hidden [value]="">Choose your account type</option>
+                        <option  *ngIf="account.AccountId !== fromAccountCheck"
+                          [ngValue]="account.AccountId">
+                          {{ account.AccountName }}
+                        </option>    
+                      </ng-container>                
                   </select>              
                 </div>
               </div>

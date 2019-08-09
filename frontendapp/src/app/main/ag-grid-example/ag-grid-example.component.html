@@ -1,5 +1,4 @@
-<button class="btn btn-primary" type="button" (click)="openJournalModal()"> Create Journal </button>
-<hr />
+
 <p-tabView [ngStyle]="style">
   <p-tabPanel header="Journals">
     <div class="row ">
@@ -10,8 +9,8 @@
             {{ f.FundCode }}
           </option>
         </select>
-
       </div>
+
       <label class="col-md-1 " style="text-align: right"> {{DateRangeLable}} </label>
       <div class="col-md-6">
         <form>
@@ -21,12 +20,16 @@
             class="form-control" /></form>
       </div>
 
-      <div class="col-1">
-        <button (click)="clearFilters( )" class="btn btn-info" type="button">Clear</button>
-
+      <div class="col-md-1">
+        <button (click)="clearFilters( )" class="btn btn-info tabBtn" type="button">Clear</button>
       </div>
-      <div class="col-sm-2">
-        <button (click)="onBtExport()" class="btn btn-info">Export to Excel</button>
+
+      <div class="col-sm-1">
+        <button class="btn btn-info tabBtn" type="button" (click)="openJournalModal()"> Create Journal </button>
+      </div>
+
+      <div class="col-sm-1">
+        <button (click)="onBtExport()" class="btn btn-info tabBtn">Export Excel</button>
       </div>
  
 

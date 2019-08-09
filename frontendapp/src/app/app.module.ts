@@ -83,7 +83,7 @@ import { DataService } from "../shared/common/data.service";
   imports: [
     BrowserModule,
     AgGridModule.withComponents([
-      TemplateRendererComponent,
+      TemplateRendererComponent
     ]),
     AgGridModule.withComponents([GridLayoutMenuComponent]),
     

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { ModalDirective } from 'ngx-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms'
@@ -11,11 +11,20 @@ import { takeWhile } from "rxjs/operators";
   templateUrl: './journal-modal.component.html',
   styleUrls: ['./journal-modal.component.css']
 })
-export class JournalModalComponent implements OnInit {
+export class JournalModalComponent implements OnInit, OnDestroy {
   
   allAccounts: GridRowData
   funds: Fund
-  isSubscriptionAlive: boolean
+  toAccountCheck: number
+  fromAccountCheck: number
+
+  toAccountId: number
+  fromAccountId: number
+  accountFund: string
+
+  selectedRow;
+  editJournal: boolean
+  isSubscriptionAlive: boolean  
   journalForm: FormGroup
 
   @ViewChild('modal') modal: ModalDirective
@@ -32,13 +41,13 @@ export class JournalModalComponent implements OnInit {
     this.getAccounts()
     this.getFunds()
     this.buildForm()
+    this.editJournal = false
     this.isSubscriptionAlive = true
   }
 
   getAccounts(){
     this.financePocServiceProxy.getAllAccounts().pipe(takeWhile(() => this.isSubscriptionAlive))
     .subscribe(response => {
-      console.log('response ==>',response)
       if(response.isSuccessful){
         this.allAccounts = response.payload
       }
@@ -48,7 +57,6 @@ export class JournalModalComponent implements OnInit {
   getFunds(){
     this.financePocServiceProxy.getFunds().pipe(takeWhile(() => this.isSubscriptionAlive))
     .subscribe(response => {
-      console.log('response funds ==>',response)
       if(response.payload){
         this.funds = response.payload
       }
@@ -65,46 +73,107 @@ export class JournalModalComponent implements OnInit {
   }
 
   saveJournal(){
-    //console.log('saved journal',this.journalForm.value)
     const journalObject = {
       "accountFrom": this.journalForm.value.fromAccount,
       "accountTo": this.journalForm.value.toAccount,
       "value": this.journalForm.value.value,
       "fund": this.journalForm.value.fund
     }
-    //console.log('create journal response',journalObject)
-    this.financePocServiceProxy.createJounal(journalObject).subscribe(response => {
-      //console.log('create journal response',response)
-      if(response.isSuccessful){        
-        this.toastrService.success('Journal is created successfully !')
-        this.modal.hide()
-        this.modalClose.emit(true);     
-      }
-      else {
-        this.toastrService.success('Journal is created successfully !')        
-      }
-    })
+    if(this.editJournal){
+      const { source } = this.selectedRow
+      this.financePocServiceProxy.updateJournal(source, journalObject)
+      .pipe(takeWhile(() => this.isSubscriptionAlive))
+      .subscribe(response => {
+        if(response.isSuccessful){
+          this.toastrService.success('Journal is updated successfully !')
+          this.modal.hide()
+          this.modalClose.emit(true);
+          setTimeout(() => this.clearForm(), 500);          
+        }
+        else {
+          this.toastrService.error('Failed to update Journal !')
+        }
+      })
+    }
+    else {
+      this.financePocServiceProxy.createJounal(journalObject).subscribe(response => {
+        if(response.isSuccessful){        
+          this.toastrService.success('Journal is created successfully !')          
+          this.modal.hide()
+          this.modalClose.emit(true);
+          setTimeout(() => this.clearForm(), 500);
+        }
+        else {
+          this.toastrService.error('Failed to create Journal !')        
+        }
+      })
+    }
   }
 
-  onAccountSelect(value){
-    console.log('on account select',value)
+  onAccountSelect(){
+    this.toAccountCheck = this.journalForm.value.toAccount  
+    this.fromAccountCheck =  this.journalForm.value.fromAccount 
   }
 
-  openModal(){
+
+  trackByFn(index, item){
+    return item.AccountId
+  }
+
+  openModal(rowData){
+    if(Object.keys(rowData).length > 1){
+      this.editJournal = true
+      this.selectedRow = rowData
+      const { source } = rowData
+      const { modifiable } = rowData
+      if(modifiable === "false" ){
+        this.toastrService.error('System Generated Journals are not Editable !')
+        this.closeModal()
+        return
+      }
+      
+      this.financePocServiceProxy.getJournal(source).pipe(takeWhile(() => this.isSubscriptionAlive))
+      .subscribe(response => {
+        if(response.isSuccessful){
+          const { JournalAccounts } = response.payload[0]
+          const fromAccount = JournalAccounts[0]
+          const toAccount = JournalAccounts[1]
+          this.fromAccountId = fromAccount.AccountFromId
+          this.toAccountId = toAccount.AccountToId
+          this.accountFund = response.payload[0].Fund  
+          
+          this.journalForm.patchValue({
+            value: toAccount.Value,
+            fromAccount: this.fromAccountId,
+            toAccount: this.toAccountId,
+            fund: this.accountFund
+          })
+        }
+        else {          
+          this.toastrService.error('Something went wrong!')
+        }
+      })
+    }
     this.modal.show()
   }
 
   closeModal(){
-    this.clearForm()
     this.modal.hide()
+    setTimeout(() => this.clearForm(), 1000);
   }
 
   clearForm(){
-    this.isSubscriptionAlive = false
+    this.editJournal = false
+    this.toAccountCheck = null
+    this.fromAccountCheck = null
+    
     this.journalForm.controls['fund'].reset()
     this.journalForm.controls['toAccount'].reset()
     this.journalForm.controls['fromAccount'].reset()
     this.journalForm.controls['value'].reset()
   }
 
+  ngOnDestroy() {
+    this.isSubscriptionAlive = false;
+  }
 }
