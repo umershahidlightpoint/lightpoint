@@ -1,72 +1,54 @@
-
 <p-tabView [ngStyle]="style">
   <p-tabPanel header="Journals">
     <div class="row ">
+
       <div class="col-md-2">
         <select class="form-control" [(ngModel)]="fund" (ngModelChange)="ngModelChangeFund($event)">
-          <option [ngValue]="null">All Funds</option>
-          <option *ngFor="let f of funds" [ngValue]="f.FundCode">
+          <option selected>All Funds</option>
+          <option [ngValue]="f.FundCode" *ngFor="let f of funds" [ngValue]="f.FundCode">
             {{ f.FundCode }}
           </option>
         </select>
       </div>
 
-      <label class="col-md-1 " style="text-align: right"> {{DateRangeLable}} </label>
-      <div class="col-md-6">
+      <div>
+        <label style="text-align: right"> {{DateRangeLable}} </label>
+      </div>
+
+      <div class="col-md-5">
         <form>
           <input type="text" autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
             [showCustomRangeLabel]="true" #dateRangPicker name="selectedDaterange" [showClearButton]="true"
             placeholder="Choose date" [alwaysShowCalendars]="true" (ngModelChange)="ngModelChange($event)"
-            class="form-control" /></form>
+            class="form-control" />
+        </form>
       </div>
 
-      <div class="col-md-1">
-        <button (click)="clearFilters( )" class="btn btn-info tabBtn" type="button">Clear</button>
+      <div class="mr-auto">
+        <button (click)="clearFilters()" class="btn btn-info" type="button">
+          <i class="fa fa-remove"></i> Clear</button>
       </div>
 
-      <div class="col-sm-1">
-        <button class="btn btn-info tabBtn" type="button" (click)="openJournalModal()"> Create Journal </button>
-      </div>
+      <div class="ml-auto">
+        <div class="mr-2 tabBtn">
+          <button class="btn btn-info" type="button" (click)="openJournalModal()"><i class="fa fa-plus"
+              aria-hidden="true"></i> Create Journal</button>
+        </div>
 
-      <div class="col-sm-1">
-        <button (click)="onBtExport()" class="btn btn-info tabBtn">Export Excel</button>
-      </div>
-
-
-
-
-
-    </div>
-    <div>
-
-    </div>
-    <div class="row" style="margin-top: 5px">
-      <div class="col-3">
-      <select class="form-control" [(ngModel)]="gridLayoutID" (ngModelChange)="RestoreLayout($event)">
-          <option [ngValue]="0"  selected >Select layout</option>
-          <option *ngFor="let l of gridLayouts" [ngValue]="l.Id">
-            {{ l.GridLayoutName }}
-          </option>
-        </select>
-      </div>
-      <div class="col-5">
-          <button (click)="onEditSave()" class="btn btn-info">Save</button>  
-          <button style="margin-left: 5px;" (click)="onCreateNew()" class="btn btn-info">New</button> 
-      </div>
-      <div class="col-1">
-
-      </div>
-      <div>
-
+        <div class="tabBtn">
+          <button (click)="onBtExport()" class="btn btn-info"><i class="fa fa-arrow-circle-o-down"></i> Export
+            Excel</button>
+        </div>
       </div>
     </div>
+
     <div style="clear: both"></div>
     <div #divToMeasureJournal>
       <div [ngStyle]="styleForHight">
         <ag-grid-angular #journalGrid style="width: 100%; height: 100%" class="ag-theme-balham"
           [gridOptions]="gridOptions" [rowGroupPanelShow]="rowGroupPanelShow" [pivotPanelShow]="pivotPanelShow"
           [pivotColumnGroupTotals]="pivotColumnGroupTotals" [pivotRowTotals]="pivotRowTotals" [sideBar]="sideBar"
-          [rowData]="rowData" [rowSelection]="rowSelection" [getRowStyle]="getRowStyle" >
+          [rowData]="rowData" [rowSelection]="rowSelection" [getRowStyle]="getRowStyle">
           <!--
           [pinnedBottomRowData]="pinnedBottomRowData"
         -->
@@ -86,46 +68,46 @@
 </ng-template>
 
 
- <!------ Modal Div ------>
+<!------ Modal Div ------>
 <div bsModal #modal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true"
-[config]="{backdrop: 'static'}">
-<div class="modal-dialog modal-dialog-centered" id="modal-lg">
-<div class="modal-content">
-<!------ Form ------>
- 
-<!------- Modal Header ------->
-<div class="modal-header">
-<h3>New Layout</h3>
-<button type="button" class="close" data-dismiss="modal" (click)="closeModal()">&times;</button>
-</div>
-<!------- Modal Body ------->
-<div class="modal-body">
+  [config]="{backdrop: 'static'}">
+  <div class="modal-dialog modal-dialog-centered" id="modal-lg">
+    <div class="modal-content">
+      <!------ Form ------>
 
-<!------- Value From Group------->
-<div class="form-group">
-<div class="row">
-<!------- Value Label -------> 
-<div class="col-sm-3">
-<label> Layout Name </label>
-</div>
-<!------- Value Input ------->
-<div class="col-sm-9">
-<input class="form-control"   type="text"   [(ngModel)]="layoutName"  step=".07"> 
-</div>
-</div>
-</div>
+      <!------- Modal Header ------->
+      <div class="modal-header">
+        <h3>New Layout</h3>
+        <button type="button" class="close" data-dismiss="modal" (click)="closeModal()">&times;</button>
+      </div>
+      <!------- Modal Body ------->
+      <div class="modal-body">
+
+        <!------- Value From Group------->
+        <div class="form-group">
+          <div class="row">
+            <!------- Value Label ------->
+            <div class="col-sm-3">
+              <label> Layout Name </label>
+            </div>
+            <!------- Value Input ------->
+            <div class="col-sm-9">
+              <input class="form-control" type="text" [(ngModel)]="layoutName" step=".07">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!------- Modal Footer ------->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="onNewSave()">
+          <i class="fa fa-save"></i> Save
+        </button>
+      </div>
+
+    </div>
+  </div>
 </div>
 
-<!------- Modal Footer ------->
-<div class="modal-footer">
-<button type="button" class="btn btn-secondary"  (click)="closeModal()"  >Cancel</button>
-<button type="button" class="btn btn-primary" (click)="onNewSave()" >
-<i class="fa fa-save"></i> Save
-</button>
-</div>
- 
-</div>
-</div>
-</div>
- 
 <app-journal-modal #journalModal (modalClose)="closeJournalModal()"> </app-journal-modal>
