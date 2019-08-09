@@ -114,7 +114,7 @@ public onSaveState(gridLayout_ID) {
     console.log('isPublic',this.isPublic)
     console.log('layoutName',this.layoutName)
     
-
+debugger;
     let oDataGridStatusDto = {
      Id: gridLayout_ID,
      GridId: GridName.Journal,
