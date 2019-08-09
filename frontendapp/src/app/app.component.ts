@@ -10,6 +10,7 @@ import { JournalComponent } from './main/journal/journal.component';
 import { AgGridExampleComponent } from './main/ag-grid-example/ag-grid-example.component';
 import { LogsComponent } from './main/logs/logs.component';
 
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -20,7 +21,8 @@ export class AppComponent extends AppComponentBase {
   @ViewChild('applegdermodal') applegdermodal: LegderModalComponent;
   @ViewChild('app-journal') appjournal: JournalComponent;
   @ViewChild('app-ag-grid-example') agGridExample:AgGridExampleComponent
-  
+ 
+   
 
   fundId: any;
   ledger: any[];

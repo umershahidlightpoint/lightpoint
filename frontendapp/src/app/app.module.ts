@@ -55,6 +55,9 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { AccountComponent } from './main/accounts/account.component';
 import { CreateAccountComponent } from './main/accounts/create-account/create-account.component';
 import { JournalModalComponent } from './main/ag-grid-example/journal-modal/journal-modal.component';
+import { GridLayoutComponent } from './grid-layout/grid-layout.component';
+import { GridLayoutMenuComponent } from './grid-layout-menu/grid-layout-menu.component';
+import { DataService } from "../shared/common/data.service";
 
 @NgModule({
   declarations: [
@@ -73,14 +76,17 @@ import { JournalModalComponent } from './main/ag-grid-example/journal-modal/jour
     CreateAccountComponent,
     RunLogsComponent,
     ReportsComponent,
-    JournalModalComponent
-  ],
+    JournalModalComponent,
+    GridLayoutComponent,
+    GridLayoutMenuComponent
+   ],
   imports: [
     BrowserModule,
     AgGridModule.withComponents([
       TemplateRendererComponent,
     ]),
-    AgGridModule.withComponents([]),
+    AgGridModule.withComponents([GridLayoutMenuComponent]),
+    
     NgxDaterangepickerMd.forRoot(),
     AppRoutingModule,
     TableModule,
@@ -109,11 +115,12 @@ import { JournalModalComponent } from './main/ag-grid-example/journal-modal/jour
     AngularSplitModule.forRoot(),
     CalendarModule,
     ToastrModule.forRoot(),
-    BsDropdownModule.forRoot()
+    BsDropdownModule.forRoot() 
   ],
   providers: [
     FinancePocServiceProxy, 
-    MessageService
+    MessageService ,
+    DataService
   ],
   bootstrap: [AppComponent]
 })

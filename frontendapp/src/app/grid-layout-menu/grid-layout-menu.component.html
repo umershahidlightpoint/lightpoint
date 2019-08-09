@@ -1,0 +1,77 @@
+
+<div class="row ag-header-cell-text" style="margin-top: 5px; padding-left: 25px" >
+    <span ref="eText" class="ag-header-cell-text"  >
+</span>
+</div>
+<div style="clear: both" ></div>
+<div class="row" style="  margin-top: 5px; padding-left: 25px">
+     
+    <select class="form-control" [(ngModel)]="gridLayoutID" (ngModelChange)="RestoreLayout($event)">
+        <option [ngValue]="0"  selected >Select layout</option>
+        <option *ngFor="let l of gridLayouts" [ngValue]="l.Id">
+          {{ l.GridLayoutName }}
+        </option>
+      </select>
+    </div>
+
+
+    <div class="row" style="float: right; margin-top: 5px; padding-left: 25px">
+        <button (click)="onEditSave()" class="btn btn-info">Save</button>  
+        <button style="margin-left: 5px;" (click)="onCreateNew()" class="btn btn-info">New</button> 
+    </div>
+     
+
+
+  
+ <!------ Modal Div ------>
+<div bsModal #modal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true"
+[config]="{backdrop: 'static'}">
+<div class="modal-dialog modal-dialog-centered" id="modal-lg">
+<div class="modal-content">
+<!------ Form ------>
+ 
+<!------- Modal Header ------->
+<div class="modal-header">
+<h3>New Layout</h3>
+<button type="button" class="close" data-dismiss="modal" (click)="closeModal()">&times;</button>
+</div>
+<!------- Modal Body ------->
+<div class="modal-body">
+
+<!------- Value From Group------->
+<div class="form-group">
+<div class="row">
+<!------- Value Label -------> 
+<div class="col-sm-3">
+<label> Layout Name </label>
+</div>
+<!------- Value Input ------->
+<div class="col-sm-9">
+<input class="form-control"   type="text"   [(ngModel)]="layoutName"  step=".07"> 
+</div>
+</div>
+<div class="row" >
+
+    <div class="col-sm-3">
+    <label> Layout Name </label>
+    </div>
+
+</div>
+<div class="col-sm-12" style="text-align: right" >
+    <input type="checkbox" name="Public" value="1"> Public
+    </div>
+
+</div>
+</div>
+
+<!------- Modal Footer ------->
+<div class="modal-footer">
+<button type="button" class="btn btn-secondary"  (click)="closeModal()"  >Cancel</button>
+<button type="button" class="btn btn-primary" (click)="onNewSave()" >
+<i class="fa fa-save"></i> Save
+</button>
+</div>
+ 
+</div>
+</div>
+</div>
