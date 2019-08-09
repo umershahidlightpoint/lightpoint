@@ -111,7 +111,7 @@ namespace PostingEngine
             }
             else
             {
-                env.AddMessage($"Trade ignored ValueDate = {env.ValueDate}, TradeDate = {element.TradeDate}, Settledate = {element.SettleDate}");
+                //env.AddMessage($"Trade ignored ValueDate = {env.ValueDate}, TradeDate = {element.TradeDate.Date}, Settledate = {element.SettleDate.Date}");
             }
         }
 

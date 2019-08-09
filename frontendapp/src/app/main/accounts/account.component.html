@@ -38,7 +38,11 @@
           </ag-grid-angular>
           <!----- Action buttons ----->
           <ng-template #actionButtons let-row>
-            <button class="btn btn-info fixHeight" (click)="editRow(row)">Edit</button>
+            <button 
+              class="btn btn-info fixHeight" 
+              (click)="editRow(row)">
+              Edit
+            </button>
             <button 
               [disabled]="row.hasJournal == 'Yes'" 
               class="btn btn-danger fixHeight" 
