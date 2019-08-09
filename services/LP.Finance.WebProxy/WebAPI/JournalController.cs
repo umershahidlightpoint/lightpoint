@@ -428,7 +428,7 @@ namespace LP.Finance.WebProxy.WebAPI
             query = query + " ) as d ORDER BY  [d].[id] desc";
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
 
-            var result = GetTransactions(tradesURL);
+            var result = GetTransactions(allocationsURL);
             result.Wait();
 
             var elements = JsonConvert.DeserializeObject<Transaction[]>(result.Result);
@@ -456,7 +456,7 @@ namespace LP.Finance.WebProxy.WebAPI
             {
                 var dataRow = element as DataRow;
 
-                var found = elements.Where(e => e.LpOrderId == dataRow["source"].ToString()).FirstOrDefault();
+                var found = elements.Where(e => e.TradeId == dataRow["source"].ToString()).FirstOrDefault();
                 if (found != null)
                 {
                     // Copy data to the row

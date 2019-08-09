@@ -88,9 +88,12 @@ export class LogsComponent implements OnInit {
   };
 
 
+  /*
+  We can define how we need to show the data here, as this is a log file we should group by the rundate
+  */
   columnDefs = [
-
-    { field: 'action_on', headerName: 'Action On', sortable: true, filter: true },
+    { field: 'rundate', headerName: 'Run Date', sortable: true, filter: true, enableRowGroup: true, width:25 },
+    { field: 'action_on', headerName: 'Action On', sortable: true, filter: true, width:25 },
     { field: 'action', headerName: 'Action', sortable: true, filter: true },
   ];
 
@@ -132,7 +135,8 @@ export class LogsComponent implements OnInit {
         this.rowData = [];
 
         this.rowData = result.data.map(item => ({
-          action_on: moment(item.action_on).format('MMM-DD-YYYY hh:mm:ss A Z'),
+          rundate: moment(item.rundate).format('MMM-DD-YYYY'),
+          action_on: moment(item.action_on).format('MMM-DD-YYYY hh:mm:ss'),
           action: item.action,
         }));
       });

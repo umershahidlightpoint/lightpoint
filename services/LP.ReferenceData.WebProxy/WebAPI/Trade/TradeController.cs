@@ -10,6 +10,8 @@ using System.Data;
 using System.Security.Principal;
 using System.Threading;
 using LP.Finance.Common;
+using LP.Core;
+using CommonAPI;
 
 namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 {
@@ -34,7 +36,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
     {
         public object Data(string symbol)
         {
-            return Utils.GetFile("trades");
+            return Utils.GetFile("trades_" + symbol);
         }
     }
 
@@ -49,19 +51,29 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             switch (symbol)
             {
                 case "ALL":
-                    result = AllData();
+                case "ITD":
+                    result = AllData(System.DateTime.Now.ITD());
+                    break;
+                case "YTD":
+                    result = AllData(System.DateTime.Now.YTD());
+                    break;
+                case "MTD":
+                    result = AllData(System.DateTime.Now.MTD());
+                    break;
+                case "Today":
+                    result = AllData(System.DateTime.Now.Today());
                     break;
                 default:
                     result = Only(symbol);
                     break;
             }
 
-            Utils.Save(result, "trades");
+            Utils.Save(result, "trades_" + symbol);
 
             return result;
         }
 
-        private object AllData()
+        private object AllData(Tuple<DateTime, DateTime> period)
         {
             var content = "{}";
 
@@ -70,10 +82,12 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             while (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
                 date = date.AddDays(-1);
 
-            var startdate = date.ToString("MM-dd-yyyy") + " 09:00";
-            var enddate = date.ToString("MM-dd-yyyy") + " 16:30";
+            var startdate = period.Item1.ToString("MM-dd-yyyy") + " 00:00";
+            var enddate = period.Item2.ToString("MM-dd-yyyy") + " 16:30";
 
-            var query = $@"select 
+            var query = 
+$@"select 
+    ParentOrderId,
 	LpOrderId, Action, Symbol, Side, Quantity, TimeInForce, OrderType, SecurityType,  BloombergCode,
 	CustodianCode, ExecutionBroker, TradeId, Fund, 
 	PMCode, PortfolioCode, Trader, 
@@ -86,7 +100,8 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 	OrderedQuantity, FilledQuantity,RemainingQuantity,
 	OrderSource,
 	UpdatedOn, 
-	COALESCE(LocalNetNotional,0) as LocalNetNotional  from Trade nolock
+	COALESCE(LocalNetNotional,0) as LocalNetNotional  from Trade with(nolock)
+where LastUpdateTime between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}') 
 order by UpdatedOn desc
 ";
 
@@ -122,7 +137,8 @@ order by UpdatedOn desc
             var startdate = date.ToString("MM-dd-yyyy") + " 09:00";
             var enddate = date.ToString("MM-dd-yyyy") + " 16:30";
 
-            var query = $@"select LpOrderId, Action, Symbol, Side, Quantity, SecurityType, CustodianCode, ExecutionBroker, TradeId, Fund, PMCode, PortfolioCode, TradePrice, TradeDate, Trader, Status, Commission, Fees, NetMoney, LocalNetNotional, UpdatedOn from Trade nolock
+            var query = $@"select 
+            * from Trade nolock
                 where LPOrderId='{orderId}'
                 order by UpdatedOn desc";
 
@@ -154,17 +170,17 @@ order by UpdatedOn desc
     public class TradeController : ApiController, ITradeController
     {
         // Mock Service
-        private readonly ITradeController controller;
+        private readonly ITradeController controller = ControllerFactory.Get<ITradeController, TradeControllerStub, TradeControllerService>();
 
         public TradeController()
         {
-            controller = ControllerFactory.Get<ITradeController, TradeControllerStub, TradeControllerService>();
         }
 
         [HttpGet]
         [ActionName("data")]
         public object Data(string symbol)
         {
+            /*
             if (TradeCache.CachedResult == null || DateTime.Now > TradeCache.LastUpdate.AddMinutes(5))
             {
                 TradeCache.CachedResult = controller.Data(symbol);
@@ -172,6 +188,9 @@ order by UpdatedOn desc
             }
 
             return TradeCache.CachedResult;
+            */
+
+            return controller.Data(symbol);
         }
 
     }

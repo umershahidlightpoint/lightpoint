@@ -7,20 +7,33 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LP.Finance.WebProxy", "LP.F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LP.Finance.Common", "LP.Finance.Common\LP.Finance.Common.csproj", "{D2E48A0E-449A-4FE7-B0EA-40474FE455B0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonAPI", "..\..\services\CommonAPI\CommonAPI.csproj", "{ACB1BD38-50E3-4A93-A247-5088B3E21473}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Development-Debug|Any CPU = Development-Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{C6FCC1A8-CC8F-46EB-8968-245BEA6DD79C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C6FCC1A8-CC8F-46EB-8968-245BEA6DD79C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6FCC1A8-CC8F-46EB-8968-245BEA6DD79C}.Development-Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6FCC1A8-CC8F-46EB-8968-245BEA6DD79C}.Development-Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6FCC1A8-CC8F-46EB-8968-245BEA6DD79C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6FCC1A8-CC8F-46EB-8968-245BEA6DD79C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D2E48A0E-449A-4FE7-B0EA-40474FE455B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D2E48A0E-449A-4FE7-B0EA-40474FE455B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2E48A0E-449A-4FE7-B0EA-40474FE455B0}.Development-Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2E48A0E-449A-4FE7-B0EA-40474FE455B0}.Development-Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2E48A0E-449A-4FE7-B0EA-40474FE455B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2E48A0E-449A-4FE7-B0EA-40474FE455B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACB1BD38-50E3-4A93-A247-5088B3E21473}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACB1BD38-50E3-4A93-A247-5088B3E21473}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACB1BD38-50E3-4A93-A247-5088B3E21473}.Development-Debug|Any CPU.ActiveCfg = Development-Debug|Any CPU
+		{ACB1BD38-50E3-4A93-A247-5088B3E21473}.Development-Debug|Any CPU.Build.0 = Development-Debug|Any CPU
+		{ACB1BD38-50E3-4A93-A247-5088B3E21473}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACB1BD38-50E3-4A93-A247-5088B3E21473}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

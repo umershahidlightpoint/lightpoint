@@ -10,17 +10,19 @@ namespace LP.Finance.Common.Models
         public int Id { get; set; }
         public string Action { get; set; }
         public DateTime ActionOn { get; set; }
+        public DateTime RunDate { get; set; }
 
         public KeyValuePair<string, SqlParameter[]> Insert
         {
             get
             {
                 var sql = @"insert into journal_log 
-                            (action, action_on) 
+                            (rundate, action, action_on) 
                             values 
-                            (@action, @action_on)";
+                            (@rundate, @action, @action_on)";
                 var sqlParams = new SqlParameter[]
                 {
+                    new SqlParameter("rundate", RunDate),
                     new SqlParameter("action", Action),
                     new SqlParameter("action_on", ActionOn),
             };

@@ -17,6 +17,12 @@ namespace PostingEngine.PostingRules
 
         public void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
+            // Entry has already been processed
+            if ( element.TradeDate.Date.Equals(element.SettleDate.Date))
+            {
+                return;
+            }
+
             throw new NotImplementedException();
         }
 
@@ -37,17 +43,15 @@ namespace PostingEngine.PostingRules
 
             switch (element.Side.ToLowerInvariant())
             {
-                case "buy":
+                case "debit":
                     fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("LONG POSITIONS AT COST")).FirstOrDefault(), listOfFromTags, element);
                     toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
                     break;
-                case "sell":
-                    break;
-                case "short":
+                case "credit":
                     fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
                     toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("SHORT POSITIONS-COST")).FirstOrDefault(), listOfFromTags, element);
                     break;
-                case "cover":
+                default:
                     break;
             }
 
@@ -79,9 +83,9 @@ namespace PostingEngine.PostingRules
                 fxrate = Convert.ToDouble(env.FxRates[element.TradeCurrency].Rate);
             }
 
-            if (element.NetMoney != 0.0)
+            if (element.Quantity != 0.0)
             {
-                var moneyUSD = (element.NetMoney / fxrate);
+                var moneyUSD = ((element.Quantity * element.TradePrice) / fxrate);
                 var creditAmount = moneyUSD;
                 var debitAmount = moneyUSD * -1;
 

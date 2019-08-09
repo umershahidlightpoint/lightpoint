@@ -10,6 +10,8 @@ using System.Data;
 using System.Security.Principal;
 using System.Threading;
 using LP.Finance.Common;
+using LP.Core;
+using CommonAPI;
 
 namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 {
@@ -17,7 +19,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
     {
         public object Data(string symbol)
         {
-            return Utils.GetFile("allocations");
+            return Utils.GetFile("allocations_" + symbol);
         }
     }
 
@@ -32,19 +34,29 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             switch (symbol)
             {
                 case "ALL":
-                    result = AllData();
+                case "ITD":
+                    result = AllData(System.DateTime.Now.ITD());
+                    break;
+                case "YTD":
+                    result = AllData(System.DateTime.Now.YTD());
+                    break;
+                case "MTD":
+                    result = AllData(System.DateTime.Now.MTD());
+                    break;
+                case "Today":
+                    result = AllData(System.DateTime.Now.Today());
                     break;
                 default:
                     result = Only(symbol);
                     break;
             }
 
-            Utils.Save(result, "allocations");
+            Utils.Save(result, "allocations_" + symbol);
 
             return result;
         }
 
-        private object AllData()
+        private object AllData(Tuple<DateTime, DateTime> period)
         {
             var content = "{}";
 
@@ -53,10 +65,12 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             while (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
                 date = date.AddDays(-1);
 
-            var startdate = date.ToString("MM-dd-yyyy") + " 09:00";
-            var enddate = date.ToString("MM-dd-yyyy") + " 16:30";
+            var startdate = period.Item1.ToString("MM-dd-yyyy") + " 00:00";
+            var enddate = period.Item2.ToString("MM-dd-yyyy") + " 16:30";
 
-            var query = $@"select 
+            var query =
+$@"select 
+    ParentOrderId,
 	LpOrderId, Action, Symbol, Side, Quantity, TimeInForce, OrderType, SecurityType,  BloombergCode,
 	CustodianCode, ExecutionBroker, TradeId, Fund, 
 	PMCode, PortfolioCode, Trader, 
@@ -69,7 +83,8 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 	OrderedQuantity, FilledQuantity,RemainingQuantity,
 	OrderSource,
 	UpdatedOn, 
-	COALESCE(LocalNetNotional,0) as LocalNetNotional  from Allocation nolock
+	COALESCE(LocalNetNotional,0) as LocalNetNotional  from allocation with(nolock)
+where LastUpdateTime between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}') 
 order by UpdatedOn desc
 ";
 
@@ -136,11 +151,10 @@ order by UpdatedOn desc
     /// </summary>
     public class AllocationController : ApiController, ITradeController
     {
-        private readonly ITradeController controller;
+        private readonly ITradeController controller = ControllerFactory.Get<ITradeController, AllocationControllerStub, AllocationControllerService>();
 
         public AllocationController()
         {
-            controller = ControllerFactory.Get<ITradeController, AllocationControllerStub, AllocationControllerService>();
         }
 
         [HttpGet]
@@ -150,25 +164,5 @@ order by UpdatedOn desc
             return controller.Data(symbol);
         }
 
-    }
-
-    /// <summary>
-    /// Determines if we are to use the Mock or the Service
-    /// </summary>
-    public class ControllerFactory
-    {
-        private static readonly string MOCK = ConfigurationManager.AppSettings["Mock"];
-
-        public static I Get<I, M, S>()
-            where M : I, new()
-            where S : I, new()
-        {
-            if (string.IsNullOrEmpty(MOCK))
-            {
-                return new S();
-            }
-
-            return new M();
-        }
     }
 }

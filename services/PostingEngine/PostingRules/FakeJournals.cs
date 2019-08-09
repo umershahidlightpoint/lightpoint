@@ -1,6 +1,7 @@
 ﻿using LP.Finance.Common.Models;
 using PostingEngine.PostingRules.Utilities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace PostingEngine.PostingRules
@@ -19,80 +20,54 @@ namespace PostingEngine.PostingRules
 
         private AccountToFrom GetFromToAccount(Transaction element)
         {
-            return null;
-
-            /*
             var type = element.GetType();
-            var accountDefs = AccountDef.Defaults;
+            var accountTypes = AccountType.All;
 
-            var assetAccount = CreateAccount(accountDefs.Where(i => i.AccountCategory == AccountCategory.AC_ASSET).First(), element);
-
-            if (element.SecurityType.Equals("Journals"))
+            var listOfFromTags = new List<Tag>
             {
-                var expencesAccount = CreateAccount(accountDefs.Where(i => i.AccountCategory == AccountCategory.AC_EXPENCES).First(), element);
+            };
 
-                // The symbol will determine how to generate the Journal entry for these elements.
-                switch (element.Symbol.ToUpper())
-                {
-                    case "ZZ_ACCOUNTING_FEES":
-                        break;
-                    case "ZZ_ADMINISTRATIVE_FEES":
-                        break;
-                    case "ZZ_BANK_SERVICE_FEES":
-                        break;
-                    case "ZZ_INVESTOR_CONTRIBUTIONS":
-                        break;
-                    case "ZZ_CUSTODY_FEES":
-                        break;
-                    default:
-                        break;
-                }
+            var listOfToTags = new List<Tag>
+            {
+            };
 
-                return new AccountToFrom
-                {
-                    From = assetAccount,
-                    To = expencesAccount
-                };
+            Account fromAccount = null; // Debiting Account
+            Account toAccount = null; // Crediting Account
+
+            switch (element.Side.ToLowerInvariant())
+            {
+                case "buy":
+                    //fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("LONG POSITIONS AT COST")).FirstOrDefault(), listOfFromTags, element);
+                    //toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
+                    break;
+                case "sell":
+                    break;
+                case "short":
+                    //fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
+                    //toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("SHORT POSITIONS-COST")).FirstOrDefault(), listOfFromTags, element);
+                    break;
+                case "cover":
+                    break;
             }
-
-            var liabilitiesAccount = CreateAccount(accountDefs.Where(i => i.AccountCategory == AccountCategory.AC_LIABILITY).First(), element);
 
             return new AccountToFrom
             {
-                From = assetAccount,
-                To = liabilitiesAccount
+                From = fromAccount,
+                To = toAccount
             };
-            */
         }
 
         public void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
             var accountToFrom = GetFromToAccount(element);
 
-            new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
-            new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
-
-            var debit = new Journal
+            if (accountToFrom.To == null || accountToFrom.From == null)
             {
-                Source = element.LpOrderId,
-                Account = accountToFrom.From,
-                When = env.ValueDate,
-                Value = element.LocalNetNotional * -1,
-                GeneratedBy = "system",
-                Fund = element.Fund,
-            };
+                env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
+                return;
+            }
 
-            var credit = new Journal
-            {
-                Source = element.LpOrderId,
-                Account = accountToFrom.To,
-                When = env.ValueDate,
-                Value = element.LocalNetNotional,
-                GeneratedBy = "system",
-                Fund = element.Fund,
-            };
-
-            new Journal[] { debit, credit }.Save(env);
+            return;
         }
     }
 }

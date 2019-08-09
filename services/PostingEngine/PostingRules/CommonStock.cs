@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 
 namespace PostingEngine.PostingRules
 {
-    public class CommonStock : IPostingRule
+
+    public class CommonStock : PostingRule, IPostingRule
     {
         public void DailyEvent(PostingEngineEnvironment env, Transaction element)
         {
@@ -150,6 +151,9 @@ namespace PostingEngine.PostingRules
 
         public void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
+            // Retrieve Allocation Objects for this trade
+            var tradeAllocations = env.Allocations.Where(i => i.ParentOrderId == element.ParentOrderId).ToList();
+
             var accountToFrom = GetFromToAccount(element);
 
             if (accountToFrom.To == null || accountToFrom.From == null)
@@ -177,7 +181,7 @@ namespace PostingEngine.PostingRules
 
                 var debitJournal = new Journal
                 {
-                    Source = element.LpOrderId,
+                    Source = tradeAllocations[0].TradeId,
                     Account = accountToFrom.From,
                     When = env.ValueDate,
                     Value = debitAmount,
@@ -189,7 +193,7 @@ namespace PostingEngine.PostingRules
 
                 var creditJournal = new Journal
                 {
-                    Source = element.LpOrderId,
+                    Source = tradeAllocations[1].TradeId,
                     Account = accountToFrom.To,
                     When = env.ValueDate,
                     FxCurrency = element.TradeCurrency,

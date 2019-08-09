@@ -20,8 +20,11 @@ namespace PostingEngine
         }
 
         public DateTime ValueDate { get; set; }
+        public DateTime RunDate { get; set; }
         public AccountCategory[] Categories { get; internal set; }
         public List<AccountType> Types { get; internal set; }
+
+        public Transaction[] Allocations { get; internal set; }
 
         public Dictionary<string, FxRate> FxRates { get; set; }
 
@@ -29,7 +32,8 @@ namespace PostingEngine
         public Dictionary<string, IPostingRule> rules = new Dictionary<string, IPostingRule>
         {
             {"Common Stock", new CommonStock() },
-            {"Journals", new FakeJournals() }
+            //{"Cash", new Cash() },
+            //{"Journals", new FakeJournals() }
         };
 
         public SqlConnection Connection { get; private set; }
@@ -53,12 +57,18 @@ namespace PostingEngine
         /// <summary>
         /// Based on the environment we need to determine what to do.
         /// </summary>
-        /// <param name="env"></param>
-        /// <param name="element"></param>
+        /// <param name="env">The Posting Environment</param>
+        /// <param name="element">The Trade to process</param>
         public void Process (PostingEngineEnvironment env, Transaction element)
         {
             // Find me the rule
             var rule = env.rules.Where(i => i.Key.Equals(element.SecurityType)).FirstOrDefault().Value;
+
+            if ( rule == null )
+            {
+                env.AddMessage($"No rule associated with {element.SecurityType}");
+                return;
+            }
 
             if ( !element.TradeType.ToLower().Equals("trade"))
             {
@@ -70,10 +80,7 @@ namespace PostingEngine
             {
                 try
                 {
-                    if (rule != null)
-                        rule.TradeDateEvent(env, element);
-                    else
-                        env.AddMessage($"No rule associated with {element.SecurityType}");
+                    rule.TradeDateEvent(env, element);
                 }
                 catch (Exception ex)
                 {
@@ -84,10 +91,7 @@ namespace PostingEngine
             {
                 try
                 {
-                    if (rule != null)
-                        rule.SettlementDateEvent(env, element);
-                    else
-                        env.AddMessage($"No rule associated with {element.SecurityType}");
+                    rule.SettlementDateEvent(env, element);
                 }
                 catch ( Exception ex )
                 {
@@ -98,10 +102,7 @@ namespace PostingEngine
             {
                 try
                 {
-                    if (rule != null)
-                        rule.DailyEvent(env, element);
-                    else
-                        env.AddMessage($"No rule associated with {element.SecurityType}");
+                    rule.DailyEvent(env, element);
                 }
                 catch (Exception ex)
                 {
