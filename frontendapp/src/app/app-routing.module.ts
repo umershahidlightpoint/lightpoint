@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { FinanceGridComponent } from './finance-grid/finance-grid.component';
+import { OperationsComponent } from './operations/operations.component';
 import { RunLogsComponent } from './runlogs/runlogs.component';
 import { ReportsComponent } from './reports/reports.component';
 import { AccountComponent } from './main/accounts/account.component';
@@ -15,6 +16,7 @@ const routes: Routes = [
   { path: 'journals-ledgers', component: AgGridExampleComponent },
   { path: 'trialBalance', component: TrialGridExampleComponent },
   { path: 'runlogs', component: RunLogsComponent },
+  { path: 'operations', component: OperationsComponent},
   { path: 'reports', component: ReportsComponent },
   { path: 'accounts', component: AccountComponent, 
     children: [
