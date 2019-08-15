@@ -20,9 +20,10 @@ import { DataService } from "../../shared/common/data.service";
 })
 export class GridLayoutMenuComponent implements IToolPanel {
   private params: IToolPanelParams;
-  test: string;
-  public gridLayoutID: any = 0;
-  public gridpppppp: any;
+
+  compareFn = (a,b) => this._compareFn(a,b)
+    gridLayoutID: any = 0;
+    isPublicSelected:  boolean = false;
   layoutName: any;
   canUpdateLayout: any;
   isPublic: boolean = false;
@@ -61,7 +62,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
 
   callMethod(): void {
     console.log("successfully executed.");
-    this.test = "Me";
+    
   }
 
   getLayout(): void {
@@ -75,14 +76,17 @@ export class GridLayoutMenuComponent implements IToolPanel {
     if (e) {
       //this.canUpdateLayout = e.IsPublic
 
-      for (var i = 0; i < this.gridLayouts.length; i++) {
-        if (this.gridLayouts[i].Id == e) {
-          this.canUpdateLayout = this.gridLayouts[i].IsPublic;
-        }
-      }
+      // for (var i = 0; i < this.gridLayouts.length; i++) {
+      //   if (this.gridLayouts[i].Id == e) {
+      //     this.canUpdateLayout = this.gridLayouts[i].IsPublic;
+      //   }
+      // }
 
       this.gridLayoutID = e;
-      this._FinanceService.GetAGridLayout(e).subscribe(response => {
+       
+      this.isPublicSelected = e.IsPublic;
+    
+      this._FinanceService.GetAGridLayout(e.Id).subscribe(response => {
         this.gridOptionsss.columnApi.setColumnState(
           JSON.parse(response.payload.ColumnState)
         );
@@ -107,12 +111,12 @@ export class GridLayoutMenuComponent implements IToolPanel {
     if (this.canUpdateLayout) {
       this.toastrService.error("Public Gridlayouts are not editable!");
     } else {
-      this.onSaveState(this.gridLayoutID);
+      this.onSaveState(this.gridLayoutID.Id);
     }
   }
-  public onSaveState(gridLayout_ID) {
+  public onSaveState(Layout_ID) {
     let oDataGridStatusDto = {
-      Id: gridLayout_ID,
+      Id: Layout_ID,
       GridId: GridName.Journal,
       GridLayoutName: this.layoutName,
       IsPublic: this.isPublic,
@@ -164,6 +168,12 @@ export class GridLayoutMenuComponent implements IToolPanel {
   closeModal() {
     this.modal.hide();
   }
-
+  _compareFn(a,b){
+    if(a.Id === 0){
+     // console.log('Id is null')
+      return a.Id
+    }
+    return a.Id === b.Id
+  }
   refresh() {}
 }

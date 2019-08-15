@@ -1,17 +1,20 @@
-<div class="row ag-header-cell-text" style="margin-top: 5px; padding-left: 25px">
-    <span ref="eText" class="ag-header-cell-text">
-    </span>
-</div>
-<div class="row mx-auto form-group"    *ngIf="!isNewLayout" >
-    <select class="form-control" [(ngModel)]="gridLayoutID" (ngModelChange)="RestoreLayout($event)">
-        <option [ngValue]="0" selected>Select layout</option>
-        <option *ngFor="let l of gridLayouts" [ngValue]="l.Id">
-            {{ l.GridLayoutName }} ({{ l.IsPublic ? 'Public' : 'Private' }})
-        </option>
-    </select>
+ 
+<div class="row mx-auto form-group pl-2 pt-2 " *ngIf="!isNewLayout"   >
+    <select         
+    [compareWith]="compareFn" 
+    class="form-control"   
+    [(ngModel)]="gridLayoutID" 
+    (ngModelChange)="RestoreLayout($event)"
+    style="background-color: #f7f7f7" >
+    <option [ngValue]="{Id: 0}"  selected >Select layout</option>
+    <option *ngFor="let l of gridLayouts" [ngValue]="l"  [ngClass]="l.IsPublic ? 'class-IsPublic':''"  >
+        
+       {{ l.GridLayoutName }} 
+    </option>
+</select>
 </div>
 
-<div *ngIf="isNewLayout" class="row mx-auto form-group">
+<div *ngIf="isNewLayout" class="row mx-auto form-group" style="padding-left: 5px;padding-top: 15px;padding-right: 5px">
     <input class="form-control" placeholder="Layout Name" type="text" [(ngModel)]="layoutName" step=".07">
 
     <div class="ml-auto mt-2 mr-4">
@@ -20,8 +23,9 @@
 
 </div>
 
-<div class="row ml-auto" *ngIf="!isNewLayout" style="margin: 5px">
-    <button (click)="onEditSave()" class="btn btn-info">Update</button>
+
+<div class="row ml-auto  pl-2" *ngIf="!isNewLayout"  >
+    <button (click)="onEditSave()"   [disabled]="isPublicSelected" class="btn btn-info">Update</button>
     <button style="margin-left: 5px;" (click)="onCreateNew()" class="btn btn-info">New</button>
 </div>
 

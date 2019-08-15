@@ -879,7 +879,7 @@ export class AgGridExampleComponent implements OnInit {
   public doesExternalFilterPass(node:any) {
 
     let result = true;
-
+ 
     if (this.startDate) {
       let cellDate = new Date(node.data.when);
       let td = this.startDate.toDate();
@@ -905,21 +905,20 @@ export class AgGridExampleComponent implements OnInit {
 
   public clearFilters() {
  
-    let dafsdf =this.journalGrid.frameworkComponents.customToolPanel.ngBaseDef;
+    
     this.gridOptions.api.redrawRows();
     this.DateRangeLable = "";
     this.selected = null;
-    this.startDate.value = '';
-    this.endDate = null;
-    this.fund = null;
-
+    
+    //this.fund = null;
+    this.fund = 'All Funds'
     this.journalGrid.api.setFilterModel(null);
     this.journalGrid.api.onFilterChanged();
-    this.startDate = null;
-    this.dateRangPicker.value = '';
+   
+     
 
-    this.startDate = "";
-    this.endDate = "";
+    this.startDate =moment("01-01-1901", "MM-DD-YYYY");
+    this.endDate = moment( );
   }
 
   greet(row: any) {

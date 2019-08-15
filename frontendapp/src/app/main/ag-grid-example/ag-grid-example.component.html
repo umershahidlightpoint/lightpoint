@@ -17,9 +17,9 @@
 
       <div class="col-md-5">
         <form>
-          <input type="text" autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
+          <input type="text"    autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
             [showCustomRangeLabel]="true" #dateRangPicker name="selectedDaterange" [showClearButton]="true"
-            placeholder="Choose date" [alwaysShowCalendars]="true" (ngModelChange)="ngModelChange($event)"
+            placeholder="Choose date" [alwaysShowCalendars]="false" (ngModelChange)="ngModelChange($event)"
             class="form-control" />
         </form>
       </div>
