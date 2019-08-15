@@ -13,6 +13,7 @@ import { AgGridExampleComponent } from  './main/ag-grid-example/ag-grid-example.
 import { TrialGridExampleComponent } from  './main/trial-balance/trial-balance.component';;
 
 const routes: Routes = [
+  { path: '', component: AgGridExampleComponent },
   { path: 'journals-ledgers', component: AgGridExampleComponent },
   { path: 'trialBalance', component: TrialGridExampleComponent },
   { path: 'runlogs', component: RunLogsComponent },
