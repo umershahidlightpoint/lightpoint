@@ -6,6 +6,7 @@ using System.Configuration;
 using System.Data;
 using LP.Finance.Common;
 using SqlDAL.Core;
+using LP.Core;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -53,7 +54,7 @@ namespace LP.Finance.WebProxy.WebAPI
         private object AllData(int pageNumber, int pageSize, string sortColum = "id", string sortDirection = "asc",
             int accountId = 0, int value = 0)
         {
-            var query = $@"select * from journal_log";
+            var query = $@"select * from journal_log with(nolock)";
 
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
             var jsonResult = JsonConvert.SerializeObject(dataTable);
@@ -110,11 +111,8 @@ namespace LP.Finance.WebProxy.WebAPI
     {
         // Mock Service
         // private IJournalController controller = new JournalControllerStub();
-        private IJournalLogController controller = new JournalLogControllerService();
+        private readonly IJournalLogController controller = ControllerFactory.Get<IJournalLogController, JournalLogControllerStub, JournalLogControllerService>();
 
-        public JournalLogController()
-        {
-        }
 
         [HttpGet]
         [ActionName("data")]

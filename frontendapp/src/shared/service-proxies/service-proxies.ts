@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 
 export const API_BASE_URL = environment.remoteServerUrl;
+export const REF_DATA_BASE_URL = environment.referenceDataUrl;
 
 @Injectable()
 export class FinancePocServiceProxy {
@@ -23,7 +24,12 @@ export class FinancePocServiceProxy {
     }
 
     getFunds() {
-        const url = encodeURI(this.baseUrl+'/refdata/data?refdata=fund');
+        const url = encodeURI(REF_DATA_BASE_URL+'/refdata/data?refdata=fund');
+        return this.http.get(url).pipe(map((response: any) => response));
+    }
+
+    getPortfolios() {
+        const url = encodeURI(REF_DATA_BASE_URL+'/refdata/data?refdata=portfolio');
         return this.http.get(url).pipe(map((response: any) => response));
     }
 

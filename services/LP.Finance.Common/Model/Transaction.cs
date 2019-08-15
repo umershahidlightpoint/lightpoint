@@ -9,6 +9,7 @@ namespace LP.Finance.Common.Models
     public class Transaction
     {
         public string LpOrderId { get; set; }
+        public string ParentOrderId { get; set; }
         public string Action { get; set; }
         public string TradeCurrency { get; set; }
         public string SettleCurrency { get; set; }

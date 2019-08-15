@@ -1,7 +1,7 @@
 import { Component, TemplateRef, ElementRef, OnInit, Injector, Input, ViewChild, EventEmitter, Output, ViewEncapsulation } from '@angular/core';
-import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { FinancePocServiceProxy } from '../../shared/service-proxies/service-proxies';
 import { GridOptions } from "ag-grid-community";
-import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
+import { TemplateRendererComponent } from '../template-renderer/template-renderer.component';
 
 
 import * as moment from 'moment';
@@ -9,12 +9,12 @@ import { debug } from 'util';
 import { $ } from 'protractor';
 
 @Component({
-  selector: 'app-logs',
-  templateUrl: './logs.component.html',
-  styleUrls: ['./logs.component.css'],
+  selector: 'app-operations',
+  templateUrl: './operations.component.html',
+  styleUrls: ['./operations.component.css'],
 })
 
-export class LogsComponent implements OnInit {
+export class OperationsComponent implements OnInit {
   constructor(injector: Injector,
     private _fundsService: FinancePocServiceProxy) {
     (injector);
@@ -32,6 +32,18 @@ export class LogsComponent implements OnInit {
 
   };
 
+
+  public runEngine() {
+    alert(this.selectedPeriod.name);
+
+    /* This needs to call out to the Posting Engine and invoke the process,
+     this is a fire and forget as the process may take a little while to complete
+    */
+  }
+
+  periods = [{name:'YTD'}, {name:'ITD'}, {name:'MTD'}, {name:'Today'}, {name:'Latest'}];
+
+  selectedPeriod: any;
 
   private gridOptions: GridOptions;
 

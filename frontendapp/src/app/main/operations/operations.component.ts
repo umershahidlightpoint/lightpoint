@@ -14,7 +14,7 @@ import { $ } from 'protractor';
   styleUrls: ['./logs.component.css'],
 })
 
-export class LogsComponent implements OnInit {
+export class OperationsComponent implements OnInit {
   constructor(injector: Injector,
     private _fundsService: FinancePocServiceProxy) {
     (injector);
