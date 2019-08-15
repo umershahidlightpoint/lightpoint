@@ -33,7 +33,7 @@ namespace PostingEngine
         {
             {"Common Stock", new CommonStock() },
             //{"Cash", new Cash() },
-            //{"Journals", new FakeJournals() }
+            {"Journals", new FakeJournals() }
         };
 
         public SqlConnection Connection { get; private set; }

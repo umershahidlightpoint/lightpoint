@@ -36,17 +36,13 @@ namespace PostingEngine.PostingRules
 
             switch (element.Side.ToLowerInvariant())
             {
-                case "buy":
+                case "debit":
                     //fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("LONG POSITIONS AT COST")).FirstOrDefault(), listOfFromTags, element);
-                    //toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
+                    toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Expenses Paid")).FirstOrDefault(), listOfToTags, element);
                     break;
-                case "sell":
-                    break;
-                case "short":
+                case "credit":
                     //fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
                     //toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("SHORT POSITIONS-COST")).FirstOrDefault(), listOfFromTags, element);
-                    break;
-                case "cover":
                     break;
             }
 
@@ -61,10 +57,38 @@ namespace PostingEngine.PostingRules
         {
             var accountToFrom = GetFromToAccount(element);
 
-            if (accountToFrom.To == null || accountToFrom.From == null)
+            if (accountToFrom.To == null)
             {
                 env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
                 return;
+            }
+
+            new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
+
+            double fxrate = 1.0;
+
+            if (!element.SettleCurrency.Equals("USD"))
+            {
+                fxrate = Convert.ToDouble(env.FxRates[element.TradeCurrency].Rate);
+            }
+
+            var moneyUSD = element.LocalNetNotional / fxrate;
+
+            if (element.LocalNetNotional != 0.0)
+            {
+                var debit = new Journal
+                {
+                    Source = element.LpOrderId,
+                    Account = accountToFrom.To,
+                    When = env.ValueDate,
+                    FxCurrency = element.TradeCurrency,
+                    FxRate = fxrate,
+                    Value = moneyUSD * -1,
+                    GeneratedBy = "system",
+                    Fund = element.Fund,
+                };
+
+                new Journal[] { debit }.Save(env);
             }
 
             return;

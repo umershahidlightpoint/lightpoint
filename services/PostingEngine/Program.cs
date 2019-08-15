@@ -145,6 +145,8 @@ namespace ConsoleApp1
                     }
                     catch (Exception exe)
                     {
+                        postingEnv.AddMessage(exe.Message);
+
                         Error(exe, element);
                     }
                 }
