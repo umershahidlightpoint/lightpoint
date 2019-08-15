@@ -1,61 +1,54 @@
-<!----- Navbar start ----->
-<div class="row">
-  <div class="col-sm-2 btn-group" dropdown>
-        <!-- Create Account Button -->
-        <button id="button-basic" dropdownToggle type="button" class="btn btn-sm btn-primary dropdown-toggle"
-                aria-controls="dropdown-basic">
-          Create Account <span class="caret"></span>
-        </button>
-        <!----- Create Category Dropdown ----->        
-        <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu ml-3"
-            role="menu" aria-labelledby="button-basic">
-            <li role="menuitem"><button class="dropdown-item disabled" >Select Account Category</button></li>
-            <div class="dropdown-divider"></div>
-            <li *ngFor="let accountCategory of accountCategories" role="menuitem">
-              <button class="dropdown-item" (click)="accountCategorySelected(accountCategory)">
-                  {{ accountCategory.Name }}
-              </button>
-            </li>
-        </ul>
-  </div>
-</div>
-<hr />
-<!----- Navbar end ----->
- 
 <p-tabView [ngStyle]="style">
-    <p-tabPanel header="Accounts" [ngStyle]="style">  
-      <!----- Div To Measure Identifier starts ----->
-      <div #divToMeasure>
-         
-        <!----- Style For Height ----->
-        <div [ngStyle]="styleForHight"> 
-          <!----- Ag Grid Start ----->
-          <ag-grid-angular
-              class="ag-theme-balham"
-              style="height: 100%; width: 100%"
-              [gridOptions]="gridOptions"
-              >
-          </ag-grid-angular>
-          <!----- Action buttons ----->
-          <ng-template #actionButtons let-row>
-            <button 
-              class="btn btn-info fixHeight" 
-              (click)="editRow(row)">
-              Edit
-            </button>
-            <button 
-              [disabled]="row.hasJournal == 'Yes'" 
-              class="btn btn-danger fixHeight" 
-              (click)="deleteRow(row)">
-                Delete
-            </button>
-          </ng-template>
-        </div>
-      </div>
-      <!----- Div To Measure Identifier ends ----->
-    </p-tabPanel>
-  </p-tabView>
 
-<!----- Create Account Component Tag ----->            
-<app-create-account #createModal [selectedAccCategory]="selectedAccountCategory" (modalClose)="getAccountsRecord()"></app-create-account>
+  <!----- Navbar start ----->
+  <div class="row">
+    <div class="col-sm-10"></div>
+    <div class="col-sm-2 btn-group" dropdown>
+      <!-- Create Account Button -->
+      <button id="button-basic" dropdownToggle type="button" class="btn btn-sm btn-primary dropdown-toggle mt-1"
+        aria-controls="dropdown-basic">
+        Create Account <span class="caret"></span>
+      </button>
+      <!----- Create Category Dropdown ----->
+      <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu ml-3" role="menu" aria-labelledby="button-basic">
+        <li role="menuitem"><button class="dropdown-item disabled">Select Account Category</button></li>
+        <div class="dropdown-divider"></div>
+        <li *ngFor="let accountCategory of accountCategories" role="menuitem">
+          <button class="dropdown-item" (click)="accountCategorySelected(accountCategory)">
+            {{ accountCategory.Name }}
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!----- Navbar end ----->
+
+  <p-tabPanel header="Accounts" [ngStyle]="style">
+    <!----- Div To Measure Identifier starts ----->
+    <div #divToMeasure>
+
+      <!----- Style For Height ----->
+      <div [ngStyle]="styleForHight">
+        <!----- Ag Grid Start ----->
+        <ag-grid-angular class="ag-theme-balham" style="height: 100%; width: 100%" [gridOptions]="gridOptions">
+        </ag-grid-angular>
+        <!----- Action buttons ----->
+        <ng-template #actionButtons let-row>
+          <button class="btn btn-info action-btn fixHeight" (click)="editRow(row)">
+            <i class="fa fa-lg fa-edit" aria-hidden="true"></i>
+          </button>
+          <button [disabled]="row.hasJournal == 'Yes'" class="btn btn-danger action-btn fixHeight"
+            (click)="deleteRow(row)">
+            <i class="fa fa-lg fa-trash-o" aria-hidden="true"></i>
+          </button>
+        </ng-template>
+      </div>
+    </div>
+    <!----- Div To Measure Identifier ends ----->
+  </p-tabPanel>
+</p-tabView>
+
+<!----- Create Account Component Tag ----->
+<app-create-account #createModal [selectedAccCategory]="selectedAccountCategory" (modalClose)="getAccountsRecord()">
+</app-create-account>
 <router-outlet></router-outlet>

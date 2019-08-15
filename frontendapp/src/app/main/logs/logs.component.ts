@@ -1,8 +1,18 @@
-import { Component, TemplateRef, ElementRef, OnInit, Injector, Input, ViewChild, EventEmitter, Output, ViewEncapsulation } from '@angular/core';
+import {
+  Component,
+  TemplateRef,
+  ElementRef,
+  OnInit,
+  Injector,
+  Input,
+  ViewChild,
+  EventEmitter,
+  Output,
+  ViewEncapsulation
+} from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
-import { GridOptions } from "ag-grid-community";
+import { GridOptions } from 'ag-grid-community';
 import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
-
 
 import * as moment from 'moment';
 import { debug } from 'util';
@@ -11,27 +21,27 @@ import { $ } from 'protractor';
 @Component({
   selector: 'app-logs',
   templateUrl: './logs.component.html',
-  styleUrls: ['./logs.component.css'],
+  styleUrls: ['./logs.component.css']
 })
-
 export class LogsComponent implements OnInit {
-  constructor(injector: Injector,
-    private _fundsService: FinancePocServiceProxy) {
-    (injector);
+  constructor(injector: Injector, private _fundsService: FinancePocServiceProxy) {
+    injector;
     this.gridOptions = <GridOptions>{
       rowData: null,
       columnDefs: this.columnDefs,
-      onGridReady: () => { this.gridOptions.api.sizeColumnsToFit(); },
-      onFirstDataRendered: (params) => { params.api.sizeColumnsToFit(); },
+      onGridReady: () => {
+        this.gridOptions.api.sizeColumnsToFit();
+      },
+      onFirstDataRendered: params => {
+        params.api.sizeColumnsToFit();
+      },
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
       suppressHorizontalScroll: true
     };
     //this.selected = {startDate: moment().subtract(6, 'days'), endDate: moment().subtract(1, 'days')};
-
-  };
-
+  }
 
   private gridOptions: GridOptions;
 
@@ -46,9 +56,7 @@ export class LogsComponent implements OnInit {
 
   bottomOptions = { alignedGrids: [] };
 
-
-
-  selected: { startDate: moment.Moment, endDate: moment.Moment };
+  selected: { startDate: moment.Moment; endDate: moment.Moment };
 
   @ViewChild('topGrid') topGrid;
   @ViewChild('bottomGrid') bottomGrid;
@@ -60,7 +68,7 @@ export class LogsComponent implements OnInit {
   totalDebit: number;
   bottomData: any;
   startDate: any;
-  fund:any;
+  fund: any;
   endDate: any;
 
   symbal: string;
@@ -83,7 +91,7 @@ export class LogsComponent implements OnInit {
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 235px)',
+    height: 'calc(100vh - 180px)',
     boxSizing: 'border-box'
   };
 
@@ -96,8 +104,6 @@ export class LogsComponent implements OnInit {
     { field: 'action_on', headerName: 'Action On', sortable: true, filter: true, width:25 },
     { field: 'action', headerName: 'Action', sortable: true, filter: true },
   ];
-
-
 
   setWidthAndHeight(width, height) {
     this.style = {
@@ -120,18 +126,26 @@ export class LogsComponent implements OnInit {
     this.gridOptions.alignedGrids.push(this.bottomOptions);
     this.bottomOptions.alignedGrids.push(this.gridOptions);
 
-    this.symbal = "ALL";
+    this.symbal = 'ALL';
 
     this.page = 0;
     this.pageSize = 0;
     this.accountSearch.id = 0;
     this.valueFilter = 0;
-    this.sortColum = "";
-    this.sortDirection = "";
+    this.sortColum = '';
+    this.sortDirection = '';
 
-    this._fundsService.getJournalLogs(this.symbal, this.page, this.pageSize, this.accountSearch.id,
-      this.valueFilter, this.sortColum, this.sortDirection).subscribe(result => {
-
+    this._fundsService
+      .getJournalLogs(
+        this.symbal,
+        this.page,
+        this.pageSize,
+        this.accountSearch.id,
+        this.valueFilter,
+        this.sortColum,
+        this.sortDirection
+      )
+      .subscribe(result => {
         this.rowData = [];
 
         this.rowData = result.data.map(item => ({

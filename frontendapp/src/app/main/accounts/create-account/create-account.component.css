@@ -45,16 +45,20 @@
 }
 
 .cross-button {
-	background-color:transparent;
-	cursor:pointer;
-	color:#fa0a0a;
-	font-size:18px;
-	font-weight:bold;
-	padding:0 8px;
+  background-color: transparent;
+  cursor: pointer;
+  color: #fa0a0a;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 0 8px;
 }
 
 .tag-label {
   background: none;
   border-style: none;
-  margin-right: 2px
+  margin-right: 2px;
+}
+
+.modal-backdrop {
+  display: none;
 }
