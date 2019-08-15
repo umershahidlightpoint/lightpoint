@@ -1,0 +1,12 @@
+.header {
+  padding: 10px 20px;
+  padding-left: 7px;
+  background: rgb(2, 117, 216);
+  color: white;
+}
+
+.header-btn {
+  background-color: rgb(2, 117, 216);
+  color: white;
+  outline: none;
+}

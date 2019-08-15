@@ -1,48 +1,30 @@
 /* You can add global styles to this file, and also import other style files */
-@import "../node_modules/primeng/resources/primeng.min.css";
-@import "../node_modules/primeng/resources/themes/bootstrap/theme.css";
+@import '../node_modules/primeng/resources/primeng.min.css';
+@import '../node_modules/primeng/resources/themes/bootstrap/theme.css';
 @import '../node_modules/primeng/resources/themes/omega/theme.css';
-@import 'bootstrap';
+@import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 @import '../node_modules/font-awesome/css/font-awesome.css';
-@import "~ag-grid-community/dist/styles/ag-grid.css";
-@import "~ag-grid-community/dist/styles/ag-theme-balham.css";
+@import '~ag-grid-community/dist/styles/ag-grid.css';
+@import '~ag-grid-community/dist/styles/ag-theme-balham.css';
 
 /* @import '~/angular-notifier/styles'; */
 /* @import "../node_modules/primeng/resources/component/table/table.css"; */
-
-
 
 /* .margin-top-50 {
     margin-top: 50px !important;
 } */
 
-.margin-top-15 {
-    margin-top: 15px !important;
-}
-
-.margin-bottom-10 {
-    margin-bottom: 10px !important;
-}
-
-.margin-15 {
-    margin: 15px !important;
-}
-
 .value-input {
-    margin-left: 18px;
-    width: 58% !important;
-    display: initial;
+  margin-left: 18px;
+  width: 58% !important;
+  display: initial;
 }
 
 .font-size-12 {
-    font-size: 12px
-}
-
-body {
-    margin: 20px;
+  font-size: 12px;
 }
 
 .ui-panel-content {
-    padding: 0 !important;
-    margin: 0;
+  padding: 0 !important;
+  margin: 0;
 }

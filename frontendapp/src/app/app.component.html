@@ -1,41 +1,17 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <!--
-        <a class="navbar-brand"></a>
-    -->
-    <!--
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    -->
-
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" routerLink="/journals-ledgers">Journals</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-item nav-link" routerLink="/trialBalance">Trial Balance</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-item nav-link" routerLink="/accounts">Accounts</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-item nav-link" routerLink="/operations">Operations</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-item nav-link" routerLink="/runlogs">Logs</a>
-                    </li>
-                <!--
-                    <li class="nav-item">
-                        <a class="nav-item nav-link" routerLink="/reports">Reports</a>
-                    </li>
-                -->
-            </ul>
-    </div>
-</nav>
-
 <div>
-    <router-outlet></router-outlet>
+    <app-header [sidenav]="leftSidenav"></app-header>
+
+    <mat-sidenav-container class="sidenav-container">
+        <mat-sidenav #leftSidenav mode="side" opened>
+            <app-left-menu></app-left-menu>
+        </mat-sidenav>
+        <mat-sidenav-content [@onMainContentChange]="onSideNavChange ? 'open': 'close'">
+            <div class="main_content">
+                <div style="padding: 1%">
+                    <router-outlet></router-outlet>
+                </div>
+            </div>
+        </mat-sidenav-content>
+    </mat-sidenav-container>
+
 </div>
