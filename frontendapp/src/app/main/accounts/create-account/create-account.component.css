@@ -59,6 +59,10 @@
   margin-right: 2px;
 }
 
+.modal {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
 .modal-backdrop {
-  display: none;
+  position: relative;
 }

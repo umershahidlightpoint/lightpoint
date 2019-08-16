@@ -85,7 +85,7 @@
     <None Include="Data\custodian.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Data\fund.json">
+    <None Include="MockData\fund.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Data\portfolio.json">

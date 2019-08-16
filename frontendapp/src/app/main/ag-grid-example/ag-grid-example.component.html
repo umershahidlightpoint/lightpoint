@@ -30,14 +30,14 @@
       </div>
 
       <div class="ml-auto">
-        <div class="mr-2 tabBtn">
-          <button class="btn btn-info" type="button" (click)="openJournalModal()"><i class="fa fa-plus"
-              aria-hidden="true"></i> Create Journal</button>
+        <div class="mr-2  tabBtn">
+            <button (click)="onBtExport()" class="btn btn-info"><i class="fa fa-arrow-circle-o-down"></i> Export
+              Excel</button>
         </div>
 
         <div class="tabBtn">
-          <button (click)="onBtExport()" class="btn btn-info"><i class="fa fa-arrow-circle-o-down"></i> Export
-            Excel</button>
+          <button class="btn btn-info" type="button" (click)="openJournalModal()"><i class="fa fa-plus"
+              aria-hidden="true"></i> Create Journal</button>
         </div>
       </div>
     </div>
