@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D8D81D4B-4D9B-4D3B-9321-00DBA39455EC}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>PostingEngine</RootNamespace>
-    <AssemblyName>PostingEngine</AssemblyName>
+    <ProjectGuid>{10E8C8DD-16F0-4AA9-BDED-7A672644F0D2}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>PostingEngineApp</RootNamespace>
+    <AssemblyName>PostingEngineApp</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -32,9 +32,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -50,29 +47,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FxRates.cs" />
-    <Compile Include="Posting.cs" />
-    <Compile Include="PostingRules\Cash.cs" />
-    <Compile Include="PostingRules\PostingRule.cs" />
-    <Compile Include="Utilities\AccountUtils.cs" />
-    <Compile Include="PostingRules\CommonStock.cs" />
-    <Compile Include="PostingRules\FakeJournals.cs" />
-    <Compile Include="PostingRules\IPostingRule.cs" />
-    <Compile Include="Utilities\Utils.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="MockData\fxrates.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\LP.Finance.Common\LP.Finance.Common.csproj">
-      <Project>{D2E48A0E-449A-4FE7-B0EA-40474FE455B0}</Project>
+      <Project>{d2e48a0e-449a-4fe7-b0ea-40474fe455b0}</Project>
       <Name>LP.Finance.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PostingEngine\PostingEngine.csproj">
+      <Project>{d8d81d4b-4d9b-4d3b-9321-00dba39455ec}</Project>
+      <Name>PostingEngine</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
