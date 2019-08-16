@@ -10,3 +10,9 @@
   color: white;
   outline: none;
 }
+
+.right-corner {
+  float: right;
+  padding: 10px;
+  font-weight: bold;
+}

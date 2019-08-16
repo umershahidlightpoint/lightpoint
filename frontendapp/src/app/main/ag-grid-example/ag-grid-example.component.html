@@ -15,7 +15,7 @@
         <label style="text-align: right"> {{DateRangeLable}} </label>
       </div>
 
-      <div class="col-md-5">
+      <div class="col-md-6">
         <form>
           <input type="text"    autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
             [showCustomRangeLabel]="true" #dateRangPicker name="selectedDaterange" [showClearButton]="true"
@@ -31,13 +31,11 @@
 
       <div class="ml-auto">
         <div class="mr-2  tabBtn">
-            <button (click)="onBtExport()" class="btn btn-info"><i class="fa fa-arrow-circle-o-down"></i> Export
-              Excel</button>
+            <button (click)="onBtExport()" class="btn btn-info" tooltip="Export to Excel" placement="auto"><i class="fa fa-arrow-circle-o-down"></i></button>
         </div>
 
-        <div class="tabBtn">
-          <button class="btn btn-info" type="button" (click)="openJournalModal()"><i class="fa fa-plus"
-              aria-hidden="true"></i> Create Journal</button>
+        <div class="mr-4 tabBtn">
+          <button class="btn btn-info" type="button" (click)="openJournalModal()" tooltip="Create Journal" placement="top"><i class="fa fa-plus" aria-hidden="true"></i></button>
         </div>
       </div>
     </div>

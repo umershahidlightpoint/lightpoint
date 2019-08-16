@@ -34,10 +34,10 @@
         </ag-grid-angular>
         <!----- Action buttons ----->
         <ng-template #actionButtons let-row>
-          <button class="btn btn-info action-btn fixHeight" (click)="editRow(row)" tooltip="Edit" placement="auto" container="body">
+          <button class="btn ml-5 action-btn fixHeight" (click)="editRow(row)" tooltip="Edit" placement="auto" container="body">
             <i class="fa fa-lg fa-edit" aria-hidden="true"></i>
           </button>
-          <button [disabled]="row.hasJournal == 'Yes'" class="btn btn-danger action-btn fixHeight" 
+          <button [disabled]="row.hasJournal == 'Yes'" class="btn action-btn fixHeight" 
             [ngClass]=" {'disabled-btn':row.hasJournal == 'Yes'}"
             (click)="deleteRow(row)" tooltip="Delete" placement="auto" container="body">
             <i class="fa fa-lg fa-trash-o" aria-hidden="true"></i>

@@ -1,6 +1,7 @@
  <p-tabView [ngStyle]="style">
   <p-tabPanel header="Trial Balance" >
     <div class="row ">
+
       <div class="col-md-2">
         <select class="form-control" [(ngModel)]="fund" (ngModelChange)="ngModelChangeFund($event)">
           <option [ngValue]="null">All Funds</option>
@@ -8,24 +9,29 @@
             {{ f.FundCode }}
           </option>
         </select>
-
       </div>
-      <label class="col-md-1 " style="text-align: right"> {{DateRangeLable}} </label>
+
+      <div>
+        <label style="text-align: right"> {{DateRangeLable}} </label>
+      </div>
+      
       <div class="col-md-6">
-          <form>
-        <input type="text" autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
-          [showCustomRangeLabel]="true" #dateRangPicker name="selectedDaterange" [showClearButton]="true"
-          placeholder="Choose date" [alwaysShowCalendars]="true" (ngModelChange)="ngModelChange($event)"
-          class="form-control" /></form>
+        <form>
+          <input type="text" autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
+            [showCustomRangeLabel]="true" #dateRangPicker name="selectedDaterange" [showClearButton]="true"
+            placeholder="Choose date" [alwaysShowCalendars]="true" (ngModelChange)="ngModelChange($event)"
+            class="form-control" />
+        </form>
       </div>
 
-      <div class="col-1">
-        <button (click)="clearFilters( )" class="btn btn-info" type="button">Clear</button>
-       
+      <div class="mr-auto">
+        <button (click)="clearFilters( )" class="btn btn-info" type="button">
+            <i class="fa fa-remove"></i> Clear</button>
       </div>
-      <div class="col-2">
-       <button (click)="onBtExport()" class="btn btn-info">Export to Excel</button>  
-    </div>
+
+      <div class="ml-auto">
+       <button (click)="onBtExport()" class="btn btn-info mr-4" tooltip="Export to Excel" placement="top"><i class="fa fa-arrow-circle-o-down"></i></button>  
+      </div>
   </div>
 
     <div style="clear: both"></div>
