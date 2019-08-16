@@ -19,10 +19,10 @@ export class LeftMenuComponent implements OnInit {
   public linkText: boolean = false;
 
   public pages: Page[] = [
-    { name: 'Journal', routerLink: '/journals-ledgers', icon: 'collections_bookmark' },
+    { name: 'Journal', routerLink: '/journals-ledgers', icon: 'library_books' },
     { name: 'Trial Balance', routerLink: 'trialBalance', icon: 'attach_money' },
     { name: 'Account', routerLink: '/accounts', icon: 'account_balance' },
-    { name: 'Logs', routerLink: 'runlogs', icon: 'send' }
+    { name: 'Logs', routerLink: 'runlogs', icon: 'list_alt' }
   ];
 
   constructor(private sidenavService: SidenavService) {}
