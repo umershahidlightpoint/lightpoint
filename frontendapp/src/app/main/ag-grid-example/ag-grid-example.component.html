@@ -1,43 +1,68 @@
 <p-tabView [ngStyle]="style">
   <p-tabPanel header="Journals">
     <div class="row ">
-
       <div class="col-md-2">
-        <select class="form-control" [(ngModel)]="fund" (ngModelChange)="ngModelChangeFund($event)">
+        <select
+          class="form-control"
+          [(ngModel)]="fund"
+          (ngModelChange)="ngModelChangeFund($event)"
+        >
           <option selected>All Funds</option>
-          <option [ngValue]="f.FundCode" *ngFor="let f of funds" [ngValue]="f.FundCode">
+          <option
+            [ngValue]="f.FundCode"
+            *ngFor="let f of funds"
+            [ngValue]="f.FundCode"
+          >
             {{ f.FundCode }}
           </option>
         </select>
       </div>
 
       <div>
-        <label style="text-align: right"> {{DateRangeLable}} </label>
+        <label style="text-align: right"> {{ DateRangeLable }} </label>
       </div>
 
-      <div class="col-md-5">
+      <div class="col-md-3">
         <form>
-          <input type="text"    autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
-            [showCustomRangeLabel]="true" #dateRangPicker name="selectedDaterange" [showClearButton]="true"
-            placeholder="Choose date" [alwaysShowCalendars]="false" (ngModelChange)="ngModelChange($event)"
-            class="form-control" />
+          <input
+            type="text"
+            autocomplete="off"
+            ngxDaterangepickerMd
+            [(ngModel)]="selected"
+            [ranges]="ranges"
+            [showCustomRangeLabel]="true"
+            #dateRangPicker
+            name="selectedDaterange"
+            [showClearButton]="true"
+            placeholder="Choose date"
+            [alwaysShowCalendars]="true"
+            (ngModelChange)="ngModelChange($event)"
+            class="form-control"
+          />
         </form>
       </div>
 
       <div class="mr-auto">
         <button (click)="clearFilters()" class="btn btn-info" type="button">
-          <i class="fa fa-remove"></i> Clear</button>
+          <i class="fa fa-remove"></i> Clear
+        </button>
       </div>
 
       <div class="ml-auto">
         <div class="mr-2 tabBtn">
-          <button class="btn btn-info" type="button" (click)="openJournalModal()"><i class="fa fa-plus"
-              aria-hidden="true"></i> Create Journal</button>
+          <button
+            class="btn btn-info"
+            type="button"
+            (click)="openJournalModal()"
+          >
+            <i class="fa fa-plus" aria-hidden="true"></i> Create Journal
+          </button>
         </div>
 
         <div class="tabBtn">
-          <button (click)="onBtExport()" class="btn btn-info"><i class="fa fa-arrow-circle-o-down"></i> Export
-            Excel</button>
+          <button (click)="onBtExport()" class="btn btn-info">
+            <i class="fa fa-arrow-circle-o-down"></i> Export Excel
+          </button>
         </div>
       </div>
     </div>
@@ -45,22 +70,29 @@
     <div style="clear: both"></div>
     <div #divToMeasureJournal>
       <div [ngStyle]="styleForHight">
-        <ag-grid-angular #journalGrid style="width: 100%; height: 100%" class="ag-theme-balham"
-          [gridOptions]="gridOptions" [rowGroupPanelShow]="rowGroupPanelShow" [pivotPanelShow]="pivotPanelShow"
-          [pivotColumnGroupTotals]="pivotColumnGroupTotals" [pivotRowTotals]="pivotRowTotals" [sideBar]="sideBar"
-          [rowData]="rowData" [rowSelection]="rowSelection" [getRowStyle]="getRowStyle"
-          [frameworkComponents]="frameworkComponents">
+        <ag-grid-angular
+          #journalGrid
+          style="width: 100%; height: 100%"
+          class="ag-theme-balham"
+          [gridOptions]="gridOptions"
+          [rowGroupPanelShow]="rowGroupPanelShow"
+          [pivotPanelShow]="pivotPanelShow"
+          [pivotColumnGroupTotals]="pivotColumnGroupTotals"
+          [pivotRowTotals]="pivotRowTotals"
+          [sideBar]="sideBar"
+          [rowData]="rowData"
+          [rowSelection]="rowSelection"
+          [getRowStyle]="getRowStyle"
+          [frameworkComponents]="frameworkComponents"
+        >
           <!--
           [pinnedBottomRowData]="pinnedBottomRowData"
         -->
         </ag-grid-angular>
-
-
       </div>
     </div>
   </p-tabPanel>
 </p-tabView>
-
 
 <ng-template #greetCell let-row>
   <!-- 
@@ -68,6 +100,5 @@
   -->
 </ng-template>
 
-
-
-<app-journal-modal #journalModal (modalClose)="closeJournalModal()"> </app-journal-modal>
+<app-journal-modal #journalModal (modalClose)="closeJournalModal()">
+</app-journal-modal>

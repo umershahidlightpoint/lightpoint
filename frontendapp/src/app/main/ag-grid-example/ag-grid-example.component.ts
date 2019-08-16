@@ -17,7 +17,7 @@ import { listLazyRoutes } from '@angular/compiler/src/aot/lazy_routes';
 import { JournalModalComponent } from './journal-modal/journal-modal.component';
 
 import { GridLayoutComponent } from  "../../grid-layout/grid-layout.component"  ;
-import { GridLayoutMenuComponent } from '../../grid-layout-menu/grid-layout-menu.component'
+import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-menu/grid-layout-menu.component'
 import { DataService } from "../../../shared/common/data.service";
 class GridConfiguration {
   private gridApi;
