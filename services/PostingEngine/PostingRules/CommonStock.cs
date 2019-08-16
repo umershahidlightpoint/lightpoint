@@ -13,6 +13,9 @@ namespace PostingEngine.PostingRules
     {
         public void DailyEvent(PostingEngineEnvironment env, Transaction element)
         {
+            /*
+             * Are there accruals for this trade, we grab them as needed
+            */
             throw new NotImplementedException();
         }
 
