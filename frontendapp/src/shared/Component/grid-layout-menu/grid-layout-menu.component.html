@@ -1,0 +1,75 @@
+<div class="row mx-auto form-group pl-2 pt-2 " *ngIf="!isNewLayout">
+  <select
+    [compareWith]="compareFn"
+    class="form-control"
+    [(ngModel)]="gridLayoutID"
+    (ngModelChange)="RestoreLayout($event)"
+    style="background-color: #f7f7f7"
+  >
+    <option [ngValue]="{ Id: 0 }" selected>Select layout</option>
+    <option
+      *ngFor="let l of gridLayouts"
+      [ngValue]="l"
+      [ngClass]="l.IsPublic ? 'class-IsPublic' : ''"
+    >
+      {{ l.GridLayoutName }}
+    </option>
+  </select>
+</div>
+
+<div
+  *ngIf="isNewLayout"
+  class="row mx-auto form-group"
+  style="padding-left: 5px;padding-top: 15px;padding-right: 5px"
+>
+  <input
+    class="form-control"
+    placeholder="Layout Name"
+    type="text"
+    [(ngModel)]="layoutName"
+    step=".07"
+  />
+
+  <div class="ml-auto mt-2 mr-4">
+    <input type="checkbox" [(ngModel)]="isPublic" name="Public" value="1" />
+    Public
+  </div>
+</div>
+
+<div class="row ml-auto  pl-2" *ngIf="!isNewLayout">
+  <button
+    (click)="onEditSave()"
+    [disabled]="isPublicSelected"
+    class="btn btn-info"
+  >
+    Update
+  </button>
+  <button
+    style="margin-left: 5px;"
+    (click)="onCreateNew()"
+    class="btn btn-info"
+  >
+    New
+  </button>
+</div>
+
+<div *ngIf="isNewLayout" class="form-group m-2">
+  <div class="row" *ngIf="isNewLayout">
+    <div class="ml-auto mt-2 mr-3">
+      <button
+        style="margin-left: 5px;"
+        (click)="onCreateNew()"
+        class="btn btn-info"
+      >
+        Cancel
+      </button>
+      <button
+        style="margin-left: 5px;"
+        (click)="onNewSave()"
+        class="btn btn-info"
+      >
+        Save
+      </button>
+    </div>
+  </div>
+</div>

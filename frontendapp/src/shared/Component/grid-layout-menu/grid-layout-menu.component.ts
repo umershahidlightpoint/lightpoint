@@ -8,11 +8,11 @@ import {
 } from "@angular/core";
 import { IToolPanel, IToolPanelParams } from "ag-grid-community";
 
-import { FinancePocServiceProxy } from "../../shared/service-proxies/service-proxies";
-import { GridName } from "../../shared/utils/AppEnums";
+import { FinancePocServiceProxy } from "../../service-proxies/service-proxies";
+import { GridName } from "../../utils/AppEnums";
 import { ToastrService } from "ngx-toastr";
 import { ModalDirective } from "ngx-bootstrap";
-import { DataService } from "../../shared/common/data.service";
+import { DataService } from "../../common/data.service";
 @Component({
   selector: "app-grid-layout-menu",
   templateUrl: "./grid-layout-menu.component.html",
@@ -21,9 +21,9 @@ import { DataService } from "../../shared/common/data.service";
 export class GridLayoutMenuComponent implements IToolPanel {
   private params: IToolPanelParams;
 
-  compareFn = (a,b) => this._compareFn(a,b)
-    gridLayoutID: any = 0;
-    isPublicSelected:  boolean = false;
+  compareFn = (a, b) => this._compareFn(a, b);
+  gridLayoutID: any = 0;
+  isPublicSelected: boolean = false;
   layoutName: any;
   canUpdateLayout: any;
   isPublic: boolean = false;
@@ -62,7 +62,6 @@ export class GridLayoutMenuComponent implements IToolPanel {
 
   callMethod(): void {
     console.log("successfully executed.");
-    
   }
 
   getLayout(): void {
@@ -83,9 +82,9 @@ export class GridLayoutMenuComponent implements IToolPanel {
       // }
 
       this.gridLayoutID = e;
-       
+
       this.isPublicSelected = e.IsPublic;
-    
+
       this._FinanceService.GetAGridLayout(e.Id).subscribe(response => {
         this.gridOptionsss.columnApi.setColumnState(
           JSON.parse(response.payload.ColumnState)
@@ -168,12 +167,12 @@ export class GridLayoutMenuComponent implements IToolPanel {
   closeModal() {
     this.modal.hide();
   }
-  _compareFn(a,b){
-    if(a.Id === 0){
-     // console.log('Id is null')
-      return a.Id
+  _compareFn(a, b) {
+    if (a.Id === 0) {
+      // console.log('Id is null')
+      return a.Id;
     }
-    return a.Id === b.Id
+    return a.Id === b.Id;
   }
   refresh() {}
 }

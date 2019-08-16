@@ -1,16 +1,15 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { async, ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { GridLayoutMenuComponent } from './grid-layout-menu.component';
+import { GridLayoutMenuComponent } from "./grid-layout-menu.component";
 
-describe('GridLayoutMenuComponent', () => {
+describe("GridLayoutMenuComponent", () => {
   let component: GridLayoutMenuComponent;
   let fixture: ComponentFixture<GridLayoutMenuComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ GridLayoutMenuComponent ]
-    })
-    .compileComponents();
+      declarations: [GridLayoutMenuComponent]
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -19,7 +18,7 @@ describe('GridLayoutMenuComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });
