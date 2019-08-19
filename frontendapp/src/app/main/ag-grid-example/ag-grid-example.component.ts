@@ -4,30 +4,20 @@ import {
   ElementRef,
   OnInit,
   Injector,
-  Input,
   ViewChild,
-  EventEmitter,
-  Output,
-  ViewEncapsulation,
   ChangeDetectorRef
 } from "@angular/core";
 import { ModalDirective } from "ngx-bootstrap";
 import { FinancePocServiceProxy } from "../../../shared/service-proxies/service-proxies";
 import { GridOptions, IToolPanel } from "ag-grid-community";
-import { TemplateRendererComponent } from "../../template-renderer/template-renderer.component";
 import { ToastrService } from "ngx-toastr";
 import "ag-grid-enterprise";
 import * as moment from "moment";
-import { GridName } from "../../../shared/utils/AppEnums";
-import { debug } from "util";
-import { $ } from "protractor";
-import { analyzeAndValidateNgModules } from "@angular/compiler";
-import { listLazyRoutes } from "@angular/compiler/src/aot/lazy_routes";
 import { JournalModalComponent } from "./journal-modal/journal-modal.component";
-
 import { GridLayoutComponent } from "../../grid-layout/grid-layout.component";
 import { GridLayoutMenuComponent } from "../../../shared/Component/grid-layout-menu/grid-layout-menu.component";
 import { DataService } from "../../../shared/common/data.service";
+
 class GridConfiguration {
   private gridApi;
 }
@@ -68,21 +58,15 @@ export class AgGridExampleComponent implements OnInit {
 
   rowSelection: string = "single";
 
-  //topOptions = {alignedGrids: [], suppressHorizontalScroll: true};
-
-  // bottomOptions = { alignedGrids: [] };
-
   selected: { startDate: moment.Moment; endDate: moment.Moment };
 
   @ViewChild("journalGrid") journalGrid;
-  // @ViewChild('bottomGrid') bottomGrid;
   @ViewChild("dateRangPicker") dateRangPicker;
   @ViewChild("greetCell") greetCell: TemplateRef<any>;
   @ViewChild("divToMeasureJournal") divToMeasureElement: ElementRef;
   @ViewChild("divToMeasureLedger") divToMeasureElementLedger: ElementRef;
   @ViewChild("modal") modal: ModalDirective;
   @ViewChild("journalModal") jounalModal: JournalModalComponent;
-  // @ViewChild('AppGridLayout') AppGridLayout: GridLayoutComponent;
 
   oGridLayoutMenuComponent: GridLayoutMenuComponent;
 
@@ -167,16 +151,6 @@ export class AgGridExampleComponent implements OnInit {
     this.gridOptions = <GridOptions>{
       rowData: null,
       onCellDoubleClicked: this.openEditModal,
-
-      /*      onFilterChanged: function() {  
-      
-              this.gridOptions.api.forEachNodeAfterFilter( function(rowNode, index) {
-                console.log('node ' + rowNode.data.debit + ' passes the filter');
-            } )},
-      
-      */
-
-      //columnDefs: this.columnDefs,
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
 
@@ -253,8 +227,6 @@ export class AgGridExampleComponent implements OnInit {
       //   ];
       // },
       onFirstDataRendered: params => {
-        //params.api.sizeColumnsToFit();
-
         params.api.forEachNode(function(node) {
           node.expanded = true;
         });
@@ -290,9 +262,6 @@ export class AgGridExampleComponent implements OnInit {
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       onGridReady: params => {
         this.ledgerGridApi = params.api;
-
-        //this.gridColumnApi = params.columnApi;
-
         this.gridOptions.excelStyles = [
           {
             id: "twoDecimalPlaces",
@@ -319,7 +288,6 @@ export class AgGridExampleComponent implements OnInit {
               // color: "#ff0000"
             }
           },
-
           {
             id: "header",
             interior: {
@@ -413,7 +381,7 @@ export class AgGridExampleComponent implements OnInit {
         ];
       },
       onFirstDataRendered: params => {
-        //params.api.sizeColumnsToFit();
+        params.api.sizeColumnsToFit();
       },
       enableFilter: true,
       animateRows: true,
@@ -690,12 +658,10 @@ export class AgGridExampleComponent implements OnInit {
       let tCredit = 0;
       let tDebit = 0;
 
-      debugger;
       this.api.forEachNodeAfterFilter(function(rowNode, index) {
         tTotal += 1;
         tCredit += rowNode.data.credit;
         tDebit += rowNode.data.debit;
-        // console.log('node ' + rowNode.data.debit + ' passes the filter');
       });
 
       this.pinnedBottomRowData = [
@@ -738,7 +704,6 @@ export class AgGridExampleComponent implements OnInit {
       localThis.cdRef.detectChanges();
     });
 
-    //  this.getLayout();
     this._fundsService
       .getJournals(
         this.symbol,
@@ -779,47 +744,6 @@ export class AgGridExampleComponent implements OnInit {
         this.customizeColumns(this.columns);
 
         this.rowData = someArray as [];
-
-        /*
-        this.rowData = result.data.map(item => (
-          {
-          id: item.id,
-          source: item.source,
-          Fund: item.fund,
-          AccountCategory: item.AccountCategory,
-          AccountType: item.AccountType,
-          accountName: item.accountName,
-          accountId: item.account_id,
-          debit: item.debit,
-          credit: item.credit,
-          TradeCurrency: item.TradeCurrency,
-          SettleCurrency: item.SettleCurrency,
-          Side: item.Side,
-          Symbol: item.Symbol,
-          when: moment(item.when).format("MM-DD-YYYY")
-        }
-        ));
-       */
-
-        /*
-        this.rowData = result.data.map(item => ({
-          id: item.id,
-          source: item.source,
-          Fund: item.fund,
-          AccountCategory: item.AccountCategory,
-          AccountType: item.AccountType,
-          accountName: item.accountName,
-          accountId: item.account_id,
-          debit: item.debit,
-          credit: item.credit,
-          TradeCurrency: item.TradeCurrency,
-          SettleCurrency: item.SettleCurrency,
-          Side: item.Side,
-          Symbol: item.Symbol,
-          when: moment(item.when).format("MM-DD-YYYY")
-        }));
-        */
-
         this.ledgerRowData = result.data.map(item => ({
           id: item.id,
           source: item.source,
@@ -849,7 +773,6 @@ export class AgGridExampleComponent implements OnInit {
             credit: this.totalDebit
           }
         ];
-        //this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
         this.bottomData = [
           {
             source: "Total Records:" + this.totalRecords,
@@ -862,19 +785,6 @@ export class AgGridExampleComponent implements OnInit {
         ];
       });
   }
-
-  //   getLayout()
-  // {
-  //   this._fundsService.getGridLayouts(1,1).subscribe(result => {
-  //     debugger;
-  //     let gridLayout = result.payload.map(item => ({
-  //       FundCode: item.oDataGridStatusDto,
-  //     }));
-
-  //     this.gridLayouts = result.payload;
-  //     this.cdRef.detectChanges();
-  //   });
-  // }
 
   public getRangeLable() {
     this.DateRangeLable = "";
@@ -978,19 +888,10 @@ export class AgGridExampleComponent implements OnInit {
     return result;
   }
 
-  // public restoreLayout(id)
-  // {
-
-  //   this.AppGridLayout.RestoreLayout(id);
-
-  // }
-
   public clearFilters() {
     this.gridOptions.api.redrawRows();
     this.DateRangeLable = "";
     this.selected = null;
-
-    //this.fund = null;
     this.fund = "All Funds";
     this.journalGrid.api.setFilterModel(null);
     this.journalGrid.api.onFilterChanged();
@@ -1015,12 +916,16 @@ export class AgGridExampleComponent implements OnInit {
   openEditModal = row => {
     this.jounalModal.openModal(row.data);
   };
+
+  refreshGrid() {
+    this.gridOptions.api.showLoadingOverlay();
+    this.getAllData();
+  }
 }
 
 function asDate(dateAsString) {
   var splitFields = dateAsString.split("-");
   //var m= this.MONTHS[splitFields[0]];
-
   return new Date(splitFields[1], splitFields[0], splitFields[2]);
 }
 

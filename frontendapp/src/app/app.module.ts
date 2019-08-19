@@ -49,7 +49,7 @@ import { TrialGridExampleComponent } from "./main/trial-balance/trial-balance.co
 import { LogsComponent } from "./main/logs/logs.component";
 import { FinanceGridComponent } from "./finance-grid/finance-grid.component";
 import { RunLogsComponent } from "./runlogs/runlogs.component";
-import { OperationsComponent } from "./operations/operations.component";
+import { OperationsComponent } from "./main/operations/operations.component";
 import { ReportsComponent } from "./reports/reports.component";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ToastrModule } from "ngx-toastr";

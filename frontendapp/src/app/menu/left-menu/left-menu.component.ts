@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { onSideNavChange, animateText } from '../animations/animations';
-import { SidenavService } from '../../../shared/common/sidenav.service';
+import { Component, OnInit } from "@angular/core";
+import { onSideNavChange, animateText } from "../animations/animations";
+import { SidenavService } from "../../../shared/common/sidenav.service";
 
 interface Page {
   routerLink: string;
@@ -9,9 +9,9 @@ interface Page {
 }
 
 @Component({
-  selector: 'app-left-menu',
-  templateUrl: './left-menu.component.html',
-  styleUrls: ['./left-menu.component.css'],
+  selector: "app-left-menu",
+  templateUrl: "./left-menu.component.html",
+  styleUrls: ["./left-menu.component.css"],
   animations: [onSideNavChange, animateText]
 })
 export class LeftMenuComponent implements OnInit {
@@ -19,10 +19,11 @@ export class LeftMenuComponent implements OnInit {
   public linkText: boolean = false;
 
   public pages: Page[] = [
-    { name: 'Journal', routerLink: '/journals-ledgers', icon: 'library_books' },
-    { name: 'Trial Balance', routerLink: 'trialBalance', icon: 'attach_money' },
-    { name: 'Account', routerLink: '/accounts', icon: 'account_balance' },
-    { name: 'Logs', routerLink: 'runlogs', icon: 'list_alt' }
+    { name: "Journal", routerLink: "/journals-ledgers", icon: "library_books" },
+    { name: "Trial Balance", routerLink: "trialBalance", icon: "attach_money" },
+    { name: "Account", routerLink: "/accounts", icon: "account_balance" },
+    { name: "Logs", routerLink: "runlogs", icon: "list_alt" },
+    { name: "Operations", routerLink: "operations", icon: "bookmarks" }
   ];
 
   constructor(private sidenavService: SidenavService) {}

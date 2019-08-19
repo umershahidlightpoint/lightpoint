@@ -24,7 +24,7 @@
               <div class="col-sm-9">
                 <!-- <select [(ngModel)]="accTypeId"  -->
                 <select class="custom-select" formControlName="fund" [(ngModel)]="accountFund">
-                  <option hidden [value]="">Choose your fund type</option>
+                  <option hidden>Select fund type</option>
                   <option *ngFor="let fund of funds" [ngValue]="fund.FundCode">
                     {{ fund.FundCode }}
                   </option>
@@ -43,7 +43,7 @@
               <div class="col-sm-9">
                 <select class="custom-select" formControlName="fromAccount" [(ngModel)]="fromAccountId"
                   (change)=onAccountSelect()>
-                  <option hidden [value]="">Choose your account type</option>
+                  <option hidden [value]="0">Choose your from account type</option>
                   <ng-container *ngFor="let account of allAccounts; trackBy: trackByFn">
                     <option *ngIf="account.AccountId !== toAccountCheck" [ngValue]="account.AccountId">
                       {{ account.AccountName }}
@@ -64,8 +64,8 @@
               <div class="col-sm-9">
                 <select class="custom-select" formControlName="toAccount" (change)=onAccountSelect()
                   [(ngModel)]="toAccountId">
+                  <option hidden [value]="0">Choose your to account type</option>
                   <ng-container *ngFor="let account of allAccounts; trackBy: trackByFn">
-                    <option hidden [value]="">Choose your account type</option>
                     <option *ngIf="account.AccountId !== fromAccountCheck" [ngValue]="account.AccountId">
                       {{ account.AccountName }}
                     </option>

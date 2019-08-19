@@ -37,7 +37,7 @@ import { takeWhile } from "rxjs/operators";
 export class CreateAccountComponent implements OnInit, OnDestroy, OnChanges {
   editCase: boolean = false;
   accTypeLabel: string;
-  accTypeId: number;
+  accTypeId: number = 0;
   accountCategory: string;
   noAccountDef: boolean = false;
   canEditAccount: boolean = true;

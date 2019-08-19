@@ -4,28 +4,18 @@ import {
   ElementRef,
   OnInit,
   Injector,
-  Input,
   ViewChild,
-  EventEmitter,
-  Output,
-  ViewEncapsulation,
   ChangeDetectorRef
-} from '@angular/core';
-import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
-import { GridOptions } from 'ag-grid-community';
-import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
-
-import 'ag-grid-enterprise';
-import * as moment from 'moment';
-import { debug } from 'util';
-import { $ } from 'protractor';
-import { analyzeAndValidateNgModules } from '@angular/compiler';
-import { listLazyRoutes } from '@angular/compiler/src/aot/lazy_routes';
+} from "@angular/core";
+import { FinancePocServiceProxy } from "../../../shared/service-proxies/service-proxies";
+import { GridOptions } from "ag-grid-community";
+import "ag-grid-enterprise";
+import * as moment from "moment";
 
 @Component({
-  selector: 'trial-balance',
-  templateUrl: './trial-balance.component.html',
-  styleUrls: ['./trial-balance.component.css']
+  selector: "trial-balance",
+  templateUrl: "./trial-balance.component.html",
+  styleUrls: ["./trial-balance.component.css"]
 })
 export class TrialGridExampleComponent implements OnInit {
   private gridApi;
@@ -46,26 +36,25 @@ export class TrialGridExampleComponent implements OnInit {
   pinnedBottomRowData;
   gridOptions: GridOptions;
   filterChange: any;
-  rowSelection: string = 'single';
-
+  rowSelection: string = "single";
   //topOptions = {alignedGrids: [], suppressHorizontalScroll: true};
 
   // bottomOptions = { alignedGrids: [] };
 
   selected: { startDate: moment.Moment; endDate: moment.Moment };
 
-  @ViewChild('journalGrid') journalGrid;
+  @ViewChild("journalGrid") journalGrid;
   // @ViewChild('bottomGrid') bottomGrid;
-  @ViewChild('dateRangPicker') dateRangPicker;
-  @ViewChild('greetCell') greetCell: TemplateRef<any>;
-  @ViewChild('divToMeasureJournal') divToMeasureElement: ElementRef;
-  @ViewChild('divToMeasureLedger') divToMeasureElementLedger: ElementRef;
+  @ViewChild("dateRangPicker") dateRangPicker;
+  @ViewChild("greetCell") greetCell: TemplateRef<any>;
+  @ViewChild("divToMeasureJournal") divToMeasureElement: ElementRef;
+  @ViewChild("divToMeasureLedger") divToMeasureElementLedger: ElementRef;
   columnDefs: any;
   totalCredit: number;
   totalDebit: number;
   bottomData: any;
   startDate: any;
-  fund: any;
+  fund: any = "All Funds";
   endDate: any;
 
   symbol: string;
@@ -77,25 +66,25 @@ export class TrialGridExampleComponent implements OnInit {
   sortDirection: any;
   page: any;
 
-  title = 'app';
+  title = "app";
   style = {
-    marginTop: '20px',
-    width: '100%',
-    height: '100%',
-    boxSizing: 'border-box'
+    marginTop: "20px",
+    width: "100%",
+    height: "100%",
+    boxSizing: "border-box"
   };
 
   styleForHight = {
-    marginTop: '20px',
-    width: '100%',
-    height: 'calc(100vh - 220px)',
-    boxSizing: 'border-box'
+    marginTop: "20px",
+    width: "100%",
+    height: "calc(100vh - 220px)",
+    boxSizing: "border-box"
   };
 
   ranges: any = {
-    ITD: [moment('01-01-1901', 'MM-DD-YYYY'), moment()],
-    YTD: [moment().startOf('year'), moment()],
-    MTD: [moment().startOf('month'), moment()],
+    ITD: [moment("01-01-1901", "MM-DD-YYYY"), moment()],
+    YTD: [moment().startOf("year"), moment()],
+    MTD: [moment().startOf("month"), moment()],
     Today: [moment(), moment()]
   };
 
@@ -110,21 +99,21 @@ export class TrialGridExampleComponent implements OnInit {
     this.sideBar = {
       toolPanels: [
         {
-          id: 'columns',
-          labelDefault: 'Columns',
-          labelKey: 'columns',
-          iconKey: 'columns',
-          toolPanel: 'agColumnsToolPanel'
+          id: "columns",
+          labelDefault: "Columns",
+          labelKey: "columns",
+          iconKey: "columns",
+          toolPanel: "agColumnsToolPanel"
         },
         {
-          id: 'filters',
-          labelDefault: 'Filters',
-          labelKey: 'filters',
-          iconKey: 'filter',
-          toolPanel: 'agFiltersToolPanel'
+          id: "filters",
+          labelDefault: "Filters",
+          labelKey: "filters",
+          iconKey: "filter",
+          toolPanel: "agFiltersToolPanel"
         }
       ],
-      defaultToolPanel: ''
+      defaultToolPanel: ""
     };
 
     this.gridOptions = <GridOptions>{
@@ -150,57 +139,57 @@ export class TrialGridExampleComponent implements OnInit {
 
         this.gridOptions.excelStyles = [
           {
-            id: 'twoDecimalPlaces',
-            numberFormat: { format: '#,##0' }
+            id: "twoDecimalPlaces",
+            numberFormat: { format: "#,##0" }
           },
           {
-            id: 'footerRow',
+            id: "footerRow",
             font: {
               bold: true
             }
           },
           {
-            id: 'greenBackground',
+            id: "greenBackground",
             interior: {
-              color: '#b5e6b5',
-              pattern: 'Solid'
+              color: "#b5e6b5",
+              pattern: "Solid"
             }
           },
           {
-            id: 'redFont',
+            id: "redFont",
             font: {
-              fontName: 'Calibri Light',
+              fontName: "Calibri Light",
 
               italic: true,
-              color: '#ff0000'
+              color: "#ff0000"
             }
           },
 
           {
-            id: 'header',
+            id: "header",
             interior: {
-              color: '#CCCCCC',
-              pattern: 'Solid'
+              color: "#CCCCCC",
+              pattern: "Solid"
             },
             borders: {
               borderBottom: {
-                color: '#5687f5',
-                lineStyle: 'Continuous',
+                color: "#5687f5",
+                lineStyle: "Continuous",
                 weight: 1
               },
               borderLeft: {
-                color: '#5687f5',
-                lineStyle: 'Continuous',
+                color: "#5687f5",
+                lineStyle: "Continuous",
                 weight: 1
               },
               borderRight: {
-                color: '#5687f5',
-                lineStyle: 'Continuous',
+                color: "#5687f5",
+                lineStyle: "Continuous",
                 weight: 1
               },
               borderTop: {
-                color: '#5687f5',
-                lineStyle: 'Continuous',
+                color: "#5687f5",
+                lineStyle: "Continuous",
                 weight: 1
               }
             }
@@ -230,7 +219,7 @@ export class TrialGridExampleComponent implements OnInit {
 
   public onBtForEachNodeAfterFilter() {
     this.gridOptions.api.forEachNodeAfterFilter(function(rowNode, index) {
-      console.log('node ' + rowNode.data.debit + ' passes the filter');
+      console.log("node " + rowNode.data.debit + " passes the filter");
     });
   }
 
@@ -238,22 +227,22 @@ export class TrialGridExampleComponent implements OnInit {
   Drives the columns that will be defined on the UI, and what can be done with those fields
   */
   ignoreFields = [
-    'id',
-    'totalDebit',
-    'totalCredit',
-    'overall_count',
-    'account_id',
-    'value',
-    'LpOrderId'
+    "id",
+    "totalDebit",
+    "totalCredit",
+    "overall_count",
+    "account_id",
+    "value",
+    "LpOrderId"
   ];
 
   customizeColumns(columns: any) {
     let colDefs = [
       {
-        field: 'source',
+        field: "source",
         minWidth: 300,
-        headerName: 'Source',
-        colId: 'greet'
+        headerName: "Source",
+        colId: "greet"
         /*
         cellRendererFramework: TemplateRendererComponent, cellRendererParams: {
           ngTemplate: this.greetCell
@@ -264,15 +253,15 @@ export class TrialGridExampleComponent implements OnInit {
         */
       },
       {
-        field: 'fund',
-        headerName: 'Fund',
+        field: "fund",
+        headerName: "Fund",
         enableRowGroup: true,
         filter: true,
         width: 120
       },
       {
-        field: 'AccountCategory',
-        headerName: 'Category',
+        field: "AccountCategory",
+        headerName: "Category",
         enableRowGroup: true,
         rowGroup: true,
         width: 100,
@@ -280,31 +269,31 @@ export class TrialGridExampleComponent implements OnInit {
       },
 
       {
-        field: 'AccountType',
-        headerName: 'Type',
+        field: "AccountType",
+        headerName: "Type",
         enableRowGroup: true,
         rowGroup: true,
         width: 200,
         filter: true
       },
       {
-        field: 'accountName',
-        headerName: 'Account Name',
+        field: "accountName",
+        headerName: "Account Name",
         sortable: true,
         enableRowGroup: true,
         filter: true
       },
       {
-        field: 'when',
-        headerName: 'when',
+        field: "when",
+        headerName: "when",
         sortable: true,
         enableRowGroup: true,
         width: 100,
-        filter: 'agDateColumnFilter',
+        filter: "agDateColumnFilter",
         filterParams: {
           comparator: function(filterLocalDateAtMidnight, cellValue) {
             var dateAsString = cellValue;
-            var dateParts = dateAsString.split('/');
+            var dateParts = dateAsString.split("/");
             var cellDate = new Date(
               Number(dateParts[2]),
               Number(dateParts[1]) - 1,
@@ -326,13 +315,13 @@ export class TrialGridExampleComponent implements OnInit {
         }
       },
       {
-        field: 'debit',
-        aggFunc: 'sum',
-        headerName: '$Debit',
+        field: "debit",
+        aggFunc: "sum",
+        headerName: "$Debit",
         valueFormatter: currencyFormatter,
         width: 100,
-        cellStyle: { 'text-align': 'right' },
-        cellClass: 'twoDecimalPlaces',
+        cellStyle: { "text-align": "right" },
+        cellClass: "twoDecimalPlaces",
         cellClassRules: {
           //greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value < -300; },
           greenFont: function(params) {
@@ -350,13 +339,13 @@ export class TrialGridExampleComponent implements OnInit {
         }
       },
       {
-        field: 'credit',
-        aggFunc: 'sum',
-        headerName: '$Credit',
+        field: "credit",
+        aggFunc: "sum",
+        headerName: "$Credit",
         valueFormatter: currencyFormatter,
         width: 100,
-        cellStyle: { 'text-align': 'right' },
-        cellClass: 'twoDecimalPlaces',
+        cellStyle: { "text-align": "right" },
+        cellClass: "twoDecimalPlaces",
         cellClassRules: {
           //greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
           greenFont: function(params) {
@@ -375,25 +364,31 @@ export class TrialGridExampleComponent implements OnInit {
       },
 
       {
-        field: 'TradeCurrency',
+        field: "TradeCurrency",
         width: 100,
-        headerName: 'Trade Ccy',
+        headerName: "Trade Ccy",
         sortable: true,
         enableRowGroup: true,
         filter: true
       },
       {
-        field: 'SettleCurrency',
-        headerName: 'Settle Ccy',
+        field: "SettleCurrency",
+        headerName: "Settle Ccy",
         sortable: true,
         enableRowGroup: true,
         filter: true,
         width: 100
       },
-      { field: 'Symbol', headerName: 'Symbol', sortable: true, enableRowGroup: true, filter: true },
       {
-        field: 'Side',
-        headerName: 'Side',
+        field: "Symbol",
+        headerName: "Symbol",
+        sortable: true,
+        enableRowGroup: true,
+        filter: true
+      },
+      {
+        field: "Side",
+        headerName: "Side",
         sortable: true,
         enableRowGroup: true,
         filter: true,
@@ -416,12 +411,12 @@ export class TrialGridExampleComponent implements OnInit {
           clone.filter = column.filter;
           clone.colId = undefined;
           if (
-            column.Type == 'System.Int32' ||
-            column.Type == 'System.Decimal' ||
-            column.Type == 'System.Double'
+            column.Type == "System.Int32" ||
+            column.Type == "System.Decimal" ||
+            column.Type == "System.Double"
           ) {
-            clone.cellStyle = { 'text-align': 'right' };
-            clone.cellClass = 'twoDecimalPlaces';
+            clone.cellStyle = { "text-align": "right" };
+            clone.cellClass = "twoDecimalPlaces";
             clone.valueFormatter = currencyFormatter;
             clone.cellClassRules = {
               //greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
@@ -438,10 +433,10 @@ export class TrialGridExampleComponent implements OnInit {
                 else return false;
               }
             };
-          } else if (column.Type == 'System.DateTime') {
+          } else if (column.Type == "System.DateTime") {
             clone.enableRowGroup = true;
-            clone.cellStyle = { 'text-align': 'right' };
-            clone.cellClass = 'twoDecimalPlaces';
+            clone.cellStyle = { "text-align": "right" };
+            clone.cellClass = "twoDecimalPlaces";
             clone.minWidth = 50;
           } else {
             clone.enableRowGroup = true;
@@ -471,10 +466,10 @@ export class TrialGridExampleComponent implements OnInit {
 
       this.pinnedBottomRowData = [
         {
-          source: 'Total Records: ' + tTotal,
-          AccountType: '',
-          accountName: '',
-          when: '',
+          source: "Total Records: " + tTotal,
+          AccountType: "",
+          accountName: "",
+          when: "",
           debit: tDebit,
           credit: tCredit
         }
@@ -482,7 +477,7 @@ export class TrialGridExampleComponent implements OnInit {
       //this.api.setPinnedBottomRowData(this.pinnedBottomRowData);
     };
 
-    this.rowGroupPanelShow = 'after';
+    this.rowGroupPanelShow = "after";
     //this.pivotPanelShow = "always";
     //this.pivotColumnGroupTotals = "after";
     //this.pivotRowTotals = "before";
@@ -491,7 +486,7 @@ export class TrialGridExampleComponent implements OnInit {
     // this.gridOptions.alignedGrids.push(this.bottomOptions);
     // this.bottomOptions.alignedGrids.push(this.gridOptions);
 
-    this.symbol = 'ALL';
+    this.symbol = "ALL";
 
     let localThis = this;
 
@@ -499,8 +494,8 @@ export class TrialGridExampleComponent implements OnInit {
     this.pageSize = 0;
     this.accountSearch.id = 0;
     this.valueFilter = 0;
-    this.sortColum = '';
-    this.sortDirection = '';
+    this.sortColum = "";
+    this.sortDirection = "";
     this._fundsService.getFunds().subscribe(result => {
       let localfunds = result.payload.map(item => ({
         FundCode: item.FundCode
@@ -533,8 +528,10 @@ export class TrialGridExampleComponent implements OnInit {
           let someObject = {};
           for (var i in this.columns) {
             let field = this.columns[i].field;
-            if (this.columns[i].Type == 'System.DateTime') {
-              someObject[field] = moment(result.data[item][field]).format('MM-DD-YYYY');
+            if (this.columns[i].Type == "System.DateTime") {
+              someObject[field] = moment(result.data[item][field]).format(
+                "MM-DD-YYYY"
+              );
             } else {
               someObject[field] = result.data[item][field];
             }
@@ -548,10 +545,10 @@ export class TrialGridExampleComponent implements OnInit {
 
         this.pinnedBottomRowData = [
           {
-            source: 'Total Records:' + this.totalRecords,
-            AccountType: '',
-            accountName: '',
-            when: '',
+            source: "Total Records:" + this.totalRecords,
+            AccountType: "",
+            accountName: "",
+            when: "",
             debit: this.totalCredit,
             credit: this.totalDebit
           }
@@ -559,10 +556,10 @@ export class TrialGridExampleComponent implements OnInit {
         //this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
         this.bottomData = [
           {
-            source: 'Total Records:' + this.totalRecords,
-            AccountType: '',
-            accountName: '',
-            when: '',
+            source: "Total Records:" + this.totalRecords,
+            AccountType: "",
+            accountName: "",
+            when: "",
             debit: this.totalCredit,
             credit: this.totalDebit
           }
@@ -570,45 +567,48 @@ export class TrialGridExampleComponent implements OnInit {
       });
   }
   public getRangeLable() {
-    this.DateRangeLable = '';
+    this.DateRangeLable = "";
 
     if (
-      moment('01-01-1901', 'MM-DD-YYYY').diff(this.startDate, 'days') == 0 &&
-      moment().diff(this.endDate, 'days') == 0
+      moment("01-01-1901", "MM-DD-YYYY").diff(this.startDate, "days") == 0 &&
+      moment().diff(this.endDate, "days") == 0
     ) {
-      this.DateRangeLable = 'ITD';
+      this.DateRangeLable = "ITD";
       return;
     }
     if (
       moment()
-        .startOf('year')
-        .diff(this.startDate, 'days') == 0 &&
-      moment().diff(this.endDate, 'days') == 0
+        .startOf("year")
+        .diff(this.startDate, "days") == 0 &&
+      moment().diff(this.endDate, "days") == 0
     ) {
-      this.DateRangeLable = 'YTD';
+      this.DateRangeLable = "YTD";
       return;
     }
     if (
       moment()
-        .startOf('month')
-        .diff(this.startDate, 'days') == 0 &&
-      moment().diff(this.endDate, 'days') == 0
+        .startOf("month")
+        .diff(this.startDate, "days") == 0 &&
+      moment().diff(this.endDate, "days") == 0
     ) {
-      this.DateRangeLable = 'MTD';
+      this.DateRangeLable = "MTD";
       return;
     }
-    if (moment().diff(this.startDate, 'days') == 0 && moment().diff(this.endDate, 'days') == 0) {
-      this.DateRangeLable = 'Today';
+    if (
+      moment().diff(this.startDate, "days") == 0 &&
+      moment().diff(this.endDate, "days") == 0
+    ) {
+      this.DateRangeLable = "Today";
 
       return;
     }
   }
   setWidthAndHeight(width, height) {
     this.style = {
-      marginTop: '20px',
+      marginTop: "20px",
       width: width,
       height: height,
-      boxSizing: 'border-box'
+      boxSizing: "border-box"
     };
   }
   onFirstDataRendered(params) {
@@ -617,8 +617,8 @@ export class TrialGridExampleComponent implements OnInit {
 
   onBtExport() {
     var params = {
-      fileName: 'Test File',
-      sheetName: 'First Sheet'
+      fileName: "Test File",
+      sheetName: "First Sheet"
     };
 
     this.gridOptions.api.exportDataAsExcel(params);
@@ -648,7 +648,10 @@ export class TrialGridExampleComponent implements OnInit {
     if (this.startDate) {
       let cellDate = new Date(node.data.when);
       let td = this.startDate.toDate();
-      if (this.startDate.toDate() <= cellDate && this.endDate.toDate() >= cellDate) {
+      if (
+        this.startDate.toDate() <= cellDate &&
+        this.endDate.toDate() >= cellDate
+      ) {
         result = true;
       } else {
         result = false;
@@ -667,29 +670,29 @@ export class TrialGridExampleComponent implements OnInit {
 
   public clearFilters() {
     this.gridOptions.api.redrawRows();
-    this.DateRangeLable = '';
+    this.DateRangeLable = "";
     this.selected = null;
-    this.startDate.value = '';
+    this.startDate.value = "";
     this.endDate = null;
     this.fund = null;
 
     this.journalGrid.api.setFilterModel(null);
     this.journalGrid.api.onFilterChanged();
     this.startDate = null;
-    this.dateRangPicker.value = '';
+    this.dateRangPicker.value = "";
 
-    this.startDate = '';
-    this.endDate = '';
+    this.startDate = "";
+    this.endDate = "";
   }
 
   greet(row: any) {
     //alert(`${ row.country } says "${ row.greeting }!`);
-    alert('For show popup');
+    alert("For show popup");
   }
 }
 
 function asDate(dateAsString) {
-  var splitFields = dateAsString.split('-');
+  var splitFields = dateAsString.split("-");
   //var m= this.MONTHS[splitFields[0]];
 
   return new Date(splitFields[1], splitFields[0], splitFields[2]);
@@ -701,8 +704,8 @@ function currencyFormatter(params) {
 
 function formatNumber(number) {
   return number == 0
-    ? ''
+    ? ""
     : Math.floor(number)
         .toString()
-        .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+        .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 }

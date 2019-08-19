@@ -73,11 +73,12 @@ export class JournalModalComponent implements OnInit, OnDestroy {
   }
 
   buildForm() {
+    console.log("in build form");
     this.journalForm = this.formBuilder.group({
-      fund: ["", Validators.required],
-      fromAccount: ["", Validators.required],
-      toAccount: ["", Validators.required],
-      value: ["", Validators.required]
+      fund: ["Select fund type", Validators.required],
+      fromAccount: ["0", Validators.required],
+      toAccount: ["0", Validators.required],
+      value: ["0", Validators.required]
     });
   }
 
@@ -181,6 +182,8 @@ export class JournalModalComponent implements OnInit, OnDestroy {
             this.toastrService.error("Something went wrong!");
           }
         });
+    } else {
+      this.buildForm();
     }
     this.modal.show();
   }
@@ -194,11 +197,8 @@ export class JournalModalComponent implements OnInit, OnDestroy {
     this.editJournal = false;
     this.toAccountCheck = null;
     this.fromAccountCheck = null;
-
-    this.journalForm.controls["fund"].reset();
-    this.journalForm.controls["toAccount"].reset();
-    this.journalForm.controls["fromAccount"].reset();
-    this.journalForm.controls["value"].reset();
+    this.journalForm.reset();
+    this.buildForm();
   }
 
   ngOnDestroy() {

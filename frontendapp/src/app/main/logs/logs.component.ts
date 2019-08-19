@@ -4,27 +4,22 @@ import {
   ElementRef,
   OnInit,
   Injector,
-  Input,
-  ViewChild,
-  EventEmitter,
-  Output,
-  ViewEncapsulation
-} from '@angular/core';
-import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
-import { GridOptions } from 'ag-grid-community';
-import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
-
-import * as moment from 'moment';
-import { debug } from 'util';
-import { $ } from 'protractor';
+  ViewChild
+} from "@angular/core";
+import { FinancePocServiceProxy } from "../../../shared/service-proxies/service-proxies";
+import { GridOptions } from "ag-grid-community";
+import * as moment from "moment";
 
 @Component({
-  selector: 'app-logs',
-  templateUrl: './logs.component.html',
-  styleUrls: ['./logs.component.css']
+  selector: "app-logs",
+  templateUrl: "./logs.component.html",
+  styleUrls: ["./logs.component.css"]
 })
 export class LogsComponent implements OnInit {
-  constructor(injector: Injector, private _fundsService: FinancePocServiceProxy) {
+  constructor(
+    injector: Injector,
+    private _fundsService: FinancePocServiceProxy
+  ) {
     injector;
     this.gridOptions = <GridOptions>{
       rowData: null,
@@ -58,11 +53,11 @@ export class LogsComponent implements OnInit {
 
   selected: { startDate: moment.Moment; endDate: moment.Moment };
 
-  @ViewChild('topGrid') topGrid;
-  @ViewChild('bottomGrid') bottomGrid;
-  @ViewChild('dateRangPicker') dateRangPicker;
-  @ViewChild('greetCell') greetCell: TemplateRef<any>;
-  @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
+  @ViewChild("topGrid") topGrid;
+  @ViewChild("bottomGrid") bottomGrid;
+  @ViewChild("dateRangPicker") dateRangPicker;
+  @ViewChild("greetCell") greetCell: TemplateRef<any>;
+  @ViewChild("divToMeasure") divToMeasureElement: ElementRef;
 
   totalCredit: number;
   totalDebit: number;
@@ -80,37 +75,49 @@ export class LogsComponent implements OnInit {
   sortDirection: any;
   page: any;
 
-  title = 'app';
+  title = "app";
   style = {
-    marginTop: '20px',
-    width: '100%',
-    height: '100%',
-    boxSizing: 'border-box'
+    marginTop: "20px",
+    width: "100%",
+    height: "100%",
+    boxSizing: "border-box"
   };
 
   styleForHight = {
-    marginTop: '20px',
-    width: '100%',
-    height: 'calc(100vh - 180px)',
-    boxSizing: 'border-box'
+    marginTop: "20px",
+    width: "100%",
+    height: "calc(100vh - 180px)",
+    boxSizing: "border-box"
   };
-
 
   /*
   We can define how we need to show the data here, as this is a log file we should group by the rundate
   */
   columnDefs = [
-    { field: 'rundate', headerName: 'Run Date', sortable: true, filter: true, enableRowGroup: true, width:25 },
-    { field: 'action_on', headerName: 'Action On', sortable: true, filter: true, width:25 },
-    { field: 'action', headerName: 'Action', sortable: true, filter: true },
+    {
+      field: "rundate",
+      headerName: "Run Date",
+      sortable: true,
+      filter: true,
+      enableRowGroup: true,
+      width: 25
+    },
+    {
+      field: "action_on",
+      headerName: "Action On",
+      sortable: true,
+      filter: true,
+      width: 25
+    },
+    { field: "action", headerName: "Action", sortable: true, filter: true }
   ];
 
   setWidthAndHeight(width, height) {
     this.style = {
-      marginTop: '20px',
+      marginTop: "20px",
       width: width,
       height: height,
-      boxSizing: 'border-box'
+      boxSizing: "border-box"
     };
   }
   onFirstDataRendered(params) {
@@ -126,14 +133,14 @@ export class LogsComponent implements OnInit {
     this.gridOptions.alignedGrids.push(this.bottomOptions);
     this.bottomOptions.alignedGrids.push(this.gridOptions);
 
-    this.symbal = 'ALL';
+    this.symbal = "ALL";
 
     this.page = 0;
     this.pageSize = 0;
     this.accountSearch.id = 0;
     this.valueFilter = 0;
-    this.sortColum = '';
-    this.sortDirection = '';
+    this.sortColum = "";
+    this.sortDirection = "";
 
     this._fundsService
       .getJournalLogs(
@@ -149,9 +156,9 @@ export class LogsComponent implements OnInit {
         this.rowData = [];
 
         this.rowData = result.data.map(item => ({
-          rundate: moment(item.rundate).format('MMM-DD-YYYY'),
-          action_on: moment(item.action_on).format('MMM-DD-YYYY hh:mm:ss'),
-          action: item.action,
+          rundate: moment(item.rundate).format("MMM-DD-YYYY"),
+          action_on: moment(item.action_on).format("MMM-DD-YYYY hh:mm:ss"),
+          action: item.action
         }));
       });
   }

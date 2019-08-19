@@ -27,7 +27,7 @@
               <div *ngIf="editCase && canEditAccount || !editCase" class="col-sm-9">
                 <select [(ngModel)]="accTypeId" class="custom-select" (change)="getAccountTags(accTypeId)"
                   formControlName="type" [attr.disabled]="canEditAccount === false ? true : null">
-                  <option *ngIf="!editCase" hidden [value]="">Choose your account type</option>
+                  <option *ngIf="!editCase" hidden [value]="0">Choose your account type</option>
                   <option *ngFor="let accType of accountTypes" [ngValue]="accType.Id">
                     {{ accType.Name }}
                   </option>
