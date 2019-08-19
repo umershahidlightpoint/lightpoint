@@ -120,8 +120,9 @@ namespace PostingEngine
 
                 transaction.Commit();
 
-                Console.WriteLine("Completed / Press Enter to Finish");
-                Console.ReadKey();
+//                It's a Class Library
+//                Console.WriteLine("Completed / Press Enter to Finish");
+//                Console.ReadKey();
             }
         }
 
