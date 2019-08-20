@@ -11,3 +11,7 @@
 .disabled-btn {
   cursor: not-allowed;
 }
+
+.tabBtn {
+  display: inline-block;
+}

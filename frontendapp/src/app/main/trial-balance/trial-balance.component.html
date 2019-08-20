@@ -28,10 +28,15 @@
         <button (click)="clearFilters( )" class="btn btn-info" type="button">
           <i class="fa fa-remove"></i> Clear</button>
       </div>
-
       <div class="ml-auto">
-        <button (click)="onBtExport()" class="btn btn-info mr-4" tooltip="Export to Excel" placement="top"><i
-            class="fa fa-arrow-circle-o-down"></i></button>
+        <div class="mr-2 tabBtn">
+          <button (click)="refreshGrid()" class="btn btn-info" tooltip="Refresh" placement="top">
+            <i class="fa fa-refresh"></i></button>
+        </div>
+        <div class="mr-2 tabBtn">
+          <button (click)="onBtExport()" class="btn btn-info" tooltip="Export to Excel" placement="top"><i
+              class="fa fa-arrow-circle-o-down"></i></button>
+        </div>
       </div>
     </div>
 
@@ -62,3 +67,4 @@
     <div (click)="greet(row)" style="cursor: pointer"> {{row.source}} </div>
   -->
 </ng-template>
+

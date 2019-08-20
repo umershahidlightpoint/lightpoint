@@ -18,6 +18,7 @@ import * as moment from "moment";
 })
 export class OperationsComponent implements OnInit {
   isSubscriptionAlive: boolean;
+  isLoading: boolean = false;
 
   constructor(
     injector: Injector,
@@ -41,11 +42,56 @@ export class OperationsComponent implements OnInit {
     //this.selected = {startDate: moment().subtract(6, 'days'), endDate: moment().subtract(1, 'days')};
   }
 
-  public runEngine() {
+  async runEngine() {
+    console.log("In run engine");
+    let is = false;
     this._fundsService
       .startPostingEngine()
       .pipe(takeWhile(() => this.isSubscriptionAlive))
-      .subscribe(response => {});
+      .subscribe(response => {
+        console.log("response ", response);
+        if (response.IsRunning) {
+          console.log("is successful", response);
+          is = response.IsRunning;
+          this.isLoading = true;
+          while (this.isLoading) {
+            setTimeout(() => {
+              console.log("in while");
+              this._fundsService
+                .runningEngineStatus()
+                .pipe(takeWhile(() => this.isSubscriptionAlive))
+                .subscribe(response => {
+                  console.log("Running status Response", response);
+                  this.isLoading = response.Status;
+                  if (!response.Status) {
+                    console.log("status false");
+                    return;
+                  }
+                });
+            }, 10000);
+          }
+        }
+      });
+    // if (is) {
+    //   this.isLoading = true;
+    //   while (this.isLoading) {
+    //     console.log("in while");
+    //     setTimeout(
+    //       () =>
+    //         this._fundsService
+    //           .runningEngineStatus()
+    //           .pipe(takeWhile(() => this.isSubscriptionAlive))
+    //           .subscribe(response => {
+    //             console.log("Running status Response", response);
+    //             this.isLoading = response.status;
+    //             if (!response.status) {
+    //               return;
+    //             }
+    //           }),
+    //       10000
+    //     );
+    //   }
+    // }
     // alert(this.selectedPeriod.name);
 
     /* This needs to call out to the Posting Engine and invoke the process,

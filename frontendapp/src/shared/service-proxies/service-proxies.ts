@@ -2,6 +2,7 @@ import { map } from "rxjs/operators";
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "../../environments/environment";
+import { Observable } from "rxjs";
 
 export const API_BASE_URL = environment.remoteServerUrl;
 export const REF_DATA_BASE_URL = environment.referenceDataUrl;
@@ -264,9 +265,16 @@ export class FinancePocServiceProxy {
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
-  startPostingEngine() {
-    const url = this.baseUrl + "/postingEngine/status/";
-    return this.http.get(url).pipe(map((response: any) => response));
+  startPostingEngine(): Observable<PostingEngine> {
+    const url = this.baseUrl + "/postingEngine/";
+    return this.http.get<PostingEngine>(url);
+    // .pipe(map((response: Observable<PostingEngineStatus>) => response));
+  }
+
+  runningEngineStatus(): Observable<PostingEngineStatus> {
+    const url = this.baseUrl + "/postingEngine/status/testing";
+    return this.http.get<PostingEngineStatus>(url);
+    // .pipe(map((response: any) => response));
   }
 }
 
@@ -276,4 +284,18 @@ export class LedgerInput {
   account_id: string | undefined;
   fund_id: string | undefined;
   effectiveDate: any | undefined;
+}
+
+export class PostingEngine {
+  period: string;
+  started: string;
+  key: string;
+  IsRunning: boolean;
+}
+
+export class PostingEngineStatus {
+  message: string;
+  version: string;
+  key: string;
+  Status: boolean;
 }

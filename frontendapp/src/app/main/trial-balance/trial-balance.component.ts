@@ -19,7 +19,6 @@ import * as moment from "moment";
 })
 export class TrialGridExampleComponent implements OnInit {
   private gridApi;
-
   private gridColumnApi;
   private defaultColDef;
   private rowData: [];
@@ -38,7 +37,6 @@ export class TrialGridExampleComponent implements OnInit {
   filterChange: any;
   rowSelection: string = "single";
   //topOptions = {alignedGrids: [], suppressHorizontalScroll: true};
-
   // bottomOptions = { alignedGrids: [] };
 
   selected: { startDate: moment.Moment; endDate: moment.Moment };
@@ -94,7 +92,6 @@ export class TrialGridExampleComponent implements OnInit {
     private _fundsService: FinancePocServiceProxy
   ) {
     injector;
-
     // Setup of the SideBar
     this.sideBar = {
       toolPanels: [
@@ -118,7 +115,6 @@ export class TrialGridExampleComponent implements OnInit {
 
     this.gridOptions = <GridOptions>{
       rowData: null,
-
       /*      onFilterChanged: function() {  
       
               this.gridOptions.api.forEachNodeAfterFilter( function(rowNode, index) {
@@ -126,17 +122,14 @@ export class TrialGridExampleComponent implements OnInit {
             } )},
       
       */
-
       //columnDefs: this.columnDefs,
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
 
       onGridReady: params => {
         this.gridApi = params.api;
-
         this.gridColumnApi = params.columnApi;
         //this.gridOptions.api.sizeColumnsToFit();
-
         this.gridOptions.excelStyles = [
           {
             id: "twoDecimalPlaces",
@@ -198,11 +191,9 @@ export class TrialGridExampleComponent implements OnInit {
       },
       onFirstDataRendered: params => {
         //params.api.sizeColumnsToFit();
-
         params.api.forEachNode(function(node) {
           node.expanded = true;
         });
-
         params.api.onGroupExpandedOrCollapsed();
       },
       enableFilter: true,
@@ -216,6 +207,8 @@ export class TrialGridExampleComponent implements OnInit {
       }
     };
   }
+
+  ngOnInit() {}
 
   public onBtForEachNodeAfterFilter() {
     this.gridOptions.api.forEachNodeAfterFilter(function(rowNode, index) {
@@ -453,6 +446,11 @@ export class TrialGridExampleComponent implements OnInit {
   // selected: {startDate: moment().startOf('month'), endDate: moment()};
 
   ngAfterViewInit() {
+    this.getTrialBalance();
+  }
+
+  getTrialBalance() {
+    console.log("in get trial balance");
     this.gridOptions.onFilterChanged = function() {
       let tTotal = 0;
       let tCredit = 0;
@@ -514,14 +512,13 @@ export class TrialGridExampleComponent implements OnInit {
         this.sortDirection
       )
       .subscribe(result => {
+        console.log("get journals result", result);
         this.columns = result.meta.Columns;
-
         this.totalRecords = result.meta.Total;
         this.totalCredit = result.stats.totalCredit;
         this.totalDebit = result.stats.totalDebit;
 
         this.rowData = [];
-
         let someArray = [];
 
         for (var item in result.data) {
@@ -538,11 +535,8 @@ export class TrialGridExampleComponent implements OnInit {
           }
           someArray.push(someObject);
         }
-
         this.customizeColumns(this.columns);
-
         this.rowData = someArray as [];
-
         this.pinnedBottomRowData = [
           {
             source: "Total Records:" + this.totalRecords,
@@ -566,9 +560,9 @@ export class TrialGridExampleComponent implements OnInit {
         ];
       });
   }
+
   public getRangeLable() {
     this.DateRangeLable = "";
-
     if (
       moment("01-01-1901", "MM-DD-YYYY").diff(this.startDate, "days") == 0 &&
       moment().diff(this.endDate, "days") == 0
@@ -599,10 +593,10 @@ export class TrialGridExampleComponent implements OnInit {
       moment().diff(this.endDate, "days") == 0
     ) {
       this.DateRangeLable = "Today";
-
       return;
     }
   }
+
   setWidthAndHeight(width, height) {
     this.style = {
       marginTop: "20px",
@@ -611,6 +605,7 @@ export class TrialGridExampleComponent implements OnInit {
       boxSizing: "border-box"
     };
   }
+
   onFirstDataRendered(params) {
     params.api.sizeColumnsToFit();
   }
@@ -620,11 +615,8 @@ export class TrialGridExampleComponent implements OnInit {
       fileName: "Test File",
       sheetName: "First Sheet"
     };
-
     this.gridOptions.api.exportDataAsExcel(params);
   }
-
-  ngOnInit() {}
 
   public isExternalFilterPresent() {
     return true;
@@ -644,7 +636,6 @@ export class TrialGridExampleComponent implements OnInit {
 
   public doesExternalFilterPass(node: any) {
     let result = true;
-
     if (this.startDate) {
       let cellDate = new Date(node.data.when);
       let td = this.startDate.toDate();
@@ -657,14 +648,12 @@ export class TrialGridExampleComponent implements OnInit {
         result = false;
       }
     }
-
     if (result === true) {
       if (this.fund) {
         let cellFund = node.data.Fund;
         result = this.fund === cellFund;
       }
     }
-
     return result;
   }
 
@@ -675,12 +664,10 @@ export class TrialGridExampleComponent implements OnInit {
     this.startDate.value = "";
     this.endDate = null;
     this.fund = null;
-
     this.journalGrid.api.setFilterModel(null);
     this.journalGrid.api.onFilterChanged();
     this.startDate = null;
     this.dateRangPicker.value = "";
-
     this.startDate = "";
     this.endDate = "";
   }
@@ -688,6 +675,11 @@ export class TrialGridExampleComponent implements OnInit {
   greet(row: any) {
     //alert(`${ row.country } says "${ row.greeting }!`);
     alert("For show popup");
+  }
+
+  refreshGrid() {
+    this.gridOptions.api.showLoadingOverlay();
+    this.getTrialBalance();
   }
 }
 

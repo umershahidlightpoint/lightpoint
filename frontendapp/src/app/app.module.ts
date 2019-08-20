@@ -63,6 +63,7 @@ import { DataService } from "../shared/common/data.service";
 import { HeaderComponent } from "./menu/header/header.component";
 import { LeftMenuComponent } from "./menu/left-menu/left-menu.component";
 import { SidenavService } from "../shared/common/sidenav.service";
+import { LoaderComponent } from "../shared/common/loader";
 
 @NgModule({
   declarations: [
@@ -86,7 +87,8 @@ import { SidenavService } from "../shared/common/sidenav.service";
     GridLayoutComponent,
     GridLayoutMenuComponent,
     HeaderComponent,
-    LeftMenuComponent
+    LeftMenuComponent,
+    LoaderComponent
   ],
   imports: [
     BrowserModule,
