@@ -23,6 +23,7 @@ namespace PostingEngine
             Messages = new Dictionary<string, int>();
         }
 
+      
         public string RunId { get; internal set; }
         public string Period { get; set; }
         public DateTime ValueDate { get; set; }
@@ -66,7 +67,7 @@ namespace PostingEngine
 
         static string Period;
 
-        public static void Start(string period)
+        public static void Start(string period , Guid Key)
         {
             Period = period;
 
@@ -93,6 +94,7 @@ namespace PostingEngine
 
                 var postingEnv = new PostingEngineEnvironment(connection, transaction)
                 {
+                   
                     Categories = AccountCategory.Categories,
                     Types = AccountType.All,
                     ValueDate = DateTime.Now.Date,
@@ -103,7 +105,7 @@ namespace PostingEngine
                 };
 
 
-                new JournalLog() { RunDate = postingEnv.RunDate, Action = "Starting Batch Posting Engine -- Trades", ActionOn = DateTime.Now }.Save(connection, transaction);
+                new JournalLog() { key = Key, RunDate = postingEnv.RunDate, Action = "Starting Batch Posting Engine -- Trades", ActionOn = DateTime.Now }.Save(connection, transaction);
                 sw.Reset();
                 sw.Start();
                 // RUn the trades pass next
@@ -113,10 +115,10 @@ namespace PostingEngine
                 // Save the messages accumulated during the Run
                 foreach (var message in postingEnv.Messages)
                 {
-                    new JournalLog() { RunDate = postingEnv.RunDate, Action = $" Error : {message.Key}, Count : {message.Value}", ActionOn = DateTime.Now }.Save(connection, transaction);
+                    new JournalLog() {key=Key, RunDate = postingEnv.RunDate, Action = $" Error : {message.Key}, Count : {message.Value}", ActionOn = DateTime.Now }.Save(connection, transaction);
                 }
 
-                new JournalLog() { RunDate = postingEnv.RunDate, Action = $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms / {sw.ElapsedMilliseconds / 1000} s", ActionOn = DateTime.Now }.Save(connection, transaction);
+                new JournalLog() { key = Key, RunDate = postingEnv.RunDate, Action = $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms / {sw.ElapsedMilliseconds / 1000} s", ActionOn = DateTime.Now }.Save(connection, transaction);
 
                 transaction.Commit();
 
@@ -126,7 +128,7 @@ namespace PostingEngine
             }
         }
 
-        static async Task<int> RunAsync(SqlConnection connection, SqlTransaction transaction, PostingEngineEnvironment postingEnv, string transactionsURI)
+        static async Task<int> RunAsync(SqlConnection connection, SqlTransaction transaction, PostingEngineEnvironment postingEnv, string transactionsURI ,Guid key )
         {
             var result = await GetTransactions(transactionsURI);
 
@@ -147,7 +149,7 @@ namespace PostingEngine
             {
                 Console.WriteLine($"Processing for ValueDate {startDate}");
 
-                postingEnv.ValueDate = startDate;
+                postingEnv.ValueDate = sta rtDate;
                 postingEnv.FxRates = new FxRates().Get(startDate);
 
                 foreach (var element in tradeData)
@@ -167,7 +169,7 @@ namespace PostingEngine
                 startDate = startDate.AddDays(1);
             }
 
-            new JournalLog() { RunDate = postingEnv.RunDate, Action = $"Processed # {elements.Count()} transactions", ActionOn = DateTime.Now }.Save(connection, transaction);
+            new JournalLog() { key = key, RunDate = postingEnv.RunDate, Action = $"Processed # {elements.Count()} transactions", ActionOn = DateTime.Now }.Save(connection, transaction);
 
             return elements.Count();
         }

@@ -7,16 +7,16 @@ namespace LP.Finance.WebProxy.WebAPI.Services
     class PostingEngineService : IPostingEngineService
     {
         private static bool IsRunning { get; set; }
-        private static string Key { get; set; }
+        private static Guid Key { get; set; }
 
         public object StartPostingEngine(string period)
         {
             if (!IsRunning)
             {
                 IsRunning = true;
-                Key = Guid.NewGuid().ToString();
+                Key = Guid.NewGuid();
 
-                Task.Run(() => PostingEngine.PostingEngine.Start(period))
+                Task.Run(() => PostingEngine.PostingEngine.Start(period, Key))
                     .ContinueWith(task => IsRunning = false);
 
                 return new

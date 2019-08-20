@@ -69,7 +69,7 @@ export class AgGridExampleComponent implements OnInit {
   @ViewChild("journalModal") jounalModal: JournalModalComponent;
 
   oGridLayoutMenuComponent: GridLayoutMenuComponent;
-
+  overlayNoRowsTemplate: any;
   frameworkComponents: any;
   columnDefs: any;
   totalCredit: number;
@@ -118,7 +118,6 @@ export class AgGridExampleComponent implements OnInit {
     private dataService: DataService
   ) {
     injector;
-
     // Setup of the SideBar
     this.sideBar = {
       toolPanels: [
@@ -640,6 +639,8 @@ export class AgGridExampleComponent implements OnInit {
 
   ngAfterViewInit() {
     this.getAllData();
+    //this.overlayNoRowsTemplate =
+    //"<span style=\"padding: 10px; border: 2px solid #444; background: lightgoldenrodyellow;\">This is a custom 'no rows' overlay</span>";
 
     // this.AppGridLayout.gridOptions=this.gridOptions ;
 
