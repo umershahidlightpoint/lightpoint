@@ -149,7 +149,7 @@ namespace PostingEngine
             {
                 Console.WriteLine($"Processing for ValueDate {startDate}");
 
-                postingEnv.ValueDate = startDate;
+                postingEnv.ValueDate = sta rtDate;
                 postingEnv.FxRates = new FxRates().Get(startDate);
 
                 foreach (var element in tradeData)

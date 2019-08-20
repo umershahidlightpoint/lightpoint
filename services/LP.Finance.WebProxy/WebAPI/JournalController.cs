@@ -468,9 +468,10 @@ namespace LP.Finance.WebProxy.WebAPI
                 }
             }
 
-            metaData.Total = Convert.ToInt32(dataTable.Rows[0][0]);
-            journalStats.totalCredit = Convert.ToDouble(dataTable.Rows[0]["totalDebit"]);
-            journalStats.totalDebit = Convert.ToDouble(dataTable.Rows[0]["totalCredit"]);
+             
+            metaData.Total = dataTable.Rows.Count > 0 ? Convert.ToInt32(dataTable.Rows[0][0]) : 0;
+            journalStats.totalCredit = dataTable.Rows.Count > 0 ? Convert.ToDouble(dataTable.Rows[0]["totalDebit"]): 0;
+            journalStats.totalDebit = dataTable.Rows.Count > 0 ? Convert.ToDouble(dataTable.Rows[0]["totalCredit"]): 0 ;
             var jsonResult = JsonConvert.SerializeObject(dataTable);
 
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
