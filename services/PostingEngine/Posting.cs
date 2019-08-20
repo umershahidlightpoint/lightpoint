@@ -13,55 +13,10 @@ using System.Threading.Tasks;
 
 namespace PostingEngine
 {
-    public class PostingEngineEnvironment
-    {
-        public PostingEngineEnvironment(SqlConnection connection, SqlTransaction transaction)
-        {
-            Connection = connection;
-            Transaction = transaction;
-
-            Messages = new Dictionary<string, int>();
-        }
-
-      
-        public string RunId { get; internal set; }
-        public string Period { get; set; }
-        public DateTime ValueDate { get; set; }
-        public DateTime RunDate { get; set; }
-        public AccountCategory[] Categories { get; set; }
-        public List<AccountType> Types { get; set; }
-
-        public Transaction[] Allocations { get; set; }
-
-        public Dictionary<string, FxRate> FxRates { get; set; }
-
-        // Map of Product type to IPostingRule
-        public Dictionary<string, IPostingRule> rules = new Dictionary<string, IPostingRule>
-        {
-            {"Common Stock", new CommonStock() },
-            //{"Cash", new Cash() },
-            {"Journals", new FakeJournals() }
-        };
-
-        public SqlConnection Connection { get; private set; }
-        public SqlTransaction Transaction { get; private set; }
-
-        public void AddMessage(string message)
-        {
-            if ( Messages.ContainsKey(message))
-            {
-                Messages[message] = Messages[message] + 1;
-            } else
-            {
-                Messages.Add(message, 1);
-            }
-        }
-        public Dictionary<string, int> Messages { get; private set; }
-    }
-
     public static class PostingEngine
     {
         private static readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+
         private static readonly string tradesURL = "http://localhost:9091/api/trade/data/";
         private static readonly string allocationsURL = "http://localhost:9091/api/allocation/data/";
 
@@ -88,19 +43,21 @@ namespace PostingEngine
                 var sw = new Stopwatch();
 
                 var allocations = GetTransactions(allocationsURL + Period);
-                allocations.Wait();
+                var trades = GetTransactions(tradesURL + Period);
+                Task.WaitAll(new Task[] { allocations, trades });
 
                 var allocationList = JsonConvert.DeserializeObject<Transaction[]>(allocations.Result);
+                var tradeList = JsonConvert.DeserializeObject<Transaction[]>(trades.Result);
 
                 var postingEnv = new PostingEngineEnvironment(connection, transaction)
                 {
-                   
                     Categories = AccountCategory.Categories,
                     Types = AccountType.All,
                     ValueDate = DateTime.Now.Date,
                     FxRates = new FxRates().Get(DateTime.Now.Date),
                     RunDate = System.DateTime.Now.Date,
                     Allocations = allocationList,
+                    Trades = tradeList,
                     Period = period
                 };
 
@@ -109,7 +66,7 @@ namespace PostingEngine
                 sw.Reset();
                 sw.Start();
                 // RUn the trades pass next
-                int count = RunAsync(connection, transaction, postingEnv, tradesURL + Period).GetAwaiter().GetResult();
+                int count = RunAsync(connection, transaction, postingEnv, Key).GetAwaiter().GetResult();
                 sw.Stop();
 
                 // Save the messages accumulated during the Run
@@ -128,29 +85,24 @@ namespace PostingEngine
             }
         }
 
-        static async Task<int> RunAsync(SqlConnection connection, SqlTransaction transaction, PostingEngineEnvironment postingEnv, string transactionsURI ,Guid key )
+        static async Task<int> RunAsync(SqlConnection connection, SqlTransaction transaction, PostingEngineEnvironment postingEnv, Guid key )
         {
-            var result = await GetTransactions(transactionsURI);
+            var minTradeDate = postingEnv.Trades.Min(i => i.TradeDate.Date);
+            var maxTradeDate = postingEnv.Trades.Max(i => i.TradeDate.Date);
 
-            var elements = JsonConvert.DeserializeObject<Transaction[]>(result);
+            var maxSettleDate = postingEnv.Trades.Max(i => i.SettleDate.Date);
 
-
-            var minTradeDate = elements.Min(i => i.TradeDate.Date);
-            var maxTradeDate = elements.Max(i => i.TradeDate.Date);
-
-            var maxSettleDate = elements.Max(i => i.SettleDate.Date);
-
-            var startDate = minTradeDate;
+            var valueDate = minTradeDate;
             var endDate = DateTime.Now.Date;
 
-            var tradeData = elements.OrderBy(i => i.TradeDate.Date).ToList();
-
-            while (startDate <= endDate)
+            while (valueDate <= endDate)
             {
-                Console.WriteLine($"Processing for ValueDate {startDate}");
+                Console.WriteLine($"Processing for ValueDate {valueDate}");
 
-                postingEnv.ValueDate = sta rtDate;
-                postingEnv.FxRates = new FxRates().Get(startDate);
+                postingEnv.ValueDate = valueDate;
+                postingEnv.FxRates = new FxRates().Get(valueDate);
+
+                var tradeData = postingEnv.Trades.Where(i=>i.TradeDate <= valueDate).OrderBy(i => i.TradeDate.Date).ToList();
 
                 foreach (var element in tradeData)
                 {
@@ -166,12 +118,12 @@ namespace PostingEngine
                     }
                 }
 
-                startDate = startDate.AddDays(1);
+                valueDate = valueDate.AddDays(1);
             }
 
-            new JournalLog() { key = key, RunDate = postingEnv.RunDate, Action = $"Processed # {elements.Count()} transactions", ActionOn = DateTime.Now }.Save(connection, transaction);
+            new JournalLog() { key = key, RunDate = postingEnv.RunDate, Action = $"Processed # {postingEnv.Trades.Count()} transactions", ActionOn = DateTime.Now }.Save(connection, transaction);
 
-            return elements.Count();
+            return postingEnv.Trades.Count();
         }
 
 
@@ -201,6 +153,7 @@ namespace PostingEngine
             new SqlCommand("delete from ledger", connection).ExecuteNonQuery();
             new SqlCommand("delete from journal", connection).ExecuteNonQuery();
             new SqlCommand("delete from journal_log", connection).ExecuteNonQuery();
+            new SqlCommand("delete from account_tag", connection).ExecuteNonQuery();
             new SqlCommand("delete from account", connection).ExecuteNonQuery();
         }
 

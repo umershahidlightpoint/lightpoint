@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="FxRates.cs" />
     <Compile Include="Posting.cs" />
+    <Compile Include="PostingEngineEnvironment.cs" />
     <Compile Include="PostingRules\Cash.cs" />
     <Compile Include="PostingRules\PostingRule.cs" />
     <Compile Include="Utilities\AccountUtils.cs" />

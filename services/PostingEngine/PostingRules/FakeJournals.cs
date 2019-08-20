@@ -55,6 +55,12 @@ namespace PostingEngine.PostingRules
 
         public void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
+            if ( element.Status.Equals("Cancelled"))
+            {
+                env.AddMessage($"Entry has been cancelled {element.LpOrderId} :: {element.Side}");
+                return;
+            }
+
             var accountToFrom = GetFromToAccount(element);
 
             if (accountToFrom.To == null)
