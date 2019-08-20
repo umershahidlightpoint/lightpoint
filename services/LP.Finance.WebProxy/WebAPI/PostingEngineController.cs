@@ -13,7 +13,7 @@ namespace LP.Finance.WebProxy.WebAPI
         public object Get(string period = "ITD")
         {
             return controller.StartPostingEngine(period);
-        }
+        }  
 
         // GET api/postingEngine/status/{key}
         [Route("status/{key}")]
