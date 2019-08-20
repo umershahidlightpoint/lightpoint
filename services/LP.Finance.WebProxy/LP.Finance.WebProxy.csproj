@@ -102,6 +102,8 @@
     <Compile Include="WebAPI\LedgerController.cs" />
     <Compile Include="WebAPI\JournalController.cs" />
     <Compile Include="WebAPI\Services\LedgerService.cs" />
+    <Compile Include="WebAPI\Services\IPostingEngineService.cs" />
+    <Compile Include="WebAPI\Services\PostingEngineService.cs" />
     <Compile Include="WebAPI\Stubs\LedgerStub.cs" />
     <Compile Include="WebAPI\PingController.cs" />
     <Compile Include="Startup.cs" />
