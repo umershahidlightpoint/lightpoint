@@ -1,4 +1,5 @@
-﻿using LP.Finance.Common.Models;
+﻿using LP.Finance.Common;
+using LP.Finance.Common.Models;
 using PostingEngine.PostingRules.Utilities;
 using System;
 using System.Collections.Generic;
@@ -70,7 +71,9 @@ namespace PostingEngine.PostingRules
                     Fund = element.Fund,
                 };
 
-                new Journal[] { debit, credit }.Save(env);
+                env.Journals.AddRange( new [] { debit, credit } );
+
+                //new Journal[] { debit, credit }.Save(env);
             }
         }
 
@@ -206,7 +209,12 @@ namespace PostingEngine.PostingRules
                     Fund = element.Fund,
                 };
 
-                new Journal[] { debitJournal, creditJournal }.Save(env);
+                env.Journals.AddRange(new[] { debitJournal, creditJournal });
+
+                //new SQLBulkHelper().Insert("journal", new[] { debitJournal, creditJournal }, env.Connection);
+
+
+                //new Journal[] { debitJournal, creditJournal }.Save(env);
             }
         }
     }

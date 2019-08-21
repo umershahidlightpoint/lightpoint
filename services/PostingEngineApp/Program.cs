@@ -15,10 +15,11 @@ namespace ConsoleApp1
 
     class Program
     {
-
         static void Main(string[] args)
         {
-            PostingEngine.PostingEngine.Start("ITD");
+            var key = System.Guid.NewGuid();
+
+            PostingEngine.PostingEngine.Start("ITD", key);
         }
     }
 }

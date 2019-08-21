@@ -45,6 +45,7 @@ export class OperationsComponent implements OnInit {
 
   async runEngine() {
     console.log("In run engine");
+    debugger;
     let is = false;
     this._fundsService
       .startPostingEngine()

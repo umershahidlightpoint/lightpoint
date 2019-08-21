@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace LP.Finance.Common.Models
 {
-    public class Journal : IDbAction
+    public class Journal : IDbAction, IDbModel
     {
         public int Id { get; set; }
         public Account Account { get; set; }
@@ -61,6 +62,37 @@ namespace LP.Finance.Common.Models
         }
 
         public KeyValuePair<string, SqlParameter[]> Delete => throw new NotImplementedException();
+
+
+        public DataTable MetaData(SqlConnection connection)
+        {
+            var table = new DataTable();
+
+            // read the table structure from the database
+            var localconnection = new SqlConnection(connection.ConnectionString);
+            localconnection.Open();
+            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 source, account_id, value, [when], generated_by, fund, fx_currency, fxrate FROM Journal", localconnection))
+            {
+                adapter.Fill(table);
+            };
+            localconnection.Close();
+
+            return table;
+
+        }
+        public void PopulateRow(DataRow row)
+        {
+            //row.ItemArray = new[] { };
+
+            row["source"] = this.Source;
+            row["account_id"] = this.Account.Id;
+            row["value"] = this.Value;
+            row["when"] = this.When;
+            row["generated_by"] = this.GeneratedBy;
+            row["fund"] = this.Fund;
+            row["fx_currency"] = this.FxCurrency;
+            row["fxrate"] = this.FxRate;
+        }
     }
 
 }
