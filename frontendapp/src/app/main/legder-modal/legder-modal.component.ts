@@ -1,18 +1,25 @@
-import { Component, OnInit, ViewChild, Output, EventEmitter, Input } from '@angular/core';
-import { ModalDirective } from 'ngx-bootstrap';
-import { FinancePocServiceProxy, LedgerInput } from '../../../shared/service-proxies/service-proxies';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  Output,
+  EventEmitter,
+  Input
+} from "@angular/core";
+import { ModalDirective } from "ngx-bootstrap";
+import { FinancePocServiceProxy } from "../../../shared/service-proxies/service-proxies";
+import { LedgerInput } from "src/shared/Models/account";
 import * as moment from "moment";
 
 @Component({
-  selector: 'app-legder-modal',
-  templateUrl: './legder-modal.component.html',
-  styleUrls: ['./legder-modal.component.css']
+  selector: "app-legder-modal",
+  templateUrl: "./legder-modal.component.html",
+  styleUrls: ["./legder-modal.component.css"]
 })
 export class LegderModalComponent implements OnInit {
-
   active = false;
   @ViewChild("accountInput") accountInput;
-  @ViewChild('modal') modal:ModalDirective ;
+  @ViewChild("modal") modal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
   @Input() fundId: any;
   @Input() ledgerId: any;
@@ -25,21 +32,17 @@ export class LegderModalComponent implements OnInit {
   effectiveDate = new Date();
   value: number;
   ledger: LedgerInput = new LedgerInput();
-  constructor(private _service: FinancePocServiceProxy) { }
+  constructor(private _service: FinancePocServiceProxy) {}
 
-  ngOnInit() {
-  }
-
+  ngOnInit() {}
 
   onShown() {
     this.accountInput.focusInput();
-
   }
 
   onSearchAccount(event): void {
     this.tempAccountNumber = event.query;
     this._service.getAccounts(event.query).subscribe(result => {
-
       this.accounts = result.data;
     });
   }
@@ -47,7 +50,6 @@ export class LegderModalComponent implements OnInit {
   onSearchCustomer(event): void {
     this.tempCustomerNumber = event.query;
     this._service.getCustomers(event.query).subscribe(result => {
-
       this.customers = result.data;
     });
   }
@@ -57,33 +59,29 @@ export class LegderModalComponent implements OnInit {
   }
 
   save() {
-    this.ledger.effectiveDate = moment(this.effectiveDate).format('YYYY-MM-DD');
+    this.ledger.effectiveDate = moment(this.effectiveDate).format("YYYY-MM-DD");
     this.ledger.customer_id = this.customer.id;
     this.ledger.account_id = this.account.id;
     if (this.ledgerId > 0 || this.ledgerId !== undefined) {
       this._service.updateLedger(this.ledgerId, this.ledger).subscribe(res => {
         this.modalClose.emit(res);
       });
-    }
-    else {
+    } else {
       this._service.createLedger(this.ledger).subscribe(res => {
         this.modalClose.emit(res);
       });
     }
 
     this.close();
-
   }
 
   show() {
-    if (this.ledgerId)
-      this.getLedgerById(this.ledgerId);
+    if (this.ledgerId) this.getLedgerById(this.ledgerId);
     this.active = true;
     this.modal.show();
     this.account = [];
     this.customer = [];
     this.ledger.value = null;
-
   }
 
   getLedgerById(id) {
@@ -94,9 +92,8 @@ export class LegderModalComponent implements OnInit {
       this.account = result.account;
       this.ledger.value = result.value;
       this.ledger.fund_id = result.fund.id;
-    })
+    });
   }
-
 
   close() {
     this.active = false;

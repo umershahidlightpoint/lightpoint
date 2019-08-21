@@ -10,13 +10,44 @@
     </div>
   </p-tabPanel>
 
-  <p-tabPanel header="Tasks" [ngStyle]="style">
+  <p-tabPanel #task header="Tasks" [ngStyle]="style">
     <div #divToMeasure>
       <div [ngStyle]="styleForHight">
         <p-dropdown [options]="periods" [(ngModel)]="selectedPeriod" optionLabel="name"></p-dropdown>
         <button class="btn btn-info ml-2" type="button" (click)="runEngine()">Run Engine</button>
+        <button class="btn btn-danger ml-2" type="button" (click)="openModal()">Clear Journal</button>
       </div>
     </div>
-    <app-loader [isLoading]="isLoading"> </app-loader>
+
+    <!-- Confirmation Modal Start -->
+    <div bsModal #confirm="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal"
+      aria-hidden="true" [config]="{backdrop: modal-backdrop}">
+      <div class="modal-dialog modal-dialog-centered" id="modal-lg">
+        <div class="modal-content">
+          <!-- Modal Header Start -->
+          <div class="modal-header">
+            <h3>Confirm</h3>
+            <button type="button" class="close close-btn" (click)="closeModal()">&times;</button>
+          </div>
+          <!-- Modal Header End -->
+          <!-- Modal Body Start -->
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-sm-6">
+                <label> Are you really really sure? </label>
+              </div>
+            </div>
+          </div>
+          <!-- Modal Body End -->
+          <!-- Modal Footer Start -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeModal()">No</button>
+            <button type="button" class="btn btn-primary" (click)="closeModal()">Yes</button>
+          </div>
+          <!-- Modal Footer End -->
+        </div>
+      </div>
+    </div>
+    <!-- Confirmation Modal End -->
   </p-tabPanel>
 </p-tabView>

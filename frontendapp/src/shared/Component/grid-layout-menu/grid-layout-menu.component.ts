@@ -169,7 +169,6 @@ export class GridLayoutMenuComponent implements IToolPanel {
   }
   _compareFn(a, b) {
     if (a.Id === 0) {
-      // console.log('Id is null')
       return a.Id;
     }
     return a.Id === b.Id;

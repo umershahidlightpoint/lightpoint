@@ -4,22 +4,33 @@ import {
   ElementRef,
   OnInit,
   Injector,
-  ViewChild
+  ViewChild,
+  OnDestroy,
+  Output,
+  EventEmitter
 } from "@angular/core";
+import { ModalDirective } from "ngx-bootstrap";
 import { FinancePocServiceProxy } from "../../../shared/service-proxies/service-proxies";
 import { GridOptions } from "ag-grid-community";
-import { takeWhile, delay } from "rxjs/operators";
-import { interval } from "rxjs";
+import { takeWhile } from "rxjs/operators";
 import * as moment from "moment";
+import { Observable } from "rxjs";
+import { PostingEngineStatus } from "../../../shared/Models/posting-engine";
 
 @Component({
   selector: "app-operations",
   templateUrl: "./operations.component.html",
   styleUrls: ["./operations.component.css"]
 })
-export class OperationsComponent implements OnInit {
+export class OperationsComponent implements OnInit, OnDestroy {
   isSubscriptionAlive: boolean;
-  isLoading: boolean = false;
+  postingEngineMsg: boolean = false;
+  //private killTrigger: Subject<void> = new Subject();
+  isLoading: Observable<PostingEngineStatus>;
+
+  @Output() showPostingEngineMsg: EventEmitter<boolean> = new EventEmitter<
+    boolean
+  >();
 
   constructor(
     injector: Injector,
@@ -43,51 +54,77 @@ export class OperationsComponent implements OnInit {
     //this.selected = {startDate: moment().subtract(6, 'days'), endDate: moment().subtract(1, 'days')};
   }
 
-  async runEngine() {
-    console.log("In run engine");
-    debugger;
-    let is = false;
+  ngOnInit() {
+    this.isSubscriptionAlive = true;
+    this.defaultColDef = {
+      sortable: true,
+      resizable: true
+    };
+    //align scroll of grid and footer grid
+    this.gridOptions.alignedGrids.push(this.bottomOptions);
+    this.bottomOptions.alignedGrids.push(this.gridOptions);
+
+    this.symbal = "ALL";
+
+    this.page = 0;
+    this.pageSize = 0;
+    this.accountSearch.id = 0;
+    this.valueFilter = 0;
+    this.sortColum = "";
+    this.sortDirection = "";
+
+    this._fundsService
+      .getJournalLogs(
+        this.symbal,
+        this.page,
+        this.pageSize,
+        this.accountSearch.id,
+        this.valueFilter,
+        this.sortColum,
+        this.sortDirection
+      )
+      .subscribe(result => {
+        this.rowData = [];
+
+        this.rowData = result.data.map(item => ({
+          rundate: moment(item.rundate).format("MMM-DD-YYYY"),
+          action_on: moment(item.action_on).format("MMM-DD-YYYY hh:mm:ss"),
+          action: item.action
+        }));
+      });
+  }
+
+  runEngine() {
     this._fundsService
       .startPostingEngine()
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {
-        debugger;
-        console.log("response ", response);
         if (response.IsRunning) {
-          console.log("is successful", response);
-          is = response.IsRunning;
-          this.isLoading = true;
-
-          //  while (this.isLoading) {
-          this.check();
-          //  }
+          this.checkStatus();
         }
       });
-    // if (is) {
-    //   this.isLoading = true;
-    //   while (this.isLoading) {
-    //     console.log("in while");
-    //     setTimeout(
-    //       () =>
-    //         this._fundsService
-    //           .runningEngineStatus()
-    //           .pipe(takeWhile(() => this.isSubscriptionAlive))
-    //           .subscribe(response => {
-    //             console.log("Running status Response", response);
-    //             this.isLoading = response.status;
-    //             if (!response.status) {
-    //               return;
-    //             }
-    //           }),
-    //       10000
-    //     );
-    //   }
-    // }
-    // alert(this.selectedPeriod.name);
 
     /* This needs to call out to the Posting Engine and invoke the process,
      this is a fire and forget as the process may take a little while to complete
     */
+  }
+
+  checkStatus() {
+    console.log("In check status");
+    setTimeout(() => {
+      this._fundsService
+        .runningEngineStatus()
+        .pipe(takeWhile(() => this.isSubscriptionAlive))
+        .subscribe(response => {
+          console.log("Running status Response", response);
+          // this.isLoading = response.Status;
+          if (response.Status) {
+            this.postingEngineMsg = response.Status;
+            this.checkStatus();
+          } else {
+          }
+        });
+    }, 10000);
   }
 
   periods = [
@@ -118,6 +155,7 @@ export class OperationsComponent implements OnInit {
   @ViewChild("dateRangPicker") dateRangPicker;
   @ViewChild("greetCell") greetCell: TemplateRef<any>;
   @ViewChild("divToMeasure") divToMeasureElement: ElementRef;
+  @ViewChild("confirm") confirmModal: ModalDirective;
 
   totalCredit: number;
   totalDebit: number;
@@ -184,63 +222,15 @@ export class OperationsComponent implements OnInit {
     params.api.sizeColumnsToFit();
   }
 
-  check() {
-    setTimeout(() => {
-      debugger;
-      console.log("in while");
-
-      this._fundsService
-        .runningEngineStatus()
-        .pipe(takeWhile(() => this.isSubscriptionAlive))
-        .subscribe(response => {
-          console.log("Running status Response", response);
-          this.isLoading = response.Status;
-          if (response.Status) {
-            this.check();
-            console.log("status false");
-            return;
-          } else {
-          }
-        });
-    }, 10000);
+  openModal() {
+    this.confirmModal.show();
   }
-  ngOnInit() {
-    this.isSubscriptionAlive = true;
-    this.defaultColDef = {
-      sortable: true,
-      resizable: true
-    };
-    //align scroll of grid and footer grid
-    this.gridOptions.alignedGrids.push(this.bottomOptions);
-    this.bottomOptions.alignedGrids.push(this.gridOptions);
 
-    this.symbal = "ALL";
+  closeModal() {
+    this.confirmModal.hide();
+  }
 
-    this.page = 0;
-    this.pageSize = 0;
-    this.accountSearch.id = 0;
-    this.valueFilter = 0;
-    this.sortColum = "";
-    this.sortDirection = "";
-
-    this._fundsService
-      .getJournalLogs(
-        this.symbal,
-        this.page,
-        this.pageSize,
-        this.accountSearch.id,
-        this.valueFilter,
-        this.sortColum,
-        this.sortDirection
-      )
-      .subscribe(result => {
-        this.rowData = [];
-
-        this.rowData = result.data.map(item => ({
-          rundate: moment(item.rundate).format("MMM-DD-YYYY"),
-          action_on: moment(item.action_on).format("MMM-DD-YYYY hh:mm:ss"),
-          action: item.action
-        }));
-      });
+  ngOnDestroy() {
+    this.isSubscriptionAlive = false;
   }
 }
