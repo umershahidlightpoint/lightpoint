@@ -1,8 +1,16 @@
 ﻿using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace LP.Finance.Common.Models
 {
+    public interface IDbModel
+    {
+        void PopulateRow(DataRow row);
+
+        DataTable MetaData(SqlConnection connection);
+    }
+
     public interface IDbAction
     {
         KeyValuePair<string, SqlParameter[]> Insert { get; }

@@ -94,7 +94,9 @@ namespace PostingEngine.PostingRules
                     Fund = element.Fund,
                 };
 
-                new Journal[] { debit }.Save(env);
+                env.Journals.Add(debit);
+
+                //new Journal[] { debit }.Save(env);
             }
 
             return;

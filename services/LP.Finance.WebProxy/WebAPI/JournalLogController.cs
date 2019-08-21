@@ -54,7 +54,7 @@ namespace LP.Finance.WebProxy.WebAPI
         private object AllData(int pageNumber, int pageSize, string sortColum = "id", string sortDirection = "asc",
             int accountId = 0, int value = 0)
         {
-            var query = $@"select * from journal_log with(nolock)";
+            var query = $@"select * from log with(nolock)";
 
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
             var jsonResult = JsonConvert.SerializeObject(dataTable);
