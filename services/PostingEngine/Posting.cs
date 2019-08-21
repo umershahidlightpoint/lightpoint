@@ -14,8 +14,11 @@ using System.Threading.Tasks;
 
 namespace PostingEngine
 {
+    public delegate void PostingEngineCallBack(string message);
     public static class PostingEngine
     {
+       
+
         private static readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
         private static readonly string tradesURL = "http://localhost:9091/api/trade/data/";
@@ -24,15 +27,17 @@ namespace PostingEngine
         public static List<string> ss = new List<string>();
 
         static string Period;
+        static Guid Key;
 
-        public static void Start(string period , Guid Key, ref List<object> lo)
+        public static void Start(string period , Guid key, PostingEngineCallBack postingEngineCallBack)
         {
             Period = period;
-
+            Key = key; 
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                ss.Add("asdfasdfa");
+               
+                postingEngineCallBack?.Invoke("Completed Processing.");
                 // Cleanout all data
                 Cleanup(connection);
 
@@ -65,11 +70,11 @@ namespace PostingEngine
                 };
 
 
-                new JournalLog() { key = Key, RunDate = postingEnv.RunDate, Action = "Starting Batch Posting Engine -- Trades", ActionOn = DateTime.Now }.Save(connection, transaction);
+                new JournalLog() { Key = Key, RunDate = postingEnv.RunDate, Action = "Starting Batch Posting Engine -- Trades", ActionOn = DateTime.Now }.Save(connection, transaction);
                 sw.Reset();
                 sw.Start();
                 // RUn the trades pass next
-                int count = RunAsync(connection, transaction, postingEnv, Key).GetAwaiter().GetResult();
+                int count = RunAsync(connection, transaction, postingEnv).GetAwaiter().GetResult();
                 sw.Stop();
 
                 if ( postingEnv.Journals.Count() > 0 )
@@ -80,10 +85,10 @@ namespace PostingEngine
                 // Save the messages accumulated during the Run
                 foreach (var message in postingEnv.Messages)
                 {
-                    new JournalLog() {key=Key, RunDate = postingEnv.RunDate, Action = $" Error : {message.Key}, Count : {message.Value}", ActionOn = DateTime.Now }.Save(connection, transaction);
+                    new JournalLog() { Key = Key, RunDate = postingEnv.RunDate, Action = $" Error : {message.Key}, Count : {message.Value}", ActionOn = DateTime.Now }.Save(connection, transaction);
                 }
 
-                new JournalLog() { key = Key, RunDate = postingEnv.RunDate, Action = $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms / {sw.ElapsedMilliseconds / 1000} s", ActionOn = DateTime.Now }.Save(connection, transaction);
+                new JournalLog() { Key = Key, RunDate = postingEnv.RunDate, Action = $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms / {sw.ElapsedMilliseconds / 1000} s", ActionOn = DateTime.Now }.Save(connection, transaction);
 
                 transaction.Commit();
 
@@ -93,7 +98,7 @@ namespace PostingEngine
             }
         }
 
-        static async Task<int> RunAsync(SqlConnection connection, SqlTransaction transaction, PostingEngineEnvironment postingEnv, Guid key )
+        static async Task<int> RunAsync(SqlConnection connection, SqlTransaction transaction, PostingEngineEnvironment postingEnv )
         {
             var minTradeDate = postingEnv.Trades.Min(i => i.TradeDate.Date);
             var maxTradeDate = postingEnv.Trades.Max(i => i.TradeDate.Date);
@@ -137,7 +142,7 @@ namespace PostingEngine
                 valueDate = valueDate.AddDays(1);
             }
 
-            new JournalLog() { key = key, RunDate = postingEnv.RunDate, Action = $"Processed # {postingEnv.Trades.Count()} transactions", ActionOn = DateTime.Now }.Save(connection, transaction);
+            new JournalLog() { Key = Key, RunDate = postingEnv.RunDate, Action = $"Processed # {postingEnv.Trades.Count()} transactions", ActionOn = DateTime.Now }.Save(connection, transaction);
 
             return postingEnv.Trades.Count();
         }

@@ -11,7 +11,7 @@ namespace LP.Finance.Common.Models
         public string Action { get; set; }
         public DateTime ActionOn { get; set; }
         public DateTime RunDate { get; set; }
-        public Guid key { get; set; }
+        public Guid Key { get; set; }
         public KeyValuePair<string, SqlParameter[]> Insert
         {
             get
@@ -25,7 +25,7 @@ namespace LP.Finance.Common.Models
                     new SqlParameter("rundate", RunDate),
                     new SqlParameter("action", Action),
                     new SqlParameter("action_on", ActionOn),
-                    new SqlParameter("key", key),
+                    new SqlParameter("key", Key),
             };
 
                 return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);

@@ -10,18 +10,21 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         private static bool IsRunning { get; set; }
         private static Guid Key { get; set; }
 
-        private List<object> listMessage; 
+        private static List<string> listMessage; 
 
+       
+        
         public object StartPostingEngine(string period)
         {
 
             if (!IsRunning)
             {
-                listMessage = new List<object>();
+                
                 IsRunning = true;
                 Key = Guid.NewGuid();
+                PostingEngine.PostingEngineCallBack callback = MessageCallBack;
 
-                Task.Run(() => PostingEngine.PostingEngine.Start(period, Key , ref listMessage))
+                Task.Run(() => PostingEngine.PostingEngine.Start(period, Key, callback))
                     .ContinueWith(task => IsRunning = false);
 
                 return new
@@ -34,6 +37,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
 
             return Utils.Wrap(false, "Posting Engine is Already Running!");
+        }
+
+        public void MessageCallBack(string result)
+        {
+            listMessage.Add(result);
+            Console.WriteLine(result);
         }
 
         public object GetStatus(string key)
