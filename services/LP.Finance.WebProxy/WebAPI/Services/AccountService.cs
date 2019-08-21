@@ -39,6 +39,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object GetAccounts(int pageNumber, int pageSize, string accountName, string accountCategory)
         {
+            if (PostingEngineService.IsPostingEngineRunning())
+            {
+                return Utils.Wrap(false, "Posting Engine is currently Running");
+            }
+
             SqlHelper sqlHelper = new SqlHelper(connectionString);
             List<SqlParameter> sqlParameters = new List<SqlParameter>
             {

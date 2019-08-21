@@ -8,35 +8,35 @@ import {
   OnDestroy,
   Output,
   EventEmitter
-} from '@angular/core';
-import { ModalDirective } from 'ngx-bootstrap';
-import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
-import { GridOptions } from 'ag-grid-community';
-import { takeWhile } from 'rxjs/operators';
-import * as moment from 'moment';
-import { Observable } from 'rxjs';
-import { PostingEngineStatus } from '../../../shared/Models/posting-engine';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { ToastrService } from 'ngx-toastr';
+} from "@angular/core";
+import { ModalDirective } from "ngx-bootstrap";
+import { FinancePocServiceProxy } from "../../../shared/service-proxies/service-proxies";
+import { GridOptions } from "ag-grid-community";
+import { takeWhile } from "rxjs/operators";
+import * as moment from "moment";
+import { Observable } from "rxjs";
+import { PostingEngineStatus } from "../../../shared/Models/posting-engine";
+import { FormGroup, FormControl } from "@angular/forms";
+import { ToastrService } from "ngx-toastr";
+import { PostingEngineService } from "src/shared/common/posting-engine.service";
 
 @Component({
-  selector: 'app-operations',
-  templateUrl: './operations.component.html',
-  styleUrls: ['./operations.component.css']
+  selector: "app-operations",
+  templateUrl: "./operations.component.html",
+  styleUrls: ["./operations.component.css"]
 })
 export class OperationsComponent implements OnInit, OnDestroy {
   isSubscriptionAlive: boolean;
   postingEngineMsg: boolean = false;
-  //private killTrigger: Subject<void> = new Subject();
-  isLoading: Observable<PostingEngineStatus>;
   clearJournalForm: FormGroup;
 
-  @Output() showPostingEngineMsg: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() showPostingEngineMsg: EventEmitter<any> = new EventEmitter<any>();
 
   constructor(
     injector: Injector,
     private _fundsService: FinancePocServiceProxy,
-    private toastrService: ToastrService
+    private toastrService: ToastrService,
+    private messageService: PostingEngineService
   ) {
     injector;
     this.gridOptions = <GridOptions>{
@@ -66,14 +66,14 @@ export class OperationsComponent implements OnInit, OnDestroy {
     this.gridOptions.alignedGrids.push(this.bottomOptions);
     this.bottomOptions.alignedGrids.push(this.gridOptions);
 
-    this.symbal = 'ALL';
+    this.symbal = "ALL";
 
     this.page = 0;
     this.pageSize = 0;
     this.accountSearch.id = 0;
     this.valueFilter = 0;
-    this.sortColum = '';
-    this.sortDirection = '';
+    this.sortColum = "";
+    this.sortDirection = "";
 
     this._fundsService
       .getJournalLogs(
@@ -89,8 +89,8 @@ export class OperationsComponent implements OnInit, OnDestroy {
         this.rowData = [];
 
         this.rowData = result.data.map(item => ({
-          rundate: moment(item.rundate).format('MMM-DD-YYYY'),
-          action_on: moment(item.action_on).format('MMM-DD-YYYY hh:mm:ss'),
+          rundate: moment(item.rundate).format("MMM-DD-YYYY"),
+          action_on: moment(item.action_on).format("MMM-DD-YYYY hh:mm:ss"),
           action: item.action
         }));
       });
@@ -106,48 +106,53 @@ export class OperationsComponent implements OnInit, OnDestroy {
   }
 
   validateClearForm() {
-    return !this.clearJournalForm.value.system && !this.clearJournalForm.value.user ? true : false;
+    return !this.clearJournalForm.value.system &&
+      !this.clearJournalForm.value.user
+      ? true
+      : false;
   }
 
+  /* This needs to call out to the Posting Engine and invoke the process,
+     this is a fire and forget as the process may take a little while to complete
+    */
   runEngine() {
+    this.postingEngineMsg = true;
     this._fundsService
       .startPostingEngine()
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {
         if (response.IsRunning) {
-          this.checkStatus();
+          this.messageService.changeStatus(true);
+          this.messageService.checkStatus();
         }
       });
-
-    /* This needs to call out to the Posting Engine and invoke the process,
-     this is a fire and forget as the process may take a little while to complete
-    */
   }
 
-  checkStatus() {
-    console.log('In check status');
-    setTimeout(() => {
-      this._fundsService
-        .runningEngineStatus()
-        .pipe(takeWhile(() => this.isSubscriptionAlive))
-        .subscribe(response => {
-          console.log('Running status Response', response);
-          // this.isLoading = response.Status;
-          if (response.Status) {
-            this.postingEngineMsg = response.Status;
-            this.checkStatus();
-          } else {
-          }
-        });
-    }, 10000);
-  }
+  // checkStatus() {
+  //   this.callParent(true);
+  //   setTimeout(() => {
+  //     this._fundsService
+  //       .runningEngineStatus()
+  //       .pipe(takeWhile(() => this.isSubscriptionAlive))
+  //       .subscribe(response => {
+  //         console.log("Running status Response", response);
+  //         if (response.Status) {
+  //           this.postingEngineMsg = response.Status;
+  //           this.callParent(true);
+  //           this.checkStatus();
+  //         } else {
+  //           this.callParent(false);
+  //         }
+  //       });
+  //   }, 10000);
+  // }
 
   periods = [
-    { name: 'YTD' },
-    { name: 'ITD' },
-    { name: 'MTD' },
-    { name: 'Today' },
-    { name: 'Latest' }
+    { name: "YTD" },
+    { name: "ITD" },
+    { name: "MTD" },
+    { name: "Today" },
+    { name: "Latest" }
   ];
 
   selectedPeriod: any;
@@ -165,12 +170,12 @@ export class OperationsComponent implements OnInit, OnDestroy {
 
   selected: { startDate: moment.Moment; endDate: moment.Moment };
 
-  @ViewChild('topGrid') topGrid;
-  @ViewChild('bottomGrid') bottomGrid;
-  @ViewChild('dateRangPicker') dateRangPicker;
-  @ViewChild('greetCell') greetCell: TemplateRef<any>;
-  @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
-  @ViewChild('confirm') confirmModal: ModalDirective;
+  @ViewChild("topGrid") topGrid;
+  @ViewChild("bottomGrid") bottomGrid;
+  @ViewChild("dateRangPicker") dateRangPicker;
+  @ViewChild("greetCell") greetCell: TemplateRef<any>;
+  @ViewChild("divToMeasure") divToMeasureElement: ElementRef;
+  @ViewChild("confirm") confirmModal: ModalDirective;
 
   totalCredit: number;
   totalDebit: number;
@@ -188,19 +193,19 @@ export class OperationsComponent implements OnInit, OnDestroy {
   sortDirection: any;
   page: any;
 
-  title = 'app';
+  title = "app";
   style = {
-    marginTop: '20px',
-    width: '100%',
-    height: '100%',
-    boxSizing: 'border-box'
+    marginTop: "20px",
+    width: "100%",
+    height: "100%",
+    boxSizing: "border-box"
   };
 
   styleForHight = {
-    marginTop: '20px',
-    width: '100%',
-    height: 'calc(100vh - 180px)',
-    boxSizing: 'border-box'
+    marginTop: "20px",
+    width: "100%",
+    height: "calc(100vh - 180px)",
+    boxSizing: "border-box"
   };
 
   /*
@@ -208,29 +213,29 @@ export class OperationsComponent implements OnInit, OnDestroy {
   */
   columnDefs = [
     {
-      field: 'rundate',
-      headerName: 'Run Date',
+      field: "rundate",
+      headerName: "Run Date",
       sortable: true,
       filter: true,
       enableRowGroup: true,
       resizable: true
     },
     {
-      field: 'action_on',
-      headerName: 'Action On',
+      field: "action_on",
+      headerName: "Action On",
       sortable: true,
       filter: true,
       resizable: true
     },
-    { field: 'action', headerName: 'Action', sortable: true, filter: true }
+    { field: "action", headerName: "Action", sortable: true, filter: true }
   ];
 
   setWidthAndHeight(width, height) {
     this.style = {
-      marginTop: '20px',
+      marginTop: "20px",
       width: width,
       height: height,
-      boxSizing: 'border-box'
+      boxSizing: "border-box"
     };
   }
   onFirstDataRendered(params) {
@@ -248,26 +253,38 @@ export class OperationsComponent implements OnInit, OnDestroy {
   clearJournal() {
     const type: string =
       this.clearJournalForm.value.system && this.clearJournalForm.value.user
-        ? 'both'
+        ? "both"
         : this.clearJournalForm.value.system
-        ? 'system'
-        : 'user';
+        ? "system"
+        : "user";
     this._fundsService
       .clearJournals(type)
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {
         if (response.isSuccessful) {
-          this.clearForm();
-          this.closeModal();
-          this.toastrService.success('Journals are cleared successfully!');
+          this.toastrService.success("Journals are cleared successfully!");
         } else {
-          this.toastrService.error('Failed to clear Journals!');
+          this.toastrService.error("Failed to clear Journals!");
         }
       });
+    this.clearForm();
+    this.closeModal();
   }
 
   clearForm() {
     this.clearJournalForm.reset();
+  }
+
+  callParent(msg) {
+    console.log("status :: ", msg);
+    this.messageService.changeStatus(msg);
+    // this.showPostingEngineMsg.emit("testing");
+  }
+
+  getStatus() {
+    if (this.postingEngineMsg) {
+      return this.postingEngineMsg;
+    }
   }
 
   ngOnDestroy() {
