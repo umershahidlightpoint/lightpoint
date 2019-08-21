@@ -1,4 +1,5 @@
-﻿using LP.Finance.Common.Models;
+﻿using LP.Finance.Common;
+using LP.Finance.Common.Models;
 using Newtonsoft.Json;
 using PostingEngine.PostingRules;
 using System;
@@ -69,6 +70,11 @@ namespace PostingEngine
                 int count = RunAsync(connection, transaction, postingEnv, Key).GetAwaiter().GetResult();
                 sw.Stop();
 
+                if ( postingEnv.Journals.Count() > 0 )
+                {
+                    new SQLBulkHelper().Insert("journal", postingEnv.Journals.ToArray(), connection, transaction);
+                }
+
                 // Save the messages accumulated during the Run
                 foreach (var message in postingEnv.Messages)
                 {
@@ -116,6 +122,14 @@ namespace PostingEngine
 
                         Error(exe, element);
                     }
+                }
+
+                if (postingEnv.Journals.Count() > 0)
+                {
+                    new SQLBulkHelper().Insert("journal", postingEnv.Journals.ToArray(), connection, transaction);
+
+                    // Do not want them to be double posted
+                    postingEnv.Journals.Clear();
                 }
 
                 valueDate = valueDate.AddDays(1);

@@ -14,6 +14,8 @@ namespace PostingEngine
             Transaction = transaction;
 
             Messages = new Dictionary<string, int>();
+
+            Journals = new List<Journal>();
         }
 
         public string RunId { get; internal set; }
@@ -27,6 +29,7 @@ namespace PostingEngine
         public Transaction[] Trades { get; set; }
         public Accrual[] Accruals { get; set; }
 
+        public List<Journal> Journals { get; set; }
         public Dictionary<string, FxRate> FxRates { get; set; }
 
         // Map of Product type to IPostingRule

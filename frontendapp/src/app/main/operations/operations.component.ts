@@ -44,11 +44,13 @@ export class OperationsComponent implements OnInit {
 
   async runEngine() {
     console.log("In run engine");
+    debugger
     let is = false;
     this._fundsService
       .startPostingEngine()
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {
+        debugger
         console.log("response ", response);
         if (response.IsRunning) {
           console.log("is successful", response);

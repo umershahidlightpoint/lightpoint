@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using LP.Finance.Common.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -189,6 +190,37 @@ namespace LP.Finance.Common
                 dataTable.Columns.Remove("total");
 
             return total;
+        }
+    }
+
+    public class SQLBulkHelper
+    {
+        public void Insert(string tablename, IDbModel[] models, SqlConnection connection, SqlTransaction transaction)
+        {
+            if (models.Length == 0)
+                return;
+
+            var table = models[0].MetaData(connection);
+
+            foreach (var model in models)
+            {
+                var row = table.NewRow();
+                model.PopulateRow(row);
+                table.Rows.Add(row);
+            }
+
+            using (var bulk = new SqlBulkCopy(connection, SqlBulkCopyOptions.Default, transaction))
+            {
+                bulk.BatchSize = 1000;
+                bulk.DestinationTableName = tablename;
+
+                foreach (DataColumn c in table.Columns)
+                {
+                    bulk.ColumnMappings.Add(c.ColumnName, c.ColumnName);
+                }
+
+                bulk.WriteToServer(table);
+            }
         }
     }
 }
