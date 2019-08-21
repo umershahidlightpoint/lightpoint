@@ -62,3 +62,7 @@ html {
 .close-btn {
   font-size: 1.5rem;
 }
+
+.clearForm {
+  float: right;
+}

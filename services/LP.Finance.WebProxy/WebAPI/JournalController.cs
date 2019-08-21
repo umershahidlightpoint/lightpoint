@@ -425,7 +425,7 @@ namespace LP.Finance.WebProxy.WebAPI
                 query = query + "   OFFSET(@pageNumber -1) * @pageSize ROWS FETCH NEXT @pageSize  ROWS ONLY";
             }
 
-            query = query + " ) as d ORDER BY  [d].[id] desc with (nolock)";
+            query = query + " ) as d ORDER BY  [d].[id] desc";
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
 
             var result = GetTransactions(allocationsURL);

@@ -22,5 +22,12 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return controller.GetStatus(key);
         }
+
+        // GET api/postingEngine
+        [HttpDelete]
+        public object Clear(string type)
+        {
+            return controller.ClearJournals(type);
+        }
     }
 }

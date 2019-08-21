@@ -1,7 +1,6 @@
 ﻿using LP.Finance.Common;
 using LP.Finance.Common.Models;
 using Newtonsoft.Json;
-using PostingEngine.PostingRules;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -9,17 +8,16 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PostingEngine
 {
     public delegate void PostingEngineCallBack(string message);
+
     public static class PostingEngine
     {
-       
-
-        private static readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+        private static readonly string
+            connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
         private static readonly string tradesURL = "http://localhost:9091/api/trade/data/";
         private static readonly string allocationsURL = "http://localhost:9091/api/allocation/data/";
@@ -29,15 +27,15 @@ namespace PostingEngine
         static string Period;
         static Guid Key;
 
-        public static void Start(string period , Guid key, PostingEngineCallBack postingEngineCallBack)
+        public static void Start(string period, Guid key, PostingEngineCallBack postingEngineCallBack)
         {
             Period = period;
-            Key = key; 
+            Key = key;
+
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-               
-                postingEngineCallBack?.Invoke("Completed Processing.");
+
                 // Cleanout all data
                 Cleanup(connection);
 
@@ -52,7 +50,7 @@ namespace PostingEngine
 
                 var allocations = GetTransactions(allocationsURL + Period);
                 var trades = GetTransactions(tradesURL + Period);
-                Task.WaitAll(new Task[] { allocations, trades });
+                Task.WaitAll(new Task[] {allocations, trades});
 
                 var allocationList = JsonConvert.DeserializeObject<Transaction[]>(allocations.Result);
                 var tradeList = JsonConvert.DeserializeObject<Transaction[]>(trades.Result);
@@ -70,14 +68,18 @@ namespace PostingEngine
                 };
 
 
-                new JournalLog() { Key = Key, RunDate = postingEnv.RunDate, Action = "Starting Batch Posting Engine -- Trades", ActionOn = DateTime.Now }.Save(connection, transaction);
+                new JournalLog()
+                {
+                    Key = Key, RunDate = postingEnv.RunDate, Action = "Starting Batch Posting Engine -- Trades",
+                    ActionOn = DateTime.Now
+                }.Save(connection, transaction);
                 sw.Reset();
                 sw.Start();
                 // RUn the trades pass next
                 int count = RunAsync(connection, transaction, postingEnv).GetAwaiter().GetResult();
                 sw.Stop();
 
-                if ( postingEnv.Journals.Count() > 0 )
+                if (postingEnv.Journals.Count() > 0)
                 {
                     new SQLBulkHelper().Insert("journal", postingEnv.Journals.ToArray(), connection, transaction);
                 }
@@ -85,12 +87,23 @@ namespace PostingEngine
                 // Save the messages accumulated during the Run
                 foreach (var message in postingEnv.Messages)
                 {
-                    new JournalLog() { Key = Key, RunDate = postingEnv.RunDate, Action = $" Error : {message.Key}, Count : {message.Value}", ActionOn = DateTime.Now }.Save(connection, transaction);
+                    new JournalLog()
+                    {
+                        Key = Key, RunDate = postingEnv.RunDate,
+                        Action = $" Error : {message.Key}, Count : {message.Value}", ActionOn = DateTime.Now
+                    }.Save(connection, transaction);
                 }
 
-                new JournalLog() { Key = Key, RunDate = postingEnv.RunDate, Action = $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms / {sw.ElapsedMilliseconds / 1000} s", ActionOn = DateTime.Now }.Save(connection, transaction);
+                new JournalLog()
+                {
+                    Key = Key, RunDate = postingEnv.RunDate,
+                    Action =
+                        $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms / {sw.ElapsedMilliseconds / 1000} s",
+                    ActionOn = DateTime.Now
+                }.Save(connection, transaction);
 
                 transaction.Commit();
+                postingEngineCallBack?.Invoke("Completed Processing.");
 
 //                It's a Class Library
 //                Console.WriteLine("Completed / Press Enter to Finish");
@@ -98,7 +111,8 @@ namespace PostingEngine
             }
         }
 
-        static async Task<int> RunAsync(SqlConnection connection, SqlTransaction transaction, PostingEngineEnvironment postingEnv )
+        static async Task<int> RunAsync(SqlConnection connection, SqlTransaction transaction,
+            PostingEngineEnvironment postingEnv)
         {
             var minTradeDate = postingEnv.Trades.Min(i => i.TradeDate.Date);
             var maxTradeDate = postingEnv.Trades.Max(i => i.TradeDate.Date);
@@ -115,7 +129,8 @@ namespace PostingEngine
                 postingEnv.ValueDate = valueDate;
                 postingEnv.FxRates = new FxRates().Get(valueDate);
 
-                var tradeData = postingEnv.Trades.Where(i=>i.TradeDate <= valueDate).OrderBy(i => i.TradeDate.Date).ToList();
+                var tradeData = postingEnv.Trades.Where(i => i.TradeDate <= valueDate).OrderBy(i => i.TradeDate.Date)
+                    .ToList();
 
                 foreach (var element in tradeData)
                 {
@@ -142,7 +157,11 @@ namespace PostingEngine
                 valueDate = valueDate.AddDays(1);
             }
 
-            new JournalLog() { Key = Key, RunDate = postingEnv.RunDate, Action = $"Processed # {postingEnv.Trades.Count()} transactions", ActionOn = DateTime.Now }.Save(connection, transaction);
+            new JournalLog()
+            {
+                Key = Key, RunDate = postingEnv.RunDate,
+                Action = $"Processed # {postingEnv.Trades.Count()} transactions", ActionOn = DateTime.Now
+            }.Save(connection, transaction);
 
             return postingEnv.Trades.Count();
         }
@@ -180,7 +199,6 @@ namespace PostingEngine
 
         private static void Error(Exception ex, Transaction element)
         {
-
         }
 
         private static async Task<string> GetTransactions(string webURI)
@@ -197,7 +215,6 @@ namespace PostingEngine
 
             return await result;
         }
-
     }
 
     public class Posting
@@ -207,24 +224,24 @@ namespace PostingEngine
         /// </summary>
         /// <param name="env">The Posting Environment</param>
         /// <param name="element">The Trade to process</param>
-        public void Process (PostingEngineEnvironment env, Transaction element)
+        public void Process(PostingEngineEnvironment env, Transaction element)
         {
             // Find me the rule
             var rule = env.rules.Where(i => i.Key.Equals(element.SecurityType)).FirstOrDefault().Value;
 
-            if ( rule == null )
+            if (rule == null)
             {
                 env.AddMessage($"No rule associated with {element.SecurityType}");
                 return;
             }
 
-            if ( !element.TradeType.ToLower().Equals("trade"))
+            if (!element.TradeType.ToLower().Equals("trade"))
             {
                 env.AddMessage($"Skipping Trade {element.TradeType}");
                 return;
             }
 
-            if ( env.ValueDate == element.TradeDate.Date)
+            if (env.ValueDate == element.TradeDate.Date)
             {
                 try
                 {
@@ -235,18 +252,18 @@ namespace PostingEngine
                     env.AddMessage($"Unable to process the Event for Trade Date {ex.Message}");
                 }
             }
-            else if ( env.ValueDate == element.SettleDate.Date)
+            else if (env.ValueDate == element.SettleDate.Date)
             {
                 try
                 {
                     rule.SettlementDateEvent(env, element);
                 }
-                catch ( Exception ex )
+                catch (Exception ex)
                 {
                     env.AddMessage($"Unable to process the Event for Settlement Date {ex.Message}");
                 }
             }
-            else if ( env.ValueDate > element.TradeDate.Date && env.ValueDate < element.SettleDate.Date)
+            else if (env.ValueDate > element.TradeDate.Date && env.ValueDate < element.SettleDate.Date)
             {
                 try
                 {
@@ -256,7 +273,6 @@ namespace PostingEngine
                 {
                     env.AddMessage($"Unable to process the Event for Daily Event {ex.Message}");
                 }
-
             }
             else
             {
@@ -270,12 +286,13 @@ namespace PostingEngine
         }
 
 
-        private Account FindAccount( string accountName, Transaction element)
+        private Account FindAccount(string accountName, Transaction element)
         {
-            var accountType = AccountType.All.Where(i => i.Name.ToLowerInvariant().Equals(accountName.ToLowerInvariant())).FirstOrDefault();
+            var accountType = AccountType.All
+                .Where(i => i.Name.ToLowerInvariant().Equals(accountName.ToLowerInvariant())).FirstOrDefault();
 
             // Now we have the account type, so now need to create the account details
-            var account = new Account { Type = accountType };
+            var account = new Account {Type = accountType};
 
             return null;
         }

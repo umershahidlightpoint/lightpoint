@@ -4,5 +4,6 @@
     {
         object StartPostingEngine(string period);
         object GetStatus(string key);
+        object ClearJournals(string type);
     }
 }

@@ -279,4 +279,9 @@ export class FinancePocServiceProxy {
     return this.http.get<PostingEngineStatus>(url);
     //.pipe(map((response: any) => response));
   }
+
+  clearJournals(type) {
+    const url = this.baseUrl + "/postingEngine?type=" + type;
+    return this.http.delete(url).pipe(map((response: any) => response));
+  }
 }
