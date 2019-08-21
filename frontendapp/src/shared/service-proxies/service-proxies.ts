@@ -272,7 +272,10 @@ export class FinancePocServiceProxy {
   }
 
   runningEngineStatus(): Observable<PostingEngineStatus> {
-    const url = this.baseUrl + "/postingEngine/status/testing";
+    debugger;
+    //const url = this.baseUrl + "/postingEngine/status/testing";
+    const url =
+      "http://localhost:9092/api/PostingEngine/status/93ddb0dd-6125-499b-a3aa-f9b6ed57d1bd";
     return this.http.get<PostingEngineStatus>(url);
     // .pipe(map((response: any) => response));
   }

@@ -8,7 +8,8 @@ import {
 } from "@angular/core";
 import { FinancePocServiceProxy } from "../../../shared/service-proxies/service-proxies";
 import { GridOptions } from "ag-grid-community";
-import { takeWhile } from "rxjs/operators";
+import { takeWhile, delay } from "rxjs/operators";
+import { interval } from "rxjs";
 import * as moment from "moment";
 
 @Component({
@@ -49,27 +50,16 @@ export class OperationsComponent implements OnInit {
       .startPostingEngine()
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {
+        debugger;
         console.log("response ", response);
         if (response.IsRunning) {
           console.log("is successful", response);
           is = response.IsRunning;
           this.isLoading = true;
-          while (this.isLoading) {
-            setTimeout(() => {
-              console.log("in while");
-              this._fundsService
-                .runningEngineStatus()
-                .pipe(takeWhile(() => this.isSubscriptionAlive))
-                .subscribe(response => {
-                  console.log("Running status Response", response);
-                  this.isLoading = response.Status;
-                  if (!response.Status) {
-                    console.log("status false");
-                    return;
-                  }
-                });
-            }, 10000);
-          }
+
+          //  while (this.isLoading) {
+          this.check();
+          //  }
         }
       });
     // if (is) {
@@ -193,6 +183,26 @@ export class OperationsComponent implements OnInit {
     params.api.sizeColumnsToFit();
   }
 
+  check() {
+    setTimeout(() => {
+      debugger;
+      console.log("in while");
+
+      this._fundsService
+        .runningEngineStatus()
+        .pipe(takeWhile(() => this.isSubscriptionAlive))
+        .subscribe(response => {
+          console.log("Running status Response", response);
+          this.isLoading = response.Status;
+          if (response.Status) {
+            this.check();
+            console.log("status false");
+            return;
+          } else {
+          }
+        });
+    }, 10000);
+  }
   ngOnInit() {
     this.isSubscriptionAlive = true;
     this.defaultColDef = {

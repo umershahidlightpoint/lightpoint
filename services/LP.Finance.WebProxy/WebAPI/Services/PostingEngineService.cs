@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using LP.Finance.Common;
 
@@ -9,14 +10,18 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         private static bool IsRunning { get; set; }
         private static Guid Key { get; set; }
 
+        private List<object> listMessage; 
+
         public object StartPostingEngine(string period)
         {
+
             if (!IsRunning)
             {
+                listMessage = new List<object>();
                 IsRunning = true;
                 Key = Guid.NewGuid();
 
-                Task.Run(() => PostingEngine.PostingEngine.Start(period, Key))
+                Task.Run(() => PostingEngine.PostingEngine.Start(period, Key , ref listMessage))
                     .ContinueWith(task => IsRunning = false);
 
                 return new
@@ -35,7 +40,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             return new
             {
-                Message = "Ping",
+                Message = PostingEngine.PostingEngine.ss,
                 Version = "Version 1.0",
                 Key = key,
                 Status = IsRunning

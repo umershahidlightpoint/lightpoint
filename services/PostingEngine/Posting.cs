@@ -65,16 +65,18 @@ namespace PostingEngine
         private static readonly string tradesURL = "http://localhost:9091/api/trade/data/";
         private static readonly string allocationsURL = "http://localhost:9091/api/allocation/data/";
 
+        public static List<string> ss = new List<string>();
+
         static string Period;
 
-        public static void Start(string period , Guid Key)
+        public static void Start(string period , Guid Key, ref List<object> lo)
         {
             Period = period;
 
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-
+                ss.Add("asdfasdfa");
                 // Cleanout all data
                 Cleanup(connection);
 
@@ -109,7 +111,7 @@ namespace PostingEngine
                 sw.Reset();
                 sw.Start();
                 // RUn the trades pass next
-                int count = RunAsync(connection, transaction, postingEnv, tradesURL + Period).GetAwaiter().GetResult();
+                int count = RunAsync(connection, transaction, postingEnv, tradesURL + Period, Key).GetAwaiter().GetResult();
                 sw.Stop();
 
                 // Save the messages accumulated during the Run
@@ -149,7 +151,7 @@ namespace PostingEngine
             {
                 Console.WriteLine($"Processing for ValueDate {startDate}");
 
-                postingEnv.ValueDate = sta rtDate;
+                postingEnv.ValueDate = startDate;
                 postingEnv.FxRates = new FxRates().Get(startDate);
 
                 foreach (var element in tradeData)
