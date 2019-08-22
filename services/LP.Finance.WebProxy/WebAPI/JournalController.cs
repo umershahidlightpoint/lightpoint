@@ -326,7 +326,9 @@ namespace LP.Finance.WebProxy.WebAPI
         private object AllData(int pageNumber, int pageSize, string sortColum = "id", string sortDirection = "asc",
             int accountId = 0, int value = 0)
         {
-            if (PostingEngineService.IsPostingEngineRunning())
+            dynamic postingEngine = new PostingEngineService().IsPostingEngineRunning();
+
+            if (postingEngine.IsRunning)
             {
                 return Utils.Wrap(false, "Posting Engine is currently Running");
             }
@@ -474,10 +476,10 @@ namespace LP.Finance.WebProxy.WebAPI
                 }
             }
 
-             
+
             metaData.Total = dataTable.Rows.Count > 0 ? Convert.ToInt32(dataTable.Rows[0][0]) : 0;
-            journalStats.totalCredit = dataTable.Rows.Count > 0 ? Convert.ToDouble(dataTable.Rows[0]["totalDebit"]): 0;
-            journalStats.totalDebit = dataTable.Rows.Count > 0 ? Convert.ToDouble(dataTable.Rows[0]["totalCredit"]): 0 ;
+            journalStats.totalCredit = dataTable.Rows.Count > 0 ? Convert.ToDouble(dataTable.Rows[0]["totalDebit"]) : 0;
+            journalStats.totalDebit = dataTable.Rows.Count > 0 ? Convert.ToDouble(dataTable.Rows[0]["totalCredit"]) : 0;
             var jsonResult = JsonConvert.SerializeObject(dataTable);
 
             dynamic json = JsonConvert.DeserializeObject(jsonResult);

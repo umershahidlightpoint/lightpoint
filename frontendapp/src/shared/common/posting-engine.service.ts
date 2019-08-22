@@ -21,15 +21,15 @@ export class PostingEngineService {
     }
   }
 
-  checkStatus() {
+  checkStatus(key) {
     setTimeout(() => {
       this._fundsService
-        .runningEngineStatus()
+        .runningEngineStatus(key)
         .pipe(takeWhile(() => this.isSubscriptionAlive))
         .subscribe(response => {
           if (response.Status) {
             this.changeStatus(true);
-            this.checkStatus();
+            this.checkStatus(key);
           } else {
             this.changeStatus(false);
           }
