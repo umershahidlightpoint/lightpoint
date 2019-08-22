@@ -121,7 +121,6 @@ export class LedgerComponent implements AppComponentBase, OnInit {
    */
   getLegderByFundId(fundId?: string, event?: LazyLoadEvent) {
     if (fundId != null) { this.fundId = fundId; }
-    console.log(`${this.fundId} --- fundId`, event);
     //this.loading = true;
     // this.primengTableHelper.defaultRecordsCountPerPage = 40;
     let page = 1;
@@ -142,7 +141,6 @@ export class LedgerComponent implements AppComponentBase, OnInit {
       params.value = this.valueFilter;
     }
 
-    console.log(`Page No is ${page}`)
     this._fundsService.getLedger(this.fundId, page, params).subscribe(result => {
       this.totalRecords = result.meta.Total;
       this.itemPerPage = result.meta.limit;
@@ -202,7 +200,6 @@ export class LedgerComponent implements AppComponentBase, OnInit {
   }
 
   onSearchAccountType(event): void {
-    console.log(event);
     this._fundsService.getAccountTypes(event.query).subscribe(result => {
       this.accountTypeSuggestions = result.data;
     });

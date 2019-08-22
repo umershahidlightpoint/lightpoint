@@ -32,7 +32,6 @@ export class FundsComponent implements OnInit {
   }
 
   onRowSelect(event) {
-    console.log(event);
   }
 
   initializeCol() {

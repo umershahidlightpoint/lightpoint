@@ -1,6 +1,6 @@
-import { Injectable, Output, EventEmitter } from "@angular/core";
-import { FinancePocServiceProxy } from "../service-proxies/service-proxies";
-import { takeWhile } from "rxjs/operators";
+import { Injectable, Output, EventEmitter } from '@angular/core';
+import { FinancePocServiceProxy } from '../service-proxies/service-proxies';
+import { takeWhile } from 'rxjs/operators';
 
 @Injectable()
 export class PostingEngineService {
@@ -26,11 +26,6 @@ export class PostingEngineService {
 
   changeProgress(progress) {
     this.progress = progress;
-  }
-
-  isPostingEngineRunning() {
-    if (!this.isRunning) {
-    }
   }
 
   checkProgress() {

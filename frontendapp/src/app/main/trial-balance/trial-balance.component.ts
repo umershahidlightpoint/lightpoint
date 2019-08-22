@@ -212,7 +212,6 @@ export class TrialGridExampleComponent implements OnInit {
 
   public onBtForEachNodeAfterFilter() {
     this.gridOptions.api.forEachNodeAfterFilter(function(rowNode, index) {
-      console.log("node " + rowNode.data.debit + " passes the filter");
     });
   }
 
@@ -458,7 +457,6 @@ export class TrialGridExampleComponent implements OnInit {
         tTotal += 1;
         tCredit += rowNode.data.credit;
         tDebit += rowNode.data.debit;
-        // console.log('node ' + rowNode.data.debit + ' passes the filter');
       });
 
       this.pinnedBottomRowData = [

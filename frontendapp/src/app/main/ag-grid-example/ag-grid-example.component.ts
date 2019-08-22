@@ -17,6 +17,7 @@ import { JournalModalComponent } from "./journal-modal/journal-modal.component";
 import { GridLayoutComponent } from "../../grid-layout/grid-layout.component";
 import { GridLayoutMenuComponent } from "../../../shared/Component/grid-layout-menu/grid-layout-menu.component";
 import { DataService } from "../../../shared/common/data.service";
+import { PostingEngineService } from "src/shared/common/posting-engine.service";
 
 class GridConfiguration {
   private gridApi;
@@ -87,6 +88,7 @@ export class AgGridExampleComponent implements OnInit {
   sortColum: any;
   sortDirection: any;
   page: any;
+  isEngineRunning: boolean = false;
 
   title = "app";
   style = {
@@ -115,7 +117,8 @@ export class AgGridExampleComponent implements OnInit {
     private cdRef: ChangeDetectorRef,
     private _fundsService: FinancePocServiceProxy,
     private toastrService: ToastrService,
-    private dataService: DataService
+    private dataService: DataService,
+    private messageService: PostingEngineService
   ) {
     injector;
     // Setup of the SideBar
@@ -400,7 +403,6 @@ export class AgGridExampleComponent implements OnInit {
 
   public onBtForEachNodeAfterFilter() {
     this.gridOptions.api.forEachNodeAfterFilter(function(rowNode, index) {
-      console.log("node " + rowNode.data.debit + " passes the filter");
     });
   }
 
@@ -845,7 +847,9 @@ export class AgGridExampleComponent implements OnInit {
     this.gridOptions.api.exportDataAsExcel(params);
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.isEngineRunning = this.messageService.getStatus();
+  }
 
   public isExternalFilterPresent() {
     return true;

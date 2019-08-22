@@ -61,7 +61,6 @@ export class GridLayoutMenuComponent implements IToolPanel {
   //   }
 
   callMethod(): void {
-    console.log("successfully executed.");
   }
 
   getLayout(): void {
