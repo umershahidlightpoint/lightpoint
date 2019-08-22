@@ -108,11 +108,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             };
         }
 
-        public static bool IsPostingEngineRunning()
-        {
-            return IsRunning;
-        }
-
         public object ClearJournals(string type)
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);

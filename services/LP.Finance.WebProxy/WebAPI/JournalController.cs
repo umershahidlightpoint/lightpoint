@@ -326,7 +326,9 @@ namespace LP.Finance.WebProxy.WebAPI
         private object AllData(int pageNumber, int pageSize, string sortColum = "id", string sortDirection = "asc",
             int accountId = 0, int value = 0)
         {
-            if (PostingEngineService.IsPostingEngineRunning())
+           dynamic postingEngine = new PostingEngineService().IsPostingEngineRunning();
+
+            if (postingEngine.IsRunning)
             {
                 return Utils.Wrap(false, "Posting Engine is currently Running");
             }
