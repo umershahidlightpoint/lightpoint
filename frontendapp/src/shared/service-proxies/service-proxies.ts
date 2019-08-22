@@ -271,12 +271,19 @@ export class FinancePocServiceProxy {
     // .pipe(map((response: Observable<PostingEngineStatus>) => response));
   }
 
-  runningEngineStatus(): Observable<PostingEngineStatus> {
+  runningEngineStatus(key): Observable<PostingEngineStatus> {
     debugger;
-    //const url = this.baseUrl + "/postingEngine/status/testing";
-    const url =
-      "http://localhost:9092/api/PostingEngine/status/93ddb0dd-6125-499b-a3aa-f9b6ed57d1bd";
+    const url = this.baseUrl + "/PostingEngine/status/" + key;
+
     return this.http.get<PostingEngineStatus>(url);
+    // .pipe(map((response: any) => response));
+  }
+
+  IsPostingEngineRunning(): Observable<PostingEngine> {
+    debugger;
+    const url = this.baseUrl + "/PostingEngine/IsPostingEngineRunning";
+
+    return this.http.get<PostingEngine>(url);
     // .pipe(map((response: any) => response));
   }
 }
@@ -301,4 +308,5 @@ export class PostingEngineStatus {
   version: string;
   key: string;
   Status: boolean;
+  progress: number;
 }

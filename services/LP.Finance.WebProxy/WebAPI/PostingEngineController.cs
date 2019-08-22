@@ -22,5 +22,13 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return controller.GetStatus(key);
         }
+
+        [Route("IsPostingEngineRunning")]
+        [HttpGet]
+        public object IsPostingEngineRunning()
+        {
+            return controller.IsPostingEngineRunning();
+        }
+
     }
 }

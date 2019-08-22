@@ -20,7 +20,7 @@ import * as moment from "moment";
 export class OperationsComponent implements OnInit {
   isSubscriptionAlive: boolean;
   isLoading: boolean = false;
-
+  key: any;
   constructor(
     injector: Injector,
     private _fundsService: FinancePocServiceProxy
@@ -53,41 +53,14 @@ export class OperationsComponent implements OnInit {
       .subscribe(response => {
         debugger;
         console.log("response ", response);
+
         if (response.IsRunning) {
           console.log("is successful", response);
-          is = response.IsRunning;
           this.isLoading = true;
-
-          //  while (this.isLoading) {
-          this.check();
-          //  }
         }
+        this.key = response.key;
+        this.check();
       });
-    // if (is) {
-    //   this.isLoading = true;
-    //   while (this.isLoading) {
-    //     console.log("in while");
-    //     setTimeout(
-    //       () =>
-    //         this._fundsService
-    //           .runningEngineStatus()
-    //           .pipe(takeWhile(() => this.isSubscriptionAlive))
-    //           .subscribe(response => {
-    //             console.log("Running status Response", response);
-    //             this.isLoading = response.status;
-    //             if (!response.status) {
-    //               return;
-    //             }
-    //           }),
-    //       10000
-    //     );
-    //   }
-    // }
-    // alert(this.selectedPeriod.name);
-
-    /* This needs to call out to the Posting Engine and invoke the process,
-     this is a fire and forget as the process may take a little while to complete
-    */
   }
 
   periods = [
@@ -99,9 +72,9 @@ export class OperationsComponent implements OnInit {
   ];
 
   selectedPeriod: any;
-
+  messages: any;
   private gridOptions: GridOptions;
-
+  Progress: any;
   private gridApi;
   private gridColumnApi;
   private defaultColDef;
@@ -142,14 +115,19 @@ export class OperationsComponent implements OnInit {
     height: "100%",
     boxSizing: "border-box"
   };
-
   styleForHight = {
     marginTop: "20px",
     width: "100%",
-    height: "calc(100vh - 180px)",
+    height: "calc(100vh - 220px)",
     boxSizing: "border-box"
   };
-
+  messagesDiv = {
+    marginTop: "20px",
+    width: "100%",
+    height: "calc(100vh - 320px)",
+    boxSizing: "border-box",
+    overflow: "scroll"
+  };
   /*
   We can define how we need to show the data here, as this is a log file we should group by the rundate
   */
@@ -187,22 +165,37 @@ export class OperationsComponent implements OnInit {
   check() {
     setTimeout(() => {
       debugger;
-      console.log("in while");
 
       this._fundsService
-        .runningEngineStatus()
+        .runningEngineStatus(this.key)
         .pipe(takeWhile(() => this.isSubscriptionAlive))
         .subscribe(response => {
           console.log("Running status Response", response);
           this.isLoading = response.Status;
+          this.Progress = response.progress;
+          this.messages =
+            response.message == "" ? this.messages : response.message;
           if (response.Status) {
             this.check();
-            console.log("status false");
-            return;
           } else {
           }
         });
-    }, 10000);
+    }, 1000);
+  }
+  IsPostingEngineRunning(e) {
+    if (e.index == 1) {
+      this._fundsService
+        .IsPostingEngineRunning()
+        .pipe(takeWhile(() => this.isSubscriptionAlive))
+        .subscribe(response => {
+          if (response.IsRunning) {
+            console.log("is successful", response);
+            this.isLoading = true;
+            this.key = response.key;
+            this.check();
+          }
+        });
+    }
   }
   ngOnInit() {
     this.isSubscriptionAlive = true;

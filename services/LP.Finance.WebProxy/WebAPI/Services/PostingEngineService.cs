@@ -9,51 +9,102 @@ namespace LP.Finance.WebProxy.WebAPI.Services
     {
         private static bool IsRunning { get; set; }
         private static Guid Key { get; set; }
+        private static string Period { get; set; }
+        private static int TotalRows { get; set; }
+        private static int RowsDone { get; set; }
+        // private static List<string> listMessage; //= new List<string>();
 
-        private static List<string> listMessage; 
+        private static Dictionary<Guid, List<string>> dict_Messages =
+                     new Dictionary<Guid, List<string>>();
 
-       
-        
+
+
         public object StartPostingEngine(string period)
         {
 
             if (!IsRunning)
             {
-                
+                TotalRows = 0;
+                RowsDone = 0; 
+                Period = period;
+                // listMessage = new List<string>();
+                dict_Messages = new Dictionary<Guid, List<string>>();
                 IsRunning = true;
                 Key = Guid.NewGuid();
                 PostingEngine.PostingEngineCallBack callback = MessageCallBack;
 
                 Task.Run(() => PostingEngine.PostingEngine.Start(period, Key, callback))
-                    .ContinueWith(task => IsRunning = false);
+                    .ContinueWith(task => { IsRunning = false;// dict_Messages[Key].Clear(); Key = Guid.Empty; 
+                    });  
 
                 return new
                 {
                     Period = period,
                     Started = DateTime.Now,
-                    Key,
-                    IsRunning
+                    key = Key,
+                    IsRunning 
                 };
             }
 
-            return Utils.Wrap(false, "Posting Engine is Already Running!");
+            return new
+            {
+                Period = period,
+                Started = DateTime.Now,
+                key = Key,
+                IsRunning = false
+            };
+
+            //return Utils.Wrap(false, "Posting Engine is Already Running!");
         }
 
-        public void MessageCallBack(string result)
+        public void MessageCallBack(string result, int totalRows = 0 , int rowsDone = 0)
         {
-            listMessage.Add(result);
-            Console.WriteLine(result);
+            if (totalRows >0)
+            {
+                TotalRows = totalRows;
+                RowsDone = rowsDone;
+                return;
+            }
+
+           if( dict_Messages.ContainsKey(Key))
+            {
+
+                dict_Messages[Key].Add(result);
+            }
+           else
+            {
+                List<string> listMessage = new List<string>();
+                listMessage.Add(result);
+                dict_Messages.Add(Key, listMessage); 
+            }
+            // listMessage.Add(result);
+           // Console.WriteLine(result);
         }
 
         public object GetStatus(string key)
         {
+
             return new
             {
-                Message = PostingEngine.PostingEngine.ss,
+                message = dict_Messages.ContainsKey(Key) ? dict_Messages[Guid.Parse(key)] : new List<string>(),  //listMessage,
                 Version = "Version 1.0",
                 Key = key,
-                Status = IsRunning
+                Status = IsRunning,
+                progress = TotalRows>0? RowsDone * 100/ TotalRows: 0 
             };
         }
+        public object IsPostingEngineRunning()
+        {
+            return new
+            {
+                Period = Period,
+                Started = DateTime.Now,
+                key = Key,
+                IsRunning  
+            };
+        }
+
+
+        
     }
 }

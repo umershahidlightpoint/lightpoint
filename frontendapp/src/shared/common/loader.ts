@@ -9,11 +9,13 @@ import "ag-grid-enterprise";
       style="height: 100%; width: 100% ;background-color: rgba(0, 0, 0, 0.3);"
     >
       <p>Loading</p>
+      {{ Progress }}
     </div>
   `
 })
 export class LoaderComponent {
   @Input("isLoading") isLoading: boolean;
+  @Input("Progress") Progress: boolean;
   constructor() {
     console.log("constructor of loader");
   }
