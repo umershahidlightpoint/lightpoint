@@ -57,7 +57,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             };
         }
 
-        public bool IsPostingEngineRunning(string key)
+        public static bool IsPostingEngineRunning()
         {
             return IsRunning;
         }
