@@ -3,6 +3,7 @@ import {
   TemplateRef,
   ElementRef,
   OnInit,
+  AfterViewChecked,
   Injector,
   ViewChild,
   OnDestroy,
@@ -25,7 +26,7 @@ import { PostingEngineService } from 'src/shared/common/posting-engine.service';
   templateUrl: './operations.component.html',
   styleUrls: ['./operations.component.css']
 })
-export class OperationsComponent implements OnInit, OnDestroy {
+export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked {
   isSubscriptionAlive: boolean;
   isLoading: boolean = false;
   key: any;
@@ -33,6 +34,7 @@ export class OperationsComponent implements OnInit, OnDestroy {
   clearJournalForm: FormGroup;
 
   @Output() showPostingEngineMsg: EventEmitter<any> = new EventEmitter<any>();
+  @ViewChild('logScroll') private logContainer: ElementRef;
 
   constructor(
     injector: Injector,
@@ -98,6 +100,16 @@ export class OperationsComponent implements OnInit, OnDestroy {
       });
 
     this.buildForm();
+  }
+
+  ngAfterViewChecked() {
+    this.scrollToBottom();
+  }
+
+  scrollToBottom(): void {
+    try {
+      this.logContainer.nativeElement.scrollTop = this.logContainer.nativeElement.scrollHeight;
+    } catch (err) {}
   }
 
   buildForm() {
