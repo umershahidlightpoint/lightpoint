@@ -261,7 +261,6 @@ export class OperationsComponent implements OnInit, OnDestroy {
         .runningEngineStatus(this.key)
         .pipe(takeWhile(() => this.isSubscriptionAlive))
         .subscribe(response => {
-          console.log("Running status Response", response);
           this.isLoading = response.Status;
           this.Progress = response.progress;
           this.messages =
