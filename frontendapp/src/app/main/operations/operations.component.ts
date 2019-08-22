@@ -3,6 +3,7 @@ import {
   TemplateRef,
   ElementRef,
   OnInit,
+  AfterViewChecked,
   Injector,
   ViewChild,
   OnDestroy,
@@ -25,7 +26,8 @@ import { PostingEngineService } from "src/shared/common/posting-engine.service";
   templateUrl: "./operations.component.html",
   styleUrls: ["./operations.component.css"]
 })
-export class OperationsComponent implements OnInit, OnDestroy {
+export class OperationsComponent
+  implements OnInit, OnDestroy, AfterViewChecked {
   isSubscriptionAlive: boolean;
   isLoading: boolean = false;
   key: any;
@@ -33,6 +35,7 @@ export class OperationsComponent implements OnInit, OnDestroy {
   clearJournalForm: FormGroup;
 
   @Output() showPostingEngineMsg: EventEmitter<any> = new EventEmitter<any>();
+  @ViewChild("logScroll") private logContainer: ElementRef;
 
   constructor(
     injector: Injector,
@@ -100,6 +103,16 @@ export class OperationsComponent implements OnInit, OnDestroy {
     this.buildForm();
   }
 
+  ngAfterViewChecked() {
+    this.scrollToBottom();
+  }
+
+  scrollToBottom(): void {
+    try {
+      this.logContainer.nativeElement.scrollTop = this.logContainer.nativeElement.scrollHeight;
+    } catch (err) {}
+  }
+
   buildForm() {
     this.clearJournalForm = new FormGroup({
       user: new FormControl(false),
@@ -126,6 +139,7 @@ export class OperationsComponent implements OnInit, OnDestroy {
         if (response.IsRunning) {
           this.key = response.key;
           this.isLoading = true;
+          this.key = response.key;
           this.messageService.changeStatus(true);
           this.messageService.checkStatus(this.key);
         }
@@ -133,25 +147,6 @@ export class OperationsComponent implements OnInit, OnDestroy {
         this.check();
       });
   }
-
-  // checkStatus() {
-  //   this.callParent(true);
-  //   setTimeout(() => {
-  //     this._fundsService
-  //       .runningEngineStatus()
-  //       .pipe(takeWhile(() => this.isSubscriptionAlive))
-  //       .subscribe(response => {
-  //         console.log("Running status Response", response);
-  //         if (response.Status) {
-  //           this.postingEngineMsg = response.Status;
-  //           this.callParent(true);
-  //           this.checkStatus();
-  //         } else {
-  //           this.callParent(false);
-  //         }
-  //       });
-  //   }, 10000);
-  // }
 
   periods = [
     { name: "YTD" },
@@ -209,13 +204,15 @@ export class OperationsComponent implements OnInit, OnDestroy {
   styleForHight = {
     marginTop: "20px",
     width: "100%",
-    height: "calc(100vh - 220px)",
+    height: "calc(100vh - 180px)",
     boxSizing: "border-box"
   };
   messagesDiv = {
+    border: "1px solid #eee",
+    padding: "4px",
     marginTop: "20px",
     width: "100%",
-    height: "calc(100vh - 320px)",
+    height: "calc(100vh - 300px)",
     boxSizing: "border-box",
     overflow: "scroll"
   };
@@ -264,7 +261,7 @@ export class OperationsComponent implements OnInit, OnDestroy {
           this.isLoading = response.Status;
           this.Progress = response.progress;
           this.messages =
-            response.message == "" ? this.messages : response.message;
+            response.message === "" ? this.messages : response.message;
           if (response.Status) {
             this.check();
           } else {
