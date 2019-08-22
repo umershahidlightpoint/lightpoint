@@ -30,5 +30,11 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.IsPostingEngineRunning();
         }
 
+        // GET api/postingEngine
+        [HttpDelete]
+        public object Clear(string type)
+        {
+            return controller.ClearJournals(type);
+        }
     }
 }

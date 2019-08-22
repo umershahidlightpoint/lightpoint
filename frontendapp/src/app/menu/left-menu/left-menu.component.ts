@@ -22,7 +22,7 @@ export class LeftMenuComponent implements OnInit {
     { name: "Journal", routerLink: "/journals-ledgers", icon: "library_books" },
     { name: "Trial Balance", routerLink: "trialBalance", icon: "attach_money" },
     { name: "Account", routerLink: "/accounts", icon: "account_balance" },
-    { name: "Logs", routerLink: "runlogs", icon: "list_alt" },
+    // { name: "Logs", routerLink: "runlogs", icon: "list_alt" },
     { name: "Operations", routerLink: "operations", icon: "bookmarks" }
   ];
 

@@ -13,6 +13,7 @@ using LP.Finance.Common.Models;
 using System.Linq;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Mappers;
+using LP.Finance.WebProxy.WebAPI.Services;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -325,6 +326,11 @@ namespace LP.Finance.WebProxy.WebAPI
         private object AllData(int pageNumber, int pageSize, string sortColum = "id", string sortDirection = "asc",
             int accountId = 0, int value = 0)
         {
+            if (PostingEngineService.IsPostingEngineRunning())
+            {
+                return Utils.Wrap(false, "Posting Engine is currently Running");
+            }
+
             MetaData metaData = new MetaData();
             journalStats journalStats = new journalStats();
             bool whereAdded = false;
@@ -425,7 +431,7 @@ namespace LP.Finance.WebProxy.WebAPI
                 query = query + "   OFFSET(@pageNumber -1) * @pageSize ROWS FETCH NEXT @pageSize  ROWS ONLY";
             }
 
-            query = query + " ) as d ORDER BY  [d].[id] desc with (nolock)";
+            query = query + " ) as d ORDER BY  [d].[id] desc";
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
 
             var result = GetTransactions(allocationsURL);

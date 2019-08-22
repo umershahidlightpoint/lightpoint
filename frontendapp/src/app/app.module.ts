@@ -49,7 +49,9 @@ import { TrialGridExampleComponent } from "./main/trial-balance/trial-balance.co
 import { LogsComponent } from "./main/logs/logs.component";
 import { FinanceGridComponent } from "./finance-grid/finance-grid.component";
 import { RunLogsComponent } from "./runlogs/runlogs.component";
+
 import { OperationsComponent } from "./main/operations/operations.component";
+import { HeaderComponent } from "./menu/header/header.component";
 import { ReportsComponent } from "./reports/reports.component";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ToastrModule } from "ngx-toastr";
@@ -60,9 +62,10 @@ import { JournalModalComponent } from "./main/ag-grid-example/journal-modal/jour
 import { GridLayoutComponent } from "./grid-layout/grid-layout.component";
 import { GridLayoutMenuComponent } from "../shared/Component/grid-layout-menu/grid-layout-menu.component";
 import { DataService } from "../shared/common/data.service";
-import { HeaderComponent } from "./menu/header/header.component";
+
 import { LeftMenuComponent } from "./menu/left-menu/left-menu.component";
 import { SidenavService } from "../shared/common/sidenav.service";
+import { PostingEngineService } from "../shared/common/posting-engine.service";
 import { LoaderComponent } from "../shared/common/loader";
 
 @NgModule({
@@ -82,11 +85,12 @@ import { LoaderComponent } from "../shared/common/loader";
     CreateAccountComponent,
     RunLogsComponent,
     OperationsComponent,
+    HeaderComponent,
     ReportsComponent,
     JournalModalComponent,
     GridLayoutComponent,
     GridLayoutMenuComponent,
-    HeaderComponent,
+
     LeftMenuComponent,
     LoaderComponent
   ],
@@ -130,7 +134,8 @@ import { LoaderComponent } from "../shared/common/loader";
     FinancePocServiceProxy,
     MessageService,
     DataService,
-    SidenavService
+    SidenavService,
+    PostingEngineService
   ],
   bootstrap: [AppComponent]
 })

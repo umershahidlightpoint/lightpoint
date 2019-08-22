@@ -1,8 +1,11 @@
-import { map } from "rxjs/operators";
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "../../environments/environment";
 import { Observable } from "rxjs";
+import { interval, from, timer } from "rxjs";
+import { map, concatMap, filter, take } from "rxjs/operators";
+import { PostingEngine, PostingEngineStatus } from "../Models/posting-engine";
+import { LedgerInput } from "../Models/account";
 
 export const API_BASE_URL = environment.remoteServerUrl;
 export const REF_DATA_BASE_URL = environment.referenceDataUrl;
@@ -276,9 +279,8 @@ export class FinancePocServiceProxy {
     const url = this.baseUrl + "/PostingEngine/status/" + key;
 
     return this.http.get<PostingEngineStatus>(url);
-    // .pipe(map((response: any) => response));
+    //.pipe(map((response: any) => response));
   }
-
   IsPostingEngineRunning(): Observable<PostingEngine> {
     debugger;
     const url = this.baseUrl + "/PostingEngine/IsPostingEngineRunning";
@@ -286,27 +288,8 @@ export class FinancePocServiceProxy {
     return this.http.get<PostingEngine>(url);
     // .pipe(map((response: any) => response));
   }
-}
-
-export class LedgerInput {
-  value: number | undefined;
-  customer_id: string | undefined;
-  account_id: string | undefined;
-  fund_id: string | undefined;
-  effectiveDate: any | undefined;
-}
-
-export class PostingEngine {
-  period: string;
-  started: string;
-  key: string;
-  IsRunning: boolean;
-}
-
-export class PostingEngineStatus {
-  message: string;
-  version: string;
-  key: string;
-  Status: boolean;
-  progress: number;
+  clearJournals(type) {
+    const url = this.baseUrl + "/postingEngine?type=" + type;
+    return this.http.delete(url).pipe(map((response: any) => response));
+  }
 }

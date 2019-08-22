@@ -1,17 +1,23 @@
-import { Component, OnInit, ViewChild, Output, Input, EventEmitter, ViewEncapsulation } from '@angular/core';
-import { LedgerInput, FinancePocServiceProxy } from 'src/shared/service-proxies/service-proxies';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  Output,
+  Input,
+  EventEmitter,
+  ViewEncapsulation
+} from "@angular/core";
+import { FinancePocServiceProxy } from "src/shared/service-proxies/service-proxies";
+import { LedgerInput } from "src/shared/Models/account";
 import * as moment from "moment";
 
-
 @Component({
-  selector: 'app-update-ledger-modal',
-  templateUrl: './update-ledger-modal.component.html',
-  styleUrls: ['./update-ledger-modal.component.css'],
+  selector: "app-update-ledger-modal",
+  templateUrl: "./update-ledger-modal.component.html",
+  styleUrls: ["./update-ledger-modal.component.css"],
   encapsulation: ViewEncapsulation.None
 })
 export class UpdateLedgerModalComponent implements OnInit {
-
-
   active = false;
   @ViewChild("accountInput") accountInput;
   @Output() modalClose = new EventEmitter<any>();
@@ -26,21 +32,17 @@ export class UpdateLedgerModalComponent implements OnInit {
   effectiveDate = new Date();
   value: number;
   ledger: LedgerInput = new LedgerInput();
-  constructor(private _service: FinancePocServiceProxy) { }
+  constructor(private _service: FinancePocServiceProxy) {}
 
-  ngOnInit() {
-  }
-
+  ngOnInit() {}
 
   onShown() {
     this.accountInput.focusInput();
-
   }
 
   onSearchAccount(event): void {
     this.tempAccountNumber = event.query;
     this._service.getAccounts(event.query).subscribe(result => {
-
       this.accounts = result.data;
     });
   }
@@ -48,7 +50,6 @@ export class UpdateLedgerModalComponent implements OnInit {
   onSearchCustomer(event): void {
     this.tempCustomerNumber = event.query;
     this._service.getCustomers(event.query).subscribe(result => {
-
       this.customers = result.data;
     });
   }
@@ -58,7 +59,7 @@ export class UpdateLedgerModalComponent implements OnInit {
   }
 
   save() {
-    this.ledger.effectiveDate = moment(this.effectiveDate).format('YYYY-MM-DD');
+    this.ledger.effectiveDate = moment(this.effectiveDate).format("YYYY-MM-DD");
     this.ledger.customer_id = this.customer.id;
     this.ledger.account_id = this.account.id;
     if (this.ledgerId > 0 || this.ledgerId !== undefined) {
@@ -66,20 +67,16 @@ export class UpdateLedgerModalComponent implements OnInit {
         this.modalClose.emit(true);
         this.close();
       });
-    }
-    else {
+    } else {
       this._service.createLedger(this.ledger).subscribe(res => {
         this.modalClose.emit(res);
       });
     }
 
     this.close();
-
   }
 
-  show() {
-
-  }
+  show() {}
 
   getFormData(event: any) {
     this.customer = event.customer;
@@ -89,7 +86,6 @@ export class UpdateLedgerModalComponent implements OnInit {
     this.ledgerId = event.id;
     this.ledger.fund_id = event.fund.id;
   }
-
 
   close() {
     this.active = false;

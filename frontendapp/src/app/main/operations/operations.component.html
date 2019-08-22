@@ -15,7 +15,7 @@
     </div>
   </p-tabPanel>
 
-  <p-tabPanel header="Tasks" [ngStyle]="style">
+  <p-tabPanel #task header="Tasks" [ngStyle]="style">
     <div #divToMeasure>
       <div [ngStyle]="styleForHight">
         <p-dropdown
@@ -23,21 +23,103 @@
           [(ngModel)]="selectedPeriod"
           optionLabel="name"
         ></p-dropdown>
-        <button
-          class="btn btn-info ml-2"
-          type="button"
-          [disabled]="isLoading"
-          (click)="runEngine()"
-        >
+        <button class="btn btn-info ml-2" type="button" (click)="runEngine()">
           Run Engine
         </button>
-        <div [ngStyle]="messagesDiv">
-          <div *ngFor="let message of messages">
-            {{ message }}
+        <form
+          class="clearForm"
+          #clearForm="ngForm"
+          [formGroup]="clearJournalForm"
+          (ngSubmit)="openModal()"
+        >
+          <div class="mr-3">
+            <div class="form-check">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                id="system"
+                formControlName="system"
+              />
+              <label class="form-check-label" for="system"
+                >System Generated</label
+              >
+            </div>
+            <div class="form-check">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                id="user"
+                formControlName="user"
+              />
+              <label class="form-check-label" for="user">User Generated</label>
+            </div>
+            <button
+              class="btn btn-danger mt-2"
+              [disabled]="validateClearForm()"
+              type="submit"
+            >
+              Clear Journal
+            </button>
           </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Confirmation Modal Start -->
+    <div
+      bsModal
+      #confirm="bs-modal"
+      class="modal fade"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="modal"
+      aria-hidden="true"
+      [config]="{ backdrop: modal - backdrop }"
+    >
+      <div class="modal-dialog modal-dialog-centered" id="modal-lg">
+        <div class="modal-content">
+          <!-- Modal Header Start -->
+          <div class="modal-header">
+            <h3>Confirm</h3>
+            <button
+              type="button"
+              class="close close-btn"
+              (click)="closeModal()"
+            >
+              &times;
+            </button>
+          </div>
+          <!-- Modal Header End -->
+          <!-- Modal Body Start -->
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-sm-6">
+                <label> Are you really sure? </label>
+              </div>
+            </div>
+          </div>
+          <!-- Modal Body End -->
+          <!-- Modal Footer Start -->
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              (click)="closeModal()"
+            >
+              No
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              (click)="clearJournal()"
+            >
+              Yes
+            </button>
+          </div>
+          <!-- Modal Footer End -->
         </div>
       </div>
     </div>
-    <app-loader [isLoading]="true" [Progress]="Progress"> </app-loader>
+    <!-- Confirmation Modal End -->
   </p-tabPanel>
 </p-tabView>

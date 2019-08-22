@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 using LP.Finance.Common;
+using SqlDAL.Core;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
     class PostingEngineService : IPostingEngineService
     {
+        private readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
         private static bool IsRunning { get; set; }
         private static Guid Key { get; set; }
         private static string Period { get; set; }
@@ -21,7 +26,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object StartPostingEngine(string period)
         {
-
             if (!IsRunning)
             {
                 TotalRows = 0;
@@ -104,7 +108,43 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             };
         }
 
+        public static bool IsPostingEngineRunning()
+        {
+            return IsRunning;
+        }
 
-        
+        public object ClearJournals(string type)
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+            try
+            {
+                sqlHelper.VerifyConnection();
+
+                List<SqlParameter> journalParameters = new List<SqlParameter>
+                {
+                    new SqlParameter("system", "system"),
+                    new SqlParameter("user", "user"),
+                    new SqlParameter("type", type)
+                };
+
+
+                var journalQuery = $@"DELETE FROM [journal]
+                                    WHERE [generated_by] = ";
+
+                journalQuery += type == "both" ? "@system OR [generated_by] = @user" : "@type";
+
+                sqlHelper.Delete(journalQuery, CommandType.Text, journalParameters.ToArray());
+
+                sqlHelper.CloseConnection();
+            }
+            catch (Exception ex)
+            {
+                sqlHelper.CloseConnection();
+                Console.WriteLine($"SQL Exception: {ex}");
+                return Utils.Wrap(false);
+            }
+
+            return Utils.Wrap(true);
+        }
     }
 }

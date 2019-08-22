@@ -5,5 +5,6 @@
         object StartPostingEngine(string period);
         object GetStatus(string key);
         object IsPostingEngineRunning();
+        object ClearJournals(string type);
     }
 }
