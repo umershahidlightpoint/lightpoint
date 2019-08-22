@@ -188,13 +188,15 @@ export class OperationsComponent implements OnInit, OnDestroy {
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 220px)',
+    height: 'calc(100vh - 180px)',
     boxSizing: 'border-box'
   };
   messagesDiv = {
+    border: '1px solid #eee',
+    padding: '4px',
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 320px)',
+    height: 'calc(100vh - 300px)',
     boxSizing: 'border-box',
     overflow: 'scroll'
   };
