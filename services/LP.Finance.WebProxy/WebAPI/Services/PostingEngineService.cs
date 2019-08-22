@@ -101,10 +101,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             return new
             {
-                Period = Period,
+                Period,
                 Started = DateTime.Now,
                 key = Key,
-                IsRunning  
+                  IsRunning  ,
+                progress = TotalRows > 0 ? RowsDone * 100 / TotalRows : 0
             };
         }
 
