@@ -43,6 +43,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             if (postingEngine.IsRunning)
             {
+                
                 return Utils.Wrap(false, "Posting Engine is currently Running");
             }
 

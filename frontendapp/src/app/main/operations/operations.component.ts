@@ -121,6 +121,7 @@ export class OperationsComponent implements OnInit, OnDestroy {
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {
         if (response.IsRunning) {
+          this.key = response.key;
           this.isLoading = true;
           this.key = response.key;
           this.messageService.changeStatus(true);
