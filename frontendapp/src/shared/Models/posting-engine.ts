@@ -10,4 +10,5 @@ export class PostingEngineStatus {
   version: string;
   key: string;
   Status: boolean;
+  progress: number;
 }
