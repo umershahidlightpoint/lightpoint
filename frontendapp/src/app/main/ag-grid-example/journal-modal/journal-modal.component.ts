@@ -73,12 +73,11 @@ export class JournalModalComponent implements OnInit, OnDestroy {
   }
 
   buildForm() {
-    console.log("in build form");
     this.journalForm = this.formBuilder.group({
       fund: ["Select fund type", Validators.required],
       fromAccount: ["0", Validators.required],
       toAccount: ["0", Validators.required],
-      value: ["0", Validators.required]
+      value: ["", Validators.required]
     });
   }
 

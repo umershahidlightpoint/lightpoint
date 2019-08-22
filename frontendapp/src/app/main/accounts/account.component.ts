@@ -15,6 +15,7 @@ import { TemplateRendererComponent } from "../../template-renderer/template-rend
 import { ToastrService } from "ngx-toastr";
 import { GridRowData, AccountCategory } from "../../../shared/Models/account";
 import { takeWhile } from "rxjs/operators";
+import { PostingEngineService } from "src/shared/common/posting-engine.service";
 
 @Component({
   selector: "app-ledger-form",
@@ -54,7 +55,8 @@ export class AccountComponent implements OnInit, OnDestroy {
   constructor(
     @Inject(Router) private router: Router,
     private financePocServiceProxy: FinancePocServiceProxy,
-    private toastrService: ToastrService
+    private toastrService: ToastrService,
+    private postingEngineService: PostingEngineService
   ) {
     this.isSubscriptionAlive = true;
   }
@@ -118,6 +120,7 @@ export class AccountComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.getAccountsRecord();
     this.getAccountCategories();
+    this.checkPostingEngineStatus();
   }
 
   getAccountCategories() {
@@ -154,6 +157,10 @@ export class AccountComponent implements OnInit, OnDestroy {
           this.gridOptions.api.setRowData(this.rowData);
         });
     }, 100);
+  }
+
+  checkPostingEngineStatus() {
+    this.postingEngineService.isPostingEngineRunning();
   }
 
   editRow(row) {

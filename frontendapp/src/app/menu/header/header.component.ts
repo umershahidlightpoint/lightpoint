@@ -11,6 +11,7 @@ import { PostingEngineService } from "src/shared/common/posting-engine.service";
 export class HeaderComponent implements OnInit, DoCheck {
   @Input() sidenav: MatSidenav;
   postingEngineMsg: boolean;
+  progressBar: any;
   date: string = moment().format("MM-DD-YYYY");
 
   constructor(private messageService: PostingEngineService) {}
@@ -19,9 +20,12 @@ export class HeaderComponent implements OnInit, DoCheck {
 
   ngDoCheck() {
     let isEngineRunning = this.messageService.getStatus();
-    if (isEngineRunning) {
-      return (this.postingEngineMsg = isEngineRunning);
+    let progress = this.messageService.getProgress();
+    if (isEngineRunning || progress) {
+      this.postingEngineMsg = isEngineRunning;
+      this.progressBar = progress;
+    } else {
+      this.postingEngineMsg = false;
     }
-    return (this.postingEngineMsg = false);
   }
 }

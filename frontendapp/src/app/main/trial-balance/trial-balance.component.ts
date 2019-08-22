@@ -450,7 +450,6 @@ export class TrialGridExampleComponent implements OnInit {
   }
 
   getTrialBalance() {
-    console.log("in get trial balance");
     this.gridOptions.onFilterChanged = function() {
       let tTotal = 0;
       let tCredit = 0;
@@ -512,7 +511,6 @@ export class TrialGridExampleComponent implements OnInit {
         this.sortDirection
       )
       .subscribe(result => {
-        console.log("get journals result", result);
         this.columns = result.meta.Columns;
         this.totalRecords = result.meta.Total;
         this.totalCredit = result.stats.totalCredit;

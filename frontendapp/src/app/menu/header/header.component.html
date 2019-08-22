@@ -9,7 +9,7 @@
         <p *ngIf="postingEngineMsg" class="mx-2 my-0">Please wait Posting Engine is Processing</p>
         <div *ngIf="postingEngineMsg" class="progress mr-2 mt-1" style="width: 140px">
             <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar"
-                style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                [style.width.%]="progressBar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
         <div class="date-style">
             <span> {{ date }}</span>

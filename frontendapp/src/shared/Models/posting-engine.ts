@@ -1,14 +1,22 @@
-export class PostingEngine {
+export interface PostingEngine {
   period: string;
-  started: string;
+  Started: string;
   key: string;
   IsRunning: boolean;
 }
 
-export class PostingEngineStatus {
+export interface PostingEngineStatus {
   message: string;
   version: string;
   key: string;
   Status: boolean;
+  progress: number;
+}
+
+export interface IsPostingEngineRunning {
+  period: string;
+  started: string;
+  key: string;
+  IsRunning: boolean;
   progress: number;
 }

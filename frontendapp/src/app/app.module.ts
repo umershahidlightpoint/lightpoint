@@ -28,12 +28,7 @@ import {
   BrowserAnimationsModule,
   NoopAnimationsModule
 } from "@angular/platform-browser/animations";
-import {
-  ModalModule,
-  PopoverModule,
-  TabsModule,
-  TooltipModule
-} from "ngx-bootstrap";
+import { ModalModule, TooltipModule } from "ngx-bootstrap";
 import { LegderModalComponent } from "./main/legder-modal/legder-modal.component";
 import { AngularSplitModule } from "angular-split";
 import { PanelModule } from "primeng/panel";
@@ -49,7 +44,6 @@ import { TrialGridExampleComponent } from "./main/trial-balance/trial-balance.co
 import { LogsComponent } from "./main/logs/logs.component";
 import { FinanceGridComponent } from "./finance-grid/finance-grid.component";
 import { RunLogsComponent } from "./runlogs/runlogs.component";
-
 import { OperationsComponent } from "./main/operations/operations.component";
 import { HeaderComponent } from "./menu/header/header.component";
 import { ReportsComponent } from "./reports/reports.component";
@@ -62,7 +56,6 @@ import { JournalModalComponent } from "./main/ag-grid-example/journal-modal/jour
 import { GridLayoutComponent } from "./grid-layout/grid-layout.component";
 import { GridLayoutMenuComponent } from "../shared/Component/grid-layout-menu/grid-layout-menu.component";
 import { DataService } from "../shared/common/data.service";
-
 import { LeftMenuComponent } from "./menu/left-menu/left-menu.component";
 import { SidenavService } from "../shared/common/sidenav.service";
 import { PostingEngineService } from "../shared/common/posting-engine.service";
@@ -90,7 +83,6 @@ import { LoaderComponent } from "../shared/common/loader";
     JournalModalComponent,
     GridLayoutComponent,
     GridLayoutMenuComponent,
-
     LeftMenuComponent,
     LoaderComponent
   ],
