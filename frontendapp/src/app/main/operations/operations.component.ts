@@ -3,12 +3,12 @@ import {
   TemplateRef,
   ElementRef,
   OnInit,
+  AfterViewChecked,
   Injector,
   ViewChild,
   OnDestroy,
   Output,
-  EventEmitter,
-  AfterViewChecked
+  EventEmitter
 } from "@angular/core";
 import { ModalDirective } from "ngx-bootstrap";
 import { FinancePocServiceProxy } from "../../../shared/service-proxies/service-proxies";
