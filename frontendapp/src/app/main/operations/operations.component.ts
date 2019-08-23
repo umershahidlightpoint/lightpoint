@@ -259,7 +259,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
           } else {
           }
         });
-    }, 3000);
+    }, 5000);
   }
 
   IsPostingEngineRunning(e) {

@@ -1,59 +1,65 @@
-<p-tabView [ngStyle]="style">
-
-  <!----- Navbar start ----->
-  <div class="row">
-    <div class="ml-auto mt-1">
-      <div class="mr-4 btn-group tabBtn" dropdown>
-        <!-- Create Account Button -->
-        <button id="button-basic" dropdownToggle type="button" class="btn btn-sm btn-info dropdown-toggle"
-          aria-controls="dropdown-basic">
-          Create Account <span class="caret"></span>
-        </button>
-        <!----- Create Category Dropdown ----->
-        <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu ml-3" role="menu" aria-labelledby="button-basic">
-          <li role="menuitem"><button class="dropdown-item disabled">Select Account Category</button></li>
-          <div class="dropdown-divider"></div>
-          <li *ngFor="let accountCategory of accountCategories" role="menuitem">
-            <button class="dropdown-item" (click)="accountCategorySelected(accountCategory)">
-              {{ accountCategory.Name }}
-            </button>
-          </li>
-        </ul>
-      </div>
-      <div class="mr-4 tabBtn">
-        <button (click)="refreshGrid()" class="btn btn-sm btn-info" tooltip="Refresh" placement="top">
-          <i class="fa fa-refresh"></i></button>
-      </div>
-    </div>
+<div *ngIf="hideGrid" #logScroll [ngStyle]="messagesDiv">
+  <div style="display: flex; align-items: center; justify-content: center">
+    <h1> Posting Engine is Running. Please Wait. </h1>
   </div>
-  <!----- Navbar end ----->
+</div>
 
-  <p-tabPanel header="Accounts" [ngStyle]="style">
-    <!----- Div To Measure Identifier starts ----->
-    <div #divToMeasure>
-
-      <!----- Style For Height ----->
-      <div [ngStyle]="styleForHight">
-        <!----- Ag Grid Start ----->
-        <ag-grid-angular class="ag-theme-balham" style="height: 100%; width: 100%" [gridOptions]="gridOptions">
-        </ag-grid-angular>
-        <!----- Action buttons ----->
-        <ng-template #actionButtons let-row>
-          <button class="btn ml-5 action-btn fixHeight" (click)="editRow(row)" tooltip="Edit" placement="auto"
-            container="body">
-            <i class="fa fa-lg fa-edit" aria-hidden="true"></i>
+<div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
+  <p-tabView [ngStyle]="style">
+    <!----- Navbar start ----->
+    <div class="row">
+      <div class="ml-auto mt-1">
+        <div class="mr-4 btn-group tabBtn" dropdown>
+          <!-- Create Account Button -->
+          <button id="button-basic" dropdownToggle type="button" class="btn btn-sm btn-info dropdown-toggle"
+            aria-controls="dropdown-basic">
+            Create Account <span class="caret"></span>
           </button>
-          <button [disabled]="row.hasJournal == 'Yes'" class="btn action-btn fixHeight"
-            [ngClass]=" {'disabled-btn':row.hasJournal == 'Yes'}" (click)="deleteRow(row)" tooltip="Delete"
-            placement="auto" container="body">
-            <i class="fa fa-lg fa-trash-o" aria-hidden="true"></i>
-          </button>
-        </ng-template>
+          <!----- Create Category Dropdown ----->
+          <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu ml-3" role="menu" aria-labelledby="button-basic">
+            <li role="menuitem"><button class="dropdown-item disabled">Select Account Category</button></li>
+            <div class="dropdown-divider"></div>
+            <li *ngFor="let accountCategory of accountCategories" role="menuitem">
+              <button class="dropdown-item" (click)="accountCategorySelected(accountCategory)">
+                {{ accountCategory.Name }}
+              </button>
+            </li>
+          </ul>
+        </div>
+        <div class="mr-4 tabBtn">
+          <button (click)="refreshGrid()" class="btn btn-sm btn-info" tooltip="Refresh" placement="top">
+            <i class="fa fa-refresh"></i></button>
+        </div>
       </div>
     </div>
-    <!----- Div To Measure Identifier ends ----->
-  </p-tabPanel>
-</p-tabView>
+    <!----- Navbar end ----->
+    <p-tabPanel header="Accounts" [ngStyle]="style">
+      <!----- Div To Measure Identifier starts ----->
+      <div #divToMeasure>
+
+        <!----- Style For Height ----->
+        <div [ngStyle]="styleForHight">
+          <!----- Ag Grid Start ----->
+          <ag-grid-angular class="ag-theme-balham" style=" height: 100%; width: 100%" [gridOptions]="gridOptions">
+          </ag-grid-angular>
+          <!----- Action buttons ----->
+          <ng-template #actionButtons let-row>
+            <button class="btn ml-5 action-btn fixHeight" (click)="editRow(row)" tooltip="Edit" placement="auto"
+              container="body">
+              <i class="fa fa-lg fa-edit" aria-hidden="true"></i>
+            </button>
+            <button [disabled]="row.hasJournal == 'Yes'" class="btn action-btn fixHeight"
+              [ngClass]=" {'disabled-btn':row.hasJournal == 'Yes'}" (click)="deleteRow(row)" tooltip="Delete"
+              placement="auto" container="body">
+              <i class="fa fa-lg fa-trash-o" aria-hidden="true"></i>
+            </button>
+          </ng-template>
+        </div>
+      </div>
+      <!----- Div To Measure Identifier ends ----->
+    </p-tabPanel>
+  </p-tabView>
+</div>
 
 <!----- Create Account Component Tag ----->
 <app-create-account #createModal [selectedAccCategory]="selectedAccountCategory" (modalClose)="getAccountsRecord()">

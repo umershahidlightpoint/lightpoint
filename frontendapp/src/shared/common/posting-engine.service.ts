@@ -1,6 +1,7 @@
 import { Injectable, Output, EventEmitter } from '@angular/core';
 import { FinancePocServiceProxy } from '../service-proxies/service-proxies';
 import { takeWhile } from 'rxjs/operators';
+import { DataService } from './data.service';
 
 @Injectable()
 export class PostingEngineService {
@@ -10,12 +11,15 @@ export class PostingEngineService {
 
   @Output() change: EventEmitter<boolean> = new EventEmitter();
 
-  constructor(private _fundsService: FinancePocServiceProxy) {
+  constructor(private _fundsService: FinancePocServiceProxy, private dataService: DataService) {
     this.isSubscriptionAlive = true;
+
+    this.dataService.gridColumnApi.subscribe(obj => (obj = this.isRunning));
   }
 
   changeStatus(status) {
     this.isRunning = status;
+    this.dataService.changeEngineStatus(this.isRunning);
     if (!status) {
       this.progress = 0;
       this.isSubscriptionAlive = false;
@@ -42,7 +46,7 @@ export class PostingEngineService {
             this.changeStatus(false);
           }
         });
-    }, 3000);
+    }, 1000);
   }
 
   getStatus() {

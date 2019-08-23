@@ -16,13 +16,14 @@ import { ToastrService } from 'ngx-toastr';
 import { GridRowData, AccountCategory } from '../../../shared/Models/account';
 import { takeWhile } from 'rxjs/operators';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
+import { DataService } from 'src/shared/common/data.service';
 
 @Component({
   selector: 'app-ledger-form',
   templateUrl: './account.component.html',
   styleUrls: ['./account.component.css']
 })
-export class AccountComponent implements OnInit, OnDestroy {
+export class AccountComponent implements OnDestroy, OnInit {
   rowData: Array<GridRowData>;
   gridOptions = <GridOptions>{
     onFirstDataRendered: params => {
@@ -31,6 +32,7 @@ export class AccountComponent implements OnInit, OnDestroy {
   };
   accountCategories: AccountCategory;
   selectedAccountCategory: AccountCategory;
+  hideGrid: boolean = false;
   //For unsubscribing all subscriptions
   isSubscriptionAlive: boolean;
 
@@ -52,16 +54,32 @@ export class AccountComponent implements OnInit, OnDestroy {
     boxSizing: 'border-box'
   };
 
+  messagesDiv = {
+    border: '1px solid #eee',
+    padding: '4px',
+    marginTop: '20px',
+    width: '100%',
+    height: 'calc(100vh - 125px)',
+    boxSizing: 'border-box'
+  };
+
   constructor(
     @Inject(Router) private router: Router,
     private financePocServiceProxy: FinancePocServiceProxy,
     private toastrService: ToastrService,
-    private postingEngineService: PostingEngineService
+    private dataService: DataService
   ) {
     this.isSubscriptionAlive = true;
+    this.hideGrid = false;
   }
 
   ngAfterViewInit(): void {
+    this.dataService.flag.subscribe(obj => {
+      this.hideGrid = obj;
+      if (!this.hideGrid) {
+        this.getAccountsRecord();
+      }
+    });
     this.gridOptions.api.setColumnDefs([
       {
         headerName: 'Account Id',
@@ -141,19 +159,21 @@ export class AccountComponent implements OnInit, OnDestroy {
         .getAllAccounts()
         .pipe(takeWhile(() => this.isSubscriptionAlive))
         .subscribe(result => {
-          this.rowData = result.payload.map(result => ({
-            accountId: result.AccountId,
-            accountName: result.AccountName,
-            description: result.Description,
-            categoryId: result.CategoryId,
-            category: result.Category,
-            typeId: result.TypeId,
-            type: result.Type,
-            hasJournal: result.HasJournal,
-            canDeleted: result.CanDeleted,
-            canEdited: result.CanEdited
-          }));
-          this.gridOptions.api.setRowData(this.rowData);
+          if (result.payload) {
+            this.rowData = result.payload.map(result => ({
+              accountId: result.AccountId,
+              accountName: result.AccountName,
+              description: result.Description,
+              categoryId: result.CategoryId,
+              category: result.Category,
+              typeId: result.TypeId,
+              type: result.Type,
+              hasJournal: result.HasJournal,
+              canDeleted: result.CanDeleted,
+              canEdited: result.CanEdited
+            }));
+            this.gridOptions.api.setRowData(this.rowData);
+          }
         });
     }, 100);
   }
@@ -199,9 +219,6 @@ export class AccountComponent implements OnInit, OnDestroy {
 
   refreshGrid() {
     this.gridOptions.api.showLoadingOverlay();
-    // setTimeout(() => {
-    //   this.gridOptions.api.showLoadingOverlay();
-    // }, 30000);
     this.getAccountsRecord();
   }
 
