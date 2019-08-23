@@ -261,7 +261,7 @@ export class OperationsComponent
           this.isLoading = response.Status;
           this.Progress = response.progress;
           this.messages =
-            response.message === "" ? this.messages : response.message;
+            response.message == "" ? this.messages : response.message;
           if (response.Status) {
             this.check();
           } else {
@@ -280,6 +280,8 @@ export class OperationsComponent
             this.isLoading = true;
             this.key = response.key;
             this.check();
+            this.messageService.changeStatus(true);
+            this.messageService.checkStatus(this.key);
           }
         });
     }
