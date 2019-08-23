@@ -147,7 +147,6 @@ export class JournalComponent implements OnInit {
   }
 
   customSort(event): void {
-    console.log(event);
     let dd = event.id;
 
   }
@@ -175,7 +174,6 @@ export class JournalComponent implements OnInit {
   onValueChange(event, dtLedger): void {
     this.valueTimeout = setTimeout(() => {
       this.valueFilter = event.value;
-      console.log(event.value);
       this.getJournals();
     }, 250);
   }

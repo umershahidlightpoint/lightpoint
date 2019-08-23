@@ -4,7 +4,11 @@ import { environment } from "../../environments/environment";
 import { Observable } from "rxjs";
 import { interval, from, timer } from "rxjs";
 import { map, concatMap, filter, take } from "rxjs/operators";
-import { PostingEngine, PostingEngineStatus } from "../Models/posting-engine";
+import {
+  PostingEngine,
+  PostingEngineStatus,
+  IsPostingEngineRunning
+} from "../Models/posting-engine";
 import { LedgerInput } from "../Models/account";
 
 export const API_BASE_URL = environment.remoteServerUrl;
@@ -271,21 +275,21 @@ export class FinancePocServiceProxy {
   startPostingEngine(): Observable<PostingEngine> {
     const url = this.baseUrl + "/postingEngine/";
     return this.http.get<PostingEngine>(url);
-    // .pipe(map((response: Observable<PostingEngineStatus>) => response));
+    // .pipe(map((response: PostingEngine) => response));
   }
 
   runningEngineStatus(key): Observable<PostingEngineStatus> {
-    debugger;
     const url = this.baseUrl + "/PostingEngine/status/" + key;
     return this.http.get<PostingEngineStatus>(url);
+    // .pipe(map((response: PostingEngineStatus) => response));
   }
-  IsPostingEngineRunning(): Observable<PostingEngine> {
-    debugger;
-    const url = this.baseUrl + "/PostingEngine/IsPostingEngineRunning";
 
-    return this.http.get<PostingEngine>(url);
-    // .pipe(map((response: any) => response));
+  isPostingEngineRunning(): Observable<IsPostingEngineRunning> {
+    const url = this.baseUrl + "/PostingEngine/IsPostingEngineRunning";
+    return this.http.get<IsPostingEngineRunning>(url);
+    // .pipe(map((response: IsPostingEngineRunning) => response));
   }
+
   clearJournals(type) {
     const url = this.baseUrl + "/postingEngine?type=" + type;
     return this.http.delete(url).pipe(map((response: any) => response));

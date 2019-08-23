@@ -16,7 +16,7 @@ import { GridOptions } from "ag-grid-community";
 import { takeWhile } from "rxjs/operators";
 import * as moment from "moment";
 import { Observable } from "rxjs";
-import { PostingEngineStatus } from "../../../shared/Models/posting-engine";
+
 import { FormGroup, FormControl } from "@angular/forms";
 import { ToastrService } from "ngx-toastr";
 import { PostingEngineService } from "src/shared/common/posting-engine.service";
@@ -137,11 +137,10 @@ export class OperationsComponent
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {
         if (response.IsRunning) {
-          this.key = response.key;
           this.isLoading = true;
           this.key = response.key;
           this.messageService.changeStatus(true);
-          this.messageService.checkStatus(this.key);
+          this.messageService.checkProgress();
         }
         this.key = response.key;
         this.check();
@@ -252,8 +251,6 @@ export class OperationsComponent
 
   check() {
     setTimeout(() => {
-      debugger;
-
       this._fundsService
         .runningEngineStatus(this.key)
         .pipe(takeWhile(() => this.isSubscriptionAlive))
@@ -269,10 +266,11 @@ export class OperationsComponent
         });
     }, 1000);
   }
+
   IsPostingEngineRunning(e) {
     if (e.index == 1) {
       this._fundsService
-        .IsPostingEngineRunning()
+        .isPostingEngineRunning()
         .pipe(takeWhile(() => this.isSubscriptionAlive))
         .subscribe(response => {
           if (response.IsRunning) {
@@ -286,6 +284,7 @@ export class OperationsComponent
         });
     }
   }
+
   openModal() {
     this.confirmModal.show();
   }
@@ -317,18 +316,6 @@ export class OperationsComponent
 
   clearForm() {
     this.clearJournalForm.reset();
-  }
-
-  callParent(msg) {
-    console.log("status :: ", msg);
-    this.messageService.changeStatus(msg);
-    // this.showPostingEngineMsg.emit("testing");
-  }
-
-  getStatus() {
-    if (this.postingEngineMsg) {
-      return this.postingEngineMsg;
-    }
   }
 
   ngOnDestroy() {

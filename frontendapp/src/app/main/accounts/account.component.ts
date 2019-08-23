@@ -6,20 +6,21 @@ import {
   ElementRef,
   TemplateRef,
   OnDestroy
-} from "@angular/core";
-import { Router } from "@angular/router";
-import { CreateAccountComponent } from "./create-account/create-account.component";
-import { FinancePocServiceProxy } from "../../../shared/service-proxies/service-proxies";
-import { GridOptions } from "ag-grid-community";
-import { TemplateRendererComponent } from "../../template-renderer/template-renderer.component";
-import { ToastrService } from "ngx-toastr";
-import { GridRowData, AccountCategory } from "../../../shared/Models/account";
-import { takeWhile } from "rxjs/operators";
+} from '@angular/core';
+import { Router } from '@angular/router';
+import { CreateAccountComponent } from './create-account/create-account.component';
+import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { GridOptions } from 'ag-grid-community';
+import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
+import { ToastrService } from 'ngx-toastr';
+import { GridRowData, AccountCategory } from '../../../shared/Models/account';
+import { takeWhile } from 'rxjs/operators';
+import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 
 @Component({
-  selector: "app-ledger-form",
-  templateUrl: "./account.component.html",
-  styleUrls: ["./account.component.css"]
+  selector: 'app-ledger-form',
+  templateUrl: './account.component.html',
+  styleUrls: ['./account.component.css']
 })
 export class AccountComponent implements OnInit, OnDestroy {
   rowData: Array<GridRowData>;
@@ -33,28 +34,29 @@ export class AccountComponent implements OnInit, OnDestroy {
   //For unsubscribing all subscriptions
   isSubscriptionAlive: boolean;
 
-  @ViewChild("createModal") createAccount: CreateAccountComponent;
-  @ViewChild("actionButtons") actionButtons: TemplateRef<any>;
-  @ViewChild("divToMeasure") divToMeasureElement: ElementRef;
+  @ViewChild('createModal') createAccount: CreateAccountComponent;
+  @ViewChild('actionButtons') actionButtons: TemplateRef<any>;
+  @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
 
   style = {
-    marginTop: "20px",
-    width: "100%",
-    height: "100%",
-    boxSizing: "border-box"
+    marginTop: '20px',
+    width: '100%',
+    height: '100%',
+    boxSizing: 'border-box'
   };
 
   styleForHight = {
-    marginTop: "20px",
-    width: "100%",
-    height: "calc(100vh - 200px)",
-    boxSizing: "border-box"
+    marginTop: '20px',
+    width: '100%',
+    height: 'calc(100vh - 200px)',
+    boxSizing: 'border-box'
   };
 
   constructor(
     @Inject(Router) private router: Router,
     private financePocServiceProxy: FinancePocServiceProxy,
-    private toastrService: ToastrService
+    private toastrService: ToastrService,
+    private postingEngineService: PostingEngineService
   ) {
     this.isSubscriptionAlive = true;
   }
@@ -62,51 +64,51 @@ export class AccountComponent implements OnInit, OnDestroy {
   ngAfterViewInit(): void {
     this.gridOptions.api.setColumnDefs([
       {
-        headerName: "Account Id",
-        field: "accountId",
+        headerName: 'Account Id',
+        field: 'accountId',
         resizable: true,
         hide: true
       },
       {
-        headerName: "Name",
-        field: "accountName",
+        headerName: 'Name',
+        field: 'accountName',
         resizable: true,
         sortable: true,
         filter: true
       },
       {
-        headerName: "Description",
-        field: "description",
+        headerName: 'Description',
+        field: 'description',
         resizable: true,
         sortable: true,
         filter: true
       },
-      { headerName: "Category Id", field: "categoryId", hide: true },
+      { headerName: 'Category Id', field: 'categoryId', hide: true },
       {
-        headerName: "Category",
-        field: "category",
-        resizable: true,
-        sortable: true,
-        filter: true
-      },
-      {
-        headerName: "Has Journal",
-        field: "hasJournal",
+        headerName: 'Category',
+        field: 'category',
         resizable: true,
         sortable: true,
         filter: true
       },
       {
-        headerName: "Account Type",
-        field: "type",
+        headerName: 'Has Journal',
+        field: 'hasJournal',
         resizable: true,
         sortable: true,
         filter: true
       },
-      { headerName: "CanDeleted", field: "canDeleted", hide: true },
-      { headerName: "CanEdited", field: "canEdited", hide: true },
       {
-        headerName: "Actions",
+        headerName: 'Account Type',
+        field: 'type',
+        resizable: true,
+        sortable: true,
+        filter: true
+      },
+      { headerName: 'CanDeleted', field: 'canDeleted', hide: true },
+      { headerName: 'CanEdited', field: 'canEdited', hide: true },
+      {
+        headerName: 'Actions',
         cellRendererFramework: TemplateRendererComponent,
         cellRendererParams: {
           ngTemplate: this.actionButtons
@@ -128,7 +130,7 @@ export class AccountComponent implements OnInit, OnDestroy {
         if (response.isSuccessful) {
           this.accountCategories = response.payload;
         } else {
-          this.toastrService.error("Failed to fetch account categories!");
+          this.toastrService.error('Failed to fetch account categories!');
         }
       });
   }
@@ -157,7 +159,7 @@ export class AccountComponent implements OnInit, OnDestroy {
   }
 
   editRow(row) {
-    this.router.navigateByUrl("/accounts/create-account");
+    this.router.navigateByUrl('/accounts/create-account');
     this.createAccount.show(row);
   }
 
@@ -165,20 +167,20 @@ export class AccountComponent implements OnInit, OnDestroy {
     this.financePocServiceProxy.deleteAccount(row.accountId).subscribe(
       response => {
         if (response.isSuccessful) {
-          this.toastrService.success("Account deleted successfully!");
+          this.toastrService.success('Account deleted successfully!');
           this.getAccountsRecord();
         } else {
-          this.toastrService.error("Account deleted failed!");
+          this.toastrService.error('Account deleted failed!');
         }
       },
       error => {
-        this.toastrService.error("Something went wrong. Try again later!");
+        this.toastrService.error('Something went wrong. Try again later!');
       }
     );
   }
 
   addAccount() {
-    this.router.navigateByUrl("/accounts/create-account");
+    this.router.navigateByUrl('/accounts/create-account');
     this.createAccount.show({});
   }
 
@@ -188,9 +190,9 @@ export class AccountComponent implements OnInit, OnDestroy {
 
   onBtExport() {
     var params = {
-      fileName: "Test File",
-      sheetName: "First Sheet",
-      columnKeys: ["Name", "Description", "Category", "has_journal"]
+      fileName: 'Test File',
+      sheetName: 'First Sheet',
+      columnKeys: ['Name', 'Description', 'Category', 'has_journal']
     };
     this.gridOptions.api.exportDataAsExcel(params);
   }
@@ -208,7 +210,7 @@ export class AccountComponent implements OnInit, OnDestroy {
       id: category.Id,
       name: category.Name
     };
-    this.router.navigateByUrl("/accounts/create-account");
+    this.router.navigateByUrl('/accounts/create-account');
     this.createAccount.show({});
   }
 

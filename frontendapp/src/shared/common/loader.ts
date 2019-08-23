@@ -17,6 +17,5 @@ export class LoaderComponent {
   @Input("isLoading") isLoading: boolean;
   @Input("Progress") Progress: boolean;
   constructor() {
-    console.log("constructor of loader");
   }
 }

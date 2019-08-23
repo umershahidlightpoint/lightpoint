@@ -33,7 +33,7 @@
           </div>
         </form>
         <div *ngIf="isLoading">
-          <h3 class="mt-4">Progress {{ Progress }}%</h3>
+          <h3 class="mt-4">Progress</h3>
           <div #logScroll [ngStyle]="messagesDiv">
             <div *ngFor="let message of messages">
               {{ message }}
