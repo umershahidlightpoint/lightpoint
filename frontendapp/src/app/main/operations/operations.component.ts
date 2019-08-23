@@ -15,6 +15,8 @@ import { FinancePocServiceProxy } from "../../../shared/service-proxies/service-
 import { GridOptions } from "ag-grid-community";
 import { takeWhile } from "rxjs/operators";
 import * as moment from "moment";
+import { Observable } from "rxjs";
+
 import { FormGroup, FormControl } from "@angular/forms";
 import { ToastrService } from "ngx-toastr";
 import { PostingEngineService } from "src/shared/common/posting-engine.service";
@@ -272,9 +274,12 @@ export class OperationsComponent
         .pipe(takeWhile(() => this.isSubscriptionAlive))
         .subscribe(response => {
           if (response.IsRunning) {
+            console.log("is successful", response);
             this.isLoading = true;
             this.key = response.key;
             this.check();
+            this.messageService.changeStatus(true);
+            this.messageService.checkStatus(this.key);
           }
         });
     }

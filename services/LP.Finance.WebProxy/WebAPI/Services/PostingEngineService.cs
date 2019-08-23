@@ -38,8 +38,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 PostingEngine.PostingEngineCallBack callback = MessageCallBack;
 
                 Task.Run(() => PostingEngine.PostingEngine.Start(period, Key, callback))
-                    .ContinueWith(task => { IsRunning = false;// dict_Messages[Key].Clear(); Key = Guid.Empty; 
-                    });  
+                    .ContinueWith(task => { IsRunning = false; });  
 
                 return new
                 {
@@ -104,7 +103,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 Period,
                 Started = DateTime.Now,
                 key = Key,
-                  IsRunning  ,
+                IsRunning  ,
                 progress = TotalRows > 0 ? RowsDone * 100 / TotalRows : 0
             };
         }
