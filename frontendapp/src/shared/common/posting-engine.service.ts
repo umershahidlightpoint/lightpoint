@@ -42,7 +42,7 @@ export class PostingEngineService {
             this.changeStatus(false);
           }
         });
-    }, 1000);
+    }, 3000);
   }
 
   getStatus() {

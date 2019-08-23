@@ -21,3 +21,20 @@
 .date-style {
   font-weight: bold;
 }
+
+.progress {
+  position: relative;
+  height: 1.2rem;
+}
+
+.progressContainer {
+  width: 140px;
+  background-color: #2f4f4f;
+}
+
+.my-centered {
+  position: absolute;
+  display: block;
+  width: 100%;
+  text-align: center;
+}

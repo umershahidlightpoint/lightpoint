@@ -262,7 +262,7 @@ export class OperationsComponent
           } else {
           }
         });
-    }, 1000);
+    }, 3000);
   }
 
   IsPostingEngineRunning(e) {
