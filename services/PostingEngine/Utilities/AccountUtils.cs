@@ -12,13 +12,17 @@ namespace PostingEngine.PostingRules.Utilities
 
         public void SaveAccountDetails(PostingEngineEnvironment env, Account account)
         {
-            account.SaveUpdate(env.Connection, env.Transaction);
-            account.Id = account.Identity(env.Connection, env.Transaction);
-            foreach (var tag in account.Tags)
+            if (!account.Exists)
             {
-                tag.Account = account;
-                //tag.Tag.Save(_connection, _transaction);
-                tag.Save(env.Connection, env.Transaction);
+                account.SaveUpdate(env.Connection, env.Transaction);
+                account.Id = account.Identity(env.Connection, env.Transaction);
+                foreach (var tag in account.Tags)
+                {
+                    tag.Account = account;
+                    //tag.Tag.Save(_connection, _transaction);
+                    tag.Save(env.Connection, env.Transaction);
+                }
+                account.Exists = true;
             }
         }
 

@@ -2,9 +2,13 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace LP.Finance.Common
 {
@@ -35,6 +39,26 @@ namespace LP.Finance.Common
 
     public class Utils
     {
+
+        public static async Task<string> GetWebApiData(string webURI)
+        {
+            Task<string> result = null;
+
+            var client = new HttpClient();
+
+            var referenceDataWebApi = ConfigurationManager.AppSettings["ReferenceDataWebApi"];
+
+            var url = $"{referenceDataWebApi}{webURI}";
+
+            HttpResponseMessage response = await client.GetAsync(url);
+            if (response.IsSuccessStatusCode)
+            {
+                result = response.Content.ReadAsStringAsync();
+            }
+
+            return await result;
+        }
+
         public static object Wrap(bool status, object payload, object metaData, string message = null)
         {
             return new
@@ -96,6 +120,19 @@ namespace LP.Finance.Common
             return json;
         }
 
+        public static string GetString(string filename)
+        {
+            var content = "{}";
+
+            var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
+
+            var folder = currentDir + "MockData" + Path.DirectorySeparatorChar + $"{filename}.json";
+            if (File.Exists(folder))
+                content = File.ReadAllText(folder);
+
+            return content;
+        }
+
         public static T GetFile<T>(string filename)
         {
             var content = "{}";
@@ -134,6 +171,63 @@ namespace LP.Finance.Common
             {
                 Console.WriteLine(ex);
             }
+        }
+
+        public static void SaveString(string json, string filename)
+        {
+            var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
+
+            var dir = currentDir + "MockData";
+            var file = dir + Path.DirectorySeparatorChar + $"{filename}.json";
+
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            if (File.Exists(file))
+                File.Delete(file);
+
+            try
+            {
+                File.WriteAllText(file, json);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
+        private static string _lockHandle = "Uniquie Handle";
+        private static void Save(dynamic state)
+        {
+            lock (_lockHandle)
+            {
+                var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
+
+                var dir = currentDir + "MockData";
+                var file = dir + Path.DirectorySeparatorChar + $"{state.filename}.json";
+
+                if (!Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+
+                if (File.Exists(file))
+                    File.Delete(file);
+
+                var result = JsonConvert.SerializeObject(state.json);
+
+                try
+                {
+                    File.WriteAllText(file, result);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+        }
+
+        public static void SaveAsync(object json, string filename)
+        {
+            ThreadPool.QueueUserWorkItem(new WaitCallback(Save), new { json, filename});
         }
 
         public static object RunQuery(string connection, string query, SqlParameter[] parameters = null)
@@ -222,5 +316,6 @@ namespace LP.Finance.Common
                 bulk.WriteToServer(table);
             }
         }
+
     }
 }

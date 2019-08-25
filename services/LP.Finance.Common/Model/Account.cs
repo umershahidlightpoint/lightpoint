@@ -21,6 +21,11 @@ namespace LP.Finance.Common.Models
 
     public class Account : IDbAction, IDbActionSaveUpdate, IDbActionIdentity
     {
+        /// <summary>
+        /// Check to see if the Account has already been saved, if so then don't bother saving again
+        /// </summary>
+        public bool Exists { get; set; }
+
         public int Id { get; set; }
         [Required]
         public AccountType Type { get; set; }

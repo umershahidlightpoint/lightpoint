@@ -14,6 +14,7 @@ using System.Linq;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Mappers;
 using LP.Finance.WebProxy.WebAPI.Services;
+using System.Web;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -326,7 +327,11 @@ namespace LP.Finance.WebProxy.WebAPI
         private object AllData(int pageNumber, int pageSize, string sortColum = "id", string sortDirection = "asc",
             int accountId = 0, int value = 0)
         {
-           dynamic postingEngine = new PostingEngineService().IsPostingEngineRunning();
+
+            // Get the data, we will get the results later
+            var transactionResults = Utils.GetWebApiData(allocationsURL);
+
+            dynamic postingEngine = new PostingEngineService().IsPostingEngineRunning();
 
             if (postingEngine.IsRunning)
             {
@@ -434,15 +439,21 @@ namespace LP.Finance.WebProxy.WebAPI
             }
 
             query = query + " ) as d ORDER BY  [d].[id] desc";
+
+            Console.WriteLine("====");
+            Console.WriteLine(query);
+            Console.WriteLine("====");
+
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
 
-            var result = GetTransactions(allocationsURL);
-            result.Wait();
+            transactionResults.Wait();
 
-            var elements = JsonConvert.DeserializeObject<Transaction[]>(result.Result);
+            var res = JsonConvert.DeserializeObject<PayLoad>(transactionResults.Result);
 
-            var proeprties = typeof(Transaction).GetProperties();
-            foreach (var prop in proeprties)
+            var elements = JsonConvert.DeserializeObject<Transaction[]>(res.payload);
+
+            var properties = typeof(Transaction).GetProperties();
+            foreach (var prop in properties)
             {
                 dataTable.Columns.Add(prop.Name, prop.PropertyType);
             }
@@ -460,16 +471,25 @@ namespace LP.Finance.WebProxy.WebAPI
                 });
             }
 
+            var dictionary = elements.ToDictionary(i => i.TradeId, i=>i);
+
             foreach (var element in dataTable.Rows)
             {
                 var dataRow = element as DataRow;
 
-                var found = elements.Where(e => e.TradeId == dataRow["source"].ToString()).FirstOrDefault();
+                var source = dataRow["source"].ToString();
+
+                //var found = elements.Where(e => e.TradeId == dataRow["source"].ToString()).FirstOrDefault();
+                if (!dictionary.ContainsKey(source))
+                    continue;
+
+                var found = dictionary[source];
+
                 if (found != null)
                 {
                     // Copy data to the row
 
-                    foreach (var prop in proeprties)
+                    foreach (var prop in properties)
                     {
                         dataRow[prop.Name] = prop.GetValue(found);
                     }
@@ -486,28 +506,15 @@ namespace LP.Finance.WebProxy.WebAPI
 
             var returnResult = Utils.GridWrap(json, metaData, journalStats);
 
-            Utils.Save(returnResult, "journal_for_ui");
+            Utils.SaveAsync(returnResult, "journal_for_ui");
 
             return returnResult;
         }
 
-        private static readonly string tradesURL = "http://localhost:9091/api/trade/data/ALL";
-        private static readonly string allocationsURL = "http://localhost:9091/api/allocation/data/ALL";
+        private static readonly string tradesURL = "/api/trade/data/ALL";
+        private static readonly string allocationsURL = "/api/allocation/data/ALL";
 
-        private static async Task<string> GetTransactions(string webURI)
-        {
-            Task<string> result = null;
-
-            var client = new HttpClient();
-
-            HttpResponseMessage response = await client.GetAsync(webURI);
-            if (response.IsSuccessStatusCode)
-            {
-                result = response.Content.ReadAsStringAsync();
-            }
-
-            return await result;
-        }
+       
 
         private object Only(string orderId)
         {
