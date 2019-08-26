@@ -19,7 +19,9 @@ namespace ConsoleApp1
         {
             var key = System.Guid.NewGuid();
 
-            PostingEngine.PostingEngine.Start("ITD", key);
+            PostingEngine.PostingEngine.Start("ITD", key, (message, totalRows, rowsDone) => {
+                Console.WriteLine($"{message}, {totalRows}, {rowsDone}");
+            });
         }
     }
 }

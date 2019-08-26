@@ -12,19 +12,60 @@ using System.Threading;
 using LP.Finance.Common;
 using LP.Core;
 using CommonAPI;
+using System.Collections.Generic;
 
 namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 {
-    internal class TradeCache
+    internal class DataCacheElement
     {
-        static TradeCache()
+        internal DateTime LastUpdate { get; set; }
+        internal string Key { get; set; }
+        internal object CachedModel { get; set; }
+    }
+
+    internal class DataCache
+    {
+        private static object lockHandle = "DataCache_lock";
+        static DataCache()
         {
-            CachedResult = null;
-            LastUpdate = DateTime.Now;
+            CachedResults = new Dictionary<string, DataCacheElement>();
         }
 
-        internal static object CachedResult;
-        internal static DateTime LastUpdate;
+        private static Dictionary<string, DataCacheElement> CachedResults { get; set; }
+
+        /// <summary>
+        /// ONly caches the data for 5 mins
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public static object Results(string key, Func<object> p)
+        {
+            lock (lockHandle)
+            {
+                if (!CachedResults.ContainsKey(key))
+                {
+                    CachedResults.Add(key, new DataCacheElement
+                    {
+                        CachedModel = p(),
+                        LastUpdate = DateTime.Now,
+                        Key = key
+                    }); ;
+                }
+                else
+                {
+                    var element = CachedResults[key];
+                    if (DateTime.Now > element.LastUpdate.AddMinutes(5))
+                    {
+                        element.CachedModel = p();
+                        element.LastUpdate = DateTime.Now;
+                    }
+                }
+
+                return CachedResults[key].CachedModel;
+            }
+
+        }
     }
 
     public interface ITradeController
@@ -177,20 +218,11 @@ order by UpdatedOn desc
         }
 
         [HttpGet]
-        [ActionName("data")]
-        public object Data(string symbol)
+        public object Data(string period)
         {
-            /*
-            if (TradeCache.CachedResult == null || DateTime.Now > TradeCache.LastUpdate.AddMinutes(5))
-            {
-                TradeCache.CachedResult = controller.Data(symbol);
-                TradeCache.LastUpdate = DateTime.Now;
-            }
+            var key = $"trade-{period}";
 
-            return TradeCache.CachedResult;
-            */
-
-            return controller.Data(symbol);
+            return DataCache.Results(key, () => { return controller.Data(period); });
         }
 
     }

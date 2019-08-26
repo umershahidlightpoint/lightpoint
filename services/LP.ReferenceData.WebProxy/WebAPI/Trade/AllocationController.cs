@@ -12,24 +12,42 @@ using System.Threading;
 using LP.Finance.Common;
 using LP.Core;
 using CommonAPI;
+using System.Diagnostics;
 
 namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 {
-    public class AllocationControllerStub : ITradeController
+    public interface IAllocationController
+    {
+        object Data(string symbol);
+    }
+
+    public class AllocationControllerStub : IAllocationController
     {
         public object Data(string symbol)
         {
-            return Utils.GetFile("allocations");
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
+
+            var result = Utils.GetString($"allocations-{symbol}");
+
+            return new
+            {
+                elapsedTime = stopWatch.ElapsedMilliseconds,
+                payload = result
+            };
         }
     }
 
-    public class AllocationControllerService : ITradeController
+    public class AllocationControllerService : IAllocationController
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["TradeMasterDB"].ToString();
 
         public object Data(string symbol)
         {
-            dynamic result = JsonConvert.DeserializeObject("{}");
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
+
+            dynamic result = "{}";
 
             switch (symbol)
             {
@@ -51,9 +69,16 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
                     break;
             }
 
-            Utils.Save(result, "allocations_" + symbol);
+            //Utils.SaveString(result, $"allocations-{symbol}");
 
-            return result;
+
+            var returnValue = new
+            {
+                elapsedTime = stopWatch.ElapsedMilliseconds,
+                payload = result
+            };
+
+            return returnValue;
         }
 
         private object AllData(Tuple<DateTime, DateTime> period)
@@ -98,14 +123,12 @@ order by UpdatedOn desc
 
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
                 content = jsonResult;
-
-                Console.WriteLine("Done");
             }
 
 
-            dynamic json = JsonConvert.DeserializeObject(content);
+            //dynamic json = JsonConvert.DeserializeObject(content);
 
-            return json;
+            return content;
         }
 
         private object Only(string orderId)
@@ -149,19 +172,20 @@ order by UpdatedOn desc
     /// <summary>
     /// Deliver the tiles / links resources to the logged in user
     /// </summary>
-    public class AllocationController : ApiController, ITradeController
+    public class AllocationController : ApiController, IAllocationController
     {
-        private readonly ITradeController controller = ControllerFactory.Get<ITradeController, AllocationControllerStub, AllocationControllerService>();
+        private readonly IAllocationController controller = ControllerFactory.Get<IAllocationController, AllocationControllerStub, AllocationControllerService>();
 
         public AllocationController()
         {
         }
 
         [HttpGet]
-        [ActionName("data")]
-        public object Data(string symbol)
+        public object Data(string period)
         {
-            return controller.Data(symbol);
+            var key = $"allocation-{period}";
+
+            return DataCache.Results(key, () => { return controller.Data(period); });
         }
 
     }

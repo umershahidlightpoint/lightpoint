@@ -25,10 +25,12 @@ namespace PostingEngine.PostingRules
 
             var listOfFromTags = new List<Tag>
             {
+                Tag.Find("Symbol")
             };
 
             var listOfToTags = new List<Tag>
             {
+                Tag.Find("Symbol")
             };
 
             Account fromAccount = null; // Debiting Account
@@ -37,8 +39,8 @@ namespace PostingEngine.PostingRules
             switch (element.Side.ToLowerInvariant())
             {
                 case "debit":
-                    //fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("LONG POSITIONS AT COST")).FirstOrDefault(), listOfFromTags, element);
-                    toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Expenses Paid")).FirstOrDefault(), listOfToTags, element);
+                    fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Expenses Paid")).FirstOrDefault(), listOfToTags, element);
+                    toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("ACCRUED EXPENSES")).FirstOrDefault(), listOfFromTags, element);
                     break;
                 case "credit":
                     //fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
@@ -61,6 +63,12 @@ namespace PostingEngine.PostingRules
                 return;
             }
 
+            if ( element.TradeDate != element.SettleDate)
+            {
+                env.AddMessage($"Journal needs to be checked {element.LpOrderId}, {element.TradeDate}, {element.SettleDate}");
+                return;
+            }
+
             var accountToFrom = GetFromToAccount(element);
 
             if (accountToFrom.To == null)
@@ -69,6 +77,7 @@ namespace PostingEngine.PostingRules
                 return;
             }
 
+            new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
             new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
 
             double fxrate = 1.0;
@@ -85,7 +94,7 @@ namespace PostingEngine.PostingRules
                 var debit = new Journal
                 {
                     Source = element.LpOrderId,
-                    Account = accountToFrom.To,
+                    Account = accountToFrom.From,
                     When = env.ValueDate,
                     FxCurrency = element.TradeCurrency,
                     FxRate = fxrate,
@@ -94,7 +103,20 @@ namespace PostingEngine.PostingRules
                     Fund = element.Fund,
                 };
 
+                var credit = new Journal
+                {
+                    Source = element.LpOrderId,
+                    Account = accountToFrom.To,
+                    When = env.ValueDate,
+                    FxCurrency = element.TradeCurrency,
+                    FxRate = fxrate,
+                    Value = moneyUSD,
+                    GeneratedBy = "system",
+                    Fund = element.Fund,
+                };
+
                 env.Journals.Add(debit);
+                env.Journals.Add(credit);
 
                 //new Journal[] { debit }.Save(env);
             }
