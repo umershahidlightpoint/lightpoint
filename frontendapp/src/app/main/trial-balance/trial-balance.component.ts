@@ -643,6 +643,7 @@ export class TrialGridExampleComponent implements OnInit {
   }
 
   public doesExternalFilterPass(node: any) {
+    debugger
     let result = true;
     if (this.startDate) {
       let cellDate = new Date(node.data.when);
@@ -654,7 +655,7 @@ export class TrialGridExampleComponent implements OnInit {
       }
     }
     if (result === true) {
-      if (this.fund) {
+      if (this.fund && this.fund !== 'All Funds') {
         let cellFund = node.data.Fund;
         result = this.fund === cellFund;
       }
