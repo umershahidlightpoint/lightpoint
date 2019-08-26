@@ -330,7 +330,7 @@ namespace LP.Finance.WebProxy.WebAPI
             // Get the data, we will get the results later
             var transactionResults = Utils.GetWebApiData(allocationsURL);
 
-            dynamic postingEngine = new PostingEngineService().IsPostingEngineRunning();
+            dynamic postingEngine = new PostingEngineService().GetProgress();
 
             if (postingEngine.IsRunning)
             {
