@@ -39,11 +39,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object GetAccounts(int pageNumber, int pageSize, string accountName, string accountCategory)
         {
-            dynamic postingEngine = new PostingEngineService().IsPostingEngineRunning();
+            dynamic postingEngine = new PostingEngineService().GetProgress();
 
             if (postingEngine.IsRunning)
             {
-                
                 return Utils.Wrap(false, "Posting Engine is currently Running");
             }
 

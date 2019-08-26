@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -15,96 +16,91 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         private static bool IsRunning { get; set; }
         private static Guid Key { get; set; }
         private static string Period { get; set; }
-        private static int TotalRows { get; set; }
-        private static int RowsDone { get; set; }
-        // private static List<string> listMessage; //= new List<string>();
+        private static int TotalRecords { get; set; }
+        private static int RecordsProcessed { get; set; }
 
-        private static Dictionary<Guid, List<string>> dict_Messages =
-                     new Dictionary<Guid, List<string>>();
-
-
+        private static ConcurrentDictionary<Guid, List<string>> logMessages =
+            new ConcurrentDictionary<Guid, List<string>>();
 
         public object StartPostingEngine(string period)
         {
             if (!IsRunning)
             {
-                TotalRows = 0;
-                RowsDone = 0; 
-                Period = period;
-                // listMessage = new List<string>();
-                dict_Messages = new Dictionary<Guid, List<string>>();
                 IsRunning = true;
                 Key = Guid.NewGuid();
-                PostingEngine.PostingEngineCallBack callback = MessageCallBack;
+                TotalRecords = 0;
+                RecordsProcessed = 0;
+                Period = period;
+                logMessages = new ConcurrentDictionary<Guid, List<string>>();
 
-                Task.Run(() => PostingEngine.PostingEngine.Start(period, Key, callback))
-                    .ContinueWith(task => { IsRunning = false; });  
+                PostingEngine.PostingEngineCallBack logsCallback = LogMessagesCallBack;
+
+                Task.Run(() => PostingEngine.PostingEngine.Start(period, Key, logsCallback))
+                    .ContinueWith(task => { IsRunning = false; });
 
                 return new
                 {
                     Period = period,
                     Started = DateTime.Now,
                     key = Key,
-                    IsRunning 
+                    IsRunning
                 };
             }
 
-            return new
-            {
-                Period = period,
-                Started = DateTime.Now,
-                key = Key,
-                IsRunning = false
-            };
+//            return new
+//            {
+//                Period = period,
+//                Started = DateTime.Now,
+//                key = Key,
+//                IsRunning
+//            };
 
-            //return Utils.Wrap(false, "Posting Engine is Already Running!");
+            return Utils.Wrap(false, "Posting Engine is Already Running!");
         }
 
-        public void MessageCallBack(string result, int totalRows = 0 , int rowsDone = 0)
+        public void LogMessagesCallBack(string log, int totalRecords = 0, int recordsProcessed = 0)
         {
-            if (totalRows >0)
+            if (totalRecords > 0)
             {
-                TotalRows = totalRows;
-                RowsDone = rowsDone;
+                TotalRecords = totalRecords;
+                RecordsProcessed = recordsProcessed;
                 return;
             }
 
-           if( dict_Messages.ContainsKey(Key))
+            if (logMessages.ContainsKey(Key))
             {
-
-                dict_Messages[Key].Add(result);
+                logMessages[Key].Add(log);
             }
-           else
+            else
             {
-                List<string> listMessage = new List<string>();
-                listMessage.Add(result);
-                dict_Messages.Add(Key, listMessage); 
+                List<string> logMessage = new List<string> {log};
+                logMessages.TryAdd(Key, logMessage);
             }
-            // listMessage.Add(result);
-           // Console.WriteLine(result);
         }
 
         public object GetStatus(string key)
         {
-
             return new
             {
-                message = dict_Messages.ContainsKey(Key) ? dict_Messages[Guid.Parse(key)] : new List<string>(),  //listMessage,
+                message = logMessages.ContainsKey(Key)
+                    ? logMessages[Guid.Parse(key)]
+                    : new List<string>(),
                 Version = "Version 1.0",
                 Key = key,
                 Status = IsRunning,
-                progress = TotalRows>0? RowsDone * 100/ TotalRows: 0 
+                progress = TotalRecords > 0 ? RecordsProcessed * 100 / TotalRecords : 0
             };
         }
-        public object IsPostingEngineRunning()
+
+        public object GetProgress()
         {
             return new
             {
                 Period,
                 Started = DateTime.Now,
                 key = Key,
-                IsRunning  ,
-                progress = TotalRows > 0 ? RowsDone * 100 / TotalRows : 0
+                IsRunning,
+                progress = TotalRecords > 0 ? RecordsProcessed * 100 / TotalRecords : 0
             };
         }
 

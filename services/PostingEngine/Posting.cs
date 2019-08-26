@@ -2,7 +2,6 @@
 using LP.Finance.Common.Models;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.Diagnostics;
@@ -12,7 +11,8 @@ using System.Threading.Tasks;
 
 namespace PostingEngine
 {
-    public delegate void PostingEngineCallBack(string message, int totalRows = 0, int rowsDone = 0);
+    public delegate void PostingEngineCallBack(string log, int totalRecords = 0, int recordsProcessed = 0);
+
     public static class PostingEngine
     {
         private static readonly string
@@ -20,21 +20,23 @@ namespace PostingEngine
 
         private static readonly string tradesURL = "http://localhost:9091/api/trade/data/";
         private static readonly string allocationsURL = "http://localhost:9091/api/allocation/data/";
-         
-        static string Period;
-        static Guid Key;
-        static PostingEngineCallBack PostingEngineCallBack;
-        public static void Start(string period , Guid key, PostingEngineCallBack postingEngineCallBack)
+
+        private static string Period;
+        private static Guid Key;
+        private static PostingEngineCallBack PostingEngineCallBack;
+
+        public static void Start(string period, Guid key, PostingEngineCallBack postingEngineCallBack)
         {
-         
             Period = period;
             Key = key;
             PostingEngineCallBack = postingEngineCallBack;
+
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-               
-                PostingEngineCallBack?.Invoke("Posting Engine Start");
+
+                PostingEngineCallBack?.Invoke("Posting Engine Started");
+
                 // Cleanout all data
                 Cleanup(connection);
 
@@ -66,7 +68,7 @@ namespace PostingEngine
                     Period = period
                 };
 
-                PostingEngineCallBack?.Invoke("Starting Batch Posting Engine -- Trades on"+  DateTime.Now);
+                PostingEngineCallBack?.Invoke("Starting Batch Posting Engine -- Trades on" + DateTime.Now);
 
                 new JournalLog()
                 {
@@ -82,7 +84,6 @@ namespace PostingEngine
                 if (postingEnv.Journals.Count() > 0)
                 {
                     new SQLBulkHelper().Insert("journal", postingEnv.Journals.ToArray(), connection, transaction);
-                    
                 }
 
                 // Save the messages accumulated during the Run
@@ -104,7 +105,7 @@ namespace PostingEngine
                 }.Save(connection, transaction);
 
                 transaction.Commit();
-                postingEngineCallBack?.Invoke("Completed Processing.");
+                postingEngineCallBack?.Invoke("Posting Engine Processing Completed");
 
 //                It's a Class Library
 //                Console.WriteLine("Completed / Press Enter to Finish");
@@ -122,13 +123,13 @@ namespace PostingEngine
 
             var valueDate = minTradeDate;
             var endDate = DateTime.Now.Date;
-            int totalDays =(int) (endDate - valueDate).TotalDays ;
-            int daysDone = 0;
+
+            int totalDays = (int) (endDate - valueDate).TotalDays;
+            int daysProcessed = 0;
 
             while (valueDate <= endDate)
             {
                 PostingEngineCallBack?.Invoke($"Processing for ValueDate {valueDate}");
-                //Console.WriteLine($"Processing for ValueDate {valueDate}");
 
                 postingEnv.ValueDate = valueDate;
                 postingEnv.FxRates = new FxRates().Get(valueDate);
@@ -142,7 +143,7 @@ namespace PostingEngine
                     {
                         new Posting().Process(postingEnv, element);
                     }
-                    catch (Exception exe)   
+                    catch (Exception exe)
                     {
                         postingEnv.AddMessage(exe.Message);
 
@@ -153,19 +154,24 @@ namespace PostingEngine
                 if (postingEnv.Journals.Count() > 0)
                 {
                     new SQLBulkHelper().Insert("journal", postingEnv.Journals.ToArray(), connection, transaction);
-                   
+
                     // Do not want them to be double posted
                     postingEnv.Journals.Clear();
                 }
-                PostingEngineCallBack?.Invoke("", totalDays, daysDone++);
+
+                PostingEngineCallBack?.Invoke("", totalDays, daysProcessed++);
                 valueDate = valueDate.AddDays(1);
             }
-            PostingEngineCallBack?.Invoke($"Processed # {postingEnv.Trades.Count()} transactions on "+ DateTime.Now);
-            new JournalLog() { Key = Key, RunDate = postingEnv.RunDate, Action = $"Processed # {postingEnv.Trades.Count()} transactions", ActionOn = DateTime.Now }.Save(connection, transaction);
+
+            PostingEngineCallBack?.Invoke($"Processed # {postingEnv.Trades.Count()} transactions on " + DateTime.Now);
+            new JournalLog()
+            {
+                Key = Key, RunDate = postingEnv.RunDate,
+                Action = $"Processed # {postingEnv.Trades.Count()} transactions", ActionOn = DateTime.Now
+            }.Save(connection, transaction);
 
             return postingEnv.Trades.Count();
-        }  
-
+        }
 
         private static void Setup(SqlConnection connection)
         {
@@ -284,7 +290,6 @@ namespace PostingEngine
         {
             return new Journal[] { };
         }
-
 
         private Account FindAccount(string accountName, Transaction element)
         {

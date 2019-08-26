@@ -285,7 +285,7 @@ export class FinancePocServiceProxy {
   }
 
   isPostingEngineRunning(): Observable<IsPostingEngineRunning> {
-    const url = this.baseUrl + "/PostingEngine/IsPostingEngineRunning";
+    const url = this.baseUrl + "/PostingEngine/progress";
     return this.http.get<IsPostingEngineRunning>(url);
     // .pipe(map((response: IsPostingEngineRunning) => response));
   }

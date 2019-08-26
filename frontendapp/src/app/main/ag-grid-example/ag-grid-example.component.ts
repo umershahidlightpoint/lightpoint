@@ -654,7 +654,6 @@ export class AgGridExampleComponent implements OnInit {
     this.dataService.flag.subscribe(obj => {
       this.hideGrid = obj;
       if (!this.hideGrid) {
-        console.log('status changed');
         this.getAllData();
       }
     });

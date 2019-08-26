@@ -13,7 +13,7 @@ namespace LP.Finance.WebProxy.WebAPI
         public object Get(string period = "ITD")
         {
             return controller.StartPostingEngine(period);
-        }  
+        }
 
         // GET api/postingEngine/status/{key}
         [Route("status/{key}")]
@@ -23,14 +23,15 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.GetStatus(key);
         }
 
-        [Route("IsPostingEngineRunning")]
+        // GET api/postingEngine/progress
+        [Route("progress")]
         [HttpGet]
-        public object IsPostingEngineRunning()
+        public object GetProgress()
         {
-            return controller.IsPostingEngineRunning();
+            return controller.GetProgress();
         }
 
-        // GET api/postingEngine
+        // DELETE api/postingEngine
         [HttpDelete]
         public object Clear(string type)
         {
