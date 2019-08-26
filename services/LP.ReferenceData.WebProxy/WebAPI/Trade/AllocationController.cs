@@ -13,6 +13,7 @@ using LP.Finance.Common;
 using LP.Core;
 using CommonAPI;
 using System.Diagnostics;
+using LP.Finance.Common.Cache;
 
 namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 {

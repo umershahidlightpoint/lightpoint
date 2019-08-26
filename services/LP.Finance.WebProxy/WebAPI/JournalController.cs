@@ -15,6 +15,7 @@ using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Mappers;
 using LP.Finance.WebProxy.WebAPI.Services;
 using System.Web;
+using LP.Finance.Common.Cache;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -79,7 +80,7 @@ namespace LP.Finance.WebProxy.WebAPI
             {
                 case "ALL":
                     result = AllData(pageNumber, pageSize, sortColum, sortDirection, accountId, value);
-                    Utils.Save(result, "journals");
+                    Utils.SaveAsync(result, "journal_for_ui");
                     break;
 
 
@@ -505,8 +506,6 @@ namespace LP.Finance.WebProxy.WebAPI
 
             var returnResult = Utils.GridWrap(json, metaData, journalStats);
 
-            Utils.SaveAsync(returnResult, "journal_for_ui");
-
             return returnResult;
         }
 
@@ -571,7 +570,9 @@ namespace LP.Finance.WebProxy.WebAPI
         public object Data(string refData, int pageNumber, int pageSize, string sortColum = "id",
             string sortDirection = "asc", int accountId = 0, int value = 0)
         {
-            return controller.Data(refData, pageNumber, pageSize, sortColum, sortDirection, accountId, value);
+            var key = $"journal_ui-{refData}-{pageNumber}-{pageSize}-{sortColum}-{sortDirection}-{accountId}-{value}";
+
+            return DataCache.Results(key, () => { return controller.Data(refData, pageNumber, pageSize, sortColum, sortDirection, accountId, value); });
         }
 
         [Route("{source:guid}")]

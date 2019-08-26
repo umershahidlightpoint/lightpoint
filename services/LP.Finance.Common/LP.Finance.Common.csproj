@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cache\DataCache.cs" />
+    <Compile Include="Cache\DataCacheElement.cs" />
     <Compile Include="CustomValidators\MinimumElementsAttribute.cs" />
     <Compile Include="Dtos\JournalOutputDto.cs" />
     <Compile Include="Dtos\JournalInputDto.cs" />
