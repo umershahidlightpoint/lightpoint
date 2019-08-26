@@ -69,14 +69,13 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
                     break;
             }
 
-            //Utils.SaveString(result, $"allocations-{symbol}");
-
-
             var returnValue = new
             {
                 elapsedTime = stopWatch.ElapsedMilliseconds,
                 payload = result
             };
+
+            Utils.SaveString(result, $"allocations-{symbol}");
 
             return returnValue;
         }
@@ -124,9 +123,6 @@ order by UpdatedOn desc
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
                 content = jsonResult;
             }
-
-
-            //dynamic json = JsonConvert.DeserializeObject(content);
 
             return content;
         }

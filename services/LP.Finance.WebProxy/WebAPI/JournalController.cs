@@ -510,8 +510,8 @@ namespace LP.Finance.WebProxy.WebAPI
             return returnResult;
         }
 
-        private static readonly string tradesURL = "/api/trade/data/ALL";
-        private static readonly string allocationsURL = "/api/allocation/data/ALL";
+        private static readonly string tradesURL = "/api/trade?period=ITD";
+        private static readonly string allocationsURL = "/api/allocation?period=ITD";
 
        
 

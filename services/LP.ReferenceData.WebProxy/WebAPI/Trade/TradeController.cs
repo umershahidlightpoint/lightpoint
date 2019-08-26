@@ -77,7 +77,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
     {
         public object Data(string symbol)
         {
-            return Utils.GetFile("trades_" + symbol);
+            return Utils.GetFile("trades-" + symbol);
         }
     }
 
@@ -109,7 +109,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
                     break;
             }
 
-            Utils.Save(result, "trades_" + symbol);
+            Utils.Save(result, "trades-" + symbol);
 
             return result;
         }
