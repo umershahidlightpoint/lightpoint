@@ -4,7 +4,6 @@ import {
   ElementRef,
   OnInit,
   AfterViewChecked,
-  Injector,
   ViewChild,
   OnDestroy,
   Output,
@@ -15,8 +14,6 @@ import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-
 import { GridOptions } from 'ag-grid-community';
 import { takeWhile } from 'rxjs/operators';
 import * as moment from 'moment';
-import { Observable } from 'rxjs';
-
 import { FormGroup, FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
@@ -28,143 +25,20 @@ import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 })
 export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked {
   isSubscriptionAlive: boolean;
-  isLoading: boolean = false;
+  isLoading = false;
   key: any;
-  postingEngineMsg: boolean = false;
+  postingEngineMsg = false;
   clearJournalForm: FormGroup;
-
-  @Output() showPostingEngineMsg: EventEmitter<any> = new EventEmitter<any>();
-  @ViewChild('logScroll') private logContainer: ElementRef;
-
-  constructor(
-    injector: Injector,
-    private _fundsService: FinancePocServiceProxy,
-    private toastrService: ToastrService,
-    private messageService: PostingEngineService
-  ) {
-    injector;
-    this.gridOptions = <GridOptions>{
-      rowData: null,
-      columnDefs: this.columnDefs,
-      onGridReady: () => {
-        this.gridOptions.api.sizeColumnsToFit();
-      },
-      onFirstDataRendered: params => {
-        params.api.sizeColumnsToFit();
-      },
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      suppressHorizontalScroll: true
-    };
-    //this.selected = {startDate: moment().subtract(6, 'days'), endDate: moment().subtract(1, 'days')};
-  }
-
-  ngOnInit() {
-    this.isSubscriptionAlive = true;
-    this.defaultColDef = {
-      sortable: true,
-      resizable: true
-    };
-    //align scroll of grid and footer grid
-    this.gridOptions.alignedGrids.push(this.bottomOptions);
-    this.bottomOptions.alignedGrids.push(this.gridOptions);
-
-    this.symbal = 'ALL';
-
-    this.page = 0;
-    this.pageSize = 0;
-    this.accountSearch.id = 0;
-    this.valueFilter = 0;
-    this.sortColum = '';
-    this.sortDirection = '';
-
-    this._fundsService
-      .getJournalLogs(
-        this.symbal,
-        this.page,
-        this.pageSize,
-        this.accountSearch.id,
-        this.valueFilter,
-        this.sortColum,
-        this.sortDirection
-      )
-      .subscribe(result => {
-        this.rowData = [];
-
-        this.rowData = result.data.map(item => ({
-          rundate: moment(item.rundate).format('MMM-DD-YYYY'),
-          action_on: moment(item.action_on).format('MMM-DD-YYYY hh:mm:ss'),
-          action: item.action
-        }));
-      });
-
-    this.buildForm();
-  }
-
-  ngAfterViewChecked() {
-    this.scrollToBottom();
-  }
-
-  scrollToBottom(): void {
-    try {
-      this.logContainer.nativeElement.scrollTop = this.logContainer.nativeElement.scrollHeight;
-    } catch (err) {}
-  }
-
-  buildForm() {
-    this.clearJournalForm = new FormGroup({
-      user: new FormControl(false),
-      system: new FormControl(false)
-    });
-  }
-
-  validateClearForm() {
-    return !this.clearJournalForm.value.system && !this.clearJournalForm.value.user ? true : false;
-  }
-
-  /* This needs to call out to the Posting Engine and invoke the process,
-     this is a fire and forget as the process may take a little while to complete
-    */
-  runEngine() {
-    this.postingEngineMsg = true;
-    this._fundsService
-      .startPostingEngine()
-      .pipe(takeWhile(() => this.isSubscriptionAlive))
-      .subscribe(response => {
-        if (response.IsRunning) {
-          this.isLoading = true;
-          this.key = response.key;
-          this.messageService.changeStatus(true);
-          this.messageService.checkProgress();
-        }
-        this.key = response.key;
-        this.check();
-      });
-  }
-
-  periods = [
-    { name: 'YTD' },
-    { name: 'ITD' },
-    { name: 'MTD' },
-    { name: 'Today' },
-    { name: 'Latest' }
-  ];
-
   selectedPeriod: any;
   messages: any;
-  private gridOptions: GridOptions;
   Progress: any;
-  private gridApi;
-  private gridColumnApi;
-  private defaultColDef;
-  private rowData: [];
-  private selectedValue;
-
   totalRecords: number;
   bottomOptions = { alignedGrids: [] };
-
   selected: { startDate: moment.Moment; endDate: moment.Moment };
+
+  private gridOptions: GridOptions;
+  private defaultColDef;
+  private rowData: [];
 
   @ViewChild('topGrid') topGrid;
   @ViewChild('bottomGrid') bottomGrid;
@@ -172,6 +46,8 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   @ViewChild('greetCell') greetCell: TemplateRef<any>;
   @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
   @ViewChild('confirm') confirmModal: ModalDirective;
+  @Output() showPostingEngineMsg: EventEmitter<any> = new EventEmitter<any>();
+  @ViewChild('logScroll') private logContainer: ElementRef;
 
   totalCredit: number;
   totalDebit: number;
@@ -179,7 +55,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   startDate: any;
   fund: any;
   endDate: any;
-
   symbal: string;
   pageSize: any;
   accountSearch = { id: undefined };
@@ -189,19 +64,28 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   sortDirection: any;
   page: any;
 
-  title = 'app';
+  periods = [
+    { name: 'YTD' },
+    { name: 'ITD' },
+    { name: 'MTD' },
+    { name: 'Today' },
+    { name: 'Latest' }
+  ];
+
   style = {
     marginTop: '20px',
     width: '100%',
     height: '100%',
     boxSizing: 'border-box'
   };
+
   styleForHight = {
     marginTop: '20px',
     width: '100%',
     height: 'calc(100vh - 180px)',
     boxSizing: 'border-box'
   };
+
   messagesDiv = {
     border: '1px solid #eee',
     padding: '4px',
@@ -236,18 +120,123 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   setWidthAndHeight(width, height) {
     this.style = {
       marginTop: '20px',
-      width: width,
-      height: height,
+      width,
+      height,
       boxSizing: 'border-box'
     };
   }
+
+  constructor(
+    private financeService: FinancePocServiceProxy,
+    private toastrService: ToastrService,
+    private postingEngineService: PostingEngineService
+  ) {
+    this.gridOptions = {
+      rowData: null,
+      columnDefs: this.columnDefs,
+      onGridReady: () => {
+        this.gridOptions.api.sizeColumnsToFit();
+      },
+      onFirstDataRendered: params => {
+        params.api.sizeColumnsToFit();
+      },
+      enableFilter: true,
+      animateRows: true,
+      alignedGrids: [],
+      suppressHorizontalScroll: true
+    } as GridOptions;
+    // this.selected = {startDate: moment().subtract(6, 'days'), endDate: moment().subtract(1, 'days')};
+  }
+
+  ngOnInit() {
+    this.isSubscriptionAlive = true;
+    this.defaultColDef = {
+      sortable: true,
+      resizable: true
+    };
+    // align scroll of grid and footer grid
+    this.gridOptions.alignedGrids.push(this.bottomOptions);
+    this.bottomOptions.alignedGrids.push(this.gridOptions);
+
+    this.symbal = 'ALL';
+
+    this.page = 0;
+    this.pageSize = 0;
+    this.accountSearch.id = 0;
+    this.valueFilter = 0;
+    this.sortColum = '';
+    this.sortDirection = '';
+
+    this.financeService
+      .getJournalLogs(
+        this.symbal,
+        this.page,
+        this.pageSize,
+        this.accountSearch.id,
+        this.valueFilter,
+        this.sortColum,
+        this.sortDirection
+      )
+      .subscribe(result => {
+        this.rowData = [];
+        this.rowData = result.data.map(item => ({
+          rundate: moment(item.rundate).format('MMM-DD-YYYY'),
+          action_on: moment(item.action_on).format('MMM-DD-YYYY hh:mm:ss'),
+          action: item.action
+        }));
+      });
+
+    this.buildForm();
+  }
+
+  ngAfterViewChecked() {
+    this.scrollToBottom();
+  }
+
+  scrollToBottom(): void {
+    try {
+      this.logContainer.nativeElement.scrollTop = this.logContainer.nativeElement.scrollHeight;
+    } catch (err) {}
+  }
+
+  buildForm() {
+    this.clearJournalForm = new FormGroup({
+      user: new FormControl(false),
+      system: new FormControl(false)
+    });
+  }
+
+  validateClearForm() {
+    return !this.clearJournalForm.value.system && !this.clearJournalForm.value.user ? true : false;
+  }
+
+  /* This needs to call out to the Posting Engine and invoke the process,
+     this is a fire and forget as the process may take a little while to complete
+  */
+  runEngine() {
+    this.postingEngineMsg = true;
+    this.financeService
+      .startPostingEngine()
+      .pipe(takeWhile(() => this.isSubscriptionAlive))
+      .subscribe(response => {
+        if (response.IsRunning) {
+          this.isLoading = true;
+          this.key = response.key;
+          this.postingEngineService.changeStatus(true);
+          this.postingEngineService.checkProgress();
+        }
+        this.key = response.key;
+        this.getLogs();
+      });
+  }
+
   onFirstDataRendered(params) {
     params.api.sizeColumnsToFit();
   }
 
-  check() {
+  getLogs() {
     setTimeout(() => {
-      this._fundsService
+      this.financeService
         .runningEngineStatus(this.key)
         .pipe(takeWhile(() => this.isSubscriptionAlive))
         .subscribe(response => {
@@ -255,7 +244,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
           this.Progress = response.progress;
           this.messages = response.message == '' ? this.messages : response.message;
           if (response.Status) {
-            this.check();
+            this.getLogs();
           } else {
             this.messages = '';
           }
@@ -265,14 +254,14 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   IsPostingEngineRunning(e) {
     if (e.index == 1) {
-      this._fundsService
+      this.financeService
         .isPostingEngineRunning()
         .pipe(takeWhile(() => this.isSubscriptionAlive))
         .subscribe(response => {
           if (response.IsRunning) {
             this.isLoading = true;
             this.key = response.key;
-            this.check();
+            this.getLogs();
           }
         });
     }
@@ -293,7 +282,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
         : this.clearJournalForm.value.system
         ? 'system'
         : 'user';
-    this._fundsService
+    this.financeService
       .clearJournals(type)
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {

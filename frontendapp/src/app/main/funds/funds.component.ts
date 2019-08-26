@@ -13,8 +13,8 @@ export class FundsComponent implements OnInit {
   fundsCols: any[];
   isLoading = false;
 
-  @ViewChild("appLedger") appLedger: LedgerComponent;
-  constructor(private _fundsService: FinancePocServiceProxy) { }
+  @ViewChild('appLedger') appLedger: LedgerComponent;
+  constructor(private financeService: FinancePocServiceProxy) {}
 
   ngOnInit() {
     this.getFunds();
@@ -22,7 +22,7 @@ export class FundsComponent implements OnInit {
   }
 
   getFunds() {
-    this._fundsService.getFunds().subscribe(result => {
+    this.financeService.getFunds().subscribe(result => {
       this.funds = result.data;
       if (this.funds.length > 0) {
         this.getFundLeadger(this.funds[0].id);
@@ -31,14 +31,10 @@ export class FundsComponent implements OnInit {
     });
   }
 
-  onRowSelect(event) {
-  }
+  onRowSelect(event) {}
 
   initializeCol() {
-    this.fundsCols = [
-      { field: 'name', header: 'Name' },
-      { field: 'notes', header: 'Notes' },
-    ];
+    this.fundsCols = [{ field: 'name', header: 'Name' }, { field: 'notes', header: 'Notes' }];
   }
   getFundLeadger(fundId: any) {
     this.event.emit(fundId);

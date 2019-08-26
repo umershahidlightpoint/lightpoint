@@ -1,63 +1,27 @@
-import {
-  Component,
-  TemplateRef,
-  ElementRef,
-  OnInit,
-  Injector,
-  ViewChild
-} from "@angular/core";
-import { FinancePocServiceProxy } from "../../../shared/service-proxies/service-proxies";
-import { GridOptions } from "ag-grid-community";
-import * as moment from "moment";
+import { Component, TemplateRef, ElementRef, OnInit, Injector, ViewChild } from '@angular/core';
+import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { GridOptions } from 'ag-grid-community';
+import * as moment from 'moment';
 
 @Component({
-  selector: "app-logs",
-  templateUrl: "./logs.component.html",
-  styleUrls: ["./logs.component.css"]
+  selector: 'app-logs',
+  templateUrl: './logs.component.html',
+  styleUrls: ['./logs.component.css']
 })
 export class LogsComponent implements OnInit {
-  constructor(
-    injector: Injector,
-    private _fundsService: FinancePocServiceProxy
-  ) {
-    injector;
-    this.gridOptions = <GridOptions>{
-      rowData: null,
-      columnDefs: this.columnDefs,
-      onGridReady: () => {
-        this.gridOptions.api.sizeColumnsToFit();
-      },
-      onFirstDataRendered: params => {
-        params.api.sizeColumnsToFit();
-      },
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      suppressHorizontalScroll: true
-    };
-    //this.selected = {startDate: moment().subtract(6, 'days'), endDate: moment().subtract(1, 'days')};
-  }
-
   private gridOptions: GridOptions;
-
-  private gridApi;
-  private gridColumnApi;
   private defaultColDef;
   private rowData: [];
-  private selectedValue;
-
   totalRecords: number;
-  //topOptions = {alignedGrids: [], suppressHorizontalScroll: true};
-
+  // topOptions = {alignedGrids: [], suppressHorizontalScroll: true};
   bottomOptions = { alignedGrids: [] };
-
   selected: { startDate: moment.Moment; endDate: moment.Moment };
 
-  @ViewChild("topGrid") topGrid;
-  @ViewChild("bottomGrid") bottomGrid;
-  @ViewChild("dateRangPicker") dateRangPicker;
-  @ViewChild("greetCell") greetCell: TemplateRef<any>;
-  @ViewChild("divToMeasure") divToMeasureElement: ElementRef;
+  @ViewChild('topGrid') topGrid;
+  @ViewChild('bottomGrid') bottomGrid;
+  @ViewChild('dateRangPicker') dateRangPicker;
+  @ViewChild('greetCell') greetCell: TemplateRef<any>;
+  @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
 
   totalCredit: number;
   totalDebit: number;
@@ -75,19 +39,18 @@ export class LogsComponent implements OnInit {
   sortDirection: any;
   page: any;
 
-  title = "app";
   style = {
-    marginTop: "20px",
-    width: "100%",
-    height: "100%",
-    boxSizing: "border-box"
+    marginTop: '20px',
+    width: '100%',
+    height: '100%',
+    boxSizing: 'border-box'
   };
 
   styleForHight = {
-    marginTop: "20px",
-    width: "100%",
-    height: "calc(100vh - 180px)",
-    boxSizing: "border-box"
+    marginTop: '20px',
+    width: '100%',
+    height: 'calc(100vh - 180px)',
+    boxSizing: 'border-box'
   };
 
   /*
@@ -95,33 +58,47 @@ export class LogsComponent implements OnInit {
   */
   columnDefs = [
     {
-      field: "rundate",
-      headerName: "Run Date",
+      field: 'rundate',
+      headerName: 'Run Date',
       sortable: true,
       filter: true,
       enableRowGroup: true,
       width: 25
     },
     {
-      field: "action_on",
-      headerName: "Action On",
+      field: 'action_on',
+      headerName: 'Action On',
       sortable: true,
       filter: true,
       width: 25
     },
-    { field: "action", headerName: "Action", sortable: true, filter: true }
+    { field: 'action', headerName: 'Action', sortable: true, filter: true }
   ];
 
   setWidthAndHeight(width, height) {
     this.style = {
-      marginTop: "20px",
-      width: width,
-      height: height,
-      boxSizing: "border-box"
+      marginTop: '20px',
+      width,
+      height,
+      boxSizing: 'border-box'
     };
   }
-  onFirstDataRendered(params) {
-    params.api.sizeColumnsToFit();
+  constructor(private financeService: FinancePocServiceProxy) {
+    this.gridOptions = {
+      rowData: null,
+      columnDefs: this.columnDefs,
+      onGridReady: () => {
+        this.gridOptions.api.sizeColumnsToFit();
+      },
+      onFirstDataRendered: params => {
+        params.api.sizeColumnsToFit();
+      },
+      enableFilter: true,
+      animateRows: true,
+      alignedGrids: [],
+      suppressHorizontalScroll: true
+    } as GridOptions;
+    // this.selected = {startDate: moment().subtract(6, 'days'), endDate: moment().subtract(1, 'days')};
   }
 
   ngOnInit() {
@@ -129,20 +106,18 @@ export class LogsComponent implements OnInit {
       sortable: true,
       resizable: true
     };
-    //align scroll of grid and footer grid
+    // align scroll of grid and footer grid
     this.gridOptions.alignedGrids.push(this.bottomOptions);
     this.bottomOptions.alignedGrids.push(this.gridOptions);
-
-    this.symbal = "ALL";
-
+    this.symbal = 'ALL';
     this.page = 0;
     this.pageSize = 0;
     this.accountSearch.id = 0;
     this.valueFilter = 0;
-    this.sortColum = "";
-    this.sortDirection = "";
+    this.sortColum = '';
+    this.sortDirection = '';
 
-    this._fundsService
+    this.financeService
       .getJournalLogs(
         this.symbal,
         this.page,
@@ -156,10 +131,14 @@ export class LogsComponent implements OnInit {
         this.rowData = [];
 
         this.rowData = result.data.map(item => ({
-          rundate: moment(item.rundate).format("MMM-DD-YYYY"),
-          action_on: moment(item.action_on).format("MMM-DD-YYYY hh:mm:ss"),
+          rundate: moment(item.rundate).format('MMM-DD-YYYY'),
+          action_on: moment(item.action_on).format('MMM-DD-YYYY hh:mm:ss'),
           action: item.action
         }));
       });
+  }
+
+  onFirstDataRendered(params) {
+    params.api.sizeColumnsToFit();
   }
 }

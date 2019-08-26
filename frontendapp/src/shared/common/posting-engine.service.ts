@@ -11,9 +11,8 @@ export class PostingEngineService {
 
   @Output() change: EventEmitter<boolean> = new EventEmitter();
 
-  constructor(private _fundsService: FinancePocServiceProxy, private dataService: DataService) {
+  constructor(private financeService: FinancePocServiceProxy, private dataService: DataService) {
     this.isSubscriptionAlive = true;
-
     this.dataService.gridColumnApi.subscribe(obj => (obj = this.isRunning));
   }
 
@@ -34,7 +33,7 @@ export class PostingEngineService {
 
   checkProgress() {
     setTimeout(() => {
-      this._fundsService
+      this.financeService
         .isPostingEngineRunning()
         .pipe(takeWhile(() => this.isSubscriptionAlive))
         .subscribe(response => {

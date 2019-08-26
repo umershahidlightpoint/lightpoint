@@ -1,9 +1,16 @@
-import { Component, OnInit, Injector, Input, ViewChild, EventEmitter, Output, ViewEncapsulation } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input,
+  ViewChild,
+  EventEmitter,
+  Output,
+  ViewEncapsulation
+} from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { LazyLoadEvent } from 'primeng/components/common/lazyloadevent';
 import { AppComponentBase } from '../../../shared/common/app-component-base';
 import { PrimengTableHelper } from '../../../shared/helpers/PrimengTableHelper';
-import { DialogModule, Dialog } from 'primeng/dialog';
 import { LegderModalComponent } from '../legder-modal/legder-modal.component';
 import * as moment from 'moment';
 import { UpdateLedgerModalComponent } from '../update-ledger-modal/update-ledger-modal.component';
@@ -13,7 +20,6 @@ import { UpdateLedgerModalComponent } from '../update-ledger-modal/update-ledger
   templateUrl: './ledger.component.html',
   styleUrls: ['./ledger.component.css'],
   encapsulation: ViewEncapsulation.None
-
 })
 export class LedgerComponent implements AppComponentBase, OnInit {
   newLedger: boolean;
@@ -23,8 +29,8 @@ export class LedgerComponent implements AppComponentBase, OnInit {
   itemPerPage: number;
   loading: boolean;
   @ViewChild('appupdateledgermodal') appupdateledgermodal: UpdateLedgerModalComponent;
-  @ViewChild("accountInput") accountInput;
-  @ViewChild("dtLedger") dtLedger;
+  @ViewChild('accountInput') accountInput;
+  @ViewChild('dtLedger') dtLedger;
 
   valueTimeout: any;
   valueFilter: number;
@@ -38,9 +44,9 @@ export class LedgerComponent implements AppComponentBase, OnInit {
     id: 0,
     value: 0,
     effectiveDate: new Date(),
-    account: "",
-    customer: ""
-  }
+    account: '',
+    customer: ''
+  };
 
   ledgerCols: any[];
   fundsCols: any[];
@@ -64,19 +70,14 @@ export class LedgerComponent implements AppComponentBase, OnInit {
   tempCustomerSearch = '';
   tempAccountSearch = '';
 
-
   @Output() droppable = new EventEmitter<any>();
   @ViewChild('applegdermodal') applegdermodal: LegderModalComponent;
-  constructor(injector: Injector,
-    private _fundsService: FinancePocServiceProxy) {
-    (injector);
-  }
+  constructor(private financeService: FinancePocServiceProxy) {}
 
   onRowSelect(event) {
     this.newLedger = false;
     this.ledger = [1];
     this.displayDialog = true;
-
   }
   showDialogToAdd() {
     this.newLedger = true;
@@ -104,7 +105,6 @@ export class LedgerComponent implements AppComponentBase, OnInit {
     dtLedger.filter(null, 'customer_id');
   }
 
-
   onSave(fundId) {
     this.ledger = null;
     this.loading = true;
@@ -115,13 +115,15 @@ export class LedgerComponent implements AppComponentBase, OnInit {
   }
 
   /**
-   * 
-   * @param fundId 
-   * @param event 
+   *
+   * @param fundId
+   * @param event
    */
   getLegderByFundId(fundId?: string, event?: LazyLoadEvent) {
-    if (fundId != null) { this.fundId = fundId; }
-    //this.loading = true;
+    if (fundId != null) {
+      this.fundId = fundId;
+    }
+    // this.loading = true;
     // this.primengTableHelper.defaultRecordsCountPerPage = 40;
     let page = 1;
     if (event) {
@@ -141,7 +143,7 @@ export class LedgerComponent implements AppComponentBase, OnInit {
       params.value = this.valueFilter;
     }
 
-    this._fundsService.getLedger(this.fundId, page, params).subscribe(result => {
+    this.financeService.getLedger(this.fundId, page, params).subscribe(result => {
       this.totalRecords = result.meta.Total;
       this.itemPerPage = result.meta.limit;
       this.ledger = [];
@@ -155,8 +157,6 @@ export class LedgerComponent implements AppComponentBase, OnInit {
         effectiveDate: moment(item.effectiveDate).format('MMM-DD-YYYY'),
         id: item.id
       }));
-
-
 
       this.ledgerGrid = true;
       this.loading = false;
@@ -180,27 +180,26 @@ export class LedgerComponent implements AppComponentBase, OnInit {
 
   onSearchAccount(event): void {
     this.tempAccountNumber = event.query;
-    this._fundsService.getAccounts(event.query).subscribe(result => {
+    this.financeService.getAccounts(event.query).subscribe(result => {
       this.accounts = result.data;
     });
   }
 
   onSearchCustomer(event): void {
     this.tempCustomerNumber = event.query;
-    this._fundsService.getCustomers(event.query).subscribe(result => {
+    this.financeService.getCustomers(event.query).subscribe(result => {
       this.customers = result.data;
     });
   }
 
   getLedgerById(id) {
-
-    this._fundsService.getLedgerById(id).subscribe(result => {
+    this.financeService.getLedgerById(id).subscribe(result => {
       this.appupdateledgermodal && this.appupdateledgermodal.getFormData(result);
-    })
+    });
   }
 
   onSearchAccountType(event): void {
-    this._fundsService.getAccountTypes(event.query).subscribe(result => {
+    this.financeService.getAccountTypes(event.query).subscribe(result => {
       this.accountTypeSuggestions = result.data;
     });
   }
@@ -234,12 +233,8 @@ export class LedgerComponent implements AppComponentBase, OnInit {
   }
 
   dragEnd(header: string) {
-    if (header === "Account") {
+    if (header === 'Account') {
       this.droppable.emit(true);
-
     }
-
   }
-
-
 }

@@ -1,22 +1,15 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  Output,
-  EventEmitter,
-  OnDestroy
-} from "@angular/core";
-import { ModalDirective } from "ngx-bootstrap";
-import { ToastrService } from "ngx-toastr";
-import { FormGroup, FormBuilder, Validators } from "@angular/forms";
-import { GridRowData, Fund } from "../../../../shared/Models/account";
-import { FinancePocServiceProxy } from "../../../../shared/service-proxies/service-proxies";
-import { takeWhile } from "rxjs/operators";
+import { Component, OnInit, ViewChild, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { ModalDirective } from 'ngx-bootstrap';
+import { ToastrService } from 'ngx-toastr';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { GridRowData, Fund } from '../../../../shared/Models/account';
+import { FinancePocServiceProxy } from '../../../../shared/service-proxies/service-proxies';
+import { takeWhile } from 'rxjs/operators';
 
 @Component({
-  selector: "app-journal-modal",
-  templateUrl: "./journal-modal.component.html",
-  styleUrls: ["./journal-modal.component.css"]
+  selector: 'app-journal-modal',
+  templateUrl: './journal-modal.component.html',
+  styleUrls: ['./journal-modal.component.css']
 })
 export class JournalModalComponent implements OnInit, OnDestroy {
   allAccounts: GridRowData;
@@ -33,7 +26,7 @@ export class JournalModalComponent implements OnInit, OnDestroy {
   isSubscriptionAlive: boolean;
   journalForm: FormGroup;
 
-  @ViewChild("modal") modal: ModalDirective;
+  @ViewChild('modal') modal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
 
   constructor(
@@ -74,10 +67,10 @@ export class JournalModalComponent implements OnInit, OnDestroy {
 
   buildForm() {
     this.journalForm = this.formBuilder.group({
-      fund: ["Select fund type", Validators.required],
-      fromAccount: ["0", Validators.required],
-      toAccount: ["0", Validators.required],
-      value: ["", Validators.required]
+      fund: ['Select fund type', Validators.required],
+      fromAccount: ['0', Validators.required],
+      toAccount: ['0', Validators.required],
+      value: ['', Validators.required]
     });
   }
 
@@ -95,27 +88,25 @@ export class JournalModalComponent implements OnInit, OnDestroy {
         .pipe(takeWhile(() => this.isSubscriptionAlive))
         .subscribe(response => {
           if (response.isSuccessful) {
-            this.toastrService.success("Journal is updated successfully !");
+            this.toastrService.success('Journal is updated successfully !');
             this.modal.hide();
             this.modalClose.emit(true);
             setTimeout(() => this.clearForm(), 500);
           } else {
-            this.toastrService.error("Failed to update Journal !");
+            this.toastrService.error('Failed to update Journal !');
           }
         });
     } else {
-      this.financePocServiceProxy
-        .createJounal(journalObject)
-        .subscribe(response => {
-          if (response.isSuccessful) {
-            this.toastrService.success("Journal is created successfully !");
-            this.modal.hide();
-            this.modalClose.emit(true);
-            setTimeout(() => this.clearForm(), 500);
-          } else {
-            this.toastrService.error("Failed to create Journal !");
-          }
-        });
+      this.financePocServiceProxy.createJounal(journalObject).subscribe(response => {
+        if (response.isSuccessful) {
+          this.toastrService.success('Journal is created successfully !');
+          this.modal.hide();
+          this.modalClose.emit(true);
+          setTimeout(() => this.clearForm(), 500);
+        } else {
+          this.toastrService.error('Failed to create Journal !');
+        }
+      });
     }
   }
 
@@ -126,12 +117,12 @@ export class JournalModalComponent implements OnInit, OnDestroy {
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {
         if (response.isSuccessful) {
-          this.toastrService.success("Journal is deleted successfully!");
+          this.toastrService.success('Journal is deleted successfully!');
           this.modal.hide();
           this.modalClose.emit(true);
           setTimeout(() => this.clearForm(), 500);
         } else {
-          this.toastrService.error("Failed to delete Journal!");
+          this.toastrService.error('Failed to delete Journal!');
         }
       });
   }
@@ -151,10 +142,8 @@ export class JournalModalComponent implements OnInit, OnDestroy {
       this.selectedRow = rowData;
       const { source } = rowData;
       const { modifiable } = rowData;
-      if (modifiable === "false") {
-        this.toastrService.error(
-          "System Generated Journals are not Editable !"
-        );
+      if (modifiable === 'false') {
+        this.toastrService.error('System Generated Journals are not Editable !');
         this.closeModal();
         return;
       }
@@ -178,7 +167,7 @@ export class JournalModalComponent implements OnInit, OnDestroy {
               fund: this.accountFund
             });
           } else {
-            this.toastrService.error("Something went wrong!");
+            this.toastrService.error('Something went wrong!');
           }
         });
     } else {

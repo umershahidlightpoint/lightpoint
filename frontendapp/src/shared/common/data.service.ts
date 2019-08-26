@@ -5,7 +5,7 @@ import { BehaviorSubject } from 'rxjs';
 export class DataService {
   private oGridOptions = new BehaviorSubject(null);
   gridColumnApi = this.oGridOptions.asObservable();
-  private isEngineRunning = new BehaviorSubject(null);
+  private isEngineRunning = new BehaviorSubject(false);
   flag = this.isEngineRunning.asObservable();
 
   constructor() {}

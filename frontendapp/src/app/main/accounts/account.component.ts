@@ -5,6 +5,7 @@ import {
   ViewChild,
   ElementRef,
   TemplateRef,
+  AfterViewInit,
   OnDestroy
 } from '@angular/core';
 import { Router } from '@angular/router';
@@ -23,17 +24,17 @@ import { DataService } from 'src/shared/common/data.service';
   templateUrl: './account.component.html',
   styleUrls: ['./account.component.css']
 })
-export class AccountComponent implements OnDestroy, OnInit {
+export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
   rowData: Array<GridRowData>;
-  gridOptions = <GridOptions>{
+  gridOptions = {
     onFirstDataRendered: params => {
       params.api.sizeColumnsToFit();
     }
-  };
+  } as GridOptions;
   accountCategories: AccountCategory;
   selectedAccountCategory: AccountCategory;
-  hideGrid: boolean = false;
-  //For unsubscribing all subscriptions
+  hideGrid: boolean;
+  // For unsubscribing all subscriptions
   isSubscriptionAlive: boolean;
 
   @ViewChild('createModal') createAccount: CreateAccountComponent;
@@ -209,7 +210,7 @@ export class AccountComponent implements OnDestroy, OnInit {
   }
 
   onBtExport() {
-    var params = {
+    const params = {
       fileName: 'Test File',
       sheetName: 'First Sheet',
       columnKeys: ['Name', 'Description', 'Category', 'has_journal']

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, DoCheck, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, DoCheck, AfterViewInit, OnDestroy } from '@angular/core';
 import { MatSidenav } from '@angular/material';
 import * as moment from 'moment';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
@@ -10,16 +10,16 @@ import { takeWhile } from 'rxjs/operators';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
-export class HeaderComponent implements OnInit, DoCheck, AfterViewInit {
+export class HeaderComponent implements OnInit, DoCheck, AfterViewInit, OnDestroy {
   @Input() sidenav: MatSidenav;
   postingEngineMsg: boolean;
   progressBar: any;
-  date: string = moment().format("MM-DD-YYYY");
+  date: string = moment().format('MM-DD-YYYY');
   isSubscriptionAlive: boolean;
 
   constructor(
     private messageService: PostingEngineService,
-    private _fundsService: FinancePocServiceProxy
+    private fundsService: FinancePocServiceProxy
   ) {
     this.isSubscriptionAlive = true;
   }
@@ -31,7 +31,7 @@ export class HeaderComponent implements OnInit, DoCheck, AfterViewInit {
   }
 
   IsPostingEngineRunning() {
-    this._fundsService
+    this.fundsService
       .isPostingEngineRunning()
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {
@@ -44,8 +44,8 @@ export class HeaderComponent implements OnInit, DoCheck, AfterViewInit {
   }
 
   ngDoCheck() {
-    let isEngineRunning = this.messageService.getStatus();
-    let progress = this.messageService.getProgress();
+    const isEngineRunning = this.messageService.getStatus();
+    const progress = this.messageService.getProgress();
     if (isEngineRunning || progress) {
       this.postingEngineMsg = isEngineRunning;
       this.progressBar = progress;

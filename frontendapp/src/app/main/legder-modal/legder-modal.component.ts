@@ -1,30 +1,23 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  Output,
-  EventEmitter,
-  Input
-} from "@angular/core";
-import { ModalDirective } from "ngx-bootstrap";
-import { FinancePocServiceProxy } from "../../../shared/service-proxies/service-proxies";
-import { LedgerInput } from "src/shared/Models/account";
-import * as moment from "moment";
+import { Component, OnInit, ViewChild, Output, EventEmitter, Input } from '@angular/core';
+import { ModalDirective } from 'ngx-bootstrap';
+import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { LedgerInput } from 'src/shared/Models/account';
+import * as moment from 'moment';
 
 @Component({
-  selector: "app-legder-modal",
-  templateUrl: "./legder-modal.component.html",
-  styleUrls: ["./legder-modal.component.css"]
+  selector: 'app-legder-modal',
+  templateUrl: './legder-modal.component.html',
+  styleUrls: ['./legder-modal.component.css']
 })
 export class LegderModalComponent implements OnInit {
   active = false;
-  @ViewChild("accountInput") accountInput;
-  @ViewChild("modal") modal: ModalDirective;
+  @ViewChild('accountInput') accountInput;
+  @ViewChild('modal') modal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
   @Input() fundId: any;
   @Input() ledgerId: any;
-  tempAccountNumber: "";
-  tempCustomerNumber: "";
+  tempAccountNumber: '';
+  tempCustomerNumber: '';
   accounts: any[];
   customers: any[];
   account: any;
@@ -32,7 +25,7 @@ export class LegderModalComponent implements OnInit {
   effectiveDate = new Date();
   value: number;
   ledger: LedgerInput = new LedgerInput();
-  constructor(private _service: FinancePocServiceProxy) {}
+  constructor(private financeService: FinancePocServiceProxy) {}
 
   ngOnInit() {}
 
@@ -42,14 +35,14 @@ export class LegderModalComponent implements OnInit {
 
   onSearchAccount(event): void {
     this.tempAccountNumber = event.query;
-    this._service.getAccounts(event.query).subscribe(result => {
+    this.financeService.getAccounts(event.query).subscribe(result => {
       this.accounts = result.data;
     });
   }
 
   onSearchCustomer(event): void {
     this.tempCustomerNumber = event.query;
-    this._service.getCustomers(event.query).subscribe(result => {
+    this.financeService.getCustomers(event.query).subscribe(result => {
       this.customers = result.data;
     });
   }
@@ -59,15 +52,15 @@ export class LegderModalComponent implements OnInit {
   }
 
   save() {
-    this.ledger.effectiveDate = moment(this.effectiveDate).format("YYYY-MM-DD");
+    this.ledger.effectiveDate = moment(this.effectiveDate).format('YYYY-MM-DD');
     this.ledger.customer_id = this.customer.id;
     this.ledger.account_id = this.account.id;
     if (this.ledgerId > 0 || this.ledgerId !== undefined) {
-      this._service.updateLedger(this.ledgerId, this.ledger).subscribe(res => {
+      this.financeService.updateLedger(this.ledgerId, this.ledger).subscribe(res => {
         this.modalClose.emit(res);
       });
     } else {
-      this._service.createLedger(this.ledger).subscribe(res => {
+      this.financeService.createLedger(this.ledger).subscribe(res => {
         this.modalClose.emit(res);
       });
     }
@@ -85,7 +78,7 @@ export class LegderModalComponent implements OnInit {
   }
 
   getLedgerById(id) {
-    this._service.getLedgerById(id).subscribe(result => {
+    this.financeService.getLedgerById(id).subscribe(result => {
       this.ledger.effectiveDate = result.effectiveDate;
 
       this.customer = result.customer;
