@@ -23,7 +23,7 @@ namespace LP.Finance.Common
     public class MetaData
     {
         public int Total { get; set; }
-        public List<ColumnDef> Columns { get;set;}
+        public List<ColumnDef> Columns { get; set; }
     }
 
     public class MathFnc
@@ -38,7 +38,6 @@ namespace LP.Finance.Common
 
     public class Utils
     {
-
         public static async Task<string> GetWebApiData(string webURI)
         {
             Task<string> result = null;
@@ -48,6 +47,25 @@ namespace LP.Finance.Common
             var referenceDataWebApi = ConfigurationManager.AppSettings["ReferenceDataWebApi"];
 
             var url = $"{referenceDataWebApi}{webURI}";
+
+            HttpResponseMessage response = await client.GetAsync(url);
+            if (response.IsSuccessStatusCode)
+            {
+                result = response.Content.ReadAsStringAsync();
+            }
+
+            return await result;
+        }
+
+        public static async Task<string> GetWebApiData(string webApi, string webUri)
+        {
+            Task<string> result = null;
+
+            var client = new HttpClient();
+
+            var projectWebApi = ConfigurationManager.AppSettings[webApi];
+
+            var url = $"{projectWebApi}{webUri}";
 
             HttpResponseMessage response = await client.GetAsync(url);
             if (response.IsSuccessStatusCode)
@@ -196,6 +214,7 @@ namespace LP.Finance.Common
         }
 
         private static string _lockHandle = "Uniquie Handle";
+
         private static void Save(dynamic state)
         {
             lock (_lockHandle)
@@ -226,7 +245,7 @@ namespace LP.Finance.Common
 
         public static void SaveAsync(object json, string filename)
         {
-            ThreadPool.QueueUserWorkItem(new WaitCallback(Save), new { json, filename});
+            ThreadPool.QueueUserWorkItem(new WaitCallback(Save), new {json, filename});
         }
 
         public static object RunQuery(string connection, string query, SqlParameter[] parameters = null)
@@ -315,6 +334,5 @@ namespace LP.Finance.Common
                 bulk.WriteToServer(table);
             }
         }
-
     }
 }
