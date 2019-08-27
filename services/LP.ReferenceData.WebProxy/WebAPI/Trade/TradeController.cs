@@ -30,7 +30,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
     {
         public object Data(string symbol)
         {
-            return Utils.GetFile("trades-" + symbol);
+            return Utils.GetFile("trades_" + symbol);
         }
     }
 

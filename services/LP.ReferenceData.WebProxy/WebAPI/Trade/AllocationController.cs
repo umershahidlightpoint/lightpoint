@@ -29,8 +29,8 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            var result = Utils.GetString($"allocations-{symbol}");
-
+            var result = Utils.GetString($"allocations_{symbol}");
+            
             return new
             {
                 elapsedTime = stopWatch.ElapsedMilliseconds,
@@ -94,7 +94,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             var enddate = period.Item2.ToString("MM-dd-yyyy") + " 16:30";
 
             var query =
-$@"select 
+                $@"select 
     ParentOrderId,
 	LpOrderId, Action, Symbol, Side, Quantity, TimeInForce, OrderType, SecurityType,  BloombergCode,
 	CustodianCode, ExecutionBroker, TradeId, Fund, 
@@ -140,7 +140,8 @@ order by UpdatedOn desc
             var startdate = date.ToString("MM-dd-yyyy") + " 09:00";
             var enddate = date.ToString("MM-dd-yyyy") + " 16:30";
 
-            var query = $@"select LpOrderId, Action, Symbol, Side, Quantity, SecurityType, CustodianCode, ExecutionBroker, TradeId, Fund, PMCode, PortfolioCode, TradePrice, TradeDate, Trader, Status, Commission, Fees, NetMoney, UpdatedOn from Allocation nolock
+            var query =
+                $@"select LpOrderId, Action, Symbol, Side, Quantity, SecurityType, CustodianCode, ExecutionBroker, TradeId, Fund, PMCode, PortfolioCode, TradePrice, TradeDate, Trader, Status, Commission, Fees, NetMoney, UpdatedOn from Allocation nolock
                 where LPOrderId='{orderId}'
                 order by UpdatedOn desc";
 
@@ -171,7 +172,8 @@ order by UpdatedOn desc
     /// </summary>
     public class AllocationController : ApiController, IAllocationController
     {
-        private readonly IAllocationController controller = ControllerFactory.Get<IAllocationController, AllocationControllerStub, AllocationControllerService>();
+        private readonly IAllocationController controller = ControllerFactory
+            .Get<IAllocationController, AllocationControllerStub, AllocationControllerService>();
 
         public AllocationController()
         {
@@ -184,6 +186,5 @@ order by UpdatedOn desc
 
             return DataCache.Results(key, () => { return controller.Data(period); });
         }
-
     }
 }

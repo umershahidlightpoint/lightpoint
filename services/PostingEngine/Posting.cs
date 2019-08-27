@@ -18,8 +18,8 @@ namespace PostingEngine
         private static readonly string
             connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
-        private static readonly string tradesURL = "http://localhost:9091/api/trade/data/";
-        private static readonly string allocationsURL = "http://localhost:9091/api/allocation/data/";
+        private static readonly string tradesURL = "http://localhost:9091/api/trade/data?period=";
+        private static readonly string allocationsURL = "http://localhost:9091/api/allocation/data?period=";
 
         private static string Period;
         private static Guid Key;
@@ -53,7 +53,9 @@ namespace PostingEngine
                 var trades = GetTransactions(tradesURL + Period);
                 Task.WaitAll(new Task[] {allocations, trades});
 
-                var allocationList = JsonConvert.DeserializeObject<Transaction[]>(allocations.Result);
+                var res = JsonConvert.DeserializeObject<PayLoad>(allocations.Result);
+
+                var allocationList = JsonConvert.DeserializeObject<Transaction[]>(res.payload);
                 var tradeList = JsonConvert.DeserializeObject<Transaction[]>(trades.Result);
 
                 var postingEnv = new PostingEngineEnvironment(connection, transaction)
