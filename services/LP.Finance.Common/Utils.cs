@@ -17,13 +17,12 @@ namespace LP.Finance.Common
         public string field { get; set; }
         public string headerName { get; set; }
         public bool filter { get; set; }
-
         public string Type { get; set; }
     }
+
     public class MetaData
     {
         public int Total { get; set; }
-
         public List<ColumnDef> Columns { get;set;}
     }
 
