@@ -521,24 +521,12 @@ namespace LP.Finance.WebProxy.WebAPI
        public object GetTrialBalanceReport(DateTime? date= null, string fund="")
        {
             bool whereAdded = false;
-            //var query = $@"select summary.AccountName, summary.Debit, summary.Credit, (SUM(summary.Debit) over()) as DebitSum, (SUM(summary.Credit) over()) as CreditSum  from (
-            //            select journal.AccountId,journal.AccountName,
-            //            sum( (CASE WHEN journal.value < 0 THEN journal.value else 0 END  )) Debit,
-            //            sum(   (CASE WHEN journal.value > 0 THEN journal.value else 0 END  ) ) Credit from 
-            //            (select a.name as AccountName, a.id as AccountId, j.value
-            //            from journal j
-            //            left join account a on a.id = j.account_id";
-
-
+          
             var query = $@"select account.name as AccountName,  summary.Debit, summary.Credit, (SUM(summary.Debit) over()) as DebitSum
 				, (SUM(summary.Credit) over()) as CreditSum from ( 
 				select account_id ,sum( (CASE WHEN value < 0 THEN value else 0 END  )) Debit,
                  sum(   (CASE WHEN value > 0 THEN value else 0 END  ) ) Credit
 				 from journal "; 
-
-
-
-
 
             List<SqlParameter> sqlParams = new List<SqlParameter>();
 
@@ -585,7 +573,7 @@ namespace LP.Finance.WebProxy.WebAPI
                 {
                     trialBalance.CreditPercentage = stats.totalCredit > 0 ? Math.Abs((trialBalance.Credit.Value / Convert.ToInt64(stats.totalCredit)) * 100) : 0;
                 }
-                else if (trialBalance.Debit.HasValue)
+                if (trialBalance.Debit.HasValue)
                 {
                     trialBalance.DebitPercentage = stats.totalDebit < 0 ? Math.Abs((trialBalance.Debit.Value / Convert.ToInt64(stats.totalCredit)) * 100) : 0;
                 }
