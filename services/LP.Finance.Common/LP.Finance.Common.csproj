@@ -63,6 +63,7 @@
     <Compile Include="Dtos\AccountInputDto.cs" />
     <Compile Include="Dtos\AccountDefTagOutputDto.cs" />
     <Compile Include="Dtos\AccountTagInputDto.cs" />
+    <Compile Include="Dtos\TrialBalanceReportOutPutDto.cs" />
     <Compile Include="Mappers\EntityMapper.cs" />
     <Compile Include="Mappers\IEntityMapper.cs" />
     <Compile Include="Model\Account.cs" />

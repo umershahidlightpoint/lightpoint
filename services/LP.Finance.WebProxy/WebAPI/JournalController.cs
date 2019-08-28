@@ -28,6 +28,7 @@ namespace LP.Finance.WebProxy.WebAPI
         object AddJournal(JournalInputDto journal);
         object UpdateJournal(Guid source, JournalInputDto journal);
         object DeleteJournal(Guid source);
+        object GetTrialBalanceReport(DateTime? date, string fund);
     }
 
     public class JournalControllerStub : IJournalController
@@ -54,6 +55,11 @@ namespace LP.Finance.WebProxy.WebAPI
         }
 
         public object DeleteJournal(Guid source)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object GetTrialBalanceReport(DateTime? date, string fund)
         {
             throw new NotImplementedException();
         }
@@ -312,7 +318,7 @@ namespace LP.Finance.WebProxy.WebAPI
                 new SqlParameter("source", source.ToString())
             };
 
-            var query = $@"SELECT 
+            var query = $@"SELECT
                         CASE WHEN [journal].[generated_by] = 'user'
 	                    THEN 'true'
 	                    ELSE 'false'
@@ -512,7 +518,75 @@ namespace LP.Finance.WebProxy.WebAPI
         private static readonly string tradesURL = "/api/trade?period=ITD";
         private static readonly string allocationsURL = "/api/allocation?period=ITD";
 
-       
+       public object GetTrialBalanceReport(DateTime? date, string fund)
+       {
+            bool whereAdded = false;
+            var query = $@"select summary.AccountName, summary.Debit, summary.Credit, (SUM(summary.Debit) over()) as DebitSum, (SUM(summary.Credit) over()) as CreditSum  from (
+                        select journal.AccountId,journal.AccountName,
+                        sum( (CASE WHEN journal.value < 0 THEN journal.value else 0 END  )) Debit,
+                        sum(   (CASE WHEN journal.value > 0 THEN journal.value else 0 END  ) ) Credit from 
+                        (select a.name as AccountName, a.id as AccountId, j.value
+                        from journal j
+                        left join account a on a.id = j.account_id";
+
+            List<SqlParameter> sqlParams = new List<SqlParameter>();
+
+            if (date != null)
+            {
+                query = query + " where j.[when] = @date";
+                whereAdded = true;
+                sqlParams.Add(new SqlParameter("date", date));
+            }
+
+            if (fund != "ALL")
+            {
+                if (whereAdded)
+                {
+                    query = query + " and j.[fund] = @fund";
+                    whereAdded = true;
+                    sqlParams.Add(new SqlParameter("fund", fund));
+                }
+                else
+                {
+                    query = query + " where j.[fund] = @fund";
+                    whereAdded = true;
+                    sqlParams.Add(new SqlParameter("fund", fund));
+                }
+            }
+
+            query = query + ") as journal group by journal.AccountId, journal.AccountName) as summary";
+
+            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+            journalStats stats = new journalStats();
+            List<TrialBalanceReportOutPutDto> trialBalanceReport = new List<TrialBalanceReportOutPutDto>();
+
+            stats.totalDebit = dataTable.Rows.Count > 0 ? Convert.ToDouble(dataTable.Rows[0]["DebitSum"]) : 0;
+            stats.totalCredit = dataTable.Rows.Count > 0 ? Convert.ToDouble(dataTable.Rows[0]["CreditSum"]) : 0;
+
+            foreach (DataRow row in dataTable.Rows)
+            {
+                TrialBalanceReportOutPutDto trialBalance = new TrialBalanceReportOutPutDto();
+                trialBalance.AccountName = (string)row["AccountName"];
+                trialBalance.Credit = row["Credit"] == DBNull.Value ? (decimal?)null : Convert.ToDecimal(row["Credit"]);
+                trialBalance.Debit = row["Debit"] == DBNull.Value ? (decimal?)null : Convert.ToDecimal(row["Debit"]);
+
+                if (trialBalance.Credit.HasValue)
+                {
+                    trialBalance.CreditPercentage = stats.totalCredit > 0 ? Math.Abs((trialBalance.Credit.Value / Convert.ToInt64(stats.totalCredit)) * 100) : 0;
+                }
+                else if (trialBalance.Debit.HasValue)
+                {
+                    trialBalance.DebitPercentage = stats.totalDebit < 0 ? Math.Abs((trialBalance.Debit.Value / Convert.ToInt64(stats.totalCredit)) * 100) : 0;
+                }
+
+                trialBalanceReport.Add(trialBalance);
+            }
+
+            dynamic reportObject = new System.Dynamic.ExpandoObject();
+            reportObject.data = trialBalanceReport;
+            reportObject.stats = stats;
+            return reportObject;
+        }
 
         private object Only(string orderId)
         {
@@ -573,6 +647,13 @@ namespace LP.Finance.WebProxy.WebAPI
             var key = $"journal_ui-{refData}-{pageNumber}-{pageSize}-{sortColum}-{sortDirection}-{accountId}-{value}";
 
             return DataCache.Results(key, () => { return controller.Data(refData, pageNumber, pageSize, sortColum, sortDirection, accountId, value); });
+        }
+
+        [Route("trialBalanceReport")]
+        [HttpGet]
+        public object TrialBalanceReport(DateTime? date, string fund = "ALL")
+        {
+            return controller.GetTrialBalanceReport(date, fund);
         }
 
         [Route("{source:guid}")]
