@@ -16,7 +16,6 @@ import { TemplateRendererComponent } from '../../template-renderer/template-rend
 import { ToastrService } from 'ngx-toastr';
 import { GridRowData, AccountCategory } from '../../../shared/Models/account';
 import { takeWhile } from 'rxjs/operators';
-import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { DataService } from 'src/shared/common/data.service';
 
 @Component({
@@ -55,7 +54,7 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
     boxSizing: 'border-box'
   };
 
-  messagesDiv = {
+  containerDiv = {
     border: '1px solid #eee',
     padding: '4px',
     marginTop: '20px',

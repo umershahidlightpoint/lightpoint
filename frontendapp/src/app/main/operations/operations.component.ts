@@ -86,7 +86,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     boxSizing: 'border-box'
   };
 
-  messagesDiv = {
+  containerDiv = {
     border: '1px solid #eee',
     padding: '4px',
     marginTop: '20px',

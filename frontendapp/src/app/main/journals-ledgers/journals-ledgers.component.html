@@ -1,4 +1,4 @@
-<div *ngIf="hideGrid" #logScroll [ngStyle]="messagesDiv">
+<div *ngIf="hideGrid" #logScroll [ngStyle]="containerDiv">
   <div style="display: flex; align-items: center; justify-content: center">
     <h1> Posting Engine is Running. Please Wait. </h1>
   </div>
@@ -25,7 +25,7 @@
           <form>
             <input type="text" autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
               [showCustomRangeLabel]="true" #dateRangPicker name="selectedDaterange" [showClearButton]="true"
-              placeholder="Choose date" [alwaysShowCalendars]="true" (ngModelChange)="ngModelChange($event)"
+              placeholder="Choose date" [alwaysShowCalendars]="false" (ngModelChange)="ngModelChange($event)"
               class="form-control" />
           </form>
         </div>

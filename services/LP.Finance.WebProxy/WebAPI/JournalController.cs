@@ -650,7 +650,7 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [Route("trialBalanceReport")]
         [HttpGet]
-        public object TrialBalanceReport(DateTime? date=null, string fund = "ALL")
+        public object TrialBalanceReport(DateTime? date = null, string fund = "ALL")
         {
             return controller.GetTrialBalanceReport(date, fund);
         }
