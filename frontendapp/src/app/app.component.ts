@@ -5,7 +5,7 @@ import { AppComponentBase } from '../shared/common/app-component-base';
 import { LazyLoadEvent } from 'primeng/components/common/lazyloadevent';
 import { LegderModalComponent } from './main/legder-modal/legder-modal.component';
 import { JournalComponent } from './main/journal/journal.component';
-import { AgGridExampleComponent } from './main/ag-grid-example/ag-grid-example.component';
+import { JournalsLedgersComponent } from './main/journals-ledgers/journals-ledgers.component';
 import { onMainContentChange } from './menu/animations/animations';
 import { SidenavService } from '../shared/common/sidenav.service';
 
@@ -18,7 +18,7 @@ import { SidenavService } from '../shared/common/sidenav.service';
 export class AppComponent extends AppComponentBase {
   @ViewChild('applegdermodal') applegdermodal: LegderModalComponent;
   @ViewChild('app-journal') appjournal: JournalComponent;
-  @ViewChild('app-ag-grid-example') agGridExample: AgGridExampleComponent;
+  @ViewChild('app-journals-ledgers') journalsLedgers: JournalsLedgersComponent;
 
   fundId: any;
   ledger: any[];

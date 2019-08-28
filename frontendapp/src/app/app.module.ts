@@ -39,19 +39,19 @@ import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { JournalComponent } from './main/journal/journal.component';
-import { AgGridExampleComponent } from './main/ag-grid-example/ag-grid-example.component';
+import { JournalsLedgersComponent } from './main/journals-ledgers/journals-ledgers.component';
 import { TrialGridExampleComponent } from './main/trial-balance/trial-balance.component';
 import { LogsComponent } from './main/logs/logs.component';
 import { OperationsComponent } from './main/operations/operations.component';
 import { HeaderComponent } from './menu/header/header.component';
-import { ReportsComponent } from './reports/reports.component';
+import { ReportsComponent } from './main/reports/reports.component';
 import { RunLogsComponent } from './runlogs/runlogs.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToastrModule } from 'ngx-toastr';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { AccountComponent } from './main/accounts/account.component';
 import { CreateAccountComponent } from './main/accounts/create-account/create-account.component';
-import { JournalModalComponent } from './main/ag-grid-example/journal-modal/journal-modal.component';
+import { JournalModalComponent } from './main/journals-ledgers/journal-modal/journal-modal.component';
 import { GridLayoutMenuComponent } from '../shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { DataService } from '../shared/common/data.service';
 import { LeftMenuComponent } from './menu/left-menu/left-menu.component';
@@ -66,7 +66,7 @@ import { PostingEngineService } from '../shared/common/posting-engine.service';
     LegderModalComponent,
     UpdateLedgerModalComponent,
     JournalComponent,
-    AgGridExampleComponent,
+    JournalsLedgersComponent,
     TrialGridExampleComponent,
     LogsComponent,
     TemplateRendererComponent,
