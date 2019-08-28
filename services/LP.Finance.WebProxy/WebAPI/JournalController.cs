@@ -518,22 +518,33 @@ namespace LP.Finance.WebProxy.WebAPI
         private static readonly string tradesURL = "/api/trade?period=ITD";
         private static readonly string allocationsURL = "/api/allocation?period=ITD";
 
-       public object GetTrialBalanceReport(DateTime? date, string fund)
+       public object GetTrialBalanceReport(DateTime? date= null, string fund="")
        {
             bool whereAdded = false;
-            var query = $@"select summary.AccountName, summary.Debit, summary.Credit, (SUM(summary.Debit) over()) as DebitSum, (SUM(summary.Credit) over()) as CreditSum  from (
-                        select journal.AccountId,journal.AccountName,
-                        sum( (CASE WHEN journal.value < 0 THEN journal.value else 0 END  )) Debit,
-                        sum(   (CASE WHEN journal.value > 0 THEN journal.value else 0 END  ) ) Credit from 
-                        (select a.name as AccountName, a.id as AccountId, j.value
-                        from journal j
-                        left join account a on a.id = j.account_id";
+            //var query = $@"select summary.AccountName, summary.Debit, summary.Credit, (SUM(summary.Debit) over()) as DebitSum, (SUM(summary.Credit) over()) as CreditSum  from (
+            //            select journal.AccountId,journal.AccountName,
+            //            sum( (CASE WHEN journal.value < 0 THEN journal.value else 0 END  )) Debit,
+            //            sum(   (CASE WHEN journal.value > 0 THEN journal.value else 0 END  ) ) Credit from 
+            //            (select a.name as AccountName, a.id as AccountId, j.value
+            //            from journal j
+            //            left join account a on a.id = j.account_id";
+
+
+            var query = $@"select account.name as AccountName,  summary.Debit, summary.Credit, (SUM(summary.Debit) over()) as DebitSum
+				, (SUM(summary.Credit) over()) as CreditSum from ( 
+				select account_id ,sum( (CASE WHEN value < 0 THEN value else 0 END  )) Debit,
+                 sum(   (CASE WHEN value > 0 THEN value else 0 END  ) ) Credit
+				 from journal "; 
+
+
+
+
 
             List<SqlParameter> sqlParams = new List<SqlParameter>();
 
             if (date != null)
             {
-                query = query + " where j.[when] = @date";
+                query = query + " where journal.[when] = @date";
                 whereAdded = true;
                 sqlParams.Add(new SqlParameter("date", date));
             }
@@ -542,19 +553,19 @@ namespace LP.Finance.WebProxy.WebAPI
             {
                 if (whereAdded)
                 {
-                    query = query + " and j.[fund] = @fund";
+                    query = query + " and journal.[fund] = @fund";
                     whereAdded = true;
                     sqlParams.Add(new SqlParameter("fund", fund));
                 }
                 else
                 {
-                    query = query + " where j.[fund] = @fund";
+                    query = query + " where journal.[fund] = @fund";
                     whereAdded = true;
                     sqlParams.Add(new SqlParameter("fund", fund));
                 }
             }
 
-            query = query + ") as journal group by journal.AccountId, journal.AccountName) as summary";
+            query = query + "  group by journal.account_id ) summary right join  account on summary.account_id= account.id ";
 
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
             journalStats stats = new journalStats();
@@ -651,7 +662,7 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [Route("trialBalanceReport")]
         [HttpGet]
-        public object TrialBalanceReport(DateTime? date, string fund = "ALL")
+        public object TrialBalanceReport(DateTime? date=null, string fund = "ALL")
         {
             return controller.GetTrialBalanceReport(date, fund);
         }
