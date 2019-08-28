@@ -12,6 +12,10 @@ import * as moment from 'moment';
 export class ReportsComponent implements OnInit {
   fund: any = 'All Funds';
   funds: any;
+  DateRangeLable: any;
+  startDate: any;
+  endDate: any;
+  selected: { startDate: moment.Moment; endDate: moment.Moment };
   trialBalanceReport: Array<TrialBalanceReport>;
   trialBalanceReportStats: TrialBalanceReportStats;
 
@@ -64,7 +68,6 @@ export class ReportsComponent implements OnInit {
 
   getReport(date, fund) {
     this.financeService.getTrialBalanceReport(date, fund).subscribe(response => {
-      console.log(response, 'response');
       this.trialBalanceReportStats = response.stats;
       this.trialBalanceReport = response.data.map(data => ({
         accountName: data.AccountName,
@@ -76,14 +79,54 @@ export class ReportsComponent implements OnInit {
     });
   }
 
-  public clearFilters() {
-    this.fund = 'All Funds';
-    // this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
-    // this.endDate = moment();
+  getRangeLable() {
+    this.DateRangeLable = '';
+    if (
+      moment('01-01-1901', 'MM-DD-YYYY').diff(this.startDate, 'days') == 0 &&
+      moment().diff(this.endDate, 'days') == 0
+    ) {
+      this.DateRangeLable = 'ITD';
+      return;
+    }
+    if (
+      moment()
+        .startOf('year')
+        .diff(this.startDate, 'days') == 0 &&
+      moment().diff(this.endDate, 'days') == 0
+    ) {
+      this.DateRangeLable = 'YTD';
+      return;
+    }
+    if (
+      moment()
+        .startOf('month')
+        .diff(this.startDate, 'days') == 0 &&
+      moment().diff(this.endDate, 'days') == 0
+    ) {
+      this.DateRangeLable = 'MTD';
+      return;
+    }
+    if (moment().diff(this.startDate, 'days') == 0 && moment().diff(this.endDate, 'days') == 0) {
+      this.DateRangeLable = 'Today';
+      return;
+    }
   }
 
-  public ngModelChangeFund(e) {
-    // this.fund = e;
-    // this.journalGrid.api.onFilterChanged();
+  clearFilters() {
+    this.fund = 'All Funds';
+    this.selected = null;
+    this.DateRangeLable = '';
+    this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
+    this.endDate = moment();
+  }
+
+  public ngModelChange(e) {
+    this.startDate = e.startDate;
+    this.endDate = e.endDate;
+    this.getRangeLable();
+  }
+
+  ngModelChangeFund(e) {
+    this.fund = e;
   }
 }

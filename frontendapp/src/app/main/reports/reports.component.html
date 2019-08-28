@@ -49,10 +49,10 @@
                 <td class="cell"> {{ report.accountName }}</td>
                 <td [ngStyle]="{'background-size.%': !report.debitPercentage ? 0 : report.debitPercentage}"
                   style='background-size: 100%' class="negative cell">
-                  {{ report.debit | number: '1.2-9' }}
+                  {{ report.debit | number: '1.2-2' }}
                 </td>
                 <td [ngStyle]="{'background-size.%': !report.creditPercentage ? 0 : report.creditPercentage}"
-                  style='background-size: 100%' class="positive cell"> {{ report.credit | number: '1.2-9' }}</td>
+                  style='background-size: 100%' class="positive cell"> {{ report.credit | number: '1.2-2' }}</td>
               </tr>
             </tbody>
           </table>
@@ -62,8 +62,8 @@
             <tfoot>
               <tr>
                 <td>Total</td>
-                <td class="end-position">{{ trialBalanceReportStats.totalDebit | number: '1.2-9' }}</td>
-                <td class="end-position">{{ trialBalanceReportStats.totalCredit | number: '1.2-9' }}</td>
+                <td class="end-position">{{ trialBalanceReportStats.totalDebit | number: '1.2-2' }}</td>
+                <td class="end-position">{{ trialBalanceReportStats.totalCredit | number: '1.2-2' }}</td>
               </tr>
             </tfoot>
           </table>
