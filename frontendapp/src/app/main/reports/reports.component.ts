@@ -1,15 +1,15 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FinancePocServiceProxy } from '../../shared/service-proxies/service-proxies';
-import { PrimengTableHelper } from '../../shared/helpers/PrimengTableHelper';
+import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { PrimengTableHelper } from '../../../shared/helpers/PrimengTableHelper';
 import { LazyLoadEvent } from 'primeng/components/common/lazyloadevent';
-import { LogsComponent } from '../main/logs/logs.component';
+import { LogsComponent } from '../logs/logs.component';
 
 @Component({
-  selector: 'app-runlogs',
-  templateUrl: './runlogs.component.html',
-  styleUrls: ['./runlogs.component.css']
+  selector: 'app-reports',
+  templateUrl: './reports.component.html',
+  styleUrls: ['./reports.component.css']
 })
-export class RunLogsComponent implements OnInit {
+export class ReportsComponent implements OnInit {
   @ViewChild('app-logs') journalsLedgers: LogsComponent;
 
   fundId: any;
@@ -21,7 +21,36 @@ export class RunLogsComponent implements OnInit {
   ledgerGrid = false;
   ledgerInput = false;
   droppedData: string;
+
+  style = {
+    marginTop: '20px',
+    width: '100%',
+    height: '100%',
+    boxSizing: 'border-box'
+  };
+
+  styleForHight = {
+    marginTop: '20px',
+    width: '100%',
+    height: 'calc(100vh - 180px)',
+    boxSizing: 'border-box'
+  };
+
+  messagesDiv = {
+    border: '1px solid #eee',
+    padding: '4px',
+    marginTop: '20px',
+    width: '100%',
+    height: 'calc(100vh - 300px)',
+    boxSizing: 'border-box',
+    overflow: 'scroll'
+  };
+
   constructor(private financeService: FinancePocServiceProxy) {}
+
+  ngOnInit() {
+    this.initializeCol();
+  }
 
   getLegderByFundId(fundId?: string, event?: LazyLoadEvent) {
     if (fundId != null) {
@@ -43,15 +72,7 @@ export class RunLogsComponent implements OnInit {
     });
   }
 
-  createLedger() {
-    //this.applegdermodal.show();
-  }
-
   initializeCol() {}
-
-  ngOnInit() {
-    this.initializeCol();
-  }
 
   accountGroupByGrid() {
     this.accountGrid = true;

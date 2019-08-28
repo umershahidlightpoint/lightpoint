@@ -1,0 +1,18 @@
+<!-- <div style="height: 100%" >
+  <p>List of Available reports, like Trial Balance</p>
+</div> -->
+
+<p-tabView [ngStyle]="style">
+  <p-tabPanel #trialBalance header="Trial Balance" [ngStyle]="style">
+    <div #divToMeasure>
+      <div [ngStyle]="styleForHight">
+        <div>
+          <h3 class="mt-4">Trial Balance Report</h3>
+          <div #trialReport [ngStyle]="messagesDiv">
+            Messages
+          </div>
+        </div>
+      </div>
+    </div>
+  </p-tabPanel>
+</p-tabView>

@@ -1,0 +1,8 @@
+.checkboxStyle {
+  padding: 10px 10px 10px 10px;
+}
+
+::ng-deep.class-IsPublic {
+  font-weight: bold;
+  color: "#17a2b8";
+}

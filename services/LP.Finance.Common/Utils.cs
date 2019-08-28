@@ -7,6 +7,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Net.Http;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -68,6 +69,27 @@ namespace LP.Finance.Common
             var url = $"{projectWebApi}{webUri}";
 
             HttpResponseMessage response = await client.GetAsync(url);
+            if (response.IsSuccessStatusCode)
+            {
+                result = response.Content.ReadAsStringAsync();
+            }
+
+            return await result;
+        }
+
+        public static async Task<string> PostWebApi(string webApi, string webUri, object webContent)
+        {
+            Task<string> result = null;
+
+            var client = new HttpClient();
+
+            var projectWebApi = ConfigurationManager.AppSettings[webApi];
+
+            var url = $"{projectWebApi}{webUri}";
+
+            var content = new StringContent(JsonConvert.SerializeObject(webContent), Encoding.UTF8, "application/json");
+
+            HttpResponseMessage response = await client.PostAsync(url, content);
             if (response.IsSuccessStatusCode)
             {
                 result = response.Content.ReadAsStringAsync();

@@ -22,11 +22,11 @@ class GridConfiguration {
 }
 
 @Component({
-  selector: 'app-ag-grid-example',
-  templateUrl: './ag-grid-example.component.html',
-  styleUrls: ['./ag-grid-example.component.css']
+  selector: 'app-journals-ledgers',
+  templateUrl: './journals-ledgers.component.html',
+  styleUrls: ['./journals-ledgers.component.css']
 })
-export class AgGridExampleComponent implements OnInit, AfterContentInit {
+export class JournalsLedgersComponent implements OnInit, AfterContentInit {
   private gridConfiguration: GridConfiguration = new GridConfiguration();
   private gridApi;
   private ledgerGridApi;

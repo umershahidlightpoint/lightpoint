@@ -4,7 +4,8 @@
         <div>
             <mat-nav-list>
                 <a mat-list-item *ngFor="let page of pages" [routerLink]="page.routerLink" title={{page?.name}}>
-                    <mat-icon style="padding-right:5px;">{{page?.icon}}</mat-icon>
+                    <!-- <mat-icon style="padding-right:5px;">{{page?.icon}}</mat-icon> -->
+                    <i class="fa fa-lg {{page?.icon}}"></i>
                     <span class="ml-1" [@animateText]="linkText ? 'show' : 'hide'">{{ page?.name }} </span>
                 </a>
             </mat-nav-list>
