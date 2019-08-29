@@ -28,7 +28,7 @@ namespace LP.Finance.WebProxy.WebAPI
         object AddJournal(JournalInputDto journal);
         object UpdateJournal(Guid source, JournalInputDto journal);
         object DeleteJournal(Guid source);
-        object GetTrialBalanceReport(DateTime? date, string fund);
+        object GetTrialBalanceReport(DateTime? from, DateTime? to, string fund);
     }
 
     public class JournalControllerStub : IJournalController
@@ -59,7 +59,7 @@ namespace LP.Finance.WebProxy.WebAPI
             throw new NotImplementedException();
         }
 
-        public object GetTrialBalanceReport(DateTime? date, string fund)
+        public object GetTrialBalanceReport(DateTime? from, DateTime? to, string fund)
         {
             throw new NotImplementedException();
         }
@@ -518,7 +518,7 @@ namespace LP.Finance.WebProxy.WebAPI
         private static readonly string tradesURL = "/api/trade?period=ITD";
         private static readonly string allocationsURL = "/api/allocation?period=ITD";
 
-       public object GetTrialBalanceReport(DateTime? date= null, string fund="")
+       public object GetTrialBalanceReport(DateTime? from= null, DateTime? to = null, string fund="")
        {
             bool whereAdded = false;
           
@@ -530,11 +530,26 @@ namespace LP.Finance.WebProxy.WebAPI
 
             List<SqlParameter> sqlParams = new List<SqlParameter>();
 
-            if (date != null)
+            if (from.HasValue)
             {
-                query = query + " where journal.[when] = @date";
+                query = query + " where journal.[when] >= @from";
                 whereAdded = true;
-                sqlParams.Add(new SqlParameter("date", date));
+                sqlParams.Add(new SqlParameter("from", from));
+            }
+
+            if (to.HasValue)
+            {
+                if (whereAdded)
+                {
+                    query = query + " and journal.[when] <= @to";
+                    sqlParams.Add(new SqlParameter("to", to));
+                }
+                else
+                {
+                    query = query + " where journal.[when] <= @to";
+                    whereAdded = true;
+                    sqlParams.Add(new SqlParameter("to", to));
+                }
             }
 
             if (fund != "ALL")
@@ -650,9 +665,9 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [Route("trialBalanceReport")]
         [HttpGet]
-        public object TrialBalanceReport(DateTime? date = null, string fund = "ALL")
+        public object TrialBalanceReport(DateTime? from = null, DateTime? to = null, string fund = "ALL")
         {
-            return controller.GetTrialBalanceReport(date, fund);
+            return controller.GetTrialBalanceReport(from,to,fund);
         }
 
         [Route("{source:guid}")]
