@@ -2,10 +2,10 @@
   <p-tabPanel #trialBalance header="Trial Balance" [ngStyle]="style">
     <div class="row ">
       <div class="col-md-2">
-        <select class="form-control" [(ngModel)]="fund" (ngModelChange)="ngModelChangeFund($event)">
+        <select class="form-control" [(ngModel)]="fund" (ngModelChange)="changeFund($event)">
           <option selected>All Funds</option>
-          <option *ngFor="let f of funds" [ngValue]="f.FundCode">
-            {{ f.FundCode }}
+          <option *ngFor="let fund of funds" [ngValue]="fund.fundCode">
+            {{ fund.fundCode }}
           </option>
         </select>
       </div>
@@ -18,7 +18,7 @@
         <form>
           <input type="text" autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
             [showCustomRangeLabel]="true" #dateRangPicker name="selectedDaterange" [showClearButton]="true"
-            placeholder="Choose date" [alwaysShowCalendars]="false" (ngModelChange)="ngModelChange($event)"
+            placeholder="Choose date" [alwaysShowCalendars]="false" (ngModelChange)="changeDate($event)"
             class="form-control" />
         </form>
       </div>
@@ -62,8 +62,8 @@
             <tfoot>
               <tr>
                 <td>Total</td>
-                <td class="end-position">{{ trialBalanceReportStats.totalDebit | number: '1.2-2' }}</td>
-                <td class="end-position">{{ trialBalanceReportStats.totalCredit | number: '1.2-2' }}</td>
+                <td class="end-position">{{ trialBalanceReportStats?.totalDebit | number: '1.2-2' }}</td>
+                <td class="end-position">{{ trialBalanceReportStats?.totalCredit | number: '1.2-2' }}</td>
               </tr>
             </tfoot>
           </table>

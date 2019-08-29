@@ -11,7 +11,7 @@ import { TrialGridExampleComponent } from './main/trial-balance/trial-balance.co
 const routes: Routes = [
   { path: '', component: JournalsLedgersComponent },
   { path: 'journals-ledgers', component: JournalsLedgersComponent },
-  { path: 'trialBalance', component: TrialGridExampleComponent },
+  { path: 'trial-balance', component: TrialGridExampleComponent },
   { path: 'runlogs', component: RunLogsComponent },
   { path: 'operations', component: OperationsComponent },
   { path: 'reports', component: ReportsComponent },
