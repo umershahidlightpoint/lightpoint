@@ -20,7 +20,7 @@ export class LeftMenuComponent implements OnInit {
 
   public pages: Page[] = [
     { name: 'Journals', routerLink: '/journals-ledgers', icon: 'fa-book' },
-    { name: 'Trial Balance', routerLink: 'trialBalance', icon: 'fa-balance-scale' },
+    { name: 'Trial Balance', routerLink: 'trial-balance', icon: 'fa-balance-scale' },
     { name: 'Accounts', routerLink: '/accounts', icon: 'fa-bank' },
     { name: 'Reports', routerLink: '/reports', icon: 'fa-bar-chart' },
     // { name: "Logs", routerLink: "runlogs", icon: "list_alt" },
