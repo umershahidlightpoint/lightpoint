@@ -559,8 +559,8 @@ namespace LP.Finance.WebProxy.WebAPI
             journalStats stats = new journalStats();
             List<TrialBalanceReportOutPutDto> trialBalanceReport = new List<TrialBalanceReportOutPutDto>();
 
-            stats.totalDebit = dataTable.Rows.Count > 0 ? Convert.ToDouble(dataTable.Rows[0]["DebitSum"]) : 0;
-            stats.totalCredit = dataTable.Rows.Count > 0 ? Convert.ToDouble(dataTable.Rows[0]["CreditSum"]) : 0;
+            stats.totalDebit = dataTable.Rows[0]["DebitSum"] != DBNull.Value ? Convert.ToDouble(dataTable.Rows[0]["DebitSum"]) : 0;
+            stats.totalCredit = dataTable.Rows[0]["CreditSum"] != DBNull.Value ? Convert.ToDouble(dataTable.Rows[0]["CreditSum"]) : 0;
 
             foreach (DataRow row in dataTable.Rows)
             {
