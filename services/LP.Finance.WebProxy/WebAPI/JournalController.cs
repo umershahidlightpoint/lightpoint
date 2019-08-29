@@ -520,6 +520,13 @@ namespace LP.Finance.WebProxy.WebAPI
 
        public object GetTrialBalanceReport(DateTime? from= null, DateTime? to = null, string fund="")
        {
+            dynamic postingEngine = new PostingEngineService().GetProgress();
+
+            if (postingEngine.IsRunning)
+            {
+                return Utils.Wrap(false, "Posting Engine is currently Running");
+            }
+
             bool whereAdded = false;
           
             var query = $@"select account.name as AccountName,  summary.Debit, summary.Credit, (SUM(summary.Debit) over()) as DebitSum
