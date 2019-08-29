@@ -1,74 +1,82 @@
-<p-tabView [ngStyle]="style">
-  <p-tabPanel #trialBalance header="Trial Balance" [ngStyle]="style">
-    <div class="row ">
-      <div class="col-md-2">
-        <select class="form-control" [(ngModel)]="fund" (ngModelChange)="changeFund($event)">
-          <option selected>All Funds</option>
-          <option *ngFor="let fund of funds" [ngValue]="fund.fundCode">
-            {{ fund.fundCode }}
-          </option>
-        </select>
-      </div>
+<div *ngIf="hideGrid" #logScroll [ngStyle]="containerDiv">
+  <div style="display: flex; align-items: center; justify-content: center">
+    <h1> Posting Engine is Running. Please Wait. </h1>
+  </div>
+</div>
 
-      <div>
-        <label style="text-align: right"> {{ DateRangeLable }} </label>
-      </div>
+<div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
+  <p-tabView [ngStyle]="style">
+    <p-tabPanel #trialBalance header="Trial Balance" [ngStyle]="style">
+      <div class="row ">
+        <div class="col-md-2">
+          <select class="form-control" [(ngModel)]="fund" (ngModelChange)="changeFund($event)">
+            <option selected>All Funds</option>
+            <option *ngFor="let fund of funds" [ngValue]="fund.fundCode">
+              {{ fund.fundCode }}
+            </option>
+          </select>
+        </div>
 
-      <div class="col-md-3">
-        <form>
-          <input type="text" autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
-            [showCustomRangeLabel]="true" #dateRangPicker name="selectedDaterange" [showClearButton]="true"
-            placeholder="Choose date" [alwaysShowCalendars]="false" (ngModelChange)="changeDate($event)"
-            class="form-control" />
-        </form>
-      </div>
-
-      <div class="mr-auto">
-        <button (click)="clearFilters()" class="btn btn-info" type="button">
-          <i class="fa fa-remove"></i> Clear
-        </button>
-      </div>
-    </div>
-    <div #divToMeasure>
-      <div [ngStyle]="styleForHight">
         <div>
-          <table class="table table-sm table-striped table-bordered table-secondary table-header">
-            <thead>
-              <tr>
-                <th scope="col">Account Name</th>
-                <th scope="col" class="center-position">Debit</th>
-                <th scope="col" class="center-position">Credit</th>
-              </tr>
-            </thead>
-          </table>
+          <label style="text-align: right"> {{ DateRangeLable }} </label>
         </div>
-        <div #trialReport [ngStyle]="containerDiv">
-          <table class="table table-sm table-striped table-bordered">
-            <tbody>
-              <tr *ngFor="let report of trialBalanceReport; let i = index">
-                <td class="cell"> {{ report.accountName }}</td>
-                <td [ngStyle]="{'background-size.%': !report.debitPercentage ? 0 : report.debitPercentage}"
-                  style='background-size: 100%' class="negative cell">
-                  {{ report.debit | number: '1.2-2' }}
-                </td>
-                <td [ngStyle]="{'background-size.%': !report.creditPercentage ? 0 : report.creditPercentage}"
-                  style='background-size: 100%' class="positive cell"> {{ report.credit | number: '1.2-2' }}</td>
-              </tr>
-            </tbody>
-          </table>
+
+        <div class="col-md-3">
+          <form>
+            <input type="text" autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
+              [showCustomRangeLabel]="true" #dateRangPicker name="selectedDaterange" [showClearButton]="true"
+              placeholder="Choose date" [alwaysShowCalendars]="false" (ngModelChange)="changeDate($event)"
+              class="form-control" />
+          </form>
         </div>
-        <div>
-          <table class="table table-sm table-striped table-bordered table-secondary table-footer">
-            <tfoot>
-              <tr>
-                <td>Total</td>
-                <td class="end-position">{{ trialBalanceReportStats?.totalDebit | number: '1.2-2' }}</td>
-                <td class="end-position">{{ trialBalanceReportStats?.totalCredit | number: '1.2-2' }}</td>
-              </tr>
-            </tfoot>
-          </table>
+
+        <div class="mr-auto">
+          <button (click)="clearFilters()" class="btn btn-info" type="button">
+            <i class="fa fa-remove"></i> Clear
+          </button>
         </div>
       </div>
-    </div>
-  </p-tabPanel>
-</p-tabView>
+      <div #divToMeasure>
+        <div [ngStyle]="styleForHight">
+          <div>
+            <table class="table table-sm table-striped table-bordered table-secondary table-header">
+              <thead>
+                <tr>
+                  <th scope="col">Account Name</th>
+                  <th scope="col" class="center-position">Debit</th>
+                  <th scope="col" class="center-position">Credit</th>
+                </tr>
+              </thead>
+            </table>
+          </div>
+          <div #trialReport [ngStyle]="containerDiv">
+            <table class="table table-sm table-striped table-bordered">
+              <tbody>
+                <tr *ngFor="let report of trialBalanceReport; let i = index">
+                  <td class="cell"> {{ report.accountName }}</td>
+                  <td [ngStyle]="{'background-size.%': !report.debitPercentage ? 0 : report.debitPercentage}"
+                    style='background-size: 100%' class="negative cell">
+                    {{ report.debit | number: '1.2-2' }}
+                  </td>
+                  <td [ngStyle]="{'background-size.%': !report.creditPercentage ? 0 : report.creditPercentage}"
+                    style='background-size: 100%' class="positive cell"> {{ report.credit | number: '1.2-2' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <table class="table table-sm table-striped table-bordered table-secondary table-footer">
+              <tfoot>
+                <tr>
+                  <td>Total</td>
+                  <td class="end-position">{{ trialBalanceReportStats?.totalDebit | number: '1.2-2' }}</td>
+                  <td class="end-position">{{ trialBalanceReportStats?.totalCredit | number: '1.2-2' }}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </p-tabPanel>
+  </p-tabView>
+</div>

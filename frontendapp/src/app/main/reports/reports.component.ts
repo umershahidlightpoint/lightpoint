@@ -1,8 +1,9 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { LogsComponent } from '../logs/logs.component';
 import { Fund } from '../../../shared/Models/account';
 import { TrialBalanceReport, TrialBalanceReportStats } from '../../../shared/Models/trial-balance';
+import { DataService } from '../../../shared/common/data.service';
 import * as moment from 'moment';
 
 @Component({
@@ -10,7 +11,7 @@ import * as moment from 'moment';
   templateUrl: './reports.component.html',
   styleUrls: ['./reports.component.css']
 })
-export class ReportsComponent implements OnInit {
+export class ReportsComponent implements OnInit, AfterViewInit {
   fund: any = 'All Funds';
   funds: Fund;
   DateRangeLable: string;
@@ -19,6 +20,7 @@ export class ReportsComponent implements OnInit {
   selected: { startDate: moment.Moment; endDate: moment.Moment };
   trialBalanceReport: Array<TrialBalanceReport>;
   trialBalanceReportStats: TrialBalanceReportStats;
+  hideGrid: boolean;
 
   @ViewChild('app-logs') journalsLedgers: LogsComponent;
 
@@ -52,11 +54,23 @@ export class ReportsComponent implements OnInit {
     overflow: 'auto'
   };
 
-  constructor(private financeService: FinancePocServiceProxy) {}
+  constructor(private financeService: FinancePocServiceProxy, private dataService: DataService) {
+    this.hideGrid = false;
+  }
 
   ngOnInit() {
     this.getFunds();
     this.getReport(null, null, 'ALL');
+  }
+
+  ngAfterViewInit(): void {
+    this.dataService.flag.subscribe(obj => {
+      this.hideGrid = obj;
+      if (!this.hideGrid) {
+        this.getFunds();
+        this.getReport(null, null, 'ALL');
+      }
+    });
   }
 
   getFunds() {
