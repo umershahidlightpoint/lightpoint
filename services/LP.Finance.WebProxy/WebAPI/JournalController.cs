@@ -482,6 +482,7 @@ namespace LP.Finance.WebProxy.WebAPI
             foreach (var element in dataTable.Rows)
             {
                 var dataRow = element as DataRow;
+                dataRow["debit"] = Math.Abs(Convert.ToDecimal(dataRow["debit"]));
 
                 var source = dataRow["source"].ToString();
 
@@ -505,7 +506,7 @@ namespace LP.Finance.WebProxy.WebAPI
 
             metaData.Total = dataTable.Rows.Count > 0 ? Convert.ToInt32(dataTable.Rows[0][0]) : 0;
             journalStats.totalCredit = dataTable.Rows.Count > 0 ? Convert.ToDouble(dataTable.Rows[0]["totalDebit"]) : 0;
-            journalStats.totalDebit = dataTable.Rows.Count > 0 ? Convert.ToDouble(dataTable.Rows[0]["totalCredit"]) : 0;
+            journalStats.totalDebit = dataTable.Rows.Count > 0 ? Math.Abs(Convert.ToDouble(dataTable.Rows[0]["totalCredit"])) : 0;
             var jsonResult = JsonConvert.SerializeObject(dataTable);
 
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
@@ -574,7 +575,7 @@ namespace LP.Finance.WebProxy.WebAPI
             journalStats stats = new journalStats();
             List<TrialBalanceReportOutPutDto> trialBalanceReport = new List<TrialBalanceReportOutPutDto>();
 
-            stats.totalDebit = dataTable.Rows[0]["DebitSum"] != DBNull.Value ? Convert.ToDouble(dataTable.Rows[0]["DebitSum"]) : 0;
+            stats.totalDebit = dataTable.Rows[0]["DebitSum"] != DBNull.Value ? Math.Abs(Convert.ToDouble(dataTable.Rows[0]["DebitSum"])) : 0;
             stats.totalCredit = dataTable.Rows[0]["CreditSum"] != DBNull.Value ? Convert.ToDouble(dataTable.Rows[0]["CreditSum"]) : 0;
 
             foreach (DataRow row in dataTable.Rows)
@@ -582,7 +583,7 @@ namespace LP.Finance.WebProxy.WebAPI
                 TrialBalanceReportOutPutDto trialBalance = new TrialBalanceReportOutPutDto();
                 trialBalance.AccountName = (string)row["AccountName"];
                 trialBalance.Credit = row["Credit"] == DBNull.Value ? (decimal?)null : Convert.ToDecimal(row["Credit"]);
-                trialBalance.Debit = row["Debit"] == DBNull.Value ? (decimal?)null : Convert.ToDecimal(row["Debit"]);
+                trialBalance.Debit = row["Debit"] == DBNull.Value ? (decimal?)null : Math.Abs(Convert.ToDecimal(row["Debit"]));
 
                 if (trialBalance.Credit.HasValue)
                 {
@@ -590,7 +591,7 @@ namespace LP.Finance.WebProxy.WebAPI
                 }
                 if (trialBalance.Debit.HasValue)
                 {
-                    trialBalance.DebitPercentage = stats.totalDebit < 0 ? Math.Abs((trialBalance.Debit.Value / Convert.ToInt64(stats.totalCredit)) * 100) : 0;
+                    trialBalance.DebitPercentage = stats.totalDebit > 0 ? Math.Abs((trialBalance.Debit.Value / Convert.ToInt64(stats.totalCredit)) * 100) : 0;
                 }
 
                 trialBalanceReport.Add(trialBalance);
