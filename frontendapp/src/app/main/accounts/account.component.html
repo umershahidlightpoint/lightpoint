@@ -1,42 +1,50 @@
+<!------- Hide Grid Div ------->
 <div *ngIf="hideGrid" #logScroll [ngStyle]="containerDiv">
   <div style="display: flex; align-items: center; justify-content: center">
     <h1> Posting Engine is Running. Please Wait. </h1>
   </div>
 </div>
+<!------- Hide Grid Div Ends ------->
 
+<!------- Grid Div Ends ------->
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
   <p-tabView [ngStyle]="style">
-    <!----- Navbar start ----->
-    <div class="row">
-      <div class="ml-auto mt-1 mr-2">
-        <div class="mr-4 btn-group tabBtn" dropdown>
-          <!-- Create Account Button -->
-          <button id="button-basic" dropdownToggle type="button" class="btn btn-sm btn-info dropdown-toggle"
-            aria-controls="dropdown-basic">
-            Create Account <span class="caret"></span>
-          </button>
-          <!----- Create Category Dropdown ----->
-          <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu ml-3" role="menu" aria-labelledby="button-basic">
-            <li role="menuitem"><button class="dropdown-item disabled">Select Account Category</button></li>
-            <div class="dropdown-divider"></div>
-            <li *ngFor="let accountCategory of accountCategories" role="menuitem">
-              <button class="dropdown-item" (click)="accountCategorySelected(accountCategory)">
-                {{ accountCategory.Name }}
-              </button>
-            </li>
-          </ul>
-        </div>
-        <div class="mr-4 tabBtn">
-          <button (click)="refreshGrid()" class="btn btn-sm btn-info" tooltip="Refresh" placement="top">
-            <i class="fa fa-refresh"></i></button>
+    <p-tabPanel header="Accounts" [ngStyle]="style">
+      <!----- Navbar start ----->
+      <div class="row">
+        <div class="ml-auto mt-1 mr-2">
+          <div class="mr-4 btn-group tabBtn" dropdown>
+            <!-- Create Account Button -->
+            <button id="button-basic" dropdownToggle type="button" class="btn btn-info dropdown-toggle"
+              aria-controls="dropdown-basic">
+              Create Account <span class="caret"></span>
+            </button>
+            <!----- Create Category Dropdown ----->
+            <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu ml-3" role="menu" aria-labelledby="button-basic">
+              <li role="menuitem"><button class="dropdown-item disabled">Select Account Category</button></li>
+              <div class="dropdown-divider"></div>
+              <li *ngFor="let accountCategory of accountCategories" role="menuitem">
+                <button class="dropdown-item" (click)="accountCategorySelected(accountCategory)">
+                  {{ accountCategory.Name }}
+                </button>
+              </li>
+            </ul>
+          </div>
+          <!----- Refresh Button Div ----->
+          <div class="mr-4 tabBtn">
+            <button (click)="refreshGrid()" class="btn btn-info" tooltip="Refresh" placement="top">
+              <i class="fa fa-refresh"></i></button>
+          </div>
+          <div class="mr-2  tabBtn">
+            <button (click)="onBtExport()" class="btn btn-info" tooltip="Export to Excel" placement="top">
+              <i class="fa fa-arrow-circle-o-down"></i>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-    <!----- Navbar end ----->
-    <p-tabPanel header="Accounts" [ngStyle]="style">
+      <!----- Navbar end ----->
       <!----- Div To Measure Identifier starts ----->
       <div #divToMeasure>
-
         <!----- Style For Height ----->
         <div [ngStyle]="styleForHight">
           <!----- Ag Grid Start ----->
@@ -49,7 +57,7 @@
               <i class="fa fa-lg fa-edit" aria-hidden="true"></i>
             </button>
             <button [disabled]="row.hasJournal == 'Yes'" class="btn action-btn fixHeight"
-              [ngClass]=" {'disabled-btn':row.hasJournal == 'Yes'}" (click)="deleteRow(row)" tooltip="Delete"
+              [ngClass]="{'disabled-btn':row.hasJournal == 'Yes'}" (click)="deleteRow(row)" tooltip="Delete"
               placement="auto" container="body">
               <i class="fa fa-lg fa-trash-o" aria-hidden="true"></i>
             </button>

@@ -5,31 +5,37 @@ html {
   height: 100%;
 }
 
-.cell {
-  color: black;
-  font-weight: 400;
-  font-size: 14px;
+.table-header {
+  color: #3a3b3c;
+  background-color: #f5f7f7;
+  margin-bottom: 0;
 }
 
-th {
-  width: 25%;
+.table-header th {
+  font-weight: 600;
+}
+
+.table-footer {
+  color: #2a2b3c;
+  background-color: #f5f7f7;
+  font-weight: 600;
 }
 
 td {
-  width: 25%;
   background-repeat: no-repeat;
 }
 
 td.positive {
   background-image: linear-gradient(
     to right,
-    rgb(80, 235, 80) 0%,
-    rgb(85, 240, 85) 17%,
-    rgb(90, 245, 90) 33%,
-    rgba(95, 250, 95, 1) 67%,
-    rgb(130, 255, 130) 83%,
-    rgb(180, 255, 180) 100%
+    rgb(100, 220, 100, 1) 0%,
+    rgb(110, 225, 110, 1) 17%,
+    rgb(115, 230, 115, 1) 33%,
+    rgba(120, 240, 120, 1) 67%,
+    rgb(125, 250, 125, 1) 83%,
+    rgb(150, 255, 150, 1) 100%
   );
+  padding-right: 18px;
   text-align: end;
   font-weight: 500;
 }
@@ -37,24 +43,30 @@ td.positive {
 td.negative {
   background-image: linear-gradient(
     to left,
-    rgb(235, 80, 80) 0%,
-    rgb(240, 85, 85) 17%,
-    rgba(245, 90, 90, 1) 33%,
-    rgba(250, 95, 95, 1) 67%,
-    rgba(255, 130, 130, 1) 83%,
-    rgba(255, 180, 180, 1) 100%
+    rgb(220, 100, 100, 1) 0%,
+    rgb(225, 110, 110, 1) 17%,
+    rgba(230, 115, 115, 1) 33%,
+    rgba(240, 120, 120, 1) 67%,
+    rgba(250, 125, 125, 1) 83%,
+    rgba(255, 150, 150, 1) 100%
   );
   background-position: 100% 100%;
   text-align: end;
   font-weight: 500;
 }
 
-.table-header {
-  margin-bottom: 0;
+.cell-style {
+  color: black;
+  font-weight: 400;
+  font-size: 14px;
 }
 
-.table-footer {
-  font-weight: 700;
+.first-cell {
+  width: 60%;
+}
+
+.other-cells {
+  width: 20%;
 }
 
 .end-position {
@@ -65,12 +77,47 @@ td.negative {
   text-align: center;
 }
 
+.wrong-balance {
+  color: white;
+  background-color: rgb(220, 100, 100);
+}
+
+.refresh-spinner {
+  display: flex;
+  width: 8rem;
+  height: 3rem;
+  position: absolute;
+  top: 46%;
+  left: 48%;
+  border: 1px solid grey;
+  background-color: #fcfbfd;
+  color: #606264;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
 .md-datepicker-input-container {
   width: 150px;
 }
 
 .mat-datepicker-content .mat-calendar {
   zoom: 0.5;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  z-index: 1000;
+}
+
+::-webkit-scrollbar-thumb {
+  /* background-clip: padding-box; / */
+  border-radius: 16px;
+  border: 4px solid transparent;
+  background-color: rgba(160, 160, 160);
+  cursor: pointer;
+  -webkit-transition: background-color 0.1s ease;
+  transition: background-color 0.1s ease;
 }
 
 @media (min-width: 320px) {
@@ -80,6 +127,11 @@ td.negative {
 }
 @media (min-width: 768px) {
   ::ng-deep.md-drppicker.shown.drops-down-right {
-    width: 600px;
+    width: auto;
   }
+}
+
+.table-striped > tbody > tr:nth-child(2n + 1) > td,
+.table-striped > tbody > tr:nth-child(2n + 1) > th {
+  background-color: #fcfdfe;
 }

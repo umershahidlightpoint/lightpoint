@@ -82,7 +82,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 180px)',
+    height: 'calc(100vh - 220px)',
     boxSizing: 'border-box'
   };
 
@@ -167,6 +167,12 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     this.sortColum = '';
     this.sortDirection = '';
 
+    this.getJournalLogs();
+
+    this.buildForm();
+  }
+
+  private getJournalLogs() {
     this.financeService
       .getJournalLogs(
         this.symbal,
@@ -185,12 +191,15 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
           action: item.action
         }));
       });
-
-    this.buildForm();
   }
 
   ngAfterViewChecked() {
     this.scrollToBottom();
+  }
+
+  refreshGrid() {
+    this.gridOptions.api.showLoadingOverlay();
+    this.getJournalLogs();
   }
 
   scrollToBottom(): void {
@@ -298,6 +307,14 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   clearForm() {
     this.clearJournalForm.reset();
+  }
+
+  setGroupingState(value: boolean) {
+    this.gridOptions.api.forEachNode((node, index) => {
+      if (node.group) {
+        node.setExpanded(value);
+      }
+    });
   }
 
   ngOnDestroy() {

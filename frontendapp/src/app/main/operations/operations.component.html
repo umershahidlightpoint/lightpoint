@@ -1,6 +1,23 @@
 <p-tabView [ngStyle]="style" (onChange)="IsPostingEngineRunning($event)">
   <p-tabPanel header="Logs" [ngStyle]="style">
-    <div style="clear: both"></div>
+    <!----- Refresh Button Div ----->
+    <div class="row">
+      <div class="ml-auto">
+        <div class="mr-2 tabBtn">
+          <button (click)="setGroupingState(true)" class="btn btn-info" tooltip="Expand" placement="top">
+            <i class="fa fa-expand"></i></button>
+        </div>
+        <div class="mr-2 tabBtn">
+          <button (click)="setGroupingState(false)" class="btn btn-info" tooltip="Collapse" placement="top">
+            <i class="fa fa-compress"></i></button>
+        </div>
+        <div class="mr-2 tabBtn">
+          <button (click)="refreshGrid()" class="btn btn-info" tooltip="Refresh" placement="top">
+            <i class="fa fa-refresh"></i></button>
+        </div>
+      </div>
+    </div>
+    <!----- Refresh Button Div End ----->
     <div #divToMeasure>
       <div [ngStyle]="styleForHight">
         <ag-grid-angular style="width: 100%; height: 100%" class="ag-theme-balham" [gridOptions]="gridOptions" #topGrid
