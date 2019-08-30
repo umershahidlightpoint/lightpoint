@@ -116,5 +116,10 @@ namespace PostingEngine.PostingRules
                 new Journal[] { debitJournal, creditJournal }.Save(env);
             }
         }
+
+        public bool IsValid(PostingEngineEnvironment env, Transaction element)
+        {
+            return true;
+        }
     }
 }

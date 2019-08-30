@@ -96,7 +96,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             var query =
                 $@"select 
     ParentOrderId,
-	LpOrderId, Action, Symbol, Side, Quantity, TimeInForce, OrderType, SecurityType,  BloombergCode,
+	LpOrderId, AccrualId, Action, Symbol, Side, Quantity, TimeInForce, OrderType, SecurityType,  BloombergCode,
 	CustodianCode, ExecutionBroker, TradeId, Fund, 
 	PMCode, PortfolioCode, Trader, 
 	TradeCurrency, TradePrice, TradeDate, 

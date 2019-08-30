@@ -29,8 +29,8 @@ namespace LP.Finance.Common.Models
         public double? NavAmount { get; set; }
         public DateTime UpdatedOn { get; set; }
         public string UpdatedBy { get; set; }
-        public DateTime LastProcessedBusDate { get; set; }
-        public DateTime LastProcessedOn { get; set; }
+        public DateTime? LastProcessedBusDate { get; set; }
+        public DateTime? LastProcessedOn { get; set; }
         public string LastProcessedBy { get; set; }
     }
 }

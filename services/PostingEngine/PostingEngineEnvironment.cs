@@ -27,7 +27,12 @@ namespace PostingEngine
 
         public Transaction[] Allocations { get; set; }
         public Transaction[] Trades { get; set; }
-        public Accrual[] Accruals { get; set; }
+        public Dictionary<string, Accrual> Accruals { get; set; }
+
+        public bool IsValidAccrual(string accrualId)
+        {
+            return Accruals.ContainsKey(accrualId);
+        }
 
         public List<Journal> Journals { get; set; }
         public Dictionary<string, FxRate> FxRates { get; set; }

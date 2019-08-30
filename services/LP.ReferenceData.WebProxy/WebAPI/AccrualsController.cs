@@ -60,11 +60,11 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["TradeMasterDB"].ToString();
 
-        public object Data(string symbol)
+        public object Data(string period)
         {
             dynamic result = JsonConvert.DeserializeObject("{}");
 
-            switch (symbol)
+            switch (period)
             {
                 case "ALL":
                 case "ITD":
@@ -80,11 +80,11 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
                     result = AllData(System.DateTime.Now.Today());
                     break;
                 default:
-                    result = Only(symbol);
+                    result = Only(period);
                     break;
             }
 
-            Utils.Save(result, "accruals_" + symbol);
+            Utils.Save(result, "accruals_" + period);
 
             return result;
         }
@@ -102,22 +102,8 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             var enddate = period.Item2.ToString("MM-dd-yyyy") + " 16:30";
 
             var query = 
-$@"select 
-    ParentOrderId,
-	LpOrderId, Action, Symbol, Side, Quantity, TimeInForce, OrderType, SecurityType,  BloombergCode,
-	CustodianCode, ExecutionBroker, TradeId, Fund, 
-	PMCode, PortfolioCode, Trader, 
-	TradeCurrency, TradePrice, TradeDate, 
-	SettleCurrency, SettlePrice, SettleDate, 
-	TradeType,
-	Status, 
-	NetMoney,Commission, Fees, 
-	SettleNetMoney, NetPrice, SettleNetPrice,
-	OrderedQuantity, FilledQuantity,RemainingQuantity,
-	OrderSource,
-	UpdatedOn, 
-	COALESCE(LocalNetNotional,0) as LocalNetNotional  from Trade with(nolock)
-where LastUpdateTime between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}') 
+$@"select * from Accrual with(nolock)
+where UpdatedOn between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}') 
 order by UpdatedOn desc
 ";
 
@@ -131,10 +117,7 @@ order by UpdatedOn desc
 
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
                 content = jsonResult;
-
-                Console.WriteLine("Done");
             }
-
 
             dynamic json = JsonConvert.DeserializeObject(content);
 
@@ -193,20 +176,9 @@ order by UpdatedOn desc
         }
 
         [HttpGet]
-        [ActionName("data")]
-        public object Data(string symbol)
+        public object Data(string period)
         {
-            /*
-            if (TradeCache.CachedResult == null || DateTime.Now > TradeCache.LastUpdate.AddMinutes(5))
-            {
-                TradeCache.CachedResult = controller.Data(symbol);
-                TradeCache.LastUpdate = DateTime.Now;
-            }
-
-            return TradeCache.CachedResult;
-            */
-
-            return controller.Data(symbol);
+            return controller.Data(period);
         }
 
     }

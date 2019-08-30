@@ -10,6 +10,7 @@ namespace LP.Finance.Common.Models
     {
         public string LpOrderId { get; set; }
         public string ParentOrderId { get; set; }
+        public string AccrualId { get; set; }
         public string Action { get; set; }
         public string TradeCurrency { get; set; }
         public string SettleCurrency { get; set; }
@@ -20,7 +21,6 @@ namespace LP.Finance.Common.Models
         public double TradePrice { get; set; }
         public double NetPrice { get; set; }
         public double SettleNetPrice { get; set; }
-
         public double NetMoney { get; set; }
 
         //public double ContractSize { get; set; }

@@ -8,6 +8,14 @@ namespace PostingEngine.PostingRules
     public interface IPostingRule
     {
         /// <summary>
+        /// Validates to see if the element should be processed
+        /// </summary>
+        /// <param name="env"></param>
+        /// <param name="element"></param>
+        /// <returns></returns>
+        bool IsValid(PostingEngineEnvironment env, Transaction element);
+
+        /// <summary>
         /// Trade Date processing
         /// </summary>
         /// <param name="element"></param>

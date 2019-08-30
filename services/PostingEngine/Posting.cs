@@ -18,6 +18,7 @@ namespace PostingEngine
         private static readonly string
             connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
+        private static readonly string accrualsURL = "http://localhost:9091/api/accruals/data?period=";
         private static readonly string tradesURL = "http://localhost:9091/api/trade/data?period=";
         private static readonly string allocationsURL = "http://localhost:9091/api/allocation/data?period=";
 
@@ -51,12 +52,14 @@ namespace PostingEngine
 
                 var allocations = GetTransactions(allocationsURL + Period);
                 var trades = GetTransactions(tradesURL + Period);
-                Task.WaitAll(new Task[] {allocations, trades});
+                var accruals = GetTransactions(accrualsURL + Period);
+                Task.WaitAll(new Task[] {allocations, trades, accruals});
 
                 var res = JsonConvert.DeserializeObject<PayLoad>(allocations.Result);
 
                 var allocationList = JsonConvert.DeserializeObject<Transaction[]>(res.payload);
                 var tradeList = JsonConvert.DeserializeObject<Transaction[]>(trades.Result);
+                var accrualList = JsonConvert.DeserializeObject<Accrual[]>(accruals.Result);
 
                 var postingEnv = new PostingEngineEnvironment(connection, transaction)
                 {
@@ -67,6 +70,7 @@ namespace PostingEngine
                     RunDate = System.DateTime.Now.Date,
                     Allocations = allocationList,
                     Trades = tradeList,
+                    Accruals = accrualList.ToDictionary(i => i.AccrualId, i => i),
                     Period = period
                 };
 
@@ -240,6 +244,12 @@ namespace PostingEngine
             if (rule == null)
             {
                 env.AddMessage($"No rule associated with {element.SecurityType}");
+                return;
+            }
+
+            if ( !rule.IsValid(env, element))
+            {
+                env.AddMessage($"trade not valid to process {element.LpOrderId}");
                 return;
             }
 

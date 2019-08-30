@@ -123,5 +123,10 @@ namespace PostingEngine.PostingRules
 
             return;
         }
+
+        public bool IsValid(PostingEngineEnvironment env, Transaction element)
+        {
+            return env.IsValidAccrual(element.AccrualId);
+        }
     }
 }

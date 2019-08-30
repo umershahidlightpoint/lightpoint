@@ -12,6 +12,11 @@ namespace PostingEngine.PostingRules
 
     public class CommonStock : PostingRule, IPostingRule
     {
+        public bool IsValid(PostingEngineEnvironment env, Transaction element)
+        {
+            return true;
+        }
+
         public void DailyEvent(PostingEngineEnvironment env, Transaction element)
         {
             /*
