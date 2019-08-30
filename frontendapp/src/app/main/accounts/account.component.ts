@@ -211,8 +211,8 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
   onBtExport() {
     const params = {
       fileName: 'Test File',
-      sheetName: 'First Sheet'
-      // columnKeys: ['Name', 'Description', 'Category', 'Has Journal']
+      sheetName: 'First Sheet',
+      columnKeys: ['accountName', 'description', 'category', 'hasJournal', 'type']
     };
     this.gridOptions.api.exportDataAsExcel(params);
   }
