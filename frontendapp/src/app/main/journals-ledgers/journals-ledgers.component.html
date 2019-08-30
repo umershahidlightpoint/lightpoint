@@ -21,7 +21,7 @@
           <label style="text-align: right"> {{ DateRangeLable }} </label>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-5">
           <form>
             <input type="text" autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
               [showCustomRangeLabel]="true" #dateRangPicker name="selectedDaterange" [showClearButton]="true"
@@ -37,6 +37,14 @@
         </div>
 
         <div class="ml-auto">
+          <div class="mr-2 tabBtn">
+            <button (click)="setGroupingState(true)" class="btn btn-info" tooltip="Expand" placement="top">
+              <i class="fa fa-expand"></i></button>
+          </div>
+          <div class="mr-2 tabBtn">
+            <button (click)="setGroupingState(false)" class="btn btn-info" tooltip="Collapse" placement="top">
+              <i class="fa fa-compress"></i></button>
+          </div>
           <div class="mr-2  tabBtn">
             <button (click)="refreshGrid()" class="btn btn-info" tooltip="Refresh" placement="top">
               <i class="fa fa-refresh"></i>

@@ -24,7 +24,7 @@ html {
 }
 @media (min-width: 768px) {
   ::ng-deep.md-drppicker.shown.drops-down-right {
-    width: 600px;
+    width: auto;
   }
 }
 

@@ -17,6 +17,17 @@ html {
   zoom: 0.5;
 }
 
+@media (min-width: 320px) {
+  ::ng-deep.md-drppicker.shown.drops-down-right {
+    width: 320px;
+  }
+}
+@media (min-width: 768px) {
+  ::ng-deep.md-drppicker.shown.drops-down-right {
+    width: auto;
+  }
+}
+
 ::ng-deep.greenBackground {
   background-color: #b5e6b5;
 }

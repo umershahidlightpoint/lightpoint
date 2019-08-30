@@ -14,7 +14,7 @@ import * as moment from 'moment';
 import { DataService } from 'src/shared/common/data.service';
 
 @Component({
-  selector: 'trial-balance',
+  selector: 'app-trial-balance',
   templateUrl: './trial-balance.component.html',
   styleUrls: ['./trial-balance.component.css']
 })
@@ -485,6 +485,18 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   }
 
   // selected: {startDate: moment().startOf('month'), endDate: moment()};
+  getContextMenuItems(params) {
+    var result = [
+      {
+        name: 'Alert ' + params.value,
+        action: function() {
+          window.alert('Alerting about ' + params.value);
+        },
+        cssClasses: ['redFont', 'bold']
+      }
+    ];
+    return result;
+  }
 
   getTrialBalance() {
     this.gridOptions.onFilterChanged = function() {
@@ -596,8 +608,8 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   public getRangeLabel() {
     this.DateRangeLable = '';
     if (
-      moment('01-01-1901', 'MM-DD-YYYY').diff(this.startDate, 'days') == 0 &&
-      moment().diff(this.endDate, 'days') == 0
+      moment('01-01-1901', 'MM-DD-YYYY').diff(this.startDate, 'days') === 0 &&
+      moment().diff(this.endDate, 'days') === 0
     ) {
       this.DateRangeLable = 'ITD';
       return;
@@ -605,8 +617,8 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     if (
       moment()
         .startOf('year')
-        .diff(this.startDate, 'days') == 0 &&
-      moment().diff(this.endDate, 'days') == 0
+        .diff(this.startDate, 'days') === 0 &&
+      moment().diff(this.endDate, 'days') === 0
     ) {
       this.DateRangeLable = 'YTD';
       return;
@@ -614,13 +626,13 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     if (
       moment()
         .startOf('month')
-        .diff(this.startDate, 'days') == 0 &&
-      moment().diff(this.endDate, 'days') == 0
+        .diff(this.startDate, 'days') === 0 &&
+      moment().diff(this.endDate, 'days') === 0
     ) {
       this.DateRangeLable = 'MTD';
       return;
     }
-    if (moment().diff(this.startDate, 'days') == 0 && moment().diff(this.endDate, 'days') == 0) {
+    if (moment().diff(this.startDate, 'days') === 0 && moment().diff(this.endDate, 'days') === 0) {
       this.DateRangeLable = 'Today';
       return;
     }
@@ -707,6 +719,14 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     this.gridOptions.api.showLoadingOverlay();
     this.getTrialBalance();
   }
+
+  setGroupingState(value: boolean) {
+    this.gridOptions.api.forEachNode((node, index) => {
+      if (node.group) {
+        node.setExpanded(value);
+      }
+    });
+  }
 }
 
 function asDate(dateAsString) {
@@ -719,10 +739,10 @@ function currencyFormatter(params) {
   return formatNumber(params.value);
 }
 
-function formatNumber(number) {
-  return number == 0
+function formatNumber(numberToFormat: number) {
+  return numberToFormat === 0
     ? ''
-    : Math.floor(number)
+    : Math.floor(numberToFormat)
         .toString()
         .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 }

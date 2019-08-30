@@ -21,6 +21,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   trialBalanceReport: Array<TrialBalanceReport>;
   trialBalanceReportStats: TrialBalanceReportStats;
   hideGrid: boolean;
+  isLoading: boolean = false;
 
   @ViewChild('app-logs') journalsLedgers: LogsComponent;
 
@@ -41,7 +42,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 185px)',
+    height: 'calc(100vh - 200px)',
     boxSizing: 'border-box'
   };
 
@@ -49,9 +50,285 @@ export class ReportsComponent implements OnInit, AfterViewInit {
     borderLeft: '1px solid #cecece',
     borderRight: '1px solid #cecece',
     width: '100%',
-    height: 'calc(100vh - 285px)',
+    height: 'calc(100vh - 320px)',
     boxSizing: 'border-box',
-    overflow: 'auto'
+    overflow: 'overlay'
+  };
+
+  // Mock Data for Trial Balance Report to Check Scrolling
+  reports = {
+    data: [
+      {
+        accountName: 'DUE FROM/(TO) PRIME BROKERS ( Settled Activity ) -- ',
+        debit: 7911275.262161168,
+        credit: 0,
+        debitPercentage: 100.00000331376634,
+        creditPercentage: 0
+      },
+      {
+        accountName: 'SHORT POSITIONS-COST -- ',
+        debit: 0,
+        credit: 3709872.56895135,
+        debitPercentage: 0,
+        creditPercentage: 46.893485170865
+      },
+      {
+        accountName: 'DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity ) -- ',
+        debit: 4201402.693209818,
+        credit: 0,
+        debitPercentage: 53.10651814290134,
+        creditPercentage: 0
+      },
+      {
+        accountName: 'LONG POSITIONS AT COST -- ',
+        debit: 0,
+        credit: 198996266.7667359,
+        debitPercentage: 0,
+        creditPercentage: 4.7930583828192335
+      },
+      {
+        accountName: 'DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity ) -- ',
+        debit: 4201402.693209818,
+        credit: 0,
+        debitPercentage: 53.10651814290134,
+        creditPercentage: 0
+      },
+      {
+        accountName: 'LONG POSITIONS AT COST -- ',
+        debit: 0,
+        credit: 198996266.7667359,
+        debitPercentage: 0,
+        creditPercentage: 4.7930583828192335
+      },
+      {
+        accountName: 'DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity ) -- ',
+        debit: 4201402.693209818,
+        credit: 0,
+        debitPercentage: 53.10651814290134,
+        creditPercentage: 0
+      },
+      {
+        accountName: 'LONG POSITIONS AT COST -- ',
+        debit: 0,
+        credit: 198996266.7667359,
+        debitPercentage: 0,
+        creditPercentage: 4.7930583828192335
+      },
+      {
+        accountName: 'DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity ) -- ',
+        debit: 4201402.693209818,
+        credit: 0,
+        debitPercentage: 53.10651814290134,
+        creditPercentage: 0
+      },
+      {
+        accountName: 'LONG POSITIONS AT COST -- ',
+        debit: 0,
+        credit: 198996266.7667359,
+        debitPercentage: 0,
+        creditPercentage: 4.7930583828192335
+      },
+      {
+        accountName: 'DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity ) -- ',
+        debit: 4201402.693209818,
+        credit: 0,
+        debitPercentage: 53.10651814290134,
+        creditPercentage: 0
+      },
+      {
+        accountName: 'LONG POSITIONS AT COST -- ',
+        debit: 0,
+        credit: 198996266.7667359,
+        debitPercentage: 0,
+        creditPercentage: 4.7930583828192335
+      },
+      {
+        accountName: 'DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity ) -- ',
+        debit: 4201402.693209818,
+        credit: 0,
+        debitPercentage: 53.10651814290134,
+        creditPercentage: 0
+      },
+      {
+        accountName: 'LONG POSITIONS AT COST -- ',
+        debit: 0,
+        credit: 198996266.7667359,
+        debitPercentage: 0,
+        creditPercentage: 4.7930583828192335
+      },
+      {
+        accountName: 'DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity ) -- ',
+        debit: 4201402.693209818,
+        credit: 0,
+        debitPercentage: 53.10651814290134,
+        creditPercentage: 0
+      },
+      {
+        accountName: 'LONG POSITIONS AT COST -- ',
+        debit: 0,
+        credit: 198996266.7667359,
+        debitPercentage: 0,
+        creditPercentage: 4.7930583828192335
+      },
+      {
+        accountName: 'DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity ) -- ',
+        debit: 4201402.693209818,
+        credit: 0,
+        debitPercentage: 53.10651814290134,
+        creditPercentage: 0
+      },
+      {
+        accountName: 'LONG POSITIONS AT COST -- ',
+        debit: 0,
+        credit: 198996266.7667359,
+        debitPercentage: 0,
+        creditPercentage: 4.7930583828192335
+      },
+      {
+        accountName: 'DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity ) -- ',
+        debit: 4201402.693209818,
+        credit: 0,
+        debitPercentage: 53.10651814290134,
+        creditPercentage: 0
+      },
+      {
+        accountName: 'LONG POSITIONS AT COST -- ',
+        debit: 0,
+        credit: 198996266.7667359,
+        debitPercentage: 0,
+        creditPercentage: 4.7930583828192335
+      },
+      {
+        accountName: 'DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity ) -- ',
+        debit: 4201402.693209818,
+        credit: 0,
+        debitPercentage: 53.10651814290134,
+        creditPercentage: 0
+      },
+      {
+        accountName: 'LONG POSITIONS AT COST -- ',
+        debit: 0,
+        credit: 198996266.7667359,
+        debitPercentage: 0,
+        creditPercentage: 4.7930583828192335
+      },
+      {
+        accountName: 'DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity ) -- ',
+        debit: 4201402.693209818,
+        credit: 0,
+        debitPercentage: 53.10651814290134,
+        creditPercentage: 0
+      },
+      {
+        accountName: 'LONG POSITIONS AT COST -- ',
+        debit: 0,
+        credit: 198996266.7667359,
+        debitPercentage: 0,
+        creditPercentage: 4.7930583828192335
+      },
+      {
+        accountName: 'DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity ) -- ',
+        debit: 4201402.693209818,
+        credit: 0,
+        debitPercentage: 53.10651814290134,
+        creditPercentage: 0
+      },
+      {
+        accountName: 'LONG POSITIONS AT COST -- ',
+        debit: 0,
+        credit: 198996266.7667359,
+        debitPercentage: 0,
+        creditPercentage: 4.7930583828192335
+      },
+      {
+        accountName: 'DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity ) -- ',
+        debit: 4201402.693209818,
+        credit: 0,
+        debitPercentage: 53.10651814290134,
+        creditPercentage: 0
+      },
+      {
+        accountName: 'LONG POSITIONS AT COST -- ',
+        debit: 0,
+        credit: 198996266.7667359,
+        debitPercentage: 0,
+        creditPercentage: 4.7930583828192335
+      },
+      {
+        accountName: 'DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity ) -- ',
+        debit: 4201402.693209818,
+        credit: 0,
+        debitPercentage: 53.10651814290134,
+        creditPercentage: 0
+      },
+      {
+        accountName: 'LONG POSITIONS AT COST -- ',
+        debit: 0,
+        credit: 198996266.7667359,
+        debitPercentage: 0,
+        creditPercentage: 4.7930583828192335
+      },
+      {
+        accountName: 'DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity ) -- ',
+        debit: 4201402.693209818,
+        credit: 0,
+        debitPercentage: 53.10651814290134,
+        creditPercentage: 0
+      },
+      {
+        accountName: 'LONG POSITIONS AT COST -- ',
+        debit: 0,
+        credit: 198996266.7667359,
+        debitPercentage: 0,
+        creditPercentage: 4.7930583828192335
+      },
+      {
+        accountName: 'DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity ) -- ',
+        debit: 4201402.693209818,
+        credit: 0,
+        debitPercentage: 53.10651814290134,
+        creditPercentage: 0
+      },
+      {
+        accountName: 'LONG POSITIONS AT COST -- ',
+        debit: 0,
+        credit: 198996266.7667359,
+        debitPercentage: 0,
+        creditPercentage: 4.7930583828192335
+      },
+      {
+        accountName: 'DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity ) -- ',
+        debit: 4201402.693209818,
+        credit: 0,
+        debitPercentage: 53.10651814290134,
+        creditPercentage: 0
+      },
+      {
+        accountName: 'LONG POSITIONS AT COST -- ',
+        debit: 0,
+        credit: 198996266.7667359,
+        debitPercentage: 0,
+        creditPercentage: 4.7930583828192335
+      },
+      {
+        accountName: 'DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity ) -- ',
+        debit: 4201402.693209818,
+        credit: 0,
+        debitPercentage: 53.10651814290134,
+        creditPercentage: 0
+      },
+      {
+        accountName: 'LONG POSITIONS AT COST -- ',
+        debit: 0,
+        credit: 198996266.7667359,
+        debitPercentage: 0,
+        creditPercentage: 4.7930583828192335
+      }
+    ],
+    stats: {
+      totalDebit: -4151759704.181762,
+      totalCredit: 4151759709.181762
+    }
   };
 
   constructor(private financeService: FinancePocServiceProxy, private dataService: DataService) {
@@ -83,6 +360,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   }
 
   getReport(toDate, fromDate, fund) {
+    this.isLoading = true;
     this.financeService.getTrialBalanceReport(toDate, fromDate, fund).subscribe(response => {
       this.trialBalanceReportStats = response.stats;
       this.trialBalanceReport = response.data.map(data => ({
@@ -92,6 +370,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
         debit: data.Debit,
         debitPercentage: data.DebitPercentage
       }));
+      this.isLoading = false;
     });
   }
 
@@ -150,5 +429,9 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   changeFund(selectedFund) {
     this.fund = selectedFund;
     this.getReport(this.startDate, this.endDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
+  }
+
+  refreshReport() {
+    this.clearFilters();
   }
 }

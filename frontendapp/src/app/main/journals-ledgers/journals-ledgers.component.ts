@@ -904,7 +904,6 @@ export class JournalsLedgersComponent implements OnInit, AfterContentInit {
       fileName: 'Test File',
       sheetName: 'First Sheet'
     };
-
     this.gridOptions.api.exportDataAsExcel(params);
   }
 
@@ -980,6 +979,14 @@ export class JournalsLedgersComponent implements OnInit, AfterContentInit {
     this.gridOptions.api.showLoadingOverlay();
     this.getAllData();
   }
+
+  setGroupingState(value: boolean) {
+    this.gridOptions.api.forEachNode((node, index) => {
+      if (node.group) {
+        node.setExpanded(value);
+      }
+    });
+  }
 }
 
 function asDate(dateAsString) {
@@ -992,10 +999,10 @@ function currencyFormatter(params) {
   return formatNumber(params.value);
 }
 
-function formatNumber(number) {
-  return number == 0
+function formatNumber(numberToFormat) {
+  return numberToFormat === 0
     ? ''
-    : Math.floor(number)
+    : Math.floor(numberToFormat)
         .toString()
         .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 }

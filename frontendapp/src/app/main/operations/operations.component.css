@@ -66,3 +66,7 @@ html {
 .clearForm {
   float: right;
 }
+
+.tabBtn {
+  display: inline-block;
+}
