@@ -593,7 +593,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       });
   }
 
-  public getRangeLable() {
+  public getRangeLabel() {
     this.DateRangeLable = '';
     if (
       moment('01-01-1901', 'MM-DD-YYYY').diff(this.startDate, 'days') == 0 &&
@@ -655,7 +655,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     this.startDate = e.startDate;
     this.endDate = e.endDate;
     this.journalGrid.api.onFilterChanged();
-    this.getRangeLable();
+    this.getRangeLabel();
   }
 
   public ngModelChangeFund(e) {

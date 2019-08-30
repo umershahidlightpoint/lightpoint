@@ -28,7 +28,7 @@ namespace LP.Finance.WebProxy.WebAPI
         object AddJournal(JournalInputDto journal);
         object UpdateJournal(Guid source, JournalInputDto journal);
         object DeleteJournal(Guid source);
-        object GetTrialBalanceReport(DateTime? date, string fund);
+        object GetTrialBalanceReport(DateTime? from, DateTime? to, string fund);
     }
 
     public class JournalControllerStub : IJournalController
@@ -59,7 +59,7 @@ namespace LP.Finance.WebProxy.WebAPI
             throw new NotImplementedException();
         }
 
-        public object GetTrialBalanceReport(DateTime? date, string fund)
+        public object GetTrialBalanceReport(DateTime? from, DateTime? to, string fund)
         {
             throw new NotImplementedException();
         }
@@ -482,6 +482,7 @@ namespace LP.Finance.WebProxy.WebAPI
             foreach (var element in dataTable.Rows)
             {
                 var dataRow = element as DataRow;
+                dataRow["debit"] = Math.Abs(Convert.ToDecimal(dataRow["debit"]));
 
                 var source = dataRow["source"].ToString();
 
@@ -505,7 +506,7 @@ namespace LP.Finance.WebProxy.WebAPI
 
             metaData.Total = dataTable.Rows.Count > 0 ? Convert.ToInt32(dataTable.Rows[0][0]) : 0;
             journalStats.totalCredit = dataTable.Rows.Count > 0 ? Convert.ToDouble(dataTable.Rows[0]["totalDebit"]) : 0;
-            journalStats.totalDebit = dataTable.Rows.Count > 0 ? Convert.ToDouble(dataTable.Rows[0]["totalCredit"]) : 0;
+            journalStats.totalDebit = dataTable.Rows.Count > 0 ? Math.Abs(Convert.ToDouble(dataTable.Rows[0]["totalCredit"])) : 0;
             var jsonResult = JsonConvert.SerializeObject(dataTable);
 
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
@@ -518,8 +519,15 @@ namespace LP.Finance.WebProxy.WebAPI
         private static readonly string tradesURL = "/api/trade?period=ITD";
         private static readonly string allocationsURL = "/api/allocation?period=ITD";
 
-       public object GetTrialBalanceReport(DateTime? date= null, string fund="")
+       public object GetTrialBalanceReport(DateTime? from= null, DateTime? to = null, string fund="")
        {
+            dynamic postingEngine = new PostingEngineService().GetProgress();
+
+            if (postingEngine.IsRunning)
+            {
+                return Utils.Wrap(false, "Posting Engine is currently Running");
+            }
+
             bool whereAdded = false;
           
             var query = $@"select account.name as AccountName,  summary.Debit, summary.Credit, (SUM(summary.Debit) over()) as DebitSum
@@ -530,11 +538,26 @@ namespace LP.Finance.WebProxy.WebAPI
 
             List<SqlParameter> sqlParams = new List<SqlParameter>();
 
-            if (date != null)
+            if (from.HasValue)
             {
-                query = query + " where journal.[when] = @date";
+                query = query + " where journal.[when] >= @from";
                 whereAdded = true;
-                sqlParams.Add(new SqlParameter("date", date));
+                sqlParams.Add(new SqlParameter("from", from));
+            }
+
+            if (to.HasValue)
+            {
+                if (whereAdded)
+                {
+                    query = query + " and journal.[when] <= @to";
+                    sqlParams.Add(new SqlParameter("to", to));
+                }
+                else
+                {
+                    query = query + " where journal.[when] <= @to";
+                    whereAdded = true;
+                    sqlParams.Add(new SqlParameter("to", to));
+                }
             }
 
             if (fund != "ALL")
@@ -559,7 +582,7 @@ namespace LP.Finance.WebProxy.WebAPI
             journalStats stats = new journalStats();
             List<TrialBalanceReportOutPutDto> trialBalanceReport = new List<TrialBalanceReportOutPutDto>();
 
-            stats.totalDebit = dataTable.Rows[0]["DebitSum"] != DBNull.Value ? Convert.ToDouble(dataTable.Rows[0]["DebitSum"]) : 0;
+            stats.totalDebit = dataTable.Rows[0]["DebitSum"] != DBNull.Value ? Math.Abs(Convert.ToDouble(dataTable.Rows[0]["DebitSum"])) : 0;
             stats.totalCredit = dataTable.Rows[0]["CreditSum"] != DBNull.Value ? Convert.ToDouble(dataTable.Rows[0]["CreditSum"]) : 0;
 
             foreach (DataRow row in dataTable.Rows)
@@ -567,7 +590,7 @@ namespace LP.Finance.WebProxy.WebAPI
                 TrialBalanceReportOutPutDto trialBalance = new TrialBalanceReportOutPutDto();
                 trialBalance.AccountName = (string)row["AccountName"];
                 trialBalance.Credit = row["Credit"] == DBNull.Value ? (decimal?)null : Convert.ToDecimal(row["Credit"]);
-                trialBalance.Debit = row["Debit"] == DBNull.Value ? (decimal?)null : Convert.ToDecimal(row["Debit"]);
+                trialBalance.Debit = row["Debit"] == DBNull.Value ? (decimal?)null : Math.Abs(Convert.ToDecimal(row["Debit"]));
 
                 if (trialBalance.Credit.HasValue)
                 {
@@ -575,7 +598,7 @@ namespace LP.Finance.WebProxy.WebAPI
                 }
                 if (trialBalance.Debit.HasValue)
                 {
-                    trialBalance.DebitPercentage = stats.totalDebit < 0 ? Math.Abs((trialBalance.Debit.Value / Convert.ToInt64(stats.totalCredit)) * 100) : 0;
+                    trialBalance.DebitPercentage = stats.totalDebit > 0 ? Math.Abs((trialBalance.Debit.Value / Convert.ToInt64(stats.totalCredit)) * 100) : 0;
                 }
 
                 trialBalanceReport.Add(trialBalance);
@@ -650,9 +673,9 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [Route("trialBalanceReport")]
         [HttpGet]
-        public object TrialBalanceReport(DateTime? date = null, string fund = "ALL")
+        public object TrialBalanceReport(DateTime? from = null, DateTime? to = null, string fund = "ALL")
         {
-            return controller.GetTrialBalanceReport(date, fund);
+            return controller.GetTrialBalanceReport(from,to,fund);
         }
 
         [Route("{source:guid}")]

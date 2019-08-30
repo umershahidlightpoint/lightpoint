@@ -281,8 +281,15 @@ export class FinancePocServiceProxy {
     return this.http.delete(url).pipe(map((response: any) => response));
   }
 
-  getTrialBalanceReport(date, fund) {
-    const url = this.baseUrl + '/journal/trialBalanceReport?date=' + date + '&fund=' + fund;
+  getTrialBalanceReport(fromDate, toDate, fund) {
+    const url =
+      this.baseUrl +
+      '/journal/trialBalanceReport?from=' +
+      fromDate +
+      '&to=' +
+      toDate +
+      '&fund=' +
+      fund;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 }

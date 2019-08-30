@@ -45,7 +45,7 @@ export class JournalsLedgersComponent implements OnInit, AfterContentInit {
   pivotPanelShow: any;
   pivotColumnGroupTotals: any;
   pivotRowTotals: any;
-  DateRangeLable: any;
+  DateRangeLable: string;
   pinnedBottomRowData;
   gridOptions: GridOptions;
   ledgerGridOptions: GridOptions;
@@ -854,12 +854,11 @@ export class JournalsLedgersComponent implements OnInit, AfterContentInit {
       });
   }
 
-  public getRangeLable() {
+  public getRangeLabel() {
     this.DateRangeLable = '';
-
     if (
-      moment('01-01-1901', 'MM-DD-YYYY').diff(this.startDate, 'days') == 0 &&
-      moment().diff(this.endDate, 'days') == 0
+      moment('01-01-1901', 'MM-DD-YYYY').diff(this.startDate, 'days') === 0 &&
+      moment().diff(this.endDate, 'days') === 0
     ) {
       this.DateRangeLable = 'ITD';
       return;
@@ -867,8 +866,8 @@ export class JournalsLedgersComponent implements OnInit, AfterContentInit {
     if (
       moment()
         .startOf('year')
-        .diff(this.startDate, 'days') == 0 &&
-      moment().diff(this.endDate, 'days') == 0
+        .diff(this.startDate, 'days') === 0 &&
+      moment().diff(this.endDate, 'days') === 0
     ) {
       this.DateRangeLable = 'YTD';
       return;
@@ -876,18 +875,18 @@ export class JournalsLedgersComponent implements OnInit, AfterContentInit {
     if (
       moment()
         .startOf('month')
-        .diff(this.startDate, 'days') == 0 &&
-      moment().diff(this.endDate, 'days') == 0
+        .diff(this.startDate, 'days') === 0 &&
+      moment().diff(this.endDate, 'days') === 0
     ) {
       this.DateRangeLable = 'MTD';
       return;
     }
-    if (moment().diff(this.startDate, 'days') == 0 && moment().diff(this.endDate, 'days') == 0) {
+    if (moment().diff(this.startDate, 'days') === 0 && moment().diff(this.endDate, 'days') === 0) {
       this.DateRangeLable = 'Today';
-
       return;
     }
   }
+
   setWidthAndHeight(width, height) {
     this.style = {
       marginTop: '20px',
@@ -917,7 +916,7 @@ export class JournalsLedgersComponent implements OnInit, AfterContentInit {
     this.startDate = e.startDate;
     this.endDate = e.endDate;
     this.journalGrid.api.onFilterChanged();
-    this.getRangeLable();
+    this.getRangeLabel();
   }
 
   public ngModelChangeFund(e) {
