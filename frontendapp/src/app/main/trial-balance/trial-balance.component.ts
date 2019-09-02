@@ -653,7 +653,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
 
   onBtExport() {
     const params = {
-      fileName: 'Test File',
+      fileName: 'Trial Balance',
       sheetName: 'First Sheet'
     };
     this.gridOptions.api.exportDataAsExcel(params);

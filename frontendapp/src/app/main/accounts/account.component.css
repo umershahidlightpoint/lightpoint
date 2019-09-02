@@ -1,3 +1,11 @@
+.dropdown-menu {
+  margin-left: -4rem !important;
+}
+
+.tabBtn {
+  display: inline-block;
+}
+
 .action-btn {
   margin: 0 8px;
   padding: 2px;
@@ -10,8 +18,4 @@
 
 .disabled-btn {
   cursor: not-allowed;
-}
-
-.tabBtn {
-  display: inline-block;
 }

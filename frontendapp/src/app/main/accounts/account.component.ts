@@ -210,7 +210,7 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onBtExport() {
     const params = {
-      fileName: 'Test File',
+      fileName: 'Accounts',
       sheetName: 'First Sheet',
       columnKeys: ['accountName', 'description', 'category', 'hasJournal', 'type']
     };

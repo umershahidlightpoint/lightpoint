@@ -79,10 +79,17 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     boxSizing: 'border-box'
   };
 
-  styleForHight = {
+  styleForLogsHight = {
     marginTop: '20px',
     width: '100%',
     height: 'calc(100vh - 220px)',
+    boxSizing: 'border-box'
+  };
+
+  styleForTasksHight = {
+    marginTop: '20px',
+    width: '100%',
+    height: 'calc(100vh - 180px)',
     boxSizing: 'border-box'
   };
 
@@ -91,7 +98,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     padding: '4px',
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 300px)',
+    height: 'calc(100vh - 326px)',
     boxSizing: 'border-box',
     overflow: 'scroll'
   };
@@ -200,6 +207,15 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   refreshGrid() {
     this.gridOptions.api.showLoadingOverlay();
     this.getJournalLogs();
+  }
+
+  onBtExport() {
+    const params = {
+      fileName: 'Journal Logs',
+      sheetName: 'First Sheet',
+      columnKeys: ['rundate', 'action_on', 'action']
+    };
+    this.gridOptions.api.exportDataAsExcel(params);
   }
 
   scrollToBottom(): void {
