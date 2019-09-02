@@ -19,9 +19,11 @@ namespace ConsoleApp1
         {
             var key = System.Guid.NewGuid();
 
+            // This runs thru everything, we need more or a scalpable
             PostingEngine.PostingEngine.Start("ITD", key, (message, totalRows, rowsDone) => {
                 Console.WriteLine($"{message}, {totalRows}, {rowsDone}");
             });
+
         }
     }
 }

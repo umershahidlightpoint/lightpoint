@@ -49,6 +49,7 @@
     <Compile Include="Cache\DataCache.cs" />
     <Compile Include="Cache\DataCacheElement.cs" />
     <Compile Include="CustomValidators\MinimumElementsAttribute.cs" />
+    <Compile Include="DateFunctions.cs" />
     <Compile Include="Dtos\JournalOutputDto.cs" />
     <Compile Include="Dtos\JournalInputDto.cs" />
     <Compile Include="Dtos\AccountOutputDto.cs" />

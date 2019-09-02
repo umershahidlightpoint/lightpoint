@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace LP.Finance.Common.Models
 {
-    public class JournalLog : IDbAction
+    public class JournalLog : IDbAction, IDbModel
     {
         // Identity
         public int Id { get; set; }
@@ -35,6 +36,31 @@ namespace LP.Finance.Common.Models
         public KeyValuePair<string, SqlParameter[]> Update => throw new NotImplementedException();
 
         public KeyValuePair<string, SqlParameter[]> Delete => throw new NotImplementedException();
+
+        public DataTable MetaData(SqlConnection connection)
+        {
+            var table = new DataTable();
+
+            // read the table structure from the database
+            var localconnection = new SqlConnection(connection.ConnectionString);
+            localconnection.Open();
+            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 action, action_on, rundate, log_key FROM Journal_log", localconnection))
+            {
+                adapter.Fill(table);
+            };
+            localconnection.Close();
+
+            return table;
+        }
+
+        public void PopulateRow(DataRow row)
+        {
+            row["action"] = this.Action;
+            row["action_on"] = this.ActionOn;
+
+            row["rundate"] = this.RunDate;
+            row["log_key"] = this.Key;
+        }
     }
 
 }

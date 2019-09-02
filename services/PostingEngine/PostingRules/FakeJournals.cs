@@ -39,9 +39,18 @@ namespace PostingEngine.PostingRules
             switch (element.Side.ToLowerInvariant())
             {
                 case "debit":
-                    fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Expenses Paid")).FirstOrDefault(), listOfToTags, element);
-                    toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("ACCRUED EXPENSES")).FirstOrDefault(), listOfFromTags, element);
-                    break;
+                    {
+                        var symbol = element.Symbol;
+                        symbol = this._codeMap.ContainsKey(symbol) ? _codeMap[symbol] : symbol;
+
+                        var paidAccount = accountTypes.Where(i => i.Name.Equals("Expenses Paid")).FirstOrDefault();
+                        var payableAccount = accountTypes.Where(i => i.Name.Equals("ACCRUED EXPENSES")).FirstOrDefault();
+
+                        fromAccount = new AccountUtils().CreateAccount(paidAccount, symbol + " Paid", element);
+                        toAccount = new AccountUtils().CreateAccount(payableAccount, symbol + " Payable", element);
+
+                        break;
+                    }
                 case "credit":
                     fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
                     toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("SHORT POSITIONS-COST")).FirstOrDefault(), listOfFromTags, element);
@@ -128,5 +137,26 @@ namespace PostingEngine.PostingRules
         {
             return env.IsValidAccrual(element.AccrualId);
         }
+
+        private Dictionary<string, string> _codeMap = new Dictionary<string, string>() {
+            { "ZZ_AUDIT_FEE", "Audit Fee" },
+            { "ZZ_MANAGEMENT_FEES", "Management Fees" },
+            { "ZZ_ACCOUNTING_FEES", "Acounting Fees" },
+            { "ZZ_ADMINISTRATIVE_FEES", "Administritive Fees" },
+            { "ZZ_CUSTODY_FEES", "Custody Fees" },
+            { "ZZ_LEGAL_FEES", "Legal Fees" },
+            { "ZZ_STOCK_BORROW_FEES", "Stock Borrow Fees" },
+            { "ZZ_BANK_SERVICE_FEES", "Bank Service Fees" },
+            { "ZZ_INVESTOR_CONTRIBUTIONS", "Investor Contributions" },
+            { "ZZ_FINANCING_EXPENSE", "Finance Expense" },
+            { "ZZ_DIRECTORS_FEE", "Directors Fees" },
+            { "ZZ_DNO_INSURANCE", "DNO Insurance" },
+        };
     }
 }
+
+
+
+
+
+

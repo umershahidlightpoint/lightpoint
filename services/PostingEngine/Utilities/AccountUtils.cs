@@ -123,6 +123,32 @@ namespace PostingEngine.PostingRules.Utilities
             return account;
         }
 
+        public Account CreateAccount(AccountType accountType, string name, Transaction transaction)
+        {
+            var accountName = $"{name}";
+
+
+            // Lets check to see if we have created this account already
+            if (accounts.ContainsKey(accountName))
+            {
+                return accounts[accountName];
+            }
+
+            var account = new Account
+            {
+                // Need to revisit this ASAP
+                //Type = def.AccountCategory,
+                Description = accountName,
+                Name = accountName,
+                Type = accountType,
+                Tags = new List<AccountTag>()
+            };
+
+            accounts.Add(accountName, account);
+
+            return account;
+        }
+
         public AccountToFrom GetFromToAccount(Transaction element)
         {
             var type = element.GetType();

@@ -25,6 +25,29 @@ namespace LP.Finance.Common
     {
         public int Total { get; set; }
         public List<ColumnDef> Columns { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="table">DataTable that contains the information we need to construct a grid on the UI</param>
+        /// <returns></returns>
+        public static MetaData ToMetaData(DataTable table)
+        {
+            var metaData = new MetaData();
+            metaData.Columns = new List<ColumnDef>();
+            foreach (DataColumn col in table.Columns)
+            {
+                metaData.Columns.Add(new ColumnDef
+                {
+                    filter = true,
+                    headerName = col.ColumnName, // This will be driven by a data dictionary that will provide the write names in the System
+                    field = col.ColumnName,
+                    Type = col.DataType.ToString()
+                });
+            }
+
+            return metaData;
+        }
     }
 
     public class MathFnc
@@ -122,17 +145,7 @@ namespace LP.Finance.Common
             };
         }
 
-        public static object GridWrap(object payload)
-        {
-            return new
-            {
-                when = DateTime.Now,
-                by = "",
-                data = payload,
-            };
-        }
-
-        public static object GridWrap(object payload, object metaData, object stats)
+        public static object GridWrap(object payload, object metaData = null, object stats = null)
         {
             return new
             {

@@ -344,7 +344,6 @@ namespace LP.Finance.WebProxy.WebAPI
                 return Utils.Wrap(false, "Posting Engine is currently Running");
             }
 
-            MetaData metaData = new MetaData();
             journalStats journalStats = new journalStats();
             bool whereAdded = false;
 
@@ -378,7 +377,7 @@ namespace LP.Finance.WebProxy.WebAPI
                         [source] ,
                         [when],
                         (CASE WHEN [journal].[generated_by] = 'user' THEN 'true' else 'false' END  ) modifiable
-                        FROM [journal]
+                        FROM [journal] with(nolock) 
                 join account  on [journal]. [account_id] = account.id 
                 join [account_type] on  [account].account_type_id = [account_type].id
                 join [account_category] on  [account_type].account_category_id = [account_category].id ";
@@ -464,18 +463,8 @@ namespace LP.Finance.WebProxy.WebAPI
                 dataTable.Columns.Add(prop.Name, prop.PropertyType);
             }
 
-            metaData.Columns = new List<ColumnDef>();
-            foreach (DataColumn col in dataTable.Columns)
-            {
-                metaData.Columns.Add(new ColumnDef
-                {
-                    filter = true,
-                    headerName =
-                        col.ColumnName, // This will be driven by a data dictionary that will provide the write names in the System
-                    field = col.ColumnName,
-                    Type = col.DataType.ToString()
-                });
-            }
+            // Get the columns we need to genarte the UI Grid
+            var metaData = MetaData.ToMetaData(dataTable);
 
             var dictionary = elements.ToDictionary(i => i.TradeId, i=>i);
 
@@ -534,7 +523,7 @@ namespace LP.Finance.WebProxy.WebAPI
 				, (SUM(summary.Credit) over()) as CreditSum from ( 
 				select account_id ,sum( (CASE WHEN value < 0 THEN value else 0 END  )) Debit,
                  sum(   (CASE WHEN value > 0 THEN value else 0 END  ) ) Credit
-				 from journal "; 
+				 from journal with(nolock) "; 
 
             List<SqlParameter> sqlParams = new List<SqlParameter>();
 

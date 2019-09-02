@@ -2,6 +2,7 @@
 using LP.Finance.Common.Models;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.Diagnostics;
@@ -39,7 +40,7 @@ namespace PostingEngine
                 PostingEngineCallBack?.Invoke("Posting Engine Started");
 
                 // Cleanout all data
-                Cleanup(connection);
+                Cleanup(connection, period);
 
                 // Setup key data tables
                 Setup(connection);
@@ -92,15 +93,19 @@ namespace PostingEngine
                     new SQLBulkHelper().Insert("journal", postingEnv.Journals.ToArray(), connection, transaction);
                 }
 
+                var journalLogs = new List<JournalLog>();
+
                 // Save the messages accumulated during the Run
                 foreach (var message in postingEnv.Messages)
                 {
-                    new JournalLog()
+                    journalLogs.Add(new JournalLog()
                     {
                         Key = Key, RunDate = postingEnv.RunDate,
                         Action = $" Error : {message.Key}, Count : {message.Value}", ActionOn = DateTime.Now
-                    }.Save(connection, transaction);
+                    });
                 }
+
+                new SQLBulkHelper().Insert("journal_log", journalLogs.ToArray(), connection, transaction);
 
                 new JournalLog()
                 {
@@ -112,10 +117,6 @@ namespace PostingEngine
 
                 transaction.Commit();
                 postingEngineCallBack?.Invoke("Posting Engine Processing Completed");
-
-//                It's a Class Library
-//                Console.WriteLine("Completed / Press Enter to Finish");
-//                Console.ReadKey();
             }
         }
 
@@ -165,7 +166,7 @@ namespace PostingEngine
                     postingEnv.Journals.Clear();
                 }
 
-                PostingEngineCallBack?.Invoke("", totalDays, daysProcessed++);
+                PostingEngineCallBack?.Invoke("Completed", totalDays, daysProcessed++);
                 valueDate = valueDate.AddDays(1);
             }
 
@@ -200,13 +201,38 @@ namespace PostingEngine
         /// Cleanup, This will be driven by the UI
         /// </summary>
         /// <param name="connection"></param>
-        private static void Cleanup(SqlConnection connection)
+        /// <param name="period">Period with which to run with</param>
+        private static void Cleanup(SqlConnection connection, string period)
         {
-            new SqlCommand("delete from ledger", connection).ExecuteNonQuery();
-            new SqlCommand("delete from journal", connection).ExecuteNonQuery();
-            new SqlCommand("delete from journal_log", connection).ExecuteNonQuery();
-            new SqlCommand("delete from account_tag", connection).ExecuteNonQuery();
-            new SqlCommand("delete from account", connection).ExecuteNonQuery();
+            Tuple<DateTime, DateTime> datePeriod;
+
+            switch (period)
+            {
+                case "ITD":
+                    datePeriod = System.DateTime.Now.ITD();
+                    break;
+                case "MTD":
+                    datePeriod = System.DateTime.Now.MTD();
+                    break;
+                default:
+                    datePeriod = System.DateTime.Now.Today();
+                    break;
+            }
+
+            var startdate = datePeriod.Item1.ToString("MM-dd-yyyy") + " 00:00";
+            var enddate = datePeriod.Item2.ToString("MM-dd-yyyy") + " 16:30";
+
+            var whereClause = $"where [when] between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}')";
+
+            // new SqlCommand("delete from ledger " + whereClause, connection).ExecuteNonQuery();
+            new SqlCommand("delete from journal " + whereClause, connection).ExecuteNonQuery();
+
+            if (period.Equals("ITD"))
+            {
+                new SqlCommand("delete from journal_log", connection).ExecuteNonQuery();
+                new SqlCommand("delete from account_tag", connection).ExecuteNonQuery();
+                new SqlCommand("delete from account", connection).ExecuteNonQuery();
+            }
         }
 
         private static void Error(Exception ex, Transaction element)
