@@ -1,13 +1,11 @@
-﻿using System;
+﻿using LP.Finance.Common;
+using LP.Finance.Common.Dtos;
+using SqlDAL.Core;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using LP.Finance.Common;
-using LP.Finance.Common.Dtos;
-using Newtonsoft.Json;
-using SqlDAL.Core;
 using System.Text;
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
@@ -127,7 +125,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             DataGridStatusDto oDataGridStatusDto = new DataGridStatusDto();
             MetaData meta = new MetaData();
             using (var reader =
-                sqlHelper.GetDataReader(query, CommandType.Text,null  , out var sqlConnection))
+                sqlHelper.GetDataReader(query, CommandType.Text, null, out var sqlConnection))
             {
                 while (reader.Read())
                 {
@@ -140,26 +138,26 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 reader.Close();
                 sqlConnection.Close();
-            } 
-            
+            }
+
             return Utils.Wrap(true, oDataGridStatusDto, meta);
         }
 
 
-        public object GetDataGridLayouts(int gridId,int userId)
+        public object GetDataGridLayouts(int gridId, int userId)
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);
             List<SqlParameter> Parameters = new List<SqlParameter>
                 {
                     new SqlParameter("gridId", gridId) ,
-                    new SqlParameter("userId", userId) 
-                     
+                    new SqlParameter("userId", userId)
+
                 };
 
             var query = $@" SELECT [id]  ,[grid_name] ,[grid_layout_name] ,[grid_id], isnull([is_public],0) as [is_public] 
-                                  FROM [dbo].[data_grid_layouts] where grid_id = @gridId and userid = @userId";
-             
-           
+                                  FROM [data_grid_layouts] where grid_id = @gridId and userid = @userId";
+
+
             MetaData meta = new MetaData();
             List<DataGridStatusDto> lDataGridStatusDto = new List<DataGridStatusDto>();
             using (var reader =
@@ -167,7 +165,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 while (reader.Read())
                 {
-                   
+
                     DataGridStatusDto oDataGridStatusDto = new DataGridStatusDto();
                     oDataGridStatusDto.Id = Convert.ToInt32(reader["id"]);
                     oDataGridStatusDto.GridName = reader["grid_name"].ToString();
@@ -189,7 +187,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             SqlHelper sqlHelper = new SqlHelper(connectionString);
             List<SqlParameter> Parameters = new List<SqlParameter>
                 {
-                    new SqlParameter("id", id) 
+                    new SqlParameter("id", id)
                  };
 
             var query = $@"SELECT   [id]
@@ -226,4 +224,4 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         }
     }
 }
- 
+

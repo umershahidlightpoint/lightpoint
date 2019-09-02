@@ -1,19 +1,23 @@
-<!------ Modal Div ------>
+<!------ Modal Div Starts------>
 <div bsModal #modal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true"
   [config]="{backdrop: modal-backdrop}">
+  <!------ Modal Dialog Div Starts------>
   <div class="modal-dialog modal-dialog-centered" id="modal-lg">
+    <!------ Modal Content Div Starts------>
     <div class="modal-content">
-      <!------ Form ------>
+      <!------ Form Div Starts------>
       <form #form="ngForm" (ngSubmit)="saveJournal()" [formGroup]="journalForm">
-        <!------- Modal Header ------->
+        <!------- Modal Header Starts------->
         <div class="modal-header">
           <h3 *ngIf="!editJournal"> Create Journal </h3>
           <h3 *ngIf="editJournal"> Edit Journal </h3>
           <button type="button" class="close" data-dismiss="modal" (click)="closeModal()">&times;</button>
         </div>
-        <!------- Modal Body ------->
+        <!------- Modal Header Ends------->
+
+        <!------- Modal Body Starts------->
         <div class="modal-body">
-          <!------- Fund From Group ------->
+          <!------- Fund Div Starts ------->
           <div class="form-group">
             <div class="row">
               <!------- Fund Label ------->
@@ -32,7 +36,9 @@
               </div>
             </div>
           </div>
-          <!------- From Account From Group ------->
+          <!------- Fund Div Ends ------->
+
+          <!------- From Account Div Starts ------->
           <div class="form-group">
             <div class="row">
               <!------- From Account Label ------->
@@ -53,7 +59,9 @@
               </div>
             </div>
           </div>
-          <!------- To Account From Group ------->
+          <!------- From Account Div Ends ------->
+
+          <!------- To Account Div Starts ------->
           <div class="form-group">
             <!------- To Account Label ------->
             <div class="row">
@@ -74,8 +82,9 @@
               </div>
             </div>
           </div>
+          <!------- To Account Div Ends ------->
 
-          <!------- Value From Group------->
+          <!------- Value Div Starts------->
           <div class="form-group">
             <div class="row">
               <!------- Value Label ------->
@@ -88,9 +97,12 @@
               </div>
             </div>
           </div>
-        </div>
+          <!------- Value Div Ends------->
 
-        <!------- Modal Footer ------->
+        </div>
+        <!------- Modal Body Ends------->
+
+        <!------- Modal Footer Starts ------->
         <div class="modal-footer">
           <button *ngIf="editJournal" type="button" class="btn btn-danger mr-auto" (click)="deleteJournal()"><i
               class="fa fa-trash"></i> Delete</button>
@@ -101,7 +113,12 @@
             {{editJournal ? "Update" : "Save"}}
           </button>
         </div>
+        <!------- Modal Footer Ends ------->
       </form>
+      <!------ Form Div Ends------>
     </div>
+    <!------ Modal Content Div Ends------>
   </div>
+  <!------ Modal Dialog Div Ends------>
 </div>
+<!------ Modal Div Ends------>

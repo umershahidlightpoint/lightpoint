@@ -82,7 +82,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   styleForLogsHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 220px)',
+    height: 'calc(100vh - 210px)',
     boxSizing: 'border-box'
   };
 
@@ -323,6 +323,37 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   clearForm() {
     this.clearJournalForm.reset();
+  }
+
+  getContextMenuItems(params) {
+    const defaultItems = ['copy', 'paste', 'export'];
+    const items = [
+      {
+        name: 'Expand',
+        action() {
+          params.api.forEachNode((node, index) => {
+            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
+              node.setExpanded(true);
+            }
+          });
+        }
+      },
+      {
+        name: 'Collapse',
+        action() {
+          params.api.forEachNode((node, index) => {
+            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
+              node.setExpanded(false);
+            }
+          });
+        }
+      },
+      ...defaultItems
+    ];
+    if (params.node.group) {
+      return items;
+    }
+    return defaultItems;
   }
 
   setGroupingState(value: boolean) {

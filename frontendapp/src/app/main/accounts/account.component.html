@@ -1,16 +1,18 @@
 <!------- Hide Grid Div ------->
-<div *ngIf="hideGrid" #logScroll [ngStyle]="containerDiv">
+<div *ngIf="hideGrid" [ngStyle]="containerDiv">
   <div style="display: flex; align-items: center; justify-content: center">
     <h1> Posting Engine is Running. Please Wait. </h1>
   </div>
 </div>
 <!------- Hide Grid Div Ends ------->
 
-<!------- Grid Div Ends ------->
+<!------- Div Starts ------->
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
+  <!------- Tab View Tag Starts ------->
   <p-tabView [ngStyle]="style">
+    <!------- Account Tab Starts ------->
     <p-tabPanel header="Accounts" [ngStyle]="style">
-      <!----- Navbar start ----->
+      <!----- Action Buttons Div Starts ----->
       <div class="row">
         <div class="ml-auto mt-1 mr-2">
           <!----- Refresh Button Div ----->
@@ -24,7 +26,7 @@
               <i class="fa fa-arrow-circle-o-down"></i>
             </button>
           </div>
-          <!-- Create Account Button Div -->
+          <!-- Create Account Button Div Starts -->
           <div class="mr-2 btn-group tabBtn" dropdown>
             <!-- Create Account Button -->
             <button id="button-basic" dropdownToggle type="button" class="btn btn-info dropdown-toggle"
@@ -42,17 +44,19 @@
               </li>
             </ul>
           </div>
+          <!-- Create Account Button Div Ends -->
         </div>
       </div>
-      <!----- Navbar end ----->
+      <!----- Action Buttons Div Ends ----->
+
       <!----- Div To Measure Identifier starts ----->
       <div #divToMeasure>
         <!----- Style For Height ----->
         <div [ngStyle]="styleForHight">
-          <!----- Ag Grid Start ----->
+          <!----- Ag Grid Selector ----->
           <ag-grid-angular class="ag-theme-balham" style=" height: 100%; width: 100%" [gridOptions]="gridOptions">
           </ag-grid-angular>
-          <!----- Action buttons ----->
+          <!----- Action buttons Template Starts ----->
           <ng-template #actionButtons let-row>
             <button class="btn ml-5 action-btn fixHeight" (click)="editRow(row)" tooltip="Edit" placement="auto"
               container="body">
@@ -64,12 +68,16 @@
               <i class="fa fa-lg fa-trash-o" aria-hidden="true"></i>
             </button>
           </ng-template>
+          <!----- Action buttons Template Ends ----->
         </div>
       </div>
-      <!----- Div To Measure Identifier ends ----->
+      <!----- Div To Measure Identifier Ends ----->
     </p-tabPanel>
+    <!------- Account Tab Ends ------->
   </p-tabView>
+  <!------- Tab View Tag Ends ------->
 </div>
+<!------- Div Ends ------->
 
 <!----- Create Account Component Tag ----->
 <app-create-account #createModal [selectedAccCategory]="selectedAccountCategory" (modalClose)="getAccountsRecord()">

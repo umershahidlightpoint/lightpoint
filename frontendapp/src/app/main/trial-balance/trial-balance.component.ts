@@ -73,7 +73,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 220px)',
+    height: 'calc(100vh - 210px)',
     boxSizing: 'border-box'
   };
 
@@ -486,16 +486,34 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
 
   // selected: {startDate: moment().startOf('month'), endDate: moment()};
   getContextMenuItems(params) {
-    var result = [
+    const defaultItems = ['copy', 'paste', 'export'];
+    const items = [
       {
-        name: 'Alert ' + params.value,
-        action: function() {
-          window.alert('Alerting about ' + params.value);
-        },
-        cssClasses: ['redFont', 'bold']
-      }
+        name: 'Expand',
+        action() {
+          params.api.forEachNode((node, index) => {
+            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
+              node.setExpanded(true);
+            }
+          });
+        }
+      },
+      {
+        name: 'Collapse',
+        action() {
+          params.api.forEachNode((node, index) => {
+            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
+              node.setExpanded(false);
+            }
+          });
+        }
+      },
+      ...defaultItems
     ];
-    return result;
+    if (params.node.group) {
+      return items;
+    }
+    return defaultItems;
   }
 
   getTrialBalance() {
@@ -731,7 +749,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
 
 function asDate(dateAsString) {
   const splitFields = dateAsString.split('-');
-  // var m= this.MONTHS[splitFields[0]];
   return new Date(splitFields[1], splitFields[0], splitFields[2]);
 }
 

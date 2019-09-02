@@ -1,9 +1,9 @@
-<!------ Modal Div ------>
+<!------ Modal Div Starts ------>
 <div bsModal #modal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true"
   [config]="{backdrop: modal-backdrop}">
   <div class="modal-dialog modal-dialog-centered" id="modal-lg">
     <div class="modal-content">
-      <!------ Form ------>
+      <!------ Form Starts------>
       <form #roleForm="ngForm" [formGroup]="accountForm" (ngSubmit)="onSave()">
         <!------- Modal Header ------->
         <div class="modal-header">
@@ -11,11 +11,14 @@
           <h3 *ngIf="!editCase">Create Account ({{ selectedAccountCategory?.name }})</h3>
           <button type="button" class="close" data-dismiss="modal" (click)="close()">&times;</button>
         </div>
-        <!------- Modal Body ------->
+        <!------- Modal Header Ends------->
+
+        <!------- Modal Body Starts ------->
         <div class="modal-body">
-          <!------- Account Type ------->
+          <!------- Account Type Div Starts ------->
           <div class="form-group">
             <div class="row">
+              <!------- Account Type Label ------->
               <div class="col-sm-3">
                 <label> Account Type </label>
               </div>
@@ -35,17 +38,23 @@
               </div>
             </div>
           </div>
-          <!------- Description Field ------->
+          <!------- Account Type Div Ends ------->
+
+          <!------- Description Div Starts ------->
           <div class="form-group">
             <div class="row">
+              <!------- Description Label ------->
               <div class="col-sm-3">
                 <label> Description </label>
               </div>
+              <!------- Description Input ------->
               <div class="col-sm-9">
                 <input type="text" class="form-control" formControlName="description" />
               </div>
             </div>
           </div>
+          <!------- Description Div Ends ------->
+
           <!-- Error message for account having no definition -->
           <div *ngIf="noAccountDef" class="row mt-4">
             <div class="col-sm-3">
@@ -55,9 +64,10 @@
             </div>
           </div>
 
-          <!------- Account Tag ------->
+          <!------- Account Tag Div Starts ------->
           <div *ngIf="accountTags && canEditAccount">
             <div class="form-group">
+              <!------- Account Tag Label------->
               <div class="row">
                 <div class="col-sm-5">
                   <hr />
@@ -70,9 +80,10 @@
                 </div>
               </div>
 
-              <!------- Account Tag Types ------->
+              <!------- Account Tag Div Starts------->
               <div class="form-group">
                 <div class="row">
+                  <!------- Account Tags Label ------->
                   <div class="col-sm-4">
                     <label> Account Tags </label>
                   </div>
@@ -95,6 +106,8 @@
                   </div>
                 </div>
               </div>
+              <!------- Account Tag Div Ends ------->
+
               <!------- Account Tag Div ------->
               <div *ngIf="!editCase || editCase && canEditAccount">
                 <div style="overflow-y: auto; overflow-x: hidden; max-height: 180px" formArrayName="tagsList">
@@ -128,7 +141,9 @@
               </div>
             </div>
           </div>
+          <!------- Account Tag Div Ends ------->
         </div>
+        <!------- Modal Body Ends ------->
 
         <!------- Modal Footer ------->
         <div class="modal-footer">
@@ -137,7 +152,11 @@
             <i class="fa fa-save"></i> Save
           </button>
         </div>
+        <!------- Modal Footer Ends------->
+
       </form>
+      <!------- Form Ends ------->
     </div>
   </div>
 </div>
+<!------ Modal Div Ends ------>

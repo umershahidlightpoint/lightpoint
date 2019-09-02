@@ -87,8 +87,7 @@ import { AgGridUtils } from '../shared/utils/ag-grid-utils'
   ],
   imports: [
     BrowserModule,
-    AgGridModule.withComponents([TemplateRendererComponent]),
-    AgGridModule.withComponents([GridLayoutMenuComponent]),
+    AgGridModule.withComponents([TemplateRendererComponent, GridLayoutMenuComponent]),
     MaterialModule,
     NgxDaterangepickerMd.forRoot(),
     AppRoutingModule,

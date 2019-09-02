@@ -1,14 +1,20 @@
+<!------- Hide Grid Div Starts ------->
 <div *ngIf="hideGrid" #logScroll [ngStyle]="containerDiv">
   <div style="display: flex; align-items: center; justify-content: center">
     <h1> Posting Engine is Running. Please Wait. </h1>
   </div>
 </div>
+<!------- Hide Grid Div Ends ------->
 
-<div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
+<!------- Div Starts ------->
+<div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' }">
+  <!------- Tab View Tag Starts ------->
   <p-tabView [ngStyle]="style">
+    <!------- Header Tab Starts ------->
     <p-tabPanel header="Trial Balance">
+      <!------- Row Div Starts ------->
       <div class="row ">
-
+        <!------- Fund Dropdown Div Starts ------->
         <div class="col-md-2">
           <select class="form-control" [(ngModel)]="fund" (ngModelChange)="ngModelChangeFund($event)">
             <option>All Funds</option>
@@ -17,11 +23,15 @@
             </option>
           </select>
         </div>
+        <!------- Fund Dropdown Div Ends ------->
 
+        <!------- DateRange Lable Div Starts ------->
         <div>
           <label style="text-align: right"> {{DateRangeLable}} </label>
         </div>
+        <!------- DateRange Lable Div Ends ------->
 
+        <!------- Date Picker Div Starts ------->
         <div class="col-md-5">
           <form>
             <input type="text" autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
@@ -30,37 +40,49 @@
               class="form-control" />
           </form>
         </div>
+        <!------- Date Picker Div Ends ------->
 
+        <!------- Clear Button Div Starts ------->
         <div class="mr-auto">
           <button (click)="clearFilters( )" class="btn btn-info" type="button">
             <i class="fa fa-remove"></i> Clear</button>
         </div>
+        <!------- Clear Button Div Ends ------->
+
+        <!------- Action Buttons Div Starts ------->
         <div class="ml-auto">
+          <!------- Expand Button ------->
           <div class="mr-2 tabBtn">
             <button (click)="setGroupingState(true)" class="btn btn-info" tooltip="Expand" placement="top">
               <i class="fa fa-expand"></i></button>
           </div>
+          <!------- Collapse Button ------->
           <div class="mr-2 tabBtn">
             <button (click)="setGroupingState(false)" class="btn btn-info" tooltip="Collapse" placement="top">
               <i class="fa fa-compress"></i></button>
           </div>
+          <!------- Refresh Button ------->
           <div class="mr-2 tabBtn">
             <button (click)="refreshGrid()" class="btn btn-info" tooltip="Refresh" placement="top">
               <i class="fa fa-refresh"></i></button>
           </div>
+          <!------- Export to Excel Button ------->
           <div class="mr-4 tabBtn">
             <button (click)="onBtExport()" class="btn btn-info" tooltip="Export to Excel" placement="top"><i
                 class="fa fa-arrow-circle-o-down"></i></button>
           </div>
         </div>
+        <!------- Action Buttons Div Ends ------->
       </div>
+      <!------- Row Div Ends ------->
 
       <div style="clear: both"></div>
+      <!------- Trial Balance Grid Div Starts ------->
       <div #divToMeasureJournal>
         <div [ngStyle]="styleForHight">
           <ag-grid-angular #journalGrid style="width: 100%; height: 100%" class="ag-theme-balham"
             [gridOptions]="gridOptions" [rowGroupPanelShow]="rowGroupPanelShow" [sideBar]="sideBar" [rowData]="rowData"
-            [rowSelection]="rowSelection" [getRowStyle]="getRowStyle">
+            [rowSelection]="rowSelection" [getRowStyle]="getRowStyle" [getContextMenuItems]="getContextMenuItems">
             <!--
           [pinnedBottomRowData]="pinnedBottomRowData"
           [pivotPanelShow]="pivotPanelShow"
@@ -70,10 +92,13 @@
           </ag-grid-angular>
         </div>
       </div>
+      <!------- Trial Balance Grid Div Ends ------->
     </p-tabPanel>
-
+    <!------- Header Tab Starts ------->
   </p-tabView>
+  <!------- Tab View Tag Ends ------->
 </div>
+<!------- Div Ends ------->
 
 <ng-template #greetCell let-row>
   <!-- 

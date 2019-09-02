@@ -5,7 +5,7 @@ import {
   OnInit,
   ViewChild,
   ChangeDetectorRef,
-  AfterContentInit
+  AfterViewInit
 } from '@angular/core';
 import { ModalDirective } from 'ngx-bootstrap';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
@@ -16,7 +16,7 @@ import { JournalModalComponent } from './journal-modal/journal-modal.component';
 import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { DataService } from '../../../shared/common/data.service';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
-import {AgGridUtils} from '../../../shared/utils/ag-grid-utils'
+import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
 
 class GridConfiguration {
   private gridApi;
@@ -27,7 +27,7 @@ class GridConfiguration {
   templateUrl: './journals-ledgers.component.html',
   styleUrls: ['./journals-ledgers.component.css']
 })
-export class JournalsLedgersComponent implements OnInit, AfterContentInit {
+export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   private gridConfiguration: GridConfiguration = new GridConfiguration();
   private gridApi;
   private ledgerGridApi;
@@ -96,7 +96,7 @@ export class JournalsLedgersComponent implements OnInit, AfterContentInit {
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 220px)',
+    height: 'calc(100vh - 210px)',
     boxSizing: 'border-box'
   };
 
@@ -140,27 +140,6 @@ export class JournalsLedgersComponent implements OnInit, AfterContentInit {
 
   ngOnInit() {
     this.isEngineRunning = this.postingEngineService.getStatus();
-  }
-
-  ngAfterContentInit() {
-    this.dataService.flag.subscribe(obj => {
-      this.hideGrid = obj;
-      if (!this.hideGrid) {
-        this.getAllData();
-      }
-    });
-    // this.overlayNoRowsTemplate =
-    // "<span style=\"padding: 10px; border: 2px solid #444; background: lightgoldenrodyellow;\">This is a custom 'no rows' overlay</span>";
-
-    // this.AppGridLayout.gridOptions=this.gridOptions ;
-
-    this.dataService.gridColumnApi.subscribe(obj => (obj = this.gridOptions));
-    this.dataService.changeMessage(this.gridOptions);
-
-    // let dsf= this.DataService.gridColumnApi ;
-    // this.dataService.gridColumnApi =this.gridColumnApi;
-    // this.dataService.gridColumnApi.subscribe(obj => this.gridColumnApi = this.gridColumnApi)
-    // this.dataService.gridColumnApi =this.gridColumnApi ;
   }
 
   initGird() {
@@ -404,7 +383,6 @@ export class JournalsLedgersComponent implements OnInit, AfterContentInit {
       alignedGrids: [],
       suppressHorizontalScroll: false
     } as GridOptions;
-
     this.ledgerGridOptions.defaultColDef = {
       sortable: true,
       resizable: true,
@@ -644,9 +622,6 @@ export class JournalsLedgersComponent implements OnInit, AfterContentInit {
   // selected: {startDate: moment().startOf('month'), endDate: moment()};
 
   ngAfterViewInit() {
-    // if (this.hideGrid) {
-    //   this.getAllData();
-    // }
     this.dataService.flag.subscribe(obj => {
       this.hideGrid = obj;
       if (!this.hideGrid) {
@@ -660,7 +635,6 @@ export class JournalsLedgersComponent implements OnInit, AfterContentInit {
 
     this.dataService.gridColumnApi.subscribe(obj => (obj = this.gridOptions));
     this.dataService.changeMessage(this.gridOptions);
-    //let dsf= this.DataService.gridColumnApi ;
 
     //this.dataService.gridColumnApi =this.gridColumnApi;
     //this.dataService.gridColumnApi.subscribe(obj => this.gridColumnApi = this.gridColumnApi)
@@ -673,7 +647,7 @@ export class JournalsLedgersComponent implements OnInit, AfterContentInit {
       let tCredit = 0;
       let tDebit = 0;
 
-      this.api.forEachNodeAfterFilter(function(rowNode, index) {
+      this.api.forEachNodeAfterFilter((rowNode, index) => {
         tTotal += 1;
         tCredit += rowNode.data.credit;
         tDebit += rowNode.data.debit;
@@ -891,6 +865,48 @@ export class JournalsLedgersComponent implements OnInit, AfterContentInit {
     return result;
   }
 
+  getContextMenuItems(params) {
+    const defaultItems = ['copy', 'paste', 'copyWithHeaders', 'export'];
+    const items = [
+      {
+        name: 'Expand',
+        action() {
+          params.api.forEachNode((node, index) => {
+            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
+              node.setExpanded(true);
+            }
+          });
+        }
+      },
+      {
+        name: 'Collapse',
+        action() {
+          params.api.forEachNode((node, index) => {
+            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
+              node.setExpanded(false);
+            }
+          });
+        }
+      },
+      {
+        name: 'Expand All',
+        action() {
+          console.log('params', params);
+          params.api.forEachNode((node, index) => {
+            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
+              node.setExpanded(true);
+            }
+          });
+        }
+      },
+      ...defaultItems
+    ];
+    if (params.node.group) {
+      return items;
+    }
+    return defaultItems;
+  }
+
   public clearFilters() {
     this.gridOptions.api.redrawRows();
     this.DateRangeLable = '';
@@ -907,7 +923,7 @@ export class JournalsLedgersComponent implements OnInit, AfterContentInit {
     // alert(`${ row.country } says "${ row.greeting }!`);
     alert('For show popup');
   }
-
+  
   openJournalModal() {
     this.jounalModal.openModal({});
   }
@@ -936,7 +952,6 @@ export class JournalsLedgersComponent implements OnInit, AfterContentInit {
 
 function asDate(dateAsString) {
   const splitFields = dateAsString.split('-');
-  // var m= this.MONTHS[splitFields[0]];
   return new Date(splitFields[1], splitFields[0], splitFields[2]);
 }
 
