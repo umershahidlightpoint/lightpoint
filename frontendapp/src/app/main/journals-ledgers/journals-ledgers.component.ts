@@ -901,7 +901,7 @@ export class JournalsLedgersComponent implements OnInit, AfterContentInit {
 
   onBtExport() {
     const params = {
-      fileName: 'Test File',
+      fileName: 'Journals',
       sheetName: 'First Sheet'
     };
     this.gridOptions.api.exportDataAsExcel(params);

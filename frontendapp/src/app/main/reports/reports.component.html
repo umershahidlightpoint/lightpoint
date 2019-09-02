@@ -1,4 +1,4 @@
-<div *ngIf="hideGrid" #logScroll [ngStyle]="containerDiv">
+<div *ngIf="hideGrid" #logScroll [ngStyle]="processingMsgDiv">
   <div style="display: flex; align-items: center; justify-content: center">
     <h1> Posting Engine is Running. Please Wait. </h1>
   </div>
@@ -35,7 +35,7 @@
           </button>
         </div>
         <div class="ml-auto mr-3">
-          <button (click)="refreshReport()" class="btn btn-sm btn-info" tooltip="Refresh" placement="top">
+          <button (click)="refreshReport()" class="btn btn-info" tooltip="Refresh" placement="top">
             <i class="fa fa-refresh"></i></button>
         </div>
       </div>

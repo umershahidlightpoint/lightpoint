@@ -46,6 +46,15 @@ export class ReportsComponent implements OnInit, AfterViewInit {
     boxSizing: 'border-box'
   };
 
+  processingMsgDiv = {
+    border: '1px solid #eee',
+    padding: '4px',
+    marginTop: '20px',
+    width: '100%',
+    height: 'calc(100vh - 125px)',
+    boxSizing: 'border-box'
+  };
+
   containerDiv = {
     borderLeft: '1px solid #cecece',
     borderRight: '1px solid #cecece',
