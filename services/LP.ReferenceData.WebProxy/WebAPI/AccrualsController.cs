@@ -27,7 +27,6 @@ using System.Security.Principal;
 using System.Threading;
 using LP.Finance.Common;
 using LP.Core;
-using CommonAPI;
 
 namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 {
@@ -45,7 +44,9 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 
     public interface IAccrualsController
     {
-        object Data(string symbol);
+        object Data(string period);
+
+        object Allocations(string accrualId);
     }
 
     public class AccrualsControllerStub : IAccrualsController
@@ -54,11 +55,22 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
         {
             return Utils.GetFile("accruals_" + symbol);
         }
+
+        public object Allocations(string accrualId)
+        {
+            return Utils.GetFile("accruals_allocations_" + accrualId);
+        }
+
     }
 
     public class AccrualsControllerService : IAccrualsController
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["TradeMasterDB"].ToString();
+
+        public object Allocations(string accrualId)
+        {
+            return OnlyAllocations(accrualId);
+        }
 
         public object Data(string period)
         {
@@ -93,19 +105,16 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
         {
             var content = "{}";
 
-            var date = DateTime.Now.Date;
-
-            while (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
-                date = date.AddDays(-1);
-
             var startdate = period.Item1.ToString("MM-dd-yyyy") + " 00:00";
             var enddate = period.Item2.ToString("MM-dd-yyyy") + " 16:30";
 
             var query = 
 $@"select * from Accrual with(nolock)
 where UpdatedOn between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}') 
+and accrualId in ( select distinct accrualId from allocation with(nolock))
 order by UpdatedOn desc
 ";
+            MetaData metaData = null;
 
             using (var con = new SqlConnection(connectionString))
             {
@@ -115,13 +124,15 @@ order by UpdatedOn desc
                 sda.Fill(dataTable);
                 con.Close();
 
+                metaData = MetaData.ToMetaData(dataTable);
+
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
                 content = jsonResult;
             }
 
             dynamic json = JsonConvert.DeserializeObject(content);
 
-            return json;
+            return Utils.GridWrap(json, metaData);
         }
 
         private object Only(string orderId)
@@ -160,12 +171,45 @@ order by UpdatedOn desc
 
             return json;
         }
+
+        private object OnlyAllocations(string accrualId)
+        {
+            var content = "{}";
+
+            var query = $@"select 
+            * from Allocation with(nolock)
+                where accrualId='{accrualId}'
+                order by UpdatedOn desc";
+
+            MetaData metaData = null;
+
+            using (var con = new SqlConnection(connectionString))
+            {
+                var sda = new SqlDataAdapter(query, con);
+                var dataTable = new DataTable();
+                con.Open();
+                sda.Fill(dataTable);
+                con.Close();
+
+                metaData = MetaData.ToMetaData(dataTable);
+
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+                content = jsonResult;
+            }
+
+
+            dynamic json = JsonConvert.DeserializeObject(content);
+
+            return Utils.GridWrap(json, metaData);
+        }
+
     }
 
 
     /// <summary>
     /// Deliver the tiles / links resources to the logged in user
     /// </summary>
+    [RoutePrefix("api/accruals")]
     public class AccrualsController : ApiController, IAccrualsController
     {
         // Mock Service
@@ -179,6 +223,13 @@ order by UpdatedOn desc
         public object Data(string period)
         {
             return controller.Data(period);
+        }
+
+        [HttpGet]
+        [Route("allocations/{accrualid}")]
+        public object Allocations(string accrualid)
+        {
+            return controller.Allocations(accrualid);
         }
 
     }

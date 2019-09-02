@@ -11,7 +11,6 @@ using System.Security.Principal;
 using System.Threading;
 using LP.Finance.Common;
 using LP.Core;
-using CommonAPI;
 using System.Diagnostics;
 using LP.Finance.Common.Cache;
 
@@ -85,13 +84,8 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
         {
             var content = "{}";
 
-            var date = DateTime.Now.Date;
-
-            while (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
-                date = date.AddDays(-1);
-
             var startdate = period.Item1.ToString("MM-dd-yyyy") + " 00:00";
-            var enddate = period.Item2.ToString("MM-dd-yyyy") + " 16:30";
+            var enddate = period.Item2.ToString("MM-dd-yyyy") + " 23:59";
 
             var query =
                 $@"select 

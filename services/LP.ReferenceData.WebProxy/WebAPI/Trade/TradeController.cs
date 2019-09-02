@@ -11,7 +11,6 @@ using System.Security.Principal;
 using System.Threading;
 using LP.Finance.Common;
 using LP.Core;
-using CommonAPI;
 using System.Collections.Generic;
 using LP.Finance.Common.Cache;
 
