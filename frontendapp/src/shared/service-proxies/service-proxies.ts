@@ -36,6 +36,22 @@ export class FinancePocServiceProxy {
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
+  /*
+  Get the set of accruals
+  */
+  getAccruals() {
+    const url = encodeURI(REF_DATA_BASE_URL + '/accruals?period=ITD');
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
+
+  /*
+  Get the allocations / AccrualId is necessary as this is the linkage between the accrual and the allocation / trade
+  */
+  getAccrualAllocations(accrualId:string) {
+    const url = encodeURI(REF_DATA_BASE_URL + '/accruals/allocations?accrualid=' + accrualId);
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
+
   getPortfolios() {
     const url = encodeURI(REF_DATA_BASE_URL + '/refdata/data?refdata=portfolio');
     return this.http.get(url).pipe(map((response: any) => response));

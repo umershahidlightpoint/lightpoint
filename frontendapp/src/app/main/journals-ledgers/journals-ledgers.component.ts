@@ -16,6 +16,7 @@ import { JournalModalComponent } from './journal-modal/journal-modal.component';
 import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { DataService } from '../../../shared/common/data.service';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
+import {AgGridUtils} from '../../../shared/utils/ag-grid-utils'
 
 class GridConfiguration {
   private gridApi;
@@ -129,7 +130,8 @@ export class JournalsLedgersComponent implements OnInit, AfterContentInit {
     private cdRef: ChangeDetectorRef,
     private financeService: FinancePocServiceProxy,
     private dataService: DataService,
-    private postingEngineService: PostingEngineService
+    private postingEngineService: PostingEngineService,
+    private agGridUtls: AgGridUtils
   ) {
     this.hideGrid = false;
     this.initSideBar();
@@ -634,64 +636,7 @@ export class JournalsLedgersComponent implements OnInit, AfterContentInit {
       }
     ];
 
-    const cdefs = Object.assign([], colDefs);
-
-    for (const i in this.columns) {
-      const column = this.columns[i];
-      // Check to see if it's an ignored field
-      if (this.ignoreFields.filter(i => i == column.field).length == 0) {
-        // Check to see if we have not already defined it
-        if (cdefs.filter(i => i.field == column.field).length == 0) {
-          const clone = { ...colDefs[0] };
-          clone.field = column.field;
-          clone.headerName = column.headerName;
-          clone.filter = column.filter;
-          clone.colId = undefined;
-          if (
-            column.Type == 'System.Int32' ||
-            column.Type == 'System.Decimal' ||
-            column.Type == 'System.Double'
-          ) {
-            clone.cellStyle = { 'text-align': 'right' };
-            clone.cellClass = 'twoDecimalPlaces';
-            clone.valueFormatter = currencyFormatter;
-            clone.cellClassRules = {
-              // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
-              greenFont(params) {
-                if (params.node.rowPinned) {
-                  return false;
-                } else {
-                  return params.value > 0;
-                }
-              },
-              redFont(params) {
-                if (params.node.rowPinned) {
-                  return false;
-                } else {
-                  return params.value < 0;
-                }
-              },
-              footerRow(params) {
-                if (params.node.rowPinned) {
-                  return true;
-                } else {
-                  return false;
-                }
-              }
-            };
-          } else if (column.Type == 'System.DateTime') {
-            clone.enableRowGroup = true;
-            clone.cellStyle = { 'text-align': 'right' };
-            clone.cellClass = 'twoDecimalPlaces';
-            clone.minWidth = 50;
-          } else {
-            clone.enableRowGroup = true;
-          }
-
-          cdefs.push(clone);
-        }
-      }
-    }
+    const cdefs = this.agGridUtls.customizeColumns(colDefs, this.columns, this.ignoreFields);
 
     this.gridOptions.api.setColumnDefs(cdefs);
   }

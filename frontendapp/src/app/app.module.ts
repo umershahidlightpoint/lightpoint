@@ -42,6 +42,7 @@ import { JournalComponent } from './main/journal/journal.component';
 import { JournalsLedgersComponent } from './main/journals-ledgers/journals-ledgers.component';
 import { TrialGridExampleComponent } from './main/trial-balance/trial-balance.component';
 import { LogsComponent } from './main/logs/logs.component';
+import { AccrualsComponent } from './main/accruals/accruals.component';
 import { OperationsComponent } from './main/operations/operations.component';
 import { HeaderComponent } from './menu/header/header.component';
 import { ReportsComponent } from './main/reports/reports.component';
@@ -57,6 +58,7 @@ import { DataService } from '../shared/common/data.service';
 import { LeftMenuComponent } from './menu/left-menu/left-menu.component';
 import { SidenavService } from '../shared/common/sidenav.service';
 import { PostingEngineService } from '../shared/common/posting-engine.service';
+import { AgGridUtils } from '../shared/utils/ag-grid-utils'
 
 @NgModule({
   declarations: [
@@ -69,10 +71,12 @@ import { PostingEngineService } from '../shared/common/posting-engine.service';
     JournalsLedgersComponent,
     TrialGridExampleComponent,
     LogsComponent,
+    AccrualsComponent,
     TemplateRendererComponent,
     AccountComponent,
     CreateAccountComponent,
     OperationsComponent,
+    AccrualsComponent,
     HeaderComponent,
     ReportsComponent,
     RunLogsComponent,
@@ -121,7 +125,8 @@ import { PostingEngineService } from '../shared/common/posting-engine.service';
     MessageService,
     DataService,
     SidenavService,
-    PostingEngineService
+    PostingEngineService,
+    AgGridUtils
   ],
   bootstrap: [AppComponent]
 })
