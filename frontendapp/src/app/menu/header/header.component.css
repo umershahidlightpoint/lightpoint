@@ -18,6 +18,10 @@
   padding: 10px;
 }
 
+.currency {
+  margin-right: 10px;
+}
+
 .date-style {
   font-weight: bold;
 }

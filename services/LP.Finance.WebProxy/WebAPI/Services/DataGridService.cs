@@ -200,7 +200,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                           ,[group_state]
                           ,[sort_state]
                           ,[filter_state]
-                      FROM [Finance].[dbo].[data_grid_layouts] where id =@id";
+                      FROM [data_grid_layouts] where id =@id";
 
 
 

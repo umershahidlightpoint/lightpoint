@@ -43,6 +43,7 @@ import { JournalsLedgersComponent } from './main/journals-ledgers/journals-ledge
 import { TrialGridExampleComponent } from './main/trial-balance/trial-balance.component';
 import { LogsComponent } from './main/logs/logs.component';
 import { AccrualsComponent } from './main/accruals/accruals.component';
+import { SettingsComponent } from './main/settings/settings.component';
 import { OperationsComponent } from './main/operations/operations.component';
 import { HeaderComponent } from './menu/header/header.component';
 import { ReportsComponent } from './main/reports/reports.component';
@@ -76,7 +77,7 @@ import { AgGridUtils } from '../shared/utils/ag-grid-utils'
     AccountComponent,
     CreateAccountComponent,
     OperationsComponent,
-    AccrualsComponent,
+    SettingsComponent,
     HeaderComponent,
     ReportsComponent,
     RunLogsComponent,
