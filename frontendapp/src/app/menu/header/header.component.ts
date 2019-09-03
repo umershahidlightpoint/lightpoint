@@ -14,6 +14,8 @@ export class HeaderComponent implements OnInit, DoCheck, AfterViewInit, OnDestro
   @Input() sidenav: MatSidenav;
   postingEngineMsg: boolean;
   progressBar: any;
+  baseCurrency: string = 'USD'; // Driven by a system setting
+
   date: string = moment().format('MM-DD-YYYY');
   isSubscriptionAlive: boolean;
 

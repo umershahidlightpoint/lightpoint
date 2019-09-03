@@ -1,13 +1,21 @@
+<!------- Hide Grid Div Starts ------->
 <div *ngIf="hideGrid" #logScroll [ngStyle]="processingMsgDiv">
   <div style="display: flex; align-items: center; justify-content: center">
     <h1> Posting Engine is Running. Please Wait. </h1>
   </div>
 </div>
+<!------- Hide Grid Div Ends ------->
 
+
+<!------- Div Starts ------->
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
+  <!------- Tab View Tag Starts ------->
   <p-tabView [ngStyle]="style">
+    <!------- Trial Balance Report Tab Starts ------->
     <p-tabPanel #trialBalance header="Trial Balance Report" [ngStyle]="style">
+      <!-------  Div Starts ------->
       <div class="row ">
+        <!------- Fund Dropdown Div Starts ------->
         <div class="col-md-2">
           <select class="form-control" [(ngModel)]="fund" (ngModelChange)="changeFund($event)">
             <option selected>All Funds</option>
@@ -16,11 +24,15 @@
             </option>
           </select>
         </div>
+        <!------- Fund Dropdown Div Ends ------->
 
+        <!------- DateRange Label Div Starts ------->
         <div>
           <label style="text-align: right"> {{ DateRangeLable }} </label>
         </div>
+        <!------- DateRange Label Div Ends ------->
 
+        <!------- Date Picker Div Starts ------->
         <div class="col-md-5">
           <form>
             <input type="text" autocomplete="off" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
@@ -29,21 +41,37 @@
               class="form-control" />
           </form>
         </div>
+        <!------- Date Picker Div Ends ------->
+
+        <!------- Clear Button Div Starts ------->
         <div class="col-md-3">
           <button (click)="clearFilters()" class="btn btn-info" type="button">
             <i class="fa fa-remove"></i> Clear
           </button>
         </div>
+        <!------- Clear Button Div Ends ------->
+
+        <!------- Refresh Button Div Starts ------->
         <div class="ml-auto mr-3">
           <button (click)="refreshReport()" class="btn btn-info" tooltip="Refresh" placement="top">
             <i class="fa fa-refresh"></i></button>
         </div>
+        <!------- Refresh Button Div Ends ------->
+
       </div>
+      <!------- Div Ends ------->
+
+      <!------- Grid Div Starts ------->
       <div #divToMeasure>
+        <!------- Style For Height Div Starts ------->
         <div [ngStyle]="styleForHight">
+          <!------- Refresh Spinne Div Starts ------->
           <div *ngIf="isLoading" class="refresh-spinner">
             <h5>Loading...</h5>
           </div>
+          <!------- Refresh Spinne Div Starts ------->
+
+          <!------- Table Tag for Headings Starts ------->
           <table class="table table-sm table-striped table-bordered table-secondary table-header">
             <thead>
               <tr>
@@ -53,7 +81,11 @@
               </tr>
             </thead>
           </table>
+          <!------- Table Tag for Headings Ends ------->
+
+          <!------- Trial Report Div Starts ------->
           <div #trialReport [ngStyle]="containerDiv">
+            <!------- Table Tag for Data Starts ------->
             <table class="table table-sm table-striped table-bordered">
               <tbody>
                 <tr *ngFor="let report of trialBalanceReport; let i = index">
@@ -68,7 +100,11 @@
                 </tr>
               </tbody>
             </table>
+            <!------- Table Tag for Data Ends ------->
           </div>
+          <!------- Trial Report Div Ends ------->
+
+          <!------- Table Tag for Footer Starts ------->
           <table class="table table-sm table-striped table-bordered table-secondary table-footer">
             <tfoot>
               <tr>
@@ -87,8 +123,17 @@
               </tr>
             </tfoot>
           </table>
+          <!------- Table Tag for Footer Ends ------->
+
         </div>
+        <!------- Style For Height Div Ends------->
       </div>
+      <!------- Grid Div Ends------->
+
     </p-tabPanel>
+    <!------- Trial Balance Report Tab Ends------->
+
   </p-tabView>
+  <!------- Tab View Tag Starts ------->
 </div>
+<!------- Div Ends------->

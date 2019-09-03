@@ -1,19 +1,16 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
-import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
+import {AgGridUtils} from '../../../shared/utils/ag-grid-utils'
 
 @Component({
-  selector: 'app-accruals',
-  templateUrl: './accruals.component.html',
-  styleUrls: ['./accruals.component.css']
+  selector: 'app-settings',
+  templateUrl: './settings.component.html',
+  styleUrls: ['./settings.component.css']
 })
-export class AccrualsComponent implements OnInit {
+export class SettingsComponent implements OnInit {
   private gridOptions: GridOptions;
   private allocationsGridOptions: GridOptions;
-  private defaultColDef;
-  private rowData: [];
-  private allocationsData: [];
 
   bottomOptions = { alignedGrids: [] };
 
@@ -23,7 +20,7 @@ export class AccrualsComponent implements OnInit {
 
   bottomData: any;
   fund: any;
-
+  
   pageSize: any;
   accountSearch = { id: undefined };
   valueFilter: number;
@@ -49,7 +46,7 @@ export class AccrualsComponent implements OnInit {
   /*
   We can define how we need to show the data here, as this is a log file we should group by the rundate
   */
-  columnDefs = [];
+  columnDefs = []
   rowSelection = 'single';
 
   setWidthAndHeight(width, height) {
@@ -62,32 +59,35 @@ export class AccrualsComponent implements OnInit {
   }
 
   onRowSelected(event) {
-    if (event.node.selected) {
-      this.financeService.getAccrualAllocations(event.node.data.AccrualId).subscribe(result => {
+    if ( event.node.selected) {
+      this.financeService
+      .getAccrualAllocations(event.node.data.AccrualId)
+      .subscribe(result => {
         this.allocationAccrualsData = result;
-        const someArray = this.agGridUtils.columizeData(
-          result.data,
-          this.allocationAccrualsData.meta.Columns
-        );
-        const cdefs = this.agGridUtils.customizeColumns(
-          [],
-          this.allocationAccrualsData.meta.Columns,
-          ['Id', 'AllocationId', 'EMSOrderId']
-        );
+
+        //this.allocationsData = [];
+
+        const someArray = this.agGridUtils.columizeData(result.data, this.allocationAccrualsData.meta.Columns);
+        const cdefs = this.agGridUtils.customizeColumns([], this.allocationAccrualsData.meta.Columns, ["Id", "AllocationId", "EMSOrderId"]);
+
         this.allocationsGridOptions.api.setColumnDefs(cdefs);
-        this.allocationsData = someArray as [];
+
       });
     }
   }
 
-  constructor(private financeService: FinancePocServiceProxy, private agGridUtils: AgGridUtils) {
+  constructor(
+    private financeService: FinancePocServiceProxy, 
+    private agGridUtils: AgGridUtils) 
+    {
+
     this.gridOptions = {
       rowData: null,
       columnDefs: this.columnDefs,
       onGridReady: () => {
         //this.gridOptions.api.sizeColumnsToFit();
       },
-      onFirstDataRendered: params => {
+      onFirstDataRendered: () => {
         //params.api.sizeColumnsToFit();
       },
       enableFilter: true,
@@ -102,7 +102,7 @@ export class AccrualsComponent implements OnInit {
       onGridReady: () => {
         //this.gridOptions.api.sizeColumnsToFit();
       },
-      onFirstDataRendered: params => {
+      onFirstDataRendered: () => {
         //params.api.sizeColumnsToFit();
       },
       enableFilter: true,
@@ -110,16 +110,13 @@ export class AccrualsComponent implements OnInit {
       alignedGrids: [],
       suppressHorizontalScroll: false
     } as GridOptions;
+
   }
 
   accrualsData: any;
-  allocationAccrualsData: any;
+  allocationAccrualsData:any;
 
   ngOnInit() {
-    this.defaultColDef = {
-      sortable: true,
-      resizable: true
-    };
     // align scroll of grid and footer grid
     this.gridOptions.alignedGrids.push(this.bottomOptions);
     this.bottomOptions.alignedGrids.push(this.gridOptions);
@@ -130,14 +127,21 @@ export class AccrualsComponent implements OnInit {
     this.sortColum = '';
     this.sortDirection = '';
 
-    this.financeService.getAccruals().subscribe(result => {
-      this.accrualsData = result;
-      this.rowData = [];
-      const someArray = this.agGridUtils.columizeData(result.data, this.accrualsData.meta.Columns);
-      const cdefs = this.agGridUtils.customizeColumns([], this.accrualsData.meta.Columns, []);
-      this.gridOptions.api.setColumnDefs(cdefs);
-      this.rowData = someArray as [];
-    });
+    this.financeService
+      .getAccruals()
+      .subscribe(result => {
+        this.accrualsData = result;
+
+
+        debugger
+
+        const someArray = this.agGridUtils.columizeData(result.data, this.accrualsData.meta.Columns);
+        const cdefs = this.agGridUtils.customizeColumns([], this.accrualsData.meta.Columns, []);
+
+        this.gridOptions.api.setColumnDefs(cdefs);
+
+    
+      });
   }
 
   onFirstDataRendered(params) {
