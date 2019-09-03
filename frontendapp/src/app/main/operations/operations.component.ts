@@ -17,6 +17,7 @@ import * as moment from 'moment';
 import { FormGroup, FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
+import { File } from 'src/shared/models/files';
 
 @Component({
   selector: 'app-operations',
@@ -24,30 +25,31 @@ import { PostingEngineService } from 'src/shared/common/posting-engine.service';
   styleUrls: ['./operations.component.css']
 })
 export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked {
-  isSubscriptionAlive: boolean;
-  isLoading = false;
-  key: any;
-  postingEngineMsg = false;
-  clearJournalForm: FormGroup;
-  selectedPeriod: any;
-  messages: any;
-  Progress: any;
-  totalRecords: number;
-  bottomOptions = { alignedGrids: [] };
-  selected: { startDate: moment.Moment; endDate: moment.Moment };
-
-  private gridOptions: GridOptions;
-  private defaultColDef;
-  private rowData: [];
-
   @ViewChild('topGrid') topGrid;
   @ViewChild('bottomGrid') bottomGrid;
   @ViewChild('dateRangPicker') dateRangPicker;
-  @ViewChild('greetCell') greetCell: TemplateRef<any>;
   @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
   @ViewChild('confirm') confirmModal: ModalDirective;
-  @Output() showPostingEngineMsg: EventEmitter<any> = new EventEmitter<any>();
   @ViewChild('logScroll') private logContainer: ElementRef;
+  @Output() showPostingEngineMsg: EventEmitter<any> = new EventEmitter<any>();
+
+  public gridOptions: GridOptions;
+  public filesGridOptions: GridOptions;
+  private defaultColDef;
+  public rowData: [];
+  public files: File[] = [];
+
+  isSubscriptionAlive: boolean;
+  isLoading = false;
+  postingEngineStatus = false;
+  selectedPeriod: any;
+  clearJournalForm: FormGroup;
+  key: any;
+  messages: any;
+  progress: any;
+  totalRecords: number;
+  selected: { startDate: moment.Moment; endDate: moment.Moment };
+  bottomOptions = { alignedGrids: [] };
 
   totalCredit: number;
   totalDebit: number;
@@ -55,7 +57,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   startDate: any;
   fund: any;
   endDate: any;
-  symbal: string;
+  symbol: string;
   pageSize: any;
   accountSearch = { id: undefined };
   valueFilter: number;
@@ -102,6 +104,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     boxSizing: 'border-box',
     overflow: 'scroll'
   };
+
   /*
   We can define how we need to show the data here, as this is a log file we should group by the rundate
   */
@@ -122,6 +125,44 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       resizable: true
     },
     { field: 'action', headerName: 'Action', sortable: true, filter: true }
+  ];
+
+  /*
+  We can define how we need to show the data here, as this is a log file we should group by the rundate
+  */
+  columnDefsForFiles = [
+    {
+      field: 'id',
+      headerName: 'Id',
+      hide: true
+    },
+    {
+      field: 'name',
+      headerName: 'File Name',
+      sortable: true,
+      filter: true,
+      enableRowGroup: true,
+      resizable: true
+    },
+    {
+      field: 'path',
+      headerName: 'Path',
+      hide: true
+    },
+    {
+      field: 'fileActionId',
+      headerName: 'File Action Id',
+      hide: true
+    },
+    {
+      field: 'action',
+      headerName: 'Action',
+      sortable: true,
+      filter: true,
+      resizable: true
+    },
+    { field: 'actionStartDate', headerName: 'Start Date', sortable: true, filter: true },
+    { field: 'actionEndDate', headerName: 'End Date', sortable: true, filter: true }
   ];
 
   setWidthAndHeight(width, height) {
@@ -153,6 +194,21 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       suppressHorizontalScroll: true
     } as GridOptions;
     // this.selected = {startDate: moment().subtract(6, 'days'), endDate: moment().subtract(1, 'days')};
+
+    this.filesGridOptions = {
+      rowData: null,
+      columnDefs: this.columnDefsForFiles,
+      onGridReady: () => {
+        this.gridOptions.api.sizeColumnsToFit();
+      },
+      onFirstDataRendered: params => {
+        params.api.sizeColumnsToFit();
+      },
+      enableFilter: true,
+      animateRows: true,
+      alignedGrids: [],
+      suppressHorizontalScroll: true
+    } as GridOptions;
   }
 
   ngOnInit() {
@@ -161,12 +217,11 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       sortable: true,
       resizable: true
     };
-    // align scroll of grid and footer grid
+    // Align Scroll of Grid and Footer Grid
     this.gridOptions.alignedGrids.push(this.bottomOptions);
     this.bottomOptions.alignedGrids.push(this.gridOptions);
 
-    this.symbal = 'ALL';
-
+    this.symbol = 'ALL';
     this.page = 0;
     this.pageSize = 0;
     this.accountSearch.id = 0;
@@ -175,14 +230,17 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     this.sortDirection = '';
 
     this.getJournalLogs();
-
     this.buildForm();
+  }
+
+  ngAfterViewChecked() {
+    this.scrollToBottom();
   }
 
   private getJournalLogs() {
     this.financeService
       .getJournalLogs(
-        this.symbal,
+        this.symbol,
         this.page,
         this.pageSize,
         this.accountSearch.id,
@@ -200,13 +258,28 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       });
   }
 
-  ngAfterViewChecked() {
-    this.scrollToBottom();
+  private getFiles() {
+    this.financeService.getFiles().subscribe(result => {
+      this.files = result.data.map(item => ({
+        id: item.Id,
+        name: item.Name,
+        path: item.Path,
+        fileActionId: item.File_Action_Id,
+        action: item.Action,
+        actionStartDate: item.Action_Start_Date,
+        actionEndDate: item.Action_End_Date
+      }));
+    });
   }
 
   refreshGrid() {
     this.gridOptions.api.showLoadingOverlay();
     this.getJournalLogs();
+  }
+
+  refreshFilesGrid() {
+    this.filesGridOptions.api.showLoadingOverlay();
+    this.getFiles();
   }
 
   onBtExport() {
@@ -239,7 +312,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
      this is a fire and forget as the process may take a little while to complete
   */
   runEngine() {
-    this.postingEngineMsg = true;
+    this.postingEngineStatus = true;
     this.financeService
       .startPostingEngine()
       .pipe(takeWhile(() => this.isSubscriptionAlive))
@@ -266,7 +339,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
         .pipe(takeWhile(() => this.isSubscriptionAlive))
         .subscribe(response => {
           this.isLoading = response.Status;
-          this.Progress = response.progress;
+          this.progress = response.progress;
           this.messages = response.message == '' ? this.messages : response.message;
           if (response.Status) {
             this.getLogs();
@@ -278,7 +351,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   IsPostingEngineRunning(e) {
-    if (e.index == 1) {
+    if (e.index === 1) {
       this.financeService
         .isPostingEngineRunning()
         .pipe(takeWhile(() => this.isSubscriptionAlive))
@@ -289,6 +362,9 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
             this.getLogs();
           }
         });
+    }
+    if (e.index === 2) {
+      this.loadFilesGrid();
     }
   }
 
@@ -325,6 +401,11 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     this.clearJournalForm.reset();
   }
 
+  loadFilesGrid() {
+    this.getFiles();
+    this.filesGridOptions.api.sizeColumnsToFit();
+  }
+
   getContextMenuItems(params) {
     const defaultItems = ['copy', 'paste', 'export'];
     const items = [
@@ -358,6 +439,14 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   setGroupingState(value: boolean) {
     this.gridOptions.api.forEachNode((node, index) => {
+      if (node.group) {
+        node.setExpanded(value);
+      }
+    });
+  }
+
+  setGroupingStateForFiles(value: boolean) {
+    this.filesGridOptions.api.forEachNode((node, index) => {
       if (node.group) {
         node.setExpanded(value);
       }
