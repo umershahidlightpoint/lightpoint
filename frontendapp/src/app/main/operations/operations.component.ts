@@ -429,6 +429,37 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
           });
         }
       },
+      ,
+      {
+        name: 'Expand All',
+        action() {
+          params.api.forEachNode((node, index) => {
+            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
+              node.setExpanded(true);
+              for (const key in node.childrenAfterFilter) {
+                if (!node.childrenAfterFilter[key].expanded) {
+                  node.childrenAfterFilter[key].setExpanded(true);
+                }
+              }
+            }
+          });
+        }
+      },
+      {
+        name: 'Collapse All',
+        action() {
+          params.api.forEachNode((node, index) => {
+            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
+              node.setExpanded(false);
+              for (const key in node.childrenAfterFilter) {
+                if (node.childrenAfterFilter[key].expanded) {
+                  node.childrenAfterFilter[key].setExpanded(false);
+                }
+              }
+            }
+          });
+        }
+      },
       ...defaultItems
     ];
     if (params.node.group) {
