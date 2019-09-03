@@ -891,10 +891,29 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       {
         name: 'Expand All',
         action() {
-          console.log('params', params);
           params.api.forEachNode((node, index) => {
             if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
               node.setExpanded(true);
+              for (const key in node.childrenAfterFilter) {
+                if (!node.childrenAfterFilter[key].expanded) {
+                  node.childrenAfterFilter[key].setExpanded(true);
+                }
+              }
+            }
+          });
+        }
+      },
+      {
+        name: 'Collapse All',
+        action() {
+          params.api.forEachNode((node, index) => {
+            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
+              node.setExpanded(false);
+              for (const key in node.childrenAfterFilter) {
+                if (node.childrenAfterFilter[key].expanded) {
+                  node.childrenAfterFilter[key].setExpanded(false);
+                }
+              }
             }
           });
         }
@@ -923,7 +942,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     // alert(`${ row.country } says "${ row.greeting }!`);
     alert('For show popup');
   }
-  
+
   openJournalModal() {
     this.jounalModal.openModal({});
   }

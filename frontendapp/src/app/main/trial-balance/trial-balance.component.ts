@@ -508,6 +508,40 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
           });
         }
       },
+      {
+        name: 'Expand All',
+        action() {
+          params.api.forEachNode((node, index) => {
+            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
+              node.setExpanded(true);
+              // console.log(typeof node.childrenAfterFilter);
+              for (const key in node.childrenAfterFilter) {
+                if (!node.childrenAfterFilter[key].expanded) {
+                  console.log(node.childrenAfterFilter[key].expanded);
+                  node.childrenAfterFilter[key].setExpanded(true);
+                }
+              }
+            }
+          });
+        }
+      },
+      {
+        name: 'Collapse All',
+        action() {
+          params.api.forEachNode((node, index) => {
+            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
+              node.setExpanded(false);
+              // console.log(typeof node.childrenAfterFilter);
+              for (const key in node.childrenAfterFilter) {
+                if (node.childrenAfterFilter[key].expanded) {
+                  console.log(node.childrenAfterFilter[key].expanded);
+                  node.childrenAfterFilter[key].setExpanded(false);
+                }
+              }
+            }
+          });
+        }
+      },
       ...defaultItems
     ];
     if (params.node.group) {
