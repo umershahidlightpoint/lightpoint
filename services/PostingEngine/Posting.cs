@@ -56,11 +56,11 @@ namespace PostingEngine
                 var accruals = GetTransactions(accrualsURL + Period);
                 Task.WaitAll(new Task[] {allocations, trades, accruals});
 
-                var res = JsonConvert.DeserializeObject<PayLoad>(allocations.Result);
+                var allocationsResult = JsonConvert.DeserializeObject<PayLoad>(allocations.Result);
 
-                var allocationList = JsonConvert.DeserializeObject<Transaction[]>(res.payload);
+                var allocationList = JsonConvert.DeserializeObject<Transaction[]>(allocationsResult.payload);
                 var tradeList = JsonConvert.DeserializeObject<Transaction[]>(trades.Result);
-                var accrualList = JsonConvert.DeserializeObject<Accrual[]>(accruals.Result);
+                var accrualList = JsonConvert.DeserializeObject<Wrap<Accrual>>(accruals.Result).Data;
 
                 var postingEnv = new PostingEngineEnvironment(connection, transaction)
                 {
@@ -84,7 +84,7 @@ namespace PostingEngine
                 }.Save(connection, transaction);
                 sw.Reset();
                 sw.Start();
-                // RUn the trades pass next
+                // Run the trades pass next
                 int count = RunAsync(connection, transaction, postingEnv).GetAwaiter().GetResult();
                 sw.Stop();
 
@@ -222,7 +222,8 @@ namespace PostingEngine
             var startdate = datePeriod.Item1.ToString("MM-dd-yyyy") + " 00:00";
             var enddate = datePeriod.Item2.ToString("MM-dd-yyyy") + " 16:30";
 
-            var whereClause = $"where [when] between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}')";
+            var whereClause =
+                $"where [when] between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}')";
 
             // new SqlCommand("delete from ledger " + whereClause, connection).ExecuteNonQuery();
             new SqlCommand("delete from journal " + whereClause, connection).ExecuteNonQuery();
@@ -273,7 +274,7 @@ namespace PostingEngine
                 return;
             }
 
-            if ( !rule.IsValid(env, element))
+            if (!rule.IsValid(env, element))
             {
                 env.AddMessage($"trade not valid to process {element.LpOrderId}");
                 return;

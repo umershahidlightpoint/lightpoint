@@ -2,11 +2,6 @@
 
 namespace LP.Finance.Common.Dtos
 {
-    enum GridName
-    {
-        Journal = 1 
-    }
-
     public class DataGridStatusDto
     {
         public int Id { get; set; }

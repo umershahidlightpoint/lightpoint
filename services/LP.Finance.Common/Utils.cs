@@ -40,7 +40,8 @@ namespace LP.Finance.Common
                 metaData.Columns.Add(new ColumnDef
                 {
                     filter = true,
-                    headerName = col.ColumnName, // This will be driven by a data dictionary that will provide the write names in the System
+                    headerName =
+                        col.ColumnName, // This will be driven by a data dictionary that will provide the write names in the System
                     field = col.ColumnName,
                     Type = col.DataType.ToString()
                 });

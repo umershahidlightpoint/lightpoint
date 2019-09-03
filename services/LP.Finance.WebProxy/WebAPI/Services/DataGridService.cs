@@ -3,17 +3,15 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
-using Newtonsoft.Json;
 using SqlDAL.Core;
 using System.Text;
+
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
     public class DataGridService : IDataGridService
     {
-
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -30,71 +28,66 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 if (oDataGridStatusDto.Id > 0)
                 {
                     DataGridParameters = new List<SqlParameter>
-                       {
-                             new SqlParameter("id", oDataGridStatusDto.Id),
+                    {
+                        new SqlParameter("id", oDataGridStatusDto.Id),
 
-                            new SqlParameter("pivot_mode", oDataGridStatusDto.PivotMode),
-                            new SqlParameter("column_state", oDataGridStatusDto.ColumnState),
-                            new SqlParameter("group_state", oDataGridStatusDto.GroupState),
-                            new SqlParameter("sort_state", oDataGridStatusDto.SortState),
-                            new SqlParameter("filter_state", oDataGridStatusDto.FilterState),
-                        };
+                        new SqlParameter("pivot_mode", oDataGridStatusDto.PivotMode),
+                        new SqlParameter("column_state", oDataGridStatusDto.ColumnState),
+                        new SqlParameter("group_state", oDataGridStatusDto.GroupState),
+                        new SqlParameter("sort_state", oDataGridStatusDto.SortState),
+                        new SqlParameter("filter_state", oDataGridStatusDto.FilterState),
+                    };
 
-                    DataGridInsert = new StringBuilder(
-                       $@"UPDATE [data_grid_layouts] 
-                        SET [pivot_mode] = @pivot_mode,[column_state]= @column_state  
-                        ,[group_state]  = @group_state ,[sort_state] = @sort_state
-                        ,[filter_state] = @filter_state
-                        WHERE  id= @id; SELECT   @@ROWCOUNT;");
+                    DataGridInsert = new StringBuilder($@"UPDATE [data_grid_layouts] 
+                                                        SET [pivot_mode] = @pivot_mode,[column_state]= @column_state  
+                                                        ,[group_state]  = @group_state ,[sort_state] = @sort_state
+                                                        ,[filter_state] = @filter_state
+                                                        WHERE  id= @id; SELECT   @@ROWCOUNT;");
                 }
                 else
                 {
                     DataGridParameters = new List<SqlParameter>
-                       {
-                                new SqlParameter("id", oDataGridStatusDto.Id),
-                                new SqlParameter("gridId", oDataGridStatusDto.GridId),
-                                new SqlParameter("grid_name", oDataGridStatusDto.GridName),
-                                new SqlParameter("grid_layout_name", oDataGridStatusDto.GridLayoutName),
-                                new SqlParameter("userId", oDataGridStatusDto.UserId),
-                                new SqlParameter("pivot_mode", oDataGridStatusDto.PivotMode),
-                                new SqlParameter("column_state", oDataGridStatusDto.ColumnState),
-                                new SqlParameter("group_state", oDataGridStatusDto.GroupState),
-                                new SqlParameter("sort_state", oDataGridStatusDto.SortState),
-                                new SqlParameter("filter_state", oDataGridStatusDto.FilterState),
-                                new SqlParameter("is_public", oDataGridStatusDto.IsPublic ? 1 : 0)
-                       };
-                    DataGridInsert = new StringBuilder(
-                       $@"  INSERT INTO  [data_grid_layouts]
-                                                                        ([grid_name] 
-                                                                        ,[userId]  
-                                                                        ,[grid_id]
-                                                                        ,[pivot_mode]  
-                                                                        ,[column_state]  
-                                                                        ,[group_state]  
-                                                                        ,[sort_state] 
-                                                                        ,[filter_state]
-                                                                        ,[grid_layout_name]
-                                                                        ,[is_public]
-                                                                         )
-                                                                        VALUES
-                                                                        (@grid_name
-                                                                         ,@gridId
-                                                                        ,@userId
-                                                                        ,@pivot_mode 
-                                                                        ,@column_state
-                                                                        ,@group_state
-                                                                        ,@sort_state
-                                                                        ,@filter_state
-                                                                        ,@grid_layout_name
-                                                                        ,@is_public);
-                                                                        SELECT SCOPE_IDENTITY() AS 'Identity' 
-                                                                          ");
-
+                    {
+                        new SqlParameter("id", oDataGridStatusDto.Id),
+                        new SqlParameter("gridId", oDataGridStatusDto.GridId),
+                        new SqlParameter("grid_name", oDataGridStatusDto.GridName),
+                        new SqlParameter("grid_layout_name", oDataGridStatusDto.GridLayoutName),
+                        new SqlParameter("userId", oDataGridStatusDto.UserId),
+                        new SqlParameter("pivot_mode", oDataGridStatusDto.PivotMode),
+                        new SqlParameter("column_state", oDataGridStatusDto.ColumnState),
+                        new SqlParameter("group_state", oDataGridStatusDto.GroupState),
+                        new SqlParameter("sort_state", oDataGridStatusDto.SortState),
+                        new SqlParameter("filter_state", oDataGridStatusDto.FilterState),
+                        new SqlParameter("is_public", oDataGridStatusDto.IsPublic ? 1 : 0)
+                    };
+                    DataGridInsert = new StringBuilder($@"INSERT INTO [data_grid_layouts]
+                                                        ([grid_name] 
+                                                        ,[userId]  
+                                                        ,[grid_id]
+                                                        ,[pivot_mode]  
+                                                        ,[column_state]  
+                                                        ,[group_state]  
+                                                        ,[sort_state] 
+                                                        ,[filter_state]
+                                                        ,[grid_layout_name]
+                                                        ,[is_public]
+                                                         )
+                                                        VALUES
+                                                        (@grid_name
+                                                         ,@gridId
+                                                        ,@userId
+                                                        ,@pivot_mode 
+                                                        ,@column_state
+                                                        ,@group_state
+                                                        ,@sort_state
+                                                        ,@filter_state
+                                                        ,@grid_layout_name
+                                                        ,@is_public);
+                                                        SELECT SCOPE_IDENTITY() AS 'Identity'");
                 }
 
-
-
-                sqlHelper.Insert(DataGridInsert.ToString(), CommandType.Text, DataGridParameters.ToArray(), out int dataGridId);
+                sqlHelper.Insert(DataGridInsert.ToString(), CommandType.Text, DataGridParameters.ToArray(),
+                    out int dataGridId);
                 sqlHelper.CloseConnection();
             }
             catch (Exception ex)
@@ -104,7 +97,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 Console.WriteLine($"SQL Rollback Transaction Exception: {ex}");
                 return Utils.Wrap(false);
             }
-
 
             return Utils.Wrap(true);
         }
@@ -120,14 +112,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                           ,[group_state]
                           ,[sort_state]
                           ,[filter_state]
-                      FROM [data_grid_layouts]";
-
-
+                        FROM [data_grid_layouts]";
 
             DataGridStatusDto oDataGridStatusDto = new DataGridStatusDto();
             MetaData meta = new MetaData();
+
             using (var reader =
-                sqlHelper.GetDataReader(query, CommandType.Text,null  , out var sqlConnection))
+                sqlHelper.GetDataReader(query, CommandType.Text, null, out var sqlConnection))
             {
                 while (reader.Read())
                 {
@@ -140,34 +131,32 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 reader.Close();
                 sqlConnection.Close();
-            } 
-            
+            }
+
             return Utils.Wrap(true, oDataGridStatusDto, meta);
         }
 
-
-        public object GetDataGridLayouts(int gridId,int userId)
+        public object GetDataGridLayouts(int gridId, int userId)
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);
             List<SqlParameter> Parameters = new List<SqlParameter>
-                {
-                    new SqlParameter("gridId", gridId) ,
-                    new SqlParameter("userId", userId) 
-                     
-                };
+            {
+                new SqlParameter("gridId", gridId),
+                new SqlParameter("userId", userId)
+            };
 
-            var query = $@" SELECT [id]  ,[grid_name] ,[grid_layout_name] ,[grid_id], isnull([is_public],0) as [is_public] 
-                                  FROM [dbo].[data_grid_layouts] where grid_id = @gridId and userid = @userId";
-             
-           
+            var query =
+                $@"SELECT [id], [grid_name], [grid_layout_name], [grid_id], isnull([is_public],0) as [is_public] 
+                FROM [data_grid_layouts] where grid_id = @gridId and userid = @userId";
+
             MetaData meta = new MetaData();
             List<DataGridStatusDto> lDataGridStatusDto = new List<DataGridStatusDto>();
+
             using (var reader =
                 sqlHelper.GetDataReader(query, CommandType.Text, Parameters.ToArray(), out var sqlConnection))
             {
                 while (reader.Read())
                 {
-                   
                     DataGridStatusDto oDataGridStatusDto = new DataGridStatusDto();
                     oDataGridStatusDto.Id = Convert.ToInt32(reader["id"]);
                     oDataGridStatusDto.GridName = reader["grid_name"].ToString();
@@ -188,9 +177,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);
             List<SqlParameter> Parameters = new List<SqlParameter>
-                {
-                    new SqlParameter("id", id) 
-                 };
+            {
+                new SqlParameter("id", id)
+            };
 
             var query = $@"SELECT   [id]
                           ,[grid_name]
@@ -200,12 +189,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                           ,[group_state]
                           ,[sort_state]
                           ,[filter_state]
-                      FROM [Finance].[dbo].[data_grid_layouts] where id =@id";
-
+                        FROM [data_grid_layouts] where id =@id";
 
 
             DataGridStatusDto oDataGridStatusDto = new DataGridStatusDto();
             MetaData meta = new MetaData();
+
             using (var reader =
                 sqlHelper.GetDataReader(query, CommandType.Text, Parameters.ToArray(), out var sqlConnection))
             {
@@ -226,4 +215,3 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         }
     }
 }
- 

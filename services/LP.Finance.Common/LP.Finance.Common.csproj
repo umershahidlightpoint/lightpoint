@@ -78,6 +78,7 @@
     <Compile Include="Model\Journal.cs" />
     <Compile Include="Model\JournalLog.cs" />
     <Compile Include="Model\Ledger.cs" />
+    <Compile Include="Model\Wrap.cs" />
     <Compile Include="Model\PayLoad.cs" />
     <Compile Include="Model\Tag.cs" />
     <Compile Include="Model\Transaction.cs" />

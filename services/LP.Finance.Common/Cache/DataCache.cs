@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LP.Finance.Common.Cache
 {
     public class DataCache
     {
         private static object lockHandle = "DataCache_lock";
+
         static DataCache()
         {
             CachedResults = new Dictionary<string, DataCacheElement>();
@@ -33,7 +31,7 @@ namespace LP.Finance.Common.Cache
                         CachedModel = p(),
                         LastUpdate = DateTime.Now,
                         Key = key
-                    }); ;
+                    });
                 }
                 else
                 {
@@ -47,7 +45,6 @@ namespace LP.Finance.Common.Cache
 
                 return CachedResults[key].CachedModel;
             }
-
         }
     }
 }
