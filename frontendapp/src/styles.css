@@ -6,25 +6,3 @@
 @import '../node_modules/font-awesome/css/font-awesome.css';
 @import '~ag-grid-community/dist/styles/ag-grid.css';
 @import '~ag-grid-community/dist/styles/ag-theme-balham.css';
-
-/* @import '~/angular-notifier/styles'; */
-/* @import "../node_modules/primeng/resources/component/table/table.css"; */
-
-/* .margin-top-50 {
-    margin-top: 50px !important;
-} */
-
-.value-input {
-  margin-left: 18px;
-  width: 58% !important;
-  display: initial;
-}
-
-.font-size-12 {
-  font-size: 12px;
-}
-
-.ui-panel-content {
-  padding: 0 !important;
-  margin: 0;
-}

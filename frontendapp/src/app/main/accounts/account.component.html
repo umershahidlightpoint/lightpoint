@@ -1,16 +1,16 @@
-<!------- Hide Grid Div ------->
+<!-- Hide Grid Div -->
 <div *ngIf="hideGrid" [ngStyle]="containerDiv">
   <div style="display: flex; align-items: center; justify-content: center">
     <h1> Posting Engine is Running. Please Wait. </h1>
   </div>
 </div>
-<!------- Hide Grid Div Ends ------->
+<!-- Hide Grid Div Ends -->
 
-<!------- Div Starts ------->
+<!-- Div Starts -->
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
-  <!------- Tab View Tag Starts ------->
+  <!-- Tab View Tag Starts -->
   <p-tabView [ngStyle]="style">
-    <!------- Account Tab Starts ------->
+    <!-- Account Tab Starts -->
     <p-tabPanel header="Accounts" [ngStyle]="style">
       <!----- Action Buttons Div Starts ----->
       <div class="row">
@@ -73,11 +73,11 @@
       </div>
       <!----- Div To Measure Identifier Ends ----->
     </p-tabPanel>
-    <!------- Account Tab Ends ------->
+    <!-- Account Tab Ends -->
   </p-tabView>
-  <!------- Tab View Tag Ends ------->
+  <!-- Tab View Tag Ends -->
 </div>
-<!------- Div Ends ------->
+<!-- Div Ends -->
 
 <!----- Create Account Component Tag ----->
 <app-create-account #createModal [selectedAccCategory]="selectedAccountCategory" (modalClose)="getAccountsRecord()">

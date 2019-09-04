@@ -111,7 +111,7 @@ td.negative {
 }
 
 ::-webkit-scrollbar-thumb {
-  /* background-clip: padding-box; / */
+  /* background-clip: padding-box; */
   border-radius: 16px;
   border: 4px solid transparent;
   background-color: rgba(160, 160, 160);

@@ -7,24 +7,24 @@
     <div class="modal-content">
       <!------ Form Div Starts------>
       <form #form="ngForm" (ngSubmit)="saveJournal()" [formGroup]="journalForm">
-        <!------- Modal Header Starts------->
+        <!-- Modal Header Starts-->
         <div class="modal-header">
           <h3 *ngIf="!editJournal"> Create Journal </h3>
           <h3 *ngIf="editJournal"> Edit Journal </h3>
           <button type="button" class="close" data-dismiss="modal" (click)="closeModal()">&times;</button>
         </div>
-        <!------- Modal Header Ends------->
+        <!-- Modal Header Ends-->
 
-        <!------- Modal Body Starts------->
+        <!-- Modal Body Starts-->
         <div class="modal-body">
-          <!------- Fund Div Starts ------->
+          <!-- Fund Div Starts -->
           <div class="form-group">
             <div class="row">
-              <!------- Fund Label ------->
+              <!-- Fund Label -->
               <div class="col-sm-3">
                 <label> Fund </label>
               </div>
-              <!------- Fund Drop Down ------->
+              <!-- Fund Drop Down -->
               <div class="col-sm-9">
                 <!-- <select [(ngModel)]="accTypeId"  -->
                 <select class="custom-select" formControlName="fund" [(ngModel)]="accountFund">
@@ -36,16 +36,16 @@
               </div>
             </div>
           </div>
-          <!------- Fund Div Ends ------->
+          <!-- Fund Div Ends -->
 
-          <!------- From Account Div Starts ------->
+          <!-- From Account Div Starts -->
           <div class="form-group">
             <div class="row">
-              <!------- From Account Label ------->
+              <!-- From Account Label -->
               <div class="col-sm-3">
                 <label> Account From </label>
               </div>
-              <!------- From Account Drop Down ------->
+              <!-- From Account Drop Down -->
               <div class="col-sm-9">
                 <select class="custom-select" formControlName="fromAccount" [(ngModel)]="fromAccountId"
                   (change)=onAccountSelect()>
@@ -59,16 +59,16 @@
               </div>
             </div>
           </div>
-          <!------- From Account Div Ends ------->
+          <!-- From Account Div Ends -->
 
-          <!------- To Account Div Starts ------->
+          <!-- To Account Div Starts -->
           <div class="form-group">
-            <!------- To Account Label ------->
+            <!-- To Account Label -->
             <div class="row">
               <div class="col-sm-3">
                 <label> Account To </label>
               </div>
-              <!------- TO Account Drop Down ------->
+              <!-- TO Account Drop Down -->
               <div class="col-sm-9">
                 <select class="custom-select" formControlName="toAccount" (change)=onAccountSelect()
                   [(ngModel)]="toAccountId">
@@ -82,27 +82,27 @@
               </div>
             </div>
           </div>
-          <!------- To Account Div Ends ------->
+          <!-- To Account Div Ends -->
 
-          <!------- Value Div Starts------->
+          <!-- Value Div Starts-->
           <div class="form-group">
             <div class="row">
-              <!------- Value Label ------->
+              <!-- Value Label -->
               <div class="col-sm-3">
                 <label> Value </label>
               </div>
-              <!------- Value Input ------->
+              <!-- Value Input -->
               <div class="col-sm-9">
                 <input class="form-control" formControlName="value" type="number" step=".07">
               </div>
             </div>
           </div>
-          <!------- Value Div Ends------->
+          <!-- Value Div Ends-->
 
         </div>
-        <!------- Modal Body Ends------->
+        <!-- Modal Body Ends-->
 
-        <!------- Modal Footer Starts ------->
+        <!-- Modal Footer Starts -->
         <div class="modal-footer">
           <button *ngIf="editJournal" type="button" class="btn btn-danger mr-auto" (click)="deleteJournal()"><i
               class="fa fa-trash"></i> Delete</button>
@@ -113,7 +113,7 @@
             {{editJournal ? "Update" : "Save"}}
           </button>
         </div>
-        <!------- Modal Footer Ends ------->
+        <!-- Modal Footer Ends -->
       </form>
       <!------ Form Div Ends------>
     </div>

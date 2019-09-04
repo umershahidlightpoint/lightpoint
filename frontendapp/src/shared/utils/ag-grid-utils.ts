@@ -1,8 +1,7 @@
+// tslint:disable: forin
+// tslint:disable: triple-equals
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { Observable } from 'rxjs';
-import { interval, from, timer } from 'rxjs';
-import { map, concatMap, filter, take } from 'rxjs/operators';
 import * as moment from 'moment';
 
 export const API_BASE_URL = environment.remoteServerUrl;
@@ -10,7 +9,9 @@ export const REF_DATA_BASE_URL = environment.referenceDataUrl;
 
 @Injectable()
 export class AgGridUtils {
-  columizeData(data: any, columns:any) {
+  constructor() {}
+
+  columizeData(data: any, columns: any) {
     const someArray = [];
 
     for (const item in data) {
@@ -27,16 +28,12 @@ export class AgGridUtils {
     }
 
     return someArray;
-}
-  constructor() {
   }
-
 
   /*
   Take the original Defs and append to them and then return the result
   */
-  customizeColumns(colDefs:any, columns: any, ignoreFields:any) {
-
+  customizeColumns(colDefs: any, columns: any, ignoreFields: any) {
     const cdefs = Object.assign([], colDefs);
 
     for (const i in columns) {

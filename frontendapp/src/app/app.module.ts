@@ -4,11 +4,9 @@ import { MaterialModule } from './material.module';
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { FundsComponent } from './main/funds/funds.component';
 import { TableModule } from 'primeng/table';
 import { HttpClientModule } from '@angular/common/http';
 import { FinancePocServiceProxy } from '../shared/service-proxies/service-proxies';
-import { LedgerComponent } from './main/ledger/ledger.component';
 import { AgGridModule } from 'ag-grid-angular';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { TemplateRendererComponent } from './template-renderer/template-renderer.component';
@@ -29,16 +27,13 @@ import {
   NoopAnimationsModule
 } from '@angular/platform-browser/animations';
 import { ModalModule, TooltipModule } from 'ngx-bootstrap';
-import { LegderModalComponent } from './main/legder-modal/legder-modal.component';
 import { AngularSplitModule } from 'angular-split';
 import { PanelModule } from 'primeng/panel';
 import { DragAndDropModule } from 'angular-draggable-droppable';
-import { UpdateLedgerModalComponent } from './main/update-ledger-modal/update-ledger-modal.component';
 import { MessagesModule } from 'primeng/messages';
 import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { JournalComponent } from './main/journal/journal.component';
 import { JournalsLedgersComponent } from './main/journals-ledgers/journals-ledgers.component';
 import { TrialGridExampleComponent } from './main/trial-balance/trial-balance.component';
 import { LogsComponent } from './main/logs/logs.component';
@@ -59,16 +54,11 @@ import { DataService } from '../shared/common/data.service';
 import { LeftMenuComponent } from './menu/left-menu/left-menu.component';
 import { SidenavService } from '../shared/common/sidenav.service';
 import { PostingEngineService } from '../shared/common/posting-engine.service';
-import { AgGridUtils } from '../shared/utils/ag-grid-utils'
+import { AgGridUtils } from '../shared/utils/ag-grid-utils';
 
 @NgModule({
   declarations: [
     AppComponent,
-    FundsComponent,
-    LedgerComponent,
-    LegderModalComponent,
-    UpdateLedgerModalComponent,
-    JournalComponent,
     JournalsLedgersComponent,
     TrialGridExampleComponent,
     LogsComponent,

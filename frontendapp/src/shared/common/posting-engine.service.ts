@@ -5,11 +5,11 @@ import { DataService } from './data.service';
 
 @Injectable()
 export class PostingEngineService {
-  isRunning = false;
-  progress: number = 0;
-  isSubscriptionAlive: boolean;
-
   @Output() change: EventEmitter<boolean> = new EventEmitter();
+
+  isRunning = false;
+  progress = 0;
+  isSubscriptionAlive: boolean;
 
   constructor(private financeService: FinancePocServiceProxy, private dataService: DataService) {
     this.isSubscriptionAlive = true;
