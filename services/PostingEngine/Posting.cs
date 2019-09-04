@@ -136,8 +136,6 @@ namespace PostingEngine
 
             while (valueDate <= endDate)
             {
-                PostingEngineCallBack?.Invoke($"Processing for ValueDate {valueDate}");
-
                 postingEnv.ValueDate = valueDate;
                 postingEnv.FxRates = new FxRates().Get(valueDate);
 
@@ -166,7 +164,7 @@ namespace PostingEngine
                     postingEnv.Journals.Clear();
                 }
 
-                PostingEngineCallBack?.Invoke("Completed", totalDays, daysProcessed++);
+                PostingEngineCallBack?.Invoke($"Completed {valueDate}", totalDays, daysProcessed++);
                 valueDate = valueDate.AddDays(1);
             }
 

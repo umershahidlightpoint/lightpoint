@@ -17,7 +17,7 @@ namespace PostingEngine
 
             Journals = new List<Journal>();
         }
-
+        public string BaseCurrency { get; set; }
         public string RunId { get; internal set; }
         public string Period { get; set; }
         public DateTime ValueDate { get; set; }

@@ -47,7 +47,7 @@ export class FinancePocServiceProxy {
   /*
   Get the allocations / AccrualId is necessary as this is the linkage between the accrual and the allocation / trade
   */
-  getAccrualAllocations(accrualId:string) {
+  getAccrualAllocations(accrualId: string) {
     const url = encodeURI(REF_DATA_BASE_URL + '/accruals/allocations?accrualid=' + accrualId);
     return this.http.get(url).pipe(map((response: any) => response));
   }
@@ -86,8 +86,8 @@ export class FinancePocServiceProxy {
     sortColum: any | null | undefined,
     sortDirection: any | null | undefined
   ) {
-    //let searchStart : any;
-    //searchStart = false;
+    // let searchStart : any;
+    // searchStart = false;
     let url =
       this.baseUrl +
       '/journal/data/' +
@@ -102,11 +102,11 @@ export class FinancePocServiceProxy {
       sortDirection;
     if (accountId != null) {
       url = url + '&accountId=' + accountId;
-      //searchStart= true;
+      // searchStart= true;
     }
     if (valueFilter != null) {
       url = url + '&value=' + valueFilter;
-      //if (searchStart){ url = url +'&value='+valueFilter;}else{ url = url +'/?value='+valueFilter;}
+      // if (searchStart){ url = url +'&value='+valueFilter;}else{ url = url +'/?value='+valueFilter;}
     }
 
     return this.http.get(url).pipe(map((response: any) => response));
@@ -121,8 +121,8 @@ export class FinancePocServiceProxy {
     sortColum: any | null | undefined,
     sortDirection: any | null | undefined
   ) {
-    //let searchStart : any;
-    //searchStart = false;
+    // let searchStart : any;
+    // searchStart = false;
     let url =
       this.baseUrl +
       '/journallog/data/' +
@@ -137,11 +137,11 @@ export class FinancePocServiceProxy {
       sortDirection;
     if (accountId != null) {
       url = url + '&accountId=' + accountId;
-      //searchStart= true;
+      // searchStart= true;
     }
     if (valueFilter != null) {
       url = url + '&value=' + valueFilter;
-      //if (searchStart){ url = url +'&value='+valueFilter;}else{ url = url +'/?value='+valueFilter;}
+      // if (searchStart){ url = url +'&value='+valueFilter;}else{ url = url +'/?value='+valueFilter;}
     }
 
     return this.http.get(url).pipe(map((response: any) => response));
@@ -242,7 +242,7 @@ export class FinancePocServiceProxy {
   }
 
   accountTags() {
-    //const url = this.baseUrl+'/account_def' ;
+    // const url = this.baseUrl+'/account_def' ;
     const url = this.baseUrl + '/account_tag';
     return this.http.get(url).pipe(map((response: any) => response));
   }
@@ -306,6 +306,12 @@ export class FinancePocServiceProxy {
       toDate +
       '&fund=' +
       fund;
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
+
+  getFiles() {
+    const url = this.baseUrl + '/fileManagement/files';
+
     return this.http.get(url).pipe(map((response: any) => response));
   }
 }

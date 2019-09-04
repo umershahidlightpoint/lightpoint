@@ -1,4 +1,6 @@
+<!-- Main Tab -->
 <p-tabView [ngStyle]="style" (onChange)="IsPostingEngineRunning($event)">
+  <!-- Logs Tab -->
   <p-tabPanel header="Logs" [ngStyle]="style">
     <!-- Action Buttons Div -->
     <div class="row">
@@ -26,7 +28,7 @@
         </div>
       </div>
     </div>
-    <!-- Action Buttons Div End -->
+    <!-- AG Grid for Logs -->
     <div #divToMeasure>
       <div [ngStyle]="styleForLogsHight">
         <ag-grid-angular style="width: 100%; height: 100%" class="ag-theme-balham" [gridOptions]="gridOptions" #topGrid
@@ -36,13 +38,16 @@
     </div>
   </p-tabPanel>
 
+  <!-- Tasks Tab -->
   <p-tabPanel #task header="Tasks" [ngStyle]="style">
     <div #divToMeasure>
       <div [ngStyle]="styleForTasksHight">
+        <!-- Run Posting Engine Div -->
         <p-dropdown [options]="periods" [(ngModel)]="selectedPeriod" optionLabel="name"></p-dropdown>
         <button class="btn btn-info ml-2" type="button" [disabled]="isLoading" (click)="runEngine()">
           Run Engine
         </button>
+        <!-- Clear Journal Div -->
         <form class="clearForm" #clearForm="ngForm" [formGroup]="clearJournalForm" (ngSubmit)="openModal()">
           <div class="mr-3">
             <div class="form-check">
@@ -58,6 +63,7 @@
             </button>
           </div>
         </form>
+        <!-- Posting Engine Messages Div -->
         <div *ngIf="isLoading">
           <h3 class="mt-4">Progress</h3>
           <div #logScroll [ngStyle]="containerDiv">
@@ -81,7 +87,6 @@
               &times;
             </button>
           </div>
-          <!-- Modal Header End -->
           <!-- Modal Body Start -->
           <div class="modal-body">
             <div class="row">
@@ -90,7 +95,6 @@
               </div>
             </div>
           </div>
-          <!-- Modal Body End -->
           <!-- Modal Footer Start -->
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" (click)="closeModal()">
@@ -100,10 +104,46 @@
               Yes
             </button>
           </div>
-          <!-- Modal Footer End -->
         </div>
       </div>
     </div>
-    <!-- Confirmation Modal End -->
+  </p-tabPanel>
+
+  <!-- Files Tab -->
+  <p-tabPanel header="Files" [ngStyle]="style">
+    <!-- Action Buttons Div -->
+    <div class="row">
+      <div class="ml-auto">
+        <!-- Expand Button Div -->
+        <div class="mr-2 tabBtn">
+          <button (click)="setGroupingStateForFiles(true)" class="btn btn-info" tooltip="Expand" placement="top">
+            <i class="fa fa-expand"></i></button>
+        </div>
+        <!-- Collapse Button Div -->
+        <div class="mr-2 tabBtn">
+          <button (click)="setGroupingStateForFiles(false)" class="btn btn-info" tooltip="Collapse" placement="top">
+            <i class="fa fa-compress"></i></button>
+        </div>
+        <!-- Refresh Button Div -->
+        <div class="mr-2 tabBtn">
+          <button (click)="refreshFilesGrid()" class="btn btn-info" tooltip="Refresh" placement="top">
+            <i class="fa fa-refresh"></i></button>
+        </div>
+        <!-- Export Excel Div -->
+        <div class="mr-4 tabBtn">
+          <button (click)="onBtExport()" class="btn btn-info" tooltip="Export to Excel" placement="top">
+            <i class="fa fa-arrow-circle-o-down"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- AG Grid for Files -->
+    <div #divToMeasure>
+      <div [ngStyle]="styleForLogsHight">
+        <ag-grid-angular style="width: 100%; height: 100%" class="ag-theme-balham" [gridOptions]="filesGridOptions"
+          #topGrid [rowData]="files" [getContextMenuItems]="getContextMenuItems">
+        </ag-grid-angular>
+      </div>
+    </div>
   </p-tabPanel>
 </p-tabView>

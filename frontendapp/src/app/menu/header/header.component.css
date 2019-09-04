@@ -18,12 +18,9 @@
   padding: 10px;
 }
 
-.currency {
-  margin-right: 10px;
-}
-
-.date-style {
-  font-weight: bold;
+.progressContainer {
+  width: 140px;
+  background-color: #2f4f4f;
 }
 
 .progress {
@@ -31,9 +28,12 @@
   height: 1.2rem;
 }
 
-.progressContainer {
-  width: 140px;
-  background-color: #2f4f4f;
+.date-style {
+  font-weight: bold;
+}
+
+.currency {
+  margin-right: 10px;
 }
 
 .my-centered {
