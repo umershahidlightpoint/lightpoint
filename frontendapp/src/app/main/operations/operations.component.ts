@@ -440,35 +440,40 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
           });
         }
       },
-      ,
       {
         name: 'Expand All',
-        action() {
+        action: () => {
+          let totalChildNodes = 0;
+          let checkCount = 0;
           params.api.forEachNode((node, index) => {
             if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              node.setExpanded(true);
-              for (const key in node.childrenAfterFilter) {
-                if (!node.childrenAfterFilter[key].expanded) {
-                  node.childrenAfterFilter[key].setExpanded(true);
-                }
-              }
+              totalChildNodes = node.allChildrenCount;
+              node.expanded = true;
+            }
+            if (totalChildNodes > 0 && checkCount <= totalChildNodes) {
+              checkCount++;
+              node.expanded = true;
             }
           });
+          params.api.onGroupExpandedOrCollapsed();
         }
       },
       {
         name: 'Collapse All',
         action() {
+          let totalChildNodes = 0;
+          let checkCount = 0;
           params.api.forEachNode((node, index) => {
             if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              node.setExpanded(false);
-              for (const key in node.childrenAfterFilter) {
-                if (node.childrenAfterFilter[key].expanded) {
-                  node.childrenAfterFilter[key].setExpanded(false);
-                }
-              }
+              totalChildNodes = node.allChildrenCount;
+              node.expanded = false;
+            }
+            if (totalChildNodes > 0 && checkCount <= totalChildNodes) {
+              checkCount++;
+              node.expanded = false;
             }
           });
+          params.api.onGroupExpandedOrCollapsed();
         }
       },
       ...defaultItems
