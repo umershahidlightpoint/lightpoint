@@ -151,6 +151,12 @@ namespace PostingEngine.PostingRules
             { "ZZ_FINANCING_EXPENSE", "Finance Expense" },
             { "ZZ_DIRECTORS_FEE", "Directors Fees" },
             { "ZZ_DNO_INSURANCE", "DNO Insurance" },
+            { "ZZ_TAX_FEE", "Tax Fees" },
+            { "ZZ_AML_FEES", "AML Fees" },
+            { "ZZ_ORGANIZATION_COSTS", "Organization Costs" },
+            { "ZZ_OPERATING_FEE", "Operating Fees" },
+            { "ZZ_RESEARCH_COSTS", "Research Costs" },
+            { "ZZ_INSURANCE_FEES", "Insurance Fees" },
         };
     }
 }
