@@ -5,6 +5,14 @@ html {
   height: 100%;
 }
 
+.modal {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-backdrop {
+  position: relative;
+}
+
 .modal-dialog {
   position: relative;
   width: auto;
@@ -51,12 +59,8 @@ html {
   }
 }
 
-.modal {
-  background-color: rgba(0, 0, 0, 0.4);
-}
-
-.modal-backdrop {
-  position: relative;
+.tabBtn {
+  display: inline-block;
 }
 
 .close-btn {
@@ -65,8 +69,4 @@ html {
 
 .clearForm {
   float: right;
-}
-
-.tabBtn {
-  display: inline-block;
 }

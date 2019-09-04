@@ -35,36 +35,27 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   public gridOptions: GridOptions;
   public filesGridOptions: GridOptions;
-  private defaultColDef;
-  public rowData: [];
-  public files: File[] = [];
+  private defaultColDef: any;
+  public rowData: any[];
+  public files: File[];
+  private bottomOptions: any = { alignedGrids: [] };
 
   isSubscriptionAlive: boolean;
   isLoading = false;
   postingEngineStatus = false;
-  selectedPeriod: any;
   clearJournalForm: FormGroup;
   key: any;
   messages: any;
   progress: any;
-  totalRecords: number;
-  selected: { startDate: moment.Moment; endDate: moment.Moment };
-  bottomOptions = { alignedGrids: [] };
-
-  totalCredit: number;
-  totalDebit: number;
-  bottomData: any;
   startDate: any;
-  fund: any;
   endDate: any;
   symbol: string;
+  page: any;
   pageSize: any;
   accountSearch = { id: undefined };
   valueFilter: number;
-  funds: any;
   sortColum: any;
   sortDirection: any;
-  page: any;
 
   periods = [
     { name: 'YTD' },
@@ -127,9 +118,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     { field: 'action', headerName: 'Action', sortable: true, filter: true }
   ];
 
-  /*
-  We can define how we need to show the data here, as this is a log file we should group by the rundate
-  */
   columnDefsForFiles = [
     {
       field: 'id',
@@ -161,24 +149,69 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       filter: true,
       resizable: true
     },
+    {
+      field: 'source',
+      headerName: 'Source',
+      sortable: true,
+      filter: true,
+      resizable: true
+    },
+    {
+      field: 'statistics',
+      headerName: 'Statistics',
+      sortable: true,
+      filter: true,
+      resizable: true
+    },
     { field: 'actionStartDate', headerName: 'Start Date', sortable: true, filter: true },
     { field: 'actionEndDate', headerName: 'End Date', sortable: true, filter: true }
   ];
-
-  setWidthAndHeight(width, height) {
-    this.style = {
-      marginTop: '20px',
-      width,
-      height,
-      boxSizing: 'border-box'
-    };
-  }
 
   constructor(
     private financeService: FinancePocServiceProxy,
     private toastrService: ToastrService,
     private postingEngineService: PostingEngineService
   ) {
+    this.initGrid();
+  }
+
+  ngOnInit() {
+    this.isSubscriptionAlive = true;
+    this.defaultColDef = {
+      sortable: true,
+      resizable: true
+    };
+    /*
+    Align Scroll of Grid and Footer Grid
+    */
+    this.gridOptions.alignedGrids.push(this.bottomOptions);
+    this.bottomOptions.alignedGrids.push(this.gridOptions);
+    /*
+    Params for API Request
+    */
+    this.symbol = 'ALL';
+    this.page = 0;
+    this.pageSize = 0;
+    this.accountSearch.id = 0;
+    this.valueFilter = 0;
+    this.sortColum = '';
+    this.sortDirection = '';
+
+    this.getJournalLogs();
+    this.buildForm();
+  }
+
+  ngAfterViewChecked() {
+    this.scrollToBottom();
+  }
+
+  scrollToBottom(): void {
+    try {
+      this.logContainer.nativeElement.scrollTop = this.logContainer.nativeElement.scrollHeight;
+    } catch (err) {}
+  }
+
+  initGrid() {
     this.gridOptions = {
       rowData: null,
       columnDefs: this.columnDefs,
@@ -193,7 +226,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       alignedGrids: [],
       suppressHorizontalScroll: true
     } as GridOptions;
-    // this.selected = {startDate: moment().subtract(6, 'days'), endDate: moment().subtract(1, 'days')};
 
     this.filesGridOptions = {
       rowData: null,
@@ -211,30 +243,8 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     } as GridOptions;
   }
 
-  ngOnInit() {
-    this.isSubscriptionAlive = true;
-    this.defaultColDef = {
-      sortable: true,
-      resizable: true
-    };
-    // Align Scroll of Grid and Footer Grid
-    this.gridOptions.alignedGrids.push(this.bottomOptions);
-    this.bottomOptions.alignedGrids.push(this.gridOptions);
-
-    this.symbol = 'ALL';
-    this.page = 0;
-    this.pageSize = 0;
-    this.accountSearch.id = 0;
-    this.valueFilter = 0;
-    this.sortColum = '';
-    this.sortDirection = '';
-
-    this.getJournalLogs();
-    this.buildForm();
-  }
-
-  ngAfterViewChecked() {
-    this.scrollToBottom();
+  onFirstDataRendered(params) {
+    params.api.sizeColumnsToFit();
   }
 
   private getJournalLogs() {
@@ -261,13 +271,15 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   private getFiles() {
     this.financeService.getFiles().subscribe(result => {
       this.files = result.data.map(item => ({
-        id: item.Id,
-        name: item.Name,
-        path: item.Path,
-        fileActionId: item.File_Action_Id,
-        action: item.Action,
-        actionStartDate: item.Action_Start_Date,
-        actionEndDate: item.Action_End_Date
+        id: item.id,
+        name: item.name,
+        path: item.path,
+        source: item.source,
+        statistics: item.statistics,
+        fileActionId: item.file_action_id,
+        action: item.action,
+        actionStartDate: item.action_start_date,
+        actionEndDate: item.action_end_date
       }));
     });
   }
@@ -291,10 +303,13 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     this.gridOptions.api.exportDataAsExcel(params);
   }
 
-  scrollToBottom(): void {
-    try {
-      this.logContainer.nativeElement.scrollTop = this.logContainer.nativeElement.scrollHeight;
-    } catch (err) {}
+  onBtExportFiles() {
+    const params = {
+      fileName: 'File Management',
+      sheetName: 'First Sheet',
+      columnKeys: ['name', 'action', 'source', 'statistics', 'actionStartDate', 'actionEndDate']
+    };
+    this.filesGridOptions.api.exportDataAsExcel(params);
   }
 
   buildForm() {
@@ -328,10 +343,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       });
   }
 
-  onFirstDataRendered(params) {
-    params.api.sizeColumnsToFit();
-  }
-
   getLogs() {
     setTimeout(() => {
       this.financeService
@@ -340,7 +351,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
         .subscribe(response => {
           this.isLoading = response.Status;
           this.progress = response.progress;
-          this.messages = response.message == '' ? this.messages : response.message;
+          this.messages = response.message === '' ? this.messages : response.message;
           if (response.Status) {
             this.getLogs();
           } else {
@@ -350,7 +361,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     }, 3000);
   }
 
-  IsPostingEngineRunning(e) {
+  isPostingEngineRunning(e) {
     if (e.index === 1) {
       this.financeService
         .isPostingEngineRunning()
@@ -366,6 +377,11 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     if (e.index === 2) {
       this.loadFilesGrid();
     }
+  }
+
+  loadFilesGrid() {
+    this.getFiles();
+    this.filesGridOptions.api.sizeColumnsToFit();
   }
 
   openModal() {
@@ -399,11 +415,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   clearForm() {
     this.clearJournalForm.reset();
-  }
-
-  loadFilesGrid() {
-    this.getFiles();
-    this.filesGridOptions.api.sizeColumnsToFit();
   }
 
   getContextMenuItems(params) {

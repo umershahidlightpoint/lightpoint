@@ -1,5 +1,5 @@
-<!-- Main Tab -->
-<p-tabView [ngStyle]="style" (onChange)="IsPostingEngineRunning($event)">
+<!-- Main Tab View -->
+<p-tabView [ngStyle]="style" (onChange)="isPostingEngineRunning($event)">
   <!-- Logs Tab -->
   <p-tabPanel header="Logs" [ngStyle]="style">
     <!-- Action Buttons Div -->
@@ -131,7 +131,7 @@
         </div>
         <!-- Export Excel Div -->
         <div class="mr-4 tabBtn">
-          <button (click)="onBtExport()" class="btn btn-info" tooltip="Export to Excel" placement="top">
+          <button (click)="onBtExportFiles()" class="btn btn-info" tooltip="Export to Excel" placement="top">
             <i class="fa fa-arrow-circle-o-down"></i>
           </button>
         </div>
