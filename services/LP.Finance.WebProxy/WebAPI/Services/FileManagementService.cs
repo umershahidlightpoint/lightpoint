@@ -18,8 +18,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object GetFiles(string name)
         {
-            var query = $@"select f.Id, f.Name, f.Path, fa.File_Action_Id, fa.File_Id, fa.Action, fa.Action_Start_Date, fa.Action_End_Date from [file] f
-                        inner join[file_action] fa on f.id = fa.file_id";
+            var query = $@"select f.id, f.name, f.path,f.source,f.[statistics], fa.file_action_id, fa.file_id, fa.action, fa.action_start_date, fa.action_end_date from [file] f
+                        inner join[file_action] fa on f.id = fa.file_id order by fa.Action_Start_Date desc";
 
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
             var jsonResult = JsonConvert.SerializeObject(dataTable);
