@@ -12,16 +12,16 @@ import { takeWhile } from 'rxjs/operators';
 })
 export class HeaderComponent implements OnInit, DoCheck, AfterViewInit, OnDestroy {
   @Input() sidenav: MatSidenav;
-  postingEngineMsg: boolean;
-  progressBar: any;
-  baseCurrency: string = 'USD'; // Driven by a system setting
 
+  postingEngineStatus: boolean;
+  baseCurrency: string = 'USD'; // Driven by a System Setting
+  progressBar: any;
   date: string = moment().format('MM-DD-YYYY');
   isSubscriptionAlive: boolean;
 
   constructor(
-    private messageService: PostingEngineService,
-    private fundsService: FinancePocServiceProxy
+    private postingEngineService: PostingEngineService,
+    private financeService: FinancePocServiceProxy
   ) {
     this.isSubscriptionAlive = true;
   }
@@ -29,34 +29,34 @@ export class HeaderComponent implements OnInit, DoCheck, AfterViewInit, OnDestro
   ngOnInit() {}
 
   ngAfterViewInit() {
-    this.IsPostingEngineRunning();
-  }
-
-  IsPostingEngineRunning() {
-    this.fundsService
-      .isPostingEngineRunning()
-      .pipe(takeWhile(() => this.isSubscriptionAlive))
-      .subscribe(response => {
-        if (response.IsRunning) {
-          this.messageService.changeStatus(true);
-          this.messageService.checkProgress();
-          this.postingEngineMsg = this.messageService.getStatus();
-        }
-      });
+    this.isPostingEngineRunning();
   }
 
   ngDoCheck() {
-    const isEngineRunning = this.messageService.getStatus();
-    const progress = this.messageService.getProgress();
+    const isEngineRunning = this.postingEngineService.getStatus();
+    const progress = this.postingEngineService.getProgress();
     if (isEngineRunning || progress) {
-      this.postingEngineMsg = isEngineRunning;
+      this.postingEngineStatus = isEngineRunning;
       this.progressBar = progress;
     } else {
-      this.postingEngineMsg = false;
+      this.postingEngineStatus = false;
     }
   }
 
   ngOnDestroy() {
     this.isSubscriptionAlive = false;
+  }
+
+  isPostingEngineRunning() {
+    this.financeService
+      .isPostingEngineRunning()
+      .pipe(takeWhile(() => this.isSubscriptionAlive))
+      .subscribe(response => {
+        if (response.IsRunning) {
+          this.postingEngineService.changeStatus(true);
+          this.postingEngineService.checkProgress();
+          this.postingEngineStatus = this.postingEngineService.getStatus();
+        }
+      });
   }
 }
