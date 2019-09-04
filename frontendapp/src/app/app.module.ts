@@ -77,6 +77,7 @@ import { AgGridUtils } from '../shared/utils/ag-grid-utils'
     AccountComponent,
     CreateAccountComponent,
     OperationsComponent,
+    AccrualsComponent,
     SettingsComponent,
     HeaderComponent,
     ReportsComponent,
