@@ -34,15 +34,14 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   @Output() showPostingEngineMsg: EventEmitter<any> = new EventEmitter<any>();
 
   public gridOptions: GridOptions;
-  public filesGridOptions: GridOptions;
   private defaultColDef: any;
   public rowData: any[];
-  public files: File[];
   private bottomOptions: any = { alignedGrids: [] };
 
   isSubscriptionAlive: boolean;
   isLoading = false;
   postingEngineStatus = false;
+  fileManagementActive = false;
   clearJournalForm: FormGroup;
   key: any;
   messages: any;
@@ -118,55 +117,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     { field: 'action', headerName: 'Action', sortable: true, filter: true }
   ];
 
-  columnDefsForFiles = [
-    {
-      field: 'id',
-      headerName: 'Id',
-      hide: true
-    },
-    {
-      field: 'name',
-      headerName: 'File Name',
-      sortable: true,
-      filter: true,
-      enableRowGroup: true,
-      resizable: true
-    },
-    {
-      field: 'path',
-      headerName: 'Path',
-      hide: true
-    },
-    {
-      field: 'fileActionId',
-      headerName: 'File Action Id',
-      hide: true
-    },
-    {
-      field: 'action',
-      headerName: 'Action',
-      sortable: true,
-      filter: true,
-      resizable: true
-    },
-    {
-      field: 'source',
-      headerName: 'Source',
-      sortable: true,
-      filter: true,
-      resizable: true
-    },
-    {
-      field: 'statistics',
-      headerName: 'Statistics',
-      sortable: true,
-      filter: true,
-      resizable: true
-    },
-    { field: 'actionStartDate', headerName: 'Start Date', sortable: true, filter: true },
-    { field: 'actionEndDate', headerName: 'End Date', sortable: true, filter: true }
-  ];
-
   constructor(
     private financeService: FinancePocServiceProxy,
     private toastrService: ToastrService,
@@ -226,21 +176,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       alignedGrids: [],
       suppressHorizontalScroll: true
     } as GridOptions;
-
-    this.filesGridOptions = {
-      rowData: null,
-      columnDefs: this.columnDefsForFiles,
-      onGridReady: () => {
-        this.gridOptions.api.sizeColumnsToFit();
-      },
-      onFirstDataRendered: params => {
-        params.api.sizeColumnsToFit();
-      },
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      suppressHorizontalScroll: true
-    } as GridOptions;
   }
 
   onFirstDataRendered(params) {
@@ -268,30 +203,9 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       });
   }
 
-  private getFiles() {
-    this.financeService.getFiles().subscribe(result => {
-      this.files = result.data.map(item => ({
-        id: item.id,
-        name: item.name,
-        path: item.path,
-        source: item.source,
-        statistics: item.statistics,
-        fileActionId: item.file_action_id,
-        action: item.action,
-        actionStartDate: item.action_start_date,
-        actionEndDate: item.action_end_date
-      }));
-    });
-  }
-
   refreshGrid() {
     this.gridOptions.api.showLoadingOverlay();
     this.getJournalLogs();
-  }
-
-  refreshFilesGrid() {
-    this.filesGridOptions.api.showLoadingOverlay();
-    this.getFiles();
   }
 
   onBtExport() {
@@ -301,15 +215,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       columnKeys: ['rundate', 'action_on', 'action']
     };
     this.gridOptions.api.exportDataAsExcel(params);
-  }
-
-  onBtExportFiles() {
-    const params = {
-      fileName: 'File Management',
-      sheetName: 'First Sheet',
-      columnKeys: ['name', 'action', 'source', 'statistics', 'actionStartDate', 'actionEndDate']
-    };
-    this.filesGridOptions.api.exportDataAsExcel(params);
   }
 
   buildForm() {
@@ -375,13 +280,8 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
         });
     }
     if (e.index === 2) {
-      this.loadFilesGrid();
+      this.fileManagementActive = true;
     }
-  }
-
-  loadFilesGrid() {
-    this.getFiles();
-    this.filesGridOptions.api.sizeColumnsToFit();
   }
 
   openModal() {
@@ -481,14 +381,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   setGroupingState(value: boolean) {
     this.gridOptions.api.forEachNode((node, index) => {
-      if (node.group) {
-        node.setExpanded(value);
-      }
-    });
-  }
-
-  setGroupingStateForFiles(value: boolean) {
-    this.filesGridOptions.api.forEachNode((node, index) => {
       if (node.group) {
         node.setExpanded(value);
       }

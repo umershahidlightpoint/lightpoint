@@ -111,39 +111,7 @@
 
   <!-- Files Tab -->
   <p-tabPanel header="Files" [ngStyle]="style">
-    <!-- Action Buttons Div -->
-    <div class="row">
-      <div class="ml-auto">
-        <!-- Expand Button Div -->
-        <div class="mr-2 tabBtn">
-          <button (click)="setGroupingStateForFiles(true)" class="btn btn-info" tooltip="Expand" placement="top">
-            <i class="fa fa-expand"></i></button>
-        </div>
-        <!-- Collapse Button Div -->
-        <div class="mr-2 tabBtn">
-          <button (click)="setGroupingStateForFiles(false)" class="btn btn-info" tooltip="Collapse" placement="top">
-            <i class="fa fa-compress"></i></button>
-        </div>
-        <!-- Refresh Button Div -->
-        <div class="mr-2 tabBtn">
-          <button (click)="refreshFilesGrid()" class="btn btn-info" tooltip="Refresh" placement="top">
-            <i class="fa fa-refresh"></i></button>
-        </div>
-        <!-- Export Excel Div -->
-        <div class="mr-4 tabBtn">
-          <button (click)="onBtExportFiles()" class="btn btn-info" tooltip="Export to Excel" placement="top">
-            <i class="fa fa-arrow-circle-o-down"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-    <!-- AG Grid for Files -->
-    <div #divToMeasure>
-      <div [ngStyle]="styleForLogsHight">
-        <ag-grid-angular style="width: 100%; height: 100%" class="ag-theme-balham" [gridOptions]="filesGridOptions"
-          #topGrid [rowData]="files" [getContextMenuItems]="getContextMenuItems">
-        </ag-grid-angular>
-      </div>
-    </div>
-  </p-tabPanel>
+    <!-- <router-outlet></router-outlet> -->
+    <app-file-management *ngIf="fileManagementActive"></app-file-management>
+  </p-tabPanel>  
 </p-tabView>

@@ -59,7 +59,8 @@ import { DataService } from '../shared/common/data.service';
 import { LeftMenuComponent } from './menu/left-menu/left-menu.component';
 import { SidenavService } from '../shared/common/sidenav.service';
 import { PostingEngineService } from '../shared/common/posting-engine.service';
-import { AgGridUtils } from '../shared/utils/ag-grid-utils'
+import { AgGridUtils } from '../shared/utils/ag-grid-utils';
+import { FileManagementComponent } from './main/operations/file-management/file-management.component';
 
 @NgModule({
   declarations: [
@@ -84,7 +85,8 @@ import { AgGridUtils } from '../shared/utils/ag-grid-utils'
     RunLogsComponent,
     JournalModalComponent,
     GridLayoutMenuComponent,
-    LeftMenuComponent
+    LeftMenuComponent,
+    FileManagementComponent
   ],
   imports: [
     BrowserModule,
