@@ -1,34 +1,42 @@
-  <!-- Action Buttons Div -->
-  <div class="row">
-    <div class="ml-auto">
-      <!-- Expand Button Div -->
-      <div class="mr-2 tabBtn">
-        <button (click)="setGroupingStateForFiles(true)" class="btn btn-info" tooltip="Expand" placement="top">
-          <i class="fa fa-expand"></i></button>
-      </div>
-      <!-- Collapse Button Div -->
-      <div class="mr-2 tabBtn">
-        <button (click)="setGroupingStateForFiles(false)" class="btn btn-info" tooltip="Collapse" placement="top">
-          <i class="fa fa-compress"></i></button>
-      </div>
-      <!-- Refresh Button Div -->
-      <div class="mr-2 tabBtn">
-        <button (click)="refreshFilesGrid()" class="btn btn-info" tooltip="Refresh" placement="top">
-          <i class="fa fa-refresh"></i></button>
-      </div>
-      <!-- Export Excel Div -->
-      <div class="mr-4 tabBtn">
-        <button (click)="onBtExportFiles()" class="btn btn-info" tooltip="Export to Excel" placement="top">
-          <i class="fa fa-arrow-circle-o-down"></i>
-        </button>
-      </div>
+<!-- Action Buttons Div -->
+<div class="row">
+  <div class="ml-auto">
+    <!-- Expand Button Div -->
+    <div class="mr-2 tabBtn">
+      <button (click)="setGroupingStateForFiles(true)" class="btn btn-info" tooltip="Expand" placement="top">
+        <i class="fa fa-expand"></i></button>
+    </div>
+    <!-- Collapse Button Div -->
+    <div class="mr-2 tabBtn">
+      <button (click)="setGroupingStateForFiles(false)" class="btn btn-info" tooltip="Collapse" placement="top">
+        <i class="fa fa-compress"></i></button>
+    </div>
+    <!-- Refresh Button Div -->
+    <div class="mr-2 tabBtn">
+      <button (click)="refreshFilesGrid()" class="btn btn-info" tooltip="Refresh" placement="top">
+        <i class="fa fa-refresh"></i></button>
+    </div>
+    <!-- Export Excel Div -->
+    <div class="mr-4 tabBtn">
+      <button (click)="onBtExportFiles()" class="btn btn-info" tooltip="Export to Excel" placement="top">
+        <i class="fa fa-arrow-circle-o-down"></i>
+      </button>
     </div>
   </div>
-  <!-- AG Grid for Files -->
-  <div #divToMeasure>
-    <div [ngStyle]="styleForLogsHight">
-      <ag-grid-angular style="width: 100%; height: 100%" class="ag-theme-balham" [gridOptions]="filesGridOptions"
-        #topGrid [rowData]="files" [getContextMenuItems]="getContextMenuItems" (firstDataRendered)="onFirstDataRendered($event)">
-      </ag-grid-angular>
-    </div>
+</div>
+<!-- AG Grid for Files -->
+<div #divToMeasure>
+  <div [ngStyle]="styleForLogsHight">
+    <ag-grid-angular style="width: 100%; height: 100%" class="ag-theme-balham" [gridOptions]="filesGridOptions"
+      [getContextMenuItems]="getContextMenuItems">
+    </ag-grid-angular>
+    <!----- Action buttons Template Starts ----->
+    <ng-template #actionButtons let-row>
+      <button class="btn ml-5 action-btn fixHeight" (click)="downloadFile(row)" tooltip="View" placement="auto"
+        container="body">
+        <i class="fa fa-download" aria-hidden="true"></i>
+      </button>
+    </ng-template>
+    <!----- Action buttons Template Ends ----->
   </div>
+</div>

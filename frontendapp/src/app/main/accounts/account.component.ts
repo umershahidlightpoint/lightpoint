@@ -1,7 +1,6 @@
 import {
   Component,
   OnInit,
-  Inject,
   ViewChild,
   ElementRef,
   TemplateRef,

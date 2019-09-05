@@ -17,8 +17,6 @@ import * as moment from 'moment';
 import { FormGroup, FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
-import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
-import { File } from 'src/shared/models/files';
 
 @Component({
   selector: 'app-operations',
