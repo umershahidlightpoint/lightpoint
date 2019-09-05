@@ -81,14 +81,7 @@
       <div #divToMeasureJournal>
         <div [ngStyle]="styleForHight">
           <ag-grid-angular #journalGrid style="width: 100%; height: 100%" class="ag-theme-balham"
-            [gridOptions]="gridOptions" [rowGroupPanelShow]="rowGroupPanelShow" [sideBar]="sideBar" [rowData]="rowData"
-            [rowSelection]="rowSelection" [getRowStyle]="getRowStyle" [getContextMenuItems]="getContextMenuItems">
-            <!--
-          [pinnedBottomRowData]="pinnedBottomRowData"
-          [pivotPanelShow]="pivotPanelShow"
-          [pivotColumnGroupTotals]="pivotColumnGroupTotals"
-          [pivotRowTotals]="pivotRowTotals"
-        -->
+            [gridOptions]="gridOptions">
           </ag-grid-angular>
         </div>
       </div>
