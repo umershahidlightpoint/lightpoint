@@ -64,7 +64,7 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
   };
 
   constructor(
-    @Inject(Router) private router: Router,
+    private router: Router,
     private financePocServiceProxy: FinancePocServiceProxy,
     private toastrService: ToastrService,
     private dataService: DataService

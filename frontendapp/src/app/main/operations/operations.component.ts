@@ -17,6 +17,7 @@ import * as moment from 'moment';
 import { FormGroup, FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
+import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
 import { File } from 'src/shared/models/files';
 
 @Component({
@@ -25,12 +26,12 @@ import { File } from 'src/shared/models/files';
   styleUrls: ['./operations.component.css']
 })
 export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked {
-  @ViewChild('topGrid') topGrid;
   @ViewChild('bottomGrid') bottomGrid;
   @ViewChild('dateRangPicker') dateRangPicker;
   @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
   @ViewChild('confirm') confirmModal: ModalDirective;
   @ViewChild('logScroll') private logContainer: ElementRef;
+  @ViewChild('actionButtons') actionButtons: TemplateRef<any>;
   @Output() showPostingEngineMsg: EventEmitter<any> = new EventEmitter<any>();
 
   public gridOptions: GridOptions;
@@ -200,6 +201,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
           action_on: moment(item.action_on).format('MMM-DD-YYYY hh:mm:ss'),
           action: item.action
         }));
+        this.gridOptions.api.setRowData(this.rowData);
       });
   }
 

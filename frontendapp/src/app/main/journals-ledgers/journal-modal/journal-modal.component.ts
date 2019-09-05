@@ -141,7 +141,6 @@ export class JournalModalComponent implements OnInit, OnDestroy {
   openModal(rowData) {
     if (Object.keys(rowData).length > 1) {
       this.editJournal = true;
-      console.log({ rowData });
       this.selectedRow = rowData;
       const { source } = rowData;
       const { modifiable } = rowData;
