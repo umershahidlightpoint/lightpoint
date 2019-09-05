@@ -733,7 +733,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     let result = true;
     if (this.startDate) {
       const cellDate = new Date(node.data.when);
-      const td = this.startDate.toDate();
       if (this.startDate.toDate() <= cellDate && this.endDate.toDate() >= cellDate) {
         result = true;
       } else {
@@ -751,15 +750,12 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
 
   public clearFilters() {
     this.gridOptions.api.redrawRows();
+    this.fund = 'All Funds';
     this.DateRangeLable = '';
+    this.dateRangPicker.value = '';
     this.selected = null;
-    this.startDate.value = '';
-    this.endDate = null;
-    this.fund = null;
     this.journalGrid.api.setFilterModel(null);
     this.journalGrid.api.onFilterChanged();
-    this.startDate = null;
-    this.dateRangPicker.value = '';
     this.startDate = '';
     this.endDate = '';
   }

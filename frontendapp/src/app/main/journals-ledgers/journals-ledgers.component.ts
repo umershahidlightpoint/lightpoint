@@ -800,7 +800,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     let result = true;
     if (this.startDate) {
       const cellDate = new Date(node.data.when);
-      const td = this.startDate.toDate();
       if (this.startDate.toDate() <= cellDate && this.endDate.toDate() >= cellDate) {
         result = true;
       } else {

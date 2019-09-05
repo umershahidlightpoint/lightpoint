@@ -352,8 +352,8 @@ export class FinancePocServiceProxy {
   /*
   Start the Posting Engine
   */
-  startPostingEngine(): Observable<PostingEngine> {
-    const url = this.baseUrl + '/postingEngine/';
+  startPostingEngine(period: any): Observable<PostingEngine> {
+    const url = this.baseUrl + '/postingEngine?period=' + period;
     return this.http.get<PostingEngine>(url).pipe(map((response: PostingEngine) => response));
   }
 
