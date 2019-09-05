@@ -1,10 +1,14 @@
+/* Core/Libraries */
 import { Component, OnInit, ViewChild, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { ModalDirective } from 'ngx-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { GridRowData, Fund } from '../../../../shared/Models/account';
-import { FinancePocServiceProxy } from '../../../../shared/service-proxies/service-proxies';
 import { takeWhile } from 'rxjs/operators';
+
+/* Services/Components */
+import { FinancePocServiceProxy } from '../../../../shared/service-proxies/service-proxies';
+import { GridRowData, Fund } from '../../../../shared/Models/account';
+import { Journal } from '../../../../shared/Models/journal';
 
 @Component({
   selector: 'app-journal-modal',
@@ -12,22 +16,20 @@ import { takeWhile } from 'rxjs/operators';
   styleUrls: ['./journal-modal.component.css']
 })
 export class JournalModalComponent implements OnInit, OnDestroy {
+  @ViewChild('modal') modal: ModalDirective;
+  @Output() modalClose = new EventEmitter<any>();
+
   allAccounts: GridRowData;
   funds: Fund;
   toAccountCheck: number;
   fromAccountCheck: number;
-
   toAccountId: number;
   fromAccountId: number;
   accountFund: string;
-
-  selectedRow;
+  selectedRow: Journal;
   editJournal: boolean;
   isSubscriptionAlive: boolean;
   journalForm: FormGroup;
-
-  @ViewChild('modal') modal: ModalDirective;
-  @Output() modalClose = new EventEmitter<any>();
 
   constructor(
     private toastrService: ToastrService,
@@ -139,6 +141,7 @@ export class JournalModalComponent implements OnInit, OnDestroy {
   openModal(rowData) {
     if (Object.keys(rowData).length > 1) {
       this.editJournal = true;
+      console.log({ rowData });
       this.selectedRow = rowData;
       const { source } = rowData;
       const { modifiable } = rowData;
@@ -147,7 +150,6 @@ export class JournalModalComponent implements OnInit, OnDestroy {
         this.closeModal();
         return;
       }
-
       this.financePocServiceProxy
         .getJournal(source)
         .pipe(takeWhile(() => this.isSubscriptionAlive))
@@ -159,7 +161,6 @@ export class JournalModalComponent implements OnInit, OnDestroy {
             this.fromAccountId = fromAccount.AccountFromId;
             this.toAccountId = toAccount.AccountToId;
             this.accountFund = response.payload[0].Fund;
-
             this.journalForm.patchValue({
               value: toAccount.Value,
               fromAccount: this.fromAccountId,

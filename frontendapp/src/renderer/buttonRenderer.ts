@@ -3,13 +3,15 @@ import { ICellRendererAngularComp } from 'ag-grid-angular';
 
 @Component({
   selector: 'app-button-renderer',
-  template: `<button type="button" style="width:100%;height:100%;padding:10px" (click)="onClick($event)">{{label}}</button>`
-  //template: `<button type="button" style="width:100%;height:100%;padding:10px" (click)="onClick($event)">{{params.value}}</button>`
+  template: `
+    <button type="button" style="width:100%;height:100%;padding:10px" (click)="onClick($event)">
+      {{ label }}
+    </button>
+  `
+  // template: `<button type="button" style="width:100%;height:100%;padding:10px" (click)="onClick($event)">{{params.value}}</button>`
 })
-
 export class ButtonRendererComponent implements ICellRendererAngularComp {
-
-  params;
+  params: any;
   label: string;
 
   agInit(params): void {
@@ -23,14 +25,13 @@ export class ButtonRendererComponent implements ICellRendererAngularComp {
 
   onClick($event) {
     if (this.params.onClick instanceof Function) {
-      // put anything into params u want pass into parents component
+      // Put anything into Params u want Pass into Parents Component
       const params = {
         event: $event,
         rowData: this.params.node.data
-        // ...something
-      }
+        // Something...
+      };
       this.params.onClick(params);
-
     }
   }
 }

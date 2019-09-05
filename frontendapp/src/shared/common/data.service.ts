@@ -2,8 +2,9 @@ import { BehaviorSubject } from 'rxjs';
 
 export class DataService {
   private oGridOptions = new BehaviorSubject(null);
-  gridColumnApi = this.oGridOptions.asObservable();
   private isEngineRunning = new BehaviorSubject(false);
+
+  gridColumnApi = this.oGridOptions.asObservable();
   flag = this.isEngineRunning.asObservable();
 
   constructor() {}

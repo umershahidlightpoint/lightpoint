@@ -5,28 +5,28 @@
     <div class="modal-content">
       <!------ Form Starts------>
       <form #roleForm="ngForm" [formGroup]="accountForm" (ngSubmit)="onSave()">
-        <!------- Modal Header ------->
+        <!-- Modal Header -->
         <div class="modal-header">
           <h3 *ngIf="editCase">Edit Account ({{ accountCategory }})</h3>
           <h3 *ngIf="!editCase">Create Account ({{ selectedAccountCategory?.name }})</h3>
           <button type="button" class="close" data-dismiss="modal" (click)="close()">&times;</button>
         </div>
-        <!------- Modal Header Ends------->
+        <!-- Modal Header Ends-->
 
-        <!------- Modal Body Starts ------->
+        <!-- Modal Body Starts -->
         <div class="modal-body">
-          <!------- Account Type Div Starts ------->
+          <!-- Account Type Div Starts -->
           <div class="form-group">
             <div class="row">
-              <!------- Account Type Label ------->
+              <!-- Account Type Label -->
               <div class="col-sm-3">
                 <label> Account Type </label>
               </div>
-              <!------- Account Type Label for Accounts Having Journals ------->
+              <!-- Account Type Label for Accounts Having Journals -->
               <div *ngIf="editCase && !canEditAccount" class="col-sm-9">
                 <label style="font: bold"><strong>{{ accTypeLabel }}</strong></label>
               </div>
-              <!------- Account Type Drop Down ------->
+              <!-- Account Type Drop Down -->
               <div *ngIf="editCase && canEditAccount || !editCase" class="col-sm-9">
                 <select [(ngModel)]="accTypeId" class="custom-select" (change)="getAccountTags(accTypeId)"
                   formControlName="type" [attr.disabled]="canEditAccount === false ? true : null">
@@ -38,22 +38,22 @@
               </div>
             </div>
           </div>
-          <!------- Account Type Div Ends ------->
+          <!-- Account Type Div Ends -->
 
-          <!------- Description Div Starts ------->
+          <!-- Description Div Starts -->
           <div class="form-group">
             <div class="row">
-              <!------- Description Label ------->
+              <!-- Description Label -->
               <div class="col-sm-3">
                 <label> Description </label>
               </div>
-              <!------- Description Input ------->
+              <!-- Description Input -->
               <div class="col-sm-9">
                 <input type="text" class="form-control" formControlName="description" />
               </div>
             </div>
           </div>
-          <!------- Description Div Ends ------->
+          <!-- Description Div Ends -->
 
           <!-- Error message for account having no definition -->
           <div *ngIf="noAccountDef" class="row mt-4">
@@ -64,10 +64,10 @@
             </div>
           </div>
 
-          <!------- Account Tag Div Starts ------->
+          <!-- Account Tag Div Starts -->
           <div *ngIf="accountTags && canEditAccount">
             <div class="form-group">
-              <!------- Account Tag Label------->
+              <!-- Account Tag Label-->
               <div class="row">
                 <div class="col-sm-5">
                   <hr />
@@ -80,14 +80,14 @@
                 </div>
               </div>
 
-              <!------- Account Tag Div Starts------->
+              <!-- Account Tag Div Starts-->
               <div class="form-group">
                 <div class="row">
-                  <!------- Account Tags Label ------->
+                  <!-- Account Tags Label -->
                   <div class="col-sm-4">
                     <label> Account Tags </label>
                   </div>
-                  <!------- Account Tags Drop Down ------->
+                  <!-- Account Tags Drop Down -->
                   <div class="col-sm-7 btn-group" dropdown>
                     <button id="button-basic" dropdownToggle type="button"
                       class="btn btn-sm btn-primary dropdown-toggle" style="max-height: 100px"
@@ -106,27 +106,27 @@
                   </div>
                 </div>
               </div>
-              <!------- Account Tag Div Ends ------->
+              <!-- Account Tag Div Ends -->
 
-              <!------- Account Tag Div ------->
+              <!-- Account Tag Div -->
               <div *ngIf="!editCase || editCase && canEditAccount">
                 <div style="overflow-y: auto; overflow-x: hidden; max-height: 180px" formArrayName="tagsList">
                   <div *ngFor="let instance of tags.controls; let i = index;" [formGroupName]="i">
                     <div class="row mb-3">
                       <div class="col-sm-4">
-                        <!------- Delete Tag Button ------->
+                        <!-- Delete Tag Button -->
                         <button type="button" class="tag-label" aria-label="Close" (click)="unCheck(instance.value)"
                           type="button">
                           <span class="cross-button" aria-hidden="true">
                             <strong>x</strong>
                           </span>
                         </button>
-                        <!------- Account Tag Name ------->
+                        <!-- Account Tag Name -->
                         <label>
                           {{instance.value.tagName}}
                         </label>
                       </div>
-                      <!------- Account Tag Description ------->
+                      <!-- Account Tag Description -->
                       <div *ngIf="!editCase" class="col-sm-8">
                         <input class="form-control" [attr.disabled]="!instance.value.isChecked ? true : null"
                           formControlName="description" placeholder="Enter {{instance.value.tagName}}">
@@ -141,21 +141,21 @@
               </div>
             </div>
           </div>
-          <!------- Account Tag Div Ends ------->
+          <!-- Account Tag Div Ends -->
         </div>
-        <!------- Modal Body Ends ------->
+        <!-- Modal Body Ends -->
 
-        <!------- Modal Footer ------->
+        <!-- Modal Footer -->
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="close()">Cancel</button>
           <button type="submit" class="btn btn-primary" [disabled]="!roleForm.valid">
             <i class="fa fa-save"></i> Save
           </button>
         </div>
-        <!------- Modal Footer Ends------->
+        <!-- Modal Footer Ends-->
 
       </form>
-      <!------- Form Ends ------->
+      <!-- Form Ends -->
     </div>
   </div>
 </div>

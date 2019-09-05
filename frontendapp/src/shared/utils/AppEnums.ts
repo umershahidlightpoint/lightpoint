@@ -1,5 +1,3 @@
- 
 export class GridName {
-    static  Journal : number = 1;
-    
+  static Journal = 1;
 }
