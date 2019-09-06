@@ -41,6 +41,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   isLoading = false;
   postingEngineStatus = false;
   fileManagementActive = false;
+  selectedPeriod: any;
   clearJournalForm: FormGroup;
   key: any;
   messages: any;
@@ -234,7 +235,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   runEngine() {
     this.postingEngineStatus = true;
     this.financeService
-      .startPostingEngine()
+      .startPostingEngine(this.selectedPeriod.name)
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {
         if (response.IsRunning) {
