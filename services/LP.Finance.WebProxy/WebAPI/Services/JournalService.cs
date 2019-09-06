@@ -581,9 +581,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 bool whereAdded = false;
                 var query = $@"select fund,account.name as AccountName,  
-                        summary.Debit, summary.Credit, 
-                        (SUM(summary.Debit) over()) as DebitSum, 
-                        (SUM(summary.Credit) over()) as CreditSum 
+                        summary.Debit, summary.Credit
                         from ( 
                         select fund,account_id, 
                         sum( (CASE WHEN value < 0 THEN value else 0 END  )) Debit,
@@ -639,7 +637,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 {
                     TrialBalanceTileOutputDto trialBalance = new TrialBalanceTileOutputDto();
                     AccountListTileOutputDto accountsList = new AccountListTileOutputDto();
-                    trialBalance.FundName = ((string)row["fund"] == "" || row["fund"] == DBNull.Value) ? "N/A" : (string)row["fund"];
+                    trialBalance.FundName = (row["fund"] != DBNull.Value && (string)row["fund"] != "") ? (string)row["fund"] : "N/A";
                     trialBalance.FundCredit = row["Credit"] == DBNull.Value ? 0 : Convert.ToDecimal(row["Credit"]); ;
                     trialBalance.FundDebit = row["Debit"] == DBNull.Value ? 0 : Math.Abs(Convert.ToDecimal(row["Debit"]));
                     trialBalance.FundBalance = trialBalance.FundCredit.Value - trialBalance.FundDebit.Value;
@@ -663,7 +661,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }).ToList();
 
                 dynamic tileObject = new System.Dynamic.ExpandoObject();
-                tileObject.data = tileData;
+                tileObject.payload = tileData;
                 tileObject.status = HttpStatusCode.OK;
                 return tileObject;
             }
