@@ -37,5 +37,10 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
         {
             throw new NotImplementedException();
         }
+
+        public object GetAccountingTileData(DateTime? from, DateTime? to, string fund)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

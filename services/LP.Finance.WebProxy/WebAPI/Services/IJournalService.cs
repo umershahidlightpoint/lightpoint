@@ -13,5 +13,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object UpdateJournal(Guid source, JournalInputDto journal);
         object DeleteJournal(Guid source);
         object GetTrialBalanceReport(DateTime? from, DateTime? to, string fund);
+        object GetAccountingTileData(DateTime? from, DateTime? to, string fund);
+
     }
 }

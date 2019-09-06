@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Net;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Mappers;
@@ -565,6 +566,111 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             reportObject.stats = stats;
 
             return reportObject;
+        }
+
+        public object GetAccountingTileData(DateTime? from , DateTime? to, string fund)
+        {
+            try
+            {
+                dynamic postingEngine = new PostingEngineService().GetProgress();
+
+                if (postingEngine.IsRunning)
+                {
+                    return Utils.Wrap(false, "Posting Engine is currently Running");
+                }
+
+                bool whereAdded = false;
+                var query = $@"select fund,account.name as AccountName,  
+                        summary.Debit, summary.Credit, 
+                        (SUM(summary.Debit) over()) as DebitSum, 
+                        (SUM(summary.Credit) over()) as CreditSum 
+                        from ( 
+                        select fund,account_id, 
+                        sum( (CASE WHEN value < 0 THEN value else 0 END  )) Debit,
+                        sum( (CASE WHEN value > 0 THEN value else 0 END  )) Credit
+				        from journal with(nolock)";
+
+                List<SqlParameter> sqlParams = new List<SqlParameter>();
+
+                if (from.HasValue)
+                {
+                    query = query + " where journal.[when] >= @from";
+                    whereAdded = true;
+                    sqlParams.Add(new SqlParameter("from", from));
+                }
+
+                if (to.HasValue)
+                {
+                    if (whereAdded)
+                    {
+                        query = query + " and journal.[when] <= @to";
+                        sqlParams.Add(new SqlParameter("to", to));
+                    }
+                    else
+                    {
+                        query = query + " where journal.[when] <= @to";
+                        whereAdded = true;
+                        sqlParams.Add(new SqlParameter("to", to));
+                    }
+                }
+
+                if (fund != "ALL")
+                {
+                    if (whereAdded)
+                    {
+                        query = query + " and journal.[fund] = @fund";
+                        whereAdded = true;
+                        sqlParams.Add(new SqlParameter("fund", fund));
+                    }
+                    else
+                    {
+                        query = query + " where journal.[fund] = @fund";
+                        whereAdded = true;
+                        sqlParams.Add(new SqlParameter("fund", fund));
+                    }
+                }
+
+                query = query + "  group by fund,journal.account_id ) summary right join  account on summary.account_id= account.id ";
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+
+                List<TrialBalanceTileOutputDto> trialBalanceList = new List<TrialBalanceTileOutputDto>();
+
+                foreach (DataRow row in dataTable.Rows)
+                {
+                    TrialBalanceTileOutputDto trialBalance = new TrialBalanceTileOutputDto();
+                    AccountListTileOutputDto accountsList = new AccountListTileOutputDto();
+                    trialBalance.FundName = ((string)row["fund"] == "" || row["fund"] == DBNull.Value) ? "N/A" : (string)row["fund"];
+                    trialBalance.FundCredit = row["Credit"] == DBNull.Value ? 0 : Convert.ToDecimal(row["Credit"]); ;
+                    trialBalance.FundDebit = row["Debit"] == DBNull.Value ? 0 : Math.Abs(Convert.ToDecimal(row["Debit"]));
+                    trialBalance.FundBalance = trialBalance.FundCredit.Value - trialBalance.FundDebit.Value;
+
+                    accountsList.AccountName = (string)row["AccountName"];
+                    accountsList.AccountCredit = row["Credit"] == DBNull.Value ? 0 : Convert.ToDecimal(row["Credit"]);
+                    accountsList.AccountDebit = row["Debit"] == DBNull.Value ? 0 : Math.Abs(Convert.ToDecimal(row["Debit"]));
+                    accountsList.AccountBalance = accountsList.AccountCredit.Value - accountsList.AccountDebit.Value;
+                    trialBalance.Accounts = new List<AccountListTileOutputDto>();
+                    trialBalance.Accounts.Add(accountsList);
+                    trialBalanceList.Add(trialBalance);
+                }
+
+                var tileData = trialBalanceList.GroupBy(x => x.FundName).Select(y => new TrialBalanceTileOutputDto
+                {
+                    FundName = y.Key,
+                    FundCredit = y.Sum(z => z.FundCredit),
+                    FundDebit = y.Sum(z => z.FundDebit),
+                    FundBalance = y.Sum(z => z.FundBalance),
+                    Accounts = y.SelectMany(z => z.Accounts).ToList()
+                }).ToList();
+
+                dynamic tileObject = new System.Dynamic.ExpandoObject();
+                tileObject.data = tileData;
+                tileObject.status = HttpStatusCode.OK;
+                return tileObject;
+            }
+            catch(Exception ex)
+            {
+                return Utils.Wrap(false);
+            }
         }
 
         private object Only(string orderId)
