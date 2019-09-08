@@ -15,6 +15,7 @@ import 'ag-grid-enterprise';
 /* Services/Components Imports */
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { DataService } from 'src/shared/common/data.service';
+import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component'
 
 @Component({
   selector: 'app-trial-balance',
@@ -26,6 +27,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   @ViewChild('dateRangPicker') dateRangPicker;
   @ViewChild('greetCell') greetCell: TemplateRef<any>;
   @ViewChild('divToMeasureJournal') divToMeasureElement: ElementRef;
+  @ViewChild('dataModal') dataModal: DataModalComponent;
 
   private gridApi;
   private gridColumnApi;
@@ -143,6 +145,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       rowData: null,
       sideBar: this.sideBar,
       rowGroupPanelShow: 'after',
+      onCellDoubleClicked: this.openModal,
       rowSelection: 'single',
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
@@ -230,6 +233,14 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   onBtForEachNodeAfterFilter() {
     this.gridOptions.api.forEachNodeAfterFilter((rowNode, index) => {});
   }
+
+  openModal = row => {
+    // We can drive the screen that we wish to display from here
+    if ( row.colDef.headerName === "Source" ) {
+      this.dataModal.openModal(row);
+      return;
+    }
+  };
 
   /*
   Drives the columns that will be defined on the UI, and what can be done with those fields
@@ -379,7 +390,39 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
           }
         }
       },
-
+      {
+        field: 'balance',
+        aggFunc: 'sum',
+        headerName: '$Balance',
+        valueFormatter: currencyFormatter,
+        width: 100,
+        cellStyle: { 'text-align': 'right' },
+        cellClass: 'twoDecimalPlaces',
+        cellClassRules: {
+          // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
+          greenFont(params) {
+            if (params.node.rowPinned) {
+              return false;
+            } else {
+              return params.value > 0;
+            }
+          },
+          redFont(params) {
+            if (params.node.rowPinned) {
+              return false;
+            } else {
+              return params.value < 0;
+            }
+          },
+          footerRow(params) {
+            if (params.node.rowPinned) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        }
+      },
       {
         field: 'TradeCurrency',
         width: 100,
@@ -559,11 +602,12 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
           AccountType: '',
           accountName: '',
           when: '',
-          debit: tDebit,
-          credit: tCredit
+          debit: Math.abs(this.tDebit),
+          credit: Math.abs(this.tCredit),
+          balance: Math.abs(tDebit) - Math.abs(tCredit)
         }
       ];
-      // this.api.setPinnedBottomRowData(this.pinnedBottomRowData);
+      this.api.setPinnedBottomRowData(this.pinnedBottomRowData);
     };
 
     /* align scroll of grid and footer grid */
@@ -625,19 +669,21 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
             AccountType: '',
             accountName: '',
             when: '',
-            debit: this.totalCredit,
-            credit: this.totalDebit
+            debit: Math.abs(this.totalDebit),
+            credit: Math.abs(this.totalCredit),
+            balance: Math.abs(this.totalDebit) - Math.abs(this.totalCredit)
           }
         ];
-        // this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
+        this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
         this.bottomData = [
           {
             source: 'Total Records:' + this.totalRecords,
             AccountType: '',
             accountName: '',
             when: '',
-            debit: this.totalCredit,
-            credit: this.totalDebit
+            debit: Math.abs(this.totalDebit),
+            credit: Math.abs(this.totalCredit),
+            balance: Math.abs(this.totalDebit) - Math.abs(this.totalCredit)            
           }
         ];
       });
@@ -769,7 +815,7 @@ function currencyFormatter(params) {
 
 function formatNumber(numberToFormat: number) {
   return numberToFormat === 0
-    ? ''
+    ? '0.00'
     : Math.floor(numberToFormat)
         .toString()
         .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');

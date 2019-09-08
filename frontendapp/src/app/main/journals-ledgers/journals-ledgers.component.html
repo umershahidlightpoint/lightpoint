@@ -23,6 +23,16 @@
         </div>
         <!----- Funds Dropdown Div Ends ----->
 
+        <!----- Symbol filter ----->
+        <div class="col-md-2">
+          <form>
+            <input type="text" autocomplete="off"
+              placeholder="Filter by Symbol" (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)"
+              class="form-control" />
+          </form>
+        </div>
+        <!----- Funds Dropdown Div Ends ----->
+
         <!----- Date Range Label Div Starts ----->
         <div>
           <label style="text-align: right"> {{ DateRangeLable }} </label>
@@ -111,3 +121,6 @@
 
 <app-journal-modal #journalModal (modalClose)="closeJournalModal()">
 </app-journal-modal>
+
+<app-data-modal #dataModal (modalClose)="closeOrderModal()" [orderId]="orderId" [title]="'Order Detail'">
+</app-data-modal>

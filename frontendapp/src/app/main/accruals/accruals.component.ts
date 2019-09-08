@@ -2,6 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
+import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component'
 
 @Component({
   selector: 'app-accruals',
@@ -20,6 +21,7 @@ export class AccrualsComponent implements OnInit {
   @ViewChild('topGrid') topGrid;
   @ViewChild('bottomGrid') bottomGrid;
   @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
+  @ViewChild('dataModal') dataModal: DataModalComponent;
 
   bottomData: any;
   fund: any;
@@ -80,10 +82,29 @@ export class AccrualsComponent implements OnInit {
     }
   }
 
+  title:string = "";
+  
+  openModal = row => {
+    // We can drive the screen that we wish to display from here
+    if ( row.colDef.headerName === "LPOrderId" ) {
+      this.title = "Allocation Details"
+      this.dataModal.openModal(row);
+      return;
+    }
+
+    if ( row.colDef.headerName === "AccrualId" ) {
+      this.title = "Accrual Details"
+      this.dataModal.openModal(row);
+      return;
+    }
+
+  };
+
   constructor(private financeService: FinancePocServiceProxy, private agGridUtils: AgGridUtils) {
     this.gridOptions = {
       rowData: null,
       columnDefs: this.columnDefs,
+      onCellDoubleClicked: this.openModal,
       onGridReady: () => {
         //this.gridOptions.api.sizeColumnsToFit();
       },
@@ -99,6 +120,7 @@ export class AccrualsComponent implements OnInit {
     this.allocationsGridOptions = {
       rowData: null,
       columnDefs: this.columnDefs,
+      onCellDoubleClicked: this.openModal,
       onGridReady: () => {
         //this.gridOptions.api.sizeColumnsToFit();
       },

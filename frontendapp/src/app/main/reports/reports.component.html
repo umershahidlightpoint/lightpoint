@@ -26,7 +26,7 @@
 
         <!-- DateRange Label Div Starts -->
         <div>
-          <label style="text-align: right"> {{ DateRangeLable }} </label>
+          <label style="text-align: right"> {{ DateRangeLabel }} </label>
         </div>
         <!-- DateRange Label Div Ends -->
 
@@ -76,6 +76,7 @@
                 <th scope="col" class="first-cell">Account Name</th>
                 <th scope="col" class="other-cells center-position">Debit</th>
                 <th scope="col" class="other-cells center-position">Credit</th>
+                <th scope="col" class="other-cells center-position">Balance</th>
               </tr>
             </thead>
           </table>
@@ -95,6 +96,8 @@
                   <td [ngStyle]="{'background-size.%': !report.creditPercentage ? 0 : report.creditPercentage}"
                     style='background-size: 100%' class="other-cells positive cell-style">
                     {{ report.credit | number: '1.2-2' }}</td>
+                  <td class="other-cells balance cell-style">
+                  {{ report.balance | number: '1.2-2' }}</td>
                 </tr>
               </tbody>
             </table>
@@ -111,14 +114,10 @@
                   {{ trialBalanceReportStats?.totalDebit | number: '1.2-2' }}</td>
                 <td class="other-cells end-position">
                   {{ trialBalanceReportStats?.totalCredit | number: '1.2-2' }}</td>
-              </tr>
-              <tr>
-                <td class="first-cell">Balance</td>
-                <td colspan="2" class="other-cells center-position"
-                  [ngClass]="{'wrong-balance': (trialBalanceReportStats?.totalCredit - trialBalanceReportStats?.totalDebit) !== 0}">
+                <td class="other-cells end-position">
                   {{ (trialBalanceReportStats?.totalCredit - trialBalanceReportStats?.totalDebit) | number: '1.2-2' }}
                 </td>
-              </tr>
+                </tr>
             </tfoot>
           </table>
           <!-- Table for Footer Ends -->

@@ -1,3 +1,21 @@
+.modal {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-header {
+  padding: 5px;
+}
+
+.modal-body {
+  max-height: calc(100vh - 30vh);
+  overflow-y: auto; 
+  padding: 5px;
+}
+
+.modal-backdrop {
+  position: relative;
+}
+
 body,
 html {
   margin: 0;
@@ -68,11 +86,11 @@ td.negative {
 }
 
 .first-cell {
-  width: 40%;
+  width: 30%;
 }
 
 .other-cells {
-  width: 20%;
+  width: 70%;
 }
 
 .end-position {

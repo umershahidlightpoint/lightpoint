@@ -98,3 +98,6 @@
     <div (click)="greet(row)" style="cursor: pointer"> {{row.source}} </div>
   -->
 </ng-template>
+
+<app-data-modal #dataModal (modalClose)="closeOrderModal()" [orderId]="orderId" [title]="'Order Detail'">
+  </app-data-modal>

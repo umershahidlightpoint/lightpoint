@@ -14,7 +14,7 @@ import * as moment from 'moment';
 export class ReportsComponent implements OnInit, AfterViewInit {
   fund: any = 'All Funds';
   funds: Fund;
-  DateRangeLable: string;
+  DateRangeLabel: string;
   startDate: any;
   endDate: any;
   selected: { startDate: moment.Moment; endDate: moment.Moment };
@@ -99,19 +99,20 @@ export class ReportsComponent implements OnInit, AfterViewInit {
         credit: data.Credit,
         creditPercentage: data.CreditPercentage,
         debit: data.Debit,
-        debitPercentage: data.DebitPercentage
+        debitPercentage: data.DebitPercentage,
+        balance: data.Balance
       }));
       this.isLoading = false;
     });
   }
 
   getRangeLabel() {
-    this.DateRangeLable = '';
+    this.DateRangeLabel = '';
     if (
       moment('01-01-1901', 'MM-DD-YYYY').diff(this.startDate, 'days') === 0 &&
       moment().diff(this.endDate, 'days') === 0
     ) {
-      this.DateRangeLable = 'ITD';
+      this.DateRangeLabel = 'ITD';
       return;
     }
     if (
@@ -120,7 +121,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
         .diff(this.startDate, 'days') === 0 &&
       moment().diff(this.endDate, 'days') === 0
     ) {
-      this.DateRangeLable = 'YTD';
+      this.DateRangeLabel = 'YTD';
       return;
     }
     if (
@@ -129,11 +130,11 @@ export class ReportsComponent implements OnInit, AfterViewInit {
         .diff(this.startDate, 'days') === 0 &&
       moment().diff(this.endDate, 'days') === 0
     ) {
-      this.DateRangeLable = 'MTD';
+      this.DateRangeLabel = 'MTD';
       return;
     }
     if (moment().diff(this.startDate, 'days') === 0 && moment().diff(this.endDate, 'days') === 0) {
-      this.DateRangeLable = 'Today';
+      this.DateRangeLabel = 'Today';
       return;
     }
   }
@@ -141,7 +142,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   clearFilters() {
     this.fund = 'All Funds';
     this.selected = null;
-    this.DateRangeLable = '';
+    this.DateRangeLabel = '';
     this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
     this.endDate = moment();
     this.getReport(null, null, 'ALL');

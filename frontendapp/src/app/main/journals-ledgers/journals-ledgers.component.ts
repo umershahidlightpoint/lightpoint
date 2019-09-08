@@ -15,6 +15,7 @@ import * as moment from 'moment';
 
 /* Services/Components Imports */
 import { JournalModalComponent } from './journal-modal/journal-modal.component';
+import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component'
 import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { DataService } from '../../../shared/common/data.service';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
@@ -34,6 +35,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   @ViewChild('divToMeasureLedger') divToMeasureElementLedger: ElementRef;
   @ViewChild('modal') modal: ModalDirective;
   @ViewChild('journalModal') jounalModal: JournalModalComponent;
+  @ViewChild('dataModal') dataModal: DataModalComponent;
 
   private gridApi;
   private gridColumnApi;
@@ -62,9 +64,10 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   totalDebit: number;
   bottomData: any;
   startDate: any;
+  filterBySymbol: any = '';
   fund: any = 'All Funds';
   endDate: any;
-  symbol: string;
+  symbol: string = '';
   pageSize: any;
   accountSearch = { id: undefined };
   valueFilter: number;
@@ -550,6 +553,39 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
           }
         }
       },
+      {
+        field: 'balance',
+        aggFunc: 'sum',
+        headerName: '$Balance',
+        valueFormatter: currencyFormatter,
+        width: 100,
+        cellStyle: { 'text-align': 'right' },
+        cellClass: 'twoDecimalPlaces',
+        cellClassRules: {
+          // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
+          greenFont(params) {
+            if (params.node.rowPinned) {
+              return false;
+            } else {
+              return params.value > 0;
+            }
+          },
+          redFont(params) {
+            if (params.node.rowPinned) {
+              return false;
+            } else {
+              return params.value < 0;
+            }
+          },
+          footerRow(params) {
+            if (params.node.rowPinned) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        }
+      },
 
       {
         field: 'TradeCurrency',
@@ -618,8 +654,9 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
           AccountType: '',
           accountName: '',
           when: '',
-          debit: tDebit,
-          credit: tCredit
+          debit: Math.abs(tDebit),
+          credit: tCredit,
+          balance: Math.abs(tDebit) - Math.abs(tCredit)
         }
       ];
       this.api.setPinnedBottomRowData(this.pinnedBottomRowData);
@@ -709,8 +746,9 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
             AccountType: '',
             accountName: '',
             when: '',
-            debit: this.totalCredit,
-            credit: this.totalDebit
+            debit: Math.abs(this.totalDebit),
+            credit: Math.abs(this.totalCredit),
+            balance: Math.abs(this.totalDebit) - Math.abs(this.totalCredit)
           }
         ];
         this.bottomData = [
@@ -719,8 +757,9 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
             AccountType: '',
             accountName: '',
             when: '',
-            debit: this.totalCredit,
-            credit: this.totalDebit
+            debit: Math.abs(this.totalDebit),
+            credit: Math.abs(this.totalCredit),
+            balance: Math.abs(this.totalDebit) - Math.abs(this.totalCredit)
           }
         ];
       });
@@ -791,9 +830,24 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     this.getRangeLabel();
   }
 
+  ngModelChangeSymbol(e) {
+    this.filterBySymbol = e;
+    this.journalGrid.api.onFilterChanged();
+  }
+
   ngModelChangeFund(e) {
     this.fund = e;
     this.journalGrid.api.onFilterChanged();
+  }
+
+  onSymbolKey(e) {
+    this.filterBySymbol = e.srcElement.value
+    this.journalGrid.api.onFilterChanged();
+
+    // For the moment we react to each key stroke
+    if ( e.code === "Enter" || e.code === "Tab") {
+      //debugger
+    }
   }
 
   doesExternalFilterPass(node: any) {
@@ -812,6 +866,14 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         result = this.fund === cellFund;
       }
     }
+
+    if (result === true) {
+      if (this.filterBySymbol !== '') {
+        const cellFund = node.data.Symbol;
+        result = cellFund.search(this.filterBySymbol) != -1;
+      }
+    }
+
     return result;
   }
 
@@ -886,6 +948,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     this.gridOptions.api.redrawRows();
     this.DateRangeLable = '';
     this.selected = null;
+    this.filterBySymbol = '';
     this.fund = 'All Funds';
     this.journalGrid.api.setFilterModel(null);
     this.journalGrid.api.onFilterChanged();
@@ -906,7 +969,17 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     this.getAllData();
   }
 
+  closeOrderModal() {
+    //this.getAllData();
+  }
+
   openEditModal = row => {
+    // We can drive the screen that we wish to display from here
+    if ( row.colDef.headerName === "Source" ) {
+      this.dataModal.openModal(row);
+      return;
+    }
+
     this.jounalModal.openModal(row.data);
   };
 
@@ -935,7 +1008,7 @@ function currencyFormatter(params) {
 
 function formatNumber(numberToFormat) {
   return numberToFormat === 0
-    ? ''
+    ? '0.00'
     : Math.floor(numberToFormat)
         .toString()
         .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');

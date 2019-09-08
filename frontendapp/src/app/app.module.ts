@@ -52,6 +52,7 @@ import { HeaderComponent } from './menu/header/header.component';
 import { LeftMenuComponent } from './menu/left-menu/left-menu.component';
 import { JournalsLedgersComponent } from './main/journals-ledgers/journals-ledgers.component';
 import { JournalModalComponent } from './main/journals-ledgers/journal-modal/journal-modal.component';
+import { DataModalComponent } from '../shared/Component/data-modal/data-modal.component'
 import { TrialGridExampleComponent } from './main/trial-balance/trial-balance.component';
 import { AccountComponent } from './main/accounts/account.component';
 import { CreateAccountComponent } from './main/accounts/create-account/create-account.component';
@@ -80,6 +81,7 @@ import { OperationsComponent } from './main/operations/operations.component';
     ReportsComponent,
     RunLogsComponent,
     JournalModalComponent,
+    DataModalComponent,
     GridLayoutMenuComponent,
     LeftMenuComponent,
     FileManagementComponent
