@@ -7,5 +7,7 @@
         public decimal? Credit { get; set; }
         public decimal? DebitPercentage { get; set; }
         public decimal? CreditPercentage { get; set; }
+        public decimal? Balance { get; set; }
+
     }
 }

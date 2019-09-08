@@ -100,7 +100,7 @@ namespace PostingEngine.PostingRules.Utilities
             }
 
             var name = $"{accountType.Name} -- {string.Join("-", accountTags.Select(t => t.TagValue))}";
-            
+            var description = $"{string.Join("-", accountTags.Select(t => t.TagValue))}";
 
             // Lets check to see if we have created this account already
             if (accounts.ContainsKey(name))
@@ -112,7 +112,7 @@ namespace PostingEngine.PostingRules.Utilities
             {
                 // Need to revisit this ASAP
                 //Type = def.AccountCategory,
-                Description = name,
+                Description = description,
                 Name = name,
                 Type = accountType,
                 Tags = accountTags

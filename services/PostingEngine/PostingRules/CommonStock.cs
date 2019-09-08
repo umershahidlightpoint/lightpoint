@@ -85,10 +85,14 @@ namespace PostingEngine.PostingRules
             var accountTypes = AccountType.All;
 
             var listOfFromTags = new List<Tag> {
+                Tag.Find("SecurityType"),
+                Tag.Find("CustodianCode")
              };
 
             var listOfToTags = new List<Tag>
             {
+                Tag.Find("SecurityType"),
+                Tag.Find("CustodianCode")
             };
 
             Account fromAccount = null; // Debiting Account
@@ -103,8 +107,8 @@ namespace PostingEngine.PostingRules
                 case "sell":
                     break;
                 case "short":
-                    fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
-                    toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("SHORT POSITIONS-COST")).FirstOrDefault(), listOfFromTags, element);
+                    fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("SHORT POSITIONS-COST")).FirstOrDefault(), listOfFromTags, element);
+                    toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
                     break;
                 case "cover":
                     break;

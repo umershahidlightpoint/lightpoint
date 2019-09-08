@@ -305,6 +305,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         (sum(d.credit)  OVER()) as totalCredit, 
                         d.debit,
                         d.credit, 
+                        abs(d.credit) - abs(d.debit) as balance,
                         d.[id],
                         d.[account_id],
                         d.[fund],
@@ -469,9 +470,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             bool whereAdded = false;
 
             var query = $@"select account.name as AccountName,  
-                        summary.Debit, summary.Credit, 
+                        summary.Debit, summary.Credit,
+                        abs(summary.Credit) - abs(summary.Debit) as Balance,
                         (SUM(summary.Debit) over()) as DebitSum, 
-                        (SUM(summary.Credit) over()) as CreditSum 
+                        (SUM(summary.Credit) over()) as CreditSum
                         from ( 
                         select account_id, 
                         sum( (CASE WHEN value < 0 THEN value else 0 END  )) Debit,
@@ -537,24 +539,18 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 TrialBalanceReportOutPutDto trialBalance = new TrialBalanceReportOutPutDto();
                 trialBalance.AccountName = (string) row["AccountName"];
-                trialBalance.Credit =
-                    row["Credit"] == DBNull.Value ? (decimal?) null : Convert.ToDecimal(row["Credit"]);
-                trialBalance.Debit = row["Debit"] == DBNull.Value
-                    ? (decimal?) null
-                    : Math.Abs(Convert.ToDecimal(row["Debit"]));
+                trialBalance.Credit = GetDecimal(row["Credit"]);
+                trialBalance.Debit = GetDecimal(row["Debit"]);
+                trialBalance.Balance = GetDecimal(row["Balance"], false);
 
                 if (trialBalance.Credit.HasValue)
                 {
-                    trialBalance.CreditPercentage = stats.totalCredit > 0
-                        ? Math.Abs((trialBalance.Credit.Value / Convert.ToInt64(stats.totalCredit)) * 100)
-                        : 0;
+                    trialBalance.CreditPercentage = stats.totalCredit > 0 ? Math.Abs((trialBalance.Credit.Value / Convert.ToInt64(stats.totalCredit)) * 100) : 0;
                 }
 
                 if (trialBalance.Debit.HasValue)
                 {
-                    trialBalance.DebitPercentage = stats.totalDebit > 0
-                        ? Math.Abs((trialBalance.Debit.Value / Convert.ToInt64(stats.totalCredit)) * 100)
-                        : 0;
+                    trialBalance.DebitPercentage = stats.totalDebit > 0 ? Math.Abs((trialBalance.Debit.Value / Convert.ToInt64(stats.totalCredit)) * 100) : 0;
                 }
 
                 trialBalanceReport.Add(trialBalance);
@@ -567,6 +563,17 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             return reportObject;
         }
+
+        private decimal? GetDecimal(object o, bool absValue = true)
+        {
+            if (!absValue)
+            {
+                return o == DBNull.Value ? (decimal?)null : Convert.ToDecimal(o);
+            }
+
+            return o == DBNull.Value ? (decimal?)null : Math.Abs(Convert.ToDecimal(o));
+        }
+
 
         public object GetAccountingTileData(DateTime? from , DateTime? to, string fund)
         {
