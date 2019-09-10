@@ -266,6 +266,11 @@ namespace PostingEngine
             // Find me the rule
             var rule = env.rules.Where(i => i.Key.Equals(element.SecurityType)).FirstOrDefault().Value;
 
+            if ( element.OrderSource.Equals("Ticket"))
+            {
+                // Check from here
+            }
+
             if (rule == null)
             {
                 env.AddMessage($"No rule associated with {element.SecurityType}");
