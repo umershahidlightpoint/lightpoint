@@ -63,6 +63,7 @@ import { FileManagementComponent } from './main/operations/file-management/file-
 import { LogsComponent } from './main/logs/logs.component';
 import { SettingsComponent } from './main/settings/settings.component';
 import { OperationsComponent } from './main/operations/operations.component';
+import { ButtonRendererComponent } from '../renderer/buttonRenderer'; 
 
 @NgModule({
   declarations: [
@@ -84,7 +85,8 @@ import { OperationsComponent } from './main/operations/operations.component';
     DataModalComponent,
     GridLayoutMenuComponent,
     LeftMenuComponent,
-    FileManagementComponent
+    FileManagementComponent,
+    ButtonRendererComponent
   ],
   imports: [
     BrowserModule,

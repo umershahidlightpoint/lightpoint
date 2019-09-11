@@ -51,6 +51,7 @@ export class CreateAccountComponent implements OnInit, OnChanges {
   accountForm: FormGroup;
   // Form Aray attributes
   tags: FormArray;
+  backdrop: any;
 
   constructor(
     private router: Router,

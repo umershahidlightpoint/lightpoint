@@ -55,6 +55,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   valueFilter: number;
   sortColum: any;
   sortDirection: any;
+  backdrop: any;
 
   periods = [
     { name: 'YTD' },

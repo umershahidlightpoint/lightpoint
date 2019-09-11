@@ -10,11 +10,11 @@ import { DataModalComponent } from '../../../shared/Component/data-modal/data-mo
   styleUrls: ['./accruals.component.css']
 })
 export class AccrualsComponent implements OnInit {
-  private gridOptions: GridOptions;
-  private allocationsGridOptions: GridOptions;
+  public gridOptions: GridOptions;
+  public allocationsGridOptions: GridOptions;
   private defaultColDef;
-  private rowData: [];
-  private allocationsData: [];
+  public rowData: [];
+  public allocationsData: [];
 
   bottomOptions = { alignedGrids: [] };
 
@@ -33,6 +33,7 @@ export class AccrualsComponent implements OnInit {
   sortColum: any;
   sortDirection: any;
   page: any;
+  orderId: number;
 
   style = {
     marginTop: '20px',

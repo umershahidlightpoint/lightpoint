@@ -30,6 +30,7 @@ export class JournalModalComponent implements OnInit, OnDestroy {
   editJournal: boolean;
   isSubscriptionAlive: boolean;
   journalForm: FormGroup;
+  backdrop: any;
 
   constructor(
     private toastrService: ToastrService,

@@ -29,6 +29,8 @@ export class DataModalComponent implements OnInit, OnDestroy {
     overflow: 'overlay'
   };
 
+  backdrop: any;
+
   constructor() {}
 
   ngOnInit() {
