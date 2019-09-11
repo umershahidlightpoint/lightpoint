@@ -40,7 +40,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   private gridApi;
   private gridColumnApi;
   private defaultColDef;
-  private rowData: [];
+  public rowData: [];
   private ledgerRowData: [];
   private columns: any;
 
@@ -76,6 +76,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   sortDirection: any;
   page: any;
   isEngineRunning = false;
+  orderId: number;
 
   style = {
     marginTop: '20px',

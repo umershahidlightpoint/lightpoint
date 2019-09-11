@@ -9,9 +9,9 @@ import * as moment from 'moment';
   styleUrls: ['./logs.component.css']
 })
 export class LogsComponent implements OnInit {
-  private gridOptions: GridOptions;
+  public gridOptions: GridOptions;
   private defaultColDef;
-  private rowData: [];
+  public rowData: [];
   totalRecords: number;
   // topOptions = {alignedGrids: [], suppressHorizontalScroll: true};
   bottomOptions = { alignedGrids: [] };

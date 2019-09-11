@@ -57,6 +57,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   page: any;
   hideGrid = false;
   selected: { startDate: moment.Moment; endDate: moment.Moment };
+  orderId: number;
 
   style = {
     marginTop: '20px',
