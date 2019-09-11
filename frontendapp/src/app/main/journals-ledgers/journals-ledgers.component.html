@@ -26,9 +26,8 @@
         <!----- Symbol filter ----->
         <div class="col-md-2">
           <form>
-            <input type="text" autocomplete="off"
-              placeholder="Filter by Symbol" (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)"
-              class="form-control" />
+            <input type="text" autocomplete="off" placeholder="Filter by Symbol"
+              (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" />
           </form>
         </div>
         <!----- Funds Dropdown Div Ends ----->
@@ -98,10 +97,7 @@
       <div #divToMeasureJournal>
         <div [ngStyle]="styleForHight">
           <ag-grid-angular #journalGrid style="width: 100%; height: 100%" class="ag-theme-balham"
-            [gridOptions]="gridOptions" [rowGroupPanelShow]="rowGroupPanelShow" [pivotPanelShow]="pivotPanelShow"
-            [pivotColumnGroupTotals]="pivotColumnGroupTotals" [pivotRowTotals]="pivotRowTotals" [sideBar]="sideBar"
-            [rowData]="rowData" [rowSelection]="rowSelection" [getRowStyle]="getRowStyle"
-            [frameworkComponents]="frameworkComponents" [pinnedBottomRowData]="pinnedBottomRowData">
+            [gridOptions]="gridOptions" [pinnedBottomRowData]="pinnedBottomRowData">
           </ag-grid-angular>
         </div>
       </div>

@@ -15,7 +15,7 @@ import 'ag-grid-enterprise';
 /* Services/Components Imports */
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { DataService } from 'src/shared/common/data.service';
-import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component'
+import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
 
 @Component({
   selector: 'app-trial-balance',
@@ -236,7 +236,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
 
   openModal = row => {
     // We can drive the screen that we wish to display from here
-    if ( row.colDef.headerName === "Source" ) {
+    if (row.colDef.headerName === 'Source') {
       this.dataModal.openModal(row);
       return;
     }
@@ -519,7 +519,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   }
 
   getContextMenuItems(params) {
-    const defaultItems = ['copy', 'paste', 'export'];
+    const defaultItems = ['copy', 'paste', 'copyWithHeaders', 'export'];
     const items = [
       {
         name: 'Expand',
@@ -544,16 +544,26 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       {
         name: 'Expand All',
         action: () => {
-          let totalChildNodes = 0;
-          let checkCount = 0;
+          const nodeLevelArr = [];
+          let nodeFound;
+          let levelExists;
           params.api.forEachNode((node, index) => {
             if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              totalChildNodes = node.allChildrenCount;
-              node.expanded = true;
+              nodeFound = true;
             }
-            if (totalChildNodes > 0 && checkCount <= totalChildNodes) {
-              checkCount++;
-              node.expanded = true;
+            if (nodeFound) {
+              levelExists = this.isNodeLevelExists(nodeLevelArr, node.level);
+              if (!levelExists || levelExists === undefined) {
+                node.expanded = true;
+                nodeLevelArr.push(node.level);
+              }
+              if (levelExists && node.level !== 0) {
+                node.expanded = true;
+              } else {
+                if (levelExists && node.level === 0) {
+                  nodeFound = false;
+                }
+              }
             }
           });
           params.api.onGroupExpandedOrCollapsed();
@@ -561,17 +571,27 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       },
       {
         name: 'Collapse All',
-        action() {
-          let totalChildNodes = 0;
-          let checkCount = 0;
+        action: () => {
+          const nodeLevelArr = [];
+          let nodeFound;
+          let levelExists;
           params.api.forEachNode((node, index) => {
             if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              totalChildNodes = node.allChildrenCount;
-              node.expanded = false;
+              nodeFound = true;
             }
-            if (totalChildNodes > 0 && checkCount <= totalChildNodes) {
-              checkCount++;
-              node.expanded = false;
+            if (nodeFound) {
+              levelExists = this.isNodeLevelExists(nodeLevelArr, node.level);
+              if (!levelExists || levelExists === undefined) {
+                node.expanded = false;
+                nodeLevelArr.push(node.level);
+              }
+              if (levelExists && node.level !== 0) {
+                node.expanded = false;
+              } else {
+                if (levelExists && node.level === 0) {
+                  nodeFound = false;
+                }
+              }
             }
           });
           params.api.onGroupExpandedOrCollapsed();
@@ -583,6 +603,13 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       return items;
     }
     return defaultItems;
+  }
+
+  isNodeLevelExists(nodeLevelArray, nodeLevel) {
+    if (nodeLevelArray.includes(nodeLevel)) {
+      return true;
+    }
+    return false;
   }
 
   getTrialBalance() {
@@ -683,7 +710,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
             when: '',
             debit: Math.abs(this.totalDebit),
             credit: Math.abs(this.totalCredit),
-            balance: Math.abs(this.totalDebit) - Math.abs(this.totalCredit)            
+            balance: Math.abs(this.totalDebit) - Math.abs(this.totalCredit)
           }
         ];
       });

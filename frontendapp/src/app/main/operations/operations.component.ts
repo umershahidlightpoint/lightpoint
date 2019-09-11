@@ -319,7 +319,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   getContextMenuItems(params) {
-    const defaultItems = ['copy', 'paste', 'export'];
+    const defaultItems = ['copy', 'paste', 'copyWithHeaders', 'export'];
     const items = [
       {
         name: 'Expand',
@@ -344,16 +344,26 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       {
         name: 'Expand All',
         action: () => {
-          let totalChildNodes = 0;
-          let checkCount = 0;
+          const nodeLevelArr = [];
+          let nodeFound;
+          let levelExists;
           params.api.forEachNode((node, index) => {
             if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              totalChildNodes = node.allChildrenCount;
-              node.expanded = true;
+              nodeFound = true;
             }
-            if (totalChildNodes > 0 && checkCount <= totalChildNodes) {
-              checkCount++;
-              node.expanded = true;
+            if (nodeFound) {
+              levelExists = this.isNodeLevelExists(nodeLevelArr, node.level);
+              if (!levelExists || levelExists === undefined) {
+                node.expanded = true;
+                nodeLevelArr.push(node.level);
+              }
+              if (levelExists && node.level !== 0) {
+                node.expanded = true;
+              } else {
+                if (levelExists && node.level === 0) {
+                  nodeFound = false;
+                }
+              }
             }
           });
           params.api.onGroupExpandedOrCollapsed();
@@ -361,17 +371,27 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       },
       {
         name: 'Collapse All',
-        action() {
-          let totalChildNodes = 0;
-          let checkCount = 0;
+        action: () => {
+          const nodeLevelArr = [];
+          let nodeFound;
+          let levelExists;
           params.api.forEachNode((node, index) => {
             if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              totalChildNodes = node.allChildrenCount;
-              node.expanded = false;
+              nodeFound = true;
             }
-            if (totalChildNodes > 0 && checkCount <= totalChildNodes) {
-              checkCount++;
-              node.expanded = false;
+            if (nodeFound) {
+              levelExists = this.isNodeLevelExists(nodeLevelArr, node.level);
+              if (!levelExists || levelExists === undefined) {
+                node.expanded = false;
+                nodeLevelArr.push(node.level);
+              }
+              if (levelExists && node.level !== 0) {
+                node.expanded = false;
+              } else {
+                if (levelExists && node.level === 0) {
+                  nodeFound = false;
+                }
+              }
             }
           });
           params.api.onGroupExpandedOrCollapsed();
@@ -383,6 +403,13 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       return items;
     }
     return defaultItems;
+  }
+
+  isNodeLevelExists(nodeLevelArray, nodeLevel) {
+    if (nodeLevelArray.includes(nodeLevel)) {
+      return true;
+    }
+    return false;
   }
 
   setGroupingState(value: boolean) {

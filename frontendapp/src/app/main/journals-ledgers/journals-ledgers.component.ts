@@ -15,7 +15,7 @@ import * as moment from 'moment';
 
 /* Services/Components Imports */
 import { JournalModalComponent } from './journal-modal/journal-modal.component';
-import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component'
+import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
 import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { DataService } from '../../../shared/common/data.service';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
@@ -41,21 +41,14 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   private gridColumnApi;
   private defaultColDef;
   private rowData: [];
-  private ledgerRowData: [];
   private columns: any;
 
   totalRecords: number;
-  rowGroupPanelShow: any;
   sideBar: any;
-  pivotPanelShow: any;
-  pivotColumnGroupTotals: any;
-  pivotRowTotals: any;
   DateRangeLable: string;
   pinnedBottomRowData;
   gridOptions: GridOptions;
-  ledgerGridOptions: GridOptions;
   gridLayouts: any;
-  rowSelection = 'single';
   selected: { startDate: moment.Moment; endDate: moment.Moment };
   hideGrid = false;
   frameworkComponents: any;
@@ -67,7 +60,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   filterBySymbol: any = '';
   fund: any = 'All Funds';
   endDate: any;
-  symbol: string = '';
+  symbol = '';
   pageSize: any;
   accountSearch = { id: undefined };
   valueFilter: number;
@@ -140,7 +133,15 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),
-
+      sideBar: this.sideBar,
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      // this.frameworkComponents = { customToolPanel: GridLayoutMenuComponent };
+      pinnedBottomRowData: null,
+      rowSelection: 'single',
+      rowGroupPanelShow: 'after',
+      pivotPanelShow: 'always',
+      pivotColumnGroupTotals: 'after',
+      pivotRowTotals: 'after',
       /* Excel Styling */
       /* onGridReady: (params) => {
         this.gridApi = params.api;
@@ -231,142 +232,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-
-    this.ledgerGridOptions = {
-      rowData: null,
-      /*onFilterChanged: function() {
-          this.gridOptions.api.forEachNodeAfterFilter( function(rowNode, index) {
-            console.log('node ' + rowNode.data.debit + ' passes the filter');
-        } )},
-
-      */
-      // selected: {startDate: moment().startOf('month'), endDate: moment()};
-      // columnDefs: this.columnDefs,
-      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
-      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      onGridReady: params => {
-        this.gridOptions.excelStyles = [
-          {
-            id: 'twoDecimalPlaces',
-            numberFormat: { format: '#,##0' }
-          },
-          {
-            id: 'footerRow',
-            font: {
-              bold: true
-            }
-          },
-          {
-            id: 'greenBackground',
-            interior: {}
-          },
-          {
-            id: 'redFont'
-          },
-          {
-            id: 'header',
-            interior: {
-              color: '#CCCCCC',
-              pattern: 'Solid'
-            },
-            borders: {
-              borderBottom: {
-                color: '#5687f5',
-                lineStyle: 'Continuous',
-                weight: 1
-              },
-              borderLeft: {
-                color: '#5687f5',
-                lineStyle: 'Continuous',
-                weight: 1
-              },
-              borderRight: {
-                color: '#5687f5',
-                lineStyle: 'Continuous',
-                weight: 1
-              },
-              borderTop: {
-                color: '#5687f5',
-                lineStyle: 'Continuous',
-                weight: 1
-              }
-            }
-          }
-        ];
-
-        this.ledgerGridOptions.excelStyles = [
-          {
-            id: 'twoDecimalPlaces',
-            numberFormat: { format: '#,##0' }
-          },
-          {
-            id: 'footerRow',
-            font: {
-              bold: true
-            }
-          },
-          {
-            id: 'greenBackground',
-            interior: {
-              color: '#b5e6b5',
-              pattern: 'Solid'
-            }
-          },
-          {
-            id: 'redFont',
-            font: {
-              fontName: 'Calibri Light',
-
-              italic: true,
-              color: '#ff0000'
-            }
-          },
-          {
-            id: 'header',
-            interior: {
-              color: '#CCCCCC',
-              pattern: 'Solid'
-            },
-            borders: {
-              borderBottom: {
-                color: '#5687f5',
-                lineStyle: 'Continuous',
-                weight: 1
-              },
-              borderLeft: {
-                color: '#5687f5',
-                lineStyle: 'Continuous',
-                weight: 1
-              },
-              borderRight: {
-                color: '#5687f5',
-                lineStyle: 'Continuous',
-                weight: 1
-              },
-              borderTop: {
-                color: '#5687f5',
-                lineStyle: 'Continuous',
-                weight: 1
-              }
-            }
-          }
-        ];
-      },
-      onFirstDataRendered: params => {
-        params.api.sizeColumnsToFit();
-      },
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      suppressHorizontalScroll: false
-    } as GridOptions;
-
-    this.ledgerGridOptions.defaultColDef = {
-      sortable: true,
-      resizable: true,
-      filter: true
-    };
-    this.frameworkComponents = { customToolPanel: GridLayoutMenuComponent };
   }
 
   initSideBar() {
@@ -661,16 +526,9 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       ];
       this.api.setPinnedBottomRowData(this.pinnedBottomRowData);
     };
-
-    this.rowGroupPanelShow = 'after';
-    this.pivotPanelShow = 'always';
-    this.pivotColumnGroupTotals = 'after';
-    this.pivotRowTotals = 'before';
-
     /*  align scroll of grid and footer grid */
     // this.gridOptions.alignedGrids.push(this.bottomOptions);
     // this.bottomOptions.alignedGrids.push(this.gridOptions);
-
     this.symbol = 'ALL';
     const localThis = this;
     this.page = 0;
@@ -703,7 +561,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         this.totalCredit = result.stats.totalCredit;
         this.totalDebit = result.stats.totalDebit;
         this.rowData = [];
-        this.ledgerRowData = [];
         const someArray = [];
         // tslint:disable-next-line: forin
         for (const item in result.data) {
@@ -722,24 +579,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
 
         this.customizeColumns(this.columns);
         this.rowData = someArray as [];
-        this.ledgerRowData = result.data.map(item => ({
-          id: item.id,
-          source: item.source,
-          Fund: item.fund,
-          AccountCategory: item.AccountCategory,
-          AccountType: item.AccountType,
-          accountName: item.accountName,
-          accountId: item.account_id,
-          debit: item.debit,
-          credit: item.credit,
-          TradeCurrency: item.TradeCurrency,
-          SettleCurrency: item.SettleCurrency,
-          Side: item.Side,
-          Symbol: item.Symbol,
-          when: moment(item.when).format('MM-DD-YYYY')
-        }));
-
-        this.ledgerGridOptions.rowData = this.ledgerRowData;
+        this.gridOptions.api.setRowData(this.rowData);
         this.pinnedBottomRowData = [
           {
             source: 'Total Records:' + this.totalRecords,
@@ -819,10 +659,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     this.gridOptions.api.exportDataAsExcel(params);
   }
 
-  isExternalFilterPresent() {
-    return true;
-  }
-
   ngModelChange(e) {
     this.startDate = e.startDate;
     this.endDate = e.endDate;
@@ -841,17 +677,21 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   }
 
   onSymbolKey(e) {
-    this.filterBySymbol = e.srcElement.value
+    this.filterBySymbol = e.srcElement.value;
     this.journalGrid.api.onFilterChanged();
 
     // For the moment we react to each key stroke
-    if ( e.code === "Enter" || e.code === "Tab") {
+    if (e.code === 'Enter' || e.code === 'Tab') {
       //debugger
     }
   }
 
+  isExternalFilterPresent() {
+    return this.fund !== 'All Funds' || this.startDate || this.filterBySymbol !== '';
+  }
+
   doesExternalFilterPass(node: any) {
-    let result = true;
+    let result = false;
     if (this.startDate) {
       const cellDate = new Date(node.data.when);
       if (this.startDate.toDate() <= cellDate && this.endDate.toDate() >= cellDate) {
@@ -860,20 +700,21 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         result = false;
       }
     }
-    if (result === true) {
+    if (result === false) {
       if (this.fund !== 'All Funds') {
-        const cellFund = node.data.Fund;
-        result = this.fund === cellFund;
+        const cellFund = node.data.fund;
+        if (cellFund === this.fund) {
+          result = true;
+        }
       }
     }
-
-    if (result === true) {
+    if (result === false) {
       if (this.filterBySymbol !== '') {
         const cellFund = node.data.Symbol;
-        result = cellFund.search(this.filterBySymbol) != -1;
+        result = cellFund === this.filterBySymbol;
+        // result = cellFund.search(this.filterBySymbol) != -1;
       }
     }
-
     return result;
   }
 
@@ -903,16 +744,26 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       {
         name: 'Expand All',
         action: () => {
-          let totalChildNodes = 0;
-          let checkCount = 0;
+          const nodeLevelArr = [];
+          let nodeFound;
+          let levelExists;
           params.api.forEachNode((node, index) => {
             if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              totalChildNodes = node.allChildrenCount;
-              node.expanded = true;
+              nodeFound = true;
             }
-            if (totalChildNodes > 0 && checkCount <= totalChildNodes) {
-              checkCount++;
-              node.expanded = true;
+            if (nodeFound) {
+              levelExists = this.isNodeLevelExists(nodeLevelArr, node.level);
+              if (!levelExists || levelExists === undefined) {
+                node.expanded = true;
+                nodeLevelArr.push(node.level);
+              }
+              if (levelExists && node.level !== 0) {
+                node.expanded = true;
+              } else {
+                if (levelExists && node.level === 0) {
+                  nodeFound = false;
+                }
+              }
             }
           });
           params.api.onGroupExpandedOrCollapsed();
@@ -920,17 +771,27 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       },
       {
         name: 'Collapse All',
-        action() {
-          let totalChildNodes = 0;
-          let checkCount = 0;
+        action: () => {
+          const nodeLevelArr = [];
+          let nodeFound;
+          let levelExists;
           params.api.forEachNode((node, index) => {
             if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              totalChildNodes = node.allChildrenCount;
-              node.expanded = false;
+              nodeFound = true;
             }
-            if (totalChildNodes > 0 && checkCount <= totalChildNodes) {
-              checkCount++;
-              node.expanded = false;
+            if (nodeFound) {
+              levelExists = this.isNodeLevelExists(nodeLevelArr, node.level);
+              if (!levelExists || levelExists === undefined) {
+                node.expanded = false;
+                nodeLevelArr.push(node.level);
+              }
+              if (levelExists && node.level !== 0) {
+                node.expanded = false;
+              } else {
+                if (levelExists && node.level === 0) {
+                  nodeFound = false;
+                }
+              }
             }
           });
           params.api.onGroupExpandedOrCollapsed();
@@ -942,6 +803,13 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       return items;
     }
     return defaultItems;
+  }
+
+  isNodeLevelExists(nodeLevelArray, nodeLevel) {
+    if (nodeLevelArray.includes(nodeLevel)) {
+      return true;
+    }
+    return false;
   }
 
   clearFilters() {
@@ -975,7 +843,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
 
   openEditModal = row => {
     // We can drive the screen that we wish to display from here
-    if ( row.colDef.headerName === "Source" ) {
+    if (row.colDef.headerName === 'Source') {
       this.dataModal.openModal(row);
       return;
     }
