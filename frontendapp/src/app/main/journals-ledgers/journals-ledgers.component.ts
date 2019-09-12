@@ -22,6 +22,7 @@ import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridId, GridName } from '../../../shared/utils/AppEnums';
+import { SideBar } from 'src/shared/utils/SideBar';
 
 @Component({
   selector: 'app-journals-ledgers',
@@ -45,7 +46,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   private columns: any;
 
   totalRecords: number;
-  sideBar: any;
   DateRangeLabel: string;
   pinnedBottomRowData;
   gridOptions: GridOptions;
@@ -120,7 +120,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     private agGridUtls: AgGridUtils
   ) {
     this.hideGrid = false;
-    this.initSideBar();
     this.initGird();
   }
 
@@ -135,16 +134,12 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),
-      onDragStopped: params => {
-        // console.log({ params });
-        // console.log('Get col state', params.columnApi.getColumnState());
-      },
-      sideBar: this.sideBar,
+      sideBar: SideBar,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       pinnedBottomRowData: null,
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
-      pivotPanelShow: 'always',
+      pivotPanelShow: 'after',
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
       /* Excel Styling */
@@ -237,36 +232,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-  }
-
-  initSideBar() {
-    /* Setup of the SideBar */
-    this.sideBar = {
-      toolPanels: [
-        {
-          id: 'columns',
-          labelDefault: 'Columns',
-          labelKey: 'columns',
-          iconKey: 'columns',
-          toolPanel: 'agColumnsToolPanel'
-        },
-        {
-          id: 'filters',
-          labelDefault: 'Filters',
-          labelKey: 'filters',
-          iconKey: 'filter',
-          toolPanel: 'agFiltersToolPanel'
-        },
-        {
-          id: 'custom filters',
-          labelDefault: 'Layout',
-          labelKey: 'Grid Layout',
-          iconKey: 'filter',
-          toolPanel: 'customToolPanel'
-        }
-      ],
-      defaultToolPanel: ''
-    };
   }
 
   /*

@@ -18,6 +18,7 @@ import { DataService } from 'src/shared/common/data.service';
 import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
 import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { SideBar } from 'src/shared/utils/SideBar';
 
 @Component({
   selector: 'app-trial-balance',
@@ -37,7 +38,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   private rowData: [];
   private columns: any;
   totalRecords: number;
-  sideBar: any;
   DateRangeLabel: any;
   pinnedBottomRowData;
   gridOptions: GridOptions;
@@ -126,43 +126,15 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   }
 
   initGrid() {
-    /* Setup of the SideBar */
-    this.sideBar = {
-      toolPanels: [
-        {
-          id: 'columns',
-          labelDefault: 'Columns',
-          labelKey: 'columns',
-          iconKey: 'columns',
-          toolPanel: 'agColumnsToolPanel'
-        },
-        {
-          id: 'filters',
-          labelDefault: 'Filters',
-          labelKey: 'filters',
-          iconKey: 'filter',
-          toolPanel: 'agFiltersToolPanel'
-        },
-        {
-          id: 'custom filters',
-          labelDefault: 'Layout',
-          labelKey: 'Grid Layout',
-          iconKey: 'filter',
-          toolPanel: 'customToolPanel'
-        }
-      ],
-      defaultToolPanel: ''
-    };
-
     this.gridOptions = {
       rowData: null,
-      rowSelection: 'single',
-      rowGroupPanelShow: 'after',
-      onCellDoubleClicked: this.openModal,
-      sideBar: this.sideBar,
+      sideBar: SideBar,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
+      rowSelection: 'single',
+      rowGroupPanelShow: 'after',
+      onCellDoubleClicked: this.openModal,
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
         this.gridApi = params.api;

@@ -13,6 +13,11 @@ import { GridOptions } from 'ag-grid-community';
 import { takeWhile } from 'rxjs/operators';
 import { TemplateRendererComponent } from '../../../template-renderer/template-renderer.component';
 import { File } from 'src/shared/models/files';
+import { SideBar } from 'src/shared/utils/SideBar';
+import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { DataService } from 'src/shared/common/data.service';
+import { GridId, GridName } from 'src/shared/utils/AppEnums';
+
 @Component({
   selector: 'app-file-management',
   templateUrl: './file-management.component.html',
@@ -40,7 +45,7 @@ export class FileManagementComponent implements OnInit, OnDestroy {
     boxSizing: 'border-box'
   };
 
-  constructor(private financeService: FinancePocServiceProxy) {}
+  constructor(private financeService: FinancePocServiceProxy, private dataService: DataService) {}
 
   ngOnInit() {
     this.isSubscriptionAlive = true;
@@ -106,7 +111,9 @@ export class FileManagementComponent implements OnInit, OnDestroy {
     ];
     this.filesGridOptions = {
       rowData: null,
+      sideBar: SideBar,
       columnDefs: columnDefsForFiles,
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onGridReady: () => {
         this.filesGridOptions.api.sizeColumnsToFit();
       },
@@ -118,6 +125,8 @@ export class FileManagementComponent implements OnInit, OnDestroy {
       alignedGrids: [],
       suppressHorizontalScroll: true
     } as GridOptions;
+    this.dataService.changeMessage(this.filesGridOptions);
+    this.dataService.changeGrid({ gridId: GridId.filesId, gridName: GridName.files });
   }
 
   onFirstDataRendered(params) {

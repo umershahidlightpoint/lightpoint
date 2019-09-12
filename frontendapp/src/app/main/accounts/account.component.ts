@@ -18,6 +18,7 @@ import { takeWhile } from 'rxjs/operators';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { SideBar } from 'src/shared/utils/SideBar';
 
 @Component({
   selector: 'app-ledger-form',
@@ -31,7 +32,6 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
       params.api.sizeColumnsToFit();
     }
   } as GridOptions;
-  sideBar: any;
   accountCategories: AccountCategory;
   selectedAccountCategory: AccountCategory;
   hideGrid: boolean;
@@ -71,9 +71,6 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
     private toastrService: ToastrService,
     private dataService: DataService
   ) {
-    this.initSideBar();
-    this.initColDefs();
-    this.initGrid();
     this.isSubscriptionAlive = true;
     this.hideGrid = false;
   }
@@ -87,24 +84,7 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
     });
     this.dataService.changeMessage(this.gridOptions);
     this.dataService.changeGrid({ gridId: GridId.accountId, gridName: GridName.account });
-  }
-
-  ngOnInit() {
-    this.getAccountsRecord();
-    this.getAccountCategories();
-  }
-
-  initGrid() {
-    this.gridOptions = {
-      rowData: null,
-      sideBar: this.sideBar,
-      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      columnDefs: this.initColDefs()
-    };
-  }
-
-  initColDefs() {
-    return [
+    this.gridOptions.api.setColumnDefs([
       {
         headerName: 'Account Id',
         field: 'accountId',
@@ -156,36 +136,26 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
           ngTemplate: this.actionButtons
         }
       }
-    ];
+    ]);
   }
 
-  initSideBar() {
-    /* Setup of the SideBar */
-    this.sideBar = {
-      toolPanels: [
-        {
-          id: 'columns',
-          labelDefault: 'Columns',
-          labelKey: 'columns',
-          iconKey: 'columns',
-          toolPanel: 'agColumnsToolPanel'
-        },
-        {
-          id: 'filters',
-          labelDefault: 'Filters',
-          labelKey: 'filters',
-          iconKey: 'filter',
-          toolPanel: 'agFiltersToolPanel'
-        },
-        {
-          id: 'custom filters',
-          labelDefault: 'Layout',
-          labelKey: 'Grid Layout',
-          iconKey: 'filter',
-          toolPanel: 'customToolPanel'
-        }
-      ],
-      defaultToolPanel: ''
+  ngOnInit() {
+    this.initGrid();
+    this.getAccountsRecord();
+    this.getAccountCategories();
+  }
+
+  initGrid() {
+    this.gridOptions = {
+      rowData: null,
+      sideBar: SideBar,
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      pinnedBottomRowData: null,
+      rowSelection: 'single',
+      rowGroupPanelShow: 'after',
+      pivotPanelShow: 'after',
+      pivotColumnGroupTotals: 'after',
+      pivotRowTotals: 'after'
     };
   }
 
