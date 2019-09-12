@@ -57,7 +57,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   totalDebit: number;
   bottomData: any;
   startDate: any;
-  filterBySymbol: any = '';
+  filterBySymbol = '';
   fund: any = 'All Funds';
   endDate: any;
   symbol = '';
@@ -692,31 +692,65 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   }
 
   doesExternalFilterPass(node: any) {
-    let result = false;
+    if (this.fund !== 'All Funds' && this.filterBySymbol !== '' && this.startDate) {
+      const cellFund = node.data.fund;
+      const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
+      const cellDate = new Date(node.data.when);
+
+      return (
+        cellFund === this.fund &&
+        cellSymbol.includes(this.filterBySymbol) &&
+        this.startDate.toDate() <= cellDate &&
+        this.endDate.toDate() >= cellDate
+      );
+    }
+
+    if (this.fund !== 'All Funds' && this.filterBySymbol !== '') {
+      const cellFund = node.data.fund;
+      const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
+
+      return cellFund === this.fund && cellSymbol.includes(this.filterBySymbol);
+    }
+
+    if (this.fund !== 'All Funds' && this.startDate) {
+      const cellFund = node.data.fund;
+      const cellDate = new Date(node.data.when);
+
+      return (
+        cellFund === this.fund &&
+        this.startDate.toDate() <= cellDate &&
+        this.endDate.toDate() >= cellDate
+      );
+    }
+
+    if (this.filterBySymbol !== '' && this.startDate) {
+      const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
+      const cellDate = new Date(node.data.when);
+
+      return (
+        cellSymbol.includes(this.filterBySymbol) &&
+        this.startDate.toDate() <= cellDate &&
+        this.endDate.toDate() >= cellDate
+      );
+    }
+
+    if (this.fund !== 'All Funds') {
+      const cellFund = node.data.fund;
+
+      return cellFund === this.fund;
+    }
+
     if (this.startDate) {
       const cellDate = new Date(node.data.when);
-      if (this.startDate.toDate() <= cellDate && this.endDate.toDate() >= cellDate) {
-        result = true;
-      } else {
-        result = false;
-      }
+
+      return this.startDate.toDate() <= cellDate && this.endDate.toDate() >= cellDate;
     }
-    if (result === false) {
-      if (this.fund !== 'All Funds') {
-        const cellFund = node.data.fund;
-        if (cellFund === this.fund) {
-          result = true;
-        }
-      }
+
+    if (this.filterBySymbol !== '') {
+      const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
+
+      return cellSymbol.includes(this.filterBySymbol);
     }
-    if (result === false) {
-      if (this.filterBySymbol !== '') {
-        const cellFund = node.data.Symbol;
-        result = cellFund === this.filterBySymbol;
-        // result = cellFund.search(this.filterBySymbol) != -1;
-      }
-    }
-    return result;
   }
 
   getContextMenuItems(params) {

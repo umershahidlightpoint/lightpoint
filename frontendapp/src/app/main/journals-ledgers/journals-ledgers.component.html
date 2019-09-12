@@ -26,8 +26,9 @@
         <!----- Symbol filter ----->
         <div class="col-md-2">
           <form>
-            <input type="text" autocomplete="off" placeholder="Filter by Symbol"
-              (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" />
+            <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol"
+              [(ngModel)]="filterBySymbol" (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)"
+              class="form-control" />
           </form>
         </div>
         <!----- Funds Dropdown Div Ends ----->
