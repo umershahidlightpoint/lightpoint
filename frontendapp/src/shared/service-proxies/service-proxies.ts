@@ -318,7 +318,7 @@ export class FinancePocServiceProxy {
   /*
   Save Grid Layout State
   */
-  SaveDataGridState(data) {
+  saveDataGridState(data) {
     const url = this.baseUrl + '/DataGrid';
     return this.http.post(url, data).pipe(map((response: any) => response));
   }
@@ -334,9 +334,9 @@ export class FinancePocServiceProxy {
   /*
   Get All Grid LayoutS
   */
-  getGridLayouts(gridId, userid) {
+  getGridLayouts(gridId, userId) {
     const url = encodeURI(
-      this.baseUrl + '/DataGrid/GetDataGridLayouts?gridId=' + gridId + '&userId=' + userid
+      this.baseUrl + '/DataGrid/GetDataGridLayouts?gridId=' + gridId + '&userId=' + userId
     );
     return this.http.get(url).pipe(map((response: any) => response));
   }

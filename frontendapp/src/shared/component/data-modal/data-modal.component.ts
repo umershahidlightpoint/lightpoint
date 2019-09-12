@@ -1,5 +1,13 @@
 /* Core/Libraries */
-import { Component, OnInit, ViewChild, Output, Input, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  Output,
+  Input,
+  EventEmitter,
+  OnDestroy
+} from '@angular/core';
 import { ModalDirective } from 'ngx-bootstrap';
 
 @Component({
@@ -10,8 +18,11 @@ import { ModalDirective } from 'ngx-bootstrap';
 export class DataModalComponent implements OnInit, OnDestroy {
   @ViewChild('modal') modal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
-  @Input() orderId:string;
-  @Input() title:string = 'Data Details';
+  @Input() orderId: string;
+  @Input() title: string = 'Data Details';
+
+  tableData: any;
+  backdrop: any;
 
   styleForHight = {
     //marginTop: '20px',
@@ -29,24 +40,18 @@ export class DataModalComponent implements OnInit, OnDestroy {
     overflow: 'overlay'
   };
 
-  backdrop: any;
-
   constructor() {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   /*
   open the modal passing in the row details
   */
- tableData: any;
-
-  openModal(row:any) {
+  openModal(row: any) {
     const data = row.data;
     const columns = row.columnApi.columnController.columnDefs;
-
     // name, value
-    this.tableData = columns.map(i=>({name:i.headerName, value:data[i.field]}));
+    this.tableData = columns.map(i => ({ name: i.headerName, value: data[i.field] }));
 
     this.modal.show();
   }
@@ -55,6 +60,5 @@ export class DataModalComponent implements OnInit, OnDestroy {
     this.modal.hide();
   }
 
-  ngOnDestroy() {
-  }
+  ngOnDestroy() {}
 }

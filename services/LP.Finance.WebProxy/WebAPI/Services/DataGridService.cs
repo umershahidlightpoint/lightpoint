@@ -6,9 +6,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using LP.Finance.Common;
-using LP.Finance.Common.Dtos;
-using SqlDAL.Core;
 using System.Text;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
@@ -77,8 +74,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                                          )
                                                         VALUES
                                                         (@grid_name
-                                                         ,@gridId
-                                                        ,@userId
+                                                         ,@userId
+                                                        ,@gridId
                                                         ,@pivot_mode 
                                                         ,@column_state
                                                         ,@group_state

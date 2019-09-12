@@ -21,6 +21,7 @@ import { DataService } from '../../../shared/common/data.service';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { GridId, GridName } from '../../../shared/utils/AppEnums';
 
 @Component({
   selector: 'app-journals-ledgers',
@@ -45,7 +46,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
 
   totalRecords: number;
   sideBar: any;
-  DateRangeLable: string;
+  DateRangeLabel: string;
   pinnedBottomRowData;
   gridOptions: GridOptions;
   gridLayouts: any;
@@ -130,13 +131,16 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   initGird() {
     this.gridOptions = {
       rowData: null,
-      onCellDoubleClicked: this.openEditModal,
+      onCellDoubleClicked: this.openDataModal,
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),
+      onDragStopped: params => {
+        // console.log({ params });
+        // console.log('Get col state', params.columnApi.getColumnState());
+      },
       sideBar: this.sideBar,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      // this.frameworkComponents = { customToolPanel: GridLayoutMenuComponent };
       pinnedBottomRowData: null,
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
@@ -253,7 +257,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
           iconKey: 'filter',
           toolPanel: 'agFiltersToolPanel'
         },
-
         {
           id: 'custom filters',
           labelDefault: 'Layout',
@@ -264,10 +267,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       ],
       defaultToolPanel: ''
     };
-  }
-
-  public onBtForEachNodeAfterFilter() {
-    this.gridOptions.api.forEachNodeAfterFilter((rowNode, index) => {});
   }
 
   /*
@@ -452,7 +451,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
           }
         }
       },
-
       {
         field: 'TradeCurrency',
         width: 100,
@@ -485,9 +483,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         width: 100
       }
     ];
-
     const cdefs = this.agGridUtls.customizeColumns(colDefs, this.columns, this.ignoreFields);
-
     this.gridOptions.api.setColumnDefs(cdefs);
   }
 
@@ -500,6 +496,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     });
     this.dataService.gridColumnApi.subscribe(obj => (obj = this.gridOptions));
     this.dataService.changeMessage(this.gridOptions);
+    this.dataService.changeGrid({ gridId: GridId.journalId, gridName: GridName.journal });
   }
 
   getAllData() {
@@ -607,12 +604,12 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   }
 
   public getRangeLabel() {
-    this.DateRangeLable = '';
+    this.DateRangeLabel = '';
     if (
       moment('01-01-1901', 'MM-DD-YYYY').diff(this.startDate, 'days') === 0 &&
       moment().diff(this.endDate, 'days') === 0
     ) {
-      this.DateRangeLable = 'ITD';
+      this.DateRangeLabel = 'ITD';
       return;
     }
     if (
@@ -621,7 +618,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         .diff(this.startDate, 'days') === 0 &&
       moment().diff(this.endDate, 'days') === 0
     ) {
-      this.DateRangeLable = 'YTD';
+      this.DateRangeLabel = 'YTD';
       return;
     }
     if (
@@ -630,11 +627,11 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         .diff(this.startDate, 'days') === 0 &&
       moment().diff(this.endDate, 'days') === 0
     ) {
-      this.DateRangeLable = 'MTD';
+      this.DateRangeLabel = 'MTD';
       return;
     }
     if (moment().diff(this.startDate, 'days') === 0 && moment().diff(this.endDate, 'days') === 0) {
-      this.DateRangeLable = 'Today';
+      this.DateRangeLabel = 'Today';
       return;
     }
   }
@@ -754,7 +751,18 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   }
 
   getContextMenuItems(params) {
-    const defaultItems = ['copy', 'paste', 'copyWithHeaders', 'export'];
+    const defaultItems = [
+      'copy',
+      'paste',
+      'copyWithHeaders',
+      'export',
+      {
+        name: 'Edit',
+        action: () => {
+          this.openEditModal(params.node.data);
+        }
+      }
+    ];
     const items = [
       {
         name: 'Expand',
@@ -849,7 +857,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
 
   clearFilters() {
     this.gridOptions.api.redrawRows();
-    this.DateRangeLable = '';
+    this.DateRangeLabel = '';
     this.selected = null;
     this.filterBySymbol = '';
     this.fund = 'All Funds';
@@ -876,15 +884,21 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     //this.getAllData();
   }
 
-  openEditModal = row => {
+  openDataModal = row => {
+    console.log('new state', this.gridOptions.columnApi.getColumnState());
+    const columnDef = row.columnApi.columnController.columnDefs;
+    console.log('columnDef', columnDef);
+    // this.gridOptions.columnApi.setColumnState(columnDef);
+    console.log('gridOptions :: ', this.gridOptions);
+    // row.columnApi.columnController.setColumnDefs(newState);
+    // console.log({ row });
     // We can drive the screen that we wish to display from here
-    if (row.colDef.headerName === 'Source') {
-      this.dataModal.openModal(row);
-      return;
-    }
-
-    this.jounalModal.openModal(row.data);
+    this.dataModal.openModal(row);
   };
+
+  openEditModal(data) {
+    this.jounalModal.openModal(data);
+  }
 
   refreshGrid() {
     this.gridOptions.api.showLoadingOverlay();
