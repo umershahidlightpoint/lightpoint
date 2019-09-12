@@ -27,11 +27,7 @@ import { SideBar } from 'src/shared/utils/SideBar';
 })
 export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
   rowData: Array<GridRowData>;
-  gridOptions = {
-    onFirstDataRendered: params => {
-      params.api.sizeColumnsToFit();
-    }
-  } as GridOptions;
+  gridOptions: GridOptions;
   accountCategories: AccountCategory;
   selectedAccountCategory: AccountCategory;
   hideGrid: boolean;
@@ -155,7 +151,10 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
       rowGroupPanelShow: 'after',
       pivotPanelShow: 'after',
       pivotColumnGroupTotals: 'after',
-      pivotRowTotals: 'after'
+      pivotRowTotals: 'after',
+      onFirstDataRendered: params => {
+        params.api.sizeColumnsToFit();
+      }
     };
   }
 
