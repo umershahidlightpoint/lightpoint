@@ -884,17 +884,11 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     //this.getAllData();
   }
 
-  openDataModal = row => {
-    console.log('new state', this.gridOptions.columnApi.getColumnState());
-    const columnDef = row.columnApi.columnController.columnDefs;
-    console.log('columnDef', columnDef);
-    // this.gridOptions.columnApi.setColumnState(columnDef);
-    console.log('gridOptions :: ', this.gridOptions);
-    // row.columnApi.columnController.setColumnDefs(newState);
-    // console.log({ row });
+  openDataModal(row) {
+    // const columnDef = row.columnApi.columnController.columnDefs;
     // We can drive the screen that we wish to display from here
     this.dataModal.openModal(row);
-  };
+  }
 
   openEditModal(data) {
     this.jounalModal.openModal(data);
