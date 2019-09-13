@@ -74,6 +74,31 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
     this.hideGrid = false;
   }
 
+  splitColId(colId: any) {
+    let modifiedColId = colId.split('_');
+    return modifiedColId[0];
+  }
+  openModal = row => {
+    console.log({ row });
+    // We can drive the screen that we wish to display from here
+    if (row.colDef.headerName === 'Group') {
+      return;
+    }
+    let cols = this.gridOptions.columnApi.getColumnState();
+    let modifiedCols = cols.map(i => ({ colId: this.splitColId(i.colId), hide: i.hide }));
+    if (row.colDef.headerName === 'LPOrderId') {
+      this.title = 'Allocation Details';
+      this.dataModal.openModal(row, modifiedCols);
+      return;
+    }
+
+    if (row.colDef.headerName === 'AccrualId') {
+      this.title = 'Accrual Details';
+      this.dataModal.openModal(row, modifiedCols);
+      return;
+    }
+  };
+
   ngAfterViewInit(): void {
     this.dataService.flag.subscribe(obj => {
       this.hideGrid = obj;
@@ -172,21 +197,6 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
         this.allocationsGridOptions.api.setColumnDefs(cdefs);
         this.allocationsData = someArray as [];
       });
-    }
-  }
-
-  openModal(row) {
-    // We can drive the screen that we wish to display from here
-    if (row.colDef.headerName === 'LPOrderId') {
-      this.title = 'Allocation Details';
-      this.dataModal.openModal(row);
-      return;
-    }
-
-    if (row.colDef.headerName === 'AccrualId') {
-      this.title = 'Accrual Details';
-      this.dataModal.openModal(row);
-      return;
     }
   }
 

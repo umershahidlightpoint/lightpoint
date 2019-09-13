@@ -243,8 +243,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       {
         field: 'source',
         minWidth: 300,
-        headerName: 'Source',
-        colId: 'greet'
+        headerName: 'Source'
         /*
         cellRendererFramework: TemplateRendererComponent, cellRendererParams: {
           ngTemplate: this.greetCell
@@ -866,9 +865,13 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   }
 
   openDataModal(row) {
-    // const columnDef = row.columnApi.columnController.columnDefs;
     // We can drive the screen that we wish to display from here
-    this.dataModal.openModal(row);
+    if (row.colDef.headerName === 'Group') {
+      return;
+    }
+    console.log('==');
+    let cols = this.gridOptions.columnApi.getColumnState();
+    this.dataModal.openModal(row, cols);
   }
 
   openEditModal(data) {

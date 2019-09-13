@@ -216,21 +216,25 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     } as GridOptions;
   }
 
-  openModal(row) {
-    this.dataModal.openModal(row);
-  }
+  openModal = row => {
+    if (row.colDef.headerName === 'Group') {
+      return;
+    }
+    // We can drive the screen that we wish to display from here
+    let cols = this.gridOptions.columnApi.getColumnState();
+    this.dataModal.openModal(row, cols);
+  };
 
   /*
   Drives the columns that will be defined on the UI, and what can be done with those fields
   */
-
   customizeColumns(columns: any) {
     const colDefs = [
       {
         field: 'source',
         minWidth: 300,
         headerName: 'Source',
-        colId: 'greet'
+        colId: 'source'
         /*
         cellRendererFramework: TemplateRendererComponent, cellRendererParams: {
           ngTemplate: this.greetCell
