@@ -1,7 +1,8 @@
 USE [Finance]
 GO
 
-/****** Object:  Table [dbo].[data_grid_layouts]    Script Date: 8/7/2019 8:48:39 AM ******/
+DROP TABLE [data_grid_layouts]
+
 SET ANSI_NULLS ON
 GO
 
@@ -19,6 +20,7 @@ CREATE TABLE [dbo].[data_grid_layouts](
 	[group_state] [text] NULL,
 	[sort_state] [text] NULL,
 	[filter_state] [text] NULL,
+	[external_filter_state] [text] NULL,
 	[is_public] [bit] NULL,
  CONSTRAINT [PK_data_grid_state] PRIMARY KEY CLUSTERED 
 (
@@ -26,5 +28,3 @@ CREATE TABLE [dbo].[data_grid_layouts](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-
-

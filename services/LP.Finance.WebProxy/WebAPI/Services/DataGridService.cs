@@ -30,18 +30,18 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     DataGridParameters = new List<SqlParameter>
                     {
                         new SqlParameter("id", oDataGridStatusDto.Id),
-
                         new SqlParameter("pivot_mode", oDataGridStatusDto.PivotMode),
                         new SqlParameter("column_state", oDataGridStatusDto.ColumnState),
                         new SqlParameter("group_state", oDataGridStatusDto.GroupState),
                         new SqlParameter("sort_state", oDataGridStatusDto.SortState),
                         new SqlParameter("filter_state", oDataGridStatusDto.FilterState),
+                        new SqlParameter("external_filter_state", oDataGridStatusDto.ExternalFilterState)
                     };
 
                     DataGridInsert = new StringBuilder($@"UPDATE [data_grid_layouts] 
                                                         SET [pivot_mode] = @pivot_mode,[column_state]= @column_state  
                                                         ,[group_state]  = @group_state ,[sort_state] = @sort_state
-                                                        ,[filter_state] = @filter_state
+                                                        ,[filter_state] = @filter_state, [external_filter_state] = @external_filter_state
                                                         WHERE  id= @id; SELECT   @@ROWCOUNT;");
                 }
                 else
@@ -58,6 +58,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         new SqlParameter("group_state", oDataGridStatusDto.GroupState),
                         new SqlParameter("sort_state", oDataGridStatusDto.SortState),
                         new SqlParameter("filter_state", oDataGridStatusDto.FilterState),
+                        new SqlParameter("external_filter_state", oDataGridStatusDto.ExternalFilterState),
                         new SqlParameter("is_public", oDataGridStatusDto.IsPublic ? 1 : 0)
                     };
                     DataGridInsert = new StringBuilder($@"INSERT INTO [data_grid_layouts]
@@ -69,6 +70,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                                         ,[group_state]  
                                                         ,[sort_state] 
                                                         ,[filter_state]
+                                                        ,[external_filter_state]
                                                         ,[grid_layout_name]
                                                         ,[is_public]
                                                          )
@@ -81,6 +83,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                                         ,@group_state
                                                         ,@sort_state
                                                         ,@filter_state
+                                                        ,@external_filter_state
                                                         ,@grid_layout_name
                                                         ,@is_public);
                                                         SELECT SCOPE_IDENTITY() AS 'Identity'");
@@ -112,6 +115,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                           ,[group_state]
                           ,[sort_state]
                           ,[filter_state]
+                          ,[external_filter_state]
                         FROM [data_grid_layouts]";
 
             DataGridStatusDto oDataGridStatusDto = new DataGridStatusDto();
@@ -124,6 +128,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 {
                     oDataGridStatusDto.ColumnState = reader["column_state"].ToString();
                     oDataGridStatusDto.FilterState = reader["filter_state"].ToString();
+                    oDataGridStatusDto.ExternalFilterState = reader["external_filter_state"].ToString();
                     oDataGridStatusDto.PivotMode = reader["pivot_mode"].ToString();
                     oDataGridStatusDto.SortState = reader["sort_state"].ToString();
                     oDataGridStatusDto.GroupState = reader["group_state"].ToString();
@@ -189,7 +194,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                           ,[group_state]
                           ,[sort_state]
                           ,[filter_state]
-                        FROM [data_grid_layouts] where id =@id";
+                          ,[external_filter_state]
+                        FROM [data_grid_layouts] where id = @id";
 
 
             DataGridStatusDto oDataGridStatusDto = new DataGridStatusDto();
@@ -202,6 +208,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 {
                     oDataGridStatusDto.ColumnState = reader["column_state"].ToString();
                     oDataGridStatusDto.FilterState = reader["filter_state"].ToString();
+                    oDataGridStatusDto.ExternalFilterState = reader["external_filter_state"].ToString();
                     oDataGridStatusDto.PivotMode = reader["pivot_mode"].ToString();
                     oDataGridStatusDto.SortState = reader["sort_state"].ToString();
                     oDataGridStatusDto.GroupState = reader["group_state"].ToString();

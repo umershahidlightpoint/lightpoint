@@ -13,6 +13,7 @@ namespace LP.Finance.Common.Dtos
         public string GroupState { get; set; }
         public string SortState { get; set; }
         public string FilterState { get; set; }
+        public string ExternalFilterState { get; set; }
         public string GridLayoutName { get; set; }
         public bool IsPublic { get; set; }
     }

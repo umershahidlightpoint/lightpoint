@@ -12,6 +12,7 @@ import { DataService } from '../../common/data.service';
 export class GridLayoutMenuComponent implements IToolPanel {
   gridOptions: GridOptions;
   gridObject: { gridId: number; gridName: string };
+  setGridFilterObject: any;
 
   private params: IToolPanelParams;
   gridLayoutID: any = 0;
@@ -37,6 +38,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
     this.params.api.addEventListener('modelUpdated', this.getLayout.bind(this));
     this.dataService.gridColumnApi.subscribe(obj => (this.gridOptions = obj));
     this.dataService.gridObject.subscribe(obj => (this.gridObject = obj));
+    this.dataService.setGridFilterObject.subscribe(obj => (this.setGridFilterObject = obj));
   }
 
   getLayout(): void {
@@ -67,6 +69,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
       this.gridOptions.columnApi.setColumnGroupState(JSON.parse(response.payload.GroupState));
       this.gridOptions.api.setSortModel(JSON.parse(response.payload.SortState));
       this.gridOptions.api.setFilterModel(JSON.parse(response.payload.FilterState));
+      this.gridOptions.isExternalFilterPassed(JSON.parse(response.payload.ExternalFilterState));
     });
   }
 
@@ -90,7 +93,8 @@ export class GridLayoutMenuComponent implements IToolPanel {
       ColumnState: JSON.stringify(this.gridOptions.columnApi.getColumnState()),
       GroupState: JSON.stringify(this.gridOptions.columnApi.getColumnGroupState()),
       SortState: JSON.stringify(this.gridOptions.api.getSortModel()),
-      FilterState: JSON.stringify(this.gridOptions.api.getFilterModel())
+      FilterState: JSON.stringify(this.gridOptions.api.getFilterModel()),
+      ExternalFilterState: JSON.stringify(this.setGridFilterObject)
     };
     this.financeService.saveDataGridState(dataGridStatusObj).subscribe(
       response => {

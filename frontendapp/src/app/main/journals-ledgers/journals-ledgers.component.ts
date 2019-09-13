@@ -132,6 +132,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       rowData: null,
       onCellDoubleClicked: this.openDataModal.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
+      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),
       sideBar: SideBar,
@@ -649,11 +650,26 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     }
   }
 
+  isExternalFilterPassed(object) {
+    const { fundFilter } = object;
+    const { symbolFilter } = object;
+    this.fund = fundFilter !== undefined ? fundFilter : this.fund;
+    this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
+
+    this.journalGrid.api.onFilterChanged();
+  }
+
   isExternalFilterPresent() {
     return this.fund !== 'All Funds' || this.startDate || this.filterBySymbol !== '';
   }
 
   doesExternalFilterPass(node: any) {
+    this.dataService.setExternalFilter({
+      fundFilter: this.fund,
+      symbolFilter: this.filterBySymbol,
+      dateFilter: { startDate: this.startDate, endDate: this.endDate }
+    });
+
     if (this.fund !== 'All Funds' && this.filterBySymbol !== '' && this.startDate) {
       const cellFund = node.data.fund;
       const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
