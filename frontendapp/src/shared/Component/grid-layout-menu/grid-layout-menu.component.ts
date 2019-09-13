@@ -10,7 +10,7 @@ import { DataService } from '../../common/data.service';
   styleUrls: ['./grid-layout-menu.component.css']
 })
 export class GridLayoutMenuComponent implements IToolPanel {
-  gridOptions: GridOptions;
+  gridOptions: any;
   gridObject: { gridId: number; gridName: string };
   setGridFilterObject: any;
 
