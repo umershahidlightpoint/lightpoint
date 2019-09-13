@@ -16,6 +16,9 @@ import { ToastrService } from 'ngx-toastr';
 import { GridRowData, AccountCategory } from '../../../shared/Models/account';
 import { takeWhile } from 'rxjs/operators';
 import { DataService } from 'src/shared/common/data.service';
+import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { SideBar } from 'src/shared/utils/SideBar';
 
 @Component({
   selector: 'app-ledger-form',
@@ -24,11 +27,7 @@ import { DataService } from 'src/shared/common/data.service';
 })
 export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
   rowData: Array<GridRowData>;
-  gridOptions = {
-    onFirstDataRendered: params => {
-      params.api.sizeColumnsToFit();
-    }
-  } as GridOptions;
+  gridOptions: GridOptions;
   accountCategories: AccountCategory;
   selectedAccountCategory: AccountCategory;
   hideGrid: boolean;
@@ -79,6 +78,8 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
         this.getAccountsRecord();
       }
     });
+    this.dataService.changeMessage(this.gridOptions);
+    this.dataService.changeGrid({ gridId: GridId.accountId, gridName: GridName.account });
     this.gridOptions.api.setColumnDefs([
       {
         headerName: 'Account Id',
@@ -135,8 +136,26 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.initGrid();
     this.getAccountsRecord();
     this.getAccountCategories();
+  }
+
+  initGrid() {
+    this.gridOptions = {
+      rowData: null,
+      sideBar: SideBar,
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      pinnedBottomRowData: null,
+      rowSelection: 'single',
+      rowGroupPanelShow: 'after',
+      pivotPanelShow: 'after',
+      pivotColumnGroupTotals: 'after',
+      pivotRowTotals: 'after',
+      onFirstDataRendered: params => {
+        params.api.sizeColumnsToFit();
+      }
+    };
   }
 
   getAccountCategories() {

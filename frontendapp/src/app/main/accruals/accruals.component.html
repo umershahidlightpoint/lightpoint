@@ -4,14 +4,12 @@
     <div #divToMeasure>
       <div [ngStyle]="styleForHight">
         <ag-grid-angular style="width: 100%; height: 45%" class="ag-theme-balham" [gridOptions]="gridOptions" #topGrid
-          [rowSelection]="rowSelection"
-          (rowSelected)="onRowSelected($event)"
-          [rowData]="rowData">
+          (rowSelected)="onRowSelected($event)" [rowData]="rowData">
         </ag-grid-angular>
 
         <h4>Generate Allocations for selected Accrual</h4>
-        <ag-grid-angular style="width: 100%; height: 45%" class="ag-theme-balham" [gridOptions]="allocationsGridOptions" #bottomGrid
-          [rowData]="allocationsData">
+        <ag-grid-angular style="width: 100%; height: 45%" class="ag-theme-balham" [gridOptions]="allocationsGridOptions"
+          #bottomGrid [rowData]="allocationsData">
         </ag-grid-angular>
 
       </div>

@@ -16,6 +16,9 @@ import 'ag-grid-enterprise';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { DataService } from 'src/shared/common/data.service';
 import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
+import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { SideBar } from 'src/shared/utils/SideBar';
 
 @Component({
   selector: 'app-trial-balance',
@@ -35,8 +38,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   private rowData: [];
   private columns: any;
   totalRecords: number;
-  sideBar: any;
-  DateRangeLable: any;
+  DateRangeLabel: any;
   pinnedBottomRowData;
   gridOptions: GridOptions;
   // topOptions = {alignedGrids: [], suppressHorizontalScroll: true};
@@ -118,38 +120,21 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
         this.getTrialBalance();
       }
     });
+    this.dataService.gridColumnApi.subscribe(obj => (obj = this.gridOptions));
+    this.dataService.changeMessage(this.gridOptions);
+    this.dataService.changeGrid({ gridId: GridId.trailBalanceId, gridName: GridName.trailBalance });
   }
 
   initGrid() {
-    /* Setup of the SideBar */
-    this.sideBar = {
-      toolPanels: [
-        {
-          id: 'columns',
-          labelDefault: 'Columns',
-          labelKey: 'columns',
-          iconKey: 'columns',
-          toolPanel: 'agColumnsToolPanel'
-        },
-        {
-          id: 'filters',
-          labelDefault: 'Filters',
-          labelKey: 'filters',
-          iconKey: 'filter',
-          toolPanel: 'agFiltersToolPanel'
-        }
-      ],
-      defaultToolPanel: ''
-    };
-
     this.gridOptions = {
       rowData: null,
-      sideBar: this.sideBar,
-      rowGroupPanelShow: 'after',
-      onCellDoubleClicked: this.openModal,
-      rowSelection: 'single',
+      sideBar: SideBar,
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      onCellDoubleClicked: this.openModal.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
+      rowSelection: 'single',
+      rowGroupPanelShow: 'after',
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
         this.gridApi = params.api;
@@ -231,19 +216,10 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     } as GridOptions;
   }
 
-  onBtForEachNodeAfterFilter() {
-    this.gridOptions.api.forEachNodeAfterFilter((rowNode, index) => {});
-  }
-
   openModal = row => {
     // We can drive the screen that we wish to display from here
     let cols = this.gridOptions.columnApi.getColumnState();
-
-    if (row.colDef.headerName === 'Source') {
-
-      this.dataModal.openModal(row, cols);
-      return;
-    }
+    this.dataModal.openModal(row, cols);
   };
 
   /*
@@ -626,7 +602,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
         tCredit += rowNode.data.credit;
         tDebit += rowNode.data.debit;
       });
-
       this.pinnedBottomRowData = [
         {
           source: 'Total Records: ' + tTotal,
@@ -721,12 +696,12 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   }
 
   getRangeLabel() {
-    this.DateRangeLable = '';
+    this.DateRangeLabel = '';
     if (
       moment('01-01-1901', 'MM-DD-YYYY').diff(this.startDate, 'days') === 0 &&
       moment().diff(this.endDate, 'days') === 0
     ) {
-      this.DateRangeLable = 'ITD';
+      this.DateRangeLabel = 'ITD';
       return;
     }
     if (
@@ -735,7 +710,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
         .diff(this.startDate, 'days') === 0 &&
       moment().diff(this.endDate, 'days') === 0
     ) {
-      this.DateRangeLable = 'YTD';
+      this.DateRangeLabel = 'YTD';
       return;
     }
     if (
@@ -744,11 +719,11 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
         .diff(this.startDate, 'days') === 0 &&
       moment().diff(this.endDate, 'days') === 0
     ) {
-      this.DateRangeLable = 'MTD';
+      this.DateRangeLabel = 'MTD';
       return;
     }
     if (moment().diff(this.startDate, 'days') === 0 && moment().diff(this.endDate, 'days') === 0) {
-      this.DateRangeLable = 'Today';
+      this.DateRangeLabel = 'Today';
       return;
     }
   }
@@ -812,7 +787,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   clearFilters() {
     this.gridOptions.api.redrawRows();
     this.fund = 'All Funds';
-    this.DateRangeLable = '';
+    this.DateRangeLabel = '';
     this.dateRangPicker.value = '';
     this.selected = null;
     this.journalGrid.api.setFilterModel(null);

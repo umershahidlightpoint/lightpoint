@@ -17,6 +17,10 @@ import * as moment from 'moment';
 import { FormGroup, FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
+import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { DataService } from 'src/shared/common/data.service';
+import { SideBar } from 'src/shared/utils/SideBar';
 
 @Component({
   selector: 'app-operations',
@@ -121,6 +125,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   constructor(
     private financeService: FinancePocServiceProxy,
     private toastrService: ToastrService,
+    private dataService: DataService,
     private postingEngineService: PostingEngineService
   ) {
     this.initGrid();
@@ -166,6 +171,8 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     this.gridOptions = {
       rowData: null,
       columnDefs: this.columnDefs,
+      sideBar: SideBar,
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onGridReady: () => {
         this.gridOptions.api.sizeColumnsToFit();
       },
@@ -177,6 +184,8 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       alignedGrids: [],
       suppressHorizontalScroll: true
     } as GridOptions;
+    this.dataService.changeMessage(this.gridOptions);
+    this.dataService.changeGrid({ gridId: GridId.logsId, gridName: GridName.logs });
   }
 
   onFirstDataRendered(params) {
