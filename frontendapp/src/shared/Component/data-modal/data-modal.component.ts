@@ -41,18 +41,31 @@ export class DataModalComponent implements OnInit, OnDestroy {
   */
  tableData: any;
 
-  openModal(row:any) {
+  openModal(row:any, cols:any) {
     const data = row.data;
     const columns = row.columnApi.columnController.columnDefs;
 
+    let columnStates = cols.filter(i=> !i.hide).map(i=> ({field: i.colId, headerName: this.mapHeaderName(columns, i.colId)}))
+
     // name, value
-    this.tableData = columns.map(i=>({name:i.headerName, value:data[i.field]}));
+    this.tableData = columnStates.map(i=>({name:i.headerName, value:data[i.field]}));
 
     this.modal.show();
   }
 
   closeModal() {
     this.modal.hide();
+  }
+
+  mapHeaderName(columns: any, fieldId: any): string{
+    let match: string;
+    for(const obj of columns){
+      if(obj.field === fieldId){
+        match = obj.headerName;
+        break;
+      }
+    }
+    return match;
   }
 
   ngOnDestroy() {

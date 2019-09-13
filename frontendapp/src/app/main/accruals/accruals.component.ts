@@ -86,16 +86,18 @@ export class AccrualsComponent implements OnInit {
   title:string = "";
   
   openModal = row => {
+
+    let cols = this.gridOptions.columnApi.getColumnState();
     // We can drive the screen that we wish to display from here
     if ( row.colDef.headerName === "LPOrderId" ) {
       this.title = "Allocation Details"
-      this.dataModal.openModal(row);
+      this.dataModal.openModal(row, cols);
       return;
     }
 
     if ( row.colDef.headerName === "AccrualId" ) {
       this.title = "Accrual Details"
-      this.dataModal.openModal(row);
+      this.dataModal.openModal(row, cols);
       return;
     }
 

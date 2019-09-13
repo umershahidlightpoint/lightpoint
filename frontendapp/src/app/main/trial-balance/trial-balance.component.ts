@@ -237,8 +237,11 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
 
   openModal = row => {
     // We can drive the screen that we wish to display from here
+    let cols = this.gridOptions.columnApi.getColumnState();
+
     if (row.colDef.headerName === 'Source') {
-      this.dataModal.openModal(row);
+
+      this.dataModal.openModal(row, cols);
       return;
     }
   };
@@ -253,7 +256,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
         field: 'source',
         minWidth: 300,
         headerName: 'Source',
-        colId: 'greet'
+        colId: 'source'
         /*
         cellRendererFramework: TemplateRendererComponent, cellRendererParams: {
           ngTemplate: this.greetCell

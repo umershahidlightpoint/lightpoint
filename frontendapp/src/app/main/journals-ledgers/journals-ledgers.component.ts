@@ -278,9 +278,8 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       {
         field: 'source',
         minWidth: 300,
-        headerName: 'Source',
-        colId: 'greet'
-        /*
+        headerName: 'Source'
+                /*
         cellRendererFramework: TemplateRendererComponent, cellRendererParams: {
           ngTemplate: this.greetCell
         },
@@ -845,7 +844,8 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   openEditModal = row => {
     // We can drive the screen that we wish to display from here
     if (row.colDef.headerName === 'Source') {
-      this.dataModal.openModal(row);
+      let cols = this.gridOptions.columnApi.getColumnState();
+      this.dataModal.openModal(row, cols);
       return;
     }
 
