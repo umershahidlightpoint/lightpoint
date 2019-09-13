@@ -217,6 +217,9 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   }
 
   openModal = row => {
+    if (row.colDef.headerName === 'Group') {
+      return;
+    }
     // We can drive the screen that we wish to display from here
     let cols = this.gridOptions.columnApi.getColumnState();
     this.dataModal.openModal(row, cols);
@@ -225,7 +228,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   /*
   Drives the columns that will be defined on the UI, and what can be done with those fields
   */
-
   customizeColumns(columns: any) {
     const colDefs = [
       {
