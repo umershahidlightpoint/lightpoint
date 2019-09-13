@@ -130,11 +130,11 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       rowData: null,
       sideBar: SideBar,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      onCellDoubleClicked: this.openModal.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
-      onCellDoubleClicked: this.openModal,
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
         this.gridApi = params.api;
@@ -217,11 +217,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   }
 
   openModal(row) {
-    // We can drive the screen that we wish to display from here
-    if (row.colDef.headerName === 'Source') {
-      this.dataModal.openModal(row);
-      return;
-    }
+    this.dataModal.openModal(row);
   }
 
   /*

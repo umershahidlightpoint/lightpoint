@@ -1,8 +1,7 @@
-import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { IToolPanel, IToolPanelParams } from 'ag-grid-community';
+import { Component, ChangeDetectorRef } from '@angular/core';
+import { IToolPanel, IToolPanelParams, GridOptions } from 'ag-grid-community';
 import { FinancePocServiceProxy } from '../../service-proxies/service-proxies';
 import { ToastrService } from 'ngx-toastr';
-import { ModalDirective } from 'ngx-bootstrap';
 import { DataService } from '../../common/data.service';
 
 @Component({
@@ -11,12 +10,10 @@ import { DataService } from '../../common/data.service';
   styleUrls: ['./grid-layout-menu.component.css']
 })
 export class GridLayoutMenuComponent implements IToolPanel {
-  gridOptions: any;
-  gridObject: any;
-  @ViewChild('modal') modal: ModalDirective;
+  gridOptions: GridOptions;
+  gridObject: { gridId: number; gridName: string };
 
   private params: IToolPanelParams;
-
   gridLayoutID: any = 0;
   public: boolean;
   isPublic = false;
@@ -101,7 +98,6 @@ export class GridLayoutMenuComponent implements IToolPanel {
           this.toastrService.success('Status saved successfully!');
           this.getLayout();
           this.isNewLayout = false;
-          this.closeModal();
           this.getLayout();
         } else {
           this.toastrService.error('Failed to save status!');
@@ -126,12 +122,8 @@ export class GridLayoutMenuComponent implements IToolPanel {
     return;
   }
 
-  closeModal() {
-    this.modal.hide();
-  }
-
   _compareFn(a, b) {
-    if (a.Id === 0) {
+    if (a.Id === 0 || a.Id === null || b.Id === null) {
       return a.Id;
     }
     return a.Id === b.Id;

@@ -130,7 +130,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   initGird() {
     this.gridOptions = {
       rowData: null,
-      onCellDoubleClicked: this.openDataModal,
+      onCellDoubleClicked: this.openDataModal.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),

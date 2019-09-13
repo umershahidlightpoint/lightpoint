@@ -118,7 +118,7 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
       rowData: null,
       sideBar: SideBar,
       columnDefs: this.columnDefs,
-      onCellDoubleClicked: this.openModal,
+      onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onGridReady: () => {
         // this.gridOptions.api.sizeColumnsToFit();
@@ -141,7 +141,7 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
       rowData: null,
       // sideBar: SideBar,
       columnDefs: this.columnDefs,
-      onCellDoubleClicked: this.openModal,
+      onCellDoubleClicked: this.openModal.bind(this),
       // frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onGridReady: () => {
         // this.gridOptions.api.sizeColumnsToFit();
