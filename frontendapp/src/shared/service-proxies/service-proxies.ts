@@ -72,13 +72,24 @@ export class FinancePocServiceProxy {
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
-  /*
+    /*
   Get the Allocations / AccrualId is Necessary as this is the Linkage between the Accrual and the Allocation / Trade
   */
-  getAccrualAllocations(accrualId: string) {
-    const url = encodeURI(this.refDataUrl + '/accruals/allocations?accrualid=' + accrualId);
+ getAccrualAllocations(accrualId: string) {
+  const url = encodeURI(this.refDataUrl + '/accruals/allocations?accrualid=' + accrualId);
+  return this.http.get(url).pipe(map((response: any) => response));
+}
+
+  getTrades() {
+    const url = encodeURI(this.refDataUrl + '/trades?period=ITD');
     return this.http.get(url).pipe(map((response: any) => response));
   }
+
+  getTradeAllocations(orderId: string) {
+    const url = encodeURI(this.refDataUrl + '/trades/allocations?orderId=' + orderId);
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
+
 
   /*
   Create a New Journal

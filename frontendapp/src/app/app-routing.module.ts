@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { OperationsComponent } from './main/operations/operations.component';
 import { AccrualsComponent } from './main/accruals/accruals.component';
+import { TradeAllocationComponent } from './main/trade-allocation/trade-allocation.component';
 import { SettingsComponent } from './main/settings/settings.component';
 import { RunLogsComponent } from './runlogs/runlogs.component';
 import { ReportsComponent } from './main/reports/reports.component';
@@ -17,6 +18,7 @@ const routes: Routes = [
   { path: 'runlogs', component: RunLogsComponent },
   { path: 'operations', component: OperationsComponent },
   { path: 'accruals', component: AccrualsComponent },
+  { path: 'trade-allocation', component: TradeAllocationComponent },
   { path: 'settings', component: SettingsComponent },
   { path: 'reports', component: ReportsComponent },
   {
