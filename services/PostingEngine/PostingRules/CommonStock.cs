@@ -24,7 +24,14 @@ namespace PostingEngine.PostingRules
 
         public void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
-            var accountToFrom = GetFromToAccountOnSettlement(element);
+            // Retrieve Allocation Objects for this trade
+            var tradeAllocations = env.Allocations.Where(i => i.ParentOrderId == element.ParentOrderId).ToList();
+
+            var debitEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[0] : tradeAllocations[1];
+            var creditEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[1] : tradeAllocations[0];
+
+            var accountToFrom = GetFromToAccountOnSettlement(element, debitEntry, creditEntry);
+
             if ( accountToFrom.To == null || accountToFrom.From == null)
             {
                 env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
@@ -51,7 +58,7 @@ namespace PostingEngine.PostingRules
             {
                 var debit = new Journal
                 {
-                    Source = element.LpOrderId,
+                    Source = debitEntry.LpOrderId,
                     Account = accountToFrom.From,
                     When = env.ValueDate,
                     FxCurrency = element.SettleCurrency,
@@ -63,7 +70,7 @@ namespace PostingEngine.PostingRules
 
                 var credit = new Journal
                 {
-                    Source = element.LpOrderId,
+                    Source = creditEntry.LpOrderId,
                     Account = accountToFrom.To,
                     When = env.ValueDate,
                     FxCurrency = element.SettleCurrency,
@@ -79,7 +86,7 @@ namespace PostingEngine.PostingRules
             }
         }
 
-        private AccountToFrom GetFromToAccount(Transaction element)
+        private AccountToFrom GetFromToAccount(Transaction element, Transaction debit, Transaction credit)
         {
             var type = element.GetType();
             var accountTypes = AccountType.All;
@@ -101,8 +108,8 @@ namespace PostingEngine.PostingRules
             switch (element.Side.ToLowerInvariant())
             {
                 case "buy":
-                    fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("LONG POSITIONS AT COST")).FirstOrDefault(), listOfFromTags, element);
-                    toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
+                    fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("LONG POSITIONS AT COST")).FirstOrDefault(), listOfFromTags, debit);
+                    toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, credit);
                     break;
                 case "sell":
                     break;
@@ -121,18 +128,20 @@ namespace PostingEngine.PostingRules
             };
         }
 
-        private AccountToFrom GetFromToAccountOnSettlement(Transaction element)
+        private AccountToFrom GetFromToAccountOnSettlement(Transaction element, Transaction debit, Transaction credit)
         {
             var type = element.GetType();
             var accountTypes = AccountType.All;
 
             var listOfFromTags = new List<Tag>
             {
-                //Tag.Find("CustodianCode"),
+                Tag.Find("SecurityType"),
+                Tag.Find("CustodianCode")
             };
 
             var listOfToTags = new List<Tag> {
-                //Tag.Find("CustodianCode"),
+                Tag.Find("SecurityType"),
+                Tag.Find("CustodianCode")
              };
 
             Account fromAccount = null; // Debiting Account
@@ -141,9 +150,9 @@ namespace PostingEngine.PostingRules
             {
                 case "buy":
                     fromAccount = new AccountUtils()
-                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfFromTags, element);
+                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfFromTags, debit);
                     toAccount = new AccountUtils()
-                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Settled Activity )")).FirstOrDefault(), listOfToTags, element);
+                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Settled Activity )")).FirstOrDefault(), listOfToTags, credit);
                     break;
                 case "sell":
                     break;
@@ -168,7 +177,10 @@ namespace PostingEngine.PostingRules
             // Retrieve Allocation Objects for this trade
             var tradeAllocations = env.Allocations.Where(i => i.ParentOrderId == element.ParentOrderId).ToList();
 
-            var accountToFrom = GetFromToAccount(element);
+            var debitEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[0] : tradeAllocations[1];
+            var creditEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[1] : tradeAllocations[0];
+
+            var accountToFrom = GetFromToAccount(element, debitEntry, creditEntry);
 
             if (accountToFrom.To == null || accountToFrom.From == null)
             {
@@ -181,10 +193,18 @@ namespace PostingEngine.PostingRules
 
             double fxrate = 1.0;
 
+            if ( element.LpOrderId.ToLower().Equals("79e41950a1874755ba5c264c40505464"))
+            {
+
+            }
             // Lets get fx rate if needed
             if ( !element.TradeCurrency.Equals("USD"))
             {
                 fxrate = Convert.ToDouble(env.FxRates[element.TradeCurrency].Rate);
+            }
+
+            if (element.LpOrderId == "a12bde3e8342464b841d8b550d7cba69&EFIX@C")
+            {
             }
 
             if (element.NetMoney != 0.0)
@@ -195,7 +215,7 @@ namespace PostingEngine.PostingRules
 
                 var debitJournal = new Journal
                 {
-                    Source = tradeAllocations[0].TradeId,
+                    Source = debitEntry.TradeId,
                     Account = accountToFrom.From,
                     When = env.ValueDate,
                     Value = debitAmount,
@@ -207,7 +227,7 @@ namespace PostingEngine.PostingRules
 
                 var creditJournal = new Journal
                 {
-                    Source = tradeAllocations[1].TradeId,
+                    Source = creditEntry.TradeId,
                     Account = accountToFrom.To,
                     When = env.ValueDate,
                     FxCurrency = element.TradeCurrency,

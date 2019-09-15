@@ -46,7 +46,7 @@ namespace PostingEngine.PostingRules
                         var paidAccount = accountTypes.Where(i => i.Name.Equals("Expenses Paid")).FirstOrDefault();
                         var payableAccount = accountTypes.Where(i => i.Name.Equals("ACCRUED EXPENSES")).FirstOrDefault();
 
-                        fromAccount = new AccountUtils().CreateAccount(paidAccount, symbol + " Paid", element);
+                        fromAccount = new AccountUtils().CreateAccount(paidAccount, symbol, element);
                         toAccount = new AccountUtils().CreateAccount(payableAccount, symbol + " Payable", element);
 
                         break;

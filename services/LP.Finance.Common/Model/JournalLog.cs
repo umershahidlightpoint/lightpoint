@@ -42,7 +42,7 @@ namespace LP.Finance.Common.Models
             var table = new DataTable();
 
             // read the table structure from the database
-            var localconnection = new SqlConnection(connection.ConnectionString);
+            var localconnection = new SqlConnection(connection.ConnectionString + ";Password=ggtuser;");
             localconnection.Open();
             using (var adapter = new SqlDataAdapter($"SELECT TOP 0 action, action_on, rundate, log_key FROM Journal_log", localconnection))
             {

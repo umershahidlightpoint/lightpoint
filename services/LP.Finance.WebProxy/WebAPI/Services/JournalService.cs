@@ -305,7 +305,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         (sum(d.credit)  OVER()) as totalCredit, 
                         d.debit,
                         d.credit, 
-                        abs(d.credit) - abs(d.debit) as balance,
+                        abs(d.debit) - abs(d.credit) as balance,
                         d.[id],
                         d.[account_id],
                         d.[fund],
@@ -471,7 +471,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             var query = $@"select account.name as AccountName,  
                         summary.Debit, summary.Credit,
-                        abs(summary.Credit) - abs(summary.Debit) as Balance,
+                        abs(summary.Debit) - abs(summary.Credit) as Balance,
                         (SUM(summary.Debit) over()) as DebitSum, 
                         (SUM(summary.Credit) over()) as CreditSum
                         from ( 
@@ -652,7 +652,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     accountsList.AccountName = (string)row["AccountName"];
                     accountsList.AccountCredit = row["Credit"] == DBNull.Value ? 0 : Convert.ToDecimal(row["Credit"]);
                     accountsList.AccountDebit = row["Debit"] == DBNull.Value ? 0 : Math.Abs(Convert.ToDecimal(row["Debit"]));
-                    accountsList.AccountBalance = accountsList.AccountCredit.Value - accountsList.AccountDebit.Value;
+                    accountsList.AccountBalance = accountsList.AccountDebit.Value - accountsList.AccountCredit.Value;
                     trialBalance.Accounts = new List<AccountListTileOutputDto>();
                     trialBalance.Accounts.Add(accountsList);
                     trialBalanceList.Add(trialBalance);
