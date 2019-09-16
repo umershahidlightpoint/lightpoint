@@ -220,5 +220,33 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             return Utils.Wrap(true, oDataGridStatusDto, meta);
         }
+
+        public object DeleteGridLayout(int id)
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+
+            try
+            {
+                sqlHelper.VerifyConnection();
+
+                List<SqlParameter> Parameters = new List<SqlParameter> {
+                    new SqlParameter("id", id)
+                };
+
+                var query = $@"DELETE FROM [data_grid_layouts] WHERE [data_grid_layouts].[id] = @id";
+
+                sqlHelper.Delete(query, CommandType.Text, Parameters.ToArray());
+                sqlHelper.CloseConnection();
+
+                return Utils.Wrap(true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"SQL Exception: {ex}");
+                sqlHelper.CloseConnection();
+
+                return Utils.Wrap(false);
+            }
+        }
     }
 }

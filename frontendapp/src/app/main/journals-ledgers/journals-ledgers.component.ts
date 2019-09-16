@@ -8,21 +8,20 @@ import {
   ChangeDetectorRef,
   AfterViewInit
 } from '@angular/core';
-import { ModalDirective } from 'ngx-bootstrap';
-import { GridOptions } from 'ag-grid-community';
 import 'ag-grid-enterprise';
+import { GridOptions } from 'ag-grid-community';
+import { ModalDirective } from 'ngx-bootstrap';
 import * as moment from 'moment';
-
 /* Services/Components Imports */
+import { SideBar } from 'src/shared/utils/SideBar';
+import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { PostingEngineService } from 'src/shared/common/posting-engine.service';
+import { DataService } from '../../../shared/common/data.service';
+import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
 import { JournalModalComponent } from './journal-modal/journal-modal.component';
 import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
 import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { DataService } from '../../../shared/common/data.service';
-import { PostingEngineService } from 'src/shared/common/posting-engine.service';
-import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
-import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridId, GridName } from '../../../shared/utils/AppEnums';
-import { SideBar } from 'src/shared/utils/SideBar';
 
 @Component({
   selector: 'app-journals-ledgers',
@@ -45,32 +44,49 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   public rowData: [];
   private columns: any;
 
-  totalRecords: number;
-  DateRangeLabel: string;
-  pinnedBottomRowData;
+  isEngineRunning = false;
+  hideGrid = false;
+  columnDefs: any;
   gridOptions: GridOptions;
   gridLayouts: any;
-  selected: { startDate: moment.Moment; endDate: moment.Moment };
-  hideGrid = false;
   frameworkComponents: any;
-  columnDefs: any;
-  totalCredit: number;
-  totalDebit: number;
+  pinnedBottomRowData;
   bottomData: any;
-  startDate: any;
-  filterBySymbol = '';
+  totalRecords: number;
+  totalDebit: number;
+  totalCredit: number;
   fund: any = 'All Funds';
-  endDate: any;
+  filterBySymbol = '';
   symbol = '';
-  pageSize: any;
+  DateRangeLabel: string;
+  selected: { startDate: moment.Moment; endDate: moment.Moment };
+  startDate: any;
+  endDate: any;
+  funds: any;
   accountSearch = { id: undefined };
   valueFilter: number;
-  funds: any;
   sortColum: any;
   sortDirection: any;
   page: any;
-  isEngineRunning = false;
+  pageSize: any;
   orderId: number;
+
+  ranges: any = {
+    ITD: [moment('01-01-1901', 'MM-DD-YYYY'), moment()],
+    YTD: [moment().startOf('year'), moment()],
+    MTD: [moment().startOf('month'), moment()],
+    Today: [moment(), moment()]
+  };
+
+  ignoreFields = [
+    'id',
+    'totalDebit',
+    'totalCredit',
+    'overall_count',
+    'account_id',
+    'value',
+    'LpOrderId'
+  ];
 
   style = {
     marginTop: '20px',
@@ -95,23 +111,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     boxSizing: 'border-box'
   };
 
-  ranges: any = {
-    ITD: [moment('01-01-1901', 'MM-DD-YYYY'), moment()],
-    YTD: [moment().startOf('year'), moment()],
-    MTD: [moment().startOf('month'), moment()],
-    Today: [moment(), moment()]
-  };
-
-  ignoreFields = [
-    'id',
-    'totalDebit',
-    'totalCredit',
-    'overall_count',
-    'account_id',
-    'value',
-    'LpOrderId'
-  ];
-
   constructor(
     private cdRef: ChangeDetectorRef,
     private financeService: FinancePocServiceProxy,
@@ -134,6 +133,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
+      clearExternalFilter: this.clearFilters.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),
       sideBar: SideBar,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
@@ -146,20 +146,14 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       /* Excel Styling */
       /* onGridReady: (params) => {
         this.gridApi = params.api;
-
         this.gridColumnApi = params.columnApi;
-
-        //this.gridOptions.api.sizeColumnsToFit();
-
+        this.gridOptions.api.sizeColumnsToFit();
         this.gridOptions.excelStyles = [
           {
-
             id: "twoDecimalPlaces",
             numberFormat: { format: "#,##0" }
-
           },
           {
-
             id: "footerRow",
             font: {
               bold: true,
@@ -168,22 +162,18 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
           {
             id: "greenBackground",
             interior: {
-
-            //  color: "#b5e6b5",
-             // pattern: "Solid"
+             color: "#b5e6b5",
+             pattern: "Solid"
             }
-
           },
           {
             id: "redFont",
             font: {
-             // fontName: "Calibri Light",
-
-            //  italic: true,
-             // color: "#ff0000"
+             fontName: "Calibri Light",
+             italic: true,
+             color: "#ff0000"
             }
           },
-
           {
             id: "header",
             interior: {
@@ -489,7 +479,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       ];
       this.api.setPinnedBottomRowData(this.pinnedBottomRowData);
     };
-    /*  align scroll of grid and footer grid */
+    /*  Align scroll of grid and footer grid */
     // this.gridOptions.alignedGrids.push(this.bottomOptions);
     // this.bottomOptions.alignedGrids.push(this.gridOptions);
     this.symbol = 'ALL';
@@ -625,8 +615,8 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   ngModelChange(e) {
     this.startDate = e.startDate;
     this.endDate = e.endDate;
-    this.journalGrid.api.onFilterChanged();
     this.getRangeLabel();
+    this.journalGrid.api.onFilterChanged();
   }
 
   ngModelChangeSymbol(e) {
@@ -645,30 +635,39 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
 
     // For the moment we react to each key stroke
     if (e.code === 'Enter' || e.code === 'Tab') {
-      //debugger
     }
   }
 
   isExternalFilterPassed(object) {
     const { fundFilter } = object;
     const { symbolFilter } = object;
+    const { dateFilter } = object;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
     this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
+    this.setDateRange(dateFilter);
 
     this.journalGrid.api.onFilterChanged();
   }
 
   isExternalFilterPresent() {
-    return this.fund !== 'All Funds' || this.startDate || this.filterBySymbol !== '';
+    if (this.fund !== 'All Funds' || this.startDate || this.filterBySymbol !== '') {
+      this.dataService.setExternalFilter({
+        fundFilter: this.fund,
+        symbolFilter: this.filterBySymbol,
+        dateFilter:
+          this.DateRangeLabel !== ''
+            ? this.DateRangeLabel
+            : {
+                startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
+                endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
+              }
+      });
+
+      return true;
+    }
   }
 
   doesExternalFilterPass(node: any) {
-    this.dataService.setExternalFilter({
-      fundFilter: this.fund,
-      symbolFilter: this.filterBySymbol,
-      dateFilter: { startDate: this.startDate, endDate: this.endDate }
-    });
-
     if (this.fund !== 'All Funds' && this.filterBySymbol !== '' && this.startDate) {
       const cellFund = node.data.fund;
       const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
@@ -728,6 +727,37 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
 
       return cellSymbol.includes(this.filterBySymbol);
     }
+  }
+
+  setDateRange(dateFilter: any) {
+    if (typeof dateFilter === 'object') {
+      this.startDate = moment(dateFilter.startDate);
+      this.endDate = moment(dateFilter.endDate);
+    }
+
+    switch (dateFilter) {
+      case 'ITD':
+        this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
+        this.endDate = moment();
+        break;
+      case 'YTD':
+        this.startDate = moment().startOf('year');
+        this.endDate = moment();
+        break;
+      case 'MTD':
+        this.startDate = moment().startOf('month');
+        this.endDate = moment();
+        break;
+      case 'Today':
+        this.startDate = moment();
+        this.endDate = moment();
+        break;
+      default:
+        break;
+    }
+
+    this.selected =
+      dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
   }
 
   getContextMenuItems(params) {
@@ -837,18 +867,17 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
 
   clearFilters() {
     this.gridOptions.api.redrawRows();
+    this.fund = 'All Funds';
+    this.filterBySymbol = '';
     this.DateRangeLabel = '';
     this.selected = null;
-    this.filterBySymbol = '';
-    this.fund = 'All Funds';
-    this.journalGrid.api.setFilterModel(null);
-    this.journalGrid.api.onFilterChanged();
     this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
     this.endDate = moment();
+    this.journalGrid.api.setFilterModel(null);
+    this.journalGrid.api.onFilterChanged();
   }
 
   greet(row: any) {
-    // alert(`${ row.country } says "${ row.greeting }!`);
     alert('For show popup');
   }
 
@@ -861,7 +890,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   }
 
   closeOrderModal() {
-    //this.getAllData();
+    // this.getAllData();
   }
 
   openDataModal(row) {
@@ -870,7 +899,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       return;
     }
     console.log('==');
-    let cols = this.gridOptions.columnApi.getColumnState();
+    const cols = this.gridOptions.columnApi.getColumnState();
     this.dataModal.openModal(row, cols);
   }
 

@@ -1,5 +1,24 @@
-.checkboxStyle {
-  padding: 10px 10px 10px 10px;
+.layout-dropdown {
+  margin-right: 5px;
+  background-color: #f7f7f7;
+}
+
+.layout-input {
+  margin: 15px 5px 0 5px;
+}
+
+.layout-action-container {
+  display: initial;
+}
+
+.layout-action {
+  margin-left: 5px;
+}
+
+.layout-action-reset {
+  width: 90%;
+  margin-top: 5px;
+  margin-left: 12px;
 }
 
 ::ng-deep.class-IsPublic {

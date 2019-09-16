@@ -1,5 +1,4 @@
 ﻿using System.Web.Http;
-using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
 using LP.Finance.WebProxy.WebAPI.Services;
 
@@ -12,15 +11,12 @@ namespace LP.Finance.WebProxy.WebAPI
          
         [Route("")]
         [HttpPost]
-        public object SaveDataGridStatus(DataGridStatusDto oDataGridStatusDto)
+        public object SaveDataGridStatus(DataGridStatusDto dataGridStatusDto)
         {
-             
-            return !ModelState.IsValid || oDataGridStatusDto == null
+            return !ModelState.IsValid || dataGridStatusDto == null
              ? BadRequest(ModelState)
-             : controller.SaveDataGridStatus(oDataGridStatusDto);
+             : controller.SaveDataGridStatus(dataGridStatusDto);
         }
-
-        
 
         [Route("{id:int}")]
         [HttpGet]
@@ -29,7 +25,6 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.GetDataGridStatus(id);
         }
 
-        
         [HttpGet]
         [ActionName("GetDataGridLayouts")]
         public object GetDataGridLayouts(int gridId, int userId)
@@ -38,11 +33,17 @@ namespace LP.Finance.WebProxy.WebAPI
         }
 
         [HttpGet]
-        
         [ActionName("GetAGridLayout")]
         public object GetAGridLayout(int id)
         {
             return controller.GetAGridLayout(id);
+        }
+
+        [Route("{id:int}")]
+        [HttpDelete]
+        public object DeleteGridLayout(int id)
+        {
+            return controller.DeleteGridLayout(id);
         }
     }
 }

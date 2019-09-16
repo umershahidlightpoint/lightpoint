@@ -1,8 +1,8 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
 import { IToolPanel, IToolPanelParams, GridOptions } from 'ag-grid-community';
 import { FinancePocServiceProxy } from '../../service-proxies/service-proxies';
-import { ToastrService } from 'ngx-toastr';
 import { DataService } from '../../common/data.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-grid-layout-menu',
@@ -16,21 +16,20 @@ export class GridLayoutMenuComponent implements IToolPanel {
 
   private params: IToolPanelParams;
   gridLayoutID: any = 0;
+  layoutName: any;
+  gridLayouts: any;
   public: boolean;
   isPublic = false;
   isPublicSelected = false;
-  layoutName: any;
   isNewLayout = false;
-  canUpdateLayout: any;
-  gridLayouts: any;
 
   compareFn = (a, b) => this._compareFn(a, b);
 
   constructor(
     private financeService: FinancePocServiceProxy,
-    private toastrService: ToastrService,
+    private dataService: DataService,
     private cdRef: ChangeDetectorRef,
-    private dataService: DataService
+    private toastrService: ToastrService
   ) {}
 
   agInit(params: IToolPanelParams): void {
@@ -46,14 +45,6 @@ export class GridLayoutMenuComponent implements IToolPanel {
       this.gridLayouts = result.payload;
       this.cdRef.detectChanges();
     });
-  }
-
-  resetState() {
-    this.gridLayoutID = '{ Id: 0 }';
-    this.gridOptions.columnApi.resetColumnState();
-    this.gridOptions.columnApi.resetColumnGroupState();
-    this.gridOptions.api.setSortModel(null);
-    this.gridOptions.api.setFilterModel(null);
   }
 
   restoreLayout(layout) {
@@ -73,8 +64,21 @@ export class GridLayoutMenuComponent implements IToolPanel {
     });
   }
 
+  onCreateNew() {
+    this.isNewLayout = !this.isNewLayout;
+    this.layoutName = '';
+    return;
+  }
+
+  onNewSave() {
+    if (this.layoutName === '') {
+      this.toastrService.error('Please enter name');
+    }
+    this.onSaveState(0);
+  }
+
   onEditSave() {
-    if (this.canUpdateLayout) {
+    if (this.isPublicSelected) {
       this.toastrService.error('Public Grid layouts are not editable!');
     } else {
       this.onSaveState(this.gridLayoutID.Id);
@@ -113,17 +117,30 @@ export class GridLayoutMenuComponent implements IToolPanel {
     );
   }
 
-  onNewSave() {
-    if (this.layoutName === '') {
-      this.toastrService.error('Please enter name');
-    }
-    this.onSaveState(0);
+  onDelete() {
+    this.financeService.deleteGridLayout(this.gridLayoutID.Id).subscribe(
+      response => {
+        if (response.isSuccessful) {
+          this.toastrService.success('Layout deleted successfully!');
+          this.resetState();
+          this.gridOptions.clearExternalFilter();
+          this.getLayout();
+        } else {
+          this.toastrService.error('Failed to delete layout!');
+        }
+      },
+      error => {
+        this.toastrService.error('Something went wrong. Try again later!');
+      }
+    );
   }
 
-  onCreateNew() {
-    this.isNewLayout = !this.isNewLayout;
-    this.layoutName = '';
-    return;
+  resetState() {
+    this.gridLayoutID = '{ Id: 0 }';
+    this.gridOptions.columnApi.resetColumnState();
+    this.gridOptions.columnApi.resetColumnGroupState();
+    this.gridOptions.api.setSortModel(null);
+    this.gridOptions.api.setFilterModel(null);
   }
 
   _compareFn(a, b) {

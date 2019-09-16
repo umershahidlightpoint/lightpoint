@@ -350,6 +350,14 @@ export class FinancePocServiceProxy {
   }
 
   /*
+  Delete a Grid Layout
+  */
+  deleteGridLayout(id) {
+    const url = this.baseUrl + '/DataGrid/' + id;
+    return this.http.delete(url).pipe(map((response: any) => response));
+  }
+
+  /*
   Start the Posting Engine
   */
   startPostingEngine(period: any): Observable<PostingEngine> {
