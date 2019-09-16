@@ -57,6 +57,7 @@ import { TrialGridExampleComponent } from './main/trial-balance/trial-balance.co
 import { AccountComponent } from './main/accounts/account.component';
 import { CreateAccountComponent } from './main/accounts/create-account/create-account.component';
 import { AccrualsComponent } from './main/accruals/accruals.component';
+import { TradeAllocationComponent } from './main/trade-allocation/trade-allocation.component';
 import { ReportsComponent } from './main/reports/reports.component';
 import { RunLogsComponent } from './runlogs/runlogs.component';
 import { FileManagementComponent } from './main/operations/file-management/file-management.component';
@@ -71,12 +72,12 @@ import { ButtonRendererComponent } from '../renderer/buttonRenderer';
     JournalsLedgersComponent,
     TrialGridExampleComponent,
     LogsComponent,
-    AccrualsComponent,
     TemplateRendererComponent,
     AccountComponent,
     CreateAccountComponent,
     OperationsComponent,
     AccrualsComponent,
+    TradeAllocationComponent,
     SettingsComponent,
     HeaderComponent,
     ReportsComponent,

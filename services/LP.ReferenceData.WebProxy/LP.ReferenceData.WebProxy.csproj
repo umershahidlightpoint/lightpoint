@@ -63,6 +63,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WebAPI\TradesController.cs" />
     <Compile Include="WebAPI\AccrualsController.cs" />
     <Compile Include="WebAPI\EnvironmentController.cs" />
     <Compile Include="WebAPI\RefDataController.cs" />

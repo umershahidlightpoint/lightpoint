@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  remoteServerUrl: 'http://localhost:9092/api',
-  referenceDataUrl: 'http://localhost:9091/api'
+  remoteServerUrl: 'http://develop02:9092/api',
+  referenceDataUrl: 'http://develop02:9091/api'
 };
 
 /*

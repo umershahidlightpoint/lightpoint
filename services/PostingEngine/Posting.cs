@@ -266,9 +266,11 @@ namespace PostingEngine
             // Find me the rule
             var rule = env.rules.Where(i => i.Key.Equals(element.SecurityType)).FirstOrDefault().Value;
 
-            if ( element.OrderSource.Equals("Ticket"))
+            if ( element.Status.Equals("Cancelled") || element.Status.Equals("Expired"))
             {
-                // Check from here
+                env.AddMessage($"Trade has been cancelled {element.LpOrderId}");
+                // TODO: if there is already a Journal entry for this trade we need to back out the entries
+                return;
             }
 
             if (rule == null)
