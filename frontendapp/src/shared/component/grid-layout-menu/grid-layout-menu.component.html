@@ -30,7 +30,7 @@
 </div>
 
 <div *ngIf="!isNewLayout" class="row ml-auto pl-2 layout-action-container">
-  <button (click)="onCreateNew()" class="btn btn-info">
+  <button class="btn btn-info layout-action" (click)="onCreateNew()">
     New
   </button>
   <button class="btn btn-info layout-action" [disabled]="isPublicSelected" (click)="onEditSave()">

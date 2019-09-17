@@ -4,6 +4,7 @@ export interface TrialBalanceReport {
   credit: number;
   debitPercentage: number;
   creditPercentage: number;
+  balance: number;
 }
 
 export interface TrialBalanceReportStats {

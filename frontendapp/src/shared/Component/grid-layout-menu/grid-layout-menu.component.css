@@ -12,7 +12,9 @@
 }
 
 .layout-action {
-  margin-left: 5px;
+  width: 30%;
+  margin-left: 2px;
+  font-size: 0.7rem;
 }
 
 .layout-action-reset {

@@ -22,6 +22,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   trialBalanceReportStats: TrialBalanceReportStats;
   isLoading = false;
   hideGrid: boolean;
+  title = 'Account Name';
 
   ranges: any = {
     ITD: [moment('01-01-1901', 'MM-DD-YYYY'), moment()],
@@ -51,15 +52,6 @@ export class ReportsComponent implements OnInit, AfterViewInit {
     width: '100%',
     height: 'calc(100vh - 125px)',
     boxSizing: 'border-box'
-  };
-
-  containerDiv = {
-    borderLeft: '1px solid #cecece',
-    borderRight: '1px solid #cecece',
-    width: '100%',
-    height: 'calc(100vh - 320px)',
-    boxSizing: 'border-box',
-    overflow: 'overlay'
   };
 
   constructor(private financeService: FinancePocServiceProxy, private dataService: DataService) {

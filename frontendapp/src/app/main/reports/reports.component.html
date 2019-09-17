@@ -4,6 +4,7 @@
     <h1> Posting Engine is Running. Please Wait. </h1>
   </div>
 </div>
+<!-- Hide Grid Div Ends -->
 
 <!-- Reports Main Div Starts -->
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
@@ -59,9 +60,22 @@
       </div>
       <!-- Filters Div Ends -->
 
-      <!-- Grid Div Starts -->
-      <app-balance-report [isLoading]="isLoading" [trialBalanceReport]="trialBalanceReport" [trialBalanceReportStats]="trialBalanceReportStats" [hideGrid]="hideGrid"></app-balance-report>
-      <!-- Grid Div Ends-->
+      <!-- Report Grid Div Starts -->
+      <div #divToMeasure>
+        <!-- Style For Height Div Starts -->
+        <div [ngStyle]="styleForHight">
+          <!-- Refresh Spinner Div Starts -->
+          <div *ngIf="isLoading" class="refresh-spinner">
+            <h5>Loading...</h5>
+          </div>
+          <!-- Refresh Spinner Div Ends -->
+          <app-balance-report [isLoading]="isLoading" [title]="title" [trialBalanceReport]="trialBalanceReport"
+            [trialBalanceReportStats]="trialBalanceReportStats" [hideGrid]="hideGrid" [tableHeader]="'Account Name'">
+          </app-balance-report>
+        </div>
+        <!-- Style For Height Div Ends-->
+      </div>
+      <!-- Report Grid Div Ends-->
     </p-tabPanel>
     <!-- Trial Balance Report Tab Ends-->
   </p-tabView>

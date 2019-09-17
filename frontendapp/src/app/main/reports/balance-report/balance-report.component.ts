@@ -1,6 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { TrialBalanceReport, TrialBalanceReportStats } from '../../../../shared/Models/trial-balance';
-
+import {
+  TrialBalanceReport,
+  TrialBalanceReportStats
+} from '../../../../shared/Models/trial-balance';
 
 @Component({
   selector: 'app-balance-report',
@@ -8,34 +10,11 @@ import { TrialBalanceReport, TrialBalanceReportStats } from '../../../../shared/
   styleUrls: ['./balance-report.component.css']
 })
 export class BalanceReportComponent implements OnInit {
-
   @Input() trialBalanceReport: Array<TrialBalanceReport>;
   @Input() trialBalanceReportStats: TrialBalanceReportStats;
   @Input() isLoading = false;
   @Input() hideGrid: boolean;
-
-  style = {
-    marginTop: '20px',
-    width: '100%',
-    height: '100%',
-    boxSizing: 'border-box'
-  };
-
-  styleForHight = {
-    marginTop: '20px',
-    width: '100%',
-    height: 'calc(100vh - 200px)',
-    boxSizing: 'border-box'
-  };
-
-  processingMsgDiv = {
-    border: '1px solid #eee',
-    padding: '4px',
-    marginTop: '20px',
-    width: '100%',
-    height: 'calc(100vh - 125px)',
-    boxSizing: 'border-box'
-  };
+  @Input() tableHeader: string;
 
   containerDiv = {
     borderLeft: '1px solid #cecece',
@@ -46,9 +25,7 @@ export class BalanceReportComponent implements OnInit {
     overflow: 'overlay'
   };
 
-  constructor() { }
+  constructor() {}
 
-  ngOnInit() {
-  }
-
+  ngOnInit() {}
 }

@@ -8,14 +8,14 @@ import { ModalDirective } from 'ngx-bootstrap';
   styleUrls: ['./report-modal.component.css']
 })
 export class ReportModalComponent implements OnInit {
-  
-  @Input() trialBalanceReport: Array<TrialBalanceReport>;
-  @Input() trialBalanceReportStats: TrialBalanceReportStats;
-  @Input() isLoading = false;
-  @Input() hideGrid: boolean;
   @ViewChild('modal') modal: ModalDirective;
-  @Output() modalClose = new EventEmitter<any>();
-  @Input() title: string = 'Data Details';
+  @Input() title: string;
+  @Input() tableHeader: string;
+
+  trialBalanceReport: Array<TrialBalanceReport>;
+  trialBalanceReportStats: TrialBalanceReportStats;
+  isLoading = false;
+  hideGrid: boolean;
   backdrop: any;
 
   styleForHight = {
@@ -31,17 +31,17 @@ export class ReportModalComponent implements OnInit {
     overflow: 'overlay'
   };
 
-  constructor() { }
+  constructor() {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
-  openModal() {
+  openModal(payload: any) {
+    this.trialBalanceReport = payload.data;
+    this.trialBalanceReportStats = payload.stats;
     this.modal.show();
   }
 
   closeModal() {
     this.modal.hide();
   }
-
 }

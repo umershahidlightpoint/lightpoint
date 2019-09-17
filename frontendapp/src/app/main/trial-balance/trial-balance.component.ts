@@ -18,6 +18,7 @@ import { DataService } from 'src/shared/common/data.service';
 import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
 import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
 
 @Component({
   selector: 'app-trial-balance',
@@ -30,6 +31,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   @ViewChild('greetCell') greetCell: TemplateRef<any>;
   @ViewChild('divToMeasureJournal') divToMeasureElement: ElementRef;
   @ViewChild('dataModal') dataModal: DataModalComponent;
+  @ViewChild('reportModal') reportModal: ReportModalComponent;
 
   private gridApi;
   private gridColumnApi;
@@ -60,6 +62,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   sortColum: any;
   sortDirection: any;
   orderId: number;
+  tableHeader: string;
 
   ranges: any = {
     ITD: [moment('01-01-1901', 'MM-DD-YYYY'), moment()],
@@ -506,6 +509,39 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     const defaultItems = ['copy', 'paste', 'copyWithHeaders', 'export'];
     const items = [
       {
+        name: 'View Chart',
+        action: () => {
+          const data = [];
+          let stats: object;
+          let totalDebit = 0;
+          let totalCredit = 0;
+          params.api.forEachNode((node, index) => {
+            if (node.group && node.level === 0) {
+              this.tableHeader = node.columnApi.columnController.rowGroupColumns[0].colDef.headerName;
+              data.push({
+                accountName: node.key,
+                debit: node.aggData.debit,
+                credit: node.aggData.credit,
+                debitPercentage: 0,
+                creditPercentage: 0,
+                balance: node.aggData.balance
+              });
+              totalDebit += node.aggData.debit;
+              totalCredit += node.aggData.debit;
+            }
+          });
+          stats = {
+            totalDebit,
+            totalCredit
+          };
+          data.forEach(row => {
+            row.debitPercentage = (row.debit * 100) / totalDebit;
+            row.creditPercentage = (row.credit * 100) / totalCredit;
+          });
+          this.openChartModal({ data, stats });
+        }
+      },
+      {
         name: 'Expand',
         action() {
           params.api.forEachNode((node, index) => {
@@ -862,6 +898,10 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   greet(row: any) {
     // alert(`${ row.country } says "${ row.greeting }!`);
     alert('For show popup');
+  }
+
+  openChartModal(data) {
+    this.reportModal.openModal(data);
   }
 
   refreshGrid() {
