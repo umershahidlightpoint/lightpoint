@@ -320,20 +320,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         cellClass: 'twoDecimalPlaces',
         cellClassRules: {
           // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value < -300; },
-          greenFont(params) {
-            if (params.node.rowPinned) {
-              return false;
-            } else {
-              return params.value > 0;
-            }
-          },
-          redFont(params) {
-            if (params.node.rowPinned) {
-              return false;
-            } else {
-              return params.value < 0;
-            }
-          },
           footerRow(params) {
             if (params.node.rowPinned) {
               return true;
@@ -353,18 +339,11 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         cellClass: 'twoDecimalPlaces',
         cellClassRules: {
           // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
-          greenFont(params) {
-            if (params.node.rowPinned) {
-              return false;
-            } else {
-              return params.value > 0;
-            }
-          },
           redFont(params) {
             if (params.node.rowPinned) {
               return false;
             } else {
-              return params.value < 0;
+              return params.value != 0;
             }
           },
           footerRow(params) {

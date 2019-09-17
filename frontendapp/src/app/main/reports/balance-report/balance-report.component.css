@@ -32,7 +32,7 @@ td.balance {
   font-weight: 500;
 }
 
-td.positive {
+td.debit {
   background-image: linear-gradient(
     to right,
     rgb(100, 220, 100, 1) 0%,
@@ -42,12 +42,12 @@ td.positive {
     rgb(125, 250, 125, 1) 83%,
     rgb(150, 255, 150, 1) 100%
   );
-  padding-right: 18px;
+  background-position: 100% 100%;
   text-align: end;
   font-weight: 500;
 }
 
-td.negative {
+td.credit {
   background-image: linear-gradient(
     to left,
     rgb(220, 100, 100, 1) 0%,
@@ -57,7 +57,7 @@ td.negative {
     rgba(250, 125, 125, 1) 83%,
     rgba(255, 150, 150, 1) 100%
   );
-  background-position: 100% 100%;
+  padding-right: 18px;
   text-align: end;
   font-weight: 500;
 }
