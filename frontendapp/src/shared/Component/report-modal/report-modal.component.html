@@ -1,0 +1,16 @@
+<!------ Modal Div Starts------>
+<div class="modal fade" bsModal #modal="bs-modal" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true"
+  [config]="{backdrop: modal-backdrop}">
+  <!------ Modal Dialog Div Starts------>
+  <div class="modal-dialog modal-lg modal-dialog-centered" id="modal-lg">
+    <!------ Modal Content Div Starts------>
+    <div class="modal-content">
+      <!-- Modal Header Starts-->
+      <div class="modal-header">
+        <h3>{{ title }}</h3>
+        <button type="button" class="close" data-dismiss="modal" (click)="closeModal()">&times;</button>
+      </div>
+      <app-balance-report [isLoading]="isLoading" [trialBalanceReport]="trialBalanceReport" [trialBalanceReportStats]="trialBalanceReportStats" [hideGrid]="hideGrid"></app-balance-report>
+    </div>
+  </div>
+</div>

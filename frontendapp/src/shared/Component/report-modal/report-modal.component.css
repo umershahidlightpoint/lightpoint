@@ -1,0 +1,29 @@
+button:focus {
+    outline: 0;
+  }
+  
+  .modal {
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+  
+  .modal-header {
+    padding: 5px;
+    background-color: rgb(2, 117, 216);
+    color: white;
+  }
+  
+  .modal-body {
+    max-height: calc(100vh - 30vh);
+    overflow-y: auto;
+    padding: 5px;
+  }
+  
+  .modal-backdrop {
+    position: relative;
+  }
+  
+  .close {
+    font-size: 1.5rem;
+    color: #fff;
+    opacity: 1;
+  }

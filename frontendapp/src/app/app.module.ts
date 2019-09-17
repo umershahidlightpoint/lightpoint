@@ -64,7 +64,9 @@ import { FileManagementComponent } from './main/operations/file-management/file-
 import { LogsComponent } from './main/logs/logs.component';
 import { SettingsComponent } from './main/settings/settings.component';
 import { OperationsComponent } from './main/operations/operations.component';
-import { ButtonRendererComponent } from '../renderer/buttonRenderer'; 
+import { ButtonRendererComponent } from '../renderer/buttonRenderer';
+import { BalanceReportComponent } from './main/reports/balance-report/balance-report.component';
+import { ReportModalComponent } from '../shared/Component/report-modal/report-modal.component'; 
 
 @NgModule({
   declarations: [
@@ -87,7 +89,9 @@ import { ButtonRendererComponent } from '../renderer/buttonRenderer';
     GridLayoutMenuComponent,
     LeftMenuComponent,
     FileManagementComponent,
-    ButtonRendererComponent
+    ButtonRendererComponent,
+    BalanceReportComponent,
+    ReportModalComponent
   ],
   imports: [
     BrowserModule,

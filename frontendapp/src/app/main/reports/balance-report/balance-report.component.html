@@ -1,0 +1,64 @@
+<div #divToMeasure>
+  <!-- Style For Height Div Starts -->
+  <div [ngStyle]="styleForHight">
+    <!-- Refresh Spinner Div Starts -->
+    <div *ngIf="isLoading" class="refresh-spinner">
+      <h5>Loading...</h5>
+    </div>
+    <!-- Refresh Spinner Div Ends -->
+
+    <!-- Table for Headings Starts -->
+    <table class="table table-sm table-striped table-bordered table-secondary table-header">
+      <thead>
+        <tr>
+          <th scope="col" class="first-cell">Account Name</th>
+          <th scope="col" class="other-cells center-position">Debit</th>
+          <th scope="col" class="other-cells center-position">Credit</th>
+          <th scope="col" class="other-cells center-position">Balance</th>
+        </tr>
+      </thead>
+    </table>
+    <!-- Table for Headings Ends -->
+
+    <!-- Trial Report Div Starts -->
+    <div #trialReport [ngStyle]="containerDiv">
+      <!-- Table for Data Starts -->
+      <table class="table table-sm table-striped table-bordered">
+        <tbody>
+          <tr *ngFor="let report of trialBalanceReport; let i = index">
+            <td class="first-cell cell-style"> {{ report.accountName }}</td>
+            <td [ngStyle]="{'background-size.%': !report.debitPercentage ? 0 : report.debitPercentage}"
+              style='background-size: 100%' class="other-cells negative cell-style">
+              {{ report.debit | number: '1.2-2' }}
+            </td>
+            <td [ngStyle]="{'background-size.%': !report.creditPercentage ? 0 : report.creditPercentage}"
+              style='background-size: 100%' class="other-cells positive cell-style">
+              {{ report.credit | number: '1.2-2' }}</td>
+            <td class="other-cells balance cell-style">
+            {{ report.balance | number: '1.2-2' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <!-- Table for Data Ends -->
+    </div>
+    <!-- Trial Report Div Ends -->
+
+    <!-- Table for Footer Starts -->
+    <table class="table table-sm table-striped table-bordered table-secondary table-footer">
+      <tfoot>
+        <tr>
+          <td class="first-cell">Total</td>
+          <td class="other-cells end-position">
+            {{ trialBalanceReportStats?.totalDebit | number: '1.2-2' }}</td>
+          <td class="other-cells end-position">
+            {{ trialBalanceReportStats?.totalCredit | number: '1.2-2' }}</td>
+          <td class="other-cells end-position">
+            {{ (trialBalanceReportStats?.totalCredit - trialBalanceReportStats?.totalDebit) | number: '1.2-2' }}
+          </td>
+          </tr>
+      </tfoot>
+    </table>
+    <!-- Table for Footer Ends -->
+  </div>
+  <!-- Style For Height Div Ends-->
+</div>

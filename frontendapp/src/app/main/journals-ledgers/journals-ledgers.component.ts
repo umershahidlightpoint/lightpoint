@@ -22,6 +22,7 @@ import { JournalModalComponent } from './journal-modal/journal-modal.component';
 import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
 import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from '../../../shared/utils/AppEnums';
+import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
 
 @Component({
   selector: 'app-journals-ledgers',
@@ -37,6 +38,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   @ViewChild('modal') modal: ModalDirective;
   @ViewChild('journalModal') jounalModal: JournalModalComponent;
   @ViewChild('dataModal') dataModal: DataModalComponent;
+  @ViewChild('reportModal') reportModal: ReportModalComponent;
 
   private gridApi;
   private gridColumnApi;
