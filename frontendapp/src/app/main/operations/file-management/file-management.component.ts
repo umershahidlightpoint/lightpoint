@@ -17,6 +17,7 @@ import { SideBar } from 'src/shared/utils/SideBar';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/ContextMenu';
 
 @Component({
   selector: 'app-file-management',
@@ -177,52 +178,25 @@ export class FileManagementComponent implements OnInit, OnDestroy {
       {
         name: 'Expand',
         action() {
-          params.api.forEachNode((node, index) => {
-            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              node.setExpanded(true);
-            }
-          });
+          Expand(params);
         }
       },
       {
         name: 'Collapse',
         action() {
-          params.api.forEachNode((node, index) => {
-            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              node.setExpanded(false);
-            }
-          });
+          Collapse(params);
         }
       },
-      ,
       {
         name: 'Expand All',
-        action() {
-          params.api.forEachNode((node, index) => {
-            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              node.setExpanded(true);
-              for (const key in node.childrenAfterFilter) {
-                if (!node.childrenAfterFilter[key].expanded) {
-                  node.childrenAfterFilter[key].setExpanded(true);
-                }
-              }
-            }
-          });
+        action: () => {
+          ExpandAll(params);
         }
       },
       {
         name: 'Collapse All',
-        action() {
-          params.api.forEachNode((node, index) => {
-            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              node.setExpanded(false);
-              for (const key in node.childrenAfterFilter) {
-                if (node.childrenAfterFilter[key].expanded) {
-                  node.childrenAfterFilter[key].setExpanded(false);
-                }
-              }
-            }
-          });
+        action: () => {
+          CollapseAll(params);
         }
       },
       ...defaultItems

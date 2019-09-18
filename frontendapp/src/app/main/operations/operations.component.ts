@@ -21,6 +21,7 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataService } from 'src/shared/common/data.service';
 import { SideBar } from 'src/shared/utils/SideBar';
+import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/ContextMenu';
 
 @Component({
   selector: 'app-operations',
@@ -334,77 +335,25 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       {
         name: 'Expand',
         action() {
-          params.api.forEachNode((node, index) => {
-            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              node.setExpanded(true);
-            }
-          });
+          Expand(params);
         }
       },
       {
         name: 'Collapse',
         action() {
-          params.api.forEachNode((node, index) => {
-            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              node.setExpanded(false);
-            }
-          });
+          Collapse(params);
         }
       },
       {
         name: 'Expand All',
         action: () => {
-          const nodeLevelArr = [];
-          let nodeFound;
-          let levelExists;
-          params.api.forEachNode((node, index) => {
-            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              nodeFound = true;
-            }
-            if (nodeFound) {
-              levelExists = this.isNodeLevelExists(nodeLevelArr, node.level);
-              if (!levelExists || levelExists === undefined) {
-                node.expanded = true;
-                nodeLevelArr.push(node.level);
-              }
-              if (levelExists && node.level !== 0) {
-                node.expanded = true;
-              } else {
-                if (levelExists && node.level === 0) {
-                  nodeFound = false;
-                }
-              }
-            }
-          });
-          params.api.onGroupExpandedOrCollapsed();
+          ExpandAll(params);
         }
       },
       {
         name: 'Collapse All',
         action: () => {
-          const nodeLevelArr = [];
-          let nodeFound;
-          let levelExists;
-          params.api.forEachNode((node, index) => {
-            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              nodeFound = true;
-            }
-            if (nodeFound) {
-              levelExists = this.isNodeLevelExists(nodeLevelArr, node.level);
-              if (!levelExists || levelExists === undefined) {
-                node.expanded = false;
-                nodeLevelArr.push(node.level);
-              }
-              if (levelExists && node.level !== 0) {
-                node.expanded = false;
-              } else {
-                if (levelExists && node.level === 0) {
-                  nodeFound = false;
-                }
-              }
-            }
-          });
-          params.api.onGroupExpandedOrCollapsed();
+          CollapseAll(params);
         }
       },
       ...defaultItems
@@ -413,13 +362,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       return items;
     }
     return defaultItems;
-  }
-
-  isNodeLevelExists(nodeLevelArray, nodeLevel) {
-    if (nodeLevelArray.includes(nodeLevel)) {
-      return true;
-    }
-    return false;
   }
 
   setGroupingState(value: boolean) {

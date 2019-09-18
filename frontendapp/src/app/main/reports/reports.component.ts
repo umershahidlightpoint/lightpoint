@@ -1,10 +1,10 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
-import { LogsComponent } from '../logs/logs.component';
 import { Fund } from '../../../shared/Models/account';
 import { TrialBalanceReport, TrialBalanceReportStats } from '../../../shared/Models/trial-balance';
 import { DataService } from '../../../shared/common/data.service';
 import * as moment from 'moment';
+import { Ranges } from 'src/shared/utils/SideBar';
 
 @Component({
   selector: 'app-reports',
@@ -24,12 +24,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   hideGrid: boolean;
   title = 'Account Name';
 
-  ranges: any = {
-    ITD: [moment('01-01-1901', 'MM-DD-YYYY'), moment()],
-    YTD: [moment().startOf('year'), moment()],
-    MTD: [moment().startOf('month'), moment()],
-    Today: [moment(), moment()]
-  };
+  ranges: any = Ranges;
 
   style = {
     marginTop: '20px',

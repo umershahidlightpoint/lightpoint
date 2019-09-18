@@ -12,13 +12,14 @@ import 'ag-grid-enterprise';
 import { GridOptions } from 'ag-grid-community';
 import * as moment from 'moment';
 /* Services/Components Imports */
-import { SideBar } from 'src/shared/utils/SideBar';
+import { SideBar, Ranges, IgnoreFields } from 'src/shared/utils/SideBar';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { DataService } from 'src/shared/common/data.service';
 import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
 import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
+import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/ContextMenu';
 
 @Component({
   selector: 'app-trial-balance',
@@ -64,22 +65,9 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   orderId: number;
   tableHeader: string;
 
-  ranges: any = {
-    ITD: [moment('01-01-1901', 'MM-DD-YYYY'), moment()],
-    YTD: [moment().startOf('year'), moment()],
-    MTD: [moment().startOf('month'), moment()],
-    Today: [moment(), moment()]
-  };
+  ranges = Ranges;
 
-  ignoreFields = [
-    'id',
-    'totalDebit',
-    'totalCredit',
-    'overall_count',
-    'account_id',
-    'value',
-    'LpOrderId'
-  ];
+  ignoreFields = IgnoreFields;
 
   style = {
     marginTop: '20px',
@@ -344,7 +332,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
             if (params.node.rowPinned) {
               return false;
             } else {
-              return params.value != 0;;
+              return params.value != 0;
             }
           },
           footerRow(params) {
@@ -496,7 +484,8 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
           let totalCredit = 0;
           params.api.forEachNode((node, index) => {
             if (node.group && node.level === 0) {
-              this.tableHeader = node.columnApi.columnController.rowGroupColumns[0].colDef.headerName;
+              this.tableHeader =
+                node.columnApi.columnController.rowGroupColumns[0].colDef.headerName;
               data.push({
                 accountName: node.key,
                 debit: node.aggData.debit,
@@ -523,77 +512,25 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       {
         name: 'Expand',
         action() {
-          params.api.forEachNode((node, index) => {
-            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              node.setExpanded(true);
-            }
-          });
+          Expand(params);
         }
       },
       {
         name: 'Collapse',
         action() {
-          params.api.forEachNode((node, index) => {
-            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              node.setExpanded(false);
-            }
-          });
+          Collapse(params);
         }
       },
       {
         name: 'Expand All',
         action: () => {
-          const nodeLevelArr = [];
-          let nodeFound;
-          let levelExists;
-          params.api.forEachNode((node, index) => {
-            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              nodeFound = true;
-            }
-            if (nodeFound) {
-              levelExists = this.isNodeLevelExists(nodeLevelArr, node.level);
-              if (!levelExists || levelExists === undefined) {
-                node.expanded = true;
-                nodeLevelArr.push(node.level);
-              }
-              if (levelExists && node.level !== 0) {
-                node.expanded = true;
-              } else {
-                if (levelExists && node.level === 0) {
-                  nodeFound = false;
-                }
-              }
-            }
-          });
-          params.api.onGroupExpandedOrCollapsed();
+          ExpandAll(params);
         }
       },
       {
         name: 'Collapse All',
         action: () => {
-          const nodeLevelArr = [];
-          let nodeFound;
-          let levelExists;
-          params.api.forEachNode((node, index) => {
-            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              nodeFound = true;
-            }
-            if (nodeFound) {
-              levelExists = this.isNodeLevelExists(nodeLevelArr, node.level);
-              if (!levelExists || levelExists === undefined) {
-                node.expanded = false;
-                nodeLevelArr.push(node.level);
-              }
-              if (levelExists && node.level !== 0) {
-                node.expanded = false;
-              } else {
-                if (levelExists && node.level === 0) {
-                  nodeFound = false;
-                }
-              }
-            }
-          });
-          params.api.onGroupExpandedOrCollapsed();
+          CollapseAll(params);
         }
       },
       ...defaultItems
@@ -602,13 +539,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       return items;
     }
     return defaultItems;
-  }
-
-  isNodeLevelExists(nodeLevelArray, nodeLevel) {
-    if (nodeLevelArray.includes(nodeLevel)) {
-      return true;
-    }
-    return false;
   }
 
   getTrialBalance() {

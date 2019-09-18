@@ -9,11 +9,12 @@ import {
   AfterViewInit
 } from '@angular/core';
 import 'ag-grid-enterprise';
-import { GridOptions, RowNodeBlock } from 'ag-grid-community';
+import { GridOptions } from 'ag-grid-community';
 import { ModalDirective } from 'ngx-bootstrap';
 import * as moment from 'moment';
 /* Services/Components Imports */
-import { SideBar } from 'src/shared/utils/SideBar';
+import { SideBar, Ranges, IgnoreFields } from 'src/shared/utils/SideBar';
+import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/ContextMenu';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { DataService } from '../../../shared/common/data.service';
@@ -74,12 +75,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   orderId: number;
   tableHeader: string;
 
-  ranges: any = {
-    ITD: [moment('01-01-1901', 'MM-DD-YYYY'), moment()],
-    YTD: [moment().startOf('year'), moment()],
-    MTD: [moment().startOf('month'), moment()],
-    Today: [moment(), moment()]
-  };
+  ranges: any = Ranges;
 
   ignoreFields = [
     'id',
@@ -793,77 +789,25 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       {
         name: 'Expand',
         action() {
-          params.api.forEachNode((node, index) => {
-            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              node.setExpanded(true);
-            }
-          });
+          Expand(params);
         }
       },
       {
         name: 'Collapse',
         action() {
-          params.api.forEachNode((node, index) => {
-            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              node.setExpanded(false);
-            }
-          });
+          Collapse(params);
         }
       },
       {
         name: 'Expand All',
         action: () => {
-          const nodeLevelArr = [];
-          let nodeFound;
-          let levelExists;
-          params.api.forEachNode((node, index) => {
-            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              nodeFound = true;
-            }
-            if (nodeFound) {
-              levelExists = this.isNodeLevelExists(nodeLevelArr, node.level);
-              if (!levelExists || levelExists === undefined) {
-                node.expanded = true;
-                nodeLevelArr.push(node.level);
-              }
-              if (levelExists && node.level !== 0) {
-                node.expanded = true;
-              } else {
-                if (levelExists && node.level === 0) {
-                  nodeFound = false;
-                }
-              }
-            }
-          });
-          params.api.onGroupExpandedOrCollapsed();
+          ExpandAll(params);
         }
       },
       {
         name: 'Collapse All',
         action: () => {
-          const nodeLevelArr = [];
-          let nodeFound;
-          let levelExists;
-          params.api.forEachNode((node, index) => {
-            if (node.group && node.groupData['ag-Grid-AutoColumn'] === params.value) {
-              nodeFound = true;
-            }
-            if (nodeFound) {
-              levelExists = this.isNodeLevelExists(nodeLevelArr, node.level);
-              if (!levelExists || levelExists === undefined) {
-                node.expanded = false;
-                nodeLevelArr.push(node.level);
-              }
-              if (levelExists && node.level !== 0) {
-                node.expanded = false;
-              } else {
-                if (levelExists && node.level === 0) {
-                  nodeFound = false;
-                }
-              }
-            }
-          });
-          params.api.onGroupExpandedOrCollapsed();
+          CollapseAll(params);
         }
       },
       ...defaultItems
@@ -872,13 +816,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       return items;
     }
     return defaultItems;
-  }
-
-  isNodeLevelExists(nodeLevelArray, nodeLevel) {
-    if (nodeLevelArray.includes(nodeLevel)) {
-      return true;
-    }
-    return false;
   }
 
   clearFilters() {
