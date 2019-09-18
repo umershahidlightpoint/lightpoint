@@ -82,7 +82,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   };
 
   ignoreFields = [
-    'id',
     'totalDebit',
     'totalCredit',
     'overall_count',
@@ -233,6 +232,12 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   */
   customizeColumns(columns: any) {
     const colDefs = [
+      {
+        field: 'id',
+        minWidth: 50,
+        headerName: 'Id',
+        colId: 'id'
+      },
       {
         field: 'source',
         minWidth: 300,
