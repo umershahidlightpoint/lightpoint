@@ -4,6 +4,11 @@
   padding: 10px 20px 10px 7px;
   background: rgb(2, 117, 216);
   color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
 }
 
 .header-btn {
