@@ -52,7 +52,7 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 180px)',
+    height: 'calc(100vh - 156px)',
     boxSizing: 'border-box'
   };
 

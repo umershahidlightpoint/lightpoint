@@ -78,7 +78,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   ranges: any = Ranges;
 
   ignoreFields = [
-    'id',
     'totalDebit',
     'totalCredit',
     'overall_count',
@@ -97,7 +96,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 210px)',
+    height: 'calc(100vh - 220px)',
     boxSizing: 'border-box'
   };
 
@@ -229,6 +228,12 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   */
   customizeColumns(columns: any) {
     const colDefs = [
+      {
+        field: 'id',
+        minWidth: 50,
+        headerName: 'Id',
+        colId: 'id'
+      },
       {
         field: 'source',
         minWidth: 300,

@@ -17,6 +17,12 @@
   font-size: 0.7rem;
 }
 
+.new-layout-action {
+  width: 3.5rem;
+  font-size: 0.7rem;
+  margin-right: 3px;
+}
+
 .layout-action-reset {
   width: 90%;
   margin-top: 5px;

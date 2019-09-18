@@ -67,7 +67,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
 
   ranges = Ranges;
 
-  ignoreFields = IgnoreFields;
+  ignoreFields = ['totalDebit', 'totalCredit', 'overall_count', 'account_id', 'value', 'LpOrderId'];
 
   style = {
     marginTop: '20px',
@@ -79,7 +79,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 210px)',
+    height: 'calc(100vh - 220px)',
     boxSizing: 'border-box'
   };
 
@@ -223,6 +223,20 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   */
   customizeColumns(columns: any) {
     const colDefs = [
+      {
+        field: 'id',
+        minWidth: 50,
+        headerName: 'Id',
+        colId: 'id'
+        /*
+        cellRendererFramework: TemplateRendererComponent, cellRendererParams: {
+          ngTemplate: this.greetCell
+        },
+        cellClassRules: {
+          footerRow: function (params) { if (params.node.rowPinned) return true; else return false; }
+        },
+        */
+      },
       {
         field: 'source',
         minWidth: 300,
