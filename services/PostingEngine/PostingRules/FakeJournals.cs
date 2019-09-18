@@ -126,8 +126,6 @@ namespace PostingEngine.PostingRules
 
                 env.Journals.Add(debit);
                 env.Journals.Add(credit);
-
-                //new Journal[] { debit }.Save(env);
             }
 
             return;

@@ -72,7 +72,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   };
 
   ignoreFields = [
-    'id',
     'totalDebit',
     'totalCredit',
     'overall_count',
@@ -235,6 +234,20 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   */
   customizeColumns(columns: any) {
     const colDefs = [
+      {
+        field: 'id',
+        minWidth: 50,
+        headerName: 'Id',
+        colId: 'id'
+        /*
+        cellRendererFramework: TemplateRendererComponent, cellRendererParams: {
+          ngTemplate: this.greetCell
+        },
+        cellClassRules: {
+          footerRow: function (params) { if (params.node.rowPinned) return true; else return false; }
+        },
+        */
+      },
       {
         field: 'source',
         minWidth: 300,
