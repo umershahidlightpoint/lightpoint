@@ -48,7 +48,7 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 200px)',
+    height: 'calc(100vh - 224px)',
     boxSizing: 'border-box'
   };
 

@@ -91,7 +91,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 210px)',
+    height: 'calc(100vh - 220px)',
     boxSizing: 'border-box'
   };
 
@@ -344,7 +344,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
             if (params.node.rowPinned) {
               return false;
             } else {
-              return params.value != 0;;
+              return params.value != 0;
             }
           },
           footerRow(params) {
@@ -496,7 +496,8 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
           let totalCredit = 0;
           params.api.forEachNode((node, index) => {
             if (node.group && node.level === 0) {
-              this.tableHeader = node.columnApi.columnController.rowGroupColumns[0].colDef.headerName;
+              this.tableHeader =
+                node.columnApi.columnController.rowGroupColumns[0].colDef.headerName;
               data.push({
                 accountName: node.key,
                 debit: node.aggData.debit,

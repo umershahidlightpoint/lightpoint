@@ -41,7 +41,7 @@ export class FileManagementComponent implements OnInit, OnDestroy {
   styleForLogsHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 210px)',
+    height: 'calc(100vh - 220px)',
     boxSizing: 'border-box'
   };
 
