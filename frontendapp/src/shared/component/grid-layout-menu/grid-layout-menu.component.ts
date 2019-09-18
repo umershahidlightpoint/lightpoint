@@ -141,6 +141,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
     this.gridOptions.columnApi.resetColumnGroupState();
     this.gridOptions.api.setSortModel(null);
     this.gridOptions.api.setFilterModel(null);
+    this.gridOptions.clearExternalFilter();
   }
 
   _compareFn(a, b) {
