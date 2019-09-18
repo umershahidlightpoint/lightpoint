@@ -20,11 +20,11 @@
       <tr *ngFor="let report of trialBalanceReport; let i = index">
         <td class="first-cell cell-style"> {{ report.accountName }}</td>
         <td [ngStyle]="{'background-size.%': !report.debitPercentage ? 0 : report.debitPercentage}"
-          style='background-size: 100%' class="other-cells negative cell-style">
+          style='background-size: 100%' class="other-cells debit cell-style">
           {{ report.debit | number: '1.2-2' }}
         </td>
         <td [ngStyle]="{'background-size.%': !report.creditPercentage ? 0 : report.creditPercentage}"
-          style='background-size: 100%' class="other-cells positive cell-style">
+          style='background-size: 100%' class="other-cells credit cell-style">
           {{ report.credit | number: '1.2-2' }}</td>
         <td class="other-cells balance cell-style">
           {{ report.balance | number: '1.2-2' }}</td>
