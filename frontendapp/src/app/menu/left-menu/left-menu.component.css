@@ -1,14 +1,11 @@
-.sidenav_container {
+.sidenav-container {
   min-width: 60px;
-  height: calc(100vh - 160px);
+  height: 100vh;
   background: #f4f5f7;
 }
 
-.jim {
-  width: 30px;
-  height: 30px;
-  object-fit: cover;
-  border-radius: 50%;
+.nav-list {
+  padding-top: 6rem;
 }
 
 .expand-menu-container {
@@ -18,5 +15,5 @@
 .expand-menu-btn {
   outline: none;
   background: white;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
