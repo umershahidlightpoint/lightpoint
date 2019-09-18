@@ -65,7 +65,7 @@ namespace PostingEngine.PostingRules
                     FxRate = fxrate,
                     Value = moneyUSD * -1,
                     GeneratedBy = "system",
-                    Fund = element.Fund,
+                    Fund = debitEntry.Fund,
                 };
 
                 var credit = new Journal
@@ -77,7 +77,7 @@ namespace PostingEngine.PostingRules
                     FxRate = fxrate,
                     Value = moneyUSD,
                     GeneratedBy = "system",
-                    Fund = element.Fund,
+                    Fund = creditEntry.Fund,
                 };
 
                 env.Journals.AddRange( new [] { debit, credit } );
@@ -222,7 +222,7 @@ namespace PostingEngine.PostingRules
                     FxCurrency = element.TradeCurrency,
                     FxRate = fxrate,
                     GeneratedBy = "system",
-                    Fund = element.Fund,
+                    Fund = debitEntry.Fund,
                 };
 
                 var creditJournal = new Journal
@@ -234,15 +234,10 @@ namespace PostingEngine.PostingRules
                     FxRate = fxrate,
                     Value = creditAmount,
                     GeneratedBy = "system",
-                    Fund = element.Fund,
+                    Fund = creditEntry.Fund,
                 };
 
                 env.Journals.AddRange(new[] { debitJournal, creditJournal });
-
-                //new SQLBulkHelper().Insert("journal", new[] { debitJournal, creditJournal }, env.Connection);
-
-
-                //new Journal[] { debitJournal, creditJournal }.Save(env);
             }
         }
     }
