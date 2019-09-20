@@ -13,7 +13,7 @@ import { GridOptions } from 'ag-grid-community';
 import { ModalDirective } from 'ngx-bootstrap';
 import * as moment from 'moment';
 /* Services/Components Imports */
-import { SideBar, Ranges, IgnoreFields } from 'src/shared/utils/SideBar';
+import { SideBar, Ranges, Style, IgnoreFields, ExcelStyle } from 'src/shared/utils/Shared';
 import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/ContextMenu';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
@@ -33,7 +33,6 @@ import { ReportModalComponent } from 'src/shared/Component/report-modal/report-m
 export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   @ViewChild('journalGrid') journalGrid;
   @ViewChild('dateRangPicker') dateRangPicker;
-  @ViewChild('greetCell') greetCell: TemplateRef<any>;
   @ViewChild('divToMeasureJournal') divToMeasureElement: ElementRef;
   @ViewChild('divToMeasureLedger') divToMeasureElementLedger: ElementRef;
   @ViewChild('modal') modal: ModalDirective;
@@ -77,21 +76,9 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
 
   ranges: any = Ranges;
 
-  ignoreFields = [
-    'totalDebit',
-    'totalCredit',
-    'overall_count',
-    'account_id',
-    'value',
-    'LpOrderId'
-  ];
+  ignoreFields = IgnoreFields;
 
-  style = {
-    marginTop: '20px',
-    width: '100%',
-    height: '100%',
-    boxSizing: 'border-box'
-  };
+  style = Style;
 
   styleForHight = {
     marginTop: '20px',
@@ -133,6 +120,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       clearExternalFilter: this.clearFilters.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),
+      onFilterChanged: this.onFilterChanged.bind(this),
       sideBar: SideBar,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       pinnedBottomRowData: null,
@@ -141,68 +129,11 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       pivotPanelShow: 'after',
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
-      /* Excel Styling */
-      /* onGridReady: (params) => {
+      /* onGridReady: params => {
         this.gridApi = params.api;
         this.gridColumnApi = params.columnApi;
         this.gridOptions.api.sizeColumnsToFit();
-        this.gridOptions.excelStyles = [
-          {
-            id: "twoDecimalPlaces",
-            numberFormat: { format: "#,##0" }
-          },
-          {
-            id: "footerRow",
-            font: {
-              bold: true,
-            }
-          },
-          {
-            id: "greenBackground",
-            interior: {
-             color: "#b5e6b5",
-             pattern: "Solid"
-            }
-          },
-          {
-            id: "redFont",
-            font: {
-             fontName: "Calibri Light",
-             italic: true,
-             color: "#ff0000"
-            }
-          },
-          {
-            id: "header",
-            interior: {
-              color: "#CCCCCC",
-              pattern: "Solid"
-            },
-            borders: {
-              borderBottom: {
-                color: "#5687f5",
-                lineStyle: "Continuous",
-                weight: 1
-              },
-              borderLeft: {
-                color: "#5687f5",
-                lineStyle: "Continuous",
-                weight: 1
-              },
-              borderRight: {
-                color: "#5687f5",
-                lineStyle: "Continuous",
-                weight: 1
-              },
-              borderTop: {
-                color: "#5687f5",
-                lineStyle: "Continuous",
-                weight: 1
-              }
-            }
-          },
-
-        ];
+        this.gridOptions.excelStyles = ExcelStyle;
       }, */
 
       onFirstDataRendered: params => {
@@ -238,14 +169,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         field: 'source',
         minWidth: 300,
         headerName: 'Source'
-        /*
-        cellRendererFramework: TemplateRendererComponent, cellRendererParams: {
-          ngTemplate: this.greetCell
-        },
-        cellClassRules: {
-          footerRow: function (params) { if (params.node.rowPinned) return true; else return false; }
-        },
-        */
       },
       {
         field: 'fund',
@@ -438,33 +361,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   }
 
   getAllData() {
-    this.gridOptions.onFilterChanged = function() {
-      let tTotal = 0;
-      let tCredit = 0;
-      let tDebit = 0;
-
-      this.api.forEachNodeAfterFilter((rowNode, index) => {
-        tTotal += 1;
-        tCredit += rowNode.data.credit;
-        tDebit += rowNode.data.debit;
-      });
-
-      this.pinnedBottomRowData = [
-        {
-          source: 'Total Records: ' + tTotal,
-          AccountType: '',
-          accountName: '',
-          when: '',
-          debit: Math.abs(tDebit),
-          credit: tCredit,
-          balance: Math.abs(tDebit) - Math.abs(tCredit)
-        }
-      ];
-      this.api.setPinnedBottomRowData(this.pinnedBottomRowData);
-    };
-    /*  Align scroll of grid and footer grid */
-    // this.gridOptions.alignedGrids.push(this.bottomOptions);
-    // this.bottomOptions.alignedGrids.push(this.gridOptions);
     this.symbol = 'ALL';
     const localThis = this;
     this.page = 0;
@@ -527,18 +423,41 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
             balance: Math.abs(this.totalDebit) - Math.abs(this.totalCredit)
           }
         ];
-        this.bottomData = [
-          {
-            source: 'Total Records:' + this.totalRecords,
-            AccountType: '',
-            accountName: '',
-            when: '',
-            debit: Math.abs(this.totalDebit),
-            credit: Math.abs(this.totalCredit),
-            balance: Math.abs(this.totalDebit) - Math.abs(this.totalCredit)
-          }
-        ];
+        this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
       });
+  }
+
+  onFilterChanged() {
+    let tTotal = 0;
+    let tCredit = 0;
+    let tDebit = 0;
+    let isGrouped = false;
+    this.gridOptions.api.forEachNodeAfterFilter((rowNode, index) => {
+      if (rowNode.group && rowNode.level === 0) {
+        isGrouped = true;
+        tTotal += rowNode.allChildrenCount;
+        tCredit += rowNode.aggData.credit;
+        tDebit += rowNode.aggData.debit;
+      }
+      if (!rowNode.group && !isGrouped) {
+        tTotal += 1;
+        tCredit += rowNode.data.credit;
+        tDebit += rowNode.data.debit;
+      }
+    });
+
+    this.pinnedBottomRowData = [
+      {
+        source: 'Total Records: ' + tTotal,
+        AccountType: '',
+        accountName: '',
+        when: '',
+        debit: Math.abs(tDebit),
+        credit: tCredit,
+        balance: Math.abs(tDebit) - Math.abs(tCredit)
+      }
+    ];
+    this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
   }
 
   public getRangeLabel() {
@@ -835,10 +754,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     this.journalGrid.api.onFilterChanged();
   }
 
-  greet(row: any) {
-    alert('For show popup');
-  }
-
   openJournalModal() {
     this.jounalModal.openModal({});
   }
@@ -856,7 +771,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     if (row.colDef.headerName === 'Group') {
       return;
     }
-    console.log('==');
     const cols = this.gridOptions.columnApi.getColumnState();
     this.dataModal.openModal(row, cols);
   }

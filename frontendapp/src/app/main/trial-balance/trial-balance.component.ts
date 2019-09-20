@@ -12,7 +12,7 @@ import 'ag-grid-enterprise';
 import { GridOptions } from 'ag-grid-community';
 import * as moment from 'moment';
 /* Services/Components Imports */
-import { SideBar, Ranges, IgnoreFields } from 'src/shared/utils/SideBar';
+import { SideBar, Ranges, Style, IgnoreFields, ExcelStyle } from 'src/shared/utils/Shared';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { DataService } from 'src/shared/common/data.service';
 import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
@@ -29,7 +29,6 @@ import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/Conte
 export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   @ViewChild('journalGrid') journalGrid;
   @ViewChild('dateRangPicker') dateRangPicker;
-  @ViewChild('greetCell') greetCell: TemplateRef<any>;
   @ViewChild('divToMeasureJournal') divToMeasureElement: ElementRef;
   @ViewChild('dataModal') dataModal: DataModalComponent;
   @ViewChild('reportModal') reportModal: ReportModalComponent;
@@ -54,8 +53,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   startDate: any;
   endDate: any;
   bottomData: any;
-  // topOptions = {alignedGrids: [], suppressHorizontalScroll: true};
-  // bottomOptions = { alignedGrids: [] };
   page: any;
   pageSize: any;
   accountSearch = { id: undefined };
@@ -67,14 +64,9 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
 
   ranges = Ranges;
 
-  ignoreFields = ['totalDebit', 'totalCredit', 'overall_count', 'account_id', 'value', 'LpOrderId'];
+  ignoreFields = IgnoreFields;
 
-  style = {
-    marginTop: '20px',
-    width: '100%',
-    height: '100%',
-    boxSizing: 'border-box'
-  };
+  style = Style;
 
   styleForHight = {
     marginTop: '20px',
@@ -120,8 +112,10 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     this.gridOptions = {
       rowData: null,
       sideBar: SideBar,
+      pinnedBottomRowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onCellDoubleClicked: this.openModal.bind(this),
+      onFilterChanged: this.onFilterChanged.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
@@ -133,63 +127,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
         this.gridApi = params.api;
         this.gridColumnApi = params.columnApi;
         // this.gridOptions.api.sizeColumnsToFit();
-        this.gridOptions.excelStyles = [
-          {
-            id: 'twoDecimalPlaces',
-            numberFormat: { format: '#,##0' }
-          },
-          {
-            id: 'footerRow',
-            font: {
-              bold: true
-            }
-          },
-          {
-            id: 'greenBackground',
-            interior: {
-              color: '#b5e6b5',
-              pattern: 'Solid'
-            }
-          },
-          {
-            id: 'redFont',
-            font: {
-              fontName: 'Calibri Light',
-
-              italic: true,
-              color: '#ff0000'
-            }
-          },
-          {
-            id: 'header',
-            interior: {
-              color: '#CCCCCC',
-              pattern: 'Solid'
-            },
-            borders: {
-              borderBottom: {
-                color: '#5687f5',
-                lineStyle: 'Continuous',
-                weight: 1
-              },
-              borderLeft: {
-                color: '#5687f5',
-                lineStyle: 'Continuous',
-                weight: 1
-              },
-              borderRight: {
-                color: '#5687f5',
-                lineStyle: 'Continuous',
-                weight: 1
-              },
-              borderTop: {
-                color: '#5687f5',
-                lineStyle: 'Continuous',
-                weight: 1
-              }
-            }
-          }
-        ];
+        this.gridOptions.excelStyles = ExcelStyle;
       },
       onFirstDataRendered: params => {
         params.api.forEachNode(node => {
@@ -209,14 +147,14 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     } as GridOptions;
   }
 
-  openModal = row => {
+  openModal(row) {
     if (row.colDef.headerName === 'Group') {
       return;
     }
     // We can drive the screen that we wish to display from here
-    let cols = this.gridOptions.columnApi.getColumnState();
+    const cols = this.gridOptions.columnApi.getColumnState();
     this.dataModal.openModal(row, cols);
-  };
+  }
 
   /*
   Drives the columns that will be defined on the UI, and what can be done with those fields
@@ -228,28 +166,12 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
         minWidth: 50,
         headerName: 'Id',
         colId: 'id'
-        /*
-        cellRendererFramework: TemplateRendererComponent, cellRendererParams: {
-          ngTemplate: this.greetCell
-        },
-        cellClassRules: {
-          footerRow: function (params) { if (params.node.rowPinned) return true; else return false; }
-        },
-        */
       },
       {
         field: 'source',
         minWidth: 300,
         headerName: 'Source',
         colId: 'source'
-        /*
-        cellRendererFramework: TemplateRendererComponent, cellRendererParams: {
-          ngTemplate: this.greetCell
-        },
-        cellClassRules: {
-          footerRow: function (params) { if (params.node.rowPinned) return true; else return false; }
-        },
-        */
       },
       {
         field: 'fund',
@@ -556,33 +478,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   }
 
   getTrialBalance() {
-    this.gridOptions.onFilterChanged = function() {
-      let tTotal = 0;
-      let tCredit = 0;
-      let tDebit = 0;
-      this.api.forEachNodeAfterFilter((rowNode, index) => {
-        tTotal += 1;
-        tCredit += rowNode.data.credit;
-        tDebit += rowNode.data.debit;
-      });
-      this.pinnedBottomRowData = [
-        {
-          source: 'Total Records: ' + tTotal,
-          AccountType: '',
-          accountName: '',
-          when: '',
-          debit: Math.abs(this.tDebit),
-          credit: Math.abs(this.tCredit),
-          balance: Math.abs(tDebit) - Math.abs(tCredit)
-        }
-      ];
-      this.api.setPinnedBottomRowData(this.pinnedBottomRowData);
-    };
-
-    /* align scroll of grid and footer grid */
-    // this.gridOptions.alignedGrids.push(this.bottomOptions);
-    // this.bottomOptions.alignedGrids.push(this.gridOptions);
-
     this.symbol = 'ALL';
     const localThis = this;
     this.page = 0;
@@ -644,18 +539,40 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
           }
         ];
         this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
-        this.bottomData = [
-          {
-            source: 'Total Records:' + this.totalRecords,
-            AccountType: '',
-            accountName: '',
-            when: '',
-            debit: Math.abs(this.totalDebit),
-            credit: Math.abs(this.totalCredit),
-            balance: Math.abs(this.totalDebit) - Math.abs(this.totalCredit)
-          }
-        ];
+        console.log('===>', this.pinnedBottomRowData);
       });
+  }
+
+  onFilterChanged() {
+    let tTotal = 0;
+    let tCredit = 0;
+    let tDebit = 0;
+    let isGrouped = false;
+    this.gridOptions.api.forEachNodeAfterFilter((rowNode, index) => {
+      if (rowNode.group && rowNode.level === 0) {
+        isGrouped = true;
+        tTotal += rowNode.allChildrenCount;
+        tCredit += rowNode.aggData.credit;
+        tDebit += rowNode.aggData.debit;
+      }
+      if (!rowNode.group && !isGrouped) {
+        tTotal += 1;
+        tCredit += rowNode.data.credit;
+        tDebit += rowNode.data.debit;
+      }
+    });
+    this.pinnedBottomRowData = [
+      {
+        source: 'Total Records: ' + tTotal,
+        AccountType: '',
+        accountName: '',
+        when: '',
+        debit: Math.abs(tDebit),
+        credit: Math.abs(tCredit),
+        balance: Math.abs(tDebit) - Math.abs(tCredit)
+      }
+    ];
+    this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
   }
 
   getRangeLabel() {
@@ -745,7 +662,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
                 endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
               }
       });
-
       return true;
     }
   }
@@ -816,11 +732,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     this.endDate = '';
     this.journalGrid.api.setFilterModel(null);
     this.journalGrid.api.onFilterChanged();
-  }
-
-  greet(row: any) {
-    // alert(`${ row.country } says "${ row.greeting }!`);
-    alert('For show popup');
   }
 
   openChartModal(data) {
