@@ -4,7 +4,7 @@ import { Fund } from '../../../shared/Models/account';
 import { TrialBalanceReport, TrialBalanceReportStats } from '../../../shared/Models/trial-balance';
 import { DataService } from '../../../shared/common/data.service';
 import * as moment from 'moment';
-import { Ranges } from 'src/shared/utils/SideBar';
+import { Ranges, Style } from 'src/shared/utils/Shared';
 
 @Component({
   selector: 'app-reports',
@@ -26,12 +26,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
 
   ranges: any = Ranges;
 
-  style = {
-    marginTop: '20px',
-    width: '100%',
-    height: '100%',
-    boxSizing: 'border-box'
-  };
+  style = Style;
 
   styleForHight = {
     marginTop: '20px',

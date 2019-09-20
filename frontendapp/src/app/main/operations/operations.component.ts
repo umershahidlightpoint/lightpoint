@@ -20,7 +20,7 @@ import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataService } from 'src/shared/common/data.service';
-import { SideBar } from 'src/shared/utils/SideBar';
+import { SideBar, Style } from 'src/shared/utils/Shared';
 import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/ContextMenu';
 
 @Component({
@@ -70,12 +70,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     { name: 'Latest' }
   ];
 
-  style = {
-    marginTop: '20px',
-    width: '100%',
-    height: '100%',
-    boxSizing: 'border-box'
-  };
+  style = Style;
 
   styleForLogsHight = {
     marginTop: '20px',

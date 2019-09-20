@@ -6,7 +6,7 @@ import { DataModalComponent } from '../../../shared/Component/data-modal/data-mo
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { SideBar } from 'src/shared/utils/SideBar';
+import { SideBar, Style } from 'src/shared/utils/Shared';
 
 @Component({
   selector: 'app-trade-allocation',
@@ -42,12 +42,7 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
   hideGrid: boolean;
   allocationTradesData: any;
 
-  style = {
-    marginTop: '20px',
-    width: '100%',
-    height: '100%',
-    boxSizing: 'border-box'
-  };
+  style = Style;
 
   styleForHight = {
     marginTop: '20px',

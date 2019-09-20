@@ -13,7 +13,7 @@ import { GridOptions } from 'ag-grid-community';
 import { takeWhile } from 'rxjs/operators';
 import { TemplateRendererComponent } from '../../../template-renderer/template-renderer.component';
 import { File } from 'src/shared/models/files';
-import { SideBar } from 'src/shared/utils/SideBar';
+import { SideBar, Style } from 'src/shared/utils/Shared';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
@@ -32,12 +32,7 @@ export class FileManagementComponent implements OnInit, OnDestroy {
   files: File[];
   isSubscriptionAlive: boolean;
 
-  style = {
-    marginTop: '20px',
-    width: '100%',
-    height: '100%',
-    boxSizing: 'border-box'
-  };
+  style = Style;
 
   styleForLogsHight = {
     marginTop: '20px',

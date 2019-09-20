@@ -13,7 +13,14 @@ import { GridOptions } from 'ag-grid-community';
 import { ModalDirective } from 'ngx-bootstrap';
 import * as moment from 'moment';
 /* Services/Components Imports */
-import { SideBar, Ranges, Style, IgnoreFields, ExcelStyle } from 'src/shared/utils/Shared';
+import {
+  SideBar,
+  Ranges,
+  Style,
+  IgnoreFields,
+  ExcelStyle,
+  CalTotalRecords
+} from 'src/shared/utils/Shared';
 import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/ContextMenu';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
@@ -428,35 +435,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   }
 
   onFilterChanged() {
-    let tTotal = 0;
-    let tCredit = 0;
-    let tDebit = 0;
-    let isGrouped = false;
-    this.gridOptions.api.forEachNodeAfterFilter((rowNode, index) => {
-      if (rowNode.group && rowNode.level === 0) {
-        isGrouped = true;
-        tTotal += rowNode.allChildrenCount;
-        tCredit += rowNode.aggData.credit;
-        tDebit += rowNode.aggData.debit;
-      }
-      if (!rowNode.group && !isGrouped) {
-        tTotal += 1;
-        tCredit += rowNode.data.credit;
-        tDebit += rowNode.data.debit;
-      }
-    });
-
-    this.pinnedBottomRowData = [
-      {
-        source: 'Total Records: ' + tTotal,
-        AccountType: '',
-        accountName: '',
-        when: '',
-        debit: Math.abs(tDebit),
-        credit: tCredit,
-        balance: Math.abs(tDebit) - Math.abs(tCredit)
-      }
-    ];
+    this.pinnedBottomRowData = CalTotalRecords(this.gridOptions);
     this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
   }
 

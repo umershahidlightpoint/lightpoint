@@ -1,6 +1,7 @@
-import { Component, TemplateRef, ElementRef, OnInit, Injector, ViewChild } from '@angular/core';
+import { Component, TemplateRef, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
+import { Style } from 'src/shared/utils/Shared';
 import * as moment from 'moment';
 
 @Component({
@@ -39,12 +40,7 @@ export class LogsComponent implements OnInit {
   sortDirection: any;
   page: any;
 
-  style = {
-    marginTop: '20px',
-    width: '100%',
-    height: '100%',
-    boxSizing: 'border-box'
-  };
+  style = Style;
 
   styleForHight = {
     marginTop: '20px',
