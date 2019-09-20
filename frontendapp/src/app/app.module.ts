@@ -52,7 +52,7 @@ import { HeaderComponent } from './menu/header/header.component';
 import { LeftMenuComponent } from './menu/left-menu/left-menu.component';
 import { JournalsLedgersComponent } from './main/journals-ledgers/journals-ledgers.component';
 import { JournalModalComponent } from './main/journals-ledgers/journal-modal/journal-modal.component';
-import { DataModalComponent } from '../shared/Component/data-modal/data-modal.component'
+import { DataModalComponent } from '../shared/Component/data-modal/data-modal.component';
 import { TrialGridExampleComponent } from './main/trial-balance/trial-balance.component';
 import { AccountComponent } from './main/accounts/account.component';
 import { CreateAccountComponent } from './main/accounts/create-account/create-account.component';
@@ -66,7 +66,7 @@ import { SettingsComponent } from './main/settings/settings.component';
 import { OperationsComponent } from './main/operations/operations.component';
 import { ButtonRendererComponent } from '../renderer/buttonRenderer';
 import { BalanceReportComponent } from './main/reports/balance-report/balance-report.component';
-import { ReportModalComponent } from '../shared/Component/report-modal/report-modal.component'; 
+import { ReportModalComponent } from '../shared/Component/report-modal/report-modal.component';
 
 @NgModule({
   declarations: [

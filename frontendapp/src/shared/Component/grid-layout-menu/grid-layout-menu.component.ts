@@ -1,8 +1,9 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { IToolPanel, IToolPanelParams, GridOptions } from 'ag-grid-community';
 import { FinancePocServiceProxy } from '../../service-proxies/service-proxies';
 import { DataService } from '../../common/data.service';
 import { ToastrService } from 'ngx-toastr';
+import { ModalDirective } from 'ngx-bootstrap';
 
 @Component({
   selector: 'app-grid-layout-menu',
@@ -10,6 +11,8 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./grid-layout-menu.component.css']
 })
 export class GridLayoutMenuComponent implements IToolPanel {
+  @ViewChild('confirm') confirmModal: ModalDirective;
+
   gridOptions: any;
   gridObject: { gridId: number; gridName: string };
   setGridFilterObject: any;
@@ -121,15 +124,18 @@ export class GridLayoutMenuComponent implements IToolPanel {
     this.financeService.deleteGridLayout(this.gridLayoutID.Id).subscribe(
       response => {
         if (response.isSuccessful) {
+          this.closeModal();
           this.toastrService.success('Layout deleted successfully!');
           this.resetState();
           this.gridOptions.clearExternalFilter();
           this.getLayout();
         } else {
+          this.closeModal();
           this.toastrService.error('Failed to delete layout!');
         }
       },
       error => {
+        this.closeModal();
         this.toastrService.error('Something went wrong. Try again later!');
       }
     );
@@ -142,6 +148,14 @@ export class GridLayoutMenuComponent implements IToolPanel {
     this.gridOptions.api.setSortModel(null);
     this.gridOptions.api.setFilterModel(null);
     this.gridOptions.clearExternalFilter();
+  }
+
+  openModal() {
+    this.confirmModal.show();
+  }
+
+  closeModal() {
+    this.confirmModal.hide();
   }
 
   _compareFn(a, b) {
