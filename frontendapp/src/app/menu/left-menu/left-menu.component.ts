@@ -25,7 +25,8 @@ export class LeftMenuComponent implements OnInit {
     { name: 'Accruals', routerLink: '/accruals', icon: 'fa-files-o' },
     { name: 'Trades', routerLink: '/trade-allocation', icon: 'fa-exchange' },
     { name: 'Reports', routerLink: '/reports', icon: 'fa-bar-chart' },
-    { name: 'Operations', routerLink: 'operations', icon: 'fa-tasks' }
+    { name: 'Operations', routerLink: 'operations', icon: 'fa-tasks' },
+    { name: 'Settings', routerLink: '/settings', icon: 'fa-cog' }
   ];
 
   constructor(private sidenavService: SidenavService) {}

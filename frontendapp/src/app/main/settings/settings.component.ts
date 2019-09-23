@@ -14,6 +14,9 @@ export class SettingsComponent implements OnInit {
   @ViewChild('bottomGrid') bottomGrid;
   @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
 
+  reportingCurrency = 'USD';
+  reportingDate = ''
+
   private gridOptions: GridOptions;
   private allocationsGridOptions: GridOptions;
   bottomOptions = { alignedGrids: [] };
