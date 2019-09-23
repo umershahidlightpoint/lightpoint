@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LP.Finance.Common", "LP.Fin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostingEngineApp", "PostingEngineApp\PostingEngineApp.csproj", "{10E8C8DD-16F0-4AA9-BDED-7A672644F0D2}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LP.FileProcessing", "LP.FileProcessing\LP.FileProcessing.csproj", "{3B02F86C-1C22-460A-ACC5-D842297C7871}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{10E8C8DD-16F0-4AA9-BDED-7A672644F0D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{10E8C8DD-16F0-4AA9-BDED-7A672644F0D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{10E8C8DD-16F0-4AA9-BDED-7A672644F0D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B02F86C-1C22-460A-ACC5-D842297C7871}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B02F86C-1C22-460A-ACC5-D842297C7871}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B02F86C-1C22-460A-ACC5-D842297C7871}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B02F86C-1C22-460A-ACC5-D842297C7871}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -177,10 +177,22 @@ namespace PostingEngine.PostingRules
             // Retrieve Allocation Objects for this trade
             var tradeAllocations = env.Allocations.Where(i => i.ParentOrderId == element.ParentOrderId).ToList();
 
+            if ( tradeAllocations.Count() > 2)
+            {
+                env.AddMessage($"#of allocations > 2 please investigate {element.LpOrderId}");
+                return;
+            }
+
             var debitEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[0] : tradeAllocations[1];
             var creditEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[1] : tradeAllocations[0];
 
             var accountToFrom = GetFromToAccount(element, debitEntry, creditEntry);
+
+            if (debitEntry.Symbol.Equals("@CASHUSD"))
+            {
+                env.AddMessage($"Unexpected Cash allocation please investigate {element.LpOrderId}");
+                return;
+            }
 
             if (accountToFrom.To == null || accountToFrom.From == null)
             {
@@ -203,13 +215,10 @@ namespace PostingEngine.PostingRules
                 fxrate = Convert.ToDouble(env.FxRates[element.TradeCurrency].Rate);
             }
 
-            if (element.LpOrderId == "a12bde3e8342464b841d8b550d7cba69&EFIX@C")
-            {
-            }
-
             if (element.NetMoney != 0.0)
             {
                 var moneyUSD = (element.NetMoney / fxrate);
+                
                 var creditAmount = moneyUSD;
                 var debitAmount = moneyUSD * -1;
 
