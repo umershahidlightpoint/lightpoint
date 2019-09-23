@@ -18,7 +18,7 @@ import { takeWhile } from 'rxjs/operators';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { SideBar, Style } from 'src/shared/utils/Shared';
+import { SideBar } from 'src/shared/utils/Shared';
 
 @Component({
   selector: 'app-ledger-form',
@@ -38,7 +38,12 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('actionButtons') actionButtons: TemplateRef<any>;
   @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
 
-  style = Style;
+  style = {
+    marginTop: '20px',
+    width: '100%',
+    height: '100%',
+    boxSizing: 'border-box'
+  };
 
   styleForHight = {
     marginTop: '20px',

@@ -1,14 +1,24 @@
 <p-tabView [ngStyle]="style">
-  <p-tabPanel header="Settings" [ngStyle]="style">
+  <p-tabPanel header="General Settings" [ngStyle]="style">
     <div style="clear: both"></div>
     <div #divToMeasure>
       <div [ngStyle]="styleForHight">
-
-        <h4>Display all of the settings in the system</h4>
 
         <h4>Reporting Currency {{ reportingCurrency }}</h4>
 
       </div>
     </div>
   </p-tabPanel>
+
+  <p-tabPanel header="Silver Settings" [ngStyle]="style">
+    <div style="clear: both"></div>
+    <div #divToMeasure>
+      <div [ngStyle]="styleForHight">
+        <!-- 
+          To be defined
+        -->
+      </div>
+    </div>
+  </p-tabPanel>
+
 </p-tabView>
