@@ -102,7 +102,7 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
       }
     });
     this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid({ gridId: GridId.accrualsId, gridName: GridName.accruals });
+    this.dataService.changeGrid({ gridId: GridId.tradeId, gridName: GridName.trade });
   }
 
   ngOnInit() {

@@ -133,11 +133,11 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       sortable: true,
       resizable: true
     };
-    /*
-    Align Scroll of Grid and Footer Grid
-    */
-    this.gridOptions.alignedGrids.push(this.bottomOptions);
-    this.bottomOptions.alignedGrids.push(this.gridOptions);
+    // /*
+    // Align Scroll of Grid and Footer Grid
+    // */
+    // this.gridOptions.alignedGrids.push(this.bottomOptions);
+    // this.bottomOptions.alignedGrids.push(this.gridOptions);
     /*
     Params for API Request
     */

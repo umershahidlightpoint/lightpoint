@@ -1,13 +1,4 @@
-import {
-  Component,
-  TemplateRef,
-  ElementRef,
-  OnInit,
-  ViewChild,
-  OnDestroy,
-  Output,
-  EventEmitter
-} from '@angular/core';
+import { Component, TemplateRef, ElementRef, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { takeWhile } from 'rxjs/operators';

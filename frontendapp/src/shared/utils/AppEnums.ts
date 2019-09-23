@@ -5,6 +5,8 @@ export class GridId {
   static accrualsId = 4;
   static logsId = 5;
   static filesId = 6;
+  static tradeId = 7;
+  static trailBalanceReportId = 8;
 }
 
 export class GridName {
@@ -14,4 +16,6 @@ export class GridName {
   static accruals = 'Accruals';
   static logs = 'Logs';
   static files = 'Files';
+  static trade = 'Trade';
+  static trailBalanceReport = 'TrialBalanceReport';
 }
