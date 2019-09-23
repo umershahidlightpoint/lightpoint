@@ -142,10 +142,59 @@ export const CalTotalRecords = gridOptions => {
       AccountType: '',
       accountName: '',
       when: '',
-      debit: Math.abs(tDebit),
+      debit: tDebit,
       credit: tCredit,
-      balance: Math.abs(tDebit) - Math.abs(tCredit)
+      balance: tDebit - tCredit
     }
   ];
   return pinnedBottomRowData;
+};
+
+export const GetDateRangeLabel = (startDate, endDate) => {
+  if (
+    moment('01-01-1901', 'MM-DD-YYYY').diff(startDate, 'days') === 0 &&
+    moment().diff(endDate, 'days') === 0
+  ) {
+    return 'ITD';
+  }
+  if (
+    moment()
+      .startOf('year')
+      .diff(startDate, 'days') === 0 &&
+    moment().diff(endDate, 'days') === 0
+  ) {
+    return 'YTD';
+  }
+  if (
+    moment()
+      .startOf('month')
+      .diff(startDate, 'days') === 0 &&
+    moment().diff(endDate, 'days') === 0
+  ) {
+    return 'MTD';
+  }
+  if (moment().diff(startDate, 'days') === 0 && moment().diff(endDate, 'days') === 0) {
+    return 'Today';
+  }
+};
+
+export const DoesExternalFilterPass = (node, fund, startDate, endDate) => {
+  if (fund !== 'All Funds' && startDate) {
+    const cellFund = node.data.fund;
+    const cellDate = new Date(node.data.when);
+
+    return cellFund === fund && startDate.toDate() <= cellDate && endDate.toDate() >= cellDate;
+  }
+
+  if (fund !== 'All Funds') {
+    const cellFund = node.data.fund;
+
+    return cellFund === fund;
+  }
+
+  if (startDate) {
+    const cellDate = new Date(node.data.when);
+
+    return startDate.toDate() <= cellDate && endDate.toDate() >= cellDate;
+  }
 };

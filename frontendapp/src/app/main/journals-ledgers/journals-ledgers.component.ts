@@ -1,7 +1,6 @@
 /* Core/Library Imports */
 import {
   Component,
-  TemplateRef,
   ElementRef,
   OnInit,
   ViewChild,
@@ -19,7 +18,9 @@ import {
   Style,
   IgnoreFields,
   ExcelStyle,
-  CalTotalRecords
+  CalTotalRecords,
+  GetDateRangeLabel,
+  DoesExternalFilterPass
 } from 'src/shared/utils/Shared';
 import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/ContextMenu';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
@@ -38,7 +39,6 @@ import { ReportModalComponent } from 'src/shared/Component/report-modal/report-m
   styleUrls: ['./journals-ledgers.component.css']
 })
 export class JournalsLedgersComponent implements OnInit, AfterViewInit {
-  @ViewChild('journalGrid') journalGrid;
   @ViewChild('dateRangPicker') dateRangPicker;
   @ViewChild('divToMeasureJournal') divToMeasureElement: ElementRef;
   @ViewChild('divToMeasureLedger') divToMeasureElementLedger: ElementRef;
@@ -439,37 +439,9 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
   }
 
-  public getRangeLabel() {
+  getRangeLabel() {
     this.DateRangeLabel = '';
-    if (
-      moment('01-01-1901', 'MM-DD-YYYY').diff(this.startDate, 'days') === 0 &&
-      moment().diff(this.endDate, 'days') === 0
-    ) {
-      this.DateRangeLabel = 'ITD';
-      return;
-    }
-    if (
-      moment()
-        .startOf('year')
-        .diff(this.startDate, 'days') === 0 &&
-      moment().diff(this.endDate, 'days') === 0
-    ) {
-      this.DateRangeLabel = 'YTD';
-      return;
-    }
-    if (
-      moment()
-        .startOf('month')
-        .diff(this.startDate, 'days') === 0 &&
-      moment().diff(this.endDate, 'days') === 0
-    ) {
-      this.DateRangeLabel = 'MTD';
-      return;
-    }
-    if (moment().diff(this.startDate, 'days') === 0 && moment().diff(this.endDate, 'days') === 0) {
-      this.DateRangeLabel = 'Today';
-      return;
-    }
+    this.DateRangeLabel = GetDateRangeLabel(this.startDate, this.endDate);
   }
 
   setWidthAndHeight(width, height) {
@@ -497,22 +469,22 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     this.startDate = e.startDate;
     this.endDate = e.endDate;
     this.getRangeLabel();
-    this.journalGrid.api.onFilterChanged();
+    this.gridOptions.api.onFilterChanged();
   }
 
   ngModelChangeSymbol(e) {
     this.filterBySymbol = e;
-    this.journalGrid.api.onFilterChanged();
+    this.gridOptions.api.onFilterChanged();
   }
 
   ngModelChangeFund(e) {
     this.fund = e;
-    this.journalGrid.api.onFilterChanged();
+    this.gridOptions.api.onFilterChanged();
   }
 
   onSymbolKey(e) {
     this.filterBySymbol = e.srcElement.value;
-    this.journalGrid.api.onFilterChanged();
+    this.gridOptions.api.onFilterChanged();
 
     // For the moment we react to each key stroke
     if (e.code === 'Enter' || e.code === 'Tab') {
@@ -527,7 +499,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
     this.setDateRange(dateFilter);
 
-    this.journalGrid.api.onFilterChanged();
+    this.gridOptions.api.onFilterChanged();
   }
 
   isExternalFilterPresent() {
@@ -553,7 +525,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       const cellFund = node.data.fund;
       const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
       const cellDate = new Date(node.data.when);
-
       return (
         cellFund === this.fund &&
         cellSymbol.includes(this.filterBySymbol) &&
@@ -561,51 +532,39 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         this.endDate.toDate() >= cellDate
       );
     }
-
     if (this.fund !== 'All Funds' && this.filterBySymbol !== '') {
       const cellFund = node.data.fund;
       const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
-
       return cellFund === this.fund && cellSymbol.includes(this.filterBySymbol);
     }
-
     if (this.fund !== 'All Funds' && this.startDate) {
       const cellFund = node.data.fund;
       const cellDate = new Date(node.data.when);
-
       return (
         cellFund === this.fund &&
         this.startDate.toDate() <= cellDate &&
         this.endDate.toDate() >= cellDate
       );
     }
-
     if (this.filterBySymbol !== '' && this.startDate) {
       const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
       const cellDate = new Date(node.data.when);
-
       return (
         cellSymbol.includes(this.filterBySymbol) &&
         this.startDate.toDate() <= cellDate &&
         this.endDate.toDate() >= cellDate
       );
     }
-
     if (this.fund !== 'All Funds') {
       const cellFund = node.data.fund;
-
       return cellFund === this.fund;
     }
-
     if (this.startDate) {
       const cellDate = new Date(node.data.when);
-
       return this.startDate.toDate() <= cellDate && this.endDate.toDate() >= cellDate;
     }
-
     if (this.filterBySymbol !== '') {
       const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
-
       return cellSymbol.includes(this.filterBySymbol);
     }
   }
@@ -729,8 +688,8 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     this.selected = null;
     this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
     this.endDate = moment();
-    this.journalGrid.api.setFilterModel(null);
-    this.journalGrid.api.onFilterChanged();
+    this.gridOptions.api.setFilterModel(null);
+    this.gridOptions.api.onFilterChanged();
   }
 
   openJournalModal() {

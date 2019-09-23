@@ -60,22 +60,15 @@
       </div>
       <!-- Filters Div Ends -->
 
-      <!-- Report Grid Div Starts -->
-      <div #divToMeasure>
-        <!-- Style For Height Div Starts -->
+      <!-- Report Grid Starts -->
+      <div #divToMeasureJournal>
         <div [ngStyle]="styleForHight">
-          <!-- Refresh Spinner Div Starts -->
-          <div *ngIf="isLoading" class="refresh-spinner">
-            <h5>Loading...</h5>
-          </div>
-          <!-- Refresh Spinner Div Ends -->
-          <app-balance-report [isLoading]="isLoading" [title]="title" [trialBalanceReport]="trialBalanceReport"
-            [trialBalanceReportStats]="trialBalanceReportStats" [hideGrid]="hideGrid" [tableHeader]="'Account Name'">
-          </app-balance-report>
+          <ag-grid-angular class="bg-size" style="width: 100%; height: 100%" class="ag-theme-balham"
+            [gridOptions]="gridOptions">
+          </ag-grid-angular>
         </div>
-        <!-- Style For Height Div Ends-->
       </div>
-      <!-- Report Grid Div Ends-->
+      <!-- Report Grid Ends -->
     </p-tabPanel>
     <!-- Trial Balance Report Tab Ends-->
   </p-tabView>

@@ -4,7 +4,19 @@ import { Fund } from '../../../shared/Models/account';
 import { TrialBalanceReport, TrialBalanceReportStats } from '../../../shared/Models/trial-balance';
 import { DataService } from '../../../shared/common/data.service';
 import * as moment from 'moment';
-import { Ranges, Style } from 'src/shared/utils/Shared';
+import {
+  Ranges,
+  Style,
+  SideBar,
+  ExcelStyle,
+  CalTotalRecords,
+  GetDateRangeLabel,
+  DoesExternalFilterPass
+} from 'src/shared/utils/Shared';
+import { GridOptions } from 'ag-grid-community';
+import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/ContextMenu';
+import { GridId, GridName } from 'src/shared/utils/AppEnums';
 
 @Component({
   selector: 'app-reports',
@@ -12,6 +24,9 @@ import { Ranges, Style } from 'src/shared/utils/Shared';
   styleUrls: ['./reports.component.css']
 })
 export class ReportsComponent implements OnInit, AfterViewInit {
+  private gridColumnApi;
+  pinnedBottomRowData;
+  gridOptions: GridOptions;
   fund: any = 'All Funds';
   funds: Fund;
   DateRangeLabel: string;
@@ -31,7 +46,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 200px)',
+    height: 'calc(100vh - 210px)',
     boxSizing: 'border-box'
   };
 
@@ -49,8 +64,106 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
+    this.initGrid();
     this.getFunds();
     this.getReport(null, null, 'ALL');
+  }
+
+  initGrid() {
+    this.gridOptions = {
+      rowData: null,
+      sideBar: SideBar,
+      pinnedBottomRowData: null,
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      onFilterChanged: this.onFilterChanged.bind(this),
+      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
+      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
+      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
+      clearExternalFilter: this.clearFilters.bind(this),
+      rowSelection: 'single',
+      rowGroupPanelShow: 'after',
+      getContextMenuItems: params => this.getContextMenuItems(params),
+      onGridReady: params => {
+        this.gridColumnApi = params.columnApi;
+        this.gridOptions.api.sizeColumnsToFit();
+        this.gridOptions.excelStyles = ExcelStyle;
+      },
+      onFirstDataRendered: params => {
+        params.api.forEachNode(node => {
+          node.expanded = true;
+        });
+        params.api.onGroupExpandedOrCollapsed();
+      },
+      enableFilter: true,
+      animateRows: true,
+      alignedGrids: [],
+      suppressHorizontalScroll: false,
+      columnDefs: [
+        {
+          field: 'accountName',
+          width: 120,
+          headerName: 'Account Name',
+          enableRowGroup: true
+        },
+        {
+          field: 'debit',
+          width: 120,
+          headerName: 'Debit',
+          cellStyle: params => {
+            if (params.data.debitPercentage > 0) {
+              return {
+                backgroundSize: !params.data.debitPercentage
+                  ? 0
+                  : params.data.debitPercentage + '%',
+                backgroundRepeat: 'no-repeat'
+              };
+            }
+          },
+          cellClass: params => {
+            if (params.data.debitPercentage > 0) {
+              return 'debit';
+            }
+          }
+        },
+        {
+          field: 'credit',
+          headerName: 'Credit',
+          filter: true,
+          width: 120,
+          cellStyle: params => {
+            if (params.data.creditPercentage > 0) {
+              return {
+                backgroundSize: !params.data.creditPercentage
+                  ? 0
+                  : params.data.creditPercentage + '%',
+                backgroundRepeat: 'no-repeat'
+              };
+            }
+          },
+          cellClass: params => {
+            if (params.data.creditPercentage > 0) {
+              return 'credit';
+            }
+          }
+        },
+        {
+          field: 'balance',
+          headerName: 'Balance',
+          width: 100,
+          filter: true,
+          cellStyle: params => {
+            if (params.data.accountName === 'Total' && params.data.balance !== 0) {
+              return { backgroundColor: 'red' };
+            }
+          }
+        }
+      ],
+      defaultColDef: {
+        sortable: true,
+        resizable: true,
+        filter: true
+      }
+    } as GridOptions;
   }
 
   ngAfterViewInit(): void {
@@ -60,6 +173,12 @@ export class ReportsComponent implements OnInit, AfterViewInit {
         this.getFunds();
         this.getReport(null, null, 'ALL');
       }
+    });
+    this.dataService.gridColumnApi.subscribe(obj => (obj = this.gridOptions));
+    this.dataService.changeMessage(this.gridOptions);
+    this.dataService.changeGrid({
+      gridId: GridId.trailBalanceReportId,
+      gridName: GridName.trailBalance
     });
   }
 
@@ -85,40 +204,123 @@ export class ReportsComponent implements OnInit, AfterViewInit {
         balance: data.Balance
       }));
       this.isLoading = false;
+      this.pinnedBottomRowData = [
+        {
+          accountName: 'Total',
+          debit: this.trialBalanceReportStats.totalDebit,
+          credit: this.trialBalanceReportStats.totalCredit,
+          balance:
+            this.trialBalanceReportStats.totalDebit - this.trialBalanceReportStats.totalCredit
+        }
+      ];
+      this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
+      this.gridOptions.api.setRowData(this.trialBalanceReport);
     });
+  }
+
+  onFilterChanged() {
+    this.pinnedBottomRowData = CalTotalRecords(this.gridOptions);
+    this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
+  }
+
+  isExternalFilterPassed(object) {
+    const { fundFilter } = object;
+    const { dateFilter } = object;
+    this.fund = fundFilter !== undefined ? fundFilter : this.fund;
+    this.setDateRange(dateFilter);
+
+    this.gridOptions.api.onFilterChanged();
+  }
+
+  isExternalFilterPresent() {
+    if (this.fund !== 'All Funds' || this.startDate) {
+      this.dataService.setExternalFilter({
+        fundFilter: this.fund,
+        dateFilter:
+          this.DateRangeLabel !== ''
+            ? this.DateRangeLabel
+            : {
+                startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
+                endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
+              }
+      });
+      return true;
+    }
+  }
+
+  doesExternalFilterPass(node: any) {
+    return DoesExternalFilterPass(node, this.fund, this.startDate, this.endDate);
+  }
+
+  getContextMenuItems(params) {
+    const defaultItems = ['copy', 'paste', 'copyWithHeaders', 'export'];
+    const items = [
+      {
+        name: 'Expand',
+        action() {
+          Expand(params);
+        }
+      },
+      {
+        name: 'Collapse',
+        action() {
+          Collapse(params);
+        }
+      },
+      {
+        name: 'Expand All',
+        action: () => {
+          ExpandAll(params);
+        }
+      },
+      {
+        name: 'Collapse All',
+        action: () => {
+          CollapseAll(params);
+        }
+      },
+      ...defaultItems
+    ];
+    if (params.node.group) {
+      return items;
+    }
+    return defaultItems;
+  }
+
+  setDateRange(dateFilter: any) {
+    if (typeof dateFilter === 'object') {
+      this.startDate = moment(dateFilter.startDate);
+      this.endDate = moment(dateFilter.endDate);
+    }
+
+    switch (dateFilter) {
+      case 'ITD':
+        this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
+        this.endDate = moment();
+        break;
+      case 'YTD':
+        this.startDate = moment().startOf('year');
+        this.endDate = moment();
+        break;
+      case 'MTD':
+        this.startDate = moment().startOf('month');
+        this.endDate = moment();
+        break;
+      case 'Today':
+        this.startDate = moment();
+        this.endDate = moment();
+        break;
+      default:
+        break;
+    }
+
+    this.selected =
+      dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
   }
 
   getRangeLabel() {
     this.DateRangeLabel = '';
-    if (
-      moment('01-01-1901', 'MM-DD-YYYY').diff(this.startDate, 'days') === 0 &&
-      moment().diff(this.endDate, 'days') === 0
-    ) {
-      this.DateRangeLabel = 'ITD';
-      return;
-    }
-    if (
-      moment()
-        .startOf('year')
-        .diff(this.startDate, 'days') === 0 &&
-      moment().diff(this.endDate, 'days') === 0
-    ) {
-      this.DateRangeLabel = 'YTD';
-      return;
-    }
-    if (
-      moment()
-        .startOf('month')
-        .diff(this.startDate, 'days') === 0 &&
-      moment().diff(this.endDate, 'days') === 0
-    ) {
-      this.DateRangeLabel = 'MTD';
-      return;
-    }
-    if (moment().diff(this.startDate, 'days') === 0 && moment().diff(this.endDate, 'days') === 0) {
-      this.DateRangeLabel = 'Today';
-      return;
-    }
+    this.DateRangeLabel = GetDateRangeLabel(this.startDate, this.endDate);
   }
 
   clearFilters() {
@@ -146,6 +348,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   }
 
   refreshReport() {
-    this.clearFilters();
+    this.gridOptions.api.showLoadingOverlay();
+    this.getReport(null, null, 'ALL');
   }
 }

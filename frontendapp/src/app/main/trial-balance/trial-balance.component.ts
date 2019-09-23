@@ -1,7 +1,6 @@
 /* Core/Libraries Imports */
 import {
   Component,
-  TemplateRef,
   ElementRef,
   OnInit,
   ViewChild,
@@ -18,7 +17,9 @@ import {
   Style,
   IgnoreFields,
   ExcelStyle,
-  CalTotalRecords
+  CalTotalRecords,
+  GetDateRangeLabel,
+  DoesExternalFilterPass
 } from 'src/shared/utils/Shared';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { DataService } from 'src/shared/common/data.service';
@@ -34,13 +35,11 @@ import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/Conte
   styleUrls: ['./trial-balance.component.css']
 })
 export class TrialGridExampleComponent implements OnInit, AfterContentInit {
-  @ViewChild('journalGrid') journalGrid;
   @ViewChild('dateRangPicker') dateRangPicker;
   @ViewChild('divToMeasureJournal') divToMeasureElement: ElementRef;
   @ViewChild('dataModal') dataModal: DataModalComponent;
   @ViewChild('reportModal') reportModal: ReportModalComponent;
 
-  private gridApi;
   private gridColumnApi;
   private defaultColDef;
   private rowData: [];
@@ -131,7 +130,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       rowGroupPanelShow: 'after',
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
-        this.gridApi = params.api;
         this.gridColumnApi = params.columnApi;
         // this.gridOptions.api.sizeColumnsToFit();
         this.gridOptions.excelStyles = ExcelStyle;
@@ -546,7 +544,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
           }
         ];
         this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
-        console.log('===>', this.pinnedBottomRowData);
       });
   }
 
@@ -557,35 +554,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
 
   getRangeLabel() {
     this.DateRangeLabel = '';
-    if (
-      moment('01-01-1901', 'MM-DD-YYYY').diff(this.startDate, 'days') === 0 &&
-      moment().diff(this.endDate, 'days') === 0
-    ) {
-      this.DateRangeLabel = 'ITD';
-      return;
-    }
-    if (
-      moment()
-        .startOf('year')
-        .diff(this.startDate, 'days') === 0 &&
-      moment().diff(this.endDate, 'days') === 0
-    ) {
-      this.DateRangeLabel = 'YTD';
-      return;
-    }
-    if (
-      moment()
-        .startOf('month')
-        .diff(this.startDate, 'days') === 0 &&
-      moment().diff(this.endDate, 'days') === 0
-    ) {
-      this.DateRangeLabel = 'MTD';
-      return;
-    }
-    if (moment().diff(this.startDate, 'days') === 0 && moment().diff(this.endDate, 'days') === 0) {
-      this.DateRangeLabel = 'Today';
-      return;
-    }
+    this.DateRangeLabel = GetDateRangeLabel(this.startDate, this.endDate);
   }
 
   setWidthAndHeight(width, height) {
@@ -613,12 +582,12 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     this.startDate = e.startDate;
     this.endDate = e.endDate;
     this.getRangeLabel();
-    this.journalGrid.api.onFilterChanged();
+    this.gridOptions.api.onFilterChanged();
   }
 
   ngModelChangeFund(e) {
     this.fund = e;
-    this.journalGrid.api.onFilterChanged();
+    this.gridOptions.api.onFilterChanged();
   }
 
   isExternalFilterPassed(object) {
@@ -626,8 +595,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     const { dateFilter } = object;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
     this.setDateRange(dateFilter);
-
-    this.journalGrid.api.onFilterChanged();
+    this.gridOptions.api.onFilterChanged();
   }
 
   isExternalFilterPresent() {
@@ -647,28 +615,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   }
 
   doesExternalFilterPass(node: any) {
-    if (this.fund !== 'All Funds' && this.startDate) {
-      const cellFund = node.data.fund;
-      const cellDate = new Date(node.data.when);
-
-      return (
-        cellFund === this.fund &&
-        this.startDate.toDate() <= cellDate &&
-        this.endDate.toDate() >= cellDate
-      );
-    }
-
-    if (this.fund !== 'All Funds') {
-      const cellFund = node.data.fund;
-
-      return cellFund === this.fund;
-    }
-
-    if (this.startDate) {
-      const cellDate = new Date(node.data.when);
-
-      return this.startDate.toDate() <= cellDate && this.endDate.toDate() >= cellDate;
-    }
+    return DoesExternalFilterPass(node, this.fund, this.startDate, this.endDate);
   }
 
   setDateRange(dateFilter: any) {
@@ -710,8 +657,8 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     this.selected = null;
     this.startDate = '';
     this.endDate = '';
-    this.journalGrid.api.setFilterModel(null);
-    this.journalGrid.api.onFilterChanged();
+    this.gridOptions.api.setFilterModel(null);
+    this.gridOptions.api.onFilterChanged();
   }
 
   openChartModal(data) {
