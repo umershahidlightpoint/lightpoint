@@ -50,13 +50,22 @@
         </div>
         <!-- Clear Button Div Ends -->
 
-        <!-- Refresh Button Div Starts -->
-        <div class="ml-auto mr-3">
-          <button (click)="refreshReport()" class="btn btn-info" tooltip="Refresh" placement="top">
-            <i class="fa fa-refresh"></i></button>
+        <!----- Buttons Div Starts ----->
+        <div class="ml-auto">
+          <!----- Export to Excel Button  ----->
+          <div class="mr-2 tabBtn">
+            <button (click)="onBtExport()" class="btn btn-info" tooltip="Export to Excel" placement="top">
+              <i class="fa fa-arrow-circle-o-down"></i>
+            </button>
+          </div>
+          <!-- Refresh Button Div Starts -->
+          <div class="mr-3 tabBtn">
+            <button (click)="refreshReport()" class="btn btn-info" tooltip="Refresh" placement="top">
+              <i class="fa fa-refresh"></i></button>
+          </div>
+          <!-- Refresh Button Div Ends -->
         </div>
-        <!-- Refresh Button Div Ends -->
-
+        <!----- Buttons Div Ends ----->
       </div>
       <!-- Filters Div Ends -->
 

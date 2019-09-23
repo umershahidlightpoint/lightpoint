@@ -20,6 +20,10 @@ html {
   z-index: 1000;
 }
 
+.tabBtn {
+  display: inline-block;
+}
+
 .md-datepicker-input-container {
   width: 150px;
 }
@@ -83,4 +87,8 @@ html {
   padding-right: 18px !important;
   text-align: end;
   font-weight: 500;
+}
+
+::ng-deep .rightAlign {
+  text-align: right;
 }

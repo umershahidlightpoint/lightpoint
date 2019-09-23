@@ -198,3 +198,21 @@ export const DoesExternalFilterPass = (node, fund, startDate, endDate) => {
     return startDate.toDate() <= cellDate && endDate.toDate() >= cellDate;
   }
 };
+
+export const FormatNumber = numberToFormat => {
+  if (numberToFormat !== null) {
+    return numberToFormat.toFixed(2);
+  }
+};
+
+export const DownloadExcel = toastrService => {
+  toastrService.info(
+    'Your file is downloaded, Just click on it to view it or open your default download directory to view it there.',
+    'Downloaded',
+    {
+      positionClass: 'toast-bottom-left',
+      disableTimeOut: true,
+      closeButton: true
+    }
+  );
+};

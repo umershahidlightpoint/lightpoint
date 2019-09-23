@@ -11,7 +11,8 @@ import {
   ExcelStyle,
   CalTotalRecords,
   GetDateRangeLabel,
-  DoesExternalFilterPass
+  DoesExternalFilterPass,
+  FormatNumber
 } from 'src/shared/utils/Shared';
 import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
@@ -46,7 +47,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   styleForHight = {
     marginTop: '20px',
     width: '100%',
-    height: 'calc(100vh - 210px)',
+    height: 'calc(100vh - 220px)',
     boxSizing: 'border-box'
   };
 
@@ -118,6 +119,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
                 backgroundRepeat: 'no-repeat'
               };
             }
+            return { textAlign: 'end' };
           },
           cellClass: params => {
             if (params.data.debitPercentage > 0) {
@@ -136,9 +138,11 @@ export class ReportsComponent implements OnInit, AfterViewInit {
                 backgroundSize: !params.data.creditPercentage
                   ? 0
                   : params.data.creditPercentage + '%',
-                backgroundRepeat: 'no-repeat'
+                backgroundRepeat: 'no-repeat',
+                color: 'red'
               };
             }
+            return { textAlign: 'end', color: 'red' };
           },
           cellClass: params => {
             if (params.data.creditPercentage > 0) {
@@ -151,9 +155,15 @@ export class ReportsComponent implements OnInit, AfterViewInit {
           headerName: 'Balance',
           width: 100,
           filter: true,
+          cellClass: 'rightAlign',
           cellStyle: params => {
             if (params.data.accountName === 'Total' && params.data.balance !== 0) {
               return { backgroundColor: 'red' };
+            }
+            if (params.data.accountName !== 'Total' && params.data.balance > 0) {
+              return { textAlign: 'end', color: 'green' };
+            } else if (params.data.accountName !== 'Total' && params.data.balance < 0) {
+              return { textAlign: 'end', color: 'red' };
             }
           }
         }
@@ -197,23 +207,24 @@ export class ReportsComponent implements OnInit, AfterViewInit {
       this.trialBalanceReportStats = response.stats;
       this.trialBalanceReport = response.data.map(data => ({
         accountName: data.AccountName,
-        credit: data.Credit,
+        credit: FormatNumber(data.Credit),
         creditPercentage: data.CreditPercentage,
-        debit: data.Debit,
+        debit: FormatNumber(data.Debit),
         debitPercentage: data.DebitPercentage,
-        balance: data.Balance
+        balance: FormatNumber(data.Balance)
       }));
       this.isLoading = false;
       this.pinnedBottomRowData = [
         {
           accountName: 'Total',
-          debit: this.trialBalanceReportStats.totalDebit,
-          credit: this.trialBalanceReportStats.totalCredit,
+          debit: FormatNumber(this.trialBalanceReportStats.totalDebit),
+          credit: FormatNumber(this.trialBalanceReportStats.totalCredit),
           balance:
             this.trialBalanceReportStats.totalDebit - this.trialBalanceReportStats.totalCredit
         }
       ];
       this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
+      this.gridOptions.api.sizeColumnsToFit();
       this.gridOptions.api.setRowData(this.trialBalanceReport);
     });
   }
@@ -345,6 +356,14 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   changeFund(selectedFund) {
     this.fund = selectedFund;
     this.getReport(this.startDate, this.endDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
+  }
+
+  onBtExport() {
+    const params = {
+      fileName: 'Trial Balance Reports',
+      sheetName: 'First Sheet'
+    };
+    this.gridOptions.api.exportDataAsExcel(params);
   }
 
   refreshReport() {

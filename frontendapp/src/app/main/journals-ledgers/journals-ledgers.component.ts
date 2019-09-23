@@ -10,6 +10,7 @@ import {
 import 'ag-grid-enterprise';
 import { GridOptions } from 'ag-grid-community';
 import { ModalDirective } from 'ngx-bootstrap';
+import { ToastrService } from 'ngx-toastr';
 import * as moment from 'moment';
 /* Services/Components Imports */
 import {
@@ -20,7 +21,7 @@ import {
   ExcelStyle,
   CalTotalRecords,
   GetDateRangeLabel,
-  DoesExternalFilterPass
+  DownloadExcel
 } from 'src/shared/utils/Shared';
 import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/ContextMenu';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
@@ -80,6 +81,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   pageSize: any;
   orderId: number;
   tableHeader: string;
+  isCefMode = !!window['cef'];
 
   ranges: any = Ranges;
 
@@ -108,6 +110,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     private financeService: FinancePocServiceProxy,
     private dataService: DataService,
     private postingEngineService: PostingEngineService,
+    private toastrService: ToastrService,
     private agGridUtls: AgGridUtils
   ) {
     this.hideGrid = false;
@@ -462,6 +465,9 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       fileName: 'Journals',
       sheetName: 'First Sheet'
     };
+    if (!this.isCefMode) {
+      DownloadExcel(this.toastrService);
+    }
     this.gridOptions.api.exportDataAsExcel(params);
   }
 
@@ -733,11 +739,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       }
     });
   }
-}
-
-function asDate(dateAsString) {
-  const splitFields = dateAsString.split('-');
-  return new Date(splitFields[1], splitFields[0], splitFields[2]);
 }
 
 function currencyFormatter(params) {
