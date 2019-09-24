@@ -6,10 +6,16 @@ export class DataService {
   private setGridFilter = new BehaviorSubject(null);
   private isEngineRunning = new BehaviorSubject(false);
 
-  gridColumnApi = this.oGridOptions.asObservable();
-  gridObject = this.grid.asObservable();
-  setGridFilterObject = this.setGridFilter.asObservable();
-  flag = this.isEngineRunning.asObservable();
+  gridColumnApi$ = this.oGridOptions.asObservable();
+  gridObject$ = this.grid.asObservable();
+  setGridFilterObject$ = this.setGridFilter.asObservable();
+  flag$ = this.isEngineRunning.asObservable();
+
+  private allocationGridOptions = new BehaviorSubject(null);
+  private allocationGrid = new BehaviorSubject(null);
+
+  allocationGridColApi$ = this.allocationGridOptions.asObservable();
+  allocationGridObject$ = this.allocationGrid.asObservable();
 
   constructor() {}
 
@@ -27,5 +33,14 @@ export class DataService {
 
   changeEngineStatus(obj: any) {
     this.isEngineRunning.next(obj);
+  }
+
+  /* For Allocated Grids */
+  changeAllocation(obj: any) {
+    this.allocationGridOptions.next(obj);
+  }
+
+  changeAllocationGrid(obj: any) {
+    this.allocationGrid.next(obj);
   }
 }

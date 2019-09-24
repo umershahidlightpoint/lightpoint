@@ -9,6 +9,7 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/ContextMenu';
+import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
 @Component({
   selector: 'app-file-management',
@@ -32,7 +33,11 @@ export class FileManagementComponent implements OnInit, OnDestroy {
     boxSizing: 'border-box'
   };
 
-  constructor(private financeService: FinancePocServiceProxy, private dataService: DataService) {}
+  constructor(
+    private financeService: FinancePocServiceProxy,
+    private dataService: DataService,
+    private downloadExcelUtils: DownloadExcelUtils
+  ) {}
 
   ngOnInit() {
     this.isSubscriptionAlive = true;
@@ -152,6 +157,7 @@ export class FileManagementComponent implements OnInit, OnDestroy {
       columnKeys: ['name', 'action', 'source', 'statistics', 'actionStartDate', 'actionEndDate']
     };
     this.filesGridOptions.api.exportDataAsExcel(params);
+    this.downloadExcelUtils.ToastrMessage();
   }
 
   loadFilesGrid() {

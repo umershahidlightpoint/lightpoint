@@ -19,7 +19,8 @@ import {
   ExcelStyle,
   CalTotalRecords,
   GetDateRangeLabel,
-  DoesExternalFilterPass
+  DoesExternalFilterPass,
+  SetDateRange
 } from 'src/shared/utils/Shared';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { DataService } from 'src/shared/common/data.service';
@@ -28,6 +29,7 @@ import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-m
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
 import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/ContextMenu';
+import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
 @Component({
   selector: 'app-trial-balance',
@@ -93,7 +95,8 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   constructor(
     private cdRef: ChangeDetectorRef,
     private dataService: DataService,
-    private financeService: FinancePocServiceProxy
+    private financeService: FinancePocServiceProxy,
+    private downloadExcelUtils: DownloadExcelUtils
   ) {
     this.hideGrid = false;
   }
@@ -103,13 +106,13 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   }
 
   ngAfterContentInit() {
-    this.dataService.flag.subscribe(obj => {
+    this.dataService.flag$.subscribe(obj => {
       this.hideGrid = obj;
       if (!this.hideGrid) {
         this.getTrialBalance();
       }
     });
-    this.dataService.gridColumnApi.subscribe(obj => (obj = this.gridOptions));
+    this.dataService.gridColumnApi$.subscribe(obj => (obj = this.gridOptions));
     this.dataService.changeMessage(this.gridOptions);
     this.dataService.changeGrid({ gridId: GridId.trailBalanceId, gridName: GridName.trailBalance });
   }
@@ -577,6 +580,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       sheetName: 'First Sheet'
     };
     this.gridOptions.api.exportDataAsExcel(params);
+    this.downloadExcelUtils.ToastrMessage();
   }
 
   ngModelChange(e) {
@@ -620,31 +624,34 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   }
 
   setDateRange(dateFilter: any) {
-    if (typeof dateFilter === 'object') {
-      this.startDate = moment(dateFilter.startDate);
-      this.endDate = moment(dateFilter.endDate);
-    }
+    const dates = SetDateRange(dateFilter, this.startDate, this.endDate);
+    this.startDate = dates[0];
+    this.endDate = dates[1];
+    // if (typeof dateFilter === 'object') {
+    //   this.startDate = moment(dateFilter.startDate);
+    //   this.endDate = moment(dateFilter.endDate);
+    // }
 
-    switch (dateFilter) {
-      case 'ITD':
-        this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
-        this.endDate = moment();
-        break;
-      case 'YTD':
-        this.startDate = moment().startOf('year');
-        this.endDate = moment();
-        break;
-      case 'MTD':
-        this.startDate = moment().startOf('month');
-        this.endDate = moment();
-        break;
-      case 'Today':
-        this.startDate = moment();
-        this.endDate = moment();
-        break;
-      default:
-        break;
-    }
+    // switch (dateFilter) {
+    //   case 'ITD':
+    //     this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
+    //     this.endDate = moment();
+    //     break;
+    //   case 'YTD':
+    //     this.startDate = moment().startOf('year');
+    //     this.endDate = moment();
+    //     break;
+    //   case 'MTD':
+    //     this.startDate = qmoment().startOf('month');
+    //     this.endDate = moment();
+    //     break;
+    //   case 'Today':
+    //     this.startDate = moment();
+    //     this.endDate = moment();
+    //     break;
+    //   default:
+    //     break;
+    // }
 
     this.selected =
       dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;

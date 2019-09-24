@@ -19,6 +19,7 @@ import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { SideBar } from 'src/shared/utils/Shared';
+import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
 @Component({
   selector: 'app-ledger-form',
@@ -65,14 +66,15 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
     private router: Router,
     private financePocServiceProxy: FinancePocServiceProxy,
     private toastrService: ToastrService,
-    private dataService: DataService
+    private dataService: DataService,
+    private downloadExcelUtils: DownloadExcelUtils
   ) {
     this.isSubscriptionAlive = true;
     this.hideGrid = false;
   }
 
   ngAfterViewInit(): void {
-    this.dataService.flag.subscribe(obj => {
+    this.dataService.flag$.subscribe(obj => {
       this.hideGrid = obj;
       if (!this.hideGrid) {
         this.getAccountsRecord();
@@ -233,6 +235,7 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
       columnKeys: ['accountName', 'description', 'category', 'hasJournal', 'type']
     };
     this.gridOptions.api.exportDataAsExcel(params);
+    this.downloadExcelUtils.ToastrMessage();
   }
 
   refreshGrid() {

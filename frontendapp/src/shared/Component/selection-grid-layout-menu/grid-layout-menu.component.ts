@@ -6,16 +6,17 @@ import { ToastrService } from 'ngx-toastr';
 import { ModalDirective } from 'ngx-bootstrap';
 
 @Component({
-  selector: 'app-grid-layout-menu',
+  selector: 'app-allocation-grid-layout-menu',
   templateUrl: './grid-layout-menu.component.html',
   styleUrls: ['./grid-layout-menu.component.css']
 })
-export class GridLayoutMenuComponent implements IToolPanel {
+export class AllocationGridLayoutMenuComponent implements IToolPanel {
   @ViewChild('confirm') confirmModal: ModalDirective;
 
-  gridOptions: any;
-  gridObject: { gridId: number; gridName: string };
   setGridFilterObject: any;
+
+  allocationGridOptions: any;
+  allocationGridObject: { gridId: number; gridName: string };
 
   private params: IToolPanelParams;
   gridLayoutID: any = 0;
@@ -38,13 +39,13 @@ export class GridLayoutMenuComponent implements IToolPanel {
   agInit(params: IToolPanelParams): void {
     this.params = params;
     this.params.api.addEventListener('modelUpdated', this.getLayout.bind(this));
-    this.dataService.gridColumnApi$.subscribe(obj => (this.gridOptions = obj));
-    this.dataService.gridObject$.subscribe(obj => (this.gridObject = obj));
+    this.dataService.allocationGridColApi$.subscribe(obj => (this.allocationGridOptions = obj));
+    this.dataService.allocationGridObject$.subscribe(obj => (this.allocationGridObject = obj));
     this.dataService.setGridFilterObject$.subscribe(obj => (this.setGridFilterObject = obj));
   }
 
   getLayout(): void {
-    this.financeService.getGridLayouts(this.gridObject.gridId, 1).subscribe(result => {
+    this.financeService.getGridLayouts(this.allocationGridObject.gridId, 1).subscribe(result => {
       this.gridLayouts = result.payload;
       this.cdRef.detectChanges();
     });
@@ -58,12 +59,16 @@ export class GridLayoutMenuComponent implements IToolPanel {
     this.gridLayoutID = layout;
     this.isPublicSelected = layout.IsPublic;
     this.financeService.GetAGridLayout(layout.Id).subscribe(response => {
-      this.gridOptions.columnApi.setColumnState(JSON.parse(response.payload.ColumnState));
-      this.gridOptions.columnApi.setPivotMode(JSON.parse(response.payload.PivotMode));
-      this.gridOptions.columnApi.setColumnGroupState(JSON.parse(response.payload.GroupState));
-      this.gridOptions.api.setSortModel(JSON.parse(response.payload.SortState));
-      this.gridOptions.api.setFilterModel(JSON.parse(response.payload.FilterState));
-      this.gridOptions.isExternalFilterPassed(JSON.parse(response.payload.ExternalFilterState));
+      this.allocationGridOptions.columnApi.setColumnState(JSON.parse(response.payload.ColumnState));
+      this.allocationGridOptions.columnApi.setPivotMode(JSON.parse(response.payload.PivotMode));
+      this.allocationGridOptions.columnApi.setColumnGroupState(
+        JSON.parse(response.payload.GroupState)
+      );
+      this.allocationGridOptions.api.setSortModel(JSON.parse(response.payload.SortState));
+      this.allocationGridOptions.api.setFilterModel(JSON.parse(response.payload.FilterState));
+      this.allocationGridOptions.isExternalFilterPassed(
+        JSON.parse(response.payload.ExternalFilterState)
+      );
     });
   }
 
@@ -91,16 +96,16 @@ export class GridLayoutMenuComponent implements IToolPanel {
   onSaveState(layoutId) {
     const dataGridStatusObj = {
       Id: layoutId,
-      GridId: this.gridObject.gridId,
+      GridId: this.allocationGridObject.gridId,
       GridLayoutName: this.layoutName,
       IsPublic: this.isPublic,
       UserId: 1,
-      GridName: this.gridObject.gridName,
-      PivotMode: JSON.stringify(this.gridOptions.columnApi.isPivotMode()),
-      ColumnState: JSON.stringify(this.gridOptions.columnApi.getColumnState()),
-      GroupState: JSON.stringify(this.gridOptions.columnApi.getColumnGroupState()),
-      SortState: JSON.stringify(this.gridOptions.api.getSortModel()),
-      FilterState: JSON.stringify(this.gridOptions.api.getFilterModel()),
+      GridName: this.allocationGridObject.gridName,
+      PivotMode: JSON.stringify(this.allocationGridOptions.columnApi.isPivotMode()),
+      ColumnState: JSON.stringify(this.allocationGridOptions.columnApi.getColumnState()),
+      GroupState: JSON.stringify(this.allocationGridOptions.columnApi.getColumnGroupState()),
+      SortState: JSON.stringify(this.allocationGridOptions.api.getSortModel()),
+      FilterState: JSON.stringify(this.allocationGridOptions.api.getFilterModel()),
       ExternalFilterState: JSON.stringify(this.setGridFilterObject)
     };
     this.financeService.saveDataGridState(dataGridStatusObj).subscribe(
@@ -127,7 +132,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
           this.closeModal();
           this.toastrService.success('Layout deleted successfully!');
           this.resetState();
-          this.gridOptions.clearExternalFilter();
+          this.allocationGridOptions.clearExternalFilter();
           this.getLayout();
         } else {
           this.closeModal();
@@ -143,11 +148,11 @@ export class GridLayoutMenuComponent implements IToolPanel {
 
   resetState() {
     this.gridLayoutID = '{ Id: 0 }';
-    this.gridOptions.columnApi.resetColumnState();
-    this.gridOptions.columnApi.resetColumnGroupState();
-    this.gridOptions.api.setSortModel(null);
-    this.gridOptions.api.setFilterModel(null);
-    this.gridOptions.clearExternalFilter();
+    this.allocationGridOptions.columnApi.resetColumnState();
+    this.allocationGridOptions.columnApi.resetColumnGroupState();
+    this.allocationGridOptions.api.setSortModel(null);
+    this.allocationGridOptions.api.setFilterModel(null);
+    this.allocationGridOptions.clearExternalFilter();
   }
 
   openModal() {

@@ -41,10 +41,10 @@
 
         <!----- Date Picker Div Starts ----->
         <div class="col-md-5">
-          <form>
-            <input #dateRangPicker class="form-control" type="text" autocomplete="off" placeholder="Choose date"
-              ngxDaterangepickerMd [(ngModel)]="selected" name="selectedDaterange" [ranges]="ranges"
-              [showCustomRangeLabel]="true" [showClearButton]="true" [alwaysShowCalendars]="false"
+          <form #dateRangeForm>
+            <input class="form-control" type="text" autocomplete="off" placeholder="Choose date" ngxDaterangepickerMd
+              [(ngModel)]="selected" name="selectedDaterange" [ranges]="ranges" [showCustomRangeLabel]="true"
+              (click)="isCustomDate(dateRangeForm)" [showClearButton]="true" [alwaysShowCalendars]="false"
               (ngModelChange)="ngModelChange($event)" />
           </form>
         </div>

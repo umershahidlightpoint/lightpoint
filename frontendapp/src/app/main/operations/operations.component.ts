@@ -22,6 +22,7 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataService } from 'src/shared/common/data.service';
 import { SideBar, Style } from 'src/shared/utils/Shared';
 import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/ContextMenu';
+import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
 @Component({
   selector: 'app-operations',
@@ -122,7 +123,8 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     private financeService: FinancePocServiceProxy,
     private toastrService: ToastrService,
     private dataService: DataService,
-    private postingEngineService: PostingEngineService
+    private postingEngineService: PostingEngineService,
+    private downloadExcelUtils: DownloadExcelUtils
   ) {
     this.initGrid();
   }
@@ -222,6 +224,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       columnKeys: ['rundate', 'action_on', 'action']
     };
     this.gridOptions.api.exportDataAsExcel(params);
+    this.downloadExcelUtils.ToastrMessage();
   }
 
   buildForm() {
