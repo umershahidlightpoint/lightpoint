@@ -26,7 +26,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         public object GetFiles(string name)
         {
             var query = $@"select f.id, f.name, f.path,f.source,f.[statistics], fa.file_action_id, fa.file_id, fa.action, fa.action_start_date, fa.action_end_date from [file] f
-                        inner join[file_action] fa on f.id = fa.file_id order by fa.Action_Start_Date desc";
+                        left join[file_action] fa on f.id = fa.file_id order by fa.Action_Start_Date desc";
 
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
             var jsonResult = JsonConvert.SerializeObject(dataTable);
@@ -40,6 +40,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             Task.WaitAll(new Task[] { trades });
             var tradeList = JsonConvert.DeserializeObject<Transaction[]>(trades.Result);
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
+            System.IO.Directory.CreateDirectory(currentDir + Path.DirectorySeparatorChar + "SilverData");
             string fileName = "activity_" + Convert.ToString(DateTime.UtcNow);
             var newFileName = fileName.Replace("/", "_");
             newFileName = newFileName.Replace(":", "-");
@@ -65,8 +66,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 {
                     new SqlParameter("name", filename),
                     new SqlParameter("path", path),
-                    new SqlParameter("source", statistics),
-                    new SqlParameter("statistics", source),
+                    new SqlParameter("source", source),
+                    new SqlParameter("statistics", statistics),
                 };
 
                 
@@ -79,7 +80,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                (@name,
                                @path,
                                @source,
-                               @statistics,)";
+                               @statistics)";
 
                 sqlHelper.Insert(query, CommandType.Text, activityFile.ToArray());
 

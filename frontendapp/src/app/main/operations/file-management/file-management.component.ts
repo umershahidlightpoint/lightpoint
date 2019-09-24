@@ -1,4 +1,12 @@
-import { Component, TemplateRef, ElementRef, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import {
+  Component,
+  TemplateRef,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  OnDestroy,
+  Output
+} from '@angular/core';
 import { FinancePocServiceProxy } from '../../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { takeWhile } from 'rxjs/operators';
@@ -6,6 +14,7 @@ import { TemplateRendererComponent } from '../../../template-renderer/template-r
 import { File } from 'src/shared/models/files';
 import { SideBar, Style } from 'src/shared/utils/Shared';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { ToastrService } from 'ngx-toastr';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/ContextMenu';
@@ -32,7 +41,11 @@ export class FileManagementComponent implements OnInit, OnDestroy {
     boxSizing: 'border-box'
   };
 
-  constructor(private financeService: FinancePocServiceProxy, private dataService: DataService) {}
+  constructor(
+    private financeService: FinancePocServiceProxy,
+    private toastrService: ToastrService,
+    private dataService: DataService
+  ) {}
 
   ngOnInit() {
     this.isSubscriptionAlive = true;
@@ -158,8 +171,18 @@ export class FileManagementComponent implements OnInit, OnDestroy {
     this.getFiles();
   }
 
-  getContextMenuItems(params) {
-    const defaultItems = ['copy', 'paste', 'export'];
+  getContextMenuItems = params => {
+    const defaultItems = [
+      {
+        name: 'Process',
+        action: () => {
+          this.processFile(params);
+        }
+      },
+      'copy',
+      'paste',
+      'export'
+    ];
     const items = [
       {
         name: 'Expand',
@@ -191,7 +214,7 @@ export class FileManagementComponent implements OnInit, OnDestroy {
       return items;
     }
     return defaultItems;
-  }
+  };
 
   setGroupingStateForFiles(value: boolean) {
     this.filesGridOptions.api.forEachNode((node, index) => {
@@ -202,6 +225,10 @@ export class FileManagementComponent implements OnInit, OnDestroy {
   }
 
   downloadFile(file) {}
+
+  processFile(params) {
+    this.toastrService.success('File Processing is Started');
+  }
 
   ngOnDestroy() {
     this.isSubscriptionAlive = false;

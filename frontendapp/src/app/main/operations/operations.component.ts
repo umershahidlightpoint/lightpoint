@@ -36,6 +36,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   @ViewChild('logScroll') private logContainer: ElementRef;
   @ViewChild('actionButtons') actionButtons: TemplateRef<any>;
   @Output() showPostingEngineMsg: EventEmitter<any> = new EventEmitter<any>();
+  @Output() refreshFiles: EventEmitter<any> = new EventEmitter<any>();
 
   public gridOptions: GridOptions;
   private defaultColDef: any;
@@ -252,6 +253,19 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
         }
         this.key = response.key;
         this.getLogs();
+      });
+  }
+
+  generateFiles() {
+    this.financeService
+      .generateFiles()
+      .pipe(takeWhile(() => this.isSubscriptionAlive))
+      .subscribe(response => {
+        if (response.isSuccessful) {
+          this.toastrService.success('Files are Generated for Processing');
+        } else {
+          this.toastrService.error('Something went wrong, Please try again later.');
+        }
       });
   }
 
