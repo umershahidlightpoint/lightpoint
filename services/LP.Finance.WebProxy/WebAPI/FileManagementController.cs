@@ -21,5 +21,12 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.GetFiles(name);
         }
 
+        [Route("SilverEndOfDay")]
+        [HttpPost]
+        public object GenerateActivityAndPositionFilesForSilver()
+        {
+            return controller.GenerateActivityAndPositionFilesForSilver();
+        }
+
     }
 }
