@@ -15,16 +15,19 @@ interface Page {
   animations: [onSideNavChange, animateText]
 })
 export class LeftMenuComponent implements OnInit {
-  public sideNavState: boolean = false;
-  public linkText: boolean = false;
+  public sideNavState = false;
+  public linkText = false;
 
-  public pages: Page[] = [
+  public userPages: Page[] = [
     { name: 'Journals', routerLink: '/journals-ledgers', icon: 'fa-book' },
     { name: 'Trial Balance', routerLink: 'trial-balance', icon: 'fa-balance-scale' },
+    { name: 'Reports', routerLink: '/reports', icon: 'fa-bar-chart' }
+  ];
+
+  public adminPages: Page[] = [
     { name: 'Accounts', routerLink: '/accounts', icon: 'fa-bank' },
     { name: 'Accruals', routerLink: '/accruals', icon: 'fa-files-o' },
     { name: 'Trades', routerLink: '/trade-allocation', icon: 'fa-exchange' },
-    { name: 'Reports', routerLink: '/reports', icon: 'fa-bar-chart' },
     { name: 'Operations', routerLink: 'operations', icon: 'fa-tasks' },
     { name: 'Settings', routerLink: '/settings', icon: 'fa-cog' }
   ];

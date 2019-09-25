@@ -717,10 +717,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       }
     });
   }
-
-  isCustomDate(as) {
-    this.startDate = moment();
-  }
 }
 
 function currencyFormatter(params) {

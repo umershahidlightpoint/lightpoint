@@ -37,7 +37,6 @@ import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
   styleUrls: ['./trial-balance.component.css']
 })
 export class TrialGridExampleComponent implements OnInit, AfterContentInit {
-  @ViewChild('dateRangPicker') dateRangPicker;
   @ViewChild('divToMeasureJournal') divToMeasureElement: ElementRef;
   @ViewChild('dataModal') dataModal: DataModalComponent;
   @ViewChild('reportModal') reportModal: ReportModalComponent;
@@ -627,31 +626,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     const dates = SetDateRange(dateFilter, this.startDate, this.endDate);
     this.startDate = dates[0];
     this.endDate = dates[1];
-    // if (typeof dateFilter === 'object') {
-    //   this.startDate = moment(dateFilter.startDate);
-    //   this.endDate = moment(dateFilter.endDate);
-    // }
-
-    // switch (dateFilter) {
-    //   case 'ITD':
-    //     this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
-    //     this.endDate = moment();
-    //     break;
-    //   case 'YTD':
-    //     this.startDate = moment().startOf('year');
-    //     this.endDate = moment();
-    //     break;
-    //   case 'MTD':
-    //     this.startDate = qmoment().startOf('month');
-    //     this.endDate = moment();
-    //     break;
-    //   case 'Today':
-    //     this.startDate = moment();
-    //     this.endDate = moment();
-    //     break;
-    //   default:
-    //     break;
-    // }
 
     this.selected =
       dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
@@ -661,7 +635,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     this.gridOptions.api.redrawRows();
     this.fund = 'All Funds';
     this.DateRangeLabel = '';
-    this.dateRangPicker.value = '';
     this.selected = null;
     this.startDate = '';
     this.endDate = '';

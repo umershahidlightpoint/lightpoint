@@ -40,20 +40,56 @@ namespace PostingEngine.PostingRules
             {
                 case "debit":
                     {
-                        var symbol = element.Symbol;
-                        symbol = this._codeMap.ContainsKey(symbol) ? _codeMap[symbol] : symbol;
+                        if (element.Symbol.Equals("ZZ_INVESTOR_CONTRIBUTIONS"))
+                        {
+                            var fromTags = new List<Tag>
+                        {
+                            Tag.Find("CustodianCode")
+                        };
 
-                        var paidAccount = accountTypes.Where(i => i.Name.Equals("Expenses Paid")).FirstOrDefault();
-                        var payableAccount = accountTypes.Where(i => i.Name.Equals("ACCRUED EXPENSES")).FirstOrDefault();
+                            var toTags = new List<Tag>
+                        {
+                            Tag.Find("CustodianCode")
+                        };
 
-                        fromAccount = new AccountUtils().CreateAccount(paidAccount, symbol, element);
-                        toAccount = new AccountUtils().CreateAccount(payableAccount, symbol + " Payable", element);
+                            fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CONTRIBUTED CAPITAL")).FirstOrDefault(), fromTags, element);
+                            toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Settled Activity )")).FirstOrDefault(), toTags, element);
+                        }
+                        else
+                        {
+                            var symbol = element.Symbol;
+                            symbol = this._codeMap.ContainsKey(symbol) ? _codeMap[symbol] : symbol;
 
+                            var paidAccount = accountTypes.Where(i => i.Name.Equals("Expenses Paid")).FirstOrDefault();
+                            var payableAccount = accountTypes.Where(i => i.Name.Equals("ACCRUED EXPENSES")).FirstOrDefault();
+
+                            fromAccount = new AccountUtils().CreateAccount(paidAccount, symbol, element);
+                            toAccount = new AccountUtils().CreateAccount(payableAccount, symbol + " Payable", element);
+                        }
                         break;
                     }
                 case "credit":
-                    fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
-                    toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("SHORT POSITIONS-COST")).FirstOrDefault(), listOfFromTags, element);
+                    // Contribution
+                    if (element.Symbol.Equals("ZZ_INVESTOR_CONTRIBUTIONS"))
+                    {
+                        var fromTags = new List<Tag>
+                        {
+                            Tag.Find("CustodianCode")
+                        };
+
+                        var toTags = new List<Tag>
+                        {
+                            Tag.Find("CustodianCode")
+                        };
+
+                        fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Settled Activity )")).FirstOrDefault(), fromTags, element);
+                        toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CONTRIBUTED CAPITAL")).FirstOrDefault(), toTags, element);
+                    }
+                    else
+                    {
+                        fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
+                        toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("SHORT POSITIONS-COST")).FirstOrDefault(), listOfFromTags, element);
+                    }
                     break;
             }
 
@@ -72,7 +108,7 @@ namespace PostingEngine.PostingRules
                 return;
             }
 
-            if ( element.TradeDate != element.SettleDate)
+            if ( element.TradeDate.Date != element.SettleDate.Date)
             {
                 env.AddMessage($"Journal needs to be checked {element.LpOrderId}, {element.TradeDate}, {element.SettleDate}");
                 return;
@@ -133,7 +169,16 @@ namespace PostingEngine.PostingRules
 
         public bool IsValid(PostingEngineEnvironment env, Transaction element)
         {
-            return env.IsValidAccrual(element.AccrualId);
+            if (element.AccrualId == null)
+                return true;
+
+            var validAccrual = env.IsValidAccrual(element.AccrualId);
+
+            if ( !validAccrual)
+            {
+                env.AddMessage($"trade does not tie back to a valid accrual {element.AccrualId}");
+            }
+            return validAccrual ;
         }
 
         private Dictionary<string, string> _codeMap = new Dictionary<string, string>() {
