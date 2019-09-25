@@ -16,6 +16,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         private static bool IsRunning { get; set; }
         private static Guid Key { get; set; }
         private static string Period { get; set; }
+        private static string OrderId { get; set; }
         private static int TotalRecords { get; set; }
         private static int RecordsProcessed { get; set; }
 
@@ -54,6 +55,34 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 //                key = Key,
 //                IsRunning
 //            };
+
+            return Utils.Wrap(false, "Posting Engine is Already Running!");
+        }
+
+        public object StartPostingEngineSingleOrder(string orderId)
+        {
+            if (!IsRunning)
+            {
+                IsRunning = true;
+                Key = Guid.NewGuid();
+                TotalRecords = 0;
+                RecordsProcessed = 0;
+                OrderId = orderId;
+                logMessages = new ConcurrentDictionary<Guid, List<string>>();
+
+                PostingEngine.PostingEngineCallBack logsCallback = LogMessagesCallBack;
+
+                Task.Run(() => PostingEngine.PostingEngine.StartSingleTrade(orderId, Key, logsCallback))
+                    .ContinueWith(task => { IsRunning = false; });
+
+                return new
+                {
+                    OrderId = orderId,
+                    Started = DateTime.Now,
+                    key = Key,
+                    IsRunning
+                };
+            }
 
             return Utils.Wrap(false, "Posting Engine is Already Running!");
         }

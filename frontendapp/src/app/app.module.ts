@@ -58,6 +58,7 @@ import { AccountComponent } from './main/accounts/account.component';
 import { CreateAccountComponent } from './main/accounts/create-account/create-account.component';
 import { AccrualsComponent } from './main/accruals/accruals.component';
 import { TradeAllocationComponent } from './main/trade-allocation/trade-allocation.component';
+import { JournalAllocationComponent } from './main/journal-allocation/journal-allocation.component';
 import { ReportsComponent } from './main/reports/reports.component';
 import { RunLogsComponent } from './runlogs/runlogs.component';
 import { FileManagementComponent } from './main/operations/file-management/file-management.component';
@@ -81,6 +82,7 @@ import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selectio
     OperationsComponent,
     AccrualsComponent,
     TradeAllocationComponent,
+    JournalAllocationComponent,
     SettingsComponent,
     HeaderComponent,
     ReportsComponent,

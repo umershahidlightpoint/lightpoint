@@ -12,11 +12,11 @@ import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { takeWhile } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-trade-allocation',
-  templateUrl: './trade-allocation.component.html',
-  styleUrls: ['./trade-allocation.component.css']
+  selector: 'app-journal-allocation',
+  templateUrl: './journal-allocation.component.html',
+  styleUrls: ['./journal-allocation.component.css']
 })
-export class TradeAllocationComponent implements OnInit, AfterViewInit {
+export class JournalAllocationComponent implements OnInit, AfterViewInit {
   @ViewChild('topGrid') topGrid;
   @ViewChild('bottomGrid') bottomGrid;
   @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
@@ -133,7 +133,7 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
     this.valueFilter = 0;
     this.sortColum = '';
     this.sortDirection = '';
-    this.financeService.getTrades().subscribe(result => {
+    this.financeService.getOpsBlotterJournals().subscribe(result => {
       this.tradesData = result;
       this.rowData = [];
       const someArray = this.agGridUtils.columizeData(result.data, this.tradesData.meta.Columns);

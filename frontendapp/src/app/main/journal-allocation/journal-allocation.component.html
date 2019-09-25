@@ -1,5 +1,5 @@
 <p-tabView [ngStyle]="style">
-  <p-tabPanel header="Trade / Allocation" [ngStyle]="style">
+  <p-tabPanel header="Ops Blotter Journal / Allocation" [ngStyle]="style">
     <div style="clear: both"></div>
     <div #divToMeasure>
       <div [ngStyle]="styleForHight">
@@ -8,7 +8,7 @@
           (rowSelected)="onRowSelected($event)" [rowData]="rowData">
         </ag-grid-angular>
 
-        <h4>Allocations for selected Trade</h4>
+        <h4>Allocations for selected OpsBlotter Journal</h4>
         <ag-grid-angular style="width: 100%; height: 45%" class="ag-theme-balham" [gridOptions]="allocationsGridOptions"
           #bottomGrid [rowData]="allocationsData">
         </ag-grid-angular>

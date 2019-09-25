@@ -81,7 +81,12 @@ export class FinancePocServiceProxy {
   }
 
   getTrades() {
-    const url = encodeURI(this.refDataUrl + '/trades?period=ITD');
+    const url = encodeURI(this.refDataUrl + '/trades?period=ITD&journal=false');
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
+
+  getOpsBlotterJournals() {
+    const url = encodeURI(this.refDataUrl + '/trades?period=ITD&journal=true');
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
@@ -372,6 +377,14 @@ export class FinancePocServiceProxy {
   */
   startPostingEngine(period: any): Observable<PostingEngine> {
     const url = this.baseUrl + '/postingEngine?period=' + period;
+    return this.http.get<PostingEngine>(url).pipe(map((response: PostingEngine) => response));
+  }
+
+  /*
+  Start Posting Engine with a single Order
+  */
+  startPostingEngineSingleOrder(orderId: any): Observable<PostingEngine> {
+    const url = this.baseUrl + '/postingEngine/order?orderId=' + orderId;
     return this.http.get<PostingEngine>(url).pipe(map((response: PostingEngine) => response));
   }
 

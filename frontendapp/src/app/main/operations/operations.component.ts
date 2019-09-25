@@ -248,6 +248,8 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       .startPostingEngine(this.selectedPeriod.name)
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {
+        debugger
+        
         if (response.IsRunning) {
           this.isLoading = true;
           this.key = response.key;

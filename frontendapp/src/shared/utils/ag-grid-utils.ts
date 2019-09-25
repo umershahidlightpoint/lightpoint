@@ -47,6 +47,10 @@ export class AgGridUtils {
           clone.headerName = column.headerName;
           clone.filter = column.filter;
           clone.colId = undefined;
+
+          // Assume all columns are sortable
+          clone.sortable = true;
+
           if (
             column.Type == 'System.Int32' ||
             column.Type == 'System.Decimal' ||

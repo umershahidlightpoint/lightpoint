@@ -40,7 +40,7 @@ namespace PostingEngine.PostingRules
             {
                 case "debit":
                     {
-                        if (element.Symbol.Equals("ZZ_INVESTOR_CONTRIBUTIONS"))
+                        if (element.Symbol.Equals("ZZ_INVESTOR_WITHDRAWALS"))
                         {
                             var fromTags = new List<Tag>
                         {

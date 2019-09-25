@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonAPI", "..\..\services
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostingEngine", "PostingEngine\PostingEngine.csproj", "{D8D81D4B-4D9B-4D3B-9321-00DBA39455EC}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LP.FileProcessing", "LP.FileProcessing\LP.FileProcessing.csproj", "{68CD12A8-B8FB-45CB-86ED-C40BB33DF1AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +44,12 @@ Global
 		{D8D81D4B-4D9B-4D3B-9321-00DBA39455EC}.Development-Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8D81D4B-4D9B-4D3B-9321-00DBA39455EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8D81D4B-4D9B-4D3B-9321-00DBA39455EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68CD12A8-B8FB-45CB-86ED-C40BB33DF1AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68CD12A8-B8FB-45CB-86ED-C40BB33DF1AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68CD12A8-B8FB-45CB-86ED-C40BB33DF1AD}.Development-Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68CD12A8-B8FB-45CB-86ED-C40BB33DF1AD}.Development-Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68CD12A8-B8FB-45CB-86ED-C40BB33DF1AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68CD12A8-B8FB-45CB-86ED-C40BB33DF1AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

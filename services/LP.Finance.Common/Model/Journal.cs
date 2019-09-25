@@ -23,6 +23,19 @@ namespace LP.Finance.Common.Models
 
         public string GeneratedBy { get; set; }
 
+        // Get a list of Journal Entries for this trade
+        public static KeyValuePair<string, SqlParameter[]> List(string orderId)
+        {
+            var sql = @"select * from journal where source=@source";
+
+            var sqlParams = new SqlParameter[]
+            {
+                    new SqlParameter("source", orderId),
+            };
+
+            return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);
+        }
+
         public KeyValuePair<string, SqlParameter[]> Insert
         {
             get

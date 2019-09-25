@@ -15,6 +15,13 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.StartPostingEngine(period);
         }
 
+        [HttpGet]
+        [Route("order")]
+        public object Order(string orderId = null)
+        {
+            return controller.StartPostingEngineSingleOrder(orderId);
+        }
+
         // GET api/postingEngine/status/{key}
         [Route("status/{key}")]
         [HttpGet]

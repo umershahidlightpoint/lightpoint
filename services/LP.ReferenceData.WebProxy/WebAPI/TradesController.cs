@@ -28,16 +28,16 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 
     public interface ITradesController
     {
-        object Data(string period);
+        object Data(string period, bool journals);
 
         object Allocations(string accrualId);
     }
 
     public class TradesControllerStub : ITradesController
     {
-        public object Data(string period)
+        public object Data(string period, bool journals)
         {
-            return Utils.GetFile("trades_" + period);
+            return Utils.GetFile($"trades_{period}_{journals}");
         }
 
         public object Allocations(string orderId)
@@ -56,7 +56,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             return OnlyAllocations(accrualId);
         }
 
-        public object Data(string period)
+        public object Data(string period, bool journals = false)
         {
             dynamic result = JsonConvert.DeserializeObject("{}");
 
@@ -64,41 +64,56 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             {
                 case "ALL":
                 case "ITD":
-                    result = AllData(System.DateTime.Now.ITD());
+                    result = AllData(System.DateTime.Now.ITD(), journals);
                     break;
                 case "YTD":
-                    result = AllData(System.DateTime.Now.YTD());
+                    result = AllData(System.DateTime.Now.YTD(), journals);
                     break;
                 case "MTD":
-                    result = AllData(System.DateTime.Now.MTD());
+                    result = AllData(System.DateTime.Now.MTD(), journals);
                     break;
                 case "Today":
-                    result = AllData(System.DateTime.Now.Today());
+                    result = AllData(System.DateTime.Now.Today(), journals);
                     break;
                 default:
                     result = Only(period);
                     break;
             }
 
-            Utils.Save(result, "trades" + period);
+            Utils.Save(result, $"trades_{period}_{journals}");
 
             return result;
         }
 
-        private object AllData(Tuple<DateTime, DateTime> period)
+        private object AllData(Tuple<DateTime, DateTime> period, bool journals = false)
         {
             var content = "{}";
 
             var startdate = period.Item1.ToString("MM-dd-yyyy") + " 00:00";
             var enddate = period.Item2.ToString("MM-dd-yyyy") + " 16:30";
 
-            var query = 
-$@"select * from trade with(nolock)
+            var query = "";
+            if (journals)
+            {
+                query =
+    $@"select * from trade with(nolock)
 where UpdatedOn between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}') 
--- and SecurityType not in ('Journals')
+and SecurityType = 'Journals'
 -- and accrualId in ( select distinct accrualId from allocation with(nolock))
 order by UpdatedOn desc
 ";
+
+            }
+            else
+            {
+                query =
+    $@"select * from trade with(nolock)
+where UpdatedOn between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}') 
+and SecurityType not in ('Journals')
+-- and accrualId in ( select distinct accrualId from allocation with(nolock))
+order by UpdatedOn desc
+";
+            }
             MetaData metaData = null;
 
             using (var con = new SqlConnection(connectionString))
@@ -206,9 +221,9 @@ order by UpdatedOn desc
         }
 
         [HttpGet]
-        public object Data(string period)
+        public object Data(string period, bool journal = false)
         {
-            return controller.Data(period);
+            return controller.Data(period, journal);
         }
 
         [HttpGet]

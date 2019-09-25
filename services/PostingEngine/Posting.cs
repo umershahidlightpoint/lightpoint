@@ -1,9 +1,11 @@
 ﻿using LP.Finance.Common;
 using LP.Finance.Common.Models;
 using Newtonsoft.Json;
+using SqlDAL.Core;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
@@ -226,6 +228,32 @@ namespace PostingEngine
             }
         }
 
+        private static void DeleteJournalsForOrder(string orderId)
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+
+            try
+            {
+                sqlHelper.VerifyConnection();
+
+                List<SqlParameter> journalParameters = new List<SqlParameter>
+                {
+                    new SqlParameter("source", orderId.ToString())
+                };
+
+                var journalQuery = $@"DELETE FROM [journal]
+                                    WHERE [journal].[source] = @source";
+
+                sqlHelper.Delete(journalQuery, CommandType.Text, journalParameters.ToArray());
+
+                sqlHelper.CloseConnection();
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
         /// <summary>
         /// Process a single Trade
         /// </summary>
@@ -237,6 +265,9 @@ namespace PostingEngine
         static async Task<int> RunAsync(SqlConnection connection, SqlTransaction transaction, PostingEngineEnvironment postingEnv, string lpOrderId)
         {
             var trade = postingEnv.Trades.Where(i => i.LpOrderId == lpOrderId).First();
+
+            // Get the Journals for this trade if they exist
+            DeleteJournalsForOrder(trade.LpOrderId);
 
             var valueDate = trade.TradeDate;
             var endDate = DateTime.Now.Date;
