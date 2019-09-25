@@ -19,14 +19,120 @@ namespace PostingEngine
         private static readonly string
             connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
-        private static readonly string accrualsURL = "http://localhost:9091/api/accruals/data?period=";
-        private static readonly string tradesURL = "http://localhost:9091/api/trade/data?period=";
-        private static readonly string allocationsURL = "http://localhost:9091/api/allocation/data?period=";
+        private static readonly string root = "http://localhost";
+
+        private static readonly string accrualsURL = root + ":9091/api/accruals/data?period=";
+        private static readonly string tradesURL = root + ":9091/api/trade/data?period=";
+        private static readonly string allocationsURL = root + ":9091/api/allocation/data?period=";
 
         private static string Period;
         private static Guid Key;
         private static PostingEngineCallBack PostingEngineCallBack;
 
+        /// <summary>
+        /// Only process the past trade
+        /// </summary>
+        /// <param name="LpOrderId"></param>
+        /// <param name="key"></param>
+        /// <param name="postingEngineCallBack"></param>
+        public static void StartSingleTrade(string LpOrderId, Guid key, PostingEngineCallBack postingEngineCallBack)
+        {
+            Key = key;
+            PostingEngineCallBack = postingEngineCallBack;
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                PostingEngineCallBack?.Invoke("Posting Engine Started");
+
+                // Load up reference tables
+                AccountCategory.Load(connection);
+                AccountType.Load(connection);
+                Tag.Load(connection);
+
+                var transaction = connection.BeginTransaction();
+                var sw = new Stopwatch();
+
+                var allocations = GetTransactions(allocationsURL + "ITD");
+                var trades = GetTransactions(tradesURL + "ITD");
+                var accruals = GetTransactions(accrualsURL + "ITD");
+                Task.WaitAll(new Task[] { allocations, trades, accruals });
+
+                var allocationsResult = JsonConvert.DeserializeObject<PayLoad>(allocations.Result);
+
+                var allocationList = JsonConvert.DeserializeObject<Transaction[]>(allocationsResult.payload);
+                var tradeList = JsonConvert.DeserializeObject<Transaction[]>(trades.Result);
+                var accrualList = JsonConvert.DeserializeObject<Wrap<Accrual>>(accruals.Result).Data;
+
+                var postingEnv = new PostingEngineEnvironment(connection, transaction)
+                {
+                    Categories = AccountCategory.Categories,
+                    Types = AccountType.All,
+                    ValueDate = DateTime.Now.Date,
+                    FxRates = new FxRates().Get(DateTime.Now.Date),
+                    RunDate = System.DateTime.Now.Date,
+                    Allocations = allocationList,
+                    Trades = tradeList,
+                    Accruals = accrualList.ToDictionary(i => i.AccrualId, i => i),
+                };
+
+                PostingEngineCallBack?.Invoke($"Starting Single Trade Posting Engine -- {LpOrderId} : {DateTime.Now}");
+
+                new JournalLog()
+                {
+                    Key = Key,
+                    RunDate = postingEnv.RunDate,
+                    Action = "Starting Single Trade Posting Engine",
+                    ActionOn = DateTime.Now
+                }.Save(connection, transaction);
+                sw.Reset();
+                sw.Start();
+                // Run the trades pass next
+                int count = RunAsync(connection, transaction, postingEnv, LpOrderId).GetAwaiter().GetResult();
+                sw.Stop();
+
+                if (postingEnv.Journals.Count() > 0)
+                {
+                    new SQLBulkHelper().Insert("journal", postingEnv.Journals.ToArray(), connection, transaction);
+                }
+
+                var journalLogs = new List<JournalLog>();
+
+                // Save the messages accumulated during the Run
+                foreach (var message in postingEnv.Messages)
+                {
+                    journalLogs.Add(new JournalLog()
+                    {
+                        Key = Key,
+                        RunDate = postingEnv.RunDate,
+                        Action = $" Error : {message.Key}, Count : {message.Value}",
+                        ActionOn = DateTime.Now
+                    });
+                }
+
+                new SQLBulkHelper().Insert("journal_log", journalLogs.ToArray(), connection, transaction);
+
+                new JournalLog()
+                {
+                    Key = Key,
+                    RunDate = postingEnv.RunDate,
+                    Action =
+                        $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms / {sw.ElapsedMilliseconds / 1000} s",
+                    ActionOn = DateTime.Now
+                }.Save(connection, transaction);
+
+                transaction.Commit();
+                postingEngineCallBack?.Invoke("Posting Engine Processing Completed");
+            }
+        }
+
+        /// <summary>
+        /// Process all entries in the past date range
+        /// </summary>
+        /// <param name="period"></param>
+        /// <param name="key"></param>
+        /// <param name="postingEngineCallBack"></param>
         public static void Start(string period, Guid key, PostingEngineCallBack postingEngineCallBack)
         {
             Period = period;
@@ -120,8 +226,65 @@ namespace PostingEngine
             }
         }
 
-        static async Task<int> RunAsync(SqlConnection connection, SqlTransaction transaction,
-            PostingEngineEnvironment postingEnv)
+        /// <summary>
+        /// Process a single Trade
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="transaction"></param>
+        /// <param name="postingEnv"></param>
+        /// <param name="lpOrderId"></param>
+        /// <returns></returns>
+        static async Task<int> RunAsync(SqlConnection connection, SqlTransaction transaction, PostingEngineEnvironment postingEnv, string lpOrderId)
+        {
+            var trade = postingEnv.Trades.Where(i => i.LpOrderId == lpOrderId).First();
+
+            var valueDate = trade.TradeDate;
+            var endDate = DateTime.Now.Date;
+
+            int totalDays = (int)(endDate - valueDate).TotalDays;
+            int daysProcessed = 0;
+
+            while (valueDate <= endDate)
+            {
+                postingEnv.ValueDate = valueDate;
+                postingEnv.FxRates = new FxRates().Get(valueDate);
+
+                try
+                {
+                    new Posting().Process(postingEnv, trade);
+                }
+                catch (Exception exe)
+                {
+                    postingEnv.AddMessage(exe.Message);
+
+                    Error(exe, trade);
+                }
+
+                if (postingEnv.Journals.Count() > 0)
+                {
+                    new SQLBulkHelper().Insert("journal", postingEnv.Journals.ToArray(), connection, transaction);
+
+                    // Do not want them to be double posted
+                    postingEnv.Journals.Clear();
+                }
+
+                PostingEngineCallBack?.Invoke($"Completed {valueDate}", totalDays, daysProcessed++);
+                valueDate = valueDate.AddDays(1);
+            }
+
+            PostingEngineCallBack?.Invoke($"Processed #1 transactions on " + DateTime.Now);
+            new JournalLog()
+            {
+                Key = Key,
+                RunDate = postingEnv.RunDate,
+                Action = $"Processed #1 transactions",
+                ActionOn = DateTime.Now
+            }.Save(connection, transaction);
+
+            return postingEnv.Trades.Count();
+        }
+
+        static async Task<int> RunAsync(SqlConnection connection, SqlTransaction transaction, PostingEngineEnvironment postingEnv)
         {
             var minTradeDate = postingEnv.Trades.Min(i => i.TradeDate.Date);
             var maxTradeDate = postingEnv.Trades.Max(i => i.TradeDate.Date);
@@ -134,19 +297,33 @@ namespace PostingEngine
             int totalDays = (int) (endDate - valueDate).TotalDays;
             int daysProcessed = 0;
 
+            var ignoreTrades = new List<string>();
+
             while (valueDate <= endDate)
             {
                 postingEnv.ValueDate = valueDate;
                 postingEnv.FxRates = new FxRates().Get(valueDate);
 
-                var tradeData = postingEnv.Trades.Where(i => i.TradeDate <= valueDate).OrderBy(i => i.TradeDate.Date)
-                    .ToList();
+                var tradeData = postingEnv.Trades.Where(i => i.TradeDate <= valueDate).OrderBy(i => i.TradeDate.Date).ToList();
 
                 foreach (var element in tradeData)
                 {
+                    if ( element.LpOrderId.Equals("8b5ddd84-8656-4b30-afc0-cfd472d260ba"))
+                    {
+                        // Need to break here
+                    }
+                    // We only process trades that have not broken
+                    if (ignoreTrades.Contains(element.LpOrderId))
+                        continue;
+
                     try
                     {
-                        new Posting().Process(postingEnv, element);
+                        var processed = new Posting().Process(postingEnv, element);
+                        if ( !processed )
+                        {
+                            // Lets add to the ignore list
+                            ignoreTrades.Add(element.LpOrderId);
+                        }
                     }
                     catch (Exception exe)
                     {
@@ -261,34 +438,41 @@ namespace PostingEngine
         /// </summary>
         /// <param name="env">The Posting Environment</param>
         /// <param name="element">The Trade to process</param>
-        public void Process(PostingEngineEnvironment env, Transaction element)
+        public bool Process(PostingEngineEnvironment env, Transaction element)
         {
-            // Find me the rule
-            var rule = env.rules.Where(i => i.Key.Equals(element.SecurityType)).FirstOrDefault().Value;
-
+            // Identify which entries to skip
             if ( element.Status.Equals("Cancelled") || element.Status.Equals("Expired"))
             {
-                env.AddMessage($"Trade has been cancelled {element.LpOrderId}");
+                env.AddMessage($"Trade has been cancelled || expired {element.LpOrderId} -- {element.Status}");
                 // TODO: if there is already a Journal entry for this trade we need to back out the entries
-                return;
+                return false;
             }
 
-            if (rule == null)
+            if (element.TradeType.ToLower().Equals("kickout"))
             {
-                env.AddMessage($"No rule associated with {element.SecurityType}");
-                return;
-            }
-
-            if (!rule.IsValid(env, element))
-            {
-                env.AddMessage($"trade not valid to process {element.LpOrderId}");
-                return;
+                env.AddMessage($"Trade is a kickout ignoring {element.LpOrderId}");
+                return false;
             }
 
             if (!element.TradeType.ToLower().Equals("trade"))
             {
                 env.AddMessage($"Skipping Trade {element.TradeType}");
-                return;
+                return false;
+            }
+
+            // Find me the rule
+            var rule = env.rules.Where(i => i.Key.Equals(element.SecurityType)).FirstOrDefault().Value;
+            if (rule == null)
+            {
+                env.AddMessage($"No rule associated with {element.SecurityType}");
+                return false;
+            }
+
+            if (!rule.IsValid(env, element))
+            {
+                // Defer message to the rule
+                //env.AddMessage($"trade not valid to process {element.LpOrderId} -- {element.SecurityType}");
+                return false;
             }
 
             if (env.ValueDate == element.TradeDate.Date)
@@ -328,6 +512,8 @@ namespace PostingEngine
             {
                 //env.AddMessage($"Trade ignored ValueDate = {env.ValueDate}, TradeDate = {element.TradeDate.Date}, Settledate = {element.SettleDate.Date}");
             }
+
+            return true;
         }
 
         private Journal[] GetJournals(Transaction element)

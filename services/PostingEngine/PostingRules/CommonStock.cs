@@ -224,7 +224,7 @@ namespace PostingEngine.PostingRules
 
                 var debitJournal = new Journal
                 {
-                    Source = debitEntry.TradeId,
+                    Source = debitEntry.LpOrderId,
                     Account = accountToFrom.From,
                     When = env.ValueDate,
                     Value = debitAmount,
@@ -236,7 +236,7 @@ namespace PostingEngine.PostingRules
 
                 var creditJournal = new Journal
                 {
-                    Source = creditEntry.TradeId,
+                    Source = creditEntry.LpOrderId,
                     Account = accountToFrom.To,
                     When = env.ValueDate,
                     FxCurrency = element.TradeCurrency,

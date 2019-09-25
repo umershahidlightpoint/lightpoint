@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AWSSDK.S3" Version="3.3.104.31" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\LP.Finance.Common\LP.Finance.Common.csproj" />
   </ItemGroup>
 

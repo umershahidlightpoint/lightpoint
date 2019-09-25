@@ -12,6 +12,7 @@ namespace LP.FileProcessing
 {
     public class Class1
     {
+        // Header & Footer's required as part of the file generation
         public object GenerateActivityFile(Transaction[] transactionList, string path)
         {
             List<SilverMetaDataForActivity> activityMetaData = new List<SilverMetaDataForActivity>();
