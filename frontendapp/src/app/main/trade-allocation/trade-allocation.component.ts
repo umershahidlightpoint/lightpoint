@@ -7,6 +7,7 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { SideBar, Style } from 'src/shared/utils/Shared';
+import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selection-grid-layout-menu/grid-layout-menu.component';
 
 @Component({
   selector: 'app-trade-allocation',
@@ -70,17 +71,16 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
   }
 
   splitColId(colId: any) {
-    let modifiedColId = colId.split('_');
+    const modifiedColId = colId.split('_');
     return modifiedColId[0];
   }
   openModal = row => {
-    console.log({ row });
     // We can drive the screen that we wish to display from here
     if (row.colDef.headerName === 'Group') {
       return;
     }
-    let cols = this.gridOptions.columnApi.getColumnState();
-    let modifiedCols = cols.map(i => ({ colId: this.splitColId(i.colId), hide: i.hide }));
+    const cols = this.gridOptions.columnApi.getColumnState();
+    const modifiedCols = cols.map(i => ({ colId: this.splitColId(i.colId), hide: i.hide }));
     if (row.colDef.headerName === 'LPOrderId') {
       this.title = 'Allocation Details';
       this.dataModal.openModal(row, modifiedCols);
@@ -95,7 +95,7 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
   };
 
   ngAfterViewInit(): void {
-    this.dataService.flag.subscribe(obj => {
+    this.dataService.flag$.subscribe(obj => {
       this.hideGrid = obj;
       if (!this.hideGrid) {
         this.getTrades();
@@ -103,6 +103,12 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
     });
     this.dataService.changeMessage(this.gridOptions);
     this.dataService.changeGrid({ gridId: GridId.tradeId, gridName: GridName.trade });
+
+    this.dataService.changeAllocation(this.allocationsGridOptions);
+    this.dataService.changeAllocationGrid({
+      gridId: GridId.selectedTradeId,
+      gridName: GridName.SelectedTrades
+    });
   }
 
   ngOnInit() {
@@ -161,10 +167,10 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
 
     this.allocationsGridOptions = {
       rowData: null,
-      // sideBar: SideBar,
+      sideBar: SideBar,
       columnDefs: this.columnDefs,
       onCellDoubleClicked: this.openModal.bind(this),
-      // frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      frameworkComponents: { customToolPanel: AllocationGridLayoutMenuComponent },
       onGridReady: () => {
         // this.gridOptions.api.sizeColumnsToFit();
       },

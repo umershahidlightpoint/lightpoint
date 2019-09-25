@@ -67,6 +67,7 @@ import { OperationsComponent } from './main/operations/operations.component';
 import { ButtonRendererComponent } from '../renderer/buttonRenderer';
 import { BalanceReportComponent } from './main/reports/balance-report/balance-report.component';
 import { ReportModalComponent } from '../shared/Component/report-modal/report-modal.component';
+import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selection-grid-layout-menu/grid-layout-menu.component';
 
 @NgModule({
   declarations: [
@@ -87,6 +88,7 @@ import { ReportModalComponent } from '../shared/Component/report-modal/report-mo
     JournalModalComponent,
     DataModalComponent,
     GridLayoutMenuComponent,
+    AllocationGridLayoutMenuComponent,
     LeftMenuComponent,
     FileManagementComponent,
     ButtonRendererComponent,
@@ -95,7 +97,11 @@ import { ReportModalComponent } from '../shared/Component/report-modal/report-mo
   ],
   imports: [
     BrowserModule,
-    AgGridModule.withComponents([TemplateRendererComponent, GridLayoutMenuComponent]),
+    AgGridModule.withComponents([
+      TemplateRendererComponent,
+      GridLayoutMenuComponent,
+      AllocationGridLayoutMenuComponent
+    ]),
     MaterialModule,
     NgxDaterangepickerMd.forRoot(),
     AppRoutingModule,

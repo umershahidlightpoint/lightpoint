@@ -1,5 +1,5 @@
 import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { IToolPanel, IToolPanelParams, GridOptions } from 'ag-grid-community';
+import { IToolPanel, IToolPanelParams } from 'ag-grid-community';
 import { FinancePocServiceProxy } from '../../service-proxies/service-proxies';
 import { DataService } from '../../common/data.service';
 import { ToastrService } from 'ngx-toastr';
@@ -38,9 +38,9 @@ export class GridLayoutMenuComponent implements IToolPanel {
   agInit(params: IToolPanelParams): void {
     this.params = params;
     this.params.api.addEventListener('modelUpdated', this.getLayout.bind(this));
-    this.dataService.gridColumnApi.subscribe(obj => (this.gridOptions = obj));
-    this.dataService.gridObject.subscribe(obj => (this.gridObject = obj));
-    this.dataService.setGridFilterObject.subscribe(obj => (this.setGridFilterObject = obj));
+    this.dataService.gridColumnApi$.subscribe(obj => (this.gridOptions = obj));
+    this.dataService.gridObject$.subscribe(obj => (this.gridObject = obj));
+    this.dataService.setGridFilterObject$.subscribe(obj => (this.setGridFilterObject = obj));
   }
 
   getLayout(): void {

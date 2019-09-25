@@ -47,6 +47,9 @@
         <button class="btn btn-info ml-2" type="button" [disabled]="isLoading" (click)="runEngine()">
           Run Engine
         </button>
+        <button class="btn btn-info ml-5" type="button" [disabled]="isLoading" (click)="generateFiles()">
+          Silver End of Day
+        </button>
         <!-- Clear Journal Div -->
         <form class="clearForm" #clearForm="ngForm" [formGroup]="clearJournalForm" (ngSubmit)="openModal()">
           <div class="mr-3">

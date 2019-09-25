@@ -178,6 +178,35 @@ export const GetDateRangeLabel = (startDate, endDate) => {
   }
 };
 
+export const SetDateRange = (dateFilter, startDate, endDate) => {
+  if (typeof dateFilter === 'object') {
+    startDate = moment(dateFilter.startDate);
+    endDate = moment(dateFilter.endDate);
+  }
+
+  switch (dateFilter) {
+    case 'ITD':
+      startDate = moment('01-01-1901', 'MM-DD-YYYY');
+      endDate = moment();
+      break;
+    case 'YTD':
+      startDate = moment().startOf('year');
+      endDate = moment();
+      break;
+    case 'MTD':
+      startDate = moment().startOf('month');
+      endDate = moment();
+      break;
+    case 'Today':
+      startDate = moment();
+      endDate = moment();
+      break;
+    default:
+      break;
+  }
+  return [startDate, endDate];
+};
+
 export const DoesExternalFilterPass = (node, fund, startDate, endDate) => {
   if (fund !== 'All Funds' && startDate) {
     const cellFund = node.data.fund;
@@ -205,14 +234,10 @@ export const FormatNumber = numberToFormat => {
   }
 };
 
-export const DownloadExcel = toastrService => {
-  toastrService.info(
-    'Your file is downloaded, Just click on it to view it or open your default download directory to view it there.',
-    'Downloaded',
-    {
-      positionClass: 'toast-bottom-left',
-      disableTimeOut: true,
-      closeButton: true
-    }
-  );
+export const CommaSeparatedFormat = numberToFormat => {
+  return numberToFormat === 0
+    ? '0.00'
+    : Math.floor(numberToFormat)
+        .toString()
+        .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 };

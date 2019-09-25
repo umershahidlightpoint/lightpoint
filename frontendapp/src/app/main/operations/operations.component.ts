@@ -22,6 +22,7 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataService } from 'src/shared/common/data.service';
 import { SideBar, Style } from 'src/shared/utils/Shared';
 import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/ContextMenu';
+import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
 @Component({
   selector: 'app-operations',
@@ -36,6 +37,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   @ViewChild('logScroll') private logContainer: ElementRef;
   @ViewChild('actionButtons') actionButtons: TemplateRef<any>;
   @Output() showPostingEngineMsg: EventEmitter<any> = new EventEmitter<any>();
+  @Output() refreshFiles: EventEmitter<any> = new EventEmitter<any>();
 
   public gridOptions: GridOptions;
   private defaultColDef: any;
@@ -122,7 +124,8 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     private financeService: FinancePocServiceProxy,
     private toastrService: ToastrService,
     private dataService: DataService,
-    private postingEngineService: PostingEngineService
+    private postingEngineService: PostingEngineService,
+    private downloadExcelUtils: DownloadExcelUtils
   ) {
     this.initGrid();
   }
@@ -222,6 +225,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       columnKeys: ['rundate', 'action_on', 'action']
     };
     this.gridOptions.api.exportDataAsExcel(params);
+    this.downloadExcelUtils.ToastrMessage();
   }
 
   buildForm() {
@@ -252,6 +256,19 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
         }
         this.key = response.key;
         this.getLogs();
+      });
+  }
+
+  generateFiles() {
+    this.financeService
+      .generateFiles()
+      .pipe(takeWhile(() => this.isSubscriptionAlive))
+      .subscribe(response => {
+        if (response.isSuccessful) {
+          this.toastrService.success('Files are Generated for Processing');
+        } else {
+          this.toastrService.error('Something went wrong, Please try again later.');
+        }
       });
   }
 

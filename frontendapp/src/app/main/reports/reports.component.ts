@@ -12,12 +12,15 @@ import {
   CalTotalRecords,
   GetDateRangeLabel,
   DoesExternalFilterPass,
-  FormatNumber
+  FormatNumber,
+  SetDateRange,
+  CommaSeparatedFormat
 } from 'src/shared/utils/Shared';
 import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
 @Component({
   selector: 'app-reports',
@@ -60,7 +63,11 @@ export class ReportsComponent implements OnInit, AfterViewInit {
     boxSizing: 'border-box'
   };
 
-  constructor(private financeService: FinancePocServiceProxy, private dataService: DataService) {
+  constructor(
+    private financeService: FinancePocServiceProxy,
+    private dataService: DataService,
+    private downloadExcelUtils: DownloadExcelUtils
+  ) {
     this.hideGrid = false;
   }
 
@@ -125,7 +132,8 @@ export class ReportsComponent implements OnInit, AfterViewInit {
             if (params.data.debitPercentage > 0) {
               return 'debit';
             }
-          }
+          },
+          valueFormatter: currencyFormatter
         },
         {
           field: 'credit',
@@ -148,7 +156,8 @@ export class ReportsComponent implements OnInit, AfterViewInit {
             if (params.data.creditPercentage > 0) {
               return 'credit';
             }
-          }
+          },
+          valueFormatter: currencyFormatter
         },
         {
           field: 'balance',
@@ -165,7 +174,8 @@ export class ReportsComponent implements OnInit, AfterViewInit {
             } else if (params.data.accountName !== 'Total' && params.data.balance < 0) {
               return { textAlign: 'end', color: 'red' };
             }
-          }
+          },
+          valueFormatter: currencyFormatter
         }
       ],
       defaultColDef: {
@@ -177,14 +187,14 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.dataService.flag.subscribe(obj => {
+    this.dataService.flag$.subscribe(obj => {
       this.hideGrid = obj;
       if (!this.hideGrid) {
         this.getFunds();
         this.getReport(null, null, 'ALL');
       }
     });
-    this.dataService.gridColumnApi.subscribe(obj => (obj = this.gridOptions));
+    this.dataService.gridColumnApi$.subscribe(obj => (obj = this.gridOptions));
     this.dataService.changeMessage(this.gridOptions);
     this.dataService.changeGrid({
       gridId: GridId.trailBalanceReportId,
@@ -299,31 +309,9 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   }
 
   setDateRange(dateFilter: any) {
-    if (typeof dateFilter === 'object') {
-      this.startDate = moment(dateFilter.startDate);
-      this.endDate = moment(dateFilter.endDate);
-    }
-
-    switch (dateFilter) {
-      case 'ITD':
-        this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
-        this.endDate = moment();
-        break;
-      case 'YTD':
-        this.startDate = moment().startOf('year');
-        this.endDate = moment();
-        break;
-      case 'MTD':
-        this.startDate = moment().startOf('month');
-        this.endDate = moment();
-        break;
-      case 'Today':
-        this.startDate = moment();
-        this.endDate = moment();
-        break;
-      default:
-        break;
-    }
+    const dates = SetDateRange(dateFilter, this.startDate, this.endDate);
+    this.startDate = dates[0];
+    this.endDate = dates[1];
 
     this.selected =
       dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
@@ -364,10 +352,18 @@ export class ReportsComponent implements OnInit, AfterViewInit {
       sheetName: 'First Sheet'
     };
     this.gridOptions.api.exportDataAsExcel(params);
+    this.downloadExcelUtils.ToastrMessage();
   }
 
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
     this.getReport(null, null, 'ALL');
   }
+}
+
+function currencyFormatter(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  return CommaSeparatedFormat(params.value);
 }

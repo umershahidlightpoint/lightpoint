@@ -10,7 +10,6 @@ import {
 import 'ag-grid-enterprise';
 import { GridOptions } from 'ag-grid-community';
 import { ModalDirective } from 'ngx-bootstrap';
-import { ToastrService } from 'ngx-toastr';
 import * as moment from 'moment';
 /* Services/Components Imports */
 import {
@@ -21,7 +20,8 @@ import {
   ExcelStyle,
   CalTotalRecords,
   GetDateRangeLabel,
-  DownloadExcel
+  SetDateRange,
+  CommaSeparatedFormat
 } from 'src/shared/utils/Shared';
 import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/ContextMenu';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
@@ -33,6 +33,7 @@ import { DataModalComponent } from '../../../shared/Component/data-modal/data-mo
 import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from '../../../shared/utils/AppEnums';
 import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
+import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
 @Component({
   selector: 'app-journals-ledgers',
@@ -40,7 +41,6 @@ import { ReportModalComponent } from 'src/shared/Component/report-modal/report-m
   styleUrls: ['./journals-ledgers.component.css']
 })
 export class JournalsLedgersComponent implements OnInit, AfterViewInit {
-  @ViewChild('dateRangPicker') dateRangPicker;
   @ViewChild('divToMeasureJournal') divToMeasureElement: ElementRef;
   @ViewChild('divToMeasureLedger') divToMeasureElementLedger: ElementRef;
   @ViewChild('modal') modal: ModalDirective;
@@ -81,7 +81,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   pageSize: any;
   orderId: number;
   tableHeader: string;
-  isCefMode = !!window['cef'];
 
   ranges: any = Ranges;
 
@@ -110,8 +109,8 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     private financeService: FinancePocServiceProxy,
     private dataService: DataService,
     private postingEngineService: PostingEngineService,
-    private toastrService: ToastrService,
-    private agGridUtls: AgGridUtils
+    private agGridUtls: AgGridUtils,
+    private downloadExcelUtils: DownloadExcelUtils
   ) {
     this.hideGrid = false;
     this.initGird();
@@ -359,13 +358,13 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.dataService.flag.subscribe(obj => {
+    this.dataService.flag$.subscribe(obj => {
       this.hideGrid = obj;
       if (!this.hideGrid) {
         this.getAllData();
       }
     });
-    this.dataService.gridColumnApi.subscribe(obj => (obj = this.gridOptions));
+    this.dataService.gridColumnApi$.subscribe(obj => (obj = this.gridOptions));
     this.dataService.changeMessage(this.gridOptions);
     this.dataService.changeGrid({ gridId: GridId.journalId, gridName: GridName.journal });
   }
@@ -445,6 +444,9 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   getRangeLabel() {
     this.DateRangeLabel = '';
     this.DateRangeLabel = GetDateRangeLabel(this.startDate, this.endDate);
+    if (this.DateRangeLabel === 'Custom') {
+      // this.startDate = moment();
+    }
   }
 
   setWidthAndHeight(width, height) {
@@ -465,10 +467,8 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       fileName: 'Journals',
       sheetName: 'First Sheet'
     };
-    if (!this.isCefMode) {
-      DownloadExcel(this.toastrService);
-    }
     this.gridOptions.api.exportDataAsExcel(params);
+    this.downloadExcelUtils.ToastrMessage();
   }
 
   ngModelChange(e) {
@@ -576,31 +576,9 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   }
 
   setDateRange(dateFilter: any) {
-    if (typeof dateFilter === 'object') {
-      this.startDate = moment(dateFilter.startDate);
-      this.endDate = moment(dateFilter.endDate);
-    }
-
-    switch (dateFilter) {
-      case 'ITD':
-        this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
-        this.endDate = moment();
-        break;
-      case 'YTD':
-        this.startDate = moment().startOf('year');
-        this.endDate = moment();
-        break;
-      case 'MTD':
-        this.startDate = moment().startOf('month');
-        this.endDate = moment();
-        break;
-      case 'Today':
-        this.startDate = moment();
-        this.endDate = moment();
-        break;
-      default:
-        break;
-    }
+    const dates = SetDateRange(dateFilter, this.startDate, this.endDate);
+    this.startDate = dates[0];
+    this.endDate = dates[1];
 
     this.selected =
       dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
@@ -739,16 +717,15 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
+  isCustomDate(as) {
+    this.startDate = moment();
+  }
 }
 
 function currencyFormatter(params) {
-  return formatNumber(params.value);
-}
-
-function formatNumber(numberToFormat) {
-  return numberToFormat === 0
-    ? '0.00'
-    : Math.floor(numberToFormat)
-        .toString()
-        .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+  if (params.value === undefined) {
+    return;
+  }
+  return CommaSeparatedFormat(params.value);
 }
