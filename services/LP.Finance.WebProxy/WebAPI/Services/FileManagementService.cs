@@ -21,7 +21,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         private static readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
         public SqlHelper sqlHelper = new SqlHelper(connectionString);
         private static readonly string tradesURL = "http://localhost:9091/api/trade/data?period=";
-        private Class1 fileHelper = new Class1();
+        private FileProcessor fileHelper = new FileProcessor();
 
         public object GetFiles(string name)
         {
@@ -46,7 +46,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             newFileName = newFileName.Replace(":", "-");
             var path = currentDir + "SilverData" + Path.DirectorySeparatorChar + $"{newFileName}.csv";
             
-            var result = fileHelper.GenerateActivityFile(tradeList, path);
+            var result = fileHelper.GenerateFile(tradeList, path, "Activity_json");
             int statistics = tradeList.Count();
 
             InsertActivityAndPositionFilesForSilver(newFileName, path, statistics, "LightPoint");

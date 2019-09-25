@@ -6,10 +6,17 @@
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.S3" Version="3.3.104.31" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.6.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\LP.Finance.Common\LP.Finance.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="MetaData\ActivityXML.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

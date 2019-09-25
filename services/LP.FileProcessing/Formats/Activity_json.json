@@ -1,0 +1,85 @@
+{
+  "Header": [
+    {
+      "source": "HeaderIndicator",
+      "destination": "Header_Indicator",
+      "required": true,
+      "function": null,
+      "format": null
+    },
+    {
+      "source": "FileName",
+      "destination": "File_Name",
+      "required": true,
+      "function": null,
+      "format": null
+    },
+    {
+      "source": "BusinessDate",
+      "destination": "Business_Date",
+      "required": true,
+      "function": "GetDate",
+      "format": "yyyy-MM-dd"
+    }
+  ],
+  "Trailer": [
+    {
+      "source": "FooterIndicator",
+      "destination": "Footer_Indicator",
+      "required": true,
+      "function": null,
+      "format": null
+    },
+    {
+      "source": "FileName",
+      "destination": "File_Name",
+      "required": true,
+      "function": null,
+      "format": null
+    },
+    {
+      "source": "BusinessDate",
+      "destination": "Business_Date",
+      "required": true,
+      "function": "GetDate",
+      "format": "yyyy-MM-dd"
+    },
+    {
+      "source": "RecordCount",
+      "destination": "Record_Count",
+      "required": true,
+      "function": null,
+      "format": null
+    }
+  ],
+  "Record": [
+    {
+      "source": "TradeId",
+      "destination": "Security_ID",
+      "required": true,
+      "function": null,
+      "format": null
+    },
+    {
+      "source": "Symbol",
+      "destination": "Symbol",
+      "required": true,
+      "function": null,
+      "format": null
+    },
+    {
+      "source": "CUSIP",
+      "destination": "CUSIP",
+      "required": false,
+      "function": null,
+      "format": null
+    },
+    {
+      "source": "SettleDate",
+      "destination": "Settlement_Date",
+      "required": true,
+      "function": "GetDate",
+      "format": "yyyy-MM-dd"
+    }
+  ]
+}
