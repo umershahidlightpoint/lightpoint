@@ -5,7 +5,15 @@
 }
 
 .nav-list {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   padding-top: 6rem;
+}
+
+.admin-pages {
+  margin-top: auto;
+  margin-bottom: 2rem;
 }
 
 .expand-menu-container {

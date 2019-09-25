@@ -31,7 +31,13 @@ export const Ranges: any = {
   ITD: [moment('01-01-1901', 'MM-DD-YYYY'), moment()],
   YTD: [moment().startOf('year'), moment()],
   MTD: [moment().startOf('month'), moment()],
-  Today: [moment(), moment()]
+  Today: [moment(), moment()],
+  Custom: [
+    moment()
+      .startOf('month')
+      .subtract(1, 'month'),
+    moment()
+  ]
 };
 
 export const IgnoreFields = [
