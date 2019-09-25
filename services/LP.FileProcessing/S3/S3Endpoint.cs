@@ -30,7 +30,7 @@ namespace LP.FileProcessing.S3
                 RegionEndpoint = endpoint
             };
             var username = "dlattimore@lightpointft.com";
-            var password = "@A!iens33";
+            var password = "";
 
             config.ProxyCredentials = new NetworkCredential(username, password);
 
