@@ -95,7 +95,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             var query = 
 $@"select * from trade with(nolock)
 where UpdatedOn between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}') 
-and SecurityType not in ('Journals')
+-- and SecurityType not in ('Journals')
 -- and accrualId in ( select distinct accrualId from allocation with(nolock))
 order by UpdatedOn desc
 ";
