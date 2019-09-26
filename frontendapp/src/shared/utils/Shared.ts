@@ -46,7 +46,9 @@ export const IgnoreFields = [
   'overall_count',
   'account_id',
   'value',
-  'LpOrderId'
+  'LpOrderId',
+  'FilledQuantity',
+  'OrderedQuantity'
 ];
 
 export const Style = {

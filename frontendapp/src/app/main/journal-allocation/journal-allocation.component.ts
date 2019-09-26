@@ -30,11 +30,9 @@ export class JournalAllocationComponent implements OnInit, AfterViewInit {
 
   bottomOptions = { alignedGrids: [] };
   bottomData: any;
-  fund: any;
   pageSize: any;
   accountSearch = { id: undefined };
   valueFilter: number;
-  funds: any;
   sortColum: any;
   sortDirection: any;
   page: any;
@@ -44,6 +42,9 @@ export class JournalAllocationComponent implements OnInit, AfterViewInit {
   tradesData: any;
   hideGrid: boolean;
   allocationTradesData: any;
+  // Process Trade state
+  isSubscriptionAlive: boolean;
+  key: string;
 
   style = Style;
 
@@ -73,11 +74,37 @@ export class JournalAllocationComponent implements OnInit, AfterViewInit {
     this.hideGrid = false;
   }
 
+  ngOnInit() {
+    this.isSubscriptionAlive = true;
+    //this.getTrades();
+  }
+
+  ngAfterViewInit(): void {
+    this.dataService.flag$.subscribe(obj => {
+      this.hideGrid = obj;
+      if (!this.hideGrid) {
+        this.getTrades();
+      }
+    });
+    this.dataService.changeMessage(this.gridOptions);
+    this.dataService.changeGrid({
+      gridId: GridId.journalAllocationId,
+      gridName: GridName.journalAllocation
+    });
+
+    this.dataService.changeAllocation(this.allocationsGridOptions);
+    this.dataService.changeAllocationGrid({
+      gridId: GridId.selectedJournalAllocationId,
+      gridName: GridName.selectedJournalAllocation
+    });
+  }
+
   splitColId(colId: any) {
     const modifiedColId = colId.split('_');
     return modifiedColId[0];
   }
-  openModal = row => {
+
+  openModal(row) {
     // We can drive the screen that we wish to display from here
     if (row.colDef.headerName === 'Group') {
       return;
@@ -95,28 +122,6 @@ export class JournalAllocationComponent implements OnInit, AfterViewInit {
       this.dataModal.openModal(row, modifiedCols);
       return;
     }
-  };
-
-  ngAfterViewInit(): void {
-    this.dataService.flag$.subscribe(obj => {
-      this.hideGrid = obj;
-      if (!this.hideGrid) {
-        this.getTrades();
-      }
-    });
-    this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid({ gridId: GridId.tradeId, gridName: GridName.trade });
-
-    this.dataService.changeAllocation(this.allocationsGridOptions);
-    this.dataService.changeAllocationGrid({
-      gridId: GridId.selectedTradeId,
-      gridName: GridName.SelectedTrades
-    });
-  }
-
-  ngOnInit() {
-    this.isSubscriptionAlive = true;
-    //this.getTrades();
   }
 
   getTrades() {
@@ -143,29 +148,22 @@ export class JournalAllocationComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // Process Trade state
-  isSubscriptionAlive: boolean;
-  key:string;
-
-  processOrder(orderId:string, row:any) {
-
-    debugger
-
+  processOrder(orderId: string, row: any) {
     this.financeService
-    .startPostingEngineSingleOrder(orderId)
-    .pipe(takeWhile(() => this.isSubscriptionAlive))
-    .subscribe(response => {
-      if (response.IsRunning) {
-        //this.isLoading = true;
-        this.key = response.key;
-        this.postingEngineService.changeStatus(true);
-        this.postingEngineService.checkProgress();
-      }
-      //this.key = response.key;
-      //this.getLogs();
-    });
-
+      .startPostingEngineSingleOrder(orderId)
+      .pipe(takeWhile(() => this.isSubscriptionAlive))
+      .subscribe(response => {
+        if (response.IsRunning) {
+          //this.isLoading = true;
+          this.key = response.key;
+          this.postingEngineService.changeStatus(true);
+          this.postingEngineService.checkProgress();
+        }
+        //this.key = response.key;
+        //this.getLogs();
+      });
   }
+
   getContextMenuItems(params) {
     const defaultItems = [
       'copy',
@@ -179,13 +177,6 @@ export class JournalAllocationComponent implements OnInit, AfterViewInit {
         }
       }
     ];
-
-    const items = [
-      ...defaultItems
-    ];
-    if (params.node.group) {
-      return items;
-    }
     return defaultItems;
   }
 
@@ -252,9 +243,5 @@ export class JournalAllocationComponent implements OnInit, AfterViewInit {
         this.allocationsData = someArray as [];
       });
     }
-  }
-
-  onFirstDataRendered(params) {
-    params.api.sizeColumnsToFit();
   }
 }

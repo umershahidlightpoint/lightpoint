@@ -95,6 +95,11 @@ export class FinancePocServiceProxy {
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
+  getTradeJournals(orderId: string) {
+    const url = encodeURI(this.refDataUrl + '/trades/journals?orderId=' + orderId);
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
+
   /*
   Create a New Journal
   */

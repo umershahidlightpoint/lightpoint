@@ -213,6 +213,13 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
         filter: true
       },
       {
+        field: 'accountDescription',
+        headerName: 'Account Description',
+        sortable: true,
+        enableRowGroup: true,
+        filter: true
+      },
+      {
         field: 'when',
         headerName: 'when',
         sortable: true,
@@ -567,10 +574,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       height,
       boxSizing: 'border-box'
     };
-  }
-
-  onFirstDataRendered(params) {
-    params.api.sizeColumnsToFit();
   }
 
   onBtExport() {

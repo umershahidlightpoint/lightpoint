@@ -24,9 +24,10 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
 
   public gridOptions: GridOptions;
   public allocationsGridOptions: GridOptions;
-  private defaultColDef;
+  public journalsGridOptions: GridOptions;
   public rowData: [];
   public allocationsData: [];
+  public journalsData: [];
 
   bottomOptions = { alignedGrids: [] };
   bottomData: any;
@@ -44,6 +45,7 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
   tradesData: any;
   hideGrid: boolean;
   allocationTradesData: any;
+  journalsTradesData: any;
 
   style = Style;
 
@@ -120,10 +122,6 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
   }
 
   getTrades() {
-    this.defaultColDef = {
-      sortable: true,
-      resizable: true
-    };
     // align scroll of grid and footer grid
     this.gridOptions.alignedGrids.push(this.bottomOptions);
     this.bottomOptions.alignedGrids.push(this.gridOptions);
@@ -145,26 +143,24 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
 
   // Process Trade state
   isSubscriptionAlive: boolean;
-  key:string;
+  key: string;
 
-  processOrder(orderId:string, row:any) {
-
-    debugger
+  processOrder(orderId: string, row: any) {
+    debugger;
 
     this.financeService
-    .startPostingEngineSingleOrder(orderId)
-    .pipe(takeWhile(() => this.isSubscriptionAlive))
-    .subscribe(response => {
-      if (response.IsRunning) {
-        //this.isLoading = true;
-        this.key = response.key;
-        this.postingEngineService.changeStatus(true);
-        this.postingEngineService.checkProgress();
-      }
-      //this.key = response.key;
-      //this.getLogs();
-    });
-
+      .startPostingEngineSingleOrder(orderId)
+      .pipe(takeWhile(() => this.isSubscriptionAlive))
+      .subscribe(response => {
+        if (response.IsRunning) {
+          //this.isLoading = true;
+          this.key = response.key;
+          this.postingEngineService.changeStatus(true);
+          this.postingEngineService.checkProgress();
+        }
+        //this.key = response.key;
+        //this.getLogs();
+      });
   }
   getContextMenuItems(params) {
     const defaultItems = [
@@ -180,9 +176,7 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
       }
     ];
 
-    const items = [
-      ...defaultItems
-    ];
+    const items = [...defaultItems];
     if (params.node.group) {
       return items;
     }
@@ -233,11 +227,30 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
       alignedGrids: [],
       suppressHorizontalScroll: false
     } as GridOptions;
+
+    this.journalsGridOptions = {
+      rowData: null,
+      sideBar: SideBar,
+      columnDefs: this.columnDefs,
+      onCellDoubleClicked: this.openModal.bind(this),
+      frameworkComponents: { customToolPanel: AllocationGridLayoutMenuComponent },
+      onGridReady: () => {
+        // this.gridOptions.api.sizeColumnsToFit();
+      },
+      onFirstDataRendered: params => {
+        // params.api.sizeColumnsToFit();
+      },
+      enableFilter: true,
+      animateRows: true,
+      alignedGrids: [],
+      suppressHorizontalScroll: false
+    } as GridOptions;
   }
 
   onRowSelected(event) {
     if (event.node.selected) {
       this.financeService.getTradeAllocations(event.node.data.LPOrderId).subscribe(result => {
+        debugger;
         this.allocationTradesData = result;
         const someArray = this.agGridUtils.columizeData(
           result.data,
@@ -251,10 +264,22 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
         this.allocationsGridOptions.api.setColumnDefs(cdefs);
         this.allocationsData = someArray as [];
       });
-    }
-  }
 
-  onFirstDataRendered(params) {
-    params.api.sizeColumnsToFit();
+      this.financeService.getTradeJournals(event.node.data.LPOrderId).subscribe(result => {
+        debugger;
+        this.journalsTradesData = result;
+        const someArray = this.agGridUtils.columizeData(
+          result.data,
+          this.journalsTradesData.meta.Columns
+        );
+        const cdefs = this.agGridUtils.customizeColumns([], this.journalsTradesData.meta.Columns, [
+          'Id',
+          'AllocationId',
+          'EMSOrderId'
+        ]);
+        this.journalsGridOptions.api.setColumnDefs(cdefs);
+        this.journalsData = someArray as [];
+      });
+    }
   }
 }

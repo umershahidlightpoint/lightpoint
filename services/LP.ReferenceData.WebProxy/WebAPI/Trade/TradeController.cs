@@ -16,10 +16,6 @@ using LP.Finance.Common.Cache;
 
 namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 {
-  
-
-
-
     public interface ITradeController
     {
         object Data(string symbol);
@@ -81,7 +77,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             var query = 
 $@"select 
     ParentOrderId,
-	LpOrderId, AccrualId,  Action, Symbol, Side, Quantity, TimeInForce, OrderType, SecurityType,  BloombergCode,
+	LpOrderId, AccrualId,  Action, coalesce(s.SecurityCode, Symbol) as Symbol, Side, Quantity, TimeInForce, OrderType, SecurityType,  BloombergCode,
 	CustodianCode, ExecutionBroker, TradeId, Fund, 
 	PMCode, PortfolioCode, Trader, 
 	TradeCurrency, TradePrice, TradeDate, 
@@ -90,10 +86,11 @@ $@"select
 	Status, 
 	NetMoney,Commission, Fees, 
 	SettleNetMoney, NetPrice, SettleNetPrice,
-	OrderedQuantity, FilledQuantity,RemainingQuantity,
+	-- OrderedQuantity, FilledQuantity,RemainingQuantity,
 	OrderSource,
 	UpdatedOn, 
 	COALESCE(LocalNetNotional,0) as LocalNetNotional  from Trade with(nolock)
+left outer join SecurityMaster..Security s on s.SecurityId = trade.SecurityId
 where LastUpdateTime between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}') 
 order by UpdatedOn desc
 ";

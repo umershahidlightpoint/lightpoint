@@ -1,5 +1,4 @@
 ﻿using LP.FileProcessing.MetaData;
-using LP.Finance.Common.Models;
 using LP.Finance.Common;
 using System;
 using System.Collections.Generic;
@@ -7,8 +6,8 @@ using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Xml.Linq;
-using Microsoft.CSharp;
+using LP.FileProcessing.S3;
+
 /*
 * Start of a common library for generating and consuming files
 */
@@ -77,7 +76,7 @@ namespace LP.FileProcessing
             }
         }
 
-        public object GetDate(object value,string format)
+        public object GetDate(object value, string format)
         {
             var date = (DateTime) value;
             return date.ToString(format);
@@ -127,6 +126,11 @@ namespace LP.FileProcessing
                 writer.WriteLine(string.Join(delim.ToString(), props.Select(i => dictionary[i.Destination])));
             }
         }
-    }
 
+        // Uploading Files to AWS S3 Bucket
+        public void UploadFile(string path)
+        {
+            S3Endpoint.Upload(path);
+        }
+    }
 }

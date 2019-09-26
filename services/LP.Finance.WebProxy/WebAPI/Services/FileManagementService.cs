@@ -19,21 +19,35 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 {
     public class FileManagementService : IFileManagementService
     {
-        private static readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+        private static readonly string
+            connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+
         public SqlHelper sqlHelper = new SqlHelper(connectionString);
         private static readonly string tradesURL = "http://localhost:9091/api/trade/data?period=";
         private static readonly string positionsURL = "http://localhost:9091/api/positions?period=2019-09-24";
-        private FileProcessor fileHelper = new FileProcessor();
+        private readonly FileProcessor fileHelper = new FileProcessor();
 
         public object GetFiles(string name)
         {
-            var query = $@"select f.id, f.name, f.path,f.source,f.[statistics], fa.file_action_id, fa.file_id, fa.action, fa.action_start_date, fa.action_end_date from [file] f
+            var query =
+                $@"select f.id, f.name, f.path,f.source,f.[statistics], fa.file_action_id, fa.file_id, fa.action, fa.action_start_date, fa.action_end_date from [file] f
                         left join[file_action] fa on f.id = fa.file_id order by fa.Action_Start_Date desc";
 
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
             var jsonResult = JsonConvert.SerializeObject(dataTable);
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
             return Utils.GridWrap(json);
+        }
+
+        public object UploadFile()
+        {
+            // The File Path to be Uploaded
+            var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
+            var path = currentDir + "SilverData" + Path.DirectorySeparatorChar + $"ActivityXML.xml";
+
+            fileHelper.UploadFile(path);
+
+            return Utils.Wrap(true);
         }
 
         public object GenerateActivityAndPositionFilesForSilver()
@@ -109,7 +123,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("statistics", statistics),
                 };
 
-                
+
                 var query = $@"INSERT INTO [file]
                                ([name]
                                ,[path]
