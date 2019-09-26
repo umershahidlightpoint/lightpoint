@@ -212,6 +212,13 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         filter: true
       },
       {
+        field: 'accountDescription',
+        headerName: 'Account Description',
+        sortable: true,
+        enableRowGroup: true,
+        filter: true
+      },
+      {
         field: 'when',
         headerName: 'when',
         sortable: true,
@@ -456,10 +463,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       height,
       boxSizing: 'border-box'
     };
-  }
-
-  onFirstDataRendered(params) {
-    params.api.sizeColumnsToFit();
   }
 
   onBtExport() {

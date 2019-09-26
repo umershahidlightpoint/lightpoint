@@ -89,8 +89,8 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 
             var query =
                 $@"select 
-    ParentOrderId,
-	LpOrderId, AccrualId, Action, s.SecurityCode as Symbol, Side, Quantity, TimeInForce, OrderType, SecurityType,  BloombergCode,
+    ParentOrderId, LpOrderId, AccrualId, Action, coalesce(s.SecurityCode, Symbol) as Symbol, 
+    Side, Quantity, TimeInForce, OrderType, SecurityType,  BloombergCode,
 	CustodianCode, ExecutionBroker, TradeId, Fund, 
 	PMCode, PortfolioCode, Trader, 
 	TradeCurrency, TradePrice, TradeDate, 
@@ -99,11 +99,11 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 	Status, 
 	NetMoney,Commission, Fees, 
 	SettleNetMoney, NetPrice, SettleNetPrice,
-	OrderedQuantity, FilledQuantity,RemainingQuantity,
+	-- OrderedQuantity, FilledQuantity,RemainingQuantity,
 	OrderSource,
 	UpdatedOn, 
 	COALESCE(LocalNetNotional,0) as LocalNetNotional  from allocation with(nolock)
-	inner join SecurityMaster..Security s on s.SecurityId = allocation.SecurityId
+	left outer join SecurityMaster..Security s on s.SecurityId = allocation.SecurityId
 where allocation.LastUpdateTime between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}') 
 order by allocation.UpdatedOn desc
 ";

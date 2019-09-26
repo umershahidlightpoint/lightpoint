@@ -17,7 +17,6 @@ export class SettingsComponent implements OnInit {
   reportingCurrency = 'USD';
   reportingDate = '';
 
-  
   private gridOptions: GridOptions;
   private allocationsGridOptions: GridOptions;
   bottomOptions = { alignedGrids: [] };
@@ -122,9 +121,5 @@ export class SettingsComponent implements OnInit {
 
       this.gridOptions.api.setColumnDefs(cdefs);
     });
-  }
-
-  onFirstDataRendered(params) {
-    params.api.sizeColumnsToFit();
   }
 }

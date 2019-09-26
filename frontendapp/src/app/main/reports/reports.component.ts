@@ -165,6 +165,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
           width: 100,
           filter: true,
           cellClass: 'rightAlign',
+          sortable:true,
           cellStyle: params => {
             if (params.data.accountName === 'Total' && params.data.balance !== 0) {
               return { backgroundColor: 'red' };
@@ -175,7 +176,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
               return { textAlign: 'end', color: 'red' };
             }
           },
-          valueFormatter: currencyFormatter
+          valueFormatter: absCurrencyFormatter
         }
       ],
       defaultColDef: {
@@ -367,3 +368,11 @@ function currencyFormatter(params) {
   }
   return CommaSeparatedFormat(params.value);
 }
+
+function absCurrencyFormatter(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  return CommaSeparatedFormat(Math.abs(params.value));
+}
+

@@ -30,7 +30,9 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
     {
         object Data(string period, bool journals);
 
-        object Allocations(string accrualId);
+        object Allocations(string orderId);
+
+        object Journals(string orderId);
     }
 
     public class TradesControllerStub : ITradesController
@@ -45,15 +47,27 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             return Utils.GetFile("trades_allocations_" + orderId);
         }
 
+        public object Journals(string orderId)
+        {
+            return Utils.GetFile("trades_journals_" + orderId);
+        }
+
     }
 
     public class TradesControllerService : ITradesController
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["TradeMasterDB"].ToString();
 
-        public object Allocations(string accrualId)
+        private readonly string financeConnectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+
+        public object Allocations(string orderId)
         {
-            return OnlyAllocations(accrualId);
+            return OnlyAllocations(orderId);
+        }
+
+        public object Journals(string orderId)
+        {
+            return OnlyJournals(orderId);
         }
 
         public object Data(string period, bool journals = false)
@@ -204,6 +218,68 @@ order by UpdatedOn desc
             return Utils.GridWrap(json, metaData);
         }
 
+        private object OnlyJournals(string orderId)
+        {
+            var content = "{}";
+
+            var query = $@"select 
+                        d.[id],
+                        d.debit,
+                        d.credit, 
+                        abs(d.debit) - abs(d.credit) as balance,
+                        d.[account_id],
+                        d.AccountCategory,
+                        d.AccountType,
+                        d.accountName,
+                        d.accountDescription,
+                        d.[fund],
+                        d.[value],
+                        d.[source],
+                        d.[when],
+                        d.[generated_by]
+                        from(
+                            SELECT 
+                                    (CASE WHEN value < 0 THEN value else 0 END  ) debit,
+                                    (CASE WHEN value > 0 THEN value else 0 END  ) credit, 
+                                    [journal].[id],
+                                    [account_id],
+                                    [fund],
+                                    [account_category].[name] as AccountCategory,  
+                                    [account_type].[name] as AccountType,  
+                                    [account].[name] as accountName,
+                                    [account].[description] as accountDescription,
+                                    [value],
+                                    [source],
+                                    [when],
+                                    [generated_by]
+                                    FROM [journal] with(nolock) 
+                        join account  on [journal]. [account_id] = account.id 
+                        join [account_type] on  [account].account_type_id = [account_type].id
+                        join [account_category] on  [account_type].account_category_id = [account_category].id 
+						where [journal].source ='{orderId}') as d";
+
+            MetaData metaData = null;
+
+            using (var con = new SqlConnection(financeConnectionString))
+            {
+                var sda = new SqlDataAdapter(query, con);
+                var dataTable = new DataTable();
+                con.Open();
+                sda.Fill(dataTable);
+                con.Close();
+
+                metaData = MetaData.ToMetaData(dataTable);
+
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+                content = jsonResult;
+            }
+
+
+            dynamic json = JsonConvert.DeserializeObject(content);
+
+            return Utils.GridWrap(json, metaData);
+        }
+
     }
 
 
@@ -227,10 +303,17 @@ order by UpdatedOn desc
         }
 
         [HttpGet]
-        [Route("allocations/{orderId}")]
+        [Route("allocations")]
         public object Allocations(string orderId)
         {
             return controller.Allocations(orderId);
+        }
+
+        [HttpGet]
+        [Route("journals")]
+        public object Journals(string orderId)
+        {
+            return controller.Journals(orderId);
         }
 
     }

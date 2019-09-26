@@ -131,10 +131,6 @@ export class FileManagementComponent implements OnInit, OnDestroy {
     this.dataService.changeGrid({ gridId: GridId.filesId, gridName: GridName.files });
   }
 
-  onFirstDataRendered(params) {
-    params.api.sizeColumnsToFit();
-  }
-
   private getFiles() {
     this.financeService
       .getFiles()

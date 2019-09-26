@@ -224,10 +224,6 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
     this.createAccount.show({});
   }
 
-  onFirstDataRendered(params) {
-    params.api.sizeColumnsToFit();
-  }
-
   onBtExport() {
     const params = {
       fileName: 'Accounts',

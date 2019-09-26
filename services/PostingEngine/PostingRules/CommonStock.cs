@@ -52,7 +52,7 @@ namespace PostingEngine.PostingRules
                 fxrate = Convert.ToDouble(env.FxRates[element.SettleCurrency].Rate);
             }
 
-            var moneyUSD = element.NetMoney / fxrate;
+            var moneyUSD = Math.Abs(element.NetMoney) / fxrate;
 
             if (element.NetMoney != 0.0)
             {
@@ -175,7 +175,7 @@ namespace PostingEngine.PostingRules
         public void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
             // Retrieve Allocation Objects for this trade
-            var tradeAllocations = env.Allocations.Where(i => i.ParentOrderId == element.ParentOrderId).ToList();
+            var tradeAllocations = env.Allocations.Where(i => i.LpOrderId == element.LpOrderId).ToList();
 
             if ( tradeAllocations.Count() > 2)
             {
@@ -217,17 +217,14 @@ namespace PostingEngine.PostingRules
 
             if (element.NetMoney != 0.0)
             {
-                var moneyUSD = (element.NetMoney / fxrate);
+                var moneyUSD = (Math.Abs(element.NetMoney) / fxrate);
                 
-                var creditAmount = moneyUSD;
-                var debitAmount = moneyUSD * -1;
-
                 var debitJournal = new Journal
                 {
                     Source = debitEntry.LpOrderId,
                     Account = accountToFrom.From,
                     When = env.ValueDate,
-                    Value = debitAmount,
+                    Value = moneyUSD * -1,
                     FxCurrency = element.TradeCurrency,
                     FxRate = fxrate,
                     GeneratedBy = "system",
@@ -241,7 +238,7 @@ namespace PostingEngine.PostingRules
                     When = env.ValueDate,
                     FxCurrency = element.TradeCurrency,
                     FxRate = fxrate,
-                    Value = creditAmount,
+                    Value = moneyUSD,
                     GeneratedBy = "system",
                     Fund = creditEntry.Fund,
                 };
