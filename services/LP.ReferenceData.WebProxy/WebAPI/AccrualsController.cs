@@ -226,7 +226,7 @@ order by UpdatedOn desc
         }
 
         [HttpGet]
-        [Route("allocations/{accrualid}")]
+        [Route("allocations")]
         public object Allocations(string accrualid)
         {
             return controller.Allocations(accrualid);
