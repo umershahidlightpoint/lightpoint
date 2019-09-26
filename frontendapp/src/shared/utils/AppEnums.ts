@@ -9,6 +9,8 @@ export class GridId {
   static trailBalanceReportId = 8;
   static selectedAccrualsId = 9;
   static selectedTradeId = 10;
+  static journalAllocationId = 11;
+  static selectedJournalAllocationId = 12;
 }
 
 export class GridName {
@@ -22,4 +24,6 @@ export class GridName {
   static trailBalanceReport = 'TrialBalanceReport';
   static selectedAccruals = 'SelectedAccruals';
   static SelectedTrades = 'SelectedTrades';
+  static journalAllocation = 'Journal Allocation';
+  static selectedJournalAllocation = 'Selected Journal Allocation';
 }

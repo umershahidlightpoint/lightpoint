@@ -105,12 +105,15 @@ export class JournalAllocationComponent implements OnInit, AfterViewInit {
       }
     });
     this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid({ gridId: GridId.tradeId, gridName: GridName.trade });
+    this.dataService.changeGrid({
+      gridId: GridId.journalAllocationId,
+      gridName: GridName.journalAllocation
+    });
 
     this.dataService.changeAllocation(this.allocationsGridOptions);
     this.dataService.changeAllocationGrid({
-      gridId: GridId.selectedTradeId,
-      gridName: GridName.SelectedTrades
+      gridId: GridId.selectedJournalAllocationId,
+      gridName: GridName.selectedJournalAllocation
     });
   }
 
@@ -145,26 +148,24 @@ export class JournalAllocationComponent implements OnInit, AfterViewInit {
 
   // Process Trade state
   isSubscriptionAlive: boolean;
-  key:string;
+  key: string;
 
-  processOrder(orderId:string, row:any) {
-
-    debugger
+  processOrder(orderId: string, row: any) {
+    debugger;
 
     this.financeService
-    .startPostingEngineSingleOrder(orderId)
-    .pipe(takeWhile(() => this.isSubscriptionAlive))
-    .subscribe(response => {
-      if (response.IsRunning) {
-        //this.isLoading = true;
-        this.key = response.key;
-        this.postingEngineService.changeStatus(true);
-        this.postingEngineService.checkProgress();
-      }
-      //this.key = response.key;
-      //this.getLogs();
-    });
-
+      .startPostingEngineSingleOrder(orderId)
+      .pipe(takeWhile(() => this.isSubscriptionAlive))
+      .subscribe(response => {
+        if (response.IsRunning) {
+          //this.isLoading = true;
+          this.key = response.key;
+          this.postingEngineService.changeStatus(true);
+          this.postingEngineService.checkProgress();
+        }
+        //this.key = response.key;
+        //this.getLogs();
+      });
   }
   getContextMenuItems(params) {
     const defaultItems = [
@@ -180,9 +181,7 @@ export class JournalAllocationComponent implements OnInit, AfterViewInit {
       }
     ];
 
-    const items = [
-      ...defaultItems
-    ];
+    const items = [...defaultItems];
     if (params.node.group) {
       return items;
     }
