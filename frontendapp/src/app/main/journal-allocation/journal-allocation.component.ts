@@ -30,11 +30,9 @@ export class JournalAllocationComponent implements OnInit, AfterViewInit {
 
   bottomOptions = { alignedGrids: [] };
   bottomData: any;
-  fund: any;
   pageSize: any;
   accountSearch = { id: undefined };
   valueFilter: number;
-  funds: any;
   sortColum: any;
   sortDirection: any;
   page: any;
@@ -44,6 +42,9 @@ export class JournalAllocationComponent implements OnInit, AfterViewInit {
   tradesData: any;
   hideGrid: boolean;
   allocationTradesData: any;
+  // Process Trade state
+  isSubscriptionAlive: boolean;
+  key: string;
 
   style = Style;
 
@@ -73,29 +74,10 @@ export class JournalAllocationComponent implements OnInit, AfterViewInit {
     this.hideGrid = false;
   }
 
-  splitColId(colId: any) {
-    const modifiedColId = colId.split('_');
-    return modifiedColId[0];
+  ngOnInit() {
+    this.isSubscriptionAlive = true;
+    //this.getTrades();
   }
-  openModal = row => {
-    // We can drive the screen that we wish to display from here
-    if (row.colDef.headerName === 'Group') {
-      return;
-    }
-    const cols = this.gridOptions.columnApi.getColumnState();
-    const modifiedCols = cols.map(i => ({ colId: this.splitColId(i.colId), hide: i.hide }));
-    if (row.colDef.headerName === 'LPOrderId') {
-      this.title = 'Allocation Details';
-      this.dataModal.openModal(row, modifiedCols);
-      return;
-    }
-
-    if (row.colDef.headerName === 'AccrualId') {
-      this.title = 'Accrual Details';
-      this.dataModal.openModal(row, modifiedCols);
-      return;
-    }
-  };
 
   ngAfterViewInit(): void {
     this.dataService.flag$.subscribe(obj => {
@@ -117,9 +99,29 @@ export class JournalAllocationComponent implements OnInit, AfterViewInit {
     });
   }
 
-  ngOnInit() {
-    this.isSubscriptionAlive = true;
-    //this.getTrades();
+  splitColId(colId: any) {
+    const modifiedColId = colId.split('_');
+    return modifiedColId[0];
+  }
+
+  openModal(row) {
+    // We can drive the screen that we wish to display from here
+    if (row.colDef.headerName === 'Group') {
+      return;
+    }
+    const cols = this.gridOptions.columnApi.getColumnState();
+    const modifiedCols = cols.map(i => ({ colId: this.splitColId(i.colId), hide: i.hide }));
+    if (row.colDef.headerName === 'LPOrderId') {
+      this.title = 'Allocation Details';
+      this.dataModal.openModal(row, modifiedCols);
+      return;
+    }
+
+    if (row.colDef.headerName === 'AccrualId') {
+      this.title = 'Accrual Details';
+      this.dataModal.openModal(row, modifiedCols);
+      return;
+    }
   }
 
   getTrades() {
@@ -146,13 +148,7 @@ export class JournalAllocationComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // Process Trade state
-  isSubscriptionAlive: boolean;
-  key: string;
-
   processOrder(orderId: string, row: any) {
-    debugger;
-
     this.financeService
       .startPostingEngineSingleOrder(orderId)
       .pipe(takeWhile(() => this.isSubscriptionAlive))
@@ -167,6 +163,7 @@ export class JournalAllocationComponent implements OnInit, AfterViewInit {
         //this.getLogs();
       });
   }
+
   getContextMenuItems(params) {
     const defaultItems = [
       'copy',
@@ -180,11 +177,6 @@ export class JournalAllocationComponent implements OnInit, AfterViewInit {
         }
       }
     ];
-
-    const items = [...defaultItems];
-    if (params.node.group) {
-      return items;
-    }
     return defaultItems;
   }
 
@@ -251,9 +243,5 @@ export class JournalAllocationComponent implements OnInit, AfterViewInit {
         this.allocationsData = someArray as [];
       });
     }
-  }
-
-  onFirstDataRendered(params) {
-    params.api.sizeColumnsToFit();
   }
 }

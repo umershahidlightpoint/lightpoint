@@ -576,10 +576,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     };
   }
 
-  onFirstDataRendered(params) {
-    params.api.sizeColumnsToFit();
-  }
-
   onBtExport() {
     const params = {
       fileName: 'Trial Balance',

@@ -187,10 +187,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     this.dataService.changeGrid({ gridId: GridId.logsId, gridName: GridName.logs });
   }
 
-  onFirstDataRendered(params) {
-    params.api.sizeColumnsToFit();
-  }
-
   private getJournalLogs() {
     this.financeService
       .getJournalLogs(
@@ -248,8 +244,8 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       .startPostingEngine(this.selectedPeriod.name)
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {
-        debugger
-        
+        debugger;
+
         if (response.IsRunning) {
           this.isLoading = true;
           this.key = response.key;

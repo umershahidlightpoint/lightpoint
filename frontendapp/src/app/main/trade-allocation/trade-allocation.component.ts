@@ -143,26 +143,24 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
 
   // Process Trade state
   isSubscriptionAlive: boolean;
-  key:string;
+  key: string;
 
-  processOrder(orderId:string, row:any) {
-
-    debugger
+  processOrder(orderId: string, row: any) {
+    debugger;
 
     this.financeService
-    .startPostingEngineSingleOrder(orderId)
-    .pipe(takeWhile(() => this.isSubscriptionAlive))
-    .subscribe(response => {
-      if (response.IsRunning) {
-        //this.isLoading = true;
-        this.key = response.key;
-        this.postingEngineService.changeStatus(true);
-        this.postingEngineService.checkProgress();
-      }
-      //this.key = response.key;
-      //this.getLogs();
-    });
-
+      .startPostingEngineSingleOrder(orderId)
+      .pipe(takeWhile(() => this.isSubscriptionAlive))
+      .subscribe(response => {
+        if (response.IsRunning) {
+          //this.isLoading = true;
+          this.key = response.key;
+          this.postingEngineService.changeStatus(true);
+          this.postingEngineService.checkProgress();
+        }
+        //this.key = response.key;
+        //this.getLogs();
+      });
   }
   getContextMenuItems(params) {
     const defaultItems = [
@@ -178,9 +176,7 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
       }
     ];
 
-    const items = [
-      ...defaultItems
-    ];
+    const items = [...defaultItems];
     if (params.node.group) {
       return items;
     }
@@ -249,13 +245,12 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
       alignedGrids: [],
       suppressHorizontalScroll: false
     } as GridOptions;
-
   }
 
   onRowSelected(event) {
     if (event.node.selected) {
       this.financeService.getTradeAllocations(event.node.data.LPOrderId).subscribe(result => {
-        debugger
+        debugger;
         this.allocationTradesData = result;
         const someArray = this.agGridUtils.columizeData(
           result.data,
@@ -271,25 +266,20 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
       });
 
       this.financeService.getTradeJournals(event.node.data.LPOrderId).subscribe(result => {
-        debugger
+        debugger;
         this.journalsTradesData = result;
         const someArray = this.agGridUtils.columizeData(
           result.data,
           this.journalsTradesData.meta.Columns
         );
-        const cdefs = this.agGridUtils.customizeColumns(
-          [],
-          this.journalsTradesData.meta.Columns,
-          ['Id', 'AllocationId', 'EMSOrderId']
-        );
+        const cdefs = this.agGridUtils.customizeColumns([], this.journalsTradesData.meta.Columns, [
+          'Id',
+          'AllocationId',
+          'EMSOrderId'
+        ]);
         this.journalsGridOptions.api.setColumnDefs(cdefs);
         this.journalsData = someArray as [];
       });
-
     }
-  }
-
-  onFirstDataRendered(params) {
-    params.api.sizeColumnsToFit();
   }
 }

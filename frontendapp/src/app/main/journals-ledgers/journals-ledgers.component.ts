@@ -465,10 +465,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     };
   }
 
-  onFirstDataRendered(params) {
-    params.api.sizeColumnsToFit();
-  }
-
   onBtExport() {
     const params = {
       fileName: 'Journals',

@@ -133,8 +133,4 @@ export class LogsComponent implements OnInit {
         }));
       });
   }
-
-  onFirstDataRendered(params) {
-    params.api.sizeColumnsToFit();
-  }
 }
