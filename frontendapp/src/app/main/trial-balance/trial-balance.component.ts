@@ -213,6 +213,14 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
         filter: true
       },
       {
+        field: 'accountDescription',
+        headerName: 'Account Description',
+        sortable: true,
+        rowGroup: true,
+        enableRowGroup: true,
+        filter: true
+      },
+      {
         field: 'when',
         headerName: 'when',
         sortable: true,

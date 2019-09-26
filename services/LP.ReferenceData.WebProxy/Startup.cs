@@ -40,6 +40,8 @@ namespace LP.ReferenceData.WebProxy
             config.Formatters.Clear();
             config.Formatters.Add(new JsonMediaTypeFormatter());
 
+            config.MapHttpAttributeRoutes();
+
             config.Routes.MapHttpRoute(
               name: "DefaultApi",
               routeTemplate: "api/{controller}/{name}",
@@ -47,45 +49,15 @@ namespace LP.ReferenceData.WebProxy
             );
 
             config.Routes.MapHttpRoute(
-              name: "SymbolMap-map",
-              routeTemplate: "api/{controller}/map/{product}",
-              defaults: new {
-                  product = RouteParameter.Optional
-              }
+              name: "journals",
+              routeTemplate: "api/trades/journals/{orderId}",
+              defaults: new { }
             );
 
             config.Routes.MapHttpRoute(
-              name: "SymbolMap-top",
-              routeTemplate: "api/{controller}/top/{product}/{count}",
-              defaults: new
-              {
-                  product = RouteParameter.Optional,
-                  count = RouteParameter.Optional
-              }
-            );
-
-            config.Routes.MapHttpRoute(
-                name: "Data-details",
-                routeTemplate: "api/{controller}/details/{symbol}",
-                defaults: new
-                {
-                }
-            );
-
-            config.Routes.MapHttpRoute(
-                name: "Portfolio-Queries",
-                routeTemplate: "api/{controller}/filter/{filter}",
-                defaults: new
-                {
-                }
-            );
-
-            config.Routes.MapHttpRoute(
-                name: "Profile-Queries",
-                routeTemplate: "api/{controller}/environment/{env}",
-                defaults: new
-                {
-                }
+              name: "allocations",
+              routeTemplate: "api/trades/allocations/{orderId}",
+              defaults: new { }
             );
 
             config.Routes.MapHttpRoute(
