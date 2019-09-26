@@ -312,6 +312,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         d.AccountCategory,
                         d.AccountType,
                         d.accountName,
+                        d.accountDescription,
                         d.[value],
                         d.[source],
                         d.[when],
@@ -325,7 +326,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                     [fund],
                                     [account_category].[name] as AccountCategory,  
                                     [account_type].[name] as AccountType,  
-                                    [account].[name] as accountName  ,
+                                    [account].[name] as accountName,
+                                    [account].[description] as accountDescription,
                                     [value],
                                     [source],
                                     [when],
@@ -333,7 +335,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                     FROM [journal] with(nolock) 
                         join account  on [journal]. [account_id] = account.id 
                         join [account_type] on  [account].account_type_id = [account_type].id
-                        join [account_category] on  [account_type].account_category_id = [account_category].id ";
+                        join [account_category] on  [account_type].account_category_id = [account_category].id";
 
             List<SqlParameter> sqlParams = new List<SqlParameter>();
             sqlParams.Add(new SqlParameter("pageNumber", pageNumber));
