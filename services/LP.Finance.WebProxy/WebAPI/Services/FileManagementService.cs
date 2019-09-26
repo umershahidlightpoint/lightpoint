@@ -4,6 +4,7 @@ using LP.Finance.Common.Models;
 using Newtonsoft.Json;
 using SqlDAL.Core;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -21,6 +22,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         private static readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
         public SqlHelper sqlHelper = new SqlHelper(connectionString);
         private static readonly string tradesURL = "http://localhost:9091/api/trade/data?period=";
+        private static readonly string positionsURL = "http://localhost:9091/api/positions?period=2019-09-24";
         private FileProcessor fileHelper = new FileProcessor();
 
         public object GetFiles(string name)
@@ -37,20 +39,57 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         public object GenerateActivityAndPositionFilesForSilver()
         {
             var trades = GetTransactions(tradesURL + "ALL");
-            Task.WaitAll(new Task[] { trades });
+            var positions = GetTransactions(positionsURL);
+            Task.WaitAll(new Task[] { trades, positions });
             var tradeList = JsonConvert.DeserializeObject<Transaction[]>(trades.Result);
+            var positionList = JsonConvert.DeserializeObject<Position[]>(positions.Result);
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
             System.IO.Directory.CreateDirectory(currentDir + Path.DirectorySeparatorChar + "SilverData");
-            string fileName = "activity_" + Convert.ToString(DateTime.UtcNow);
-            var newFileName = fileName.Replace("/", "_");
-            newFileName = newFileName.Replace(":", "-");
-            var path = currentDir + "SilverData" + Path.DirectorySeparatorChar + $"{newFileName}.csv";
-            
-            var result = fileHelper.GenerateFile(tradeList, path, "Activity_json");
-            int statistics = tradeList.Count();
 
-            InsertActivityAndPositionFilesForSilver(newFileName, path, statistics, "LightPoint");
+            string activityFileName = "activity_" + Convert.ToString(DateTime.UtcNow);
+            var newFileName = activityFileName.Replace("/", "_");
+            newFileName = newFileName.Replace(":", "-");
+
+            string positionFileName = "position_" + Convert.ToString(DateTime.UtcNow);
+            var newPositionFile = positionFileName.Replace("/", "_");
+            newPositionFile = newPositionFile.Replace(":", "-");
+
+
+            var activityPath = currentDir + "SilverData" + Path.DirectorySeparatorChar + $"{newFileName}.csv";
+            var positionPath = currentDir + "SilverData" + Path.DirectorySeparatorChar + $"{newPositionFile}.csv";
+
+            var activityHeader = GetHeader("HDR", "SMGActivity");
+            var activityTrailer = GetTrailer("TRL", "SMGActivity");
+            var positionHeader = GetHeader("HDR", "SMGOpenLotPosition");
+            var positionTrailer = GetTrailer("TRL", "SMGOpenLotPosition ");
+
+
+            var activityStatistics = fileHelper.GenerateFile(tradeList,activityHeader,activityTrailer, activityPath, "Activity_json");
+            var positionStatistics = fileHelper.GenerateFile(positionList, positionHeader, positionTrailer, positionPath, "Position_json");
+
+            //InsertActivityAndPositionFilesForSilver(newFileName, activityPath, activityStatistics, "LightPoint");
             return Utils.Wrap(true);
+        }
+
+        private object GetHeader(string headerIndicator, string fileName)
+        {
+            return new
+            {
+                HeaderIndicator = headerIndicator,
+                FileName = fileName,
+                BusinessDate = DateTime.UtcNow
+            };
+        }
+
+        private object GetTrailer(string footerIndicator, string fileName)
+        {
+            return new
+            {
+                FooterIndicator = footerIndicator,
+                FileName = fileName,
+                BusinessDate = DateTime.UtcNow,
+                RecordCount = 0
+            };
         }
 
         private void InsertActivityAndPositionFilesForSilver(string filename, string path, int statistics, string source)

@@ -17,49 +17,68 @@ namespace LP.FileProcessing
     public class FileProcessor
     {
         // Header & Footer's required as part of the file generation
-        public object GenerateFile<T>(IEnumerable<T> transactionList, string path, string fileName)
+        public int GenerateFile<T>(IEnumerable<T> recordList, object headerObj, object trailerObj, string path, string fileName)
         {
-            var schema = Utils.GetFile<SilverFileFormat>(fileName);
-            List<dynamic> activityList = MapRecord(transactionList, schema.record);
-            WritePipe(activityList,path, schema.record);
-            return activityList;
+            var schema = Utils.GetFile<SilverFileFormat>(fileName, "FileFormats");
+            List<dynamic> record = MapFileRecord(recordList, schema.record);
+            List<dynamic> header = MapFileSection(headerObj, schema.header);
+            List<dynamic> trailer = MapFileSection(trailerObj, schema.trailer, record.Count());
+            WritePipe(record,header,trailer, path, schema);
+            return record.Count();
         }
 
-        private List<dynamic> MapRecord<T>(IEnumerable<T> transactionList, List<FileProperties> schema)
+        private List<dynamic> MapFileRecord<T>(IEnumerable<T> transactionList, List<FileProperties> schema)
         {
-            List<dynamic> activityList = new List<dynamic>();
+            List<dynamic> sectionList = new List<dynamic>();
             foreach (var item in transactionList)
             {
-                dynamic obj = new ExpandoObject();
-                foreach (var map in schema)
-                {
-                    var prop = item.GetType().GetProperty(map.Source);
-                    var value = prop != null ? prop.GetValue(item, null) : null;
-
-                    if (!String.IsNullOrEmpty(map.Function) && !String.IsNullOrEmpty(map.Format))
-                    {
-                        Type thisType = this.GetType();
-                        MethodInfo theMethod = thisType.GetMethod(map.Function);
-                        object[] parametersArray = {value, map.Format};
-                        var val = theMethod.Invoke(this, parametersArray);
-                        value = val;
-                    }
-                    else if (!String.IsNullOrEmpty(map.Function))
-                    {
-                    }
-
-                    AddProperty(obj, map.Destination, value);
-                }
-
-                activityList.Add(obj);
+                dynamic obj;
+                MapItem(schema, item, out obj);
+                sectionList.Add(obj);
             }
 
-            return activityList;
+            return sectionList;
+        }
+
+        private List<dynamic> MapFileSection(object item, List<FileProperties> schema, int recordCount = 0)
+        {
+            List<dynamic> sectionList = new List<dynamic>();
+            dynamic obj;
+            MapItem(schema, item, out obj, recordCount);
+            sectionList.Add(obj);
+            return sectionList;
+        }
+
+        private void MapItem(List<FileProperties> schema, object item, out dynamic obj, int recordCount = 0)
+        {
+            obj = new ExpandoObject();
+            foreach (var map in schema)
+            {
+                var prop = item.GetType().GetProperty(map.Source);
+                var value = prop != null ? prop.GetValue(item, null) : null;
+
+                if (!String.IsNullOrEmpty(map.Function) && !String.IsNullOrEmpty(map.Format))
+                {
+                    Type thisType = this.GetType();
+                    MethodInfo theMethod = thisType.GetMethod(map.Function);
+                    object[] parametersArray = { value, map.Format };
+                    var val = theMethod.Invoke(this, parametersArray);
+                    value = val;
+                }
+                else if (!String.IsNullOrEmpty(map.Function))
+                {
+                }
+
+                if(map.Destination == "Record_Count")
+                {
+                    value = recordCount;
+                }
+                AddProperty(obj, map.Destination, value);
+            }
         }
 
         public object GetDate(object value,string format)
         {
-            format = "yyyy-MM-dd";
             var date = (DateTime) value;
             return date.ToString(format);
         }
@@ -77,47 +96,37 @@ namespace LP.FileProcessing
                 expandoDict.Add(propertyName, propertyValue);
             }
         }
-        public object PositionFile()
+      
+        public void WriteCSV(IEnumerable<dynamic> items, IEnumerable<dynamic> header, IEnumerable<dynamic> trailer, string path, SilverFileFormat properties)
         {
-            List<SilverMetaDataForPosition> positionMetaData = new List<SilverMetaDataForPosition>();
-            for (var i = 0; i < 10; i++)
-            {
-                SilverMetaDataForPosition met = new SilverMetaDataForPosition
-                {
-                    Security_Currency = "USD",
-                    Security_ID = "1234567",
-                    Symbol = "USD"
-                };
-
-                positionMetaData.Add(met);
-            }
-            return positionMetaData;
+            WriteDelimited(items,header,trailer, path,properties);
         }
 
-        public void WriteCSV(IEnumerable<dynamic> items, string path, List<FileProperties> properties)
+        public void WritePipe(IEnumerable<dynamic> items, IEnumerable<dynamic> header, IEnumerable<dynamic> trailer, string path, SilverFileFormat properties)
         {
-            WriteDelimited(items, path,properties);
+            WriteDelimited(items,header,trailer, path,properties, '|');
         }
 
-        public void WritePipe(IEnumerable<dynamic> items, string path, List<FileProperties> properties)
-        {
-            WriteDelimited(items, path,properties, '|');
-        }
-
-        public void WriteDelimited(IEnumerable<dynamic> items, string path, List<FileProperties> props, char delim = ',')
+        public void WriteDelimited(IEnumerable<dynamic> items, IEnumerable<dynamic> header, IEnumerable<dynamic> trailer,  string path, SilverFileFormat properties, char delim = ',')
         {
             using (var writer = new StreamWriter(path))
             {
-                writer.WriteLine(string.Join(delim.ToString(), props.Select(p => p.Destination)));
-
-                foreach (var item in items)
-                {
-                    var dictionary = ((IDictionary<String, Object>)item);
-                    writer.WriteLine(string.Join(delim.ToString(), props.Select(i=> dictionary[i.Destination])));
-                }
+                WriteFile(header, properties.header, delim, writer);
+                WriteFile(items, properties.record, delim, writer);
+                WriteFile(trailer, properties.trailer, delim, writer);
             }
         }
 
+        private static void WriteFile(IEnumerable<dynamic> items, List<FileProperties> props, char delim, StreamWriter writer)
+        {
+            //writer.WriteLine(string.Join(delim.ToString(), props.Select(p => p.Destination)));
+
+            foreach (var item in items)
+            {
+                var dictionary = ((IDictionary<String, Object>)item);
+                writer.WriteLine(string.Join(delim.ToString(), props.Select(i => dictionary[i.Destination])));
+            }
+        }
     }
 
 }

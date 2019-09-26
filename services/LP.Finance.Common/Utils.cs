@@ -186,13 +186,13 @@ namespace LP.Finance.Common
             return content;
         }
 
-        public static T GetFile<T>(string filename)
+        public static T GetFile<T>(string filename, string folderName = "MockData")
         {
             var content = "{}";
 
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
 
-            var folder = currentDir + "MockData" + Path.DirectorySeparatorChar + $"{filename}.json";
+            var folder = currentDir + folderName + Path.DirectorySeparatorChar + $"{filename}.json";
             if (File.Exists(folder))
                 content = File.ReadAllText(folder);
 

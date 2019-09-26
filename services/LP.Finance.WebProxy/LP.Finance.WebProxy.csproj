@@ -123,6 +123,14 @@
     <Compile Include="WebAPI\Stubs\AccountStub.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\LP.FileProcessing\Formats\Activity_json.json">
+      <Link>FileFormats\Activity_json.json</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\LP.FileProcessing\Formats\Position_json.json">
+      <Link>FileFormats\Position_json.json</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="App.config" />
     <None Include="Docs\README.md" />
     <None Include="MockData\all.json">

@@ -1,0 +1,228 @@
+{
+  "Header": [
+    {
+      "source": "HeaderIndicator",
+      "destination": "Header_Indicator",
+      "required": true,
+      "function": null,
+      "format": null
+    },
+    {
+      "source": "FileName",
+      "destination": "File_Name",
+      "required": true,
+      "function": null,
+      "format": null
+    },
+    {
+      "source": "BusinessDate",
+      "destination": "Business_Date",
+      "required": true,
+      "function": "GetDate",
+      "format": "yyyy-MM-dd"
+    }
+  ],
+  "Trailer": [
+    {
+      "source": "FooterIndicator",
+      "destination": "Footer_Indicator",
+      "required": true,
+      "function": null,
+      "format": null
+    },
+    {
+      "source": "FileName",
+      "destination": "File_Name",
+      "required": true,
+      "function": null,
+      "format": null
+    },
+    {
+      "source": "BusinessDate",
+      "destination": "Business_Date",
+      "required": true,
+      "function": "GetDate",
+      "format": "yyyy-MM-dd"
+    },
+    {
+      "source": "RecordCount",
+      "destination": "Record_Count",
+      "required": true,
+      "function": null,
+      "format": null
+    }
+  ],
+  "Record": [
+    {
+      "source": "",
+      "destination": "Account_ID",
+      "required": true,
+      "function": null,
+      "format": null,
+      "length": "15",
+      "rule": "Brokerage/Back-Office account number. Ex. ABCDEF123456"
+    },
+    {
+      "source": "",
+      "destination": "Back-Office_Transaction_ID",
+      "required": false,
+      "function": null,
+      "format": null,
+      "length": "18",
+      "rule": "required for Open Lot records Ex. ABCDEF12345"
+    },
+    {
+      "source": "",
+      "destination": "Subaccount_Type",
+      "required": true,
+      "function": null,
+      "format": null,
+      "length": null,
+      "rule": "Use: Cash (default), Margin, or Short."
+    },
+    {
+      "source": "",
+      "destination": "Security_ID",
+      "required": true,
+      "function": "",
+      "format": "",
+      "length": "20",
+      "rule": "Back-office security identifier.  Use internal security master unique identifier"
+
+    },
+    {
+      "source": "",
+      "destination": "CUSIP",
+      "required": true,
+      "function": "",
+      "format": "",
+      "length": "20",
+      "rule": "CUSIP for applicable instruments.  May be populated with symbol or SEDOL for instruments without a CUSIP."
+    },
+    {
+      "source": "SecurityCode", //Not sure
+      "destination": "Symbol",
+      "required": true,
+      "function": "",
+      "format": "",
+      "length": "25",
+      "rule": "Security symbol.  May be populated with CUSIP or SEDOL for instruments without a symbol."
+    },
+    {
+      "source": "Currency",
+      "destination": "Security_Currency", //Not sure
+      "required": true,
+      "function": "",
+      "format": "",
+      "length": null,
+      "rule": "ISO currency code."
+    },
+    {
+      "source": "Quantity",
+      "destination": "Quantity",
+      "required": true,
+      "function": "",
+      "format": "",
+      "length": "18,6",
+      "rule": "Ex. 100.000000"
+    },
+    {
+      "source": "Price",
+      "destination": "Price",
+      "required": false,
+      "function": "",
+      "format": "",
+      "length": "18,6",
+      "rule": "recommended for Open Lot records"
+    },
+    {
+      "source": "",
+      "destination": "Commission",
+      "required": false,
+      "function": "",
+      "format": "",
+      "length": "18,6",
+      "rule": "recommended for Open Lot records. Ex 10.00000"
+    },
+    {
+      "source": "",
+      "destination": "Fees",
+      "required": false,
+      "function": "",
+      "format": "",
+      "length": "18,6",
+      "rule": "recommended for Open Lot records. Ex. 10.00000"
+    },
+    {
+      "source": "",
+      "destination": "Net_Cost",
+      "required": false,
+      "function": "",
+      "format": "",
+      "length": "20,6",
+      "rule": "required for Open Lot records. Ex. 1000.00000"
+    },
+    {
+      "source": "Side",
+      "destination": "Long_Position_Indicator",
+      "required": true,
+      "function": "",
+      "format": "",
+      "length": null,
+      "rule": "Use: True (is a long position) or False (is a short position)."
+    },
+    {
+      "source": "",
+      "destination": "Open_Date",
+      "required": false,
+      "function": "",
+      "format": "yyyy-MM-dd",
+      "length": null,
+      "rule": "required for Open Lot records"
+    },
+    {
+      "source": "",
+      "destination": "Settlement_Date",
+      "required": false,
+      "function": "",
+      "format": "yyyy-MM-dd",
+      "rule": "recommended for Open Lot records"
+    },
+    {
+      "source": "",
+      "destination": "Back-Office_Post_Date",
+      "required": false,
+      "function": "",
+      "format": "",
+      "length": null,
+      "rule": "recommended for Open Lot records"
+    },
+    {
+      "source": "", //startfx
+      "destination": "FX_Spot_Rate",
+      "required": false,
+      "function": "",
+      "format": "",
+      "length": "18,10",
+      "rule": "recommended for Open Lot records. Ex. 123.0123456789"
+    },
+    {
+      "source": "",
+      "destination": "Transaction_Type",
+      "required": false,
+      "function": "",
+      "format": "",
+      "length": "12",
+      "rule": "recommended for Open Lot records. Ex. Buy"
+    },
+    {
+      "source": "",
+      "destination": "Baseline_Date",
+      "required": false,
+      "function": "",
+      "format": "yyyy-MM-dd",
+      "length": null,
+      "rule": "required for baseline loads"
+    }
+  ]
+}
