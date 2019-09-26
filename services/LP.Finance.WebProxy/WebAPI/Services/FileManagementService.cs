@@ -18,14 +18,17 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 {
     public class FileManagementService : IFileManagementService
     {
-        private static readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+        private static readonly string
+            connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+
         public SqlHelper sqlHelper = new SqlHelper(connectionString);
         private static readonly string tradesURL = "http://localhost:9091/api/trade/data?period=";
-        private FileProcessor fileHelper = new FileProcessor();
+        private readonly FileProcessor fileHelper = new FileProcessor();
 
         public object GetFiles(string name)
         {
-            var query = $@"select f.id, f.name, f.path,f.source,f.[statistics], fa.file_action_id, fa.file_id, fa.action, fa.action_start_date, fa.action_end_date from [file] f
+            var query =
+                $@"select f.id, f.name, f.path,f.source,f.[statistics], fa.file_action_id, fa.file_id, fa.action, fa.action_start_date, fa.action_end_date from [file] f
                         left join[file_action] fa on f.id = fa.file_id order by fa.Action_Start_Date desc";
 
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
@@ -34,10 +37,21 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return Utils.GridWrap(json);
         }
 
+        public object UploadFile()
+        {
+            // The File Path to be Uploaded
+            var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
+            var path = currentDir + "SilverData" + Path.DirectorySeparatorChar + $"ActivityXML.xml";
+
+            fileHelper.UploadFile(path);
+
+            return Utils.Wrap(true);
+        }
+
         public object GenerateActivityAndPositionFilesForSilver()
         {
             var trades = GetTransactions(tradesURL + "ALL");
-            Task.WaitAll(new Task[] { trades });
+            Task.WaitAll(new Task[] {trades});
             var tradeList = JsonConvert.DeserializeObject<Transaction[]>(trades.Result);
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
             System.IO.Directory.CreateDirectory(currentDir + Path.DirectorySeparatorChar + "SilverData");
@@ -45,7 +59,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var newFileName = fileName.Replace("/", "_");
             newFileName = newFileName.Replace(":", "-");
             var path = currentDir + "SilverData" + Path.DirectorySeparatorChar + $"{newFileName}.csv";
-            
+
             var result = fileHelper.GenerateFile(tradeList, path, "Activity_json");
             int statistics = tradeList.Count();
 
@@ -53,7 +67,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return Utils.Wrap(true);
         }
 
-        private void InsertActivityAndPositionFilesForSilver(string filename, string path, int statistics, string source)
+        private void InsertActivityAndPositionFilesForSilver(string filename, string path, int statistics,
+            string source)
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);
             try
@@ -70,7 +85,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("statistics", statistics),
                 };
 
-                
+
                 var query = $@"INSERT INTO [file]
                                ([name]
                                ,[path]

@@ -1,5 +1,4 @@
 ﻿using LP.FileProcessing.MetaData;
-using LP.Finance.Common.Models;
 using LP.Finance.Common;
 using System;
 using System.Collections.Generic;
@@ -7,8 +6,8 @@ using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Xml.Linq;
-using Microsoft.CSharp;
+using LP.FileProcessing.S3;
+
 /*
 * Start of a common library for generating and consuming files
 */
@@ -16,12 +15,12 @@ namespace LP.FileProcessing
 {
     public class FileProcessor
     {
-        // Header & Footer's required as part of the file generation
+        // Header & Footers required as part of the file generation
         public object GenerateFile<T>(IEnumerable<T> transactionList, string path, string fileName)
         {
             var schema = Utils.GetFile<SilverFileFormat>(fileName);
             List<dynamic> activityList = MapRecord(transactionList, schema.record);
-            WritePipe(activityList,path, schema.record);
+            WritePipe(activityList, path, schema.record);
             return activityList;
         }
 
@@ -57,7 +56,7 @@ namespace LP.FileProcessing
             return activityList;
         }
 
-        public object GetDate(object value,string format)
+        public object GetDate(object value, string format)
         {
             format = "yyyy-MM-dd";
             var date = (DateTime) value;
@@ -77,6 +76,7 @@ namespace LP.FileProcessing
                 expandoDict.Add(propertyName, propertyValue);
             }
         }
+
         public object PositionFile()
         {
             List<SilverMetaDataForPosition> positionMetaData = new List<SilverMetaDataForPosition>();
@@ -91,20 +91,22 @@ namespace LP.FileProcessing
 
                 positionMetaData.Add(met);
             }
+
             return positionMetaData;
         }
 
         public void WriteCSV(IEnumerable<dynamic> items, string path, List<FileProperties> properties)
         {
-            WriteDelimited(items, path,properties);
+            WriteDelimited(items, path, properties);
         }
 
         public void WritePipe(IEnumerable<dynamic> items, string path, List<FileProperties> properties)
         {
-            WriteDelimited(items, path,properties, '|');
+            WriteDelimited(items, path, properties, '|');
         }
 
-        public void WriteDelimited(IEnumerable<dynamic> items, string path, List<FileProperties> props, char delim = ',')
+        public void WriteDelimited(IEnumerable<dynamic> items, string path, List<FileProperties> props,
+            char delim = ',')
         {
             using (var writer = new StreamWriter(path))
             {
@@ -112,12 +114,16 @@ namespace LP.FileProcessing
 
                 foreach (var item in items)
                 {
-                    var dictionary = ((IDictionary<String, Object>)item);
-                    writer.WriteLine(string.Join(delim.ToString(), props.Select(i=> dictionary[i.Destination])));
+                    var dictionary = ((IDictionary<String, Object>) item);
+                    writer.WriteLine(string.Join(delim.ToString(), props.Select(i => dictionary[i.Destination])));
                 }
             }
         }
 
+        // Uploading Files to AWS S3 Bucket
+        public void UploadFile(string path)
+        {
+            S3Endpoint.Upload(path);
+        }
     }
-
 }
