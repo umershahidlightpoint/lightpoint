@@ -120,7 +120,7 @@ export class FileManagementComponent implements OnInit, OnDestroy {
         this.filesGridOptions.api.sizeColumnsToFit();
       },
       onFirstDataRendered: params => {
-        this.onFirstDataRendered(params);
+        params.api.sizeColumnsToFit();
       },
       enableFilter: true,
       animateRows: true,
