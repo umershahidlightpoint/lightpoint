@@ -37,6 +37,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return Utils.GridWrap(json);
         }
 
+        public object ImportFilesFromSilver()
+        {
+            var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
+            var extractPath = currentDir + Path.DirectorySeparatorChar + "FileFormats" + Path.DirectorySeparatorChar + "Transaction_Extract.txt";
+            var recordBody = fileHelper.ImportFile(extractPath, "Transaction");
+            return recordBody;
+
+        }
         public object GenerateActivityAndPositionFilesForSilver()
         {
             var trades = GetTransactions(tradesURL + "ALL");

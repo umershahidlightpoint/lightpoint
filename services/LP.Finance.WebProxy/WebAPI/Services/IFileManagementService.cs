@@ -4,6 +4,7 @@
     {
         object GetFiles(string name);
         object GenerateActivityAndPositionFilesForSilver();
+        object ImportFilesFromSilver();
         object UploadFiles();
         object DownloadFiles();
     }

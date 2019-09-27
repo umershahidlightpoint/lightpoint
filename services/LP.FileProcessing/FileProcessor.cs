@@ -27,6 +27,13 @@ namespace LP.FileProcessing
             return record.Count();
         }
 
+        public object ImportFile(string path, string fileName)
+        {
+            var schema = Utils.GetFile<SilverFileFormat>(fileName, "FileFormats");
+            var resp = ExtractPipe(path, schema);
+            return resp;
+        }
+
         private List<dynamic> MapFileRecord<T>(IEnumerable<T> transactionList, List<FileProperties> schema)
         {
             List<dynamic> sectionList = new List<dynamic>();
@@ -110,8 +117,70 @@ namespace LP.FileProcessing
             WriteDelimited(items, header, trailer, path, properties, '|');
         }
 
-        public void WriteDelimited(IEnumerable<dynamic> items, IEnumerable<dynamic> header,
-            IEnumerable<dynamic> trailer, string path, SilverFileFormat properties, char delim = ',')
+        public List<dynamic> ExtractPipe(string path, SilverFileFormat properties)
+        {
+            return ExtractDelimited(path, properties, '|');
+        }
+
+        private List<dynamic> ExtractDelimited(string path, SilverFileFormat properties, char v = ',')
+        {
+            var recordDictionary = properties.record.Select((s, i) => new { s, i }).ToDictionary(x => x.i, x => x.s.Destination);
+            var headerDictionary = properties.record.Select((s, i) => new { s, i }).ToDictionary(x => x.i, x => x.s.Destination);
+            var trailerDictionary = properties.record.Select((s, i) => new { s, i }).ToDictionary(x => x.i, x => x.s.Destination);
+
+            //string test = "a|b||c|||d";
+            int index = 0;
+            var headerProperties = properties.header;
+            int recordOffset = headerProperties.FindIndex(x => x.Source == "RECORD_COUNT");
+            int? totalRecords = null;
+            List<dynamic> record = new List<dynamic>();
+            List<dynamic> trailer = new List<dynamic>();
+            List<dynamic> header = new List<dynamic>();
+            foreach (var line in System.IO.File.ReadLines(path))
+            {
+                int dictionaryIndex = 0;
+                dynamic obj = new ExpandoObject();
+                var delimited = line.Split(v);
+                foreach (var item in delimited)
+                {
+                    if(index == 0)
+                    {
+                        if(dictionaryIndex == recordOffset)
+                        {
+                            totalRecords = Convert.ToInt32(item);
+                        }
+
+                        AddProperty(obj, headerDictionary[dictionaryIndex], item);
+                    }
+                    else if(totalRecords.HasValue && index == totalRecords + 1)
+                    {
+                        AddProperty(obj, trailerDictionary[dictionaryIndex], item);
+                    }
+                    else
+                    {
+                        AddProperty(obj, recordDictionary[dictionaryIndex], item);
+                    }
+
+                    dictionaryIndex++;
+                }
+                if(index == 0)
+                {
+                    header.Add(obj);
+                }
+                else if (totalRecords.HasValue && index == totalRecords + 1)
+                {
+                    trailer.Add(obj);
+                }
+                else
+                {
+                    record.Add(obj);
+                }
+                index++;
+            }
+            return record;
+        }
+
+        public void WriteDelimited(IEnumerable<dynamic> items, IEnumerable<dynamic> header, IEnumerable<dynamic> trailer,  string path, SilverFileFormat properties, char delim = ',')
         {
             using (var writer = new StreamWriter(path))
             {
