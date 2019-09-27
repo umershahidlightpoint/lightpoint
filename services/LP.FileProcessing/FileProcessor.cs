@@ -16,13 +16,14 @@ namespace LP.FileProcessing
     public class FileProcessor
     {
         // Header & Footer's required as part of the file generation
-        public int GenerateFile<T>(IEnumerable<T> recordList, object headerObj, object trailerObj, string path, string fileName)
+        public int GenerateFile<T>(IEnumerable<T> recordList, object headerObj, object trailerObj, string path,
+            string fileName)
         {
             var schema = Utils.GetFile<SilverFileFormat>(fileName, "FileFormats");
             List<dynamic> record = MapFileRecord(recordList, schema.record);
             List<dynamic> header = MapFileSection(headerObj, schema.header);
             List<dynamic> trailer = MapFileSection(trailerObj, schema.trailer, record.Count());
-            WritePipe(record,header,trailer, path, schema);
+            WritePipe(record, header, trailer, path, schema);
             return record.Count();
         }
 
@@ -60,7 +61,7 @@ namespace LP.FileProcessing
                 {
                     Type thisType = this.GetType();
                     MethodInfo theMethod = thisType.GetMethod(map.Function);
-                    object[] parametersArray = { value, map.Format };
+                    object[] parametersArray = {value, map.Format};
                     var val = theMethod.Invoke(this, parametersArray);
                     value = val;
                 }
@@ -68,10 +69,11 @@ namespace LP.FileProcessing
                 {
                 }
 
-                if(map.Destination == "Record_Count")
+                if (map.Destination == "Record_Count")
                 {
                     value = recordCount;
                 }
+
                 AddProperty(obj, map.Destination, value);
             }
         }
@@ -95,18 +97,21 @@ namespace LP.FileProcessing
                 expandoDict.Add(propertyName, propertyValue);
             }
         }
-      
-        public void WriteCSV(IEnumerable<dynamic> items, IEnumerable<dynamic> header, IEnumerable<dynamic> trailer, string path, SilverFileFormat properties)
+
+        public void WriteCSV(IEnumerable<dynamic> items, IEnumerable<dynamic> header, IEnumerable<dynamic> trailer,
+            string path, SilverFileFormat properties)
         {
-            WriteDelimited(items,header,trailer, path,properties);
+            WriteDelimited(items, header, trailer, path, properties);
         }
 
-        public void WritePipe(IEnumerable<dynamic> items, IEnumerable<dynamic> header, IEnumerable<dynamic> trailer, string path, SilverFileFormat properties)
+        public void WritePipe(IEnumerable<dynamic> items, IEnumerable<dynamic> header, IEnumerable<dynamic> trailer,
+            string path, SilverFileFormat properties)
         {
-            WriteDelimited(items,header,trailer, path,properties, '|');
+            WriteDelimited(items, header, trailer, path, properties, '|');
         }
 
-        public void WriteDelimited(IEnumerable<dynamic> items, IEnumerable<dynamic> header, IEnumerable<dynamic> trailer,  string path, SilverFileFormat properties, char delim = ',')
+        public void WriteDelimited(IEnumerable<dynamic> items, IEnumerable<dynamic> header,
+            IEnumerable<dynamic> trailer, string path, SilverFileFormat properties, char delim = ',')
         {
             using (var writer = new StreamWriter(path))
             {
@@ -116,21 +121,28 @@ namespace LP.FileProcessing
             }
         }
 
-        private static void WriteFile(IEnumerable<dynamic> items, List<FileProperties> props, char delim, StreamWriter writer)
+        private static void WriteFile(IEnumerable<dynamic> items, List<FileProperties> props, char delim,
+            StreamWriter writer)
         {
             //writer.WriteLine(string.Join(delim.ToString(), props.Select(p => p.Destination)));
 
             foreach (var item in items)
             {
-                var dictionary = ((IDictionary<String, Object>)item);
+                var dictionary = ((IDictionary<String, Object>) item);
                 writer.WriteLine(string.Join(delim.ToString(), props.Select(i => dictionary[i.Destination])));
             }
         }
 
         // Uploading Files to AWS S3 Bucket
-        public void UploadFile(string path)
+        public bool UploadFile(string path)
         {
-            S3Endpoint.Upload(path);
+            return S3Endpoint.Upload(path);
+        }
+
+        // Downloading Files from AWS S3 Bucket
+        public bool DownloadFile(string path)
+        {
+            return S3Endpoint.Download(path);
         }
     }
 }

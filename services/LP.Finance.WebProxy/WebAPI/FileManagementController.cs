@@ -1,9 +1,4 @@
 ﻿using LP.Finance.WebProxy.WebAPI.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace LP.Finance.WebProxy.WebAPI
@@ -21,19 +16,27 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.GetFiles(name);
         }
 
-        // GET api/fileManagement/upload
-        [Route("upload")]
-        [HttpGet]
-        public object UploadFiles()
-        {
-            return controller.UploadFile();
-        }
-
         [Route("SilverEndOfDay")]
         [HttpPost]
         public object GenerateActivityAndPositionFilesForSilver()
         {
             return controller.GenerateActivityAndPositionFilesForSilver();
+        }
+
+        // GET api/fileManagement/upload
+        [Route("upload")]
+        [HttpGet]
+        public object UploadFiles()
+        {
+            return controller.UploadFiles();
+        }
+
+        // GET api/fileManagement/download
+        [Route("download")]
+        [HttpGet]
+        public object DownloadFiles()
+        {
+            return controller.DownloadFiles();
         }
     }
 }
