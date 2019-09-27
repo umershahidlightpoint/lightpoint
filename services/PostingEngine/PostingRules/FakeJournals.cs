@@ -140,6 +140,7 @@ namespace PostingEngine.PostingRules
                 {
                     Source = element.LpOrderId,
                     Account = accountToFrom.From,
+                    Quantity = element.Quantity,
                     When = env.ValueDate,
                     FxCurrency = element.TradeCurrency,
                     FxRate = fxrate,
@@ -152,6 +153,7 @@ namespace PostingEngine.PostingRules
                 {
                     Source = element.LpOrderId,
                     Account = accountToFrom.To,
+                    Quantity = element.Quantity,
                     When = env.ValueDate,
                     FxCurrency = element.TradeCurrency,
                     FxRate = fxrate,

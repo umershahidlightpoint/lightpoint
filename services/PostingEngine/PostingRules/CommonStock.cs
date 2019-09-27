@@ -62,6 +62,7 @@ namespace PostingEngine.PostingRules
                     Account = accountToFrom.From,
                     When = env.ValueDate,
                     FxCurrency = element.SettleCurrency,
+                    Quantity = element.Quantity,
                     FxRate = fxrate,
                     Value = moneyUSD * -1,
                     GeneratedBy = "system",
@@ -75,6 +76,7 @@ namespace PostingEngine.PostingRules
                     When = env.ValueDate,
                     FxCurrency = element.SettleCurrency,
                     FxRate = fxrate,
+                    Quantity = element.Quantity,
                     Value = moneyUSD,
                     GeneratedBy = "system",
                     Fund = creditEntry.Fund,
@@ -112,6 +114,8 @@ namespace PostingEngine.PostingRules
                     toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, credit);
                     break;
                 case "sell":
+                    fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("LONG POSITIONS AT COST")).FirstOrDefault(), listOfFromTags, debit);
+                    toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, credit);
                     break;
                 case "short":
                     fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("SHORT POSITIONS-COST")).FirstOrDefault(), listOfFromTags, element);
@@ -218,6 +222,10 @@ namespace PostingEngine.PostingRules
             if (element.NetMoney != 0.0)
             {
                 var moneyUSD = (Math.Abs(element.NetMoney) / fxrate);
+                if ( element.Side.ToLowerInvariant().Equals("sell"))
+                {
+                    moneyUSD = moneyUSD * -1;
+                }
                 
                 var debitJournal = new Journal
                 {

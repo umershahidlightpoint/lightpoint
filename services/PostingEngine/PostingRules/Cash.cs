@@ -95,6 +95,7 @@ namespace PostingEngine.PostingRules
                     Account = accountToFrom.From,
                     When = env.ValueDate,
                     Value = debitAmount,
+                    Quantity = element.Quantity,
                     FxCurrency = element.TradeCurrency,
                     FxRate = fxrate,
                     GeneratedBy = "system",
@@ -109,6 +110,7 @@ namespace PostingEngine.PostingRules
                     FxCurrency = element.TradeCurrency,
                     FxRate = fxrate,
                     Value = creditAmount,
+                    Quantity = element.Quantity,
                     GeneratedBy = "system",
                     Fund = element.Fund,
                 };

@@ -411,40 +411,18 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var res = JsonConvert.DeserializeObject<PayLoad>(transactionResults.Result);
 
             var elements = JsonConvert.DeserializeObject<Transaction[]>(res.payload);
-
-            var properties = typeof(Transaction).GetProperties();
-            foreach (var prop in properties)
-            {
-                dataTable.Columns.Add(prop.Name, prop.PropertyType);
-            }
-
-            // Get the Columns we Need to Generate the UI Grid
-            var metaData = MetaData.ToMetaData(dataTable);
-
             var dictionary = elements.ToDictionary(i => i.TradeId, i => i);
 
             foreach (var element in dataTable.Rows)
             {
                 var dataRow = element as DataRow;
+
                 dataRow["debit"] = Math.Abs(Convert.ToDecimal(dataRow["debit"]));
-
-                var source = dataRow["source"].ToString();
-
-                // var found = elements.Where(e => e.TradeId == dataRow["source"].ToString()).FirstOrDefault();
-                if (!dictionary.ContainsKey(source))
-                    continue;
-
-                var found = dictionary[source];
-
-                if (found != null)
-                {
-                    // Copy Data to the Row
-                    foreach (var prop in properties)
-                    {
-                        dataRow[prop.Name] = prop.GetValue(found);
-                    }
-                }
             }
+
+            HelperFunctions.Join(dataTable, dictionary, "source");
+
+            var metaData = MetaData.ToMetaData(dataTable);
 
             metaData.Total = dataTable.Rows.Count > 0 ? Convert.ToInt32(dataTable.Rows[0][0]) : 0;
             journalStats.totalCredit = dataTable.Rows.Count > 0 ? Convert.ToDouble(dataTable.Rows[0]["totalDebit"]) : 0;

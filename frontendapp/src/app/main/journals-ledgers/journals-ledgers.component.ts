@@ -329,6 +329,16 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         }
       },
       {
+        field: 'Quantity',
+        aggFunc: 'sum',
+        width: 100,
+        headerName: 'Quantity',
+        sortable: true,
+        enableRowGroup: true,
+        filter: true
+      },
+
+      {
         field: 'TradeCurrency',
         width: 100,
         headerName: 'Trade Ccy',
@@ -534,9 +544,10 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       const cellFund = node.data.fund;
       const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
       const cellDate = new Date(node.data.when);
+      debugger
       return (
         cellFund === this.fund &&
-        cellSymbol.includes(this.filterBySymbol) &&
+        cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) &&
         this.startDate.toDate() <= cellDate &&
         this.endDate.toDate() >= cellDate
       );
@@ -559,7 +570,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
       const cellDate = new Date(node.data.when);
       return (
-        cellSymbol.includes(this.filterBySymbol) &&
+        cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) &&
         this.startDate.toDate() <= cellDate &&
         this.endDate.toDate() >= cellDate
       );
@@ -574,7 +585,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     }
     if (this.filterBySymbol !== '') {
       const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
-      return cellSymbol.includes(this.filterBySymbol);
+      return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase())
     }
   }
 

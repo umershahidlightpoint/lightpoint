@@ -371,4 +371,41 @@ namespace LP.Finance.Common
             }
         }
     }
+
+    public static class HelperFunctions
+    {
+        public static DataTable Join<T>(DataTable dataTable, Dictionary<string, T> elements, string key)
+        {
+            var properties = typeof(Transaction).GetProperties();
+            foreach (var prop in properties)
+            {
+                dataTable.Columns.Add(prop.Name, prop.PropertyType);
+            }
+
+            // Get the Columns we Need to Generate the UI Grid
+
+            foreach (var element in dataTable.Rows)
+            {
+                var dataRow = element as DataRow;
+
+                var source = dataRow[key].ToString();
+
+                if (!elements.ContainsKey(source))
+                    continue;
+
+                var found = elements[source];
+
+                if (found != null)
+                {
+                    // Copy Data to the Row
+                    foreach (var prop in properties)
+                    {
+                        dataRow[prop.Name] = prop.GetValue(found);
+                    }
+                }
+            }
+
+            return dataTable;
+        }
+    }
 }

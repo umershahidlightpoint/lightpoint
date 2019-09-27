@@ -21,6 +21,8 @@ namespace LP.Finance.Common.Models
         public String Source { get; set; }
         public DateTime When { get; set; }
 
+        public double Quantity { get; set; }
+
         public string GeneratedBy { get; set; }
 
         // Get a list of Journal Entries for this trade
@@ -41,9 +43,9 @@ namespace LP.Finance.Common.Models
             get
             {
                 var sql = @"insert into journal 
-                            (source, account_id, value, [when], generated_by, fund, fx_currency, fxrate) 
+                            (source, account_id, value, [when], generated_by, fund, fx_currency, fxrate, quantity) 
                             values 
-                            (@source, @account_id, @value, @when, @generated_by, @fund, @fx_currency, @fxrate)";
+                            (@source, @account_id, @value, @when, @generated_by, @fund, @fx_currency, @fxrate, @quantity)";
                 var sqlParams = new SqlParameter[]
                 {
                     new SqlParameter("fund", Fund),
@@ -53,6 +55,7 @@ namespace LP.Finance.Common.Models
                     new SqlParameter("when", When),
                     new SqlParameter("fx_currency", FxCurrency),
                     new SqlParameter("fxrate", FxRate),
+                    new SqlParameter("quantity", Quantity),
                     new SqlParameter("generated_by", GeneratedBy),
             };
 
@@ -84,7 +87,7 @@ namespace LP.Finance.Common.Models
             // read the table structure from the database
             var localconnection = new SqlConnection(connection.ConnectionString + ";Password=ggtuser");
             localconnection.Open();
-            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 id, source, account_id, value, [when], generated_by, fund, fx_currency, fxrate FROM Journal", localconnection))
+            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 id, source, account_id, value, [when], generated_by, fund, fx_currency, fxrate, quantity FROM Journal", localconnection))
             {
                 adapter.Fill(table);
             };
@@ -105,6 +108,7 @@ namespace LP.Finance.Common.Models
             row["fund"] = this.Fund;
             row["fx_currency"] = this.FxCurrency;
             row["fxrate"] = this.FxRate;
+            row["quantity"] = this.Quantity;
         }
     }
 
