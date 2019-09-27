@@ -438,6 +438,75 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return returnResult;
         }
 
+        public object GetCostBasisReport(DateTime? from = null, DateTime? to = null, string fund = "")
+        {
+            dynamic postingEngine = new PostingEngineService().GetProgress();
+            if (postingEngine.IsRunning)
+            {
+                return Utils.Wrap(false, "Posting Engine is currently Running");
+            }
+
+            bool whereAdded = false;
+
+            var query = $@"SELECT a.name, journal.symbol, Abs(sum(value)) as Balance, sum(quantity) as Quantity, Abs(sum(value)) / sum(quantity) as CostBasis
+  FROM journal with(nolock)
+inner join account a on a.id = journal.account_id
+inner join account_type a_t on a_t.id = a.account_type_id
+where a_t.name = 'LONG POSITIONS AT COST'
+";
+
+            List<SqlParameter> sqlParams = new List<SqlParameter>();
+
+            if (from.HasValue)
+            {
+                query = query + " and journal.[when] >= @from";
+                whereAdded = true;
+                sqlParams.Add(new SqlParameter("from", from));
+            }
+
+            if (to.HasValue)
+            {
+                if (whereAdded)
+                {
+                    query = query + " and journal.[when] <= @to";
+                    sqlParams.Add(new SqlParameter("to", to));
+                }
+                else
+                {
+                    query = query + " and journal.[when] <= @to";
+                    whereAdded = true;
+                    sqlParams.Add(new SqlParameter("to", to));
+                }
+            }
+
+            if (fund != "ALL")
+            {
+                if (whereAdded)
+                {
+                    query = query + " and journal.[fund] = @fund";
+                    whereAdded = true;
+                    sqlParams.Add(new SqlParameter("fund", fund));
+                }
+                else
+                {
+                    query = query + " and journal.[fund] = @fund";
+                    whereAdded = true;
+                    sqlParams.Add(new SqlParameter("fund", fund));
+                }
+            }
+
+            query = query +
+                    "  group by a.name, journal.symbol";
+
+            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+
+            dynamic reportObject = new System.Dynamic.ExpandoObject();
+
+            reportObject.data = dataTable;
+
+            return reportObject;
+        }
+
         public object GetTrialBalanceReport(DateTime? from = null, DateTime? to = null, string fund = "")
         {
             dynamic postingEngine = new PostingEngineService().GetProgress();

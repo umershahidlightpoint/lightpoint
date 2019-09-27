@@ -436,6 +436,18 @@ export class FinancePocServiceProxy {
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
+  getCostBasisReport(fromDate, toDate, fund) {
+    const url =
+      this.baseUrl +
+      '/journal/costbasisReport?from=' +
+      fromDate +
+      '&to=' +
+      toDate +
+      '&fund=' +
+      fund;
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
+
   /*
   Get All Files
   */

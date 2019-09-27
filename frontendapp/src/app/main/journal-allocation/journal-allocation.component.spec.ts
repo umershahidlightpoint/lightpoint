@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TradeAllocationComponent } from './trade-allocation.component';
+import { JournalAllocationComponent } from './journal-allocation.component';
 
 describe('AccrualsComponent', () => {
-  let component: TradeAllocationComponent;
-  let fixture: ComponentFixture<TradeAllocationComponent>;
+  let component: JournalAllocationComponent;
+  let fixture: ComponentFixture<JournalAllocationComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ TradeAllocationComponent ]
+      declarations: [ JournalAllocationComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(TradeAllocationComponent);
+    fixture = TestBed.createComponent(JournalAllocationComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

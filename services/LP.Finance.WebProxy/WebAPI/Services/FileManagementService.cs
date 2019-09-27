@@ -41,8 +41,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
             var extractPath = currentDir + Path.DirectorySeparatorChar + "FileFormats" + Path.DirectorySeparatorChar + "Transaction_Extract.txt";
-            var recordBody = fileHelper.ImportFile(extractPath, "Transaction");
-            return recordBody;
+            //var recordBody = fileHelper.ImportFile(extractPath, "Transaction");
+            //return recordBody;
+            return null;
 
         }
         public object GenerateActivityAndPositionFilesForSilver()

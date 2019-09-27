@@ -544,7 +544,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       const cellFund = node.data.fund;
       const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
       const cellDate = new Date(node.data.when);
-      debugger
       return (
         cellFund === this.fund &&
         cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) &&

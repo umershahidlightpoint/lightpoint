@@ -146,7 +146,6 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
   key: string;
 
   processOrder(orderId: string, row: any) {
-    debugger;
 
     this.financeService
       .startPostingEngineSingleOrder(orderId)
@@ -250,7 +249,6 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
   onRowSelected(event) {
     if (event.node.selected) {
       this.financeService.getTradeAllocations(event.node.data.LPOrderId).subscribe(result => {
-        debugger;
         this.allocationTradesData = result;
         const someArray = this.agGridUtils.columizeData(
           result.data,
@@ -266,7 +264,6 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
       });
 
       this.financeService.getTradeJournals(event.node.data.LPOrderId).subscribe(result => {
-        debugger;
         this.journalsTradesData = result;
         const someArray = this.agGridUtils.columizeData(
           result.data,

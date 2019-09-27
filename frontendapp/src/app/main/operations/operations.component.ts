@@ -65,11 +65,11 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   backdrop: any;
 
   periods = [
+    { name: 'Latest' },
+    { name: 'Today' },
+    { name: 'MTD' },
     { name: 'YTD' },
     { name: 'ITD' },
-    { name: 'MTD' },
-    { name: 'Today' },
-    { name: 'Latest' }
   ];
 
   style = Style;
@@ -244,7 +244,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       .startPostingEngine(this.selectedPeriod.name)
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {
-        debugger;
 
         if (response.IsRunning) {
           this.isLoading = true;

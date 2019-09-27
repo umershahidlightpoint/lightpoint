@@ -67,6 +67,8 @@ import { SettingsComponent } from './main/settings/settings.component';
 import { OperationsComponent } from './main/operations/operations.component';
 import { ButtonRendererComponent } from '../renderer/buttonRenderer';
 import { BalanceReportComponent } from './main/reports/balance-report/balance-report.component';
+import { CostBasisComponent } from './main/reports/costbasis/costbasis.component';
+import { TrialBalanceComponent } from './main/reports/trial-balance/trial-balance.component';
 import { ReportModalComponent } from '../shared/Component/report-modal/report-modal.component';
 import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selection-grid-layout-menu/grid-layout-menu.component';
 
@@ -95,6 +97,8 @@ import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selectio
     FileManagementComponent,
     ButtonRendererComponent,
     BalanceReportComponent,
+    CostBasisComponent,
+    TrialBalanceComponent,
     ReportModalComponent
   ],
   imports: [
