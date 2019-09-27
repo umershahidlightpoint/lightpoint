@@ -11,5 +11,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object GetFiles(string name);
         object UploadFile();
         object GenerateActivityAndPositionFilesForSilver();
+        object ImportFilesFromSilver();
+
     }
 }

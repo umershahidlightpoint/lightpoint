@@ -35,5 +35,12 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return controller.GenerateActivityAndPositionFilesForSilver();
         }
+
+        [Route("ImportFilesFromSilver")]
+        [HttpPost]
+        public object ImportFilesFromSilver()
+        {
+            return controller.ImportFilesFromSilver();
+        }
     }
 }

@@ -131,6 +131,10 @@
       <Link>FileFormats\Position_json.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="..\LP.FileProcessing\Formats\Transaction.json">
+      <Link>FileFormats\Transaction.json</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="App.config" />
     <None Include="Docs\README.md" />
     <None Include="MockData\all.json">
@@ -206,6 +210,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Hubs\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\LP.FileProcessing\Sample Extracts\Transaction_Extract.txt">
+      <Link>FileFormats\Transaction_Extract.txt</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

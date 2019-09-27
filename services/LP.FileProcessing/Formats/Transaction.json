@@ -1,0 +1,134 @@
+{
+  "Header": [
+    {
+      "source": "RECORD_TYPE",
+      "destination": "RECORD_TYPE",
+      "required": true,
+      "function": null,
+      "format": null
+    },
+    {
+      "source": "FILE_TYPE",
+      "destination": "FILE_TYPE",
+      "required": true,
+      "function": null,
+      "format": null
+    },
+    {
+      "source": "BUSINESS_DATE",
+      "destination": "BUSINESS_DATE",
+      "required": true,
+      "function": null,
+      "format": null
+    },
+    {
+      "source": "RUN_DATETIME",
+      "destination": "RUN_DATETIME",
+      "required": true,
+      "function": null,
+      "format": null
+    },
+    {
+      "source": "PRIOR_RUN_DATETIME",
+      "destination": "PRIOR_RUN_DATETIME",
+      "required": true,
+      "function": null,
+      "format": null
+    },
+    {
+      "source": "RECORD_COUNT",
+      "destination": "RECORD_COUNT",
+      "required": true,
+      "function": null,
+      "format": null
+    }
+  ],
+  "Trailer": [
+    {
+      "source": "RECORD_TYPE",
+      "destination": "RECORD_TYPE",
+      "required": true,
+      "function": null,
+      "format": null
+    },
+    {
+      "source": "FILE_TYPE",
+      "destination": "FILE_TYPE",
+      "required": true,
+      "function": null,
+      "format": null
+    },
+    {
+      "source": "BUSINESS_DATE",
+      "destination": "BUSINESS_DATE",
+      "required": true,
+      "function": null,
+      "format": null
+    },
+    {
+      "source": "RUN_DATETIME",
+      "destination": "RUN_DATETIME",
+      "required": true,
+      "function": null,
+      "format": null
+    },
+    {
+      "source": "PRIOR_RUN_DATETIME",
+      "destination": "PRIOR_RUN_DATETIME",
+      "required": true,
+      "function": null,
+      "format": null
+    },
+    {
+      "source": "RECORD_COUNT",
+      "destination": "RECORD_COUNT",
+      "required": true,
+      "function": null,
+      "format": null
+    }
+  ],
+  "Record": [
+    {
+      "source": "REC_TYPE",
+      "destination": "REC_TYPE",
+      "function": null,
+      "format": "1",
+      "type": "char"
+    },
+    {
+      "source": "UID",
+      "destination": "UID",
+      "function": null,
+      "format": "18",
+      "type": "char"
+    },
+    {
+      "source": "TAGNO",
+      "destination": "TAGNO",
+      "function": null,
+      "format": "18",
+      "type": "char"
+    },
+    {
+      "source": "ACCT_ID",
+      "destination": "ACCT_ID",
+      "function": null,
+      "format": "10",
+      "type": "char"
+    },
+    {
+      "source": "SUBACCT_TYPE",
+      "destination": "SUBACCT_TYPE",
+      "function": null,
+      "format": "1",
+      "type": "int"
+    },
+    {
+      "source": "SECNO",
+      "destination": "SECNO",
+      "function": null,
+      "format": "9",
+      "type": "char"
+    }
+  ]
+}

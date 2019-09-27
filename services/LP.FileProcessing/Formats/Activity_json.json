@@ -54,32 +54,124 @@
   ],
   "Record": [
     {
+      "source": "",
+      "destination": "Account_ID",
+      "required": true,
+      "function": null,
+      "format": "15",
+      "rule": "Brokerage/Back-Office account number. Ex. ABCDEF123456"
+    },
+    {
+      "source": "",
+      "destination": "Subaccount_Type",
+      "required": true,
+      "function": null,
+      "format": null,
+      "rule": "Use: Cash (default), Margin, or Short"
+    },
+    {
       "source": "TradeId",
       "destination": "Security_ID",
       "required": true,
       "function": null,
-      "format": null
+      "format": "20",
+      "rule": "Back-office security identifier.  Use internal security master unique identifier."
+    },
+    {
+      "source": "CUSIP",
+      "destination": "CUSIP",
+      "required": true,
+      "function": null,
+      "format": "20",
+      "rule": "CUSIP for applicable instruments.  May be populated with symbol or SEDOL for instruments without a CUSIP."
     },
     {
       "source": "Symbol",
       "destination": "Symbol",
       "required": true,
       "function": null,
-      "format": null
+      "format": "25",
+      "rule": "Security symbol.  May be populated with CUSIP or SEDOL for instruments without a symbol."
     },
     {
-      "source": "CUSIP",
-      "destination": "CUSIP",
+      "source": "",
+      "destination": "Security_Currency",
+      "required": true,
+      "function": null,
+      "format": null,
+      "rule": "ISO currency code. "
+    },
+    {
+      "source": "",
+      "destination": "Transaction_Type",
+      "required": true,
+      "function": null,
+      "format": null,
+      "rule": "Use: Buy, Sell, Receive, Deliver, or Cash Movement."
+    },
+    {
+      "source": "",
+      "destination": "Trade_Date",
+      "required": true,
+      "function": null,
+      "format": "yyyy-MM-dd",
+      "rule": "Date of trade execution or bookkeeping transaction.  Ex. 2011-01-01"
+    },
+    {
+      "source": "",
+      "destination": "Trade_Time",
       "required": false,
       "function": null,
-      "format": null
+      "format": "hh:mm:ss.mmm",
+      "rule": "Required for trades; optional (recommended) for bookkeeping; time(hh:mm:ss.mmm). Ex. 09.10.11.123"
+    },
+    {
+      "source": "",
+      "destination": "Quantity",
+      "required": true,
+      "function": null,
+      "format": "18,6",
+      "rule": "For cash movement, use Net amount. Ex. 100.000000"
+    },
+    {
+      "source": "",
+      "destination": "Back-Office_Transaction_ID",
+      "required": false,
+      "function": null,
+      "format": null,
+      "rule": "Optional (recommended to facilitate support); varchar(20). "
+    },
+    {
+      "source": "",
+      "destination": "Description",
+      "required": false,
+      "function": null,
+      "format": "256",
+      "rule": "Optional – (recommended to facilitate support and operations); varchar(256)"
+    },
+    {
+      "source": "Back-Office_Post_Date",
+      "destination": "",
+      "required": false,
+      "function": null,
+      "format": "",
+      "rule": ""
     },
     {
       "source": "SettleDate",
       "destination": "Settlement_Date",
       "required": true,
       "function": "GetDate",
-      "format": "yyyy-MM-dd"
+      "format": "yyyy-MM-dd",
+      "rule": "Required for trades; optional for bookkeeping; date(yyyy-mm-dd)"
+    },
+    {
+      "source": "",
+      "destination": "Transaction_Currency",
+      "required": true,
+      "function": null,
+      "format": "",
+      "rule": "ISO currency code."
     }
   ]
 }
