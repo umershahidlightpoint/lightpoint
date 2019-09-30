@@ -40,6 +40,14 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.DownloadFiles();
         }
 
+        // GET api/fileManagement/s3Files
+        [Route("s3Files")]
+        [HttpGet]
+        public object GetS3Files()
+        {
+            return controller.GetS3Files();
+        }
+
         [Route("ImportFilesFromSilver")]
         [HttpPost]
         public object ImportFilesFromSilver()

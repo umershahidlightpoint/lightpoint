@@ -462,6 +462,14 @@ export class FinancePocServiceProxy {
   }
 
   /*
+  Get Silver Files
+  */
+  getSilverFiles() {
+    const url = this.baseUrl + '/fileManagement/s3Files';
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
+
+  /*
   Generate Files
   */
   generateFiles() {

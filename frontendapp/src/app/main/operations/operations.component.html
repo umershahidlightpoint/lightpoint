@@ -115,6 +115,13 @@
   <!-- Files Tab -->
   <p-tabPanel header="Import / Export" [ngStyle]="style">
     <!-- <router-outlet></router-outlet> -->
-    <app-file-management *ngIf="fileManagementActive"></app-file-management>
+    <div class="row">
+      <div class="col-6">
+        <app-file-management *ngIf="fileManagementActive"></app-file-management>
+      </div>
+      <div class="col-6">
+        <app-silver-file-management *ngIf="fileManagementActive"></app-silver-file-management>
+      </div>
+    </div>
   </p-tabPanel>
 </p-tabView>

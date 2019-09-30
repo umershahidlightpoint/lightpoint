@@ -9,7 +9,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object ImportFilesFromSilver();
         object UploadFiles();
         object DownloadFiles();
+        object GetS3Files();
         object UpdateFileAction(FileActionInputDto input);
-
     }
 }
