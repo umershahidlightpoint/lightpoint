@@ -106,6 +106,7 @@ export class FileManagementComponent implements OnInit, OnDestroy {
         headerName: 'Business Date',
         sortable: true,
         filter: true,
+        enableRowGroup: true,
         resizable: true
       },
       { field: 'actionStartDate', headerName: 'Start Date', sortable: true, filter: true },
@@ -124,18 +125,31 @@ export class FileManagementComponent implements OnInit, OnDestroy {
       columnDefs: columnDefsForFiles,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onGridReady: () => {
-        this.filesGridOptions.api.sizeColumnsToFit();
+        let allColumnIds = [];
+        this.filesGridOptions.columnApi.getAllColumns().forEach(function(column) {
+          allColumnIds.push(column.colId);
+        });
+        this.filesGridOptions.columnApi.autoSizeColumns(allColumnIds); 
       },
       onFirstDataRendered: params => {
-        params.api.sizeColumnsToFit();
+        
       },
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
-      suppressHorizontalScroll: true
+      suppressHorizontalScroll: true,
+      suppressColumnVirtualisation: true
     } as GridOptions;
     this.dataService.changeMessage(this.filesGridOptions);
     this.dataService.changeGrid({ gridId: GridId.filesId, gridName: GridName.files });
+  }
+
+  autoSizeAll(){
+    let allColumnIds = [];
+    this.filesGridOptions.columnApi.getAllColumns().forEach(function(column) {
+      allColumnIds.push(column.colId);
+    });
+    this.filesGridOptions.columnApi.autoSizeColumns(allColumnIds); 
   }
 
   private getFiles() {

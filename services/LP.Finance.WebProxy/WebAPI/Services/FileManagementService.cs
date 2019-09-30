@@ -126,18 +126,21 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         new SqlParameter("path", file.path),
                         new SqlParameter("source", file.source),
                         new SqlParameter("statistics", file.statistics),
+                        new SqlParameter("business_date", file.businessDate),
                     };
 
                     var query = $@"INSERT INTO [file]
                                ([name]
                                ,[path]
                                ,[source]
-                               ,[statistics])
+                               ,[statistics]
+                                ,[business_date])
                          VALUES
                                (@name,
                                @path,
                                @source,
-                               @statistics)
+                               @statistics,
+                                @business_date)
                                SELECT SCOPE_IDENTITY() AS 'Identity'";
 
                     sqlHelper.Insert(query, CommandType.Text, fileParams.ToArray(),out int fileId);

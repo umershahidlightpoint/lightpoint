@@ -63,13 +63,14 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   sortColum: any;
   sortDirection: any;
   backdrop: any;
+  businessDate: any;
 
   periods = [
     { name: 'Latest' },
     { name: 'Today' },
     { name: 'MTD' },
     { name: 'YTD' },
-    { name: 'ITD' },
+    { name: 'ITD' }
   ];
 
   style = Style;
@@ -244,7 +245,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       .startPostingEngine(this.selectedPeriod.name)
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {
-
         if (response.IsRunning) {
           this.isLoading = true;
           this.key = response.key;
@@ -257,8 +257,11 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   generateFiles() {
+    var obj = {
+      businessDate : this.businessDate != null ? this.businessDate.startDate : null
+    }
     this.financeService
-      .generateFiles()
+      .generateFiles(obj)
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {
         if (response.isSuccessful) {

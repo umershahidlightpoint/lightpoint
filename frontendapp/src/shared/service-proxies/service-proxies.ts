@@ -472,8 +472,8 @@ export class FinancePocServiceProxy {
   /*
   Generate Files
   */
-  generateFiles() {
+  generateFiles(body) {
     const url = this.baseUrl + '/fileManagement/silverEndOfDay';
-    return this.http.post(url, null).pipe(map((response: any) => response));
+    return this.http.post(url, body).pipe(map((response: any) => response));
   }
 }
