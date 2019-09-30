@@ -456,6 +456,11 @@ export class FinancePocServiceProxy {
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
+  updateAction(body) {
+    const url = this.baseUrl + '/fileManagement/UpdateFileAction';
+    return this.http.post(url,body).pipe(map((response: any) => response));
+  }
+
   /*
   Get Silver Files
   */

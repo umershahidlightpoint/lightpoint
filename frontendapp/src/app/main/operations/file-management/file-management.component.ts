@@ -101,6 +101,13 @@ export class FileManagementComponent implements OnInit, OnDestroy {
         filter: true,
         resizable: true
       },
+      {
+        field: 'businessDate',
+        headerName: 'Business Date',
+        sortable: true,
+        filter: true,
+        resizable: true
+      },
       { field: 'actionStartDate', headerName: 'Start Date', sortable: true, filter: true },
       { field: 'actionEndDate', headerName: 'End Date', sortable: true, filter: true },
       {
@@ -145,7 +152,8 @@ export class FileManagementComponent implements OnInit, OnDestroy {
           fileActionId: item.file_action_id,
           action: item.action,
           actionStartDate: item.action_start_date,
-          actionEndDate: item.action_end_date
+          actionEndDate: item.action_end_date,
+          businessDate : item.business_date
         }));
         this.filesGridOptions.api.setRowData(this.files);
       });
@@ -160,7 +168,7 @@ export class FileManagementComponent implements OnInit, OnDestroy {
     const params = {
       fileName: 'File Management',
       sheetName: 'First Sheet',
-      columnKeys: ['name', 'action', 'source', 'statistics', 'actionStartDate', 'actionEndDate']
+      columnKeys: ['name', 'action', 'source', 'statistics','businessDate', 'actionStartDate', 'actionEndDate']
     };
     this.filesGridOptions.api.exportDataAsExcel(params);
     this.downloadExcelUtils.ToastrMessage();
@@ -226,7 +234,17 @@ export class FileManagementComponent implements OnInit, OnDestroy {
   downloadFile(file) {}
 
   processFile(params) {
+    let local = this;
     this.toastrService.success('File Processing is Started');
+    let obj = {
+      fileId: params.node.data.id,
+      action: "Processing"
+    }
+    this.financeService.updateAction(obj).subscribe(resp => {
+      if(resp.isSuccessful){
+        local.getFiles();
+      }
+    });
   }
 
   ngOnDestroy() {

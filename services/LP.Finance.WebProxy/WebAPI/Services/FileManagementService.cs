@@ -1,5 +1,6 @@
 ﻿using LP.FileProcessing;
 using LP.Finance.Common;
+using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Models;
 using Newtonsoft.Json;
 using SqlDAL.Core;
@@ -27,8 +28,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         public object GetFiles(string name)
         {
             var query =
-                $@"select f.id, f.name, f.path,f.source,f.[statistics], fa.file_action_id, fa.file_id, fa.action, fa.action_start_date, fa.action_end_date from [file] f
-                        left join[file_action] fa on f.id = fa.file_id order by fa.Action_Start_Date desc";
+                $@"select f.id, f.name, f.path,f.source,f.[statistics], f.business_date, fa.file_action_id, fa.file_id, fa.action, fa.action_start_date, fa.action_end_date from [file] f
+                        inner join[file_action] fa on f.id = fa.file_id order by fa.Action_Start_Date desc";
 
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
             var jsonResult = JsonConvert.SerializeObject(dataTable);
@@ -46,8 +47,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             // return recordBody;
             return null;
         }
-
-        public object GenerateActivityAndPositionFilesForSilver()
+        public object GenerateActivityAndPositionFilesForSilver(FileGenerationInputDto dto)
         {
             var trades = GetTransactions(tradesURL + "ALL");
             var positions = GetTransactions(positionsURL);
@@ -81,7 +81,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var positionStatistics = fileProcessor.GenerateFile(positionList, positionHeader, positionTrailer,
                 positionPath, "Position_json");
 
-            // InsertActivityAndPositionFilesForSilver(newFileName, activityPath, activityStatistics, "LightPoint");
+            List<FileInputDto> fileList = new List<FileInputDto>();
+            fileList.Add(new FileInputDto(activityPath, newFileName, activityStatistics, "LightPoint", "Upload", dto.businessDate.HasValue ? dto.businessDate : DateTime.UtcNow));
+            fileList.Add(new FileInputDto(positionPath, newPositionFile, positionStatistics, "LightPoint", "Upload", dto.businessDate.HasValue ? dto.businessDate : DateTime.UtcNow));
+
+            InsertActivityAndPositionFilesForSilver(fileList);
             return Utils.Wrap(true);
         }
 
@@ -106,8 +110,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             };
         }
 
-        private void InsertActivityAndPositionFilesForSilver(string filename, string path, int statistics,
-            string source)
+        private void InsertActivityAndPositionFilesForSilver(List<FileInputDto> files)
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);
             try
@@ -115,15 +118,17 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.VerifyConnection();
                 sqlHelper.SqlBeginTransaction();
 
-                List<SqlParameter> activityFile = new List<SqlParameter>
+                foreach (var file in files)
                 {
-                    new SqlParameter("name", filename),
-                    new SqlParameter("path", path),
-                    new SqlParameter("source", source),
-                    new SqlParameter("statistics", statistics),
-                };
+                    List<SqlParameter> fileParams = new List<SqlParameter>
+                    {
+                        new SqlParameter("name", file.fileName),
+                        new SqlParameter("path", file.path),
+                        new SqlParameter("source", file.source),
+                        new SqlParameter("statistics", file.statistics),
+                    };
 
-                var query = $@"INSERT INTO [file]
+                    var query = $@"INSERT INTO [file]
                                ([name]
                                ,[path]
                                ,[source]
@@ -132,9 +137,34 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                (@name,
                                @path,
                                @source,
-                               @statistics)";
+                               @statistics)
+                               SELECT SCOPE_IDENTITY() AS 'Identity'";
 
-                sqlHelper.Insert(query, CommandType.Text, activityFile.ToArray());
+                    sqlHelper.Insert(query, CommandType.Text, fileParams.ToArray(),out int fileId);
+
+                    List<SqlParameter> fileActionParams = new List<SqlParameter>()
+                    {
+                        new SqlParameter("file_id", fileId),
+                        new SqlParameter("action", file.action),
+                        new SqlParameter("action_start_date", DateTime.UtcNow),
+                        new SqlParameter("action_end_date", DateTime.UtcNow)
+                    };
+
+
+                    query = $@"INSERT INTO[dbo].[file_action]
+                           ([file_id]
+                           ,[action]
+                           ,[action_start_date]
+                           ,[action_end_date])
+                         VALUES
+                           (@file_id
+                           ,@action
+                           ,@action_start_date
+                           ,@action_end_date)";
+
+                    sqlHelper.Insert(query, CommandType.Text, fileActionParams.ToArray());
+
+                }
 
                 sqlHelper.SqlCommitTransaction();
                 sqlHelper.CloseConnection();
@@ -145,6 +175,45 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.CloseConnection();
             }
         }
+
+        public object UpdateFileAction(FileActionInputDto input)
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+
+            List<SqlParameter> fileActionParams = new List<SqlParameter>
+            {
+                new SqlParameter("file_id", input.fileId),
+                new SqlParameter("action", input.action),
+                new SqlParameter("action_start_date", DateTime.UtcNow),
+                new SqlParameter("action_end_date", DateTime.UtcNow)
+            };
+
+            var query = $@"INSERT INTO[dbo].[file_action]
+                           ([file_id]
+                           ,[action]
+                           ,[action_start_date]
+                           ,[action_end_date])
+                         VALUES
+                           (@file_id
+                           ,@action
+                           ,@action_start_date
+                           ,@action_end_date)";
+
+            try
+            {
+                sqlHelper.VerifyConnection();
+
+                sqlHelper.Insert(query, CommandType.Text, fileActionParams.ToArray());
+            }
+            catch (Exception ex)
+            {
+                sqlHelper.CloseConnection();
+                return Utils.Wrap(false);
+            }
+
+            return Utils.Wrap(true);
+        }
+
 
         private static async Task<string> GetTransactions(string webURI)
         {
