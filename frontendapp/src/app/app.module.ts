@@ -62,6 +62,7 @@ import { JournalAllocationComponent } from './main/journal-allocation/journal-al
 import { ReportsComponent } from './main/reports/reports.component';
 import { RunLogsComponent } from './runlogs/runlogs.component';
 import { FileManagementComponent } from './main/operations/file-management/file-management.component';
+import { SilverFileManagementComponent } from 'src/app/main/operations/silver-file-management/silver-file-management.component';
 import { LogsComponent } from './main/logs/logs.component';
 import { SettingsComponent } from './main/settings/settings.component';
 import { OperationsComponent } from './main/operations/operations.component';
@@ -95,6 +96,7 @@ import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selectio
     AllocationGridLayoutMenuComponent,
     LeftMenuComponent,
     FileManagementComponent,
+    SilverFileManagementComponent,
     ButtonRendererComponent,
     BalanceReportComponent,
     CostBasisComponent,

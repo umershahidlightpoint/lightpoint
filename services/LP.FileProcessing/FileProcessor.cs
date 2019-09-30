@@ -124,9 +124,12 @@ namespace LP.FileProcessing
 
         private List<dynamic> ExtractDelimited(string path, SilverFileFormat properties, char v = ',')
         {
-            var recordDictionary = properties.record.Select((s, i) => new { s, i }).ToDictionary(x => x.i, x => x.s.Destination);
-            var headerDictionary = properties.record.Select((s, i) => new { s, i }).ToDictionary(x => x.i, x => x.s.Destination);
-            var trailerDictionary = properties.record.Select((s, i) => new { s, i }).ToDictionary(x => x.i, x => x.s.Destination);
+            var recordDictionary = properties.record.Select((s, i) => new {s, i})
+                .ToDictionary(x => x.i, x => x.s.Destination);
+            var headerDictionary = properties.record.Select((s, i) => new {s, i})
+                .ToDictionary(x => x.i, x => x.s.Destination);
+            var trailerDictionary = properties.record.Select((s, i) => new {s, i})
+                .ToDictionary(x => x.i, x => x.s.Destination);
 
             //string test = "a|b||c|||d";
             int index = 0;
@@ -143,16 +146,16 @@ namespace LP.FileProcessing
                 var delimited = line.Split(v);
                 foreach (var item in delimited)
                 {
-                    if(index == 0)
+                    if (index == 0)
                     {
-                        if(dictionaryIndex == recordOffset)
+                        if (dictionaryIndex == recordOffset)
                         {
                             totalRecords = Convert.ToInt32(item);
                         }
 
                         AddProperty(obj, headerDictionary[dictionaryIndex], item);
                     }
-                    else if(totalRecords.HasValue && index == totalRecords + 1)
+                    else if (totalRecords.HasValue && index == totalRecords + 1)
                     {
                         AddProperty(obj, trailerDictionary[dictionaryIndex], item);
                     }
@@ -163,7 +166,8 @@ namespace LP.FileProcessing
 
                     dictionaryIndex++;
                 }
-                if(index == 0)
+
+                if (index == 0)
                 {
                     header.Add(obj);
                 }
@@ -175,12 +179,15 @@ namespace LP.FileProcessing
                 {
                     record.Add(obj);
                 }
+
                 index++;
             }
+
             return record;
         }
 
-        public void WriteDelimited(IEnumerable<dynamic> items, IEnumerable<dynamic> header, IEnumerable<dynamic> trailer,  string path, SilverFileFormat properties, char delim = ',')
+        public void WriteDelimited(IEnumerable<dynamic> items, IEnumerable<dynamic> header,
+            IEnumerable<dynamic> trailer, string path, SilverFileFormat properties, char delim = ',')
         {
             using (var writer = new StreamWriter(path))
             {
@@ -212,6 +219,12 @@ namespace LP.FileProcessing
         public bool DownloadFile(string path)
         {
             return S3Endpoint.Download(path);
+        }
+
+        // List of Files from AWS S3 Bucket
+        public List<object> GetFiles()
+        {
+            return S3Endpoint.List();
         }
     }
 }

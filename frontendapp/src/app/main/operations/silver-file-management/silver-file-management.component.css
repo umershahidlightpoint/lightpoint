@@ -1,0 +1,21 @@
+.tabBtn {
+  display: inline-block;
+}
+
+.close-btn {
+  font-size: 1.5rem;
+}
+
+.clearForm {
+  float: right;
+}
+
+.action-btn {
+  margin: 0 8px;
+  padding: 2px;
+  width: 15%;
+}
+
+.fixHeight {
+  height: 30px;
+}

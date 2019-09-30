@@ -7,5 +7,6 @@
         object ImportFilesFromSilver();
         object UploadFiles();
         object DownloadFiles();
+        object GetS3Files();
     }
 }

@@ -2,9 +2,10 @@
 using Amazon.S3;
 using Amazon.S3.Transfer;
 using System;
-using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Amazon.Runtime;
+using Amazon.S3.Model;
 
 namespace LP.FileProcessing.S3
 {
@@ -13,8 +14,8 @@ namespace LP.FileProcessing.S3
         // Credentials
         private const string bucketName = "lattimore.drop";
         private const string keyName = "uploaded-data";
-        private const string accessKeyId = "";
-        private const string secretAccessKey = "";
+//        private const string accessKeyId = "";
+//        private const string secretAccessKey = "";
 
         // Specify your Bucket Region
         private static readonly RegionEndpoint bucketRegion = RegionEndpoint.USEast2;
@@ -29,6 +30,11 @@ namespace LP.FileProcessing.S3
             return DownloadFileAsync(filePath, bucketRegion).GetAwaiter().GetResult();
         }
 
+        public static List<object> List()
+        {
+            return ListFilesAsync(bucketRegion).GetAwaiter().GetResult();
+        }
+
         private static async Task<bool> UploadFileAsync(string filename, RegionEndpoint endpoint)
         {
             AmazonS3Config config = new AmazonS3Config
@@ -41,9 +47,9 @@ namespace LP.FileProcessing.S3
             config.ProxyCredentials = new NetworkCredential(username, password);
             */
 
-            var credentials = new BasicAWSCredentials(accessKeyId, secretAccessKey);
+//            var credentials = new BasicAWSCredentials(accessKeyId, secretAccessKey);
 
-            var s3Client = new AmazonS3Client(credentials, config);
+            var s3Client = new AmazonS3Client(config);
 
             try
             {
@@ -111,9 +117,7 @@ namespace LP.FileProcessing.S3
                 RegionEndpoint = endpoint
             };
 
-            var credentials = new BasicAWSCredentials(accessKeyId, secretAccessKey);
-
-            var s3Client = new AmazonS3Client(credentials, config);
+            var s3Client = new AmazonS3Client(config);
 
             try
             {
@@ -121,7 +125,7 @@ namespace LP.FileProcessing.S3
 
                 // Download Object Using Key Name
                 await fileTransferUtility.DownloadAsync(filename, bucketName, keyName);
-                Console.WriteLine("Upload 2 Completed");
+                Console.WriteLine("Download Completed");
 
                 return true;
             }
@@ -136,6 +140,60 @@ namespace LP.FileProcessing.S3
                 Console.WriteLine("Unknown encountered on server. Message:'{0}' when writing an object", e.Message);
 
                 return false;
+            }
+        }
+
+        private static async Task<List<object>> ListFilesAsync(RegionEndpoint endpoint)
+        {
+            AmazonS3Config config = new AmazonS3Config
+            {
+                RegionEndpoint = endpoint
+            };
+
+            var s3Client = new AmazonS3Client(config);
+            List<object> files = new List<object>();
+
+            try
+            {
+                ListObjectsV2Request request = new ListObjectsV2Request
+                {
+                    BucketName = bucketName
+                };
+
+                ListObjectsV2Response response;
+                do
+                {
+                    response = await s3Client.ListObjectsV2Async(request);
+
+                    // Process the Response
+                    foreach (S3Object entry in response.S3Objects)
+                    {
+                        files.Add(new
+                        {
+                            Name = entry.Key,
+                            UploadDate = entry.LastModified.ToString("u"),
+                            entry.Size
+                        });
+                    }
+
+                    request.ContinuationToken = response.NextContinuationToken;
+                } while (response.IsTruncated);
+
+                return files
+                    .OrderByDescending(option => option?.GetType().GetProperty("UploadDate")?.GetValue(option, null))
+                    .ToList();
+            }
+            catch (AmazonS3Exception amazonS3Exception)
+            {
+                Console.WriteLine("S3 Error Occurred. Exception: " + amazonS3Exception.ToString());
+
+                return files;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: " + e.ToString());
+
+                return files;
             }
         }
     }

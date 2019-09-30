@@ -40,12 +40,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         public object ImportFilesFromSilver()
         {
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
-            var extractPath = currentDir + Path.DirectorySeparatorChar + "FileFormats" + Path.DirectorySeparatorChar + "Transaction_Extract.txt";
-            //var recordBody = fileHelper.ImportFile(extractPath, "Transaction");
-            //return recordBody;
+            var extractPath = currentDir + Path.DirectorySeparatorChar + "FileFormats" + Path.DirectorySeparatorChar +
+                              "Transaction_Extract.txt";
+            // var recordBody = fileHelper.ImportFile(extractPath, "Transaction");
+            // return recordBody;
             return null;
-
         }
+
         public object GenerateActivityAndPositionFilesForSilver()
         {
             var trades = GetTransactions(tradesURL + "ALL");
@@ -180,6 +181,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var status = fileProcessor.DownloadFile(path);
 
             return Utils.Wrap(status);
+        }
+
+        public object GetS3Files()
+        {
+            var status = fileProcessor.GetFiles();
+
+            return status.Count != 0 ? Utils.Wrap(true, status, null) : Utils.Wrap(false);
         }
     }
 }
