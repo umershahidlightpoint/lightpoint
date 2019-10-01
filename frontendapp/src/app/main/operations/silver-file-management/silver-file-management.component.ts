@@ -12,7 +12,7 @@ import { GridOptions } from 'ag-grid-community';
 import { takeWhile } from 'rxjs/operators';
 import { TemplateRendererComponent } from '../../../template-renderer/template-renderer.component';
 import { SilverFile } from 'src/shared/models/silverFile';
-import { SideBar, Style } from 'src/shared/utils/Shared';
+import { SideBar, Style, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { ToastrService } from 'ngx-toastr';
 import { DataService } from 'src/shared/common/data.service';
@@ -90,16 +90,15 @@ export class SilverFileManagementComponent implements OnInit, OnDestroy {
       sideBar: SideBar,
       columnDefs: columnDefsForFiles,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      onGridReady: () => {
-        this.filesGridOptions.api.sizeColumnsToFit();
-      },
+      onGridReady: params => {},
       onFirstDataRendered: params => {
-        params.api.sizeColumnsToFit();
+        AutoSizeAllColumns(params);
       },
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
-      suppressHorizontalScroll: true
+      suppressHorizontalScroll: false,
+      suppressColumnVirtualisation: true
     } as GridOptions;
     this.dataService.changeMessage(this.filesGridOptions);
     this.dataService.changeGrid({ gridId: GridId.silverFilesId, gridName: GridName.silverFiles });
@@ -180,6 +179,8 @@ export class SilverFileManagementComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  downloadFile(file) {}
 
   ngOnDestroy() {
     this.isSubscriptionAlive = false;

@@ -20,7 +20,8 @@ import {
   CalTotalRecords,
   GetDateRangeLabel,
   DoesExternalFilterPass,
-  SetDateRange
+  SetDateRange,
+  AutoSizeAllColumns
 } from 'src/shared/utils/Shared';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { DataService } from 'src/shared/common/data.service';
@@ -130,10 +131,11 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       clearExternalFilter: this.clearFilters.bind(this),
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
+      suppressColumnVirtualisation: true,
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
         this.gridColumnApi = params.columnApi;
-        // this.gridOptions.api.sizeColumnsToFit();
+
         this.gridOptions.excelStyles = ExcelStyle;
       },
       onFirstDataRendered: params => {
@@ -141,6 +143,8 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
           node.expanded = true;
         });
         params.api.onGroupExpandedOrCollapsed();
+
+        AutoSizeAllColumns(params);
       },
       enableFilter: true,
       animateRows: true,

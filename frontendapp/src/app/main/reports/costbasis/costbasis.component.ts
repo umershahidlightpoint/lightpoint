@@ -1,7 +1,10 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../../shared/service-proxies/service-proxies';
 import { Fund } from '../../../../shared/Models/account';
-import { TrialBalanceReport, TrialBalanceReportStats } from '../../../../shared/Models/trial-balance';
+import {
+  TrialBalanceReport,
+  TrialBalanceReportStats
+} from '../../../../shared/Models/trial-balance';
 import { DataService } from '../../../../shared/common/data.service';
 import * as moment from 'moment';
 import {
@@ -14,7 +17,8 @@ import {
   DoesExternalFilterPass,
   FormatNumber,
   SetDateRange,
-  CommaSeparatedFormat
+  CommaSeparatedFormat,
+  AutoSizeAllColumns
 } from 'src/shared/utils/Shared';
 import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
@@ -89,10 +93,11 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       clearExternalFilter: this.clearFilters.bind(this),
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
+      suppressColumnVirtualisation: true,
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
         this.gridColumnApi = params.columnApi;
-        this.gridOptions.api.sizeColumnsToFit();
+
         this.gridOptions.excelStyles = ExcelStyle;
       },
       onFirstDataRendered: params => {
@@ -100,6 +105,9 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           node.expanded = true;
         });
         params.api.onGroupExpandedOrCollapsed();
+
+        AutoSizeAllColumns(params);
+        params.api.sizeColumnsToFit();
       },
       enableFilter: true,
       animateRows: true,
@@ -121,7 +129,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           field: 'Balance',
           headerName: 'Balance',
           cellClass: 'rightAlign',
-          sortable:true,
+          sortable: true,
           filter: true,
           width: 120,
           valueFormatter: currencyFormatter
@@ -132,7 +140,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           width: 100,
           filter: true,
           cellClass: 'rightAlign',
-          sortable:true,
+          sortable: true,
           valueFormatter: absCurrencyFormatter
         },
         {
@@ -141,7 +149,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           width: 100,
           filter: true,
           cellClass: 'rightAlign',
-          sortable:true,
+          sortable: true,
           valueFormatter: absCurrencyFormatter
         }
       ],
@@ -181,7 +189,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   // Being called twice
   getReport(toDate, fromDate, fund) {
-
     this.isLoading = true;
     this.financeService.getCostBasisReport(toDate, fromDate, fund).subscribe(response => {
       this.trialBalanceReportStats = response.stats;
@@ -329,4 +336,3 @@ function absCurrencyFormatter(params) {
   }
   return CommaSeparatedFormat(Math.abs(params.value));
 }
-

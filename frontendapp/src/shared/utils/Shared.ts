@@ -249,3 +249,13 @@ export const CommaSeparatedFormat = numberToFormat => {
         .toString()
         .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 };
+
+export const AutoSizeAllColumns = params => {
+  const gridColumnApi = params.columnApi;
+
+  const allColumnIds = [];
+  gridColumnApi.getAllColumns().forEach(column => {
+    allColumnIds.push(column.colId);
+  });
+  gridColumnApi.autoSizeColumns(allColumnIds);
+};
