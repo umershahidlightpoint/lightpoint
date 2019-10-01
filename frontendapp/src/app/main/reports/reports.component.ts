@@ -2,10 +2,7 @@ import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Fund } from '../../../shared/Models/account';
 import { TrialBalanceReport, TrialBalanceReportStats } from '../../../shared/Models/trial-balance';
 import * as moment from 'moment';
-import {
-  Ranges,
-  Style
-} from 'src/shared/utils/Shared';
+import { Ranges, Style, HeightStyle } from 'src/shared/utils/Shared';
 import { GridOptions } from 'ag-grid-community';
 
 @Component({
@@ -13,13 +10,8 @@ import { GridOptions } from 'ag-grid-community';
   templateUrl: './reports.component.html',
   styleUrls: ['./reports.component.css']
 })
-export class ReportsComponent  {
-  styleForHight = {
-    marginTop: '20px',
-    width: '100%',
-    height: 'calc(100vh - 220px)',
-    boxSizing: 'border-box'
-  };
+export class ReportsComponent {
+  styleForHight = HeightStyle(220);
 
   processingMsgDiv = {
     border: '1px solid #eee',

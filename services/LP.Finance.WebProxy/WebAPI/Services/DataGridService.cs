@@ -248,5 +248,57 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 return Utils.Wrap(false);
             }
         }
+
+        public object GetGridLayouts(int id)
+        {
+            {
+                SqlHelper sqlHelper = new SqlHelper(connectionString);
+
+                var query = $@"SELECT   [id]
+                          ,[grid_id]
+                          ,[grid_name]
+                          ,[grid_layout_name]
+                          ,[userId]
+                          ,[pivot_mode]
+                          ,[column_state]
+                          ,[group_state]
+                          ,[sort_state]
+                          ,[filter_state]
+                          ,[external_filter_state]
+                        FROM [data_grid_layouts]";
+
+                List<DataGridStatusDto> oDataGridStatusDto = new List<DataGridStatusDto>();
+                MetaData meta = new MetaData();
+
+                using (var reader =
+                    sqlHelper.GetDataReader(query, CommandType.Text, null, out var sqlConnection))
+                {
+                    while (reader.Read())
+                    {
+                        oDataGridStatusDto.Add(new DataGridStatusDto
+                        {
+                            Id = Convert.ToInt32(reader["id"]),
+                            GridId = Convert.ToInt32(reader["grid_id"]),
+                            GridName = reader["grid_name"].ToString(),
+                            GridLayoutName = reader["grid_layout_name"].ToString(),
+                            UserId = Convert.ToInt32(reader["userId"]),
+                            ColumnState = reader["column_state"].ToString(),
+                            FilterState = reader["filter_state"].ToString(),
+                            ExternalFilterState = reader["external_filter_state"].ToString(),
+                            PivotMode = reader["pivot_mode"].ToString(),
+                            SortState = reader["sort_state"].ToString(),
+                            GroupState = reader["group_state"].ToString()
+                        });
+                    }
+
+                    reader.Close();
+                    sqlConnection.Close();
+                }
+
+                return Utils.Wrap(true, oDataGridStatusDto, meta);
+
+
+            }
+        }
     }
 }

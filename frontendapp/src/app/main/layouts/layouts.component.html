@@ -1,0 +1,25 @@
+<p-tabView>
+  <!----- Journal Tab Starts ----->
+  <p-tabPanel header="Layouts">
+    <!----- Layouts Div Starts ----->
+    <div [ngStyle]="styleForHight" style="display: flex">
+      <ag-grid-angular style="width: 50%; height: 100%" class="ag-theme-balham" [gridOptions]="gridOptions">
+      </ag-grid-angular>
+      <ng-template #actionButtons let-row>
+        <button class="btn ml-5 action-btn fixHeight" (click)="viewLayout(row)" tooltip="View" placement="auto"
+          container="body">
+          <i class="fa fa-lg fa-eye" aria-hidden="true"></i>
+        </button>
+        <button class="btn action-btn fixHeight" (click)="deleteLayout(row)" tooltip="Delete" placement="auto"
+          container="body">
+          <i class="fa fa-lg fa-trash-o" aria-hidden="true"></i>
+        </button>
+      </ng-template>
+
+      <div *ngIf="gridLayoutJson" style="width: 50%; height: 100%; overflow-y: scroll">
+        <pre>{{gridLayoutJson | json}}</pre>
+      </div>
+    </div>
+    <!----- Layouts Div Ends ----->
+  </p-tabPanel>
+</p-tabView>

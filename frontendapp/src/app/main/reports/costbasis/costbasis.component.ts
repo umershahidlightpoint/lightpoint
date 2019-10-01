@@ -18,6 +18,7 @@ import {
   FormatNumber,
   SetDateRange,
   CommaSeparatedFormat,
+  HeightStyle,
   AutoSizeAllColumns
 } from 'src/shared/utils/Shared';
 import { GridOptions } from 'ag-grid-community';
@@ -50,12 +51,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   style = Style;
 
-  styleForHight = {
-    marginTop: '20px',
-    width: '100%',
-    height: 'calc(100vh - 220px)',
-    boxSizing: 'border-box'
-  };
+  styleForHight = HeightStyle(220);
 
   processingMsgDiv = {
     border: '1px solid #eee',

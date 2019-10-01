@@ -75,6 +75,7 @@ import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selectio
 import { AllocationsComponent } from './main/allocations/allocations.component';
 import { JournalsComponent } from './main/journals/journals.component';
 import { TradesComponent } from './main/trades/trades.component';
+import { LayoutsComponent } from './main/layouts/layouts.component';
 
 @NgModule({
   declarations: [
@@ -107,7 +108,8 @@ import { TradesComponent } from './main/trades/trades.component';
     ReportModalComponent,
     AllocationsComponent,
     JournalsComponent,
-    TradesComponent
+    TradesComponent,
+    LayoutsComponent
   ],
   imports: [
     BrowserModule,

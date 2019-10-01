@@ -2,7 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
-import { Style } from '../../../shared/utils/Shared';
+import { Style, HeightStyle } from '../../../shared/utils/Shared';
 
 @Component({
   selector: 'app-settings',
@@ -36,12 +36,7 @@ export class SettingsComponent implements OnInit {
 
   style = Style;
 
-  styleForHight = {
-    marginTop: '20px',
-    width: '100%',
-    height: 'calc(100vh - 180px)',
-    boxSizing: 'border-box'
-  };
+  styleForHight = HeightStyle(180);
 
   setWidthAndHeight(width, height) {
     this.style = {

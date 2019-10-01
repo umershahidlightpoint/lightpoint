@@ -21,6 +21,7 @@ import {
   GetDateRangeLabel,
   DoesExternalFilterPass,
   SetDateRange,
+  HeightStyle,
   AutoSizeAllColumns
 } from 'src/shared/utils/Shared';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
@@ -76,12 +77,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
 
   style = Style;
 
-  styleForHight = {
-    marginTop: '20px',
-    width: '100%',
-    height: 'calc(100vh - 220px)',
-    boxSizing: 'border-box'
-  };
+  styleForHight = HeightStyle(220);
 
   containerDiv = {
     border: '1px solid #eee',

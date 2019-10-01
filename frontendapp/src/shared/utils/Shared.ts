@@ -250,6 +250,15 @@ export const CommaSeparatedFormat = numberToFormat => {
         .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 };
 
+export const HeightStyle = height => {
+  return {
+    marginTop: '20px',
+    width: '100%',
+    height: `calc(100vh - ${height}px)`,
+    boxSizing: 'border-box'
+  };
+};
+
 export const AutoSizeAllColumns = params => {
   const gridColumnApi = params.columnApi;
 

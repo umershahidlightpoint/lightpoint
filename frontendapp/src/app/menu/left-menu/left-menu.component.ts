@@ -30,6 +30,7 @@ export class LeftMenuComponent implements OnInit {
     { name: 'Trades', routerLink: '/trade-allocation', icon: 'fa-exchange' },
     { name: 'OpsBlotter Journals', routerLink: '/journal-allocation', icon: 'fa-list-alt' },
     { name: 'Operations', routerLink: 'operations', icon: 'fa-tasks' },
+    { name: 'Layouts', routerLink: '/layouts', icon: 'fa-files-o' },
     { name: 'Settings', routerLink: '/settings', icon: 'fa-cog' }
   ];
 

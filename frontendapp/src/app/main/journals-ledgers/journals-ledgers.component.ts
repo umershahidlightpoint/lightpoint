@@ -22,6 +22,7 @@ import {
   GetDateRangeLabel,
   SetDateRange,
   CommaSeparatedFormat,
+  HeightStyle,
   AutoSizeAllColumns
 } from 'src/shared/utils/Shared';
 import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
@@ -89,12 +90,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
 
   style = Style;
 
-  styleForHight = {
-    marginTop: '20px',
-    width: '100%',
-    height: 'calc(100vh - 220px)',
-    boxSizing: 'border-box'
-  };
+  styleForHight = HeightStyle(220);
 
   containerDiv = {
     border: '1px solid #eee',
