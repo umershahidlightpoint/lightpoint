@@ -17,7 +17,7 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { ToastrService } from 'ngx-toastr';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/ContextMenu';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
 @Component({
@@ -192,48 +192,16 @@ export class FileManagementComponent implements OnInit, OnDestroy {
   }
 
   getContextMenuItems = params => {
-    const defaultItems = [
+    const process = [
       {
         name: 'Process',
         action: () => {
           this.processFile(params);
         }
-      },
-      'copy',
-      'paste',
-      'export'
+      }
     ];
-    const items = [
-      {
-        name: 'Expand',
-        action() {
-          Expand(params);
-        }
-      },
-      {
-        name: 'Collapse',
-        action() {
-          Collapse(params);
-        }
-      },
-      {
-        name: 'Expand All',
-        action: () => {
-          ExpandAll(params);
-        }
-      },
-      {
-        name: 'Collapse All',
-        action: () => {
-          CollapseAll(params);
-        }
-      },
-      ...defaultItems
-    ];
-    if (params.node.group) {
-      return items;
-    }
-    return defaultItems;
+    //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
+    return GetContextMenu(false, process, true, null, params);
   };
 
   setGroupingStateForFiles(value: boolean) {

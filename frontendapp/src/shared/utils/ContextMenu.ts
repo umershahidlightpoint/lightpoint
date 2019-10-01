@@ -72,3 +72,95 @@ export const CollapseAll = params => {
   });
   params.api.onGroupExpandedOrCollapsed();
 };
+
+export const ViewChart = params => {
+  const data = [];
+  let stats: object;
+  let totalDebit = 0;
+  let totalCredit = 0;
+  let tableHeader;
+  params.api.forEachNode((node, index) => {
+    if (node.group && node.level === 0) {
+      tableHeader = node.columnApi.columnController.rowGroupColumns[0].colDef.headerName;
+      data.push({
+        accountName: node.key,
+        debit: node.aggData.debit,
+        credit: node.aggData.credit,
+        debitPercentage: 0,
+        creditPercentage: 0,
+        balance: node.aggData.balance
+      });
+      totalDebit += node.aggData.debit;
+      totalCredit += node.aggData.debit;
+    }
+  });
+  stats = {
+    totalDebit,
+    totalCredit
+  };
+  data.forEach(row => {
+    row.debitPercentage = (row.debit * 100) / totalDebit;
+    row.creditPercentage = (row.credit * 100) / totalCredit;
+  });
+  const record = [tableHeader, { stats, data }];
+  return record;
+};
+
+export const CustomItem = params => {
+  return [
+    {
+      name: 'Expand',
+      action() {
+        Expand(params);
+      }
+    },
+    {
+      name: 'Collapse',
+      action() {
+        Collapse(params);
+      }
+    },
+    {
+      name: 'Expand All',
+      action: () => {
+        ExpandAll(params);
+      }
+    },
+    {
+      name: 'Collapse All',
+      action: () => {
+        CollapseAll(params);
+      }
+    }
+  ];
+};
+
+export const DefaultItems = ['copy', 'paste', 'copyWithHeaders', 'export'];
+
+export const GetContextMenu = (
+  isDefaultItems,
+  addDefaultItems,
+  isCustomItems,
+  addCustomItems,
+  params
+) => {
+  let allDefaultItems;
+  let allCustomItems;
+
+  if (isDefaultItems) {
+    allDefaultItems = DefaultItems;
+  } else {
+    allDefaultItems = [...addDefaultItems, ...DefaultItems];
+  }
+
+  if (isCustomItems) {
+    allCustomItems = CustomItem(params);
+  } else {
+    allCustomItems = [...addCustomItems, ...CustomItem(params)];
+  }
+
+  if (params.node.group) {
+    return allCustomItems;
+  }
+  return allDefaultItems;
+};

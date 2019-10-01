@@ -9,6 +9,7 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { SideBar, Style } from 'src/shared/utils/Shared';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { takeWhile } from 'rxjs/operators';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 
 @Component({
   selector: 'app-trade-allocation',
@@ -132,7 +133,6 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
   key: string;
 
   processOrder(orderId: string, row: any) {
-
     this.financeService
       .startPostingEngineSingleOrder(orderId)
       .pipe(takeWhile(() => this.isSubscriptionAlive))
@@ -148,11 +148,7 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
       });
   }
   getContextMenuItems(params) {
-    const defaultItems = [
-      'copy',
-      'paste',
-      'copyWithHeaders',
-      'export',
+    const addDefaultItems = [
       {
         name: 'Process',
         action: () => {
@@ -160,12 +156,8 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
         }
       }
     ];
-
-    const items = [...defaultItems];
-    if (params.node.group) {
-      return items;
-    }
-    return defaultItems;
+    //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
+    return GetContextMenu(false, addDefaultItems, true, null, params);
   }
 
   initGrid() {

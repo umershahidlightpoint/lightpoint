@@ -21,7 +21,7 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataService } from 'src/shared/common/data.service';
 import { SideBar, Style } from 'src/shared/utils/Shared';
-import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/ContextMenu';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
 @Component({
@@ -172,6 +172,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       rowData: null,
       columnDefs: this.columnDefs,
       sideBar: SideBar,
+      getContextMenuItems: params => this.getContextMenuItems(params),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onGridReady: () => {
         this.gridOptions.api.sizeColumnsToFit();
@@ -342,38 +343,8 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   getContextMenuItems(params) {
-    const defaultItems = ['copy', 'paste', 'copyWithHeaders', 'export'];
-    const items = [
-      {
-        name: 'Expand',
-        action() {
-          Expand(params);
-        }
-      },
-      {
-        name: 'Collapse',
-        action() {
-          Collapse(params);
-        }
-      },
-      {
-        name: 'Expand All',
-        action: () => {
-          ExpandAll(params);
-        }
-      },
-      {
-        name: 'Collapse All',
-        action: () => {
-          CollapseAll(params);
-        }
-      },
-      ...defaultItems
-    ];
-    if (params.node.group) {
-      return items;
-    }
-    return defaultItems;
+    //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
+    return GetContextMenu(true, null, true, null, params);
   }
 
   setGroupingState(value: boolean) {

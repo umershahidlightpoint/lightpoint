@@ -10,6 +10,7 @@ import { SideBar, Style } from 'src/shared/utils/Shared';
 import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selection-grid-layout-menu/grid-layout-menu.component';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { takeWhile } from 'rxjs/operators';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 
 @Component({
   selector: 'app-journal-allocation',
@@ -156,11 +157,7 @@ export class JournalAllocationComponent implements OnInit, AfterViewInit {
   }
 
   getContextMenuItems(params) {
-    const defaultItems = [
-      'copy',
-      'paste',
-      'copyWithHeaders',
-      'export',
+    const process = [
       {
         name: 'Process',
         action: () => {
@@ -168,7 +165,8 @@ export class JournalAllocationComponent implements OnInit, AfterViewInit {
         }
       }
     ];
-    return defaultItems;
+    //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
+    return GetContextMenu(false, process, true, null, params);
   }
 
   initGrid() {
