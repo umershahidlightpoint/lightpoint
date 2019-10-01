@@ -1,7 +1,7 @@
 import { Component, TemplateRef, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
-import { Style } from 'src/shared/utils/Shared';
+import { Style, HeightStyle } from 'src/shared/utils/Shared';
 import * as moment from 'moment';
 
 @Component({
@@ -42,12 +42,7 @@ export class LogsComponent implements OnInit {
 
   style = Style;
 
-  styleForHight = {
-    marginTop: '20px',
-    width: '100%',
-    height: 'calc(100vh - 180px)',
-    boxSizing: 'border-box'
-  };
+  styleForHight = HeightStyle(180);
 
   /*
   We can define how we need to show the data here, as this is a log file we should group by the rundate

@@ -6,7 +6,7 @@ import { DataModalComponent } from '../../../shared/Component/data-modal/data-mo
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { SideBar, Style } from 'src/shared/utils/Shared';
+import { SideBar, Style, HeightStyle } from 'src/shared/utils/Shared';
 import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selection-grid-layout-menu/grid-layout-menu.component';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { takeWhile } from 'rxjs/operators';
@@ -50,12 +50,7 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
 
   style = Style;
 
-  styleForHight = {
-    marginTop: '20px',
-    width: '100%',
-    height: 'calc(100vh - 156px)',
-    boxSizing: 'border-box'
-  };
+  styleForHight = HeightStyle(156);
 
   setWidthAndHeight(width, height) {
     this.style = {

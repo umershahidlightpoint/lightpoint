@@ -18,7 +18,7 @@ import { takeWhile } from 'rxjs/operators';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { SideBar } from 'src/shared/utils/Shared';
+import { SideBar, HeightStyle } from 'src/shared/utils/Shared';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
 @Component({
@@ -46,12 +46,7 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
     boxSizing: 'border-box'
   };
 
-  styleForHight = {
-    marginTop: '20px',
-    width: '100%',
-    height: 'calc(100vh - 224px)',
-    boxSizing: 'border-box'
-  };
+  styleForHight = HeightStyle(224);
 
   containerDiv = {
     border: '1px solid #eee',

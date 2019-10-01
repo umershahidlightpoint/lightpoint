@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, ViewChild, Output, EventEmitter } from '@angular/core';
 import { TrialBalanceReport, TrialBalanceReportStats } from 'src/shared/Models/trial-balance';
 import { ModalDirective } from 'ngx-bootstrap';
+import { HeightStyle } from 'src/shared/utils/Shared';
 
 @Component({
   selector: 'app-report-modal',
@@ -18,10 +19,7 @@ export class ReportModalComponent implements OnInit {
   hideGrid: boolean;
   backdrop: any;
 
-  styleForHight = {
-    width: '100%',
-    boxSizing: 'border-box'
-  };
+  styleForHight = HeightStyle(220);
 
   containerDiv = {
     borderLeft: '1px solid #cecece',
