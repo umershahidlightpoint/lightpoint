@@ -63,6 +63,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   sortColum: any;
   sortDirection: any;
   backdrop: any;
+  businessDate: any;
 
   periods = [
     { name: 'Latest' },
@@ -257,8 +258,11 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   generateFiles() {
+    var obj = {
+      businessDate : this.businessDate != null ? this.businessDate.startDate : null
+    }
     this.financeService
-      .generateFiles()
+      .generateFiles(obj)
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {
         if (response.isSuccessful) {

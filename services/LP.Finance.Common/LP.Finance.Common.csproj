@@ -51,6 +51,9 @@
     <Compile Include="CustomValidators\MinimumElementsAttribute.cs" />
     <Compile Include="DateFunctions.cs" />
     <Compile Include="Dtos\AccountListTileOutputDto.cs" />
+    <Compile Include="Dtos\FileActionInputDto.cs" />
+    <Compile Include="Dtos\FileGenerationInputDto.cs" />
+    <Compile Include="Dtos\FileInputDto.cs" />
     <Compile Include="Dtos\JournalOutputDto.cs" />
     <Compile Include="Dtos\JournalInputDto.cs" />
     <Compile Include="Dtos\AccountOutputDto.cs" />

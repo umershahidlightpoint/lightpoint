@@ -456,11 +456,24 @@ export class FinancePocServiceProxy {
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
+  updateAction(body) {
+    const url = this.baseUrl + '/fileManagement/UpdateFileAction';
+    return this.http.post(url,body).pipe(map((response: any) => response));
+  }
+
+  /*
+  Get Silver Files
+  */
+  getSilverFiles() {
+    const url = this.baseUrl + '/fileManagement/s3Files';
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
+
   /*
   Generate Files
   */
-  generateFiles() {
+  generateFiles(body) {
     const url = this.baseUrl + '/fileManagement/silverEndOfDay';
-    return this.http.post(url, null).pipe(map((response: any) => response));
+    return this.http.post(url, body).pipe(map((response: any) => response));
   }
 }

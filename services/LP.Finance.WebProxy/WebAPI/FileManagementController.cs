@@ -1,4 +1,5 @@
-﻿using LP.Finance.WebProxy.WebAPI.Services;
+﻿using LP.Finance.Common.Dtos;
+using LP.Finance.WebProxy.WebAPI.Services;
 using System.Web.Http;
 
 namespace LP.Finance.WebProxy.WebAPI
@@ -18,9 +19,9 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [Route("SilverEndOfDay")]
         [HttpPost]
-        public object GenerateActivityAndPositionFilesForSilver()
+        public object GenerateActivityAndPositionFilesForSilver(FileGenerationInputDto dto)
         {
-            return controller.GenerateActivityAndPositionFilesForSilver();
+            return controller.GenerateActivityAndPositionFilesForSilver(dto);
         }
 
         // GET api/fileManagement/upload
@@ -39,11 +40,26 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.DownloadFiles();
         }
 
+        // GET api/fileManagement/s3Files
+        [Route("s3Files")]
+        [HttpGet]
+        public object GetS3Files()
+        {
+            return controller.GetS3Files();
+        }
+
         [Route("ImportFilesFromSilver")]
         [HttpPost]
         public object ImportFilesFromSilver()
         {
             return controller.ImportFilesFromSilver();
+        }
+
+        [Route("UpdateFileAction")]
+        [HttpPost]
+        public object FileAction(FileActionInputDto dto)
+        {
+            return controller.UpdateFileAction(dto);
         }
     }
 }
