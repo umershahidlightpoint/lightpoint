@@ -242,6 +242,12 @@ export const FormatNumber = numberToFormat => {
   }
 };
 
+export const FormatNumber4 = numberToFormat => {
+  if (numberToFormat !== null) {
+    return numberToFormat.toFixed(4);
+  }
+};
+
 export const CommaSeparatedFormat = numberToFormat => {
   return numberToFormat === 0
     ? '0.00'
