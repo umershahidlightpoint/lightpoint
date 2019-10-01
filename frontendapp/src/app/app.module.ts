@@ -74,6 +74,7 @@ import { ReportModalComponent } from '../shared/Component/report-modal/report-mo
 import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selection-grid-layout-menu/grid-layout-menu.component';
 import { AllocationsComponent } from './main/allocations/allocations.component';
 import { JournalsComponent } from './main/journals/journals.component';
+import { TradesComponent } from './main/trades/trades.component';
 import { LayoutsComponent } from './main/layouts/layouts.component';
 import { ConfirmationModalComponent } from './confirmation-modal/confirmation-modal.component';
 
@@ -109,7 +110,9 @@ import { ConfirmationModalComponent } from './confirmation-modal/confirmation-mo
     AllocationsComponent,
     JournalsComponent,
     LayoutsComponent,
-    ConfirmationModalComponent
+    ConfirmationModalComponent,
+    TradesComponent,
+    LayoutsComponent
   ],
   imports: [
     BrowserModule,
