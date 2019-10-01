@@ -21,13 +21,7 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataService } from 'src/shared/common/data.service';
 import { SideBar, Style } from 'src/shared/utils/Shared';
-import {
-  Expand,
-  Collapse,
-  ExpandAll,
-  CollapseAll,
-  GetContextMenu
-} from 'src/shared/utils/ContextMenu';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
 @Component({

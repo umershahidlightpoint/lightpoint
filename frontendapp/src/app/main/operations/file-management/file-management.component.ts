@@ -17,14 +17,7 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { ToastrService } from 'ngx-toastr';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import {
-  Expand,
-  Collapse,
-  ExpandAll,
-  CollapseAll,
-  CustomItem,
-  GetContextMenu
-} from 'src/shared/utils/ContextMenu';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
 @Component({
