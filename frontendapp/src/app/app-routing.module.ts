@@ -35,7 +35,7 @@ const routes: Routes = [
     ]
   },
   { path: 'operations', component: OperationsComponent },
-  { path: 'layouts', component: LayoutsComponent }
+  { path: 'grid-views', component: LayoutsComponent }
 ];
 
 @NgModule({

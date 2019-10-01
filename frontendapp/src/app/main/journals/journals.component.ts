@@ -4,7 +4,7 @@ import { GridOptions } from 'ag-grid-community';
 import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
 import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
 import { DataService } from 'src/shared/common/data.service';
-import { SideBar, Style } from 'src/shared/utils/Shared';
+import { SideBar, Style, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selection-grid-layout-menu/grid-layout-menu.component';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 
@@ -14,7 +14,6 @@ import { PostingEngineService } from 'src/shared/common/posting-engine.service';
   styleUrls: ['./journals.component.css']
 })
 export class JournalsComponent implements OnInit {
-
   public journalsGridOptions: GridOptions;
   public journalsData: [];
   columnDefs = [];
@@ -26,11 +25,11 @@ export class JournalsComponent implements OnInit {
     private agGridUtils: AgGridUtils
   ) {
     this.initGrid();
-   }
+  }
 
   ngOnInit() {
     this.dataService.allocationId.subscribe(data => {
-      if(data != null) {
+      if (data != null) {
         this.getTradeJournals(data);
       }
     });
@@ -48,7 +47,9 @@ export class JournalsComponent implements OnInit {
       },
       onFirstDataRendered: params => {
         // params.api.sizeColumnsToFit();
+        AutoSizeAllColumns(params);
       },
+      suppressColumnVirtualisation: true,
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
@@ -56,8 +57,7 @@ export class JournalsComponent implements OnInit {
     } as GridOptions;
   }
 
-
-  getTradeJournals(lpOrderId){
+  getTradeJournals(lpOrderId) {
     this.financeService.getTradeJournals(lpOrderId).subscribe(result => {
       this.journalsTradesData = result;
       const someArray = this.agGridUtils.columizeData(

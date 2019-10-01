@@ -3,11 +3,13 @@ import { FinancePocServiceProxy } from 'src/shared/service-proxies/service-proxi
 import { takeWhile } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { GridOptions } from 'ag-grid-community';
-import { SideBar, HeightStyle } from 'src/shared/utils/Shared';
+import { SideBar, HeightStyle, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { TemplateRendererComponent } from 'src/app/template-renderer/template-renderer.component';
+import { ModalDirective } from 'ngx-bootstrap';
+import { ConfirmationModalComponent } from 'src/app/confirmation-modal/confirmation-modal.component';
 
 @Component({
   selector: 'app-layouts',
@@ -15,6 +17,7 @@ import { TemplateRendererComponent } from 'src/app/template-renderer/template-re
   styleUrls: ['./layouts.component.css']
 })
 export class LayoutsComponent implements OnInit, AfterViewInit {
+  @ViewChild('confirmationModal') confirmModal: ConfirmationModalComponent;
   @ViewChild('actionButtons') actionButtons: TemplateRef<any>;
 
   isEngineRunning = false;
@@ -22,6 +25,7 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
   gridOptions: GridOptions;
   gridLayouts: any;
   rowData: any;
+  selectedLayout = null;
   gridLayoutJson = null;
 
   // For unsubscribing all subscriptions
@@ -64,7 +68,7 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
       // clearExternalFilter: this.clearFilters.bind(this),
       // getContextMenuItems: this.getContextMenuItems.bind(this),
       // onFilterChanged: this.onFilterChanged.bind(this),
-      // sideBar: SideBar,
+      sideBar: SideBar,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       pinnedBottomRowData: null,
       // rowSelection: 'single',
@@ -72,10 +76,13 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
       pivotPanelShow: 'after',
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
+      suppressColumnVirtualisation: true,
       onGridReady: params => {
+        AutoSizeAllColumns(params);
         params.api.sizeColumnsToFit();
       },
       onFirstDataRendered: params => {
+        AutoSizeAllColumns(params);
         params.api.sizeColumnsToFit();
       },
       enableFilter: true,
@@ -94,37 +101,38 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
     const colDefs = [
       {
         field: 'id',
-        minWidth: 50,
         headerName: 'gridId',
         hide: true
       },
       {
+        field: 'userId',
+        headerName: 'User Id'
+      },
+      {
         field: 'gridName',
-        minWidth: 50,
         headerName: 'Grid Name'
       },
       {
         field: 'gridLayoutName',
-        minWidth: 300,
         headerName: 'Grid Layout Name'
       },
       {
         field: 'isPublic',
-        headerName: 'Is Public',
-        width: 120
+        headerName: 'Is Public'
       },
       {
         field: 'columnState',
         headerName: 'Column State',
-        hide: true,
-        width: 120
+        hide: true
       },
       {
         headerName: 'Actions',
         cellRendererFramework: TemplateRendererComponent,
         cellRendererParams: {
           ngTemplate: this.actionButtons
-        }
+        },
+        minWidth: 100,
+        width: 120
       }
     ];
     // const cdefs = this.agGridUtls.customizeColumns(colDefs, this.columns, this.ignoreFields);
@@ -141,6 +149,7 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
             this.gridLayouts = response.payload;
             this.rowData = response.payload.map(layout => ({
               gridId: layout.Id,
+              userId: layout.UserId,
               gridName: layout.GridName,
               gridLayoutName: layout.GridLayoutName,
               isPublic: layout.IsPublic,
@@ -160,8 +169,13 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
     this.gridLayoutJson = JSON.parse(row.columnState);
   }
 
+  showConfirmation(row) {
+    this.selectedLayout = row;
+    this.confirmModal.showModal();
+  }
+
   deleteLayout(row) {
-    this.financeService.deleteGridLayout(row.gridId).subscribe(
+    this.financeService.deleteGridLayout(this.selectedLayout.gridId).subscribe(
       response => {
         if (response.isSuccessful) {
           this.toastrService.success('Grid layout is successfully deleted!');

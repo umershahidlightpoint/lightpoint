@@ -5,7 +5,7 @@ import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
 import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { SideBar, Style } from 'src/shared/utils/Shared';
+import { SideBar, Style, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selection-grid-layout-menu/grid-layout-menu.component';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 
@@ -34,7 +34,7 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.isSubscriptionAlive = true;
     this.dataService.allocationId.subscribe(data => {
-      if(data != null) {
+      if (data != null) {
         this.getTradeAllocations(data);
       }
     });
@@ -79,8 +79,10 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
         // this.gridOptions.api.sizeColumnsToFit();
       },
       onFirstDataRendered: params => {
+        AutoSizeAllColumns(params);
         // params.api.sizeColumnsToFit();
       },
+      suppressColumnVirtualisation: true,
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
@@ -88,18 +90,18 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
     } as GridOptions;
   }
 
-  getTradeAllocations(lpOrderId){
+  getTradeAllocations(lpOrderId) {
     this.financeService.getTradeAllocations(lpOrderId).subscribe(result => {
       this.allocationTradesData = result;
       const someArray = this.agGridUtils.columizeData(
         result.data,
         this.allocationTradesData.meta.Columns
       );
-      const cdefs = this.agGridUtils.customizeColumns(
-        [],
-        this.allocationTradesData.meta.Columns,
-        ['Id', 'AllocationId', 'EMSOrderId']
-      );
+      const cdefs = this.agGridUtils.customizeColumns([], this.allocationTradesData.meta.Columns, [
+        'Id',
+        'AllocationId',
+        'EMSOrderId'
+      ]);
       this.allocationsGridOptions.api.setColumnDefs(cdefs);
       this.allocationsData = someArray as [];
     });

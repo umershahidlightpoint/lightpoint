@@ -14,8 +14,8 @@ namespace LP.Finance.WebProxy.WebAPI
         public object SaveDataGridStatus(DataGridStatusDto dataGridStatusDto)
         {
             return !ModelState.IsValid || dataGridStatusDto == null
-             ? BadRequest(ModelState)
-             : controller.SaveDataGridStatus(dataGridStatusDto);
+                ? BadRequest(ModelState)
+                : controller.SaveDataGridStatus(dataGridStatusDto);
         }
 
         [Route("{id:int}")]
@@ -48,7 +48,7 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [Route("GetGridLayouts")]
         [HttpGet]
-        public object GetGridLayouts(int userId = 1)
+        public object GetGridLayouts(int? userId = null)
         {
             return controller.GetGridLayouts(userId);
         }

@@ -145,7 +145,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
           node.expanded = true;
         });
         params.api.onGroupExpandedOrCollapsed();
-
         AutoSizeAllColumns(params);
       },
       enableFilter: true,

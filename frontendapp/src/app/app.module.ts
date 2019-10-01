@@ -75,6 +75,7 @@ import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selectio
 import { AllocationsComponent } from './main/allocations/allocations.component';
 import { JournalsComponent } from './main/journals/journals.component';
 import { LayoutsComponent } from './main/layouts/layouts.component';
+import { ConfirmationModalComponent } from './confirmation-modal/confirmation-modal.component';
 
 @NgModule({
   declarations: [
@@ -107,7 +108,8 @@ import { LayoutsComponent } from './main/layouts/layouts.component';
     ReportModalComponent,
     AllocationsComponent,
     JournalsComponent,
-    LayoutsComponent
+    LayoutsComponent,
+    ConfirmationModalComponent
   ],
   imports: [
     BrowserModule,

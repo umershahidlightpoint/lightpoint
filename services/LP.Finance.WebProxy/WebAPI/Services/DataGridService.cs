@@ -229,7 +229,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 sqlHelper.VerifyConnection();
 
-                List<SqlParameter> Parameters = new List<SqlParameter> {
+                List<SqlParameter> Parameters = new List<SqlParameter>
+                {
                     new SqlParameter("id", id)
                 };
 
@@ -249,12 +250,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        public object GetGridLayouts(int id)
+        public object GetGridLayouts(int? userId)
         {
-            {
-                SqlHelper sqlHelper = new SqlHelper(connectionString);
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
 
-                var query = $@"SELECT   [id]
+            var parameters = new List<SqlParameter>();
+
+            var query = $@"SELECT [id]
                           ,[grid_id]
                           ,[grid_name]
                           ,[grid_layout_name]
@@ -265,40 +267,44 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                           ,[sort_state]
                           ,[filter_state]
                           ,[external_filter_state]
-                        FROM [data_grid_layouts]";
+                           FROM [data_grid_layouts]";
 
-                List<DataGridStatusDto> oDataGridStatusDto = new List<DataGridStatusDto>();
-                MetaData meta = new MetaData();
+            if (userId != null)
+            {
+                parameters.Add(new SqlParameter("userId", userId));
 
-                using (var reader =
-                    sqlHelper.GetDataReader(query, CommandType.Text, null, out var sqlConnection))
+                query += " WHERE [userId] = @userId";
+            }
+
+            List<DataGridStatusDto> dataGridStatus = new List<DataGridStatusDto>();
+            MetaData metaData = new MetaData();
+
+            using (var reader =
+                sqlHelper.GetDataReader(query, CommandType.Text, parameters.ToArray(), out var sqlConnection))
+            {
+                while (reader.Read())
                 {
-                    while (reader.Read())
+                    dataGridStatus.Add(new DataGridStatusDto
                     {
-                        oDataGridStatusDto.Add(new DataGridStatusDto
-                        {
-                            Id = Convert.ToInt32(reader["id"]),
-                            GridId = Convert.ToInt32(reader["grid_id"]),
-                            GridName = reader["grid_name"].ToString(),
-                            GridLayoutName = reader["grid_layout_name"].ToString(),
-                            UserId = Convert.ToInt32(reader["userId"]),
-                            ColumnState = reader["column_state"].ToString(),
-                            FilterState = reader["filter_state"].ToString(),
-                            ExternalFilterState = reader["external_filter_state"].ToString(),
-                            PivotMode = reader["pivot_mode"].ToString(),
-                            SortState = reader["sort_state"].ToString(),
-                            GroupState = reader["group_state"].ToString()
-                        });
-                    }
-
-                    reader.Close();
-                    sqlConnection.Close();
+                        Id = Convert.ToInt32(reader["id"]),
+                        GridId = Convert.ToInt32(reader["grid_id"]),
+                        GridName = reader["grid_name"].ToString(),
+                        GridLayoutName = reader["grid_layout_name"].ToString(),
+                        UserId = Convert.ToInt32(reader["userId"]),
+                        ColumnState = reader["column_state"].ToString(),
+                        FilterState = reader["filter_state"].ToString(),
+                        ExternalFilterState = reader["external_filter_state"].ToString(),
+                        PivotMode = reader["pivot_mode"].ToString(),
+                        SortState = reader["sort_state"].ToString(),
+                        GroupState = reader["group_state"].ToString()
+                    });
                 }
 
-                return Utils.Wrap(true, oDataGridStatusDto, meta);
-
-
+                reader.Close();
+                sqlConnection.Close();
             }
+
+            return Utils.Wrap(true, dataGridStatus, metaData);
         }
     }
 }
