@@ -8,7 +8,7 @@ namespace LP.Finance.WebProxy.WebAPI
     public class DataGridController : ApiController, IDataGridService
     {
         private readonly IDataGridService controller = new DataGridService();
-         
+
         [Route("")]
         [HttpPost]
         public object SaveDataGridStatus(DataGridStatusDto dataGridStatusDto)
@@ -44,6 +44,13 @@ namespace LP.Finance.WebProxy.WebAPI
         public object DeleteGridLayout(int id)
         {
             return controller.DeleteGridLayout(id);
+        }
+
+        [Route("GetGridLayouts")]
+        [HttpGet]
+        public object GetGridLayouts(int userId = 1)
+        {
+            return controller.GetGridLayouts(userId);
         }
     }
 }

@@ -1,0 +1,21 @@
+.action-btn {
+  margin: 0 8px;
+  padding: 2px;
+  width: 15%;
+}
+
+.action-btn:focus {
+  outline: none;
+}
+
+button:focus {
+  outline: none;
+}
+/* ::ng-deep .ag-theme-balham .ag-ltr .ag-has-focus .ag-cell-focus:not(.ag-cell-range-selected),
+.ag-theme-balham .ag-ltr .ag-has-focus .ag-cell-focus.ag-cell-range-single-cell,
+.ag-theme-balham .ag-ltr .ag-cell-focus.ag-cell-range-single-cell.ag-cell-range-handle,
+.ag-theme-balham .ag-rtl .ag-has-focus .ag-cell-focus:not(.ag-cell-range-selected),
+.ag-theme-balham .ag-rtl .ag-has-focus .ag-cell-focus.ag-cell-range-single-cell,
+.ag-theme-balham .ag-rtl .ag-cell-focus.ag-cell-range-single-cell.ag-cell-range-handle {
+  border: none !important;
+} */

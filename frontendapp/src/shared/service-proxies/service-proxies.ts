@@ -352,7 +352,15 @@ export class FinancePocServiceProxy {
   }
 
   /*
-  Get All Grid LayoutS
+  Get All Grid Layouts
+  */
+  getAllGridLayouts() {
+    const url = encodeURI(this.baseUrl + '/DataGrid/GetGridLayouts');
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
+
+  /*
+  Get All Layouts of Grid 
   */
   getGridLayouts(gridId, userId) {
     const url = encodeURI(

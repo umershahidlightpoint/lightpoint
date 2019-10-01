@@ -9,5 +9,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object GetDataGridLayouts(int gridId, int userId);
         object GetAGridLayout(int id);
         object DeleteGridLayout(int id);
+        object GetGridLayouts(int id);
     }
 }

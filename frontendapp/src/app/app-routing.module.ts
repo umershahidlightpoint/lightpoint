@@ -11,6 +11,7 @@ import { AccountComponent } from './main/accounts/account.component';
 import { CreateAccountComponent } from './main/accounts/create-account/create-account.component';
 import { JournalsLedgersComponent } from './main/journals-ledgers/journals-ledgers.component';
 import { TrialGridExampleComponent } from './main/trial-balance/trial-balance.component';
+import { LayoutsComponent } from './main/layouts/layouts.component';
 
 const routes: Routes = [
   { path: '', component: JournalsLedgersComponent },
@@ -33,7 +34,8 @@ const routes: Routes = [
       }
     ]
   },
-  { path: 'operations', component: OperationsComponent }
+  { path: 'operations', component: OperationsComponent },
+  { path: 'layouts', component: LayoutsComponent }
 ];
 
 @NgModule({
