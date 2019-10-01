@@ -72,6 +72,8 @@ import { CostBasisComponent } from './main/reports/costbasis/costbasis.component
 import { TrialBalanceComponent } from './main/reports/trial-balance/trial-balance.component';
 import { ReportModalComponent } from '../shared/Component/report-modal/report-modal.component';
 import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selection-grid-layout-menu/grid-layout-menu.component';
+import { AllocationsComponent } from './main/allocations/allocations.component';
+import { JournalsComponent } from './main/journals/journals.component';
 
 @NgModule({
   declarations: [
@@ -101,7 +103,9 @@ import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selectio
     BalanceReportComponent,
     CostBasisComponent,
     TrialBalanceComponent,
-    ReportModalComponent
+    ReportModalComponent,
+    AllocationsComponent,
+    JournalsComponent
   ],
   imports: [
     BrowserModule,
