@@ -28,7 +28,14 @@ import { DataModalComponent } from '../../../shared/Component/data-modal/data-mo
 import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
-import { Expand, Collapse, ExpandAll, CollapseAll } from 'src/shared/utils/ContextMenu';
+import {
+  Expand,
+  Collapse,
+  ExpandAll,
+  CollapseAll,
+  CustomItem,
+  GetContextMenu
+} from 'src/shared/utils/ContextMenu';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
 @Component({
@@ -424,8 +431,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   }
 
   getContextMenuItems(params) {
-    const defaultItems = ['copy', 'paste', 'copyWithHeaders', 'export'];
-    const items = [
+    const addCustomItems = [
       {
         name: 'View Chart',
         action: () => {
@@ -459,37 +465,10 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
           });
           this.openChartModal({ data, stats });
         }
-      },
-      {
-        name: 'Expand',
-        action() {
-          Expand(params);
-        }
-      },
-      {
-        name: 'Collapse',
-        action() {
-          Collapse(params);
-        }
-      },
-      {
-        name: 'Expand All',
-        action: () => {
-          ExpandAll(params);
-        }
-      },
-      {
-        name: 'Collapse All',
-        action: () => {
-          CollapseAll(params);
-        }
-      },
-      ...defaultItems
+      }
     ];
-    if (params.node.group) {
-      return items;
-    }
-    return defaultItems;
+    //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
+    return GetContextMenu(true, null, false, addCustomItems, params);
   }
 
   getTrialBalance() {

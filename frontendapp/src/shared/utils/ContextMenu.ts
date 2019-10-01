@@ -72,3 +72,62 @@ export const CollapseAll = params => {
   });
   params.api.onGroupExpandedOrCollapsed();
 };
+
+export const CustomItem = params => {
+  return [
+    {
+      name: 'Expand',
+      action() {
+        Expand(params);
+      }
+    },
+    {
+      name: 'Collapse',
+      action() {
+        Collapse(params);
+      }
+    },
+    {
+      name: 'Expand All',
+      action: () => {
+        ExpandAll(params);
+      }
+    },
+    {
+      name: 'Collapse All',
+      action: () => {
+        CollapseAll(params);
+      }
+    }
+  ];
+};
+
+export const DefaultItems = ['copy', 'paste', 'copyWithHeaders', 'export'];
+
+export const GetContextMenu = (
+  isDefaultItems,
+  addDefaultItems,
+  isCustomItems,
+  addCustomItems,
+  params
+) => {
+  let allDefaultItems;
+  let allCustomItems;
+
+  if (isDefaultItems) {
+    allDefaultItems = DefaultItems;
+  } else {
+    allDefaultItems = [...addDefaultItems, ...DefaultItems];
+  }
+
+  if (isCustomItems) {
+    allCustomItems = CustomItem(params);
+  } else {
+    allCustomItems = [...addCustomItems, ...CustomItem(params)];
+  }
+
+  if (params.node.group) {
+    return allCustomItems;
+  }
+  return allDefaultItems;
+};
