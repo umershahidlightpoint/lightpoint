@@ -16,6 +16,7 @@ import {
   GetDateRangeLabel,
   DoesExternalFilterPass,
   FormatNumber,
+  FormatNumber4,
   SetDateRange,
   CommaSeparatedFormat,
   HeightStyle,
@@ -102,7 +103,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
         });
         params.api.onGroupExpandedOrCollapsed();
 
-        AutoSizeAllColumns(params);
+        //AutoSizeAllColumns(params);
         params.api.sizeColumnsToFit();
       },
       enableFilter: true,
@@ -110,12 +111,14 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       alignedGrids: [],
       suppressHorizontalScroll: false,
       columnDefs: [
+        /*
         {
           field: 'name',
           width: 120,
           headerName: 'Account Name',
           enableRowGroup: true
         },
+        */
         {
           field: 'symbol',
           width: 120,
@@ -146,7 +149,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           filter: true,
           cellClass: 'rightAlign',
           sortable: true,
-          valueFormatter: absCurrencyFormatter
+          valueFormatter: costBasisFormatter
         }
       ],
       defaultColDef: {
@@ -294,6 +297,13 @@ function currencyFormatter(params) {
     return;
   }
   return CommaSeparatedFormat(params.value);
+}
+
+function costBasisFormatter(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  return FormatNumber4(params.value);
 }
 
 function absCurrencyFormatter(params) {
