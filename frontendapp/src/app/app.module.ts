@@ -74,6 +74,7 @@ import { ReportModalComponent } from '../shared/Component/report-modal/report-mo
 import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selection-grid-layout-menu/grid-layout-menu.component';
 import { AllocationsComponent } from './main/allocations/allocations.component';
 import { JournalsComponent } from './main/journals/journals.component';
+import { TradesComponent } from './main/trades/trades.component';
 
 @NgModule({
   declarations: [
@@ -105,7 +106,8 @@ import { JournalsComponent } from './main/journals/journals.component';
     TrialBalanceComponent,
     ReportModalComponent,
     AllocationsComponent,
-    JournalsComponent
+    JournalsComponent,
+    TradesComponent
   ],
   imports: [
     BrowserModule,
