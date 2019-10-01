@@ -28,7 +28,7 @@ import { DataModalComponent } from '../../../shared/Component/data-modal/data-mo
 import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
-import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
 @Component({
@@ -428,35 +428,9 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       {
         name: 'View Chart',
         action: () => {
-          const data = [];
-          let stats: object;
-          let totalDebit = 0;
-          let totalCredit = 0;
-          params.api.forEachNode((node, index) => {
-            if (node.group && node.level === 0) {
-              this.tableHeader =
-                node.columnApi.columnController.rowGroupColumns[0].colDef.headerName;
-              data.push({
-                accountName: node.key,
-                debit: node.aggData.debit,
-                credit: node.aggData.credit,
-                debitPercentage: 0,
-                creditPercentage: 0,
-                balance: node.aggData.balance
-              });
-              totalDebit += node.aggData.debit;
-              totalCredit += node.aggData.debit;
-            }
-          });
-          stats = {
-            totalDebit,
-            totalCredit
-          };
-          data.forEach(row => {
-            row.debitPercentage = (row.debit * 100) / totalDebit;
-            row.creditPercentage = (row.credit * 100) / totalCredit;
-          });
-          this.openChartModal({ data, stats });
+          const record = ViewChart(params);
+          this.tableHeader = record[0];
+          this.openChartModal(record[1]);
         }
       }
     ];
