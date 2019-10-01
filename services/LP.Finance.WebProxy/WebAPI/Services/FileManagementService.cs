@@ -47,6 +47,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             // return recordBody;
             return null;
         }
+
         public object GenerateActivityAndPositionFilesForSilver(FileGenerationInputDto dto)
         {
             var trades = GetTransactions(tradesURL + "ALL");
@@ -82,8 +83,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 positionPath, "Position_json");
 
             List<FileInputDto> fileList = new List<FileInputDto>();
-            fileList.Add(new FileInputDto(activityPath, newFileName, activityStatistics, "LightPoint", "Upload", dto.businessDate.HasValue ? dto.businessDate : DateTime.UtcNow));
-            fileList.Add(new FileInputDto(positionPath, newPositionFile, positionStatistics, "LightPoint", "Upload", dto.businessDate.HasValue ? dto.businessDate : DateTime.UtcNow));
+            fileList.Add(new FileInputDto(activityPath, newFileName, activityStatistics, "LightPoint", "Upload",
+                dto.businessDate.HasValue ? dto.businessDate : DateTime.UtcNow));
+            fileList.Add(new FileInputDto(positionPath, newPositionFile, positionStatistics, "LightPoint", "Upload",
+                dto.businessDate.HasValue ? dto.businessDate : DateTime.UtcNow));
 
             InsertActivityAndPositionFilesForSilver(fileList);
             return Utils.Wrap(true);
@@ -143,7 +146,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                 @business_date)
                                SELECT SCOPE_IDENTITY() AS 'Identity'";
 
-                    sqlHelper.Insert(query, CommandType.Text, fileParams.ToArray(),out int fileId);
+                    sqlHelper.Insert(query, CommandType.Text, fileParams.ToArray(), out int fileId);
 
                     List<SqlParameter> fileActionParams = new List<SqlParameter>()
                     {
@@ -166,7 +169,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                            ,@action_end_date)";
 
                     sqlHelper.Insert(query, CommandType.Text, fileActionParams.ToArray());
-
                 }
 
                 sqlHelper.SqlCommitTransaction();

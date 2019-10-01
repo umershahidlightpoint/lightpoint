@@ -7,7 +7,7 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selection-grid-layout-menu/grid-layout-menu.component';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { SideBar, Style, HeightStyle } from 'src/shared/utils/Shared';
+import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';
 
 @Component({
   selector: 'app-accruals',
@@ -116,7 +116,7 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
       sortable: true,
       resizable: true
     };
-    // align scroll of grid and footer grid
+    // Align Scroll of Grid and Footer Grid
     this.gridOptions.alignedGrids.push(this.bottomOptions);
     this.bottomOptions.alignedGrids.push(this.gridOptions);
     this.page = 0;
@@ -142,8 +142,11 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
       columnDefs: this.columnDefs,
       onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      onGridReady: () => {
-        //this.gridOptions.api.sizeColumnsToFit();
+      onGridReady: params => {
+        AutoSizeAllColumns(params);
+      },
+      onFirstDataRendered: params => {
+        AutoSizeAllColumns(params);
       },
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       rowSelection: 'single',
@@ -154,7 +157,8 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
-      suppressHorizontalScroll: false
+      suppressHorizontalScroll: false,
+      suppressColumnVirtualisation: true
     } as GridOptions;
 
     this.allocationsGridOptions = {
@@ -163,8 +167,11 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
       columnDefs: this.columnDefs,
       onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: AllocationGridLayoutMenuComponent },
-      onGridReady: () => {
-        // this.gridOptions.api.sizeColumnsToFit();
+      onGridReady: params => {
+        AutoSizeAllColumns(params);
+      },
+      onFirstDataRendered: params => {
+        AutoSizeAllColumns(params);
       },
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
@@ -174,7 +181,8 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
-      suppressHorizontalScroll: false
+      suppressHorizontalScroll: false,
+      suppressColumnVirtualisation: true
     } as GridOptions;
   }
 

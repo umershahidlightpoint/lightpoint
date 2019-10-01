@@ -18,7 +18,7 @@ import { takeWhile } from 'rxjs/operators';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { SideBar, HeightStyle } from 'src/shared/utils/Shared';
+import { SideBar, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
 @Component({
@@ -150,6 +150,8 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
       onFirstDataRendered: params => {
+        AutoSizeAllColumns(params);
+
         params.api.sizeColumnsToFit();
       }
     };

@@ -18,7 +18,8 @@ import {
   FormatNumber,
   SetDateRange,
   CommaSeparatedFormat,
-  HeightStyle
+  HeightStyle,
+  AutoSizeAllColumns
 } from 'src/shared/utils/Shared';
 import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
@@ -89,10 +90,11 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
       clearExternalFilter: this.clearFilters.bind(this),
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
+      suppressColumnVirtualisation: true,
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
         this.gridColumnApi = params.columnApi;
-        this.gridOptions.api.sizeColumnsToFit();
+
         this.gridOptions.excelStyles = ExcelStyle;
       },
       onFirstDataRendered: params => {
@@ -100,6 +102,9 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
           node.expanded = true;
         });
         params.api.onGroupExpandedOrCollapsed();
+
+        AutoSizeAllColumns(params);
+        params.api.sizeColumnsToFit();
       },
       enableFilter: true,
       animateRows: true,

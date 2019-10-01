@@ -22,7 +22,8 @@ import {
   GetDateRangeLabel,
   SetDateRange,
   CommaSeparatedFormat,
-  HeightStyle
+  HeightStyle,
+  AutoSizeAllColumns
 } from 'src/shared/utils/Shared';
 import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
@@ -134,18 +135,18 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       pivotPanelShow: 'after',
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
-      /* onGridReady: params => {
-        this.gridApi = params.api;
-        this.gridColumnApi = params.columnApi;
-        this.gridOptions.api.sizeColumnsToFit();
+      suppressColumnVirtualisation: true,
+      onGridReady: params => {
         this.gridOptions.excelStyles = ExcelStyle;
-      }, */
+      },
 
       onFirstDataRendered: params => {
         params.api.forEachNode(node => {
           node.expanded = true;
         });
         params.api.onGroupExpandedOrCollapsed();
+
+        AutoSizeAllColumns(params);
       },
       enableFilter: true,
       animateRows: true,

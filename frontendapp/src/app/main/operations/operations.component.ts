@@ -20,7 +20,7 @@ import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataService } from 'src/shared/common/data.service';
-import { SideBar, Style } from 'src/shared/utils/Shared';
+import { SideBar, Style, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
@@ -174,10 +174,9 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       sideBar: SideBar,
       getContextMenuItems: params => this.getContextMenuItems(params),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      onGridReady: () => {
-        this.gridOptions.api.sizeColumnsToFit();
-      },
+      onGridReady: params => {},
       onFirstDataRendered: params => {
+        AutoSizeAllColumns(params);
         params.api.sizeColumnsToFit();
       },
       enableFilter: true,
@@ -258,9 +257,9 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   generateFiles() {
-    var obj = {
-      businessDate : this.businessDate != null ? this.businessDate.startDate : null
-    }
+    const obj = {
+      businessDate: this.businessDate != null ? this.businessDate.startDate : null
+    };
     this.financeService
       .generateFiles(obj)
       .pipe(takeWhile(() => this.isSubscriptionAlive))

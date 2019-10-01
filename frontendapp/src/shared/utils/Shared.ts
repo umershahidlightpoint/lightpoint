@@ -258,3 +258,13 @@ export const HeightStyle = height => {
     boxSizing: 'border-box'
   };
 };
+
+export const AutoSizeAllColumns = params => {
+  const gridColumnApi = params.columnApi;
+
+  const allColumnIds = [];
+  gridColumnApi.getAllColumns().forEach(column => {
+    allColumnIds.push(column.colId);
+  });
+  gridColumnApi.autoSizeColumns(allColumnIds);
+};

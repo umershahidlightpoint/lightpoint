@@ -12,7 +12,7 @@ import { GridOptions } from 'ag-grid-community';
 import { takeWhile } from 'rxjs/operators';
 import { TemplateRendererComponent } from '../../../template-renderer/template-renderer.component';
 import { File } from 'src/shared/models/files';
-import { SideBar, Style } from 'src/shared/utils/Shared';
+import { SideBar, Style, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { ToastrService } from 'ngx-toastr';
 import { DataService } from 'src/shared/common/data.service';
@@ -124,32 +124,18 @@ export class FileManagementComponent implements OnInit, OnDestroy {
       sideBar: SideBar,
       columnDefs: columnDefsForFiles,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      onGridReady: () => {
-        let allColumnIds = [];
-        this.filesGridOptions.columnApi.getAllColumns().forEach(function(column) {
-          allColumnIds.push(column.colId);
-        });
-        this.filesGridOptions.columnApi.autoSizeColumns(allColumnIds); 
-      },
+      onGridReady: params => {},
       onFirstDataRendered: params => {
-        
+        AutoSizeAllColumns(params);
       },
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
-      suppressHorizontalScroll: true,
+      suppressHorizontalScroll: false,
       suppressColumnVirtualisation: true
     } as GridOptions;
     this.dataService.changeMessage(this.filesGridOptions);
     this.dataService.changeGrid({ gridId: GridId.filesId, gridName: GridName.files });
-  }
-
-  autoSizeAll(){
-    let allColumnIds = [];
-    this.filesGridOptions.columnApi.getAllColumns().forEach(function(column) {
-      allColumnIds.push(column.colId);
-    });
-    this.filesGridOptions.columnApi.autoSizeColumns(allColumnIds); 
   }
 
   private getFiles() {
@@ -167,7 +153,7 @@ export class FileManagementComponent implements OnInit, OnDestroy {
           action: item.action,
           actionStartDate: item.action_start_date,
           actionEndDate: item.action_end_date,
-          businessDate : item.business_date
+          businessDate: item.business_date
         }));
         this.filesGridOptions.api.setRowData(this.files);
       });
@@ -182,7 +168,15 @@ export class FileManagementComponent implements OnInit, OnDestroy {
     const params = {
       fileName: 'File Management',
       sheetName: 'First Sheet',
-      columnKeys: ['name', 'action', 'source', 'statistics','businessDate', 'actionStartDate', 'actionEndDate']
+      columnKeys: [
+        'name',
+        'action',
+        'source',
+        'statistics',
+        'businessDate',
+        'actionStartDate',
+        'actionEndDate'
+      ]
     };
     this.filesGridOptions.api.exportDataAsExcel(params);
     this.downloadExcelUtils.ToastrMessage();
@@ -216,14 +210,14 @@ export class FileManagementComponent implements OnInit, OnDestroy {
   downloadFile(file) {}
 
   processFile(params) {
-    let local = this;
+    const local = this;
     this.toastrService.success('File Processing is Started');
-    let obj = {
+    const obj = {
       fileId: params.node.data.id,
-      action: "Processing"
-    }
+      action: 'Processing'
+    };
     this.financeService.updateAction(obj).subscribe(resp => {
-      if(resp.isSuccessful){
+      if (resp.isSuccessful) {
         local.getFiles();
       }
     });
