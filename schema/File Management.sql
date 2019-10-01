@@ -44,3 +44,4 @@ INSERT INTO [file_action]([file_Id],[action],[action_start_date],[action_end_dat
 INSERT INTO [file_action]([file_Id],[action],[action_start_date],[action_end_date])VALUES(3,'Uploading',getdate(),null)
 INSERT INTO [file_action]([file_Id],[action],[action_start_date],[action_end_date])VALUES(4,'Downloaded',getdate(),getdate())
 
+alter table [file] add business_date datetime null
