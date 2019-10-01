@@ -125,14 +125,13 @@ export class FileManagementComponent implements OnInit, OnDestroy {
       columnDefs: columnDefsForFiles,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onGridReady: () => {
-        let allColumnIds = [];
-        this.filesGridOptions.columnApi.getAllColumns().forEach(function(column) {
-          allColumnIds.push(column.colId);
-        });
-        this.filesGridOptions.columnApi.autoSizeColumns(allColumnIds); 
+        // let allColumnIds = [];
+        // this.filesGridOptions.columnApi.getAllColumns().forEach(function(column) {
+        //   allColumnIds.push(column.colId);
+        // });
+        // this.filesGridOptions.columnApi.autoSizeColumns(allColumnIds); 
       },
       onFirstDataRendered: params => {
-        
       },
       enableFilter: true,
       animateRows: true,
@@ -144,13 +143,13 @@ export class FileManagementComponent implements OnInit, OnDestroy {
     this.dataService.changeGrid({ gridId: GridId.filesId, gridName: GridName.files });
   }
 
-  autoSizeAll(){
-    let allColumnIds = [];
-    this.filesGridOptions.columnApi.getAllColumns().forEach(function(column) {
-      allColumnIds.push(column.colId);
-    });
-    this.filesGridOptions.columnApi.autoSizeColumns(allColumnIds); 
-  }
+  // autoSizeAll(){
+  //   let allColumnIds = [];
+  //   this.filesGridOptions.columnApi.getAllColumns().forEach(function(column) {
+  //     allColumnIds.push(column.colId);
+  //   });
+  //   this.filesGridOptions.columnApi.autoSizeColumns(allColumnIds);
+  // }
 
   private getFiles() {
     this.financeService

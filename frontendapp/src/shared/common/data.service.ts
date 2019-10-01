@@ -13,9 +13,13 @@ export class DataService {
 
   private allocationGridOptions = new BehaviorSubject(null);
   private allocationGrid = new BehaviorSubject(null);
+  private identifierForAllocation = new BehaviorSubject(null);
+  private identifierForJournal = new BehaviorSubject(null);
 
   allocationGridColApi$ = this.allocationGridOptions.asObservable();
   allocationGridObject$ = this.allocationGrid.asObservable();
+  allocationId = this.identifierForAllocation.asObservable();
+  journalId = this.identifierForJournal.asObservable();
 
   constructor() {}
 
@@ -42,5 +46,13 @@ export class DataService {
 
   changeAllocationGrid(obj: any) {
     this.allocationGrid.next(obj);
+  }
+
+  onRowSelectionTrade(obj: any){
+    this.identifierForAllocation.next(obj);
+  }
+
+  onRowSelectionAllocation(obj: any){
+    this.identifierForJournal.next(obj);
   }
 }

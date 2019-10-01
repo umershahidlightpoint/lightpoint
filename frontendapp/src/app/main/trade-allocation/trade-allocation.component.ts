@@ -7,7 +7,6 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { SideBar, Style } from 'src/shared/utils/Shared';
-import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selection-grid-layout-menu/grid-layout-menu.component';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { takeWhile } from 'rxjs/operators';
 
@@ -18,16 +17,11 @@ import { takeWhile } from 'rxjs/operators';
 })
 export class TradeAllocationComponent implements OnInit, AfterViewInit {
   @ViewChild('topGrid') topGrid;
-  @ViewChild('bottomGrid') bottomGrid;
   @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
   @ViewChild('dataModal') dataModal: DataModalComponent;
 
   public gridOptions: GridOptions;
-  public allocationsGridOptions: GridOptions;
-  public journalsGridOptions: GridOptions;
   public rowData: [];
-  public allocationsData: [];
-  public journalsData: [];
 
   bottomOptions = { alignedGrids: [] };
   bottomData: any;
@@ -44,8 +38,6 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
   title = '';
   tradesData: any;
   hideGrid: boolean;
-  allocationTradesData: any;
-  journalsTradesData: any;
 
   style = Style;
 
@@ -108,12 +100,6 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
     });
     this.dataService.changeMessage(this.gridOptions);
     this.dataService.changeGrid({ gridId: GridId.tradeId, gridName: GridName.trade });
-
-    this.dataService.changeAllocation(this.allocationsGridOptions);
-    this.dataService.changeAllocationGrid({
-      gridId: GridId.selectedTradeId,
-      gridName: GridName.SelectedTrades
-    });
   }
 
   ngOnInit() {
@@ -208,75 +194,11 @@ export class TradeAllocationComponent implements OnInit, AfterViewInit {
       alignedGrids: [],
       suppressHorizontalScroll: false
     } as GridOptions;
-
-    this.allocationsGridOptions = {
-      rowData: null,
-      sideBar: SideBar,
-      columnDefs: this.columnDefs,
-      onCellDoubleClicked: this.openModal.bind(this),
-      frameworkComponents: { customToolPanel: AllocationGridLayoutMenuComponent },
-      onGridReady: () => {
-        // this.gridOptions.api.sizeColumnsToFit();
-      },
-      onFirstDataRendered: params => {
-        // params.api.sizeColumnsToFit();
-      },
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      suppressHorizontalScroll: false
-    } as GridOptions;
-
-    this.journalsGridOptions = {
-      rowData: null,
-      sideBar: SideBar,
-      columnDefs: this.columnDefs,
-      onCellDoubleClicked: this.openModal.bind(this),
-      frameworkComponents: { customToolPanel: AllocationGridLayoutMenuComponent },
-      onGridReady: () => {
-        // this.gridOptions.api.sizeColumnsToFit();
-      },
-      onFirstDataRendered: params => {
-        // params.api.sizeColumnsToFit();
-      },
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      suppressHorizontalScroll: false
-    } as GridOptions;
   }
 
   onRowSelected(event) {
     if (event.node.selected) {
-      this.financeService.getTradeAllocations(event.node.data.LPOrderId).subscribe(result => {
-        this.allocationTradesData = result;
-        const someArray = this.agGridUtils.columizeData(
-          result.data,
-          this.allocationTradesData.meta.Columns
-        );
-        const cdefs = this.agGridUtils.customizeColumns(
-          [],
-          this.allocationTradesData.meta.Columns,
-          ['Id', 'AllocationId', 'EMSOrderId']
-        );
-        this.allocationsGridOptions.api.setColumnDefs(cdefs);
-        this.allocationsData = someArray as [];
-      });
-
-      this.financeService.getTradeJournals(event.node.data.LPOrderId).subscribe(result => {
-        this.journalsTradesData = result;
-        const someArray = this.agGridUtils.columizeData(
-          result.data,
-          this.journalsTradesData.meta.Columns
-        );
-        const cdefs = this.agGridUtils.customizeColumns([], this.journalsTradesData.meta.Columns, [
-          'Id',
-          'AllocationId',
-          'EMSOrderId'
-        ]);
-        this.journalsGridOptions.api.setColumnDefs(cdefs);
-        this.journalsData = someArray as [];
-      });
+        this.dataService.onRowSelectionTrade(event.node.data.LPOrderId);
     }
   }
 }
