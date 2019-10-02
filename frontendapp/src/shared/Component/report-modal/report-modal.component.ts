@@ -19,7 +19,7 @@ export class ReportModalComponent implements OnInit {
   hideGrid: boolean;
   backdrop: any;
 
-  styleForHight = HeightStyle(220);
+  styleForHeight = HeightStyle(220);
 
   containerDiv = {
     borderLeft: '1px solid #cecece',

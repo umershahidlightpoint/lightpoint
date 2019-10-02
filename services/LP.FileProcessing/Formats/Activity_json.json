@@ -18,8 +18,9 @@
       "source": "BusinessDate",
       "destination": "Business_Date",
       "required": true,
-      "function": "GetDate",
-      "format": "yyyy-MM-dd"
+      "function": "",
+      "format": "yyyy-MM-dd",
+      "type":  "date"
     }
   ],
   "Trailer": [
@@ -41,8 +42,9 @@
       "source": "BusinessDate",
       "destination": "Business_Date",
       "required": true,
-      "function": "GetDate",
-      "format": "yyyy-MM-dd"
+      "function": "",
+      "format": "yyyy-MM-dd",
+      "type":  "date"
     },
     {
       "source": "RecordCount",
@@ -58,120 +60,630 @@
       "destination": "Account_ID",
       "required": true,
       "function": null,
+      "type": "char",
       "format": "15",
-      "rule": "Brokerage/Back-Office account number. Ex. ABCDEF123456"
+      "rule": "Brokerage/Back-Office account number. Ex. ABCDEF123456",
+      "offset": 0
     },
     {
       "source": "",
       "destination": "Subaccount_Type",
       "required": true,
       "function": null,
+      "type": null,
       "format": null,
-      "rule": "Use: Cash (default), Margin, or Short"
+      "rule": "Use: Cash (default), Margin, or Short",
+      "offset": 1
     },
     {
       "source": "TradeId",
       "destination": "Security_ID",
       "required": true,
-      "function": null,
+      "function": "",
+      "type": "char",
       "format": "20",
-      "rule": "Back-office security identifier.  Use internal security master unique identifier."
+      "rule": "Back-office security identifier.  Use internal security master unique identifier.",
+      "offset": 2
     },
     {
       "source": "CUSIP",
       "destination": "CUSIP",
       "required": true,
-      "function": null,
+      "function": "CheckFormat",
+      "type": "char",
       "format": "20",
-      "rule": "CUSIP for applicable instruments.  May be populated with symbol or SEDOL for instruments without a CUSIP."
+      "rule": "CUSIP for applicable instruments.  May be populated with symbol or SEDOL for instruments without a CUSIP.",
+      "offset": 3
     },
     {
       "source": "Symbol",
       "destination": "Symbol",
       "required": true,
-      "function": null,
+      "function": "CheckFormat",
+      "type": "char",
       "format": "25",
-      "rule": "Security symbol.  May be populated with CUSIP or SEDOL for instruments without a symbol."
+      "rule": "Security symbol.  May be populated with CUSIP or SEDOL for instruments without a symbol.",
+      "offset": 4
     },
     {
       "source": "",
       "destination": "Security_Currency",
       "required": true,
       "function": null,
+      "type": null,
       "format": null,
-      "rule": "ISO currency code. "
+      "rule": "ISO currency code. ",
+      "offset": 5
     },
     {
       "source": "",
       "destination": "Transaction_Type",
       "required": true,
       "function": null,
+      "type": null,
       "format": null,
-      "rule": "Use: Buy, Sell, Receive, Deliver, or Cash Movement."
+      "rule": "Use: Buy, Sell, Receive, Deliver, or Cash Movement.",
+      "offset": 6
     },
     {
       "source": "",
       "destination": "Trade_Date",
       "required": true,
       "function": null,
+      "type": "date",
       "format": "yyyy-MM-dd",
-      "rule": "Date of trade execution or bookkeeping transaction.  Ex. 2011-01-01"
+      "rule": "Date of trade execution or bookkeeping transaction.  Ex. 2011-01-01",
+      "offset": 7
     },
     {
       "source": "",
       "destination": "Trade_Time",
       "required": false,
       "function": null,
+      "type": "time",
       "format": "hh:mm:ss.mmm",
-      "rule": "Required for trades; optional (recommended) for bookkeeping; time(hh:mm:ss.mmm). Ex. 09.10.11.123"
+      "rule": "Required for trades; optional (recommended) for bookkeeping; time(hh:mm:ss.mmm). Ex. 09.10.11.123",
+      "offset": 8
     },
     {
       "source": "",
       "destination": "Quantity",
       "required": true,
       "function": null,
+      "type": "decimal",
       "format": "18,6",
-      "rule": "For cash movement, use Net amount. Ex. 100.000000"
+      "rule": "For cash movement, use Net amount. Ex. 100.000000",
+      "offset": 9
     },
     {
       "source": "",
       "destination": "Back-Office_Transaction_ID",
       "required": false,
       "function": null,
-      "format": null,
-      "rule": "Optional (recommended to facilitate support); varchar(20). "
+      "type": "char",
+      "format": "20",
+      "rule": "Optional (recommended to facilitate support); varchar(20). ",
+      "offset": 10
     },
     {
       "source": "",
       "destination": "Description",
       "required": false,
       "function": null,
+      "type": "char",
       "format": "256",
-      "rule": "Optional – (recommended to facilitate support and operations); varchar(256)"
+      "rule": "Optional – (recommended to facilitate support and operations); varchar(256)",
+      "offset": 11
     },
     {
-      "source": "Back-Office_Post_Date",
-      "destination": "",
+      "source": "",
+      "destination": "Back-Office_Post_Date",
       "required": false,
       "function": null,
-      "format": "",
-      "rule": ""
+      "type": "date",
+      "format": "yyyy-MM-dd",
+      "rule": "Optional (recommended to facilitate support);",
+      "offset": 12
     },
     {
       "source": "SettleDate",
       "destination": "Settlement_Date",
       "required": true,
       "function": "GetDate",
+      "type": "date",
       "format": "yyyy-MM-dd",
-      "rule": "Required for trades; optional for bookkeeping; date(yyyy-mm-dd)"
+      "rule": "Required for trades; optional for bookkeeping; date(yyyy-mm-dd)",
+      "offset": 13
     },
     {
       "source": "",
       "destination": "Transaction_Currency",
       "required": true,
       "function": null,
+      "type": null,
       "format": "",
-      "rule": "ISO currency code."
+      "rule": "ISO currency code.",
+      "offset": 14
+    },
+    {
+      "source": "",
+      "destination": "FX_Spot_Rate",
+      "required": false,
+      "function": null,
+      "type": "decimal",
+      "format": "18,10",
+      "rule": "Required when Transaction Currency is non-USD; numeric(18,10). Ex. 123.0123456789",
+      "offset": 15
+    },
+    {
+      "source": "",
+      "destination": "Cancel_Indicator",
+      "required": false,
+      "function": null,
+      "type": null,
+      "format": "",
+      "rule": "Leave empty or use: Canceling (when canceling a previous trade or bookkeeping transaction).",
+      "offset": 16
+    },
+    {
+      "source": "",
+      "destination": "Net",
+      "required": true,
+      "function": null,
+      "type": "decimal",
+      "format": "20,6",
+      "rule": "Ex. 123456.654321",
+      "offset": 17
+    },
+    {
+      "source": "",
+      "destination": "Price",
+      "required": false,
+      "function": null,
+      "type": null,
+      "format": "",
+      "rule": "Ex. 123.456789",
+      "offset": 18
+    },
+    {
+      "source": "",
+      "destination": "Commission",
+      "required": false,
+      "function": null,
+      "type": "decimal",
+      "format": "18,6",
+      "rule": "Ex. 123.456789",
+      "offset": 19
+    },
+    {
+      "source": "",
+      "destination": "Fee",
+      "required": false,
+      "function": null,
+      "type": "decimal",
+      "format": "18,6",
+      "rule": "Ex. 123.456789",
+      "offset": 20
+    },
+    {
+      "source": "",
+      "destination": "Internal_use_only",
+      "required": false,
+      "function": null,
+      "type": null,
+      "format": "",
+      "rule": "Leave empty",
+      "offset": 21
+    },
+    {
+      "source": "",
+      "destination": "Interest",
+      "required": false,
+      "function": null,
+      "type": "decimal",
+      "format": "18,6",
+      "rule": "Ex. 123.456789",
+      "offset": 22
+    },
+    {
+      "source": "",
+      "destination": "Internal_use_only",
+      "required": false,
+      "function": null,
+      "type": null,
+      "format": null,
+      "rule": "Leave empty",
+      "offset": 23
+    },
+    {
+      "source": "",
+      "destination": "Linked_Security_ID",
+      "required": false,
+      "function": null,
+      "type": "char",
+      "format": "20",
+      "rule": "Optional – recommended for corporate action activity where one or more new securities result (e.g., exchange, merger, etc.). Back office security identifier. Use internal security master unique identifier",
+      "offset": 24
+    },
+    {
+      "source": "",
+      "destination": "Linked_Security_CUSIP",
+      "required": false,
+      "function": null,
+      "type": "char",
+      "format": "20",
+      "rule": "Optional – recommended for corporate action activity where one or more new securities result (e.g., exchange, merger, etc.). CUSIP for applicable instruments. May be populated with symbol or SEDOL for instruments without a CUSIP.",
+      "offset": 25
+    },
+    {
+      "source": "",
+      "destination": "Linked_Security_Symbol",
+      "required": false,
+      "function": null,
+      "type": "char",
+      "format": "25",
+      "rule": "Optional – recommended for corporate action activity where one or more new securities result (e.g., exchange, merger, etc.). Security symbol.  May be populated with CUSIP or SEDOL for instruments without a symbol.",
+      "offset": 26
+    },
+    {
+      "source": "",
+      "destination": "Linked_Security_Currency",
+      "required": false,
+      "function": null,
+      "type": null,
+      "format": "",
+      "rule": "Optional – recommended for corporate action activity where one or more new securities result (e.g., exchange, merger, etc.). ISO currency code",
+      "offset": 27
+    },
+    {
+      "source": "",
+      "destination": "Suppress_Wash_Sales_Indicator",
+      "required": false,
+      "function": null,
+      "type": null,
+      "format": "",
+      "rule": "Optional (defaults to False). Leave empty or use false or true. (suppress wash sales for the transaction).",
+      "offset": 28
+    },
+    {
+      "source": "",
+      "destination": "Transfer_Control_Number",
+      "required": false,
+      "function": null,
+      "type": "char",
+      "format": "18",
+      "rule": "Optional – recommended for ACAT external transfers. Ex. ABCDEFghijkl12345",
+      "offset": 29
+    },
+    {
+      "source": "",
+      "destination": "Transfer_Type",
+      "required": false,
+      "function": null,
+      "type": null,
+      "format": "",
+      "rule": "Optional – recommended for internal and external transfers. Ex. Leave empty or use: Regular (default), Gift, Inheritance, InheritanceThenGift.",
+      "offset": 30
+    },
+    {
+      "source": "",
+      "destination": "Transfer_FMV",
+      "required": false,
+      "function": null,
+      "type": "decimal",
+      "format": "18,6",
+      "rule": "Optional – recommended for internal and external gift/inheritance transfer. Ex. 123.456789",
+      "offset": 31
+    },
+    {
+      "source": "",
+      "destination": "Transfer_FMV_Date",
+      "required": false,
+      "function": null,
+      "type": "date",
+      "format": "yyyy-MM-dd",
+      "rule": "Optional – recommended for internal and external gift/inheritance transfers. Ex. 2011-01-01",
+      "offset": 32
+    },
+    {
+      "source": "",
+      "destination": "Internal_use_only",
+      "required": false,
+      "function": null,
+      "type": null,
+      "format": "",
+      "rule": "Leave empty",
+      "offset": 33
+    },
+    {
+      "source": "",
+      "destination": "Internal_use_only",
+      "required": false,
+      "function": null,
+      "type": null,
+      "format": "",
+      "rule": "Leave empty",
+      "offset": 34
+    },
+    {
+      "source": "",
+      "destination": "Cancel_Back-Office_Transaction_ID",
+      "required": false,
+      "function": null,
+      "type": "char",
+      "format": "20",
+      "rule": "Conditional. Required when cancel indicator = canelling. Ex ABCDEFghijkl123456",
+      "offset": 35
+    },
+    {
+      "source": "",
+      "destination": "Long_Position_Indicator",
+      "required": true,
+      "function": "LongShortConversion",
+      "type": null,
+      "format": "",
+      "rule": "Use: True (is a long position) or False (is a short position)",
+      "offset": 36
+    },
+    {
+      "source": "",
+      "destination": "Transaction_Sub-Type",
+      "required": true,
+      "function": null,
+      "type": null,
+      "format": null,
+      "rule": "Default to same value as Transaction Type.  For valid values, see: Transaction Sub-Types.",
+      "offset": 37
+    },
+    {
+      "source": "",
+      "destination": "Note1",
+      "required": false,
+      "function": null,
+      "type": "char",
+      "format": "30",
+      "rule": "This is a note",
+      "offset": 38
+    },
+    {
+      "source": "",
+      "destination": "Note2",
+      "required": false,
+      "function": null,
+      "type": "char",
+      "format": "30",
+      "rule": "This is another note",
+      "offset": 39
+    },
+    {
+      "source": "",
+      "destination": "Option_Symbol",
+      "required": false,
+      "function": null,
+      "type": "char",
+      "format": "25",
+      "rule": "Optional – recommended for deliverable security transactions resulting from an option exercise/assignment. Ex. AAPL—111022P00360000",
+      "offset": 40
+    },
+    {
+      "source": "",
+      "destination": "Covered_Override_Indicator",
+      "required": false,
+      "function": null,
+      "type": null,
+      "format": null,
+      "rule": "Leave empty (No Override) or use: Covered or Noncovered",
+      "offset": 41
+    },
+    {
+      "source": "",
+      "destination": "SEDOL",
+      "required": false,
+      "function": null,
+      "type": "char",
+      "format": "25",
+      "rule": "Ex. ABCD1234",
+      "offset": 42
+    },
+    {
+      "source": "",
+      "destination": "Linked_Account_ID",
+      "required": false,
+      "function": null,
+      "type": "char",
+      "format": "15",
+      "rule": "Optional – recommended for internal account transfers. Ex. Brokerage/Back-Office account number. Ex. ABCDEF123456",
+      "offset": 43
+    },
+    {
+      "source": "",
+      "destination": "Security_Type",
+      "required": false,
+      "function": null,
+      "type": null,
+      "format": null,
+      "rule": "Optional – recommended to facilitate more accurate security shell creation for unknown securities. Leave empty or use: Equity (default), Option, MutualFund, Bond, FuturesContract, Currency, Index, or Property",
+      "offset": 44
+    },
+    {
+      "source": "",
+      "destination": "Corporate_Action_Trigger_Indicator",
+      "required": false,
+      "function": null,
+      "type": null,
+      "format": null,
+      "rule": "Conditional – set to True for cost basis impacting corporate action swing transactions (see: Corporate Action Trigger). Ex. Leave empty or use: True (is a corporate action trigger) or False (is not triggering a corporate action).",
+      "offset": 45
+    },
+    {
+      "source": "",
+      "destination": "Internal_use_only",
+      "required": false,
+      "function": null,
+      "type": null,
+      "format": "",
+      "rule": "",
+      "offset": 46
+    },
+    {
+      "source": "",
+      "destination": "Internal_use_only",
+      "required": false,
+      "function": null,
+      "type": null,
+      "format": "",
+      "rule": "",
+      "offset": 47
+    },
+    {
+      "source": "",
+      "destination": "Back-Office_Transaction_Type",
+      "required": false,
+      "function": null,
+      "type": "char",
+      "format": "20",
+      "rule": "Ex. ABC DEF",
+      "offset": 48
+    },
+    {
+      "source": "",
+      "destination": "Back-Office_Transaction_Sub-Type",
+      "required": false,
+      "function": null,
+      "type": "char",
+      "format": "10",
+      "rule": "ABC DEF",
+      "offset": 49
+    },
+    {
+      "source": "",
+      "destination": "Back-Office_Transaction_Sub-Type2",
+      "required": false,
+      "function": null,
+      "type": "char",
+      "format": "10",
+      "rule": "ABCDEFGHIJ",
+      "offset": 50
+    },
+    {
+      "source": "",
+      "destination": "Internal_use_only",
+      "required": false,
+      "function": null,
+      "type": null,
+      "format": "",
+      "rule": "Leave empty",
+      "offset": 51
+    },
+    {
+      "source": "",
+      "destination": "Transfer_Contra-Party",
+      "required": false,
+      "function": null,
+      "type": "char",
+      "format": "30",
+      "rule": "Optional – recommended for external transfers. Ex. ABC123456DEF",
+      "offset": 52
+    },
+    {
+      "source": "",
+      "destination": "Note3",
+      "required": false,
+      "function": null,
+      "type": "char",
+      "format": "30",
+      "rule": "This is a 3rd note",
+      "offset": 53
+    },
+    {
+      "source": "",
+      "destination": "Blotter_Code",
+      "required": false,
+      "function": null,
+      "type": "char",
+      "format": "10",
+      "rule": "Ex. ABCDEFGHIJ",
+      "offset": 54
+    },
+    {
+      "source": "",
+      "destination": "TRID_Code",
+      "required": false,
+      "function": null,
+      "type": "char",
+      "format": "10",
+      "rule": "Ex. ABCDEFGHIJ",
+      "offset": 55
+    },
+    {
+      "source": "",
+      "destination": "Trailer_Code",
+      "required": false,
+      "function": null,
+      "type": "char",
+      "format": "10",
+      "rule": "Ex. ABCDEFGHIJ",
+      "offset": 56
+    },
+    {
+      "source": "",
+      "destination": "Internal_use_only",
+      "required": false,
+      "function": null,
+      "type": null,
+      "format": "",
+      "rule": "Leave Empty",
+      "offset": 57
+    },
+    {
+      "source": "",
+      "destination": "Internal_use_only",
+      "required": false,
+      "function": null,
+      "type": null,
+      "format": "",
+      "rule": "Leave Empty",
+      "offset": 58
+    },
+    {
+      "source": "",
+      "destination": "Internal_use_only",
+      "required": false,
+      "function": null,
+      "type": null,
+      "format": "",
+      "rule": "Leave Empty",
+      "offset": 59
+    },
+    {
+      "source": "",
+      "destination": "Internal_use_only",
+      "required": false,
+      "function": null,
+      "type": null,
+      "format": "",
+      "rule": "Leave Empty",
+      "offset": 60
+    },
+    {
+      "source": "",
+      "destination": "Internal_use_only",
+      "required": false,
+      "function": null,
+      "type": null,
+      "format": "",
+      "rule": "Leave Empty",
+      "offset": 61
+    },
+    {
+      "source": "",
+      "destination": "Linked_Back-Office_Transaction_ID",
+      "required": false,
+      "function": null,
+      "type": "char",
+      "format": "20",
+      "rule": "Optional - use to link two sided events. (e.g. transfers, subaccount journals etc). Ex ABCDEFghijkl123456",
+      "offset": 62
     }
   ]
 }

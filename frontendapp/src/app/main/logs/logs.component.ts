@@ -42,7 +42,7 @@ export class LogsComponent implements OnInit {
 
   style = Style;
 
-  styleForHight = HeightStyle(180);
+  styleForHeight = HeightStyle(180);
 
   /*
   We can define how we need to show the data here, as this is a log file we should group by the rundate

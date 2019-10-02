@@ -11,7 +11,7 @@ import { GridOptions } from 'ag-grid-community';
   styleUrls: ['./reports.component.css']
 })
 export class ReportsComponent {
-  styleForHight = HeightStyle(220);
+  styleForHeight = HeightStyle(220);
 
   processingMsgDiv = {
     border: '1px solid #eee',

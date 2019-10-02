@@ -52,7 +52,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   style = Style;
 
-  styleForHight = HeightStyle(220);
+  styleForHeight = HeightStyle(220);
 
   processingMsgDiv = {
     border: '1px solid #eee',

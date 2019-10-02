@@ -61,21 +61,21 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
             System.IO.Directory.CreateDirectory(currentDir + Path.DirectorySeparatorChar + "SilverData");
 
-            string activityFileName = "activity_" + Convert.ToString(DateTime.UtcNow);
-            var newFileName = activityFileName.Replace("/", "_");
-            newFileName = newFileName.Replace(":", "-");
+            DateTime businessDate = dto.businessDate.HasValue ? dto.businessDate.Value : DateTime.UtcNow;
+            string convertedBusinessDate = businessDate.ToString("yyyy-MM-dd");
 
-            string positionFileName = "position_" + Convert.ToString(DateTime.UtcNow);
-            var newPositionFile = positionFileName.Replace("/", "_");
-            newPositionFile = newPositionFile.Replace(":", "-");
+            // filenames
+            string activityFileName = convertedBusinessDate + "_activity";
+            string positionFileName = convertedBusinessDate + "_position";
 
-            var activityPath = currentDir + "SilverData" + Path.DirectorySeparatorChar + $"{newFileName}.csv";
-            var positionPath = currentDir + "SilverData" + Path.DirectorySeparatorChar + $"{newPositionFile}.csv";
+            var activityPath = currentDir + "SilverData" + Path.DirectorySeparatorChar + $"{activityFileName}.txt";
+            var positionPath = currentDir + "SilverData" + Path.DirectorySeparatorChar + $"{positionFileName}.txt";
 
-            var activityHeader = GetHeader("HDR", "SMGActivity");
-            var activityTrailer = GetTrailer("TRL", "SMGActivity");
-            var positionHeader = GetHeader("HDR", "SMGOpenLotPosition");
-            var positionTrailer = GetTrailer("TRL", "SMGOpenLotPosition ");
+            //header and trailer
+            var activityHeader = GetHeader("HDR", "SMGActivity", convertedBusinessDate);
+            var activityTrailer = GetTrailer("TRL", "SMGActivity", convertedBusinessDate);
+            var positionHeader = GetHeader("HDR", "SMGOpenLotPosition", convertedBusinessDate);
+            var positionTrailer = GetTrailer("TRL", "SMGOpenLotPosition ", convertedBusinessDate);
 
             var activityStatistics = fileProcessor.GenerateFile(tradeList, activityHeader, activityTrailer,
                 activityPath, "Activity_json");
@@ -83,32 +83,32 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 positionPath, "Position_json");
 
             List<FileInputDto> fileList = new List<FileInputDto>();
-            fileList.Add(new FileInputDto(activityPath, newFileName, activityStatistics, "LightPoint", "Upload",
-                dto.businessDate.HasValue ? dto.businessDate : DateTime.UtcNow));
-            fileList.Add(new FileInputDto(positionPath, newPositionFile, positionStatistics, "LightPoint", "Upload",
-                dto.businessDate.HasValue ? dto.businessDate : DateTime.UtcNow));
+            fileList.Add(new FileInputDto(activityPath, activityFileName, activityStatistics, "LightPoint", "Upload",
+                businessDate));
+            fileList.Add(new FileInputDto(positionPath, positionFileName, positionStatistics, "LightPoint", "Upload",
+                businessDate));
 
             InsertActivityAndPositionFilesForSilver(fileList);
             return Utils.Wrap(true);
         }
 
-        private object GetHeader(string headerIndicator, string fileName)
+        private object GetHeader(string headerIndicator, string fileName, string businessDate)
         {
             return new
             {
                 HeaderIndicator = headerIndicator,
                 FileName = fileName,
-                BusinessDate = DateTime.UtcNow
+                BusinessDate = businessDate
             };
         }
 
-        private object GetTrailer(string footerIndicator, string fileName)
+        private object GetTrailer(string footerIndicator, string fileName, string businessDate)
         {
             return new
             {
                 FooterIndicator = footerIndicator,
                 FileName = fileName,
-                BusinessDate = DateTime.UtcNow,
+                BusinessDate = businessDate,
                 RecordCount = 0
             };
         }
