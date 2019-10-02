@@ -90,39 +90,8 @@
         </div>
       </div>
     </div>
-
-    <!-- Confirmation Modal Start -->
-    <div bsModal #confirm="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal"
-      aria-hidden="true" [config]="{backdrop: false}">
-      <div class="modal-dialog modal-dialog-centered" id="modal-lg">
-        <div class="modal-content">
-          <!-- Modal Header Start -->
-          <div class="modal-header">
-            <h3>Confirm</h3>
-            <button type="button" class="close close-btn" (click)="closeModal()">
-              &times;
-            </button>
-          </div>
-          <!-- Modal Body Start -->
-          <div class="modal-body">
-            <div class="row">
-              <div class="col-sm-6">
-                <label> Are you really sure? </label>
-              </div>
-            </div>
-          </div>
-          <!-- Modal Footer Start -->
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="closeModal()">
-              No
-            </button>
-            <button type="button" class="btn btn-primary" (click)="clearJournal()">
-              Yes
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- Confirmation Modal Selector -->
+    <app-confirmation-modal #confirmModal (confirmDeletion)="clearJournal()"></app-confirmation-modal>
   </p-tabPanel>
 
   <!-- Files Tab -->

@@ -3,7 +3,7 @@ import { IToolPanel, IToolPanelParams } from 'ag-grid-community';
 import { FinancePocServiceProxy } from '../../service-proxies/service-proxies';
 import { DataService } from '../../common/data.service';
 import { ToastrService } from 'ngx-toastr';
-import { ModalDirective } from 'ngx-bootstrap';
+import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 
 @Component({
   selector: 'app-grid-layout-menu',
@@ -11,7 +11,7 @@ import { ModalDirective } from 'ngx-bootstrap';
   styleUrls: ['./grid-layout-menu.component.css']
 })
 export class GridLayoutMenuComponent implements IToolPanel {
-  @ViewChild('confirm') confirmModal: ModalDirective;
+  @ViewChild('confirmModal') confirmationModal: ConfirmationModalComponent;
 
   gridOptions: any;
   gridObject: { gridId: number; gridName: string };
@@ -124,18 +124,15 @@ export class GridLayoutMenuComponent implements IToolPanel {
     this.financeService.deleteGridLayout(this.gridLayoutID.Id).subscribe(
       response => {
         if (response.isSuccessful) {
-          this.closeModal();
           this.toastrService.success('Layout deleted successfully!');
           this.resetState();
           this.gridOptions.clearExternalFilter();
           this.getLayout();
         } else {
-          this.closeModal();
           this.toastrService.error('Failed to delete layout!');
         }
       },
       error => {
-        this.closeModal();
         this.toastrService.error('Something went wrong. Try again later!');
       }
     );
@@ -151,11 +148,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
   }
 
   openModal() {
-    this.confirmModal.show();
-  }
-
-  closeModal() {
-    this.confirmModal.hide();
+    this.confirmationModal.showModal();
   }
 
   _compareFn(a, b) {

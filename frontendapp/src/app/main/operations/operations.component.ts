@@ -9,7 +9,6 @@ import {
   Output,
   EventEmitter
 } from '@angular/core';
-import { ModalDirective } from 'ngx-bootstrap';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { takeWhile } from 'rxjs/operators';
@@ -23,6 +22,7 @@ import { DataService } from 'src/shared/common/data.service';
 import { SideBar, Style, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
+import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 
 @Component({
   selector: 'app-operations',
@@ -33,7 +33,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   @ViewChild('bottomGrid') bottomGrid;
   @ViewChild('dateRangPicker') dateRangPicker;
   @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
-  @ViewChild('confirm') confirmModal: ModalDirective;
+  @ViewChild('confirmModal') confirmationModal: ConfirmationModalComponent;
   @ViewChild('logScroll') private logContainer: ElementRef;
   @ViewChild('actionButtons') actionButtons: TemplateRef<any>;
   @Output() showPostingEngineMsg: EventEmitter<any> = new EventEmitter<any>();
@@ -309,11 +309,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   openModal() {
-    this.confirmModal.show();
-  }
-
-  closeModal() {
-    this.confirmModal.hide();
+    this.confirmationModal.showModal();
   }
 
   clearJournal() {
@@ -334,7 +330,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
         }
       });
     this.clearForm();
-    this.closeModal();
   }
 
   clearForm() {
@@ -342,7 +337,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   getContextMenuItems(params) {
-    //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
+    // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(true, null, true, null, params);
   }
 
