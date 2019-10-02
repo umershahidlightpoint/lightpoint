@@ -18,8 +18,9 @@
       "source": "BusinessDate",
       "destination": "Business_Date",
       "required": true,
-      "function": "GetDate",
-      "format": "yyyy-MM-dd"
+      "function": "",
+      "format": "yyyy-MM-dd",
+      "type":  "date"
     }
   ],
   "Trailer": [
@@ -41,8 +42,9 @@
       "source": "BusinessDate",
       "destination": "Business_Date",
       "required": true,
-      "function": "GetDate",
-      "format": "yyyy-MM-dd"
+      "function": "",
+      "format": "yyyy-MM-dd",
+      "type":  "date"
     },
     {
       "source": "RecordCount",
@@ -77,7 +79,7 @@
       "source": "TradeId",
       "destination": "Security_ID",
       "required": true,
-      "function": null,
+      "function": "",
       "type": "char",
       "format": "20",
       "rule": "Back-office security identifier.  Use internal security master unique identifier.",
@@ -87,7 +89,7 @@
       "source": "CUSIP",
       "destination": "CUSIP",
       "required": true,
-      "function": null,
+      "function": "CheckFormat",
       "type": "char",
       "format": "20",
       "rule": "CUSIP for applicable instruments.  May be populated with symbol or SEDOL for instruments without a CUSIP.",
@@ -97,7 +99,7 @@
       "source": "Symbol",
       "destination": "Symbol",
       "required": true,
-      "function": null,
+      "function": "CheckFormat",
       "type": "char",
       "format": "25",
       "rule": "Security symbol.  May be populated with CUSIP or SEDOL for instruments without a symbol.",
@@ -174,8 +176,8 @@
       "offset": 11
     },
     {
-      "source": "Back-Office_Post_Date",
-      "destination": "",
+      "source": "",
+      "destination": "Back-Office_Post_Date",
       "required": false,
       "function": null,
       "type": "date",

@@ -22,8 +22,8 @@ namespace LP.FileProcessing
             int recordCount;
             var schema = Utils.GetFile<SilverFileFormat>(fileName, "FileFormats");
             List<dynamic> record = MapFileRecord(recordList, schema.record, out recordCount);
-            List<dynamic> header = MapFileSection(headerObj, schema.header, recordCount);
-            List<dynamic> trailer = MapFileSection(trailerObj, schema.trailer, record.Count());
+            List<dynamic> header = MapFileSection(headerObj, schema.header, recordCount + 2);
+            List<dynamic> trailer = MapFileSection(trailerObj, schema.trailer, recordCount + 2);
             WritePipe(record, header, trailer, path, schema);
             return record.Count();
         }
@@ -52,7 +52,7 @@ namespace LP.FileProcessing
                 else
                 {
                     //TODO
-                    //Do we need to skip the entire record and write in a log file ?
+                    //Skip the record and store it in the FileException table with lporderid and a json of all failed fields. 
                 }
             }
 
@@ -76,13 +76,14 @@ namespace LP.FileProcessing
                 var prop = item.GetType().GetProperty(map.Source);
                 var value = prop != null ? prop.GetValue(item, null) : null;
                 bool valid = true;
-
+                bool isValid = true;
                 if (!String.IsNullOrEmpty(map.Function) && !String.IsNullOrEmpty(map.Format) && !String.IsNullOrEmpty(map.Type))
                 {
                     Type thisType = this.GetType();
                     MethodInfo theMethod = thisType.GetMethod(map.Function);
                     object[] parametersArray = {value, map.Format, map.Type, valid};
                     var val = theMethod.Invoke(this, parametersArray);
+                    isValid = (bool)parametersArray[3];
                     var returnType = theMethod.ReturnType;
                     if (returnType != typeof(void))
                     {
@@ -91,6 +92,15 @@ namespace LP.FileProcessing
                 }
                 else if (!String.IsNullOrEmpty(map.Function))
                 {
+                    Type thisType = this.GetType();
+                    MethodInfo theMethod = thisType.GetMethod(map.Function);
+                    object[] parametersArray = { value};
+                    var val = theMethod.Invoke(this, parametersArray);
+                    var returnType = theMethod.ReturnType;
+                    if (returnType != typeof(void))
+                    {
+                        value = val;
+                    }
                 }
 
                 if (map.Destination == "Record_Count")
@@ -98,7 +108,7 @@ namespace LP.FileProcessing
                     value = recordCount;
                 }
 
-                if (valid)
+                if (isValid)
                 {
                     AddProperty(obj, map.Destination, value);
                 }
@@ -258,13 +268,20 @@ namespace LP.FileProcessing
         public object LongShortConversion(object value)
         {
             var position = (string)value;
-            if(position.ToLower() == "long")
+            if (position != null)
             {
-                return "true";
-            }
-            else if(position.ToLower() == "short")
-            {
-                return "false";
+                if (position.ToLower() == "long")
+                {
+                    return true;
+                }
+                else if (position.ToLower() == "short")
+                {
+                    return false;
+                }
+                else
+                {
+                    return null;
+                }
             }
             else
             {
@@ -277,14 +294,14 @@ namespace LP.FileProcessing
             valid = true;
             if(type == "decimal")
             {
-                string val = (string)value;
+                string val = Convert.ToString(value);
                 string[] parsedVal = val.Split('.');
                 string[] numeric = format.Split(',');
                 int wholeNumberLength = Convert.ToInt32(numeric[0]);
                 int decimalNumberLength = Convert.ToInt32(numeric[1]);
                 int validWholeNumber = wholeNumberLength - decimalNumberLength;
                 
-                if((parsedVal[0] != null && parsedVal[0].Length > validWholeNumber) || (parsedVal[1] != null && parsedVal[1].Length > decimalNumberLength))
+                if((parsedVal.ElementAtOrDefault(0) != null && parsedVal.ElementAt(0).Length > validWholeNumber) || (parsedVal.ElementAtOrDefault(1) != null && parsedVal.ElementAt(1).Length > decimalNumberLength))
                 {
                     valid = false;
                     return;
@@ -293,11 +310,14 @@ namespace LP.FileProcessing
             else if(type == "char")
             {
                 string val = (string)value;
-                int length = Convert.ToInt32(format);
-                if(val.Length > length)
+                if (val != null)
                 {
-                    valid = false;
-                    return;
+                    int length = Convert.ToInt32(format);
+                    if (val.Length > length)
+                    {
+                        valid = false;
+                        return;
+                    }
                 }
             }
         }

@@ -18,8 +18,9 @@
       "source": "BusinessDate",
       "destination": "Business_Date",
       "required": true,
-      "function": "GetDate",
-      "format": "yyyy-MM-dd"
+      "function": "",
+      "format": "yyyy-MM-dd",
+      "type":  "date"
     }
   ],
   "Trailer": [
@@ -41,8 +42,9 @@
       "source": "BusinessDate",
       "destination": "Business_Date",
       "required": true,
-      "function": "GetDate",
-      "format": "yyyy-MM-dd"
+      "function": "",
+      "format": "yyyy-MM-dd",
+      "type":  "date"
     },
     {
       "source": "RecordCount",
@@ -109,7 +111,7 @@
       "source": "SecurityCode", // Not sure
       "destination": "Symbol",
       "required": true,
-      "function": "",
+      "function": "CheckFormat",
       "format": "25",
       "type": "char",
       "offset": 5,
@@ -129,7 +131,7 @@
       "source": "Quantity",
       "destination": "Quantity",
       "required": true,
-      "function": "",
+      "function": "CheckFormat",
       "format": "18,6",
       "type": "decimal",
       "offset": 7,
@@ -139,7 +141,7 @@
       "source": "Price",
       "destination": "Price",
       "required": false,
-      "function": "",
+      "function": "CheckFormat",
       "format": "18,6",
       "type": "decimal",
       "offset": 8,
@@ -179,7 +181,7 @@
       "source": "Side",
       "destination": "Long_Position_Indicator",
       "required": true,
-      "function": "",
+      "function": "LongShortConversion",
       "format": null,
       "type": null,
       "offset": 12,
