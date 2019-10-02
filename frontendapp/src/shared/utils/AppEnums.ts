@@ -12,6 +12,7 @@ export class GridId {
   static journalAllocationId = 11;
   static selectedJournalAllocationId = 12;
   static silverFilesId = 13;
+  static gridViewsId = 14;
 }
 
 export class GridName {
@@ -28,4 +29,5 @@ export class GridName {
   static journalAllocation = 'Journal Allocation';
   static selectedJournalAllocation = 'Selected Journal Allocation';
   static silverFiles = 'Silver Files';
+  static gridViews = 'Grid Views';
 }

@@ -54,7 +54,7 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
     });
     this.dataService.gridColumnApi$.subscribe(obj => (obj = this.gridOptions));
     this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid({ gridId: GridId.journalId, gridName: GridName.journal });
+    this.dataService.changeGrid({ gridId: GridId.gridViewsId, gridName: GridName.gridViews });
   }
 
   initGrid() {
