@@ -77,7 +77,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
 
   style = Style;
 
-  styleForHight = HeightStyle(220);
+  styleForHeight = HeightStyle(220);
 
   containerDiv = {
     border: '1px solid #eee',

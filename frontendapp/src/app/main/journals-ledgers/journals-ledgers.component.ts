@@ -90,7 +90,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
 
   style = Style;
 
-  styleForHight = HeightStyle(220);
+  styleForHeight = HeightStyle(220);
 
   containerDiv = {
     border: '1px solid #eee',

@@ -3,7 +3,7 @@
   <!----- Journal Tab Starts ----->
   <p-tabPanel header="Grid Views">
     <!----- Grid View Div Starts ----->
-    <div [ngStyle]="styleForHight" style="display: flex">
+    <div [ngStyle]="styleForHeight" style="display: flex">
       <!----- AG Grid Starts ----->
       <ag-grid-angular style="width: 55%; height: 100%" class="ag-theme-balham" [gridOptions]="gridOptions">
       </ag-grid-angular>
@@ -33,4 +33,4 @@
 </p-tabView>
 <!----- Tab Views Ends ----->
 
-<app-confirmation-modal #confirmationModal (confirmDeletion)="deleteLayout(value)"> </app-confirmation-modal>
+<app-confirmation-modal #confirmationModal (confirmDeletion)="deleteLayout()"> </app-confirmation-modal>

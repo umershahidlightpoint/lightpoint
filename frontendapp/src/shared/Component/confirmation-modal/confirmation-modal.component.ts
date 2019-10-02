@@ -22,7 +22,7 @@ export class ConfirmationModalComponent implements OnInit {
     this.confirmModal.hide();
   }
 
-  deleteLayout() {
+  delete() {
     this.confirmDeletion.emit(true);
     this.confirmModal.hide();
   }

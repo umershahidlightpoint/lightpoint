@@ -45,7 +45,7 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
 
   style = Style;
 
-  styleForHight = HeightStyle(156);
+  styleForHeight = HeightStyle(156);
 
   setWidthAndHeight(width, height) {
     this.style = {

@@ -52,7 +52,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
 
   style = Style;
 
-  styleForHight = HeightStyle(220);
+  styleForHeight = HeightStyle(220);
 
   processingMsgDiv = {
     border: '1px solid #eee',
@@ -74,7 +74,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.initGrid();
     this.getFunds();
-    //this.getReport(null, null, 'ALL');
+    // this.getReport(null, null, 'ALL');
   }
 
   initGrid() {

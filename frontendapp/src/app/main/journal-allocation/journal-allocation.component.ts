@@ -9,7 +9,7 @@ import { Style, HeightStyle } from 'src/shared/utils/Shared';
 export class JournalAllocationComponent {
   style = Style;
 
-  styleForHight = HeightStyle(156);
+  styleForHeight = HeightStyle(156);
 
   constructor() {
   }

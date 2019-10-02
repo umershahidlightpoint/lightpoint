@@ -46,7 +46,7 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
     boxSizing: 'border-box'
   };
 
-  styleForHight = HeightStyle(224);
+  styleForHeight = HeightStyle(224);
 
   containerDiv = {
     border: '1px solid #eee',

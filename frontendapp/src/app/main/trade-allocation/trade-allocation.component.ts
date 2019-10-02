@@ -10,7 +10,7 @@ export class TradeAllocationComponent {
 
   style = Style;
 
-  styleForHight = HeightStyle(156);
+  styleForHeight = HeightStyle(156);
 
   constructor() {}
 }
