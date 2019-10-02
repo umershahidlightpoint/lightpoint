@@ -10,9 +10,10 @@
         <h3>{{ title }}</h3>
         <button type="button" class="close" data-dismiss="modal" (click)="closeModal()">&times;</button>
       </div>
-      <app-balance-report [isLoading]="isLoading" [trialBalanceReport]="trialBalanceReport"
-        [trialBalanceReportStats]="trialBalanceReportStats" [hideGrid]="hideGrid" [tableHeader]="tableHeader">
-      </app-balance-report>
+      <div class="report-container">
+        <app-report-grid [isLoading]="isLoading" [trialBalanceReport]="trialBalanceReport"
+          [trialBalanceReportStats]="trialBalanceReportStats" [hideGrid]="hideGrid" [tableHeader]="tableHeader">
+        </app-report-grid>
+      </div>
     </div>
   </div>
-</div>
