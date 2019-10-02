@@ -8,8 +8,7 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { TemplateRendererComponent } from 'src/app/template-renderer/template-renderer.component';
-import { ModalDirective } from 'ngx-bootstrap';
-import { ConfirmationModalComponent } from 'src/app/confirmation-modal/confirmation-modal.component';
+import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 
 @Component({
   selector: 'app-layouts',
@@ -53,7 +52,7 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
         this.getGridLayouts();
       }
     });
-    // this.dataService.gridColumnApi$.subscribe(obj => (obj = this.gridOptions));
+    this.dataService.gridColumnApi$.subscribe(obj => (obj = this.gridOptions));
     this.dataService.changeMessage(this.gridOptions);
     this.dataService.changeGrid({ gridId: GridId.journalId, gridName: GridName.journal });
   }
@@ -121,8 +120,8 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
         headerName: 'Is Public'
       },
       {
-        field: 'columnState',
-        headerName: 'Column State',
+        field: 'gridState',
+        headerName: 'Grid State',
         hide: true
       },
       {
@@ -135,7 +134,6 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
         width: 120
       }
     ];
-    // const cdefs = this.agGridUtls.customizeColumns(colDefs, this.columns, this.ignoreFields);
     this.gridOptions.api.setColumnDefs(colDefs);
   }
 
@@ -153,7 +151,14 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
               gridName: layout.GridName,
               gridLayoutName: layout.GridLayoutName,
               isPublic: layout.IsPublic,
-              columnState: layout.ColumnState
+              gridState: `[{
+                "ColumnState":  ${layout.ColumnState},
+                "GroupState":  ${layout.GroupState},
+                "SortState":  ${layout.SortState},
+                "FilterState":  ${layout.FilterState},
+                "ExternalFilterState":  ${layout.ExternalFilterState},
+                "PivotMode":  ${layout.PivotMode}
+              }]`
             }));
           }
           this.gridOptions.api.setRowData(this.rowData);
@@ -166,7 +171,7 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
   }
 
   viewLayout(row) {
-    this.gridLayoutJson = JSON.parse(row.columnState);
+    this.gridLayoutJson = JSON.parse(row.gridState);
   }
 
   showConfirmation(row) {
@@ -174,7 +179,7 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
     this.confirmModal.showModal();
   }
 
-  deleteLayout(row) {
+  deleteLayout() {
     this.financeService.deleteGridLayout(this.selectedLayout.gridId).subscribe(
       response => {
         if (response.isSuccessful) {
