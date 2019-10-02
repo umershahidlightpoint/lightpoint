@@ -31,7 +31,7 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
   // For unsubscribing all subscriptions
   isSubscriptionAlive: boolean;
 
-  styleForHight = HeightStyle(180);
+  styleForHeight = HeightStyle(180);
 
   constructor(
     private financeService: FinancePocServiceProxy,

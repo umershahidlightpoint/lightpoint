@@ -36,7 +36,7 @@ export class SettingsComponent implements OnInit {
 
   style = Style;
 
-  styleForHight = HeightStyle(180);
+  styleForHeight = HeightStyle(180);
 
   setWidthAndHeight(width, height) {
     this.style = {

@@ -25,7 +25,7 @@ export class DataModalComponent implements OnInit, OnDestroy {
   tableData: any;
   backdrop: any;
 
-  styleForHight = HeightStyle(220);
+  styleForHeight = HeightStyle(220);
 
   containerDiv = {
     borderLeft: '1px solid #cecece',
