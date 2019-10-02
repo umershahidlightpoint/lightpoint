@@ -77,6 +77,7 @@ import { JournalsComponent } from './main/journals/journals.component';
 import { TradesComponent } from './main/trades/trades.component';
 import { LayoutsComponent } from './main/layouts/layouts.component';
 import { ConfirmationModalComponent } from '../shared/Component/confirmation-modal/confirmation-modal.component';
+import { ReportGridComponent } from './main/reports/report-grid/report-grid.component';
 
 @NgModule({
   declarations: [
@@ -112,7 +113,8 @@ import { ConfirmationModalComponent } from '../shared/Component/confirmation-mod
     LayoutsComponent,
     ConfirmationModalComponent,
     TradesComponent,
-    LayoutsComponent
+    LayoutsComponent,
+    ReportGridComponent
   ],
   imports: [
     BrowserModule,
