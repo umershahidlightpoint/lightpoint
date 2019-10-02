@@ -1,9 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { Fund } from '../../../shared/Models/account';
-import { TrialBalanceReport, TrialBalanceReportStats } from '../../../shared/Models/trial-balance';
-import * as moment from 'moment';
-import { Ranges, Style, HeightStyle } from 'src/shared/utils/Shared';
-import { GridOptions } from 'ag-grid-community';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-reports',
@@ -11,8 +6,6 @@ import { GridOptions } from 'ag-grid-community';
   styleUrls: ['./reports.component.css']
 })
 export class ReportsComponent {
-  styleForHeight = HeightStyle(220);
-
   processingMsgDiv = {
     border: '1px solid #eee',
     padding: '4px',
