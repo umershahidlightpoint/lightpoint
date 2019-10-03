@@ -78,9 +78,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var positionTrailer = GetTrailer("TRL", "SMGOpenLotPosition ", convertedBusinessDate);
 
             var activityStatistics = fileProcessor.GenerateFile(tradeList, activityHeader, activityTrailer,
-                activityPath, "Activity_json");
+                activityPath, "Activity_json", "LpOrderId", out Dictionary<object,dynamic> failedActivityRecords);
             var positionStatistics = fileProcessor.GenerateFile(positionList, positionHeader, positionTrailer,
-                positionPath, "Position_json");
+                positionPath, "Position_json", "IntraDayPositionId", out Dictionary<object, dynamic> failedPositionRecords);
 
             List<FileInputDto> fileList = new List<FileInputDto>();
             fileList.Add(new FileInputDto(activityPath, activityFileName, activityStatistics, "LightPoint", "Upload",

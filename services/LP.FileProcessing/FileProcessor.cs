@@ -17,11 +17,11 @@ namespace LP.FileProcessing
     {
         // Header & Footer's required as part of the file generation
         public int GenerateFile<T>(IEnumerable<T> recordList, object headerObj, object trailerObj, string path,
-            string fileName)
+            string fileName, string identifierForFailedRecords, out Dictionary<object, dynamic> failedRecords)
         {
             int recordCount;
             var schema = Utils.GetFile<SilverFileFormat>(fileName, "FileFormats");
-            List<dynamic> record = MapFileRecord(recordList, schema.record, out recordCount);
+            List<dynamic> record = MapFileRecord(recordList, schema.record, identifierForFailedRecords, out failedRecords, out recordCount);
             List<dynamic> header = MapFileSection(headerObj, schema.header, recordCount + 2);
             List<dynamic> trailer = MapFileSection(trailerObj, schema.trailer, recordCount + 2);
             WritePipe(record, header, trailer, path, schema);
@@ -35,15 +35,18 @@ namespace LP.FileProcessing
             return resp;
         }
 
-        private List<dynamic> MapFileRecord<T>(IEnumerable<T> transactionList, List<FileProperties> schema, out int records)
+        private List<dynamic> MapFileRecord<T>(IEnumerable<T> transactionList, List<FileProperties> schema, string identifierForFailedRecords, out Dictionary<object, dynamic> failedRecords, out int records)
         {
             List<dynamic> sectionList = new List<dynamic>();
-            bool valid = true;
+            failedRecords = new Dictionary<object, dynamic>();
+            //List<dynamic> failedList = new List<dynamic>();
             records = 0;
             foreach (var item in transactionList)
             {
                 dynamic obj;
-                valid = MapItem(schema, item, out obj);
+                dynamic failedFields;
+                bool valid;
+                MapItem(schema, item, out obj, out failedFields, out valid);
                 if (valid)
                 {
                     sectionList.Add(obj);
@@ -52,7 +55,13 @@ namespace LP.FileProcessing
                 else
                 {
                     //TODO
-                    //Skip the record and store it in the FileException table with lporderid and a json of all failed fields. 
+                    //Skip the record and store it in a dictionary in order to persist it in the FileException table with an indentifier and a json of all failed fields.
+                    var prop = item.GetType().GetProperty(identifierForFailedRecords);
+                    var value = prop != null ? prop.GetValue(item, null) : null;
+                    if (value != null)
+                    {
+                        failedRecords.Add(value, failedFields);
+                    }
                 }
             }
 
@@ -63,13 +72,17 @@ namespace LP.FileProcessing
         {
             List<dynamic> sectionList = new List<dynamic>();
             dynamic obj;
-            MapItem(schema, item, out obj, recordCount);
+            dynamic failedFields;
+            bool valid;
+            MapItem(schema, item, out obj,out failedFields, out valid, recordCount);
             sectionList.Add(obj);
             return sectionList;
         }
 
-        private bool MapItem(List<FileProperties> schema, object item, out dynamic obj, int recordCount = 0)
+        private void MapItem(List<FileProperties> schema, object item, out dynamic obj, out dynamic failedFields, out bool successful, int recordCount = 0)
         {
+            successful = true;
+            failedFields = new ExpandoObject();
             obj = new ExpandoObject();
             foreach (var map in schema)
             {
@@ -77,6 +90,8 @@ namespace LP.FileProcessing
                 var value = prop != null ? prop.GetValue(item, null) : null;
                 bool valid = true;
                 bool isValid = true;
+
+                // for format validation
                 if (!String.IsNullOrEmpty(map.Function) && !String.IsNullOrEmpty(map.Format) && !String.IsNullOrEmpty(map.Type))
                 {
                     Type thisType = this.GetType();
@@ -90,6 +105,8 @@ namespace LP.FileProcessing
                         value = val;
                     }
                 }
+
+                // for data conversion
                 else if (!String.IsNullOrEmpty(map.Function))
                 {
                     Type thisType = this.GetType();
@@ -114,10 +131,11 @@ namespace LP.FileProcessing
                 }
                 else
                 {
-                    return false;
+                    successful = false;
+                    AddProperty(failedFields, map.Destination, value);
+                    AddProperty(failedFields, "MetaData", map);
                 }
             }
-            return true;
         }
 
         public static void AddProperty(ExpandoObject expando, string propertyName, object propertyValue)
