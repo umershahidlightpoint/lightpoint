@@ -135,10 +135,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
         this.gridOptions.excelStyles = ExcelStyle;
       },
       onFirstDataRendered: params => {
-        params.api.forEachNode(node => {
-          node.expanded = true;
-        });
-        params.api.onGroupExpandedOrCollapsed();
+        params.api.expandAll();
 
         AutoSizeAllColumns(params);
       },
@@ -500,6 +497,10 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
           }
         ];
         this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
+
+        this.gridOptions.api.expandAll();
+
+        AutoSizeAllColumns(this.gridOptions);
       });
   }
 

@@ -76,10 +76,7 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
       suppressColumnVirtualisation: true,
-      onGridReady: params => {
-        AutoSizeAllColumns(params);
-        params.api.sizeColumnsToFit();
-      },
+      onGridReady: params => {},
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
         params.api.sizeColumnsToFit();
@@ -129,9 +126,7 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
         cellRendererFramework: TemplateRendererComponent,
         cellRendererParams: {
           ngTemplate: this.actionButtons
-        },
-        minWidth: 100,
-        width: 120
+        }
       }
     ];
     this.gridOptions.api.setColumnDefs(colDefs);
@@ -162,6 +157,10 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
             }));
           }
           this.gridOptions.api.setRowData(this.rowData);
+
+          AutoSizeAllColumns(this.gridOptions);
+
+          this.gridOptions.api.sizeColumnsToFit();
         },
         error => {
           this.toastrService.error('Something went wrong. Try again later!');

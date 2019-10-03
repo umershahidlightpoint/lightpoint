@@ -112,6 +112,7 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
   }
 
   getAccruals() {
+    console.log('getAccruals');
     this.defaultColDef = {
       sortable: true,
       resizable: true
@@ -132,6 +133,8 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
       const cdefs = this.agGridUtils.customizeColumns([], this.accrualsData.meta.Columns, []);
       this.gridOptions.api.setColumnDefs(cdefs);
       this.rowData = someArray as [];
+
+      AutoSizeAllColumns(this.gridOptions);
     });
   }
 
@@ -142,9 +145,7 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
       columnDefs: this.columnDefs,
       onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      onGridReady: params => {
-        AutoSizeAllColumns(params);
-      },
+      onGridReady: params => {},
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
       },
@@ -167,9 +168,7 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
       columnDefs: this.columnDefs,
       onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: AllocationGridLayoutMenuComponent },
-      onGridReady: params => {
-        AutoSizeAllColumns(params);
-      },
+      onGridReady: params => {},
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
       },

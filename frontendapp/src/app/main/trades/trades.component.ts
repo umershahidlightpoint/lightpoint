@@ -1,4 +1,13 @@
-import { Component, ElementRef, OnInit, ViewChild, AfterViewInit, Output, EventEmitter, Input } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  AfterViewInit,
+  Output,
+  EventEmitter,
+  Input
+} from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
@@ -6,7 +15,7 @@ import { DataModalComponent } from '../../../shared/Component/data-modal/data-mo
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { SideBar, Style } from 'src/shared/utils/Shared';
+import { SideBar, Style, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { takeWhile } from 'rxjs/operators';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
@@ -99,7 +108,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.isSubscriptionAlive = true;
-    //this.getTrades();
+    // this.getTrades();
   }
 
   getTrades() {
@@ -144,13 +153,13 @@ export class TradesComponent implements OnInit, AfterViewInit {
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {
         if (response.IsRunning) {
-          //this.isLoading = true;
+          // this.isLoading = true;
           this.key = response.key;
           this.postingEngineService.changeStatus(true);
           this.postingEngineService.checkProgress();
         }
-        //this.key = response.key;
-        //this.getLogs();
+        // this.key = response.key;
+        // this.getLogs();
       });
   }
   getContextMenuItems(params) {
@@ -162,7 +171,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
         }
       }
     ];
-    //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
+    // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(false, addDefaultItems, true, null, params);
   }
 
@@ -180,6 +189,8 @@ export class TradesComponent implements OnInit, AfterViewInit {
         // this.gridOptions.api.sizeColumnsToFit();
       },
       onFirstDataRendered: params => {
+        AutoSizeAllColumns(params);
+
         // params.api.sizeColumnsToFit();
       },
       rowSelection: 'single',
@@ -196,8 +207,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
 
   onRowSelected(event) {
     if (event.node.selected) {
-        this.dataService.onRowSelectionTrade(event.node.data.LPOrderId);
+      this.dataService.onRowSelectionTrade(event.node.data.LPOrderId);
     }
   }
-
 }
