@@ -41,6 +41,7 @@ namespace LP.FileProcessing
             failedRecords = new Dictionary<object, dynamic>();
             //List<dynamic> failedList = new List<dynamic>();
             records = 0;
+            int index = 0;
             foreach (var item in transactionList)
             {
                 dynamic obj;
@@ -60,9 +61,12 @@ namespace LP.FileProcessing
                     var value = prop != null ? prop.GetValue(item, null) : null;
                     if (value != null)
                     {
+                        AddProperty(failedFields, "index", index);
                         failedRecords.Add(value, failedFields);
                     }
                 }
+
+                index++;
             }
 
             return sectionList;

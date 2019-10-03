@@ -79,6 +79,7 @@
     <Compile Include="Model\AccountToFrom.cs" />
     <Compile Include="Model\Accrual.cs" />
     <Compile Include="Model\DBActions.cs" />
+    <Compile Include="Model\FileException.cs" />
     <Compile Include="Model\IDbAction.cs" />
     <Compile Include="Model\Journal.cs" />
     <Compile Include="Model\JournalLog.cs" />
