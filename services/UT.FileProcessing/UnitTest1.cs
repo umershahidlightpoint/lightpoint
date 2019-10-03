@@ -98,6 +98,66 @@ namespace Tests
             new FileProcessor().CheckFormat(character, "4", "char", out var valid);
 
             Assert.IsFalse(valid);
+        public void ValidFormatDates()
+        {
+            FileProcessor fileProcessor = new FileProcessor();
+
+            Assert.IsTrue(checkFormat("yyyy-MM-dd", "yyyy-MM-dd"));
+
+            Assert.Pass();
+        }
+
+        [Test]
+        public void InvalidFormatDates()
+        {
+            FileProcessor fileProcessor = new FileProcessor();
+
+            Assert.IsFalse(checkFormat("yyyy-MM-dd", "MM-yyyy-dd"));
+
+            Assert.Pass();
+        }
+
+        [Test]
+        public void validTypeLong()
+        {
+            FileProcessor fileProcessor = new FileProcessor();
+            var result = (bool?)new FileProcessor().LongShortConversion("long");
+            bool isValid = result == true ? true : false;
+            Assert.IsTrue(isValid);
+            Assert.Pass();
+        }
+
+        [Test]
+        public void validTypeShort()
+        {
+            FileProcessor fileProcessor = new FileProcessor();
+            var result = (bool?)new FileProcessor().LongShortConversion("short");
+            bool isValid = result == false ? true : false;
+            Assert.IsTrue(isValid);
+            Assert.Pass();
+        }
+
+        [Test]
+        public void InvalidLongShortConversion()
+        {
+            FileProcessor fileProcessor = new FileProcessor();
+            var result = (bool?)new FileProcessor().LongShortConversion("57657");
+            bool isValid = result == null ? true : false;
+            Assert.IsTrue(isValid);
+            Assert.Pass();
+        }
+
+        public bool checkFormat(string inputFormat, string comparisonFormat)
+        {
+            var result = new FileProcessor().GetDate(DateTime.Now, inputFormat, "", out var valid);
+            if (DateTime.TryParseExact(result.ToString(), comparisonFormat, null, System.Globalization.DateTimeStyles.None, out var Test))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }
