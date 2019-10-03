@@ -2,6 +2,7 @@ using LP.FileProcessing;
 using LP.FileProcessing.S3;
 using NUnit.Framework;
 using System;
+using NUnit.Framework.Internal;
 
 namespace Tests
 {
@@ -98,6 +99,8 @@ namespace Tests
             new FileProcessor().CheckFormat(character, "4", "char", out var valid);
 
             Assert.IsFalse(valid);
+        }
+
         public void ValidFormatDates()
         {
             FileProcessor fileProcessor = new FileProcessor();
