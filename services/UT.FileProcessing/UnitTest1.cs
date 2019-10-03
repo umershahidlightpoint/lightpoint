@@ -12,27 +12,24 @@ namespace Tests
         {
         }
 
-        [Test]
-        public void S3Drop()
-        {
-            var s3 = new S3Endpoint();
-
-            var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
-
-            var filename = "import.txt";
-
-            var folder = currentDir + "TestFiles" + System.IO.Path.DirectorySeparatorChar + $"{filename}";
-
-            s3.Upload(folder);
-
-        }
+//        [Test]
+//        public void S3Drop()
+//        {
+//            var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
+//            var filename = "Import.txt";
+//            var file = currentDir + "TestFiles" + System.IO.Path.DirectorySeparatorChar + $"{filename}";
+//
+//            Assert.IsTrue(S3Endpoint.Upload(file));
+//
+//            Assert.Pass();
+//        }
 
         [Test]
         public void TestImport()
         {
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
 
-            var filename = "import.txt";
+            var filename = "Import.txt";
 
             var folder = currentDir + "TestFiles" + System.IO.Path.DirectorySeparatorChar + $"{filename}";
 
@@ -50,6 +47,57 @@ namespace Tests
             Assert.IsTrue(importedData.Contents.Count > 0);
 
             Assert.Pass();
+        }
+
+        [Test]
+        public void CheckValidDecimalFormat()
+        {
+            var number = 123456789.123456m;
+
+            new FileProcessor().CheckFormat(number, "18,6", "decimal", out var valid);
+
+            Assert.IsTrue(valid);
+        }
+
+
+        [Test]
+        public void CheckInValidDecimalFormat()
+        {
+            var number = 123456789.1234567m;
+
+            new FileProcessor().CheckFormat(number, "18,6", "decimal", out var valid);
+
+            Assert.IsFalse(valid);
+        }
+
+        [Test]
+        public void CheckEdgeCaseDecimalFormat()
+        {
+            var number = 123456789101.123456m;
+
+            new FileProcessor().CheckFormat(number, "18,6", "decimal", out var valid);
+
+            Assert.IsTrue(valid);
+        }
+
+        [Test]
+        public void CheckValidCharFormat()
+        {
+            var character = "Usman";
+
+            new FileProcessor().CheckFormat(character, "10", "char", out var valid);
+
+            Assert.IsTrue(valid);
+        }
+
+        [Test]
+        public void CheckInValidCharFormat()
+        {
+            var character = "Usman";
+
+            new FileProcessor().CheckFormat(character, "4", "char", out var valid);
+
+            Assert.IsFalse(valid);
         }
     }
 }
