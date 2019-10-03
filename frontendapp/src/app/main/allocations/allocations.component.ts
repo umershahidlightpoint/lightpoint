@@ -73,13 +73,14 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
       rowData: null,
       sideBar: SideBar,
       columnDefs: this.columnDefs,
-      //onCellDoubleClicked: this.openModal.bind(this),
+      // onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: AllocationGridLayoutMenuComponent },
       onGridReady: () => {
         // this.gridOptions.api.sizeColumnsToFit();
       },
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
+
         // params.api.sizeColumnsToFit();
       },
       suppressColumnVirtualisation: true,
