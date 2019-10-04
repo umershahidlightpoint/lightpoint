@@ -61,5 +61,12 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return controller.UpdateFileAction(dto);
         }
+
+        [Route("FileExportException")]
+        [HttpGet]
+        public object FileException()
+        {
+            return controller.GetInvalidExportRecords();
+        }
     }
 }

@@ -23,11 +23,11 @@ namespace PostingEngine
     {
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["PriceMasterDB"].ToString();
 
-        private readonly bool Mock = false;
+        private readonly bool Mock = true;
 
         public Dictionary<string, FxRate> Get(DateTime now)
         {
-            if ( Mock )
+            if (Mock)
             {
                 return Utils.GetFile<Dictionary<string, FxRate>>("fxrates");
             }

@@ -87,6 +87,7 @@ namespace LP.FileProcessing
         {
             successful = true;
             failedFields = new ExpandoObject();
+            List<dynamic> failedMetaData = new List<dynamic>();
             obj = new ExpandoObject();
             foreach (var map in schema)
             {
@@ -115,8 +116,9 @@ namespace LP.FileProcessing
                 {
                     Type thisType = this.GetType();
                     MethodInfo theMethod = thisType.GetMethod(map.Function);
-                    object[] parametersArray = { value};
+                    object[] parametersArray = { value, valid};
                     var val = theMethod.Invoke(this, parametersArray);
+                    isValid = (bool)parametersArray[1];
                     var returnType = theMethod.ReturnType;
                     if (returnType != typeof(void))
                     {
@@ -137,8 +139,13 @@ namespace LP.FileProcessing
                 {
                     successful = false;
                     AddProperty(failedFields, map.Destination, value);
-                    AddProperty(failedFields, "MetaData", map);
+                    //AddProperty(failedFields, "MetaData", map);
+                    failedMetaData.Add(map);
                 }
+            }
+            if (!successful)
+            {
+                AddProperty(failedFields, "MetaData", failedMetaData);
             }
         }
 
@@ -287,8 +294,9 @@ namespace LP.FileProcessing
             return date.ToString(format);
         }
         
-        public object LongShortConversion(object value)
+        public object LongShortConversion(object value, out bool valid)
         {
+            valid = true;
             var position = (string)value;
             if (position != null)
             {
@@ -302,6 +310,7 @@ namespace LP.FileProcessing
                 }
                 else
                 {
+                    valid = false;
                     return null;
                 }
             }

@@ -41,8 +41,8 @@ namespace PostingEngine
         public Dictionary<string, IPostingRule> rules = new Dictionary<string, IPostingRule>
         {
             {"Common Stock", new CommonStock() },
-            {"Cross", new Cross() },
-            //{"Cash", new Cash() },
+            // {"Cross", new Cross() },
+            // {"Cash", new Cash() },
             {"Journals", new FakeJournals() }
         };
 

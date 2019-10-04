@@ -106,4 +106,9 @@
       </div>
     </div>
   </p-tabPanel>
+  <p-tabPanel header="Export Exceptions" [ngStyle]="style">
+    <div class="col-12">
+      <app-file-exception *ngIf="exportExceptionActive"></app-file-exception>
+    </div>
+  </p-tabPanel>
 </p-tabView>
