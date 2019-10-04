@@ -117,7 +117,7 @@ import { FileExceptionComponent } from './main/operations/file-exception/file-ex
     TradesComponent,
     LayoutsComponent,
     ReportGridComponent,
-    GridUtilsComponent
+    GridUtilsComponent,
     FileExceptionComponent
   ],
   imports: [

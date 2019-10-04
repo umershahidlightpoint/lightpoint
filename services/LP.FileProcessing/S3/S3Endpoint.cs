@@ -12,8 +12,7 @@ namespace LP.FileProcessing.S3
     public class S3Endpoint
     {
         // Credentials
-//        private const string bucketName = "lattimore.drop";
-        private const string bucketName = "dryve-docs-dev";
+        private const string bucketName = "lattimore.drop";
         private const string keyName = "uploaded-data";
 //        private const string accessKeyId = "";
 //        private const string secretAccessKey = "";
@@ -119,7 +118,7 @@ namespace LP.FileProcessing.S3
                 RegionEndpoint = endpoint
             };
 
-            var s3Client = new AmazonS3Client("AKIAI2IKVWHII5LCXBMA", "U4X//OhlzCrgiZWMHbJgFjqRjBRMz6B3I+GqSWB8", config);
+            var s3Client = new AmazonS3Client(config);
 
             try
             {
@@ -152,7 +151,7 @@ namespace LP.FileProcessing.S3
                 RegionEndpoint = endpoint
             };
 
-            var s3Client = new AmazonS3Client("AKIAI2IKVWHII5LCXBMA", "U4X//OhlzCrgiZWMHbJgFjqRjBRMz6B3I+GqSWB8", config);
+            var s3Client = new AmazonS3Client(config);
 
             List<object> files = new List<object>();
 
