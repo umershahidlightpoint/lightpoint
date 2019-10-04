@@ -307,5 +307,15 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             return status.Count != 0 ? Utils.Wrap(true, status, null) : Utils.Wrap(false);
         }
+
+        public object GetInvalidExportRecords()
+        {
+            var query = $@"select file_exception_id,[file_name],business_date,reference, record from file_exception order by business_date desc";
+
+            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
+            var jsonResult = JsonConvert.SerializeObject(dataTable);
+            dynamic json = JsonConvert.DeserializeObject(jsonResult);
+            return Utils.Wrap(true,json,null);
+        }
     }
 }
