@@ -33,6 +33,12 @@ export class SilverFileManagementComponent implements OnInit, OnDestroy {
   files: SilverFile[];
   isSubscriptionAlive: boolean;
 
+  excelParams = {
+    fileName: 'Silver File',
+    sheetName: 'First Sheet',
+    columnKeys: ['name', 'uploadDate', 'size']
+  };
+
   style = Style;
 
   styleForLogsHight = {
@@ -52,7 +58,7 @@ export class SilverFileManagementComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.isSubscriptionAlive = true;
     this.initGrid();
-    this.loadSilverFilesGrid();
+    this.getSilverFiles();
   }
 
   initGrid() {
@@ -104,7 +110,7 @@ export class SilverFileManagementComponent implements OnInit, OnDestroy {
     this.dataService.changeGrid({ gridId: GridId.silverFilesId, gridName: GridName.silverFiles });
   }
 
-  private getSilverFiles() {
+  getSilverFiles() {
     this.financeService
       .getSilverFiles()
       .pipe(takeWhile(() => this.isSubscriptionAlive))
@@ -123,32 +129,9 @@ export class SilverFileManagementComponent implements OnInit, OnDestroy {
     this.getSilverFiles();
   }
 
-  onBtExportFiles() {
-    const params = {
-      fileName: 'Silver File',
-      sheetName: 'First Sheet',
-      columnKeys: ['name', 'uploadDate', 'size']
-    };
-    this.filesGridOptions.api.exportDataAsExcel(params);
-    this.downloadExcelUtils.ToastrMessage();
-  }
-
-  loadSilverFilesGrid() {
-    this.getSilverFiles();
-  }
-
   getContextMenuItems = params => {
-    //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(true, null, true, null, params);
   };
-
-  setGroupingStateForFiles(value: boolean) {
-    this.filesGridOptions.api.forEachNode((node, index) => {
-      if (node.group) {
-        node.setExpanded(value);
-      }
-    });
-  }
 
   downloadFile(file) {}
 

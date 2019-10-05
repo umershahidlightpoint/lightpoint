@@ -27,7 +27,7 @@ namespace PostingEngine
 
         public Dictionary<string, FxRate> Get(DateTime now)
         {
-            if ( Mock )
+            if (Mock)
             {
                 return Utils.GetFile<Dictionary<string, FxRate>>("fxrates");
             }

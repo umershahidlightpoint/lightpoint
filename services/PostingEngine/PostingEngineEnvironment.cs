@@ -42,7 +42,7 @@ namespace PostingEngine
         {
             {"Common Stock", new CommonStock() },
             {"Cross", new Cross() },
-            //{"Cash", new Cash() },
+            // {"Cash", new Cash() },
             {"Journals", new FakeJournals() }
         };
 

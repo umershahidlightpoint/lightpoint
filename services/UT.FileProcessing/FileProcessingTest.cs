@@ -2,6 +2,7 @@ using LP.FileProcessing;
 using LP.FileProcessing.S3;
 using NUnit.Framework;
 using System;
+using System.IO;
 using NUnit.Framework.Internal;
 
 namespace Tests
@@ -13,17 +14,37 @@ namespace Tests
         {
         }
 
-//        [Test]
-//        public void S3Drop()
-//        {
-//            var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
-//            var filename = "Import.txt";
-//            var file = currentDir + "TestFiles" + System.IO.Path.DirectorySeparatorChar + $"{filename}";
-//
-//            Assert.IsTrue(S3Endpoint.Upload(file));
-//
-//            Assert.Pass();
-//        }
+        [Test]
+        public void S3Upload()
+        {
+            var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
+            var filename = "Import.txt";
+            var file = currentDir + "TestFiles" + System.IO.Path.DirectorySeparatorChar + $"{filename}";
+
+            Assert.IsTrue(S3Endpoint.Upload(file));
+
+            Assert.Pass();
+        }
+
+        [Test]
+        public void S3Download()
+        {
+            var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
+            
+            var file = currentDir + "TestFiles" + Path.DirectorySeparatorChar + "TestFile.txt";
+
+            Assert.IsTrue(S3Endpoint.Download(file));
+
+            Assert.Pass();
+        }
+
+        [Test]
+        public void S3FilesList()
+        {
+            Assert.IsTrue(S3Endpoint.List().Count > 0);
+
+            Assert.Pass();
+        }
 
         [Test]
         public void TestImport()
@@ -101,6 +122,7 @@ namespace Tests
             Assert.IsFalse(valid);
         }
 
+        [Test]
         public void ValidFormatDates()
         {
             FileProcessor fileProcessor = new FileProcessor();
