@@ -91,6 +91,41 @@ namespace LP.Finance.Common.Models
             row["symbol"] = this.Symbol;
             row["cost_basis"] = this.CostBasis;
         }
+
+        /// <summary>
+        /// Generates the CostBasis, based on the data available in the journal entries, so these all
+        /// need to be generate before we calculate the Cost Basis
+        /// </summary>
+        /// <param name="connection">DB Connection</param>
+        /// <param name="businessDate">The buisness date</param>
+        public static void Calculate(SqlConnection connection, SqlTransaction trans, DateTime businessDate)
+        {
+            var busDate = businessDate.Date.ToString("MM-dd-yyyy");
+
+            var sql = $@"insert into cost_basis ( business_date, symbol, balance, quantity, cost_basis )
+SELECT '{busDate}', journal.symbol, Abs(sum(value)) as Balance, sum(quantity) as Quantity, Abs(sum(value)) / sum(quantity) as CostBasis
+  FROM journal with(nolock)
+inner join account a on a.id = journal.account_id
+inner join account_type a_t on a_t.id = a.account_type_id
+where a_t.name = 'LONG POSITIONS AT COST'
+and journal.[when] <= '{busDate}'
+group by a.name, journal.symbol
+having sum(quantity) != 0";
+
+            using (var command = new SqlCommand(sql, connection, trans))
+            {
+                command.CommandType = CommandType.Text;
+                try
+                {
+                    command.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Delete with Transaction Exception: {ex}");
+                    throw;
+                }
+            }
+        }
     }
 
 }

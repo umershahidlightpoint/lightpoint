@@ -180,6 +180,75 @@ namespace PostingEngine.PostingRules
 
         public void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
+            if ( element.Side.ToLowerInvariant().Equals("buy") || element.Side.ToLowerInvariant().Equals("cover"))
+            {
+                var tl = new TaxLotStatus {
+                    BusinessDate = element.TradeDate,
+                    Symbol = element.Symbol, OpenId = element.LpOrderId, Status = "OpenLot", Quantity = element.Quantity };
+                env.TaxLots.Add(element.LpOrderId, tl);
+
+                //tl.Save(env.Connection, env.Transaction);
+            }
+            else if (element.Side.ToLowerInvariant().Equals("sell") || element.Side.ToLowerInvariant().Equals("short"))
+            {
+                // Closing Lot
+                var openLots = env.GetOpenLots(element);
+
+                if ( openLots.Count == 0)
+                {
+                    // Whats going on here?
+                    Console.WriteLine("Should for a sell have at least one open lot");
+                }
+                else
+                {
+                    var workingQuantity = Math.Abs(element.Quantity);
+
+                    foreach( var lot in openLots)
+                    {
+                        if (workingQuantity == 0)
+                            break;
+
+                        if ( !env.TaxLots.ContainsKey(lot.LpOrderId))
+                        {
+                            // What when wrong here
+                            continue;
+                        }
+
+                        var taxlotStatus = env.TaxLots[lot.LpOrderId];
+                        if (taxlotStatus != null && taxlotStatus.Quantity > 0)
+                        {
+                            // Does the open Lot fully fullfill the quantity ?
+                            if (taxlotStatus.Quantity >= workingQuantity)
+                            {
+                                new TaxLot { BusinessDate = env.ValueDate, OpeningLotId = lot.LpOrderId, ClosingLotId = element.LpOrderId, Quantity = workingQuantity };
+                                taxlotStatus.Quantity -= workingQuantity;
+                                if (taxlotStatus.Quantity == 0)
+                                    taxlotStatus.Status = "Closed";
+                                else
+                                    taxlotStatus.Status = "Partially Closed";
+
+                                break;
+                            }
+                            else
+                            {
+                                new TaxLot { BusinessDate = env.ValueDate, OpeningLotId = lot.LpOrderId, ClosingLotId = element.LpOrderId, Quantity = Math.Abs(taxlotStatus.Quantity) };
+                                workingQuantity -= Math.Abs(taxlotStatus.Quantity);
+                                taxlotStatus.Quantity = 0;
+                                taxlotStatus.Status = "Closed";
+                            }
+                        }
+                    }                    
+                }
+
+                // Given the openlots we now need to match off quantity
+                var residualQuantity = element.Quantity;
+
+
+            } else
+            {
+                // We have a Debit / Credit Dividends
+            }
+
             // Retrieve Allocation Objects for this trade
             var tradeAllocations = env.Allocations.Where(i => i.LpOrderId == element.LpOrderId).ToList();
 
