@@ -110,13 +110,22 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     });
     this.dataService.gridColumnApi$.subscribe(obj => (obj = this.gridOptions));
     this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid({ gridId: GridId.trailBalanceId, gridName: GridName.trailBalance });
+    this.dataService.changeGrid(
+      [
+        {
+          gridId: GridId.trailBalanceId,
+          gridName: GridName.trailBalance,
+          gridOptions: this.gridOptions
+        }
+      ],
+      false
+    );
   }
 
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      sideBar: SideBar,
+      sideBar: SideBar(2, '', null),
       pinnedBottomRowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onCellDoubleClicked: this.openModal.bind(this),
@@ -149,6 +158,11 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
         filter: true
       }
     } as GridOptions;
+    this.gridOptions.sideBar = SideBar(
+      GridId.trailBalanceId,
+      GridName.trailBalance,
+      this.gridOptions
+    );
   }
 
   openModal(row) {

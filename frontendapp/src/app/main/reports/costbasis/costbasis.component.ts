@@ -80,7 +80,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      sideBar: SideBar,
+      // sideBar: SideBar(15),
       pinnedBottomRowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onFilterChanged: this.onFilterChanged.bind(this),
@@ -158,6 +158,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
+    this.gridOptions.sideBar = SideBar(GridId.costBasicId, GridName.costBasic, this.gridOptions);
   }
 
   ngAfterViewInit(): void {
@@ -171,10 +172,16 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
     this.dataService.gridColumnApi$.subscribe(obj => (obj = this.gridOptions));
     this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid({
-      gridId: GridId.trailBalanceReportId,
-      gridName: GridName.trailBalance
-    });
+    this.dataService.changeGrid(
+      [
+        {
+          gridId: GridId.costBasicId,
+          gridName: GridName.costBasic,
+          gridOptions: this.gridOptions
+        }
+      ],
+      true
+    );
   }
 
   getFunds() {

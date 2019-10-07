@@ -4,7 +4,6 @@ import { GridOptions } from 'ag-grid-community';
 import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
 import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selection-grid-layout-menu/grid-layout-menu.component';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';
@@ -98,13 +97,23 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
       }
     });
     this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid({ gridId: GridId.accrualsId, gridName: GridName.accruals });
+    this.dataService.changeGrid(
+      [
+        { gridId: GridId.accrualsId, gridName: GridName.accruals, gridOptions: this.gridOptions },
+        {
+          gridId: GridId.selectedAccrualsId,
+          gridName: GridName.selectedAccruals,
+          gridOptions: this.allocationsGridOptions
+        }
+      ],
+      false
+    );
 
-    this.dataService.changeAllocation(this.allocationsGridOptions);
-    this.dataService.changeAllocationGrid({
-      gridId: GridId.selectedAccrualsId,
-      gridName: GridName.selectedAccruals
-    });
+    // this.dataService.changeAllocation(this.allocationsGridOptions);
+    // this.dataService.changeAllocationGrid({
+    //   gridId: GridId.selectedAccrualsId,
+    //   gridName: GridName.selectedAccruals
+    // });
   }
 
   ngOnInit() {
@@ -141,7 +150,6 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      sideBar: SideBar,
       columnDefs: this.columnDefs,
       onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
@@ -161,13 +169,13 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
       suppressHorizontalScroll: false,
       suppressColumnVirtualisation: true
     } as GridOptions;
+    this.gridOptions.sideBar = SideBar(GridId.accrualsId, GridName.accruals, this.gridOptions);
 
     this.allocationsGridOptions = {
       rowData: null,
-      sideBar: SideBar,
       columnDefs: this.columnDefs,
       onCellDoubleClicked: this.openModal.bind(this),
-      frameworkComponents: { customToolPanel: AllocationGridLayoutMenuComponent },
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onGridReady: params => {},
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
@@ -183,6 +191,11 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
       suppressHorizontalScroll: false,
       suppressColumnVirtualisation: true
     } as GridOptions;
+    this.allocationsGridOptions.sideBar = SideBar(
+      GridId.selectedAccrualsId,
+      GridName.selectedAccruals,
+      this.gridOptions
+    );
   }
 
   onRowSelected(event) {

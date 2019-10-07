@@ -46,6 +46,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
   trialBalanceReportStats: TrialBalanceReportStats;
   isLoading = false;
   hideGrid: boolean;
+  flag = false;
   title = 'Account Name';
 
   ranges: any = Ranges;
@@ -80,7 +81,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      sideBar: SideBar,
+      // sideBar: SideBar(8),
       pinnedBottomRowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onFilterChanged: this.onFilterChanged.bind(this),
@@ -189,6 +190,11 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
+    this.gridOptions.sideBar = SideBar(
+      GridId.trailBalanceReportId,
+      GridName.trailBalanceReport,
+      this.gridOptions
+    );
   }
 
   ngAfterViewInit(): void {
@@ -201,10 +207,16 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
     });
     this.dataService.gridColumnApi$.subscribe(obj => (obj = this.gridOptions));
     this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid({
-      gridId: GridId.trailBalanceReportId,
-      gridName: GridName.trailBalance
-    });
+    this.dataService.changeGrid(
+      [
+        {
+          gridId: GridId.trailBalanceReportId,
+          gridName: GridName.trailBalance,
+          gridOptions: this.gridOptions
+        }
+      ],
+      true
+    );
   }
 
   getFunds() {
@@ -228,6 +240,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
         debitPercentage: data.DebitPercentage,
         balance: FormatNumber(data.Balance)
       }));
+      this.flag = true;
       this.isLoading = false;
       this.pinnedBottomRowData = [
         {

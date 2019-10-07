@@ -53,8 +53,8 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
       }
     });
     this.dataService.gridColumnApi$.subscribe(obj => (obj = this.gridOptions));
-    this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid({ gridId: GridId.gridViewsId, gridName: GridName.gridViews });
+    // this.dataService.changeMessage(this.gridOptions);
+    // this.dataService.changeGrid({ gridId: GridId.gridViewsId, gridName: GridName.gridViews });
   }
 
   initGrid() {
@@ -91,6 +91,7 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
+    this.gridOptions.sideBar = SideBar(GridId.gridViewsId, GridName.gridViews, this.gridOptions);
   }
 
   customizeColumns() {

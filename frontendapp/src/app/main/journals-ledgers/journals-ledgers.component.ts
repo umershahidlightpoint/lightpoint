@@ -55,7 +55,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   private defaultColDef;
   public rowData: [];
   private columns: any;
-
+  neGridLayoutMenuComponent: GridLayoutMenuComponent;
   isEngineRunning = false;
   hideGrid = false;
   columnDefs: any;
@@ -118,6 +118,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   }
 
   initGird() {
+    //this.neGridLayoutMenuComponent= new  GridLayoutMenuComponent();
     this.gridOptions = {
       rowData: null,
       onCellDoubleClicked: this.openDataModal.bind(this),
@@ -127,7 +128,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       clearExternalFilter: this.clearFilters.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),
       onFilterChanged: this.onFilterChanged.bind(this),
-      sideBar: SideBar,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       pinnedBottomRowData: null,
       rowSelection: 'single',
@@ -156,6 +156,11 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
+    this.gridOptions.sideBar = SideBar(
+      GridId.journalsLedgersId,
+      GridName.journalsLedgers,
+      this.gridOptions
+    );
   }
 
   /*
@@ -378,7 +383,16 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     });
     this.dataService.gridColumnApi$.subscribe(obj => (obj = this.gridOptions));
     this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid({ gridId: GridId.journalId, gridName: GridName.journal });
+    this.dataService.changeGrid(
+      [
+        {
+          gridId: GridId.journalsLedgersId,
+          gridName: GridName.journalsLedgers,
+          gridOptions: this.gridOptions
+        }
+      ],
+      false
+    );
   }
 
   getAllData() {
