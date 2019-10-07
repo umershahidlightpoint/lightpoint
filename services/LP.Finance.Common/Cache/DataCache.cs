@@ -5,6 +5,8 @@ namespace LP.Finance.Common.Cache
 {
     public class DataCache
     {
+        private static int numberOfMinsCached = 30;
+
         private static object lockHandle = "DataCache_lock";
 
         static DataCache()
@@ -36,7 +38,7 @@ namespace LP.Finance.Common.Cache
                 else
                 {
                     var element = CachedResults[key];
-                    if (DateTime.Now > element.LastUpdate.AddMinutes(5))
+                    if (DateTime.Now > element.LastUpdate.AddMinutes(numberOfMinsCached))
                     {
                         element.CachedModel = p();
                         element.LastUpdate = DateTime.Now;

@@ -3,6 +3,7 @@ using PostingEngine.PostingRules;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
 
 namespace PostingEngine
 {
@@ -16,7 +17,9 @@ namespace PostingEngine
             Messages = new Dictionary<string, int>();
 
             Journals = new List<Journal>();
+            TaxLots = new Dictionary<string, TaxLotStatus>();
         }
+
         public string BaseCurrency { get; set; }
         public string RunId { get; internal set; }
         public string Period { get; set; }
@@ -29,6 +32,7 @@ namespace PostingEngine
         public Transaction[] Trades { get; set; }
         public Dictionary<string, Accrual> Accruals { get; set; }
 
+        public Dictionary<string, TaxLotStatus> TaxLots { get; private set; }
         public bool IsValidAccrual(string accrualId)
         {
             return Accruals.ContainsKey(accrualId);
@@ -41,9 +45,9 @@ namespace PostingEngine
         public Dictionary<string, IPostingRule> rules = new Dictionary<string, IPostingRule>
         {
             {"Common Stock", new CommonStock() },
-            {"Cross", new Cross() },
+            //{"Cross", new Cross() },
             // {"Cash", new Cash() },
-            {"Journals", new FakeJournals() }
+            //{"Journals", new FakeJournals() }
         };
 
         public SqlConnection Connection { get; private set; }
@@ -60,5 +64,24 @@ namespace PostingEngine
             }
         }
         public Dictionary<string, int> Messages { get; private set; }
+
+        /// <summary>
+        /// Get a list of the open tax lots for the passed trade
+        /// </summary>
+        /// <param name="element">Closing Tax Lot</param>
+        /// <returns>List of matched open Lots</returns>
+        internal List<Transaction> GetOpenLots(Transaction element)
+        {
+            var openLots = this.Trades.Where(i => 
+                i.TradeDate.Date <= element.TradeDate.Date 
+                && i.Symbol == element.Symbol
+                && i.LpOrderId != element.LpOrderId
+                && (i.Side.ToLowerInvariant().Equals("buy") || i.Side.ToLowerInvariant().Equals("cover"))
+                )
+                .OrderBy(i=>i.TradeDate)
+                .ToList();
+
+            return openLots;
+        }
     }
 }

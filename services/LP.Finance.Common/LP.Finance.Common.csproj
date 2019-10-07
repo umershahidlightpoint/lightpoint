@@ -78,6 +78,7 @@
     <Compile Include="Model\AccountDef.cs" />
     <Compile Include="Model\AccountToFrom.cs" />
     <Compile Include="Model\Accrual.cs" />
+    <Compile Include="Model\CostBasis.cs" />
     <Compile Include="Model\DBActions.cs" />
     <Compile Include="Model\FileException.cs" />
     <Compile Include="Model\IDbAction.cs" />
@@ -85,6 +86,8 @@
     <Compile Include="Model\JournalLog.cs" />
     <Compile Include="Model\Ledger.cs" />
     <Compile Include="Model\Position.cs" />
+    <Compile Include="Model\TaxLot.cs" />
+    <Compile Include="Model\TaxLotStatus.cs" />
     <Compile Include="Model\Wrap.cs" />
     <Compile Include="Model\PayLoad.cs" />
     <Compile Include="Model\Tag.cs" />

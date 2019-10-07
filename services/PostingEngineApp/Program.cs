@@ -17,7 +17,11 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
+            // Generate Journals First
             ITD();
+
+            // Then Cost Basis
+            // CostBasis();
         }
 
         static void SingleTrade()
@@ -68,5 +72,28 @@ namespace ConsoleApp1
 
         }
 
+        static void CostBasis()
+        {
+            var key = System.Guid.NewGuid();
+
+            // This runs thru everything, we need more or a scalpable
+            PostingEngine.PostingEngine.RunCalculation("CostBasis", key, (message, totalRows, rowsDone) => {
+                if (message.StartsWith("Processing"))
+                {
+                    // Do nothing
+                    return;
+                }
+                if (message.StartsWith("Completed"))
+                {
+                    var completed = (rowsDone * 1.0 / (totalRows != 0?totalRows: 1)) * 100;
+
+                    Console.WriteLine($"{message}, % Completed {completed}");
+                    return;
+                }
+
+                Console.WriteLine($"{message}");
+            });
+
+        }
     }
 }
