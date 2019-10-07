@@ -11,9 +11,12 @@ namespace LP.Finance.Common.Model
 {
     public class FileException : IDbModel
     {
-        public string fileName { get; set; }
         public string reference { get; set; }
         public string record { get; set; }
+        public string source { get; set; }
+        public string fileName { get; set; }
+        public int? fileId { get; set; }
+        public int fileExceptionId { get; set; }
 
         public DateTime businessDate {get; set; }
 
@@ -24,7 +27,7 @@ namespace LP.Finance.Common.Model
             // read the table structure from the database
             var localconnection = new SqlConnection(connection.ConnectionString);
             localconnection.Open();
-            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 file_name, business_date, reference, record FROM file_exception", localconnection))
+            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 business_date, reference, record, file_id FROM file_exception", localconnection))
             {
                 adapter.Fill(table);
             };
@@ -35,11 +38,10 @@ namespace LP.Finance.Common.Model
 
         public void PopulateRow(DataRow row)
         {
-            row["file_name"] = this.fileName;
             row["business_date"] = this.businessDate;
-
             row["reference"] = this.reference;
             row["record"] = this.record;
+            row["file_id"] = this.fileId;
         }
     }
 }

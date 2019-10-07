@@ -10,3 +10,11 @@ CREATE TABLE [dbo].[file_exception](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
+
+alter table file_exception drop column [file_name]
+
+alter table file_exception
+add [file_id] int null
+
+alter table file_exception
+add FOREIGN KEY([file_id]) references [file](id)

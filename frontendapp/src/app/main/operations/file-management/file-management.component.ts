@@ -134,6 +134,12 @@ export class FileManagementComponent implements OnInit, OnDestroy {
       suppressHorizontalScroll: false,
       suppressColumnVirtualisation: true
     } as GridOptions;
+
+    this.filesGridOptions.getRowStyle = function(params) {
+      if (params.data.exceptions) {
+        return { backgroundColor: '#ffcfcf' };
+      }
+  }
     this.dataService.changeMessage(this.filesGridOptions);
     this.dataService.changeGrid({ gridId: GridId.filesId, gridName: GridName.files });
   }
@@ -153,7 +159,8 @@ export class FileManagementComponent implements OnInit, OnDestroy {
           action: item.action,
           actionStartDate: item.action_start_date,
           actionEndDate: item.action_end_date,
-          businessDate: item.business_date
+          businessDate: item.business_date,
+          exceptions: item.exceptions
         }));
         this.filesGridOptions.api.setRowData(this.files);
       });

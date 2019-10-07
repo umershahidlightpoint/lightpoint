@@ -23,6 +23,16 @@ namespace SqlDAL.Core
             ConnectionString = connectionString;
         }
 
+        public SqlConnection GetConnection()
+        {
+            return SqlConnection;
+        }
+
+        public SqlTransaction GetTransaction()
+        {
+            return SqlTransaction;
+        }
+
         public void CreateConnection()
         {
             SqlConnection = new SqlConnection(ConnectionString);

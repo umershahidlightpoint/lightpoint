@@ -39,13 +39,13 @@ namespace LP.FileProcessing
         {
             List<dynamic> sectionList = new List<dynamic>();
             failedRecords = new Dictionary<object, dynamic>();
-            //List<dynamic> failedList = new List<dynamic>();
             records = 0;
             int index = 0;
             foreach (var item in transactionList)
             {
                 dynamic obj;
-                dynamic failedFields;
+                List<dynamic> failedFields;
+                dynamic record = new ExpandoObject();
                 bool valid;
                 MapItem(schema, item, out obj, out failedFields, out valid);
                 if (valid)
@@ -61,8 +61,10 @@ namespace LP.FileProcessing
                     var value = prop != null ? prop.GetValue(item, null) : null;
                     if (value != null)
                     {
-                        AddProperty(failedFields, "index", index);
-                        failedRecords.Add(value, failedFields);
+                        //AddProperty(failedFields, "index", index);
+                        AddProperty(record, "Record", failedFields);
+                        AddProperty(record, "RowNumber", index);
+                        failedRecords.Add(value, record);
                     }
                 }
 
@@ -76,18 +78,18 @@ namespace LP.FileProcessing
         {
             List<dynamic> sectionList = new List<dynamic>();
             dynamic obj;
-            dynamic failedFields;
+            List<dynamic> failedFields;
             bool valid;
             MapItem(schema, item, out obj,out failedFields, out valid, recordCount);
             sectionList.Add(obj);
             return sectionList;
         }
 
-        private void MapItem(List<FileProperties> schema, object item, out dynamic obj, out dynamic failedFields, out bool successful, int recordCount = 0)
+        private void MapItem(List<FileProperties> schema, object item, out dynamic obj, out List<dynamic> failedFieldsList, out bool successful, int recordCount = 0)
         {
             successful = true;
-            failedFields = new ExpandoObject();
             List<dynamic> failedMetaData = new List<dynamic>();
+            failedFieldsList = new List<dynamic>();
             obj = new ExpandoObject();
             foreach (var map in schema)
             {
@@ -95,15 +97,17 @@ namespace LP.FileProcessing
                 var value = prop != null ? prop.GetValue(item, null) : null;
                 bool valid = true;
                 bool isValid = true;
+                string message = null;
 
                 // for format validation
                 if (!String.IsNullOrEmpty(map.Function) && !String.IsNullOrEmpty(map.Format) && !String.IsNullOrEmpty(map.Type))
                 {
                     Type thisType = this.GetType();
                     MethodInfo theMethod = thisType.GetMethod(map.Function);
-                    object[] parametersArray = {value, map.Format, map.Type, valid};
+                    object[] parametersArray = {value, map.Format, map.Type, valid, message};
                     var val = theMethod.Invoke(this, parametersArray);
                     isValid = (bool)parametersArray[3];
+                    message = (string)parametersArray[4];
                     var returnType = theMethod.ReturnType;
                     if (returnType != typeof(void))
                     {
@@ -116,9 +120,10 @@ namespace LP.FileProcessing
                 {
                     Type thisType = this.GetType();
                     MethodInfo theMethod = thisType.GetMethod(map.Function);
-                    object[] parametersArray = { value, valid};
+                    object[] parametersArray = { value, valid, message};
                     var val = theMethod.Invoke(this, parametersArray);
                     isValid = (bool)parametersArray[1];
+                    message = (string)parametersArray[2];
                     var returnType = theMethod.ReturnType;
                     if (returnType != typeof(void))
                     {
@@ -138,14 +143,19 @@ namespace LP.FileProcessing
                 else
                 {
                     successful = false;
-                    AddProperty(failedFields, map.Destination, value);
+                    dynamic failedFields = new ExpandoObject();
+                    AddProperty(failedFields, "Name", map.Destination);
+                    AddProperty(failedFields, "Value", value);
+                    AddProperty(failedFields, "Message", message);
+                    AddProperty(failedFields, "MetaData", map);
+                    failedFieldsList.Add(failedFields);
                     //AddProperty(failedFields, "MetaData", map);
-                    failedMetaData.Add(map);
+                    //failedMetaData.Add(map);
                 }
             }
             if (!successful)
             {
-                AddProperty(failedFields, "MetaData", failedMetaData);
+                //AddProperty(failedFields, "MetaData", failedMetaData);
             }
         }
 
@@ -287,16 +297,18 @@ namespace LP.FileProcessing
 
         #region Helper Functions for data pre-processing
 
-        public object GetDate(object value, string format, string type, out bool valid)
+        public object GetDate(object value, string format, string type, out bool valid, out string exception)
         {
+            exception = null;
             valid = true;
             var date = (DateTime)value;
             return date.ToString(format);
         }
         
-        public object LongShortConversion(object value, out bool valid)
+        public object LongShortConversion(object value, out bool valid, out string exception)
         {
             valid = true;
+            exception = "";
             var position = (string)value;
             if (position != null)
             {
@@ -311,6 +323,7 @@ namespace LP.FileProcessing
                 else
                 {
                     valid = false;
+                    exception = "Allowed values are long and short only";
                     return null;
                 }
             }
@@ -320,9 +333,10 @@ namespace LP.FileProcessing
             }
         }
 
-        public void CheckFormat(object value, string format, string type, out bool valid)
+        public void CheckFormat(object value, string format, string type, out bool valid, out string exception)
         {
             valid = true;
+            exception = "";
             if(type == "decimal")
             {
                 string val = Convert.ToString(value);
@@ -332,9 +346,16 @@ namespace LP.FileProcessing
                 int decimalNumberLength = Convert.ToInt32(numeric[1]);
                 int validWholeNumber = wholeNumberLength - decimalNumberLength;
                 
-                if((parsedVal.ElementAtOrDefault(0) != null && parsedVal.ElementAt(0).Length > validWholeNumber) || (parsedVal.ElementAtOrDefault(1) != null && parsedVal.ElementAt(1).Length > decimalNumberLength))
+                if(parsedVal.ElementAtOrDefault(0) != null && parsedVal.ElementAt(0).Length > validWholeNumber)
                 {
                     valid = false;
+                    exception = "Whole number part contains " + $"{parsedVal.ElementAt(0).Length} digits. Only {validWholeNumber} digits are allowed";
+                    return;
+                }
+                else if (parsedVal.ElementAtOrDefault(1) != null && parsedVal.ElementAt(1).Length > decimalNumberLength)
+                {
+                    valid = false;
+                    exception = "Decimal part contains " + $"{parsedVal.ElementAt(1).Length} digits. Only {decimalNumberLength} digits are allowed";
                     return;
                 }
             }
@@ -346,6 +367,7 @@ namespace LP.FileProcessing
                     int length = Convert.ToInt32(format);
                     if (val.Length > length)
                     {
+                        exception = "Value contains " + $"{val.Length} characters. Only {length} characters are allowed";
                         valid = false;
                         return;
                     }

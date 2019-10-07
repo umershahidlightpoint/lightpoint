@@ -30,7 +30,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         public object GetFiles(string name)
         {
             var query =
-                $@"select f.id, f.name, f.path,f.source,f.[statistics], f.business_date, fa.file_action_id, fa.file_id, fa.action, fa.action_start_date, fa.action_end_date from [file] f
+                $@"select f.id, f.name, f.path,f.source,f.[statistics], f.business_date,f.exceptions, fa.file_action_id, fa.file_id, fa.action, fa.action_start_date, fa.action_end_date from [file] f
                         inner join[file_action] fa on f.id = fa.file_id order by fa.Action_Start_Date desc";
 
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
@@ -94,7 +94,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             fileList.Add(new FileInputDto(positionPath, positionFileName, positionStatistics, "LightPoint", "Upload", failedPositionList,
                 businessDate));
 
-            InsertFailedRecords(fileList);
+            //InsertFailedRecords(fileList);
             InsertActivityAndPositionFilesForSilver(fileList);
             return Utils.Wrap(true);
         }
@@ -105,8 +105,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 record = JsonConvert.SerializeObject(x.Value),
                 reference = Convert.ToString(x.Key),
-                businessDate =  businessDate,
-                fileName = fileName
+                businessDate =  businessDate
             }).ToList();
 
             return records;
@@ -174,6 +173,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         new SqlParameter("source", file.source),
                         new SqlParameter("statistics", file.statistics),
                         new SqlParameter("business_date", file.businessDate),
+                        new SqlParameter("exceptions", file.failedRecords.Count > 0 ? true: false),
                     };
 
                     var query = $@"INSERT INTO [file]
@@ -181,16 +181,20 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                ,[path]
                                ,[source]
                                ,[statistics]
-                                ,[business_date])
+                                ,[business_date]
+                                ,[exceptions])
                          VALUES
                                (@name,
                                @path,
                                @source,
                                @statistics,
-                                @business_date)
+                                @business_date,
+                                @exceptions)
                                SELECT SCOPE_IDENTITY() AS 'Identity'";
 
                     sqlHelper.Insert(query, CommandType.Text, fileParams.ToArray(), out int fileId);
+                    file.failedRecords.ForEach(x => x.fileId = fileId);
+                    new SQLBulkHelper().Insert("file_exception", file.failedRecords.ToArray(), sqlHelper.GetConnection(), sqlHelper.GetTransaction());
 
                     List<SqlParameter> fileActionParams = new List<SqlParameter>()
                     {
@@ -310,12 +314,40 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object GetInvalidExportRecords()
         {
-            var query = $@"select file_exception_id,[file_name],business_date,reference, record from file_exception order by business_date desc";
+            var query = $@"select fe.file_exception_id, fe.file_id, f.[name],f.source,fe.business_date,reference, record from file_exception fe
+                            inner join [file] f on fe.file_id = f.id
+                            order by business_date desc";
 
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
-            var jsonResult = JsonConvert.SerializeObject(dataTable);
-            dynamic json = JsonConvert.DeserializeObject(jsonResult);
-            return Utils.Wrap(true,json,null);
+            List<FileException> fileExceptions = new List<FileException>();
+            foreach (DataRow row in dataTable.Rows)
+            {
+                FileException fEx = new FileException();
+                fEx.businessDate = (DateTime)row["business_date"];
+                fEx.fileId = row["file_id"] == DBNull.Value ? 0 : (int)row["file_id"];
+                fEx.fileExceptionId = (int)row["file_exception_id"];
+                fEx.reference = (string)row["reference"];
+                fEx.fileName = (string)row["name"];
+                fEx.record = (string)row["record"];
+                fEx.source = (string)row["source"];
+                fileExceptions.Add(fEx);
+            }
+            var groupedExceptions = fileExceptions.GroupBy(x => x.fileId).Select(x => new
+            {
+                FileId = x.Key,
+                FileExceptionId = x.FirstOrDefault().fileExceptionId,
+                BusinessDate = x.FirstOrDefault().businessDate,
+                FileName = x.FirstOrDefault().fileName,
+                Exceptions = x.Count(),
+                Source = x.FirstOrDefault().source,
+                ExceptionList = x.Select(y=> new {
+                    Reference = y.reference,
+                    Record = y.record
+                }).ToList()
+            }).ToList();
+            //var jsonResult = JsonConvert.SerializeObject(dataTable);
+            //dynamic json = JsonConvert.DeserializeObject(jsonResult);
+            return Utils.Wrap(true, groupedExceptions, null);
         }
     }
 }
