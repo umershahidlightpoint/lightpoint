@@ -96,24 +96,6 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
         this.getAccruals();
       }
     });
-    this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid(
-      [
-        { gridId: GridId.accrualsId, gridName: GridName.accruals, gridOptions: this.gridOptions },
-        {
-          gridId: GridId.selectedAccrualsId,
-          gridName: GridName.selectedAccruals,
-          gridOptions: this.allocationsGridOptions
-        }
-      ],
-      false
-    );
-
-    // this.dataService.changeAllocation(this.allocationsGridOptions);
-    // this.dataService.changeAllocationGrid({
-    //   gridId: GridId.selectedAccrualsId,
-    //   gridName: GridName.selectedAccruals
-    // });
   }
 
   ngOnInit() {

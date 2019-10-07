@@ -13,7 +13,6 @@ export class PostingEngineService {
 
   constructor(private financeService: FinancePocServiceProxy, private dataService: DataService) {
     this.isSubscriptionAlive = true;
-    this.dataService.gridColumnApi$.subscribe(obj => (obj = this.isRunning));
   }
 
   changeStatus(status) {

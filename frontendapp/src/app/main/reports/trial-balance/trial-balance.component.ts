@@ -89,6 +89,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
       isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       clearExternalFilter: this.clearFilters.bind(this),
+      getExternalFilterState: this.getExternalFilterState.bind(this),
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
@@ -205,18 +206,6 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
         this.getReport(null, null, 'ALL');
       }
     });
-    this.dataService.gridColumnApi$.subscribe(obj => (obj = this.gridOptions));
-    this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid(
-      [
-        {
-          gridId: GridId.trailBalanceReportId,
-          gridName: GridName.trailBalance,
-          gridOptions: this.gridOptions
-        }
-      ],
-      true
-    );
   }
 
   getFunds() {
@@ -251,9 +240,9 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
             this.trialBalanceReportStats.totalDebit - this.trialBalanceReportStats.totalCredit
         }
       ];
+      this.gridOptions.api.setRowData(this.trialBalanceReport);
       this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
       this.gridOptions.api.sizeColumnsToFit();
-      this.gridOptions.api.setRowData(this.trialBalanceReport);
     });
   }
 
@@ -273,18 +262,15 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
 
   isExternalFilterPresent() {
     if (this.fund !== 'All Funds' || this.startDate) {
-      this.dataService.setExternalFilter({
-        fundFilter: this.fund,
-        dateFilter:
-          this.DateRangeLabel !== ''
-            ? this.DateRangeLabel
-            : {
-                startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
-                endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
-              }
-      });
       return true;
     }
+  }
+
+  getExternalFilterState() {
+    return {
+      fundFilter: this.fund,
+      dateFilter: { startDate: this.startDate, endDate: this.endDate }
+    };
   }
 
   doesExternalFilterPass(node: any) {

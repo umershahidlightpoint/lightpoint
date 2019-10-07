@@ -88,6 +88,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       clearExternalFilter: this.clearFilters.bind(this),
+      getExternalFilterState: this.getExternalFilterState.bind(this),
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
@@ -169,19 +170,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
         this.getReport(null, null, 'ALL');
       }
     });
-
-    this.dataService.gridColumnApi$.subscribe(obj => (obj = this.gridOptions));
-    this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid(
-      [
-        {
-          gridId: GridId.costBasicId,
-          gridName: GridName.costBasic,
-          gridOptions: this.gridOptions
-        }
-      ],
-      true
-    );
   }
 
   getFunds() {
@@ -223,16 +211,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   isExternalFilterPresent() {
     if (this.fund !== 'All Funds' || this.startDate) {
-      this.dataService.setExternalFilter({
-        fundFilter: this.fund,
-        dateFilter:
-          this.DateRangeLabel !== ''
-            ? this.DateRangeLabel
-            : {
-                startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
-                endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
-              }
-      });
       return true;
     }
   }
@@ -267,6 +245,13 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
     this.endDate = moment();
     this.getReport(null, null, 'ALL');
+  }
+
+  getExternalFilterState() {
+    return {
+      fundFilter: this.fund,
+      dateFilter: { startDate: this.startDate, endDate: this.endDate }
+    };
   }
 
   changeDate(selectedDate) {

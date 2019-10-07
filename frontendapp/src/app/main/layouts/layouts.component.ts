@@ -52,30 +52,20 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
         this.getGridLayouts();
       }
     });
-    this.dataService.gridColumnApi$.subscribe(obj => (obj = this.gridOptions));
-    // this.dataService.changeMessage(this.gridOptions);
-    // this.dataService.changeGrid({ gridId: GridId.gridViewsId, gridName: GridName.gridViews });
   }
 
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      // onCellDoubleClicked: this.openDataModal.bind(this),
-      // isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
-      // isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
-      // doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      // clearExternalFilter: this.clearFilters.bind(this),
-      // getContextMenuItems: this.getContextMenuItems.bind(this),
-      // onFilterChanged: this.onFilterChanged.bind(this),
       sideBar: SideBar,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       pinnedBottomRowData: null,
-      // rowSelection: 'single',
       rowGroupPanelShow: 'after',
       pivotPanelShow: 'after',
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
       suppressColumnVirtualisation: true,
+      clearExternalFilter: () => {},
       onGridReady: params => {},
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);

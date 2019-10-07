@@ -1,7 +1,6 @@
 import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { IToolPanel, IToolPanelParams } from 'ag-grid-community';
 import { FinancePocServiceProxy } from '../../service-proxies/service-proxies';
-import { DataService } from '../../common/data.service';
 import { ToastrService } from 'ngx-toastr';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 
@@ -14,8 +13,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
   @ViewChild('confirmModal') confirmationModal: ConfirmationModalComponent;
 
   gridOptions: any;
-  gridObject;
-  gridObjectsArray; //: { gridId: number; gridName: string };
+  gridObject: { gridId: number; gridName: string };
   setGridFilterObject: any;
 
   private params: IToolPanelParams;
@@ -31,36 +29,15 @@ export class GridLayoutMenuComponent implements IToolPanel {
 
   constructor(
     private financeService: FinancePocServiceProxy,
-    private dataService: DataService,
     private cdRef: ChangeDetectorRef,
     private toastrService: ToastrService
   ) {}
 
   agInit(params): void {
     this.params = params;
-    console.log('params ==>', params);
-    const gridInstanceId = params.gridId;
     this.gridObject = { gridId: params.gridId, gridName: params.gridName };
     this.gridOptions = params.gridOptions;
-    // this.params.api.addEventListener('modelUpdated', this.getLayout.bind(this));
     this.getLayout();
-
-    // this.dataService.gridColumnApi$.subscribe(obj => (this.gridOptions = obj));
-    // this.dataService.gridObject$.subscribe(obj => {
-    //   this.gridObjectsArray = obj;
-    //   if (this.gridObjectsArray.length > 0) {
-    //     console.log('this grid obj', this.gridObjectsArray);
-    //     console.log('gridInstanceId ', gridInstanceId);
-    //     this.gridObjectsArray.forEach(grid => {
-    //       if (grid.gridId === gridInstanceId) {
-    //         this.gridObject = grid;
-    //       }
-    //     });
-    //     this.gridOptions = this.gridObject.gridOptions;
-    //     console.log('selected grid Object', this.gridObject);
-    //   }
-    // });
-    this.dataService.setGridFilterObject$.subscribe(obj => (this.setGridFilterObject = obj));
   }
 
   getLayout(): void {
@@ -121,7 +98,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
       GroupState: JSON.stringify(this.gridOptions.columnApi.getColumnGroupState()),
       SortState: JSON.stringify(this.gridOptions.api.getSortModel()),
       FilterState: JSON.stringify(this.gridOptions.api.getFilterModel()),
-      ExternalFilterState: JSON.stringify(this.setGridFilterObject)
+      ExternalFilterState: JSON.stringify(this.gridOptions.getExternalFilterState())
     };
     this.financeService.saveDataGridState(dataGridStatusObj).subscribe(
       response => {

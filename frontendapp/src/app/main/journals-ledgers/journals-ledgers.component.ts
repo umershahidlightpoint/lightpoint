@@ -128,6 +128,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       clearExternalFilter: this.clearFilters.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),
       onFilterChanged: this.onFilterChanged.bind(this),
+      getExternalFilterState: this.getExternalFilterState.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       pinnedBottomRowData: null,
       rowSelection: 'single',
@@ -381,18 +382,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         this.getAllData();
       }
     });
-    this.dataService.gridColumnApi$.subscribe(obj => (obj = this.gridOptions));
-    this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid(
-      [
-        {
-          gridId: GridId.journalsLedgersId,
-          gridName: GridName.journalsLedgers,
-          gridOptions: this.gridOptions
-        }
-      ],
-      false
-    );
   }
 
   getAllData() {
@@ -533,18 +522,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
 
   isExternalFilterPresent() {
     if (this.fund !== 'All Funds' || this.startDate || this.filterBySymbol !== '') {
-      this.dataService.setExternalFilter({
-        fundFilter: this.fund,
-        symbolFilter: this.filterBySymbol,
-        dateFilter:
-          this.DateRangeLabel !== ''
-            ? this.DateRangeLabel
-            : {
-                startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
-                endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
-              }
-      });
-
       return true;
     }
   }
@@ -640,6 +617,14 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     this.endDate = moment();
     this.gridOptions.api.setFilterModel(null);
     this.gridOptions.api.onFilterChanged();
+  }
+
+  getExternalFilterState() {
+    return {
+      fundFilter: this.fund,
+      symbolFilter: this.filterBySymbol,
+      dateFilter: { startDate: this.startDate, endDate: this.endDate }
+    };
   }
 
   openJournalModal() {

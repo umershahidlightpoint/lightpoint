@@ -45,7 +45,6 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
         this.getFileExceptionData();
       }
     });
-    this.dataService.gridColumnApi$.subscribe(obj => (obj = this.gridOptions));
   }
 
   initGrid() {
