@@ -173,8 +173,11 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       rowData: null,
       columnDefs: this.columnDefs,
       sideBar: SideBar,
-      getContextMenuItems: params => this.getContextMenuItems(params),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      getContextMenuItems: params => this.getContextMenuItems(params),
+      getExternalFilterState: () => {
+        return {};
+      },
       onGridReady: params => {},
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
@@ -185,8 +188,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       alignedGrids: [],
       suppressHorizontalScroll: true
     } as GridOptions;
-    this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid({ gridId: GridId.logsId, gridName: GridName.logs });
+    this.gridOptions.sideBar = SideBar(GridId.logsId, GridName.logs, this.gridOptions);
   }
 
   private getJournalLogs() {

@@ -46,6 +46,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
   trialBalanceReportStats: TrialBalanceReportStats;
   isLoading = false;
   hideGrid: boolean;
+  flag = false;
   title = 'Account Name';
 
   ranges: any = Ranges;
@@ -80,7 +81,6 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      sideBar: SideBar,
       pinnedBottomRowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onFilterChanged: this.onFilterChanged.bind(this),
@@ -88,6 +88,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
       isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       clearExternalFilter: this.clearFilters.bind(this),
+      getExternalFilterState: this.getExternalFilterState.bind(this),
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
@@ -189,6 +190,11 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
+    this.gridOptions.sideBar = SideBar(
+      GridId.trailBalanceReportId,
+      GridName.trailBalanceReport,
+      this.gridOptions
+    );
   }
 
   ngAfterViewInit(): void {
@@ -198,12 +204,6 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
         this.getFunds();
         this.getReport(null, null, 'ALL');
       }
-    });
-    this.dataService.gridColumnApi$.subscribe(obj => (obj = this.gridOptions));
-    this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid({
-      gridId: GridId.trailBalanceReportId,
-      gridName: GridName.trailBalance
     });
   }
 
@@ -228,6 +228,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
         debitPercentage: data.DebitPercentage,
         balance: FormatNumber(data.Balance)
       }));
+      this.flag = true;
       this.isLoading = false;
       this.pinnedBottomRowData = [
         {
@@ -238,9 +239,9 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
             this.trialBalanceReportStats.totalDebit - this.trialBalanceReportStats.totalCredit
         }
       ];
+      this.gridOptions.api.setRowData(this.trialBalanceReport);
       this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
       this.gridOptions.api.sizeColumnsToFit();
-      this.gridOptions.api.setRowData(this.trialBalanceReport);
     });
   }
 
@@ -254,24 +255,26 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
     const { dateFilter } = object;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
     this.setDateRange(dateFilter);
-
     this.gridOptions.api.onFilterChanged();
   }
 
   isExternalFilterPresent() {
     if (this.fund !== 'All Funds' || this.startDate) {
-      this.dataService.setExternalFilter({
-        fundFilter: this.fund,
-        dateFilter:
-          this.DateRangeLabel !== ''
-            ? this.DateRangeLabel
-            : {
-                startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
-                endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
-              }
-      });
       return true;
     }
+  }
+
+  getExternalFilterState() {
+    return {
+      fundFilter: this.fund,
+      dateFilter:
+        this.DateRangeLabel !== ''
+          ? this.DateRangeLabel
+          : {
+              startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
+              endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
+            }
+    };
   }
 
   doesExternalFilterPass(node: any) {

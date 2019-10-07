@@ -31,6 +31,59 @@ namespace PostingEngine
         private static Guid Key;
         private static PostingEngineCallBack PostingEngineCallBack;
 
+        public static void CalculateCostBasis()
+        {
+            PostingEngineCallBack?.Invoke("Cost Basis Calculation Started");
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                var transaction = connection.BeginTransaction();
+
+                PostingEngineCallBack?.Invoke("Getting Trade Data");
+
+                var trades = GetTransactions(tradesURL + "ITD");
+                Task.WaitAll(new Task[] { trades});
+
+                var tradeList = JsonConvert.DeserializeObject<Transaction[]>(trades.Result);
+
+                var minTradeDate = tradeList.Min(i => i.TradeDate.Date);
+                var maxTradeDate = tradeList.Max(i => i.TradeDate.Date);
+
+                var valueDate = minTradeDate;
+                var endDate = DateTime.Now.Date;
+
+                var rowsCompleted = 1;
+                var numberOfDays = (endDate - valueDate).Days;
+                while (valueDate <= endDate)
+                {
+                    try
+                    {
+                        CostBasisDto.Calculate(connection, transaction, valueDate);
+                    } catch ( Exception ex )
+                    {
+
+                    }
+
+                    PostingEngineCallBack?.Invoke($"Complete CostBasis for {valueDate}", numberOfDays, rowsCompleted++);
+                    valueDate = valueDate.AddDays(1);
+                }
+
+                transaction.Commit();
+                
+            }
+        }
+
+        public static void RunCalculation(string calculation, Guid key, PostingEngineCallBack postingEngineCallBack)
+        {
+            Key = key;
+            PostingEngineCallBack = postingEngineCallBack;
+
+            // Driven by calculation
+
+            CalculateCostBasis();
+        }
+
         /// <summary>
         /// Only process the past trade
         /// </summary>
@@ -439,6 +492,9 @@ namespace PostingEngine
                 new SqlCommand("delete from journal_log", connection).ExecuteNonQuery();
                 new SqlCommand("delete from account_tag", connection).ExecuteNonQuery();
                 new SqlCommand("delete from account", connection).ExecuteNonQuery();
+                new SqlCommand("delete from tax_lot", connection).ExecuteNonQuery();
+                new SqlCommand("delete from tax_lot_status", connection).ExecuteNonQuery();
+                new SqlCommand("delete from cost_basis", connection).ExecuteNonQuery();
             }
         }
 

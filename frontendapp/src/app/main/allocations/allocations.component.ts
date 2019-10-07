@@ -1,13 +1,12 @@
-import { Component, ElementRef, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
-import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { SideBar, Style, AutoSizeAllColumns } from 'src/shared/utils/Shared';
-import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selection-grid-layout-menu/grid-layout-menu.component';
+import { SideBar, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
+import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 
 @Component({
   selector: 'app-allocations',
@@ -40,13 +39,7 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
     });
   }
 
-  ngAfterViewInit(): void {
-    this.dataService.changeAllocation(this.allocationsGridOptions);
-    this.dataService.changeAllocationGrid({
-      gridId: GridId.selectedTradeId,
-      gridName: GridName.SelectedTrades
-    });
-  }
+  ngAfterViewInit(): void {}
 
   // openModal = row => {
   //   // We can drive the screen that we wish to display from here
@@ -71,17 +64,17 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
   initGrid() {
     this.allocationsGridOptions = {
       rowData: null,
-      sideBar: SideBar,
       columnDefs: this.columnDefs,
-      // onCellDoubleClicked: this.openModal.bind(this),
-      frameworkComponents: { customToolPanel: AllocationGridLayoutMenuComponent },
+      //onCellDoubleClicked: this.openModal.bind(this),
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onGridReady: () => {
         // this.gridOptions.api.sizeColumnsToFit();
       },
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
-
-        // params.api.sizeColumnsToFit();
+      },
+      getExternalFilterState: () => {
+        return {};
       },
       suppressColumnVirtualisation: true,
       enableFilter: true,
@@ -89,6 +82,11 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
       alignedGrids: [],
       suppressHorizontalScroll: false
     } as GridOptions;
+    this.allocationsGridOptions.sideBar = SideBar(
+      GridId.accrualsId,
+      GridName.accruals,
+      this.allocationsGridOptions
+    );
   }
 
   getTradeAllocations(lpOrderId) {

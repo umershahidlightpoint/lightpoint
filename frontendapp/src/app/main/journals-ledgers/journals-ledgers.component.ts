@@ -55,7 +55,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   private defaultColDef;
   public rowData: [];
   private columns: any;
-
+  neGridLayoutMenuComponent: GridLayoutMenuComponent;
   isEngineRunning = false;
   hideGrid = false;
   columnDefs: any;
@@ -110,7 +110,9 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     private downloadExcelUtils: DownloadExcelUtils
   ) {
     this.hideGrid = false;
+    this.DateRangeLabel = '';
     this.initGird();
+    console.log(' DateRangeLabel ', this.DateRangeLabel);
   }
 
   ngOnInit() {
@@ -127,7 +129,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       clearExternalFilter: this.clearFilters.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),
       onFilterChanged: this.onFilterChanged.bind(this),
-      sideBar: SideBar,
+      getExternalFilterState: this.getExternalFilterState.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       pinnedBottomRowData: null,
       rowSelection: 'single',
@@ -156,6 +158,11 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
+    this.gridOptions.sideBar = SideBar(
+      GridId.journalsLedgersId,
+      GridName.journalsLedgers,
+      this.gridOptions
+    );
   }
 
   /*
@@ -376,9 +383,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         this.getAllData();
       }
     });
-    this.dataService.gridColumnApi$.subscribe(obj => (obj = this.gridOptions));
-    this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid({ gridId: GridId.journalId, gridName: GridName.journal });
   }
 
   getAllData() {
@@ -513,24 +517,11 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
     this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
     this.setDateRange(dateFilter);
-
     this.gridOptions.api.onFilterChanged();
   }
 
   isExternalFilterPresent() {
     if (this.fund !== 'All Funds' || this.startDate || this.filterBySymbol !== '') {
-      this.dataService.setExternalFilter({
-        fundFilter: this.fund,
-        symbolFilter: this.filterBySymbol,
-        dateFilter:
-          this.DateRangeLabel !== ''
-            ? this.DateRangeLabel
-            : {
-                startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
-                endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
-              }
-      });
-
       return true;
     }
   }
@@ -626,6 +617,20 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     this.endDate = moment();
     this.gridOptions.api.setFilterModel(null);
     this.gridOptions.api.onFilterChanged();
+  }
+
+  getExternalFilterState() {
+    return {
+      fundFilter: this.fund,
+      symbolFilter: this.filterBySymbol,
+      dateFilter:
+        this.DateRangeLabel !== ''
+          ? this.DateRangeLabel
+          : {
+              startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
+              endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
+            }
+    };
   }
 
   openJournalModal() {

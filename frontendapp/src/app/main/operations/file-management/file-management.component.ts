@@ -121,9 +121,11 @@ export class FileManagementComponent implements OnInit, OnDestroy {
     ];
     this.filesGridOptions = {
       rowData: null,
-      sideBar: SideBar,
       columnDefs: columnDefsForFiles,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      getExternalFilterState: () => {
+        return {};
+      },
       onGridReady: params => {},
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
@@ -140,8 +142,7 @@ export class FileManagementComponent implements OnInit, OnDestroy {
         return { backgroundColor: '#ffcfcf' };
       }
   }
-    this.dataService.changeMessage(this.filesGridOptions);
-    this.dataService.changeGrid({ gridId: GridId.filesId, gridName: GridName.files });
+    this.filesGridOptions.sideBar = SideBar(GridId.filesId, GridName.files, this.filesGridOptions);
   }
 
   private getFiles() {

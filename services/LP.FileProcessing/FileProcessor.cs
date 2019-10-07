@@ -6,7 +6,6 @@ using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using LP.FileProcessing.S3;
 
 /*
 * Start of a common library for generating and consuming files
@@ -21,7 +20,8 @@ namespace LP.FileProcessing
         {
             int recordCount;
             var schema = Utils.GetFile<SilverFileFormat>(fileName, "FileFormats");
-            List<dynamic> record = MapFileRecord(recordList, schema.record, identifierForFailedRecords, out failedRecords, out recordCount);
+            List<dynamic> record = MapFileRecord(recordList, schema.record, identifierForFailedRecords,
+                out failedRecords, out recordCount);
             List<dynamic> header = MapFileSection(headerObj, schema.header, recordCount + 2);
             List<dynamic> trailer = MapFileSection(trailerObj, schema.trailer, recordCount + 2);
             WritePipe(record, header, trailer, path, schema);
@@ -35,7 +35,8 @@ namespace LP.FileProcessing
             return resp;
         }
 
-        private List<dynamic> MapFileRecord<T>(IEnumerable<T> transactionList, List<FileProperties> schema, string identifierForFailedRecords, out Dictionary<object, dynamic> failedRecords, out int records)
+        private List<dynamic> MapFileRecord<T>(IEnumerable<T> transactionList, List<FileProperties> schema,
+            string identifierForFailedRecords, out Dictionary<object, dynamic> failedRecords, out int records)
         {
             List<dynamic> sectionList = new List<dynamic>();
             failedRecords = new Dictionary<object, dynamic>();
@@ -80,7 +81,7 @@ namespace LP.FileProcessing
             dynamic obj;
             List<dynamic> failedFields;
             bool valid;
-            MapItem(schema, item, out obj,out failedFields, out valid, recordCount);
+            MapItem(schema, item, out obj, out failedFields, out valid, recordCount);
             sectionList.Add(obj);
             return sectionList;
         }
@@ -100,7 +101,8 @@ namespace LP.FileProcessing
                 string message = null;
 
                 // for format validation
-                if (!String.IsNullOrEmpty(map.Function) && !String.IsNullOrEmpty(map.Format) && !String.IsNullOrEmpty(map.Type))
+                if (!String.IsNullOrEmpty(map.Function) && !String.IsNullOrEmpty(map.Format) &&
+                    !String.IsNullOrEmpty(map.Type))
                 {
                     Type thisType = this.GetType();
                     MethodInfo theMethod = thisType.GetMethod(map.Function);
@@ -153,6 +155,7 @@ namespace LP.FileProcessing
                     //failedMetaData.Add(map);
                 }
             }
+
             if (!successful)
             {
                 //AddProperty(failedFields, "MetaData", failedMetaData);
@@ -277,31 +280,13 @@ namespace LP.FileProcessing
             }
         }
 
-        // Uploading Files to AWS S3 Bucket
-        public bool UploadFile(string path)
-        {
-            return S3Endpoint.Upload(path);
-        }
-
-        // Downloading Files from AWS S3 Bucket
-        public bool DownloadFile(string path)
-        {
-            return S3Endpoint.Download(path);
-        }
-
-        // List of Files from AWS S3 Bucket
-        public List<object> GetFiles()
-        {
-            return S3Endpoint.List();
-        }
-
         #region Helper Functions for data pre-processing
 
         public object GetDate(object value, string format, string type, out bool valid, out string exception)
         {
             exception = null;
             valid = true;
-            var date = (DateTime)value;
+            var date = (DateTime) value;
             return date.ToString(format);
         }
         
@@ -359,9 +344,9 @@ namespace LP.FileProcessing
                     return;
                 }
             }
-            else if(type == "char")
+            else if (type == "char")
             {
-                string val = (string)value;
+                string val = (string) value;
                 if (val != null)
                 {
                     int length = Convert.ToInt32(format);
@@ -374,6 +359,7 @@ namespace LP.FileProcessing
                 }
             }
         }
+
         #endregion
     }
 }

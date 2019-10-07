@@ -1,5 +1,4 @@
-﻿using Amazon;
-using Amazon.S3;
+﻿using Amazon.S3;
 using Amazon.S3.Transfer;
 using System;
 using System.Collections.Generic;
@@ -11,65 +10,52 @@ namespace LP.FileProcessing.S3
 {
     public class S3Endpoint
     {
+        private static IAmazonS3 S3Client { get; set; }
+
         // Credentials
-        private const string bucketName = "lattimore.drop";
-        private const string keyName = "uploaded-data";
-//        private const string accessKeyId = "";
-//        private const string secretAccessKey = "";
+        private const string BucketName = "lattimore.drop";
+        private const string KeyName = "uploaded-data";
 
-        // Specify your Bucket Region
-        private static readonly RegionEndpoint bucketRegion = RegionEndpoint.USEast2;
-
-        public static bool Upload(string filePath)
+        public S3Endpoint(AmazonS3Client amazonS3Client)
         {
-            return UploadFileAsync(filePath, bucketRegion).GetAwaiter().GetResult();
+            S3Client = amazonS3Client;
         }
 
-        public static bool Download(string filePath)
+        public bool UploadFileToS3(string filePath)
         {
-            return DownloadFileAsync(filePath, bucketRegion).GetAwaiter().GetResult();
+            return UploadFileAsync(S3Client, filePath).GetAwaiter().GetResult();
         }
 
-        public static List<object> List()
+        public bool DownloadFileFromS3(string filePath)
         {
-            return ListFilesAsync(bucketRegion).GetAwaiter().GetResult();
+            return DownloadFileAsync(S3Client, filePath).GetAwaiter().GetResult();
         }
 
-        private static async Task<bool> UploadFileAsync(string filename, RegionEndpoint endpoint)
+        public List<object> ListS3Files()
         {
-            AmazonS3Config config = new AmazonS3Config
-            {
-                RegionEndpoint = endpoint,
-                ForcePathStyle = true,
-            };
-            /*
-            var username = "dlattimore@lightpointft.com";
-            var password = "";
-            config.ProxyCredentials = new NetworkCredential(username, password);
-            */
+            return ListFilesAsync(S3Client).GetAwaiter().GetResult();
+        }
 
-//            var credentials = new BasicAWSCredentials(accessKeyId, secretAccessKey);
-
-            var s3Client = new AmazonS3Client(config);
-
+        private static async Task<bool> UploadFileAsync(IAmazonS3 amazonS3Client, string filePath)
+        {
             try
             {
-                var fileTransferUtility = new TransferUtility(s3Client);
+                var fileTransferUtility = new TransferUtility(amazonS3Client);
 
                 // Option 1. Upload a File. The File Name is Used as the Object Key Name
                 /*
-                await fileTransferUtility.UploadAsync(filename, bucketName);
+                await fileTransferUtility.UploadAsync(filePath, bucketName);
                 Console.WriteLine("Upload 1 Completed");
                 */
 
                 // Option 2. Specify Object Key Name Explicitly
-                await fileTransferUtility.UploadAsync(filename, bucketName, keyName);
+                await fileTransferUtility.UploadAsync(filePath, BucketName, KeyName);
                 Console.WriteLine("Upload 2 Completed");
 
                 // Option 3. Upload Data from a Type of System.IO.Stream
                 /*
                 using (var fileToUpload =
-                   new FileStream(filename, FileMode.Open, FileAccess.Read))
+                   new FileStream(filePath, FileMode.Open, FileAccess.Read))
                 {
                    await fileTransferUtility.UploadAsync(fileToUpload,
                        bucketName, keyName);
@@ -82,7 +68,7 @@ namespace LP.FileProcessing.S3
                 var fileTransferUtilityRequest = new TransferUtilityUploadRequest
                 {
                    BucketName = bucketName,
-                   FilePath = filename,
+                   FilePath = filePath,
                    StorageClass = S3StorageClass.StandardInfrequentAccess,
                    PartSize = 6291456, // 6 MB.
                    Key = keyName,
@@ -111,21 +97,14 @@ namespace LP.FileProcessing.S3
             }
         }
 
-        private static async Task<bool> DownloadFileAsync(string filename, RegionEndpoint endpoint)
+        private static async Task<bool> DownloadFileAsync(IAmazonS3 amazonS3Client, string filePath)
         {
-            AmazonS3Config config = new AmazonS3Config
-            {
-                RegionEndpoint = endpoint
-            };
-
-            var s3Client = new AmazonS3Client(config);
-
             try
             {
-                var fileTransferUtility = new TransferUtility(s3Client);
+                var fileTransferUtility = new TransferUtility(amazonS3Client);
 
                 // Download Object Using Key Name
-                await fileTransferUtility.DownloadAsync(filename, bucketName, keyName);
+                await fileTransferUtility.DownloadAsync(filePath, BucketName, KeyName);
                 Console.WriteLine("Download Completed");
 
                 return true;
@@ -144,28 +123,21 @@ namespace LP.FileProcessing.S3
             }
         }
 
-        private static async Task<List<object>> ListFilesAsync(RegionEndpoint endpoint)
+        private static async Task<List<object>> ListFilesAsync(IAmazonS3 amazonS3Client)
         {
-            AmazonS3Config config = new AmazonS3Config
-            {
-                RegionEndpoint = endpoint
-            };
-
-            var s3Client = new AmazonS3Client(config);
-
             List<object> files = new List<object>();
 
             try
             {
                 ListObjectsV2Request request = new ListObjectsV2Request
                 {
-                    BucketName = bucketName
+                    BucketName = BucketName
                 };
 
                 ListObjectsV2Response response;
                 do
                 {
-                    response = await s3Client.ListObjectsV2Async(request);
+                    response = await amazonS3Client.ListObjectsV2Async(request);
 
                     // Process the Response
                     foreach (S3Object entry in response.S3Objects)

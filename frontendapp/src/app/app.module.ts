@@ -71,7 +71,6 @@ import { BalanceReportComponent } from './main/reports/balance-report/balance-re
 import { CostBasisComponent } from './main/reports/costbasis/costbasis.component';
 import { TrialBalanceComponent } from './main/reports/trial-balance/trial-balance.component';
 import { ReportModalComponent } from '../shared/Component/report-modal/report-modal.component';
-import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selection-grid-layout-menu/grid-layout-menu.component';
 import { AllocationsComponent } from './main/allocations/allocations.component';
 import { JournalsComponent } from './main/journals/journals.component';
 import { TradesComponent } from './main/trades/trades.component';
@@ -101,7 +100,6 @@ import { FileExceptionComponent } from './main/operations/file-exception/file-ex
     JournalModalComponent,
     DataModalComponent,
     GridLayoutMenuComponent,
-    AllocationGridLayoutMenuComponent,
     LeftMenuComponent,
     FileManagementComponent,
     SilverFileManagementComponent,
@@ -122,11 +120,7 @@ import { FileExceptionComponent } from './main/operations/file-exception/file-ex
   ],
   imports: [
     BrowserModule,
-    AgGridModule.withComponents([
-      TemplateRendererComponent,
-      GridLayoutMenuComponent,
-      AllocationGridLayoutMenuComponent
-    ]),
+    AgGridModule.withComponents([TemplateRendererComponent, GridLayoutMenuComponent]),
     MaterialModule,
     NgxDaterangepickerMd.forRoot(),
     AppRoutingModule,

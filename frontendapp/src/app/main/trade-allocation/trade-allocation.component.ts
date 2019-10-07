@@ -1,4 +1,4 @@
-import { Component} from '@angular/core';
+import { Component } from '@angular/core';
 import { Style, HeightStyle } from 'src/shared/utils/Shared';
 
 @Component({
@@ -7,7 +7,6 @@ import { Style, HeightStyle } from 'src/shared/utils/Shared';
   styleUrls: ['./trade-allocation.component.css']
 })
 export class TradeAllocationComponent {
-
   style = Style;
 
   styleForHeight = HeightStyle(156);

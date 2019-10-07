@@ -47,15 +47,11 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
         this.getFileExceptionData();
       }
     });
-    this.dataService.gridColumnApi$.subscribe(obj => (obj = this.gridOptions));
-    this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid({ gridId: GridId.gridViewsId, gridName: GridName.gridViews });
   }
 
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      sideBar: SideBar,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       pinnedBottomRowData: null,
       rowGroupPanelShow: 'after',
@@ -84,6 +80,8 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
         getDetailRowData: function(params) {
           params.successCallback(params.data.exceptionList);
         }
+      getExternalFilterState: () => {
+        return {};
       },
       onGridReady: params => {},
       onFirstDataRendered: params => {
@@ -100,6 +98,11 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
+    this.gridOptions.sideBar = SideBar(
+      GridId.fileExceptionId,
+      GridName.fileException,
+      this.gridOptions
+    );
   }
 
   
