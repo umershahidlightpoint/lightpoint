@@ -1,4 +1,12 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  OnDestroy,
+  ComponentRef
+} from '@angular/core';
 import { GridOptions } from 'ag-grid-community';
 import { CommaSeparatedFormat } from 'src/shared/utils/Shared';
 import { TrialBalanceReport, TrialBalanceReportStats } from 'src/shared/Models/trial-balance';
@@ -8,31 +16,31 @@ import { TrialBalanceReport, TrialBalanceReportStats } from 'src/shared/Models/t
   templateUrl: './report-grid.component.html',
   styleUrls: ['./report-grid.component.css']
 })
-export class ReportGridComponent implements OnInit, OnChanges {
+export class ReportGridComponent implements OnInit, OnChanges, OnDestroy {
   @Input() trialBalanceReport: Array<TrialBalanceReport>;
   @Input() trialBalanceReportStats: TrialBalanceReportStats;
   @Input() isLoading = false;
   @Input() isTrialBalance = false;
   @Input() hideGrid: boolean;
   @Input() tableHeader: string;
-
+  componentRef: ComponentRef<any>;
   gridOptions: GridOptions;
 
   constructor() {}
 
   async ngOnInit() {
     this.initGrid();
-    console.log('ngOnInit');
+    // console.log('ngOnInit');
   }
 
   async ngOnChanges(changes: SimpleChanges) {
     const { tableHeader, trialBalanceReport, trialBalanceReportStats, isTrialBalance } = changes;
-    console.log('changes', changes);
+    // console.log('changes', changes);
     if (isTrialBalance) {
       await this.initGrid();
     }
-    if (trialBalanceReport.currentValue !== undefined) {
-      console.log('inside', changes);
+    if (trialBalanceReport.currentValue !== undefined && tableHeader.currentValue !== undefined) {
+      // console.log('inside', changes);
       this.gridOptions.api.setColumnDefs(this.initColDefs(tableHeader.currentValue));
       this.gridOptions.api.setRowData(trialBalanceReport.currentValue);
       const pinnedBottomRowData = [
@@ -85,7 +93,7 @@ export class ReportGridComponent implements OnInit, OnChanges {
         filter: true
       }
     } as GridOptions;
-    console.log('initGrid', this.gridOptions);
+    // console.log('initGrid', this.gridOptions);
   }
 
   initColDefs(headerName) {
@@ -160,6 +168,13 @@ export class ReportGridComponent implements OnInit, OnChanges {
         valueFormatter: absCurrencyFormatter
       }
     ];
+  }
+
+  ngOnDestroy() {
+    if (this.componentRef) {
+      this.componentRef.destroy();
+      this.componentRef = null;
+    }
   }
 }
 

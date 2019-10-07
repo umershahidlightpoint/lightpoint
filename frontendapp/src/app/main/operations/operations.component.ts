@@ -184,8 +184,10 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       alignedGrids: [],
       suppressHorizontalScroll: true
     } as GridOptions;
-    this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid({ gridId: GridId.logsId, gridName: GridName.logs });
+    this.gridOptions.sideBar = SideBar(GridId.logsId, GridName.logs, this.gridOptions);
+
+    // this.dataService.changeMessage(this.gridOptions);
+    // this.dataService.changeGrid({ gridId: GridId.logsId, gridName: GridName.logs });
   }
 
   private getJournalLogs() {

@@ -2,7 +2,7 @@ import { BehaviorSubject } from 'rxjs';
 
 export class DataService {
   private oGridOptions = new BehaviorSubject(null);
-  private grid = new BehaviorSubject(null);
+  private grid = new BehaviorSubject([]);
   private setGridFilter = new BehaviorSubject(null);
   private isEngineRunning = new BehaviorSubject(false);
 
@@ -27,8 +27,17 @@ export class DataService {
     this.oGridOptions.next(obj);
   }
 
-  changeGrid(obj: any) {
+  changeGrid(obj: any, isSameComponent) {
+    console.log('in change grid', obj);
+    // if (isSameComponent) {
+    //   let oldState;
+    //   this.gridObject$.subscribe(data => (oldState = data));
+    //   const newObj = [...oldState, ...obj];
+    //   console.log('new obj', newObj);
+    //   this.grid.next(newObj);
+    // } else {
     this.grid.next(obj);
+    // }
   }
 
   setExternalFilter(obj: any) {
@@ -48,11 +57,11 @@ export class DataService {
     this.allocationGrid.next(obj);
   }
 
-  onRowSelectionTrade(obj: any){
+  onRowSelectionTrade(obj: any) {
     this.identifierForAllocation.next(obj);
   }
 
-  onRowSelectionAllocation(obj: any){
+  onRowSelectionAllocation(obj: any) {
     this.identifierForJournal.next(obj);
   }
 }

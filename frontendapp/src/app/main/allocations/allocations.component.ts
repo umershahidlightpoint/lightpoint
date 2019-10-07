@@ -8,6 +8,7 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { SideBar, Style, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { AllocationGridLayoutMenuComponent } from 'src/shared/Component/selection-grid-layout-menu/grid-layout-menu.component';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
+import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 
 @Component({
   selector: 'app-allocations',
@@ -71,10 +72,9 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
   initGrid() {
     this.allocationsGridOptions = {
       rowData: null,
-      sideBar: SideBar,
       columnDefs: this.columnDefs,
       //onCellDoubleClicked: this.openModal.bind(this),
-      frameworkComponents: { customToolPanel: AllocationGridLayoutMenuComponent },
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onGridReady: () => {
         // this.gridOptions.api.sizeColumnsToFit();
       },
@@ -88,6 +88,11 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
       alignedGrids: [],
       suppressHorizontalScroll: false
     } as GridOptions;
+    this.allocationsGridOptions.sideBar = SideBar(
+      GridId.accrualsId,
+      GridName.accruals,
+      this.allocationsGridOptions
+    );
   }
 
   getTradeAllocations(lpOrderId) {

@@ -100,8 +100,13 @@ export class SilverFileManagementComponent implements OnInit, OnDestroy {
       suppressHorizontalScroll: false,
       suppressColumnVirtualisation: true
     } as GridOptions;
-    this.dataService.changeMessage(this.filesGridOptions);
-    this.dataService.changeGrid({ gridId: GridId.silverFilesId, gridName: GridName.silverFiles });
+    this.filesGridOptions.sideBar = SideBar(
+      GridId.silverFilesId,
+      GridName.silverFiles,
+      this.filesGridOptions
+    );
+    // this.dataService.changeMessage(this.filesGridOptions);
+    // this.dataService.changeGrid({ gridId: GridId.silverFilesId, gridName: GridName.silverFiles });
   }
 
   private getSilverFiles() {

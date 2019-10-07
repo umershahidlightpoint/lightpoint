@@ -76,7 +76,7 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
     this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid({ gridId: GridId.accountId, gridName: GridName.account });
+    this.dataService.changeGrid([{ gridId: GridId.accountId, gridName: GridName.account }], false);
     this.gridOptions.api.setColumnDefs([
       {
         headerName: 'Account Id',
@@ -141,7 +141,6 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      sideBar: SideBar,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       pinnedBottomRowData: null,
       rowSelection: 'single',
@@ -151,10 +150,10 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
       pivotRowTotals: 'after',
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
-
         params.api.sizeColumnsToFit();
       }
     };
+    this.gridOptions.sideBar = SideBar(GridId.accountId, GridName.account, this.gridOptions);
   }
 
   getAccountCategories() {

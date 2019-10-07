@@ -1,30 +1,37 @@
 import * as moment from 'moment';
 
-export const SideBar = {
-  toolPanels: [
-    {
-      id: 'columns',
-      labelDefault: 'Columns',
-      labelKey: 'columns',
-      iconKey: 'columns',
-      toolPanel: 'agColumnsToolPanel'
-    },
-    {
-      id: 'filters',
-      labelDefault: 'Filters',
-      labelKey: 'filters',
-      iconKey: 'filter',
-      toolPanel: 'agFiltersToolPanel'
-    },
-    {
-      id: 'custom filters',
-      labelDefault: 'Layout',
-      labelKey: 'Grid Layout',
-      iconKey: 'filter',
-      toolPanel: 'customToolPanel'
-    }
-  ],
-  defaultToolPanel: ''
+export const SideBar = (id, name, gridInstance) => {
+  return {
+    toolPanels: [
+      {
+        id: 'columns',
+        labelDefault: 'Columns',
+        labelKey: 'columns',
+        iconKey: 'columns',
+        toolPanel: 'agColumnsToolPanel'
+      },
+      {
+        id: 'filters',
+        labelDefault: 'Filters',
+        labelKey: 'filters',
+        iconKey: 'filter',
+        toolPanel: 'agFiltersToolPanel'
+      },
+      {
+        id: 'custom filters',
+        labelDefault: 'Layout',
+        labelKey: 'Grid Layout',
+        iconKey: 'filter',
+        toolPanel: 'customToolPanel',
+        toolPanelParams: {
+          gridId: id,
+          gridName: name,
+          gridOptions: gridInstance
+        }
+      }
+    ],
+    defaultToolPanel: ''
+  };
 };
 
 export const Ranges: any = {
@@ -274,3 +281,7 @@ export const AutoSizeAllColumns = params => {
   });
   gridColumnApi.autoSizeColumns(allColumnIds);
 };
+
+// export const SideBarComponentFun = () => {
+//   return SidebarFactoyComponent;
+// };
