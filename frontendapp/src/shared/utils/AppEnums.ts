@@ -15,6 +15,7 @@ export class GridId {
   static gridViewsId = 14;
   static costBasicId = 15;
   static journalsId = 16;
+  static fileExceptionId = 17;
 }
 
 export class GridName {
@@ -34,4 +35,5 @@ export class GridName {
   static gridViews = 'Grid Views';
   static costBasic = 'Cost Basic';
   static journals = 'Journals';
+  static fileException = 'File Exception';
 }
