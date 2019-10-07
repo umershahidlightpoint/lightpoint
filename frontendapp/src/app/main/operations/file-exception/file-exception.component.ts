@@ -50,6 +50,7 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
   }
 
   initGrid() {
+
     this.gridOptions = {
       rowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
@@ -79,7 +80,7 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
         },
         getDetailRowData: function(params) {
           params.successCallback(params.data.exceptionList);
-        }
+        },
       getExternalFilterState: () => {
         return {};
       },
@@ -97,12 +98,14 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
         resizable: true,
         filter: true
       }
-    } as GridOptions;
-    this.gridOptions.sideBar = SideBar(
-      GridId.fileExceptionId,
-      GridName.fileException,
-      this.gridOptions
-    );
+    }
+   } as GridOptions;
+
+   this.gridOptions.sideBar = SideBar(
+    GridId.fileExceptionId,
+    GridName.fileException,
+    this.gridOptions
+  );
   }
 
   
