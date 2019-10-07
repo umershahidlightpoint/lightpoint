@@ -48,6 +48,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   isLoading = false;
   postingEngineStatus = false;
   fileManagementActive = false;
+  exportExceptionActive = false;
   selectedPeriod: any;
   clearJournalForm: FormGroup;
   key: any;
@@ -307,6 +308,9 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     }
     if (e.index === 2) {
       this.fileManagementActive = true;
+    }
+    if (e.index === 3) {
+      this.exportExceptionActive = true;
     }
   }
 

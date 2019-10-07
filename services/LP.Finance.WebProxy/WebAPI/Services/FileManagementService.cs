@@ -1,6 +1,7 @@
 ﻿using LP.FileProcessing;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
+using LP.Finance.Common.Model;
 using LP.Finance.Common.Models;
 using Newtonsoft.Json;
 using SqlDAL.Core;
@@ -10,6 +11,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -78,18 +80,36 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var positionTrailer = GetTrailer("TRL", "SMGOpenLotPosition ", convertedBusinessDate);
 
             var activityStatistics = fileProcessor.GenerateFile(tradeList, activityHeader, activityTrailer,
-                activityPath, "Activity_json");
+                activityPath, "Activity_json", "LpOrderId", out Dictionary<object,dynamic> failedActivityRecords);
             var positionStatistics = fileProcessor.GenerateFile(positionList, positionHeader, positionTrailer,
-                positionPath, "Position_json");
+                positionPath, "Position_json", "IntraDayPositionId", out Dictionary<object, dynamic> failedPositionRecords);
+
+            var failedActivityList = MapFailedRecords(failedActivityRecords, businessDate, activityFileName);
+            var failedPositionList = MapFailedRecords(failedPositionRecords, businessDate, positionFileName);
+
 
             List<FileInputDto> fileList = new List<FileInputDto>();
-            fileList.Add(new FileInputDto(activityPath, activityFileName, activityStatistics, "LightPoint", "Upload",
+            fileList.Add(new FileInputDto(activityPath, activityFileName, activityStatistics, "LightPoint", "Upload", failedActivityList,
                 businessDate));
-            fileList.Add(new FileInputDto(positionPath, positionFileName, positionStatistics, "LightPoint", "Upload",
+            fileList.Add(new FileInputDto(positionPath, positionFileName, positionStatistics, "LightPoint", "Upload", failedPositionList,
                 businessDate));
 
+            InsertFailedRecords(fileList);
             InsertActivityAndPositionFilesForSilver(fileList);
             return Utils.Wrap(true);
+        }
+
+        private List<FileException> MapFailedRecords(Dictionary<object, dynamic> failedRecords, DateTime businessDate, string fileName)
+        {
+            var records = failedRecords.Select(x => new FileException
+            {
+                record = JsonConvert.SerializeObject(x.Value),
+                reference = Convert.ToString(x.Key),
+                businessDate =  businessDate,
+                fileName = fileName
+            }).ToList();
+
+            return records;
         }
 
         private object GetHeader(string headerIndicator, string fileName, string businessDate)
@@ -111,6 +131,30 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 BusinessDate = businessDate,
                 RecordCount = 0
             };
+        }
+
+        private void InsertFailedRecords(List<FileInputDto> files)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    var transaction = connection.BeginTransaction();
+                    List<FileException> exceptionList = new List<FileException>();
+                    foreach (var file in files)
+                    {
+                        exceptionList.AddRange(file.failedRecords);
+                    }
+
+                    new SQLBulkHelper().Insert("file_exception", exceptionList.ToArray(), connection, transaction);
+                    transaction.Commit();
+                }
+            }
+            catch (Exception e)
+            {
+                
+            }
         }
 
         private void InsertActivityAndPositionFilesForSilver(List<FileInputDto> files)
@@ -262,6 +306,16 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var status = fileProcessor.GetFiles();
 
             return status.Count != 0 ? Utils.Wrap(true, status, null) : Utils.Wrap(false);
+        }
+
+        public object GetInvalidExportRecords()
+        {
+            var query = $@"select file_exception_id,[file_name],business_date,reference, record from file_exception order by business_date desc";
+
+            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
+            var jsonResult = JsonConvert.SerializeObject(dataTable);
+            dynamic json = JsonConvert.DeserializeObject(jsonResult);
+            return Utils.Wrap(true,json,null);
         }
     }
 }

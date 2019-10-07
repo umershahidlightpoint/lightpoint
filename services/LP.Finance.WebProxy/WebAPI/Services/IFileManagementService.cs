@@ -11,5 +11,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object DownloadFiles();
         object GetS3Files();
         object UpdateFileAction(FileActionInputDto input);
+        object GetInvalidExportRecords();
     }
 }

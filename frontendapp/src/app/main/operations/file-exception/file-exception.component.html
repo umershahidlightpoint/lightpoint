@@ -1,7 +1,3 @@
-<!----- Tab View Starts ----->
-<p-tabView>
-  <!----- Journal Tab Starts ----->
-  <p-tabPanel header="Grid Views">
     <!----- Grid View Div Starts ----->
     <div [ngStyle]="styleForHeight" style="display: flex">
       <!----- AG Grid Starts ----->
@@ -14,23 +10,13 @@
           container="body">
           <i class="fa fa-lg fa-eye" aria-hidden="true"></i>
         </button>
-        <button class="btn action-btn fixHeight" (click)="showConfirmation(row)" tooltip="Delete" placement="auto"
-          container="body">
-          <i class="fa fa-lg fa-trash-o" aria-hidden="true"></i>
-        </button>
       </ng-template>
       <!----- Action buttons Template Ends ----->
 
       <!----- Grid Layout Json Div Starts ----->
-      <div *ngIf="gridLayoutJson" class="json-viewer-border">
-        <pre>{{gridLayoutJson | json}}</pre>
+      <div *ngIf="invalidRecordJson" class="json-viewer-border">
+        <pre>{{invalidRecordJson | json}}</pre>
       </div>
       <!----- Grid Layout Json Div Ends ----->
 
     </div>
-    <!----- Grid View Div Ends ----->
-  </p-tabPanel>
-</p-tabView>
-<!----- Tab Views Ends ----->
-
-<app-confirmation-modal #confirmationModal (confirmDeletion)="deleteLayout()"> </app-confirmation-modal>

@@ -39,7 +39,8 @@ namespace LP.FileProcessing.S3
         {
             AmazonS3Config config = new AmazonS3Config
             {
-                RegionEndpoint = endpoint
+                RegionEndpoint = endpoint,
+                ForcePathStyle = true,
             };
             /*
             var username = "dlattimore@lightpointft.com";
@@ -151,6 +152,7 @@ namespace LP.FileProcessing.S3
             };
 
             var s3Client = new AmazonS3Client(config);
+
             List<object> files = new List<object>();
 
             try

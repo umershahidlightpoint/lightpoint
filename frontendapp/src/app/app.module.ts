@@ -78,6 +78,8 @@ import { TradesComponent } from './main/trades/trades.component';
 import { LayoutsComponent } from './main/layouts/layouts.component';
 import { ConfirmationModalComponent } from '../shared/Component/confirmation-modal/confirmation-modal.component';
 import { ReportGridComponent } from './main/reports/report-grid/report-grid.component';
+import { GridUtilsComponent } from '../shared/Component/grid-utils/grid-utils.component';
+import { FileExceptionComponent } from './main/operations/file-exception/file-exception.component';
 
 @NgModule({
   declarations: [
@@ -114,7 +116,9 @@ import { ReportGridComponent } from './main/reports/report-grid/report-grid.comp
     ConfirmationModalComponent,
     TradesComponent,
     LayoutsComponent,
-    ReportGridComponent
+    ReportGridComponent,
+    GridUtilsComponent,
+    FileExceptionComponent
   ],
   imports: [
     BrowserModule,

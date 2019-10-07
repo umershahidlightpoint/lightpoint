@@ -80,6 +80,7 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
       },
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
+
         // params.api.sizeColumnsToFit();
       },
       suppressColumnVirtualisation: true,

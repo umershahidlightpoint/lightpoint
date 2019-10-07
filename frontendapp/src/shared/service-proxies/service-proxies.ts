@@ -484,4 +484,9 @@ export class FinancePocServiceProxy {
     const url = this.baseUrl + '/fileManagement/silverEndOfDay';
     return this.http.post(url, body).pipe(map((response: any) => response));
   }
+
+  getInvalidExportRecords() : Observable<any> {
+    const url = this.baseUrl + '/fileManagement/FileExportException';
+    return this.http.get(url);
+  }
 }

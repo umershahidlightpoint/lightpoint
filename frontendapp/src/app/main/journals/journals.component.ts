@@ -47,8 +47,9 @@ export class JournalsComponent implements OnInit {
         // this.gridOptions.api.sizeColumnsToFit();
       },
       onFirstDataRendered: params => {
-        // params.api.sizeColumnsToFit();
         AutoSizeAllColumns(params);
+
+        // params.api.sizeColumnsToFit();
       },
       suppressColumnVirtualisation: true,
       enableFilter: true,
