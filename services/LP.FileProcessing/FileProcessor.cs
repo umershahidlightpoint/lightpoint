@@ -6,7 +6,6 @@ using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using LP.FileProcessing.S3;
 
 /*
 * Start of a common library for generating and consuming files
@@ -21,7 +20,8 @@ namespace LP.FileProcessing
         {
             int recordCount;
             var schema = Utils.GetFile<SilverFileFormat>(fileName, "FileFormats");
-            List<dynamic> record = MapFileRecord(recordList, schema.record, identifierForFailedRecords, out failedRecords, out recordCount);
+            List<dynamic> record = MapFileRecord(recordList, schema.record, identifierForFailedRecords,
+                out failedRecords, out recordCount);
             List<dynamic> header = MapFileSection(headerObj, schema.header, recordCount + 2);
             List<dynamic> trailer = MapFileSection(trailerObj, schema.trailer, recordCount + 2);
             WritePipe(record, header, trailer, path, schema);
@@ -35,7 +35,8 @@ namespace LP.FileProcessing
             return resp;
         }
 
-        private List<dynamic> MapFileRecord<T>(IEnumerable<T> transactionList, List<FileProperties> schema, string identifierForFailedRecords, out Dictionary<object, dynamic> failedRecords, out int records)
+        private List<dynamic> MapFileRecord<T>(IEnumerable<T> transactionList, List<FileProperties> schema,
+            string identifierForFailedRecords, out Dictionary<object, dynamic> failedRecords, out int records)
         {
             List<dynamic> sectionList = new List<dynamic>();
             failedRecords = new Dictionary<object, dynamic>();
@@ -78,12 +79,13 @@ namespace LP.FileProcessing
             dynamic obj;
             dynamic failedFields;
             bool valid;
-            MapItem(schema, item, out obj,out failedFields, out valid, recordCount);
+            MapItem(schema, item, out obj, out failedFields, out valid, recordCount);
             sectionList.Add(obj);
             return sectionList;
         }
 
-        private void MapItem(List<FileProperties> schema, object item, out dynamic obj, out dynamic failedFields, out bool successful, int recordCount = 0)
+        private void MapItem(List<FileProperties> schema, object item, out dynamic obj, out dynamic failedFields,
+            out bool successful, int recordCount = 0)
         {
             successful = true;
             failedFields = new ExpandoObject();
@@ -97,13 +99,14 @@ namespace LP.FileProcessing
                 bool isValid = true;
 
                 // for format validation
-                if (!String.IsNullOrEmpty(map.Function) && !String.IsNullOrEmpty(map.Format) && !String.IsNullOrEmpty(map.Type))
+                if (!String.IsNullOrEmpty(map.Function) && !String.IsNullOrEmpty(map.Format) &&
+                    !String.IsNullOrEmpty(map.Type))
                 {
                     Type thisType = this.GetType();
                     MethodInfo theMethod = thisType.GetMethod(map.Function);
                     object[] parametersArray = {value, map.Format, map.Type, valid};
                     var val = theMethod.Invoke(this, parametersArray);
-                    isValid = (bool)parametersArray[3];
+                    isValid = (bool) parametersArray[3];
                     var returnType = theMethod.ReturnType;
                     if (returnType != typeof(void))
                     {
@@ -116,9 +119,9 @@ namespace LP.FileProcessing
                 {
                     Type thisType = this.GetType();
                     MethodInfo theMethod = thisType.GetMethod(map.Function);
-                    object[] parametersArray = { value, valid};
+                    object[] parametersArray = {value, valid};
                     var val = theMethod.Invoke(this, parametersArray);
-                    isValid = (bool)parametersArray[1];
+                    isValid = (bool) parametersArray[1];
                     var returnType = theMethod.ReturnType;
                     if (returnType != typeof(void))
                     {
@@ -143,6 +146,7 @@ namespace LP.FileProcessing
                     failedMetaData.Add(map);
                 }
             }
+
             if (!successful)
             {
                 AddProperty(failedFields, "MetaData", failedMetaData);
@@ -267,37 +271,19 @@ namespace LP.FileProcessing
             }
         }
 
-        // Uploading Files to AWS S3 Bucket
-        public bool UploadFile(string path)
-        {
-            return S3Endpoint.Upload(path);
-        }
-
-        // Downloading Files from AWS S3 Bucket
-        public bool DownloadFile(string path)
-        {
-            return S3Endpoint.Download(path);
-        }
-
-        // List of Files from AWS S3 Bucket
-        public List<object> GetFiles()
-        {
-            return S3Endpoint.List();
-        }
-
         #region Helper Functions for data pre-processing
 
         public object GetDate(object value, string format, string type, out bool valid)
         {
             valid = true;
-            var date = (DateTime)value;
+            var date = (DateTime) value;
             return date.ToString(format);
         }
-        
+
         public object LongShortConversion(object value, out bool valid)
         {
             valid = true;
-            var position = (string)value;
+            var position = (string) value;
             if (position != null)
             {
                 if (position.ToLower() == "long")
@@ -323,7 +309,7 @@ namespace LP.FileProcessing
         public void CheckFormat(object value, string format, string type, out bool valid)
         {
             valid = true;
-            if(type == "decimal")
+            if (type == "decimal")
             {
                 string val = Convert.ToString(value);
                 string[] parsedVal = val.Split('.');
@@ -331,16 +317,17 @@ namespace LP.FileProcessing
                 int wholeNumberLength = Convert.ToInt32(numeric[0]);
                 int decimalNumberLength = Convert.ToInt32(numeric[1]);
                 int validWholeNumber = wholeNumberLength - decimalNumberLength;
-                
-                if((parsedVal.ElementAtOrDefault(0) != null && parsedVal.ElementAt(0).Length > validWholeNumber) || (parsedVal.ElementAtOrDefault(1) != null && parsedVal.ElementAt(1).Length > decimalNumberLength))
+
+                if ((parsedVal.ElementAtOrDefault(0) != null && parsedVal.ElementAt(0).Length > validWholeNumber) ||
+                    (parsedVal.ElementAtOrDefault(1) != null && parsedVal.ElementAt(1).Length > decimalNumberLength))
                 {
                     valid = false;
                     return;
                 }
             }
-            else if(type == "char")
+            else if (type == "char")
             {
-                string val = (string)value;
+                string val = (string) value;
                 if (val != null)
                 {
                     int length = Convert.ToInt32(format);
@@ -352,6 +339,7 @@ namespace LP.FileProcessing
                 }
             }
         }
+
         #endregion
     }
 }
