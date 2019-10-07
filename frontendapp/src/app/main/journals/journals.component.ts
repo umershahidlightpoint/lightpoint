@@ -41,6 +41,9 @@ export class JournalsComponent implements OnInit {
       columnDefs: this.columnDefs,
       //onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      getExternalFilterState: () => {
+        return {};
+      },
       onGridReady: () => {
         // this.gridOptions.api.sizeColumnsToFit();
       },

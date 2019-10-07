@@ -8,6 +8,7 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { TemplateRendererComponent } from 'src/app/template-renderer/template-renderer.component';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-file-exception',
@@ -20,6 +21,7 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
   isEngineRunning = false;
   hideGrid = false;
   gridOptions: GridOptions;
+  detailCellRendererParams;
   gridLayouts: any;
   rowData: any;
   selectedLayout = null;
@@ -30,12 +32,12 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
     private financeService: FinancePocServiceProxy,
     private toastrService: ToastrService,
     private dataService: DataService
-  ) {
-    this.initGrid();
+  ) { 
   }
 
   ngOnInit() {
     // this.isEngineRunning = this.postingEngineService.getStatus();
+    this.initGrid();
   }
 
   ngAfterViewInit() {
@@ -50,7 +52,6 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      sideBar: SideBar,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       pinnedBottomRowData: null,
       rowGroupPanelShow: 'after',
@@ -58,6 +59,30 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
       suppressColumnVirtualisation: true,
+      masterDetail : true,
+      detailCellRendererParams: {
+        detailGridOptions: {
+          columnDefs: [
+            { field: "referenceNumber" },
+            { field: "rowNumber"},
+            {
+              headerName: 'Actions',
+              cellRendererFramework: TemplateRendererComponent,
+              cellRendererParams: {
+                ngTemplate: this.actionButtons
+              }
+            }
+          ],
+          onFirstDataRendered(params) {
+            params.api.sizeColumnsToFit();
+          }
+        },
+        getDetailRowData: function(params) {
+          params.successCallback(params.data.exceptionList);
+        }
+      getExternalFilterState: () => {
+        return {};
+      },
       onGridReady: params => {},
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
@@ -80,6 +105,8 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
     );
   }
 
+  
+
   customizeColumns() {
     const colDefs = [
       {
@@ -89,22 +116,20 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
       },
       {
         field: 'fileName',
-        headerName: 'File Name'
+        headerName: 'File Name',
+        cellRenderer: "agGroupCellRenderer"
       },
       {
         field: 'businessDate',
         headerName: 'Business Date'
       },
       {
-        field: 'reference',
-        headerName: 'Reference'
+        field: 'source',
+        headerName: 'Source'
       },
       {
-        headerName: 'Actions',
-        cellRendererFramework: TemplateRendererComponent,
-        cellRendererParams: {
-          ngTemplate: this.actionButtons
-        }
+        field: 'exceptionCount',
+        headerName: 'Count'
       }
     ];
     this.gridOptions.api.setColumnDefs(colDefs);
@@ -119,11 +144,17 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
           if (resp.isSuccessful) {
             this.gridLayouts = resp.payload;
             this.rowData = resp.payload.map(data => ({
-              id: data.file_exception_id,
-              fileName: data.file_name,
-              businessDate: data.business_date,
-              reference: data.reference,
-              record: data.record
+              fileId: data.FileId,
+              fileExceptionId: data.FileExceptionId,
+              fileName: data.FileName,
+              source: data.Source,
+              businessDate: moment(data.BusinessDate).format('YYYY-MM-DD'),
+              exceptionCount: data.Exceptions,
+              exceptionList: data.ExceptionList.map(d => ({
+                referenceNumber : d.Reference,
+                rowNumber: JSON.parse(d.Record).RowNumber,
+                record: d.Record
+              }))
             }));
           }
           this.gridOptions.api.setRowData(this.rowData);

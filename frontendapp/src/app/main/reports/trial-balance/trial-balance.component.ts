@@ -81,7 +81,6 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      // sideBar: SideBar(8),
       pinnedBottomRowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onFilterChanged: this.onFilterChanged.bind(this),
@@ -256,7 +255,6 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
     const { dateFilter } = object;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
     this.setDateRange(dateFilter);
-
     this.gridOptions.api.onFilterChanged();
   }
 
@@ -269,7 +267,13 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
   getExternalFilterState() {
     return {
       fundFilter: this.fund,
-      dateFilter: { startDate: this.startDate, endDate: this.endDate }
+      dateFilter:
+        this.DateRangeLabel !== ''
+          ? this.DateRangeLabel
+          : {
+              startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
+              endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
+            }
     };
   }
 

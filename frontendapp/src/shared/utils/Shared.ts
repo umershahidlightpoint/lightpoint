@@ -191,6 +191,7 @@ export const GetDateRangeLabel = (startDate, endDate) => {
   if (moment().diff(startDate, 'days') === 0 && moment().diff(endDate, 'days') === 0) {
     return 'Today';
   }
+  return '';
 };
 
 export const SetDateRange = (dateFilter, startDate, endDate) => {
