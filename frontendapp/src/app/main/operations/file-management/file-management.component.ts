@@ -134,8 +134,9 @@ export class FileManagementComponent implements OnInit, OnDestroy {
       suppressHorizontalScroll: false,
       suppressColumnVirtualisation: true
     } as GridOptions;
-    this.dataService.changeMessage(this.filesGridOptions);
-    this.dataService.changeGrid({ gridId: GridId.filesId, gridName: GridName.files });
+    this.filesGridOptions.sideBar = SideBar(GridId.filesId, GridName.files, this.filesGridOptions);
+    // this.dataService.changeMessage(this.filesGridOptions);
+    // this.dataService.changeGrid({ gridId: GridId.filesId, gridName: GridName.files });
   }
 
   private getFiles() {

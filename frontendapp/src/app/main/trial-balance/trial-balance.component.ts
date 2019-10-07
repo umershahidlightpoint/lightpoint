@@ -108,21 +108,19 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
         this.getTrialBalance();
       }
     });
-    this.dataService.gridColumnApi$.subscribe(obj => (obj = this.gridOptions));
-    this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid({ gridId: GridId.trailBalanceId, gridName: GridName.trailBalance });
   }
 
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      sideBar: SideBar,
+      sideBar: SideBar(2, '', null),
       pinnedBottomRowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onCellDoubleClicked: this.openModal.bind(this),
       onFilterChanged: this.onFilterChanged.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
+      getExternalFilterState: this.getExternalFilterState.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       clearExternalFilter: this.clearFilters.bind(this),
       rowSelection: 'single',
@@ -149,6 +147,11 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
         filter: true
       }
     } as GridOptions;
+    this.gridOptions.sideBar = SideBar(
+      GridId.trailBalanceId,
+      GridName.trailBalance,
+      this.gridOptions
+    );
   }
 
   openModal(row) {
@@ -497,7 +500,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
           }
         ];
         this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
-
         this.gridOptions.api.expandAll();
 
         AutoSizeAllColumns(this.gridOptions);
@@ -512,6 +514,13 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   getRangeLabel() {
     this.DateRangeLabel = '';
     this.DateRangeLabel = GetDateRangeLabel(this.startDate, this.endDate);
+  }
+
+  getExternalFilterState() {
+    return {
+      fundFilter: this.fund,
+      dateFilter: { startDate: this.startDate, endDate: this.endDate }
+    };
   }
 
   setWidthAndHeight(width, height) {
@@ -554,16 +563,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
 
   isExternalFilterPresent() {
     if (this.fund !== 'All Funds' || this.startDate) {
-      this.dataService.setExternalFilter({
-        fundFilter: this.fund,
-        dateFilter:
-          this.DateRangeLabel !== ''
-            ? this.DateRangeLabel
-            : {
-                startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
-                endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
-              }
-      });
       return true;
     }
   }

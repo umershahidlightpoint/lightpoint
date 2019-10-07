@@ -102,8 +102,8 @@ export class TradesComponent implements OnInit, AfterViewInit {
         this.getTrades();
       }
     });
-    this.dataService.changeMessage(this.gridOptions);
-    this.dataService.changeGrid({ gridId: GridId.tradeId, gridName: GridName.trade });
+    // this.dataService.changeMessage(this.gridOptions);
+    // this.dataService.changeGrid({ gridId: GridId.tradeId, gridName: GridName.trade });
   }
 
   ngOnInit() {
@@ -178,7 +178,6 @@ export class TradesComponent implements OnInit, AfterViewInit {
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      sideBar: SideBar,
       columnDefs: this.columnDefs,
       onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
@@ -203,6 +202,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
       alignedGrids: [],
       suppressHorizontalScroll: false
     } as GridOptions;
+    this.gridOptions.sideBar = SideBar(GridId.tradeId, GridName.trade, this.gridOptions);
   }
 
   onRowSelected(event) {
