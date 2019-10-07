@@ -140,6 +140,9 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
     this.gridOptions = {
       rowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      getExternalFilterState: () => {
+        return {};
+      },
       pinnedBottomRowData: null,
       clearExternalFilter: () => {},
       rowSelection: 'single',

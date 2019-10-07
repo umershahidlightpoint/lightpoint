@@ -102,8 +102,6 @@ export class TradesComponent implements OnInit, AfterViewInit {
         this.getTrades();
       }
     });
-    // this.dataService.changeMessage(this.gridOptions);
-    // this.dataService.changeGrid({ gridId: GridId.tradeId, gridName: GridName.trade });
   }
 
   ngOnInit() {
@@ -182,6 +180,9 @@ export class TradesComponent implements OnInit, AfterViewInit {
       onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       getContextMenuItems: this.getContextMenuItems.bind(this),
+      getExternalFilterState: () => {
+        return {};
+      },
       onGridReady: params => {
         this.gridOptions.api = params.api;
         this.gridOptions.columnApi = params.columnApi;

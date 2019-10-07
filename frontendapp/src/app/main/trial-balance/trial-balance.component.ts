@@ -113,7 +113,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      sideBar: SideBar(2, '', null),
       pinnedBottomRowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onCellDoubleClicked: this.openModal.bind(this),
@@ -519,7 +518,13 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   getExternalFilterState() {
     return {
       fundFilter: this.fund,
-      dateFilter: { startDate: this.startDate, endDate: this.endDate }
+      dateFilter:
+        this.DateRangeLabel !== ''
+          ? this.DateRangeLabel
+          : {
+              startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
+              endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
+            }
     };
   }
 
@@ -556,7 +561,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   isExternalFilterPassed(object) {
     const { fundFilter } = object;
     const { dateFilter } = object;
-    this.fund = fundFilter !== undefined ? fundFilter : this.fund;
+    this.fund = fundFilter !== null ? fundFilter : this.fund;
     this.setDateRange(dateFilter);
     this.gridOptions.api.onFilterChanged();
   }

@@ -50,7 +50,6 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      sideBar: SideBar,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       pinnedBottomRowData: null,
       rowGroupPanelShow: 'after',
@@ -58,6 +57,9 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
       suppressColumnVirtualisation: true,
+      getExternalFilterState: () => {
+        return {};
+      },
       onGridReady: params => {},
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);

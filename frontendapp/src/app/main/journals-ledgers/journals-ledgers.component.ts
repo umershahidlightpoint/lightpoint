@@ -110,7 +110,9 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     private downloadExcelUtils: DownloadExcelUtils
   ) {
     this.hideGrid = false;
+    this.DateRangeLabel = '';
     this.initGird();
+    console.log(' DateRangeLabel ', this.DateRangeLabel);
   }
 
   ngOnInit() {
@@ -118,7 +120,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   }
 
   initGird() {
-    //this.neGridLayoutMenuComponent= new  GridLayoutMenuComponent();
     this.gridOptions = {
       rowData: null,
       onCellDoubleClicked: this.openDataModal.bind(this),
@@ -516,7 +517,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
     this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
     this.setDateRange(dateFilter);
-
     this.gridOptions.api.onFilterChanged();
   }
 
@@ -623,7 +623,13 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     return {
       fundFilter: this.fund,
       symbolFilter: this.filterBySymbol,
-      dateFilter: { startDate: this.startDate, endDate: this.endDate }
+      dateFilter:
+        this.DateRangeLabel !== ''
+          ? this.DateRangeLabel
+          : {
+              startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
+              endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
+            }
     };
   }
 

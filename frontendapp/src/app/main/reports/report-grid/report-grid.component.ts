@@ -10,6 +10,7 @@ import {
 import { GridOptions } from 'ag-grid-community';
 import { CommaSeparatedFormat } from 'src/shared/utils/Shared';
 import { TrialBalanceReport, TrialBalanceReportStats } from 'src/shared/Models/trial-balance';
+import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 
 @Component({
   selector: 'app-report-grid',
@@ -60,14 +61,14 @@ export class ReportGridComponent implements OnInit, OnChanges, OnDestroy {
   async initGrid() {
     this.gridOptions = {
       rowData: null,
-      // sideBar: SideBar,
       pinnedBottomRowData: null,
-      // frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       // onFilterChanged: this.onFilterChanged.bind(this),
       // isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       // isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       // doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       // clearExternalFilter: this.clearFilters.bind(this),
+      
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
