@@ -17,7 +17,7 @@ namespace PostingEngine
             Messages = new Dictionary<string, int>();
 
             Journals = new List<Journal>();
-            TaxLots = new Dictionary<string, TaxLotStatus>();
+            TaxLotStatus = new Dictionary<string, TaxLotStatus>();
         }
 
         public string BaseCurrency { get; set; }
@@ -32,7 +32,7 @@ namespace PostingEngine
         public Transaction[] Trades { get; set; }
         public Dictionary<string, Accrual> Accruals { get; set; }
 
-        public Dictionary<string, TaxLotStatus> TaxLots { get; private set; }
+        public Dictionary<string, TaxLotStatus> TaxLotStatus { get; private set; }
         public bool IsValidAccrual(string accrualId)
         {
             return Accruals.ContainsKey(accrualId);
@@ -41,13 +41,15 @@ namespace PostingEngine
         public List<Journal> Journals { get; set; }
         public Dictionary<string, FxRate> FxRates { get; set; }
 
-        // Map of Product type to IPostingRule
+        // Map of Product type to IPostingRule, now we can run each of these in parellel, once we have the data
+        // which is readonly we can spin up a number of Tasks, each responsible for processing the right product
+        // type, keep the commits to the database towards the end
         public Dictionary<string, IPostingRule> rules = new Dictionary<string, IPostingRule>
         {
             {"Common Stock", new CommonStock() },
+            {"Journals", new FakeJournals() }
             //{"Cross", new Cross() },
-            // {"Cash", new Cash() },
-            //{"Journals", new FakeJournals() }
+            //{"Cash", new Cash() },
         };
 
         public SqlConnection Connection { get; private set; }

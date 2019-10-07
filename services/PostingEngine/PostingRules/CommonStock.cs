@@ -185,7 +185,7 @@ namespace PostingEngine.PostingRules
                 var tl = new TaxLotStatus {
                     BusinessDate = element.TradeDate,
                     Symbol = element.Symbol, OpenId = element.LpOrderId, Status = "OpenLot", Quantity = element.Quantity };
-                env.TaxLots.Add(element.LpOrderId, tl);
+                env.TaxLotStatus.Add(element.LpOrderId, tl);
 
                 //tl.Save(env.Connection, env.Transaction);
             }
@@ -208,19 +208,21 @@ namespace PostingEngine.PostingRules
                         if (workingQuantity == 0)
                             break;
 
-                        if ( !env.TaxLots.ContainsKey(lot.LpOrderId))
+                        if ( !env.TaxLotStatus.ContainsKey(lot.LpOrderId))
                         {
                             // What when wrong here
                             continue;
                         }
 
-                        var taxlotStatus = env.TaxLots[lot.LpOrderId];
+                        var taxlotStatus = env.TaxLotStatus[lot.LpOrderId];
                         if (taxlotStatus != null && taxlotStatus.Quantity > 0)
                         {
                             // Does the open Lot fully fullfill the quantity ?
                             if (taxlotStatus.Quantity >= workingQuantity)
                             {
-                                new TaxLot { BusinessDate = env.ValueDate, OpeningLotId = lot.LpOrderId, ClosingLotId = element.LpOrderId, Quantity = workingQuantity };
+                                var tl = new TaxLot { BusinessDate = env.ValueDate, OpeningLotId = lot.LpOrderId, ClosingLotId = element.LpOrderId, Quantity = workingQuantity };
+                                tl.Save(env.Connection, env.Transaction);
+
                                 taxlotStatus.Quantity -= workingQuantity;
                                 if (taxlotStatus.Quantity == 0)
                                     taxlotStatus.Status = "Closed";
@@ -231,7 +233,8 @@ namespace PostingEngine.PostingRules
                             }
                             else
                             {
-                                new TaxLot { BusinessDate = env.ValueDate, OpeningLotId = lot.LpOrderId, ClosingLotId = element.LpOrderId, Quantity = Math.Abs(taxlotStatus.Quantity) };
+                                var tl = new TaxLot { BusinessDate = env.ValueDate, OpeningLotId = lot.LpOrderId, ClosingLotId = element.LpOrderId, Quantity = Math.Abs(taxlotStatus.Quantity) };
+                                tl.Save(env.Connection, env.Transaction);
                                 workingQuantity -= Math.Abs(taxlotStatus.Quantity);
                                 taxlotStatus.Quantity = 0;
                                 taxlotStatus.Status = "Closed";

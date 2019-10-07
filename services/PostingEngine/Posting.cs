@@ -201,14 +201,14 @@ namespace PostingEngine
                 PostingEngineCallBack?.Invoke("Posting Engine Started");
 
                 // Cleanout all data
+                PostingEngineCallBack?.Invoke("Cleanup");
                 Cleanup(connection, period);
 
                 // Setup key data tables
+                PostingEngineCallBack?.Invoke("Preload Data");
                 Setup(connection);
 
-                AccountCategory.Load(connection);
-                Tag.Load(connection);
-
+                PostingEngineCallBack?.Invoke("Getting Trade / Allocation / Accruals");
                 var transaction = connection.BeginTransaction();
                 var sw = new Stopwatch();
 
@@ -385,17 +385,19 @@ namespace PostingEngine
 
             while (valueDate <= endDate)
             {
+                var sw = new Stopwatch();
+                sw.Start();
+
                 postingEnv.ValueDate = valueDate;
                 postingEnv.FxRates = new FxRates().Get(valueDate);
+                //PostingEngineCallBack?.Invoke($"Pulled FxRates {valueDate} in {sw.ElapsedMilliseconds} ms");
 
                 var tradeData = postingEnv.Trades.Where(i => i.TradeDate <= valueDate).OrderBy(i => i.TradeDate.Date).ToList();
 
+                //PostingEngineCallBack?.Invoke($"Sorted / Filtered Trades in {sw.ElapsedMilliseconds} ms");
+
                 foreach (var element in tradeData)
                 {
-                    if ( element.LpOrderId.Equals("8b5ddd84-8656-4b30-afc0-cfd472d260ba"))
-                    {
-                        // Need to break here
-                    }
                     // We only process trades that have not broken
                     if (ignoreTrades.Contains(element.LpOrderId))
                         continue;
@@ -424,8 +426,9 @@ namespace PostingEngine
                     // Do not want them to be double posted
                     postingEnv.Journals.Clear();
                 }
+                sw.Stop();
 
-                PostingEngineCallBack?.Invoke($"Completed {valueDate}", totalDays, daysProcessed++);
+                PostingEngineCallBack?.Invoke($"Completed {valueDate} in {sw.ElapsedMilliseconds} ms", totalDays, daysProcessed++);
                 valueDate = valueDate.AddDays(1);
             }
 
@@ -436,24 +439,27 @@ namespace PostingEngine
                 Action = $"Processed # {postingEnv.Trades.Count()} transactions", ActionOn = DateTime.Now
             }.Save(connection, transaction);
 
+            if (postingEnv.TaxLotStatus.Count() > 0)
+            {
+                // TO DO
+                new SQLBulkHelper().Insert("tax_lot_status", postingEnv.TaxLotStatus.Values.ToArray(), connection, transaction);
+
+                // Do not want them to be double posted
+                postingEnv.TaxLotStatus.Clear();
+            }
+
             return postingEnv.Trades.Count();
         }
 
+        /// <summary>
+        /// Preload data into the system
+        /// </summary>
+        /// <param name="connection"></param>
         private static void Setup(SqlConnection connection)
         {
-            // Pre load AccountCategory and AccountType
-            var categories = AccountCategory.Load(connection);
-            var accountTypes = AccountType.Load(connection);
-
-            /*
-            var transaction = connection.BeginTransaction();
-            new Tag { TypeName = "Transaction", PropertyName = "SecurityType", PkName = "unknown" }.Save(connection, transaction);
-            new Tag { TypeName = "Transaction", PropertyName = "Symbol", PkName = "unknown" }.Save(connection, transaction);
-            new Tag { TypeName = "Transaction", PropertyName = "CustodianCode", PkName = "unknown" }.Save(connection, transaction);
-            new Tag { TypeName = "Transaction", PropertyName = "Fund", PkName = "unknown" }.Save(connection, transaction);
-            new Tag { TypeName = "Transaction", PropertyName = "ExecutionBroker", PkName = "unknown" }.Save(connection, transaction);
-            transaction.Commit();
-            */
+            AccountCategory.Load(connection);
+            AccountType.Load(connection);
+            Tag.Load(connection);
         }
 
         /// <summary>

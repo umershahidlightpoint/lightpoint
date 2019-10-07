@@ -21,7 +21,7 @@ namespace ConsoleApp1
             ITD();
 
             // Then Cost Basis
-            // CostBasis();
+            CostBasis();
         }
 
         static void SingleTrade()
