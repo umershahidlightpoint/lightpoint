@@ -5,14 +5,16 @@
       "destination": "Header_Indicator",
       "required": true,
       "function": null,
-      "format": null
+      "format": null,
+      "type":  "char"
     },
     {
       "source": "FileName",
       "destination": "File_Name",
       "required": true,
       "function": null,
-      "format": null
+      "format": null,
+      "type":  "char"
     },
     {
       "source": "BusinessDate",
@@ -29,14 +31,16 @@
       "destination": "Footer_Indicator",
       "required": true,
       "function": null,
-      "format": null
+      "format": null,
+      "type":  "char"
     },
     {
       "source": "FileName",
       "destination": "File_Name",
       "required": true,
       "function": null,
-      "format": null
+      "format": null,
+      "type":  "char"
     },
     {
       "source": "BusinessDate",
@@ -51,7 +55,8 @@
       "destination": "Record_Count",
       "required": true,
       "function": null,
-      "format": null
+      "format": null,
+      "type":  "int"
     }
   ],
   "Record": [
@@ -59,7 +64,7 @@
       "source": "",
       "destination": "Account_ID",
       "required": true,
-      "function": null,
+      "function": "CheckFormat",
       "format": "15",
       "type": "char",
       "offset": 0,
@@ -69,7 +74,7 @@
       "source": "",
       "destination": "Back-Office_Transaction_ID",
       "required": false,
-      "function": null,
+      "function": "CheckFormat",
       "format": "18",
       "type": "char",
       "offset": 1,
@@ -89,7 +94,7 @@
       "source": "",
       "destination": "Security_ID",
       "required": true,
-      "function": "",
+      "function": "CheckFormat",
       "format": "20",
       "type": "char",
       "offset": 3,
@@ -100,12 +105,11 @@
       "source": "",
       "destination": "CUSIP",
       "required": true,
-      "function": "",
+      "function": "CheckFormat",
       "format": "20",
       "type": "char",
       "offset": 4,
-      "rule":
-        "CUSIP for applicable instruments.  May be populated with symbol or SEDOL for instruments without a CUSIP."
+      "rule": "CUSIP for applicable instruments.  May be populated with symbol or SEDOL for instruments without a CUSIP."
     },
     {
       "source": "SecurityCode", // Not sure
@@ -151,7 +155,7 @@
       "source": "",
       "destination": "Commission",
       "required": false,
-      "function": "",
+      "function": "CheckFormat",
       "format": "18,6",
       "type": "decimal",
       "offset": 9,
@@ -161,7 +165,7 @@
       "source": "",
       "destination": "Fees",
       "required": false,
-      "function": "",
+      "function": "CheckFormat",
       "format": "18,6",
       "type": "decimal",
       "offset": 10,
@@ -171,7 +175,7 @@
       "source": "",
       "destination": "Net_Cost",
       "required": false,
-      "function": "",
+      "function": "CheckFormat",
       "format": "20,6",
       "type": "decimal",
       "offset": 11,
@@ -191,7 +195,7 @@
       "source": "",
       "destination": "Open_Date",
       "required": false,
-      "function": "",
+      "function": "GetDate",
       "format": "yyyy-MM-dd",
       "type": "date",
       "offset": 13,
@@ -201,7 +205,7 @@
       "source": "",
       "destination": "Settlement_Date",
       "required": false,
-      "function": "",
+      "function": "GetDate",
       "format": "yyyy-MM-dd",
       "type": "date",
       "offset": 14,
@@ -211,7 +215,7 @@
       "source": "",
       "destination": "Back-Office_Post_Date",
       "required": false,
-      "function": "",
+      "function": "GetDate",
       "format": "yyyy-MM-dd",
       "type": "date",
       "offset": 15,
@@ -221,7 +225,7 @@
       "source": "", // startfx
       "destination": "FX_Spot_Rate",
       "required": false,
-      "function": "",
+      "function": "CheckFormat",
       "format": "18,10",
       "type": "decimal",
       "offset": 16,
@@ -231,7 +235,7 @@
       "source": "",
       "destination": "Transaction_Type",
       "required": false,
-      "function": "",
+      "function": "CheckFormat",
       "format": "12",
       "type": "char",
       "offset": 17,
@@ -241,7 +245,7 @@
       "source": "",
       "destination": "Baseline_Date",
       "required": false,
-      "function": "",
+      "function": "GetDate",
       "format": "yyyy-MM-dd",
       "type": "date",
       "offset": 18,

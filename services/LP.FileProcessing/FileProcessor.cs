@@ -28,10 +28,10 @@ namespace LP.FileProcessing
             return record.Count();
         }
 
-        public object ImportFile(string path, string fileName)
+        public object ImportFile(string path, string fileName, out List<dynamic> failedFieldsList, out bool successful)
         {
             var schema = Utils.GetFile<SilverFileFormat>(fileName, "FileFormats");
-            var resp = ExtractPipe(path, schema);
+            var resp = ExtractPipe(path, schema, out failedFieldsList, out successful);
             return resp;
         }
 
@@ -59,7 +59,7 @@ namespace LP.FileProcessing
                     //TODO
                     //Skip the record and store it in a dictionary in order to persist it in the FileException table with an indentifier and a json of all failed fields.
                     var prop = item.GetType().GetProperty(identifierForFailedRecords);
-                    var value = prop != null ? prop.GetValue(item, null) : null;
+                    var value = prop?.GetValue(item, null);
                     if (value != null)
                     {
                         //AddProperty(failedFields, "index", index);
@@ -100,37 +100,54 @@ namespace LP.FileProcessing
                 bool isValid = true;
                 string message = null;
 
-                // for format validation
-                if (!String.IsNullOrEmpty(map.Function) && !String.IsNullOrEmpty(map.Format) &&
-                    !String.IsNullOrEmpty(map.Type))
+                if (map.Required.Equals("true") && value != null)
                 {
-                    Type thisType = this.GetType();
-                    MethodInfo theMethod = thisType.GetMethod(map.Function);
-                    object[] parametersArray = {value, map.Format, map.Type, valid, message};
-                    var val = theMethod.Invoke(this, parametersArray);
-                    isValid = (bool)parametersArray[3];
-                    message = (string)parametersArray[4];
-                    var returnType = theMethod.ReturnType;
-                    if (returnType != typeof(void))
-                    {
-                        value = val;
-                    }
+                    isValid = false;
+                    successful = false;
+                    message = "This is a required field";
                 }
 
-                // for data conversion
-                else if (!String.IsNullOrEmpty(map.Function))
+                else if (!String.IsNullOrEmpty(map.Type))
                 {
-                    Type thisType = this.GetType();
-                    MethodInfo theMethod = thisType.GetMethod(map.Function);
-                    object[] parametersArray = { value, valid, message};
-                    var val = theMethod.Invoke(this, parametersArray);
-                    isValid = (bool)parametersArray[1];
-                    message = (string)parametersArray[2];
-                    var returnType = theMethod.ReturnType;
-                    if (returnType != typeof(void))
+
+                    // for format validation
+                    if (!String.IsNullOrEmpty(map.Function) && !String.IsNullOrEmpty(map.Format) &&
+                        !String.IsNullOrEmpty(map.Type))
                     {
-                        value = val;
+                        Type thisType = this.GetType();
+                        MethodInfo theMethod = thisType.GetMethod(map.Function);
+                        object[] parametersArray = { value, map.Format, map.Type, valid, message };
+                        var val = theMethod.Invoke(this, parametersArray);
+                        isValid = (bool)parametersArray[3];
+                        message = (string)parametersArray[4];
+                        var returnType = theMethod.ReturnType;
+                        if (returnType != typeof(void))
+                        {
+                            value = val;
+                        }
                     }
+
+                    // for data conversion
+                    else if (!String.IsNullOrEmpty(map.Function))
+                    {
+                        Type thisType = this.GetType();
+                        MethodInfo theMethod = thisType.GetMethod(map.Function);
+                        object[] parametersArray = { value, valid, message };
+                        var val = theMethod.Invoke(this, parametersArray);
+                        isValid = (bool)parametersArray[1];
+                        message = (string)parametersArray[2];
+                        var returnType = theMethod.ReturnType;
+                        if (returnType != typeof(void))
+                        {
+                            value = val;
+                        }
+                    }
+                }
+                else
+                {
+                    isValid = false;
+                    successful = false;
+                    message = "Type not specified in meta data definition";
                 }
 
                 if (map.Destination == "Record_Count")
@@ -188,25 +205,29 @@ namespace LP.FileProcessing
             WriteDelimited(items, header, trailer, path, properties, '|');
         }
 
-        public List<dynamic> ExtractPipe(string path, SilverFileFormat properties)
+        public List<dynamic> ExtractPipe(string path, SilverFileFormat properties, out List<dynamic> failedFieldsList, out bool successful)
         {
-            return ExtractDelimited(path, properties, '|');
+            return ExtractDelimited(path, properties, out failedFieldsList, out successful, '|');
         }
 
-        private List<dynamic> ExtractDelimited(string path, SilverFileFormat properties, char v = ',')
+        private List<dynamic> ExtractDelimited(string path, SilverFileFormat properties, out List<dynamic> failedFieldsList, out bool successful, char v = ',')
         {
             var recordDictionary = properties.record.Select((s, i) => new {s, i})
-                .ToDictionary(x => x.i, x => x.s.Destination);
+                .ToDictionary(x => x.i, x => x.s);
             var headerDictionary = properties.record.Select((s, i) => new {s, i})
-                .ToDictionary(x => x.i, x => x.s.Destination);
+                .ToDictionary(x => x.i, x => x.s);
             var trailerDictionary = properties.record.Select((s, i) => new {s, i})
-                .ToDictionary(x => x.i, x => x.s.Destination);
+                .ToDictionary(x => x.i, x => x.s);
+
+            failedFieldsList = new List<dynamic>();
+            successful = true;
 
             //string test = "a|b||c|||d";
             int index = 0;
             var headerProperties = properties.header;
             int recordOffset = headerProperties.FindIndex(x => x.Source == "RECORD_COUNT");
             int? totalRecords = null;
+            string message = null;
             List<dynamic> record = new List<dynamic>();
             List<dynamic> trailer = new List<dynamic>();
             List<dynamic> header = new List<dynamic>();
@@ -214,7 +235,10 @@ namespace LP.FileProcessing
             {
                 int dictionaryIndex = 0;
                 dynamic obj = new ExpandoObject();
+                List<dynamic> objList = new List<dynamic>();
                 var delimited = line.Split(v);
+                bool isValid = true;
+                bool valid = true;
                 foreach (var item in delimited)
                 {
                     if (index == 0)
@@ -224,17 +248,41 @@ namespace LP.FileProcessing
                             totalRecords = Convert.ToInt32(item);
                         }
 
-                        AddProperty(obj, headerDictionary[dictionaryIndex], item);
+                        AddProperty(obj, headerDictionary[dictionaryIndex].Destination, item);
                     }
                     else if (totalRecords.HasValue && index == totalRecords + 1)
                     {
-                        AddProperty(obj, trailerDictionary[dictionaryIndex], item);
+                        AddProperty(obj, trailerDictionary[dictionaryIndex].Destination, item);
                     }
                     else
                     {
-                        AddProperty(obj, recordDictionary[dictionaryIndex], item);
+                        if (String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Type))
+                        {
+                            isValid = false;
+                            message = "Type not specified in meta data definition";
+                        }
+                        else if(!String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Function) && !String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Format))
+                        {
+                            Type thisType = this.GetType();
+                            MethodInfo theMethod = thisType.GetMethod(recordDictionary[dictionaryIndex].Function);
+                            object[] parametersArray = { item, recordDictionary[dictionaryIndex].Format, recordDictionary[dictionaryIndex].Type, valid, message };
+                            var val = theMethod.Invoke(this, parametersArray);
+                            isValid = (bool)parametersArray[3];
+                            message = (string)parametersArray[4];
+                        }
+                        AddProperty(obj, recordDictionary[dictionaryIndex].Destination, item);
                     }
 
+                    if (!isValid)
+                    {
+                        successful = false;
+                        dynamic failedFields = new ExpandoObject();
+                        AddProperty(failedFields, "Name", recordDictionary[dictionaryIndex].Destination);
+                        AddProperty(failedFields, "Value", item);
+                        AddProperty(failedFields, "Message", message);
+                        AddProperty(failedFields, "MetaData", recordDictionary[dictionaryIndex]);
+                        objList.Add(failedFields);
+                    }
                     dictionaryIndex++;
                 }
 
@@ -251,6 +299,10 @@ namespace LP.FileProcessing
                     record.Add(obj);
                 }
 
+                if (objList.Count > 0)
+                {
+                    failedFieldsList.Add(objList);
+                }
                 index++;
             }
 
@@ -286,8 +338,15 @@ namespace LP.FileProcessing
         {
             exception = null;
             valid = true;
-            var date = (DateTime) value;
-            return date.ToString(format);
+            if (value != null)
+            {
+                var date = (DateTime)value;
+                return date.ToString(format);
+            }
+            else
+            {
+                return null;
+            }
         }
         
         public object LongShortConversion(object value, out bool valid, out string exception)
@@ -334,13 +393,13 @@ namespace LP.FileProcessing
                 if(parsedVal.ElementAtOrDefault(0) != null && parsedVal.ElementAt(0).Length > validWholeNumber)
                 {
                     valid = false;
-                    exception = "Whole number part contains " + $"{parsedVal.ElementAt(0).Length} digits. Only {validWholeNumber} digits are allowed";
+                    exception = "Whole number part contains " + $"{parsedVal.ElementAt(0).Length} digit(s). Only {validWholeNumber} digit(s) are allowed";
                     return;
                 }
                 else if (parsedVal.ElementAtOrDefault(1) != null && parsedVal.ElementAt(1).Length > decimalNumberLength)
                 {
                     valid = false;
-                    exception = "Decimal part contains " + $"{parsedVal.ElementAt(1).Length} digits. Only {decimalNumberLength} digits are allowed";
+                    exception = "Decimal part contains " + $"{parsedVal.ElementAt(1).Length} digit(s). Only {decimalNumberLength} digit(s) are allowed";
                     return;
                 }
             }
@@ -352,7 +411,7 @@ namespace LP.FileProcessing
                     int length = Convert.ToInt32(format);
                     if (val.Length > length)
                     {
-                        exception = "Value contains " + $"{val.Length} characters. Only {length} characters are allowed";
+                        exception = "Value contains " + $"{val.Length} character(s). Only {length} character(s) are allowed";
                         valid = false;
                         return;
                     }

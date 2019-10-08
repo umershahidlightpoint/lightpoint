@@ -91,7 +91,7 @@
     {
       "source": "REC_TYPE",
       "destination": "REC_TYPE",
-      "function": null,
+      "function": "CheckFormat",
       "format": "1",
       "type": "char",
       "rule": "[R]",
@@ -100,7 +100,7 @@
     {
       "source": "OPEN_TAGNO",
       "destination": "OPEN_TAGNO",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18",
       "type": "char",
       "rule": "TN0000000000123456",
@@ -109,7 +109,7 @@
     {
       "source": "OPEN_SUBLOT_SEQNO",
       "destination": "OPEN_SUBLOT_SEQNO",
-      "function": null,
+      "function": "CheckFormat",
       "format": "5",
       "type": "int",
       "rule": "1",
@@ -118,7 +118,7 @@
     {
       "source": "OPEN_SUBLOT_ID",
       "destination": "OPEN_SUBLOT_ID",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18",
       "type": "char",
       "rule": "OS0000000000123456",
@@ -127,7 +127,7 @@
     {
       "source": "ACCT_ID",
       "destination": "ACCT_ID",
-      "function": null,
+      "function": "CheckFormat",
       "format": "10",
       "type": "char",
       "rule": "1234567890",
@@ -136,7 +136,7 @@
     {
       "source": "SUBACCT_TYPE",
       "destination": "SUBACCT_TYPE",
-      "function": null,
+      "function": "CheckFormat",
       "format": "1",
       "type": "int",
       "rule": "[1,2,3,4,5,6,7,8,9]",
@@ -145,7 +145,7 @@
     {
       "source": "SECNO",
       "destination": "SECNO",
-      "function": null,
+      "function": "CheckFormat",
       "format": "9",
       "type": "char",
       "rule": "A123456-0",
@@ -154,7 +154,7 @@
     {
       "source": "SYMBOL",
       "destination": "SYMBOL",
-      "function": null,
+      "function": "CheckFormat",
       "format": "21",
       "type": "char",
       "rule": "IBM",
@@ -163,7 +163,7 @@
     {
       "source": "CUSIP",
       "destination": "CUSIP",
-      "function": null,
+      "function": "CheckFormat",
       "format": "9",
       "type": "char",
       "rule": "459200101",
@@ -172,7 +172,7 @@
     {
       "source": "SEDOL",
       "destination": "SEDOL",
-      "function": null,
+      "function": "CheckFormat",
       "format": "7",
       "type": "char",
       "rule": "2005973",
@@ -181,7 +181,7 @@
     {
       "source": "ISIN",
       "destination": "ISIN",
-      "function": null,
+      "function": "CheckFormat",
       "format": "12",
       "type": "char",
       "rule": "US4592001014",
@@ -190,7 +190,7 @@
     {
       "source": "CURR",
       "destination": "CURR",
-      "function": null,
+      "function": "CheckFormat",
       "format": "3",
       "type": "char",
       "rule": "USD",
@@ -199,7 +199,7 @@
     {
       "source": "QTY",
       "destination": "QTY",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18,6",
       "type": "decimal",
       "rule": "1000",
@@ -208,7 +208,7 @@
     {
       "source": "PRICE",
       "destination": "PRICE",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18,6",
       "type": "decimal",
       "rule": "150",
@@ -217,7 +217,7 @@
     {
       "source": "COMM",
       "destination": "COMM",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18,6",
       "type": "decimal",
       "rule": "50",
@@ -226,7 +226,7 @@
     {
       "source": "FEES",
       "destination": "FEES",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18,6",
       "type": "decimal",
       "rule": "1.23",
@@ -235,7 +235,7 @@
     {
       "source": "INTEREST",
       "destination": "INTEREST",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18,6",
       "type": "decimal",
       "rule": "1.23",
@@ -244,7 +244,7 @@
     {
       "source": "NET",
       "destination": "NET",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18,6",
       "type": "decimal",
       "rule": "150051.23",
@@ -253,7 +253,7 @@
     {
       "source": "FX_RATE",
       "destination": "FX_RATE",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18,10",
       "type": "decimal",
       "rule": "1",
@@ -262,7 +262,7 @@
     {
       "source": "TRUE_ZERO_IND",
       "destination": "TRUE_ZERO_IND",
-      "function": null,
+      "function": "CheckFormat",
       "format": "1",
       "type": "int",
       "rule": "[0,1]",
@@ -307,7 +307,7 @@
     {
       "source": "OPEN_ISE_TYPE",
       "destination": "OPEN_ISE_TYPE",
-      "function": null,
+      "function": "CheckFormat",
       "format": "25",
       "type": "char",
       "rule": "ExchangeAdjustment",
@@ -316,7 +316,7 @@
     {
       "source": "CORP_ACT_ID",
       "destination": "CORP_ACT_ID",
-      "function": null,
+      "function": "CheckFormat",
       "format": "15",
       "type": "char",
       "rule": "IBM-SPN001",
@@ -325,7 +325,7 @@
     {
       "source": "AVG_COST_IND",
       "destination": "AVG_COST_IND",
-      "function": null,
+      "function": "CheckFormat",
       "format": "1",
       "type": "int",
       "rule": "[0,1]",
@@ -334,7 +334,7 @@
     {
       "source": "COVERED_IND",
       "destination": "COVERED_IND",
-      "function": null,
+      "function": "CheckFormat",
       "format": "1",
       "type": "int",
       "rule": "[0,1]",
@@ -343,7 +343,7 @@
     {
       "source": "COVERED_REASON",
       "destination": "COVERED_REASON",
-      "function": null,
+      "function": "CheckFormat",
       "format": "1",
       "type": "char",
       "rule": "[T,O,E,A]",
@@ -352,7 +352,7 @@
     {
       "source": "DRP_IND",
       "destination": "DRP_IND",
-      "function": null,
+      "function": "CheckFormat",
       "format": "1",
       "type": "int",
       "rule": "[0,1]",
@@ -361,7 +361,7 @@
     {
       "source": "LONG_SHORT_IND",
       "destination": "LONG_SHORT_IND",
-      "function": null,
+      "function": "CheckFormat",
       "format": "1",
       "type": "char",
       "rule": "[L,S]",
@@ -370,7 +370,7 @@
     {
       "source": "WS_OPEN_SUPPRESS",
       "destination": "WS_OPEN_SUPPRESS",
-      "function": null,
+      "function": "CheckFormat",
       "format": "1",
       "type": "int",
       "rule": "[0,1]",
@@ -379,7 +379,7 @@
     {
       "source": "WS_ADJ_BASIS_INCR",
       "destination": "WS_ADJ_BASIS_INCR",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18,6",
       "type": "decimal",
       "rule": "25.67",
@@ -397,7 +397,7 @@
     {
       "source": "WS_LOSS_OPEN_TAGNO",
       "destination": "WS_LOSS_OPEN_TAGNO",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18",
       "type": "char",
       "rule": "TN1234567890123456",
@@ -406,7 +406,7 @@
     {
       "source": "WS_LOSS_CLOSE_TAGNO",
       "destination": "WS_LOSS_CLOSE_TAGNO",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18",
       "type": "char",
       "rule": "TN1234567890123456",
@@ -415,7 +415,7 @@
     {
       "source": "WS_LOSS_CLOSE_SUBLOT_ID",
       "destination": "WS_LOSS_CLOSE_SUBLOT_ID",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18",
       "type": "char",
       "rule": "CS1234567890123456",
@@ -424,7 +424,7 @@
     {
       "source": "TECH_SHORT_ID",
       "destination": "TECH_SHORT_ID",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18",
       "type": "char",
       "rule": "ABCDEFG1234567890",
@@ -433,7 +433,7 @@
     {
       "source": "TRANSFER_IND",
       "destination": "TRANSFER_IND",
-      "function": null,
+      "function": "CheckFormat",
       "format": "1",
       "type": "char",
       "rule": "[N,R,S,G,I,C]",
@@ -442,7 +442,7 @@
     {
       "source": "TRANSFER_CTRL_NO",
       "destination": "TRANSFER_CTRL_NO",
-      "function": null,
+      "function": "CheckFormat",
       "format": "20",
       "type": "char",
       "rule": "12345678901234567890",
@@ -460,7 +460,7 @@
     {
       "source": "TRANSFER_FMV_AMT",
       "destination": "TRANSFER_FMV_AMT",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18,6",
       "type": "decimal",
       "rule": "150426.27",
@@ -469,7 +469,7 @@
     {
       "source": "TRANSFER_FX_RATE",
       "destination": "TRANSFER_FX_RATE",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18,10",
       "type": "decimal",
       "rule": "1",
@@ -496,7 +496,7 @@
     {
       "source": "MULT",
       "destination": "MULT",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18,6",
       "type": "decimal",
       "rule": "1",
@@ -505,7 +505,7 @@
     {
       "source": "OPTION_ADJ",
       "destination": "OPTION_ADJ",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18,2",
       "type": "decimal",
       "rule": "100.00",
@@ -514,7 +514,7 @@
     {
       "source": "OPTION_WS_ADJ",
       "destination": "OPTION_WS_ADJ",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18,2",
       "type": "decimal",
       "rule": "100.00",
@@ -523,7 +523,7 @@
     {
       "source": "FI_OID_ADJ",
       "destination": "FI_OID_ADJ",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18,2",
       "type": "decimal",
       "rule": "100.00",
@@ -532,7 +532,7 @@
     {
       "source": "FI_ACQ_PREM_ADJ",
       "destination": "FI_ACQ_PREM_ADJ",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18,2",
       "type": "decimal",
       "rule": "-10.00",
@@ -541,7 +541,7 @@
     {
       "source": "FI_BND_PREM_ADJ",
       "destination": "FI_BND_PREM_ADJ",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18,2",
       "type": "decimal",
       "rule": "-10.00",
@@ -550,7 +550,7 @@
     {
       "source": "FI_MKT_DISC_ADJ",
       "destination": "FI_MKT_DISC_ADJ",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18,2",
       "type": "decimal",
       "rule": "10.00",
@@ -559,7 +559,7 @@
     {
       "source": "FI_PRIN_PMT_ADJ",
       "destination": "FI_PRIN_PMT_ADJ",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18,2",
       "type": "decimal",
       "rule": "-10.00",
@@ -568,7 +568,7 @@
     {
       "source": "FI_DM_OID",
       "destination": "FI_DM_OID",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18,2",
       "type": "decimal",
       "rule": "1.00",
@@ -577,7 +577,7 @@
     {
       "source": "FI_DM_MKT_DISC",
       "destination": "FI_DM_MKT_DISC",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18,2",
       "type": "decimal",
       "rule": "1.00",
@@ -586,7 +586,7 @@
     {
       "source": "INT_OPEN_SUBLOT_ID",
       "destination": "INT_OPEN_SUBLOT_ID",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18",
       "type": "char",
       "rule": "OS0000000000000123",
@@ -595,7 +595,7 @@
     {
       "source": "PARENT_OPEN_TAGNO",
       "destination": "PARENT_OPEN_TAGNO",
-      "function": null,
+      "function": "CheckFormat",
       "format": "18",
       "type": "char",
       "rule": "TN0000000000123456",
