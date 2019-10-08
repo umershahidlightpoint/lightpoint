@@ -46,7 +46,7 @@ export class AgGridUtils {
           clone.field = column.field;
           clone.headerName = column.headerName;
           clone.filter = column.filter;
-          clone.colId = undefined;
+          clone.colId = column.field;
 
           // Assume all columns are sortable
           clone.sortable = true;
@@ -91,7 +91,6 @@ export class AgGridUtils {
           } else {
             clone.enableRowGroup = true;
           }
-
           cdefs.push(clone);
         }
       }
