@@ -81,6 +81,11 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
 
   styleForHeight = HeightStyle(220);
 
+  excelParams = {
+    fileName: 'Trial Balance',
+    sheetName: 'First Sheet'
+  };
+
   containerDiv = {
     border: '1px solid #eee',
     padding: '4px',
@@ -287,15 +292,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       height,
       boxSizing: 'border-box'
     };
-  }
-
-  onBtExport() {
-    const params = {
-      fileName: 'Trial Balance',
-      sheetName: 'First Sheet'
-    };
-    this.gridOptions.api.exportDataAsExcel(params);
-    this.downloadExcelUtils.ToastrMessage();
   }
 
   ngModelChange(e) {

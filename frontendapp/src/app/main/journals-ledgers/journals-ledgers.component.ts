@@ -93,6 +93,11 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
 
   styleForHeight = HeightStyle(220);
 
+  excelParams = {
+    fileName: 'Journals',
+    sheetName: 'First Sheet'
+  };
+
   containerDiv = {
     border: '1px solid #eee',
     padding: '4px',
@@ -280,15 +285,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       height,
       boxSizing: 'border-box'
     };
-  }
-
-  onBtExport() {
-    const params = {
-      fileName: 'Journals',
-      sheetName: 'First Sheet'
-    };
-    this.gridOptions.api.exportDataAsExcel(params);
-    this.downloadExcelUtils.ToastrMessage();
   }
 
   ngModelChange(e) {

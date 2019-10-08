@@ -66,6 +66,12 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   backdrop: any;
   businessDate: any;
 
+  excelParams = {
+    fileName: 'Journal Logs',
+    sheetName: 'First Sheet',
+    columnKeys: ['rundate', 'action_on', 'action']
+  };
+
   periods = [
     { name: 'Latest' },
     { name: 'Today' },
@@ -216,16 +222,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   refreshGrid() {
     this.gridOptions.api.showLoadingOverlay();
     this.getJournalLogs();
-  }
-
-  onBtExport() {
-    const params = {
-      fileName: 'Journal Logs',
-      sheetName: 'First Sheet',
-      columnKeys: ['rundate', 'action_on', 'action']
-    };
-    this.gridOptions.api.exportDataAsExcel(params);
-    this.downloadExcelUtils.ToastrMessage();
   }
 
   buildForm() {
