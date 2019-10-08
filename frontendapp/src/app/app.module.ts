@@ -37,6 +37,7 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { ToastrModule } from 'ngx-toastr';
 import { AgGridModule } from 'ag-grid-angular';
+import { NgcatalystModule } from 'ngcatalyst';
 /*
 Services/Components
 */
@@ -159,7 +160,8 @@ import { NgcatalystModule } from 'ngcatalyst';
     CalendarModule,
     ToastrModule.forRoot(),
     BsDropdownModule.forRoot(),
-    TooltipModule.forRoot()
+    TooltipModule.forRoot(),
+    NgcatalystModule
   ],
   providers: [
     FinancePocServiceProxy,
