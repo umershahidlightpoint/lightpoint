@@ -444,15 +444,19 @@ export class FinancePocServiceProxy {
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
-  getCostBasisReport(fromDate, toDate, fund) {
-    const url =
-      this.baseUrl +
-      '/journal/costbasisReport?from=' +
-      fromDate +
-      '&to=' +
-      toDate +
-      '&fund=' +
-      fund;
+  /*
+  Get Cost Basis Report
+  */
+  getCostBasisReport(date, fund) {
+    const url = this.baseUrl + '/journal/costbasisReport?date=' + date + '&fund=' + fund;
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
+
+  /*
+  Get Cost Basis Chart
+  */
+  getCostBasisChart(symbol) {
+    const url = this.baseUrl + '/journal/costbasisChart?symbol=' + symbol;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
@@ -466,7 +470,7 @@ export class FinancePocServiceProxy {
 
   updateAction(body) {
     const url = this.baseUrl + '/fileManagement/UpdateFileAction';
-    return this.http.post(url,body).pipe(map((response: any) => response));
+    return this.http.post(url, body).pipe(map((response: any) => response));
   }
 
   /*
@@ -485,7 +489,7 @@ export class FinancePocServiceProxy {
     return this.http.post(url, body).pipe(map((response: any) => response));
   }
 
-  getInvalidExportRecords() : Observable<any> {
+  getInvalidExportRecords(): Observable<any> {
     const url = this.baseUrl + '/fileManagement/FileExportException';
     return this.http.get(url);
   }

@@ -64,8 +64,8 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   sortColum: any;
   sortDirection: any;
   backdrop: any;
-  businessDate: any;
 
+  businessDate: any;
   periods = [
     { name: 'Latest' },
     { name: 'Today' },
