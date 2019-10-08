@@ -1,4 +1,4 @@
-/****** Object:  Table [dbo].[tax_lot]    Script Date: 10/7/2019 4:29:35 AM ******/
+/****** Object:  Table [dbo].[tax_lot]    Script Date: 10/8/2019 4:56:17 AM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -12,6 +12,8 @@ CREATE TABLE [dbo].[tax_lot](
 	[quantity] [numeric](18, 9) NOT NULL,
 	[generated_on] [datetime] NOT NULL,
 	[business_date] [date] NOT NULL,
+	[cost_basis] [numeric](18, 9) NOT NULL,
+	[trade_price] [numeric](18, 9) NOT NULL,
  CONSTRAINT [PK_tax_lots] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -22,12 +24,14 @@ GO
 ALTER TABLE [dbo].[tax_lot] ADD  CONSTRAINT [DF_tax_lot_generated_on]  DEFAULT (getdate()) FOR [generated_on]
 GO
 
+ALTER TABLE [dbo].[tax_lot] ADD  CONSTRAINT [DF_tax_lot_cost_basis]  DEFAULT ((0)) FOR [cost_basis]
+GO
+
+ALTER TABLE [dbo].[tax_lot] ADD  CONSTRAINT [DF_tax_lot_trade_price]  DEFAULT ((0)) FOR [trade_price]
+GO
+
 EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'The closing lot Id' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'tax_lot', @level2type=N'COLUMN',@level2name=N'closing_lot_id'
 GO
-
-EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'The is a reference back to the open / partially closed tax_lot that this closing lot decreases' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'tax_lot', @level2type=N'COLUMN',@level2name=N'open_lot_id'
-GO
-
 
 CREATE TABLE [dbo].[tax_lot_status](
 	[id] [int] IDENTITY(1,1) NOT NULL,
@@ -51,22 +55,8 @@ ALTER TABLE [dbo].[tax_lot_status] ADD  CONSTRAINT [DF_tax_lot_status_generated_
 GO
 
 
-CREATE TABLE [dbo].[cost_basis](
-	[id] [int] IDENTITY(1,1) NOT NULL,
-	[business_date] [date] NOT NULL,
-	[symbol] [varchar](100) NOT NULL,
-	[balance] [numeric](18, 9) NOT NULL,
-	[quantity] [numeric](18, 9) NOT NULL,
-	[cost_basis] [numeric](18, 9) NOT NULL,
-	[generated_on] [datetime] NOT NULL,
- CONSTRAINT [PK_cost_basis] PRIMARY KEY CLUSTERED 
-(
-	[id] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-GO
 
-ALTER TABLE [dbo].[cost_basis] ADD  CONSTRAINT [DF_cost_basis_generated_on]  DEFAULT (getdate()) FOR [generated_on]
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'The is a reference back to the open / partially closed tax_lot that this closing lot decreases' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'tax_lot', @level2type=N'COLUMN',@level2name=N'open_lot_id'
 GO
 
 
