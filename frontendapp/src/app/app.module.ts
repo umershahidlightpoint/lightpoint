@@ -83,9 +83,6 @@ import { ReportGridComponent } from './main/reports/report-grid/report-grid.comp
 import { GridUtilsComponent } from '../shared/Component/grid-utils/grid-utils.component';
 import { FileExceptionComponent } from './main/operations/file-exception/file-exception.component';
 
-// Eikos open source library
-import { NgcatalystModule } from 'ngcatalyst';
-
 @NgModule({
   declarations: [
     AppComponent,
@@ -127,7 +124,6 @@ import { NgcatalystModule } from 'ngcatalyst';
     FileExceptionComponent
   ],
   imports: [
-    NgcatalystModule,
     BrowserModule,
     AgGridModule.withComponents([TemplateRendererComponent, GridLayoutMenuComponent]),
     MaterialModule,
