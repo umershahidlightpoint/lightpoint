@@ -69,6 +69,8 @@ import { OperationsComponent } from './main/operations/operations.component';
 import { ButtonRendererComponent } from '../renderer/buttonRenderer';
 import { BalanceReportComponent } from './main/reports/balance-report/balance-report.component';
 import { CostBasisComponent } from './main/reports/costbasis/costbasis.component';
+import { TaxLotStatusComponent } from './main/reports/taxlotstatus/taxlotstatus.component';
+import { TaxLotsComponent } from './main/reports/taxlots/taxlots.component';
 import { TrialBalanceComponent } from './main/reports/trial-balance/trial-balance.component';
 import { ReportModalComponent } from '../shared/Component/report-modal/report-modal.component';
 import { AllocationsComponent } from './main/allocations/allocations.component';
@@ -79,6 +81,9 @@ import { ConfirmationModalComponent } from '../shared/Component/confirmation-mod
 import { ReportGridComponent } from './main/reports/report-grid/report-grid.component';
 import { GridUtilsComponent } from '../shared/Component/grid-utils/grid-utils.component';
 import { FileExceptionComponent } from './main/operations/file-exception/file-exception.component';
+
+// Eikos open source library
+import { NgcatalystModule } from 'ngcatalyst';
 
 @NgModule({
   declarations: [
@@ -106,6 +111,8 @@ import { FileExceptionComponent } from './main/operations/file-exception/file-ex
     ButtonRendererComponent,
     BalanceReportComponent,
     CostBasisComponent,
+    TaxLotStatusComponent,
+    TaxLotsComponent,
     TrialBalanceComponent,
     ReportModalComponent,
     AllocationsComponent,
@@ -119,6 +126,7 @@ import { FileExceptionComponent } from './main/operations/file-exception/file-ex
     FileExceptionComponent
   ],
   imports: [
+    NgcatalystModule,
     BrowserModule,
     AgGridModule.withComponents([TemplateRendererComponent, GridLayoutMenuComponent]),
     MaterialModule,

@@ -515,6 +515,48 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return reportObject;
         }
 
+        public object GetTaxLotReport(DateTime? from = null, DateTime? to = null, string fund = "")
+        {
+            dynamic postingEngine = new PostingEngineService().GetProgress();
+            if (postingEngine.IsRunning)
+            {
+                return Utils.Wrap(false, "Posting Engine is currently Running");
+            }
+
+            var query = $@"select * from tax_lot_status";
+
+            List<SqlParameter> sqlParams = new List<SqlParameter>();
+
+            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+
+            dynamic reportObject = new System.Dynamic.ExpandoObject();
+
+            reportObject.data = dataTable;
+
+            return reportObject;
+        }
+
+        public object GetTaxLotsReport(DateTime? from = null, DateTime? to = null, string fund = "")
+        {
+            dynamic postingEngine = new PostingEngineService().GetProgress();
+            if (postingEngine.IsRunning)
+            {
+                return Utils.Wrap(false, "Posting Engine is currently Running");
+            }
+
+            var query = $@"select * from tax_lot";
+
+            List<SqlParameter> sqlParams = new List<SqlParameter>();
+
+            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+
+            dynamic reportObject = new System.Dynamic.ExpandoObject();
+
+            reportObject.data = dataTable;
+
+            return reportObject;
+        }
+
         public object GetTrialBalanceReport(DateTime? from = null, DateTime? to = null, string fund = "")
         {
             dynamic postingEngine = new PostingEngineService().GetProgress();

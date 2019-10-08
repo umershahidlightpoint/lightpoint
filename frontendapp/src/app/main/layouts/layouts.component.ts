@@ -65,6 +65,9 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
       suppressColumnVirtualisation: true,
+      getExternalFilterState: () => {
+        return {};
+      },
       clearExternalFilter: () => {},
       onGridReady: params => {},
       onFirstDataRendered: params => {

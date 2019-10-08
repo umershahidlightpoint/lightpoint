@@ -16,6 +16,7 @@ import {
   GetDateRangeLabel,
   DoesExternalFilterPass,
   FormatNumber,
+  FormatNumber4,
   SetDateRange,
   CommaSeparatedFormat,
   HeightStyle,
@@ -28,11 +29,11 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
 @Component({
-  selector: 'rep-trial-balance',
-  templateUrl: './trial-balance.component.html',
-  styleUrls: ['./trial-balance.component.css']
+  selector: 'rep-taxlotstatus',
+  templateUrl: './taxlotstatus.component.html',
+  styleUrls: ['./taxlotstatus.component.css']
 })
-export class TrialBalanceComponent implements OnInit, AfterViewInit {
+export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   private gridColumnApi;
   pinnedBottomRowData;
   gridOptions: GridOptions;
@@ -42,12 +43,12 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
   startDate: any;
   endDate: any;
   selected: { startDate: moment.Moment; endDate: moment.Moment };
-  trialBalanceReport: Array<TrialBalanceReport>;
-  trialBalanceReportStats: TrialBalanceReportStats;
+
+  data: Array<TrialBalanceReport>;
+  stats: TrialBalanceReportStats;
+
   isLoading = false;
   hideGrid: boolean;
-  flag = false;
-  title = 'Account Name';
 
   ranges: any = Ranges;
 
@@ -75,7 +76,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.initGrid();
     this.getFunds();
-    // this.getReport(null, null, 'ALL');
+    //this.getReport(null, null, 'ALL');
   }
 
   initGrid() {
@@ -104,7 +105,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
         });
         params.api.onGroupExpandedOrCollapsed();
 
-        AutoSizeAllColumns(params);
+        //AutoSizeAllColumns(params);
         params.api.sizeColumnsToFit();
       },
       enableFilter: true,
@@ -113,74 +114,40 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
       suppressHorizontalScroll: false,
       columnDefs: [
         {
-          field: 'accountName',
+          field: 'open_id',
           width: 120,
-          headerName: 'Account Name',
-          enableRowGroup: true
+          headerName: 'Order Id',
+          sortable: true,
+          filter: true,
         },
         {
-          field: 'debit',
+          field: 'business_date',
           width: 120,
-          headerName: 'Debit',
-          cellStyle: params => {
-            if (params.data.debitPercentage > 0) {
-              return {
-                backgroundSize: !params.data.debitPercentage
-                  ? 0
-                  : params.data.debitPercentage + '%',
-                backgroundRepeat: 'no-repeat'
-              };
-            }
-            return { textAlign: 'end' };
-          },
-          cellClass: params => {
-            if (params.data.debitPercentage > 0) {
-              return 'debit';
-            }
-          },
-          valueFormatter: currencyFormatter
+          headerName: 'Business Date',
+          sortable: true,
+          filter: true,
         },
         {
-          field: 'credit',
-          headerName: 'Credit',
+          field: 'symbol',
+          width: 120,
+          headerName: 'Symbol',
+          sortable: true,
+          filter: true,
+        },
+        {
+          field: 'status',
+          headerName: 'Status',
+          sortable: true,
           filter: true,
           width: 120,
-          cellStyle: params => {
-            if (params.data.creditPercentage > 0) {
-              return {
-                backgroundSize: !params.data.creditPercentage
-                  ? 0
-                  : params.data.creditPercentage + '%',
-                backgroundRepeat: 'no-repeat',
-                color: 'red'
-              };
-            }
-            return { textAlign: 'end', color: 'red' };
-          },
-          cellClass: params => {
-            if (params.data.creditPercentage > 0) {
-              return 'credit';
-            }
-          },
-          valueFormatter: currencyFormatter
         },
         {
-          field: 'balance',
-          headerName: 'Balance',
+          field: 'quantity',
+          headerName: 'Quantity',
           width: 100,
           filter: true,
-          cellClass: 'rightAlign',
           sortable: true,
-          cellStyle: params => {
-            if (params.data.accountName === 'Total' && params.data.balance !== 0) {
-              return { backgroundColor: 'red' };
-            }
-            if (params.data.accountName !== 'Total' && params.data.balance > 0) {
-              return { textAlign: 'end', color: 'green' };
-            } else if (params.data.accountName !== 'Total' && params.data.balance < 0) {
-              return { textAlign: 'end', color: 'red' };
-            }
-          },
+          cellClass: 'rightAlign',
           valueFormatter: absCurrencyFormatter
         }
       ],
@@ -190,11 +157,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(
-      GridId.trailBalanceReportId,
-      GridName.trailBalanceReport,
-      this.gridOptions
-    );
+    this.gridOptions.sideBar = SideBar(GridId.costBasicId, GridName.costBasic, this.gridOptions);
   }
 
   ngAfterViewInit(): void {
@@ -216,32 +179,15 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
     });
   }
 
+  // Being called twice
   getReport(toDate, fromDate, fund) {
     this.isLoading = true;
-    this.financeService.getTrialBalanceReport(toDate, fromDate, fund).subscribe(response => {
-      this.trialBalanceReportStats = response.stats;
-      this.trialBalanceReport = response.data.map(data => ({
-        accountName: data.AccountName,
-        credit: FormatNumber(data.Credit),
-        creditPercentage: data.CreditPercentage,
-        debit: FormatNumber(data.Debit),
-        debitPercentage: data.DebitPercentage,
-        balance: FormatNumber(data.Balance)
-      }));
-      this.flag = true;
+    this.financeService.getTaxLotReport(toDate, fromDate, fund).subscribe(response => {
+      this.stats = response.stats;
+      this.data = response.data;
       this.isLoading = false;
-      this.pinnedBottomRowData = [
-        {
-          accountName: 'Total',
-          debit: FormatNumber(this.trialBalanceReportStats.totalDebit),
-          credit: FormatNumber(this.trialBalanceReportStats.totalCredit),
-          balance:
-            this.trialBalanceReportStats.totalDebit - this.trialBalanceReportStats.totalCredit
-        }
-      ];
-      this.gridOptions.api.setRowData(this.trialBalanceReport);
-      this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
       this.gridOptions.api.sizeColumnsToFit();
+      this.gridOptions.api.setRowData(this.data);
     });
   }
 
@@ -251,11 +197,11 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
   }
 
   isExternalFilterPassed(object) {
-    console.log('this grid option', this.gridOptions);
     const { fundFilter } = object;
     const { dateFilter } = object;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
     this.setDateRange(dateFilter);
+
     this.gridOptions.api.onFilterChanged();
   }
 
@@ -263,22 +209,6 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
     if (this.fund !== 'All Funds' || this.startDate) {
       return true;
     }
-  }
-
-  getExternalFilterState() {
-    // console.log('<================================================================>');
-    // console.log('this start Date ', this.startDate, '== this end Date', this.endDate);
-    // console.log('type start Date ', typeof this.startDate);
-    return {
-      fundFilter: this.fund,
-      dateFilter:
-        this.DateRangeLabel !== ''
-          ? this.DateRangeLabel
-          : {
-              startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
-              endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
-            }
-    };
   }
 
   doesExternalFilterPass(node: any) {
@@ -311,6 +241,13 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
     this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
     this.endDate = moment();
     this.getReport(null, null, 'ALL');
+  }
+
+  getExternalFilterState() {
+    return {
+      fundFilter: this.fund,
+      dateFilter: { startDate: this.startDate, endDate: this.endDate }
+    };
   }
 
   changeDate(selectedDate) {
@@ -348,6 +285,13 @@ function currencyFormatter(params) {
     return;
   }
   return CommaSeparatedFormat(params.value);
+}
+
+function costBasisFormatter(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  return FormatNumber4(params.value);
 }
 
 function absCurrencyFormatter(params) {

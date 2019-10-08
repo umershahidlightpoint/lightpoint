@@ -1,4 +1,4 @@
-use Finance
+use FundAccounting
 go
 
 insert into account_category (id, name) values (1, 'Asset')
@@ -51,7 +51,10 @@ insert into Account_type (account_category_id, name) values (2, 'ACCRUED EXPENSE
 /*
 Equity
 */
-insert into Account_type (account_category_id, name) values (3, '3. OWNERS EQUITY')
+insert into Account_type (account_category_id, name) values (3, 'CONTRIBUTED CAPITAL')
+insert into Account_type (account_category_id, name) values (3, 'RETAINED EARNINGS-PRIOR YEARS P&L')
+insert into Account_type (account_category_id, name) values (3, 'CURRENT YEAR NET INCOME/(LOSS)')
+
 -- DONE
 
 /*

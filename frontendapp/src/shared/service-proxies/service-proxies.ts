@@ -460,6 +460,30 @@ export class FinancePocServiceProxy {
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
+  getTaxLotReport(fromDate, toDate, fund) {
+    const url =
+      this.baseUrl +
+      '/journal/taxlotReport?from=' +
+      fromDate +
+      '&to=' +
+      toDate +
+      '&fund=' +
+      fund;
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
+
+  getTaxLotsReport(fromDate, toDate, fund) {
+    const url =
+      this.baseUrl +
+      '/journal/taxlotsReport?from=' +
+      fromDate +
+      '&to=' +
+      toDate +
+      '&fund=' +
+      fund;
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
+
   /*
   Get All Files
   */

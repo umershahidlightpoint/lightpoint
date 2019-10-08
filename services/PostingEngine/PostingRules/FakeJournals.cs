@@ -10,12 +10,12 @@ namespace PostingEngine.PostingRules
     {
         public void DailyEvent(PostingEngineEnvironment env, Transaction element)
         {
-            throw new NotImplementedException();
+            return;
         }
 
         public void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
-            throw new NotImplementedException();
+            return;
         }
 
         private AccountToFrom GetFromToAccount(Transaction element)

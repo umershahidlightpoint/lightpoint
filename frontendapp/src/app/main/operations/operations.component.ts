@@ -64,8 +64,14 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   sortColum: any;
   sortDirection: any;
   backdrop: any;
-
   businessDate: any;
+
+  excelParams = {
+    fileName: 'Journal Logs',
+    sheetName: 'First Sheet',
+    columnKeys: ['rundate', 'action_on', 'action']
+  };
+
   periods = [
     { name: 'Latest' },
     { name: 'Today' },
@@ -173,8 +179,11 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       rowData: null,
       columnDefs: this.columnDefs,
       sideBar: SideBar,
-      getContextMenuItems: params => this.getContextMenuItems(params),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      getContextMenuItems: params => this.getContextMenuItems(params),
+      getExternalFilterState: () => {
+        return {};
+      },
       onGridReady: params => {},
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
@@ -186,9 +195,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       suppressHorizontalScroll: true
     } as GridOptions;
     this.gridOptions.sideBar = SideBar(GridId.logsId, GridName.logs, this.gridOptions);
-
-    // this.dataService.changeMessage(this.gridOptions);
-    // this.dataService.changeGrid({ gridId: GridId.logsId, gridName: GridName.logs });
   }
 
   private getJournalLogs() {
@@ -216,16 +222,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   refreshGrid() {
     this.gridOptions.api.showLoadingOverlay();
     this.getJournalLogs();
-  }
-
-  onBtExport() {
-    const params = {
-      fileName: 'Journal Logs',
-      sheetName: 'First Sheet',
-      columnKeys: ['rundate', 'action_on', 'action']
-    };
-    this.gridOptions.api.exportDataAsExcel(params);
-    this.downloadExcelUtils.ToastrMessage();
   }
 
   buildForm() {

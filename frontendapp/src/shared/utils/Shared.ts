@@ -191,6 +191,7 @@ export const GetDateRangeLabel = (startDate, endDate) => {
   if (moment().diff(startDate, 'days') === 0 && moment().diff(endDate, 'days') === 0) {
     return 'Today';
   }
+  return '';
 };
 
 export const SetDateRange = (dateFilter, startDate, endDate) => {
@@ -223,6 +224,11 @@ export const SetDateRange = (dateFilter, startDate, endDate) => {
 };
 
 export const DoesExternalFilterPass = (node, fund, startDate, endDate) => {
+  if (typeof startDate === 'string') {
+    startDate = moment(startDate);
+    endDate = moment(endDate);
+  }
+
   if (fund !== 'All Funds' && startDate) {
     const cellFund = node.data.fund;
     const cellDate = new Date(node.data.when);
@@ -282,6 +288,229 @@ export const AutoSizeAllColumns = params => {
   gridColumnApi.autoSizeColumns(allColumnIds);
 };
 
-// export const SideBarComponentFun = () => {
-//   return SidebarFactoyComponent;
-// };
+export const CommonCols = () => {
+  return [
+    {
+      field: 'id',
+      minWidth: 50,
+      headerName: 'Id',
+      colId: 'id'
+    },
+    {
+      field: 'source',
+      minWidth: 300,
+      headerName: 'Source',
+      colId: 'source'
+    },
+    {
+      field: 'fund',
+      headerName: 'Fund',
+      enableRowGroup: true,
+      enablePivot: true,
+      filter: true,
+      width: 120,
+      colId: 'fund'
+    },
+    {
+      field: 'AccountCategory',
+      headerName: 'Category',
+      enableRowGroup: true,
+      width: 100,
+      enablePivot: true,
+      filter: true,
+      colId: 'AccountCategory'
+    },
+    {
+      field: 'AccountType',
+      headerName: 'Type',
+      enableRowGroup: true,
+      width: 200,
+      enablePivot: true,
+      filter: true,
+      colId: 'AccountType'
+    },
+    {
+      field: 'accountName',
+      headerName: 'Account Name',
+      sortable: true,
+      enableRowGroup: true,
+      filter: true,
+      colId: 'accountName'
+    },
+    {
+      field: 'accountDescription',
+      headerName: 'Account Description',
+      sortable: true,
+      enableRowGroup: true,
+      filter: true,
+      colId: 'accountDescription'
+    },
+    {
+      field: 'when',
+      headerName: 'when',
+      sortable: true,
+      enableRowGroup: true,
+      width: 100,
+      enablePivot: true,
+      colId: 'when',
+      filter: 'agDateColumnFilter',
+      filterParams: {
+        comparator(filterLocalDateAtMidnight, cellValue) {
+          const dateAsString = cellValue;
+          const dateParts = dateAsString.split('/');
+          const cellDate = new Date(
+            Number(dateParts[2]),
+            Number(dateParts[1]) - 1,
+            Number(dateParts[0])
+          );
+
+          if (filterLocalDateAtMidnight.getTime() == cellDate.getTime()) {
+            return 0;
+          }
+
+          if (cellDate < filterLocalDateAtMidnight) {
+            return -1;
+          }
+
+          if (cellDate > filterLocalDateAtMidnight) {
+            return 1;
+          }
+        }
+      }
+    },
+    {
+      field: 'debit',
+      aggFunc: 'sum',
+      headerName: '$Debit',
+      valueFormatter: currencyFormatter,
+      width: 100,
+      colId: 'debit',
+      cellStyle: { 'text-align': 'right' },
+      cellClass: 'twoDecimalPlaces',
+      cellClassRules: {
+        // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value < -300; },
+        footerRow(params) {
+          if (params.node.rowPinned) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      }
+    },
+    {
+      field: 'credit',
+      aggFunc: 'sum',
+      headerName: '$Credit',
+      valueFormatter: currencyFormatter,
+      width: 100,
+      colId: 'credit',
+      cellStyle: { 'text-align': 'right' },
+      cellClass: 'twoDecimalPlaces',
+      cellClassRules: {
+        // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
+        redFont(params) {
+          if (params.node.rowPinned) {
+            return false;
+          } else {
+            return params.value != 0;
+          }
+        },
+        footerRow(params) {
+          if (params.node.rowPinned) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      }
+    },
+    {
+      field: 'balance',
+      aggFunc: 'sum',
+      headerName: '$Balance',
+      valueFormatter: currencyFormatter,
+      width: 100,
+      colId: 'balance',
+      cellStyle: { 'text-align': 'right' },
+      cellClass: 'twoDecimalPlaces',
+      cellClassRules: {
+        // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
+        greenFont(params) {
+          if (params.node.rowPinned) {
+            return false;
+          } else {
+            return params.value > 0;
+          }
+        },
+        redFont(params) {
+          if (params.node.rowPinned) {
+            return false;
+          } else {
+            return params.value < 0;
+          }
+        },
+        footerRow(params) {
+          if (params.node.rowPinned) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      }
+    },
+    {
+      field: 'Quantity',
+      aggFunc: 'sum',
+      width: 100,
+      colId: 'Quantity',
+      headerName: 'Quantity',
+      sortable: true,
+      enableRowGroup: true,
+      filter: true
+    },
+
+    {
+      field: 'TradeCurrency',
+      width: 100,
+      headerName: 'Trade Ccy',
+      sortable: true,
+      enableRowGroup: true,
+      filter: true,
+      colId: 'TradeCurrency'
+    },
+    {
+      field: 'SettleCurrency',
+      headerName: 'Settle Ccy',
+      sortable: true,
+      enableRowGroup: true,
+      filter: true,
+      width: 100,
+      colId: 'SettleCurrency'
+    },
+    {
+      field: 'Symbol',
+      headerName: 'Symbol',
+      sortable: true,
+      enableRowGroup: true,
+      filter: true,
+      colId: 'Symbol'
+    },
+    {
+      field: 'Side',
+      headerName: 'Side',
+      sortable: true,
+      enableRowGroup: true,
+      filter: true,
+      width: 100,
+      colId: 'Side'
+    }
+  ];
+};
+
+function currencyFormatter(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  return CommaSeparatedFormat(params.value);
+}

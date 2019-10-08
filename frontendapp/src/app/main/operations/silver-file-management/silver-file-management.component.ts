@@ -93,9 +93,11 @@ export class SilverFileManagementComponent implements OnInit, OnDestroy {
     ];
     this.filesGridOptions = {
       rowData: null,
-      sideBar: SideBar,
       columnDefs: columnDefsForFiles,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      getExternalFilterState: () => {
+        return {};
+      },
       onGridReady: params => {},
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
@@ -111,8 +113,6 @@ export class SilverFileManagementComponent implements OnInit, OnDestroy {
       GridName.silverFiles,
       this.filesGridOptions
     );
-    // this.dataService.changeMessage(this.filesGridOptions);
-    // this.dataService.changeGrid({ gridId: GridId.silverFilesId, gridName: GridName.silverFiles });
   }
 
   getSilverFiles() {

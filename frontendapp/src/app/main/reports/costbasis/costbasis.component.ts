@@ -80,7 +80,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      // sideBar: SideBar(15),
       pinnedBottomRowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onFilterChanged: this.onFilterChanged.bind(this),
@@ -185,11 +184,9 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.financeService.getCostBasisReport(date, fund).subscribe(response => {
       this.trialBalanceReportStats = response.stats;
       this.trialBalanceReport = response.data;
-
-      this.isLoading = false;
-
       this.gridOptions.api.setRowData(this.trialBalanceReport);
       this.gridOptions.api.sizeColumnsToFit();
+      this.isLoading = false;
     });
   }
 

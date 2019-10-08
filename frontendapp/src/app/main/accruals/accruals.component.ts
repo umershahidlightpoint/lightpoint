@@ -103,7 +103,6 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
   }
 
   getAccruals() {
-    console.log('getAccruals');
     this.defaultColDef = {
       sortable: true,
       resizable: true
@@ -139,6 +138,9 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
       },
+      getExternalFilterState: () => {
+        return {};
+      },
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
@@ -161,6 +163,9 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
       onGridReady: params => {},
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
+      },
+      getExternalFilterState: () => {
+        return {};
       },
       rowSelection: 'single',
       rowGroupPanelShow: 'after',

@@ -90,6 +90,7 @@ namespace LP.Finance.Common.Models
         public void PopulateRow(DataRow row)
         {
             row["open_id"] = this.OpenId;
+            row["symbol"] = this.Symbol;
             row["status"] = this.Status;
             row["quantity"] = this.Quantity;
             row["business_date"] = this.BusinessDate;

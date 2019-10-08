@@ -16,10 +16,77 @@ namespace PostingEngine.PostingRules
 
         public void DailyEvent(PostingEngineEnvironment env, Transaction element)
         {
-            /*
-             * Are there accruals for this trade, we grab them as needed
-            */
-            throw new NotImplementedException();
+            // Calculate the unrealized PNL
+            if (env.TaxLotStatus.ContainsKey(element.LpOrderId))
+            {
+                // Determine if we need to accumulate unrelaized PNL
+                var taxlot = env.TaxLotStatus[element.LpOrderId];
+                if ( !taxlot.Status.ToLowerInvariant().Equals("closed"))
+                {
+                    var type = element.GetType();
+                    var accountTypes = AccountType.All;
+
+                    var listOfFromTags = new List<Tag>
+                    {
+                        Tag.Find("SecurityType"),
+                        Tag.Find("CustodianCode")
+                    };
+
+                    var listOfToTags = new List<Tag> {
+                        Tag.Find("SecurityType"),
+                        Tag.Find("CustodianCode")
+                     };
+
+                    // We have an open / partially closed tax lot so now need to calculate unrealized Pnl
+                    var quantity = taxlot.Quantity;
+                    var symbol = element.Symbol;
+
+                    var prevEodPrice = 1;
+                    var eodPrice = 2;
+
+                    var fxRate = 1;
+
+                    var unrealizedPnl = quantity * (eodPrice - prevEodPrice);
+
+                    var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfFromTags, element);
+                    var toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CHANGE IN UNREALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfToTags, element);
+
+                    new AccountUtils().SaveAccountDetails(env, fromAccount);
+                    new AccountUtils().SaveAccountDetails(env, toAccount);
+
+                    var debit = new Journal
+                    {
+                        Source = element.LpOrderId,
+                        Account = fromAccount,
+                        When = env.ValueDate,
+                        FxCurrency = element.SettleCurrency,
+                        Symbol = symbol,
+                        Quantity = quantity,
+                        FxRate = fxRate,
+                        Value = unrealizedPnl * -1,
+                        GeneratedBy = "system",
+                        Fund = element.Fund,
+                    };
+
+                    var credit = new Journal
+                    {
+                        Source = element.LpOrderId,
+                        Account = toAccount,
+                        When = env.ValueDate,
+                        FxCurrency = element.SettleCurrency,
+                        FxRate = fxRate,
+                        Symbol = symbol,
+                        Quantity = quantity,
+                        Value = unrealizedPnl,
+                        GeneratedBy = "system",
+                        Fund = element.Fund,
+                    };
+
+                    env.Journals.AddRange(new[] { debit, credit });
+
+                }
+            }
+
         }
 
         public void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
@@ -88,6 +155,35 @@ namespace PostingEngine.PostingRules
 
                 //new Journal[] { debit, credit }.Save(env);
             }
+        }
+
+        private AccountToFrom RealizedPnlPosting(Transaction element)
+        {
+            var type = element.GetType();
+            var accountTypes = AccountType.All;
+
+            var listOfFromTags = new List<Tag> {
+                Tag.Find("SecurityType"),
+                Tag.Find("CustodianCode")
+             };
+
+            var listOfToTags = new List<Tag>
+            {
+                Tag.Find("SecurityType"),
+                Tag.Find("CustodianCode")
+            };
+
+            Account fromAccount = null; // Debiting Account
+            Account toAccount = null; // Crediting Account
+
+            fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CHANGE IN UNREALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfFromTags, element);
+            toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("REALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfToTags, element);
+
+            return new AccountToFrom
+            {
+                From = fromAccount,
+                To = toAccount
+            };
         }
 
         private AccountToFrom GetFromToAccount(Transaction element, Transaction debit, Transaction credit)
@@ -180,16 +276,19 @@ namespace PostingEngine.PostingRules
 
         public void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
-            if ( element.Side.ToLowerInvariant().Equals("buy") || element.Side.ToLowerInvariant().Equals("cover"))
+            if ( element.Side.ToLowerInvariant().Equals("buy") || element.Side.ToLowerInvariant().Equals("short"))
             {
                 var tl = new TaxLotStatus {
                     BusinessDate = element.TradeDate,
-                    Symbol = element.Symbol, OpenId = element.LpOrderId, Status = "OpenLot", Quantity = element.Quantity };
-                env.TaxLots.Add(element.LpOrderId, tl);
+                    Symbol = element.Symbol,
+                    OpenId = element.LpOrderId,
+                    Status = "Open",
+                    Quantity = element.Quantity };
+                env.TaxLotStatus.Add(element.LpOrderId, tl);
 
                 //tl.Save(env.Connection, env.Transaction);
             }
-            else if (element.Side.ToLowerInvariant().Equals("sell") || element.Side.ToLowerInvariant().Equals("short"))
+            else if (element.Side.ToLowerInvariant().Equals("sell") || element.Side.ToLowerInvariant().Equals("cover"))
             {
                 // Closing Lot
                 var openLots = env.GetOpenLots(element);
@@ -208,19 +307,31 @@ namespace PostingEngine.PostingRules
                         if (workingQuantity == 0)
                             break;
 
-                        if ( !env.TaxLots.ContainsKey(lot.LpOrderId))
+                        if ( !env.TaxLotStatus.ContainsKey(lot.LpOrderId))
                         {
                             // What when wrong here
                             continue;
                         }
 
-                        var taxlotStatus = env.TaxLots[lot.LpOrderId];
+                        var taxlotStatus = env.TaxLotStatus[lot.LpOrderId];
                         if (taxlotStatus != null && taxlotStatus.Quantity > 0)
                         {
                             // Does the open Lot fully fullfill the quantity ?
                             if (taxlotStatus.Quantity >= workingQuantity)
                             {
-                                new TaxLot { BusinessDate = env.ValueDate, OpeningLotId = lot.LpOrderId, ClosingLotId = element.LpOrderId, Quantity = workingQuantity };
+                                var tl = new TaxLot {
+                                    BusinessDate = env.ValueDate,
+                                    OpeningLotId = lot.LpOrderId,
+                                    ClosingLotId = element.LpOrderId,
+                                    TradePrice = lot.TradePrice,
+                                    CostBasis = element.TradePrice,
+                                    Quantity = workingQuantity };
+                                tl.Save(env.Connection, env.Transaction);
+
+                                // This is realized Pnl, need to post this as a journal entry
+                                var PnL = tl.Quantity * (tl.TradePrice - tl.CostBasis);
+                                PostRealizedPnl(env, element, PnL);
+
                                 taxlotStatus.Quantity -= workingQuantity;
                                 if (taxlotStatus.Quantity == 0)
                                     taxlotStatus.Status = "Closed";
@@ -231,8 +342,19 @@ namespace PostingEngine.PostingRules
                             }
                             else
                             {
-                                new TaxLot { BusinessDate = env.ValueDate, OpeningLotId = lot.LpOrderId, ClosingLotId = element.LpOrderId, Quantity = Math.Abs(taxlotStatus.Quantity) };
+                                var tl = new TaxLot {
+                                    BusinessDate = env.ValueDate,
+                                    OpeningLotId = lot.LpOrderId,
+                                    ClosingLotId = element.LpOrderId,
+                                    TradePrice = lot.TradePrice,
+                                    CostBasis = element.TradePrice,
+                                    Quantity = Math.Abs(taxlotStatus.Quantity) };
+                                tl.Save(env.Connection, env.Transaction);
                                 workingQuantity -= Math.Abs(taxlotStatus.Quantity);
+
+                                var PnL = tl.Quantity * (tl.TradePrice - tl.CostBasis);
+                                PostRealizedPnl(env, element, PnL);
+
                                 taxlotStatus.Quantity = 0;
                                 taxlotStatus.Status = "Closed";
                             }
@@ -280,10 +402,6 @@ namespace PostingEngine.PostingRules
 
             double fxrate = 1.0;
 
-            if ( element.LpOrderId.ToLower().Equals("79e41950a1874755ba5c264c40505464"))
-            {
-
-            }
             // Lets get fx rate if needed
             if ( !element.TradeCurrency.Equals("USD"))
             {
@@ -328,6 +446,43 @@ namespace PostingEngine.PostingRules
 
                 env.Journals.AddRange(new[] { debitJournal, creditJournal });
             }
+        }
+
+        private void PostRealizedPnl(PostingEngineEnvironment env, Transaction element, double pnL)
+        {
+            var accountToFrom = RealizedPnlPosting(element);
+            new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
+            new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
+
+            var debitJournal = new Journal
+            {
+                Source = element.LpOrderId,
+                Account = accountToFrom.From,
+                When = env.ValueDate,
+                Value = pnL * -1,
+                FxCurrency = element.TradeCurrency,
+                Quantity = element.Quantity,
+                Symbol = element.Symbol,
+                FxRate = 1,
+                GeneratedBy = "system",
+                Fund = element.Fund,
+            };
+
+            var creditJournal = new Journal
+            {
+                Source = element.LpOrderId,
+                Account = accountToFrom.To,
+                When = env.ValueDate,
+                FxCurrency = element.TradeCurrency,
+                Symbol = element.Symbol,
+                Quantity = element.Quantity,
+                FxRate = 1,
+                Value = pnL,
+                GeneratedBy = "system",
+                Fund = element.Fund,
+            };
+
+            env.Journals.AddRange(new[] { debitJournal, creditJournal });
         }
     }
 }
