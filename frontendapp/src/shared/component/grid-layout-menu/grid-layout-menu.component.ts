@@ -72,7 +72,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
 
   onNewSave() {
     if (this.layoutName === '') {
-      this.toastrService.error('Please enter name');
+      return this.toastrService.error('Please enter name');
     }
     this.onSaveState(0);
   }

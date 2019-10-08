@@ -43,11 +43,34 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [Route("costBasisReport")]
         [HttpGet]
-        public object GetCostBasisReport(DateTime? from = null, DateTime? to = null, string fund = "ALL")
+        public object GetCostBasisReport(DateTime? date = null, string fund = "ALL")
         {
-            return controller.GetCostBasisReport(from, to, fund);
+            return controller.GetCostBasisReport(date, fund);
         }
 
+        [Route("costBasisChart")]
+        [HttpGet]
+        public object GetCostBasisChart(string symbol)
+        {
+            return controller.GetCostBasisChart(symbol);
+        }
+
+        [Route("taxLotReport")]
+        [HttpGet]
+        public object GetTaxLotReport(DateTime? from = null, DateTime? to = null, string fund = "ALL")
+        {
+            return controller.GetTaxLotReport(from, to, fund);
+        }
+
+        [Route("taxlotsReport")]
+        [HttpGet]
+        public object GetTaxLotsReport(DateTime? from = null, DateTime? to = null, string fund = "ALL")
+        {
+            return controller.GetTaxLotsReport(from, to, fund);
+        }
+
+
+        
         [Route("trialBalanceTile")]
         [HttpGet]
         public object TrialBalanceTile(DateTime? from = null, DateTime? to = null, string fund = "ALL")

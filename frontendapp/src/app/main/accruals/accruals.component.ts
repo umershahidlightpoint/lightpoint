@@ -103,7 +103,6 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
   }
 
   getAccruals() {
-    console.log('getAccruals');
     this.defaultColDef = {
       sortable: true,
       resizable: true

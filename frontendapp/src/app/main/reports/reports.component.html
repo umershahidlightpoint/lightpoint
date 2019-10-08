@@ -9,7 +9,7 @@
 <!-- Reports Main Div Starts -->
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
   <!-- Tab View Starts -->
-  <p-tabView [ngStyle]="style">
+  <p-tabView [ngStyle]="style" (onChange)="tabChanged($event)">
     <!-- Trial Balance Report Tab Starts -->
     <p-tabPanel #trialBalance header="Trial Balance" [ngStyle]="style">
       <rep-trial-balance></rep-trial-balance>
@@ -18,7 +18,19 @@
 
     <!-- -->
     <p-tabPanel #costBasis header="Cost Basis" [ngStyle]="style">
-      <rep-costbasis></rep-costbasis>
+      <rep-costbasis *ngIf="costBasisReportActive"></rep-costbasis>
+    </p-tabPanel>
+    <!-- -->
+
+        <!-- -->
+    <p-tabPanel #taxlot header="Tax Lots" [ngStyle]="style">
+      <rep-taxlotstatus></rep-taxlotstatus>
+    </p-tabPanel>
+        <!-- -->
+
+    <!-- -->
+    <p-tabPanel #taxlot header="Tax Lots Open/Closed" [ngStyle]="style">
+      <rep-taxlots></rep-taxlots>
     </p-tabPanel>
     <!-- -->
 

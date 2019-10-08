@@ -23,7 +23,8 @@ import {
   SetDateRange,
   CommaSeparatedFormat,
   HeightStyle,
-  AutoSizeAllColumns
+  AutoSizeAllColumns,
+  CommonCols
 } from 'src/shared/utils/Shared';
 import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
@@ -92,6 +93,11 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
 
   styleForHeight = HeightStyle(220);
 
+  excelParams = {
+    fileName: 'Journals',
+    sheetName: 'First Sheet'
+  };
+
   containerDiv = {
     border: '1px solid #eee',
     padding: '4px',
@@ -112,7 +118,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     this.hideGrid = false;
     this.DateRangeLabel = '';
     this.initGird();
-    console.log(' DateRangeLabel ', this.DateRangeLabel);
   }
 
   ngOnInit() {
@@ -170,209 +175,19 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   */
   customizeColumns(columns: any) {
     const colDefs = [
-      {
-        field: 'id',
-        minWidth: 50,
-        headerName: 'Id',
-        colId: 'id'
-      },
-      {
-        field: 'source',
-        minWidth: 300,
-        headerName: 'Source'
-      },
-      {
-        field: 'fund',
-        headerName: 'Fund',
-        enableRowGroup: true,
-        enablePivot: true,
-        filter: true,
-        width: 120
-      },
-      {
-        field: 'AccountCategory',
-        headerName: 'Category',
-        enableRowGroup: true,
-        width: 100,
-        enablePivot: true,
-        filter: true
-      },
-
-      {
-        field: 'AccountType',
-        headerName: 'Type',
-        enableRowGroup: true,
-        width: 200,
-        enablePivot: true,
-        filter: true
-      },
-      {
-        field: 'accountName',
-        headerName: 'Account Name',
-        sortable: true,
-        enableRowGroup: true,
-        filter: true
-      },
-      {
-        field: 'accountDescription',
-        headerName: 'Account Description',
-        sortable: true,
-        enableRowGroup: true,
-        filter: true
-      },
-      {
-        field: 'when',
-        headerName: 'when',
-        sortable: true,
-        enableRowGroup: true,
-        width: 100,
-        enablePivot: true,
-        filter: 'agDateColumnFilter',
-        filterParams: {
-          comparator(filterLocalDateAtMidnight, cellValue) {
-            const dateAsString = cellValue;
-            const dateParts = dateAsString.split('/');
-            const cellDate = new Date(
-              Number(dateParts[2]),
-              Number(dateParts[1]) - 1,
-              Number(dateParts[0])
-            );
-
-            if (filterLocalDateAtMidnight.getTime() == cellDate.getTime()) {
-              return 0;
-            }
-
-            if (cellDate < filterLocalDateAtMidnight) {
-              return -1;
-            }
-
-            if (cellDate > filterLocalDateAtMidnight) {
-              return 1;
-            }
-          }
-        }
-      },
-      {
-        field: 'debit',
-        aggFunc: 'sum',
-        headerName: '$Debit',
-        valueFormatter: currencyFormatter,
-        width: 100,
-        cellStyle: { 'text-align': 'right' },
-        cellClass: 'twoDecimalPlaces',
-        cellClassRules: {
-          // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value < -300; },
-          footerRow(params) {
-            if (params.node.rowPinned) {
-              return true;
-            } else {
-              return false;
-            }
-          }
-        }
-      },
-      {
-        field: 'credit',
-        aggFunc: 'sum',
-        headerName: '$Credit',
-        valueFormatter: currencyFormatter,
-        width: 100,
-        cellStyle: { 'text-align': 'right' },
-        cellClass: 'twoDecimalPlaces',
-        cellClassRules: {
-          // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
-          redFont(params) {
-            if (params.node.rowPinned) {
-              return false;
-            } else {
-              return params.value != 0;
-            }
-          },
-          footerRow(params) {
-            if (params.node.rowPinned) {
-              return true;
-            } else {
-              return false;
-            }
-          }
-        }
-      },
-      {
-        field: 'balance',
-        aggFunc: 'sum',
-        headerName: '$Balance',
-        valueFormatter: currencyFormatter,
-        width: 100,
-        cellStyle: { 'text-align': 'right' },
-        cellClass: 'twoDecimalPlaces',
-        cellClassRules: {
-          // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
-          greenFont(params) {
-            if (params.node.rowPinned) {
-              return false;
-            } else {
-              return params.value > 0;
-            }
-          },
-          redFont(params) {
-            if (params.node.rowPinned) {
-              return false;
-            } else {
-              return params.value < 0;
-            }
-          },
-          footerRow(params) {
-            if (params.node.rowPinned) {
-              return true;
-            } else {
-              return false;
-            }
-          }
-        }
-      },
+      ...CommonCols(),
       {
         field: 'Quantity',
         aggFunc: 'sum',
         width: 100,
+        colId: 'Quantity',
         headerName: 'Quantity',
         sortable: true,
         enableRowGroup: true,
         filter: true
-      },
-
-      {
-        field: 'TradeCurrency',
-        width: 100,
-        headerName: 'Trade Ccy',
-        sortable: true,
-        enableRowGroup: true,
-        filter: true
-      },
-      {
-        field: 'SettleCurrency',
-        headerName: 'Settle Ccy',
-        sortable: true,
-        enableRowGroup: true,
-        filter: true,
-        width: 100
-      },
-      {
-        field: 'Symbol',
-        headerName: 'Symbol',
-        sortable: true,
-        enableRowGroup: true,
-        filter: true
-      },
-      {
-        field: 'Side',
-        headerName: 'Side',
-        sortable: true,
-        enableRowGroup: true,
-        filter: true,
-        width: 100
       }
     ];
-    const cdefs = this.agGridUtls.customizeColumns(colDefs, this.columns, this.ignoreFields);
+    const cdefs = this.agGridUtls.customizeColumns(colDefs, columns, this.ignoreFields);
     this.gridOptions.api.setColumnDefs(cdefs);
   }
 
@@ -433,7 +248,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
           }
           someArray.push(someObject);
         }
-
         this.customizeColumns(this.columns);
         this.rowData = someArray as [];
         this.gridOptions.api.setRowData(this.rowData);
@@ -449,6 +263,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
           }
         ];
         this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
+        this.gridOptions.api.refreshCells();
         AutoSizeAllColumns(this.gridOptions);
       });
   }
@@ -461,9 +276,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   getRangeLabel() {
     this.DateRangeLabel = '';
     this.DateRangeLabel = GetDateRangeLabel(this.startDate, this.endDate);
-    if (this.DateRangeLabel === 'Custom') {
-      // this.startDate = moment();
-    }
   }
 
   setWidthAndHeight(width, height) {
@@ -473,15 +285,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       height,
       boxSizing: 'border-box'
     };
-  }
-
-  onBtExport() {
-    const params = {
-      fileName: 'Journals',
-      sheetName: 'First Sheet'
-    };
-    this.gridOptions.api.exportDataAsExcel(params);
-    this.downloadExcelUtils.ToastrMessage();
   }
 
   ngModelChange(e) {
@@ -674,11 +477,4 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       }
     });
   }
-}
-
-function currencyFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  return CommaSeparatedFormat(params.value);
 }

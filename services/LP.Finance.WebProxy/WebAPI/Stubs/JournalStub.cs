@@ -38,12 +38,27 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
             throw new NotImplementedException();
         }
 
-        public object GetCostBasisReport(DateTime? from, DateTime? to, string fund)
+        public object GetCostBasisReport(DateTime? date, string fund)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object GetCostBasisChart(string symbol)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object GetTaxLotReport(DateTime? from, DateTime? to, string fund)
         {
             throw new NotImplementedException();
         }
 
         public object GetAccountingTileData(DateTime? from, DateTime? to, string fund)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object GetTaxLotsReport(DateTime? from, DateTime? to, string fund)
         {
             throw new NotImplementedException();
         }

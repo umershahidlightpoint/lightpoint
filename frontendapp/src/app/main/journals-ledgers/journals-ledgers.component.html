@@ -60,28 +60,8 @@
 
         <!----- Buttons Div Starts ----->
         <div class="ml-auto">
-          <!----- Expand Button  ----->
-          <div class="mr-2 tabBtn">
-            <button (click)="setGroupingState(true)" class="btn btn-info" tooltip="Expand" placement="top">
-              <i class="fa fa-expand"></i></button>
-          </div>
-          <!----- Collapse Button  ----->
-          <div class="mr-2 tabBtn">
-            <button (click)="setGroupingState(false)" class="btn btn-info" tooltip="Collapse" placement="top">
-              <i class="fa fa-compress"></i></button>
-          </div>
-          <!----- Refresh Button  ----->
-          <div class="mr-2  tabBtn">
-            <button (click)="refreshGrid()" class="btn btn-info" tooltip="Refresh" placement="top">
-              <i class="fa fa-refresh"></i>
-            </button>
-          </div>
-          <!----- Export to Excel Button  ----->
-          <div class="mr-2  tabBtn">
-            <button (click)="onBtExport()" class="btn btn-info" tooltip="Export to Excel" placement="top">
-              <i class="fa fa-arrow-circle-o-down"></i>
-            </button>
-          </div>
+          <app-grid-utils [gridOptions]="gridOptions" (refresh)="refreshGrid()" [excelParams]="excelParams">
+          </app-grid-utils>
           <!----- Create Journal Button  ----->
           <div class="mr-4 tabBtn">
             <button class="btn btn-info" type="button" (click)="openJournalModal()" tooltip="Create Journal"

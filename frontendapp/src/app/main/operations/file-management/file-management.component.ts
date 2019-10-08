@@ -32,7 +32,19 @@ export class FileManagementComponent implements OnInit, OnDestroy {
   filesGridOptions: GridOptions;
   files: File[];
   isSubscriptionAlive: boolean;
-
+  excelParams = {
+    fileName: 'File Management',
+    sheetName: 'First Sheet',
+    columnKeys: [
+      'name',
+      'action',
+      'source',
+      'statistics',
+      'businessDate',
+      'actionStartDate',
+      'actionEndDate'
+    ]
+  };
   style = Style;
 
   styleForLogsHight = {
@@ -141,7 +153,7 @@ export class FileManagementComponent implements OnInit, OnDestroy {
       if (params.data.exceptions) {
         return { backgroundColor: '#ffcfcf' };
       }
-  }
+    };
     this.filesGridOptions.sideBar = SideBar(GridId.filesId, GridName.files, this.filesGridOptions);
   }
 
@@ -170,24 +182,6 @@ export class FileManagementComponent implements OnInit, OnDestroy {
   refreshFilesGrid() {
     this.filesGridOptions.api.showLoadingOverlay();
     this.getFiles();
-  }
-
-  onBtExportFiles() {
-    const params = {
-      fileName: 'File Management',
-      sheetName: 'First Sheet',
-      columnKeys: [
-        'name',
-        'action',
-        'source',
-        'statistics',
-        'businessDate',
-        'actionStartDate',
-        'actionEndDate'
-      ]
-    };
-    this.filesGridOptions.api.exportDataAsExcel(params);
-    this.downloadExcelUtils.ToastrMessage();
   }
 
   loadFilesGrid() {

@@ -34,15 +34,15 @@ import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
   styleUrls: ['./costbasis.component.css']
 })
 export class CostBasisComponent implements OnInit, AfterViewInit {
-  private gridColumnApi;
-  pinnedBottomRowData;
   gridOptions: GridOptions;
+  gridColumnApi;
+  pinnedBottomRowData;
   fund: any = 'All Funds';
   funds: Fund;
   DateRangeLabel: string;
+  selectedDate: any;
   startDate: any;
   endDate: any;
-  selected: { startDate: moment.Moment; endDate: moment.Moment };
   trialBalanceReport: Array<TrialBalanceReport>;
   trialBalanceReportStats: TrialBalanceReportStats;
   isLoading = false;
@@ -74,7 +74,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.initGrid();
     this.getFunds();
-    //this.getReport(null, null, 'ALL');
+    // this.getReport(null, null, 'ALL');
   }
 
   initGrid() {
@@ -89,6 +89,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       clearExternalFilter: this.clearFilters.bind(this),
       getExternalFilterState: this.getExternalFilterState.bind(this),
       rowSelection: 'single',
+      onCellClicked: this.rowSelected.bind(this),
       rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
       getContextMenuItems: params => this.getContextMenuItems(params),
@@ -102,9 +103,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           node.expanded = true;
         });
         params.api.onGroupExpandedOrCollapsed();
-
-        //AutoSizeAllColumns(params);
-        params.api.sizeColumnsToFit();
       },
       enableFilter: true,
       animateRows: true,
@@ -166,7 +164,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       this.hideGrid = obj;
       if (!this.hideGrid) {
         this.getFunds();
-        this.getReport(null, null, 'ALL');
+        this.getReport(null, 'ALL');
       }
     });
   }
@@ -181,14 +179,21 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   }
 
   // Being called twice
-  getReport(toDate, fromDate, fund) {
+  getReport(date, fund) {
     this.isLoading = true;
-    this.financeService.getCostBasisReport(toDate, fromDate, fund).subscribe(response => {
+    this.financeService.getCostBasisReport(date, fund).subscribe(response => {
       this.trialBalanceReportStats = response.stats;
       this.trialBalanceReport = response.data;
-      this.isLoading = false;
-      this.gridOptions.api.sizeColumnsToFit();
       this.gridOptions.api.setRowData(this.trialBalanceReport);
+      this.gridOptions.api.sizeColumnsToFit();
+      this.isLoading = false;
+    });
+  }
+
+  rowSelected(row) {
+    const { symbol } = row.data;
+    this.financeService.getCostBasisChart(symbol).subscribe(response => {
+      console.log(response.data);
     });
   }
 
@@ -217,7 +222,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   }
 
   getContextMenuItems(params) {
-    //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
+    // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(true, null, true, null, params);
   }
 
@@ -226,7 +231,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.startDate = dates[0];
     this.endDate = dates[1];
 
-    this.selected =
+    this.selectedDate =
       dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
   }
 
@@ -237,17 +242,21 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   clearFilters() {
     this.fund = 'All Funds';
-    this.selected = null;
+    this.selectedDate = null;
     this.DateRangeLabel = '';
-    this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
-    this.endDate = moment();
-    this.getReport(null, null, 'ALL');
+    this.startDate = '';
+    this.endDate = '';
+    this.getReport(null, 'ALL');
   }
 
   getExternalFilterState() {
+    console.log(this.startDate);
     return {
       fundFilter: this.fund,
-      dateFilter: { startDate: this.startDate, endDate: this.endDate }
+      dateFilter: {
+        startDate: this.startDate !== undefined ? this.startDate : '',
+        endDate: this.endDate !== undefined ? this.endDate : ''
+      }
     };
   }
 
@@ -256,14 +265,18 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       return;
     }
     this.startDate = selectedDate.startDate.format('YYYY-MM-DD');
-    this.endDate = selectedDate.endDate.format('YYYY-MM-DD');
-    this.getReport(this.startDate, this.endDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
+    this.getReport(this.startDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
     this.getRangeLabel();
   }
 
   changeFund(selectedFund) {
     this.fund = selectedFund;
-    this.getReport(this.startDate, this.endDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
+    this.getReport(this.startDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
+  }
+
+  refreshReport() {
+    this.gridOptions.api.showLoadingOverlay();
+    this.getReport(null, 'ALL');
   }
 
   onBtExport() {
@@ -273,11 +286,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     };
     this.gridOptions.api.exportDataAsExcel(params);
     this.downloadExcelUtils.ToastrMessage();
-  }
-
-  refreshReport() {
-    this.gridOptions.api.showLoadingOverlay();
-    this.getReport(null, null, 'ALL');
   }
 }
 

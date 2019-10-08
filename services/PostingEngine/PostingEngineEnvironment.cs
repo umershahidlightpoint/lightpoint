@@ -40,6 +40,7 @@ namespace PostingEngine
 
         public List<Journal> Journals { get; set; }
         public Dictionary<string, FxRate> FxRates { get; set; }
+        public Dictionary<string, MarketPrice> MarketPrices { get; set; }
 
         // Map of Product type to IPostingRule, now we can run each of these in parellel, once we have the data
         // which is readonly we can spin up a number of Tasks, each responsible for processing the right product
@@ -78,7 +79,7 @@ namespace PostingEngine
                 i.TradeDate.Date <= element.TradeDate.Date 
                 && i.Symbol == element.Symbol
                 && i.LpOrderId != element.LpOrderId
-                && (i.Side.ToLowerInvariant().Equals("buy") || i.Side.ToLowerInvariant().Equals("cover"))
+                && (i.Side.ToLowerInvariant().Equals("buy") || i.Side.ToLowerInvariant().Equals("short"))
                 )
                 .OrderBy(i=>i.TradeDate)
                 .ToList();

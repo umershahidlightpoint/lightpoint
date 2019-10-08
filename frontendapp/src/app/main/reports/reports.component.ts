@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Style } from 'src/shared/utils/Shared';
 
 @Component({
   selector: 'app-reports',
@@ -6,6 +7,9 @@ import { Component } from '@angular/core';
   styleUrls: ['./reports.component.css']
 })
 export class ReportsComponent {
+  costBasisReportActive = false;
+  style = Style;
+
   processingMsgDiv = {
     border: '1px solid #eee',
     padding: '4px',
@@ -14,4 +18,10 @@ export class ReportsComponent {
     height: 'calc(100vh - 125px)',
     boxSizing: 'border-box'
   };
+
+  tabChanged(e) {
+    if (e.index === 1) {
+      this.costBasisReportActive = true;
+    }
+  }
 }

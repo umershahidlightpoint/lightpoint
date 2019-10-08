@@ -438,7 +438,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return returnResult;
         }
 
-        public object GetCostBasisReport(DateTime? from = null, DateTime? to = null, string fund = "")
+        public object GetCostBasisReport(DateTime? date, string fund)
         {
             dynamic postingEngine = new PostingEngineService().GetProgress();
             if (postingEngine.IsRunning)
@@ -446,57 +446,107 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 return Utils.Wrap(false, "Posting Engine is currently Running");
             }
 
-            bool whereAdded = false;
-
-            var query = $@"SELECT a.name, journal.symbol, Abs(sum(value)) as Balance, sum(quantity) as Quantity, Abs(sum(value)) / sum(quantity) as CostBasis
-  FROM journal with(nolock)
-inner join account a on a.id = journal.account_id
-inner join account_type a_t on a_t.id = a.account_type_id
-where a_t.name = 'LONG POSITIONS AT COST'
-";
+            var query = $@"SELECT a.name, 
+                        journal.symbol, 
+                        ABS(SUM(value)) AS Balance, 
+                        SUM(quantity) AS Quantity, 
+                        ABS(SUM(value)) / SUM(quantity) AS CostBasis
+                        FROM journal WITH(NOLOCK)
+                        INNER JOIN account a ON a.id = journal.account_id
+                        INNER JOIN account_type a_t ON a_t.id = a.account_type_id
+                        WHERE a_t.name = 'LONG POSITIONS AT COST'";
 
             List<SqlParameter> sqlParams = new List<SqlParameter>();
 
-            if (from.HasValue)
+            if (date.HasValue)
             {
-                query = query + " and journal.[when] >= @from";
-                whereAdded = true;
-                sqlParams.Add(new SqlParameter("from", from));
-            }
-
-            if (to.HasValue)
-            {
-                if (whereAdded)
-                {
-                    query = query + " and journal.[when] <= @to";
-                    sqlParams.Add(new SqlParameter("to", to));
-                }
-                else
-                {
-                    query = query + " and journal.[when] <= @to";
-                    whereAdded = true;
-                    sqlParams.Add(new SqlParameter("to", to));
-                }
+                sqlParams.Add(new SqlParameter("date", date));
+                query = query + " AND journal.[when] <= @date";
             }
 
             if (fund != "ALL")
             {
-                if (whereAdded)
-                {
-                    query = query + " and journal.[fund] = @fund";
-                    whereAdded = true;
-                    sqlParams.Add(new SqlParameter("fund", fund));
-                }
-                else
-                {
-                    query = query + " and journal.[fund] = @fund";
-                    whereAdded = true;
-                    sqlParams.Add(new SqlParameter("fund", fund));
-                }
+                sqlParams.Add(new SqlParameter("fund", fund));
+                query = query + " AND journal.[fund] = @fund";
             }
 
             query = query +
-                    "  group by a.name, journal.symbol";
+                    "  GROUP BY a.name, journal.symbol";
+
+            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+
+            dynamic reportObject = new System.Dynamic.ExpandoObject();
+
+            reportObject.data = dataTable;
+
+            return reportObject;
+        }
+
+        public object GetCostBasisChart(string symbol)
+        {
+            dynamic postingEngine = new PostingEngineService().GetProgress();
+
+            if (postingEngine.IsRunning)
+            {
+                return Utils.Wrap(false, "Posting Engine is currently Running");
+            }
+
+            List<SqlParameter> sqlParams = new List<SqlParameter>
+            {
+                new SqlParameter("symbol", symbol)
+            };
+
+            var query = $@"SELECT journal.[when] AS Date, 
+                        ABS(SUM(value)) AS Balance, 
+                        SUM(quantity) AS Quantity, 
+                        ABS(SUM(value)) / SUM(quantity) AS CostBasis 
+                        FROM journal WITH(NOLOCK) 
+                        INNER JOIN account a ON a.id = journal.account_id 
+                        INNER JOIN account_type a_t ON a_t.id = a.account_type_id 
+                        WHERE a_t.name = 'LONG POSITIONS AT COST' AND journal.[symbol] = @symbol 
+                        GROUP BY journal.[when]";
+
+            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+
+            dynamic reportObject = new System.Dynamic.ExpandoObject();
+
+            reportObject.data = dataTable;
+
+            return reportObject;
+        }
+
+        public object GetTaxLotReport(DateTime? from = null, DateTime? to = null, string fund = "")
+        {
+            dynamic postingEngine = new PostingEngineService().GetProgress();
+            if (postingEngine.IsRunning)
+            {
+                return Utils.Wrap(false, "Posting Engine is currently Running");
+            }
+
+            var query = $@"select * from tax_lot_status";
+
+            List<SqlParameter> sqlParams = new List<SqlParameter>();
+
+            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+
+            dynamic reportObject = new System.Dynamic.ExpandoObject();
+
+            reportObject.data = dataTable;
+
+            return reportObject;
+        }
+
+        public object GetTaxLotsReport(DateTime? from = null, DateTime? to = null, string fund = "")
+        {
+            dynamic postingEngine = new PostingEngineService().GetProgress();
+            if (postingEngine.IsRunning)
+            {
+                return Utils.Wrap(false, "Posting Engine is currently Running");
+            }
+
+            var query = $@"select * from tax_lot";
+
+            List<SqlParameter> sqlParams = new List<SqlParameter>();
 
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
 
@@ -594,12 +644,16 @@ where a_t.name = 'LONG POSITIONS AT COST'
 
                 if (trialBalance.Credit.HasValue)
                 {
-                    trialBalance.CreditPercentage = stats.totalCredit > 0 ? Math.Abs((trialBalance.Credit.Value / Convert.ToInt64(stats.totalCredit)) * 100) : 0;
+                    trialBalance.CreditPercentage = stats.totalCredit > 0
+                        ? Math.Abs((trialBalance.Credit.Value / Convert.ToInt64(stats.totalCredit)) * 100)
+                        : 0;
                 }
 
                 if (trialBalance.Debit.HasValue)
                 {
-                    trialBalance.DebitPercentage = stats.totalDebit > 0 ? Math.Abs((trialBalance.Debit.Value / Convert.ToInt64(stats.totalCredit)) * 100) : 0;
+                    trialBalance.DebitPercentage = stats.totalDebit > 0
+                        ? Math.Abs((trialBalance.Debit.Value / Convert.ToInt64(stats.totalCredit)) * 100)
+                        : 0;
                 }
 
                 trialBalanceReport.Add(trialBalance);
@@ -617,14 +671,14 @@ where a_t.name = 'LONG POSITIONS AT COST'
         {
             if (!absValue)
             {
-                return o == DBNull.Value ? (decimal?)null : Convert.ToDecimal(o);
+                return o == DBNull.Value ? (decimal?) null : Convert.ToDecimal(o);
             }
 
-            return o == DBNull.Value ? (decimal?)null : Math.Abs(Convert.ToDecimal(o));
+            return o == DBNull.Value ? (decimal?) null : Math.Abs(Convert.ToDecimal(o));
         }
 
 
-        public object GetAccountingTileData(DateTime? from , DateTime? to, string fund)
+        public object GetAccountingTileData(DateTime? from, DateTime? to, string fund)
         {
             try
             {
@@ -684,7 +738,8 @@ where a_t.name = 'LONG POSITIONS AT COST'
                     }
                 }
 
-                query = query + "  group by fund,journal.account_id ) summary right join  account on summary.account_id= account.id ";
+                query = query +
+                        "  group by fund,journal.account_id ) summary right join  account on summary.account_id= account.id ";
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
 
                 List<TrialBalanceTileOutputDto> trialBalanceList = new List<TrialBalanceTileOutputDto>();
@@ -693,14 +748,19 @@ where a_t.name = 'LONG POSITIONS AT COST'
                 {
                     TrialBalanceTileOutputDto trialBalance = new TrialBalanceTileOutputDto();
                     AccountListTileOutputDto accountsList = new AccountListTileOutputDto();
-                    trialBalance.FundName = (row["fund"] != DBNull.Value && (string)row["fund"] != "") ? (string)row["fund"] : "N/A";
-                    trialBalance.FundCredit = row["Credit"] == DBNull.Value ? 0 : Convert.ToDecimal(row["Credit"]); ;
-                    trialBalance.FundDebit = row["Debit"] == DBNull.Value ? 0 : Math.Abs(Convert.ToDecimal(row["Debit"]));
+                    trialBalance.FundName = (row["fund"] != DBNull.Value && (string) row["fund"] != "")
+                        ? (string) row["fund"]
+                        : "N/A";
+                    trialBalance.FundCredit = row["Credit"] == DBNull.Value ? 0 : Convert.ToDecimal(row["Credit"]);
+                    ;
+                    trialBalance.FundDebit =
+                        row["Debit"] == DBNull.Value ? 0 : Math.Abs(Convert.ToDecimal(row["Debit"]));
                     trialBalance.FundBalance = trialBalance.FundCredit.Value - trialBalance.FundDebit.Value;
 
-                    accountsList.AccountName = (string)row["AccountName"];
+                    accountsList.AccountName = (string) row["AccountName"];
                     accountsList.AccountCredit = row["Credit"] == DBNull.Value ? 0 : Convert.ToDecimal(row["Credit"]);
-                    accountsList.AccountDebit = row["Debit"] == DBNull.Value ? 0 : Math.Abs(Convert.ToDecimal(row["Debit"]));
+                    accountsList.AccountDebit =
+                        row["Debit"] == DBNull.Value ? 0 : Math.Abs(Convert.ToDecimal(row["Debit"]));
                     accountsList.AccountBalance = accountsList.AccountDebit.Value - accountsList.AccountCredit.Value;
                     trialBalance.Accounts = new List<AccountListTileOutputDto>();
                     trialBalance.Accounts.Add(accountsList);
@@ -721,7 +781,7 @@ where a_t.name = 'LONG POSITIONS AT COST'
                 tileObject.status = HttpStatusCode.OK;
                 return tileObject;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Utils.Wrap(false);
             }
