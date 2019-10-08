@@ -390,6 +390,8 @@ namespace PostingEngine
 
                 postingEnv.ValueDate = valueDate;
                 postingEnv.FxRates = new FxRates().Get(valueDate);
+                postingEnv.MarketPrices = new MarketPrices().Get(valueDate);
+
                 //PostingEngineCallBack?.Invoke($"Pulled FxRates {valueDate} in {sw.ElapsedMilliseconds} ms");
 
                 var tradeData = postingEnv.Trades.Where(i => i.TradeDate <= valueDate).OrderBy(i => i.TradeDate.Date).ToList();
@@ -590,7 +592,7 @@ namespace PostingEngine
                     env.AddMessage($"Unable to process the Event for Settlement Date {ex.Message}");
                 }
             }
-            else if (env.ValueDate > element.TradeDate.Date && env.ValueDate < element.SettleDate.Date)
+            else if (env.ValueDate > element.TradeDate.Date)
             {
                 try
                 {
@@ -603,7 +605,7 @@ namespace PostingEngine
             }
             else
             {
-                //env.AddMessage($"Trade ignored ValueDate = {env.ValueDate}, TradeDate = {element.TradeDate.Date}, Settledate = {element.SettleDate.Date}");
+                
             }
 
             return true;

@@ -69,6 +69,8 @@ import { OperationsComponent } from './main/operations/operations.component';
 import { ButtonRendererComponent } from '../renderer/buttonRenderer';
 import { BalanceReportComponent } from './main/reports/balance-report/balance-report.component';
 import { CostBasisComponent } from './main/reports/costbasis/costbasis.component';
+import { TaxLotStatusComponent } from './main/reports/taxlotstatus/taxlotstatus.component';
+import { TaxLotsComponent } from './main/reports/taxlots/taxlots.component';
 import { TrialBalanceComponent } from './main/reports/trial-balance/trial-balance.component';
 import { ReportModalComponent } from '../shared/Component/report-modal/report-modal.component';
 import { AllocationsComponent } from './main/allocations/allocations.component';
@@ -106,6 +108,8 @@ import { FileExceptionComponent } from './main/operations/file-exception/file-ex
     ButtonRendererComponent,
     BalanceReportComponent,
     CostBasisComponent,
+    TaxLotStatusComponent,
+    TaxLotsComponent,
     TrialBalanceComponent,
     ReportModalComponent,
     AllocationsComponent,
