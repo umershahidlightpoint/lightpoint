@@ -31,17 +31,14 @@ export class ReportGridComponent implements OnInit, OnChanges, OnDestroy {
 
   async ngOnInit() {
     this.initGrid();
-    // console.log('ngOnInit');
   }
 
   async ngOnChanges(changes: SimpleChanges) {
     const { tableHeader, trialBalanceReport, trialBalanceReportStats, isTrialBalance } = changes;
-    // console.log('changes', changes);
     if (isTrialBalance) {
       await this.initGrid();
     }
     if (trialBalanceReport.currentValue !== undefined && tableHeader.currentValue !== undefined) {
-      // console.log('inside', changes);
       this.gridOptions.api.setColumnDefs(this.initColDefs(tableHeader.currentValue));
       this.gridOptions.api.setRowData(trialBalanceReport.currentValue);
       const pinnedBottomRowData = [
@@ -68,7 +65,7 @@ export class ReportGridComponent implements OnInit, OnChanges, OnDestroy {
       // isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       // doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       // clearExternalFilter: this.clearFilters.bind(this),
-      
+
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
@@ -94,7 +91,6 @@ export class ReportGridComponent implements OnInit, OnChanges, OnDestroy {
         filter: true
       }
     } as GridOptions;
-    // console.log('initGrid', this.gridOptions);
   }
 
   initColDefs(headerName) {

@@ -251,6 +251,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
   }
 
   isExternalFilterPassed(object) {
+    console.log('this grid option', this.gridOptions);
     const { fundFilter } = object;
     const { dateFilter } = object;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
@@ -265,6 +266,9 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
   }
 
   getExternalFilterState() {
+    // console.log('<================================================================>');
+    // console.log('this start Date ', this.startDate, '== this end Date', this.endDate);
+    // console.log('type start Date ', typeof this.startDate);
     return {
       fundFilter: this.fund,
       dateFilter:
