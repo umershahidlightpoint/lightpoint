@@ -13,16 +13,15 @@ export class GridId {
   static selectedJournalAllocationId = 12;
   static silverFilesId = 13;
   static gridViewsId = 14;
-  static costBasicId = 15;
+  static costBasisId = 15;
   static journalsId = 16;
   static fileExceptionId = 17;
   static closingTaxLotId = 18;
   static taxlotStatusId = 19;
+  static taxlotId = 19;
 }
 
 export class GridName {
-  static taxlotStatus = 'taxlotStatus';
-  static closingTaxLots = 'closingTaxLots';
   static journalsLedgers = 'Journals Ledgers';
   static trailBalance = 'Trail Balance';
   static account = 'Account';
@@ -37,7 +36,10 @@ export class GridName {
   static selectedJournalAllocation = 'Selected Journal Allocation';
   static silverFiles = 'Silver Files';
   static gridViews = 'Grid Views';
-  static costBasic = 'Cost Basic';
+  static costBasis = 'Cost Basis';
   static journals = 'Journals';
   static fileException = 'File Exception';
+  static closingTaxLots = 'Closing TaxLots';
+  static taxlotStatus = 'Taxlot Status';
+  static taxlot = 'Taxlot';
 }

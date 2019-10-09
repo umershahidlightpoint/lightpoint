@@ -11,7 +11,7 @@
   <!-- Filters Div Starts -->
   <div class="row ">
     <!-- Funds Dropdown Div Starts -->
-    <div class="col-md-2">
+    <div class="col-2">
       <select class="form-control" [(ngModel)]="fund" (ngModelChange)="changeFund($event)">
         <option selected>All Funds</option>
         <option *ngFor="let fund of funds" [ngValue]="fund.fundCode">
@@ -28,7 +28,7 @@
     <!-- DateRange Label Div Ends -->
 
     <!-- Date Picker Div Starts -->
-    <div class="col-md-3">
+    <div class="col-2">
       <form>
         <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
           [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" y name=" selectedDate"
@@ -38,7 +38,7 @@
     <!-- Date Picker Div Ends -->
 
     <!-- Clear Button Div Starts -->
-    <div class="col-md-3">
+    <div class="col-1">
       <button (click)="clearFilters()" class="btn btn-info" type="button">
         <i class="fa fa-remove"></i> Clear
       </button>
@@ -46,7 +46,7 @@
     <!-- Clear Button Div Ends -->
 
     <!----- Buttons Div Starts ----->
-    <div class="ml-auto">
+    <div class="col-3">
       <!----- Export to Excel Button  ----->
       <div class="mr-2 tabBtn">
         <button (click)="onBtExport()" class="btn btn-info" tooltip="Export to Excel" placement="top">
@@ -54,28 +54,47 @@
         </button>
       </div>
       <!-- Refresh Button Div Starts -->
-      <div class="mr-3 tabBtn">
+      <div class="mr-2 tabBtn">
         <button (click)="refreshReport()" class="btn btn-info" tooltip="Refresh" placement="top">
           <i class="fa fa-refresh"></i></button>
       </div>
       <!-- Refresh Button Div Ends -->
     </div>
     <!----- Buttons Div Ends ----->
+    <!----- Chart DropDown Div Starts ----->
+    <div class="ml-auto">
+      <!----- Chart Data DropDown Starts ----->
+      <div class="mr-2 tabBtn">
+        <select class="form-control" [(ngModel)]="selectedChartOption" (ngModelChange)="changeChart($event)">
+          <option *ngFor="let option of chartOptions" [ngValue]="option.key">
+            {{option.value}}
+          </option>
+        </select>
+      </div>
+      <!----- Chart Data DropDown Ends  ----->
+    </div>
+    <!----- Chart DropDown Div Ends ----->
   </div>
   <!-- Filters Div Ends -->
 
   <!-- Report Grid Starts -->
-  <div #divToMeasureJournal>
-    <div class="row">
-      <div class="col-6" [ngStyle]="styleForHeight">
-        <ag-grid-angular class="bg-size" style="width: 100%; height: 100%" class="ag-theme-balham"
-          [gridOptions]="gridOptions">
-        </ag-grid-angular>
-      </div>
-      <div class="col-6">
-
+  <div class="row">
+    <!-- Report AG Grid Column Starts -->
+    <div class="col-6" [ngStyle]="styleForHeight">
+      <ag-grid-angular class="bg-size" style="width: 100%; height: 100%" class="ag-theme-balham"
+        [gridOptions]="gridOptions">
+      </ag-grid-angular>
+    </div>
+    <!-- Report AG Grid Column Ends -->
+    <!-- Chart Column Starts -->
+    <div class="col-6" [ngStyle]="styleForHeight">
+      <div *ngIf="displayChart" class="line-chart-wrapper">
+        <eikos-line-plot class="d-block chart" [propID]="propID" [colors]="lineColors" [data]="cbData"
+          [xAxisLabel]="'Date'" [divHeight]="divHeight" [divWidth]="divWidth">
+        </eikos-line-plot>
       </div>
     </div>
+    <!-- Chart Column Ends -->
   </div>
   <!-- Report Grid Ends -->
 </div>

@@ -92,3 +92,29 @@ html {
 ::ng-deep .rightAlign {
   text-align: right;
 }
+
+::ng-deep .line-chart-wrapper svg {
+  height: 24rem;
+}
+
+::ng-deep .line-chart-wrapper .axis line {
+  stroke: #3b3a39 !important;
+}
+
+::ng-deep .line-chart-wrapper .y-axis {
+  color: #b3b2b6 !important;
+}
+
+::ng-deep .line-chart-wrapper .x-axis {
+  color: #94918e !important;
+}
+
+::ng-deep .line-chart-wrapper .line {
+  fill: none;
+  stroke-width: 3 !important;
+}
+
+::ng-deep .line-chart-wrapper .axis path,
+.axis line {
+  stroke: #32a0f3;
+}

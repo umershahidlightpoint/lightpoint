@@ -224,11 +224,6 @@ export const SetDateRange = (dateFilter, startDate, endDate) => {
 };
 
 export const DoesExternalFilterPass = (node, fund, startDate, endDate) => {
-  if (typeof startDate === 'string') {
-    startDate = moment(startDate);
-    endDate = moment(endDate);
-  }
-
   if (fund !== 'All Funds' && startDate) {
     const cellFund = node.data.fund;
     const cellDate = new Date(node.data.when);
@@ -299,6 +294,7 @@ export const CommonCols = () => {
     {
       field: 'source',
       minWidth: 300,
+      enableRowGroup: true,
       headerName: 'Source',
       colId: 'source'
     },
@@ -315,6 +311,7 @@ export const CommonCols = () => {
       field: 'AccountCategory',
       headerName: 'Category',
       enableRowGroup: true,
+      rowGroup:false,
       width: 100,
       enablePivot: true,
       filter: true,
@@ -333,6 +330,7 @@ export const CommonCols = () => {
       field: 'accountName',
       headerName: 'Account Name',
       sortable: true,
+      rowGroup:false,
       enableRowGroup: true,
       filter: true,
       colId: 'accountName'
@@ -514,3 +512,7 @@ function currencyFormatter(params) {
   }
   return CommaSeparatedFormat(params.value);
 }
+
+export const FormatDate = (date: any, format: string) => {
+  return moment(date).format(format);
+};

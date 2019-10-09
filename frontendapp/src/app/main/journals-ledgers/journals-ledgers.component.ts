@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import 'ag-grid-enterprise';
 import { GridOptions } from 'ag-grid-community';
-import { ModalDirective } from 'ngx-bootstrap';
 import * as moment from 'moment';
 /* Services/Components Imports */
 import {
@@ -21,7 +20,6 @@ import {
   CalTotalRecords,
   GetDateRangeLabel,
   SetDateRange,
-  CommaSeparatedFormat,
   HeightStyle,
   AutoSizeAllColumns,
   CommonCols
@@ -44,10 +42,7 @@ import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
   styleUrls: ['./journals-ledgers.component.css']
 })
 export class JournalsLedgersComponent implements OnInit, AfterViewInit {
-  @ViewChild('divToMeasureJournal') divToMeasureElement: ElementRef;
-  @ViewChild('divToMeasureLedger') divToMeasureElementLedger: ElementRef;
-  @ViewChild('modal') modal: ModalDirective;
-  @ViewChild('journalModal') jounalModal: JournalModalComponent;
+  @ViewChild('journalModal') journalModal: JournalModalComponent;
   @ViewChild('dataModal') dataModal: DataModalComponent;
   @ViewChild('reportModal') reportModal: ReportModalComponent;
 
@@ -437,7 +432,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   }
 
   openJournalModal() {
-    this.jounalModal.openModal({});
+    this.journalModal.openModal({});
   }
 
   closeJournalModal() {
@@ -458,7 +453,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   }
 
   openEditModal(data) {
-    this.jounalModal.openModal(data);
+    this.journalModal.openModal(data);
   }
 
   openChartModal(data) {

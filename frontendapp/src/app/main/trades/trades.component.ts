@@ -1,6 +1,5 @@
 import {
   Component,
-  ElementRef,
   OnInit,
   ViewChild,
   AfterViewInit,
@@ -25,8 +24,6 @@ import { GetContextMenu } from 'src/shared/utils/ContextMenu';
   styleUrls: ['./trades.component.css']
 })
 export class TradesComponent implements OnInit, AfterViewInit {
-  @ViewChild('topGrid') topGrid;
-  @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
   @ViewChild('dataModal') dataModal: DataModalComponent;
 
   @Output() titleEmitter = new EventEmitter<string>();
@@ -36,12 +33,9 @@ export class TradesComponent implements OnInit, AfterViewInit {
   public rowData: [];
 
   bottomOptions = { alignedGrids: [] };
-  bottomData: any;
-  fund: any;
   pageSize: any;
   accountSearch = { id: undefined };
   valueFilter: number;
-  funds: any;
   sortColum: any;
   sortDirection: any;
   page: any;
@@ -50,6 +44,11 @@ export class TradesComponent implements OnInit, AfterViewInit {
   hideGrid: boolean;
   title = '';
   orderId: number;
+
+  // Process Trade state
+  isSubscriptionAlive: boolean;
+  key: string;
+
   style = Style;
 
   setWidthAndHeight(width, height) {
@@ -71,10 +70,25 @@ export class TradesComponent implements OnInit, AfterViewInit {
     this.hideGrid = false;
   }
 
+  ngOnInit() {
+    this.isSubscriptionAlive = true;
+    // this.getTrades();
+  }
+
+  ngAfterViewInit(): void {
+    this.dataService.flag$.subscribe(obj => {
+      this.hideGrid = obj;
+      if (!this.hideGrid) {
+        this.getTrades();
+      }
+    });
+  }
+
   splitColId(colId: any) {
     const modifiedColId = colId.split('_');
     return modifiedColId[0];
   }
+
   openModal = row => {
     // We can drive the screen that we wish to display from here
     if (row.colDef.headerName === 'Group') {
@@ -94,20 +108,6 @@ export class TradesComponent implements OnInit, AfterViewInit {
       return;
     }
   };
-
-  ngAfterViewInit(): void {
-    this.dataService.flag$.subscribe(obj => {
-      this.hideGrid = obj;
-      if (!this.hideGrid) {
-        this.getTrades();
-      }
-    });
-  }
-
-  ngOnInit() {
-    this.isSubscriptionAlive = true;
-    // this.getTrades();
-  }
 
   getTrades() {
     // align scroll of grid and footer grid
@@ -140,10 +140,6 @@ export class TradesComponent implements OnInit, AfterViewInit {
       });
     }
   }
-
-  // Process Trade state
-  isSubscriptionAlive: boolean;
-  key: string;
 
   processOrder(orderId: string, row: any) {
     this.financeService
@@ -186,11 +182,9 @@ export class TradesComponent implements OnInit, AfterViewInit {
       onGridReady: params => {
         this.gridOptions.api = params.api;
         this.gridOptions.columnApi = params.columnApi;
-        // this.gridOptions.api.sizeColumnsToFit();
       },
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
-
         // params.api.sizeColumnsToFit();
       },
       rowSelection: 'single',

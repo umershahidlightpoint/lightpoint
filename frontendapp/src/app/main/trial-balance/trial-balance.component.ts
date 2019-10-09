@@ -1,12 +1,5 @@
 /* Core/Libraries Imports */
-import {
-  Component,
-  ElementRef,
-  OnInit,
-  ViewChild,
-  ChangeDetectorRef,
-  AfterContentInit
-} from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterContentInit } from '@angular/core';
 import 'ag-grid-enterprise';
 import { GridOptions } from 'ag-grid-community';
 import * as moment from 'moment';
@@ -32,7 +25,6 @@ import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-m
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
 import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
-import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import { AgGridUtils } from 'src/shared/utils/ag-grid-utils';
 
 @Component({
@@ -41,7 +33,6 @@ import { AgGridUtils } from 'src/shared/utils/ag-grid-utils';
   styleUrls: ['./trial-balance.component.css']
 })
 export class TrialGridExampleComponent implements OnInit, AfterContentInit {
-  @ViewChild('divToMeasureJournal') divToMeasureElement: ElementRef;
   @ViewChild('dataModal') dataModal: DataModalComponent;
   @ViewChild('reportModal') reportModal: ReportModalComponent;
 
@@ -99,7 +90,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     private cdRef: ChangeDetectorRef,
     private dataService: DataService,
     private financeService: FinancePocServiceProxy,
-    private downloadExcelUtils: DownloadExcelUtils,
     private agGridUtls: AgGridUtils
   ) {
     this.hideGrid = false;
@@ -175,6 +165,13 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   */
   customizeColumns(columns: any) {
     const colDefs = CommonCols();
+
+    // Now need to go thru this list and group the right fields
+    colDefs.forEach(col => {
+      if (col.field === 'AccountCategory') col.rowGroup = true;
+      if (col.field === 'accountName') col.rowGroup = true;
+    });
+
     const cdefs = this.agGridUtls.customizeColumns(colDefs, columns, this.ignoreFields);
     this.gridOptions.api.setColumnDefs(cdefs);
   }
@@ -321,7 +318,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   }
 
   doesExternalFilterPass(node: any) {
-    return DoesExternalFilterPass(node, this.fund, this.startDate, this.endDate);
+    return DoesExternalFilterPass(node, this.fund, moment(this.startDate), moment(this.endDate));
   }
 
   setDateRange(dateFilter: any) {
@@ -361,12 +358,4 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       }
     });
   }
-}
-
-function formatNumber(numberToFormat: number) {
-  return numberToFormat === 0
-    ? '0.00'
-    : Math.floor(numberToFormat)
-        .toString()
-        .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 }

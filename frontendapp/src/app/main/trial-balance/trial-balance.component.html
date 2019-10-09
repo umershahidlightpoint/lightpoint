@@ -53,6 +53,8 @@
         <div class="ml-auto">
           <app-grid-utils [gridOptions]="gridOptions" (refresh)="refreshGrid()" [excelParams]="excelParams">
           </app-grid-utils>
+          <div class="mr-2">
+          </div>
         </div>
         <!-- Action Buttons Div Ends -->
       </div>
@@ -60,11 +62,9 @@
 
       <div style="clear: both"></div>
       <!-- Trial Balance Grid Div Starts -->
-      <div #divToMeasureJournal>
-        <div [ngStyle]="styleForHeight">
-          <ag-grid-angular style="width: 100%; height: 100%" class="ag-theme-balham" [gridOptions]="gridOptions">
-          </ag-grid-angular>
-        </div>
+      <div [ngStyle]="styleForHeight">
+        <ag-grid-angular style="width: 100%; height: 100%" class="ag-theme-balham" [gridOptions]="gridOptions">
+        </ag-grid-angular>
       </div>
       <!-- Trial Balance Grid Div Ends -->
     </p-tabPanel>

@@ -1,22 +1,21 @@
-    <!----- Grid View Div Starts ----->
-    <div [ngStyle]="styleForHeight" style="display: flex">
-      <!----- AG Grid Starts ----->
-      <ag-grid-angular style="width: 55%; height: 100%" class="ag-theme-balham" [gridOptions]="gridOptions">
-      </ag-grid-angular>
-      <!----- AG Grid Ends ----->
-      <!----- Action buttons Template Starts ----->
-      <ng-template #actionButtons let-row>
-        <button class="btn action-btn fixHeight" (click)="viewLayout(row)" tooltip="View" placement="auto"
-          container="body">
-          <i class="fa fa-lg fa-eye" aria-hidden="true"></i>
-        </button>
-      </ng-template>
-      <!----- Action buttons Template Ends ----->
+<!----- Grid View Div Starts ----->
+<div [ngStyle]="styleForHeight" style="display: flex">
+  <!----- AG Grid Starts ----->
+  <ag-grid-angular style="width: 55%; height: 100%" class="ag-theme-balham" [gridOptions]="gridOptions">
+  </ag-grid-angular>
+  <!----- AG Grid Ends ----->
+  <!----- Action buttons Template Starts ----->
+  <ng-template #actionButtons let-row>
+    <button class="btn action-btn fixHeight" (click)="viewLayout(row)" tooltip="View" placement="auto" container="body">
+      <i class="fa fa-lg fa-eye" aria-hidden="true"></i>
+    </button>
+  </ng-template>
+  <!----- Action buttons Template Ends ----->
 
-      <!----- Grid Layout Json Div Starts ----->
-      <div *ngIf="invalidRecordJson" class="json-viewer-border">
-        <pre>{{invalidRecordJson | json}}</pre>
-      </div>
-      <!----- Grid Layout Json Div Ends ----->
+  <!----- Grid Layout Json Div Starts ----->
+  <div *ngIf="invalidRecordJson" class="json-viewer-border">
+    <pre>{{invalidRecordJson | json}}</pre>
+  </div>
+  <!----- Grid Layout Json Div Ends ----->
 
-    </div>
+</div>

@@ -14,7 +14,6 @@ import {
   ExcelStyle,
   CalTotalRecords,
   GetDateRangeLabel,
-  DoesExternalFilterPass,
   FormatNumber,
   SetDateRange,
   CommaSeparatedFormat,
@@ -46,7 +45,6 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
   trialBalanceReportStats: TrialBalanceReportStats;
   isLoading = false;
   hideGrid: boolean;
-  flag = false;
   title = 'Account Name';
 
   ranges: any = Ranges;
@@ -85,10 +83,11 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onFilterChanged: this.onFilterChanged.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
-      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      clearExternalFilter: this.clearFilters.bind(this),
+      // Custom made methods for Grid Menu Layout
+      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       getExternalFilterState: this.getExternalFilterState.bind(this),
+      clearExternalFilter: this.clearFilters.bind(this),
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
@@ -228,7 +227,6 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
         debitPercentage: data.DebitPercentage,
         balance: FormatNumber(data.Balance)
       }));
-      this.flag = true;
       this.isLoading = false;
       this.pinnedBottomRowData = [
         {
@@ -251,42 +249,36 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
   }
 
   isExternalFilterPassed(object) {
-    console.log('this grid option', this.gridOptions);
     const { fundFilter } = object;
     const { dateFilter } = object;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
     this.setDateRange(dateFilter);
-    this.gridOptions.api.onFilterChanged();
+    this.getReport(this.fund, this.startDate, this.endDate);
   }
 
   isExternalFilterPresent() {
-    if (this.fund !== 'All Funds' || this.startDate) {
-      return true;
-    }
+    // Not using External Filters on Front End.
   }
 
   getExternalFilterState() {
-    // console.log('<================================================================>');
-    // console.log('this start Date ', this.startDate, '== this end Date', this.endDate);
-    // console.log('type start Date ', typeof this.startDate);
     return {
       fundFilter: this.fund,
       dateFilter:
         this.DateRangeLabel !== ''
           ? this.DateRangeLabel
           : {
-              startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
-              endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
+              startDate: this.startDate !== null ? this.startDate : '',
+              endDate: this.endDate !== null ? this.endDate : ''
             }
     };
   }
 
   doesExternalFilterPass(node: any) {
-    return DoesExternalFilterPass(node, this.fund, this.startDate, this.endDate);
+    // Not using External Filters on Front End.
   }
 
   getContextMenuItems(params) {
-    //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
+    // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(true, null, true, null, params);
   }
 
@@ -308,8 +300,8 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
     this.fund = 'All Funds';
     this.selected = null;
     this.DateRangeLabel = '';
-    this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
-    this.endDate = moment();
+    this.startDate = '';
+    this.endDate = '';
     this.getReport(null, null, 'ALL');
   }
 

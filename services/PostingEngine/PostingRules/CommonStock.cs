@@ -19,6 +19,13 @@ namespace PostingEngine.PostingRules
             // Calculate the unrealized PNL
             if (env.TaxLotStatus.ContainsKey(element.LpOrderId))
             {
+                var tradeAllocations = env.Allocations.Where(i => i.ParentOrderId == element.ParentOrderId).ToList();
+
+                if (tradeAllocations.Count == 0)
+                {
+
+                }
+
                 // Determine if we need to accumulate unrealized PNL
                 var taxlot = env.TaxLotStatus[element.LpOrderId];
                 if ( !taxlot.Status.ToLowerInvariant().Equals("closed"))
@@ -61,6 +68,11 @@ namespace PostingEngine.PostingRules
                     new AccountUtils().SaveAccountDetails(env, fromAccount);
                     new AccountUtils().SaveAccountDetails(env, toAccount);
 
+                    var fund = tradeAllocations[0].Fund;
+                    if ( String.IsNullOrEmpty(fund))
+                    {
+
+                    }
                     var debit = new Journal
                     {
                         Source = element.LpOrderId,
@@ -72,7 +84,7 @@ namespace PostingEngine.PostingRules
                         FxRate = fxRate,
                         Value = unrealizedPnl * -1,
                         GeneratedBy = "system",
-                        Fund = element.Fund,
+                        Fund = fund,
                     };
 
                     var credit = new Journal
@@ -86,7 +98,7 @@ namespace PostingEngine.PostingRules
                         Quantity = quantity,
                         Value = unrealizedPnl,
                         GeneratedBy = "system",
-                        Fund = element.Fund,
+                        Fund = fund,
                     };
 
                     env.Journals.AddRange(new[] { debit, credit });
@@ -459,10 +471,21 @@ namespace PostingEngine.PostingRules
 
         private void PostRealizedPnl(PostingEngineEnvironment env, Transaction element, double pnL)
         {
+            var tradeAllocations = env.Allocations.Where(i => i.ParentOrderId == element.ParentOrderId).ToList();
+            if( tradeAllocations.Count == 0)
+            {
+
+            }
             var accountToFrom = RealizedPnlPosting(element);
 
             new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
             new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
+
+            var fund = tradeAllocations[0].Fund;
+            if (String.IsNullOrEmpty(fund))
+            {
+
+            }
 
             var debitJournal = new Journal
             {
@@ -475,7 +498,7 @@ namespace PostingEngine.PostingRules
                 Symbol = element.Symbol,
                 FxRate = 1,
                 GeneratedBy = "system",
-                Fund = element.Fund,
+                Fund = tradeAllocations[0].Fund,
             };
 
             var creditJournal = new Journal
@@ -489,7 +512,7 @@ namespace PostingEngine.PostingRules
                 FxRate = 1,
                 Value = pnL,
                 GeneratedBy = "system",
-                Fund = element.Fund,
+                Fund = tradeAllocations[0].Fund,
             };
 
             env.Journals.AddRange(new[] { debitJournal, creditJournal });

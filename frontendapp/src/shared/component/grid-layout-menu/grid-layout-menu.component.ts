@@ -25,7 +25,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
   isPublicSelected = false;
   isNewLayout = false;
 
-  compareFn = (a, b) => this._compareFn(a, b);
+  compareFn = (current, previous) => this._compareFn(current, previous);
 
   constructor(
     private financeService: FinancePocServiceProxy,
@@ -148,11 +148,11 @@ export class GridLayoutMenuComponent implements IToolPanel {
     this.confirmationModal.showModal();
   }
 
-  _compareFn(a, b) {
-    if (a.Id === 0 || a.Id === null || b.Id === null) {
-      return a.Id;
+  _compareFn(current, previous) {
+    if (current.Id === 0 || current.Id === null || previous === null) {
+      return current.Id;
     }
-    return a.Id === b.Id;
+    return current.Id === previous.Id;
   }
 
   refresh() {}
