@@ -14,9 +14,6 @@ import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/util
   styleUrls: ['./accruals.component.css']
 })
 export class AccrualsComponent implements OnInit, AfterViewInit {
-  @ViewChild('topGrid') topGrid;
-  @ViewChild('bottomGrid') bottomGrid;
-  @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
   @ViewChild('dataModal') dataModal: DataModalComponent;
 
   public gridOptions: GridOptions;
@@ -26,12 +23,9 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
   public allocationsData: [];
 
   bottomOptions = { alignedGrids: [] };
-  bottomData: any;
-  fund: any;
   pageSize: any;
   accountSearch = { id: undefined };
   valueFilter: number;
-  funds: any;
   sortColum: any;
   sortDirection: any;
   page: any;

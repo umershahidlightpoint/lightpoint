@@ -14,13 +14,10 @@ import {
   ExcelStyle,
   CalTotalRecords,
   GetDateRangeLabel,
-  DoesExternalFilterPass,
-  FormatNumber,
   FormatNumber4,
   SetDateRange,
   CommaSeparatedFormat,
-  HeightStyle,
-  AutoSizeAllColumns
+  HeightStyle
 } from 'src/shared/utils/Shared';
 import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';

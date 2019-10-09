@@ -1,13 +1,10 @@
 import {
   Component,
-  TemplateRef,
   ElementRef,
   OnInit,
   AfterViewChecked,
   ViewChild,
-  OnDestroy,
-  Output,
-  EventEmitter
+  OnDestroy
 } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
@@ -18,10 +15,8 @@ import { ToastrService } from 'ngx-toastr';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { DataService } from 'src/shared/common/data.service';
-import { SideBar, Style, AutoSizeAllColumns } from 'src/shared/utils/Shared';
+import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 
 @Component({
@@ -30,19 +25,15 @@ import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-mo
   styleUrls: ['./operations.component.css']
 })
 export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked {
-  @ViewChild('bottomGrid') bottomGrid;
-  @ViewChild('dateRangPicker') dateRangPicker;
-  @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
   @ViewChild('confirmModal') confirmationModal: ConfirmationModalComponent;
   @ViewChild('logScroll') private logContainer: ElementRef;
-  @ViewChild('actionButtons') actionButtons: TemplateRef<any>;
-  @Output() showPostingEngineMsg: EventEmitter<any> = new EventEmitter<any>();
-  @Output() refreshFiles: EventEmitter<any> = new EventEmitter<any>();
+  // @Output() showPostingEngineMsg: EventEmitter<any> = new EventEmitter<any>();
+  // @Output() refreshFiles: EventEmitter<any> = new EventEmitter<any>();
 
   public gridOptions: GridOptions;
-  private defaultColDef: any;
   public rowData: any[];
   private bottomOptions: any = { alignedGrids: [] };
+  private defaultColDef: any;
 
   isSubscriptionAlive: boolean;
   isLoading = false;
@@ -54,8 +45,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   key: any;
   messages: any;
   progress: any;
-  startDate: any;
-  endDate: any;
   symbol: string;
   page: any;
   pageSize: any;
@@ -63,7 +52,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   valueFilter: number;
   sortColum: any;
   sortDirection: any;
-  backdrop: any;
   businessDate: any;
 
   excelParams = {
@@ -82,19 +70,9 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   style = Style;
 
-  styleForLogsHight = {
-    marginTop: '20px',
-    width: '100%',
-    height: 'calc(100vh - 220px)',
-    boxSizing: 'border-box'
-  };
+  styleForLogsHeight = HeightStyle(220);
 
-  styleForTasksHight = {
-    marginTop: '20px',
-    width: '100%',
-    height: 'calc(100vh - 180px)',
-    boxSizing: 'border-box'
-  };
+  styleForTasksHeight = HeightStyle(180);
 
   containerDiv = {
     border: '1px solid #eee',
@@ -131,9 +109,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   constructor(
     private financeService: FinancePocServiceProxy,
     private toastrService: ToastrService,
-    private dataService: DataService,
-    private postingEngineService: PostingEngineService,
-    private downloadExcelUtils: DownloadExcelUtils
+    private postingEngineService: PostingEngineService
   ) {
     this.initGrid();
   }

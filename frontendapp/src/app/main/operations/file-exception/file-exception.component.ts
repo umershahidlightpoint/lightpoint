@@ -24,16 +24,15 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
   detailCellRendererParams;
   gridLayouts: any;
   rowData: any;
-  selectedLayout = null;
   invalidRecordJson = null;
+
   styleForHeight = HeightStyle(180);
 
   constructor(
     private financeService: FinancePocServiceProxy,
     private toastrService: ToastrService,
     private dataService: DataService
-  ) { 
-  }
+  ) {}
 
   ngOnInit() {
     // this.isEngineRunning = this.postingEngineService.getStatus();
@@ -50,7 +49,6 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
   }
 
   initGrid() {
-
     this.gridOptions = {
       rowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
@@ -60,12 +58,12 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
       suppressColumnVirtualisation: true,
-      masterDetail : true,
+      masterDetail: true,
       detailCellRendererParams: {
         detailGridOptions: {
           columnDefs: [
-            { field: "referenceNumber" },
-            { field: "rowNumber"},
+            { field: 'referenceNumber' },
+            { field: 'rowNumber' },
             {
               headerName: 'Actions',
               cellRendererFramework: TemplateRendererComponent,
@@ -81,34 +79,32 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
         getDetailRowData: function(params) {
           params.successCallback(params.data.exceptionList);
         },
-      getExternalFilterState: () => {
-        return {};
-      },
-      onGridReady: params => {},
-      onFirstDataRendered: params => {
-        AutoSizeAllColumns(params);
-        params.api.sizeColumnsToFit();
-      },
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      suppressHorizontalScroll: false,
-      defaultColDef: {
-        sortable: true,
-        resizable: true,
-        filter: true
+        getExternalFilterState: () => {
+          return {};
+        },
+        onGridReady: params => {},
+        onFirstDataRendered: params => {
+          AutoSizeAllColumns(params);
+          params.api.sizeColumnsToFit();
+        },
+        enableFilter: true,
+        animateRows: true,
+        alignedGrids: [],
+        suppressHorizontalScroll: false,
+        defaultColDef: {
+          sortable: true,
+          resizable: true,
+          filter: true
+        }
       }
-    }
-   } as GridOptions;
+    } as GridOptions;
 
-   this.gridOptions.sideBar = SideBar(
-    GridId.fileExceptionId,
-    GridName.fileException,
-    this.gridOptions
-  );
+    this.gridOptions.sideBar = SideBar(
+      GridId.fileExceptionId,
+      GridName.fileException,
+      this.gridOptions
+    );
   }
-
-  
 
   customizeColumns() {
     const colDefs = [
@@ -120,7 +116,7 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
       {
         field: 'fileName',
         headerName: 'File Name',
-        cellRenderer: "agGroupCellRenderer"
+        cellRenderer: 'agGroupCellRenderer'
       },
       {
         field: 'businessDate',
@@ -154,7 +150,7 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
               businessDate: moment(data.BusinessDate).format('YYYY-MM-DD'),
               exceptionCount: data.Exceptions,
               exceptionList: data.ExceptionList.map(d => ({
-                referenceNumber : d.Reference,
+                referenceNumber: d.Reference,
                 rowNumber: JSON.parse(d.Record).RowNumber,
                 record: d.Record
               }))

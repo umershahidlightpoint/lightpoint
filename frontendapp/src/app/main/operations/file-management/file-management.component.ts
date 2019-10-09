@@ -1,24 +1,14 @@
-import {
-  Component,
-  TemplateRef,
-  ElementRef,
-  OnInit,
-  ViewChild,
-  OnDestroy,
-  Output
-} from '@angular/core';
+import { Component, TemplateRef, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { takeWhile } from 'rxjs/operators';
 import { TemplateRendererComponent } from '../../../template-renderer/template-renderer.component';
 import { File } from 'src/shared/models/files';
-import { SideBar, Style, AutoSizeAllColumns } from 'src/shared/utils/Shared';
+import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { ToastrService } from 'ngx-toastr';
-import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
 @Component({
   selector: 'app-file-management',
@@ -27,11 +17,11 @@ import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 })
 export class FileManagementComponent implements OnInit, OnDestroy {
   @ViewChild('actionButtons') actionButtons: TemplateRef<any>;
-  @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
 
   filesGridOptions: GridOptions;
   files: File[];
   isSubscriptionAlive: boolean;
+
   excelParams = {
     fileName: 'File Management',
     sheetName: 'First Sheet',
@@ -45,19 +35,13 @@ export class FileManagementComponent implements OnInit, OnDestroy {
       'actionEndDate'
     ]
   };
+
   style = Style;
 
-  styleForLogsHight = {
-    marginTop: '20px',
-    width: '100%',
-    height: 'calc(100vh - 220px)',
-    boxSizing: 'border-box'
-  };
+  styleForLogsHeight = HeightStyle(220);
 
   constructor(
     private financeService: FinancePocServiceProxy,
-    private dataService: DataService,
-    private downloadExcelUtils: DownloadExcelUtils,
     private toastrService: ToastrService
   ) {}
 

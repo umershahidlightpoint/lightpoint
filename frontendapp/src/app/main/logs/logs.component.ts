@@ -1,4 +1,4 @@
-import { Component, TemplateRef, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { Style, HeightStyle } from 'src/shared/utils/Shared';
@@ -11,31 +11,17 @@ import * as moment from 'moment';
 })
 export class LogsComponent implements OnInit {
   public gridOptions: GridOptions;
-  private defaultColDef;
   public rowData: [];
-  totalRecords: number;
-  // topOptions = {alignedGrids: [], suppressHorizontalScroll: true};
+  private defaultColDef;
+
   bottomOptions = { alignedGrids: [] };
   selected: { startDate: moment.Moment; endDate: moment.Moment };
-
-  @ViewChild('topGrid') topGrid;
-  @ViewChild('bottomGrid') bottomGrid;
-  @ViewChild('dateRangPicker') dateRangPicker;
-  @ViewChild('greetCell') greetCell: TemplateRef<any>;
-  @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
-
-  totalCredit: number;
-  totalDebit: number;
-  bottomData: any;
   startDate: any;
-  fund: any;
   endDate: any;
-
-  symbal: string;
+  symbol: string;
   pageSize: any;
   accountSearch = { id: undefined };
   valueFilter: number;
-  funds: any;
   sortColum: any;
   sortDirection: any;
   page: any;
@@ -74,6 +60,7 @@ export class LogsComponent implements OnInit {
       boxSizing: 'border-box'
     };
   }
+
   constructor(private financeService: FinancePocServiceProxy) {
     this.gridOptions = {
       rowData: null,
@@ -89,7 +76,6 @@ export class LogsComponent implements OnInit {
       alignedGrids: [],
       suppressHorizontalScroll: true
     } as GridOptions;
-    // this.selected = {startDate: moment().subtract(6, 'days'), endDate: moment().subtract(1, 'days')};
   }
 
   ngOnInit() {
@@ -100,7 +86,7 @@ export class LogsComponent implements OnInit {
     // align scroll of grid and footer grid
     this.gridOptions.alignedGrids.push(this.bottomOptions);
     this.bottomOptions.alignedGrids.push(this.gridOptions);
-    this.symbal = 'ALL';
+    this.symbol = 'ALL';
     this.page = 0;
     this.pageSize = 0;
     this.accountSearch.id = 0;
@@ -110,7 +96,7 @@ export class LogsComponent implements OnInit {
 
     this.financeService
       .getJournalLogs(
-        this.symbal,
+        this.symbol,
         this.page,
         this.pageSize,
         this.accountSearch.id,

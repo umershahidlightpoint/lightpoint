@@ -14,7 +14,6 @@ import {
   ExcelStyle,
   CalTotalRecords,
   GetDateRangeLabel,
-  DoesExternalFilterPass,
   FormatNumber,
   SetDateRange,
   CommaSeparatedFormat,
@@ -46,7 +45,6 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
   trialBalanceReportStats: TrialBalanceReportStats;
   isLoading = false;
   hideGrid: boolean;
-  flag = false;
   title = 'Account Name';
 
   ranges: any = Ranges;
@@ -229,7 +227,6 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
         debitPercentage: data.DebitPercentage,
         balance: FormatNumber(data.Balance)
       }));
-      this.flag = true;
       this.isLoading = false;
       this.pinnedBottomRowData = [
         {

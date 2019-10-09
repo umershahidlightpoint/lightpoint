@@ -14,13 +14,10 @@ import {
   ExcelStyle,
   CalTotalRecords,
   GetDateRangeLabel,
-  DoesExternalFilterPass,
-  FormatNumber,
   FormatNumber4,
   SetDateRange,
   CommaSeparatedFormat,
-  HeightStyle,
-  AutoSizeAllColumns
+  HeightStyle
 } from 'src/shared/utils/Shared';
 import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
@@ -37,17 +34,14 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   pinnedBottomRowData;
   gridOptions: GridOptions;
   closingTaxLots: GridOptions;
-
   fund: any = 'All Funds';
   funds: Fund;
   DateRangeLabel: string;
   startDate: any;
   endDate: any;
   selected: { startDate: moment.Moment; endDate: moment.Moment };
-
   data: Array<TrialBalanceReport>;
   stats: TrialBalanceReportStats;
-
   isLoading = false;
   hideGrid: boolean;
 
