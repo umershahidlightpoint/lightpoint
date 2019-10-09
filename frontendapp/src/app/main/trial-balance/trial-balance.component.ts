@@ -321,7 +321,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   }
 
   doesExternalFilterPass(node: any) {
-    return DoesExternalFilterPass(node, this.fund, this.startDate, this.endDate);
+    return DoesExternalFilterPass(node, this.fund, moment(this.startDate), moment(this.endDate));
   }
 
   setDateRange(dateFilter: any) {
@@ -361,12 +361,4 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       }
     });
   }
-}
-
-function formatNumber(numberToFormat: number) {
-  return numberToFormat === 0
-    ? '0.00'
-    : Math.floor(numberToFormat)
-        .toString()
-        .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 }
