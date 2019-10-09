@@ -6,7 +6,6 @@ import {
   TrialBalanceReportStats
 } from '../../../../shared/Models/trial-balance';
 import { DataService } from '../../../../shared/common/data.service';
-import * as moment from 'moment';
 import {
   Ranges,
   Style,
@@ -19,7 +18,7 @@ import {
   SetDateRange,
   CommaSeparatedFormat,
   HeightStyle,
-  AutoSizeAllColumns
+  FormatDate
 } from 'src/shared/utils/Shared';
 import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
@@ -46,12 +45,28 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   trialBalanceReportStats: TrialBalanceReportStats;
   isLoading = false;
   hideGrid: boolean;
+  chartData: any;
+  cbData: any;
+  labels: string[] = [];
+  displayChart = false;
+
+  selectedChartOption: any = 'CostBasis';
+  chartOptions: any = [
+    { key: 'CostBasis', value: 'Cost Basis' },
+    { key: 'Balance', value: 'Balance' },
+    { key: 'Quantity', value: 'Quantity' }
+  ];
 
   ranges: any = Ranges;
 
   style = Style;
 
   styleForHeight = HeightStyle(220);
+
+  propID = 'LineChart';
+  divHeight = '100%';
+  divWidth = '100%';
+  lineColors = ['#ff6960', '#00bd9a'];
 
   processingMsgDiv = {
     border: '1px solid #eee',
@@ -192,8 +207,19 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   rowSelected(row) {
     const { symbol } = row.data;
     this.financeService.getCostBasisChart(symbol).subscribe(response => {
-      console.log(response.data);
+      this.chartData = response.data;
+
+      this.mapChartData(this.chartData);
+      this.displayChart = true;
     });
+  }
+
+  mapChartData(data: any) {
+    this.labels = data.map(item => item.Date);
+    this.cbData = data.map(item => ({
+      date: FormatDate(item.Date, 'YYYY-MM-DD'),
+      value: item[this.selectedChartOption]
+    }));
   }
 
   onFilterChanged() {
@@ -263,6 +289,13 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   changeFund(selectedFund) {
     this.fund = selectedFund;
     this.getReport(this.startDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
+  }
+
+  changeChart(selectedChart) {
+    this.selectedChartOption = selectedChart;
+    if (this.chartData) {
+      this.mapChartData(this.chartData);
+    }
   }
 
   refreshReport() {
