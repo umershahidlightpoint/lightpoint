@@ -87,9 +87,9 @@ namespace UT.FileProcessing
         {
             var number = 123456789.123456m;
 
-            new FileProcessor().CheckFormat(number, "18,6", "decimal", out var valid);
+            var resp = new FileProcessor().CheckFormat(number, "18,6", "decimal");
 
-            Assert.IsTrue(valid);
+            Assert.IsTrue(resp.Item2);
         }
 
 
@@ -98,9 +98,9 @@ namespace UT.FileProcessing
         {
             var number = 123456789.1234567m;
 
-            new FileProcessor().CheckFormat(number, "18,6", "decimal", out var valid);
+            var resp = new FileProcessor().CheckFormat(number, "18,6", "decimal");
 
-            Assert.IsFalse(valid);
+            Assert.IsFalse(resp.Item2);
         }
 
         [Test]
@@ -108,9 +108,9 @@ namespace UT.FileProcessing
         {
             var number = 123456789101.123456m;
 
-            new FileProcessor().CheckFormat(number, "18,6", "decimal", out var valid);
+            var resp = new FileProcessor().CheckFormat(number, "18,6", "decimal");
 
-            Assert.IsTrue(valid);
+            Assert.IsTrue(resp.Item2);
         }
 
         [Test]
@@ -118,9 +118,9 @@ namespace UT.FileProcessing
         {
             var character = "Random";
 
-            new FileProcessor().CheckFormat(character, "10", "char", out var valid);
+            var resp = new FileProcessor().CheckFormat(character, "10", "char");
 
-            Assert.IsTrue(valid);
+            Assert.IsTrue(resp.Item2);
         }
 
         [Test]
@@ -128,9 +128,9 @@ namespace UT.FileProcessing
         {
             var character = "Random";
 
-            new FileProcessor().CheckFormat(character, "4", "char", out var valid);
+            var resp = new FileProcessor().CheckFormat(character, "4", "char");
 
-            Assert.IsFalse(valid);
+            Assert.IsFalse(resp.Item2);
         }
 
         [Test]
@@ -152,9 +152,9 @@ namespace UT.FileProcessing
         [Test]
         public void ValidTypeLong()
         {
-            new FileProcessor().LongShortConversion("long", out var valid);
+            var resp = new FileProcessor().LongShortConversion("long");
 
-            Assert.IsTrue(valid);
+            Assert.IsTrue(resp.Item2);
 
             Assert.Pass();
         }
@@ -162,9 +162,9 @@ namespace UT.FileProcessing
         [Test]
         public void ValidTypeShort()
         {
-            new FileProcessor().LongShortConversion("short", out var valid);
+            var resp = new FileProcessor().LongShortConversion("short");
 
-            Assert.IsTrue(valid);
+            Assert.IsTrue(resp.Item2);
 
             Assert.Pass();
         }
@@ -172,17 +172,17 @@ namespace UT.FileProcessing
         [Test]
         public void InvalidLongShortConversion()
         {
-            new FileProcessor().LongShortConversion("57657", out var valid);
+            var resp = new FileProcessor().LongShortConversion("57657");
 
-            Assert.IsFalse(valid);
+            Assert.IsFalse(resp.Item2);
 
             Assert.Pass();
         }
 
         public bool CheckFormat(string inputFormat, string comparisonFormat)
         {
-            var result = new FileProcessor().GetDate(DateTime.Now, inputFormat, "", out var valid);
-            if (DateTime.TryParseExact(result.ToString(), comparisonFormat, null,
+            var result = new FileProcessor().GetDate(DateTime.Now, inputFormat, "");
+            if (DateTime.TryParseExact(result.Item1.ToString(), comparisonFormat, null,
                 System.Globalization.DateTimeStyles.None, out var Test))
             {
                 return true;

@@ -16,6 +16,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Amazon.S3;
+using LP.FileProcessing.MetaData;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
@@ -78,11 +79,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
             var extractPath = currentDir + Path.DirectorySeparatorChar + "FileFormats" + Path.DirectorySeparatorChar +
                               "Transaction_Extract.txt";
-            List<dynamic> failedRecords;
-            bool successful;
-            var recordBody = fileProcessor.ImportFile(extractPath, "Transaction", out failedRecords, out successful);
-            return failedRecords;
-            //return null;
+            var recordBody = fileProcessor.ImportFile(extractPath, "Transaction");
+            return new
+            {
+                ImportedRecords = recordBody.Item1,
+                FailedRecords = recordBody.Item2,
+                Successful = recordBody.Item3
+            };
         }
 
         public object GenerateActivityAndPositionFilesForSilver(FileGenerationInputDto dto)
@@ -108,36 +111,46 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var activityPath = currentDir + "SilverData" + Path.DirectorySeparatorChar + $"{activityFileName}.txt";
             var positionPath = currentDir + "SilverData" + Path.DirectorySeparatorChar + $"{positionFileName}.txt";
 
+            if (System.IO.File.Exists(activityPath))
+            {
+                string newFileName = currentDir + "SilverData" + Path.DirectorySeparatorChar + activityFileName + $"_{DateTime.UtcNow.Ticks}.txt";
+                System.IO.File.Move(activityPath, newFileName);
+            }
+
+            if (System.IO.File.Exists(positionPath))
+            {
+                string newFileName = currentDir + "SilverData" + Path.DirectorySeparatorChar + positionFileName + $"_{DateTime.UtcNow.Ticks}.txt";
+                System.IO.File.Move(positionPath, newFileName);
+            }
+
             //header and trailer
             var activityHeader = GetHeader("HDR", "SMGActivity", convertedBusinessDate);
             var activityTrailer = GetTrailer("TRL", "SMGActivity", convertedBusinessDate);
             var positionHeader = GetHeader("HDR", "SMGOpenLotPosition", convertedBusinessDate);
             var positionTrailer = GetTrailer("TRL", "SMGOpenLotPosition ", convertedBusinessDate);
 
-            var activityStatistics = fileProcessor.GenerateFile(tradeList, activityHeader, activityTrailer,
-                activityPath, "Activity_json", "LpOrderId", out Dictionary<object, dynamic> failedActivityRecords);
-            var positionStatistics = fileProcessor.GenerateFile(positionList, positionHeader, positionTrailer,
-                positionPath, "Position_json", "IntraDayPositionId",
-                out Dictionary<object, dynamic> failedPositionRecords);
+            var activityResult = fileProcessor.ExportFile(tradeList, activityHeader, activityTrailer,
+                activityPath, "Activity_json", "LpOrderId");
+            var positionResult = fileProcessor.ExportFile(positionList, positionHeader, positionTrailer,
+                positionPath, "Position_json", "IntraDayPositionId");
 
-            var failedActivityList = MapFailedRecords(failedActivityRecords, businessDate, activityFileName);
-            var failedPositionList = MapFailedRecords(failedPositionRecords, businessDate, positionFileName);
+            var failedActivityList = MapFailedRecords(activityResult.Item1, businessDate, activityFileName);
+            var failedPositionList = MapFailedRecords(positionResult.Item1, businessDate, positionFileName);
 
 
             List<FileInputDto> fileList = new List<FileInputDto>();
-            fileList.Add(new FileInputDto(activityPath, activityFileName, activityStatistics, "LightPoint", "Upload",
+            fileList.Add(new FileInputDto(activityPath, activityFileName, activityResult.Item2, "LightPoint", "Upload",
                 failedActivityList,
                 businessDate));
-            fileList.Add(new FileInputDto(positionPath, positionFileName, positionStatistics, "LightPoint", "Upload",
+            fileList.Add(new FileInputDto(positionPath, positionFileName, positionResult.Item2, "LightPoint", "Upload",
                 failedPositionList,
                 businessDate));
 
-            //InsertFailedRecords(fileList);
             InsertActivityAndPositionFilesForSilver(fileList);
             return Utils.Wrap(true);
         }
 
-        private List<FileException> MapFailedRecords(Dictionary<object, dynamic> failedRecords, DateTime businessDate,
+        private List<FileException> MapFailedRecords(Dictionary<object, Row> failedRecords, DateTime businessDate,
             string fileName)
         {
             var records = failedRecords.Select(x => new FileException

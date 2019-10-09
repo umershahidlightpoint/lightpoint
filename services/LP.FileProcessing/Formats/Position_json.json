@@ -20,7 +20,7 @@
       "source": "BusinessDate",
       "destination": "Business_Date",
       "required": true,
-      "function": "",
+      "function": "GetDate",
       "format": "yyyy-MM-dd",
       "type":  "date"
     }
@@ -46,7 +46,7 @@
       "source": "BusinessDate",
       "destination": "Business_Date",
       "required": true,
-      "function": "",
+      "function": "GetDate",
       "format": "yyyy-MM-dd",
       "type":  "date"
     },
@@ -186,8 +186,8 @@
       "destination": "Long_Position_Indicator",
       "required": true,
       "function": "LongShortConversion",
-      "format": null,
-      "type": null,
+      "format": "True/False",
+      "type": "bool",
       "offset": 12,
       "rule": "Use: True (is a long position) or False (is a short position)."
     },

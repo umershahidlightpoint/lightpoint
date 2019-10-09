@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostingEngine", "PostingEng
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LP.FileProcessing", "LP.FileProcessing\LP.FileProcessing.csproj", "{68CD12A8-B8FB-45CB-86ED-C40BB33DF1AD}"
 EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "LP.Finance.DB", "Finance.DB\LP.Finance.DB.sqlproj", "{B4F63402-0437-4D72-92A6-4E64495BFCF0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +52,15 @@ Global
 		{68CD12A8-B8FB-45CB-86ED-C40BB33DF1AD}.Development-Debug|Any CPU.Build.0 = Debug|Any CPU
 		{68CD12A8-B8FB-45CB-86ED-C40BB33DF1AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{68CD12A8-B8FB-45CB-86ED-C40BB33DF1AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4F63402-0437-4D72-92A6-4E64495BFCF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4F63402-0437-4D72-92A6-4E64495BFCF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4F63402-0437-4D72-92A6-4E64495BFCF0}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{B4F63402-0437-4D72-92A6-4E64495BFCF0}.Development-Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4F63402-0437-4D72-92A6-4E64495BFCF0}.Development-Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4F63402-0437-4D72-92A6-4E64495BFCF0}.Development-Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{B4F63402-0437-4D72-92A6-4E64495BFCF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4F63402-0437-4D72-92A6-4E64495BFCF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4F63402-0437-4D72-92A6-4E64495BFCF0}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

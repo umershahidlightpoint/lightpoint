@@ -20,7 +20,7 @@
       "source": "BusinessDate",
       "destination": "Business_Date",
       "required": true,
-      "function": "",
+      "function": "GetDate",
       "format": "yyyy-MM-dd",
       "type":  "date"
     }
@@ -46,7 +46,7 @@
       "source": "BusinessDate",
       "destination": "Business_Date",
       "required": true,
-      "function": "",
+      "function": "GetDate",
       "format": "yyyy-MM-dd",
       "type":  "date"
     },
