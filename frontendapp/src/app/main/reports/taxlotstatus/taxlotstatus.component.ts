@@ -117,7 +117,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           width: 120,
           headerName: 'Order Id',
           sortable: true,
-          filter: true,
+          filter: true
         },
         {
           field: 'business_date',
@@ -132,14 +132,14 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           width: 120,
           headerName: 'Symbol',
           sortable: true,
-          filter: true,
+          filter: true
         },
         {
           field: 'status',
           headerName: 'Status',
           sortable: true,
           filter: true,
-          width: 120,
+          width: 120
         },
         {
           field: 'quantity',
@@ -157,8 +157,11 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(GridId.taxlotStatusId, GridName.taxlotStatus, this.gridOptions);
-
+    this.gridOptions.sideBar = SideBar(
+      GridId.taxlotStatusId,
+      GridName.taxlotStatus,
+      this.gridOptions
+    );
 
     this.closingTaxLots = {
       rowData: null,
@@ -166,8 +169,9 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onFilterChanged: this.onFilterChanged.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
-      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
+      // Custom made methods for Grid Menu Layout
+      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       clearExternalFilter: this.clearFilters.bind(this),
       getExternalFilterState: this.getExternalFilterState.bind(this),
       rowSelection: 'single',
@@ -182,7 +186,6 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           node.expanded = true;
         });
         params.api.onGroupExpandedOrCollapsed();
-
         //AutoSizeAllColumns(params);
         params.api.sizeColumnsToFit();
       },
@@ -196,14 +199,14 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           width: 120,
           headerName: 'Open Tax Lot',
           sortable: true,
-          filter: true,
+          filter: true
         },
         {
           field: 'closing_lot_id',
           width: 120,
           headerName: 'Closing Tax Lot',
           sortable: true,
-          filter: true,
+          filter: true
         },
         {
           field: 'business_date',
@@ -228,7 +231,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           headerName: 'Opening Price',
           sortable: true,
           filter: true,
-          cellClass: 'rightAlign',
+          cellClass: 'rightAlign'
         },
         {
           field: 'cost_basis',
@@ -236,7 +239,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           headerName: 'Closing Price',
           sortable: true,
           cellClass: 'rightAlign',
-          filter: true,
+          filter: true
         },
         {
           field: 'quantity',
@@ -254,7 +257,11 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-    this.closingTaxLots.sideBar = SideBar(GridId.closingTaxLotId, GridName.closingTaxLots, this.gridOptions);    
+    this.closingTaxLots.sideBar = SideBar(
+      GridId.closingTaxLotId,
+      GridName.closingTaxLots,
+      this.gridOptions
+    );
   }
 
   ngAfterViewInit(): void {
@@ -313,19 +320,12 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     const { dateFilter } = object;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
     this.setDateRange(dateFilter);
-
-    this.gridOptions.api.onFilterChanged();
+    this.getReport(this.startDate, this.endDate, this.fund);
   }
 
-  isExternalFilterPresent() {
-    if (this.fund !== 'All Funds' || this.startDate) {
-      return true;
-    }
-  }
+  isExternalFilterPresent() {}
 
-  doesExternalFilterPass(node: any) {
-    return DoesExternalFilterPass(node, this.fund, this.startDate, this.endDate);
-  }
+  doesExternalFilterPass(node: any) {}
 
   getContextMenuItems(params) {
     //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
@@ -403,7 +403,7 @@ function dateFormatter(params) {
   if (params.value === undefined) {
     return;
   }
-  return moment(params.value).format('YYYY-MM-DD')
+  return moment(params.value).format('YYYY-MM-DD');
 }
 
 function costBasisFormatter(params) {

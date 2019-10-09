@@ -149,7 +149,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
   }
 
   _compareFn(a, b) {
-    if (a.Id === 0 || a.Id === null || b.Id === null) {
+    if (a.Id === 0 || a.Id === null || b === null) {
       return a.Id;
     }
     return a.Id === b.Id;

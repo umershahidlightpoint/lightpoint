@@ -224,11 +224,6 @@ export const SetDateRange = (dateFilter, startDate, endDate) => {
 };
 
 export const DoesExternalFilterPass = (node, fund, startDate, endDate) => {
-  if (typeof startDate === 'string') {
-    startDate = moment(startDate);
-    endDate = moment(endDate);
-  }
-
   if (fund !== 'All Funds' && startDate) {
     const cellFund = node.data.fund;
     const cellDate = new Date(node.data.when);

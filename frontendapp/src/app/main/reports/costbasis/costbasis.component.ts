@@ -15,7 +15,6 @@ import {
   CalTotalRecords,
   GetDateRangeLabel,
   DoesExternalFilterPass,
-  FormatNumber,
   FormatNumber4,
   SetDateRange,
   CommaSeparatedFormat,
@@ -84,8 +83,9 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onFilterChanged: this.onFilterChanged.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
-      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
+      // Custom made methods for Grid Menu Layout
+      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       clearExternalFilter: this.clearFilters.bind(this),
       getExternalFilterState: this.getExternalFilterState.bind(this),
       rowSelection: 'single',
@@ -95,7 +95,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
         this.gridColumnApi = params.columnApi;
-
         this.gridOptions.excelStyles = ExcelStyle;
       },
       onFirstDataRendered: params => {
@@ -156,7 +155,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(GridId.costBasicId, GridName.costBasic, this.gridOptions);
+    this.gridOptions.sideBar = SideBar(GridId.costBasisId, GridName.costBasis, this.gridOptions);
   }
 
   ngAfterViewInit(): void {
@@ -207,19 +206,12 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     const { dateFilter } = object;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
     this.setDateRange(dateFilter);
-
-    this.gridOptions.api.onFilterChanged();
+    this.getReport(this.startDate, this.fund);
   }
 
-  isExternalFilterPresent() {
-    if (this.fund !== 'All Funds' || this.startDate) {
-      return true;
-    }
-  }
+  isExternalFilterPresent() {}
 
-  doesExternalFilterPass(node: any) {
-    return DoesExternalFilterPass(node, this.fund, this.startDate, this.endDate);
-  }
+  doesExternalFilterPass(node: any) {}
 
   getContextMenuItems(params) {
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
@@ -250,7 +242,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   }
 
   getExternalFilterState() {
-    console.log(this.startDate);
     return {
       fundFilter: this.fund,
       dateFilter: {
