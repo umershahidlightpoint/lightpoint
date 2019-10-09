@@ -294,6 +294,7 @@ export const CommonCols = () => {
     {
       field: 'source',
       minWidth: 300,
+      enableRowGroup: true,
       headerName: 'Source',
       colId: 'source'
     },
@@ -310,6 +311,7 @@ export const CommonCols = () => {
       field: 'AccountCategory',
       headerName: 'Category',
       enableRowGroup: true,
+      rowGroup:false,
       width: 100,
       enablePivot: true,
       filter: true,
@@ -328,6 +330,7 @@ export const CommonCols = () => {
       field: 'accountName',
       headerName: 'Account Name',
       sortable: true,
+      rowGroup:false,
       enableRowGroup: true,
       filter: true,
       colId: 'accountName'

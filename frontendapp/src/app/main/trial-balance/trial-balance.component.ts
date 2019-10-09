@@ -175,6 +175,16 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   */
   customizeColumns(columns: any) {
     const colDefs = CommonCols();
+
+    // Now need to go thru this list and group the right fields
+    colDefs.forEach(col=>{
+      if ( col.field === 'AccountCategory')
+        col.rowGroup = true;
+      if ( col.field === 'accountName')
+        col.rowGroup = true;
+
+    });
+
     const cdefs = this.agGridUtls.customizeColumns(colDefs, columns, this.ignoreFields);
     this.gridOptions.api.setColumnDefs(cdefs);
   }
