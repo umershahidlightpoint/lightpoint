@@ -512,3 +512,7 @@ function currencyFormatter(params) {
   }
   return CommaSeparatedFormat(params.value);
 }
+
+export const FormatDate = (date: any, format: string) => {
+  return moment(date).format(format);
+};
