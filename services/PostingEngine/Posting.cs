@@ -60,9 +60,10 @@ namespace PostingEngine
                     try
                     {
                         CostBasisDto.Calculate(connection, transaction, valueDate);
-                    } catch ( Exception ex )
+                    }
+                    catch ( Exception ex )
                     {
-
+                        PostingEngineCallBack?.Invoke($"Exception on {valueDate}, {ex.Message}");
                     }
 
                     PostingEngineCallBack?.Invoke($"Complete CostBasis for {valueDate}", numberOfDays, rowsCompleted++);
@@ -291,7 +292,7 @@ namespace PostingEngine
 
                 List<SqlParameter> journalParameters = new List<SqlParameter>
                 {
-                    new SqlParameter("source", orderId.ToString())
+                    new SqlParameter("source", orderId)
                 };
 
                 var journalQuery = $@"DELETE FROM [journal]
@@ -303,7 +304,7 @@ namespace PostingEngine
             }
             catch (Exception ex)
             {
-
+                PostingEngineCallBack?.Invoke($"Unable to delete Journal Entries for {orderId}, {ex.Message}");
             }
         }
 
@@ -390,7 +391,10 @@ namespace PostingEngine
 
                 postingEnv.ValueDate = valueDate;
                 postingEnv.FxRates = new FxRates().Get(valueDate);
-                postingEnv.MarketPrices = new MarketPrices().Get(valueDate);
+                // Get todays Market Prices
+                postingEnv.EODMarketPrices = new MarketPrices().Get(valueDate);
+
+                postingEnv.PrevMarketPrices = new MarketPrices().Get(valueDate.AddDays(-1));
 
                 //PostingEngineCallBack?.Invoke($"Pulled FxRates {valueDate} in {sw.ElapsedMilliseconds} ms");
 

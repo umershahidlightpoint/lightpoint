@@ -135,20 +135,29 @@ export class TaxLotsComponent implements OnInit, AfterViewInit {
           filter: true,
         },
         {
-          field: 'cost_basis',
+          field: 'realized_pnl',
           width: 120,
-          headerName: 'Cost Basis',
+          headerName: 'Realized P&L',
           sortable: true,
-          cellClass: 'rightAlign',
           filter: true,
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
         },
         {
           field: 'trade_price',
           width: 120,
-          headerName: 'Trade Price',
+          headerName: 'Opening Price',
           sortable: true,
           filter: true,
           cellClass: 'rightAlign',
+        },
+        {
+          field: 'cost_basis',
+          width: 120,
+          headerName: 'Closing Price',
+          sortable: true,
+          cellClass: 'rightAlign',
+          filter: true,
         },
         {
           field: 'quantity',

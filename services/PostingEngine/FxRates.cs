@@ -20,7 +20,7 @@ namespace PostingEngine
     public class MarketPrice
     {
         public string Symbol { get; set; }
-        public decimal Price { get; set; }
+        public double Price { get; set; }
     }
 
     /*
@@ -117,7 +117,7 @@ order by c.CurrencyCode desc
                     list.Add(symbol, new MarketPrice
                     {
                         Symbol = symbol,
-                        Price = rate,
+                        Price = Convert.ToDouble(rate),
                     });
                 }
                 reader.Close();

@@ -18,5 +18,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object GetTaxLotReport(DateTime? from, DateTime? to, string fund);
         object GetTaxLotsReport(DateTime? from, DateTime? to, string fund);
         object GetAccountingTileData(DateTime? from, DateTime? to, string fund);
+        object GetClosingTaxLots(string orderid);
     }
 }

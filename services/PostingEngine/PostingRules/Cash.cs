@@ -12,7 +12,7 @@ namespace PostingEngine.PostingRules
     {
         public void DailyEvent(PostingEngineEnvironment env, Transaction element)
         {
-            throw new NotImplementedException();
+            return;
         }
 
         public void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
@@ -62,8 +62,35 @@ namespace PostingEngine.PostingRules
             };
         }
 
+        private void AccrualPayment(PostingEngineEnvironment env, Transaction element, Accrual accrual)
+        {
+            var tradeAllocations = env.Allocations.Where(i => i.LpOrderId == element.LpOrderId).ToList();
+
+            var accountToFrom = GetFromToAccount(element);
+
+            if (accountToFrom.To == null || accountToFrom.From == null)
+            {
+                env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
+                return;
+            }
+
+            new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
+            new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
+
+        }
+
         public void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
+            var accrual = env.Accruals.ContainsKey(element.AccrualId) ? env.Accruals[element.AccrualId] : null;
+
+            if ( accrual != null )
+            {
+                AccrualPayment(env, element, accrual);
+                return;
+            }
+
+            return;
+
             var accountToFrom = GetFromToAccount(element);
 
             if (accountToFrom.To == null || accountToFrom.From == null)

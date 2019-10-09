@@ -40,7 +40,8 @@ namespace PostingEngine
 
         public List<Journal> Journals { get; set; }
         public Dictionary<string, FxRate> FxRates { get; set; }
-        public Dictionary<string, MarketPrice> MarketPrices { get; set; }
+        public Dictionary<string, MarketPrice> PrevMarketPrices { get; set; }
+        public Dictionary<string, MarketPrice> EODMarketPrices { get; set; }
 
         // Map of Product type to IPostingRule, now we can run each of these in parellel, once we have the data
         // which is readonly we can spin up a number of Tasks, each responsible for processing the right product
@@ -48,9 +49,9 @@ namespace PostingEngine
         public Dictionary<string, IPostingRule> rules = new Dictionary<string, IPostingRule>
         {
             {"Common Stock", new CommonStock() },
-            {"Journals", new FakeJournals() }
+            {"Journals", new FakeJournals() },
             //{"Cross", new Cross() },
-            //{"Cash", new Cash() },
+            {"Cash", new Cash() },
         };
 
         public SqlConnection Connection { get; private set; }

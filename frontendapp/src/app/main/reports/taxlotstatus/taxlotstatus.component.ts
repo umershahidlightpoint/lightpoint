@@ -34,9 +34,10 @@ import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
   styleUrls: ['./taxlotstatus.component.css']
 })
 export class TaxLotStatusComponent implements OnInit, AfterViewInit {
-  private gridColumnApi;
   pinnedBottomRowData;
   gridOptions: GridOptions;
+  closingTaxLots: GridOptions;
+
   fund: any = 'All Funds';
   funds: Fund;
   DateRangeLabel: string;
@@ -95,8 +96,6 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       suppressColumnVirtualisation: true,
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
-        this.gridColumnApi = params.columnApi;
-
         this.gridOptions.excelStyles = ExcelStyle;
       },
       onFirstDataRendered: params => {
@@ -126,6 +125,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           headerName: 'Business Date',
           sortable: true,
           filter: true,
+          valueFormatter: dateFormatter
         },
         {
           field: 'symbol',
@@ -157,7 +157,104 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(GridId.costBasicId, GridName.costBasic, this.gridOptions);
+    this.gridOptions.sideBar = SideBar(GridId.taxlotStatusId, GridName.taxlotStatus, this.gridOptions);
+
+
+    this.closingTaxLots = {
+      rowData: null,
+      pinnedBottomRowData: null,
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      onFilterChanged: this.onFilterChanged.bind(this),
+      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
+      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
+      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
+      clearExternalFilter: this.clearFilters.bind(this),
+      getExternalFilterState: this.getExternalFilterState.bind(this),
+      rowSelection: 'single',
+      rowGroupPanelShow: 'after',
+      suppressColumnVirtualisation: true,
+      getContextMenuItems: params => this.getContextMenuItems(params),
+      onGridReady: params => {
+        this.closingTaxLots.excelStyles = ExcelStyle;
+      },
+      onFirstDataRendered: params => {
+        params.api.forEachNode(node => {
+          node.expanded = true;
+        });
+        params.api.onGroupExpandedOrCollapsed();
+
+        //AutoSizeAllColumns(params);
+        params.api.sizeColumnsToFit();
+      },
+      enableFilter: true,
+      animateRows: true,
+      alignedGrids: [],
+      suppressHorizontalScroll: false,
+      columnDefs: [
+        {
+          field: 'open_lot_id',
+          width: 120,
+          headerName: 'Open Tax Lot',
+          sortable: true,
+          filter: true,
+        },
+        {
+          field: 'closing_lot_id',
+          width: 120,
+          headerName: 'Closing Tax Lot',
+          sortable: true,
+          filter: true,
+        },
+        {
+          field: 'business_date',
+          width: 120,
+          headerName: 'Business Date',
+          sortable: true,
+          filter: true,
+          valueFormatter: dateFormatter
+        },
+        {
+          field: 'realized_pnl',
+          width: 120,
+          headerName: 'Realized P&L',
+          sortable: true,
+          filter: true,
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
+        },
+        {
+          field: 'trade_price',
+          width: 120,
+          headerName: 'Opening Price',
+          sortable: true,
+          filter: true,
+          cellClass: 'rightAlign',
+        },
+        {
+          field: 'cost_basis',
+          width: 120,
+          headerName: 'Closing Price',
+          sortable: true,
+          cellClass: 'rightAlign',
+          filter: true,
+        },
+        {
+          field: 'quantity',
+          headerName: 'Quantity',
+          width: 100,
+          filter: true,
+          sortable: true,
+          cellClass: 'rightAlign',
+          valueFormatter: absCurrencyFormatter
+        }
+      ],
+      defaultColDef: {
+        sortable: true,
+        resizable: true,
+        filter: true
+      }
+    } as GridOptions;
+    this.closingTaxLots.sideBar = SideBar(GridId.closingTaxLotId, GridName.closingTaxLots, this.gridOptions);    
   }
 
   ngAfterViewInit(): void {
@@ -189,6 +286,21 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       this.gridOptions.api.sizeColumnsToFit();
       this.gridOptions.api.setRowData(this.data);
     });
+  }
+
+  onTaxLotSelection(lporderid) {
+    this.financeService.getClosingTaxLots(lporderid).subscribe(response => {
+      //this.stats = response.stats;
+      //this.data = response.data;
+      this.closingTaxLots.api.sizeColumnsToFit();
+      this.closingTaxLots.api.setRowData(response.data);
+    });
+  }
+
+  onRowSelected(event) {
+    if (event.node.selected) {
+      this.onTaxLotSelection(event.node.data.open_id);
+    }
   }
 
   onFilterChanged() {
@@ -285,6 +397,13 @@ function currencyFormatter(params) {
     return;
   }
   return CommaSeparatedFormat(params.value);
+}
+
+function dateFormatter(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  return moment(params.value).format('YYYY-MM-DD')
 }
 
 function costBasisFormatter(params) {

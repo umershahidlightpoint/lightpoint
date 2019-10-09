@@ -62,5 +62,10 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
         {
             throw new NotImplementedException();
         }
+
+        public object GetClosingTaxLots(string orderid)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -544,7 +544,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 return Utils.Wrap(false, "Posting Engine is currently Running");
             }
 
-            var query = $@"select * from tax_lot";
+            var query = $@"select *, (cost_basis - trade_price)*quantity as realized_pnl from tax_lot";
 
             List<SqlParameter> sqlParams = new List<SqlParameter>();
 
@@ -822,6 +822,27 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             dynamic json = JsonConvert.DeserializeObject(content);
 
             return json;
+        }
+
+        public object GetClosingTaxLots(string orderid)
+        {
+            dynamic postingEngine = new PostingEngineService().GetProgress();
+            if (postingEngine.IsRunning)
+            {
+                return Utils.Wrap(false, "Posting Engine is currently Running");
+            }
+
+            var query = $@"select *, (cost_basis - trade_price)*quantity as realized_pnl from tax_lot where open_lot_id='{orderid}'";
+
+            List<SqlParameter> sqlParams = new List<SqlParameter>();
+
+            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+
+            dynamic reportObject = new System.Dynamic.ExpandoObject();
+
+            reportObject.data = dataTable;
+
+            return reportObject;
         }
     }
 }

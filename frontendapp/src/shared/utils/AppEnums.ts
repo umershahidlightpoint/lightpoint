@@ -16,9 +16,13 @@ export class GridId {
   static costBasicId = 15;
   static journalsId = 16;
   static fileExceptionId = 17;
+  static closingTaxLotId = 18;
+  static taxlotStatusId = 19;
 }
 
 export class GridName {
+  static taxlotStatus = 'taxlotStatus';
+  static closingTaxLots = 'closingTaxLots';
   static journalsLedgers = 'Journals Ledgers';
   static trailBalance = 'Trail Balance';
   static account = 'Account';

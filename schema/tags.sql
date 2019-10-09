@@ -1,0 +1,2 @@
+insert into tag (table_name, pk_name, column_name) values ('Transaction', 'Unknown', 'SecurityType')
+insert into tag (table_name, pk_name, column_name) values ('Transaction', 'Unknown', 'CustodianCode')

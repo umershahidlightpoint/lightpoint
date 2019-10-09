@@ -19,7 +19,7 @@ namespace PostingEngine.PostingRules
             // Calculate the unrealized PNL
             if (env.TaxLotStatus.ContainsKey(element.LpOrderId))
             {
-                // Determine if we need to accumulate unrelaized PNL
+                // Determine if we need to accumulate unrealized PNL
                 var taxlot = env.TaxLotStatus[element.LpOrderId];
                 if ( !taxlot.Status.ToLowerInvariant().Equals("closed"))
                 {
@@ -41,14 +41,21 @@ namespace PostingEngine.PostingRules
                     var quantity = taxlot.Quantity;
                     var symbol = element.Symbol;
 
-                    var prevEodPrice = 1;
-                    var eodPrice = 2;
+
+                    var prevEodPrice = 0.0;
+                    var eodPrice = 0.0;
+
+                    if ( env.PrevMarketPrices.ContainsKey(symbol))
+                        prevEodPrice = env.PrevMarketPrices[symbol].Price;
+
+                    if (env.EODMarketPrices.ContainsKey(symbol))
+                        eodPrice = env.EODMarketPrices[symbol].Price;
 
                     var fxRate = 1;
 
                     var unrealizedPnl = quantity * (eodPrice - prevEodPrice);
 
-                    var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfFromTags, element);
+                    var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("LONG POSITIONS AT COST")).FirstOrDefault(), listOfFromTags, element);
                     var toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CHANGE IN UNREALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfToTags, element);
 
                     new AccountUtils().SaveAccountDetails(env, fromAccount);
@@ -296,6 +303,7 @@ namespace PostingEngine.PostingRules
                 if ( openLots.Count == 0)
                 {
                     // Whats going on here?
+                    // We are skipping anything that does not get an OpenLot
                     Console.WriteLine("Should for a sell have at least one open lot");
                 }
                 else
@@ -323,13 +331,13 @@ namespace PostingEngine.PostingRules
                                     BusinessDate = env.ValueDate,
                                     OpeningLotId = lot.LpOrderId,
                                     ClosingLotId = element.LpOrderId,
-                                    TradePrice = lot.TradePrice,
-                                    CostBasis = element.TradePrice,
+                                    TradePrice = lot.TradePrice, // Opening Trade Price
+                                    CostBasis = element.TradePrice, // Closing Trade Price
                                     Quantity = workingQuantity };
                                 tl.Save(env.Connection, env.Transaction);
 
                                 // This is realized Pnl, need to post this as a journal entry
-                                var PnL = tl.Quantity * (tl.TradePrice - tl.CostBasis);
+                                var PnL = tl.Quantity * (tl.CostBasis - tl.TradePrice);
                                 PostRealizedPnl(env, element, PnL);
 
                                 taxlotStatus.Quantity -= workingQuantity;
@@ -352,7 +360,8 @@ namespace PostingEngine.PostingRules
                                 tl.Save(env.Connection, env.Transaction);
                                 workingQuantity -= Math.Abs(taxlotStatus.Quantity);
 
-                                var PnL = tl.Quantity * (tl.TradePrice - tl.CostBasis);
+                                var PnL = tl.Quantity * (tl.CostBasis - tl.TradePrice);
+
                                 PostRealizedPnl(env, element, PnL);
 
                                 taxlotStatus.Quantity = 0;
@@ -451,6 +460,7 @@ namespace PostingEngine.PostingRules
         private void PostRealizedPnl(PostingEngineEnvironment env, Transaction element, double pnL)
         {
             var accountToFrom = RealizedPnlPosting(element);
+
             new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
             new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
 

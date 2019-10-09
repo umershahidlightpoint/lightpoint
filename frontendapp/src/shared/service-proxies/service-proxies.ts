@@ -472,6 +472,15 @@ export class FinancePocServiceProxy {
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
+  getClosingTaxLots(lporderid) {
+    const url =
+      this.baseUrl +
+      '/journal/closingTaxLots?orderid=' +
+      lporderid;
+    return this.http.get(url).pipe(map((response: any) => response));
+
+  }
+
   getTaxLotsReport(fromDate, toDate, fund) {
     const url =
       this.baseUrl +
