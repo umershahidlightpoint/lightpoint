@@ -13,7 +13,6 @@ import {
   ExcelStyle,
   CalTotalRecords,
   GetDateRangeLabel,
-  DoesExternalFilterPass,
   FormatNumber4,
   SetDateRange,
   CommaSeparatedFormat,

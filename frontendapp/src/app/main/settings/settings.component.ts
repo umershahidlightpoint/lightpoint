@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
@@ -10,29 +10,21 @@ import { Style, HeightStyle } from '../../../shared/utils/Shared';
   styleUrls: ['./settings.component.css']
 })
 export class SettingsComponent implements OnInit {
-  @ViewChild('topGrid') topGrid;
-  @ViewChild('bottomGrid') bottomGrid;
-  @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
+  private gridOptions: GridOptions;
+  private allocationsGridOptions: GridOptions;
 
   reportingCurrency = 'USD';
   reportingDate = '';
-
-  private gridOptions: GridOptions;
-  private allocationsGridOptions: GridOptions;
   bottomOptions = { alignedGrids: [] };
-  bottomData: any;
-  fund: any;
   accrualsData: any;
   allocationAccrualsData: any;
   pageSize: any;
   accountSearch = { id: undefined };
   valueFilter: number;
-  funds: any;
   sortColum: any;
   sortDirection: any;
   page: any;
   columnDefs = [];
-  rowSelection = 'single';
 
   style = Style;
 
@@ -76,6 +68,7 @@ export class SettingsComponent implements OnInit {
       onFirstDataRendered: () => {
         //params.api.sizeColumnsToFit();
       },
+      rowSelection: 'single',
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],

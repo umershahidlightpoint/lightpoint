@@ -60,16 +60,9 @@ export class ReportGridComponent implements OnInit, OnChanges, OnDestroy {
       rowData: null,
       pinnedBottomRowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      // onFilterChanged: this.onFilterChanged.bind(this),
-      // isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
-      // isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
-      // doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      // clearExternalFilter: this.clearFilters.bind(this),
-
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
-      // getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
         // this.gridColumnApi = params.columnApi;
       },
@@ -78,7 +71,6 @@ export class ReportGridComponent implements OnInit, OnChanges, OnDestroy {
           node.expanded = true;
         });
         params.api.onGroupExpandedOrCollapsed();
-        // AutoSizeAllColumns(params);
         params.api.sizeColumnsToFit();
       },
       enableFilter: true,

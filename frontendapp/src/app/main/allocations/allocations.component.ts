@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
@@ -14,8 +14,6 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
   styleUrls: ['./allocations.component.css']
 })
 export class AllocationsComponent implements OnInit, AfterViewInit {
-  @ViewChild('bottomGrid') bottomGrid;
-
   public allocationsGridOptions: GridOptions;
   public allocationsData: [];
   allocationTradesData: any;
