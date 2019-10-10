@@ -37,8 +37,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   @ViewChild('dataModal') dataModal: DataModalComponent;
   @ViewChild('reportModal') reportModal: ReportModalComponent;
 
-  private gridColumnApi;
-  private defaultColDef;
   private rowData: [];
   private columns: any;
 
@@ -55,14 +53,12 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   symbol: string;
   startDate: any;
   endDate: any;
-  bottomData: any;
   page: any;
   pageSize: any;
   accountSearch = { id: undefined };
   valueFilter: number;
   sortColum: any;
   sortDirection: any;
-  orderId: number;
   tableHeader: string;
 
   ranges = Ranges;
@@ -126,13 +122,10 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       suppressColumnVirtualisation: true,
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
-        this.gridColumnApi = params.columnApi;
-
         this.gridOptions.excelStyles = ExcelStyle;
       },
       onFirstDataRendered: params => {
         params.api.expandAll();
-
         AutoSizeAllColumns(params);
       },
       enableFilter: true,

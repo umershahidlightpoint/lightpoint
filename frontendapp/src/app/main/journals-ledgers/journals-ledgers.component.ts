@@ -1,12 +1,5 @@
 /* Core/Library Imports */
-import {
-  Component,
-  ElementRef,
-  OnInit,
-  ViewChild,
-  ChangeDetectorRef,
-  AfterViewInit
-} from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterViewInit } from '@angular/core';
 import 'ag-grid-enterprise';
 import { GridOptions } from 'ag-grid-community';
 import * as moment from 'moment';
@@ -35,7 +28,6 @@ import { DataModalComponent } from '../../../shared/Component/data-modal/data-mo
 import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from '../../../shared/utils/AppEnums';
 import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
-import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
 @Component({
   selector: 'app-journals-ledgers',
@@ -47,20 +39,15 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   @ViewChild('dataModal') dataModal: DataModalComponent;
   @ViewChild('reportModal') reportModal: ReportModalComponent;
 
-  private gridApi;
-  private gridColumnApi;
-  private defaultColDef;
-  public rowData: [];
   private columns: any;
-  neGridLayoutMenuComponent: GridLayoutMenuComponent;
+
+  public rowData: [];
+
   isEngineRunning = false;
   hideGrid = false;
-  columnDefs: any;
   gridOptions: GridOptions;
   gridLayouts: any;
-  frameworkComponents: any;
   pinnedBottomRowData;
-  bottomData: any;
   totalRecords: number;
   totalDebit: number;
   totalCredit: number;
@@ -78,7 +65,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   sortDirection: any;
   page: any;
   pageSize: any;
-  orderId: number;
   tableHeader: string;
 
   ranges: any = Ranges;
@@ -108,8 +94,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     private financeService: FinancePocServiceProxy,
     private dataService: DataService,
     private postingEngineService: PostingEngineService,
-    private agGridUtls: AgGridUtils,
-    private downloadExcelUtils: DownloadExcelUtils
+    private agGridUtls: AgGridUtils
   ) {
     this.hideGrid = false;
     this.DateRangeLabel = '';
