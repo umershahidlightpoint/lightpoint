@@ -5,6 +5,8 @@
 	[quantity] [numeric](18, 9) NOT NULL,
 	[generated_on] [datetime] NOT NULL,
 	[business_date] [date] NOT NULL,
+	[cost_basis] [numeric](18, 9) NOT NULL,
+	[trade_price] [numeric](18, 9) NOT NULL,
  CONSTRAINT [PK_tax_lots] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -13,6 +15,12 @@
 GO
 
 ALTER TABLE [dbo].[tax_lot] ADD  CONSTRAINT [DF_tax_lot_generated_on]  DEFAULT (getdate()) FOR [generated_on]
+GO
+
+ALTER TABLE [dbo].[tax_lot] ADD  CONSTRAINT [DF_tax_lot_cost_basis]  DEFAULT ((0)) FOR [cost_basis]
+GO
+
+ALTER TABLE [dbo].[tax_lot] ADD  CONSTRAINT [DF_tax_lot_trade_price]  DEFAULT ((0)) FOR [trade_price]
 GO
 
 EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'The closing lot Id' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'tax_lot', @level2type=N'COLUMN',@level2name=N'closing_lot_id'
