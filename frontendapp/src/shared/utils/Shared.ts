@@ -165,6 +165,14 @@ export const CalTotalRecords = gridOptions => {
   return pinnedBottomRowData;
 };
 
+export const CalTotal = (rows, field) => {
+  let fieldSum = 0;
+  rows.forEach(row => {
+    fieldSum += row[field];
+  });
+  return fieldSum;
+};
+
 export const GetDateRangeLabel = (startDate, endDate) => {
   if (
     moment('01-01-1901', 'MM-DD-YYYY').diff(startDate, 'days') === 0 &&
@@ -311,7 +319,7 @@ export const CommonCols = () => {
       field: 'AccountCategory',
       headerName: 'Category',
       enableRowGroup: true,
-      rowGroup:false,
+      rowGroup: false,
       width: 100,
       enablePivot: true,
       filter: true,
@@ -330,7 +338,7 @@ export const CommonCols = () => {
       field: 'accountName',
       headerName: 'Account Name',
       sortable: true,
-      rowGroup:false,
+      rowGroup: false,
       enableRowGroup: true,
       filter: true,
       colId: 'accountName'

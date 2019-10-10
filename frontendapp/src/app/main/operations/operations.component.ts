@@ -27,13 +27,10 @@ import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-mo
 export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('confirmModal') confirmationModal: ConfirmationModalComponent;
   @ViewChild('logScroll') private logContainer: ElementRef;
-  // @Output() showPostingEngineMsg: EventEmitter<any> = new EventEmitter<any>();
-  // @Output() refreshFiles: EventEmitter<any> = new EventEmitter<any>();
 
   public gridOptions: GridOptions;
   public rowData: any[];
   private bottomOptions: any = { alignedGrids: [] };
-  private defaultColDef: any;
 
   isSubscriptionAlive: boolean;
   isLoading = false;
@@ -116,10 +113,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   ngOnInit() {
     this.isSubscriptionAlive = true;
-    this.defaultColDef = {
-      sortable: true,
-      resizable: true
-    };
     // /*
     // Align Scroll of Grid and Footer Grid
     // */
@@ -168,7 +161,11 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
-      suppressHorizontalScroll: true
+      suppressHorizontalScroll: true,
+      defaultColDef: {
+        sortable: true,
+        resizable: true
+      }
     } as GridOptions;
     this.gridOptions.sideBar = SideBar(GridId.logsId, GridName.logs, this.gridOptions);
   }

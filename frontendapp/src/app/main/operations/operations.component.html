@@ -68,7 +68,8 @@
       </div>
     </div>
     <!-- Confirmation Modal Selector -->
-    <app-confirmation-modal #confirmModal (confirmDeletion)="clearJournal()"></app-confirmation-modal>
+    <app-confirmation-modal #confirmModal (confirmDeletion)="clearJournal()" [modalTitle]="'Clear Journal'">
+    </app-confirmation-modal>
   </p-tabPanel>
 
   <!-- Files Tab -->

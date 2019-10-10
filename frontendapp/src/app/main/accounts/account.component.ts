@@ -13,13 +13,14 @@ import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-
 import { GridOptions } from 'ag-grid-community';
 import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
 import { ToastrService } from 'ngx-toastr';
-import { GridRowData, AccountCategory } from '../../../shared/Models/account';
+import { Account, AccountCategory } from '../../../shared/Models/account';
 import { takeWhile } from 'rxjs/operators';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { SideBar, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
+import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 
 @Component({
   selector: 'app-ledger-form',
@@ -27,10 +28,11 @@ import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
   styleUrls: ['./account.component.css']
 })
 export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
-  rowData: Array<GridRowData>;
+  rowData: Array<Account>;
   gridOptions: GridOptions;
   accountCategories: AccountCategory;
   selectedAccountCategory: AccountCategory;
+  account: Account;
   hideGrid: boolean;
   // For unsubscribing all subscriptions
   isSubscriptionAlive: boolean;
@@ -38,6 +40,7 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('createModal') createAccount: CreateAccountComponent;
   @ViewChild('actionButtons') actionButtons: TemplateRef<any>;
   @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
+  @ViewChild('confirmationModal') confirmationModal: ConfirmationModalComponent;
 
   style = {
     marginTop: '20px',
@@ -201,8 +204,14 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
     this.createAccount.show(row);
   }
 
-  deleteRow(row) {
-    this.financePocServiceProxy.deleteAccount(row.accountId).subscribe(
+  openConfirmationModal(row) {
+    this.account = row;
+    this.confirmationModal.showModal();
+  }
+
+  deleteAccount() {
+    const selectedAccount = this.account;
+    this.financePocServiceProxy.deleteAccount(selectedAccount.accountId).subscribe(
       response => {
         if (response.isSuccessful) {
           this.toastrService.success('Account deleted successfully!');

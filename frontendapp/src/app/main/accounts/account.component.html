@@ -63,7 +63,7 @@
               <i class="fa fa-lg fa-edit" aria-hidden="true"></i>
             </button>
             <button [disabled]="row.hasJournal == 'Yes'" class="btn action-btn fixHeight"
-              [ngClass]="{'disabled-btn':row.hasJournal == 'Yes'}" (click)="deleteRow(row)" tooltip="Delete"
+              [ngClass]="{'disabled-btn':row.hasJournal == 'Yes'}" (click)="openConfirmationModal(row)" tooltip="Delete"
               placement="auto" container="body">
               <i class="fa fa-lg fa-trash-o" aria-hidden="true"></i>
             </button>
@@ -78,6 +78,10 @@
   <!-- Tab View Tag Ends -->
 </div>
 <!-- Div Ends -->
+
+<!----- Confirmation Modal Component ----->
+<app-confirmation-modal #confirmationModal (confirmDeletion)="deleteAccount()" [modalTitle]="'Delete Account'">
+</app-confirmation-modal>
 
 <!----- Create Account Component Tag ----->
 <app-create-account #createModal [selectedAccCategory]="selectedAccountCategory" (modalClose)="getAccountsRecord()">

@@ -26,7 +26,7 @@ export interface AccountCategory {
   name: string;
 }
 
-export interface GridRowData {
+export interface Account {
   accountId: number;
   name: string;
   description: string;

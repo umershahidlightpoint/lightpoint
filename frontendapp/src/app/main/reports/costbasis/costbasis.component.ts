@@ -46,10 +46,13 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   hideGrid: boolean;
   chartData: any;
   cbData: any;
+  bData: any;
+  qData: any;
   labels: string[] = [];
   displayChart = false;
 
   selectedChartOption: any = 'CostBasis';
+  selectedChartTitle: any = 'Cost Basis';
   chartOptions: any = [
     { key: 'CostBasis', value: 'Cost Basis' },
     { key: 'Balance', value: 'Balance' },
@@ -62,9 +65,11 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   styleForHeight = HeightStyle(220);
 
-  propID = 'LineChart';
-  divHeight = '100%';
-  divWidth = '100%';
+  propIDCostBasis = 'CostBasisLineChart';
+  propIDBalance = 'BalanceLineChart';
+  propIDQuantity = 'QuantityLineChart';
+  divHeight = 180;
+  divWidth = '95%';
   lineColors = ['#ff6960', '#00bd9a'];
 
   processingMsgDiv = {
@@ -208,16 +213,29 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.financeService.getCostBasisChart(symbol).subscribe(response => {
       this.chartData = response.data;
 
-      this.mapChartData(this.chartData);
+      this.mapCostBasisData(this.chartData, this.selectedChartOption);
+      this.mapChartsData(this.chartData);
       this.displayChart = true;
     });
   }
 
-  mapChartData(data: any) {
+  mapCostBasisData(data: any, chartType: string) {
     this.labels = data.map(item => item.Date);
     this.cbData = data.map(item => ({
       date: FormatDate(item.Date, 'YYYY-MM-DD'),
-      value: item[this.selectedChartOption]
+      value: item[chartType]
+    }));
+  }
+
+  mapChartsData(data: any) {
+    this.labels = data.map(item => item.Date);
+    this.bData = data.map(item => ({
+      date: FormatDate(item.Date, 'YYYY-MM-DD'),
+      value: item.Balance
+    }));
+    this.qData = data.map(item => ({
+      date: FormatDate(item.Date, 'YYYY-MM-DD'),
+      value: item.Quantity
     }));
   }
 
@@ -292,8 +310,9 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   changeChart(selectedChart) {
     this.selectedChartOption = selectedChart;
+    this.selectedChartTitle = this.chartOptions.find(({ key }) => selectedChart === key).value;
     if (this.chartData) {
-      this.mapChartData(this.chartData);
+      this.mapCostBasisData(this.chartData, this.selectedChartOption);
     }
   }
 

@@ -1,7 +1,12 @@
-.json-viewer-border{
-    width: 45%; height: 100%; 
-    overflow-y: scroll; 
-    border: 1px solid #bdc3c7;
-    margin-left: 2rem;
-    padding: 6px;
+body {
+  overflow: hidden;
+}
+
+.json-viewer-border {
+  width: 45%;
+  height: 100%;
+  overflow-y: scroll;
+  border: 1px solid #bdc3c7;
+  margin-left: 2rem;
+  padding: 6px;
 }

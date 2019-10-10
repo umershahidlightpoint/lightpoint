@@ -15,7 +15,7 @@ import {
   CreateAccount,
   EditAccount,
   AccountCategory,
-  GridRowData,
+  Account,
   AccountTag
 } from '../../../../shared/Models/account';
 import { FinancePocServiceProxy } from '../../../../shared/service-proxies/service-proxies';
@@ -28,17 +28,17 @@ import { takeWhile } from 'rxjs/operators';
   styleUrls: ['./create-account.component.css']
 })
 export class CreateAccountComponent implements OnInit, OnChanges {
-  editCase: boolean = false;
+  editCase = false;
   accTypeLabel: string;
-  accTypeId: number = 0;
+  accTypeId = 0;
   accountCategory: string;
-  noAccountDef: boolean = false;
-  canEditAccount: boolean = true;
+  noAccountDef = false;
+  canEditAccount = true;
   // For unsubscribing all subscriptions
   isSubscriptionAlive: boolean;
 
   // Account Model
-  rowDataSelected: GridRowData;
+  rowDataSelected: Account;
   accountTypes: AccountCategory;
   accountTags: Array<AccountTag>;
   accountInstance: CreateAccount;

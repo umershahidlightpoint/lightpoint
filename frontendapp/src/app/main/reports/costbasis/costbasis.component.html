@@ -87,10 +87,19 @@
     </div>
     <!-- Report AG Grid Column Ends -->
     <!-- Chart Column Starts -->
-    <div class="col-6" [ngStyle]="styleForHeight">
+    <div class="col-6 mt-3" [ngStyle]="styleForHeight">
       <div *ngIf="displayChart" class="line-chart-wrapper">
-        <eikos-line-plot class="d-block chart" [propID]="propID" [colors]="lineColors" [data]="cbData"
-          [xAxisLabel]="'Date'" [divHeight]="divHeight" [divWidth]="divWidth">
+        <div class="chart-title">{{selectedChartTitle}}</div>
+        <eikos-line-plot class="d-block chart" [propID]="propIDCostBasis" [colors]="lineColors" [data]="cbData"
+          [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
+        </eikos-line-plot>
+        <div class="chart-title">Balance</div>
+        <eikos-line-plot class="d-block chart" [propID]="propIDBalance" [colors]="lineColors" [data]="bData"
+          [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
+        </eikos-line-plot>
+        <div class="chart-title">Quantity</div>
+        <eikos-line-plot class="d-block chart" [propID]="propIDQuantity" [colors]="lineColors" [data]="qData"
+          [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
         </eikos-line-plot>
       </div>
     </div>

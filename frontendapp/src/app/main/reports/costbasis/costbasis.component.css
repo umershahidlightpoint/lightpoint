@@ -93,6 +93,17 @@ html {
   text-align: right;
 }
 
+.line-chart-wrapper {
+  padding-top: 1.6rem;
+  overflow: hidden;
+}
+
+.chart-title {
+  font-size: 1em;
+  font-weight: 500;
+  line-height: 0;
+}
+
 ::ng-deep .line-chart-wrapper svg {
   height: 24rem;
 }
