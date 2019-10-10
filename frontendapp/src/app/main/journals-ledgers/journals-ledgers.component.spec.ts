@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AgGridExampleComponent } from './journals-ledgers.component';
+import { JournalsLedgersComponent } from './journals-ledgers.component';
 
 describe('AgGridExampleComponent', () => {
-  let component: AgGridExampleComponent;
-  let fixture: ComponentFixture<AgGridExampleComponent>;
+  let component: JournalsLedgersComponent;
+  let fixture: ComponentFixture<JournalsLedgersComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ AgGridExampleComponent ]
+      declarations: [ JournalsLedgersComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(AgGridExampleComponent);
+    fixture = TestBed.createComponent(JournalsLedgersComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
