@@ -7,7 +7,7 @@ import { takeWhile } from 'rxjs/operators';
 
 /* Services/Components */
 import { FinancePocServiceProxy } from '../../../../shared/service-proxies/service-proxies';
-import { GridRowData, Fund } from '../../../../shared/Models/account';
+import { Account, Fund } from '../../../../shared/Models/account';
 import { Journal } from '../../../../shared/Models/journal';
 
 @Component({
@@ -19,7 +19,7 @@ export class JournalModalComponent implements OnInit, OnDestroy {
   @ViewChild('modal') modal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
 
-  allAccounts: GridRowData;
+  allAccounts: Account;
   funds: Fund;
   toAccountCheck: number;
   fromAccountCheck: number;

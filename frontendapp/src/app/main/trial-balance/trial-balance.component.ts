@@ -16,7 +16,8 @@ import {
   SetDateRange,
   HeightStyle,
   AutoSizeAllColumns,
-  CommonCols
+  CommonCols,
+  CalTotal
 } from 'src/shared/utils/Shared';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { DataService } from 'src/shared/common/data.service';
@@ -168,8 +169,12 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
 
     // Now need to go thru this list and group the right fields
     colDefs.forEach(col => {
-      if (col.field === 'AccountCategory') col.rowGroup = true;
-      if (col.field === 'accountName') col.rowGroup = true;
+      if (col.field === 'AccountCategory') {
+        col.rowGroup = true;
+      }
+      if (col.field === 'accountName') {
+        col.rowGroup = true;
+      }
     });
 
     const cdefs = this.agGridUtls.customizeColumns(colDefs, columns, this.ignoreFields);
@@ -249,7 +254,14 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
             when: '',
             debit: Math.abs(this.totalDebit),
             credit: Math.abs(this.totalCredit),
-            balance: Math.abs(this.totalDebit) - Math.abs(this.totalCredit)
+            balance: Math.abs(this.totalDebit) - Math.abs(this.totalCredit),
+            Commission: CalTotal(this.rowData, 'Commission'),
+            Fees: CalTotal(this.rowData, 'Fees'),
+            TradePrice: CalTotal(this.rowData, 'TradePrice'),
+            NetPrice: CalTotal(this.rowData, 'NetPrice'),
+            SettleNetPrice: CalTotal(this.rowData, 'SettleNetPrice'),
+            NetMoney: CalTotal(this.rowData, 'NetMoney'),
+            LocalNetNotional: CalTotal(this.rowData, 'LocalNetNotional')
           }
         ];
         this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);

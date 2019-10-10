@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter, Input } from '@angular/core';
 import { ModalDirective } from 'ngx-bootstrap';
 
 @Component({
@@ -7,6 +7,7 @@ import { ModalDirective } from 'ngx-bootstrap';
   styleUrls: ['./confirmation-modal.component.css']
 })
 export class ConfirmationModalComponent implements OnInit {
+  @Input('modalTitle') title: string;
   @ViewChild('confirm') confirmModal: ModalDirective;
   @Output() confirmDeletion = new EventEmitter<any>();
 

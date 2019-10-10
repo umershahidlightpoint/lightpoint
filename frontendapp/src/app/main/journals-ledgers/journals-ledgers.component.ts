@@ -22,7 +22,8 @@ import {
   SetDateRange,
   HeightStyle,
   AutoSizeAllColumns,
-  CommonCols
+  CommonCols,
+  CalTotal
 } from 'src/shared/utils/Shared';
 import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
@@ -254,7 +255,14 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
             when: '',
             debit: Math.abs(this.totalDebit),
             credit: Math.abs(this.totalCredit),
-            balance: Math.abs(this.totalDebit) - Math.abs(this.totalCredit)
+            balance: Math.abs(this.totalDebit) - Math.abs(this.totalCredit),
+            Commission: CalTotal(this.rowData, 'Commission'),
+            Fees: CalTotal(this.rowData, 'Fees'),
+            TradePrice: CalTotal(this.rowData, 'TradePrice'),
+            NetPrice: CalTotal(this.rowData, 'NetPrice'),
+            SettleNetPrice: CalTotal(this.rowData, 'SettleNetPrice'),
+            NetMoney: CalTotal(this.rowData, 'NetMoney'),
+            LocalNetNotional: CalTotal(this.rowData, 'LocalNetNotional')
           }
         ];
         this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);

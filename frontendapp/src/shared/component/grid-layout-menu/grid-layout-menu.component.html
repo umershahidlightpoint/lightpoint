@@ -1,7 +1,6 @@
 <div *ngIf="!isNewLayout" class="row mx-auto form-group pl-2 pt-2">
-  <select [compareWith]="compareFn" class="form-control layout-dropdown" [(ngModel)]="gridLayoutID"
-    (ngModelChange)="restoreLayout($event)">
-    <option [ngValue]="{ Id: 0 }" selected>Select Layout</option>
+  <select class="form-control layout-dropdown" [(ngModel)]="gridLayout" (ngModelChange)="restoreLayout($event)">
+    <option [ngValue]="initialLayout" selected>Select Layout</option>
     <option *ngFor="let layout of gridLayouts" [ngValue]="layout" [ngClass]="layout.IsPublic ? 'class-IsPublic' : ''">
       {{ layout.GridLayoutName }}
     </option>
@@ -44,4 +43,5 @@
   </button>
 </div>
 
-<app-confirmation-modal #confirmModal (confirmDeletion)="onDelete()"></app-confirmation-modal>
+<app-confirmation-modal #confirmModal [modalTitle]="'Delete Layout'" (confirmDeletion)="onDelete()">
+</app-confirmation-modal>
