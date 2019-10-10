@@ -3,8 +3,9 @@
 	[open_id] [varchar](127) NOT NULL,
 	[symbol] [varchar](127) NOT NULL,
 	[status] [varchar](20) NOT NULL,
+	[original_quantity] [decimal](18, 6) NOT NULL,
 	[quantity] [decimal](18, 6) NOT NULL,
-	[business_date] [date] NULL,
+	[business_date] [date] NOT NULL,
 	[generated_on] [datetime] NOT NULL,
  CONSTRAINT [PK_tax_lot_status] PRIMARY KEY CLUSTERED 
 (
