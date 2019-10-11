@@ -17,6 +17,7 @@ namespace LP.Finance.Common.Models
         public DateTime BusinessDate { get; set; }
         public string Status { get; set; }
         public double Quantity { get; set; }
+        public double OriginalQuantity { get; set; }
 
 
         // Get a list of Journal Entries for this trade
@@ -37,9 +38,9 @@ namespace LP.Finance.Common.Models
             get
             {
                 var sql = @"insert into tax_lot_status 
-                            (open_id, status, quantity, symbol, business_date) 
+                            (open_id, status, quantity, symbol, business_date, original_quantity) 
                             values 
-                            (@open_id, @status, @quantity, @symbol, @business_date)";
+                            (@open_id, @status, @quantity, @symbol, @business_date, @original_quantity)";
                 var sqlParams = new SqlParameter[]
                 {
                     new SqlParameter("open_id", OpenId),
@@ -47,7 +48,8 @@ namespace LP.Finance.Common.Models
                     new SqlParameter("quantity", Quantity),
                     new SqlParameter("symbol", Symbol),
                     new SqlParameter("business_date", BusinessDate),
-                    
+                    new SqlParameter("original_quantity", OriginalQuantity),
+
                 };
 
                 return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);
@@ -78,7 +80,7 @@ namespace LP.Finance.Common.Models
             // read the table structure from the database
             var localconnection = new SqlConnection(connection.ConnectionString + ";Password=ggtuser");
             localconnection.Open();
-            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 open_id, status, quantity, symbol, business_date FROM tax_lot_status", localconnection))
+            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 open_id, status, quantity, symbol, business_date, original_quantity FROM tax_lot_status", localconnection))
             {
                 adapter.Fill(table);
             };
@@ -93,6 +95,7 @@ namespace LP.Finance.Common.Models
             row["symbol"] = this.Symbol;
             row["status"] = this.Status;
             row["quantity"] = this.Quantity;
+            row["original_quantity"] = this.OriginalQuantity;
             row["business_date"] = this.BusinessDate;
         }
     }

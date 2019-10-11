@@ -9,7 +9,10 @@ namespace PostingEngine.PostingRules.Utilities
     {
         // Collect a list of accounts that are generated
         private static readonly Dictionary<string, Account> accounts = new Dictionary<string, Account>();
+        public static void LoadAll()
+        {
 
+        }
         public void SaveAccountDetails(PostingEngineEnvironment env, Account account)
         {
             if (!account.Exists)
@@ -101,12 +104,19 @@ namespace PostingEngine.PostingRules.Utilities
 
             var name = $"{accountType.Name} -- {string.Join("-", accountTags.Select(t => t.TagValue))}";
             var description = $"{string.Join("-", accountTags.Select(t => t.TagValue))}";
-
+            
             // Lets check to see if we have created this account already
             if (accounts.ContainsKey(name))
             {
                 return accounts[name];
             }
+
+            var existingAccount = Account.All.Where(a => a.Name.Equals(name) && a.Type.Id == accountType.Id).FirstOrDefault();
+            if (existingAccount != null)
+            {
+                return existingAccount;
+            }
+
 
             var account = new Account
             {
@@ -132,6 +142,12 @@ namespace PostingEngine.PostingRules.Utilities
             if (accounts.ContainsKey(accountName))
             {
                 return accounts[accountName];
+            }
+
+            var existingAccount = Account.All.Where(a => a.Name.Equals(accountName) && a.Type.Id == accountType.Id).FirstOrDefault();
+            if ( existingAccount != null )
+            {
+                return existingAccount;
             }
 
             var account = new Account

@@ -24,6 +24,7 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
+import { TreeModule } from 'primeng/primeng';
 
 @Component({
   selector: 'rep-taxlotstatus',
@@ -125,6 +126,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           field: 'symbol',
           width: 120,
           headerName: 'Symbol',
+          rowGroup: true,
           sortable: true,
           filter: true
         },
@@ -137,13 +139,24 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         },
         {
           field: 'quantity',
-          headerName: 'Quantity',
+          headerName: 'Remaining Quantity',
           width: 100,
           filter: true,
           sortable: true,
           cellClass: 'rightAlign',
-          valueFormatter: absCurrencyFormatter
-        }
+          valueFormatter: absCurrencyFormatter,
+          aggFunc: 'sum',
+        },
+        {
+          field: 'original_quantity',
+          headerName: 'Original Quantity',
+          width: 100,
+          filter: true,
+          sortable: true,
+          cellClass: 'rightAlign',
+          valueFormatter: absCurrencyFormatter,
+          aggFunc: 'sum',
+        },
       ],
       defaultColDef: {
         sortable: true,

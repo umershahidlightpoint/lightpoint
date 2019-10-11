@@ -21,7 +21,7 @@ namespace PostingEngine
         private static readonly string
             connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
-        private static readonly string root = "http://localhost";
+        private static readonly string root = "http://dev11";
 
         private static readonly string accrualsURL = root + ":9091/api/accruals/data?period=";
         private static readonly string tradesURL = root + ":9091/api/trade/data?period=";
@@ -465,6 +465,7 @@ namespace PostingEngine
         {
             AccountCategory.Load(connection);
             AccountType.Load(connection);
+            Account.Load(connection);
             Tag.Load(connection);
         }
 
@@ -501,12 +502,15 @@ namespace PostingEngine
 
             if (period.Equals("ITD"))
             {
+                // We need to preserve the Accounts, so once created we are good to go
+                //new SqlCommand("delete from account_tag", connection).ExecuteNonQuery();
+                //new SqlCommand("delete from account", connection).ExecuteNonQuery();
+
                 new SqlCommand("delete from journal_log", connection).ExecuteNonQuery();
-                new SqlCommand("delete from account_tag", connection).ExecuteNonQuery();
-                new SqlCommand("delete from account", connection).ExecuteNonQuery();
                 new SqlCommand("delete from tax_lot", connection).ExecuteNonQuery();
                 new SqlCommand("delete from tax_lot_status", connection).ExecuteNonQuery();
                 new SqlCommand("delete from cost_basis", connection).ExecuteNonQuery();
+
             }
         }
 
@@ -547,10 +551,11 @@ namespace PostingEngine
                 return false;
             }
 
+            // Lets ignore this for the moment
             if (element.TradeType.ToLower().Equals("kickout"))
             {
-                env.AddMessage($"Trade is a kickout ignoring {element.LpOrderId}");
-                return false;
+                //env.AddMessage($"Trade is a kickout ignoring {element.LpOrderId}");
+                //return false;
             }
 
             if (!element.TradeType.ToLower().Equals("trade"))

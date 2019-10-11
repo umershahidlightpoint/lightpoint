@@ -302,8 +302,15 @@ namespace PostingEngine.PostingRules
                     Symbol = element.Symbol,
                     OpenId = element.LpOrderId,
                     Status = "Open",
+                    OriginalQuantity = element.Quantity,
                     Quantity = element.Quantity };
                 env.TaxLotStatus.Add(element.LpOrderId, tl);
+
+                if ( element.Quantity == 0 )
+                {
+                    // TODO: Need to review this as we need to see if there is a parent, and what the parents actuall is
+                    return;
+                }
 
                 //tl.Save(env.Connection, env.Transaction);
             }
@@ -329,7 +336,7 @@ namespace PostingEngine.PostingRules
 
                         if ( !env.TaxLotStatus.ContainsKey(lot.LpOrderId))
                         {
-                            // What when wrong here
+                            // TODO: For this open lot there should be a corresponding open to 
                             continue;
                         }
 
