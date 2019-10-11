@@ -1,5 +1,5 @@
 <div *ngIf="!isNewLayout" class="row mx-auto form-group pl-2 pt-2">
-  <select class="form-control layout-dropdown" [(ngModel)]="gridLayout" (ngModelChange)="restoreLayout($event)">
+  <select class="form-control layout-dropdown" id="gridLayoutList_id" [(ngModel)]="gridLayout" (ngModelChange)="restoreLayout($event)">
     <option [ngValue]="initialLayout" selected>Select Layout</option>
     <option *ngFor="let layout of gridLayouts" [ngValue]="layout" [ngClass]="layout.IsPublic ? 'class-IsPublic' : ''">
       {{ layout.GridLayoutName }}
@@ -8,7 +8,7 @@
 </div>
 
 <div *ngIf="isNewLayout" class="row mx-auto form-group layout-input">
-  <input class="form-control" placeholder="Layout Name" type="text" [(ngModel)]="layoutName" step=".07" />
+  <input class="form-control" placeholder="Layout Name" type="text" [(ngModel)]="layoutName" id="layOutName_grid" step=".07" />
   <div class="ml-auto mt-2 mr-4">
     <input type="checkbox" [(ngModel)]="isPublic" name="Public" value="1" />
     Public
@@ -21,7 +21,7 @@
       <button class="btn btn-info new-layout-action" (click)="onCreateNew()">
         Cancel
       </button>
-      <button class="btn btn-info new-layout-action" (click)="onNewSave()">
+      <button class="btn btn-info new-layout-action" id="saveNewGrid_grid" (click)="onNewSave()">
         Save
       </button>
     </div>
@@ -29,16 +29,16 @@
 </div>
 
 <div *ngIf="!isNewLayout" class="row ml-auto pl-2 layout-action-container">
-  <button class="btn btn-info layout-action" (click)="onCreateNew()">
+  <button class="btn btn-info layout-action" id="newCustomLayout_grid" (click)="onCreateNew()">
     New
   </button>
-  <button class="btn btn-info layout-action" [disabled]="isPublicSelected" (click)="onEditSave()">
+  <button class="btn btn-info layout-action" id="updateCustomLayout" [disabled]="isPublicSelected" (click)="onEditSave()">
     Update
   </button>
-  <button class="btn btn-info layout-action" (click)="openModal()">
+  <button class="btn btn-info layout-action" id="deleteCustomLayout" (click)="openModal()">
     Delete
   </button>
-  <button class="btn btn-info layout-action-reset" (click)="resetState()">
+  <button class="btn btn-info layout-action-reset" id="resetCustomLayout" (click)="resetState()">
     Reset
   </button>
 </div>
