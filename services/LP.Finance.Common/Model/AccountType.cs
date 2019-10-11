@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
 
 namespace LP.Finance.Common.Models
 {
@@ -13,6 +14,11 @@ namespace LP.Finance.Common.Models
         private readonly static List<AccountType> _all = new List<AccountType>();
 
         public static List<AccountType> All { get { return _all; } }
+
+        public static AccountType Find(int id)
+        {
+            return All.Where(i => i.Id == id).FirstOrDefault();
+        }
 
         public static AccountType[] Load(SqlConnection connection)
         {

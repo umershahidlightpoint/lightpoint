@@ -465,6 +465,7 @@ namespace PostingEngine
         {
             AccountCategory.Load(connection);
             AccountType.Load(connection);
+            Account.Load(connection);
             Tag.Load(connection);
         }
 
@@ -501,12 +502,15 @@ namespace PostingEngine
 
             if (period.Equals("ITD"))
             {
+                // We need to preserve the Accounts, so once created we are good to go
+                //new SqlCommand("delete from account_tag", connection).ExecuteNonQuery();
+                //new SqlCommand("delete from account", connection).ExecuteNonQuery();
+
                 new SqlCommand("delete from journal_log", connection).ExecuteNonQuery();
-                new SqlCommand("delete from account_tag", connection).ExecuteNonQuery();
-                new SqlCommand("delete from account", connection).ExecuteNonQuery();
                 new SqlCommand("delete from tax_lot", connection).ExecuteNonQuery();
                 new SqlCommand("delete from tax_lot_status", connection).ExecuteNonQuery();
                 new SqlCommand("delete from cost_basis", connection).ExecuteNonQuery();
+
             }
         }
 

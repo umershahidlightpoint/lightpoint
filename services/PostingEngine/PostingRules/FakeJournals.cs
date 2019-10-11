@@ -15,7 +15,116 @@ namespace PostingEngine.PostingRules
 
         public void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
+            if (element.Status.Equals("Cancelled"))
+            {
+                env.AddMessage($"Entry has been cancelled {element.LpOrderId} :: {element.Side}");
+                return;
+            }
+
+            // If they are the same we need to do nothing
+            if (element.TradeDate.Date == element.SettleDate.Date)
+            {
+                //env.AddMessage($"Journal needs to be checked {element.LpOrderId}, {element.TradeDate}, {element.SettleDate}");
+                return;
+            }
+
+            var accountToFrom = GetSettlementFromToAccount(element);
+
+            if (accountToFrom.To == null)
+            {
+                env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
+                return;
+            }
+
+            new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
+            new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
+
+            double fxrate = 1.0;
+
+            if (!element.SettleCurrency.Equals("USD"))
+            {
+                fxrate = Convert.ToDouble(env.FxRates[element.TradeCurrency].Rate);
+            }
+
+            var moneyUSD = element.LocalNetNotional / fxrate;
+
+            if (element.LocalNetNotional != 0.0)
+            {
+                var debit = new Journal
+                {
+                    Source = element.LpOrderId,
+                    Account = accountToFrom.From,
+                    Quantity = element.Quantity,
+                    When = env.ValueDate,
+                    FxCurrency = element.TradeCurrency,
+                    FxRate = fxrate,
+                    Value = moneyUSD * -1,
+                    GeneratedBy = "system",
+                    Fund = element.Fund,
+                };
+
+                var credit = new Journal
+                {
+                    Source = element.LpOrderId,
+                    Account = accountToFrom.To,
+                    Quantity = element.Quantity,
+                    When = env.ValueDate,
+                    FxCurrency = element.TradeCurrency,
+                    FxRate = fxrate,
+                    Value = moneyUSD,
+                    GeneratedBy = "system",
+                    Fund = element.Fund,
+                };
+
+                env.Journals.Add(debit);
+                env.Journals.Add(credit);
+            }
+
             return;
+        }
+
+        private AccountToFrom GetSettlementFromToAccount(Transaction element)
+        {
+            var type = element.GetType();
+            var accountTypes = AccountType.All;
+
+            var listOfFromTags = new List<Tag>
+            {
+                Tag.Find("CustodianCode"),
+                Tag.Find("Symbol")
+            };
+
+            var listOfToTags = new List<Tag>
+            {
+                Tag.Find("CustodianCode"),
+                Tag.Find("Symbol")
+            };
+
+            Account fromAccount = null; // Debiting Account
+            Account toAccount = null; // Crediting Account
+
+            switch (element.Side.ToLowerInvariant())
+            {
+                case "credit":
+                    // Contribution
+                    if (element.Symbol.Equals("ZZ_CASH_DIVIDENDS"))
+                    {
+                        fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Settled Activity )")).FirstOrDefault(), listOfToTags, element);
+                        toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DIVIDENDS RECEIVABLE")).FirstOrDefault(), listOfFromTags, element);
+                    }
+                    else // Default Action
+                    {
+                        fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
+                        toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("SHORT POSITIONS-COST")).FirstOrDefault(), listOfFromTags, element);
+                    }
+                    break;
+            }
+
+            return new AccountToFrom
+            {
+                From = fromAccount,
+                To = toAccount
+            };
         }
 
         private AccountToFrom GetFromToAccount(Transaction element)
@@ -43,17 +152,32 @@ namespace PostingEngine.PostingRules
                         if (element.Symbol.Equals("ZZ_INVESTOR_WITHDRAWALS"))
                         {
                             var fromTags = new List<Tag>
-                        {
-                            Tag.Find("CustodianCode")
-                        };
+                            {
+                                Tag.Find("CustodianCode")
+                            };
 
                             var toTags = new List<Tag>
-                        {
-                            Tag.Find("CustodianCode")
-                        };
+                            {
+                                Tag.Find("CustodianCode")
+                            };
 
                             fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CONTRIBUTED CAPITAL")).FirstOrDefault(), fromTags, element);
                             toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Settled Activity )")).FirstOrDefault(), toTags, element);
+                        }
+                        else if (element.Symbol.Equals("ZZ_CASH_DIVIDENDS"))
+                        {
+                            var fromTags = new List<Tag>
+                            {
+                                Tag.Find("CustodianCode")
+                            };
+
+                            var toTags = new List<Tag>
+                            {
+                                Tag.Find("CustodianCode")
+                            };
+
+                            fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DIVIDENDS RECEIVABLE")).FirstOrDefault(), fromTags, element);
+                            toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DIVIDEND INCOME")).FirstOrDefault(), toTags, element);
                         }
                         else
                         {
@@ -85,10 +209,31 @@ namespace PostingEngine.PostingRules
                         fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Settled Activity )")).FirstOrDefault(), fromTags, element);
                         toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CONTRIBUTED CAPITAL")).FirstOrDefault(), toTags, element);
                     }
-                    else
+                    else if (element.Symbol.Equals("ZZ_CASH_DIVIDENDS"))
                     {
-                        fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
-                        toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("SHORT POSITIONS-COST")).FirstOrDefault(), listOfFromTags, element);
+                        var fromTags = new List<Tag>
+                        {
+                            Tag.Find("CustodianCode")
+                        };
+
+                        var toTags = new List<Tag>
+                        {
+                            Tag.Find("CustodianCode")
+                        };
+
+                        fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DIVIDENDS RECEIVABLE")).FirstOrDefault(), fromTags, element);
+                        toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DIVIDEND INCOME")).FirstOrDefault(), toTags, element);
+                    }
+                    else // Default Action
+                    {
+                        var symbol = element.Symbol;
+                        symbol = this._codeMap.ContainsKey(symbol) ? _codeMap[symbol] : symbol;
+
+                        var paidAccount = accountTypes.Where(i => i.Name.Equals("Expenses Paid")).FirstOrDefault();
+                        var payableAccount = accountTypes.Where(i => i.Name.Equals("ACCRUED EXPENSES")).FirstOrDefault();
+
+                        fromAccount = new AccountUtils().CreateAccount(paidAccount, symbol, element);
+                        toAccount = new AccountUtils().CreateAccount(payableAccount, symbol + " Payable", element);
                     }
                     break;
             }
@@ -108,10 +253,11 @@ namespace PostingEngine.PostingRules
                 return;
             }
 
+            // Need to consider both
             if ( element.TradeDate.Date != element.SettleDate.Date)
             {
-                env.AddMessage($"Journal needs to be checked {element.LpOrderId}, {element.TradeDate}, {element.SettleDate}");
-                return;
+                //env.AddMessage($"Journal needs to be checked {element.LpOrderId}, {element.TradeDate}, {element.SettleDate}");
+                //return;
             }
 
             var accountToFrom = GetFromToAccount(element);

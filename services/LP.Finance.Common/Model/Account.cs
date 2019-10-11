@@ -21,6 +21,34 @@ namespace LP.Finance.Common.Models
 
     public class Account : IDbAction, IDbActionSaveUpdate, IDbActionIdentity
     {
+        public static List<Account> All { private set;  get; }
+
+        public static Account[] Load(SqlConnection connection)
+        {
+            All = new List<Account>();
+
+            var list = new List<Account>();
+
+            var query = new SqlCommand("select id, name, account_type_id from account", connection);
+            var reader = query.ExecuteReader(System.Data.CommandBehavior.SingleResult);
+
+            while (reader.Read())
+            {
+                list.Add(new Account
+                {
+                    Id = reader.GetFieldValue<int>(0),
+                    Name = reader.GetFieldValue<string>(1),
+                    Type = AccountType.Find(reader.GetFieldValue<int>(2)),
+                    Exists = true,
+                });
+            }
+            reader.Close();
+
+            All.AddRange(list);
+
+            return All.ToArray();
+        }
+
         /// <summary>
         /// Check to see if the Account has already been saved, if so then don't bother saving again
         /// </summary>
