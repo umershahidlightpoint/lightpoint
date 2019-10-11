@@ -21,7 +21,7 @@ namespace PostingEngine
         private static readonly string
             connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
-        private static readonly string root = "http://localhost";
+        private static readonly string root = "http://dev11";
 
         private static readonly string accrualsURL = root + ":9091/api/accruals/data?period=";
         private static readonly string tradesURL = root + ":9091/api/trade/data?period=";
@@ -547,10 +547,11 @@ namespace PostingEngine
                 return false;
             }
 
+            // Lets ignore this for the moment
             if (element.TradeType.ToLower().Equals("kickout"))
             {
-                env.AddMessage($"Trade is a kickout ignoring {element.LpOrderId}");
-                return false;
+                //env.AddMessage($"Trade is a kickout ignoring {element.LpOrderId}");
+                //return false;
             }
 
             if (!element.TradeType.ToLower().Equals("trade"))
