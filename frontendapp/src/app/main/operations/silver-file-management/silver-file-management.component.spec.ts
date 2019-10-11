@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FileManagementComponent } from './file-management.component';
+import { SilverFileManagementComponent } from './silver-file-management.component';
 
 describe('FileManagementComponent', () => {
-  let component: FileManagementComponent;
-  let fixture: ComponentFixture<FileManagementComponent>;
+  let component: SilverFileManagementComponent;
+  let fixture: ComponentFixture<SilverFileManagementComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ FileManagementComponent ]
+      declarations: [ SilverFileManagementComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(FileManagementComponent);
+    fixture = TestBed.createComponent(SilverFileManagementComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
