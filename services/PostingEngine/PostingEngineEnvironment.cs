@@ -42,6 +42,8 @@ namespace PostingEngine
         public Dictionary<string, FxRate> FxRates { get; set; }
         public Dictionary<string, MarketPrice> PrevMarketPrices { get; set; }
         public Dictionary<string, MarketPrice> EODMarketPrices { get; set; }
+        public Dictionary<string, CostBasisDto> CostBasis { get; set; }
+
 
         // Map of Product type to IPostingRule, now we can run each of these in parellel, once we have the data
         // which is readonly we can spin up a number of Tasks, each responsible for processing the right product
@@ -70,20 +72,42 @@ namespace PostingEngine
         public Dictionary<string, int> Messages { get; private set; }
 
         /// <summary>
-        /// Get a list of the open tax lots for the passed trade
+        /// Get a list of the open tax lots for the passed trade, is this is a Sell then only get Buys, if a cover only shorts
         /// </summary>
         /// <param name="element">Closing Tax Lot</param>
         /// <returns>List of matched open Lots</returns>
         internal List<Transaction> GetOpenLots(Transaction element)
         {
-            var openLots = this.Trades.Where(i => 
-                i.TradeDate.Date <= element.TradeDate.Date 
-                && i.Symbol == element.Symbol
-                && i.LpOrderId != element.LpOrderId
-                && (i.Side.ToLowerInvariant().Equals("buy") || i.Side.ToLowerInvariant().Equals("short"))
-                )
-                .OrderBy(i=>i.TradeDate)
-                .ToList();
+            var side = element.Side.ToLowerInvariant();
+
+            if ( side.Equals("buy") || side.Equals("short"))
+            {
+                return null;
+            }
+
+            List<Transaction> openLots = new List<Transaction>();
+
+            var lots = this.Trades.Where(i =>
+                    i.TradeDate.Date <= element.TradeDate.Date
+                    && i.Symbol == element.Symbol
+                    && i.LpOrderId != element.LpOrderId);
+
+            if (side.Equals("sell"))
+            {
+                var local = lots.Where(i=>i.Side.ToLowerInvariant().Equals("buy"))
+                    .OrderBy(i => i.TradeDate)
+                    .ToList();
+
+                openLots.AddRange(local);
+            }
+            else if ( side.Equals("cover"))
+            {
+                var local = lots.Where(i => i.Side.ToLowerInvariant().Equals("short"))
+                    .OrderBy(i => i.TradeDate)
+                    .ToList();
+
+                openLots.AddRange(local);
+            }
 
             return openLots;
         }

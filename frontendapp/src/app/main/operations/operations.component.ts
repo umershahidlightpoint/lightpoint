@@ -316,14 +316,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     return GetContextMenu(true, null, true, null, params);
   }
 
-  setGroupingState(value: boolean) {
-    this.gridOptions.api.forEachNode((node, index) => {
-      if (node.group) {
-        node.setExpanded(value);
-      }
-    });
-  }
-
   ngOnDestroy() {
     this.isSubscriptionAlive = false;
   }

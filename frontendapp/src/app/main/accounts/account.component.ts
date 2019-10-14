@@ -18,7 +18,7 @@ import { takeWhile } from 'rxjs/operators';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { SideBar, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';
+import { SideBar, AutoSizeAllColumns, HeightStyle, Style } from 'src/shared/utils/Shared';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 
@@ -42,12 +42,7 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('divToMeasure') divToMeasureElement: ElementRef;
   @ViewChild('confirmationModal') confirmationModal: ConfirmationModalComponent;
 
-  style = {
-    marginTop: '20px',
-    width: '100%',
-    height: '100%',
-    boxSizing: 'border-box'
-  };
+  style = Style;
 
   styleForHeight = HeightStyle(224);
 

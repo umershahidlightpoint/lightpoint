@@ -1,0 +1,50 @@
+<!-- Hide Grid Div -->
+<div *ngIf="hideGrid" [ngStyle]="containerDiv">
+  <div style="display: flex; align-items: center; justify-content: center">
+    <h1> Posting Engine is Running. Please Wait. </h1>
+  </div>
+</div>
+<!-- Hide Grid Div Ends -->
+
+<!-- Div Starts -->
+<div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
+  <!-- Tab View Tag Starts -->
+  <p-tabView [ngStyle]="style">
+    <!-- Account Tab Starts -->
+    <p-tabPanel header="Fund Theoretical" [ngStyle]="style">
+      <!----- Action Buttons Div Starts ----->
+      <div class="row">
+        <div class="ml-auto mt-1 mr-2">
+          <!----- Refresh Button Div ----->
+          <!-- <div class="mr-2 tabBtn">
+            <button (click)="refreshGrid()" class="btn btn-info" tooltip="Refresh" placement="top">
+              <i class="fa fa-refresh"></i></button>
+          </div> -->
+          <!-- Export Excel Div -->
+          <!-- <div class="mr-2  tabBtn">
+            <button (click)="onBtExport()" class="btn btn-info" tooltip="Export to Excel" placement="top">
+              <i class="fa fa-arrow-circle-o-down"></i>
+            </button>
+          </div> -->
+        </div>
+      </div>
+      <!----- Action Buttons Div Ends ----->
+
+      <!----- Div To Measure Identifier starts ----->
+      <div #divToMeasure>
+        <!----- Style For Height ----->
+        <div [ngStyle]="styleForHeight">
+          <!----- Ag Grid Selector ----->
+          <ag-grid-angular class="ag-theme-balham" style=" height: 100%; width: 100%"
+            [gridOptions]="fundTheoreticalGrid" [components]="components">
+          </ag-grid-angular>
+
+        </div>
+      </div>
+      <!----- Div To Measure Identifier Ends ----->
+    </p-tabPanel>
+    <!-- Account Tab Ends -->
+  </p-tabView>
+  <!-- Tab View Tag Ends -->
+</div>
+<!-- Div Ends -->

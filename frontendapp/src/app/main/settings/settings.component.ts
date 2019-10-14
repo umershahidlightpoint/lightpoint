@@ -13,8 +13,17 @@ export class SettingsComponent implements OnInit {
   private gridOptions: GridOptions;
   private allocationsGridOptions: GridOptions;
 
-  reportingCurrency = 'USD';
+  private currencies = [ { code:'USD', description:'USD'}, 
+  { code:'JPY', description:'JPY'}];
+  reportingCurrency = this.currencies[0];
+
   reportingDate = '';
+
+  private methods = [ { code:'FIFO', description:'First In First Out'}, 
+             { code:'LIFO', description:'Last In First Out'}];
+
+  methodology: any;
+  
   bottomOptions = { alignedGrids: [] };
   accrualsData: any;
   allocationAccrualsData: any;
@@ -92,6 +101,8 @@ export class SettingsComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.methodology = this.methods[0];
+
     // align scroll of grid and footer grid
     this.gridOptions.alignedGrids.push(this.bottomOptions);
     this.bottomOptions.alignedGrids.push(this.gridOptions);

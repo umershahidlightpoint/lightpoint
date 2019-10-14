@@ -236,6 +236,7 @@ order by UpdatedOn desc
                         d.[value],
                         d.[source],
                         d.[when],
+                        d.[event],
                         d.[generated_by]
                         from(
                             SELECT 
@@ -251,6 +252,7 @@ order by UpdatedOn desc
                                     [value],
                                     [source],
                                     [when],
+                                    [event],
                                     [generated_by]
                                     FROM [journal] with(nolock) 
                         join account  on [journal]. [account_id] = account.id 

@@ -462,34 +462,18 @@ export class FinancePocServiceProxy {
 
   getTaxLotReport(fromDate, toDate, fund) {
     const url =
-      this.baseUrl +
-      '/journal/taxlotReport?from=' +
-      fromDate +
-      '&to=' +
-      toDate +
-      '&fund=' +
-      fund;
+      this.baseUrl + '/journal/taxlotReport?from=' + fromDate + '&to=' + toDate + '&fund=' + fund;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
   getClosingTaxLots(lporderid) {
-    const url =
-      this.baseUrl +
-      '/journal/closingTaxLots?orderid=' +
-      lporderid;
+    const url = this.baseUrl + '/journal/closingTaxLots?orderid=' + lporderid;
     return this.http.get(url).pipe(map((response: any) => response));
-
   }
 
   getTaxLotsReport(fromDate, toDate, fund) {
     const url =
-      this.baseUrl +
-      '/journal/taxlotsReport?from=' +
-      fromDate +
-      '&to=' +
-      toDate +
-      '&fund=' +
-      fund;
+      this.baseUrl + '/journal/taxlotsReport?from=' + fromDate + '&to=' + toDate + '&fund=' + fund;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
@@ -524,6 +508,14 @@ export class FinancePocServiceProxy {
 
   getInvalidExportRecords(): Observable<any> {
     const url = this.baseUrl + '/fileManagement/FileExportException';
+    return this.http.get(url);
+  }
+
+  /*
+  Monthly Performance
+  */
+  getMonthlyPerformance(): Observable<any> {
+    const url = this.baseUrl + '/performance/monthlyPerformance';
     return this.http.get(url);
   }
 }

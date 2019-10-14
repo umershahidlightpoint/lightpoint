@@ -316,6 +316,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         d.[value],
                         d.[source],
                         d.[when],
+                        d.[event],
                         d.modifiable
                         from(
                             SELECT overall_count = COUNT(*) OVER(),
@@ -331,6 +332,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                     [value],
                                     [source],
                                     [when],
+                                    [event],
                                     (CASE WHEN [journal].[generated_by] = 'user' THEN 'true' else 'false' END  ) modifiable
                                     FROM [journal] with(nolock) 
                         join account  on [journal]. [account_id] = account.id 

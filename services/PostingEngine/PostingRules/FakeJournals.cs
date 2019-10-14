@@ -60,6 +60,7 @@ namespace PostingEngine.PostingRules
                     FxRate = fxrate,
                     Value = moneyUSD * -1,
                     GeneratedBy = "system",
+                    Event = "journal",
                     Fund = element.Fund,
                 };
 
@@ -71,6 +72,7 @@ namespace PostingEngine.PostingRules
                     When = env.ValueDate,
                     FxCurrency = element.TradeCurrency,
                     FxRate = fxrate,
+                    Event = "journal",
                     Value = moneyUSD,
                     GeneratedBy = "system",
                     Fund = element.Fund,
@@ -291,6 +293,7 @@ namespace PostingEngine.PostingRules
                     FxCurrency = element.TradeCurrency,
                     FxRate = fxrate,
                     Value = moneyUSD * -1,
+                    Event = "journal",
                     GeneratedBy = "system",
                     Fund = element.Fund,
                 };
@@ -305,6 +308,7 @@ namespace PostingEngine.PostingRules
                     FxRate = fxrate,
                     Value = moneyUSD,
                     GeneratedBy = "system",
+                    Event = "journal",
                     Fund = element.Fund,
                 };
 

@@ -72,7 +72,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
                 date = date.AddDays(-1);
 
             var startdate = period.Item1.ToString("MM-dd-yyyy") + " 00:00";
-            var enddate = period.Item2.ToString("MM-dd-yyyy") + " 16:30";
+            var enddate = period.Item2.ToString("MM-dd-yyyy") + " 23:59";
 
             var query = 
 $@"select 

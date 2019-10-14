@@ -355,12 +355,4 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     this.clearFilters();
     this.getTrialBalance();
   }
-
-  setGroupingState(value: boolean) {
-    this.gridOptions.api.forEachNode((node, index) => {
-      if (node.group) {
-        node.setExpanded(value);
-      }
-    });
-  }
 }

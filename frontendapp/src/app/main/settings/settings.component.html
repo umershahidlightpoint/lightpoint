@@ -3,7 +3,12 @@
     <div style="clear: both"></div>
     <div [ngStyle]="styleForHeight">
 
-      <h4>Reporting Currency {{ reportingCurrency }}</h4>
+      <h4>Reporting Currency {{ reportingCurrency.Code }}</h4>
+      <select class="form-control" [(ngModel)]="reportingCurrency" (ngModelChange)="changeMethodology($event)">
+          <option *ngFor="let currency of currencies" [ngValue]="currency.code">
+            {{ currency.code }}
+          </option>
+        </select>
 
     </div>
   </p-tabPanel>
@@ -11,10 +16,12 @@
   <p-tabPanel header="Silver Settings" [ngStyle]="style">
     <div style="clear: both"></div>
     <div [ngStyle]="styleForHeight">
-      <!-- 
-          To be defined
-        -->
-    </div>
+        <select class="form-control" [(ngModel)]="methodology" (ngModelChange)="changeMethodology($event)">
+            <option *ngFor="let method of methods" [ngValue]="method.code">
+              {{ method.code }}
+            </option>
+          </select>
+        </div>
   </p-tabPanel>
 
 </p-tabView>
