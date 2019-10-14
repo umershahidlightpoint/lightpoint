@@ -1,6 +1,7 @@
-﻿CREATE TABLE [dbo].[monthly_performance]
+﻿CREATE TABLE [dbo].[monthly_performance_history]
 (
-	[id] INT IDENTITY(1,1) NOT NULL PRIMARY KEY, 
+	[id] INT NOT NULL PRIMARY KEY, 
+	[performance_id] INT NOT NULL,
 	[created_date] DATETIME NOT NULL, 
 	[last_updated_date] DATETIME NOT NULL, 
 	[created_by] DATETIME NOT NULL,
@@ -13,7 +14,6 @@
 	[ytd_net_performance] DECIMAL(18, 6) NOT NULL, 
 	[qtd_net_perc] DECIMAL(18, 6) NOT NULL, 
 	[ytd_net_perc] DECIMAL(18, 6) NOT NULL, 
-	[itd_net_perc] DECIMAL(18, 6) NOT NULL, 
-    [estimated] BIT NOT NULL DEFAULT 0
-
+	[itd_net_perc] DECIMAL(18, 6) NOT NULL,
+	[estimated] BIT NOT NULL DEFAULT 0
 )
