@@ -12,6 +12,7 @@ import { CreateAccountComponent } from './main/accounts/create-account/create-ac
 import { JournalsLedgersComponent } from './main/journals-ledgers/journals-ledgers.component';
 import { TrialGridExampleComponent } from './main/trial-balance/trial-balance.component';
 import { LayoutsComponent } from './main/layouts/layouts.component';
+import { FundTheoreticalComponent } from './main/fund-theoretical/fund-theoretical.component';
 
 const routes: Routes = [
   { path: '', component: JournalsLedgersComponent },
@@ -23,6 +24,7 @@ const routes: Routes = [
   { path: 'trade-allocation', component: TradeAllocationComponent },
   { path: 'journal-allocation', component: JournalAllocationComponent },
   { path: 'settings', component: SettingsComponent },
+  { path: 'fund-theoretical', component: FundTheoreticalComponent },
   { path: 'reports', component: ReportsComponent },
   {
     path: 'accounts',
