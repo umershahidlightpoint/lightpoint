@@ -19,6 +19,11 @@ namespace LP.Finance.Common.Models
 
         public String Fund { get; set; }
         public String Source { get; set; }
+
+        /// <summary>
+        /// What event generated this Journal Entry, Trade Date, Settlement Date, Dividend, Daily Event, etc
+        /// </summary>
+        public String Event { get; set; }
         public DateTime When { get; set; }
 
         public double Quantity { get; set; }
@@ -90,7 +95,7 @@ namespace LP.Finance.Common.Models
             // read the table structure from the database
             var localconnection = new SqlConnection(connection.ConnectionString + ";Password=ggtuser");
             localconnection.Open();
-            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 id, source, account_id, value, [when], generated_by, fund, fx_currency, fxrate, quantity, symbol FROM Journal", localconnection))
+            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 id, source, account_id, value, [when], generated_by, fund, fx_currency, fxrate, quantity, symbol, event FROM Journal", localconnection))
             {
                 adapter.Fill(table);
             };
@@ -113,6 +118,8 @@ namespace LP.Finance.Common.Models
             row["fxrate"] = this.FxRate;
             row["symbol"] = this.Symbol;
             row["quantity"] = this.Quantity;
+            row["event"] = this.Event;
+
         }
     }
 
