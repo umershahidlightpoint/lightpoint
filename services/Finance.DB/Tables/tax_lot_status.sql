@@ -3,11 +3,7 @@
 	[open_id] [varchar](127) NOT NULL,
 	[symbol] [varchar](127) NOT NULL,
 	[status] [varchar](20) NOT NULL,
-<<<<<<< Updated upstream
-	[original_quantity] [decimal](18, 6) NOT NULL,
-=======
 	[original_quantity] [decimal](18, 6) NOT NULL DEFAULT 0,
->>>>>>> Stashed changes
 	[quantity] [decimal](18, 6) NOT NULL,
 	[business_date] [date] NOT NULL,
 	[generated_on] [datetime] NOT NULL,
