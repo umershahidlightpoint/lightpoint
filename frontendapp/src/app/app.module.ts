@@ -82,6 +82,7 @@ import { ConfirmationModalComponent } from '../shared/Component/confirmation-mod
 import { ReportGridComponent } from './main/reports/report-grid/report-grid.component';
 import { GridUtilsComponent } from '../shared/Component/grid-utils/grid-utils.component';
 import { FileExceptionComponent } from './main/operations/file-exception/file-exception.component';
+import { FundTheoreticalComponent } from './main/fund-theoretical/fund-theoretical.component';
 
 @NgModule({
   declarations: [
@@ -121,7 +122,8 @@ import { FileExceptionComponent } from './main/operations/file-exception/file-ex
     LayoutsComponent,
     ReportGridComponent,
     GridUtilsComponent,
-    FileExceptionComponent
+    FileExceptionComponent,
+    FundTheoreticalComponent
   ],
   imports: [
     BrowserModule,
