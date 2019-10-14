@@ -52,17 +52,35 @@ namespace PostingEngine.PostingRules
                     var prevEodPrice = 0.0;
                     var eodPrice = 0.0;
 
-                    if ( env.PrevMarketPrices.ContainsKey(symbol))
-                        prevEodPrice = env.PrevMarketPrices[symbol].Price;
+                    if (env.ValueDate == element.TradeDate)
+                    {
+                        eodPrice = element.TradePrice;
 
-                    if (env.EODMarketPrices.ContainsKey(symbol))
-                        eodPrice = env.EODMarketPrices[symbol].Price;
+                        if (env.CostBasis.ContainsKey(symbol))
+                            prevEodPrice = env.CostBasis[symbol].CostBasis;
+                        else
+                        {
+                            prevEodPrice = eodPrice * 0.99;  // Show some realized PNL, TBD how to determine Cost Basis ?
+                        }
+
+                    }
+                    else
+                    {
+                        if (env.PrevMarketPrices.ContainsKey(symbol))
+                            prevEodPrice = env.PrevMarketPrices[symbol].Price;
+
+                        if (env.EODMarketPrices.ContainsKey(symbol))
+                            eodPrice = env.EODMarketPrices[symbol].Price;
+
+                        if (eodPrice == 0)
+                            eodPrice = prevEodPrice * 1.001;
+                    }
 
                     var fxRate = 1;
 
                     var unrealizedPnl = quantity * (eodPrice - prevEodPrice);
 
-                    var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("LONG POSITIONS AT COST")).FirstOrDefault(), listOfFromTags, element);
+                    var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("UNREALIZED P/L-BALANCE SHEET LONGS")).FirstOrDefault(), listOfFromTags, element);
                     var toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CHANGE IN UNREALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfToTags, element);
 
                     new AccountUtils().SaveAccountDetails(env, fromAccount);
@@ -84,6 +102,7 @@ namespace PostingEngine.PostingRules
                         FxRate = fxRate,
                         Value = unrealizedPnl * -1,
                         GeneratedBy = "system",
+                        Event = "daily",
                         Fund = fund,
                     };
 
@@ -97,6 +116,7 @@ namespace PostingEngine.PostingRules
                         Symbol = symbol,
                         Quantity = quantity,
                         Value = unrealizedPnl,
+                        Event = "daily",
                         GeneratedBy = "system",
                         Fund = fund,
                     };
@@ -113,8 +133,9 @@ namespace PostingEngine.PostingRules
             // Retrieve Allocation Objects for this trade
             var tradeAllocations = env.Allocations.Where(i => i.ParentOrderId == element.ParentOrderId).ToList();
 
-            var debitEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[0] : tradeAllocations[1];
-            var creditEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[1] : tradeAllocations[0];
+            // Reversing the trade date activity
+            var debitEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[1] : tradeAllocations[0];
+            var creditEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[0] : tradeAllocations[1];
 
             var accountToFrom = GetFromToAccountOnSettlement(element, debitEntry, creditEntry);
 
@@ -153,6 +174,7 @@ namespace PostingEngine.PostingRules
                     FxRate = fxrate,
                     Value = moneyUSD * -1,
                     GeneratedBy = "system",
+                    Event = "settlement",
                     Fund = debitEntry.Fund,
                 };
 
@@ -166,6 +188,7 @@ namespace PostingEngine.PostingRules
                     Symbol = creditEntry.Symbol,
                     Quantity = element.Quantity,
                     Value = moneyUSD,
+                    Event = "settlement",
                     GeneratedBy = "system",
                     Fund = creditEntry.Fund,
                 };
@@ -239,6 +262,8 @@ namespace PostingEngine.PostingRules
                     toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
                     break;
                 case "cover":
+                    fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("SHORT POSITIONS-COST")).FirstOrDefault(), listOfFromTags, element);
+                    toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
                     break;
             }
 
@@ -249,6 +274,13 @@ namespace PostingEngine.PostingRules
             };
         }
 
+        /// <summary>
+        /// Dealing with the settlement event
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="debit"></param>
+        /// <param name="credit"></param>
+        /// <returns></returns>
         private AccountToFrom GetFromToAccountOnSettlement(Transaction element, Transaction debit, Transaction credit)
         {
             var type = element.GetType();
@@ -273,13 +305,15 @@ namespace PostingEngine.PostingRules
                     fromAccount = new AccountUtils()
                         .CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfFromTags, debit);
                     toAccount = new AccountUtils()
-                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Settled Activity )")).FirstOrDefault(), listOfToTags, credit);
+                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Settled Activity )")).FirstOrDefault(), listOfToTags, debit);
                     break;
                 case "sell":
                     break;
                 case "short":
-                    fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Settled Activity )")).FirstOrDefault(), listOfToTags, element);
-                    toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("SHORT POSITIONS-COST")).FirstOrDefault(), listOfFromTags, element);
+                    fromAccount = new AccountUtils()
+                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfFromTags, debit);
+                    toAccount = new AccountUtils()
+                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Settled Activity )")).FirstOrDefault(), listOfToTags, debit);
                     break;
                 case "cover":
                     break;
@@ -327,7 +361,7 @@ namespace PostingEngine.PostingRules
                 }
                 else
                 {
-                    var workingQuantity = Math.Abs(element.Quantity);
+                    var workingQuantity = element.Quantity;
 
                     foreach( var lot in openLots)
                     {
@@ -454,6 +488,7 @@ namespace PostingEngine.PostingRules
                     Quantity = element.Quantity,
                     Symbol = debitEntry.Symbol,
                     FxRate = fxrate,
+                    Event = "tradedate",
                     GeneratedBy = "system",
                     Fund = debitEntry.Fund,
                 };
@@ -468,6 +503,7 @@ namespace PostingEngine.PostingRules
                     Quantity = element.Quantity,
                     FxRate = fxrate,
                     Value = moneyUSD,
+                    Event = "tradedate",
                     GeneratedBy = "system",
                     Fund = creditEntry.Fund,
                 };
@@ -505,6 +541,7 @@ namespace PostingEngine.PostingRules
                 Symbol = element.Symbol,
                 FxRate = 1,
                 GeneratedBy = "system",
+                Event = "realizedpnl",
                 Fund = tradeAllocations[0].Fund,
             };
 
@@ -519,6 +556,7 @@ namespace PostingEngine.PostingRules
                 FxRate = 1,
                 Value = pnL,
                 GeneratedBy = "system",
+                Event = "realizedpnl",
                 Fund = tradeAllocations[0].Fund,
             };
 

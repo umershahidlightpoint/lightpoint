@@ -21,7 +21,7 @@ namespace PostingEngine
         private static readonly string
             connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
-        private static readonly string root = "http://dev11";
+        private static readonly string root = "http://localhost";
 
         private static readonly string accrualsURL = root + ":9091/api/accruals/data?period=";
         private static readonly string tradesURL = root + ":9091/api/trade/data?period=";
@@ -395,6 +395,7 @@ namespace PostingEngine
                 postingEnv.EODMarketPrices = new MarketPrices().Get(valueDate);
 
                 postingEnv.PrevMarketPrices = new MarketPrices().Get(valueDate.AddDays(-1));
+                postingEnv.CostBasis = new CostBasises().Get(valueDate);
 
                 //PostingEngineCallBack?.Invoke($"Pulled FxRates {valueDate} in {sw.ElapsedMilliseconds} ms");
 
@@ -552,10 +553,11 @@ namespace PostingEngine
             }
 
             // Lets ignore this for the moment
+            /*
             if (element.TradeType.ToLower().Equals("kickout"))
             {
-                //env.AddMessage($"Trade is a kickout ignoring {element.LpOrderId}");
-                //return false;
+                env.AddMessage($"Trade is a kickout ignoring {element.LpOrderId}");
+                return false;
             }
 
             if (!element.TradeType.ToLower().Equals("trade"))
@@ -563,6 +565,7 @@ namespace PostingEngine
                 env.AddMessage($"Skipping Trade {element.TradeType}");
                 return false;
             }
+            */
 
             // Find me the rule
             var rule = env.rules.Where(i => i.Key.Equals(element.SecurityType)).FirstOrDefault().Value;
@@ -584,6 +587,7 @@ namespace PostingEngine
                 try
                 {
                     rule.TradeDateEvent(env, element);
+                    rule.DailyEvent(env, element);
                 }
                 catch (Exception ex)
                 {
@@ -595,6 +599,7 @@ namespace PostingEngine
                 try
                 {
                     rule.SettlementDateEvent(env, element);
+                    rule.DailyEvent(env, element);
                 }
                 catch (Exception ex)
                 {
