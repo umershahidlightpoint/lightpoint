@@ -73,6 +73,11 @@ export class JournalsComponent implements OnInit {
         this.journalsTradesData.meta.Columns
       );
       const cdefs = this.agGridUtils.customizeColumns([], this.journalsTradesData.meta.Columns, [
+        'account_id',
+        'id',
+        'value',
+        'source',
+        'generated_by',
         'Id',
         'AllocationId',
         'EMSOrderId'

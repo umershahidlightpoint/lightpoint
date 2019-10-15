@@ -33,7 +33,7 @@ export class AgGridUtils {
   /*
   Take the original Defs and append to them and then return the result
   */
-  customizeColumns(colDefs: any, columns: any, ignoreFields: any) {
+  customizeColumns(colDefs: any, columns: any, ignoreFields: any, sumFields:any = ['debit','credit','balance']) {
     const cdefs = Object.assign([], colDefs);
 
     for (const i in columns) {
@@ -50,12 +50,18 @@ export class AgGridUtils {
 
           // Assume all columns are sortable
           clone.sortable = true;
-
           if (
             column.Type == 'System.Int32' ||
             column.Type == 'System.Decimal' ||
             column.Type == 'System.Double'
-          ) {
+          ) 
+          {
+            if (sumFields.filter(i => i == column.field).length > 0) {
+              clone.aggFunc = 'sum'  
+            } else {
+              clone.aggFunc = (values) => { return 0};
+            }
+  
             clone.cellStyle = { 'text-align': 'right' };
             clone.cellClass = 'twoDecimalPlaces';
             clone.valueFormatter = currencyFormatter;
