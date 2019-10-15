@@ -1,10 +1,10 @@
 ﻿CREATE TABLE [dbo].[monthly_performance_history]
 (
-	[id] INT NOT NULL PRIMARY KEY, 
+	[id] INT IDENTITY(1,1) NOT NULL PRIMARY KEY, 
 	[performance_id] INT NOT NULL,
 	[created_date] DATETIME NOT NULL, 
 	[last_updated_date] DATETIME NOT NULL, 
-	[created_by] DATETIME NOT NULL,
+	[created_by] NVARCHAR(100) NULL,
 	[performance_date] DATETIME NOT NULL, 
 	[fund] NVARCHAR(100) NULL, 
 	[portfolio] NVARCHAR(100) NULL, 

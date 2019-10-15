@@ -58,6 +58,7 @@
   <ItemGroup>
     <Folder Include="Properties" />
     <Folder Include="Tables" />
+    <Folder Include="Triggers" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\file.sql" />
@@ -79,5 +80,6 @@
     <Build Include="Tables\tax_lot_status.sql" />
     <Build Include="Tables\monthly_performance.sql" />
     <Build Include="Tables\monthly_performance_history.sql" />
+    <Build Include="Triggers\monthly_performance_update_trigger.sql" />
   </ItemGroup>
 </Project>

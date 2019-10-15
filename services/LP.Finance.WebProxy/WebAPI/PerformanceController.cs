@@ -1,4 +1,5 @@
-﻿using LP.Finance.WebProxy.WebAPI.Services;
+﻿using LP.Finance.Common.Model;
+using LP.Finance.WebProxy.WebAPI.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,9 +23,9 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [Route("monthlyPerformance")]
         [HttpPost]
-        public object AddMonthlyPerformance()
+        public object AddMonthlyPerformance(List<MonthlyPerformance> obj)
         {
-            throw new NotImplementedException();
+            return controller.AddMonthlyPerformance(obj);
         }
 
         [Route("monthlyPerformance")]

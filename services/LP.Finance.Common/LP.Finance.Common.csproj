@@ -60,6 +60,7 @@
     <Compile Include="Dtos\AccountTagOutputDto.cs" />
     <Compile Include="Dtos\DataGridStatusDto.cs" />
     <Compile Include="Dtos\PerformanceInputDto.cs" />
+    <Compile Include="Dtos\PerformanceOutputDto.cs" />
     <Compile Include="Dtos\TagOutputDto.cs" />
     <Compile Include="Dtos\AccountTypeOutputDto.cs" />
     <Compile Include="Dtos\AccountCategoryOutputDto.cs" />
