@@ -117,7 +117,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         {
           field: 'business_date',
           width: 120,
-          headerName: 'Business Date',
+          headerName: 'Date',
           sortable: true,
           filter: true,
           valueFormatter: dateFormatter
@@ -138,8 +138,15 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           width: 120
         },
         {
+          field: 'side',
+          headerName: 'Side',
+          sortable: true,
+          filter: true,
+          width: 100
+        },
+        {
           field: 'quantity',
-          headerName: 'Remaining Quantity',
+          headerName: 'Rem Qty',
           width: 100,
           filter: true,
           sortable: true,
@@ -149,7 +156,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         },
         {
           field: 'original_quantity',
-          headerName: 'Original Quantity',
+          headerName: 'Orig Qty',
           width: 100,
           filter: true,
           sortable: true,

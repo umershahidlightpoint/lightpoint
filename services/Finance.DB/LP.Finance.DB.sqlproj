@@ -78,5 +78,6 @@
     <Build Include="Tables\tax_lot.sql" />
     <Build Include="Tables\tax_lot_status.sql" />
     <Build Include="Tables\monthly_performance.sql" />
+    <Build Include="Tables\monthly_performance_history.sql" />
   </ItemGroup>
 </Project>

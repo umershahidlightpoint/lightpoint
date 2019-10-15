@@ -59,6 +59,7 @@
     <Compile Include="Dtos\AccountOutputDto.cs" />
     <Compile Include="Dtos\AccountTagOutputDto.cs" />
     <Compile Include="Dtos\DataGridStatusDto.cs" />
+    <Compile Include="Dtos\PerformanceInputDto.cs" />
     <Compile Include="Dtos\TagOutputDto.cs" />
     <Compile Include="Dtos\AccountTypeOutputDto.cs" />
     <Compile Include="Dtos\AccountCategoryOutputDto.cs" />
@@ -85,6 +86,7 @@
     <Compile Include="Model\Journal.cs" />
     <Compile Include="Model\JournalLog.cs" />
     <Compile Include="Model\Ledger.cs" />
+    <Compile Include="Model\MonthlyPerformance.cs" />
     <Compile Include="Model\Position.cs" />
     <Compile Include="Model\TaxLot.cs" />
     <Compile Include="Model\TaxLotStatus.cs" />

@@ -19,5 +19,19 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return controller.GetMonthlyPerformance();
         }
+
+        [Route("monthlyPerformance")]
+        [HttpPost]
+        public object AddMonthlyPerformance()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Route("monthlyPerformance")]
+        [HttpPut]
+        public object ModifyMonthlyPerformance()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

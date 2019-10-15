@@ -80,7 +80,13 @@ namespace PostingEngine.PostingRules
 
                     var unrealizedPnl = quantity * (eodPrice - prevEodPrice);
 
-                    var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("UNREALIZED P/L-BALANCE SHEET LONGS")).FirstOrDefault(), listOfFromTags, element);
+                    var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Mark to Market Longs")).FirstOrDefault(), listOfFromTags, element);
+
+                    if ( taxlot.Side == "SHORT" )
+                    {
+                        fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Mark to Market Shorts")).FirstOrDefault(), listOfFromTags, element);
+                    }
+
                     var toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CHANGE IN UNREALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfToTags, element);
 
                     new AccountUtils().SaveAccountDetails(env, fromAccount);
@@ -334,6 +340,7 @@ namespace PostingEngine.PostingRules
                 var tl = new TaxLotStatus {
                     BusinessDate = element.TradeDate,
                     Symbol = element.Symbol,
+                    Side = element.Side,
                     OpenId = element.LpOrderId,
                     Status = "Open",
                     OriginalQuantity = element.Quantity,

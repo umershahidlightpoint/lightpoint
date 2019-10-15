@@ -11,8 +11,8 @@
         <button type="button" class="close" data-dismiss="modal" (click)="closeModal()">&times;</button>
       </div>
       <div class="report-container">
-        <app-report-grid [isLoading]="isLoading" [trialBalanceReport]="trialBalanceReport"
-          [trialBalanceReportStats]="trialBalanceReportStats" [hideGrid]="hideGrid" [tableHeader]="tableHeader">
+        <app-report-grid [trialBalanceReport]="trialBalanceReport" [trialBalanceReportStats]="trialBalanceReportStats"
+          [tableHeader]="tableHeader" [hideGrid]="hideGrid">
         </app-report-grid>
       </div>
     </div>

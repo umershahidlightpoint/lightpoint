@@ -5,6 +5,7 @@
 	[balance] [numeric](18, 9) NOT NULL,
 	[quantity] [numeric](18, 9) NOT NULL,
 	[cost_basis] [numeric](18, 9) NOT NULL,
+	[side] [varchar](10) NULL,
 	[generated_on] [datetime] NOT NULL,
  CONSTRAINT [PK_cost_basis] PRIMARY KEY CLUSTERED 
 (
