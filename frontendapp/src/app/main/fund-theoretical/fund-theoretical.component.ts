@@ -269,11 +269,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         resizable: true,
         sortable: true,
         filter: true,
-        editable: params => {
-          if (params.node.data.month === this.currentMonth) {
-            return true;
-          }
-        },
+        editable: true,
         cellEditor: 'agSelectCellEditor',
         cellEditorParams: {
           values: ['None', ...this.funds]
@@ -285,11 +281,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       {
         headerName: 'Portfolio*',
         field: 'portfolio',
-        editable: params => {
-          if (params.node.data.month === this.currentMonth) {
-            return true;
-          }
-        },
+        editable: true,
         cellEditor: 'agSelectCellEditor',
         cellEditorParams: {
           values: ['Portfolio A', 'Asia_Focus']
@@ -303,11 +295,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         field: 'monthEndNav',
         resizable: true,
         sortable: true,
-        editable: params => {
-          if (params.node.data.month === this.currentMonth) {
-            return true;
-          }
-        },
+        editable: true,
         cellStyle: params => {
           return { textAlign: 'end' };
         }
@@ -317,11 +305,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         field: 'startMonthEstimateNav',
         resizable: true,
         sortable: true,
-        editable: params => {
-          if (params.node.data.month === this.currentMonth) {
-            return true;
-          }
-        },
+        editable: true,
         cellStyle: params => {
           return { textAlign: 'end' };
         }
@@ -331,11 +315,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         field: 'performance',
         resizable: true,
         sortable: true,
-        editable: params => {
-          if (params.node.data.month === this.currentMonth) {
-            return true;
-          }
-        },
+        editable: true,
         cellStyle: params => {
           return { textAlign: 'end' };
         }
@@ -345,11 +325,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         field: 'mtd',
         resizable: true,
         sortable: true,
-        editable: params => {
-          if (params.node.data.month === this.currentMonth) {
-            return true;
-          }
-        },
+        editable: true,
         cellStyle: params => {
           return { textAlign: 'end' };
         }
@@ -427,7 +403,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     const totalMonths = today.diff(this.generateFundsDate, 'months');
     let count = 0;
     const generateFundsDate = this.generateFundsDate;
-
+    this.monthlyPerformanceData = [];
     while (count <= totalMonths) {
       this.monthlyPerformanceData.push({
         id: 12,
@@ -448,7 +424,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       generateFundsDate.add(1, 'month');
       count++;
     }
-    this.showDatePicker = false;
+    // this.showDatePicker = false;
     this.fundTheoreticalGrid.api.setRowData(this.monthlyPerformanceData);
   }
 
