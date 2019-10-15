@@ -166,7 +166,13 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           cellClass: 'rightAlign',
           sortable: true,
           valueFormatter: costBasisFormatter
-        }
+        },
+        {
+          field: 'Side',
+          width: 50,
+          headerName: 'Side'
+        },
+
       ],
       defaultColDef: {
         sortable: true,
