@@ -78,6 +78,13 @@ insert into Account_type (account_category_id, name) values (5, 'STOCK BORROW FE
 insert into Account_type (account_category_id, name) values (5, 'EMPLOYEE COMPENSATION')
 insert into Account_type (account_category_id, name) values (5, 'Expenses Paid')
 insert into Account_type (account_category_id, name) values (5, 'AMORTIZATION AND DEPRECIATION')
+
+/*
+Updates
+*/
+update account_type set name = 'Mark to Market Longs' where name = 'UNREALIZED P/L-BALANCE SHEET LONGS'
+update account_type set name = 'Mark to Market Shorts' where name = 'UNREALIZED P/L-BALANCE SHEET'
+
 -- DONE
 
 
