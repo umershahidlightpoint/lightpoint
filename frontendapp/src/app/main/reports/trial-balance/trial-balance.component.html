@@ -67,13 +67,11 @@
   <!-- Report Grid Starts -->
   <div #divToMeasureJournal>
     <div [ngStyle]="styleForHeight">
-      <ag-grid-angular class="bg-size" style="width: 100%; height: 100%" class="ag-theme-balham"
-        [gridOptions]="gridOptions">
-      </ag-grid-angular>
-      <!-- <app-report-grid [isLoading]="isLoading" [trialBalanceReport]="trialBalanceReport"
-        [trialBalanceReportStats]="trialBalanceReportStats" [hideGrid]="hideGrid" [tableHeader]="title"
-        [isTrialBalance]="true">
-      </app-report-grid> -->
+      <app-report-grid #trialBalanceReportGrid [trialBalanceReport]="trialBalanceReport"
+        [trialBalanceReportStats]="trialBalanceReportStats" [tableHeader]="title" [hideGrid]="hideGrid"
+        [isDataLoaded]="isDataLoaded" [isTrialBalance]="true" [externalFilters]="externalFilters"
+        (externalFilterPassed)="isExternalFilterPassed($event)" (clearFilters)="clearFilters()">
+      </app-report-grid>
     </div>
   </div>
 </div>

@@ -4,6 +4,7 @@ import { FinancePocServiceProxy } from '../../service-proxies/service-proxies';
 import { ToastrService } from 'ngx-toastr';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 import { GridLayout } from 'src/shared/Models';
+import { AutoSizeAllColumns } from 'src/shared/utils/Shared';
 
 @Component({
   selector: 'app-grid-layout-menu',
@@ -121,7 +122,6 @@ export class GridLayoutMenuComponent implements IToolPanel {
       response => {
         if (response.isSuccessful) {
           this.toastrService.success('Status saved successfully!');
-          this.getLayout();
           this.isNewLayout = false;
           this.getLayout();
         } else {
@@ -140,7 +140,6 @@ export class GridLayoutMenuComponent implements IToolPanel {
         if (response.isSuccessful) {
           this.toastrService.success('Layout deleted successfully!');
           this.resetState();
-          this.gridOptions.clearExternalFilter();
           this.getLayout();
         } else {
           this.toastrService.error('Failed to delete layout!');
@@ -159,6 +158,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
     this.gridOptions.api.setSortModel(null);
     this.gridOptions.api.setFilterModel(null);
     this.gridOptions.clearExternalFilter();
+    AutoSizeAllColumns(this.gridOptions);
   }
 
   openModal() {
