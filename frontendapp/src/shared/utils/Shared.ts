@@ -204,8 +204,8 @@ export const GetDateRangeLabel = (startDate, endDate) => {
 
 export const SetDateRange = (dateFilter, startDate, endDate) => {
   if (typeof dateFilter === 'object') {
-    startDate = moment(dateFilter.startDate);
-    endDate = moment(dateFilter.endDate);
+    startDate = dateFilter.startDate !== '' ? moment(dateFilter.startDate) : null;
+    endDate = dateFilter.endDate !== '' ? moment(dateFilter.endDate) : null;
   }
 
   switch (dateFilter) {
