@@ -11,7 +11,8 @@
 	[quantity] [decimal](22, 9) NOT NULL,
 	[last_modified_on] [datetime] NULL,
 	[symbol] [varchar](100) NULL,
- CONSTRAINT [PK_journal] PRIMARY KEY CLUSTERED 
+ [event] VARCHAR(100) NULL DEFAULT (''), 
+    CONSTRAINT [PK_journal] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]

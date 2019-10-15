@@ -448,18 +448,16 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 return Utils.Wrap(false, "Posting Engine is currently Running");
             }
 
-            var query = $@"SELECT a.name, 
-                        journal.symbol, 
-                        ABS(SUM(value)) AS Balance, 
-                        SUM(quantity) AS Quantity, 
-                        ABS(SUM(value)) / SUM(quantity) AS CostBasis
-                        FROM journal WITH(NOLOCK)
-                        INNER JOIN account a ON a.id = journal.account_id
-                        INNER JOIN account_type a_t ON a_t.id = a.account_type_id
-                        WHERE a_t.name = 'LONG POSITIONS AT COST'";
+            var businessDate = System.DateTime.Now;
+            if (date.HasValue)
+                businessDate = date.Value.Date;
+
+            var query = $@"select business_date, symbol, Balance, Quantity, cost_basis as CostBasis, Side  from cost_basis
+                        where business_date = '{businessDate.ToString("MM-dd-yyyy")}'";
 
             List<SqlParameter> sqlParams = new List<SqlParameter>();
 
+            /*
             if (date.HasValue)
             {
                 sqlParams.Add(new SqlParameter("date", date));
@@ -474,6 +472,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             query = query +
                     "  GROUP BY a.name, journal.symbol";
+            */
+
 
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
 

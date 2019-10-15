@@ -2,6 +2,7 @@
 	[id] [int] IDENTITY(1,1) NOT NULL,
 	[open_id] [varchar](127) NOT NULL,
 	[symbol] [varchar](127) NOT NULL,
+	[side] [varchar](10) NULL,
 	[status] [varchar](20) NOT NULL,
 	[original_quantity] [decimal](18, 6) NOT NULL DEFAULT 0,
 	[quantity] [decimal](18, 6) NOT NULL,

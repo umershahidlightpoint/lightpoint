@@ -102,8 +102,8 @@ namespace LP.Finance.Common.Models
         {
             var busDate = businessDate.Date.ToString("MM-dd-yyyy");
 
-            var sql = $@"insert into cost_basis ( business_date, symbol, balance, quantity, cost_basis )
-SELECT '{busDate}', journal.symbol, Abs(sum(value)) as Balance, sum(quantity) as Quantity, Abs(sum(value)) / sum(quantity) as CostBasis
+            var sqlLong = $@"insert into cost_basis ( business_date, symbol, balance, quantity, cost_basis, side )
+SELECT '{busDate}', journal.symbol, Abs(sum(value)) as Balance, sum(quantity) as Quantity, Abs(sum(value)) / sum(quantity) as CostBasis, 'LONG'
   FROM journal with(nolock)
 inner join account a on a.id = journal.account_id
 inner join account_type a_t on a_t.id = a.account_type_id
@@ -112,7 +112,17 @@ and journal.[when] <= '{busDate}'
 group by a.name, journal.symbol
 having sum(quantity) != 0";
 
-            using (var command = new SqlCommand(sql, connection, trans))
+            var sqlShort = $@"insert into cost_basis ( business_date, symbol, balance, quantity, cost_basis, side )
+SELECT '{busDate}', journal.symbol, Abs(sum(value)) as Balance, sum(quantity) as Quantity, Abs(sum(value)) / sum(quantity) as CostBasis, 'SHORT'
+  FROM journal with(nolock)
+inner join account a on a.id = journal.account_id
+inner join account_type a_t on a_t.id = a.account_type_id
+where a_t.name = 'SHORT POSITIONS-COST'
+and journal.[when] <= '{busDate}'
+group by a.name, journal.symbol
+having sum(quantity) != 0";
+
+            using (var command = new SqlCommand(sqlLong, connection, trans))
             {
                 command.CommandType = CommandType.Text;
                 try
@@ -125,6 +135,21 @@ having sum(quantity) != 0";
                     throw;
                 }
             }
+
+            using (var command = new SqlCommand(sqlShort, connection, trans))
+            {
+                command.CommandType = CommandType.Text;
+                try
+                {
+                    command.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Delete with Transaction Exception: {ex}");
+                    throw;
+                }
+            }
+
         }
     }
 
