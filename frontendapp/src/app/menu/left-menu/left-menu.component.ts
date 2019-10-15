@@ -21,7 +21,8 @@ export class LeftMenuComponent implements OnInit {
   public userPages: Page[] = [
     { name: 'Journals', routerLink: '/journals-ledgers', icon: 'fa-book' },
     { name: 'Trial Balance', routerLink: 'trial-balance', icon: 'fa-balance-scale' },
-    { name: 'Reports', routerLink: '/reports', icon: 'fa-bar-chart' }
+    { name: 'Reports', routerLink: '/reports', icon: 'fa-bar-chart' },
+    { name: 'Fund Theoretical', routerLink: '/fund-theoretical', icon: 'fa-calculator' }
   ];
 
   public adminPages: Page[] = [
@@ -31,7 +32,6 @@ export class LeftMenuComponent implements OnInit {
     { name: 'OpsBlotter Journals', routerLink: '/journal-allocation', icon: 'fa-list-alt' },
     { name: 'Operations', routerLink: 'operations', icon: 'fa-tasks' },
     { name: 'Grid Views', routerLink: '/grid-views', icon: 'fa-th' },
-    { name: 'Fund Theoretical', routerLink: '/fund-theoretical', icon: 'fa-calculator' },
     { name: 'Settings', routerLink: '/settings', icon: 'fa-cog' }
   ];
 

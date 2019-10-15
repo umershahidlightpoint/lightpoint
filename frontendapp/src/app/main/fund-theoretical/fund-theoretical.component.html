@@ -6,6 +6,7 @@
 </div>
 <!-- Hide Grid Div Ends -->
 
+
 <!-- Div Starts -->
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
   <!-- Tab View Tag Starts -->
@@ -29,6 +30,25 @@
         </div>
       </div>
       <!----- Action Buttons Div Ends ----->
+
+      <!-- Show Date Picker Div -->
+      <div *ngIf="showDatePicker">
+        <div class="row">
+          <div class="col-3">
+            <form>
+              <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
+                [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate"
+                [singleDatePicker]="true" [autoApply]="true" />
+            </form>
+          </div>
+          <div class="col-2">
+            <button class="btn btn-info ml-2" type="button" [disabled]="isLoading" (click)="generateRows()">
+              Generate Rows
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Show Date Picker Div Ends -->
 
       <!----- Div To Measure Identifier starts ----->
       <div #divToMeasure>
