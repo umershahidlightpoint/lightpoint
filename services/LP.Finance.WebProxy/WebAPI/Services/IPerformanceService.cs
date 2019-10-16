@@ -11,6 +11,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
     public interface IPerformanceService
     {
         object GetMonthlyPerformance();
-        object AddMonthlyPerformance(List<MonthlyPerformance> dto);
+        object CalculateMonthlyPerformance(List<MonthlyPerformance> dto);
+
+        object AddOrUpdateMonthlyPerformance(List<MonthlyPerformance> dto);
     }
 }

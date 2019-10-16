@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,7 +28,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return Utils.GridWrap(json);
         }
 
-        public object AddMonthlyPerformance(List<MonthlyPerformance> obj)
+        public object CalculateMonthlyPerformance(List<MonthlyPerformance> obj)
         {
             var sorted = obj.OrderBy(x => x.PerformanceDate).ToList();
             var initialPerformance = sorted.FirstOrDefault();
@@ -129,6 +130,81 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
 
             return groupedByYear.SelectMany(x=> x.Select(y=> y).ToList());
+        }
+
+        public static object DBNullValueorStringIfNotNull(string value)
+        {
+            if (String.IsNullOrEmpty(value))
+            {
+                return DBNull.Value;
+            }
+            else
+            {
+                return value;
+            }
+        }
+
+        public object AddOrUpdateMonthlyPerformance(List<MonthlyPerformance> obj)
+        {
+            var toBeInserted = obj.Where(x => x.Id == 0).ToList();
+            var toBeUpdated = obj.Where(x => x.Id > 0).ToList();
+
+            List<List<SqlParameter>> listOfParameters = new List<List<SqlParameter>>();
+            foreach (var item in toBeUpdated)
+            {
+                List<SqlParameter> monthlyPerformanceParameters = new List<SqlParameter>
+                {
+                    new SqlParameter("id", item.Id),
+                    new SqlParameter("last_updated_date", DateTime.UtcNow),
+                    new SqlParameter("fund", DBNullValueorStringIfNotNull(item.Fund)),
+                    new SqlParameter("portfolio", DBNullValueorStringIfNotNull(item.PortFolio)),
+                    new SqlParameter("monthly_end_nav", item.MonthEndNav),
+                    new SqlParameter("performance", item.Performance),
+                    new SqlParameter("mtd", item.MTD),
+                    new SqlParameter("ytd_net_performance", item.YTDNetPerformance),
+                    new SqlParameter("qtd_net_perc", item.QTD),
+                    new SqlParameter("ytd_net_perc", item.YTD),
+                    new SqlParameter("itd_net_perc", item.ITD)
+                };
+
+                listOfParameters.Add(monthlyPerformanceParameters);
+            }
+
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+            try
+            {
+                sqlHelper.VerifyConnection();
+                sqlHelper.SqlBeginTransaction();
+
+                new SQLBulkHelper().Insert("monthly_performance", toBeInserted.ToArray(), sqlHelper.GetConnection(), sqlHelper.GetTransaction());
+                var updatePerformanceQuery = $@"UPDATE [dbo].[monthly_performance]
+                                       SET [last_updated_date] = @last_updated_date
+                                           ,[portfolio] = @portfolio
+                                          ,[fund] = @fund
+                                          ,[monthly_end_nav] = @monthly_end_nav
+                                          ,[performance] = @performance
+                                          ,[mtd] = @mtd
+                                          ,[ytd_net_performance] = @ytd_net_performance
+                                          ,[qtd_net_perc] = @qtd_net_perc
+                                          ,[ytd_net_perc] = @ytd_net_perc
+                                          ,[itd_net_perc] = @itd_net_perc
+                                            where [id] = @id";
+                foreach(var item in listOfParameters)
+                {
+                    sqlHelper.Update(updatePerformanceQuery, CommandType.Text, item.ToArray());
+                }
+
+
+                sqlHelper.SqlCommitTransaction();
+                sqlHelper.CloseConnection();
+
+            }
+            catch(Exception ex)
+            {
+                sqlHelper.SqlRollbackTransaction();
+                sqlHelper.CloseConnection();
+            }
+                return new {};
         }
 
         public decimal CalculateYTDPerformance(MonthlyPerformance current, MonthlyPerformance prior)

@@ -25,14 +25,14 @@ namespace LP.Finance.WebProxy.WebAPI
         [HttpPost]
         public object AddMonthlyPerformance(List<MonthlyPerformance> obj)
         {
-            return controller.AddMonthlyPerformance(obj);
+            return controller.CalculateMonthlyPerformance(obj);
         }
 
         [Route("monthlyPerformance")]
         [HttpPut]
-        public object ModifyMonthlyPerformance()
+        public object ModifyMonthlyPerformance(List<MonthlyPerformance> obj)
         {
-            throw new NotImplementedException();
+            return controller.AddOrUpdateMonthlyPerformance(obj);
         }
     }
 }
