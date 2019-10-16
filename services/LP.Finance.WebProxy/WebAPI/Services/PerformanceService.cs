@@ -21,7 +21,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         public SqlHelper sqlHelper = new SqlHelper(connectionString);
         public object GetMonthlyPerformance()
         {
-            var query = $@"select id,performance_date,fund,portfolio,monthly_end_nav,performance,mtd,ytd_net_performance,qtd_net_perc,ytd_net_perc,itd_net_perc from monthly_performance";
+            var query = $@"select id as Id, estimated as Estimated, start_month_estimate_nav as StartOfMonthEstimateNav, performance_date as PerformanceDate ,fund as Fund,portfolio as PortFolio,monthly_end_nav as MonthEndNav,performance as Performance ,mtd as MTD,ytd_net_performance as YTDNetPerformance,qtd_net_perc as QTD,ytd_net_perc as YTD,itd_net_perc as ITD from monthly_performance";
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
             var jsonResult = JsonConvert.SerializeObject(dataTable);
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
