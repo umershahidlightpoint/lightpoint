@@ -518,4 +518,9 @@ export class FinancePocServiceProxy {
     const url = this.baseUrl + '/performance/monthlyPerformance';
     return this.http.get(url);
   }
+
+  calMonthlyPerformance(data): Observable<any> {
+    const url = this.baseUrl + '/performance/monthlyPerformance';
+    return this.http.post(url, data);
+  }
 }

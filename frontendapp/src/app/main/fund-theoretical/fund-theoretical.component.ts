@@ -1,15 +1,15 @@
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { Account, AccountCategory } from '../../../shared/Models/account';
-import { takeWhile } from 'rxjs/operators';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { SideBar, AutoSizeAllColumns, HeightStyle, Style } from 'src/shared/utils/Shared';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import * as moment from 'moment';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 
 @Component({
   selector: 'app-fund-theoretical',
@@ -31,8 +31,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   selectedDate = null;
   showDatePicker = false;
   generateFundsDate;
-  // For unsubscribing all subscriptions
-  isSubscriptionAlive: boolean;
 
   momentMonths = [
     { id: 0, month: 'January' },
@@ -68,7 +66,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     private dataService: DataService,
     private downloadExcelUtils: DownloadExcelUtils
   ) {
-    this.isSubscriptionAlive = true;
     this.hideGrid = false;
     this.currentYear = moment().get('year');
     const currentMonthObj = this.momentMonths.find(obj => obj.id === moment().get('month'));
@@ -84,130 +81,38 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.GetFunds();
-    this.GetMonthlyPerformance();
+    this.getFunds();
+    this.getMonthlyPerformance();
     this.initGrid();
   }
 
-  GetFunds() {
+  getFunds() {
     this.financeService.getFunds().subscribe(response => {
       this.funds = response.payload.map(item => item.FundCode);
       this.initCols();
     });
   }
 
-  GetMonthlyPerformance() {
+  getMonthlyPerformance() {
     const mockData = [];
-    // [
-    //   {
-    //     id: 1,
-    //     estimated: false,
-    //     entry_date: '2019-08-01T00:00:00',
-    //     fund: 'BPM',
-    //     portfolio: 'ASIA_FOCUS',
-    //     monthly_end_nav: -3000000,
-    //     startMonthEstimateNav: 0
-    //     performance: 6000000,
-    //     mtd: 6,
-    //     ytd_net_performance: 9000000,
-    //     qtd_net_perc: 3,
-    //     ytd_net_perc: 9.27,
-    //     itd_net_perc: 9.27
-    //   },
-    //   {
-    //     id: 2,
-    //     estimated: true,
-    //     entry_date: '2019-09-01T00:00:00',
-    //     fund: 'BPM',
-    //     portfolio: 'ASIA_FOCUS',
-    //     monthly_end_nav: 6000000,
-    //     startMonthEstimateNav: 0
-    //     performance: 8000000,
-    //     mtd: 7.14,
-    //     ytd_net_performance: 17000000,
-    //     qtd_net_perc: 10.36,
-    //     ytd_net_perc: 17.07,
-    //     itd_net_perc: 17.07
-    //   }
-    // ];
-    // this.financePocServiceProxy.getMonthlyPerformance().subscribe(response => {
-    //   this.monthlyPerformanceData = response.data.map(data => ({
-    //     id: data.id,
-    //     year: this.DateFormatter(data.entry_date, 1),
-    //     month: this.DateFormatter(data.entry_date, 2),
-    //     fund: data.fund,
-    //     portfolio: data.portfolio,
-    //     monthEndNav: data.monthly_end_nav,
-    //     performance: data.performance,
-    //     mtd: data.mtd,
-    //     ytdNetPerformance: data.ytd_net_performance,
-    //     qtdNetPercentage: data.qtd_net_perc,
-    //     ytdNetPercentage: data.ytd_net_perc,
-    //     itdNetPercentage: data.itd_net_perc
-    //   }));
+    this.financeService.getMonthlyPerformance().subscribe(response => {
+      this.monthlyPerformanceData = this.formatPerformanceData(response.data);
+      AutoSizeAllColumns(this.fundTheoreticalGrid);
 
-    //   const isCurrentMonthAdded = this.monthlyPerformanceData.find(
-    //     data => data.month === this.currentMonth && data.year === this.currentYear
-    //   );
-    //   if (!isCurrentMonthAdded) {
-    //     this.monthlyPerformanceData.push({
-    //       id: 12,
-    //       year: this.currentYear,
-    //       month: this.currentMonth,
-    //       fund: '',
-    //       portfolio: '',
-    //       monthEndNav: 0,
-    //       performance: 0,
-    //       mtd: 0,
-    //       ytdNetPerformance: 0,
-    //       qtdNetPercentage: 0,
-    //       ytdNetPercentage: 0,
-    //       itdNetPercentage: 0
-    //     });
-    //   }
-
-    //   this.fundTheoreticalGrid.api.setRowData(this.monthlyPerformanceData);
-    // });
-    this.monthlyPerformanceData = mockData.map(data => ({
-      id: data.id,
-      estimated: data.estimated,
-      year: this.DateFormatter(data.entry_date, 1, true),
-      month: this.DateFormatter(data.entry_date, 2, true),
-      fund: data.fund,
-      portfolio: data.portfolio,
-      monthEndNav: data.monthly_end_nav,
-      performance: data.performance,
-      mtd: data.mtd,
-      ytdNetPerformance: data.ytd_net_performance,
-      qtdNetPercentage: data.qtd_net_perc,
-      ytdNetPercentage: data.ytd_net_perc,
-      itdNetPercentage: data.itd_net_perc
-    }));
-
-    if (mockData.length === 0) {
-      this.showDatePicker = true;
-    } else {
       const isCurrentMonthAdded = this.monthlyPerformanceData.find(
         data => data.month === this.currentMonth && data.year === this.currentYear
       );
-      if (!isCurrentMonthAdded) {
-        this.monthlyPerformanceData.push({
-          id: 12,
-          estimated: false,
-          year: this.currentYear,
-          month: this.currentMonth,
-          fund: '',
-          portfolio: '',
-          monthEndNav: 0,
-          performance: 0,
-          mtd: 0,
-          ytdNetPerformance: 0,
-          qtdNetPercentage: 0,
-          ytdNetPercentage: 0,
-          itdNetPercentage: 0
-        });
+
+      if (!isCurrentMonthAdded && this.monthlyPerformanceData.length > 0) {
+        this.monthlyPerformanceData.push(this.createRow(this.currentYear, this.currentMonth));
       }
-    }
+
+      if (this.monthlyPerformanceData.length === 0) {
+        this.showDatePicker = true;
+      }
+
+      this.fundTheoreticalGrid.api.setRowData(this.monthlyPerformanceData);
+    });
   }
 
   initGrid() {
@@ -220,14 +125,16 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       },
       pinnedBottomRowData: null,
       clearExternalFilter: () => {},
+      getContextMenuItems: this.getContextMenuItems.bind(this),
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
       pivotPanelShow: 'after',
       singleClickEdit: true,
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
-      onFirstDataRendered: params => {
-        // AutoSizeAllColumns(params);
+      onFirstDataRendered: params => {},
+      defaultColDef: {
+        resizable: true
       }
     } as GridOptions;
     this.fundTheoreticalGrid.sideBar = SideBar(
@@ -235,15 +142,19 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       GridName.fundTheoretical,
       this.fundTheoreticalGrid
     );
-    this.components = { singleClickEditRenderer: getRenderer() };
+    // this.components = { agColumnHeader: CustomHeader };
   }
 
   initCols() {
     const colDefs = [
       {
+        headerName: 'Is Modified',
+        field: 'isModified',
+        hide: true
+      },
+      {
         headerName: 'Estimated',
         field: 'estimated',
-        resizable: true,
         sortable: true,
         cellRenderer: params => {
           return `<input type='checkbox' ${params.node.data.estimated ? 'checked' : ''} />`;
@@ -252,30 +163,24 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       {
         headerName: 'Year',
         field: 'year',
-        resizable: true,
         sortable: true,
         filter: true
       },
       {
         headerName: 'Month',
         field: 'month',
-        resizable: true,
         sortable: true,
         filter: true
       },
       {
         headerName: 'Fund*',
         field: 'fund',
-        resizable: true,
         sortable: true,
         filter: true,
         editable: true,
         cellEditor: 'agSelectCellEditor',
         cellEditorParams: {
-          values: ['None', ...this.funds]
-        },
-        cellStyle: params => {
-          return { textAlign: 'end' };
+          values: [...this.funds]
         }
       },
       {
@@ -285,91 +190,101 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         cellEditor: 'agSelectCellEditor',
         cellEditorParams: {
           values: ['Portfolio A', 'Asia_Focus']
-        },
-        cellStyle: params => {
-          return { textAlign: 'end' };
         }
       },
       {
-        headerName: 'Admin Month End NAV',
+        headerName: 'Admin Month End NAV*',
         field: 'monthEndNav',
-        resizable: true,
         sortable: true,
         editable: true,
-        cellStyle: params => {
-          return { textAlign: 'end' };
-        }
+        cellStyle: textAlignRight()
       },
       {
         headerName: 'Start of Month Estimate NAV*',
         field: 'startMonthEstimateNav',
-        resizable: true,
         sortable: true,
-        editable: true,
-        cellStyle: params => {
-          return { textAlign: 'end' };
-        }
+        cellStyle: textAlignRight()
       },
       {
         headerName: 'Performance*',
         field: 'performance',
-        resizable: true,
         sortable: true,
         editable: true,
-        cellStyle: params => {
-          return { textAlign: 'end' };
-        }
+        cellStyle: textAlignRight()
       },
       {
         headerName: 'MTD*',
         field: 'mtd',
-        resizable: true,
         sortable: true,
         editable: true,
-        cellStyle: params => {
-          return { textAlign: 'end' };
-        }
+        cellStyle: textAlignRight()
       },
       {
         headerName: 'YTD Net Perf',
         field: 'ytdNetPerformance',
-        resizable: true,
         sortable: true,
-        cellStyle: params => {
-          return { textAlign: 'end' };
-        }
+        cellStyle: textAlignRight()
       },
       {
         headerName: 'QTD Net %',
         field: 'qtdNetPercentage',
-        resizable: true,
         sortable: true,
-        cellStyle: params => {
-          return { textAlign: 'end' };
-        }
+        cellStyle: textAlignRight()
       },
       {
         headerName: 'YTD Net %',
         field: 'ytdNetPercentage',
-        resizable: true,
         sortable: true,
-        cellStyle: params => {
-          return { textAlign: 'end' };
-        }
+        cellStyle: textAlignRight()
       },
       {
         headerName: 'ITD Net %',
         field: 'itdNetPercentage',
-        resizable: true,
         sortable: true,
-        cellStyle: params => {
-          return { textAlign: 'end' };
-        }
+        cellStyle: textAlignRight()
       }
     ];
     this.fundTheoreticalGrid.api.setColumnDefs(colDefs);
     AutoSizeAllColumns(this.fundTheoreticalGrid);
     this.fundTheoreticalGrid.api.sizeColumnsToFit();
+  }
+
+  getContextMenuItems(params) {
+    const addDefaultItems = [
+      {
+        name: 'Add Row',
+        action: () => {
+          this.addRow(params);
+        }
+      },
+      {
+        name: 'Delete Row',
+        action: () => {
+          this.deleteRow(params);
+        }
+      }
+    ];
+    return GetContextMenu(false, addDefaultItems, true, null, params);
+  }
+
+  addRow(params) {
+    const index = params.node.rowIndex;
+    const newRow = this.createRow(params.node.data.year, params.node.data.month);
+    params.api.updateRowData({
+      add: [newRow],
+      addIndex: index + 1
+    });
+  }
+
+  deleteRow(params) {
+    const rowData = params.node.data;
+    if (rowData.id === 0) {
+      params.api.updateRowData({
+        remove: [rowData]
+      });
+    } else {
+      this.toastrService.error('Cannot delete this record!');
+    }
   }
 
   DateFormatter(date, option, isStringFormat) {
@@ -405,27 +320,85 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     const generateFundsDate = this.generateFundsDate;
     this.monthlyPerformanceData = [];
     while (count <= totalMonths) {
-      this.monthlyPerformanceData.push({
-        id: 12,
-        estimated: true,
-        year: this.DateFormatter(generateFundsDate, 1, false),
-        month: this.DateFormatter(generateFundsDate, 2, false),
-        fund: '',
-        portfolio: '',
-        monthEndNav: 0,
-        startMonthEstimateNav: 0,
-        performance: 0,
-        mtd: 0,
-        ytdNetPerformance: 0,
-        qtdNetPercentage: 0,
-        ytdNetPercentage: 0,
-        itdNetPercentage: 0
-      });
+      this.monthlyPerformanceData.push(
+        this.createRow(
+          this.DateFormatter(generateFundsDate, 1, false),
+          this.DateFormatter(generateFundsDate, 2, false)
+        )
+      );
       generateFundsDate.add(1, 'month');
       count++;
     }
     // this.showDatePicker = false;
     this.fundTheoreticalGrid.api.setRowData(this.monthlyPerformanceData);
+  }
+
+  doCalculation() {
+    const rowRecords = [];
+    this.fundTheoreticalGrid.api.forEachNode(node => {
+      rowRecords.push(node.data);
+    });
+    const formatteRecords = rowRecords.map(data => ({
+      ...data,
+      performanceDate: data.year + '-' + this.getMomentMonth(data.month) + '-' + '01'
+    }));
+    this.financeService.calMonthlyPerformance(formatteRecords).subscribe(response => {
+      console.log(response);
+      const updatedPerformanceData = response;
+
+      const rows = this.formatPerformanceData(response);
+      this.fundTheoreticalGrid.api.setRowData(rows);
+    });
+  }
+
+  formatPerformanceData(records) {
+    const formattedRecords = records.map(record => ({
+      id: record.Id,
+      isModified: false,
+      estimated: record.Estimate,
+      year: this.DateFormatter(record.PerformanceDate, 1, true),
+      month: this.DateFormatter(record.PerformanceDate, 2, true),
+      fund: record.Fund,
+      portfolio: record.PortFolio,
+      monthEndNav: record.MonthEndNav,
+      performance: record.Performance,
+      mtd: record.MTD,
+      ytdNetPerformance: record.YTDNetPerformance,
+      qtdNetPercentage: record.QTD,
+      ytdNetPercentage: record.YTD,
+      itdNetPercentage: record.ITD
+    }));
+    return formattedRecords;
+  }
+
+  createRow(generatedYear, generatedMonth) {
+    return {
+      id: 0,
+      isModified: false,
+      estimated: true,
+      year: generatedYear,
+      month: generatedMonth,
+      fund: '',
+      portfolio: '',
+      monthEndNav: 0,
+      startMonthEstimateNav: 0,
+      performance: 0,
+      mtd: 0,
+      ytdNetPerformance: 0,
+      qtdNetPercentage: 0,
+      ytdNetPercentage: 0,
+      itdNetPercentage: 0
+    };
+  }
+
+  getMomentMonth(month) {
+    const momentMonth = this.momentMonths.find(obj => obj.month === month);
+    const monthInNum = momentMonth.id + 1;
+    if (monthInNum < 9) {
+      return '0' + monthInNum;
+    } else {
+      return monthInNum;
+    }
   }
 
   onBtExport() {
@@ -441,46 +414,8 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   refreshGrid() {
     this.fundTheoreticalGrid.api.showLoadingOverlay();
   }
-
-  ngOnDestroy() {
-    this.isSubscriptionAlive = false;
-  }
 }
 
-function CustomHeaderName(headerName) {
-  return `<span class="text-danger" style="height:30px; font: bold"> ${headerName} </span>`;
-}
-
-function getRenderer() {
-  function CellRenderer() {}
-  CellRenderer.prototype.createGui = function() {
-    var template =
-      '<span><button id="theButton" style="background: none; border: none"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button><span id="theValue" style="padding-left: 4px;"></span></span>';
-    var tempDiv = document.createElement('div');
-    tempDiv.innerHTML = template;
-    this.eGui = tempDiv.firstElementChild;
-  };
-  CellRenderer.prototype.init = function(params) {
-    this.createGui();
-    this.params = params;
-    var eValue = this.eGui.querySelector('#theValue');
-    eValue.innerHTML = params.value;
-    this.eButton = this.eGui.querySelector('#theButton');
-    this.buttonClickListener = this.onButtonClicked.bind(this);
-    this.eButton.addEventListener('click', this.buttonClickListener);
-  };
-  CellRenderer.prototype.onButtonClicked = function() {
-    var startEditingParams = {
-      rowIndex: this.params.rowIndex,
-      colKey: this.params.column.getId()
-    };
-    this.params.api.startEditingCell(startEditingParams);
-  };
-  CellRenderer.prototype.getGui = function() {
-    return this.eGui;
-  };
-  CellRenderer.prototype.destroy = function() {
-    this.eButton.removeEventListener('click', this.buttonClickListener);
-  };
-  return CellRenderer;
+function textAlignRight() {
+  return { textAlign: 'end' };
 }
