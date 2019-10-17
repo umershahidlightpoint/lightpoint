@@ -420,8 +420,12 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         recordsToCommit.push(node.data);
       }
     });
-    console.log('Rows to Push', recordsToCommit);
-    this.financeService.commitMonthlyPerformance(recordsToCommit).subscribe(response => {
+    const formatteRecords = recordsToCommit.map(data => ({
+      ...data,
+      performanceDate: data.year + '-' + this.getMomentMonth(data.month) + '-' + '01'
+    }));
+    console.log('Rows to Push', formatteRecords);
+    this.financeService.commitMonthlyPerformance(formatteRecords).subscribe(response => {
       console.log('response after commmit', response);
     });
   }
@@ -432,7 +436,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       id: record.Id,
       rowId: record.RowId,
       modified: record.Modified,
-      estimated: record.Estimate,
+      estimated: record.Estimated,
       year: this.DateFormatter(record.PerformanceDate, 1, true),
       month: this.DateFormatter(record.PerformanceDate, 2, true),
       fund: record.Fund,
