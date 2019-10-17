@@ -10,6 +10,7 @@ import { SideBar, AutoSizeAllColumns, HeightStyle, Style } from 'src/shared/util
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import * as moment from 'moment';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { MonthlyPerformanceData } from 'src/shared/Models';
 
 @Component({
   selector: 'app-fund-theoretical',
@@ -23,15 +24,14 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   selectedAccountCategory: AccountCategory;
   account: Account;
   hideGrid: boolean;
-  monthlyPerformanceData;
+  monthlyPerformanceData: Array<MonthlyPerformanceData>;
   currentMonth: string;
-  currentYear;
-  components;
-  funds;
+  currentYear: number;
   selectedDate = null;
   showDatePicker = false;
   disableCommit = true;
   generateFundsDate;
+  funds: Array<string>;
 
   momentMonths = [
     { id: 0, month: 'January' },
@@ -402,7 +402,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   }
 
   formatPerformanceData(records) {
-    const formattedRecords = records.map(record => ({
+    const formattedRecords: Array<MonthlyPerformanceData> = records.map(record => ({
       id: record.Id,
       rowId: record.RowId,
       modified: record.Modified,
