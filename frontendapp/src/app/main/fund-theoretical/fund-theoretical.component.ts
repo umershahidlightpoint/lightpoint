@@ -149,7 +149,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         if (
           params.colDef.field === 'monthEndNav' ||
           params.colDef.field === 'performance' ||
-          (params.colDef.field === 'mtd' && params.newValue !== params.oldValue)
+          (params.colDef.field === 'mtd' && params.newValue != params.oldValue)
         ) {
           this.disableCommit = false;
           this.doCalculation();
