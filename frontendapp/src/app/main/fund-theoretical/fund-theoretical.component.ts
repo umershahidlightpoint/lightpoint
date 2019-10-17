@@ -94,7 +94,25 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   }
 
   getMonthlyPerformance() {
-    const mockData = [];
+    // const mockData = [
+    //   {
+    //     id: 0,
+    //     rowId: 1,
+    //     Modified: false,
+    //     estimated: true,
+    //     year: 2018,
+    //     month: 'March',
+    //     fund: '',
+    //     portfolio: '',
+    //     monthEndNav: 0,
+    //     performance: 0,
+    //     mtd: 0,
+    //     ytdNetPerformance: 0,
+    //     qtdNetPercentage: 0,
+    //     ytdNetPercentage: 0,
+    //     itdNetPercentage: 0
+    //   }
+    // ];
     this.financeService.getMonthlyPerformance().subscribe(response => {
       this.monthlyPerformanceData = this.formatPerformanceData(response.data);
       AutoSizeAllColumns(this.fundTheoreticalGrid);
@@ -104,7 +122,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       );
 
       if (!isCurrentMonthAdded && this.monthlyPerformanceData.length > 0) {
-        this.monthlyPerformanceData.push(this.createRow(this.currentYear, this.currentMonth));
+        this.monthlyPerformanceData.push(this.createRow(this.currentYear, this.currentMonth, 0));
       }
 
       if (this.monthlyPerformanceData.length === 0) {
@@ -132,7 +150,28 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       singleClickEdit: true,
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
+      enableCellChangeFlash: true,
+      animateRows: true,
+      deltaRowDataMode: true,
+      // columnTypes: {
+      //   valueColumn: {
+      //     cellClass: 'number-cell',
+      //     cellRenderer: 'agAnimateShowChangeCellRenderer'
+      //   }
+      // },
+      getRowNodeId: data => {
+        return data.rowId;
+      },
       onFirstDataRendered: params => {},
+      onCellValueChanged: params => {
+        if (
+          params.colDef.field === 'monthEndNav' ||
+          params.colDef.field === 'performance' ||
+          params.colDef.field === 'mtd'
+        ) {
+          this.doCalculation();
+        }
+      },
       defaultColDef: {
         resizable: true
       }
@@ -142,14 +181,22 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       GridName.fundTheoretical,
       this.fundTheoreticalGrid
     );
-    // this.components = { agColumnHeader: CustomHeader };
   }
+  // this.columnTypes = {
+  //   valueColumn: {
+  //     editable: true,
+  //     aggFunc: "sum",
+  //     valueParser: "Number(newValue)",
+  //     cellClass: "number-cell",
+  //     cellRenderer: "agAnimateShowChangeCellRenderer",
+  //     filter: "agNumberColumnFilter"
+  //   },
 
   initCols() {
     const colDefs = [
       {
         headerName: 'Is Modified',
-        field: 'isModified',
+        field: 'modified',
         hide: true
       },
       {
@@ -164,13 +211,15 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         headerName: 'Year',
         field: 'year',
         sortable: true,
-        filter: true
+        filter: true,
+        suppressCellFlash: true
       },
       {
         headerName: 'Month',
         field: 'month',
         sortable: true,
-        filter: true
+        filter: true,
+        suppressCellFlash: true
       },
       {
         headerName: 'Fund*',
@@ -197,10 +246,11 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         field: 'monthEndNav',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight()
+        cellStyle: textAlignRight(),
+        type: 'numericColumn'
       },
       {
-        headerName: 'Start of Month Estimate NAV*',
+        headerName: 'Start of Month Estimate NAV',
         field: 'startMonthEstimateNav',
         sortable: true,
         cellStyle: textAlignRight()
@@ -210,19 +260,22 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         field: 'performance',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight()
+        cellStyle: textAlignRight(),
+        type: 'numericColumn'
       },
       {
         headerName: 'MTD*',
         field: 'mtd',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight()
+        cellStyle: textAlignRight(),
+        type: 'valueColumn'
       },
       {
         headerName: 'YTD Net Perf',
         field: 'ytdNetPerformance',
         sortable: true,
+        suppressCellFlash: true,
         cellStyle: textAlignRight()
       },
       {
@@ -269,7 +322,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
   addRow(params) {
     const index = params.node.rowIndex;
-    const newRow = this.createRow(params.node.data.year, params.node.data.month);
+    const newRow = this.createRow(params.node.data.year, params.node.data.month, 0);
     params.api.updateRowData({
       add: [newRow],
       addIndex: index + 1
@@ -323,7 +376,8 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       this.monthlyPerformanceData.push(
         this.createRow(
           this.DateFormatter(generateFundsDate, 1, false),
-          this.DateFormatter(generateFundsDate, 2, false)
+          this.DateFormatter(generateFundsDate, 2, false),
+          count
         )
       );
       generateFundsDate.add(1, 'month');
@@ -342,19 +396,42 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       ...data,
       performanceDate: data.year + '-' + this.getMomentMonth(data.month) + '-' + '01'
     }));
+    console.log('formatted record for calculation', formatteRecords);
     this.financeService.calMonthlyPerformance(formatteRecords).subscribe(response => {
-      console.log(response);
+      console.log('response', response);
       const updatedPerformanceData = response;
 
       const rows = this.formatPerformanceData(response);
+      const updateRow = { update: [rows] };
+      // var params = {
+      //   force: isForceRefreshSelected(),
+      //   rowNodes: rows
+      // };
+      // callRefreshAfterMillis(rows, 5000, this.fundTheoreticalGrid.api);
+      console.log('rows', rows);
       this.fundTheoreticalGrid.api.setRowData(rows);
     });
   }
 
+  commitPerformanceData() {
+    const recordsToCommit = [];
+    this.fundTheoreticalGrid.api.forEachNode((node, index) => {
+      if (node.data.id === 0 || node.data.Modified) {
+        recordsToCommit.push(node.data);
+      }
+    });
+    console.log('Rows to Push', recordsToCommit);
+    this.financeService.commitMonthlyPerformance(recordsToCommit).subscribe(response => {
+      console.log('response after commmit', response);
+    });
+  }
+
   formatPerformanceData(records) {
+    console.log('records for format performace', records);
     const formattedRecords = records.map(record => ({
       id: record.Id,
-      isModified: false,
+      rowId: record.RowId,
+      modified: record.Modified,
       estimated: record.Estimate,
       year: this.DateFormatter(record.PerformanceDate, 1, true),
       month: this.DateFormatter(record.PerformanceDate, 2, true),
@@ -371,10 +448,11 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     return formattedRecords;
   }
 
-  createRow(generatedYear, generatedMonth) {
+  createRow(generatedYear, generatedMonth, rowNodeId) {
     return {
       id: 0,
-      isModified: false,
+      rowId: rowNodeId,
+      modified: false,
       estimated: true,
       year: generatedYear,
       month: generatedMonth,

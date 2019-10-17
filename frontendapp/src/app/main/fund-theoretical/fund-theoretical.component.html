@@ -38,17 +38,17 @@
             <form>
               <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
                 [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate"
-                [singleDatePicker]="true" [autoApply]="true" />
+                [singleDatePicker]="true" [autoApply]="true" [showDropdowns]="true" />
             </form>
           </div>
-          <div class="col-2">
+          <div class="col-3">
             <button class="btn btn-info ml-2" type="button" [disabled]="isLoading" (click)="generateRows()">
               Generate Rows
             </button>
           </div>
-          <div class="col-2">
-            <button class="btn btn-info ml-2" type="button" [disabled]="isLoading" (click)="doCalculation()">
-              Do Calculation
+          <div class="col-6" style="display: flex; justify-content: flex-end;">
+            <button class="btn btn-info ml-2" type="button" [disabled]="isLoading" (click)="commitPerformanceData()">
+              Commit
             </button>
           </div>
         </div>

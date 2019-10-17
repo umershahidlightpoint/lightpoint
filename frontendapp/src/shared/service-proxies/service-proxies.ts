@@ -523,4 +523,9 @@ export class FinancePocServiceProxy {
     const url = this.baseUrl + '/performance/monthlyPerformance';
     return this.http.post(url, data);
   }
+
+  commitMonthlyPerformance(data): Observable<any> {
+    const url = this.baseUrl + '/performance/monthlyPerformance';
+    return this.http.put(url, data);
+  }
 }
