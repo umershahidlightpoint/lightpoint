@@ -418,7 +418,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       fund: record.Fund,
       portfolio: record.PortFolio,
       monthEndNav: record.MonthEndNav,
-      startMonthEstimateNav: record.StartMonthEstimateNav,
+      startMonthEstimateNav: record.StartOfMonthEstimateNav,
       performance: record.Performance,
       mtd: record.MTD,
       ytdNetPerformance: record.YTDNetPerformance,
