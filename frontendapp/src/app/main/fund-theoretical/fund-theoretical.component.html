@@ -32,25 +32,25 @@
       <!----- Action Buttons Div Ends ----->
 
       <!-- Show Date Picker Div -->
-      <div *ngIf="showDatePicker">
-        <div class="row">
-          <div class="col-3">
-            <form>
-              <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
-                [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate"
-                [singleDatePicker]="true" [autoApply]="true" [showDropdowns]="true" />
-            </form>
-          </div>
-          <div class="col-3">
-            <button class="btn btn-info ml-2" type="button" [disabled]="isLoading" (click)="generateRows()">
-              Generate Rows
-            </button>
-          </div>
-          <div class="col-6" style="display: flex; justify-content: flex-end;">
-            <button class="btn btn-info ml-2" type="button" [disabled]="isLoading" (click)="commitPerformanceData()">
-              Commit
-            </button>
-          </div>
+      <div class="row">
+        <div class="col-3" *ngIf="showDatePicker">
+          <form>
+            <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
+              [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate"
+              [singleDatePicker]="true" [autoApply]="true" autocomplete="off" [showDropdowns]="true" />
+          </form>
+        </div>
+        <div class="col-3" *ngIf="showDatePicker">
+          <button class="btn btn-info ml-2" type="button" [disabled]="isLoading" (click)="generateRows()">
+            Generate Rows
+          </button>
+        </div>
+        <div class="col-6" *ngIf="!showDatePicker">
+        </div>
+        <div class="col-6" style="display: flex; justify-content: flex-end;">
+          <button class="btn btn-info ml-2" type="button" [disabled]="disableCommit" (click)="commitPerformanceData()">
+            Commit
+          </button>
         </div>
       </div>
       <!-- Show Date Picker Div Ends -->
