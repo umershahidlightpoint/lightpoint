@@ -30,6 +30,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   selectedDate = null;
   showDatePicker = false;
   disableCommit = true;
+  totalGridRows: number;
   generateFundsDate;
   funds: Array<string>;
 
@@ -100,6 +101,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       const modifiedData = response.data.map(data => {
         return { ...data, RowId: rowNodeId++ };
       });
+      this.totalGridRows = rowNodeId;
       this.monthlyPerformanceData = this.formatPerformanceData(modifiedData);
       AutoSizeAllColumns(this.fundTheoreticalGrid);
 
@@ -218,7 +220,8 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         field: 'startMonthEstimateNav',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight()
+        cellStyle: textAlignRight(),
+        type: 'numericColumn'
       },
       {
         headerName: 'Performance*',
@@ -241,8 +244,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         field: 'mtd',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight(),
-        type: 'valueColumn'
+        cellStyle: textAlignRight()
       },
       {
         headerName: 'YTD Net Perf',
@@ -295,7 +297,11 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
   addRow(params) {
     const index = params.node.rowIndex;
-    const newRow = this.createRow(params.node.data.year, params.node.data.month, 0);
+    const newRow = this.createRow(
+      params.node.data.year,
+      params.node.data.month,
+      this.totalGridRows + 1
+    );
     params.api.updateRowData({
       add: [newRow],
       addIndex: index + 1
@@ -353,6 +359,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
           count
         )
       );
+
       generateFundsDate.add(1, 'month');
       count++;
     }
@@ -390,7 +397,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         performanceDate: data.year + '-' + this.getMomentMonth(data.month) + '-' + '01'
       }));
     }
-
     this.financeService.commitMonthlyPerformance(formatteRecords).subscribe(response => {
       if (response.isSuccessful) {
         this.getMonthlyPerformance();
@@ -412,6 +418,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       fund: record.Fund,
       portfolio: record.PortFolio,
       monthEndNav: record.MonthEndNav,
+      startMonthEstimateNav: record.StartMonthEstimateNav,
       performance: record.Performance,
       mtd: record.MTD,
       ytdNetPerformance: record.YTDNetPerformance,
