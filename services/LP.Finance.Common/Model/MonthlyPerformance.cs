@@ -12,6 +12,7 @@ namespace LP.Finance.Common.Model
     public class MonthlyPerformance : IDbModel
     {
         public int Id { get; set; }
+        public int RowId { get; set; }
         public decimal? MonthEndNav { get; set; }
         public decimal? StartOfMonthEstimateNav { get; set; }
         public bool Estimated { get; set; }
