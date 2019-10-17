@@ -399,9 +399,9 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     console.log('formatted record for calculation', formatteRecords);
     this.financeService.calMonthlyPerformance(formatteRecords).subscribe(response => {
       console.log('response', response);
-      const updatedPerformanceData = response;
+      const updatedPerformanceData = response.payload;
 
-      const rows = this.formatPerformanceData(response);
+      const rows = this.formatPerformanceData(response.payload);
       const updateRow = { update: [rows] };
       // var params = {
       //   force: isForceRefreshSelected(),
