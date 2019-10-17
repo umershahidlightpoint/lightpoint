@@ -2,9 +2,11 @@
 using LP.Finance.WebProxy.WebAPI.Services;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.IO;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Http;
 
 namespace LP.Finance.WebProxy.WebAPI
@@ -13,6 +15,7 @@ namespace LP.Finance.WebProxy.WebAPI
     public class PerformanceController : ApiController
     {
         private IPerformanceService controller = new PerformanceService();
+
         // GET api/fileManagement/files
         [Route("monthlyPerformance")]
         [HttpGet]
@@ -33,6 +36,12 @@ namespace LP.Finance.WebProxy.WebAPI
         public object ModifyMonthlyPerformance(List<MonthlyPerformance> obj)
         {
             return controller.AddOrUpdateMonthlyPerformance(obj);
+        }
+
+        [HttpPost, Route("monthlyPerformance/upload")]
+        public async Task<object> UploadMonthlyPerformance()
+        {
+            return await controller.UploadMonthlyPerformance(Request);
         }
     }
 }
