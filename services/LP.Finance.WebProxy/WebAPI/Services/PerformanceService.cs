@@ -1,4 +1,6 @@
-﻿using LP.Finance.Common;
+﻿using LP.FileProcessing;
+using LP.FileProcessing.MetaData;
+using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Model;
 using Newtonsoft.Json;
@@ -9,7 +11,9 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,6 +23,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
     {
         private static readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
         public SqlHelper sqlHelper = new SqlHelper(connectionString);
+        private readonly FileProcessor fileProcessor = new FileProcessor();
+        private readonly FileManagementService fileManagementService = new FileManagementService();
         public object GetMonthlyPerformance()
         {
             var query = $@"select id as Id, estimated as Estimated, start_month_estimate_nav as StartOfMonthEstimateNav, performance_date as PerformanceDate ,fund as Fund,portfolio as PortFolio,monthly_end_nav as MonthEndNav,performance as Performance ,mtd as MTD,ytd_net_performance as YTDNetPerformance,qtd_net_perc as QTD,ytd_net_perc as YTD,itd_net_perc as ITD from monthly_performance";
@@ -275,6 +281,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 return Utils.Wrap(false, "An error occured while saving calculations");
             }
         }
+
+        public async Task<object> UploadMonthlyPerformance(HttpRequestMessage requestMessage)        {            if (!requestMessage.Content.IsMimeMultipartContent())                return Utils.Wrap(false);            var provider = new MultipartMemoryStreamProvider();            await requestMessage.Content.ReadAsMultipartAsync(provider);            var currentDir = AppDomain.CurrentDomain.BaseDirectory;            Directory.CreateDirectory(currentDir + Path.DirectorySeparatorChar + "PerformanceData");            var performancePath = "";            var performanceFileName = "";            foreach (var file in provider.Contents)            {                performanceFileName = file.Headers.ContentDisposition.FileName.Trim('\"');                var buffer = await file.ReadAsByteArrayAsync();                performancePath = currentDir + "PerformanceData" + Path.DirectorySeparatorChar +                                  $"{DateTime.Now:yy-MM-dd-hh-mm-ss}-{performanceFileName}";                System.IO.File.WriteAllBytes(performancePath, buffer);            }            var recordBody = fileProcessor.ImportFile(performancePath, "Performance", "PerformanceFormats", ',');
+
+            var records = JsonConvert.SerializeObject(recordBody.Item1);            var performanceRecords = JsonConvert.DeserializeObject<List<MonthlyPerformance>>(records);            var failedRecords = new Dictionary<object, Row>();            var key = 0;            foreach (var item in recordBody.Item2)            {                failedRecords.Add(key++, item);            }            var failedPerformanceList = fileManagementService.MapFailedRecords(failedRecords, DateTime.Now, performanceFileName);            List<FileInputDto> fileList = new List<FileInputDto>            {                new FileInputDto(performancePath, performanceFileName, performanceRecords.Count, "MonthlyPerformance", "Upload",                    failedPerformanceList,                    DateTime.Now)            };            fileManagementService.InsertActivityAndPositionFilesForSilver(fileList);            return Utils.Wrap(true, CalculateMonthlyPerformance(performanceRecords), null);        }
 
         public decimal CalculateYTDPerformance(MonthlyPerformance current, MonthlyPerformance prior)
         {

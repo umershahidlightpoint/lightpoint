@@ -15,7 +15,8 @@ namespace LP.FileProcessing
     public class FileProcessor
     {
         // Header & Footer's required as part of the file generation
-        public Tuple<Dictionary<object,Row>, int> ExportFile<T>(IEnumerable<T> recordList, object headerObj, object trailerObj, string path,
+        public Tuple<Dictionary<object, Row>, int> ExportFile<T>(IEnumerable<T> recordList, object headerObj,
+            object trailerObj, string path,
             string fileName, string identifierForFailedRecords)
         {
             var schema = Utils.GetFile<SilverFileFormat>(fileName, "FileFormats");
@@ -26,14 +27,16 @@ namespace LP.FileProcessing
             return new Tuple<Dictionary<object, Row>, int>(record.Item2, record.Item1.Count());
         }
 
-        public Tuple<List<dynamic>,List<Row>, bool> ImportFile(string path, string fileName)
+        public Tuple<List<dynamic>, List<Row>, bool> ImportFile(string path, string fileName, string folderName,
+            char delim)
         {
-            var schema = Utils.GetFile<SilverFileFormat>(fileName, "FileFormats");
-            var resp = ExtractPipe(path, schema);
+            var schema = Utils.GetFile<SilverFileFormat>(fileName, folderName);
+            var resp = ExtractPipe(path, schema, delim);
             return resp;
         }
 
-        private Tuple<List<dynamic>, Dictionary<object, Row>,int> MapFileRecord<T>(IEnumerable<T> transactionList, List<FileProperties> schema,
+        private Tuple<List<dynamic>, Dictionary<object, Row>, int> MapFileRecord<T>(IEnumerable<T> transactionList,
+            List<FileProperties> schema,
             string identifierForFailedRecords)
         {
             List<dynamic> sectionList = new List<dynamic>();
@@ -69,7 +72,7 @@ namespace LP.FileProcessing
                 index++;
             }
 
-            return new Tuple<List<dynamic>, Dictionary<object, Row>, int>(sectionList,failedRecords,records);
+            return new Tuple<List<dynamic>, Dictionary<object, Row>, int>(sectionList, failedRecords, records);
         }
 
         private List<dynamic> MapFileSection(object item, List<FileProperties> schema, int recordCount = 0)
@@ -80,7 +83,8 @@ namespace LP.FileProcessing
             return sectionList;
         }
 
-        private Tuple<dynamic, List<IField>, bool> MapItem(List<FileProperties> schema, object item, int recordCount = 0)
+        private Tuple<dynamic, List<IField>, bool> MapItem(List<FileProperties> schema, object item,
+            int recordCount = 0)
         {
             bool successful = true;
             var failedFields = new List<IField>();
@@ -101,15 +105,14 @@ namespace LP.FileProcessing
 
                 else if (!String.IsNullOrEmpty(map.Type))
                 {
-
                     // for format validation and data conversion
                     if (!String.IsNullOrEmpty(map.Function) && !String.IsNullOrEmpty(map.Format) &&
                         !String.IsNullOrEmpty(map.Type))
                     {
                         Type thisType = this.GetType();
                         MethodInfo theMethod = thisType.GetMethod(map.Function);
-                        object[] parametersArray = { value, map.Format, map.Type};
-                        var val = (Tuple<object,bool,string>)theMethod.Invoke(this, parametersArray);
+                        object[] parametersArray = {value, map.Format, map.Type};
+                        var val = (Tuple<object, bool, string>) theMethod.Invoke(this, parametersArray);
                         isValid = val.Item2;
                         message = val.Item3;
                         value = val.Item1;
@@ -144,6 +147,7 @@ namespace LP.FileProcessing
                     failedFields.Add(record);
                 }
             }
+
             return new Tuple<dynamic, List<IField>, bool>(obj, failedFields, successful);
         }
 
@@ -173,18 +177,19 @@ namespace LP.FileProcessing
             WriteDelimited(items, header, trailer, path, properties, '|');
         }
 
-        public Tuple<List<dynamic>, List<Row>, bool> ExtractPipe(string path, SilverFileFormat properties)
+        public Tuple<List<dynamic>, List<Row>, bool> ExtractPipe(string path, SilverFileFormat properties, char delim)
         {
-            return ExtractDelimited(path, properties, '|');
+            return ExtractDelimited(path, properties, delim);
         }
 
-        private Tuple<List<dynamic>, List<Row>, bool> ExtractDelimited(string path, SilverFileFormat properties, char v = ',')
+        private Tuple<List<dynamic>, List<Row>, bool> ExtractDelimited(string path, SilverFileFormat properties,
+            char v = ',')
         {
             var recordDictionary = properties.record.Select((s, i) => new {s, i})
                 .ToDictionary(x => x.i, x => x.s);
-            var headerDictionary = properties.record.Select((s, i) => new {s, i})
+            var headerDictionary = properties.header.Select((s, i) => new {s, i})
                 .ToDictionary(x => x.i, x => x.s);
-            var trailerDictionary = properties.record.Select((s, i) => new {s, i})
+            var trailerDictionary = properties.trailer.Select((s, i) => new {s, i})
                 .ToDictionary(x => x.i, x => x.s);
 
             List<Row> failedFieldsList = new List<Row>();
@@ -228,15 +233,20 @@ namespace LP.FileProcessing
                             isValid = false;
                             message = "Type not specified in meta data definition";
                         }
-                        else if(!String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Function) && !String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Format))
+                        else if (!String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Function) &&
+                                 !String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Format))
                         {
                             Type thisType = this.GetType();
                             MethodInfo theMethod = thisType.GetMethod(recordDictionary[dictionaryIndex].Function);
-                            object[] parametersArray = { item, recordDictionary[dictionaryIndex].Format, recordDictionary[dictionaryIndex].Type };
-                            var val = (Tuple<object, bool, string>)theMethod.Invoke(this, parametersArray);
+                            object[] parametersArray =
+                            {
+                                item, recordDictionary[dictionaryIndex].Format, recordDictionary[dictionaryIndex].Type
+                            };
+                            var val = (Tuple<object, bool, string>) theMethod.Invoke(this, parametersArray);
                             isValid = val.Item2;
                             message = val.Item3;
                         }
+
                         AddProperty(obj, recordDictionary[dictionaryIndex].Destination, item);
                     }
 
@@ -252,6 +262,7 @@ namespace LP.FileProcessing
                         };
                         failedRecords.Add(failedField);
                     }
+
                     dictionaryIndex++;
                 }
 
@@ -259,7 +270,7 @@ namespace LP.FileProcessing
                 {
                     header.Add(obj);
                 }
-                else if (totalRecords.HasValue && index == totalRecords + 1)
+                else if (totalRecords.HasValue && index == totalRecords - 1)
                 {
                     trailer.Add(obj);
                 }
@@ -278,10 +289,11 @@ namespace LP.FileProcessing
 
                     failedFieldsList.Add(failedRow);
                 }
+
                 index++;
             }
 
-            return new Tuple<List<dynamic>, List<Row>, bool>(record,failedFieldsList,successful);
+            return new Tuple<List<dynamic>, List<Row>, bool>(record, failedFieldsList, successful);
         }
 
         public void WriteDelimited(IEnumerable<dynamic> items, IEnumerable<dynamic> header,
@@ -309,7 +321,7 @@ namespace LP.FileProcessing
 
         #region Helper Functions for data pre-processing
 
-        public Tuple<object,bool,string> GetDate(object value, string format, string type)
+        public Tuple<object, bool, string> GetDate(object value, string format, string type)
         {
             string exception = null;
             bool valid = true;
@@ -319,15 +331,14 @@ namespace LP.FileProcessing
             {
                 try
                 {
-                    if(value is string)
+                    if (value is string)
                     {
                         date = Convert.ToDateTime(value);
                     }
                     else if (value is DateTime)
                     {
-                       date = (DateTime)value;
+                        date = (DateTime) value;
                     }
-
                 }
                 catch (Exception ex)
                 {
@@ -354,12 +365,12 @@ namespace LP.FileProcessing
                 return new Tuple<object, bool, string>(null, valid, exception);
             }
         }
-        
-        public Tuple<object,bool,string> LongShortConversion(object value, string format = null, string type = null)
+
+        public Tuple<object, bool, string> LongShortConversion(object value, string format = null, string type = null)
         {
             bool valid = true;
             string exception = "";
-            var position = (string)value;
+            var position = (string) value;
             if (position != null)
             {
                 if (position.ToLower() == "long")
@@ -387,7 +398,7 @@ namespace LP.FileProcessing
         {
             bool valid = true;
             string exception = "";
-            if(type == "decimal")
+            if (type == "decimal")
             {
                 string val = Convert.ToString(value);
                 string[] parsedVal = val.Split('.');
@@ -395,16 +406,18 @@ namespace LP.FileProcessing
                 int wholeNumberLength = Convert.ToInt32(numeric[0]);
                 int decimalNumberLength = Convert.ToInt32(numeric[1]);
                 int validWholeNumber = wholeNumberLength - decimalNumberLength;
-                
-                if(parsedVal.ElementAtOrDefault(0) != null && parsedVal.ElementAt(0).Length > validWholeNumber)
+
+                if (parsedVal.ElementAtOrDefault(0) != null && parsedVal.ElementAt(0).Length > validWholeNumber)
                 {
                     valid = false;
-                    exception = "Whole number part contains " + $"{parsedVal.ElementAt(0).Length} digit(s). Only {validWholeNumber} digit(s) are allowed";
+                    exception = "Whole number part contains " +
+                                $"{parsedVal.ElementAt(0).Length} digit(s). Only {validWholeNumber} digit(s) are allowed";
                 }
                 else if (parsedVal.ElementAtOrDefault(1) != null && parsedVal.ElementAt(1).Length > decimalNumberLength)
                 {
                     valid = false;
-                    exception = "Decimal part contains " + $"{parsedVal.ElementAt(1).Length} digit(s). Only {decimalNumberLength} digit(s) are allowed";
+                    exception = "Decimal part contains " +
+                                $"{parsedVal.ElementAt(1).Length} digit(s). Only {decimalNumberLength} digit(s) are allowed";
                 }
             }
             else if (type == "char")
@@ -415,13 +428,16 @@ namespace LP.FileProcessing
                     int length = Convert.ToInt32(format);
                     if (val.Length > length)
                     {
-                        exception = "Value contains " + $"{val.Length} character(s). Only {length} character(s) are allowed";
+                        exception = "Value contains " +
+                                    $"{val.Length} character(s). Only {length} character(s) are allowed";
                         valid = false;
                     }
                 }
             }
+
             return new Tuple<object, bool, string>(value, valid, exception);
         }
+
         #endregion
     }
 }

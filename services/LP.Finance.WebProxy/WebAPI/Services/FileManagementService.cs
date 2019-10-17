@@ -79,7 +79,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
             var extractPath = currentDir + Path.DirectorySeparatorChar + "FileFormats" + Path.DirectorySeparatorChar +
                               "Transaction_Extract.txt";
-            var recordBody = fileProcessor.ImportFile(extractPath, "Transaction");
+            var recordBody = fileProcessor.ImportFile(extractPath, "Transaction", "FileFormats", '|');
             return new
             {
                 ImportedRecords = recordBody.Item1,
@@ -113,13 +113,15 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             if (System.IO.File.Exists(activityPath))
             {
-                string newFileName = currentDir + "SilverData" + Path.DirectorySeparatorChar + activityFileName + $"_{DateTime.UtcNow.Ticks}.txt";
+                string newFileName = currentDir + "SilverData" + Path.DirectorySeparatorChar + activityFileName +
+                                     $"_{DateTime.UtcNow.Ticks}.txt";
                 System.IO.File.Move(activityPath, newFileName);
             }
 
             if (System.IO.File.Exists(positionPath))
             {
-                string newFileName = currentDir + "SilverData" + Path.DirectorySeparatorChar + positionFileName + $"_{DateTime.UtcNow.Ticks}.txt";
+                string newFileName = currentDir + "SilverData" + Path.DirectorySeparatorChar + positionFileName +
+                                     $"_{DateTime.UtcNow.Ticks}.txt";
                 System.IO.File.Move(positionPath, newFileName);
             }
 
@@ -150,7 +152,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return Utils.Wrap(true);
         }
 
-        private List<FileException> MapFailedRecords(Dictionary<object, Row> failedRecords, DateTime businessDate,
+        public List<FileException> MapFailedRecords(Dictionary<object, Row> failedRecords, DateTime businessDate,
             string fileName)
         {
             var records = failedRecords.Select(x => new FileException
@@ -208,7 +210,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        private void InsertActivityAndPositionFilesForSilver(List<FileInputDto> files)
+        public void InsertActivityAndPositionFilesForSilver(List<FileInputDto> files)
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);
             try
@@ -225,7 +227,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         new SqlParameter("source", file.source),
                         new SqlParameter("statistics", file.statistics),
                         new SqlParameter("business_date", file.businessDate),
-                        new SqlParameter("exceptions", file.failedRecords.Count > 0 ? true: false),
+                        new SqlParameter("exceptions", file.failedRecords.Count > 0 ? true : false),
                     };
 
                     var query = $@"INSERT INTO [file]
@@ -246,7 +248,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                     sqlHelper.Insert(query, CommandType.Text, fileParams.ToArray(), out int fileId);
                     file.failedRecords.ForEach(x => x.fileId = fileId);
-                    new SQLBulkHelper().Insert("file_exception", file.failedRecords.ToArray(), sqlHelper.GetConnection(), sqlHelper.GetTransaction());
+                    new SQLBulkHelper().Insert("file_exception", file.failedRecords.ToArray(),
+                        sqlHelper.GetConnection(), sqlHelper.GetTransaction());
 
                     List<SqlParameter> fileActionParams = new List<SqlParameter>()
                     {
@@ -337,7 +340,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object GetInvalidExportRecords()
         {
-            var query = $@"select fe.file_exception_id, fe.file_id, f.[name],f.source,fe.business_date,reference, record from file_exception fe
+            var query =
+                $@"select fe.file_exception_id, fe.file_id, f.[name],f.source,fe.business_date,reference, record from file_exception fe
                             inner join [file] f on fe.file_id = f.id
                             order by business_date desc";
 
@@ -346,15 +350,16 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             foreach (DataRow row in dataTable.Rows)
             {
                 FileException fEx = new FileException();
-                fEx.businessDate = (DateTime)row["business_date"];
-                fEx.fileId = row["file_id"] == DBNull.Value ? 0 : (int)row["file_id"];
-                fEx.fileExceptionId = (int)row["file_exception_id"];
-                fEx.reference = (string)row["reference"];
-                fEx.fileName = (string)row["name"];
-                fEx.record = (string)row["record"];
-                fEx.source = (string)row["source"];
+                fEx.businessDate = (DateTime) row["business_date"];
+                fEx.fileId = row["file_id"] == DBNull.Value ? 0 : (int) row["file_id"];
+                fEx.fileExceptionId = (int) row["file_exception_id"];
+                fEx.reference = (string) row["reference"];
+                fEx.fileName = (string) row["name"];
+                fEx.record = (string) row["record"];
+                fEx.source = (string) row["source"];
                 fileExceptions.Add(fEx);
             }
+
             var groupedExceptions = fileExceptions.GroupBy(x => x.fileId).Select(x => new
             {
                 FileId = x.Key,
@@ -363,7 +368,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 FileName = x.FirstOrDefault().fileName,
                 Exceptions = x.Count(),
                 Source = x.FirstOrDefault().source,
-                ExceptionList = x.Select(y=> new {
+                ExceptionList = x.Select(y => new
+                {
                     Reference = y.reference,
                     Record = y.record
                 }).ToList()

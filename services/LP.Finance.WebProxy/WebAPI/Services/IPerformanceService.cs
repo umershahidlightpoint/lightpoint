@@ -1,9 +1,6 @@
-﻿using LP.Finance.Common.Dtos;
-using LP.Finance.Common.Model;
-using System;
+﻿using LP.Finance.Common.Model;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
@@ -12,7 +9,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
     {
         object GetMonthlyPerformance();
         object CalculateMonthlyPerformance(List<MonthlyPerformance> dto);
-
         object AddOrUpdateMonthlyPerformance(List<MonthlyPerformance> dto);
+        Task<object> UploadMonthlyPerformance(HttpRequestMessage requestMessage);
     }
 }
