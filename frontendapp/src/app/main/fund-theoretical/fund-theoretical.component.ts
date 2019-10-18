@@ -114,7 +114,9 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       });
       this.totalGridRows = rowNodeId;
       this.monthlyPerformanceData = this.formatPerformanceData(modifiedData);
-      AutoSizeAllColumns(this.fundTheoreticalGrid);
+      if (this.fundTheoreticalGrid) {
+        AutoSizeAllColumns(this.fundTheoreticalGrid);
+      }
 
       const isCurrentMonthAdded = this.monthlyPerformanceData.find(
         data => data.month === this.currentMonth && data.year === this.currentYear
@@ -433,12 +435,15 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     this.financeService.uploadMonthlyPerformance(this.fileToUpload).subscribe(response => {
       if (response.isSuccessful) {
         const modifiedData = response.payload.map(data => {
-          return { ...data, RowId: rowNodeId++ };
+          return { ...data, RowId: rowNodeId++, Estimated: true };
         });
         this.totalGridRows = rowNodeId;
         this.monthlyPerformanceData = this.formatPerformanceData(modifiedData);
         this.fundTheoreticalGrid.api.setRowData(this.monthlyPerformanceData);
+        AutoSizeAllColumns(this.fundTheoreticalGrid);
+
         this.showDatePicker = false;
+        this.disableCommit = false;
       } else {
         this.toastrService.error('Something went wrong! Try Again.');
       }
