@@ -32,27 +32,32 @@
       <!----- Action Buttons Div Ends ----->
 
       <!-- Show Date Picker Div -->
-      <div class="row">
-        <div class="col-3" *ngIf="showDatePicker">
-          <form>
+      <form>
+        <div class="form-row">
+          <div class="col-2" *ngIf="showDatePicker">
             <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
               [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate"
               [singleDatePicker]="true" [autoApply]="true" autocomplete="off" [showDropdowns]="true" />
-          </form>
+          </div>
+          <div class="col-6" *ngIf="showDatePicker">
+            <button class="btn btn-info" type="button" (click)="generateRows()">
+              Generate Rows
+            </button>
+            <input class="btn btn-info file-upload-btn" type="file" (change)="onFileInput($event.target.files)">
+            <button class="btn btn-info ml-2" type="button" (click)="uploadMonthlyPerformance()">
+              Upload
+            </button>
+          </div>
+          <div class="ml-auto">
+            <div class="col-6">
+              <button class="btn btn-info ml-2" type="button" [disabled]="disableCommit"
+                (click)="commitPerformanceData()">
+                Commit
+              </button>
+            </div>
+          </div>
         </div>
-        <div class="col-3" *ngIf="showDatePicker">
-          <button class="btn btn-info ml-2" type="button" [disabled]="isLoading" (click)="generateRows()">
-            Generate Rows
-          </button>
-        </div>
-        <div class="col-6" *ngIf="!showDatePicker">
-        </div>
-        <div class="col-6" style="display: flex; justify-content: flex-end;">
-          <button class="btn btn-info ml-2" type="button" [disabled]="disableCommit" (click)="commitPerformanceData()">
-            Commit
-          </button>
-        </div>
-      </div>
+      </form>
       <!-- Show Date Picker Div Ends -->
 
       <!----- Div To Measure Identifier starts ----->

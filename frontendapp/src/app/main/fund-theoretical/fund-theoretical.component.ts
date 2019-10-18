@@ -43,6 +43,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   generateFundsDate;
   funds: Array<string>;
   title: string;
+  fileToUpload: File = null;
 
   momentMonths = [
     { id: 0, month: 'January' },
@@ -215,7 +216,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         editable: true,
         cellEditor: 'agSelectCellEditor',
         cellEditorParams: {
-          values: ['None', 'Portfolio A', 'Asia_Focus']
+          values: ['None', 'PORTFOLIO A', 'ASIA_FOCUS']
         }
       },
       {
@@ -224,8 +225,8 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         sortable: true,
         editable: true,
         cellStyle: textAlignRight(),
-        type: 'numericColumn',
-        valueFormatter: absCurrencyFormatter
+        type: 'numericColumn'
+        // valueFormatter: absCurrencyFormatter
       },
       {
         headerName: 'Performance*',
@@ -233,8 +234,8 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         sortable: true,
         editable: true,
         cellStyle: textAlignRight(),
-        type: 'numericColumn',
-        valueFormatter: absCurrencyFormatter
+        type: 'numericColumn'
+        // valueFormatter: absCurrencyFormatter
       },
       {
         headerName: 'Admin Month End NAV*',
@@ -242,8 +243,8 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         sortable: true,
         editable: true,
         cellStyle: textAlignRight(),
-        type: 'numericColumn',
-        valueFormatter: absCurrencyFormatter
+        type: 'numericColumn'
+        // valueFormatter: absCurrencyFormatter
       },
       {
         headerName: 'MTD*',
@@ -251,37 +252,37 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         sortable: true,
         editable: true,
         cellStyle: textAlignRight(),
-        type: 'numericColumn',
-        valueFormatter: absCurrencyFormatter
+        type: 'numericColumn'
+        // valueFormatter: absCurrencyFormatter
       },
       {
         headerName: 'YTD Net Perf',
         field: 'ytdNetPerformance',
         sortable: true,
         suppressCellFlash: true,
-        cellStyle: textAlignRight(),
-        valueFormatter: absCurrencyFormatter
+        cellStyle: textAlignRight()
+        // valueFormatter: absCurrencyFormatter
       },
       {
         headerName: 'QTD Net %',
         field: 'qtd',
         sortable: true,
-        cellStyle: textAlignRight(),
-        valueFormatter: absCurrencyFormatter
+        cellStyle: textAlignRight()
+        // valueFormatter: absCurrencyFormatter
       },
       {
         headerName: 'YTD Net %',
         field: 'ytd',
         sortable: true,
-        cellStyle: textAlignRight(),
-        valueFormatter: absCurrencyFormatter
+        cellStyle: textAlignRight()
+        // valueFormatter: absCurrencyFormatter
       },
       {
         headerName: 'ITD Net %',
         field: 'itd',
         sortable: true,
-        cellStyle: textAlignRight(),
-        valueFormatter: absCurrencyFormatter
+        cellStyle: textAlignRight()
+        // valueFormatter: absCurrencyFormatter
       }
     ];
     this.fundTheoreticalGrid.api.setColumnDefs(colDefs);
@@ -423,16 +424,37 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     this.fundTheoreticalGrid.api.setRowData(this.monthlyPerformanceData);
   }
 
+  onFileInput(files: FileList) {
+    this.fileToUpload = files.item(0);
+  }
+
+  uploadMonthlyPerformance() {
+    let rowNodeId = 1;
+    this.financeService.uploadMonthlyPerformance(this.fileToUpload).subscribe(response => {
+      if (response.isSuccessful) {
+        const modifiedData = response.payload.map(data => {
+          return { ...data, RowId: rowNodeId++ };
+        });
+        this.totalGridRows = rowNodeId;
+        this.monthlyPerformanceData = this.formatPerformanceData(modifiedData);
+        this.fundTheoreticalGrid.api.setRowData(this.monthlyPerformanceData);
+        this.showDatePicker = false;
+      } else {
+        this.toastrService.error('Something went wrong! Try Again.');
+      }
+    });
+  }
+
   doCalculation() {
     const rowRecords = [];
     this.fundTheoreticalGrid.api.forEachNode(node => {
       rowRecords.push(node.data);
     });
-    const formatteRecords = rowRecords.map(data => ({
+    const formattedRecords = rowRecords.map(data => ({
       ...data,
       performanceDate: data.year + '-' + this.getMomentMonth(data.month) + '-' + '01'
     }));
-    this.financeService.calMonthlyPerformance(formatteRecords).subscribe(response => {
+    this.financeService.calMonthlyPerformance(formattedRecords).subscribe(response => {
       const rows = this.formatPerformanceData(response.payload);
       this.fundTheoreticalGrid.api.setRowData(rows);
     });
@@ -447,14 +469,14 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       }
     });
 
-    let formatteRecords;
+    let formattedRecords;
     if (recordsToCommit.length > 0) {
-      formatteRecords = recordsToCommit.map(data => ({
+      formattedRecords = recordsToCommit.map(data => ({
         ...data,
         performanceDate: data.year + '-' + this.getMomentMonth(data.month) + '-' + '01'
       }));
 
-      this.financeService.commitMonthlyPerformance(formatteRecords).subscribe(response => {
+      this.financeService.commitMonthlyPerformance(formattedRecords).subscribe(response => {
         if (response.isSuccessful) {
           this.getMonthlyPerformance();
         } else {
