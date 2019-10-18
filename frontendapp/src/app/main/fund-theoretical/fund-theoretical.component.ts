@@ -129,7 +129,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       if (this.monthlyPerformanceData.length === 0) {
         this.showDatePicker = true;
       }
-
       this.fundTheoreticalGrid.api.setRowData(this.monthlyPerformanceData);
     });
   }
@@ -261,8 +260,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         sortable: true,
         editable: true,
         cellStyle: textAlignRight(),
-        type: 'numericColumn',
-        valueFormatter: absCurrencyFormatter
+        type: 'numericColumn'
       },
       {
         headerName: 'YTD Net Perf',
@@ -276,22 +274,19 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         headerName: 'QTD Net %',
         field: 'qtd',
         sortable: true,
-        cellStyle: textAlignRight(),
-        valueFormatter: absCurrencyFormatter
+        cellStyle: textAlignRight()
       },
       {
         headerName: 'YTD Net %',
         field: 'ytd',
         sortable: true,
-        cellStyle: textAlignRight(),
-        valueFormatter: absCurrencyFormatter
+        cellStyle: textAlignRight()
       },
       {
         headerName: 'ITD Net %',
         field: 'itd',
         sortable: true,
-        cellStyle: textAlignRight(),
-        valueFormatter: absCurrencyFormatter
+        cellStyle: textAlignRight()
       }
     ];
   }
@@ -416,6 +411,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
       generateFundsDate.add(1, 'month');
       count++;
+      this.totalGridRows = count;
     }
     this.showDatePicker = false;
     this.fundTheoreticalGrid.api.setRowData(this.monthlyPerformanceData);
@@ -463,7 +459,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   commitPerformanceData() {
     const recordsToCommit = [];
     this.fundTheoreticalGrid.api.forEachNode((node, index) => {
-      console.log('node data', node.data);
       if (node.data.id === 0 || node.data.modified) {
         recordsToCommit.push(node.data);
       }
@@ -562,9 +557,8 @@ function textAlignRight() {
 }
 
 function absCurrencyFormatter(params) {
-  return params.value;
-  // if (params.value === undefined) {
-  //   return;
-  // }
-  // return CommaSeparatedFormat(Math.abs(params.value));
+  if (params.value === undefined) {
+    return;
+  }
+  return CommaSeparatedFormat(Math.abs(params.value));
 }
