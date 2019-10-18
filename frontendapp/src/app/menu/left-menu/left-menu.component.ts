@@ -26,10 +26,10 @@ export class LeftMenuComponent implements OnInit {
   ];
 
   public adminPages: Page[] = [
+    { name: 'Accruals OMS', routerLink: '/accruals', icon: 'fa-files-o' },
+    { name: 'Trades OMS', routerLink: '/trade-allocation', icon: 'fa-exchange' },
+    { name: 'Journals OMS', routerLink: '/journal-allocation', icon: 'fa-list-alt' },
     { name: 'Accounts', routerLink: '/accounts', icon: 'fa-bank' },
-    { name: 'Accruals', routerLink: '/accruals', icon: 'fa-files-o' },
-    { name: 'Trades', routerLink: '/trade-allocation', icon: 'fa-exchange' },
-    { name: 'OpsBlotter Journals', routerLink: '/journal-allocation', icon: 'fa-list-alt' },
     { name: 'Operations', routerLink: 'operations', icon: 'fa-tasks' },
     { name: 'Grid Views', routerLink: '/grid-views', icon: 'fa-th' },
     { name: 'Settings', routerLink: '/settings', icon: 'fa-cog' }

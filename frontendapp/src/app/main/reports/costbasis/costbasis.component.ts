@@ -142,7 +142,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
         },
         {
           field: 'Balance',
-          headerName: 'Balance',
+          headerName: 'Investment At Cost',
           cellClass: 'rightAlign',
           sortable: true,
           filter: true,
@@ -171,6 +171,26 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           field: 'Side',
           width: 50,
           headerName: 'Side'
+        },
+        {
+          field: 'Unrealized P&L',
+          cellClass: 'rightAlign',
+          headerName: 'Unrealized P&L'
+        },
+        {
+          field: 'realized P&L',
+          cellClass: 'rightAlign',
+          headerName: 'Realized P&L'
+        },
+        {
+          field: 'Net P&L',
+          cellClass: 'rightAlign',
+          headerName: 'Net P&L'
+        },
+        {
+          field: 'Eod Price',
+          width: 50,
+          headerName: 'EOD Price'
         },
 
       ],

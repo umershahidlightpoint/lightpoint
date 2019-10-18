@@ -10,18 +10,19 @@
           </option>
         </select>
 
-    </div>
-  </p-tabPanel>
-
-  <p-tabPanel header="Silver Settings" [ngStyle]="style">
-    <div style="clear: both"></div>
-    <div [ngStyle]="styleForHeight">
+        <h4>Tax Methodology {{methodology.code}}</h4>
         <select class="form-control" [(ngModel)]="methodology" (ngModelChange)="changeMethodology($event)">
-            <option *ngFor="let method of methods" [ngValue]="method.code">
-              {{ method.code }}
-            </option>
-          </select>
-        </div>
+          <option *ngFor="let method of methods" [ngValue]="method.code">
+            {{ method.code }}
+          </option>
+        </select>
+
+        <h4>Fiscal Year End</h4>
+        <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
+        [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate"
+        [singleDatePicker]="true" [autoApply]="true" />
+
+    </div>
   </p-tabPanel>
 
 </p-tabView>
