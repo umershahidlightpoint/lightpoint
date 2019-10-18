@@ -46,8 +46,8 @@
       "rule": ""
     },
     {
-      "source": "MonthEndNav",
-      "destination": "MonthEndNav",
+      "source": "StartOfMonthEstimateNav",
+      "destination": "StartOfMonthEstimateNav",
       "function": null,
       "format": "",
       "type": "decimal",
@@ -64,12 +64,21 @@
       "rule": ""
     },
     {
+      "source": "MonthEndNav",
+      "destination": "MonthEndNav",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 5,
+      "rule": ""
+    },
+    {
       "source": "MTD",
       "destination": "MTD",
       "function": null,
       "format": "",
       "type": "decimal",
-      "offset": 5,
+      "offset": 6,
       "rule": ""
     }
   ]
