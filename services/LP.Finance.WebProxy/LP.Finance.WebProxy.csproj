@@ -138,6 +138,10 @@
       <Link>FileFormats\Transaction.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="..\LP.FileProcessing\PerformanceFormats\Performance.json">
+      <Link>PerformanceFormats\Performance.json</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="App.config" />
     <None Include="Docs\README.md" />
     <None Include="MockData\all.json">
@@ -168,6 +172,9 @@
     </PackageReference>
     <PackageReference Include="Microsoft.AspNet.WebApi.OwinSelfHost">
       <Version>5.2.7</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Net.Http">
+      <Version>2.2.29</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Owin.Cors">
       <Version>4.0.1</Version>

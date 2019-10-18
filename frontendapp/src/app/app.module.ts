@@ -83,6 +83,8 @@ import { ReportGridComponent } from './main/reports/report-grid/report-grid.comp
 import { GridUtilsComponent } from '../shared/Component/grid-utils/grid-utils.component';
 import { FileExceptionComponent } from './main/operations/file-exception/file-exception.component';
 import { FundTheoreticalComponent } from './main/fund-theoretical/fund-theoretical.component';
+import { PerformanceCanDeactivateGuard } from '../shared/guards/performance-can-deactivate-guard.service';
+import { DataGridModalComponent } from '../shared/Component/data-grid-modal/data-grid-modal.component';
 
 @NgModule({
   declarations: [
@@ -123,7 +125,8 @@ import { FundTheoreticalComponent } from './main/fund-theoretical/fund-theoretic
     ReportGridComponent,
     GridUtilsComponent,
     FileExceptionComponent,
-    FundTheoreticalComponent
+    FundTheoreticalComponent,
+    DataGridModalComponent
   ],
   imports: [
     BrowserModule,
@@ -167,7 +170,8 @@ import { FundTheoreticalComponent } from './main/fund-theoretical/fund-theoretic
     DataService,
     SidenavService,
     PostingEngineService,
-    AgGridUtils
+    AgGridUtils,
+    PerformanceCanDeactivateGuard
   ],
   bootstrap: [AppComponent]
 })

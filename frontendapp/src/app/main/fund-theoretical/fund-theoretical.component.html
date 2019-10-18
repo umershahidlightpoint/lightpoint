@@ -32,27 +32,32 @@
       <!----- Action Buttons Div Ends ----->
 
       <!-- Show Date Picker Div -->
-      <div *ngIf="showDatePicker">
-        <div class="row">
-          <div class="col-3">
-            <form>
-              <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
-                [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate"
-                [singleDatePicker]="true" [autoApply]="true" />
-            </form>
+      <form>
+        <div class="form-row">
+          <div class="col-2" *ngIf="showDatePicker">
+            <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
+              [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate"
+              [singleDatePicker]="true" [autoApply]="true" autocomplete="off" [showDropdowns]="true" />
           </div>
-          <div class="col-2">
-            <button class="btn btn-info ml-2" type="button" [disabled]="isLoading" (click)="generateRows()">
+          <div class="col-6" *ngIf="showDatePicker">
+            <button class="btn btn-info" type="button" (click)="generateRows()">
               Generate Rows
             </button>
-          </div>
-          <div class="col-2">
-            <button class="btn btn-info ml-2" type="button" [disabled]="isLoading" (click)="doCalculation()">
-              Do Calculation
+            <input class="btn btn-info file-upload-btn" type="file" (change)="onFileInput($event.target.files)">
+            <button class="btn btn-info ml-2" type="button" (click)="uploadMonthlyPerformance()">
+              Upload
             </button>
           </div>
+          <div class="ml-auto">
+            <div class="col-6">
+              <button class="btn btn-info ml-2" type="button" [disabled]="disableCommit"
+                (click)="commitPerformanceData()">
+                Commit
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      </form>
       <!-- Show Date Picker Div Ends -->
 
       <!----- Div To Measure Identifier starts ----->
@@ -61,7 +66,7 @@
         <div [ngStyle]="styleForHeight">
           <!----- Ag Grid Selector ----->
           <ag-grid-angular class="ag-theme-balham" style=" height: 100%; width: 100%"
-            [gridOptions]="fundTheoreticalGrid" [components]="components">
+            [gridOptions]="fundTheoreticalGrid">
           </ag-grid-angular>
 
         </div>
@@ -73,3 +78,6 @@
   <!-- Tab View Tag Ends -->
 </div>
 <!-- Div Ends -->
+
+<app-data-grid-modal #dataGridModal [gridTitle]="title">
+</app-data-grid-modal>

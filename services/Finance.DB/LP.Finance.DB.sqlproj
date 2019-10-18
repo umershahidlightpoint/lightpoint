@@ -81,5 +81,6 @@
     <Build Include="Tables\monthly_performance.sql" />
     <Build Include="Tables\monthly_performance_history.sql" />
     <Build Include="Triggers\monthly_performance_update_trigger.sql" />
+    <Build Include="Triggers\monthly_performance_insert_trigger.sql" />
   </ItemGroup>
 </Project>

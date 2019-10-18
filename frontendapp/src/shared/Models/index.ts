@@ -12,3 +12,22 @@ export interface GridLayout {
   SortState: Array<any>;
   UserId: number;
 }
+
+export interface MonthlyPerformanceData {
+  id: number;
+  rowId: number;
+  modified: boolean;
+  estimated: boolean;
+  year: number;
+  month: string;
+  fund: string;
+  portfolio: string;
+  monthEndNav: number;
+  startMonthEstimateNav: number;
+  performance: number;
+  mtd: number;
+  ytdNetPerformance: number;
+  qtd: number;
+  ytd: number;
+  itd: number;
+}

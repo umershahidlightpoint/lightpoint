@@ -1,6 +1,6 @@
-﻿CREATE TRIGGER [monthly_performance_update_trigger]
+﻿CREATE TRIGGER [monthly_performance_insert_trigger]
 ON [dbo].[monthly_performance]
-AFTER UPDATE
+AFTER INSERT
 AS
 BEGIN
 INSERT INTO [dbo].[monthly_performance_history]
@@ -21,6 +21,6 @@ INSERT INTO [dbo].[monthly_performance_history]
            ,[ytd_net_perc]
            ,[itd_net_perc]
            ,[estimated])
-	  select * from deleted
+	  select * from inserted
 	  END
 

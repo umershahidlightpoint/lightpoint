@@ -13,6 +13,7 @@ import { JournalsLedgersComponent } from './main/journals-ledgers/journals-ledge
 import { TrialGridExampleComponent } from './main/trial-balance/trial-balance.component';
 import { LayoutsComponent } from './main/layouts/layouts.component';
 import { FundTheoreticalComponent } from './main/fund-theoretical/fund-theoretical.component';
+import { PerformanceCanDeactivateGuard } from 'src/shared/guards/performance-can-deactivate-guard.service';
 
 const routes: Routes = [
   { path: '', component: JournalsLedgersComponent },
@@ -24,7 +25,7 @@ const routes: Routes = [
   { path: 'trade-allocation', component: TradeAllocationComponent },
   { path: 'journal-allocation', component: JournalAllocationComponent },
   { path: 'settings', component: SettingsComponent },
-  { path: 'fund-theoretical', component: FundTheoreticalComponent },
+  { path: 'fund-theoretical', component: FundTheoreticalComponent, canDeactivate: [PerformanceCanDeactivateGuard] },
   { path: 'reports', component: ReportsComponent },
   {
     path: 'accounts',

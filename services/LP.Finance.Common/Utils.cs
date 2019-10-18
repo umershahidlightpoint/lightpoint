@@ -343,7 +343,7 @@ namespace LP.Finance.Common
 
     public class SQLBulkHelper
     {
-        public void Insert(string tablename, IDbModel[] models, SqlConnection connection, SqlTransaction transaction)
+        public void Insert(string tablename, IDbModel[] models, SqlConnection connection, SqlTransaction transaction, bool fireTriggers = false)
         {
             if (models.Length == 0)
                 return;
@@ -357,7 +357,7 @@ namespace LP.Finance.Common
                 table.Rows.Add(row);
             }
 
-            using (var bulk = new SqlBulkCopy(connection, SqlBulkCopyOptions.Default, transaction))
+            using (var bulk = new SqlBulkCopy(connection, fireTriggers ? SqlBulkCopyOptions.FireTriggers : SqlBulkCopyOptions.Default, transaction))
             {
                 bulk.BatchSize = 1000;
                 bulk.DestinationTableName = tablename;
