@@ -11,5 +11,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object CalculateMonthlyPerformance(List<MonthlyPerformance> dto);
         object AddOrUpdateMonthlyPerformance(List<MonthlyPerformance> dto);
         Task<object> UploadMonthlyPerformance(HttpRequestMessage requestMessage);
+        object GetMonthlyPerformanceAudit(int id);
+
     }
 }

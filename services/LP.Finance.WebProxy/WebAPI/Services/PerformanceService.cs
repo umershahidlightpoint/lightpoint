@@ -27,7 +27,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         private readonly FileManagementService fileManagementService = new FileManagementService();
         public object GetMonthlyPerformance()
         {
-            var query = $@"select id as Id, estimated as Estimated, start_month_estimate_nav as StartOfMonthEstimateNav, performance_date as PerformanceDate ,fund as Fund,portfolio as PortFolio,monthly_end_nav as MonthEndNav,performance as Performance ,mtd as MTD,ytd_net_performance as YTDNetPerformance,qtd_net_perc as QTD,ytd_net_perc as YTD,itd_net_perc as ITD from monthly_performance";
+            var query = $@"select id as Id, estimated as Estimated, start_month_estimate_nav as StartOfMonthEstimateNav, performance_date as PerformanceDate ,fund as Fund,portfolio as PortFolio,monthly_end_nav as MonthEndNav,performance as Performance ,mtd as MTD,ytd_net_performance as YTDNetPerformance,qtd_net_perc as QTD,ytd_net_perc as YTD,itd_net_perc as ITD from monthly_performance order by performance_date asc, id asc";
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
             var jsonResult = JsonConvert.SerializeObject(dataTable);
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
@@ -249,7 +249,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.VerifyConnection();
                 sqlHelper.SqlBeginTransaction();
 
-                new SQLBulkHelper().Insert("monthly_performance", toBeInserted.ToArray(), sqlHelper.GetConnection(), sqlHelper.GetTransaction());
+                new SQLBulkHelper().Insert("monthly_performance", toBeInserted.ToArray(), sqlHelper.GetConnection(), sqlHelper.GetTransaction(), true);
                 var updatePerformanceQuery = $@"UPDATE [dbo].[monthly_performance]
                                        SET [last_updated_date] = @last_updated_date
                                            ,[portfolio] = @portfolio
@@ -313,6 +313,19 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var convertedPriorYTD = prior.ITD + 1;
             var convertedCurrentMTD = current.MTD.HasValue ? current.MTD.Value + 1 : 1;
             return (convertedPriorYTD * convertedCurrentMTD) - 1;
+        }
+
+        public object GetMonthlyPerformanceAudit(int id)
+        {
+            var query = $@"select id as Id, performance_id as PerformanceId, estimated as Estimated, start_month_estimate_nav as StartOfMonthEstimateNav, performance_date as PerformanceDate ,fund as Fund,portfolio as PortFolio,monthly_end_nav as MonthEndNav,performance as Performance ,mtd as MTD,ytd_net_performance as YTDNetPerformance,qtd_net_perc as QTD,ytd_net_perc as YTD,itd_net_perc as ITD from monthly_performance_history where performance_id = @id";
+            List<SqlParameter> auditTrailParams = new List<SqlParameter>()
+                {
+                   new SqlParameter("id", id)
+                };
+            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, auditTrailParams.ToArray());
+            var jsonResult = JsonConvert.SerializeObject(dataTable);
+            dynamic json = JsonConvert.DeserializeObject(jsonResult);
+            return Utils.GridWrap(json);
         }
     }
 }

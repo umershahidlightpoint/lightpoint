@@ -24,6 +24,13 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.GetMonthlyPerformance();
         }
 
+        [Route("monthlyPerformanceAudit")]
+        [HttpGet]
+        public object GetMonthlyPerformanceAudit(int id)
+        {
+            return controller.GetMonthlyPerformanceAudit(id);
+        }
+
         [Route("monthlyPerformance")]
         [HttpPost]
         public object AddMonthlyPerformance(List<MonthlyPerformance> obj)
