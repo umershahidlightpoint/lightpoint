@@ -528,4 +528,16 @@ export class FinancePocServiceProxy {
     const url = this.baseUrl + '/performance/monthlyPerformance';
     return this.http.put(url, data);
   }
+
+  monthlyPerformanceAudit(id): Observable<any> {
+    const url = this.baseUrl + '/performance/monthlyPerformanceAudit?id=' + id;
+    return this.http.get(url);
+  }
+
+  uploadMonthlyPerformance(file: File): Observable<any> {
+    const url = this.baseUrl + '/performance/monthlyPerformance/upload';
+    const formData: FormData = new FormData();
+    formData.append('fileKey', file, file.name);
+    return this.http.post(url, formData);
+  }
 }
