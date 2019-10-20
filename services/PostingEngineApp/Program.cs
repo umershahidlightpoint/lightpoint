@@ -18,10 +18,23 @@ namespace ConsoleApp1
         static void Main(string[] args)
         {
             // Generate Journals First
-            ITD();
+            // Doing this for the previous Business Date
+            ITD(DateTime.Now.AddDays(-2));
 
             // Then Cost Basis
             CostBasis();
+
+            //RunSomeTests();
+        }
+
+        static void RunSomeTests()
+        {
+            var eodDate = DateTime.Now.Date.AddDays(-1);
+
+            var eod = new MarketPrices().Get(eodDate);
+            var prevEod = new MarketPrices().Get(eodDate.AddDays(-1));
+
+            var costBasis = new CostBasises().Get(eodDate);
         }
 
         static void SingleTrade()
@@ -48,12 +61,12 @@ namespace ConsoleApp1
 
         }
 
-        static void ITD()
+        static void ITD(DateTime businesssdate)
         {
             var key = System.Guid.NewGuid();
 
             // This runs thru everything, we need more or a scalpable
-            PostingEngine.PostingEngine.Start("ITD", key, (message, totalRows, rowsDone) => {
+            PostingEngine.PostingEngine.Start("ITD", key, businesssdate, (message, totalRows, rowsDone) => {
                 if (message.StartsWith("Processing"))
                 {
                     // Do nothing

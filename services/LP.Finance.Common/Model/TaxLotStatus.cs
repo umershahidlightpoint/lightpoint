@@ -21,7 +21,6 @@ namespace LP.Finance.Common.Models
         public double Quantity { get; set; }
         public double OriginalQuantity { get; set; }
 
-
         // Get a list of Journal Entries for this trade
         public static KeyValuePair<string, SqlParameter[]> List(string orderId)
         {

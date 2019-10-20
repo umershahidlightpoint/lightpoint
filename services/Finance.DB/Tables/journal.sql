@@ -11,7 +11,9 @@
 	[quantity] [decimal](22, 9) NOT NULL,
 	[last_modified_on] [datetime] NULL,
 	[symbol] [varchar](100) NULL,
- [event] VARCHAR(100) NULL DEFAULT (''), 
+	[event] VARCHAR(100) NULL DEFAULT (''), 
+    [start_price] DECIMAL(22, 9) NOT NULL DEFAULT 0.0, 
+    [end_price] DECIMAL(22, 9) NOT NULL DEFAULT 0.0, 
     CONSTRAINT [PK_journal] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC

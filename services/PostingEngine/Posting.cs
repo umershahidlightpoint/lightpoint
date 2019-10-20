@@ -1,6 +1,7 @@
 ﻿using LP.Finance.Common;
 using LP.Finance.Common.Models;
 using Newtonsoft.Json;
+using PostingEngine.TaxLotMethods;
 using SqlDAL.Core;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace PostingEngine
         private static readonly string
             connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
-        private static readonly string root = "http://localhost";
+        private static readonly string root = "http://dev11";
 
         private static readonly string accrualsURL = root + ":9091/api/accruals/data?period=";
         private static readonly string tradesURL = root + ":9091/api/trade/data?period=";
@@ -189,7 +190,7 @@ namespace PostingEngine
         /// <param name="period"></param>
         /// <param name="key"></param>
         /// <param name="postingEngineCallBack"></param>
-        public static void Start(string period, Guid key, PostingEngineCallBack postingEngineCallBack)
+        public static void Start(string period, Guid key, DateTime businessDate, PostingEngineCallBack postingEngineCallBack)
         {
             Period = period;
             Key = key;
@@ -228,13 +229,13 @@ namespace PostingEngine
                 {
                     Categories = AccountCategory.Categories,
                     Types = AccountType.All,
-                    ValueDate = DateTime.Now.Date,
-                    FxRates = new FxRates().Get(DateTime.Now.Date),
+                    BusinessDate = businessDate,
                     RunDate = System.DateTime.Now.Date,
                     Allocations = allocationList,
                     Trades = tradeList,
                     Accruals = accrualList.ToDictionary(i => i.AccrualId, i => i),
-                    Period = period
+                    Period = period,
+                    Methodology = new FIFOTaxLotMethod() // Needs to be driven by the system setup
                 };
 
                 PostingEngineCallBack?.Invoke("Starting Batch Posting Engine -- Trades on" + DateTime.Now);
@@ -372,12 +373,12 @@ namespace PostingEngine
         static async Task<int> RunAsync(SqlConnection connection, SqlTransaction transaction, PostingEngineEnvironment postingEnv)
         {
             var minTradeDate = postingEnv.Trades.Min(i => i.TradeDate.Date);
-            var maxTradeDate = postingEnv.Trades.Max(i => i.TradeDate.Date);
+            //var maxTradeDate = postingEnv.Trades.Max(i => i.TradeDate.Date);
 
-            var maxSettleDate = postingEnv.Trades.Max(i => i.SettleDate.Date);
+            //var maxSettleDate = postingEnv.Trades.Max(i => i.SettleDate.Date);
 
             var valueDate = minTradeDate;
-            var endDate = DateTime.Now.Date;
+            var endDate = postingEnv.BusinessDate;
 
             int totalDays = (int) (endDate - valueDate).TotalDays;
             int daysProcessed = 0;
@@ -386,16 +387,22 @@ namespace PostingEngine
 
             while (valueDate <= endDate)
             {
+                if (!valueDate.IsBusinessDate())
+                    continue;
+
                 var sw = new Stopwatch();
                 sw.Start();
 
                 postingEnv.ValueDate = valueDate;
+
+                // FX Rates
                 postingEnv.FxRates = new FxRates().Get(valueDate);
+
                 // Get todays Market Prices
                 postingEnv.EODMarketPrices = new MarketPrices().Get(valueDate);
-
                 postingEnv.PrevMarketPrices = new MarketPrices().Get(valueDate.AddDays(-1));
-                postingEnv.CostBasis = new CostBasises().Get(valueDate);
+
+                postingEnv.CostBasis = new CostBasises().Get(valueDate.AddDays(-1));
 
                 //PostingEngineCallBack?.Invoke($"Pulled FxRates {valueDate} in {sw.ElapsedMilliseconds} ms");
 

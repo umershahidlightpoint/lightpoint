@@ -174,7 +174,7 @@ order by c.CurrencyCode desc
                 con.Close();
             }
 
-            Utils.Save(list, "costbasis");
+            //Utils.Save(list, "costbasis");
 
             return list;
         }

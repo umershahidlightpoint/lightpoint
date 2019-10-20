@@ -237,7 +237,9 @@ order by UpdatedOn desc
                         d.[source],
                         d.[when],
                         d.[event],
-                        d.[generated_by]
+                        d.[generated_by],
+                        d.[start_price],
+                        d.[end_price]
                         from(
                             SELECT 
                                     (CASE WHEN value < 0 THEN value else 0 END  ) debit,
@@ -253,7 +255,9 @@ order by UpdatedOn desc
                                     [source],
                                     [when],
                                     [event],
-                                    [generated_by]
+                                    [generated_by],
+                                    [start_price],
+                                    [end_price]
                                     FROM [journal] with(nolock) 
                         join account  on [journal]. [account_id] = account.id 
                         join [account_type] on  [account].account_type_id = [account_type].id

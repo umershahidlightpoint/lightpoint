@@ -14,6 +14,9 @@ namespace LP.Finance.Common.Models
         public Account Account { get; set; }
         public double Value { get; set; }
 
+        public double StartPrice { get; set; }
+        public double EndPrice { get; set; }
+
         public double FxRate { get; set; }
         public string FxCurrency { get; set; }
 
@@ -95,7 +98,7 @@ namespace LP.Finance.Common.Models
             // read the table structure from the database
             var localconnection = new SqlConnection(connection.ConnectionString + ";Password=ggtuser");
             localconnection.Open();
-            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 id, source, account_id, value, [when], generated_by, fund, fx_currency, fxrate, quantity, symbol, event FROM Journal", localconnection))
+            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 id, source, account_id, value, [when], generated_by, fund, fx_currency, fxrate, quantity, symbol, event, start_price, end_price FROM Journal", localconnection))
             {
                 adapter.Fill(table);
             };
@@ -119,6 +122,8 @@ namespace LP.Finance.Common.Models
             row["symbol"] = this.Symbol;
             row["quantity"] = this.Quantity;
             row["event"] = this.Event;
+            row["start_price"] = this.StartPrice;
+            row["end_price"] = this.EndPrice;
 
         }
     }

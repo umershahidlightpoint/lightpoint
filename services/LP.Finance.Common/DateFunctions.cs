@@ -8,6 +8,39 @@ namespace LP.Finance.Common
 {
     public static class DateFncs
     {
+        public static bool IsBusinessDate(this DateTime date)
+        {
+            if (date.DayOfWeek == DayOfWeek.Saturday)
+                return false;
+            if (date.DayOfWeek == DayOfWeek.Sunday)
+                return false;
+
+            // TODO: Need to hook into a holiday calendar
+            return true;
+        }
+
+        public static DateTime NextBusinessDate(this DateTime date)
+        {
+            var buisnessDate = date;
+            do
+            {
+                buisnessDate = buisnessDate.AddDays(1);
+            } while (!buisnessDate.IsBusinessDate());
+
+            return buisnessDate;
+        }
+
+        public static DateTime PrevBusinessDate(this DateTime date)
+        {
+            var buisnessDate = date;
+            do
+            {
+                buisnessDate = buisnessDate.AddDays(-1);
+            } while (!buisnessDate.IsBusinessDate());
+
+            return buisnessDate;
+        }
+
         public static Tuple<DateTime, DateTime> ITD(this DateTime date)
         {
             var startDate = new DateTime(1900, 1, 1);

@@ -53,6 +53,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dates.cs" />
     <Compile Include="AccountWebApi.cs" />
     <Compile Include="JournalWebApi.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,4 +1,5 @@
 ﻿using LP.Finance.Common.Models;
+using PostingEngine.Contracts;
 using PostingEngine.PostingRules.Utilities;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,6 @@ using System.Linq;
 
 namespace PostingEngine.PostingRules
 {
-
     public class CommonStock : PostingRule, IPostingRule
     {
         public bool IsValid(PostingEngineEnvironment env, Transaction element)
@@ -14,17 +14,17 @@ namespace PostingEngine.PostingRules
             return true;
         }
 
+        /// <summary>
+        /// Run for each day that the Tax Lot remains open / partially closed
+        /// </summary>
+        /// <param name="env"></param>
+        /// <param name="element">Trade we aee interested in</param>
         public void DailyEvent(PostingEngineEnvironment env, Transaction element)
         {
             // Calculate the unrealized PNL
             if (env.TaxLotStatus.ContainsKey(element.LpOrderId))
             {
                 var tradeAllocations = env.Allocations.Where(i => i.ParentOrderId == element.ParentOrderId).ToList();
-
-                if (tradeAllocations.Count == 0)
-                {
-
-                }
 
                 // Determine if we need to accumulate unrealized PNL
                 var taxlot = env.TaxLotStatus[element.LpOrderId];
@@ -48,21 +48,17 @@ namespace PostingEngine.PostingRules
                     var quantity = taxlot.Quantity;
                     var symbol = element.Symbol;
 
-
                     var prevEodPrice = 0.0;
                     var eodPrice = 0.0;
 
                     if (env.ValueDate == element.TradeDate)
                     {
-                        eodPrice = element.TradePrice;
-
-                        if (env.CostBasis.ContainsKey(symbol))
-                            prevEodPrice = env.CostBasis[symbol].CostBasis;
-                        else
+                        if (env.EODMarketPrices.ContainsKey(symbol))
                         {
-                            prevEodPrice = eodPrice * 0.99;  // Show some realized PNL, TBD how to determine Cost Basis ?
+                            eodPrice = env.EODMarketPrices[symbol].Price;
                         }
 
+                        prevEodPrice = element.TradePrice;
                     }
                     else
                     {
@@ -71,14 +67,11 @@ namespace PostingEngine.PostingRules
 
                         if (env.EODMarketPrices.ContainsKey(symbol))
                             eodPrice = env.EODMarketPrices[symbol].Price;
-
-                        if (eodPrice == 0)
-                            eodPrice = prevEodPrice * 1.001;
                     }
 
                     var fxRate = 1;
 
-                    var unrealizedPnl = quantity * (eodPrice - prevEodPrice);
+                    var unrealizedPnl = quantity * (eodPrice - Math.Abs(prevEodPrice));
 
                     var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Mark to Market Longs")).FirstOrDefault(), listOfFromTags, element);
 
@@ -93,10 +86,7 @@ namespace PostingEngine.PostingRules
                     new AccountUtils().SaveAccountDetails(env, toAccount);
 
                     var fund = tradeAllocations[0].Fund;
-                    if ( String.IsNullOrEmpty(fund))
-                    {
 
-                    }
                     var debit = new Journal
                     {
                         Source = element.LpOrderId,
@@ -107,8 +97,10 @@ namespace PostingEngine.PostingRules
                         Quantity = quantity,
                         FxRate = fxRate,
                         Value = unrealizedPnl * -1,
+                        StartPrice = prevEodPrice,
+                        EndPrice = eodPrice,
                         GeneratedBy = "system",
-                        Event = "daily",
+                        Event = "unrealizedpnl",
                         Fund = fund,
                     };
 
@@ -122,7 +114,9 @@ namespace PostingEngine.PostingRules
                         Symbol = symbol,
                         Quantity = quantity,
                         Value = unrealizedPnl,
-                        Event = "daily",
+                        Event = "unrealizedpnl",
+                        StartPrice = prevEodPrice,
+                        EndPrice = eodPrice,
                         GeneratedBy = "system",
                         Fund = fund,
                     };
@@ -335,7 +329,7 @@ namespace PostingEngine.PostingRules
 
         public void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
-            if ( element.Side.ToLowerInvariant().Equals("buy") || element.Side.ToLowerInvariant().Equals("short"))
+            if ( element.IsBuy() || element.IsShort())
             {
                 var tl = new TaxLotStatus {
                     BusinessDate = element.TradeDate,
@@ -355,12 +349,12 @@ namespace PostingEngine.PostingRules
 
                 //tl.Save(env.Connection, env.Transaction);
             }
-            else if (element.Side.ToLowerInvariant().Equals("sell") || element.Side.ToLowerInvariant().Equals("cover"))
+            else if (element.IsSell() || element.IsCover())
             {
-                // Closing Lot
-                var openLots = env.GetOpenLots(element);
+                // Get Matching Lots
+                var openLots = env.Methodology.GetOpenLots(env, element);
 
-                if ( openLots.Count == 0)
+                if ( openLots.Count() == 0)
                 {
                     // Whats going on here?
                     // We are skipping anything that does not get an OpenLot
@@ -398,7 +392,7 @@ namespace PostingEngine.PostingRules
 
                                 // This is realized Pnl, need to post this as a journal entry
                                 var PnL = tl.Quantity * (tl.CostBasis - tl.TradePrice);
-                                PostRealizedPnl(env, element, PnL);
+                                PostRealizedPnl(env, element, PnL, tl.TradePrice, tl.CostBasis);
 
                                 taxlotStatus.Quantity -= workingQuantity;
                                 if (taxlotStatus.Quantity == 0)
@@ -422,7 +416,7 @@ namespace PostingEngine.PostingRules
 
                                 var PnL = tl.Quantity * (tl.CostBasis - tl.TradePrice);
 
-                                PostRealizedPnl(env, element, PnL);
+                                PostRealizedPnl(env, element, PnL, tl.TradePrice, tl.CostBasis);
 
                                 taxlotStatus.Quantity = 0;
                                 taxlotStatus.Status = "Closed";
@@ -519,7 +513,7 @@ namespace PostingEngine.PostingRules
             }
         }
 
-        private void PostRealizedPnl(PostingEngineEnvironment env, Transaction element, double pnL)
+        private void PostRealizedPnl(PostingEngineEnvironment env, Transaction element, double pnL, double start, double end)
         {
             var tradeAllocations = env.Allocations.Where(i => i.ParentOrderId == element.ParentOrderId).ToList();
             if( tradeAllocations.Count == 0)
@@ -542,6 +536,8 @@ namespace PostingEngine.PostingRules
                 Source = element.LpOrderId,
                 Account = accountToFrom.From,
                 When = env.ValueDate,
+                StartPrice = start,
+                EndPrice = end,
                 Value = pnL * -1,
                 FxCurrency = element.TradeCurrency,
                 Quantity = element.Quantity,
@@ -558,6 +554,8 @@ namespace PostingEngine.PostingRules
                 Account = accountToFrom.To,
                 When = env.ValueDate,
                 FxCurrency = element.TradeCurrency,
+                StartPrice = start,
+                EndPrice = end,
                 Symbol = element.Symbol,
                 Quantity = element.Quantity,
                 FxRate = 1,

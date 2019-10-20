@@ -1,5 +1,7 @@
 ﻿using LP.Finance.Common.Models;
+using PostingEngine.Contracts;
 using PostingEngine.PostingRules;
+using PostingEngine.TaxLotMethods;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -24,6 +26,8 @@ namespace PostingEngine
         public string RunId { get; internal set; }
         public string Period { get; set; }
         public DateTime ValueDate { get; set; }
+        public DateTime BusinessDate { get; set; }
+
         public DateTime RunDate { get; set; }
         public AccountCategory[] Categories { get; set; }
         public List<AccountType> Types { get; set; }
@@ -56,6 +60,42 @@ namespace PostingEngine
             {"Cash", new Cash() },
         };
 
+        internal double CalculateCB(Transaction element, string symbol, string side)
+        {
+            if ( Journals.Count > 0)
+            {
+                if (side.Equals("buy"))
+                {
+                    var longPosition = Journals.Where(i => i.Account.Type.Name == "LONG POSITIONS AT COST" && i.Symbol.Equals(symbol));
+                    if ( longPosition.Count() == 0 )
+                        return element.TradePrice;
+                    var cbValue = longPosition.Sum(i => i.Value);
+                    var cbQuantity = longPosition.Sum(i => i.Quantity);
+                    var cbCostBasis = element.TradePrice;
+                    if (cbQuantity != 0)
+                        cbCostBasis = cbValue / cbQuantity;
+
+                    return Math.Abs(cbCostBasis);
+                }
+                else if (side.Equals("short"))
+                {
+                    var positions = Journals.Where(i => i.Account.Type.Name == "SHORT POSITIONS-COST" && i.Symbol.Equals(symbol));
+                    if (positions.Count() == 0)
+                        return element.TradePrice;
+
+                    var cbValue = positions.Sum(i => i.Value);
+                    var cbQuantity = positions.Sum(i => i.Quantity);
+                    var cbCostBasis = element.TradePrice;
+                    if (cbQuantity != 0)
+                        cbCostBasis = cbValue / cbQuantity;
+
+                    return cbCostBasis;
+                }
+            }
+
+            return 0;    
+        }
+
         public SqlConnection Connection { get; private set; }
         public SqlTransaction Transaction { get; private set; }
 
@@ -71,45 +111,6 @@ namespace PostingEngine
         }
         public Dictionary<string, int> Messages { get; private set; }
 
-        /// <summary>
-        /// Get a list of the open tax lots for the passed trade, is this is a Sell then only get Buys, if a cover only shorts
-        /// </summary>
-        /// <param name="element">Closing Tax Lot</param>
-        /// <returns>List of matched open Lots</returns>
-        internal List<Transaction> GetOpenLots(Transaction element)
-        {
-            var side = element.Side.ToLowerInvariant();
-
-            if ( side.Equals("buy") || side.Equals("short"))
-            {
-                return null;
-            }
-
-            List<Transaction> openLots = new List<Transaction>();
-
-            var lots = this.Trades.Where(i =>
-                    i.TradeDate.Date <= element.TradeDate.Date
-                    && i.Symbol == element.Symbol
-                    && i.LpOrderId != element.LpOrderId);
-
-            if (side.Equals("sell"))
-            {
-                var local = lots.Where(i=>i.Side.ToLowerInvariant().Equals("buy"))
-                    .OrderBy(i => i.TradeDate)
-                    .ToList();
-
-                openLots.AddRange(local);
-            }
-            else if ( side.Equals("cover"))
-            {
-                var local = lots.Where(i => i.Side.ToLowerInvariant().Equals("short"))
-                    .OrderBy(i => i.TradeDate)
-                    .ToList();
-
-                openLots.AddRange(local);
-            }
-
-            return openLots;
-        }
+        public ITaxLotMethodology Methodology { get; set; }
     }
 }

@@ -109,11 +109,12 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             var enddate = period.Item2.ToString("MM-dd-yyyy") + " 23:59";
 
             var query = 
-$@"select * from Accrual with(nolock)
-where UpdatedOn between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}') 
-and accrualId in ( select distinct accrualId from allocation with(nolock))
-order by UpdatedOn desc
-";
+                    $@"select * from Accrual with(nolock)
+                    where UpdatedOn between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}') 
+                    -- and accrualId in ( select distinct accrualId from allocation with(nolock))
+                    order by UpdatedOn desc
+                    ";
+
             MetaData metaData = null;
 
             using (var con = new SqlConnection(connectionString))
