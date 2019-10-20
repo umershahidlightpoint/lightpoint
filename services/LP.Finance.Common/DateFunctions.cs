@@ -30,6 +30,13 @@ namespace LP.Finance.Common
             return buisnessDate;
         }
 
+        public static DateTime BusinessDate(this DateTime date)
+        {
+            if (date.IsBusinessDate())
+                return date;
+            return date.PrevBusinessDate();
+        }
+
         public static DateTime PrevBusinessDate(this DateTime date)
         {
             var buisnessDate = date;

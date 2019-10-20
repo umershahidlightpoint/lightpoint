@@ -53,6 +53,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Prices.cs" />
     <Compile Include="Dates.cs" />
     <Compile Include="AccountWebApi.cs" />
     <Compile Include="JournalWebApi.cs" />
@@ -66,6 +67,10 @@
     <ProjectReference Include="..\LP.Finance.Common\LP.Finance.Common.csproj">
       <Project>{D2E48A0E-449A-4FE7-B0EA-40474FE455B0}</Project>
       <Name>LP.Finance.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PostingEngine\PostingEngine.csproj">
+      <Project>{d8d81d4b-4d9b-4d3b-9321-00dba39455ec}</Project>
+      <Name>PostingEngine</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

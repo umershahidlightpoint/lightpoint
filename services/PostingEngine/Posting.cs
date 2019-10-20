@@ -400,9 +400,7 @@ namespace PostingEngine
 
                 // Get todays Market Prices
                 postingEnv.EODMarketPrices = new MarketPrices().Get(valueDate);
-                postingEnv.PrevMarketPrices = new MarketPrices().Get(valueDate.AddDays(-1));
-
-                postingEnv.CostBasis = new CostBasises().Get(valueDate.AddDays(-1));
+                postingEnv.PrevMarketPrices = new MarketPrices().Get(valueDate.PrevBusinessDate());
 
                 //PostingEngineCallBack?.Invoke($"Pulled FxRates {valueDate} in {sw.ElapsedMilliseconds} ms");
 

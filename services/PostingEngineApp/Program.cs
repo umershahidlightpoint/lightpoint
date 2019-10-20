@@ -1,4 +1,5 @@
-﻿using LP.Finance.Common.Models;
+﻿using LP.Finance.Common;
+using LP.Finance.Common.Models;
 using Newtonsoft.Json;
 using PostingEngine;
 using System;
@@ -19,22 +20,15 @@ namespace ConsoleApp1
         {
             // Generate Journals First
             // Doing this for the previous Business Date
-            ITD(DateTime.Now.AddDays(-2));
+            var date = System.DateTime.Now.Date;
+            date = date.PrevBusinessDate();
+
+            ITD(date);
 
             // Then Cost Basis
             CostBasis();
 
             //RunSomeTests();
-        }
-
-        static void RunSomeTests()
-        {
-            var eodDate = DateTime.Now.Date.AddDays(-1);
-
-            var eod = new MarketPrices().Get(eodDate);
-            var prevEod = new MarketPrices().Get(eodDate.AddDays(-1));
-
-            var costBasis = new CostBasises().Get(eodDate);
         }
 
         static void SingleTrade()
