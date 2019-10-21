@@ -11,6 +11,25 @@ namespace LP.Finance.Common.Model
 {
     public class MonthlyPerformance : IDbModel
     {
+        public MonthlyPerformance()
+        {
+
+        }
+
+        public MonthlyPerformance(int id, decimal monthEndNav, decimal startOfMonthEstimateNav, bool estimated,
+            decimal performance, decimal mtd, string fund, string portfolio, DateTime performanceDate )
+        {
+            this.Id = id;
+            this.MonthEndNav = monthEndNav;
+            this.StartOfMonthEstimateNav = startOfMonthEstimateNav;
+            this.Estimated = estimated;
+            this.Performance = performance;
+            this.MTD = mtd;
+            this.Fund = fund;
+            this.PortFolio = portfolio;
+            this.PerformanceDate = performanceDate;
+        }
+
         public int Id { get; set; }
         public int RowId { get; set; }
         public bool Modified { get; set; }
@@ -61,6 +80,4 @@ namespace LP.Finance.Common.Model
             row["estimated"] = this.Estimated;
         }
     }
-
-
 }

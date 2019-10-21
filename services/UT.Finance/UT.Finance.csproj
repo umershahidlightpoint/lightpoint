@@ -57,6 +57,7 @@
     <Compile Include="Dates.cs" />
     <Compile Include="AccountWebApi.cs" />
     <Compile Include="JournalWebApi.cs" />
+    <Compile Include="PerformanceWebApi.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
