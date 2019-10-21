@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="GraphQL, Version=2.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\GraphQL.2.4.0\lib\net45\GraphQL.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -72,6 +75,7 @@
     <Compile Include="Dtos\AccountTagInputDto.cs" />
     <Compile Include="Dtos\TrialBalanceReportOutPutDto.cs" />
     <Compile Include="Dtos\TrialBalanceTileOutputDto.cs" />
+    <Compile Include="GraphQLQuery.cs" />
     <Compile Include="Mappers\EntityMapper.cs" />
     <Compile Include="Mappers\IEntityMapper.cs" />
     <Compile Include="Model\Account.cs" />
@@ -95,11 +99,13 @@
     <Compile Include="Model\PayLoad.cs" />
     <Compile Include="Model\Tag.cs" />
     <Compile Include="Model\Transaction.cs" />
+    <Compile Include="PerformanceType.cs" />
     <Compile Include="SqlHelper.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
