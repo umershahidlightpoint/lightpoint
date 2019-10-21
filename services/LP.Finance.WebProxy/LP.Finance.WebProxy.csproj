@@ -94,6 +94,7 @@
     <Compile Include="WebAPI\JournalLogController.cs" />
     <Compile Include="WebAPI\PerformanceController.cs" />
     <Compile Include="WebAPI\PostingEngineController.cs" />
+    <Compile Include="WebAPI\Resolvers\PerformanceResolver.cs" />
     <Compile Include="WebAPI\Services\AccountTagService.cs" />
     <Compile Include="WebAPI\Services\AccountTypeService.cs" />
     <Compile Include="WebAPI\Services\AccountDefService.cs" />

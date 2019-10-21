@@ -40,6 +40,7 @@ namespace LP.ReferenceData.WebProxy
 
             config.Formatters.Clear();
             config.Formatters.Add(new JsonMediaTypeFormatter());
+            config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/plain"));
 
             config.MapHttpAttributeRoutes();
 
@@ -99,7 +100,6 @@ namespace LP.ReferenceData.WebProxy
                 {
                 }
             );
-            config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/plain"));
 
             app.UseCors(corsOptions);
             app.UseWebApi(config);

@@ -9,9 +9,8 @@ namespace LP.Finance.WebProxy.WebAPI.Resolvers
     {
         public static List<MonthlyPerformance> GetMonthlyPerformance()
         {
-            PerformanceService performanceService = new PerformanceService();
-            var monthlyPerformanceResult = performanceService.GetMonthlyPerformance();
-            var monthlyPerformance = monthlyPerformanceResult.GetType().GetProperty("payload")?.GetValue(monthlyPerformanceResult, null);
+            var monthlyPerformanceResult = new PerformanceService().GetMonthlyPerformance();
+            var monthlyPerformance = monthlyPerformanceResult.GetType().GetProperty("data")?.GetValue(monthlyPerformanceResult, null);
 
             var records = JsonConvert.SerializeObject(monthlyPerformance);
             var performanceRecords = JsonConvert.DeserializeObject<List<MonthlyPerformance>>(records);

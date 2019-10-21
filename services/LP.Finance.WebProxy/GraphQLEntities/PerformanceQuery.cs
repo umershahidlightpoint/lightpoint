@@ -1,11 +1,6 @@
 ﻿using GraphQL.Types;
 using LP.Finance.Common.GraphQLTypes;
-using LP.Finance.WebProxy.WebAPI.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using LP.Finance.WebProxy.WebAPI.Resolvers;
 
 namespace LP.Finance.WebProxy.GraphQLEntities
 {
@@ -15,7 +10,7 @@ namespace LP.Finance.WebProxy.GraphQLEntities
         {
             Field<PerformanceType>("performance",
                   arguments: new QueryArguments(new QueryArgument<IntGraphType> { Name = "fund" }),
-                  resolve: context => new PerformanceService().GetMonthlyPerformance());
+                  resolve: context => PerformanceResolver.GetMonthlyPerformance());
         }
     }
 }
