@@ -8,6 +8,10 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using GraphQL;
+using GraphQL.Types;
+using LP.Finance.Common.GraphQLTypes;
+using LP.Finance.WebProxy.GraphQLEntities;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -49,6 +53,28 @@ namespace LP.Finance.WebProxy.WebAPI
         public async Task<object> UploadMonthlyPerformance()
         {
             return await controller.UploadMonthlyPerformance(Request);
+        }
+
+        [HttpPost, Route("monthlyPerformance/graphql")]
+        public async Task<IHttpActionResult> Post([FromBody] GraphQLQuery query)
+        {
+
+            var schema = new Schema { Query = new PerformanceQuery() };
+            var inputs = query.Variables.ToInputs();
+            var result = await new DocumentExecuter().ExecuteAsync(_ =>
+            {
+                _.Inputs = inputs;
+                _.Schema = schema;
+                _.Query = query.Query;
+
+            }).ConfigureAwait(false);
+
+            if (result.Errors?.Count > 0)
+            {
+                return BadRequest();
+            }
+
+            return Ok(result);
         }
     }
 }

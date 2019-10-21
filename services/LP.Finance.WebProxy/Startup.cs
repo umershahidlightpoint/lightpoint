@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Formatting;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Cors;
 using System.Web.Http;
@@ -98,6 +99,7 @@ namespace LP.ReferenceData.WebProxy
                 {
                 }
             );
+            config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/plain"));
 
             app.UseCors(corsOptions);
             app.UseWebApi(config);
