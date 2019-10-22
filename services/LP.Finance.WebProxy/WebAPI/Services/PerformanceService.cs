@@ -28,7 +28,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         private readonly FileProcessor fileProcessor = new FileProcessor();
         private readonly FileManagementService fileManagementService = new FileManagementService();
 
-        public object GetMonthlyPerformance(DateTime? date = null, string fund = null, string portfolio = null)
+        public object GetMonthlyPerformance(DateTime? dateFrom = null, DateTime? dateTo = null, string fund = null, string portfolio = null)
         {
             List<SqlParameter> sqlParams = new List<SqlParameter>();
 
@@ -52,22 +52,28 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         FROM monthly_performance";
 
 
-            if (date.HasValue)
+            if (dateTo.HasValue)
             {
-                sqlParams.Add(new SqlParameter("date", date.Value.Date.ToString("yyyy-MM-dd")));
-                query += " WHERE performance_date = @date";
+                sqlParams.Add(new SqlParameter("dateTo", dateTo.Value.Date.ToString("yyyy-MM-dd")));
+                query += " WHERE performance_date <= @dateTo";
+            }
+
+            if (dateFrom.HasValue)
+            {
+                sqlParams.Add(new SqlParameter("dateFrom", dateFrom.Value.Date.ToString("yyyy-MM-dd")));
+                query += dateTo.HasValue ? " AND performance_date >= @dateFrom" : " WHERE performance_date >= @dateFrom";
             }
 
             if (!IsNullOrWhiteSpace(fund))
             {
                 sqlParams.Add(new SqlParameter("fund", fund));
-                query += date.HasValue ? " AND fund = @fund" : " WHERE fund = @fund";
+                query += dateTo.HasValue || dateFrom.HasValue ? " AND fund = @fund" : " WHERE fund = @fund";
             }
 
             if (!IsNullOrWhiteSpace(portfolio))
             {
                 sqlParams.Add(new SqlParameter("portfolio", portfolio));
-                query += date.HasValue || !IsNullOrWhiteSpace(fund)
+                query += dateTo.HasValue || dateFrom.HasValue || !IsNullOrWhiteSpace(fund)
                     ? " AND portfolio = @portfolio"
                     : " WHERE portfolio = @portfolio";
             }

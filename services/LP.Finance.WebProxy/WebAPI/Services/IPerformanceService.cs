@@ -8,7 +8,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 {
     public interface IPerformanceService
     {
-        object GetMonthlyPerformance(DateTime? date = null, string fund = null, string portfolio = null);
+        object GetMonthlyPerformance(DateTime? dateTo = null, DateTime? dateFrom = null, string fund = null, string portfolio = null);
         object CalculateMonthlyPerformance(List<MonthlyPerformance> dto);
         object AddOrUpdateMonthlyPerformance(List<MonthlyPerformance> dto);
         Task<object> UploadMonthlyPerformance(HttpRequestMessage requestMessage);

@@ -36,8 +36,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 PostingEngine.PostingEngineCallBack logsCallback = LogMessagesCallBack;
 
-                Task.Run(() => PostingEngine.PostingEngine.Start(period, Key, logsCallback))
-                    .ContinueWith(task => { IsRunning = false; });
+                //Task.Run(() => PostingEngine.PostingEngine.Start(period, Key, logsCallback))
+                //    .ContinueWith(task => { IsRunning = false; });
 
                 return new
                 {
