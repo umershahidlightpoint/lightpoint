@@ -75,7 +75,7 @@
     <Compile Include="Dtos\AccountTagInputDto.cs" />
     <Compile Include="Dtos\TrialBalanceReportOutPutDto.cs" />
     <Compile Include="Dtos\TrialBalanceTileOutputDto.cs" />
-    <Compile Include="GraphQLQuery.cs" />
+    <Compile Include="Model\GraphQLQuery.cs" />
     <Compile Include="Mappers\EntityMapper.cs" />
     <Compile Include="Mappers\IEntityMapper.cs" />
     <Compile Include="Model\Account.cs" />
@@ -99,7 +99,7 @@
     <Compile Include="Model\PayLoad.cs" />
     <Compile Include="Model\Tag.cs" />
     <Compile Include="Model\Transaction.cs" />
-    <Compile Include="PerformanceType.cs" />
+    <Compile Include="GraphQLTypes\PerformanceType.cs" />
     <Compile Include="SqlHelper.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

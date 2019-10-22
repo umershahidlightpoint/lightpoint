@@ -1,11 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace LP.Finance.Common.GraphQLTypes
+namespace LP.Finance.Common.Model
 {
     public class GraphQLQuery
     {
