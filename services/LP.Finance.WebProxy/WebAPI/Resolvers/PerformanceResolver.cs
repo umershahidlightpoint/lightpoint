@@ -7,7 +7,7 @@ namespace LP.Finance.WebProxy.WebAPI.Resolvers
 {
     public class PerformanceResolver
     {
-        public static List<MonthlyPerformance> GetMonthlyPerformance()
+        public static List<MonthlyPerformance> GetMonthlyPerformance(string fund)
         {
             var monthlyPerformanceResult = new PerformanceService().GetMonthlyPerformance();
             var monthlyPerformance = monthlyPerformanceResult.GetType().GetProperty("data")?.GetValue(monthlyPerformanceResult, null);

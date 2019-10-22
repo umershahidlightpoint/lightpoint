@@ -9,8 +9,12 @@ namespace LP.Finance.WebProxy.GraphQLEntities
         public PerformanceQuery()
         {
             Field<ListGraphType<PerformanceType>>("performance",
-                  arguments: new QueryArguments(new QueryArgument<IntGraphType> { Name = "fund" }),
-                  resolve: context => PerformanceResolver.GetMonthlyPerformance());
+                  arguments: new QueryArguments(new QueryArgument<StringGraphType> { Name = "fund" }),
+                  resolve: context =>
+                  {
+                      var fund = context.GetArgument<string>("fund");
+                      return PerformanceResolver.GetMonthlyPerformance(fund);
+                  });
         }
     }
 }

@@ -26,12 +26,34 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         public SqlHelper sqlHelper = new SqlHelper(connectionString);
         private readonly FileProcessor fileProcessor = new FileProcessor();
         private readonly FileManagementService fileManagementService = new FileManagementService();
-        public object GetMonthlyPerformance()
+        public object GetMonthlyPerformance(DateTime? date = null, string fund = null, string portfolio = null)
         {
-            var query = $@"select id as Id, estimated as Estimated, start_month_estimate_nav as StartOfMonthEstimateNav, performance_date as PerformanceDate ,fund as Fund,portfolio as PortFolio,monthly_end_nav as MonthEndNav,performance as Performance ,mtd as MTD,ytd_net_performance as YTDNetPerformance,qtd_net_perc as QTD,ytd_net_perc as YTD,itd_net_perc as ITD, created_by as CreatedBy, last_updated_by as LastUpdatedBy,, created_date as CreatedDate, last_updated_date as LastUpdatedDate from monthly_performance order by performance_date asc, id asc";
+            var query = $@"select id as Id, 
+                        estimated as Estimated, 
+                        start_month_estimate_nav as StartOfMonthEstimateNav, 
+                        performance_date as PerformanceDate, 
+                        fund as Fund, 
+                        portfolio as PortFolio, 
+                        monthly_end_nav as MonthEndNav, 
+                        performance as Performance, 
+                        mtd as MTD, 
+                        ytd_net_performance as YTDNetPerformance, 
+                        qtd_net_perc as QTD, 
+                        ytd_net_perc as YTD, 
+                        itd_net_perc as ITD, 
+                        created_by as CreatedBy, 
+                        last_updated_by as LastUpdatedBy, 
+                        created_date as CreatedDate, 
+                        last_updated_date as LastUpdatedDate 
+                        from monthly_performance 
+                        order by performance_date asc, 
+                        id asc";
+
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
             var jsonResult = JsonConvert.SerializeObject(dataTable);
+            
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
+            
             return Utils.GridWrap(json);
         }
 
@@ -289,13 +311,57 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        public async Task<object> UploadMonthlyPerformance(HttpRequestMessage requestMessage)        {            if (!requestMessage.Content.IsMimeMultipartContent())                return Utils.Wrap(false);            var provider = new MultipartMemoryStreamProvider();            await requestMessage.Content.ReadAsMultipartAsync(provider);            var currentDir = AppDomain.CurrentDomain.BaseDirectory;            Directory.CreateDirectory(currentDir + Path.DirectorySeparatorChar + "PerformanceData");            var performancePath = "";            var performanceFileName = "";            foreach (var file in provider.Contents)            {                performanceFileName = file.Headers.ContentDisposition.FileName.Trim('\"');                var buffer = await file.ReadAsByteArrayAsync();                performancePath = currentDir + "PerformanceData" + Path.DirectorySeparatorChar +                                  $"{DateTime.Now:yy-MM-dd-hh-mm-ss}-{performanceFileName}";                System.IO.File.WriteAllBytes(performancePath, buffer);            }            var recordBody = fileProcessor.ImportFile(performancePath, "Performance", "PerformanceFormats", ',');
+        public async Task<object> UploadMonthlyPerformance(HttpRequestMessage requestMessage)
+        {
+            if (!requestMessage.Content.IsMimeMultipartContent())
+                return Utils.Wrap(false);
 
-            var records = JsonConvert.SerializeObject(recordBody.Item1);            var performanceRecords = JsonConvert.DeserializeObject<List<MonthlyPerformance>>(records);            var failedRecords = new Dictionary<object, Row>();            var key = 0;            foreach (var item in recordBody.Item2)            {                failedRecords.Add(key++, item);            }            var failedPerformanceList = fileManagementService.MapFailedRecords(failedRecords, DateTime.Now, performanceFileName);            List<FileInputDto> fileList = new List<FileInputDto>            {                new FileInputDto(performancePath, performanceFileName, performanceRecords.Count, "MonthlyPerformance", "Upload",                    failedPerformanceList,                    DateTime.Now)            };            fileManagementService.InsertActivityAndPositionFilesForSilver(fileList);
+            var provider = new MultipartMemoryStreamProvider();
+            await requestMessage.Content.ReadAsMultipartAsync(provider);
+
+            var currentDir = AppDomain.CurrentDomain.BaseDirectory;
+            Directory.CreateDirectory(currentDir + Path.DirectorySeparatorChar + "PerformanceData");
+
+            var performancePath = "";
+            var performanceFileName = "";
+            foreach (var file in provider.Contents)
+            {
+                performanceFileName = file.Headers.ContentDisposition.FileName.Trim('\"');
+                var buffer = await file.ReadAsByteArrayAsync();
+
+                performancePath = currentDir + "PerformanceData" + Path.DirectorySeparatorChar +
+                                  $"{DateTime.Now:yy-MM-dd-hh-mm-ss}-{performanceFileName}";
+
+                System.IO.File.WriteAllBytes(performancePath, buffer);
+            }
+
+            var recordBody = fileProcessor.ImportFile(performancePath, "Performance", "PerformanceFormats", ',');
+
+            var records = JsonConvert.SerializeObject(recordBody.Item1);
+            var performanceRecords = JsonConvert.DeserializeObject<List<MonthlyPerformance>>(records);
+
+            var failedRecords = new Dictionary<object, Row>();
+            var key = 0;
+            foreach (var item in recordBody.Item2)
+            {
+                failedRecords.Add(key++, item);
+            }
+
+            var failedPerformanceList = fileManagementService.MapFailedRecords(failedRecords, DateTime.Now, performanceFileName);
+
+            List<FileInputDto> fileList = new List<FileInputDto>
+            {
+                new FileInputDto(performancePath, performanceFileName, performanceRecords.Count, "MonthlyPerformance", "Upload",
+                    failedPerformanceList,
+                    DateTime.Now)
+            };
+
+            fileManagementService.InsertActivityAndPositionFilesForSilver(fileList);
             var monthlyPerformanceResult = CalculateMonthlyPerformance(performanceRecords);
             var monthlyPerformance = monthlyPerformanceResult.GetType().GetProperty("payload")?.GetValue(monthlyPerformanceResult, null);
 
-            return Utils.Wrap(true, monthlyPerformance, null);        }
+            return Utils.Wrap(true, monthlyPerformance, null);
+        }
 
         public decimal CalculateYTDPerformance(MonthlyPerformance current, MonthlyPerformance prior)
         {
