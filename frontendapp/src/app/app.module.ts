@@ -85,6 +85,7 @@ import { FileExceptionComponent } from './main/operations/file-exception/file-ex
 import { FundTheoreticalComponent } from './main/fund-theoretical/fund-theoretical.component';
 import { PerformanceCanDeactivateGuard } from '../shared/guards/performance-can-deactivate-guard.service';
 import { DataGridModalComponent } from '../shared/Component/data-grid-modal/data-grid-modal.component';
+import { DecimalPipe } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -171,7 +172,8 @@ import { DataGridModalComponent } from '../shared/Component/data-grid-modal/data
     SidenavService,
     PostingEngineService,
     AgGridUtils,
-    PerformanceCanDeactivateGuard
+    PerformanceCanDeactivateGuard,
+    DecimalPipe
   ],
   bootstrap: [AppComponent]
 })

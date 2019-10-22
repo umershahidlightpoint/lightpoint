@@ -83,6 +83,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
 
             var jsonResult = JsonConvert.SerializeObject(dataTable);
+
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
             return Utils.GridWrap(json);
@@ -252,8 +253,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     priorData = null;
                 }
 
-                return Utils.Wrap(true, groupedByYear.SelectMany(x => x.Select(y => y).ToList()), null,
-                    "Performance calculated successfully");
+                return Utils.Wrap(true, groupedByYear.SelectMany(x => x.Select(y => y).ToList()), null, "Performance calculated successfully");
             }
             catch
             {
@@ -300,8 +300,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("last_updated_by", "Jack Pearson"),
                     new SqlParameter("estimated", item.Estimated),
                     new SqlParameter("start_month_estimate_nav", item.StartOfMonthEstimateNav),
-                    new SqlParameter("fund", item.Fund == "None" ? SqlString.Null : item.Fund),
-                    new SqlParameter("portfolio", item.PortFolio == "None" ? SqlString.Null : item.PortFolio),
+                    new SqlParameter("fund", item.Fund == null ? SqlString.Null : item.Fund),
+                    new SqlParameter("portfolio", item.PortFolio == null ? SqlString.Null : item.PortFolio),
                     new SqlParameter("monthly_end_nav", item.MonthEndNav),
                     new SqlParameter("performance", item.Performance),
                     new SqlParameter("mtd", item.MTD),

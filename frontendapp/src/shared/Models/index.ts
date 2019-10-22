@@ -23,11 +23,15 @@ export interface MonthlyPerformanceData {
   fund: string;
   portfolio: string;
   monthEndNav: number;
-  startMonthEstimateNav: number;
+  startOfMonthEstimateNav: number;
   performance: number;
   mtd: number;
   ytdNetPerformance: number;
   qtd: number;
   ytd: number;
   itd: number;
+  createdBy: string;
+  lastUpdatedBy: string;
+  createdDate: string;
+  lastUpdatedDate: string;
 }
