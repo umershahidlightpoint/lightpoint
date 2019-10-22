@@ -614,10 +614,16 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   }
 
   numberFormatter(numberToFormat, isInPercentage) {
-    const formattedValue = this.decimalPipe.transform(numberToFormat, '1.2-2');
+    let per = numberToFormat;
     if (isInPercentage) {
-      return percentageFormatter(formattedValue);
+      console.log(percentageFormatter(numberToFormat),"percentage")
+      per = percentageFormatter(numberToFormat);
+
     }
+    const formattedValue = this.decimalPipe.transform(per, '1.2-2');
+    console.log(formattedValue, "2dp");
+  
+    console.log(formattedValue.toString(),"string")
     return formattedValue.toString();
   }
 }
@@ -627,5 +633,5 @@ function textAlignRight() {
 }
 
 function percentageFormatter(number) {
-  return (number * 100).toString();
+  return (number * 100);
 }
