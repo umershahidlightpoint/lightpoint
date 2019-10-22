@@ -328,7 +328,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     }
     if (params.data.fund !== 'None' || params.data.portfolio !== 'None' || params.data.estimated) {
       this.disableCommit = false;
-      console.log('params === >>>', params);
       const row = this.fundTheoreticalGrid.api.getRowNode(params.data.rowId);
       row.setDataValue('modified', !params.data.modified);
     }
@@ -616,14 +615,9 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   numberFormatter(numberToFormat, isInPercentage) {
     let per = numberToFormat;
     if (isInPercentage) {
-      console.log(percentageFormatter(numberToFormat),"percentage")
       per = percentageFormatter(numberToFormat);
-
     }
     const formattedValue = this.decimalPipe.transform(per, '1.2-2');
-    console.log(formattedValue, "2dp");
-  
-    console.log(formattedValue.toString(),"string")
     return formattedValue.toString();
   }
 }
@@ -633,5 +627,5 @@ function textAlignRight() {
 }
 
 function percentageFormatter(number) {
-  return (number * 100);
+  return number * 100;
 }
