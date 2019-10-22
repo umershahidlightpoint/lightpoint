@@ -1,11 +1,4 @@
-﻿using GraphQL;
-using GraphQL.Types;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Http.Dependencies;
+﻿using GraphQL.Types;
 
 namespace LP.Finance.WebProxy.GraphQLEntities
 {

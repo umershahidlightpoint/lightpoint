@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using GraphQL;
 using GraphQL.Types;
-using LP.Finance.Common.GraphQLTypes;
 using LP.Finance.WebProxy.GraphQLEntities;
 
 namespace LP.Finance.WebProxy.WebAPI
