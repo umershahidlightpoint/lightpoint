@@ -138,10 +138,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         return {};
       },
       pinnedBottomRowData: null,
-      onRowSelected: params => {
-        console.log('Params', params);
-        // params
-      },
+      onRowSelected: params => {},
       clearExternalFilter: () => {},
       getContextMenuItems: this.getContextMenuItems.bind(this),
       rowSelection: 'single',
@@ -247,10 +244,10 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         valueFormatter: params => this.numberFormatter(params.node.data.performance, false)
       },
       {
-        headerName: 'Admin Month End NAV*',
+        headerName: 'Admin Month End NAV',
         field: 'monthEndNav',
         sortable: true,
-        editable: true,
+        // editable: true,
         cellStyle: textAlignRight(),
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.monthEndNav, false)
@@ -347,7 +344,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
       setTimeout(() => {
         row.setDataValue('monthEndNav', monthEndNavSum.toString());
-      }, 1000);
+      }, 500);
     }
   }
 
