@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Data.SqlTypes;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         private readonly FileManagementService fileManagementService = new FileManagementService();
         public object GetMonthlyPerformance()
         {
-            var query = $@"select id as Id, estimated as Estimated, start_month_estimate_nav as StartOfMonthEstimateNav, performance_date as PerformanceDate ,fund as Fund,portfolio as PortFolio,monthly_end_nav as MonthEndNav,performance as Performance ,mtd as MTD,ytd_net_performance as YTDNetPerformance,qtd_net_perc as QTD,ytd_net_perc as YTD,itd_net_perc as ITD from monthly_performance order by performance_date asc, id asc";
+            var query = $@"select id as Id, estimated as Estimated, start_month_estimate_nav as StartOfMonthEstimateNav, performance_date as PerformanceDate ,fund as Fund,portfolio as PortFolio,monthly_end_nav as MonthEndNav,performance as Performance ,mtd as MTD,ytd_net_performance as YTDNetPerformance,qtd_net_perc as QTD,ytd_net_perc as YTD,itd_net_perc as ITD, created_by as CreatedBy, last_updated_by as LastUpdatedBy,, created_date as CreatedDate, last_updated_date as LastUpdatedDate from monthly_performance order by performance_date asc, id asc";
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
             var jsonResult = JsonConvert.SerializeObject(dataTable);
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
@@ -229,8 +230,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 {
                     new SqlParameter("id", item.Id),
                     new SqlParameter("last_updated_date", DateTime.UtcNow),
-                    new SqlParameter("fund", DBNullValueorStringIfNotNull(item.Fund)),
-                    new SqlParameter("portfolio", DBNullValueorStringIfNotNull(item.PortFolio)),
+                    new SqlParameter("last_updated_by", "Jack Pearson"),
+                    new SqlParameter("estimated", item.Estimated),
+                    new SqlParameter("start_month_estimate_nav", item.StartOfMonthEstimateNav),
+                    new SqlParameter("fund", item.Fund == "None" ? SqlString.Null : item.Fund),
+                    new SqlParameter("portfolio", item.PortFolio == "None" ? SqlString.Null : item.PortFolio),
                     new SqlParameter("monthly_end_nav", item.MonthEndNav),
                     new SqlParameter("performance", item.Performance),
                     new SqlParameter("mtd", item.MTD),
@@ -261,7 +265,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                           ,[qtd_net_perc] = @qtd_net_perc
                                           ,[ytd_net_perc] = @ytd_net_perc
                                           ,[itd_net_perc] = @itd_net_perc
-                                            where [id] = @id";
+                                          ,[last_updated_by] = @last_updated_by
+                                          ,[estimated] = @estimated
+                                          ,[start_month_estimate_nav] = @start_month_estimate_nav
+                                           where [id] = @id";
                 foreach(var item in listOfParameters)
                 {
                     sqlHelper.Update(updatePerformanceQuery, CommandType.Text, item.ToArray());

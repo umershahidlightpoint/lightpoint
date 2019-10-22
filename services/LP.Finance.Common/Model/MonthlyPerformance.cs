@@ -45,6 +45,11 @@ namespace LP.Finance.Common.Model
         public decimal QTD { get; set; }
         public decimal YTD { get; set; }
         public decimal ITD { get; set; }
+        public string CreatedBy { get; set; }
+        public string LastUpdatedBy { get; set; }
+        public string CreatedDate { get; set; }
+        public string LastUpdatedDate { get; set; }
+
 
         public DataTable MetaData(SqlConnection connection)
         {
@@ -53,7 +58,7 @@ namespace LP.Finance.Common.Model
             // read the table structure from the database
             var localconnection = new SqlConnection(connection.ConnectionString);
             localconnection.Open();
-            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 created_date, last_updated_date, created_by, performance_date, fund,portfolio, monthly_end_nav, performance, mtd, ytd_net_performance, qtd_net_perc, ytd_net_perc,  itd_net_perc, estimated FROM monthly_performance", localconnection))
+            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 created_date, last_updated_date, created_by, performance_date, fund,portfolio, monthly_end_nav, performance, mtd, ytd_net_performance, qtd_net_perc, ytd_net_perc,  itd_net_perc, estimated, start_month_estimate_nav FROM monthly_performance", localconnection))
             {
                 adapter.Fill(table);
             };
@@ -78,6 +83,7 @@ namespace LP.Finance.Common.Model
             row["ytd_net_perc"] = this.YTD;
             row["itd_net_perc"] = this.ITD;
             row["estimated"] = this.Estimated;
+            row["start_month_estimate_nav"] = this.StartOfMonthEstimateNav;
         }
     }
 }
