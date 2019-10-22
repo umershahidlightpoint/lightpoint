@@ -140,6 +140,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       pinnedBottomRowData: null,
       onRowSelected: params => {
         console.log('Params', params);
+        // params
       },
       clearExternalFilter: () => {},
       getContextMenuItems: this.getContextMenuItems.bind(this),
@@ -327,7 +328,27 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     }
     if (params.data.fund !== 'None' || params.data.portfolio !== 'None' || params.data.estimated) {
       this.disableCommit = false;
-      params.data.modified = true;
+      console.log('params === >>>', params);
+      const row = this.fundTheoreticalGrid.api.getRowNode(params.data.rowId);
+      row.setDataValue('modified', !params.data.modified);
+    }
+
+    if (
+      params.colDef.field === 'performance' ||
+      params.colDef.field === 'startOfMonthEstimateNav'
+    ) {
+      let monthEndNavSum;
+
+      if (params.colDef.field === 'performance') {
+        monthEndNavSum = parseInt(params.newValue) + parseInt(params.data.startOfMonthEstimateNav);
+      } else {
+        monthEndNavSum = parseInt(params.newValue) + parseInt(params.data.performance);
+      }
+      const row = this.fundTheoreticalGrid.api.getRowNode(params.data.rowId);
+
+      setTimeout(() => {
+        row.setDataValue('monthEndNav', monthEndNavSum.toString());
+      }, 1000);
     }
   }
 
