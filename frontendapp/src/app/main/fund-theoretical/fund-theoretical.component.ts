@@ -6,18 +6,13 @@ import { Account, AccountCategory } from '../../../shared/Models/account';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import {
-  SideBar,
-  AutoSizeAllColumns,
-  HeightStyle,
-  Style,
-  CommaSeparatedFormat
-} from 'src/shared/utils/Shared';
+import { SideBar, AutoSizeAllColumns, HeightStyle, Style } from 'src/shared/utils/Shared';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import * as moment from 'moment';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { MonthlyPerformanceData } from 'src/shared/Models';
 import { DataGridModalComponent } from '../../../shared/Component/data-grid-modal/data-grid-modal.component';
+import { DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-fund-theoretical',
@@ -77,6 +72,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     private financeService: FinancePocServiceProxy,
     private toastrService: ToastrService,
     private dataService: DataService,
+    public decimalPipe: DecimalPipe,
     private downloadExcelUtils: DownloadExcelUtils
   ) {
     this.hideGrid = false;
@@ -142,6 +138,9 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         return {};
       },
       pinnedBottomRowData: null,
+      onRowSelected: params => {
+        console.log('Params', params);
+      },
       clearExternalFilter: () => {},
       getContextMenuItems: this.getContextMenuItems.bind(this),
       rowSelection: 'single',
@@ -188,7 +187,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       {
         headerName: 'Estimated',
         field: 'estimated',
-        sortable: true,
+        cellEditor: 'agSelectCellEditor',
         cellRenderer: params => {
           return `<input type='checkbox' ${params.node.data.estimated ? 'checked' : ''} />`;
         }
@@ -229,12 +228,13 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       },
       {
         headerName: 'Start of Month Estimate NAV*',
-        field: 'startMonthEstimateNav',
+        field: 'startOfMonthEstimateNav',
         sortable: true,
         editable: true,
         cellStyle: textAlignRight(),
         type: 'numericColumn',
-        valueFormatter: absCurrencyFormatter
+        valueFormatter: params =>
+          this.numberFormatter(params.node.data.startOfMonthEstimateNav, false)
       },
       {
         headerName: 'Performance*',
@@ -243,7 +243,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         editable: true,
         cellStyle: textAlignRight(),
         type: 'numericColumn',
-        valueFormatter: absCurrencyFormatter
+        valueFormatter: params => this.numberFormatter(params.node.data.performance, false)
       },
       {
         headerName: 'Admin Month End NAV*',
@@ -252,7 +252,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         editable: true,
         cellStyle: textAlignRight(),
         type: 'numericColumn',
-        valueFormatter: absCurrencyFormatter
+        valueFormatter: params => this.numberFormatter(params.node.data.monthEndNav, false)
       },
       {
         headerName: 'MTD*',
@@ -260,7 +260,8 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         sortable: true,
         editable: true,
         cellStyle: textAlignRight(),
-        type: 'numericColumn'
+        type: 'numericColumn',
+        valueFormatter: params => this.numberFormatter(params.node.data.mtd, true)
       },
       {
         headerName: 'YTD Net Perf',
@@ -268,25 +269,48 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         sortable: true,
         suppressCellFlash: true,
         cellStyle: textAlignRight(),
-        valueFormatter: absCurrencyFormatter
+        valueFormatter: params => this.numberFormatter(params.node.data.ytdNetPerformance, false)
       },
       {
         headerName: 'QTD Net %',
         field: 'qtd',
         sortable: true,
-        cellStyle: textAlignRight()
+        cellStyle: textAlignRight(),
+        valueFormatter: params => this.numberFormatter(params.node.data.qtd, true)
       },
       {
         headerName: 'YTD Net %',
         field: 'ytd',
         sortable: true,
-        cellStyle: textAlignRight()
+        cellStyle: textAlignRight(),
+        valueFormatter: params => this.numberFormatter(params.node.data.ytd, true)
       },
       {
         headerName: 'ITD Net %',
         field: 'itd',
         sortable: true,
-        cellStyle: textAlignRight()
+        cellStyle: textAlignRight(),
+        valueFormatter: params => this.numberFormatter(params.node.data.itd, true)
+      },
+      {
+        headerName: 'Created By',
+        field: 'createdBy',
+        hide: true
+      },
+      {
+        headerName: 'Last Updated By ',
+        field: 'lastUpdatedBy ',
+        hide: true
+      },
+      {
+        headerName: 'Created Date',
+        field: 'createdDate',
+        hide: true
+      },
+      {
+        headerName: 'Last Updated Date',
+        field: 'lastUpdatedDate',
+        hide: true
       }
     ];
   }
@@ -299,9 +323,9 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     ) {
       this.doCalculation();
       this.disableCommit = false;
-
-      if (params.data.fund !== 'None' || params.data.portfolio !== 'None') {
-      }
+    }
+    if (params.data.fund !== 'None' || params.data.portfolio !== 'None' || params.data.estimated) {
+      this.disableCommit = false;
     }
   }
 
@@ -446,10 +470,14 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     this.fundTheoreticalGrid.api.forEachNode(node => {
       rowRecords.push(node.data);
     });
+
     const formattedRecords = rowRecords.map(data => ({
       ...data,
+      fund: data.fund === 'None' ? null : data.fund,
+      portfolio: data.portfolio === 'None' ? null : data.portfolio,
       performanceDate: data.year + '-' + this.getMomentMonth(data.month) + '-' + '01'
     }));
+
     this.financeService.calMonthlyPerformance(formattedRecords).subscribe(response => {
       const rows = this.formatPerformanceData(response.payload);
       this.fundTheoreticalGrid.api.setRowData(rows);
@@ -468,11 +496,14 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     if (recordsToCommit.length > 0) {
       formattedRecords = recordsToCommit.map(data => ({
         ...data,
+        fund: data.fund === 'None' ? null : data.fund,
+        portfolio: data.portfolio === 'None' ? null : data.portfolio,
         performanceDate: data.year + '-' + this.getMomentMonth(data.month) + '-' + '01'
       }));
 
       this.financeService.commitMonthlyPerformance(formattedRecords).subscribe(response => {
         if (response.isSuccessful) {
+          this.toastrService.success('Sucessfully Commited.');
           this.getMonthlyPerformance();
         } else {
           this.toastrService.error('Something went wrong! Try Again.');
@@ -492,16 +523,20 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       estimated: record.Estimated,
       year: this.DateFormatter(record.PerformanceDate, 1, true),
       month: this.DateFormatter(record.PerformanceDate, 2, true),
-      fund: record.Fund,
-      portfolio: record.PortFolio,
+      fund: record.Fund === null ? 'None' : record.Fund,
+      portfolio: record.PortFolio === null ? 'None' : record.portfolio,
       monthEndNav: record.MonthEndNav,
-      startMonthEstimateNav: record.StartOfMonthEstimateNav,
+      startOfMonthEstimateNav: record.StartOfMonthEstimateNav,
       performance: record.Performance,
       mtd: record.MTD,
       ytdNetPerformance: record.YTDNetPerformance,
       qtd: record.QTD,
       ytd: record.YTD,
-      itd: record.ITD
+      itd: record.ITD,
+      createdBy: record.CreatedBy,
+      lastUpdatedBy: record.lastUpdatedBy,
+      createdDate: record.createdDate,
+      lastUpdatedDate: record.lastUpdatedBy
     }));
     return formattedRecords;
   }
@@ -517,13 +552,17 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       fund: 'None',
       portfolio: 'None',
       monthEndNav: 0,
-      startMonthEstimateNav: 0,
+      startOfMonthEstimateNav: 0,
       performance: 0,
       mtd: 0,
       ytdNetPerformance: 0,
       qtd: 0,
       ytd: 0,
-      itd: 0
+      itd: 0,
+      createdBy: '',
+      lastUpdatedBy: '',
+      createdDate: '',
+      lastUpdatedDate: ''
     };
   }
 
@@ -550,15 +589,20 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   refreshGrid() {
     this.fundTheoreticalGrid.api.showLoadingOverlay();
   }
+
+  numberFormatter(numberToFormat, isInPercentage) {
+    const formattedValue = this.decimalPipe.transform(numberToFormat, '1.2-2');
+    if (isInPercentage) {
+      return percentageFormatter(formattedValue);
+    }
+    return formattedValue.toString();
+  }
 }
 
 function textAlignRight() {
   return { textAlign: 'end' };
 }
 
-function absCurrencyFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  return CommaSeparatedFormat(Math.abs(params.value));
+function percentageFormatter(number) {
+  return (number * 100).toString();
 }
