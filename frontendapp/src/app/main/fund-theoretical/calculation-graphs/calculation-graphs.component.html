@@ -1,29 +1,9 @@
-<!-- Filters Div Starts -->
-<div class="row ">
-  <!----- Chart DropDown Div Starts ----->
-  <div class="ml-auto">
-    <div class="chart-dropdown">
-      <!----- Chart Data DropDown Starts ----->
-      <div class="mr-2 tabBtn">
-        <select class="form-control" [(ngModel)]="selectedChartOption" (ngModelChange)="changeChart($event)">
-          <option *ngFor="let option of chartOptions" [ngValue]="option.key">
-            {{option.value}}
-          </option>
-        </select>
-      </div>
-      <!----- Chart Data DropDown Ends  ----->
-    </div>
-  </div>
-  <!----- Chart DropDown Div Ends ----->
-</div>
-<!-- Filters Div Ends -->
 <!-- Div To Measure Identifier starts  -->
 <div #divToMeasure>
   <!-- Style For Height  -->
   <div [ngStyle]="styleForHeight">
     <div class="line-chart-wrapper">
-      <div class="chart-title">{{selectedChartTitle}}</div>
-      <eikos-line-plot class="d-block chart" [propID]="propIDPerformance" [colors]="lineColors" [data]="chartData"
+      <eikos-line-plot class="d-block chart" [propID]="propIDPerformance" [colors]="lineColors" [data]="cData"
         [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
       </eikos-line-plot>
     </div>

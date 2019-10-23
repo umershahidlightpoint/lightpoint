@@ -8,6 +8,8 @@ import { HeightStyle } from 'src/shared/utils/Shared';
 })
 export class CalculationGraphsComponent implements OnInit, OnChanges {
   @Input() chartData: any;
+  cData: [];
+  labels: string[] = [];
 
   styleForHeight = HeightStyle(264);
 
@@ -21,6 +23,12 @@ export class CalculationGraphsComponent implements OnInit, OnChanges {
   ngOnInit() {}
 
   ngOnChanges(change: SimpleChanges) {
-    const { currentValue } = change;
+    const { currentValue } = change.chartData;
+    currentValue.forEach((element, index) => {
+      if (index !== 0) {
+        this.cData.push(element.data);
+      }
+    });
+    console.log('DATA :: ', this.cData);
   }
 }
