@@ -7,6 +7,7 @@ import {
 } from '../../../../shared/Models/trial-balance';
 import { DataService } from '../../../../shared/common/data.service';
 import * as moment from 'moment';
+import { BehaviorSubject } from 'rxjs';
 import {
   Ranges,
   Style,
@@ -51,6 +52,9 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   style = Style;
 
   styleForHeight = HeightStyle(220);
+
+  public tradeSelectionSubject = new BehaviorSubject(null);
+  public tradeSelectionChanged = this.tradeSelectionSubject.asObservable();
 
   processingMsgDiv = {
     border: '1px solid #eee',
@@ -112,7 +116,8 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           width: 120,
           headerName: 'Order Id',
           sortable: true,
-          filter: true
+          filter: true,
+          hide: true
         },
         {
           field: 'business_date',
@@ -145,8 +150,8 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           width: 100
         },
         {
-          field: 'quantity',
-          headerName: 'Rem Qty',
+          field: 'original_quantity',
+          headerName: 'Orig Qty',
           width: 100,
           filter: true,
           sortable: true,
@@ -155,8 +160,8 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           aggFunc: 'sum',
         },
         {
-          field: 'original_quantity',
-          headerName: 'Orig Qty',
+          field: 'quantity',
+          headerName: 'Rem Qty',
           width: 100,
           filter: true,
           sortable: true,
@@ -240,12 +245,13 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           valueFormatter: currencyFormatter
         },
         {
-          field: 'trade_price',
-          width: 120,
-          headerName: 'Opening Price',
-          sortable: true,
+          field: 'quantity',
+          headerName: 'Quantity',
+          width: 100,
           filter: true,
-          cellClass: 'rightAlign'
+          sortable: true,
+          cellClass: 'rightAlign',
+          valueFormatter: absCurrencyFormatter
         },
         {
           field: 'cost_basis',
@@ -256,13 +262,12 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           filter: true
         },
         {
-          field: 'quantity',
-          headerName: 'Quantity',
-          width: 100,
-          filter: true,
+          field: 'trade_price',
+          width: 120,
+          headerName: 'Opening Price',
           sortable: true,
-          cellClass: 'rightAlign',
-          valueFormatter: absCurrencyFormatter
+          filter: true,
+          cellClass: 'rightAlign'
         }
       ],
       defaultColDef: {
@@ -315,6 +320,14 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       //this.data = response.data;
       this.closingTaxLots.api.sizeColumnsToFit();
       this.closingTaxLots.api.setRowData(response.data);
+
+      debugger
+
+      if (response.data.length == 0) {
+        this.tradeSelectionSubject.next('');
+      } else {
+        this.tradeSelectionSubject.next(response.data[0].closing_lot_id);
+      }
     });
   }
 
@@ -403,6 +416,13 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
     this.getReport(null, null, 'ALL');
+  }
+
+  onTradeRowSelected(event) {
+    if (event.node.selected) {
+      debugger
+      this.tradeSelectionSubject.next(event.node.data.closing_lot_id);
+    }
   }
 }
 

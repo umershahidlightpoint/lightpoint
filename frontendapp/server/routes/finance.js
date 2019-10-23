@@ -4,9 +4,9 @@ const http = require('http');
 
 /* GET api listing. */
 router.get('*', (req, res) => {
-  console.log('http://dev11:9092/api' + req.url);
+  console.log('http://localhost:9092/api' + req.url);
 
-  http.get('http://dev11:9092/api' + req.url, (resp) => {
+  http.get('http://localhost:9092/api' + req.url, (resp) => {
     let data = '';
   
     // A chunk of data has been recieved.

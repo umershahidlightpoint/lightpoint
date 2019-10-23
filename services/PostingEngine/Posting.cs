@@ -388,7 +388,10 @@ namespace PostingEngine
             while (valueDate <= endDate)
             {
                 if (!valueDate.IsBusinessDate())
+                {
+                    valueDate = valueDate.AddDays(1);
                     continue;
+                }
 
                 var sw = new Stopwatch();
                 sw.Start();

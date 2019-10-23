@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnChanges, Input, SimpleChanges } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
@@ -7,13 +7,17 @@ import { SideBar, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-journals',
   templateUrl: './journals.component.html',
   styleUrls: ['./journals.component.css']
 })
-export class JournalsComponent implements OnInit {
+export class JournalsComponent implements OnInit, OnChanges {
+  @Input() subscription: Observable<string>;
+  @Input() title: string = "Journals";
+
   public journalsGridOptions: GridOptions;
   public journalsData: [];
   columnDefs = [];
@@ -27,12 +31,39 @@ export class JournalsComponent implements OnInit {
     this.initGrid();
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    debugger
+    if (this.subscription == null) {
+      this.dataService.allocationId.subscribe(data => {
+        if (data != null) {
+          this.getTradeJournals(data);
+        }
+      });
+    } else {
+      debugger
+
+      this.subscription.subscribe(data => {
+        if (data != null) {
+          this.getTradeJournals(data);
+        }
+      });
+    }
+  }
+
   ngOnInit() {
-    this.dataService.allocationId.subscribe(data => {
-      if (data != null) {
-        this.getTradeJournals(data);
-      }
-    });
+    if (this.subscription == null) {
+      this.dataService.allocationId.subscribe(data => {
+        if (data != null) {
+          this.getTradeJournals(data);
+        }
+      });
+    } else {
+      this.subscription.subscribe(data => {
+        if (data != null) {
+          this.getTradeJournals(data);
+        }
+      });
+    }
   }
 
   initGrid() {

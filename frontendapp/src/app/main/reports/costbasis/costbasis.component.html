@@ -88,19 +88,50 @@
     <!-- Report AG Grid Column Ends -->
     <!-- Chart Column Starts -->
     <div class="col-6 mt-3" [ngStyle]="styleForHeight">
-      <div *ngIf="displayChart" class="line-chart-wrapper">
-        <div class="chart-title">Balance</div>
-        <eikos-line-plot class="d-block chart" [propID]="propIDBalance" [colors]="lineColors" [data]="bData"
-          [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
-        </eikos-line-plot>
-        <div class="chart-title">Quantity</div>
-        <eikos-line-plot class="d-block chart" [propID]="propIDQuantity" [colors]="lineColors" [data]="qData"
-          [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
-        </eikos-line-plot>
-        <div class="chart-title">{{selectedChartTitle}}</div>
-        <eikos-line-plot class="d-block chart" [propID]="propIDCostBasis" [colors]="lineColors" [data]="cbData"
-          [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
-        </eikos-line-plot>
+      <div *ngIf="displayChart" class="line-chart-wrapper" style="flex-wrap: wrap;display: flex;">
+
+        <div style="width: 50%;">
+          <div class="chart-title">Investment at Cost</div>
+          <eikos-line-plot class="d-block chart" [propID]="propIDBalance" [colors]="lineColors" [data]="bData"
+            [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
+          </eikos-line-plot>
+        </div>
+
+        <div style="width: 50%;">
+          <div class="chart-title">Quantity</div>
+          <eikos-line-plot class="d-block chart" [propID]="propIDQuantity" [colors]="lineColors" [data]="qData"
+            [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
+          </eikos-line-plot>
+        </div>
+
+        <div style="width: 50%;">
+          <div class="chart-title">Exposure (at Cost)</div>
+          <eikos-line-plot class="d-block chart" [propID]="propIDCostBasis" [colors]="lineColors" [data]="cbData"
+            [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
+          </eikos-line-plot>
+        </div>
+
+        <div style="width: 50%;">
+          <div class="chart-title">Unrealized P&L</div>
+          <eikos-line-plot class="d-block chart" [propID]="'unrealizedData'" [colors]="lineColors"
+            [data]="unrealizedData" [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight"
+            [divWidth]="divWidth">
+          </eikos-line-plot>
+        </div>
+        <div style="width: 50%;">
+
+          <div class="chart-title">Realized P&L</div>
+          <eikos-line-plot class="d-block chart" [propID]="'realalizedData'" [colors]="lineColors" [data]="realizedData"
+            [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
+          </eikos-line-plot>
+        </div>
+        <div style="width: 50%;">
+
+          <div class="chart-title">Net P&L</div>
+          <eikos-line-plot class="d-block chart" [propID]="'netpnlData'" [colors]="lineColors" [data]="netpnlData"
+            [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
+          </eikos-line-plot>
+        </div>
       </div>
     </div>
     <!-- Chart Column Ends -->
