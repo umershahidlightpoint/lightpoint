@@ -9,10 +9,6 @@ import { HeightStyle } from 'src/shared/utils/Shared';
 export class CalculationGraphsComponent implements OnInit, OnChanges {
   @Input() chartData: any;
 
-  selectedChartOption: any = 'ITD';
-  selectedChartTitle: any = 'ITD';
-  chartOptions: any;
-
   styleForHeight = HeightStyle(264);
 
   propIDPerformance = 'performanceLineChart';
@@ -25,15 +21,6 @@ export class CalculationGraphsComponent implements OnInit, OnChanges {
   ngOnInit() {}
 
   ngOnChanges(change: SimpleChanges) {
-    console.log('Chnages', change);
-    this.chartOptions = this.chartData.map(item => {});
-  }
-
-  changeChart(selectedChart) {
-    this.selectedChartOption = selectedChart;
-    this.selectedChartTitle = this.chartOptions.find(({ key }) => selectedChart === key).value;
-    if (this.chartData) {
-      this.mapCostBasisData(this.chartData, this.selectedChartOption);
-    }
+    const { currentValue } = change;
   }
 }
