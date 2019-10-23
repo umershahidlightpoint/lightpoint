@@ -45,7 +45,7 @@ export class DailyPnlComponent implements OnInit {
   initGrid() {
     this.dailyPnlGrid = {
       columnDefs: this.getColDefs(),
-      rowData: this.dailyPnLData,
+      rowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       getExternalFilterState: () => {
         return {};

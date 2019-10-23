@@ -114,6 +114,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       this.totalGridRows = rowNodeId;
       this.monthlyPerformanceData = this.formatPerformanceData(modifiedData);
       if (this.fundTheoreticalGrid) {
+        console.log('in get monthly performance', this.fundTheoreticalGrid);
         AutoSizeAllColumns(this.fundTheoreticalGrid);
       }
 
@@ -174,6 +175,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   initCols() {
     const colDefs = this.getColDefs();
     this.fundTheoreticalGrid.api.setColumnDefs(colDefs);
+    console.log('in initCols ');
     AutoSizeAllColumns(this.fundTheoreticalGrid);
     this.fundTheoreticalGrid.api.sizeColumnsToFit();
   }
@@ -484,6 +486,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         this.totalGridRows = rowNodeId;
         this.monthlyPerformanceData = this.formatPerformanceData(modifiedData);
         this.fundTheoreticalGrid.api.setRowData(this.monthlyPerformanceData);
+        console.log('in uploadMonthlyPerformance ');
         AutoSizeAllColumns(this.fundTheoreticalGrid);
 
         this.showDatePicker = false;
@@ -546,7 +549,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
   generateData() {
     this.graphObject = [
-      { label: 'MTD', data: [] },
+      { label: 'ytdNetPerformance', data: [] },
       { label: 'YTD', data: [] },
       { label: 'QTD', data: [] },
       { label: 'ITD', data: [] }
@@ -556,7 +559,10 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       this.monthlyPerformanceData.forEach(item => {
         model.data.push({
           date: item.year + '-' + this.getMomentMonth(item.month) + '-' + '01',
-          value: item[model.label.toLowerCase()] * 100
+          value:
+            item[
+              model.label === 'ytdNetPerformance' ? 'ytdNetPerformance' : model.label.toLowerCase()
+            ] * 100
         });
       });
     });
