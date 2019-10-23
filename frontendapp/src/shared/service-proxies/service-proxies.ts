@@ -540,4 +540,9 @@ export class FinancePocServiceProxy {
     formData.append('fileKey', file, file.name);
     return this.http.post(url, formData);
   }
+
+  getDailyUnofficialPnL(): Observable<any> {
+    const url = this.baseUrl + '/calculation/dailyUnofficialPnl';
+    return this.http.get(url);
+  }
 }

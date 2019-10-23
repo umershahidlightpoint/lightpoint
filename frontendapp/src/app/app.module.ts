@@ -88,6 +88,7 @@ import { PerformanceCanDeactivateGuard } from '../shared/guards/performance-can-
 import { DataGridModalComponent } from '../shared/Component/data-grid-modal/data-grid-modal.component';
 import { DecimalPipe } from '@angular/common';
 import { AgGridCheckboxComponent } from '../shared/Component/ag-grid-checkbox/ag-grid-checkbox.component';
+import { CalculationGraphsComponent } from './main/fund-theoretical/calculation-graphs/calculation-graphs.component';
 
 @NgModule({
   declarations: [
@@ -131,7 +132,8 @@ import { AgGridCheckboxComponent } from '../shared/Component/ag-grid-checkbox/ag
     FundTheoreticalComponent,
     DailyPnlComponent,
     DataGridModalComponent,
-    AgGridCheckboxComponent
+    AgGridCheckboxComponent,
+    CalculationGraphsComponent
   ],
   imports: [
     BrowserModule,

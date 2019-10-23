@@ -1,0 +1,40 @@
+.chart-dropdown {
+  width: 12rem;
+}
+
+.line-chart-wrapper {
+  padding-top: 1.6rem;
+  overflow: hidden;
+}
+
+.chart-title {
+  font-size: 1em;
+  font-weight: 500;
+  line-height: 0;
+}
+
+::ng-deep .line-chart-wrapper svg {
+  height: 24rem;
+}
+
+::ng-deep .line-chart-wrapper .axis line {
+  stroke: #3b3a39 !important;
+}
+
+::ng-deep .line-chart-wrapper .y-axis {
+  color: #b3b2b6 !important;
+}
+
+::ng-deep .line-chart-wrapper .x-axis {
+  color: #94918e !important;
+}
+
+::ng-deep .line-chart-wrapper .line {
+  fill: none;
+  stroke-width: 3 !important;
+}
+
+::ng-deep .line-chart-wrapper .axis path,
+.axis line {
+  stroke: #32a0f3;
+}

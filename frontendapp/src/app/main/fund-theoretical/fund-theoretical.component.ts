@@ -40,6 +40,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   funds: Array<string>;
   title: string;
   fileToUpload: File = null;
+  graphObject: any;
 
   monthsArray = [
     { id: 0, month: 'January' },
@@ -58,7 +59,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
   style = Style;
 
-  styleForHeight = HeightStyle(224);
+  styleForHeight = HeightStyle(264);
 
   containerDiv = {
     border: '1px solid #eee',
@@ -544,14 +545,14 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   }
 
   generateData() {
-    const graphObject = [
+    this.graphObject = [
       { label: 'MTD', data: [] },
       { label: 'YTD', data: [] },
       { label: 'QTD', data: [] },
       { label: 'ITD', data: [] }
     ];
 
-    graphObject.forEach(model => {
+    this.graphObject.forEach(model => {
       this.monthlyPerformanceData.forEach(item => {
         model.data.push({
           date: item.year + '-' + this.getMomentMonth(item.month) + '-' + '01',
@@ -559,7 +560,12 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         });
       });
     });
-    console.log('new Created Model', graphObject);
+  }
+
+  isTabChanged(e) {
+    if (e.index === 1) {
+      this.generateData();
+    }
   }
 
   formatPerformanceData(records) {
