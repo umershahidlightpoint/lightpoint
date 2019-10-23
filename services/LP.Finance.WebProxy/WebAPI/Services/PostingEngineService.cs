@@ -48,14 +48,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 };
             }
 
-//            return new
-//            {
-//                Period = period,
-//                Started = DateTime.Now,
-//                key = Key,
-//                IsRunning
-//            };
-
             return Utils.Wrap(false, "Posting Engine is Already Running!");
         }
 

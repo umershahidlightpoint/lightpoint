@@ -83,8 +83,11 @@ import { ReportGridComponent } from './main/reports/report-grid/report-grid.comp
 import { GridUtilsComponent } from '../shared/Component/grid-utils/grid-utils.component';
 import { FileExceptionComponent } from './main/operations/file-exception/file-exception.component';
 import { FundTheoreticalComponent } from './main/fund-theoretical/fund-theoretical.component';
+import { DailyPnlComponent } from './main/fund-theoretical/daily-pnl/daily-pnl.component';
 import { PerformanceCanDeactivateGuard } from '../shared/guards/performance-can-deactivate-guard.service';
 import { DataGridModalComponent } from '../shared/Component/data-grid-modal/data-grid-modal.component';
+import { DecimalPipe } from '@angular/common';
+import { AgGridCheckboxComponent } from '../shared/Component/ag-grid-checkbox/ag-grid-checkbox.component';
 
 @NgModule({
   declarations: [
@@ -126,11 +129,17 @@ import { DataGridModalComponent } from '../shared/Component/data-grid-modal/data
     GridUtilsComponent,
     FileExceptionComponent,
     FundTheoreticalComponent,
-    DataGridModalComponent
+    DailyPnlComponent,
+    DataGridModalComponent,
+    AgGridCheckboxComponent
   ],
   imports: [
     BrowserModule,
-    AgGridModule.withComponents([TemplateRendererComponent, GridLayoutMenuComponent]),
+    AgGridModule.withComponents([
+      TemplateRendererComponent,
+      GridLayoutMenuComponent,
+      AgGridCheckboxComponent
+    ]),
     MaterialModule,
     NgxDaterangepickerMd.forRoot(),
     AppRoutingModule,
@@ -171,7 +180,8 @@ import { DataGridModalComponent } from '../shared/Component/data-grid-modal/data
     SidenavService,
     PostingEngineService,
     AgGridUtils,
-    PerformanceCanDeactivateGuard
+    PerformanceCanDeactivateGuard,
+    DecimalPipe
   ],
   bootstrap: [AppComponent]
 })

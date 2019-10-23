@@ -13,13 +13,14 @@ using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using static System.String;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
-    public class PerformanceService : IPerformanceService
+    public class CalculationService : ICalculationService
     {
         private static readonly string
             connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
@@ -28,7 +29,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         private readonly FileProcessor fileProcessor = new FileProcessor();
         private readonly FileManagementService fileManagementService = new FileManagementService();
 
-        public object GetMonthlyPerformance(DateTime? date = null, string fund = null, string portfolio = null)
+        public object GetMonthlyPerformance(DateTime? dateFrom = null, DateTime? dateTo = null, string fund = null, string portfolio = null)
         {
             List<SqlParameter> sqlParams = new List<SqlParameter>();
 
@@ -52,22 +53,28 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         FROM monthly_performance";
 
 
-            if (date.HasValue)
+            if (dateTo.HasValue)
             {
-                sqlParams.Add(new SqlParameter("date", date.Value.Date.ToString("yyyy-MM-dd")));
-                query += " WHERE performance_date = @date";
+                sqlParams.Add(new SqlParameter("dateTo", dateTo.Value.Date.ToString("yyyy-MM-dd")));
+                query += " WHERE performance_date <= @dateTo";
+            }
+
+            if (dateFrom.HasValue)
+            {
+                sqlParams.Add(new SqlParameter("dateFrom", dateFrom.Value.Date.ToString("yyyy-MM-dd")));
+                query += dateTo.HasValue ? " AND performance_date >= @dateFrom" : " WHERE performance_date >= @dateFrom";
             }
 
             if (!IsNullOrWhiteSpace(fund))
             {
                 sqlParams.Add(new SqlParameter("fund", fund));
-                query += date.HasValue ? " AND fund = @fund" : " WHERE fund = @fund";
+                query += dateTo.HasValue || dateFrom.HasValue ? " AND fund = @fund" : " WHERE fund = @fund";
             }
 
             if (!IsNullOrWhiteSpace(portfolio))
             {
                 sqlParams.Add(new SqlParameter("portfolio", portfolio));
-                query += date.HasValue || !IsNullOrWhiteSpace(fund)
+                query += dateTo.HasValue || dateFrom.HasValue || !IsNullOrWhiteSpace(fund)
                     ? " AND portfolio = @portfolio"
                     : " WHERE portfolio = @portfolio";
             }
@@ -77,6 +84,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
 
             var jsonResult = JsonConvert.SerializeObject(dataTable);
+
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
             return Utils.GridWrap(json);
@@ -246,8 +254,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     priorData = null;
                 }
 
-                return Utils.Wrap(true, groupedByYear.SelectMany(x => x.Select(y => y).ToList()), null,
-                    "Performance calculated successfully");
+                return Utils.Wrap(true, groupedByYear.SelectMany(x => x.Select(y => y).ToList()), null, "Performance calculated successfully");
             }
             catch
             {
@@ -294,8 +301,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("last_updated_by", "Jack Pearson"),
                     new SqlParameter("estimated", item.Estimated),
                     new SqlParameter("start_month_estimate_nav", item.StartOfMonthEstimateNav),
-                    new SqlParameter("fund", item.Fund == "None" ? SqlString.Null : item.Fund),
-                    new SqlParameter("portfolio", item.PortFolio == "None" ? SqlString.Null : item.PortFolio),
+                    new SqlParameter("fund", item.Fund == null ? SqlString.Null : item.Fund),
+                    new SqlParameter("portfolio", item.PortFolio == null ? SqlString.Null : item.PortFolio),
                     new SqlParameter("monthly_end_nav", item.MonthEndNav),
                     new SqlParameter("performance", item.Performance),
                     new SqlParameter("mtd", item.MTD),
@@ -415,21 +422,24 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             var convertedPriorQTD = prior.QTD + 1;
             var convertedCurrentMTD = current.MTD.HasValue ? current.MTD.Value + 1 : 1;
-            return (convertedPriorQTD * convertedCurrentMTD) - 1;
+            //return (convertedPriorQTD * convertedCurrentMTD) - 1;
+            return Math.Round((convertedPriorQTD * convertedCurrentMTD) - 1, 16);
         }
 
         public decimal CalculateYTD(MonthlyPerformance current, MonthlyPerformance prior)
         {
             var convertedPriorYTD = prior.YTD + 1;
             var convertedCurrentMTD = current.MTD.HasValue ? current.MTD.Value + 1 : 1;
-            return (convertedPriorYTD * convertedCurrentMTD) - 1;
+            //return (convertedPriorYTD * convertedCurrentMTD) - 1;
+            return Math.Round((convertedPriorYTD * convertedCurrentMTD) - 1, 16);
         }
 
         public decimal CalculateITD(MonthlyPerformance current, MonthlyPerformance prior)
         {
             var convertedPriorYTD = prior.ITD + 1;
             var convertedCurrentMTD = current.MTD.HasValue ? current.MTD.Value + 1 : 1;
-            return (convertedPriorYTD * convertedCurrentMTD) - 1;
+            //return (convertedPriorYTD * convertedCurrentMTD) - 1;
+            return Math.Round((convertedPriorYTD * convertedCurrentMTD) - 1, 16);
         }
 
         public object GetMonthlyPerformanceAudit(int id)
@@ -444,6 +454,115 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var jsonResult = JsonConvert.SerializeObject(dataTable);
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
             return Utils.GridWrap(json);
+        }
+
+        public object GetDailyUnofficialPnl()
+        {
+            var query = $@"SELECT id AS Id,
+                           created_date as Created_Date,
+                            last_updated_date as LastUpdatedDate,
+                            created_by as CreatedBy
+                            last_updated_by as LastUpdatedBy
+                            business_date as BusinessDate,
+                            portfolio as PortFolio,
+                            fund as Fund,
+                            trading_mtd_pnl as TradingMtdPnl,
+                            calc_trading_mtd_pnl as CalcTradingMtdPnl,
+                            trading_ytd_pnl as TradingYtdPnl,
+                            mtd_final_pnl as MtdFinalPnl,
+                            ytd_final_pnl as YtdFinalPnl,
+                            mtd_ipo_pnl as MtdIpoPnl,
+                            ytd_ipo_pnl as YtdIpoPnl,
+                            mtd_total_pnl as MtdTotalPnl,
+                            calc_mtd_total as CalcMtdTotal,
+                            ytd_total_pnl as YtdTotalPnl";
+
+            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
+
+            var jsonResult = JsonConvert.SerializeObject(dataTable);
+
+            dynamic json = JsonConvert.DeserializeObject(jsonResult);
+
+            return Utils.GridWrap(json);
+        }
+
+        public object GetDailyUnofficialPnlAudit()
+        {
+            try
+            {
+                var query = $@"SELECT id AS Id,
+                           created_date as Created_Date,
+                            last_updated_date as LastUpdatedDate,
+                            created_by as CreatedBy
+                            last_updated_by as LastUpdatedBy
+                            business_date as BusinessDate,
+                            portfolio as PortFolio,
+                            fund as Fund,
+                            trading_mtd_pnl as TradingMtdPnl,
+                            calc_trading_mtd_pnl as CalcTradingMtdPnl,
+                            trading_ytd_pnl as TradingYtdPnl,
+                            mtd_final_pnl as MtdFinalPnl,
+                            ytd_final_pnl as YtdFinalPnl,
+                            mtd_ipo_pnl as MtdIpoPnl,
+                            ytd_ipo_pnl as YtdIpoPnl,
+                            mtd_total_pnl as MtdTotalPnl,
+                            calc_mtd_total as CalcMtdTotal,
+                            ytd_total_pnl as YtdTotalPnl
+                            from unofficial_daily_pnl";
+
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
+
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+
+                dynamic json = JsonConvert.DeserializeObject(jsonResult);
+
+                return Utils.GridWrap(json, null, null, HttpStatusCode.OK, "Daily Unofficial Pnl fetched successfully");
+            }
+            catch (Exception ex)
+            {
+                return Utils.GridWrap(null, null, null, HttpStatusCode.InternalServerError, "An error occured while fetching Daily Unofficial Pnl");
+            }
+        }
+
+        public object GetDailyUnofficialPnlAudit(int id)
+        {
+            try
+            {
+                var query = $@"SELECT id AS Id,
+                            unofficial_daily_pnl_id as UnofficialDailyPnlId,
+                           created_date as Created_Date,
+                            last_updated_date as LastUpdatedDate,
+                            created_by as CreatedBy
+                            last_updated_by as LastUpdatedBy
+                            business_date as BusinessDate,
+                            portfolio as PortFolio,
+                            fund as Fund,
+                            trading_mtd_pnl as TradingMtdPnl,
+                            calc_trading_mtd_pnl as CalcTradingMtdPnl,
+                            trading_ytd_pnl as TradingYtdPnl,
+                            mtd_final_pnl as MtdFinalPnl,
+                            ytd_final_pnl as YtdFinalPnl,
+                            mtd_ipo_pnl as MtdIpoPnl,
+                            ytd_ipo_pnl as YtdIpoPnl,
+                            mtd_total_pnl as MtdTotalPnl,
+                            calc_mtd_total as CalcMtdTotal,
+                            ytd_total_pnl as YtdTotalPnl
+                            from unofficial_daily_pnl_audit
+                            where unofficial_daily_pnl_id = @id";
+
+                List<SqlParameter> auditTrailParams = new List<SqlParameter>()
+                {
+                    new SqlParameter("id", id)
+                };
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, auditTrailParams.ToArray());
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+                dynamic json = JsonConvert.DeserializeObject(jsonResult);
+                return Utils.GridWrap(json,null,null,HttpStatusCode.OK,"Daily Unofficial Pnl Audit Trail fetched successfully");
+            }
+            catch(Exception ex)
+            {
+                return Utils.GridWrap(null,null,null, HttpStatusCode.InternalServerError, "An error occured while fetching Daily Unofficial Pnl Audit Trail");
+            }
         }
     }
 }

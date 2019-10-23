@@ -135,18 +135,19 @@ namespace LP.Finance.Common
             };
         }
 
-        public static object Wrap(bool status, string message = null)
+        public static object Wrap(bool status, string message = null, object statusCode = null)
         {
             return new
             {
                 when = DateTime.Now,
                 by = "",
                 isSuccessful = status,
+                status = statusCode,
                 message = message ?? (status ? "The Request was Successful" : "The Request Failed! Try Again"),
             };
         }
 
-        public static object GridWrap(object payload, object metaData = null, object stats = null)
+        public static object GridWrap(object payload, object metaData = null, object stats = null, object statusCode = null, object message = null)
         {
             return new
             {
@@ -154,7 +155,9 @@ namespace LP.Finance.Common
                 by = "",
                 data = payload,
                 meta = metaData,
-                stats = stats
+                stats = stats,
+                status = statusCode,
+                message = message
             };
         }
 

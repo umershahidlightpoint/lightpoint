@@ -20,6 +20,7 @@ export class GridId {
   static taxlotStatusId = 19;
   static taxlotId = 19;
   static fundTheoreticalId = 20;
+  static dailyPnlId = 21;
 }
 
 export class GridName {
@@ -44,4 +45,5 @@ export class GridName {
   static taxlotStatus = 'Taxlot Status';
   static taxlot = 'Taxlot';
   static fundTheoretical = 'Fund Theoretical';
+  static dailyPnl = 'Daily PNL';
 }

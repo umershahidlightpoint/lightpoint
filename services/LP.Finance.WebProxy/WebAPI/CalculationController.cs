@@ -9,10 +9,10 @@ using LP.Finance.WebProxy.GraphQLEntities;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
-    [RoutePrefix("api/performance")]
-    public class PerformanceController : ApiController
+    [RoutePrefix("api/calculation")]
+    public class CalculationController : ApiController
     {
-        private IPerformanceService controller = new PerformanceService();
+        private ICalculationService controller = new CalculationService();
 
         // GET api/fileManagement/files
         [Route("monthlyPerformance")]
@@ -69,6 +69,20 @@ namespace LP.Finance.WebProxy.WebAPI
             }
 
             return Ok(result);
+        }
+
+        [Route("dailyUnofficialPnl")]
+        [HttpGet]
+        public object GetDailyUnofficialPnl()
+        {
+            return controller.GetMonthlyPerformance();
+        }
+
+        [Route("dailyUnofficialPnlAudit")]
+        [HttpGet]
+        public object GetDailyUnofficialPnlAudit(int id)
+        {
+            return controller.GetMonthlyPerformanceAudit(id);
         }
     }
 }

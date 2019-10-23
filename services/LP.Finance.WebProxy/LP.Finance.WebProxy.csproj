@@ -92,7 +92,7 @@
     <Compile Include="WebAPI\DataGridController.cs" />
     <Compile Include="WebAPI\FileManagementController.cs" />
     <Compile Include="WebAPI\JournalLogController.cs" />
-    <Compile Include="WebAPI\PerformanceController.cs" />
+    <Compile Include="WebAPI\CalculationController.cs" />
     <Compile Include="WebAPI\PostingEngineController.cs" />
     <Compile Include="WebAPI\Resolvers\PerformanceResolver.cs" />
     <Compile Include="WebAPI\Services\AccountTagService.cs" />
@@ -112,12 +112,12 @@
     <Compile Include="WebAPI\Services\ILedgerService.cs" />
     <Compile Include="WebAPI\LedgerController.cs" />
     <Compile Include="WebAPI\JournalController.cs" />
-    <Compile Include="WebAPI\Services\IPerformanceService.cs" />
+    <Compile Include="WebAPI\Services\ICalculationService.cs" />
     <Compile Include="WebAPI\Services\JournalLogService.cs" />
     <Compile Include="WebAPI\Services\JournalService.cs" />
     <Compile Include="WebAPI\Services\LedgerService.cs" />
     <Compile Include="WebAPI\Services\IPostingEngineService.cs" />
-    <Compile Include="WebAPI\Services\PerformanceService.cs" />
+    <Compile Include="WebAPI\Services\CalculationService.cs" />
     <Compile Include="WebAPI\Services\PostingEngineService.cs" />
     <Compile Include="WebAPI\Stubs\JournalStub.cs" />
     <Compile Include="WebAPI\Stubs\JournalLogStub.cs" />

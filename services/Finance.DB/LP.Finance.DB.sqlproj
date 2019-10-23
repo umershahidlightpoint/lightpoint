@@ -84,8 +84,7 @@
     <Build Include="Triggers\monthly_performance_update_trigger.sql" />
     <Build Include="Triggers\monthly_performance_insert_trigger.sql" />
     <Build Include="StoredProcs\CostBasisCalculation.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <RefactorLog Include="LP.Finance.DB.refactorlog" />
+    <Build Include="Tables\unofficial_daily_pnl.sql" />
+    <Build Include="Tables\unofficial_daily_pnl_history.sql" />
   </ItemGroup>
 </Project>

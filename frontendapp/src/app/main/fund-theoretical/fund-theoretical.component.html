@@ -11,7 +11,7 @@
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
   <!-- Tab View Tag Starts -->
   <p-tabView [ngStyle]="style">
-    <!-- Account Tab Starts -->
+    <!-- Fund Theoretical Tab Starts -->
     <p-tabPanel header="Fund Theoretical" [ngStyle]="style">
       <!----- Action Buttons Div Starts ----->
       <div class="row">
@@ -40,7 +40,7 @@
               [singleDatePicker]="true" [autoApply]="true" autocomplete="off" [showDropdowns]="true" />
           </div>
           <div class="col-6" *ngIf="showDatePicker">
-            <button class="btn btn-info" type="button" (click)="generateRows()">
+            <button class="btn btn-info" type="button" (click)="generateRows()" [disabled]="!generateFundsDate">
               Generate Rows
             </button>
             <input class="btn btn-info file-upload-btn" type="file" (change)="onFileInput($event.target.files)">
@@ -73,7 +73,13 @@
       </div>
       <!----- Div To Measure Identifier Ends ----->
     </p-tabPanel>
-    <!-- Account Tab Ends -->
+    <!-- Fund Theoretical Tab Ends -->
+
+    <!-- Daily PNL Tab Starts -->
+    <p-tabPanel header="Daily PnL" [ngStyle]="style">
+      <app-daily-pnl></app-daily-pnl>
+    </p-tabPanel>
+    <!-- Daily PNL Tab Ends -->
   </p-tabView>
   <!-- Tab View Tag Ends -->
 </div>
