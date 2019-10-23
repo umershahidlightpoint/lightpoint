@@ -452,7 +452,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             if (date.HasValue)
                 businessDate = date.Value.Date;
 
-            var query = $@"select business_date, symbol, Balance, Quantity, cost_basis as CostBasis, Side  from cost_basis
+            var query = $@"select business_date, symbol, Balance, Quantity, cost_basis as CostBasis, Side,
+                        realized_pnl,
+                        unrealized_pnl,
+                        realized_pnl + unrealized_pnl as Pnl
+                       from cost_basis
                         where business_date = '{businessDate.ToString("MM-dd-yyyy")}'";
 
             List<SqlParameter> sqlParams = new List<SqlParameter>();
@@ -498,15 +502,17 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 new SqlParameter("symbol", symbol)
             };
 
-            var query = $@"SELECT journal.[when] AS Date, 
-                        ABS(SUM(value)) AS Balance, 
-                        SUM(quantity) AS Quantity, 
-                        ABS(SUM(value)) / SUM(quantity) AS CostBasis 
-                        FROM journal WITH(NOLOCK) 
-                        INNER JOIN account a ON a.id = journal.account_id 
-                        INNER JOIN account_type a_t ON a_t.id = a.account_type_id 
-                        WHERE a_t.name = 'LONG POSITIONS AT COST' AND journal.[symbol] = @symbol 
-                        GROUP BY journal.[when]";
+            var query = $@"SELECT business_date AS Date, 
+                        Balance, 
+                        Quantity, 
+                        cost_basis as CostBasis,
+                        side,
+                        realized_pnl,
+                        unrealized_pnl,
+                        realized_pnl + unrealized_pnl as Pnl
+                        FROM cost_basis WITH(NOLOCK) 
+                        where symbol = @symbol 
+                        order BY business_date asc";
 
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
 

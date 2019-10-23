@@ -59,6 +59,7 @@
     <Folder Include="Properties" />
     <Folder Include="Tables" />
     <Folder Include="Triggers" />
+    <Folder Include="StoredProcs" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\file.sql" />
@@ -82,5 +83,9 @@
     <Build Include="Tables\monthly_performance_history.sql" />
     <Build Include="Triggers\monthly_performance_update_trigger.sql" />
     <Build Include="Triggers\monthly_performance_insert_trigger.sql" />
+    <Build Include="StoredProcs\CostBasisCalculation.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="LP.Finance.DB.refactorlog" />
   </ItemGroup>
 </Project>

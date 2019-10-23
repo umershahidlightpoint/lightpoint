@@ -45,9 +45,11 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   isLoading = false;
   hideGrid: boolean;
   chartData: any;
+
   cbData: any;
   bData: any;
   qData: any;
+
   labels: string[] = [];
   displayChart = false;
 
@@ -142,7 +144,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
         },
         {
           field: 'Balance',
-          headerName: 'Investment At Cost',
+          headerName: 'Exposure (at Cost)',
           cellClass: 'rightAlign',
           sortable: true,
           filter: true,
@@ -173,26 +175,23 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           headerName: 'Side'
         },
         {
-          field: 'Unrealized P&L',
+          field: 'unrealized_pnl',
           cellClass: 'rightAlign',
-          headerName: 'Unrealized P&L'
+          headerName: 'Unrealized P&L',
+          valueFormatter: currencyFormatter
         },
         {
-          field: 'realized P&L',
+          field: 'realized_pnl',
           cellClass: 'rightAlign',
-          headerName: 'Realized P&L'
+          headerName: 'Realized P&L',
+          valueFormatter: currencyFormatter
         },
         {
-          field: 'Net P&L',
+          field: 'Pnl',
           cellClass: 'rightAlign',
-          headerName: 'Net P&L'
-        },
-        {
-          field: 'Eod Price',
-          width: 50,
-          headerName: 'EOD Price'
-        },
-
+          headerName: 'Net P&L',
+          valueFormatter: currencyFormatter
+        }
       ],
       defaultColDef: {
         sortable: true,
@@ -226,6 +225,9 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   getReport(date, fund) {
     this.isLoading = true;
     this.financeService.getCostBasisReport(date, fund).subscribe(response => {
+
+      debugger;
+
       this.trialBalanceReportStats = response.stats;
       this.trialBalanceReport = response.data;
       this.gridOptions.api.setRowData(this.trialBalanceReport);
@@ -236,6 +238,8 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   rowSelected(row) {
     const { symbol } = row.data;
+
+    debugger
     this.financeService.getCostBasisChart(symbol).subscribe(response => {
       this.chartData = response.data;
 
@@ -253,8 +257,13 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     }));
   }
 
+  netpnlData: any;
+  unrealizedData: any;
+  realizedData: any;
+
   mapChartsData(data: any) {
     this.labels = data.map(item => item.Date);
+
     this.bData = data.map(item => ({
       date: FormatDate(item.Date, 'YYYY-MM-DD'),
       value: item.Balance
@@ -263,6 +272,20 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       date: FormatDate(item.Date, 'YYYY-MM-DD'),
       value: item.Quantity
     }));
+
+    this.unrealizedData = data.map(item => ({
+      date: FormatDate(item.Date, 'YYYY-MM-DD'),
+      value: item.unrealized_pnl
+    }));
+    this.realizedData = data.map(item => ({
+      date: FormatDate(item.Date, 'YYYY-MM-DD'),
+      value: item.realized_pnl
+    }));
+    this.netpnlData = data.map(item => ({
+      date: FormatDate(item.Date, 'YYYY-MM-DD'),
+      value: item.Pnl
+    }));
+
   }
 
   onFilterChanged() {

@@ -79,7 +79,7 @@ namespace PostingEngine
                 }
                 else if (side.Equals("short"))
                 {
-                    var positions = Journals.Where(i => i.Account.Type.Name == "SHORT POSITIONS-COST" && i.Symbol.Equals(symbol));
+                    var positions = Journals.Where(i => i.Account.Type.Name == "SHORT POSITIONS AT COST" && i.Symbol.Equals(symbol));
                     if (positions.Count() == 0)
                         return element.TradePrice;
 
@@ -112,5 +112,16 @@ namespace PostingEngine
         public Dictionary<string, int> Messages { get; private set; }
 
         public ITaxLotMethodology Methodology { get; set; }
+
+        /// <summary>
+        /// Find the Transaction that matches this element.
+        /// </summary>
+        /// <param name="lpOrderId"></param>
+        /// <returns></returns>
+        internal Transaction FindTrade(string lpOrderId)
+        {
+            var trade = Trades.Where(i => i.LpOrderId.Equals(lpOrderId)).FirstOrDefault();
+            return trade;
+        }
     }
 }

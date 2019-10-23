@@ -111,13 +111,13 @@ namespace PostingEngine.PostingRules
                     // Contribution
                     if (element.Symbol.Equals("ZZ_CASH_DIVIDENDS"))
                     {
-                        fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Settled Activity )")).FirstOrDefault(), listOfToTags, element);
+                        fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Settled Cash")).FirstOrDefault(), listOfToTags, element);
                         toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DIVIDENDS RECEIVABLE")).FirstOrDefault(), listOfFromTags, element);
                     }
                     else // Default Action
                     {
                         fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
-                        toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("SHORT POSITIONS-COST")).FirstOrDefault(), listOfFromTags, element);
+                        toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("SHORT POSITIONS AT COST")).FirstOrDefault(), listOfFromTags, element);
                     }
                     break;
             }
@@ -164,7 +164,7 @@ namespace PostingEngine.PostingRules
                             };
 
                             fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CONTRIBUTED CAPITAL")).FirstOrDefault(), fromTags, element);
-                            toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Settled Activity )")).FirstOrDefault(), toTags, element);
+                            toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Settled Cash")).FirstOrDefault(), toTags, element);
                         }
                         else if (element.Symbol.Equals("ZZ_CASH_DIVIDENDS"))
                         {
@@ -208,7 +208,7 @@ namespace PostingEngine.PostingRules
                             Tag.Find("CustodianCode")
                         };
 
-                        fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Settled Activity )")).FirstOrDefault(), fromTags, element);
+                        fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Settled Cash")).FirstOrDefault(), fromTags, element);
                         toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CONTRIBUTED CAPITAL")).FirstOrDefault(), toTags, element);
                     }
                     else if (element.Symbol.Equals("ZZ_CASH_DIVIDENDS"))
@@ -295,6 +295,7 @@ namespace PostingEngine.PostingRules
                     Value = moneyUSD * -1,
                     Event = "journal",
                     GeneratedBy = "system",
+                    Symbol = element.Symbol,
                     Fund = element.Fund,
                 };
 
@@ -309,6 +310,7 @@ namespace PostingEngine.PostingRules
                     Value = moneyUSD,
                     GeneratedBy = "system",
                     Event = "journal",
+                    Symbol = element.Symbol,
                     Fund = element.Fund,
                 };
 

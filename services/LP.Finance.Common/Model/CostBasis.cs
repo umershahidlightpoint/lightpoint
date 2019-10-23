@@ -117,14 +117,16 @@ SELECT '{busDate}', journal.symbol, Abs(sum(value)) as Balance, sum(quantity) as
   FROM journal with(nolock)
 inner join account a on a.id = journal.account_id
 inner join account_type a_t on a_t.id = a.account_type_id
-where a_t.name = 'SHORT POSITIONS-COST'
+where a_t.name = 'SHORT POSITIONS AT COST'
 and journal.[when] <= '{busDate}'
 group by a.name, journal.symbol
 having sum(quantity) != 0";
 
-            using (var command = new SqlCommand(sqlLong, connection, trans))
+            var sp = "CostBasisCalculation";
+            using (var command = new SqlCommand(sp, connection, trans))
             {
-                command.CommandType = CommandType.Text;
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add("@businessDate", SqlDbType.VarChar).Value = busDate;
                 try
                 {
                     command.ExecuteNonQuery();
@@ -135,21 +137,6 @@ having sum(quantity) != 0";
                     throw;
                 }
             }
-
-            using (var command = new SqlCommand(sqlShort, connection, trans))
-            {
-                command.CommandType = CommandType.Text;
-                try
-                {
-                    command.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Delete with Transaction Exception: {ex}");
-                    throw;
-                }
-            }
-
         }
     }
 

@@ -112,7 +112,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
                 query =
     $@"select * from trade with(nolock)
 where UpdatedOn between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}') 
-and SecurityType = 'Journals'
+and SecurityType = 'Journals' and action not in ( 'delete')
 -- and accrualId in ( select distinct accrualId from allocation with(nolock))
 order by UpdatedOn desc
 ";
@@ -123,7 +123,7 @@ order by UpdatedOn desc
                 query =
     $@"select * from trade with(nolock)
 where UpdatedOn between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}') 
-and SecurityType not in ('Journals')
+and SecurityType not in ('Journals') and action not in ( 'delete')
 -- and accrualId in ( select distinct accrualId from allocation with(nolock))
 order by UpdatedOn desc
 ";
