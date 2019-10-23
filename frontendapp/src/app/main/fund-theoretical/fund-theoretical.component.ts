@@ -322,6 +322,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       params.newValue != params.oldValue
     ) {
       this.doCalculation();
+      params.data.modified = true;
       this.disableCommit = false;
     }
 
@@ -347,7 +348,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         monthEndNavSum = parseInt(params.newValue) + parseInt(params.data.performance);
       }
       const row = this.fundTheoreticalGrid.api.getRowNode(params.data.rowId);
-
+      params.data.modified = true;
       setTimeout(() => {
         row.setDataValue('monthEndNav', monthEndNavSum.toString());
       }, 500);
