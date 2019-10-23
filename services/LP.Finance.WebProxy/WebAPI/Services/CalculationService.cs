@@ -422,21 +422,24 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             var convertedPriorQTD = prior.QTD + 1;
             var convertedCurrentMTD = current.MTD.HasValue ? current.MTD.Value + 1 : 1;
-            return (convertedPriorQTD * convertedCurrentMTD) - 1;
+            //return (convertedPriorQTD * convertedCurrentMTD) - 1;
+            return Math.Round((convertedPriorQTD * convertedCurrentMTD) - 1, 16);
         }
 
         public decimal CalculateYTD(MonthlyPerformance current, MonthlyPerformance prior)
         {
             var convertedPriorYTD = prior.YTD + 1;
             var convertedCurrentMTD = current.MTD.HasValue ? current.MTD.Value + 1 : 1;
-            return (convertedPriorYTD * convertedCurrentMTD) - 1;
+            //return (convertedPriorYTD * convertedCurrentMTD) - 1;
+            return Math.Round((convertedPriorYTD * convertedCurrentMTD) - 1, 16);
         }
 
         public decimal CalculateITD(MonthlyPerformance current, MonthlyPerformance prior)
         {
             var convertedPriorYTD = prior.ITD + 1;
             var convertedCurrentMTD = current.MTD.HasValue ? current.MTD.Value + 1 : 1;
-            return (convertedPriorYTD * convertedCurrentMTD) - 1;
+            //return (convertedPriorYTD * convertedCurrentMTD) - 1;
+            return Math.Round((convertedPriorYTD * convertedCurrentMTD) - 1, 16);
         }
 
         public object GetMonthlyPerformanceAudit(int id)
