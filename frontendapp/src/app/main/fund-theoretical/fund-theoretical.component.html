@@ -40,7 +40,7 @@
               [singleDatePicker]="true" [autoApply]="true" autocomplete="off" [showDropdowns]="true" />
           </div>
           <div class="col-6" *ngIf="showDatePicker">
-            <button class="btn btn-info" type="button" (click)="generateRows()">
+            <button class="btn btn-info" type="button" (click)="generateRows()" [disabled]="!generateFundsDate">
               Generate Rows
             </button>
             <input class="btn btn-info file-upload-btn" type="file" (change)="onFileInput($event.target.files)">

@@ -86,6 +86,7 @@ import { FundTheoreticalComponent } from './main/fund-theoretical/fund-theoretic
 import { PerformanceCanDeactivateGuard } from '../shared/guards/performance-can-deactivate-guard.service';
 import { DataGridModalComponent } from '../shared/Component/data-grid-modal/data-grid-modal.component';
 import { DecimalPipe } from '@angular/common';
+import { AgGridCheckboxComponent } from '../shared/Component/ag-grid-checkbox/ag-grid-checkbox.component';
 
 @NgModule({
   declarations: [
@@ -127,11 +128,16 @@ import { DecimalPipe } from '@angular/common';
     GridUtilsComponent,
     FileExceptionComponent,
     FundTheoreticalComponent,
-    DataGridModalComponent
+    DataGridModalComponent,
+    AgGridCheckboxComponent
   ],
   imports: [
     BrowserModule,
-    AgGridModule.withComponents([TemplateRendererComponent, GridLayoutMenuComponent]),
+    AgGridModule.withComponents([
+      TemplateRendererComponent,
+      GridLayoutMenuComponent,
+      AgGridCheckboxComponent
+    ]),
     MaterialModule,
     NgxDaterangepickerMd.forRoot(),
     AppRoutingModule,

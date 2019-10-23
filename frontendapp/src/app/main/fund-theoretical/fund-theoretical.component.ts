@@ -13,6 +13,7 @@ import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { MonthlyPerformanceData } from 'src/shared/Models';
 import { DataGridModalComponent } from '../../../shared/Component/data-grid-modal/data-grid-modal.component';
 import { DecimalPipe } from '@angular/common';
+import { AgGridCheckboxComponent } from '../../../shared/Component/ag-grid-checkbox/ag-grid-checkbox.component';
 
 @Component({
   selector: 'app-fund-theoretical',
@@ -186,9 +187,9 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         headerName: 'Estimated',
         field: 'estimated',
         cellEditor: 'agSelectCellEditor',
-        cellRenderer: params => {
-          return `<input type='checkbox' ${params.node.data.estimated ? 'checked' : ''} />`;
-        }
+        cellRendererFramework: AgGridCheckboxComponent,
+        // To call onCellValueChangedMethod from AgGridCheckboxComponent
+        customMethod: params => this.onCellValueChanged(params)
       },
       {
         headerName: 'Year',
@@ -323,10 +324,15 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       this.doCalculation();
       this.disableCommit = false;
     }
-    if (params.data.fund !== 'None' || params.data.portfolio !== 'None' || params.data.estimated) {
+
+    if (
+      (params.colDef.field === 'fund' && params.data.fund !== 'None') ||
+      (params.colDef.field === 'portfolio' && params.data.portfolio !== 'None') ||
+      params.colDef.field === 'estimated'
+    ) {
       this.disableCommit = false;
       const row = this.fundTheoreticalGrid.api.getRowNode(params.data.rowId);
-      row.setDataValue('modified', !params.data.modified);
+      row.setDataValue('modified', true);
     }
 
     if (
@@ -454,8 +460,8 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
       generateFundsDate.add(1, 'month');
       count++;
-      this.totalGridRows = count;
     }
+    this.totalGridRows = count;
     this.showDatePicker = false;
     this.fundTheoreticalGrid.api.setRowData(this.monthlyPerformanceData);
   }
