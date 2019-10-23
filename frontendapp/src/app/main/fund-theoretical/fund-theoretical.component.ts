@@ -41,7 +41,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   title: string;
   fileToUpload: File = null;
 
-  momentMonths = [
+  monthsArray = [
     { id: 0, month: 'January' },
     { id: 1, month: 'February' },
     { id: 2, month: 'March' },
@@ -78,7 +78,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   ) {
     this.hideGrid = false;
     this.currentYear = moment().get('year');
-    const currentMonthObj = this.momentMonths.find(obj => obj.id === moment().get('month'));
+    const currentMonthObj = this.monthsArray.find(obj => obj.id === moment().get('month'));
     this.currentMonth = currentMonthObj.month;
   }
 
@@ -99,6 +99,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   getFunds() {
     this.financeService.getFunds().subscribe(response => {
       this.funds = response.payload.map(item => item.FundCode);
+      this.funds.push('None');
       this.initCols();
     });
   }
@@ -213,13 +214,14 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         editable: true,
         cellEditor: 'agSelectCellEditor',
         cellEditorParams: {
-          values: ['None', ...this.funds]
+          values: this.funds
         }
       },
       {
         headerName: 'Portfolio*',
         field: 'portfolio',
         editable: true,
+        filter: true,
         cellEditor: 'agSelectCellEditor',
         cellEditorParams: {
           values: ['None', 'PORTFOLIO A', 'ASIA_FOCUS']
@@ -432,7 +434,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         break;
       case 2:
         const monthId = moment(dateObject).get('month');
-        formattedValue = this.momentMonths.find(obj => obj.id === monthId);
+        formattedValue = this.monthsArray.find(obj => obj.id === monthId);
         formattedValue = formattedValue.month;
         break;
     }
@@ -541,6 +543,25 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     this.disableCommit = true;
   }
 
+  generateData() {
+    const graphObject = [
+      { label: 'MTD', data: [] },
+      { label: 'YTD', data: [] },
+      { label: 'QTD', data: [] },
+      { label: 'ITD', data: [] }
+    ];
+
+    graphObject.forEach(model => {
+      this.monthlyPerformanceData.forEach(item => {
+        model.data.push({
+          date: item.year + '-' + this.getMomentMonth(item.month) + '-' + '01',
+          value: item[model.label.toLowerCase()] * 100
+        });
+      });
+    });
+    console.log('new Created Model', graphObject);
+  }
+
   formatPerformanceData(records) {
     const formattedRecords: Array<MonthlyPerformanceData> = records.map(record => ({
       id: record.Id,
@@ -593,7 +614,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   }
 
   getMomentMonth(month) {
-    const momentMonth = this.momentMonths.find(obj => obj.month === month);
+    const momentMonth = this.monthsArray.find(obj => obj.month === month);
     const monthInNum = momentMonth.id + 1;
     if (monthInNum < 9) {
       return '0' + monthInNum;
@@ -630,6 +651,6 @@ function textAlignRight() {
   return { textAlign: 'end' };
 }
 
-function percentageFormatter(number) {
-  return number * 100;
+function percentageFormatter(numberToFormat) {
+  return numberToFormat * 100;
 }
