@@ -8,12 +8,16 @@ import { HeightStyle } from 'src/shared/utils/Shared';
 })
 export class CalculationGraphsComponent implements OnInit, OnChanges {
   @Input() chartData: any;
-  cData: any[] = [];
+  QTDData: any[] = [];
+  YTDData: any[] = [];
+  ITDData: any[] = [];
   showChart = false;
 
   styleForHeight = HeightStyle(264);
 
-  propIDPerformance = 'performanceLineChart';
+  propIDQTD = 'QTDLineChart';
+  propIDYTD = 'YTDLineChart';
+  propIDITD = 'ITDLineChart';
   divHeight = 180;
   divWidth = '95%';
   lineColors = ['#ff6960', '#00bd9a'];
@@ -26,11 +30,17 @@ export class CalculationGraphsComponent implements OnInit, OnChanges {
     const { currentValue } = change.chartData;
     if (currentValue !== undefined) {
       currentValue.forEach((element, index) => {
-        if (index === 0) {
-          this.cData = element.data;
+        if (index === 1) {
+          this.QTDData = element.data;
+        }
+        if (index === 2) {
+          this.YTDData = element.data;
+        }
+        if (index === 3) {
+          this.ITDData = element.data;
         }
       });
-      if (this.cData.length > 0) {
+      if (this.QTDData.length > 0) {
         this.showChart = true;
       }
     }
