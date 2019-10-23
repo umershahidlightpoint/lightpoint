@@ -3,8 +3,8 @@
   <!-- Style For Height  -->
   <div [ngStyle]="styleForHeight">
     <div class="line-chart-wrapper">
-      <eikos-line-plot class="d-block chart" [propID]="propIDPerformance" [colors]="lineColors" [data]="cData"
-        [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
+      <eikos-line-plot *ngIf="showChart" class="d-block chart" [propID]="propIDPerformance" [colors]="lineColors"
+        [data]="cData" [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
       </eikos-line-plot>
     </div>
   </div>
