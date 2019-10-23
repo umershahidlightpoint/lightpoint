@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
-    public interface IPerformanceService
+    public interface ICalculationService
     {
         object GetMonthlyPerformance(DateTime? dateTo = null, DateTime? dateFrom = null, string fund = null, string portfolio = null);
         object CalculateMonthlyPerformance(List<MonthlyPerformance> dto);
         object AddOrUpdateMonthlyPerformance(List<MonthlyPerformance> dto);
         Task<object> UploadMonthlyPerformance(HttpRequestMessage requestMessage);
         object GetMonthlyPerformanceAudit(int id);
+        object GetDailyUnofficialPnl();
+        object GetDailyUnofficialPnlAudit(int id);
     }
 }

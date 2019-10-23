@@ -82,5 +82,7 @@
     <Build Include="Tables\monthly_performance_history.sql" />
     <Build Include="Triggers\monthly_performance_update_trigger.sql" />
     <Build Include="Triggers\monthly_performance_insert_trigger.sql" />
+    <Build Include="Tables\unofficial_daily_pnl.sql" />
+    <Build Include="unofficial_daily_pnl_history.sql" />
   </ItemGroup>
 </Project>

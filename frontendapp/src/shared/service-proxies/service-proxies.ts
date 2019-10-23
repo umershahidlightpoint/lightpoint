@@ -515,27 +515,27 @@ export class FinancePocServiceProxy {
   Monthly Performance
   */
   getMonthlyPerformance(): Observable<any> {
-    const url = this.baseUrl + '/performance/monthlyPerformance';
+    const url = this.baseUrl + '/calculation/monthlyPerformance';
     return this.http.get(url);
   }
 
   calMonthlyPerformance(data): Observable<any> {
-    const url = this.baseUrl + '/performance/monthlyPerformance';
+    const url = this.baseUrl + '/calculation/monthlyPerformance';
     return this.http.post(url, data);
   }
 
   commitMonthlyPerformance(data): Observable<any> {
-    const url = this.baseUrl + '/performance/monthlyPerformance';
+    const url = this.baseUrl + '/calculation/monthlyPerformance';
     return this.http.put(url, data);
   }
 
   monthlyPerformanceAudit(id): Observable<any> {
-    const url = this.baseUrl + '/performance/monthlyPerformanceAudit?id=' + id;
+    const url = this.baseUrl + '/calculation/monthlyPerformanceAudit?id=' + id;
     return this.http.get(url);
   }
 
   uploadMonthlyPerformance(file: File): Observable<any> {
-    const url = this.baseUrl + '/performance/monthlyPerformance/upload';
+    const url = this.baseUrl + '/calculation/monthlyPerformance/upload';
     const formData: FormData = new FormData();
     formData.append('fileKey', file, file.name);
     return this.http.post(url, formData);

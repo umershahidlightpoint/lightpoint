@@ -12,7 +12,7 @@ namespace UT.Finance
     [TestClass]
     public class PerformanceWebApi
     {
-        private static readonly string performanceURL = "/api/performance/monthlyPerformance";
+        private static readonly string performanceURL = "/api/calculation/monthlyPerformance";
 
         [TestMethod]
         public void TestPerformanceCalculations()

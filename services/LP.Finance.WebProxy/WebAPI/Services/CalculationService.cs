@@ -13,13 +13,14 @@ using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using static System.String;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
-    public class PerformanceService : IPerformanceService
+    public class CalculationService : ICalculationService
     {
         private static readonly string
             connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
@@ -450,6 +451,115 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var jsonResult = JsonConvert.SerializeObject(dataTable);
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
             return Utils.GridWrap(json);
+        }
+
+        public object GetDailyUnofficialPnl()
+        {
+            var query = $@"SELECT id AS Id,
+                           created_date as Created_Date,
+                            last_updated_date as LastUpdatedDate,
+                            created_by as CreatedBy
+                            last_updated_by as LastUpdatedBy
+                            business_date as BusinessDate,
+                            portfolio as PortFolio,
+                            fund as Fund,
+                            trading_mtd_pnl as TradingMtdPnl,
+                            calc_trading_mtd_pnl as CalcTradingMtdPnl,
+                            trading_ytd_pnl as TradingYtdPnl,
+                            mtd_final_pnl as MtdFinalPnl,
+                            ytd_final_pnl as YtdFinalPnl,
+                            mtd_ipo_pnl as MtdIpoPnl,
+                            ytd_ipo_pnl as YtdIpoPnl,
+                            mtd_total_pnl as MtdTotalPnl,
+                            calc_mtd_total as CalcMtdTotal,
+                            ytd_total_pnl as YtdTotalPnl";
+
+            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
+
+            var jsonResult = JsonConvert.SerializeObject(dataTable);
+
+            dynamic json = JsonConvert.DeserializeObject(jsonResult);
+
+            return Utils.GridWrap(json);
+        }
+
+        public object GetDailyUnofficialPnlAudit()
+        {
+            try
+            {
+                var query = $@"SELECT id AS Id,
+                           created_date as Created_Date,
+                            last_updated_date as LastUpdatedDate,
+                            created_by as CreatedBy
+                            last_updated_by as LastUpdatedBy
+                            business_date as BusinessDate,
+                            portfolio as PortFolio,
+                            fund as Fund,
+                            trading_mtd_pnl as TradingMtdPnl,
+                            calc_trading_mtd_pnl as CalcTradingMtdPnl,
+                            trading_ytd_pnl as TradingYtdPnl,
+                            mtd_final_pnl as MtdFinalPnl,
+                            ytd_final_pnl as YtdFinalPnl,
+                            mtd_ipo_pnl as MtdIpoPnl,
+                            ytd_ipo_pnl as YtdIpoPnl,
+                            mtd_total_pnl as MtdTotalPnl,
+                            calc_mtd_total as CalcMtdTotal,
+                            ytd_total_pnl as YtdTotalPnl
+                            from unofficial_daily_pnl";
+
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
+
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+
+                dynamic json = JsonConvert.DeserializeObject(jsonResult);
+
+                return Utils.GridWrap(json, null, null, HttpStatusCode.OK, "Daily Unofficial Pnl fetched successfully");
+            }
+            catch (Exception ex)
+            {
+                return Utils.GridWrap(null, null, null, HttpStatusCode.InternalServerError, "An error occured while fetching Daily Unofficial Pnl");
+            }
+        }
+
+        public object GetDailyUnofficialPnlAudit(int id)
+        {
+            try
+            {
+                var query = $@"SELECT id AS Id,
+                            unofficial_daily_pnl_id as UnofficialDailyPnlId,
+                           created_date as Created_Date,
+                            last_updated_date as LastUpdatedDate,
+                            created_by as CreatedBy
+                            last_updated_by as LastUpdatedBy
+                            business_date as BusinessDate,
+                            portfolio as PortFolio,
+                            fund as Fund,
+                            trading_mtd_pnl as TradingMtdPnl,
+                            calc_trading_mtd_pnl as CalcTradingMtdPnl,
+                            trading_ytd_pnl as TradingYtdPnl,
+                            mtd_final_pnl as MtdFinalPnl,
+                            ytd_final_pnl as YtdFinalPnl,
+                            mtd_ipo_pnl as MtdIpoPnl,
+                            ytd_ipo_pnl as YtdIpoPnl,
+                            mtd_total_pnl as MtdTotalPnl,
+                            calc_mtd_total as CalcMtdTotal,
+                            ytd_total_pnl as YtdTotalPnl
+                            from unofficial_daily_pnl_audit
+                            where unofficial_daily_pnl_id = @id";
+
+                List<SqlParameter> auditTrailParams = new List<SqlParameter>()
+                {
+                    new SqlParameter("id", id)
+                };
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, auditTrailParams.ToArray());
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+                dynamic json = JsonConvert.DeserializeObject(jsonResult);
+                return Utils.GridWrap(json,null,null,HttpStatusCode.OK,"Daily Unofficial Pnl Audit Trail fetched successfully");
+            }
+            catch(Exception ex)
+            {
+                return Utils.GridWrap(null,null,null, HttpStatusCode.InternalServerError, "An error occured while fetching Daily Unofficial Pnl Audit Trail");
+            }
         }
     }
 }

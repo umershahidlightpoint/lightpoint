@@ -13,7 +13,7 @@ namespace LP.Finance.WebProxy.WebAPI.Resolvers
             var performanceDateFrom = string.IsNullOrWhiteSpace(dateFrom) ? (DateTime?) null : Convert.ToDateTime(dateFrom);
             var performanceDateTo = string.IsNullOrWhiteSpace(dateTo) ? (DateTime?)null : Convert.ToDateTime(dateTo);
             var monthlyPerformanceResult =
-                new PerformanceService().GetMonthlyPerformance(performanceDateFrom, performanceDateTo, fund, portfolio);
+                new CalculationService().GetMonthlyPerformance(performanceDateFrom, performanceDateTo, fund, portfolio);
             var monthlyPerformance = monthlyPerformanceResult.GetType().GetProperty("data")
                 ?.GetValue(monthlyPerformanceResult, null);
 
