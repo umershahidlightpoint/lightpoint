@@ -83,6 +83,7 @@ import { ReportGridComponent } from './main/reports/report-grid/report-grid.comp
 import { GridUtilsComponent } from '../shared/Component/grid-utils/grid-utils.component';
 import { FileExceptionComponent } from './main/operations/file-exception/file-exception.component';
 import { FundTheoreticalComponent } from './main/fund-theoretical/fund-theoretical.component';
+import { DailyPnlComponent } from './main/fund-theoretical/daily-pnl/daily-pnl.component';
 import { PerformanceCanDeactivateGuard } from '../shared/guards/performance-can-deactivate-guard.service';
 import { DataGridModalComponent } from '../shared/Component/data-grid-modal/data-grid-modal.component';
 import { DecimalPipe } from '@angular/common';
@@ -128,6 +129,7 @@ import { AgGridCheckboxComponent } from '../shared/Component/ag-grid-checkbox/ag
     GridUtilsComponent,
     FileExceptionComponent,
     FundTheoreticalComponent,
+    DailyPnlComponent,
     DataGridModalComponent,
     AgGridCheckboxComponent
   ],
