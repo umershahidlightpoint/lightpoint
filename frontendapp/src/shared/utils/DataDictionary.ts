@@ -14,28 +14,65 @@ export class DataDictionary {
 
         switch (field) {
             case 'when': {
-                columnDefinition =         {
+                columnDefinition = {
                     field: 'when',
                     width: 120,
                     headerName: 'When',
                     enableRowGroup: true,
                     sortable: true,
                     filter: true,
-                  };
-                  break;
+                };
+                break;
             }
             case 'event': {
-                columnDefinition =         {
+                columnDefinition = {
                     field: 'event',
                     width: 120,
                     headerName: 'Event',
                     enableRowGroup: true,
                     sortable: true,
                     filter: true,
-                  };
-          
+                };
+
                 break;
             }
+            case 'TradePrice': {
+                columnDefinition = {
+                    field: 'TradePrice',
+                    width: 120,
+                    headerName: 'Trade Price',
+                    sortable: true,
+                    cellStyle: { 'text-align': 'right' },
+                    filter: true,
+                    valueFormatter: priceFormatter
+                };
+                break;
+            };
+            case 'NetPrice': {
+                columnDefinition = {
+                    field: 'NetPrice',
+                    width: 120,
+                    headerName: 'Net Price',
+                    sortable: true,
+                    cellStyle: { 'text-align': 'right' },
+                    filter: true,
+                    valueFormatter: priceFormatter
+                };
+                break;
+            };
+            case 'SettleNetPrice': {
+                columnDefinition = {
+                    field: 'SettleNetPrice',
+                    width: 120,
+                    headerName: 'SettleNet Price',
+                    sortable: true,
+                    cellStyle: { 'text-align': 'right' },
+                    filter: true,
+                    valueFormatter: priceFormatter
+                };
+                break;
+            };
+
             case 'start_price': {
                 columnDefinition = {
                     field: 'start_price',

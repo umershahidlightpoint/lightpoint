@@ -588,7 +588,7 @@ namespace PostingEngine.PostingRules
                     FxRate = fxrate,
                     Event = "tradedate",
                     GeneratedBy = "system",
-                    StartPrice = element.TradePrice,
+                    StartPrice = element.SettleNetPrice,
                     EndPrice = eodPrice,
                     Fund = debitEntry.Fund,
                 };
@@ -605,7 +605,7 @@ namespace PostingEngine.PostingRules
                     Value = moneyUSD,
                     Event = "tradedate",
                     GeneratedBy = "system",
-                    StartPrice = element.TradePrice,
+                    StartPrice = element.SettleNetPrice,
                     EndPrice = eodPrice,
                     Fund = creditEntry.Fund,
                 };

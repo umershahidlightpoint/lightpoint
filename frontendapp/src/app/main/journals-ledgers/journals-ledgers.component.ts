@@ -169,6 +169,9 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         enableRowGroup: true,
         filter: true
       },
+      this.dataDictionary.column('TradePrice'),
+      this.dataDictionary.column('NetPrice'),
+      this.dataDictionary.column('SettleNetPrice'),
       this.dataDictionary.column('start_price'),
       this.dataDictionary.column('end_price')
     ];
