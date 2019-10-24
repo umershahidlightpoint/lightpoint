@@ -16,6 +16,7 @@ import { FinancePocServiceProxy } from 'src/shared/service-proxies/service-proxi
 export class DailyPnlComponent implements OnInit {
   dailyPnlGrid: GridOptions;
   selectedDate = null;
+  dailyPnLData: Array<object>;
   funds: Array<string>;
 
   styleForHeight = HeightStyle(224);
@@ -24,6 +25,7 @@ export class DailyPnlComponent implements OnInit {
 
   ngOnInit() {
     this.getFunds();
+    this.getDailyPnL();
     this.initGrid();
   }
 
@@ -31,6 +33,12 @@ export class DailyPnlComponent implements OnInit {
     this.financeService.getFunds().subscribe(response => {
       this.funds = response.payload.map(item => item.FundCode);
       this.initCols();
+    });
+  }
+
+  getDailyPnL() {
+    this.financeService.getMonthlyPerformance().subscribe(response => {
+      this.dailyPnLData = response.data;
     });
   }
 

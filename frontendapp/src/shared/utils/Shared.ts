@@ -285,10 +285,13 @@ export const AutoSizeAllColumns = params => {
   const gridColumnApi = params.columnApi;
 
   const allColumnIds = [];
-  gridColumnApi.getAllColumns().forEach(column => {
-    allColumnIds.push(column.colId);
-  });
-  gridColumnApi.autoSizeColumns(allColumnIds);
+  const colDefs = gridColumnApi.getAllColumns();
+  if (colDefs.length > 0) {
+    gridColumnApi.getAllColumns().forEach(column => {
+      allColumnIds.push(column.colId);
+    });
+    gridColumnApi.autoSizeColumns(allColumnIds);
+  }
 };
 
 export const CommonCols = () => {

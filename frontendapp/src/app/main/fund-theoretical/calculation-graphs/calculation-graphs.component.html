@@ -1,0 +1,25 @@
+<!-- Div To Measure Identifier starts  -->
+<div #divToMeasure>
+  <!-- Style For Height  -->
+  <div [ngStyle]="styleForHeight">
+    <div class="line-chart-wrapper" *ngIf="showChart">
+      <div>
+        <div class="chart-title">QTD Net %</div>
+        <eikos-line-plot class="d-block chart" [propID]="propIDQTD" [colors]="lineColors" [data]="QTDData"
+          [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
+        </eikos-line-plot>
+
+        <div class="chart-title">YTD Net %</div>
+        <eikos-line-plot class="d-block chart" [propID]="propIDYTD" [colors]="lineColors" [data]="YTDData"
+          [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
+        </eikos-line-plot>
+
+        <div class="chart-title">ITD Net %</div>
+        <eikos-line-plot class="d-block chart" [propID]="propIDITD" [colors]="lineColors" [data]="ITDData"
+          [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
+        </eikos-line-plot>
+      </div>
+    </div>
+    <!-- Style For Height Ends -->
+  </div>
+  <!-- Div To Measure Identifier Ends  -->
