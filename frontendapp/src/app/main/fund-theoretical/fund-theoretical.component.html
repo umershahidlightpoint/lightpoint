@@ -48,12 +48,13 @@
             </button>
           </div>
           <div class="ml-auto">
-            <div class="col-6">
-              <button class="btn btn-info ml-2" type="button" [disabled]="disableCommit"
-                (click)="commitPerformanceData()">
-                Commit
-              </button>
-            </div>
+            <button class="btn btn-info ml-2" type="button" [disabled]="disableCommit"
+              (click)="commitPerformanceData()">
+              Commit
+            </button>
+            <button class="btn btn-info ml-2" type="button" tooltip="Expand Graph" (click)="expandedClicked()">
+              <i class="fa fa-expand"></i>
+            </button>
           </div>
         </div>
       </form>
@@ -64,9 +65,18 @@
         <!----- Style For Height ----->
         <div [ngStyle]="styleForHeight">
           <!----- Ag Grid Selector ----->
-          <ag-grid-angular class="ag-theme-balham" style=" height: 100%; width: 100%"
-            [gridOptions]="fundTheoreticalGrid">
-          </ag-grid-angular>
+          <div class="row h-100">
+            <!-- <div class="{{'col-' + 'isExpanded' ? 5 : 12}}"> -->
+            <div class="col-6">
+              <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="fundTheoreticalGrid">
+              </ag-grid-angular>
+            </div>
+            <div *ngIf="isExpanded" class="col-6">
+              <app-calculation-graphs style="height: 100%; width: 50%" [chartData]="graphObject">
+              </app-calculation-graphs>
+            </div>
+          </div>
+
 
         </div>
       </div>
