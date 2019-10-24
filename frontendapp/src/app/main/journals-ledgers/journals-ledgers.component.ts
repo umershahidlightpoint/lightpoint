@@ -27,6 +27,7 @@ import { JournalModalComponent } from './journal-modal/journal-modal.component';
 import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
 import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from '../../../shared/utils/AppEnums';
+import { DataDictionary } from '../../../shared/utils/DataDictionary';
 import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
 
 @Component({
@@ -94,7 +95,8 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     private financeService: FinancePocServiceProxy,
     private dataService: DataService,
     private postingEngineService: PostingEngineService,
-    private agGridUtls: AgGridUtils
+    private agGridUtls: AgGridUtils,
+    private dataDictionary: DataDictionary,
   ) {
     this.hideGrid = false;
     this.DateRangeLabel = '';
@@ -166,7 +168,9 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         sortable: true,
         enableRowGroup: true,
         filter: true
-      }
+      },
+      this.dataDictionary.column('start_price'),
+      this.dataDictionary.column('end_price')
     ];
     const cdefs = this.agGridUtls.customizeColumns(colDefs, columns, this.ignoreFields);
     this.gridOptions.api.setColumnDefs(cdefs);

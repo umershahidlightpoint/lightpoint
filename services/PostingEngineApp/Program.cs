@@ -10,10 +10,8 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace ConsoleApp1
+namespace PostingEngineCmd
 {
-    // "TradePrice":0.0,"TradeDate":"2019-06-21T00:00:00","Trader":"BMAY","Status":"Executed","Commission":0.0,"Fees":0.0,"NetMoney":0.0,"UpdatedOn":"2019-06-21T14:42:29.697"
-
     class Program
     {
         static void Main(string[] args)

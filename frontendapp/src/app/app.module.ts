@@ -46,6 +46,8 @@ import { FinancePocServiceProxy } from '../shared/service-proxies/service-proxie
 import { PostingEngineService } from '../shared/common/posting-engine.service';
 import { DataService } from '../shared/common/data.service';
 import { AgGridUtils } from '../shared/utils/ag-grid-utils';
+import { DataDictionary } from '../shared/utils/DataDictionary';
+
 import { TemplateRendererComponent } from './template-renderer/template-renderer.component';
 import { GridLayoutMenuComponent } from '../shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { AppComponent } from './app.component';
@@ -180,6 +182,7 @@ import { AgGridCheckboxComponent } from '../shared/Component/ag-grid-checkbox/ag
     SidenavService,
     PostingEngineService,
     AgGridUtils,
+    DataDictionary,
     PerformanceCanDeactivateGuard,
     DecimalPipe
   ],

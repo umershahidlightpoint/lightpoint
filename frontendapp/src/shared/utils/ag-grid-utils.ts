@@ -47,6 +47,8 @@ export class AgGridUtils {
           clone.headerName = column.headerName;
           clone.filter = column.filter;
           clone.colId = column.field;
+          clone.valueFormatter = null;
+          clone.cellStyle = null;
 
           // Assume all columns are sortable
           clone.sortable = true;
@@ -101,6 +103,8 @@ export class AgGridUtils {
         }
       }
     }
+
+    debugger
 
     return cdefs;
   }

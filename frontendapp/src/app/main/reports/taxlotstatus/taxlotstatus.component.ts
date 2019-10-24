@@ -156,7 +156,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           filter: true,
           sortable: true,
           cellClass: 'rightAlign',
-          valueFormatter: absCurrencyFormatter,
+          valueFormatter: currencyFormatter,
           aggFunc: 'sum',
         },
         {
@@ -166,7 +166,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           filter: true,
           sortable: true,
           cellClass: 'rightAlign',
-          valueFormatter: absCurrencyFormatter,
+          valueFormatter: currencyFormatter,
           aggFunc: 'sum',
         },
       ],
@@ -251,7 +251,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           filter: true,
           sortable: true,
           cellClass: 'rightAlign',
-          valueFormatter: absCurrencyFormatter
+          valueFormatter: currencyFormatter,
         },
         {
           field: 'cost_basis',
@@ -259,6 +259,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           headerName: 'Closing Price',
           sortable: true,
           cellClass: 'rightAlign',
+          valueFormatter:priceFormatter,
           filter: true
         },
         {
@@ -267,7 +268,8 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           headerName: 'Opening Price',
           sortable: true,
           filter: true,
-          cellClass: 'rightAlign'
+          cellClass: 'rightAlign',
+          valueFormatter:priceFormatter,
         }
       ],
       defaultColDef: {
@@ -440,7 +442,7 @@ function dateFormatter(params) {
   return moment(params.value).format('YYYY-MM-DD');
 }
 
-function costBasisFormatter(params) {
+function priceFormatter(params) {
   if (params.value === undefined) {
     return;
   }

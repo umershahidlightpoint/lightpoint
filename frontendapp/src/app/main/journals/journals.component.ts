@@ -3,10 +3,12 @@ import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-
 import { GridOptions } from 'ag-grid-community';
 import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
 import { DataService } from 'src/shared/common/data.service';
-import { SideBar, AutoSizeAllColumns } from 'src/shared/utils/Shared';
+import { SideBar, AutoSizeAllColumns, FormatNumber4, CommaSeparatedFormat } from 'src/shared/utils/Shared';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { DataDictionary } from 'src/shared/utils/DataDictionary';
+
 import { Observable } from 'rxjs';
 
 @Component({
@@ -26,7 +28,8 @@ export class JournalsComponent implements OnInit, OnChanges {
   constructor(
     private financeService: FinancePocServiceProxy,
     private dataService: DataService,
-    private agGridUtils: AgGridUtils
+    private agGridUtils: AgGridUtils,
+    private dataDictionary: DataDictionary
   ) {
     this.initGrid();
   }
@@ -103,7 +106,57 @@ export class JournalsComponent implements OnInit, OnChanges {
         result.data,
         this.journalsTradesData.meta.Columns
       );
-      const cdefs = this.agGridUtils.customizeColumns([], this.journalsTradesData.meta.Columns, [
+
+      let columnDefs = [
+        this.dataDictionary.column('when'),
+        this.dataDictionary.column('event'),
+        this.dataDictionary.column('debit'),
+        this.dataDictionary.column('credit'),
+        this.dataDictionary.column('balance'),
+        this.dataDictionary.column('end_price'),
+        this.dataDictionary.column('start_price'),
+        {
+          field: 'AccountCategory',
+          width: 120,
+          headerName: 'Category',
+          enableRowGroup: true,
+          sortable: true,
+          filter: true,
+        },
+        {
+          field: 'AccountType',
+          width: 120,
+          headerName: 'Type',
+          enableRowGroup: true,
+          sortable: true,
+          filter: true,
+        },
+        {
+          field: 'accountName',
+          width: 120,
+          headerName: 'Account Name',
+          enableRowGroup: true,
+          sortable: true,
+          filter: true,
+        },
+        {
+          field: 'accountDescription',
+          width: 120,
+          headerName: 'Account Description',
+          enableRowGroup: true,
+          sortable: true,
+          filter: true,
+        },
+        {
+          field: 'fund',
+          width: 120,
+          headerName: 'Fund',
+          enableRowGroup: true,
+          sortable: true,
+          filter: true,
+        },
+      ];
+      const cdefs = this.agGridUtils.customizeColumns(columnDefs, this.journalsTradesData.meta.Columns, [
         'account_id',
         'id',
         'value',
@@ -118,3 +171,22 @@ export class JournalsComponent implements OnInit, OnChanges {
     });
   }
 }
+
+function priceFormatter(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  return FormatNumber4(params.value);
+}
+
+function valueFormatter(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  if (params.value === 0.0) {
+    return;
+  }
+
+  return CommaSeparatedFormat(params.value);
+}
+
