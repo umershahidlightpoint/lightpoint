@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { HeightStyle } from 'src/shared/utils/Shared';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-calculation-graphs',
@@ -22,31 +23,36 @@ export class CalculationGraphsComponent implements OnInit, OnChanges {
   divWidth = '95%';
   lineColors = ['#ff6960', '#00bd9a'];
 
-  constructor() {}
+  constructor(private toastrService: ToastrService) {}
 
   ngOnInit() {}
 
   ngOnChanges(change: SimpleChanges) {
+    debugger;
     const { currentValue } = change.chartData;
     if (currentValue !== undefined) {
-      console.log('Curent Value', currentValue);
       let cData;
       currentValue.forEach((element, index) => {
         cData = element.data;
-        if (index === 1 && cData.length > 0) {
-          this.QTDData = cData;
-        }
-        if (index === 2 && cData.length > 0) {
-          this.YTDData = cData;
-        }
-        if (index === 3 && cData.length > 0) {
-          this.ITDData = cData;
+        if (cData.length === 0) {
+          this.showChart = false;
+        } else {
+          if (index === 1) {
+            this.QTDData = cData;
+          }
+          if (index === 2) {
+            this.YTDData = cData;
+          }
+          if (index === 3) {
+            this.ITDData = cData;
+          }
         }
       });
       if (this.QTDData.length > 0) {
         this.showChart = true;
+      } else {
+        this.toastrService.info('Data is not available to show Graphs!');
       }
-      console.log('QTDData', this.QTDData, 'YTDData', this.YTDData, 'ITDData', this.ITDData);
     }
   }
 }
