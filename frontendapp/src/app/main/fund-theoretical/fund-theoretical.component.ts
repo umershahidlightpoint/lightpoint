@@ -42,6 +42,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   fileToUpload: File = null;
   graphObject: any;
   isExpanded = false;
+  disableCharts = true;
 
   monthsArray = [
     { id: 0, month: 'January' },
@@ -469,6 +470,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     }
     this.totalGridRows = count;
     this.showDatePicker = false;
+    this.disableCharts = false;
     this.fundTheoreticalGrid.api.setRowData(this.monthlyPerformanceData);
   }
 
@@ -489,6 +491,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         AutoSizeAllColumns(this.fundTheoreticalGrid);
 
         this.showDatePicker = false;
+        this.disableCharts = false;
         this.disableCommit = false;
       } else {
         this.toastrService.error('Something went wrong! Try Again.');
@@ -512,6 +515,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     this.financeService.calMonthlyPerformance(formattedRecords).subscribe(response => {
       const rows = this.formatPerformanceData(response.payload);
       this.fundTheoreticalGrid.api.setRowData(rows);
+      this.generateData();
     });
   }
 
@@ -570,7 +574,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         });
       });
     });
-    console.log('this graph Object', this.graphObject);
+    console.log('777777777', this.graphObject);
   }
 
   formatPerformanceData(records) {
