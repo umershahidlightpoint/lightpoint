@@ -574,7 +574,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         });
       });
     });
-    console.log('777777777', this.graphObject);
   }
 
   formatPerformanceData(records) {
