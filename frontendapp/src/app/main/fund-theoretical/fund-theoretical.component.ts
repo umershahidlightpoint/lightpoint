@@ -41,6 +41,8 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   title: string;
   fileToUpload: File = null;
   graphObject: any;
+  isExpanded = false;
+  disableCharts = true;
 
   monthsArray = [
     { id: 0, month: 'January' },
@@ -114,7 +116,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       this.totalGridRows = rowNodeId;
       this.monthlyPerformanceData = this.formatPerformanceData(modifiedData);
       if (this.fundTheoreticalGrid) {
-        console.log('in get monthly performance', this.fundTheoreticalGrid);
         AutoSizeAllColumns(this.fundTheoreticalGrid);
       }
 
@@ -144,6 +145,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       pinnedBottomRowData: null,
       onRowSelected: params => {},
       clearExternalFilter: () => {},
+      onFilterChanged: this.generateData.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
@@ -175,7 +177,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   initCols() {
     const colDefs = this.getColDefs();
     this.fundTheoreticalGrid.api.setColumnDefs(colDefs);
-    console.log('in initCols ');
     AutoSizeAllColumns(this.fundTheoreticalGrid);
     this.fundTheoreticalGrid.api.sizeColumnsToFit();
   }
@@ -469,6 +470,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     }
     this.totalGridRows = count;
     this.showDatePicker = false;
+    this.disableCharts = false;
     this.fundTheoreticalGrid.api.setRowData(this.monthlyPerformanceData);
   }
 
@@ -486,10 +488,10 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         this.totalGridRows = rowNodeId;
         this.monthlyPerformanceData = this.formatPerformanceData(modifiedData);
         this.fundTheoreticalGrid.api.setRowData(this.monthlyPerformanceData);
-        console.log('in uploadMonthlyPerformance ');
         AutoSizeAllColumns(this.fundTheoreticalGrid);
 
         this.showDatePicker = false;
+        this.disableCharts = false;
         this.disableCommit = false;
       } else {
         this.toastrService.error('Something went wrong! Try Again.');
@@ -513,6 +515,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     this.financeService.calMonthlyPerformance(formattedRecords).subscribe(response => {
       const rows = this.formatPerformanceData(response.payload);
       this.fundTheoreticalGrid.api.setRowData(rows);
+      this.generateData();
     });
   }
 
@@ -547,6 +550,11 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     this.disableCommit = true;
   }
 
+  expandedClicked() {
+    this.isExpanded = !this.isExpanded;
+    this.generateData();
+  }
+
   generateData() {
     this.graphObject = [
       { label: 'ytdNetPerformance', data: [] },
@@ -556,11 +564,11 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     ];
 
     this.graphObject.forEach(model => {
-      this.monthlyPerformanceData.forEach(item => {
+      this.fundTheoreticalGrid.api.forEachNodeAfterFilter((rowNode, index) => {
         model.data.push({
-          date: item.year + '-' + this.getMomentMonth(item.month) + '-' + '01',
+          date: rowNode.data.year + '-' + this.getMomentMonth(rowNode.data.month) + '-' + '01',
           value:
-            item[
+            rowNode.data[
               model.label === 'ytdNetPerformance' ? 'ytdNetPerformance' : model.label.toLowerCase()
             ] * 100
         });

@@ -3,9 +3,9 @@
   <!----- Journal Tab Starts ----->
   <p-tabPanel header="Grid Views">
     <!----- Grid View Div Starts ----->
-    <div [ngStyle]="styleForHeight" style="display: flex">
+    <div class="d-flex" [ngStyle]="styleForHeight">
       <!----- AG Grid Starts ----->
-      <ag-grid-angular style="width: 55%; height: 100%" class="ag-theme-balham" [gridOptions]="gridOptions">
+      <ag-grid-angular class="width-55 h-100 ag-theme-balham" [gridOptions]="gridOptions">
       </ag-grid-angular>
       <!----- AG Grid Ends ----->
       <!----- Action buttons Template Starts ----->
@@ -22,7 +22,7 @@
       <!----- Action buttons Template Ends ----->
 
       <!----- Grid Layout Json Div Starts ----->
-      <div *ngIf="gridLayoutJson" class="json-viewer-border">
+      <div *ngIf="gridLayoutJson" class="width-45 h-100 json-container">
         <pre>{{gridLayoutJson | json}}</pre>
       </div>
       <!----- Grid Layout Json Div Ends ----->

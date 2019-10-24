@@ -1,12 +1,93 @@
+/******************************
+********  Global HTML  ********
+******************************/
 body {
   overflow: hidden;
 }
 
-.json-viewer-border {
-  width: 45%;
-  height: 100%;
-  overflow-y: scroll;
-  border: 1px solid #bdc3c7;
+/******************************
+********  Components   ********
+******************************/
+.json-container {
   margin-left: 2rem;
-  padding: 6px;
+  padding: 0.375rem;
+  border: 1px solid #bdc3c7;
+  overflow-y: scroll;
+}
+
+/******************************
+********    AG Grid    ********
+******************************/
+.edit-btn-props {
+  margin: 0 8px;
+  padding: 2px;
+  width: 15%;
+}
+
+/******************************
+********   Utilities   ********
+******************************/
+
+/******************************
+********     Width     ********
+******************************/
+.width-55 {
+  width: 55%;
+}
+
+.width-45 {
+  width: 45%;
+}
+
+/******************************
+********    Height     ********
+******************************/
+.height-45 {
+  height: 45%;
+}
+
+.height-38rem {
+  height: 38rem;
+}
+
+.height-30rem {
+  height: 30rem;
+}
+
+.height-30px {
+  height: 30px;
+}
+
+/******************************
+********   Font Size   ********
+******************************/
+.fz-1 {
+  font-size: 1em;
+}
+
+.fz-1_5 {
+  font-size: 1.5em;
+}
+
+/******************************
+********     Colors    ********
+******************************/
+.color-white {
+  color: #fff;
+}
+
+/******************************
+********    Commons    ********
+******************************/
+.opacity-1 {
+  opacity: 1;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+.file-upload-btn {
+  margin-left: 0.5rem;
+  padding: 0.2rem;
 }

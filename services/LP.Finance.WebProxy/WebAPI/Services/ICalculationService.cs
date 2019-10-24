@@ -15,5 +15,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object GetMonthlyPerformanceAudit(int id);
         object GetDailyUnofficialPnl();
         object GetDailyUnofficialPnlAudit(int id);
+        Task<object> UploadDailyUnofficialPnl(HttpRequestMessage requestMessage);
+
     }
 }

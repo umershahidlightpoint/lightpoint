@@ -48,12 +48,14 @@
             </button>
           </div>
           <div class="ml-auto">
-            <div class="col-6">
-              <button class="btn btn-info ml-2" type="button" [disabled]="disableCommit"
-                (click)="commitPerformanceData()">
-                Commit
-              </button>
-            </div>
+            <button class="btn btn-info ml-2" type="button" [disabled]="disableCommit"
+              (click)="commitPerformanceData()">
+              Commit
+            </button>
+            <button class="btn btn-info ml-2" type="button" tooltip="View Graph" [disabled]="disableCharts"
+              (click)="expandedClicked()">
+              <i class="fa fa-line-chart"></i>
+            </button>
           </div>
         </div>
       </form>
@@ -64,10 +66,16 @@
         <!----- Style For Height ----->
         <div [ngStyle]="styleForHeight">
           <!----- Ag Grid Selector ----->
-          <ag-grid-angular class="ag-theme-balham" style=" height: 100%; width: 100%"
-            [gridOptions]="fundTheoreticalGrid">
-          </ag-grid-angular>
-
+          <div class="row h-100">
+            <div [ngClass]="{'col-6': isExpanded, 'col-12': !isExpanded}">
+              <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="fundTheoreticalGrid">
+              </ag-grid-angular>
+            </div>
+            <div *ngIf="isExpanded" class="col-6">
+              <app-calculation-graphs class="w-50 h-50" [chartData]="graphObject">
+              </app-calculation-graphs>
+            </div>
+          </div>
         </div>
       </div>
       <!----- Div To Measure Identifier Ends ----->

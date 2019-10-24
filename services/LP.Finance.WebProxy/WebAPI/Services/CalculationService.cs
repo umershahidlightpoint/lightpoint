@@ -564,5 +564,72 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 return Utils.GridWrap(null,null,null, HttpStatusCode.InternalServerError, "An error occured while fetching Daily Unofficial Pnl Audit Trail");
             }
         }
+
+        public async Task<Tuple<bool, string, string>> WriteFileToServer(HttpRequestMessage requestMessage)
+        {
+            if (!requestMessage.Content.IsMimeMultipartContent())
+                return new Tuple<bool, string, string>(false, null, null);
+
+            var provider = new MultipartMemoryStreamProvider();
+            await requestMessage.Content.ReadAsMultipartAsync(provider);
+
+            var currentDir = AppDomain.CurrentDomain.BaseDirectory;
+            Directory.CreateDirectory(currentDir + Path.DirectorySeparatorChar + "PerformanceData");
+
+            var performancePath = "";
+            var performanceFileName = "";
+            foreach (var file in provider.Contents)
+            {
+                performanceFileName = file.Headers.ContentDisposition.FileName.Trim('\"');
+                var buffer = await file.ReadAsByteArrayAsync();
+
+                performancePath = currentDir + "PerformanceData" + Path.DirectorySeparatorChar +
+                                  $"{DateTime.Now:yy-MM-dd-hh-mm-ss}-{performanceFileName}";
+
+                System.IO.File.WriteAllBytes(performancePath, buffer);
+            }
+
+            return new Tuple<bool, string, string>(true, performancePath, performanceFileName);
+        }
+
+        public async Task<object> UploadDailyUnofficialPnl(HttpRequestMessage requestMessage)
+        {
+            var uploadedResult = await WriteFileToServer(requestMessage);
+            if (!uploadedResult.Item1)
+            {
+                return Utils.Wrap(false);
+            }
+            var performancePath = uploadedResult.Item2;
+            var performanceFileName = uploadedResult.Item3;
+            var recordBody = fileProcessor.ImportFile(performancePath, "Performance", "DailyUnofficialPnlFormat", ',');
+
+            var records = JsonConvert.SerializeObject(recordBody.Item1);
+            var performanceRecords = JsonConvert.DeserializeObject<List<MonthlyPerformance>>(records);
+
+            var failedRecords = new Dictionary<object, Row>();
+            var key = 0;
+            foreach (var item in recordBody.Item2)
+            {
+                failedRecords.Add(key++, item);
+            }
+
+            var failedPerformanceList =
+                fileManagementService.MapFailedRecords(failedRecords, DateTime.Now, uploadedResult.Item3);
+
+            List<FileInputDto> fileList = new List<FileInputDto>
+            {
+                new FileInputDto(performancePath, performanceFileName, performanceRecords.Count, "DailyUnofficialPnl",
+                    "Upload",
+                    failedPerformanceList,
+                    DateTime.Now)
+            };
+
+            fileManagementService.InsertActivityAndPositionFilesForSilver(fileList);
+            var monthlyPerformanceResult = CalculateMonthlyPerformance(performanceRecords);
+            var monthlyPerformance = monthlyPerformanceResult.GetType().GetProperty("payload")
+                ?.GetValue(monthlyPerformanceResult, null);
+
+            return Utils.Wrap(true, monthlyPerformance, null);
+        }
     }
 }

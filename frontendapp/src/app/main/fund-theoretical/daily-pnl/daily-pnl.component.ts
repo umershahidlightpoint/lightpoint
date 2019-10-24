@@ -18,6 +18,7 @@ export class DailyPnlComponent implements OnInit {
   selectedDate = null;
   dailyPnLData: Array<object>;
   funds: Array<string>;
+  fileToUpload: File = null;
 
   styleForHeight = HeightStyle(224);
 
@@ -263,6 +264,13 @@ export class DailyPnlComponent implements OnInit {
     }
     const formattedValue = this.decimalPipe.transform(per, '1.2-2');
     return formattedValue.toString();
+  }
+
+  onFileInput(files: FileList) {
+    this.fileToUpload = files.item(0);
+  }
+
+  uploadDailyUnofficialPnl(){
   }
 }
 

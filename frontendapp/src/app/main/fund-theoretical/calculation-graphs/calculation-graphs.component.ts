@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { HeightStyle } from 'src/shared/utils/Shared';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-calculation-graphs',
@@ -13,8 +13,6 @@ export class CalculationGraphsComponent implements OnInit, OnChanges {
   ITDData: any[] = [];
   showChart = false;
 
-  styleForHeight = HeightStyle(264);
-
   propIDQTD = 'QTDLineChart';
   propIDYTD = 'YTDLineChart';
   propIDITD = 'ITDLineChart';
@@ -22,26 +20,34 @@ export class CalculationGraphsComponent implements OnInit, OnChanges {
   divWidth = '95%';
   lineColors = ['#ff6960', '#00bd9a'];
 
-  constructor() {}
+  constructor(private toastrService: ToastrService) {}
 
   ngOnInit() {}
 
   ngOnChanges(change: SimpleChanges) {
     const { currentValue } = change.chartData;
     if (currentValue !== undefined) {
+      let cData;
       currentValue.forEach((element, index) => {
-        if (index === 1) {
-          this.QTDData = element.data;
-        }
-        if (index === 2) {
-          this.YTDData = element.data;
-        }
-        if (index === 3) {
-          this.ITDData = element.data;
+        cData = element.data;
+        if (cData.length === 0) {
+          this.showChart = false;
+        } else {
+          if (index === 1) {
+            this.QTDData = cData;
+          }
+          if (index === 2) {
+            this.YTDData = cData;
+          }
+          if (index === 3) {
+            this.ITDData = cData;
+          }
         }
       });
-      if (this.QTDData.length > 0) {
+      if (cData.length > 0) {
         this.showChart = true;
+      } else {
+        this.toastrService.info('Data is not available to show Graphs!');
       }
     }
   }
