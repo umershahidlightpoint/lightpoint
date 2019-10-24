@@ -1,5 +1,4 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { HeightStyle } from 'src/shared/utils/Shared';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -14,8 +13,6 @@ export class CalculationGraphsComponent implements OnInit, OnChanges {
   ITDData: any[] = [];
   showChart = false;
 
-  styleForHeight = HeightStyle(264);
-
   propIDQTD = 'QTDLineChart';
   propIDYTD = 'YTDLineChart';
   propIDITD = 'ITDLineChart';
@@ -28,7 +25,6 @@ export class CalculationGraphsComponent implements OnInit, OnChanges {
   ngOnInit() {}
 
   ngOnChanges(change: SimpleChanges) {
-    debugger;
     const { currentValue } = change.chartData;
     if (currentValue !== undefined) {
       let cData;
@@ -48,7 +44,7 @@ export class CalculationGraphsComponent implements OnInit, OnChanges {
           }
         }
       });
-      if (this.QTDData.length > 0) {
+      if (cData.length > 0) {
         this.showChart = true;
       } else {
         this.toastrService.info('Data is not available to show Graphs!');
