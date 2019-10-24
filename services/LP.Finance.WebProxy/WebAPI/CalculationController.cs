@@ -84,5 +84,11 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return controller.GetMonthlyPerformanceAudit(id);
         }
+
+        [HttpPost, Route("dailyUnofficialPnlAudit/upload")]
+        public async Task<object> UploadDailyUnofficialPnl()
+        {
+            return await controller.UploadDailyUnofficialPnl(Request);
+        }
     }
 }
