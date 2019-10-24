@@ -98,6 +98,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var initialPerformance = sorted.FirstOrDefault();
 
                 var groupedByYear = sorted.GroupBy(x => x.PerformanceDate.Year).ToList();
+                
+               // var groupedByYearAndMonth = groupedByYear.Select(x=> x.)
 
                 //Get prior date as reference point.
                 //var priorPerformanceDate = initialPerformance.PerformanceDate.AddMonths(-1);
@@ -126,6 +128,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 MonthlyPerformance priorDataForInception = priorData;
                 decimal newDecimalValue = 0;
                 string newStringValue;
+                int indexForQuarter = 0;
 
                 foreach (var group in groupedByYear)
                 {
@@ -142,8 +145,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         {
                             if (priorData != null)
                             {
-                                if (item.PerformanceDate.Month == 1 || item.PerformanceDate.Month == 4 ||
-                                    item.PerformanceDate.Month == 7 || item.PerformanceDate.Month == 10)
+                                if ((item.PerformanceDate.Month == 1 || item.PerformanceDate.Month == 4 ||
+                                    item.PerformanceDate.Month == 7 || item.PerformanceDate.Month == 10) && indexForQuarter == 0)
                                 {
                                     //Beginning of quarter, hence value will be the same as MTD.
                                     newDecimalValue = item.MTD.HasValue ? item.MTD.Value : 0;
@@ -153,6 +156,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                     }
 
                                     item.QTD = newDecimalValue;
+                                    indexForQuarter += 1;
                                 }
                                 else
                                 {
@@ -164,6 +168,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                     }
 
                                     item.QTD = newDecimalValue;
+                                    if(item.PerformanceDate.Month != 1 && item.PerformanceDate.Month != 4 && item.PerformanceDate.Month != 7 && item.PerformanceDate.Month != 10)
+                                    {
+                                        indexForQuarter = 0;
+                                    }
                                 }
                             }
                             else
@@ -252,6 +260,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     }
 
                     priorData = null;
+                    indexForQuarter = 0;
                 }
 
                 return Utils.Wrap(true, groupedByYear.SelectMany(x => x.Select(y => y).ToList()), null, "Performance calculated successfully");
