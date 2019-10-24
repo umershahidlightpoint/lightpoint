@@ -40,16 +40,17 @@ namespace UT.FileProcessing
                 else
                 {
                     performanceRecords[i].ITD = ((1 + performanceRecords[i - 1].ITD) * (1 + performanceRecords[i].MTD ?? 0)) - 1;
-                    performanceRecords[i].YTDNetPerformance = performanceRecords[i-1].YTDNetPerformance + performanceRecords[i].Performance.Value;
+                    performanceRecords[i].YTDNetPerformance = performanceRecords[i - 1].YTDNetPerformance + performanceRecords[i].Performance.Value;
                 }
             }
-            decimal calcITD = Math.Round(calculatedResult[calculatedResult.Count-1].ITD * 100, 2);
-            decimal perfITD = Math.Round(performanceRecords[performanceRecords.Count-1].ITD * 100, 2);
+            decimal calcITD = Math.Round(calculatedResult[calculatedResult.Count - 1].ITD * 100, 2);
+            decimal perfITD = Math.Round(performanceRecords[performanceRecords.Count - 1].ITD * 100, 2);
 
             decimal calcYTDNetPerformance = calculatedResult[calculatedResult.Count - 1].YTDNetPerformance;
             decimal perfYTDNetPerformance = performanceRecords[performanceRecords.Count - 1].YTDNetPerformance;
 
             Assert.IsTrue((calculatedResult[0].MTD == calculatedResult[0].YTD) && (calculatedResult[0].MTD == calculatedResult[0].QTD) && (calculatedResult[0].MTD == calculatedResult[0].ITD), "Expected result");
+
             Assert.IsTrue((calcITD == perfITD), "Expected result");
             Assert.IsTrue((calcYTDNetPerformance == perfYTDNetPerformance), "Expected result");
             Assert.Pass();        }
