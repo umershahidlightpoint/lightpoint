@@ -29,20 +29,24 @@ export class CalculationGraphsComponent implements OnInit, OnChanges {
   ngOnChanges(change: SimpleChanges) {
     const { currentValue } = change.chartData;
     if (currentValue !== undefined) {
+      console.log('Curent Value', currentValue);
+      let cData;
       currentValue.forEach((element, index) => {
-        if (index === 1) {
-          this.QTDData = element.data;
+        cData = element.data;
+        if (index === 1 && cData.length > 0) {
+          this.QTDData = cData;
         }
-        if (index === 2) {
-          this.YTDData = element.data;
+        if (index === 2 && cData.length > 0) {
+          this.YTDData = cData;
         }
-        if (index === 3) {
-          this.ITDData = element.data;
+        if (index === 3 && cData.length > 0) {
+          this.ITDData = cData;
         }
       });
       if (this.QTDData.length > 0) {
         this.showChart = true;
       }
+      console.log('QTDData', this.QTDData, 'YTDData', this.YTDData, 'ITDData', this.ITDData);
     }
   }
 }
