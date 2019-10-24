@@ -286,7 +286,7 @@ export const AutoSizeAllColumns = params => {
 
   const allColumnIds = [];
   const colDefs = gridColumnApi.getAllColumns();
-  if (colDefs.length > 0) {
+  if (colDefs !== null) {
     gridColumnApi.getAllColumns().forEach(column => {
       allColumnIds.push(column.colId);
     });

@@ -59,7 +59,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
   style = Style;
 
-  styleForHeight = HeightStyle(264);
+  styleForHeight = HeightStyle(224);
 
   containerDiv = {
     border: '1px solid #eee',
@@ -566,12 +566,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         });
       });
     });
-  }
-
-  isTabChanged(e) {
-    if (e.index === 1) {
-      this.generateData();
-    }
   }
 
   formatPerformanceData(records) {
