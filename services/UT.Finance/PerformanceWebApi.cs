@@ -30,44 +30,23 @@ namespace UT.Finance
 
             var performanceList = LP.Finance.Common.Utils.PostWebApi("FinanceWebApi", $"{performanceURL}", listP);
             Task.WaitAll(performanceList);
+
             var result = JsonConvert.DeserializeObject<List<MonthlyPerformance>>(performanceList.Result);
 
-            for (int i = 0; i < 1; i++)
-            {
-                Assert.IsTrue((result[0].MTD == result[i].YTD) && (result[i].MTD == result[i].QTD) && (result[i].MTD == result[i].ITD), "Expected result");
-            }
+                Assert.IsTrue((result[0].MTD == result[0].YTD) && (result[0].MTD == result[0].QTD) && (result[0].MTD == result[0].ITD), "Expected result");
 
-            for (int i = 0; i < 5; i++)
-            {
+                Assert.IsTrue((result[1].QTD == 0.0297029702970296999805862939M) && (result[1].YTD == 0.0297029702970296999805862939M) && (result[1].ITD == 0.0297029702970296999805862939M), "Expected result");
 
-                if (result[1].QTD == 0.0297029702970296999805862939M && result[1].YTD == 0.0297029702970296999805862939M && result[1].ITD == 0.0297029702970296999805862939M)
-                {
-                    Assert.IsTrue((result[1].QTD == 0.0297029702970296999805862939M) && (result[1].YTD == 0.0297029702970296999805862939M) && (result[1].ITD == 0.0297029702970296999805862939M), "Expected result");
-                }
+                Assert.IsFalse((result[1].QTD == 0.0297029702970296999805862939M) && (result[1].YTD == 0.0297029702970296999805862939M) && (result[1].ITD == 0.0297029702970296999805862939M), "Expected result");
 
-                if (result[1].QTD == 0.029702970297029699980629M && result[1].YTD == 0.029702979702999805862939M && result[1].ITD == 0.02970297029702969805862939M)
-                {
-                    Assert.IsFalse((result[1].QTD == 0.0297029702970296999805862939M) && (result[1].YTD == 0.0297029702970296999805862939M) && (result[1].ITD == 0.0297029702970296999805862939M), "Expected result");
-                }
+                Assert.IsTrue((result[2].QTD == 0.0693069306930693434299538551M) && (result[2].YTD == 0.0693069306930693434299538551M) && (result[2].ITD == 0.0693069306930693434299538551M), "Expected result");
 
-                if (result[2].QTD == 0.0693069306930693434299538551M && result[2].YTD == 0.0693069306930693434299538551M && result[3].ITD == 0.0693069306930693434299538551M)
-                {
-                    Assert.IsTrue((result[2].QTD == 0.0693069306930693434299538551M) && (result[2].YTD == 0.0693069306930693434299538551M) && (result[2].ITD == 0.0693069306930693434299538551M), "Expected result");
-                }
+                Assert.IsTrue((result[3].QTD == 0.0693069306930693434299538551M) && (result[3].YTD == 0.0792079207920792455500881913M) && (result[3].ITD == 0.0792079207920792455500881913M), "Expected result");
 
-                if (result[3].QTD == 0.0693069306930693434299538551M && result[3].YTD == 0.0792079207920792455500881913M && result[3].ITD == 0.0792079207920792455500881913M)
-                {
-                    Assert.IsTrue((result[3].QTD == 0.0693069306930693434299538551M) && (result[3].YTD == 0.0792079207920792455500881913M) && (result[3].ITD == 0.0792079207920792455500881913M), "Expected result");
-                }
-
-                if (result[4].QTD == 0.1086408640864087089525793454M && result[4].YTD == 0.1086408640864087089525793454M && result[4].ITD == 0.0693069306930693434299538551M)
-                {
-                    Assert.IsTrue((result[4].QTD == 0.1086408640864087089525793454M) && (result[4].YTD == 0.1086408640864087089525793454M) && (result[3].ITD == 0.0693069306930693434299538551M), "Expected result");
-                }
+                Assert.IsTrue((result[4].QTD == 0.1086408640864087089525793454M) && (result[4].YTD == 0.1086408640864087089525793454M) && (result[3].ITD == 0.0693069306930693434299538551M), "Expected result");
 
             }
 
-        }
     }
 
 }
