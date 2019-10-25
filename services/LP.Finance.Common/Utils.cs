@@ -21,6 +21,16 @@ namespace LP.Finance.Common
         public string Type { get; set; }
     }
 
+    public class Response
+    {
+        public DateTime when { get; set; }
+        public string by { get; set; }
+        public bool isSuccessful { get; set; }
+        public string message { get; set; }
+        public object payload { get; set; }
+        public object meta { get; set; }
+    }
+
     public class MetaData
     {
         public int Total { get; set; }
@@ -106,9 +116,26 @@ namespace LP.Finance.Common
             Task<string> result = null;
 
             var client = new HttpClient();
+            string projectWebApi = ConfigurationManager.AppSettings[webApi];
+            var url = $"{projectWebApi}{webUri}";
 
-            var projectWebApi = ConfigurationManager.AppSettings[webApi];
+            var content = new StringContent(JsonConvert.SerializeObject(webContent), Encoding.UTF8, "application/json");
 
+            HttpResponseMessage response = await client.PostAsync(url, content);
+            if (response.IsSuccessStatusCode)
+            {
+                result = response.Content.ReadAsStringAsync();
+            }
+
+            return await result;
+        }
+
+        public static async Task<string> PostWebApi(string webApi, string webUri, object webContent, string baseURL)
+        {
+            Task<string> result = null;
+
+            var client = new HttpClient();
+            string projectWebApi = baseURL;
             var url = $"{projectWebApi}{webUri}";
 
             var content = new StringContent(JsonConvert.SerializeObject(webContent), Encoding.UTF8, "application/json");

@@ -1,5 +1,7 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
+import { of } from 'rxjs';
+import { delay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-calculation-graphs',
@@ -47,7 +49,11 @@ export class CalculationGraphsComponent implements OnInit, OnChanges {
       if (cData.length > 0) {
         this.showChart = true;
       } else {
-        this.toastrService.info('Data is not available to show Graphs!');
+        of()
+          .pipe(delay(500))
+          .subscribe(() => {
+            this.toastrService.info('Data is not available to show Graphs!');
+          });
       }
     }
   }

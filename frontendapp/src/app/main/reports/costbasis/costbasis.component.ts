@@ -45,7 +45,9 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   isLoading = false;
   hideGrid: boolean;
   chartData: any;
-
+  netpnlData: any;
+  unrealizedData: any;
+  realizedData: any;
   cbData: any;
   bData: any;
   qData: any;
@@ -129,14 +131,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       alignedGrids: [],
       suppressHorizontalScroll: false,
       columnDefs: [
-        /*
-        {
-          field: 'name',
-          width: 120,
-          headerName: 'Account Name',
-          enableRowGroup: true
-        },
-        */
         {
           field: 'symbol',
           width: 120,
@@ -225,9 +219,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   getReport(date, fund) {
     this.isLoading = true;
     this.financeService.getCostBasisReport(date, fund).subscribe(response => {
-
-      debugger;
-
       this.trialBalanceReportStats = response.stats;
       this.trialBalanceReport = response.data;
       this.gridOptions.api.setRowData(this.trialBalanceReport);
@@ -238,8 +229,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   rowSelected(row) {
     const { symbol } = row.data;
-
-    debugger
     this.financeService.getCostBasisChart(symbol).subscribe(response => {
       this.chartData = response.data;
 
@@ -256,10 +245,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       value: item[chartType]
     }));
   }
-
-  netpnlData: any;
-  unrealizedData: any;
-  realizedData: any;
 
   mapChartsData(data: any) {
     this.labels = data.map(item => item.Date);
@@ -285,7 +270,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       date: FormatDate(item.Date, 'YYYY-MM-DD'),
       value: item.Pnl
     }));
-
   }
 
   onFilterChanged() {
