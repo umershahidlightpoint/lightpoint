@@ -1,0 +1,103 @@
+<!-- Modal Div Starts -->
+<div bsModal #modal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true"
+  [config]="{backdrop: modal-backdrop}">
+  <!-- Modal Dialog Div Starts -->
+  <div class="modal-dialog modal-dialog-centered mw-100 w-50" id="modal-lg">
+    <!-- Modal Content Div Starts -->
+    <div class="modal-content">
+      <!-- Form Div Starts -->
+      <form #form="ngForm" (ngSubmit)="saveTaxRate()">
+        <!-- Modal Header Starts-->
+        <div class="modal-header">
+          <h3 *ngIf="!editTaxRate"> Add Tax Rate </h3>
+          <h3 *ngIf="editTaxRate"> Edit Tax Rate </h3>
+          <button type="button" class="close" data-dismiss="modal" (click)="closeModal()">&times;</button>
+        </div>
+        <!-- Modal Header Ends-->
+
+        <!-- Modal Body Starts-->
+        <div class="modal-body">
+          <!-- Date Range Picker Div Starts -->
+          <div class="form-group">
+            <div class="row">
+              <!-- Date Label -->
+              <div class="col-sm-3">
+                <label> Date </label>
+              </div>
+              <!-- Date Picker -->
+              <div class="col-sm-9">
+                  <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date" [(ngModel)]="selectedDate" 
+                  (ngModelChange)="changeDate($event)" name="selectedDate" [showDropdowns]="true" [autoApply]="true" 
+                  autocomplete="off" />
+              </div>
+            </div>
+          </div>
+          <!-- Date Range Picker Div Ends -->
+
+          <!-- Long Term Tax Rate Div Starts -->
+          <div class="form-group">
+            <div class="row">
+              <!-- Long Term Tax Rate Label -->
+              <div class="col-sm-3">
+                <label> Long Term Tax Rate </label>
+              </div>
+              <!-- Long Term Tax Rate Input -->
+              <div class="col-sm-9">
+                <input class="form-control" [(ngModel)]="longTermTaxRate" name="longTermTaxRate" type="number" step=".07">
+              </div>
+            </div>
+          </div>
+          <!-- Long Term Tax Rate Div Ends -->
+
+          <!-- Short Term Tax Rate Div Starts -->
+          <div class="form-group">
+            <!-- Short Term Tax Rate Label -->
+            <div class="row">
+              <div class="col-sm-3">
+                <label> Short Term Tax Rate </label>
+              </div>
+              <!-- Short Term Tax Rate Input -->
+              <div class="col-sm-9">
+                <input class="form-control" [(ngModel)]="shortTermTaxRate" name="shortTermTaxRate" type="number" step=".07">
+              </div>
+            </div>
+          </div>
+          <!-- Short Term Tax Rate Div Ends -->
+
+          <!-- Short Term Period Div Starts-->
+          <div class="form-group">
+            <div class="row">
+              <!-- Short Term Period Label -->
+              <div class="col-sm-3">
+                <label> Short Term Period </label>
+              </div>
+              <!-- Short Term Period Input -->
+              <div class="col-sm-9">
+                <input class="form-control" [(ngModel)]="shortTermPeriod" name="shortTermPeriod" type="number" step=".07">
+              </div>
+            </div>
+          </div>
+          <!-- Short Term Period Div Ends-->
+        </div>
+        <!-- Modal Body Ends-->
+
+        <!-- Modal Footer Starts -->
+        <div class="modal-footer">
+          <button *ngIf="editTaxRate" type="button" class="btn btn-danger mr-auto" (click)="deleteTaxRate()"><i
+              class="fa fa-trash"></i> Delete</button>
+          <button type="button" class="btn btn-secondary" (click)="closeModal()"><i class="fa fa-times"
+              aria-hidden="true"></i> Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa" [ngClass]=" {'fa-edit':editTaxRate, 'fa-save':!editTaxRate}"></i>
+            {{editTaxRate ? "Update" : "Save"}}
+          </button>
+        </div>
+        <!-- Modal Footer Ends -->
+      </form>
+      <!-- Form Div Ends -->
+    </div>
+    <!-- Modal Content Div Ends -->
+  </div>
+  <!-- Modal Dialog Div Ends -->
+</div>
+<!-- Modal Div Ends -->

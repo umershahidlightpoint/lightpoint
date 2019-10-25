@@ -21,6 +21,7 @@ export class GridId {
   static taxlotId = 19;
   static fundTheoreticalId = 20;
   static dailyPnlId = 21;
+  static taxRatesId = 21;
 }
 
 export class GridName {
@@ -46,4 +47,5 @@ export class GridName {
   static taxlot = 'Taxlot';
   static fundTheoretical = 'Fund Theoretical';
   static dailyPnl = 'Daily PNL';
+  static taxRates = 'Tax Rates';
 }

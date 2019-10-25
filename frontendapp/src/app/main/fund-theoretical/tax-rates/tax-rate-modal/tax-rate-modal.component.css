@@ -1,0 +1,11 @@
+.modal {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-backdrop {
+  position: relative;
+}
+
+.close {
+    font-size: 1.5rem;
+}

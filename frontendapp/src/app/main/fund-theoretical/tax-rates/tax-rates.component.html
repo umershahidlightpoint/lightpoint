@@ -1,0 +1,38 @@
+<!-- Show Date Picker Div -->
+<form>
+  <div class="form-row">
+    <div class="ml-auto">
+      <div class="col-12">
+        <!-- Add Tax Rate Button Starts -->
+        <button class="btn btn-info" type="button" (click)="openTaxRateModal()" tooltip="Add TaxRate" placement="left">
+          <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+        <!-- Add Tax Rate Button Ends -->
+      </div>
+    </div>
+  </div>
+</form>
+<!-- Show Date Picker Div Ends -->
+
+<!-- Div To Measure Identifier Starts -->
+<div #divToMeasure>
+  <!-- Style For Height -->
+  <div [ngStyle]="styleForHeight">
+    <!-- Ag Grid Selector -->
+    <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="taxRatesGrid">
+    </ag-grid-angular>
+    <!-- Action Buttons Template Starts -->
+    <ng-template #actionButtons let-row>
+        <button class="btn action-btn fixHeight" (click)="editRow(row)" tooltip="Edit" placement="auto"
+          container="body">
+          <i class="fa fa-lg fa-edit" aria-hidden="true"></i>
+        </button>
+      </ng-template>
+      <!-- Action Buttons Template Ends -->
+  </div>
+</div>
+<!-- Div To Measure Identifier Ends -->
+
+<!-- Tax Rate Modal -->
+<app-tax-rate-modal #taxRateModal (modalClose)="closeTaxRateModal()">
+</app-tax-rate-modal>

@@ -91,6 +91,8 @@ import { DataGridModalComponent } from '../shared/Component/data-grid-modal/data
 import { DecimalPipe } from '@angular/common';
 import { AgGridCheckboxComponent } from '../shared/Component/ag-grid-checkbox/ag-grid-checkbox.component';
 import { CalculationGraphsComponent } from './main/fund-theoretical/calculation-graphs/calculation-graphs.component';
+import { TaxRatesComponent } from './main/fund-theoretical/tax-rates/tax-rates.component';
+import { TaxRateModalComponent } from './main/fund-theoretical/tax-rates/tax-rate-modal/tax-rate-modal.component';
 
 @NgModule({
   declarations: [
@@ -135,7 +137,9 @@ import { CalculationGraphsComponent } from './main/fund-theoretical/calculation-
     DailyPnlComponent,
     DataGridModalComponent,
     AgGridCheckboxComponent,
-    CalculationGraphsComponent
+    CalculationGraphsComponent,
+    TaxRatesComponent,
+    TaxRateModalComponent
   ],
   imports: [
     BrowserModule,
@@ -145,7 +149,10 @@ import { CalculationGraphsComponent } from './main/fund-theoretical/calculation-
       AgGridCheckboxComponent
     ]),
     MaterialModule,
-    NgxDaterangepickerMd.forRoot(),
+    NgxDaterangepickerMd.forRoot({
+      applyLabel: 'Okay',
+      firstDay: 3
+    }),
     AppRoutingModule,
     TableModule,
     PaginatorModule,
