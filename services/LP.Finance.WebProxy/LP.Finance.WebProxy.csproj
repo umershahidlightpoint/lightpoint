@@ -84,6 +84,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WebAPI\Services\TaxRateService.cs" />
+    <Compile Include="WebAPI\Services\ITaxRateService.cs" />
+    <Compile Include="WebAPI\TaxRateController.cs" />
     <Compile Include="WebAPI\AccountTagController.cs" />
     <Compile Include="WebAPI\AccountTypeController.cs" />
     <Compile Include="WebAPI\AccountDefController.cs" />

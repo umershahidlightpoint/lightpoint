@@ -86,5 +86,6 @@
     <Build Include="StoredProcs\CostBasisCalculation.sql" />
     <Build Include="Tables\unofficial_daily_pnl.sql" />
     <Build Include="Tables\unofficial_daily_pnl_history.sql" />
+    <Build Include="Tables\tax_rate.sql" />
   </ItemGroup>
 </Project>

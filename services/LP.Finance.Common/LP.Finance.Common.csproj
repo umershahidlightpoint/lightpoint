@@ -53,6 +53,7 @@
     <Compile Include="Cache\DataCacheElement.cs" />
     <Compile Include="CustomValidators\MinimumElementsAttribute.cs" />
     <Compile Include="DateFunctions.cs" />
+    <Compile Include="Dtos\TaxRateInputDto.cs" />
     <Compile Include="Dtos\AccountListTileOutputDto.cs" />
     <Compile Include="Dtos\FileActionInputDto.cs" />
     <Compile Include="Dtos\FileGenerationInputDto.cs" />
