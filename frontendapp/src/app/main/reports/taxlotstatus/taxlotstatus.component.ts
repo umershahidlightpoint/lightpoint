@@ -157,7 +157,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           sortable: true,
           cellClass: 'rightAlign',
           valueFormatter: currencyFormatter,
-          aggFunc: 'sum',
+          aggFunc: 'sum'
         },
         {
           field: 'quantity',
@@ -167,8 +167,8 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           sortable: true,
           cellClass: 'rightAlign',
           valueFormatter: currencyFormatter,
-          aggFunc: 'sum',
-        },
+          aggFunc: 'sum'
+        }
       ],
       defaultColDef: {
         sortable: true,
@@ -251,7 +251,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           filter: true,
           sortable: true,
           cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter,
+          valueFormatter: currencyFormatter
         },
         {
           field: 'cost_basis',
@@ -259,7 +259,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           headerName: 'Closing Price',
           sortable: true,
           cellClass: 'rightAlign',
-          valueFormatter:priceFormatter,
+          valueFormatter: priceFormatter,
           filter: true
         },
         {
@@ -269,7 +269,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           sortable: true,
           filter: true,
           cellClass: 'rightAlign',
-          valueFormatter:priceFormatter,
+          valueFormatter: priceFormatter
         }
       ],
       defaultColDef: {
@@ -322,8 +322,6 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       //this.data = response.data;
       this.closingTaxLots.api.sizeColumnsToFit();
       this.closingTaxLots.api.setRowData(response.data);
-
-      debugger
 
       if (response.data.length == 0) {
         this.tradeSelectionSubject.next('');
@@ -422,7 +420,6 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
 
   onTradeRowSelected(event) {
     if (event.node.selected) {
-      debugger
       this.tradeSelectionSubject.next(event.node.data.closing_lot_id);
     }
   }

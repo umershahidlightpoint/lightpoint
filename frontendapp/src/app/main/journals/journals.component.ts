@@ -35,7 +35,6 @@ export class JournalsComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    debugger
     if (this.subscription == null) {
       this.dataService.allocationId.subscribe(data => {
         if (data != null) {
@@ -43,8 +42,6 @@ export class JournalsComponent implements OnInit, OnChanges {
         }
       });
     } else {
-      debugger
-
       this.subscription.subscribe(data => {
         if (data != null) {
           this.getTradeJournals(data);
