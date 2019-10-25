@@ -127,8 +127,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 MonthlyPerformance priorData = null;
                 MonthlyPerformance priorDataForInception = priorData;
                 decimal newDecimalValue = 0;
-                string newStringValue;
-                int indexForQuarter = 0;
+                Dictionary<int, int> quarterCount = new Dictionary<int, int>();
+                InitializeQuarterDictionary(quarterCount);
 
                 foreach (var group in groupedByYear)
                 {
@@ -145,8 +145,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         {
                             if (priorData != null)
                             {
-                                if ((item.PerformanceDate.Month == 1 || item.PerformanceDate.Month == 4 ||
-                                    item.PerformanceDate.Month == 7 || item.PerformanceDate.Month == 10) && indexForQuarter == 0)
+                                if (CheckForBeginningOfQuarter(item.PerformanceDate) && quarterCount[item.PerformanceDate.Month] == 0)
                                 {
                                     //Beginning of quarter, hence value will be the same as MTD.
                                     newDecimalValue = item.MTD.HasValue ? item.MTD.Value : 0;
@@ -156,7 +155,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                     }
 
                                     item.QTD = newDecimalValue;
-                                    indexForQuarter += 1;
+                                    quarterCount[item.PerformanceDate.Month] += 1;
                                 }
                                 else
                                 {
@@ -167,11 +166,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                         item.Modified = true;
                                     }
 
-                                    item.QTD = newDecimalValue;
-                                    if(item.PerformanceDate.Month != 1 && item.PerformanceDate.Month != 4 && item.PerformanceDate.Month != 7 && item.PerformanceDate.Month != 10)
+                                    if (CheckForBeginningOfQuarter(item.PerformanceDate))
                                     {
-                                        indexForQuarter = 0;
+                                        quarterCount[item.PerformanceDate.Month] += 1;
                                     }
+
+                                    item.QTD = newDecimalValue;
+                                   
                                 }
                             }
                             else
@@ -180,6 +181,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                 if (CheckForChanges(item.QTD, newDecimalValue))
                                 {
                                     item.Modified = true;
+                                }
+
+                                if (CheckForBeginningOfQuarter(item.PerformanceDate))
+                                {
+                                    quarterCount[item.PerformanceDate.Month] += 1;
                                 }
 
                                 item.QTD = newDecimalValue;
@@ -257,10 +263,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                         priorData = item;
                         priorDataForInception = item;
+                        if (!CheckForBeginningOfQuarter(item.PerformanceDate))
+                        {
+                            ResetQuarterDictionary(quarterCount);
+                        }
                     }
 
                     priorData = null;
-                    indexForQuarter = 0;
+                    ResetQuarterDictionary(quarterCount);
                 }
 
                 return Utils.Wrap(true, groupedByYear.SelectMany(x => x.Select(y => y).ToList()), null, "Performance calculated successfully");
@@ -274,6 +284,34 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         private bool CheckForChanges(decimal oldValue, decimal newValue)
         {
             if (oldValue != newValue)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private void InitializeQuarterDictionary(Dictionary<int, int> quarterCount)
+        {
+            quarterCount.Add(1, 0);
+            quarterCount.Add(4, 0);
+            quarterCount.Add(7, 0);
+            quarterCount.Add(10, 0);
+        }
+
+        private void ResetQuarterDictionary(Dictionary<int, int> quarterCount)
+        {
+            foreach (var key in quarterCount.Keys.ToList())
+            {
+                quarterCount[key] = 0;
+            }
+        }
+
+        private bool CheckForBeginningOfQuarter(DateTime date)
+        {
+            if(date.Month == 1 || date.Month == 4 || date.Month == 7 || date.Month == 10)
             {
                 return true;
             }
