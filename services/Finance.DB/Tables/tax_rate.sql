@@ -9,5 +9,6 @@
     [created_date] DATETIME NOT NULL, 
     [last_updated_date] DATETIME NOT NULL, 
     [created_by] NVARCHAR(100) NULL, 
-    [last_updated_by] NCHAR(100) NULL
+    [last_updated_by] NCHAR(100) NULL, 
+    [active_flag] BIT NOT NULL DEFAULT 1
 )
