@@ -24,5 +24,20 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return !ModelState.IsValid || taxRate == null ? BadRequest(ModelState) : controller.CreateTaxRate(taxRate);
         }
+
+        [HttpPut, Route("{id:int}")]
+        public object EditTaxRate(int id, TaxRateInputDto taxRate)
+        {
+            return !ModelState.IsValid || taxRate == null
+                ? BadRequest(ModelState)
+                : controller.EditTaxRate(id, taxRate);
+        }
+
+        [Route("{id:int}")]
+        [HttpDelete]
+        public object DeleteTaxRate(int id)
+        {
+            return controller.DeleteTaxRate(id);
+        }
     }
 }
