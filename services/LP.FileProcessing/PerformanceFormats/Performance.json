@@ -1,22 +1,6 @@
 {
-  "Header": [
-    {
-      "source": "RECORD_COUNT",
-      "destination": "RECORD_COUNT",
-      "required": true,
-      "function": null,
-      "format": null
-    }
-  ],
-  "Trailer": [
-    {
-      "source": "RECORD_COUNT",
-      "destination": "RECORD_COUNT",
-      "required": true,
-      "function": null,
-      "format": null
-    }
-  ],
+  "Header": [],
+  "Trailer": [],
   "Record": [
     {
       "source": "PerformanceDate",
