@@ -46,41 +46,36 @@ export class TaxRateModalComponent implements OnInit, OnDestroy {
       shortTermTaxRate: this.shortTermTaxRate,
       ShortTermPeriod: this.shortTermPeriod
     };
-    this.taxRateValidation(taxRatePayload, this.lastTaxRateData);
-    if (this.taxRateValidation(taxRatePayload, this.lastTaxRateData) == 1) {
-      if (this.editTaxRate) {
-        const { id } = this.taxRate;
-        this.financeService.editTaxRate(id, taxRatePayload).subscribe(
-          response => {
-            if (response.isSuccessful) {
-              this.toastrService.success('Tax Rate is edited successfully !');
-              this.modal.hide();
-              this.closeModalEvent.emit(true);
-              setTimeout(() => this.clearForm(), 500);
-            } else {
-              this.modal.hide();
-              this.toastrService.error('Failed to edit Tax Rate !');
-            }
-          },
-          error => {
-            this.modal.hide();
-            this.toastrService.error('Something went wrong. Try again later!');
-          }
-        );
-      } else {
-        this.financeService.createTaxRate(taxRatePayload).subscribe(response => {
+    if (this.editTaxRate) {
+      const { id } = this.taxRate;
+      this.financeService.editTaxRate(id, taxRatePayload).subscribe(
+        response => {
           if (response.isSuccessful) {
-            this.toastrService.success('Tax Rate is created successfully !');
+            this.toastrService.success('Tax Rate is edited successfully !');
             this.modal.hide();
             this.closeModalEvent.emit(true);
             setTimeout(() => this.clearForm(), 500);
           } else {
-            this.toastrService.error('Failed to create Tax Rate !');
+            this.modal.hide();
+            this.toastrService.error('Failed to edit Tax Rate !');
           }
-        });
-      }
+        },
+        error => {
+          this.modal.hide();
+          this.toastrService.error('Something went wrong. Try again later!');
+        }
+      );
     } else {
-      this.toastrService.error('Effective from date is invalid !');
+      this.financeService.createTaxRate(taxRatePayload).subscribe(response => {
+        if (response.isSuccessful) {
+          this.toastrService.success('Tax Rate is created successfully !');
+          this.modal.hide();
+          this.closeModalEvent.emit(true);
+          setTimeout(() => this.clearForm(), 500);
+        } else {
+          this.toastrService.error('Failed to create Tax Rate !');
+        }
+      });
     }
   }
 
@@ -91,7 +86,6 @@ export class TaxRateModalComponent implements OnInit, OnDestroy {
     const effectiveFrom = moment(taxRateObject.effectiveFrom);
     const effectiveTo = moment(this.lastTaxRateData.effectiveTo);
     const dayDiff = effectiveFrom.diff(effectiveTo, 'days');
-    console.log('day difference', dayDiff);
     return effectiveFrom.diff(effectiveTo, 'days');
   }
 
