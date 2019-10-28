@@ -33,7 +33,7 @@
               </div>
               <div *ngIf="editTaxRate" class="col-sm-9">
                 <input class="form-control" type="text"
-                  value="{{selectedDate.startDate | date:'MM-dd-yyyy'}} - {{selectedDate.endDate | date:'MM-dd-yyyy'}}"
+                  value="{{selectedDate.startDate | date:'yyyy-MM-dd'}} - {{selectedDate.endDate | date:'yyyy-MM-dd'}}"
                   name="selectedDate" [disabled]="editTaxRate" />
               </div>
             </div>

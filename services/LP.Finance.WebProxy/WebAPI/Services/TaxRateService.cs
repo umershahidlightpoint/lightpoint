@@ -6,7 +6,6 @@ using System.Data.SqlClient;
 using System.Text;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
-using Newtonsoft.Json;
 using SqlDAL.Core;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
@@ -40,15 +39,34 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                         WHERE [active_flag] = 1
                                         ORDER BY [effective_from] ASC");
 
-            var dataTable = sqlHelper.GetDataTable(query.ToString(), CommandType.Text);
+            var taxRates = new List<TaxRateOutputDto>();
+            using (var reader =
+                sqlHelper.GetDataReader(query.ToString(), CommandType.Text, null, out var sqlConnection))
+            {
+                while (reader.Read())
+                {
+                    taxRates.Add(new TaxRateOutputDto
+                    {
+                        Id = Convert.ToInt32(reader["Id"]),
+                        EffectiveFrom = Convert.ToDateTime(reader["EffectiveFrom"]),
+                        EffectiveTo = Convert.ToDateTime(reader["EffectiveTo"]),
+                        LongTermTaxRate = Convert.ToDecimal(reader["LongTermTaxRate"]),
+                        ShortTermTaxRate = Convert.ToDecimal(reader["ShortTermTaxRate"]),
+                        ShortTermPeriod = Convert.ToDecimal(reader["ShortTermPeriod"]),
+                        CreatedDate = Convert.ToDateTime(reader["CreatedDate"]),
+                        LastUpdatedDate = Convert.ToDateTime(reader["LastUpdatedDate"]),
+                        CreatedBy = reader["CreatedBy"].ToString(),
+                        LastUpdatedBy = reader["LastUpdatedBy"].ToString()
+                    });
+                }
 
-            dynamic taxRates = new System.Dynamic.ExpandoObject();
+                reader.Close();
+                sqlConnection.Close();
+            }
 
-            var taxRatesJson = JsonConvert.SerializeObject(dataTable);
+            taxRates = IsTaxPeriodValid(taxRates);
 
-            dynamic taxRatesResult = JsonConvert.DeserializeObject(taxRatesJson);
-
-            return Utils.GridWrap(taxRatesResult);
+            return Utils.GridWrap(taxRates);
         }
 
         public object CreateTaxRate(TaxRateInputDto taxRate)
@@ -177,6 +195,24 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
 
             return Utils.Wrap(true);
+        }
+
+        private List<TaxRateOutputDto> IsTaxPeriodValid(List<TaxRateOutputDto> taxRates)
+        {
+            for (var i = 0; i < taxRates.Count - 1; i++)
+            {
+                if (taxRates[i].EffectiveTo.AddDays(1) < taxRates[i + 1].EffectiveFrom)
+                {
+                    taxRates[i + 1].IsGapPresent = true;
+                }
+                else if (taxRates[i].EffectiveFrom <= taxRates[i + 1].EffectiveTo &&
+                         taxRates[i].EffectiveTo >= taxRates[i + 1].EffectiveFrom)
+                {
+                    taxRates[i + 1].IsOverLapped = true;
+                }
+            }
+
+            return taxRates;
         }
     }
 }
