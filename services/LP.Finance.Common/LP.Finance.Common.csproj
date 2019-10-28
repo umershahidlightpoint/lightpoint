@@ -53,6 +53,7 @@
     <Compile Include="Cache\DataCacheElement.cs" />
     <Compile Include="CustomValidators\MinimumElementsAttribute.cs" />
     <Compile Include="DateFunctions.cs" />
+    <Compile Include="Dtos\TaxRateOutputDto.cs" />
     <Compile Include="Dtos\TaxRateInputDto.cs" />
     <Compile Include="Dtos\AccountListTileOutputDto.cs" />
     <Compile Include="Dtos\FileActionInputDto.cs" />
@@ -96,6 +97,7 @@
     <Compile Include="Model\Position.cs" />
     <Compile Include="Model\TaxLot.cs" />
     <Compile Include="Model\TaxLotStatus.cs" />
+    <Compile Include="Model\TaxRate.cs" />
     <Compile Include="Model\Wrap.cs" />
     <Compile Include="Model\PayLoad.cs" />
     <Compile Include="Model\Tag.cs" />

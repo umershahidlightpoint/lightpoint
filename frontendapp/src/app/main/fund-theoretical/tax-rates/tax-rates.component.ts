@@ -90,9 +90,8 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
       onGridReady: params => {
         params.api.sizeColumnsToFit();
       },
-      onFirstDataRendered: params => {},
-      defaultColDef: {
-        resizable: true
+      onFirstDataRendered: params => {
+        params.api.sizeColumnsToFit();
       }
     } as GridOptions;
     this.taxRatesGrid.sideBar = SideBar(GridId.taxRatesId, GridName.taxRates, this.taxRatesGrid);
