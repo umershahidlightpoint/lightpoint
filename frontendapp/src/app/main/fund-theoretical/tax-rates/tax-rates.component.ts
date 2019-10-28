@@ -85,20 +85,10 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
       singleClickEdit: true,
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
-      enableCellChangeFlash: true,
-      animateRows: true,
-      deltaRowDataMode: true,
-      getRowNodeId: data => {
-        return data.rowId;
-      },
       onGridReady: params => {
         params.api.sizeColumnsToFit();
       },
-      onFirstDataRendered: params => {},
-      onCellValueChanged: params => {},
-      defaultColDef: {
-        resizable: true
-      }
+      onFirstDataRendered: params => {}
     } as GridOptions;
     this.taxRatesGrid.sideBar = SideBar(GridId.taxRatesId, GridName.taxRates, this.taxRatesGrid);
   }
