@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, TemplateRef } from '@angular/core';
 import { TaxRateModalComponent } from './tax-rate-modal/tax-rate-modal.component';
 import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
@@ -7,36 +7,70 @@ import { HeightStyle, SideBar, AutoSizeAllColumns } from 'src/shared/utils/Share
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { DecimalPipe } from '@angular/common';
 import { Moment } from 'moment';
-import * as moment from 'moment';
 import { FinancePocServiceProxy } from 'src/shared/service-proxies/service-proxies';
+import { takeWhile } from 'rxjs/operators';
+import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
+import { TemplateRendererComponent } from 'src/app/template-renderer/template-renderer.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-tax-rates',
   templateUrl: './tax-rates.component.html',
   styleUrls: ['./tax-rates.component.css']
 })
-export class TaxRatesComponent implements OnInit {
+export class TaxRatesComponent implements OnInit, OnDestroy {
   @ViewChild('taxRateModal') taxRateModal: TaxRateModalComponent;
+  @ViewChild('actionButtons') actionButtons: TemplateRef<any>;
+  @ViewChild('confirmationModal') confirmationModal: ConfirmationModalComponent;
 
   taxRatesGrid: GridOptions;
   effectiveFromToDate: { startDate: Moment; endDate: Moment };
   taxRatesData: Array<object>;
+  taxRateRow: any;
+  isSubscriptionAlive: boolean;
 
   styleForHeight = HeightStyle(224);
 
-  constructor(private financeService: FinancePocServiceProxy, public decimalPipe: DecimalPipe) {}
+  constructor(
+    private financeService: FinancePocServiceProxy,
+    private toastrService: ToastrService,
+    public decimalPipe: DecimalPipe
+  ) {
+    this.isSubscriptionAlive = true;
+  }
 
   ngOnInit() {
     this.getTaxRates();
     this.initGrid();
   }
 
-  getTaxRates() {}
+  getTaxRates() {
+    this.financeService
+      .getTaxRates()
+      .pipe(takeWhile(() => this.isSubscriptionAlive))
+      .subscribe(result => {
+        if (result.data) {
+          this.taxRatesData = result.data.map(item => ({
+            id: item.Id,
+            effectiveFrom: item.EffectiveFrom,
+            effectiveTo: item.EffectiveTo,
+            longTermTaxRate: item.LongTermTaxRate,
+            shortTermTaxRate: item.ShortTermTaxRate,
+            shortTermPeriod: item.ShortTermPeriod,
+            createdBy: item.CreatedBy,
+            lastUpdatedBy: item.LastUpdatedBy,
+            createdDate: item.CreatedDate,
+            lastUpdatedDate: item.LastUpdatedDate
+          }));
+        }
+        this.taxRatesGrid.api.setRowData(this.taxRatesData);
+      });
+  }
 
   initGrid() {
     this.taxRatesGrid = {
       columnDefs: this.getColDefs(),
-      rowData: [],
+      rowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       getExternalFilterState: () => {
         return {};
@@ -71,6 +105,11 @@ export class TaxRatesComponent implements OnInit {
 
   getColDefs() {
     return [
+      {
+        headerName: 'Id',
+        field: 'id',
+        hide: true
+      },
       {
         headerName: 'Effective From',
         field: 'effectiveFrom',
@@ -108,6 +147,13 @@ export class TaxRatesComponent implements OnInit {
         type: 'numericColumn'
       },
       {
+        headerName: 'Actions',
+        cellRendererFramework: TemplateRendererComponent,
+        cellRendererParams: {
+          ngTemplate: this.actionButtons
+        }
+      },
+      {
         headerName: 'Created By',
         field: 'createdBy',
         hide: true
@@ -139,7 +185,34 @@ export class TaxRatesComponent implements OnInit {
     this.taxRateModal.openModal({});
   }
 
-  closeTaxRateModal() {}
+  closeTaxRateModal() {
+    this.getTaxRates();
+  }
+
+  editTaxRate(row) {
+    this.taxRateModal.openModal(row);
+  }
+
+  openConfirmationModal(row) {
+    this.taxRateRow = row;
+    this.confirmationModal.showModal();
+  }
+
+  deleteTaxRate() {
+    this.financeService.deleteTaxRate(this.taxRateRow.id).subscribe(
+      response => {
+        if (response.isSuccessful) {
+          this.toastrService.success('Tax Rate deleted successfully!');
+          this.getTaxRates();
+        } else {
+          this.toastrService.error('TaxRate deletion failed!');
+        }
+      },
+      error => {
+        this.toastrService.error('Something went wrong. Try again later!');
+      }
+    );
+  }
 
   numberFormatter(numberToFormat, isInPercentage) {
     let per = numberToFormat;
@@ -148,6 +221,10 @@ export class TaxRatesComponent implements OnInit {
     }
     const formattedValue = this.decimalPipe.transform(per, '1.2-2');
     return formattedValue.toString();
+  }
+
+  ngOnDestroy() {
+    this.isSubscriptionAlive = false;
   }
 }
 

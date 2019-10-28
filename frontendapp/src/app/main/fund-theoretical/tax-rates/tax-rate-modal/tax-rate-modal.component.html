@@ -26,9 +26,9 @@
               </div>
               <!-- Date Picker -->
               <div class="col-sm-9">
-                  <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date" [(ngModel)]="selectedDate" 
-                  (ngModelChange)="changeDate($event)" name="selectedDate" [showDropdowns]="true" [autoApply]="true" 
-                  autocomplete="off" />
+                <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
+                  [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate"
+                  [showDropdowns]="true" [autoApply]="true" autocomplete="off" />
               </div>
             </div>
           </div>
@@ -43,7 +43,8 @@
               </div>
               <!-- Long Term Tax Rate Input -->
               <div class="col-sm-9">
-                <input class="form-control" [(ngModel)]="longTermTaxRate" name="longTermTaxRate" type="number" step=".07">
+                <input class="form-control" [(ngModel)]="longTermTaxRate" name="longTermTaxRate" type="number"
+                  step=".07">
               </div>
             </div>
           </div>
@@ -58,7 +59,8 @@
               </div>
               <!-- Short Term Tax Rate Input -->
               <div class="col-sm-9">
-                <input class="form-control" [(ngModel)]="shortTermTaxRate" name="shortTermTaxRate" type="number" step=".07">
+                <input class="form-control" [(ngModel)]="shortTermTaxRate" name="shortTermTaxRate" type="number"
+                  step=".07">
               </div>
             </div>
           </div>
@@ -73,7 +75,8 @@
               </div>
               <!-- Short Term Period Input -->
               <div class="col-sm-9">
-                <input class="form-control" [(ngModel)]="shortTermPeriod" name="shortTermPeriod" type="number" step=".07">
+                <input class="form-control" [(ngModel)]="shortTermPeriod" name="shortTermPeriod" type="number"
+                  step=".07">
               </div>
             </div>
           </div>
@@ -83,13 +86,11 @@
 
         <!-- Modal Footer Starts -->
         <div class="modal-footer">
-          <button *ngIf="editTaxRate" type="button" class="btn btn-danger mr-auto" (click)="deleteTaxRate()"><i
-              class="fa fa-trash"></i> Delete</button>
           <button type="button" class="btn btn-secondary" (click)="closeModal()"><i class="fa fa-times"
               aria-hidden="true"></i> Cancel</button>
           <button type="submit" class="btn btn-primary">
             <i class="fa" [ngClass]=" {'fa-edit':editTaxRate, 'fa-save':!editTaxRate}"></i>
-            {{editTaxRate ? "Update" : "Save"}}
+            {{editTaxRate ? "Edit" : "Save"}}
           </button>
         </div>
         <!-- Modal Footer Ends -->

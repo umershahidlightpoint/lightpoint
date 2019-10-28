@@ -545,4 +545,24 @@ export class FinancePocServiceProxy {
     const url = this.baseUrl + '/calculation/dailyUnofficialPnl';
     return this.http.get(url);
   }
+
+  getTaxRates(): Observable<any> {
+    const url = this.baseUrl + '/taxRate';
+    return this.http.get(url);
+  }
+
+  createTaxRate(data) {
+    const url = this.baseUrl + '/taxRate';
+    return this.http.post(url, data).pipe(map((response: any) => response));
+  }
+
+  editTaxRate(id, data) {
+    const url = this.baseUrl + '/taxRate/' + id;
+    return this.http.put(url, data).pipe(map((response: any) => response));
+  }
+
+  deleteTaxRate(id) {
+    const url = this.baseUrl + '/taxRate/' + id;
+    return this.http.delete(url).pipe(map((response: any) => response));
+  }
 }

@@ -23,16 +23,24 @@
     </ag-grid-angular>
     <!-- Action Buttons Template Starts -->
     <ng-template #actionButtons let-row>
-        <button class="btn action-btn fixHeight" (click)="editRow(row)" tooltip="Edit" placement="auto"
-          container="body">
-          <i class="fa fa-lg fa-edit" aria-hidden="true"></i>
-        </button>
-      </ng-template>
-      <!-- Action Buttons Template Ends -->
+      <button class="btn action-btn fixHeight" (click)="editTaxRate(row)" tooltip="Edit" placement="auto"
+        container="body">
+        <i class="fa fa-lg fa-edit" aria-hidden="true"></i>
+      </button>
+      <button class="btn action-btn fixHeight" (click)="openConfirmationModal(row)" tooltip="Delete" placement="auto"
+        container="body">
+        <i class="fa fa-lg fa-trash-o" aria-hidden="true"></i>
+      </button>
+    </ng-template>
+    <!-- Action Buttons Template Ends -->
   </div>
 </div>
 <!-- Div To Measure Identifier Ends -->
 
 <!-- Tax Rate Modal -->
-<app-tax-rate-modal #taxRateModal (modalClose)="closeTaxRateModal()">
+<app-tax-rate-modal #taxRateModal (closeModalEvent)="closeTaxRateModal()">
 </app-tax-rate-modal>
+
+<!-- Confirmation Modal Component -->
+<app-confirmation-modal #confirmationModal (confirmDeletion)="deleteTaxRate()" [modalTitle]="'Delete Tax Rate'">
+</app-confirmation-modal>

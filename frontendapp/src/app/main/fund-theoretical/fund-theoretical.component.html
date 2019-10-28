@@ -9,7 +9,7 @@
 <!-- Div Starts -->
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
   <!-- Tab View Tag Starts -->
-  <p-tabView [ngStyle]="style">
+  <p-tabView [ngStyle]="style" (onChange)="onTabChange($event)">
     <!-- Fund Theoretical Tab Starts -->
     <p-tabPanel header=" Fund Theoretical" [ngStyle]="style">
       <!----- Action Buttons Div Starts ----->
@@ -90,7 +90,7 @@
 
     <!-- Tax Rate Tab Starts -->
     <p-tabPanel header="Tax Rate" [ngStyle]="style">
-      <app-tax-rates></app-tax-rates>
+      <app-tax-rates *ngIf="isTaxRateActive"></app-tax-rates>
     </p-tabPanel>
     <!-- Tax Rate Tab Ends -->
   </p-tabView>

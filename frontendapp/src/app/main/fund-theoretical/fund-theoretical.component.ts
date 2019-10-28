@@ -43,6 +43,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   graphObject: any;
   isExpanded = false;
   disableCharts = true;
+  isTaxRateActive = false;
 
   monthsArray = [
     { id: 0, month: 'January' },
@@ -97,6 +98,12 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     this.getFunds();
     this.getMonthlyPerformance();
     this.initGrid();
+  }
+
+  onTabChange(e) {
+    if (e.index === 2) {
+      this.isTaxRateActive = true;
+    }
   }
 
   getFunds() {
