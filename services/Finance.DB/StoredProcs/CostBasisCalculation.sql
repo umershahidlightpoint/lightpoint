@@ -11,6 +11,7 @@ FROM journal with(nolock)
 inner join account a on a.id = journal.account_id
 inner join account_type a_t on a_t.id = a.account_type_id
 where a_t.name = 'LONG POSITIONS AT COST'
+and journal.[event] = 'tradedate'
 and journal.[when] <= @bDate
 group by a.name, journal.symbol
 having sum(quantity) != 0

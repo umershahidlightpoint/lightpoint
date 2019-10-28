@@ -404,13 +404,13 @@ namespace PostingEngine.PostingRules
                         if (workingQuantity == 0)
                             break;
 
-                        if ( !env.TaxLotStatus.ContainsKey(lot.LpOrderId))
+                        if ( !env.TaxLotStatus.ContainsKey(lot.Trade.LpOrderId))
                         {
                             // TODO: For this open lot there should be a corresponding open to 
                             continue;
                         }
 
-                        var taxlotStatus = env.TaxLotStatus[lot.LpOrderId];
+                        var taxlotStatus = env.TaxLotStatus[lot.Trade.LpOrderId];
                         if (taxlotStatus != null && taxlotStatus.Quantity != 0 && !taxlotStatus.Status.ToLowerInvariant().Equals("closed"))
                         {
                             // Does the open Lot fully fullfill the quantity ?
@@ -418,9 +418,9 @@ namespace PostingEngine.PostingRules
                             {
                                 var tl = new TaxLot {
                                     BusinessDate = env.ValueDate,
-                                    OpeningLotId = lot.LpOrderId,
+                                    OpeningLotId = lot.Trade.LpOrderId,
                                     ClosingLotId = element.LpOrderId,
-                                    TradePrice = lot.SettleNetPrice, // Opening Trade Price
+                                    TradePrice = lot.Trade.SettleNetPrice, // Opening Trade Price
                                     CostBasis = element.SettleNetPrice, // Closing Trade Price
                                     Quantity = workingQuantity };
                                 tl.Save(env.Connection, env.Transaction);
@@ -431,16 +431,20 @@ namespace PostingEngine.PostingRules
                                 else
                                     taxlotStatus.Status = "Partially Closed";
 
-                                var unrealizedPnl = taxlotStatus.Quantity * (element.SettleNetPrice - env.PrevMarketPrices[lot.Symbol].Price);
+                                var unrealizedPnl = taxlotStatus.Quantity * (element.SettleNetPrice - env.PrevMarketPrices[lot.Trade.Symbol].Price);
                                 PostUnRealizedPnl(
                                     env, 
-                                    env.FindTrade(lot.LpOrderId), 
+                                    env.FindTrade(lot.Trade.LpOrderId), 
                                     unrealizedPnl,
-                                    env.PrevMarketPrices[lot.Symbol].Price,
+                                    env.PrevMarketPrices[lot.Trade.Symbol].Price,
                                     element.SettleNetPrice);
 
                                 // This is realized Pnl, need to post this as a journal entry
-                                var PnL = tl.Quantity * (tl.CostBasis - tl.TradePrice);
+                                if ( element.Symbol.Equals("IBM"))
+                                {
+
+                                }
+                                var PnL = Math.Abs(tl.Quantity) * (tl.CostBasis - tl.TradePrice);
                                 PostRealizedPnl(
                                     env, 
                                     element, 
@@ -468,7 +472,7 @@ namespace PostingEngine.PostingRules
                                     When = env.ValueDate,
                                     StartPrice = tl.TradePrice,
                                     EndPrice = tl.CostBasis,
-                                    Value = PnL * -1,
+                                    Value = PnL,
                                     FxCurrency = element.TradeCurrency,
                                     Quantity = element.Quantity,
                                     Symbol = element.Symbol,
@@ -489,7 +493,7 @@ namespace PostingEngine.PostingRules
                                     Symbol = element.Symbol,
                                     Quantity = element.Quantity,
                                     FxRate = 1,
-                                    Value = PnL,
+                                    Value = PnL * -1,
                                     GeneratedBy = "system",
                                     Event = "realizedpnl",
                                     Fund = tradeAllocations[0].Fund,
@@ -503,9 +507,9 @@ namespace PostingEngine.PostingRules
                             {
                                 var tl = new TaxLot {
                                     BusinessDate = env.ValueDate,
-                                    OpeningLotId = lot.LpOrderId,
+                                    OpeningLotId = lot.Trade.LpOrderId,
                                     ClosingLotId = element.LpOrderId,
-                                    TradePrice = lot.SettleNetPrice,
+                                    TradePrice = lot.Trade.SettleNetPrice,
                                     CostBasis = element.SettleNetPrice,
                                     Quantity = taxlotStatus.Quantity };
                                 tl.Save(env.Connection, env.Transaction);

@@ -1,6 +1,8 @@
 ﻿using LP.Finance.Common;
 using LP.Finance.Common.Models;
 using Newtonsoft.Json;
+using PostingEngine.Contracts;
+using PostingEngine.PostingRules;
 using PostingEngine.TaxLotMethods;
 using SqlDAL.Core;
 using System;
@@ -22,7 +24,7 @@ namespace PostingEngine
         private static readonly string
             connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
-        private static readonly string root = "http://dev11";
+        private static readonly string root = "http://localhost";
 
         private static readonly string accrualsURL = root + ":9091/api/accruals/data?period=";
         private static readonly string tradesURL = root + ":9091/api/trade/data?period=";
@@ -334,6 +336,7 @@ namespace PostingEngine
             {
                 postingEnv.ValueDate = valueDate;
                 postingEnv.FxRates = new FxRates().Get(valueDate);
+                postingEnv.TaxRate = new TaxRates().Get(valueDate);
 
                 try
                 {
@@ -411,11 +414,73 @@ namespace PostingEngine
 
                 //PostingEngineCallBack?.Invoke($"Sorted / Filtered Trades in {sw.ElapsedMilliseconds} ms");
 
+                // BUY || SHORT trades
+                var buyShort = tradeData.Where(i => i.TradeDate.Equals(valueDate) && (i.IsBuy() || i.IsShort())).ToList();
+
+                foreach(var trade in buyShort)
+                {
+                    if ( trade.Symbol.Equals("IBM"))
+                    {
+
+                    }
+                    // We only process trades that have not broken
+                    if (ignoreTrades.Contains(trade.LpOrderId))
+                        continue;
+
+                    try
+                    {
+                        var processed = new Posting().ProcessTradeEvent(postingEnv, trade);
+                        if (!processed)
+                        {
+                            // Lets add to the ignore list
+                            ignoreTrades.Add(trade.LpOrderId);
+                        }
+                    }
+                    catch (Exception exe)
+                    {
+                        postingEnv.AddMessage(exe.Message);
+
+                        Error(exe, trade);
+                    }
+                }
+
+                // SELL || COVER trades
+                var sellCover = tradeData.Where(i => i.TradeDate.Equals(valueDate) && (i.IsSell() || i.IsCover())).ToList();
+                foreach (var trade in sellCover)
+                {
+                    if (trade.Symbol.Equals("IBM"))
+                    {
+                    }
+                        // We only process trades that have not broken
+                        if (ignoreTrades.Contains(trade.LpOrderId))
+                        continue;
+                    try
+                    {
+                        var processed = new Posting().ProcessTradeEvent(postingEnv, trade);
+                        if (!processed)
+                        {
+                            // Lets add to the ignore list
+                            ignoreTrades.Add(trade.LpOrderId);
+                        }
+                    }
+                    catch (Exception exe)
+                    {
+                        postingEnv.AddMessage(exe.Message);
+
+                        Error(exe, trade);
+                    }
+                }
+
+                // Do Settlement and Daily Events here
                 foreach (var element in tradeData)
                 {
+                    if (element.Symbol.Equals("IBM"))
+                    {
+                    }
+
                     // We only process trades that have not broken
                     if (ignoreTrades.Contains(element.LpOrderId))
-                        continue;
+                    continue;
 
                     try
                     {
@@ -519,7 +584,6 @@ namespace PostingEngine
                 new SqlCommand("delete from tax_lot", connection).ExecuteNonQuery();
                 new SqlCommand("delete from tax_lot_status", connection).ExecuteNonQuery();
                 new SqlCommand("delete from cost_basis", connection).ExecuteNonQuery();
-
             }
         }
 
@@ -533,7 +597,7 @@ namespace PostingEngine
 
             var client = new HttpClient();
 
-            HttpResponseMessage response = await client.GetAsync(webURI);
+            var response = await client.GetAsync(webURI);
             if (response.IsSuccessStatusCode)
             {
                 result = response.Content.ReadAsStringAsync();
@@ -545,6 +609,55 @@ namespace PostingEngine
 
     public class Posting
     {
+        public IPostingRule GetRule(PostingEngineEnvironment env, Transaction element)
+        {
+            return env.rules.Where(i => i.Key.Equals(element.SecurityType)).FirstOrDefault().Value;
+        }
+
+        public bool ProcessTradeEvent(PostingEngineEnvironment env, Transaction element)
+        {
+            // Identify which entries to skip
+            if (element.Status.Equals("Cancelled") || element.Status.Equals("Expired"))
+            {
+                env.AddMessage($"Trade has been cancelled || expired {element.LpOrderId} -- {element.Status}");
+                // TODO: if there is already a Journal entry for this trade we need to back out the entries
+                return false;
+            }
+
+            // Find me the rule
+            var rule = env.rules.Where(i => i.Key.Equals(element.SecurityType)).FirstOrDefault().Value;
+            if (rule == null)
+            {
+                env.AddMessage($"No rule associated with {element.SecurityType}");
+                return false;
+            }
+
+            if (!rule.IsValid(env, element))
+            {
+                // Defer message to the rule
+                //env.AddMessage($"trade not valid to process {element.LpOrderId} -- {element.SecurityType}");
+                return false;
+            }
+
+            if (env.ValueDate == element.TradeDate.Date)
+            {
+                try
+                {
+                    rule.TradeDateEvent(env, element);
+                }
+                catch (Exception ex)
+                {
+                    env.AddMessage($"Unable to process the Event for Trade Date {ex.Message}");
+                }
+            }
+            else
+            {
+                env.AddMessage($"Unable to process this trade TradeDate does not match ValueDate");
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Based on the environment we need to determine what to do.
         /// </summary>
@@ -590,19 +703,7 @@ namespace PostingEngine
                 return false;
             }
 
-            if (env.ValueDate == element.TradeDate.Date)
-            {
-                try
-                {
-                    rule.TradeDateEvent(env, element);
-                    rule.DailyEvent(env, element);
-                }
-                catch (Exception ex)
-                {
-                    env.AddMessage($"Unable to process the Event for Trade Date {ex.Message}");
-                }
-            }
-            else if (env.ValueDate == element.SettleDate.Date)
+            if (env.ValueDate == element.SettleDate.Date)
             {
                 try
                 {
@@ -614,7 +715,7 @@ namespace PostingEngine
                     env.AddMessage($"Unable to process the Event for Settlement Date {ex.Message}");
                 }
             }
-            else if (env.ValueDate > element.TradeDate.Date)
+            else if (env.ValueDate >= element.TradeDate.Date)
             {
                 try
                 {

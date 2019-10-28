@@ -87,9 +87,6 @@ namespace PostingEngine.PostingRules
 
         private AccountToFrom GetSettlementFromToAccount(Transaction element)
         {
-            var type = element.GetType();
-            var accountTypes = AccountType.All;
-
             var listOfFromTags = new List<Tag>
             {
                 Tag.Find("CustodianCode"),
@@ -111,13 +108,13 @@ namespace PostingEngine.PostingRules
                     // Contribution
                     if (element.Symbol.Equals("ZZ_CASH_DIVIDENDS"))
                     {
-                        fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Settled Cash")).FirstOrDefault(), listOfToTags, element);
-                        toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DIVIDENDS RECEIVABLE")).FirstOrDefault(), listOfFromTags, element);
+                        fromAccount = new AccountUtils().CreateAccount(AccountType.Find("Settled Cash"), listOfToTags, element);
+                        toAccount = new AccountUtils().CreateAccount(AccountType.Find("DIVIDENDS RECEIVABLE"), listOfFromTags, element);
                     }
                     else // Default Action
                     {
-                        fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
-                        toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("SHORT POSITIONS AT COST")).FirstOrDefault(), listOfFromTags, element);
+                        fromAccount = new AccountUtils().CreateAccount(AccountType.Find("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )"), listOfToTags, element);
+                        toAccount = new AccountUtils().CreateAccount(AccountType.Find("SHORT POSITIONS AT COST"), listOfFromTags, element);
                     }
                     break;
             }
@@ -131,21 +128,9 @@ namespace PostingEngine.PostingRules
 
         private AccountToFrom GetFromToAccount(Transaction element)
         {
-            var type = element.GetType();
-            var accountTypes = AccountType.All;
-
-            var listOfFromTags = new List<Tag>
-            {
-                Tag.Find("Symbol")
-            };
-
-            var listOfToTags = new List<Tag>
-            {
-                Tag.Find("Symbol")
-            };
-
             Account fromAccount = null; // Debiting Account
             Account toAccount = null; // Crediting Account
+            var au = new AccountUtils();
 
             switch (element.Side.ToLowerInvariant())
             {
@@ -163,8 +148,8 @@ namespace PostingEngine.PostingRules
                                 Tag.Find("CustodianCode")
                             };
 
-                            fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CONTRIBUTED CAPITAL")).FirstOrDefault(), fromTags, element);
-                            toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Settled Cash")).FirstOrDefault(), toTags, element);
+                            fromAccount = au.CreateAccount(AccountType.Find("CONTRIBUTED CAPITAL"), fromTags, element);
+                            toAccount = au.CreateAccount(AccountType.Find("Settled Cash"), toTags, element);
                         }
                         else if (element.Symbol.Equals("ZZ_CASH_DIVIDENDS"))
                         {
@@ -178,16 +163,16 @@ namespace PostingEngine.PostingRules
                                 Tag.Find("CustodianCode")
                             };
 
-                            fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DIVIDENDS RECEIVABLE")).FirstOrDefault(), fromTags, element);
-                            toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DIVIDEND INCOME")).FirstOrDefault(), toTags, element);
+                            fromAccount = au.CreateAccount(AccountType.Find("DIVIDENDS RECEIVABLE"), fromTags, element);
+                            toAccount = au.CreateAccount(AccountType.Find("DIVIDEND INCOME"), toTags, element);
                         }
                         else
                         {
                             var symbol = element.Symbol;
                             symbol = this._codeMap.ContainsKey(symbol) ? _codeMap[symbol] : symbol;
 
-                            var paidAccount = accountTypes.Where(i => i.Name.Equals("Expenses Paid")).FirstOrDefault();
-                            var payableAccount = accountTypes.Where(i => i.Name.Equals("ACCRUED EXPENSES")).FirstOrDefault();
+                            var paidAccount = AccountType.Find("Expenses Paid");
+                            var payableAccount = AccountType.Find("ACCRUED EXPENSES");
 
                             fromAccount = new AccountUtils().CreateAccount(paidAccount, symbol, element);
                             toAccount = new AccountUtils().CreateAccount(payableAccount, symbol + " Payable", element);
@@ -208,8 +193,8 @@ namespace PostingEngine.PostingRules
                             Tag.Find("CustodianCode")
                         };
 
-                        fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Settled Cash")).FirstOrDefault(), fromTags, element);
-                        toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CONTRIBUTED CAPITAL")).FirstOrDefault(), toTags, element);
+                        fromAccount = new AccountUtils().CreateAccount(AccountType.Find("Settled Cash"), fromTags, element);
+                        toAccount = new AccountUtils().CreateAccount(AccountType.Find("CONTRIBUTED CAPITAL"), toTags, element);
                     }
                     else if (element.Symbol.Equals("ZZ_CASH_DIVIDENDS"))
                     {
@@ -223,16 +208,16 @@ namespace PostingEngine.PostingRules
                             Tag.Find("CustodianCode")
                         };
 
-                        fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DIVIDENDS RECEIVABLE")).FirstOrDefault(), fromTags, element);
-                        toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DIVIDEND INCOME")).FirstOrDefault(), toTags, element);
+                        fromAccount = new AccountUtils().CreateAccount(AccountType.Find("DIVIDENDS RECEIVABLE"), fromTags, element);
+                        toAccount = new AccountUtils().CreateAccount(AccountType.Find("DIVIDEND INCOME"), toTags, element);
                     }
                     else // Default Action
                     {
                         var symbol = element.Symbol;
                         symbol = this._codeMap.ContainsKey(symbol) ? _codeMap[symbol] : symbol;
 
-                        var paidAccount = accountTypes.Where(i => i.Name.Equals("Expenses Paid")).FirstOrDefault();
-                        var payableAccount = accountTypes.Where(i => i.Name.Equals("ACCRUED EXPENSES")).FirstOrDefault();
+                        var paidAccount = AccountType.Find("Expenses Paid");
+                        var payableAccount = AccountType.Find("ACCRUED EXPENSES");
 
                         fromAccount = new AccountUtils().CreateAccount(paidAccount, symbol, element);
                         toAccount = new AccountUtils().CreateAccount(payableAccount, symbol + " Payable", element);

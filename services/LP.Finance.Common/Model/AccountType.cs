@@ -19,6 +19,10 @@ namespace LP.Finance.Common.Models
         {
             return All.Where(i => i.Id == id).FirstOrDefault();
         }
+        public static AccountType Find(string key)
+        {
+            return All.Where(i => i.Name.Equals(key)).FirstOrDefault();
+        }
 
         public static AccountType[] Load(SqlConnection connection)
         {

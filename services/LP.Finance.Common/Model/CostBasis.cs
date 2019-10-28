@@ -102,27 +102,8 @@ namespace LP.Finance.Common.Models
         {
             var busDate = businessDate.Date.ToString("MM-dd-yyyy");
 
-            var sqlLong = $@"insert into cost_basis ( business_date, symbol, balance, quantity, cost_basis, side )
-SELECT '{busDate}', journal.symbol, Abs(sum(value)) as Balance, sum(quantity) as Quantity, Abs(sum(value)) / sum(quantity) as CostBasis, 'LONG'
-  FROM journal with(nolock)
-inner join account a on a.id = journal.account_id
-inner join account_type a_t on a_t.id = a.account_type_id
-where a_t.name = 'LONG POSITIONS AT COST'
-and journal.[when] <= '{busDate}'
-group by a.name, journal.symbol
-having sum(quantity) != 0";
-
-            var sqlShort = $@"insert into cost_basis ( business_date, symbol, balance, quantity, cost_basis, side )
-SELECT '{busDate}', journal.symbol, Abs(sum(value)) as Balance, sum(quantity) as Quantity, Abs(sum(value)) / sum(quantity) as CostBasis, 'SHORT'
-  FROM journal with(nolock)
-inner join account a on a.id = journal.account_id
-inner join account_type a_t on a_t.id = a.account_type_id
-where a_t.name = 'SHORT POSITIONS AT COST'
-and journal.[when] <= '{busDate}'
-group by a.name, journal.symbol
-having sum(quantity) != 0";
-
             var sp = "CostBasisCalculation";
+
             using (var command = new SqlCommand(sp, connection, trans))
             {
                 command.CommandType = CommandType.StoredProcedure;

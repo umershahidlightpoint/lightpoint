@@ -57,6 +57,7 @@
     <Compile Include="PostingRules\Cash.cs" />
     <Compile Include="PostingRules\Cross.cs" />
     <Compile Include="PostingRules\PostingRule.cs" />
+    <Compile Include="TaxLotMethods\BaseTaxLotMethodology.cs" />
     <Compile Include="TaxLotMethods\FIFOTaxLotMethod.cs" />
     <Compile Include="Contracts\ITaxLotMethodology.cs" />
     <Compile Include="TaxLotMethods\MinTaxLotMethod .cs" />

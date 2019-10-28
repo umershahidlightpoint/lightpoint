@@ -20,6 +20,8 @@ namespace PostingEngineCmd
             // Doing this for the previous Business Date
             var date = System.DateTime.Now.Date;
             date = date.PrevBusinessDate();
+            date = date.PrevBusinessDate();
+            date = date.PrevBusinessDate();
 
             ITD(date);
 

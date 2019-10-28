@@ -5,14 +5,21 @@ using System.Collections.Generic;
 namespace PostingEngine.TaxLotMethods
 {
     /// <summary>
-    /// Get a list of the open tax lots for the passed trade, is this is a Sell then only get Buys, if a cover only shorts
+    /// Need to calculate a tax liability and then sort the Open Tax lots in ascending order, so that we close out tax lots according to min tax liability
     /// </summary>
     /// <param name="element">Closing Tax Lot</param>
     /// <returns>List of matched open Lots / ordered in LIFO</returns>
     public class MinTaxLotMethod : ITaxLotMethodology
     {
-        public List<Transaction> GetOpenLots(PostingEngineEnvironment env, Transaction element)
+        public List<TaxLotDetail> GetOpenLots(PostingEngineEnvironment env, Transaction element)
         {
+            var side = element.Side.ToLowerInvariant();
+
+            if (side.Equals("buy") || side.Equals("short"))
+            {
+                return null;
+            }
+
             return null;
         }
     }

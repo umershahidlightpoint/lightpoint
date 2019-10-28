@@ -1,10 +1,11 @@
 ﻿using LP.Finance.Common.Models;
+using PostingEngine.TaxLotMethods;
 using System.Collections.Generic;
 
 namespace PostingEngine.Contracts
 {
     public interface ITaxLotMethodology
     {
-        List<Transaction> GetOpenLots(PostingEngineEnvironment env, Transaction element);
+        List<TaxLotDetail> GetOpenLots(PostingEngineEnvironment env, Transaction element);
     }
 }

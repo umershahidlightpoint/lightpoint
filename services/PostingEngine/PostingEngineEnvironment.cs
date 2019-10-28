@@ -37,12 +37,29 @@ namespace PostingEngine
         public Dictionary<string, Accrual> Accruals { get; set; }
 
         public Dictionary<string, TaxLotStatus> TaxLotStatus { get; private set; }
+
+        internal TradeTaxRate TradeTaxRate(Transaction i)
+        {
+            var timeToLongTerm = (ValueDate - i.TradeDate).Days;
+            var isShortTerm = timeToLongTerm <= TaxRate.ShortTermPeriod;
+            var daysToLongTerm = timeToLongTerm - TaxRate.ShortTermPeriod > 0 ? timeToLongTerm - TaxRate.ShortTermPeriod : 0;
+
+            return new TradeTaxRate
+            {
+                IsShortTerm = isShortTerm,
+                Rate = isShortTerm ? TaxRate.ShortTerm : TaxRate.LongTerm,
+                DaysToLongTerm = daysToLongTerm
+            };
+        }
+
         public bool IsValidAccrual(string accrualId)
         {
             return Accruals.ContainsKey(accrualId);
         }
 
         public List<Journal> Journals { get; set; }
+        public TaxRate TaxRate { get; set; }
+
         public Dictionary<string, FxRate> FxRates { get; set; }
         public Dictionary<string, MarketPrice> PrevMarketPrices { get; set; }
         public Dictionary<string, MarketPrice> EODMarketPrices { get; set; }

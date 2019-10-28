@@ -18,6 +18,23 @@ namespace PostingEngine
         public decimal Rate { get; set; }
     }
 
+    public class TaxRate
+    {
+        public decimal ShortTerm { get; set; }
+        public decimal LongTerm { get; set; }
+
+        public int ShortTermPeriod { get; set; }
+    }
+
+    public class TradeTaxRate
+    {
+        public decimal Rate { get; set; }
+
+        public int DaysToLongTerm { get; set; }
+
+        public bool IsShortTerm { get; set; }
+    }
+
     public class MarketPrice
     {
         public string Symbol { get; set; }
@@ -75,6 +92,55 @@ order by c.CurrencyCode desc
             Utils.Save(list, "fxrates");
 
             return list;
+        }
+    }
+
+    public class TaxRates
+    {
+        private readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+
+        private readonly bool Mock = false;
+
+        public TaxRate Get(DateTime now)
+        {
+            if (Mock)
+            {
+                return Utils.GetFile<TaxRate>("taxrates");
+            }
+
+            var businessdate = now.Date;
+
+            var sql = $@"TaxRates";
+
+            var list = new List<TaxRate>();
+
+            using (var con = new SqlConnection(connectionString))
+            {
+                con.Open();
+                var query = new SqlCommand(sql, con);
+                query.CommandType = CommandType.StoredProcedure;
+                query.Parameters.Add("@businessDate", SqlDbType.VarChar).Value = businessdate;
+
+                var reader = query.ExecuteReader(System.Data.CommandBehavior.SingleResult);
+
+                while (reader.Read())
+                {
+                    list.Add(new TaxRate
+                    {
+                        ShortTerm = reader.GetFieldValue<decimal>(0),
+                        LongTerm = reader.GetFieldValue<decimal>(1),
+                        ShortTermPeriod = reader.GetFieldValue<int>(2)
+                    });
+                }
+                reader.Close();
+                con.Close();
+            }
+
+            var taxrate = list.FirstOrDefault();
+
+            Utils.Save(taxrate, "taxrates");
+
+            return taxrate;
         }
     }
 
