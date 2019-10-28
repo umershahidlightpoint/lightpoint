@@ -213,7 +213,7 @@ namespace LP.FileProcessing
                 bool isValid = true;
                 foreach (var item in delimited)
                 {
-                    if (index == 0)
+                    if (index == 0 && headerDictionary.Count > 0)
                     {
                         if (dictionaryIndex == recordOffset)
                         {
@@ -222,7 +222,7 @@ namespace LP.FileProcessing
 
                         AddProperty(obj, headerDictionary[dictionaryIndex].Destination, item);
                     }
-                    else if (totalRecords.HasValue && index == totalRecords + 1)
+                    else if (totalRecords.HasValue && index == totalRecords - 1)
                     {
                         AddProperty(obj, trailerDictionary[dictionaryIndex].Destination, item);
                     }
@@ -266,7 +266,7 @@ namespace LP.FileProcessing
                     dictionaryIndex++;
                 }
 
-                if (index == 0)
+                if (index == 0 && headerDictionary.Count > 0)
                 {
                     header.Add(obj);
                 }
