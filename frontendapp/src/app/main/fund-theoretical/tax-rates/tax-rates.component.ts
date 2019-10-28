@@ -12,6 +12,8 @@ import { takeWhile } from 'rxjs/operators';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 import { TemplateRendererComponent } from 'src/app/template-renderer/template-renderer.component';
 import { ToastrService } from 'ngx-toastr';
+import * as moment from 'moment';
+import { TaxRateData } from 'src/shared/Models';
 
 @Component({
   selector: 'app-tax-rates',
@@ -25,7 +27,7 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
 
   taxRatesGrid: GridOptions;
   effectiveFromToDate: { startDate: Moment; endDate: Moment };
-  taxRatesData: Array<object>;
+  taxRatesData: Array<TaxRateData>;
   taxRateRow: any;
   isSubscriptionAlive: boolean;
 
@@ -52,8 +54,8 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         if (result.data) {
           this.taxRatesData = result.data.map(item => ({
             id: item.Id,
-            effectiveFrom: item.EffectiveFrom,
-            effectiveTo: item.EffectiveTo,
+            effectiveFrom: this.dateFormatter(item.EffectiveFrom),
+            effectiveTo: this.dateFormatter(item.EffectiveTo),
             longTermTaxRate: item.LongTermTaxRate,
             shortTermTaxRate: item.ShortTermTaxRate,
             shortTermPeriod: item.ShortTermPeriod,
@@ -88,7 +90,10 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
       onGridReady: params => {
         params.api.sizeColumnsToFit();
       },
-      onFirstDataRendered: params => {}
+      onFirstDataRendered: params => {},
+      defaultColDef: {
+        resizable: true
+      }
     } as GridOptions;
     this.taxRatesGrid.sideBar = SideBar(GridId.taxRatesId, GridName.taxRates, this.taxRatesGrid);
   }
@@ -172,7 +177,13 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
   }
 
   openTaxRateModal() {
-    this.taxRateModal.openModal({});
+    let lastTaxRateData;
+    if (this.taxRatesData.length !== 0) {
+      lastTaxRateData = this.taxRatesData[this.taxRatesData.length - 1];
+    } else {
+      lastTaxRateData = null;
+    }
+    this.taxRateModal.openModal(null, lastTaxRateData);
   }
 
   closeTaxRateModal() {
@@ -180,7 +191,9 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
   }
 
   editTaxRate(row) {
-    this.taxRateModal.openModal(row);
+    const lastIndex = this.taxRatesData.findIndex(taxRate => taxRate.id === row.id);
+    const lastTaxRateData = this.taxRatesData[lastIndex];
+    this.taxRateModal.openModal(row, lastTaxRateData);
   }
 
   openConfirmationModal(row) {
@@ -204,6 +217,10 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
     );
   }
 
+  getDateDiff(effectiveTo, effectiveFrom) {
+    return moment(effectiveFrom).diff(moment(effectiveTo), 'days');
+  }
+
   numberFormatter(numberToFormat, isInPercentage) {
     let per = numberToFormat;
     if (isInPercentage) {
@@ -215,6 +232,10 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.isSubscriptionAlive = false;
+  }
+
+  dateFormatter(dateToFormat) {
+    return moment(dateToFormat).format('YYYY-MM-DD');
   }
 }
 

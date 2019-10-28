@@ -35,3 +35,16 @@ export interface MonthlyPerformanceData {
   createdDate: string;
   lastUpdatedDate: string;
 }
+
+export interface TaxRateData {
+  id: number;
+  effectiveFrom: string;
+  effectiveTo: string;
+  longTermTaxRate: number;
+  shortTermTaxRate: number;
+  shortTermPeriod: number;
+  createdBy: string;
+  lastUpdatedBy: string;
+  createdDate: string;
+  lastUpdatedDate: string;
+}

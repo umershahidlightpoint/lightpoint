@@ -18,10 +18,10 @@ export class GridId {
   static fileExceptionId = 17;
   static closingTaxLotId = 18;
   static taxlotStatusId = 19;
-  static taxlotId = 19;
-  static fundTheoreticalId = 20;
-  static dailyPnlId = 21;
-  static taxRatesId = 21;
+  static taxlotId = 20;
+  static fundTheoreticalId = 21;
+  static dailyPnlId = 22;
+  static taxRatesId = 23;
 }
 
 export class GridName {

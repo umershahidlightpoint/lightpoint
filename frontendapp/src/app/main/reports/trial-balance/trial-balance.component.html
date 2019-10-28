@@ -32,7 +32,8 @@
       <form>
         <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off" placeholder="Choose date"
           [(ngModel)]="selected" name="selectedDaterange" [ranges]="ranges" [showClearButton]="true"
-          [alwaysShowCalendars]="true" (ngModelChange)="changeDate($event)" [keepCalendarOpeningWithRange]="true" />
+          [alwaysShowCalendars]="true" (ngModelChange)="changeDate($event)" [keepCalendarOpeningWithRange]="true"
+          [locale]="{firstDay: 1}" />
       </form>
     </div>
     <!-- Date Picker Div Ends -->

@@ -32,7 +32,7 @@
       <form>
         <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
           [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" y name=" selectedDate"
-          [singleDatePicker]="true" [autoApply]="true" />
+          [singleDatePicker]="true" [autoApply]="true" [locale]="{firstDay: 1}" />
       </form>
     </div>
     <!-- Date Picker Div Ends -->

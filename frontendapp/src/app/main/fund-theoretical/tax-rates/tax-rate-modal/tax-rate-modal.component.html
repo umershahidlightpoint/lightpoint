@@ -25,10 +25,16 @@
                 <label> Tax Period </label>
               </div>
               <!-- Date Picker -->
-              <div class="col-sm-9">
+              <div *ngIf="!editTaxRate" class="col-sm-9">
                 <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
                   [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate"
-                  [showDropdowns]="true" [autoApply]="true" autocomplete="off" />
+                  [showDropdowns]="true" [autoApply]="true" autocomplete="off" [locale]="{firstDay: 1}"
+                  [disabled]="editTaxRate" />
+              </div>
+              <div *ngIf="editTaxRate" class="col-sm-9">
+                <input class="form-control" type="text"
+                  value="{{selectedDate.startDate | date:'MM-dd-yyyy'}} - {{selectedDate.endDate | date:'MM-dd-yyyy'}}"
+                  name="selectedDate" [disabled]="editTaxRate" />
               </div>
             </div>
           </div>
