@@ -14,6 +14,7 @@ import { TemplateRendererComponent } from 'src/app/template-renderer/template-re
 import { ToastrService } from 'ngx-toastr';
 import * as moment from 'moment';
 import { TaxRateData } from 'src/shared/Models';
+import { UtilsConfig } from 'src/shared/Models/utils-config';
 
 @Component({
   selector: 'app-tax-rates',
@@ -27,11 +28,24 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
 
   taxRatesGrid: GridOptions;
   effectiveFromToDate: { startDate: Moment; endDate: Moment };
-  taxRatesData: Array<TaxRateData>;
+  taxRatesData: TaxRateData[];
   taxRateRow: any;
   isSubscriptionAlive: boolean;
+  showOverlappingBtn = false;
+  showGapBtn = false;
+
+  utilsConfig: UtilsConfig = {
+    expandGrid: false,
+    collapseGrid: false,
+    refreshGrid: true,
+    resetGrid: true,
+    exportExcel: false
+  };
 
   styleForHeight = HeightStyle(224);
+
+  gapStyle = { backgroundColor: '#ffcfcf' };
+  overlappingStyle = { backgroundColor: '#f9a89f' };
 
   constructor(
     private financeService: FinancePocServiceProxy,
@@ -47,6 +61,8 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
   }
 
   getTaxRates() {
+    this.showGapBtn = false;
+    this.showOverlappingBtn = false;
     this.financeService
       .getTaxRates()
       .pipe(takeWhile(() => this.isSubscriptionAlive))
@@ -62,9 +78,26 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
             createdBy: item.CreatedBy,
             lastUpdatedBy: item.LastUpdatedBy,
             createdDate: item.CreatedDate,
-            lastUpdatedDate: item.LastUpdatedDate
+            lastUpdatedDate: item.LastUpdatedDate,
+            isOverLapped: item.IsOverLapped,
+            isGapPresent: item.IsGapPresent
           }));
         }
+
+        this.taxRatesData.find(taxRate => {
+          if (taxRate.isOverLapped) {
+            this.showOverlappingBtn = true;
+            return true;
+          }
+        });
+
+        this.taxRatesData.find(taxRate => {
+          if (taxRate.isGapPresent) {
+            this.showGapBtn = true;
+            return true;
+          }
+        });
+
         this.taxRatesGrid.api.setRowData(this.taxRatesData);
       });
   }
@@ -92,6 +125,14 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
       },
       onFirstDataRendered: params => {
         params.api.sizeColumnsToFit();
+      },
+      getRowStyle: params => {
+        if (params.data.isOverLapped) {
+          return this.overlappingStyle;
+        }
+        if (params.data.isGapPresent) {
+          return this.gapStyle;
+        }
       }
     } as GridOptions;
     this.taxRatesGrid.sideBar = SideBar(GridId.taxRatesId, GridName.taxRates, this.taxRatesGrid);
@@ -128,7 +169,6 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         headerName: 'Short Term Tax Rate',
         field: 'shortTermTaxRate',
         sortable: true,
-        editable: true,
         cellStyle: textAlignRight(),
         type: 'numericColumn'
       },
@@ -136,7 +176,6 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         headerName: 'Short Term Period',
         field: 'shortTermPeriod',
         sortable: true,
-        editable: true,
         cellStyle: textAlignRight(),
         type: 'numericColumn'
       },
@@ -145,7 +184,8 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         cellRendererFramework: TemplateRendererComponent,
         cellRendererParams: {
           ngTemplate: this.actionButtons
-        }
+        },
+        minWidth: 200
       },
       {
         headerName: 'Created By',
@@ -163,8 +203,13 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         hide: true
       },
       {
-        headerName: 'Last Updated Date',
-        field: 'lastUpdatedDate',
+        headerName: 'Is Over Lapped',
+        field: 'isOverLapped',
+        hide: true
+      },
+      {
+        headerName: 'Is Gap Present',
+        field: 'isGapPresent',
         hide: true
       }
     ];
@@ -173,6 +218,11 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
   getContextMenuItems(params) {
     const addDefaultItems = [];
     return GetContextMenu(false, addDefaultItems, true, null, params);
+  }
+
+  refreshGrid() {
+    this.taxRatesGrid.api.showLoadingOverlay();
+    this.getTaxRates();
   }
 
   openTaxRateModal() {
@@ -214,10 +264,6 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         this.toastrService.error('Something went wrong. Try again later!');
       }
     );
-  }
-
-  getDateDiff(effectiveTo, effectiveFrom) {
-    return moment(effectiveFrom).diff(moment(effectiveTo), 'days');
   }
 
   numberFormatter(numberToFormat, isInPercentage) {
