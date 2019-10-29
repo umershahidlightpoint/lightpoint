@@ -3,7 +3,14 @@ import { TaxRateModalComponent } from './tax-rate-modal/tax-rate-modal.component
 import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { HeightStyle, SideBar, AutoSizeAllColumns } from 'src/shared/utils/Shared';
+import {
+  HeightStyle,
+  SideBar,
+  AutoSizeAllColumns,
+  PercentageFormatter,
+  TextAlignRight,
+  DateFormatter
+} from 'src/shared/utils/Shared';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { DecimalPipe } from '@angular/common';
 import { Moment } from 'moment';
@@ -70,8 +77,8 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         if (result.data) {
           this.taxRatesData = result.data.map(item => ({
             id: item.Id,
-            effectiveFrom: this.dateFormatter(item.EffectiveFrom),
-            effectiveTo: this.dateFormatter(item.EffectiveTo),
+            effectiveFrom: DateFormatter(item.EffectiveFrom),
+            effectiveTo: DateFormatter(item.EffectiveTo),
             longTermTaxRate: item.LongTermTaxRate,
             shortTermTaxRate: item.ShortTermTaxRate,
             shortTermPeriod: item.ShortTermPeriod,
@@ -158,27 +165,29 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         filter: true
       },
       {
-        headerName: 'Long Term Tax Rate',
+        headerName: 'Long Term Tax Rate%',
         field: 'longTermTaxRate',
         sortable: true,
         filter: true,
-        cellStyle: textAlignRight(),
-        type: 'numericColumn'
+        cellStyle: TextAlignRight,
+        type: 'numericColumn',
+        valueFormatter: params => this.numberFormatter(params.node.data.longTermTaxRate, true)
       },
       {
-        headerName: 'Short Term Tax Rate',
+        headerName: 'Short Term Tax Rate%',
         field: 'shortTermTaxRate',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight(),
-        type: 'numericColumn'
+        cellStyle: TextAlignRight,
+        type: 'numericColumn',
+        valueFormatter: params => this.numberFormatter(params.node.data.shortTermTaxRate, true)
       },
       {
         headerName: 'Short Term Period',
         field: 'shortTermPeriod',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight(),
+        cellStyle: TextAlignRight,
         type: 'numericColumn'
       },
       {
@@ -271,7 +280,7 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
   numberFormatter(numberToFormat, isInPercentage) {
     let per = numberToFormat;
     if (isInPercentage) {
-      per = percentageFormatter(numberToFormat);
+      per = PercentageFormatter(numberToFormat);
     }
     const formattedValue = this.decimalPipe.transform(per, '1.2-2');
     return formattedValue.toString();
@@ -280,16 +289,4 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.isSubscriptionAlive = false;
   }
-
-  dateFormatter(dateToFormat) {
-    return moment(dateToFormat).format('YYYY-MM-DD');
-  }
-}
-
-function textAlignRight() {
-  return { textAlign: 'end' };
-}
-
-function percentageFormatter(value: number) {
-  return value * 100;
 }

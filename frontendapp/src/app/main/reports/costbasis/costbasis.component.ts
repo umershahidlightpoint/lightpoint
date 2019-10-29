@@ -351,6 +351,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
+    this.clearFilters();
     this.getReport(null, 'ALL');
   }
 

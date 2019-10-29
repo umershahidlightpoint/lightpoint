@@ -1,11 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { HeightStyle, SideBar, AutoSizeAllColumns } from 'src/shared/utils/Shared';
+import {
+  HeightStyle,
+  SideBar,
+  AutoSizeAllColumns,
+  TextAlignRight,
+  PercentageFormatter
+} from 'src/shared/utils/Shared';
 import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { DecimalPipe } from '@angular/common';
-import * as moment from 'moment';
 import { FinancePocServiceProxy } from 'src/shared/service-proxies/service-proxies';
 
 @Component({
@@ -122,7 +127,7 @@ export class DailyPnlComponent implements OnInit {
         field: 'tradingMTDPnL',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight(),
+        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.tradingMTDPnL, false)
       },
@@ -131,7 +136,7 @@ export class DailyPnlComponent implements OnInit {
         field: 'calcTradingMTDPnL',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight(),
+        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.calcTradingMTDPnL, false)
       },
@@ -140,7 +145,7 @@ export class DailyPnlComponent implements OnInit {
         field: 'tradingYTDPnL',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight(),
+        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.tradingYTDPnL, false)
       },
@@ -149,7 +154,7 @@ export class DailyPnlComponent implements OnInit {
         field: 'mtdFinPnL',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight(),
+        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.mtdFinPnL, true)
       },
@@ -158,7 +163,7 @@ export class DailyPnlComponent implements OnInit {
         field: 'ytdFinPnL',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight(),
+        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.ytdFinPnL, true)
       },
@@ -167,7 +172,7 @@ export class DailyPnlComponent implements OnInit {
         field: 'mtdIPOPnL',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight(),
+        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.mtdIPOPnL, true)
       },
@@ -176,7 +181,7 @@ export class DailyPnlComponent implements OnInit {
         field: 'ytdIPOPnL',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight(),
+        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.ytdIPOPnL, true)
       },
@@ -185,7 +190,7 @@ export class DailyPnlComponent implements OnInit {
         field: 'mtdTotalPnL',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight(),
+        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.mtdTotalPnL, true)
       },
@@ -194,7 +199,7 @@ export class DailyPnlComponent implements OnInit {
         field: 'calcMTDTotal',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight(),
+        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.calcMTDTotal, true)
       },
@@ -203,7 +208,7 @@ export class DailyPnlComponent implements OnInit {
         field: 'ytdTotalPnL',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight(),
+        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.ytdTotalPnL, true)
       },
@@ -260,7 +265,7 @@ export class DailyPnlComponent implements OnInit {
   numberFormatter(numberToFormat, isInPercentage) {
     let per = numberToFormat;
     if (isInPercentage) {
-      per = percentageFormatter(numberToFormat);
+      per = PercentageFormatter(numberToFormat);
     }
     const formattedValue = this.decimalPipe.transform(per, '1.2-2');
     return formattedValue.toString();
@@ -270,14 +275,5 @@ export class DailyPnlComponent implements OnInit {
     this.fileToUpload = files.item(0);
   }
 
-  uploadDailyUnofficialPnl(){
-  }
-}
-
-function textAlignRight() {
-  return { textAlign: 'end' };
-}
-
-function percentageFormatter(value: number) {
-  return value * 100;
+  uploadDailyUnofficialPnl() {}
 }
