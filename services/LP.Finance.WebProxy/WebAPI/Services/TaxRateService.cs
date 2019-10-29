@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Net;
 using System.Text;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
@@ -20,7 +21,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             if (postingEngine.IsRunning)
             {
-                return Utils.Wrap(false, "Posting Engine is currently Running");
+                return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
             }
 
             SqlHelper sqlHelper = new SqlHelper(connectionString);
@@ -66,7 +67,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             taxRates = IsTaxPeriodValid(taxRates);
 
-            return Utils.GridWrap(taxRates);
+            return Utils.Wrap(true, taxRates);
         }
 
         public object CreateTaxRate(TaxRateInputDto taxRate)

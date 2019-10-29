@@ -117,7 +117,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   getMonthlyPerformance() {
     let rowNodeId = 1;
     this.financeService.getMonthlyPerformance().subscribe(response => {
-      const modifiedData = response.data.map(data => {
+      const modifiedData = response.payload.map(data => {
         return { ...data, RowId: rowNodeId++ };
       });
       this.totalGridRows = rowNodeId;
@@ -420,8 +420,8 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   viewRow(rowNode) {
     const { id } = rowNode.node.data;
     this.financeService.monthlyPerformanceAudit(id).subscribe(response => {
-      const { data } = response;
-      const modifiedData = this.formatPerformanceData(data);
+      const { payload } = response;
+      const modifiedData = this.formatPerformanceData(payload);
       const columns = this.getColDefs();
       const modifiedCols = columns.map(col => {
         return { ...col, editable: false };

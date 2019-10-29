@@ -29,6 +29,8 @@ namespace LP.Finance.Common
         public string message { get; set; }
         public object payload { get; set; }
         public object meta { get; set; }
+        public object stats { get; set; }
+        public object statusCode { get; set; }
     }
 
     public class MetaData
@@ -149,7 +151,7 @@ namespace LP.Finance.Common
             return await result;
         }
 
-        public static object Wrap(bool status, object payload, object metaData, string message = null)
+        public static object Wrap(bool status, object payload = null, object statusCode = null, string message = null, object metaData = null, object stats = null)
         {
             return new
             {
@@ -158,21 +160,23 @@ namespace LP.Finance.Common
                 isSuccessful = status,
                 message = message ?? (status ? "The Request was Successful" : "The Request Failed! Try Again"),
                 payload,
-                meta = metaData
+                meta = metaData,
+                stats,
+                statusCode,
             };
         }
 
-        public static object Wrap(bool status, string message = null, object statusCode = null)
-        {
-            return new
-            {
-                when = DateTime.Now,
-                by = "",
-                isSuccessful = status,
-                status = statusCode,
-                message = message ?? (status ? "The Request was Successful" : "The Request Failed! Try Again"),
-            };
-        }
+        //public static object Wrap(bool status, string message = null, object statusCode = null)
+        //{
+        //    return new
+        //    {
+        //        when = DateTime.Now,
+        //        by = "",
+        //        isSuccessful = status,
+        //        status = statusCode,
+        //        message = message ?? (status ? "The Request was Successful" : "The Request Failed! Try Again"),
+        //    };
+        //}
 
         public static object GridWrap(object payload, object metaData = null, object stats = null, object statusCode = null, object message = null)
         {
@@ -348,7 +352,7 @@ namespace LP.Finance.Common
             dynamic json = JsonConvert.DeserializeObject(content);
 
             // This Wraps the Results into an Envelope that Contains Additional Metadata
-            return json.Count > 0 ? Utils.Wrap(status, json, metaData) : Utils.Wrap(status);
+            return json.Count > 0 ? Utils.Wrap(status, json,null,null, metaData) : Utils.Wrap(status);
         }
 
         public static object GetTable(string connection, string tablename)

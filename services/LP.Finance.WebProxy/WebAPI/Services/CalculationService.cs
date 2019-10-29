@@ -87,7 +87,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
-            return Utils.GridWrap(json);
+            return Utils.Wrap(true,json);
         }
 
         public object CalculateMonthlyPerformance(List<MonthlyPerformance> obj)
@@ -273,11 +273,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     ResetQuarterDictionary(quarterCount);
                 }
 
-                return Utils.Wrap(true, groupedByYear.SelectMany(x => x.Select(y => y).ToList()), null, "Performance calculated successfully");
+                return Utils.Wrap(true, groupedByYear.SelectMany(x => x.Select(y => y).ToList()), HttpStatusCode.OK, "Performance calculated successfully");
             }
             catch
             {
-                return Utils.Wrap(false, "An error occured during calculation");
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError, "An error occured during calculation");
             }
         }
 
@@ -393,13 +393,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 sqlHelper.SqlCommitTransaction();
                 sqlHelper.CloseConnection();
-                return Utils.Wrap(true, "Calculations saved successfully");
+                return Utils.Wrap(true, null, HttpStatusCode.OK, "Calculations saved successfully");
             }
             catch (Exception ex)
             {
                 sqlHelper.SqlRollbackTransaction();
                 sqlHelper.CloseConnection();
-                return Utils.Wrap(false, "An error occured while saving calculations");
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError, "An error occured while saving calculations");
             }
         }
 
@@ -455,7 +455,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var monthlyPerformance = monthlyPerformanceResult.GetType().GetProperty("payload")
                 ?.GetValue(monthlyPerformanceResult, null);
 
-            return Utils.Wrap(true, monthlyPerformance, null);
+            return Utils.Wrap(true, monthlyPerformance, HttpStatusCode.OK);
         }
 
         public decimal CalculateYTDPerformance(MonthlyPerformance current, MonthlyPerformance prior)
@@ -500,7 +500,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, auditTrailParams.ToArray());
             var jsonResult = JsonConvert.SerializeObject(dataTable);
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
-            return Utils.GridWrap(json);
+            return Utils.Wrap(true,json);
         }
 
         public object GetDailyUnofficialPnl()
@@ -530,7 +530,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
-            return Utils.GridWrap(json);
+            return Utils.Wrap(true,json);
         }
 
         public object GetDailyUnofficialPnlAudit()
@@ -563,11 +563,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
-                return Utils.GridWrap(json, null, null, HttpStatusCode.OK, "Daily Unofficial Pnl fetched successfully");
+                return Utils.Wrap(true, json, HttpStatusCode.OK, "Daily Unofficial Pnl fetched successfully");
             }
             catch (Exception ex)
             {
-                return Utils.GridWrap(null, null, null, HttpStatusCode.InternalServerError, "An error occured while fetching Daily Unofficial Pnl");
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError, "An error occured while fetching Daily Unofficial Pnl");
             }
         }
 
@@ -604,11 +604,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, auditTrailParams.ToArray());
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
                 dynamic json = JsonConvert.DeserializeObject(jsonResult);
-                return Utils.GridWrap(json,null,null,HttpStatusCode.OK,"Daily Unofficial Pnl Audit Trail fetched successfully");
+                return Utils.Wrap(true, json, HttpStatusCode.OK, "Daily Unofficial Pnl Audit Trail fetched successfully");
             }
             catch(Exception ex)
             {
-                return Utils.GridWrap(null,null,null, HttpStatusCode.InternalServerError, "An error occured while fetching Daily Unofficial Pnl Audit Trail");
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError, "An error occured while fetching Daily Unofficial Pnl Audit Trail");
             }
         }
 

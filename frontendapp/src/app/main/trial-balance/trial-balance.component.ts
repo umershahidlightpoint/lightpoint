@@ -223,15 +223,15 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
         this.rowData = [];
         const someArray = [];
         // tslint:disable-next-line: forin
-        for (const item in result.data) {
+        for (const item in result.payload) {
           const someObject = {};
           // tslint:disable-next-line: forin
           for (const i in this.columns) {
             const field = this.columns[i].field;
             if (this.columns[i].Type == 'System.DateTime') {
-              someObject[field] = moment(result.data[item][field]).format('MM-DD-YYYY');
+              someObject[field] = moment(result.payload[item][field]).format('MM-DD-YYYY');
             } else {
-              someObject[field] = result.data[item][field];
+              someObject[field] = result.payload[item][field];
             }
           }
           someArray.push(someObject);

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Net;
 using System.Threading.Tasks;
 using LP.Finance.Common;
 using SqlDAL.Core;
@@ -48,7 +49,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 };
             }
 
-            return Utils.Wrap(false, "Posting Engine is Already Running!");
+            return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is Already Running!");
         }
 
         public object StartPostingEngineSingleOrder(string orderId)
@@ -76,7 +77,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 };
             }
 
-            return Utils.Wrap(false, "Posting Engine is Already Running!");
+            return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is Already Running!");
         }
 
         public void LogMessagesCallBack(string log, int totalRecords = 0, int recordsProcessed = 0)

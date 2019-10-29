@@ -51,8 +51,8 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
       .getTaxRates()
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(result => {
-        if (result.data) {
-          this.taxRatesData = result.data.map(item => ({
+        if (result.payload) {
+          this.taxRatesData = result.payload.map(item => ({
             id: item.Id,
             effectiveFrom: this.dateFormatter(item.EffectiveFrom),
             effectiveTo: this.dateFormatter(item.EffectiveTo),
