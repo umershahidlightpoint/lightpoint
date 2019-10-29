@@ -406,7 +406,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
 
   onBtExport() {
     const params = {
-      fileName: 'Trial Balance Reports',
+      fileName: 'Tax Lot Reports',
       sheetName: 'First Sheet'
     };
     this.gridOptions.api.exportDataAsExcel(params);
