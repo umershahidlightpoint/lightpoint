@@ -47,4 +47,6 @@ export interface TaxRateData {
   lastUpdatedBy: string;
   createdDate: string;
   lastUpdatedDate: string;
+  isOverLapped: boolean;
+  isGapPresent: boolean;
 }

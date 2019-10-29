@@ -27,11 +27,15 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
 
   taxRatesGrid: GridOptions;
   effectiveFromToDate: { startDate: Moment; endDate: Moment };
-  taxRatesData: Array<TaxRateData>;
+  taxRatesData: TaxRateData[];
   taxRateRow: any;
   isSubscriptionAlive: boolean;
-
+  showOverlappingBtn = false;
+  showGapBtn = false;
   styleForHeight = HeightStyle(224);
+
+  gapStyle = { backgroundColor: '#cd5c5c' };
+  overlappingStyle = { backgroundColor: '#FA8072' };
 
   constructor(
     private financeService: FinancePocServiceProxy,
@@ -47,6 +51,8 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
   }
 
   getTaxRates() {
+    this.showGapBtn = false;
+    this.showOverlappingBtn = false;
     this.financeService
       .getTaxRates()
       .pipe(takeWhile(() => this.isSubscriptionAlive))
@@ -62,9 +68,26 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
             createdBy: item.CreatedBy,
             lastUpdatedBy: item.LastUpdatedBy,
             createdDate: item.CreatedDate,
-            lastUpdatedDate: item.LastUpdatedDate
+            lastUpdatedDate: item.LastUpdatedDate,
+            isOverLapped: item.IsOverLapped,
+            isGapPresent: item.IsGapPresent
           }));
         }
+
+        this.taxRatesData.find(taxRate => {
+          if (taxRate.isOverLapped) {
+            this.showOverlappingBtn = true;
+            return true;
+          }
+        });
+
+        this.taxRatesData.find(taxRate => {
+          if (taxRate.isGapPresent) {
+            this.showGapBtn = true;
+            return true;
+          }
+        });
+
         this.taxRatesGrid.api.setRowData(this.taxRatesData);
       });
   }
@@ -92,6 +115,14 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
       },
       onFirstDataRendered: params => {
         params.api.sizeColumnsToFit();
+      },
+      getRowStyle: params => {
+        if (params.data.isOverLapped) {
+          return this.overlappingStyle;
+        }
+        if (params.data.isGapPresent) {
+          return this.gapStyle;
+        }
       }
     } as GridOptions;
     this.taxRatesGrid.sideBar = SideBar(GridId.taxRatesId, GridName.taxRates, this.taxRatesGrid);
@@ -163,8 +194,13 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         hide: true
       },
       {
-        headerName: 'Last Updated Date',
-        field: 'lastUpdatedDate',
+        headerName: 'Is Over Lapped',
+        field: 'isOverLapped',
+        hide: true
+      },
+      {
+        headerName: 'Is Gap Present',
+        field: 'isGapPresent',
         hide: true
       }
     ];

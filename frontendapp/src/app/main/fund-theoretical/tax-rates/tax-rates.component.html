@@ -1,8 +1,23 @@
 <!-- Show Date Picker Div -->
 <form>
   <div class="form-row">
-    <div class="ml-auto">
-      <div class="col-12">
+    <div class="ml-auto w-100">
+      <div class="col-12" style="display: flex; justify-content: flex-end;">
+
+        <!-- Overlapping Color Div Starts -->
+        <div *ngIf="showOverlappingBtn">
+          <button class="btn overlap-color mr-2" tooltip="Overlap" placement="left">
+          </button>
+        </div>
+        <!-- Overlapping Color Div Ends -->
+
+        <!-- Gap Color Div Starts -->
+        <div *ngIf="showGapBtn">
+          <button class="btn gap-color mr-2" tooltip="Gap" placement="left">
+          </button>
+        </div>
+        <!-- Gap Color Div Ends -->
+
         <!-- Add Tax Rate Button Starts -->
         <button class="btn btn-info" type="button" (click)="openTaxRateModal()" tooltip="Add TaxRate" placement="left">
           <i class="fa fa-plus" aria-hidden="true"></i>
