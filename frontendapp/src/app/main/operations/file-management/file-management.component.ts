@@ -146,7 +146,7 @@ export class FileManagementComponent implements OnInit, OnDestroy {
       .getFiles()
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(result => {
-        this.files = result.data.map(item => ({
+        this.files = result.payload.map(item => ({
           id: item.id,
           name: item.name,
           path: item.path,

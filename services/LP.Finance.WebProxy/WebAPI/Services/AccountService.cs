@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Net;
 using System.Text;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
@@ -43,7 +44,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             if (postingEngine.IsRunning)
             {
-                return Utils.Wrap(false, "Posting Engine is currently Running");
+                return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
             }
 
             SqlHelper sqlHelper = new SqlHelper(connectionString);
@@ -95,7 +96,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
 
             Logger.Info($"GetAccounts Executed at {DateTime.Now}");
-            return Utils.Wrap(true, accounts, meta);
+            return Utils.Wrap(true, accounts, HttpStatusCode.OK, null, meta);
         }
 
         public object GetAccount(int id)
@@ -229,7 +230,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             if (AccountHasJournal(id))
             {
-                return Utils.Wrap(false, "An Account having Journal cannot be Edited");
+                return Utils.Wrap(false, null, HttpStatusCode.OK, "An Account having Journal cannot be Edited");
             }
 
             try
@@ -335,7 +336,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             if (AccountHasJournal(id))
             {
-                return Utils.Wrap(false, "An Account having Journal cannot be Deleted");
+                return Utils.Wrap(false, null, HttpStatusCode.OK, "An Account having Journal cannot be Deleted");
             }
 
             try

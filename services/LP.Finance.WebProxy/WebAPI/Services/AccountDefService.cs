@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Net;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
 using SqlDAL.Core;
@@ -61,7 +62,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 })
                 .ToList();
 
-            return Utils.Wrap(true, result, meta);
+            return Utils.Wrap(true, result, HttpStatusCode.OK, null, meta);
         }
     }
 }

@@ -4,6 +4,11 @@
     <div class="ml-auto w-100">
       <div class="col-12" style="display: flex; justify-content: flex-end;">
 
+        <!-- Overlapping Label Div Starts -->
+        <div *ngIf="showOverlappingBtn">
+          <p class="legend-label">Overlap</p>
+        </div>
+        <!-- Overlapping Label Div Ends -->
         <!-- Overlapping Color Div Starts -->
         <div *ngIf="showOverlappingBtn">
           <button class="btn overlap-color mr-2" tooltip="Overlap" placement="left">
@@ -11,6 +16,11 @@
         </div>
         <!-- Overlapping Color Div Ends -->
 
+        <!-- Gap Label Div Starts -->
+        <div *ngIf="showGapBtn">
+          <p class="legend-label">Gap</p>
+        </div>
+        <!-- Overlapping Label Div Ends -->
         <!-- Gap Color Div Starts -->
         <div *ngIf="showGapBtn">
           <button class="btn gap-color mr-2" tooltip="Gap" placement="left">
@@ -24,7 +34,7 @@
         <!-- Grid Utils Ends -->
 
         <!-- Add Tax Rate Button Starts -->
-        <button class="btn btn-info" type="button" (click)="openTaxRateModal()" tooltip="Add TaxRate" placement="top">
+        <button class="btn btn-info" (click)="openTaxRateModal()" tooltip="Add TaxRate" placement="top">
           <i class="fa fa-plus" aria-hidden="true"></i>
         </button>
         <!-- Add Tax Rate Button Ends -->

@@ -167,7 +167,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             if (!IsModifiable(source))
             {
-                return Utils.Wrap(false, "System Generated Journals are not Editable");
+                return Utils.Wrap(false, null, HttpStatusCode.OK, "System Generated Journals are not Editable");
             }
 
             try
@@ -232,7 +232,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             if (!IsModifiable(source))
             {
-                return Utils.Wrap(false, "System Generated Journals are not Editable");
+                return Utils.Wrap(false, null, HttpStatusCode.OK, "System Generated Journals are not Editable");
             }
 
             try
@@ -293,7 +293,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             if (postingEngine.IsRunning)
             {
-                return Utils.Wrap(false, "Posting Engine is currently Running");
+                return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
             }
 
             journalStats journalStats = new journalStats();
@@ -439,7 +439,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var jsonResult = JsonConvert.SerializeObject(dataTable);
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
-            var returnResult = Utils.GridWrap(json, metaData, journalStats);
+            var returnResult = Utils.Wrap(true, json, HttpStatusCode.OK, null, metaData, journalStats);
 
             return returnResult;
         }
@@ -449,7 +449,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             dynamic postingEngine = new PostingEngineService().GetProgress();
             if (postingEngine.IsRunning)
             {
-                return Utils.Wrap(false, "Posting Engine is currently Running");
+                return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
             }
 
             var businessDate = System.DateTime.Now;
@@ -498,7 +498,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             if (postingEngine.IsRunning)
             {
-                return Utils.Wrap(false, "Posting Engine is currently Running");
+                return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
             }
 
             List<SqlParameter> sqlParams = new List<SqlParameter>
@@ -532,7 +532,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             dynamic postingEngine = new PostingEngineService().GetProgress();
             if (postingEngine.IsRunning)
             {
-                return Utils.Wrap(false, "Posting Engine is currently Running");
+                return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
             }
 
             var query = $@"select * from tax_lot_status";
@@ -553,7 +553,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             dynamic postingEngine = new PostingEngineService().GetProgress();
             if (postingEngine.IsRunning)
             {
-                return Utils.Wrap(false, "Posting Engine is currently Running");
+                return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
             }
 
             var query = $@"select *, (cost_basis - trade_price)*quantity as realized_pnl from tax_lot";
@@ -575,7 +575,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             if (postingEngine.IsRunning)
             {
-                return Utils.Wrap(false, "Posting Engine is currently Running");
+                return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
             }
 
             bool whereAdded = false;
@@ -698,7 +698,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 if (postingEngine.IsRunning)
                 {
-                    return Utils.Wrap(false, "Posting Engine is currently Running");
+                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
 
                 bool whereAdded = false;
@@ -841,7 +841,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             dynamic postingEngine = new PostingEngineService().GetProgress();
             if (postingEngine.IsRunning)
             {
-                return Utils.Wrap(false, "Posting Engine is currently Running");
+                return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
             }
 
             var query = $@"select *, (cost_basis - trade_price)*quantity as realized_pnl from tax_lot where open_lot_id='{orderid}'";

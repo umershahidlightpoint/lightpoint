@@ -107,7 +107,7 @@ export class LogsComponent implements OnInit {
       .subscribe(result => {
         this.rowData = [];
 
-        this.rowData = result.data.map(item => ({
+        this.rowData = result.payload.map(item => ({
           rundate: moment(item.rundate).format('MMM-DD-YYYY'),
           action_on: moment(item.action_on).format('MMM-DD-YYYY hh:mm:ss'),
           action: item.action

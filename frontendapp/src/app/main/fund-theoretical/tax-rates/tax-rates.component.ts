@@ -51,8 +51,8 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
 
   styleForHeight = HeightStyle(224);
 
-  gapStyle = { backgroundColor: '#cd5c5c' };
-  overlappingStyle = { backgroundColor: '#FA8072' };
+  gapStyle = { backgroundColor: '#ffcfcf' };
+  overlappingStyle = { backgroundColor: '#f9a89f' };
 
   constructor(
     private financeService: FinancePocServiceProxy,
@@ -74,8 +74,8 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
       .getTaxRates()
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(result => {
-        if (result.data) {
-          this.taxRatesData = result.data.map(item => ({
+        if (result.payload) {
+          this.taxRatesData = result.payload.map(item => ({
             id: item.Id,
             effectiveFrom: DateFormatter(item.EffectiveFrom),
             effectiveTo: DateFormatter(item.EffectiveTo),
