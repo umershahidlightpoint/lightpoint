@@ -29,9 +29,13 @@ namespace UT.Finance
 
             Task.WaitAll(fileManagement);
 
-            dynamic result = JsonConvert.DeserializeObject<object>(fileManagement.Result);
+            var response = JsonConvert.DeserializeObject<Response>(fileManagement.Result);
 
-            Assert.IsTrue(result.data.Count >= 0, "Expected result");
+            var serializedPayload = JsonConvert.SerializeObject(response.data);
+
+            dynamic result = JsonConvert.DeserializeObject(serializedPayload);
+
+            Assert.IsTrue(result.Count >= 0, "Expected result");
 
         }
     }
