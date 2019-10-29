@@ -3,8 +3,12 @@
   <div class="form-row">
     <div class="ml-auto">
       <div class="col-12">
+        <!-- Grid Utils Starts -->
+        <app-grid-utils class="mr-0" [utilsConfig]="utilsConfig" [gridOptions]="taxRatesGrid" (refresh)="refreshGrid()">
+        </app-grid-utils>
+        <!-- Grid Utils Ends -->
         <!-- Add Tax Rate Button Starts -->
-        <button class="btn btn-info" type="button" (click)="openTaxRateModal()" tooltip="Add TaxRate" placement="left">
+        <button class="btn btn-info" type="button" (click)="openTaxRateModal()" tooltip="Add TaxRate" placement="top">
           <i class="fa fa-plus" aria-hidden="true"></i>
         </button>
         <!-- Add Tax Rate Button Ends -->

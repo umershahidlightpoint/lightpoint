@@ -14,6 +14,7 @@ import { TemplateRendererComponent } from 'src/app/template-renderer/template-re
 import { ToastrService } from 'ngx-toastr';
 import * as moment from 'moment';
 import { TaxRateData } from 'src/shared/Models';
+import { UtilsConfig } from 'src/shared/Models/utils-config';
 
 @Component({
   selector: 'app-tax-rates',
@@ -30,6 +31,14 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
   taxRatesData: Array<TaxRateData>;
   taxRateRow: any;
   isSubscriptionAlive: boolean;
+
+  utilsConfig: UtilsConfig = {
+    expandGrid: false,
+    collapseGrid: false,
+    refreshGrid: true,
+    resetGrid: true,
+    exportExcel: false
+  };
 
   styleForHeight = HeightStyle(224);
 
@@ -145,7 +154,8 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         cellRendererFramework: TemplateRendererComponent,
         cellRendererParams: {
           ngTemplate: this.actionButtons
-        }
+        },
+        minWidth: 200
       },
       {
         headerName: 'Created By',
@@ -173,6 +183,11 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
   getContextMenuItems(params) {
     const addDefaultItems = [];
     return GetContextMenu(false, addDefaultItems, true, null, params);
+  }
+
+  refreshGrid() {
+    this.taxRatesGrid.api.showLoadingOverlay();
+    this.getTaxRates();
   }
 
   openTaxRateModal() {
@@ -214,10 +229,6 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         this.toastrService.error('Something went wrong. Try again later!');
       }
     );
-  }
-
-  getDateDiff(effectiveTo, effectiveFrom) {
-    return moment(effectiveFrom).diff(moment(effectiveTo), 'days');
   }
 
   numberFormatter(numberToFormat, isInPercentage) {
