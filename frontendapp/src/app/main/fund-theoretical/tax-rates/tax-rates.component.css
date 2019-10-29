@@ -4,14 +4,21 @@
   width: 15%;
 }
 
+.legend-label {
+  margin: 0.8rem 0.4rem 0 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 0.5;
+}
+
 .overlap-color {
-  background-color: #fa8072;
+  background-color: #f9a89f;
   height: 38px;
   width: 38px;
 }
 
 .gap-color {
-  background-color: #cd5c5c;
+  background-color: #ffcfcf;
   height: 38px;
   width: 38px;
 }

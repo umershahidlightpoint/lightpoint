@@ -44,8 +44,8 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
 
   styleForHeight = HeightStyle(224);
 
-  gapStyle = { backgroundColor: '#cd5c5c' };
-  overlappingStyle = { backgroundColor: '#FA8072' };
+  gapStyle = { backgroundColor: '#ffcfcf' };
+  overlappingStyle = { backgroundColor: '#f9a89f' };
 
   constructor(
     private financeService: FinancePocServiceProxy,
@@ -169,7 +169,6 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         headerName: 'Short Term Tax Rate',
         field: 'shortTermTaxRate',
         sortable: true,
-        editable: true,
         cellStyle: textAlignRight(),
         type: 'numericColumn'
       },
@@ -177,7 +176,6 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         headerName: 'Short Term Period',
         field: 'shortTermPeriod',
         sortable: true,
-        editable: true,
         cellStyle: textAlignRight(),
         type: 'numericColumn'
       },
