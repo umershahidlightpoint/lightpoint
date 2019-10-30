@@ -476,7 +476,8 @@ export const CommonCols = () => {
       headerName: 'Quantity',
       sortable: true,
       enableRowGroup: true,
-      filter: true
+      filter: true,
+      type: 'numericColumn'
     },
 
     {

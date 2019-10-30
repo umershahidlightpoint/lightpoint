@@ -96,7 +96,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     private dataService: DataService,
     private postingEngineService: PostingEngineService,
     private agGridUtls: AgGridUtils,
-    private dataDictionary: DataDictionary,
+    private dataDictionary: DataDictionary
   ) {
     this.hideGrid = false;
     this.DateRangeLabel = '';
@@ -167,7 +167,8 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         headerName: 'Quantity',
         sortable: true,
         enableRowGroup: true,
-        filter: true
+        filter: true,
+        type: 'numericColumn'
       },
       this.dataDictionary.column('TradePrice'),
       this.dataDictionary.column('NetPrice'),
