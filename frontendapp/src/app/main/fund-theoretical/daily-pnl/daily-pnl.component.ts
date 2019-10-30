@@ -328,17 +328,19 @@ export class DailyPnlComponent implements OnInit {
     return GetContextMenu(false, addDefaultItems, true, null, params);
   }
 
-  uploadMonthlyPerformance() {
+  uploadDailyUnofficialPnl() {
     let rowNodeId = 1;
-    this.financeService.uploadMonthlyPerformance(this.fileToUpload).subscribe(response => {
+    this.financeService.uploadDailyUnofficialPnl(this.fileToUpload).subscribe(response => {
+      console.log('Response', response);
+
       if (response.isSuccessful) {
-        const modifiedData = response.payload.map(data => {
-          return { ...data, RowId: rowNodeId++, Estimated: true };
-        });
-        this.totalGridRows = rowNodeId;
-        //this.dailyPnLData = this.formatPerformanceData(modifiedData);
-        this.dailyPnlGrid.api.setRowData(this.dailyPnLData);
-        AutoSizeAllColumns(this.dailyPnlGrid);
+        // const modifiedData = response.payload.map(data => {
+        //   return { ...data, RowId: rowNodeId++, Estimated: true };
+        // });
+        // this.totalGridRows = rowNodeId;
+        // // this.dailyPnLData = this.formatPerformanceData(modifiedData);
+        // this.dailyPnlGrid.api.setRowData(this.dailyPnLData);
+        // AutoSizeAllColumns(this.dailyPnlGrid);
         // this.disableCommit = false;
       } else {
         this.toastrService.error('Something went wrong! Try Again.');
@@ -367,6 +369,4 @@ export class DailyPnlComponent implements OnInit {
   onFileInput(files: FileList) {
     this.fileToUpload = files.item(0);
   }
-
-  uploadDailyUnofficialPnl() {}
 }

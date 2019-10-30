@@ -565,4 +565,11 @@ export class FinancePocServiceProxy {
     const url = this.baseUrl + '/taxRate/' + id;
     return this.http.delete(url).pipe(map((response: any) => response));
   }
+
+  uploadDailyUnofficialPnl(file: File): Observable<any> {
+    const url = this.baseUrl + '/calculation/dailyUnofficialPnlAudit/upload';
+    const formData: FormData = new FormData();
+    formData.append('fileKey', file, file.name);
+    return this.http.post(url, formData);
+  }
 }
