@@ -63,7 +63,7 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
         detailGridOptions: {
           columnDefs: [
             { field: 'referenceNumber' },
-            { field: 'rowNumber' },
+            { field: 'rowNumber', type: 'numericColumn' },
             {
               headerName: 'Actions',
               cellRendererFramework: TemplateRendererComponent,
@@ -128,7 +128,8 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
       },
       {
         field: 'exceptionCount',
-        headerName: 'Count'
+        headerName: 'Count',
+        type: 'numericColumn'
       }
     ];
     this.gridOptions.api.setColumnDefs(colDefs);

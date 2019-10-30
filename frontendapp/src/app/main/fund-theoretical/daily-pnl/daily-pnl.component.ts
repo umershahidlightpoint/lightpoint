@@ -385,8 +385,8 @@ export class DailyPnlComponent implements OnInit {
   }
 
   refreshGrid() {
-    this.dailyPnlGrid.api.showLoadingOverlay();
-    this.getDailyPnL();
+    // this.dailyPnlGrid.api.showLoadingOverlay();
+    // this.getDailyPnL();
   }
 
   numberFormatter(numberToFormat, isInPercentage) {

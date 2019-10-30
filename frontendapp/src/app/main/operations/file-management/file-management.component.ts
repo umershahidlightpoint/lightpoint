@@ -95,7 +95,8 @@ export class FileManagementComponent implements OnInit, OnDestroy {
         headerName: 'Statistics',
         sortable: true,
         filter: true,
-        resizable: true
+        resizable: true,
+        type: 'numericColumn'
       },
       {
         field: 'businessDate',

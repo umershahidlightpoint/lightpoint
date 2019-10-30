@@ -64,7 +64,8 @@ export class SilverFileManagementComponent implements OnInit, OnDestroy {
       {
         field: 'size',
         headerName: 'Size',
-        resizable: true
+        resizable: true,
+        type: 'numericColumn'
       },
       {
         headerName: 'View',
