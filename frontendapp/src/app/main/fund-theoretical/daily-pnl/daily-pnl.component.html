@@ -2,12 +2,12 @@
 <div class="row">
   <div class="ml-auto mt-1 mr-2">
     <!----- Refresh Button Div ----->
-    <!-- <div class="mr-2 tabBtn">
+    <!-- <div class="mr-2 d-inline-block">
       <button (click)="refreshGrid()" class="btn btn-info" tooltip="Refresh" placement="top">
         <i class="fa fa-refresh"></i></button>
     </div> -->
     <!-- Export Excel Div -->
-    <!-- <div class="mr-2  tabBtn">
+    <!-- <div class="mr-2  d-inline-block">
       <button (click)="onBtExport()" class="btn btn-info" tooltip="Export to Excel" placement="top">
         <i class="fa fa-arrow-circle-o-down"></i>
       </button>
@@ -19,15 +19,15 @@
 <!-- Show Date Picker Div -->
 <form>
   <div class="form-row">
-    <div class="col-2">
+    <!-- <div class="col-2">
       <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date" [(ngModel)]="selectedDate"
         (ngModelChange)="changeDate($event)" name="selectedDate" [singleDatePicker]="true" [autoApply]="true"
         autocomplete="off" [showDropdowns]="true" />
-    </div>
+    </div> -->
     <div class="col-6">
-      <button class="btn btn-info" type="button" (click)="doRefresh()">
+      <!-- <button class="btn btn-info" type="button" (click)="doRefresh()">
         Refresh
-      </button>
+      </button> -->
       <input class="btn btn-info file-upload-btn" type="file" (change)="onFileInput($event.target.files)">
       <button class="btn btn-info ml-2" type="button" (click)="uploadDailyUnofficialPnl()">
         Upload
@@ -39,6 +39,11 @@
           Commit
         </button>
       </div> -->
+
+      <!-- Grid Utils Starts -->
+      <app-grid-utils class="mr-0" [utilsConfig]="utilsConfig" [gridOptions]="dailyPnlGrid" (refresh)="refreshGrid()">
+      </app-grid-utils>
+      <!-- Grid Utils Ends -->
     </div>
   </div>
 </form>

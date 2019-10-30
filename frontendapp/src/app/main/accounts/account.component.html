@@ -16,18 +16,18 @@
       <div class="row">
         <div class="ml-auto mt-1 mr-2">
           <!----- Refresh Button Div ----->
-          <div class="mr-2 tabBtn">
+          <div class="mr-2 d-inline-block">
             <button (click)="refreshGrid()" class="btn btn-info" tooltip="Refresh" placement="top">
               <i class="fa fa-refresh"></i></button>
           </div>
           <!-- Export Excel Div -->
-          <div class="mr-2  tabBtn">
+          <div class="mr-2  d-inline-block">
             <button (click)="onBtExport()" class="btn btn-info" tooltip="Export to Excel" placement="top">
               <i class="fa fa-arrow-circle-o-down"></i>
             </button>
           </div>
           <!-- Create Account Button Div Starts -->
-          <div class="mr-2 btn-group tabBtn" dropdown>
+          <div class="mr-2 btn-group d-inline-block" dropdown>
             <!-- Create Account Button -->
             <button id="button-basic" dropdownToggle type="button" class="btn btn-info dropdown-toggle"
               aria-controls="dropdown-basic">
@@ -58,12 +58,12 @@
           </ag-grid-angular>
           <!----- Action buttons Template Starts ----->
           <ng-template #actionButtons let-row>
-            <button class="btn action-btn fixHeight" (click)="editRow(row)" tooltip="Edit" placement="auto"
+            <button class="btn action-btn height-30px" (click)="editRow(row)" tooltip="Edit" placement="auto"
               container="body">
               <i class="fa fa-lg fa-edit" aria-hidden="true"></i>
             </button>
-            <button [disabled]="row.hasJournal == 'Yes'" class="btn action-btn fixHeight"
-              [ngClass]="{'disabled-btn':row.hasJournal == 'Yes'}" (click)="openConfirmationModal(row)" tooltip="Delete"
+            <button [disabled]="row.hasJournal == 'Yes'" class="btn action-btn height-30px"
+              [ngClass]="{'cursor-not-allowed':row.hasJournal == 'Yes'}" (click)="openConfirmationModal(row)" tooltip="Delete"
               placement="auto" container="body">
               <i class="fa fa-lg fa-trash-o" aria-hidden="true"></i>
             </button>

@@ -40,7 +40,7 @@
         </div>
         <div class="col-5">
           <!-- Clear Journal Div -->
-          <form class="clearForm" #clearForm="ngForm" [formGroup]="clearJournalForm" (ngSubmit)="openModal()">
+          <form class="float-right" [formGroup]="clearJournalForm" (ngSubmit)="openModal()">
             <div class="mr-3">
               <div class="form-check">
                 <input type="checkbox" class="form-check-input" id="system" formControlName="system" />

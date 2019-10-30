@@ -41,13 +41,13 @@ namespace PostingEngine
         internal TradeTaxRate TradeTaxRate(Transaction i)
         {
             var timeToLongTerm = (ValueDate - i.TradeDate).Days;
-            var isShortTerm = timeToLongTerm <= TaxRate.ShortTermPeriod;
-            var daysToLongTerm = timeToLongTerm - TaxRate.ShortTermPeriod > 0 ? timeToLongTerm - TaxRate.ShortTermPeriod : 0;
+            var isShortTerm = timeToLongTerm <= (TaxRate != null ? TaxRate.ShortTermPeriod : 0);
+            var daysToLongTerm = timeToLongTerm - (TaxRate != null ? TaxRate.ShortTermPeriod : 0) > 0 ? timeToLongTerm - (TaxRate != null ? TaxRate.ShortTermPeriod : 0) : 0;
 
             return new TradeTaxRate
             {
                 IsShortTerm = isShortTerm,
-                Rate = isShortTerm ? TaxRate.ShortTerm : TaxRate.LongTerm,
+                Rate = TaxRate != null ? (isShortTerm ? TaxRate.ShortTerm : TaxRate.LongTerm) : 0.0M,
                 DaysToLongTerm = daysToLongTerm
             };
         }
@@ -140,5 +140,49 @@ namespace PostingEngine
             var trade = Trades.Where(i => i.LpOrderId.Equals(lpOrderId)).FirstOrDefault();
             return trade;
         }
+
+        /// <summary>
+        /// Determine the sign on the journal entries to reflect the following
+        /// </summary>
+        /// <param name="toAccount"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /* Account      Increase    Decrease
+         * Assets       Debit       Credit
+         * Expences     Debit       Credit
+         * Liabilities  Credit      Debit
+         * Equity       Credit      Debit
+         * Revenue      Credit      Debit
+         */ 
+        internal double DebitOrCredit(Account toAccount, double value)
+        {
+            return value;
+
+            var retValue = 0.0;
+
+            // Determine how to treat the value passed
+            switch(toAccount.Type.Category.Id)
+            {
+                case AccountCategory.AC_ASSET:
+                case AccountCategory.AC_EXPENCES:
+                    if ( value > 0 )
+                        retValue = value * -1;
+                    else
+                        retValue = value;
+                    break;
+                case AccountCategory.AC_EQUITY:
+                case AccountCategory.AC_LIABILITY:
+                case AccountCategory.AC_REVENUES:
+                    retValue = value;
+                    break;
+                default:
+                    retValue = value;
+                    break;
+            }
+
+            return retValue;
+        }
+
+
     }
 }

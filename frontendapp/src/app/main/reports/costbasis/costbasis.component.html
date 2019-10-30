@@ -48,13 +48,13 @@
     <!----- Buttons Div Starts ----->
     <div class="col-3">
       <!-- Refresh Button Div Starts -->
-      <div class="mr-2 tabBtn">
+      <div class="mr-2 d-inline-block">
         <button (click)="refreshReport()" class="btn btn-info" tooltip="Refresh" placement="top">
           <i class="fa fa-refresh"></i></button>
       </div>
       <!-- Refresh Button Div Ends -->
       <!-- Export to Excel Button -->
-      <div class="mr-2 tabBtn">
+      <div class="mr-2 d-inline-block">
         <button (click)="onBtExport()" class="btn btn-info" tooltip="Export to Excel" placement="top">
           <i class="fa fa-arrow-circle-o-down"></i>
         </button>
@@ -64,7 +64,7 @@
     <!----- Chart DropDown Div Starts ----->
     <div class="ml-auto">
       <!----- Chart Data DropDown Starts ----->
-      <!-- <div class="mr-2 tabBtn">
+      <!-- <div class="mr-2 d-inline-block">
         <select class="form-control" [(ngModel)]="selectedChartOption" (ngModelChange)="changeChart($event)">
           <option *ngFor="let option of chartOptions" [ngValue]="option.key">
             {{option.value}}

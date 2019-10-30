@@ -63,8 +63,7 @@ namespace PostingEngine.PostingRules
                     When = env.ValueDate,
                     FxCurrency = element.SettleCurrency,
                     FxRate = fxrate,
-                    Value = moneyUSD * -1,
-                    GeneratedBy = "system",
+                    Value = env.DebitOrCredit(accountToFrom.From, moneyUSD),
                     Fund = debitEntry.Fund,
                 };
 
@@ -75,8 +74,7 @@ namespace PostingEngine.PostingRules
                     When = env.ValueDate,
                     FxCurrency = element.SettleCurrency,
                     FxRate = fxrate,
-                    Value = moneyUSD,
-                    GeneratedBy = "system",
+                    Value = env.DebitOrCredit(accountToFrom.To, moneyUSD* -1),
                     Fund = creditEntry.Fund,
                 };
 
@@ -219,7 +217,6 @@ namespace PostingEngine.PostingRules
                     Value = debitAmount,
                     FxCurrency = element.TradeCurrency,
                     FxRate = fxrate,
-                    GeneratedBy = "system",
                     Fund = debitEntry.Fund,
                 };
 
@@ -231,7 +228,6 @@ namespace PostingEngine.PostingRules
                     FxCurrency = element.TradeCurrency,
                     FxRate = fxrate,
                     Value = creditAmount,
-                    GeneratedBy = "system",
                     Fund = creditEntry.Fund,
                 };
 

@@ -125,7 +125,6 @@ namespace PostingEngine.PostingRules
                     Quantity = element.Quantity,
                     FxCurrency = element.TradeCurrency,
                     FxRate = fxrate,
-                    GeneratedBy = "system",
                     Fund = element.Fund,
                 };
 
@@ -138,7 +137,6 @@ namespace PostingEngine.PostingRules
                     FxRate = fxrate,
                     Value = creditAmount,
                     Quantity = element.Quantity,
-                    GeneratedBy = "system",
                     Fund = element.Fund,
                 };
 

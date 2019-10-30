@@ -237,7 +237,7 @@ namespace PostingEngine
                     Trades = tradeList,
                     Accruals = accrualList.ToDictionary(i => i.AccrualId, i => i),
                     Period = period,
-                    Methodology = new FIFOTaxLotMethod() // Needs to be driven by the system setup
+                    Methodology = BaseTaxLotMethodology.GetTaxLotMethodology("FIFO") // Needs to be driven by the system setup
                 };
 
                 PostingEngineCallBack?.Invoke("Starting Batch Posting Engine -- Trades on" + DateTime.Now);
@@ -377,7 +377,6 @@ namespace PostingEngine
         {
             var minTradeDate = postingEnv.Trades.Min(i => i.TradeDate.Date);
             //var maxTradeDate = postingEnv.Trades.Max(i => i.TradeDate.Date);
-
             //var maxSettleDate = postingEnv.Trades.Max(i => i.SettleDate.Date);
 
             var valueDate = minTradeDate;

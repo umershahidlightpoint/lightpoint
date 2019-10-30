@@ -2,20 +2,8 @@
   margin-left: -4rem !important;
 }
 
-.tabBtn {
-  display: inline-block;
-}
-
 .action-btn {
   margin: 0 8px;
   padding: 2px;
   width: 15%;
-}
-
-.fixHeight {
-  height: 30px;
-}
-
-.disabled-btn {
-  cursor: not-allowed;
 }

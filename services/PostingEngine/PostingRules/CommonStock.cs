@@ -96,10 +96,9 @@ namespace PostingEngine.PostingRules
                         Symbol = symbol,
                         Quantity = quantity,
                         FxRate = fxRate,
-                        Value = unrealizedPnl * -1,
+                        Value = env.DebitOrCredit(fromAccount, unrealizedPnl),
                         StartPrice = prevEodPrice,
                         EndPrice = eodPrice,
-                        GeneratedBy = "system",
                         Event = "unrealizedpnl",
                         Fund = fund,
                     };
@@ -113,11 +112,10 @@ namespace PostingEngine.PostingRules
                         FxRate = fxRate,
                         Symbol = symbol,
                         Quantity = quantity,
-                        Value = unrealizedPnl,
+                        Value = env.DebitOrCredit(toAccount, unrealizedPnl * -1),
                         Event = "unrealizedpnl",
                         StartPrice = prevEodPrice,
                         EndPrice = eodPrice,
-                        GeneratedBy = "system",
                         Fund = fund,
                     };
 
@@ -158,7 +156,7 @@ namespace PostingEngine.PostingRules
                 fxrate = Convert.ToDouble(env.FxRates[element.SettleCurrency].Rate);
             }
 
-            var moneyUSD = Math.Abs(element.NetMoney) / fxrate;
+            var moneyUSD = element.NetMoney / fxrate;
 
             if (element.NetMoney != 0.0)
             {
@@ -171,8 +169,7 @@ namespace PostingEngine.PostingRules
                     Symbol = debitEntry.Symbol,
                     Quantity = element.Quantity,
                     FxRate = fxrate,
-                    Value = moneyUSD * -1,
-                    GeneratedBy = "system",
+                    Value = env.DebitOrCredit(accountToFrom.From, moneyUSD),
                     Event = "settlement",
                     Fund = debitEntry.Fund,
                 };
@@ -186,9 +183,8 @@ namespace PostingEngine.PostingRules
                     FxRate = fxrate,
                     Symbol = creditEntry.Symbol,
                     Quantity = element.Quantity,
-                    Value = moneyUSD,
+                    Value = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
                     Event = "settlement",
-                    GeneratedBy = "system",
                     Fund = creditEntry.Fund,
                 };
 
@@ -460,29 +456,29 @@ namespace PostingEngine.PostingRules
 
                                 var fromAccount = new AccountUtils().CreateAccount(AccountType.All.Where(i => i.Name.Equals("LONG POSITIONS AT COST")).FirstOrDefault(), listOfFromTags, element);
                                 var toAccount = new AccountUtils().CreateAccount(AccountType.All.Where(i => i.Name.Equals("Mark to Market Longs")).FirstOrDefault(), listOfFromTags, element);
+
                                 new AccountUtils().SaveAccountDetails(env, fromAccount);
                                 new AccountUtils().SaveAccountDetails(env, toAccount);
 
 
                                 // Now Generate Entries
-                                var debitJournal = new Journal
+                                var fromJournal = new Journal
                                 {
                                     Source = element.LpOrderId,
                                     Account = fromAccount,
                                     When = env.ValueDate,
                                     StartPrice = tl.TradePrice,
                                     EndPrice = tl.CostBasis,
-                                    Value = PnL,
+                                    Value = env.DebitOrCredit(fromAccount, PnL),
                                     FxCurrency = element.TradeCurrency,
                                     Quantity = element.Quantity,
                                     Symbol = element.Symbol,
                                     FxRate = 1,
-                                    GeneratedBy = "system",
                                     Event = "realizedpnl",
                                     Fund = tradeAllocations[0].Fund,
                                 };
 
-                                var creditJournal = new Journal
+                                var toJournal = new Journal
                                 {
                                     Source = element.LpOrderId,
                                     Account = toAccount,
@@ -493,13 +489,12 @@ namespace PostingEngine.PostingRules
                                     Symbol = element.Symbol,
                                     Quantity = element.Quantity,
                                     FxRate = 1,
-                                    Value = PnL * -1,
-                                    GeneratedBy = "system",
+                                    Value = env.DebitOrCredit(toAccount, PnL * -1),
                                     Event = "realizedpnl",
                                     Fund = tradeAllocations[0].Fund,
                                 };
 
-                                env.Journals.AddRange(new[] { debitJournal, creditJournal });
+                                env.Journals.AddRange(new[] { fromJournal, toJournal });
 
                                 break;
                             }
@@ -572,43 +567,36 @@ namespace PostingEngine.PostingRules
 
             if (element.NetMoney != 0.0)
             {
-                var moneyUSD = (Math.Abs(element.NetMoney) / fxrate);
+                var moneyUSD = element.NetMoney / fxrate;
+                /*
                 if ( element.Side.ToLowerInvariant().Equals("sell"))
                 {
                     moneyUSD = moneyUSD * -1;
                 }
-
+                */
                 var eodPrice = env.EODMarketPrices[element.Symbol].Price;
 
-                var debitJournal = new Journal
+                var debitJournal = new Journal(accountToFrom.From, "tradedate", env.ValueDate)
                 {
                     Source = debitEntry.LpOrderId,
-                    Account = accountToFrom.From,
-                    When = env.ValueDate,
-                    Value = moneyUSD * -1,
+                    Value = env.DebitOrCredit(accountToFrom.From, moneyUSD),
                     FxCurrency = element.TradeCurrency,
                     Quantity = element.Quantity,
                     Symbol = debitEntry.Symbol,
                     FxRate = fxrate,
-                    Event = "tradedate",
-                    GeneratedBy = "system",
                     StartPrice = element.SettleNetPrice,
                     EndPrice = eodPrice,
                     Fund = debitEntry.Fund,
                 };
 
-                var creditJournal = new Journal
+                var creditJournal = new Journal(accountToFrom.To, "tradedate", env.ValueDate)
                 {
                     Source = creditEntry.LpOrderId,
-                    Account = accountToFrom.To,
-                    When = env.ValueDate,
                     FxCurrency = element.TradeCurrency,
                     Symbol = creditEntry.Symbol,
                     Quantity = element.Quantity,
                     FxRate = fxrate,
-                    Value = moneyUSD,
-                    Event = "tradedate",
-                    GeneratedBy = "system",
+                    Value = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
                     StartPrice = element.SettleNetPrice,
                     EndPrice = eodPrice,
                     Fund = creditEntry.Fund,
@@ -643,12 +631,11 @@ namespace PostingEngine.PostingRules
                 When = env.ValueDate,
                 StartPrice = start,
                 EndPrice = end,
-                Value = pnL * -1,
+                Value = env.DebitOrCredit(accountToFrom.From, pnL),
                 FxCurrency = element.TradeCurrency,
                 Quantity = element.Quantity,
                 Symbol = element.Symbol,
                 FxRate = 1,
-                GeneratedBy = "system",
                 Event = "realizedpnl",
                 Fund = tradeAllocations[0].Fund,
             };
@@ -664,8 +651,7 @@ namespace PostingEngine.PostingRules
                 Symbol = element.Symbol,
                 Quantity = element.Quantity,
                 FxRate = 1,
-                Value = pnL,
-                GeneratedBy = "system",
+                Value = env.DebitOrCredit(accountToFrom.To, pnL * -1),
                 Event = "realizedpnl",
                 Fund = tradeAllocations[0].Fund,
             };
@@ -693,12 +679,11 @@ namespace PostingEngine.PostingRules
                 When = env.ValueDate,
                 StartPrice = start,
                 EndPrice = end,
-                Value = unrealizedPnl * -1,
+                Value = env.DebitOrCredit(accountToFrom.From, unrealizedPnl),
                 FxCurrency = element.TradeCurrency,
                 Quantity = element.Quantity,
                 Symbol = element.Symbol,
                 FxRate = 1,
-                GeneratedBy = "system",
                 Event = "unrealizedpnl",
                 Fund = tradeAllocations[0].Fund,
             };
@@ -714,8 +699,7 @@ namespace PostingEngine.PostingRules
                 Symbol = element.Symbol,
                 Quantity = element.Quantity,
                 FxRate = 1,
-                Value = unrealizedPnl,
-                GeneratedBy = "system",
+                Value = env.DebitOrCredit(accountToFrom.To, unrealizedPnl * -1),
                 Event = "unrealizedpnl",
                 Fund = tradeAllocations[0].Fund,
             };
