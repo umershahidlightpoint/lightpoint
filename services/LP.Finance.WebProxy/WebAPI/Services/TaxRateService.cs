@@ -65,7 +65,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlConnection.Close();
             }
 
-            taxRates = IsTaxPeriodValid(taxRates);
+            taxRates = ValidateTaxPeriods(taxRates);
 
             return Utils.Wrap(true, taxRates);
         }
@@ -198,7 +198,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return Utils.Wrap(true);
         }
 
-        private List<TaxRateOutputDto> IsTaxPeriodValid(List<TaxRateOutputDto> taxRates)
+        private List<TaxRateOutputDto> ValidateTaxPeriods(List<TaxRateOutputDto> taxRates)
         {
             for (var i = 0; i < taxRates.Count - 1; i++)
             {

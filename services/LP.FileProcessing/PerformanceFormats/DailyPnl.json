@@ -1,0 +1,222 @@
+{
+  "Header": [],
+  "Trailer": [],
+  "Record": [
+    {
+      "source": "BusinessDate",
+      "destination": "BusinessDate",
+      "function": null,
+      "format": "",
+      "type": "date",
+      "offset": 0,
+      "rule": ""
+    },
+    {
+      "source": "Fund",
+      "destination": "Fund",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 1,
+      "rule": ""
+    },
+    {
+      "source": "Portfolio",
+      "destination": "Portfolio",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 2,
+      "rule": ""
+    },
+    {
+      "source": "TradePnL",
+      "destination": "TradePnL",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 3,
+      "rule": ""
+    },
+    {
+      "source": "Day",
+      "destination": "Day",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 4,
+      "rule": ""
+    },
+    {
+      "source": "DailyPercentageReturn",
+      "destination": "DailyPercentageReturn",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 5,
+      "rule": ""
+    },
+    {
+      "source": "LongPnL",
+      "destination": "LongPnL",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 6,
+      "rule": ""
+    },
+    {
+      "source": "LongPercentageChange",
+      "destination": "LongPercentageChange",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 7,
+      "rule": ""
+    },
+    {
+      "source": "ShortPnL",
+      "destination": "ShortPnL",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 8,
+      "rule": ""
+    },
+    {
+      "source": "ShortPercentageChange",
+      "destination": "ShortPercentageChange",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 9,
+      "rule": ""
+    },
+    {
+      "source": "LongExposure",
+      "destination": "LongExposure",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 10,
+      "rule": ""
+    },
+    {
+      "source": "ShortExposure",
+      "destination": "ShortExposure",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 11,
+      "rule": ""
+    },
+    {
+      "source": "GrossExposure",
+      "destination": "GrossExposure",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 12,
+      "rule": ""
+    },
+    {
+      "source": "NetExposure",
+      "destination": "NetExposure",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 13,
+      "rule": ""
+    },
+    {
+      "source": "SixMdBetaNetExposure",
+      "destination": "SixMdBetaNetExposure",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 14,
+      "rule": ""
+    },
+    {
+      "source": "TwoYwBetaNetExposure",
+      "destination": "TwoYwBetaNetExposure",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 15,
+      "rule": ""
+    },
+    {
+      "source": "SixMdBetaShortExposure",
+      "destination": "SixMdBetaShortExposure",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 16,
+      "rule": ""
+    },
+    {
+      "source": "NavMarket",
+      "destination": "NavMarket",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 17,
+      "rule": ""
+    },
+    {
+      "source": "DividendUSD",
+      "destination": "DividendUSD",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 18,
+      "rule": ""
+    },
+    {
+      "source": "CommUSD",
+      "destination": "CommUSD",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 19,
+      "rule": ""
+    },
+    {
+      "source": "FeeTaxesUSD",
+      "destination": "FeeTaxesUSD",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 20,
+      "rule": ""
+    },
+    {
+      "source": "FinancingUSD",
+      "destination": "FinancingUSD",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 21,
+      "rule": ""
+    },
+    {
+      "source": "OtherUSD",
+      "destination": "OtherUSD",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 22,
+      "rule": ""
+    },
+    {
+      "source": "PnLPercentage",
+      "destination": "PnLPercentage",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 23,
+      "rule": ""
+    }
+  ]
+}
