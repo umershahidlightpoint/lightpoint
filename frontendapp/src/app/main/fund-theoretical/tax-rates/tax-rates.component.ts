@@ -3,7 +3,14 @@ import { TaxRateModalComponent } from './tax-rate-modal/tax-rate-modal.component
 import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { HeightStyle, SideBar, AutoSizeAllColumns } from 'src/shared/utils/Shared';
+import {
+  HeightStyle,
+  SideBar,
+  AutoSizeAllColumns,
+  PercentageFormatter,
+  TextAlignRight,
+  DateFormatter
+} from 'src/shared/utils/Shared';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { DecimalPipe } from '@angular/common';
 import { Moment } from 'moment';
@@ -14,6 +21,7 @@ import { TemplateRendererComponent } from 'src/app/template-renderer/template-re
 import { ToastrService } from 'ngx-toastr';
 import * as moment from 'moment';
 import { TaxRateData } from 'src/shared/Models';
+import { UtilsConfig } from 'src/shared/Models/utils-config';
 
 @Component({
   selector: 'app-tax-rates',
@@ -27,11 +35,24 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
 
   taxRatesGrid: GridOptions;
   effectiveFromToDate: { startDate: Moment; endDate: Moment };
-  taxRatesData: Array<TaxRateData>;
+  taxRatesData: TaxRateData[];
   taxRateRow: any;
   isSubscriptionAlive: boolean;
+  showOverlappingBtn = false;
+  showGapBtn = false;
+
+  utilsConfig: UtilsConfig = {
+    expandGrid: false,
+    collapseGrid: false,
+    refreshGrid: true,
+    resetGrid: true,
+    exportExcel: false
+  };
 
   styleForHeight = HeightStyle(224);
+
+  gapStyle = { backgroundColor: '#ffcfcf' };
+  overlappingStyle = { backgroundColor: '#f9a89f' };
 
   constructor(
     private financeService: FinancePocServiceProxy,
@@ -47,24 +68,43 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
   }
 
   getTaxRates() {
+    this.showGapBtn = false;
+    this.showOverlappingBtn = false;
     this.financeService
       .getTaxRates()
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(result => {
-        if (result.data) {
-          this.taxRatesData = result.data.map(item => ({
+        if (result.payload) {
+          this.taxRatesData = result.payload.map(item => ({
             id: item.Id,
-            effectiveFrom: this.dateFormatter(item.EffectiveFrom),
-            effectiveTo: this.dateFormatter(item.EffectiveTo),
+            effectiveFrom: DateFormatter(item.EffectiveFrom),
+            effectiveTo: DateFormatter(item.EffectiveTo),
             longTermTaxRate: item.LongTermTaxRate,
             shortTermTaxRate: item.ShortTermTaxRate,
             shortTermPeriod: item.ShortTermPeriod,
             createdBy: item.CreatedBy,
             lastUpdatedBy: item.LastUpdatedBy,
             createdDate: item.CreatedDate,
-            lastUpdatedDate: item.LastUpdatedDate
+            lastUpdatedDate: item.LastUpdatedDate,
+            isOverLapped: item.IsOverLapped,
+            isGapPresent: item.IsGapPresent
           }));
         }
+
+        this.taxRatesData.find(taxRate => {
+          if (taxRate.isOverLapped) {
+            this.showOverlappingBtn = true;
+            return true;
+          }
+        });
+
+        this.taxRatesData.find(taxRate => {
+          if (taxRate.isGapPresent) {
+            this.showGapBtn = true;
+            return true;
+          }
+        });
+
         this.taxRatesGrid.api.setRowData(this.taxRatesData);
       });
   }
@@ -92,6 +132,14 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
       },
       onFirstDataRendered: params => {
         params.api.sizeColumnsToFit();
+      },
+      getRowStyle: params => {
+        if (params.data.isOverLapped) {
+          return this.overlappingStyle;
+        }
+        if (params.data.isGapPresent) {
+          return this.gapStyle;
+        }
       }
     } as GridOptions;
     this.taxRatesGrid.sideBar = SideBar(GridId.taxRatesId, GridName.taxRates, this.taxRatesGrid);
@@ -117,27 +165,29 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         filter: true
       },
       {
-        headerName: 'Long Term Tax Rate',
+        headerName: 'Long Term Tax Rate%',
         field: 'longTermTaxRate',
         sortable: true,
         filter: true,
-        cellStyle: textAlignRight(),
-        type: 'numericColumn'
+        cellStyle: TextAlignRight,
+        type: 'numericColumn',
+        valueFormatter: params => this.numberFormatter(params.node.data.longTermTaxRate, true)
       },
       {
-        headerName: 'Short Term Tax Rate',
+        headerName: 'Short Term Tax Rate%',
         field: 'shortTermTaxRate',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight(),
-        type: 'numericColumn'
+        cellStyle: TextAlignRight,
+        type: 'numericColumn',
+        valueFormatter: params => this.numberFormatter(params.node.data.shortTermTaxRate, true)
       },
       {
         headerName: 'Short Term Period',
         field: 'shortTermPeriod',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight(),
+        cellStyle: TextAlignRight,
         type: 'numericColumn'
       },
       {
@@ -145,7 +195,8 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         cellRendererFramework: TemplateRendererComponent,
         cellRendererParams: {
           ngTemplate: this.actionButtons
-        }
+        },
+        minWidth: 200
       },
       {
         headerName: 'Created By',
@@ -163,8 +214,13 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         hide: true
       },
       {
-        headerName: 'Last Updated Date',
-        field: 'lastUpdatedDate',
+        headerName: 'Is Over Lapped',
+        field: 'isOverLapped',
+        hide: true
+      },
+      {
+        headerName: 'Is Gap Present',
+        field: 'isGapPresent',
         hide: true
       }
     ];
@@ -173,6 +229,11 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
   getContextMenuItems(params) {
     const addDefaultItems = [];
     return GetContextMenu(false, addDefaultItems, true, null, params);
+  }
+
+  refreshGrid() {
+    this.taxRatesGrid.api.showLoadingOverlay();
+    this.getTaxRates();
   }
 
   openTaxRateModal() {
@@ -216,14 +277,10 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
     );
   }
 
-  getDateDiff(effectiveTo, effectiveFrom) {
-    return moment(effectiveFrom).diff(moment(effectiveTo), 'days');
-  }
-
   numberFormatter(numberToFormat, isInPercentage) {
     let per = numberToFormat;
     if (isInPercentage) {
-      per = percentageFormatter(numberToFormat);
+      per = PercentageFormatter(numberToFormat);
     }
     const formattedValue = this.decimalPipe.transform(per, '1.2-2');
     return formattedValue.toString();
@@ -232,16 +289,4 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.isSubscriptionAlive = false;
   }
-
-  dateFormatter(dateToFormat) {
-    return moment(dateToFormat).format('YYYY-MM-DD');
-  }
-}
-
-function textAlignRight() {
-  return { textAlign: 'end' };
-}
-
-function percentageFormatter(value: number) {
-  return value * 100;
 }

@@ -351,12 +351,13 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
+    this.clearFilters();
     this.getReport(null, 'ALL');
   }
 
   onBtExport() {
     const params = {
-      fileName: 'Trial Balance Reports',
+      fileName: 'Cost Basis Reports',
       sheetName: 'First Sheet'
     };
     this.gridOptions.api.exportDataAsExcel(params);

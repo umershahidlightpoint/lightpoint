@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Net;
 using System.Text;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
@@ -138,7 +139,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlConnection.Close();
             }
 
-            return Utils.Wrap(true, oDataGridStatusDto, meta);
+            return Utils.Wrap(true, oDataGridStatusDto, HttpStatusCode.OK, null, meta);
         }
 
         public object GetDataGridLayouts(int gridId, int userId)
@@ -175,7 +176,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlConnection.Close();
             }
 
-            return Utils.Wrap(true, lDataGridStatusDto, meta);
+            return Utils.Wrap(true, lDataGridStatusDto, HttpStatusCode.OK, null, meta);
         }
 
         public object GetAGridLayout(int id)
@@ -218,7 +219,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlConnection.Close();
             }
 
-            return Utils.Wrap(true, oDataGridStatusDto, meta);
+            return Utils.Wrap(true, oDataGridStatusDto, HttpStatusCode.OK, null, meta);
         }
 
         public object DeleteGridLayout(int id)
@@ -304,7 +305,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlConnection.Close();
             }
 
-            return Utils.Wrap(true, dataGridStatus, metaData);
+            return Utils.Wrap(true, dataGridStatus, HttpStatusCode.OK, null, metaData);
         }
     }
 }

@@ -176,6 +176,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
 
   refreshReport() {
     this.trialBalanceReportGrid.gridOptions.api.showLoadingOverlay();
+    this.clearFilters();
     this.getReport(null, null, 'ALL');
   }
 }

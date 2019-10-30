@@ -41,8 +41,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
             var jsonResult = JsonConvert.SerializeObject(dataTable);
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
-
-            return Utils.GridWrap(json);
+            return Utils.Wrap(true, json);
         }
 
         public object UploadFiles()
@@ -71,7 +70,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             var status = s3Endpoint.ListS3Files();
 
-            return status.Count != 0 ? Utils.Wrap(true, status, null) : Utils.Wrap(false);
+            return status.Count != 0 ? Utils.Wrap(true, status) : Utils.Wrap(false);
         }
 
         public object ImportFilesFromSilver()
@@ -376,7 +375,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }).ToList();
             //var jsonResult = JsonConvert.SerializeObject(dataTable);
             //dynamic json = JsonConvert.DeserializeObject(jsonResult);
-            return Utils.Wrap(true, groupedExceptions, null);
+            return Utils.Wrap(true, groupedExceptions);
         }
     }
 }

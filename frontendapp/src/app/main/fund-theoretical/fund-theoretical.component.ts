@@ -6,7 +6,14 @@ import { Account, AccountCategory } from '../../../shared/Models/account';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { SideBar, AutoSizeAllColumns, HeightStyle, Style } from 'src/shared/utils/Shared';
+import {
+  SideBar,
+  AutoSizeAllColumns,
+  HeightStyle,
+  Style,
+  PercentageFormatter,
+  TextAlignRight
+} from 'src/shared/utils/Shared';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import * as moment from 'moment';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
@@ -117,7 +124,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   getMonthlyPerformance() {
     let rowNodeId = 1;
     this.financeService.getMonthlyPerformance().subscribe(response => {
-      const modifiedData = response.data.map(data => {
+      const modifiedData = response.payload.map(data => {
         return { ...data, RowId: rowNodeId++ };
       });
       this.totalGridRows = rowNodeId;
@@ -243,7 +250,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         field: 'startOfMonthEstimateNav',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight(),
+        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params =>
           this.numberFormatter(params.node.data.startOfMonthEstimateNav, false)
@@ -253,7 +260,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         field: 'performance',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight(),
+        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.performance, false)
       },
@@ -262,7 +269,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         field: 'monthEndNav',
         sortable: true,
         // editable: true,
-        cellStyle: textAlignRight(),
+        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.monthEndNav, false)
       },
@@ -271,7 +278,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         field: 'mtd',
         sortable: true,
         editable: true,
-        cellStyle: textAlignRight(),
+        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.mtd, true)
       },
@@ -280,28 +287,28 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         field: 'ytdNetPerformance',
         sortable: true,
         suppressCellFlash: true,
-        cellStyle: textAlignRight(),
+        cellStyle: TextAlignRight,
         valueFormatter: params => this.numberFormatter(params.node.data.ytdNetPerformance, false)
       },
       {
         headerName: 'QTD Net %',
         field: 'qtd',
         sortable: true,
-        cellStyle: textAlignRight(),
+        cellStyle: TextAlignRight,
         valueFormatter: params => this.numberFormatter(params.node.data.qtd, true)
       },
       {
         headerName: 'YTD Net %',
         field: 'ytd',
         sortable: true,
-        cellStyle: textAlignRight(),
+        cellStyle: TextAlignRight,
         valueFormatter: params => this.numberFormatter(params.node.data.ytd, true)
       },
       {
         headerName: 'ITD Net %',
         field: 'itd',
         sortable: true,
-        cellStyle: textAlignRight(),
+        cellStyle: TextAlignRight,
         valueFormatter: params => this.numberFormatter(params.node.data.itd, true)
       },
       {
@@ -420,8 +427,8 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   viewRow(rowNode) {
     const { id } = rowNode.node.data;
     this.financeService.monthlyPerformanceAudit(id).subscribe(response => {
-      const { data } = response;
-      const modifiedData = this.formatPerformanceData(data);
+      const { payload } = response;
+      const modifiedData = this.formatPerformanceData(payload);
       const columns = this.getColDefs();
       const modifiedCols = columns.map(col => {
         return { ...col, editable: false };
@@ -661,17 +668,9 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   numberFormatter(numberToFormat, isInPercentage) {
     let per = numberToFormat;
     if (isInPercentage) {
-      per = percentageFormatter(numberToFormat);
+      per = PercentageFormatter(numberToFormat);
     }
     const formattedValue = this.decimalPipe.transform(per, '1.2-2');
     return formattedValue.toString();
   }
-}
-
-function textAlignRight() {
-  return { textAlign: 'end' };
-}
-
-function percentageFormatter(numberToFormat) {
-  return numberToFormat * 100;
 }

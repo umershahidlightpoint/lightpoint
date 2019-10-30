@@ -527,3 +527,16 @@ function currencyFormatter(params) {
 export const FormatDate = (date: any, format: string) => {
   return moment(date).format(format);
 };
+
+export const PercentageFormatter = (value: number) => {
+  return value * 100;
+};
+
+export const TextAlignRight = () => {
+  return { textAlign: 'end' };
+};
+
+export const DateFormatter = dateToFormat => {
+  console.log('Date To Format', dateToFormat);
+  return moment(dateToFormat).format('YYYY-MM-DD');
+};

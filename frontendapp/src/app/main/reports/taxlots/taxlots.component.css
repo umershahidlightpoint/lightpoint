@@ -20,10 +20,6 @@ html {
   z-index: 1000;
 }
 
-.tabBtn {
-  display: inline-block;
-}
-
 .md-datepicker-input-container {
   width: 150px;
 }

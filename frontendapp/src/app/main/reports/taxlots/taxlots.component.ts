@@ -284,6 +284,7 @@ export class TaxLotsComponent implements OnInit, AfterViewInit {
 
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
+    this.clearFilters();
     this.getReport(null, null, 'ALL');
   }
 }

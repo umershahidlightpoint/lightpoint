@@ -45,7 +45,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var jsonResult = JsonConvert.SerializeObject(dataTable);
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
-            return Utils.GridWrap(json);
+            return Utils.Wrap(true, json);
         }
 
         private object Only(string orderId)

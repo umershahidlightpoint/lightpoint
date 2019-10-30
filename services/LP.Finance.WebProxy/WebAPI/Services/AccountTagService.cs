@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Net;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
 using SqlDAL.Core;
@@ -49,7 +50,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlConnection.Close();
             }
 
-            return Utils.Wrap(true, tags, meta);
+            return Utils.Wrap(true, tags, HttpStatusCode.OK, null, meta);
         }
     }
 }

@@ -18,14 +18,14 @@ import {
   FormatNumber4,
   SetDateRange,
   CommaSeparatedFormat,
-  HeightStyle
+  HeightStyle,
+  DateFormatter
 } from 'src/shared/utils/Shared';
 import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
-import { TreeModule } from 'primeng/primeng';
 
 @Component({
   selector: 'rep-taxlotstatus',
@@ -125,7 +125,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           headerName: 'Date',
           sortable: true,
           filter: true,
-          valueFormatter: dateFormatter
+          valueFormatter: DateFormatter
         },
         {
           field: 'symbol',
@@ -233,7 +233,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           headerName: 'Business Date',
           sortable: true,
           filter: true,
-          valueFormatter: dateFormatter
+          valueFormatter: DateFormatter
         },
         {
           field: 'realized_pnl',
@@ -406,7 +406,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
 
   onBtExport() {
     const params = {
-      fileName: 'Trial Balance Reports',
+      fileName: 'Tax Lot Reports',
       sheetName: 'First Sheet'
     };
     this.gridOptions.api.exportDataAsExcel(params);
@@ -415,6 +415,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
 
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
+    this.clearFilters();
     this.getReport(null, null, 'ALL');
   }
 
@@ -432,23 +433,9 @@ function currencyFormatter(params) {
   return CommaSeparatedFormat(params.value);
 }
 
-function dateFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  return moment(params.value).format('YYYY-MM-DD');
-}
-
 function priceFormatter(params) {
   if (params.value === undefined) {
     return;
   }
   return FormatNumber4(params.value);
-}
-
-function absCurrencyFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  return CommaSeparatedFormat(Math.abs(params.value));
 }
