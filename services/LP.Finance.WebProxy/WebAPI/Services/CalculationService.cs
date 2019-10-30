@@ -648,10 +648,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
             var performancePath = uploadedResult.Item2;
             var performanceFileName = uploadedResult.Item3;
-            var recordBody = fileProcessor.ImportFile(performancePath, "Performance", "DailyUnofficialPnlFormat", ',');
+            var recordBody = fileProcessor.ImportFile(performancePath, "DailyPnl", "PerformanceFormats", ',');
 
             var records = JsonConvert.SerializeObject(recordBody.Item1);
-            var performanceRecords = JsonConvert.DeserializeObject<List<MonthlyPerformance>>(records);
+            var performanceRecords = JsonConvert.DeserializeObject<List<DailyPnL>>(records);
 
             var failedRecords = new Dictionary<object, Row>();
             var key = 0;
@@ -672,11 +672,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             };
 
             fileManagementService.InsertActivityAndPositionFilesForSilver(fileList);
-            var monthlyPerformanceResult = CalculateMonthlyPerformance(performanceRecords);
-            var monthlyPerformance = monthlyPerformanceResult.GetType().GetProperty("payload")
-                ?.GetValue(monthlyPerformanceResult, null);
+//            var monthlyPerformanceResult = CalculateMonthlyPerformance(performanceRecords);
+//            var monthlyPerformance = monthlyPerformanceResult.GetType().GetProperty("payload")
+//                ?.GetValue(monthlyPerformanceResult, null);
 
-            return Utils.Wrap(true, monthlyPerformance, null);
+            return Utils.Wrap(true, performanceRecords, null);
         }
     }
 }

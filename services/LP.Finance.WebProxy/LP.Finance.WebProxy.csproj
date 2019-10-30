@@ -144,6 +144,10 @@
       <Link>FileFormats\Transaction.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="..\LP.FileProcessing\PerformanceFormats\DailyPnl.json">
+      <Link>PerformanceFormats\DailyPnl.json</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="..\LP.FileProcessing\PerformanceFormats\Performance.json">
       <Link>PerformanceFormats\Performance.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

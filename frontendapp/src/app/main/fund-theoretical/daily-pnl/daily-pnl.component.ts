@@ -83,13 +83,18 @@ export class DailyPnlComponent implements OnInit {
       pivotRowTotals: 'after',
       enableCellChangeFlash: true,
       animateRows: true,
-      deltaRowDataMode: true,
-      getRowNodeId: data => {
-        return data.rowId;
-      },
+      // deltaRowDataMode: true,
+      // getRowNodeId: data => {
+      //   return data.rowId;
+      // },
       onGridReady: params => {},
-      onFirstDataRendered: params => {},
-      onCellValueChanged: params => {},
+      onFirstDataRendered: params => {
+        this.dailyPnlGrid.api.sizeColumnsToFit();
+      },
+      onCellValueChanged: params => {
+        this.dailyPnlGrid.api.sizeColumnsToFit();
+        AutoSizeAllColumns(this.dailyPnlGrid);
+      },
       defaultColDef: {
         resizable: true
       }
@@ -137,173 +142,144 @@ export class DailyPnlComponent implements OnInit {
       },
       {
         headerName: 'Trade P/L',
-        field: 'tradePL',
-        editable: true,
-        valueFormatter: params => this.numberFormatter(params.node.data.tradingMTDPnL, false)
+        field: 'tradePnL',
+        editable: true
       },
       {
         headerName: 'Day',
         field: 'day',
-        editable: true,
-        valueFormatter: params => this.numberFormatter(params.node.data.calcTradingMTDPnL, false)
+        editable: true
       },
       {
         headerName: 'Daily % Return',
-        field: 'dailyPercent',
-        editable: true,
-        valueFormatter: params => this.numberFormatter(params.node.data.tradingYTDPnL, false)
+        field: 'dailyPercentageReturn',
+        editable: true
       },
       {
         headerName: 'Long P/L',
-        field: 'mtdFinPnL',
-        editable: true,
-        valueFormatter: params => this.numberFormatter(params.node.data.mtdFinPnL, true)
+        field: 'longPnL',
+        editable: true
       },
       {
         headerName: 'Long % Change',
-        field: 'ytdFinPnL',
-        editable: true,
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdFinPnL, true)
+        field: 'longPercentageChange',
+        editable: true
       },
       {
         headerName: 'Short P/L',
-        field: 'mtdIPOPnL',
-        editable: true,
-        valueFormatter: params => this.numberFormatter(params.node.data.mtdIPOPnL, true)
+        field: 'shortPnL',
+        editable: true
       },
       {
         headerName: 'Short % Change',
-        field: 'ytdIPOPnL',
-        editable: true,
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdIPOPnL, true)
+        field: 'shortPercentageChange',
+        editable: true
       },
       {
         headerName: 'Long Exposure',
-        field: 'mtdTotalPnL',
-        editable: true,
-        valueFormatter: params => this.numberFormatter(params.node.data.mtdTotalPnL, true)
+        field: 'longExposure',
+        editable: true
       },
       {
         headerName: 'Short Exposure',
-        field: 'calcMTDTotal',
-        editable: true,
-        valueFormatter: params => this.numberFormatter(params.node.data.calcMTDTotal, true)
+        field: 'shortExposure',
+        editable: true
       },
       {
         headerName: 'Gross Exposure',
-        field: 'ytdTotalPnL',
-        editable: true,
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdTotalPnL, true)
+        field: 'grossExposure',
+        editable: true
       },
       {
         headerName: 'Net Exposure',
-        field: 'createdBy',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdFinPnL, true)
+        field: 'netExposure'
       },
       {
         headerName: '6md Beta Net Exposure',
-        field: 'lastUpdatedBy ',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdFinPnL, true)
+        field: 'sixMdBetaNetEposure'
       },
       {
         headerName: '2Yw Beta Net Exposure',
-        field: 'createdDate',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdFinPnL, true)
+        field: 'twoywBetaNetExposure'
       },
       {
         headerName: '6md Beta Short Exposure',
-        field: 'lastUpdatedDate',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdFinPnL, true)
+        field: 'sixMdBetaShortExposure'
       },
       {
         headerName: 'Nav Market',
-        field: 'lastUpdatedDate',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdFinPnL, true)
+        field: 'navMarket'
       },
       {
         headerName: 'Dividend USD',
-        field: 'lastUpdatedDate',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdFinPnL, true)
+        field: 'dividendUSD'
       },
       {
         headerName: 'Comm USD',
-        field: 'lastUpdatedDate',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdFinPnL, true)
+        field: 'commUSD'
       },
       {
         headerName: 'Fee/Taxes USD',
-        field: 'lastUpdatedDate',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdFinPnL, true)
+        field: 'feeTaxesUSD'
       },
       {
         headerName: 'Financing USD',
-        field: 'lastUpdatedDate',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdFinPnL, true)
+        field: 'financingUSD'
       },
       {
         headerName: 'Other USD',
-        field: 'lastUpdatedDate',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdFinPnL, true)
+        field: 'otherUSD'
       },
       {
         headerName: 'P/L %',
-        field: 'lastUpdatedDate',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdFinPnL, true)
+        field: 'pnLPercentage'
       },
       {
         headerName: 'MTD % Return',
-        field: 'lastUpdatedDate',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdFinPnL, true)
+        field: 'mtdPercentageReturn'
       },
       {
         headerName: 'QTD % Return',
-        field: 'lastUpdatedDate',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdFinPnL, true)
+        field: 'qtdPercentageReturn'
       },
       {
         headerName: 'YTD % Return',
-        field: 'lastUpdatedDate',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdFinPnL, true)
+        field: 'ytdPercentageReturn'
       },
       {
         headerName: 'ITD % Return',
-        field: 'lastUpdatedDate',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdFinPnL, true)
+        field: 'itdPercentageReturn'
       },
       {
         headerName: 'MTD PnL',
-        field: 'lastUpdatedDate',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdFinPnL, true)
+        field: 'mtdPnL'
       },
       {
         headerName: 'QTD PnL',
-        field: 'lastUpdatedDate',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdFinPnL, true)
+        field: 'qtdPnL'
       },
       {
         headerName: 'YTD PnL',
-        field: 'lastUpdatedDate',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdFinPnL, true)
+        field: 'ytdPnL'
       },
       {
         headerName: 'ITD PnL',
-        field: 'lastUpdatedDate',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdFinPnL, true)
+        field: 'itdPnL'
       }
     ];
-    colDefs.forEach(colDef => {
-      if (
-        !(
-          colDef.field === 'modified' ||
-          colDef.field === 'businessDate' ||
-          colDef.field === 'portfolio' ||
-          colDef.field === 'fund'
-        )
-      ) {
-        colDef['type'] = 'numericColumn';
-        colDef['cellStyle'] = TextAlignRight;
-      }
-    });
+    // colDefs.forEach(colDef => {
+    //   if (
+    //     !(
+    //       colDef.field === 'modified' ||
+    //       colDef.field === 'businessDate' ||
+    //       colDef.field === 'portfolio' ||
+    //       colDef.field === 'fund'
+    //     )
+    //   ) {
+    //     colDef['type'] = 'numericColumn';
+    //     colDef['cellStyle'] = TextAlignRight;
+    //   }
+    // });
     return colDefs;
   }
 
@@ -342,6 +318,27 @@ export class DailyPnlComponent implements OnInit {
         // this.dailyPnlGrid.api.setRowData(this.dailyPnLData);
         // AutoSizeAllColumns(this.dailyPnlGrid);
         // this.disableCommit = false;
+        this.dailyPnLData = response.payload.map(data => ({
+          businessDate: data.BusinessDate,
+          fund: data.Fund,
+          portFolio: data.PortFolio,
+          tradePnL: data.TradePnL,
+          day: data.Day,
+          dailyPercentageReturn: data.DailyPercentageReturn,
+          longPnL: data.LongPnL,
+          longPercentageChange: data.LongPercentageChange,
+          shortPnL: data.ShortPnL,
+          shortPercentageChange: data.ShortPercentageChange,
+          longExposure: data.LongExposure,
+          shortExposure: data.ShortExposure,
+          grossExposure: data.GrossExposure,
+          netExposure: data.NetExposure,
+          sixMdBetaNetExposure: data.SixMdBetaNetExposure,
+          twoYwBetaNetExposure: data.TwoYwBetaNetExposure,
+          sixMdBetaShortExposure: data.SixMdBetaShortExposure
+        }));
+        this.dailyPnlGrid.api.setRowData(this.dailyPnLData);
+        this.dailyPnlGrid.api.sizeColumnsToFit();
       } else {
         this.toastrService.error('Something went wrong! Try Again.');
       }

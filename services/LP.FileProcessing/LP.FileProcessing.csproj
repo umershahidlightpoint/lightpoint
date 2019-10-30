@@ -18,6 +18,9 @@
     <None Update="MetaData\ActivityXML.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="PerformanceFormats\DailyPnl.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="PerformanceFormats\Performance.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
