@@ -50,9 +50,14 @@ namespace UT.Finance
             sw.Stop();
             var elapsed = sw.ElapsedMilliseconds / 1000;
 
-            dynamic result = JsonConvert.DeserializeObject<object>(journalData.Result);
+            var response = JsonConvert.DeserializeObject<Response>(journalData.Result);
 
-            Assert.IsTrue(result.data != null, "Expected result");
+            var serializedPayload = JsonConvert.SerializeObject(response.payload);
+
+            dynamic result = JsonConvert.DeserializeObject(serializedPayload);
+
+            Assert.IsTrue(response.isSuccessful, "Request Call Successful");
+            Assert.IsTrue(result.Count != null, "Expected result");
         }
     }
 }

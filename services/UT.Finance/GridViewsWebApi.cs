@@ -28,9 +28,14 @@ namespace UT.Finance
 
             Task.WaitAll(getGridLayouts);
 
-            dynamic result = JsonConvert.DeserializeObject<object>(getGridLayouts.Result);
+            var response = JsonConvert.DeserializeObject<Response>(getGridLayouts.Result);
 
-            Assert.IsTrue(result.payload.Count >= 0, "Expected result");
+            var serializedPayload = JsonConvert.SerializeObject(response.payload);
+
+            dynamic result = JsonConvert.DeserializeObject(serializedPayload);
+
+            Assert.IsTrue(response.isSuccessful, "Request Call Successful");
+            Assert.IsTrue(result.Count >= 0, "Expected result");
 
         }
     }

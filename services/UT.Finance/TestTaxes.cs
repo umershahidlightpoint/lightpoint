@@ -37,10 +37,11 @@ namespace UT.Finance
 
             var response = JsonConvert.DeserializeObject<Response>(getTaxRates.Result);
 
-            var serializedPayload = JsonConvert.SerializeObject(response.data);
+            var serializedPayload = JsonConvert.SerializeObject(response.payload);
 
             var result = JsonConvert.DeserializeObject<List<TaxRateOutputDto>>(serializedPayload);
 
+            Assert.IsTrue(response.isSuccessful, "Request Call Successful");
             Assert.IsTrue(result.Count >= 0, "Expected result");
 
             bool isCorrect = true;
