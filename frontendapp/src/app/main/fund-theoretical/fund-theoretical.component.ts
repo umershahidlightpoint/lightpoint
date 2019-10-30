@@ -288,6 +288,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         sortable: true,
         suppressCellFlash: true,
         cellStyle: TextAlignRight,
+        type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.ytdNetPerformance, false)
       },
       {
@@ -295,6 +296,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         field: 'qtd',
         sortable: true,
         cellStyle: TextAlignRight,
+        type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.qtd, true)
       },
       {
@@ -302,6 +304,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         field: 'ytd',
         sortable: true,
         cellStyle: TextAlignRight,
+        type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.ytd, true)
       },
       {
@@ -309,6 +312,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         field: 'itd',
         sortable: true,
         cellStyle: TextAlignRight,
+        type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.itd, true)
       },
       {

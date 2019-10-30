@@ -537,6 +537,5 @@ export const TextAlignRight = () => {
 };
 
 export const DateFormatter = dateToFormat => {
-  console.log('Date To Format', dateToFormat);
   return moment(dateToFormat).format('YYYY-MM-DD');
 };
