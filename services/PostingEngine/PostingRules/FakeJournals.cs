@@ -58,8 +58,7 @@ namespace PostingEngine.PostingRules
                     When = env.ValueDate,
                     FxCurrency = element.TradeCurrency,
                     FxRate = fxrate,
-                    Value = moneyUSD * -1,
-                    GeneratedBy = "system",
+                    Value = env.DebitOrCredit(accountToFrom.From, moneyUSD),
                     Event = "journal",
                     Fund = element.Fund,
                 };
@@ -73,8 +72,7 @@ namespace PostingEngine.PostingRules
                     FxCurrency = element.TradeCurrency,
                     FxRate = fxrate,
                     Event = "journal",
-                    Value = moneyUSD,
-                    GeneratedBy = "system",
+                    Value = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
                     Fund = element.Fund,
                 };
 
@@ -277,9 +275,8 @@ namespace PostingEngine.PostingRules
                     When = env.ValueDate,
                     FxCurrency = element.TradeCurrency,
                     FxRate = fxrate,
-                    Value = moneyUSD * -1,
+                    Value = env.DebitOrCredit(accountToFrom.From, moneyUSD),
                     Event = "journal",
-                    GeneratedBy = "system",
                     Symbol = element.Symbol,
                     Fund = element.Fund,
                 };
@@ -292,8 +289,7 @@ namespace PostingEngine.PostingRules
                     When = env.ValueDate,
                     FxCurrency = element.TradeCurrency,
                     FxRate = fxrate,
-                    Value = moneyUSD,
-                    GeneratedBy = "system",
+                    Value = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
                     Event = "journal",
                     Symbol = element.Symbol,
                     Fund = element.Fund,

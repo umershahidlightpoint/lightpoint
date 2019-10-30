@@ -7,11 +7,11 @@ namespace LP.Finance.Common.Models
 {
     public class AccountCategory : IDbAction
     {
-        public static readonly int AC_ASSET = 1;
-        public static readonly int AC_LIABILITY = 2;
-        public static readonly int AC_EQUITY = 3;
-        public static readonly int AC_REVENUES = 4;
-        public static readonly int AC_EXPENCES = 5;
+        public const int AC_ASSET = 1;
+        public const int AC_LIABILITY = 2;
+        public const int AC_EQUITY = 3;
+        public const int AC_REVENUES = 4;
+        public const int AC_EXPENCES = 5;
 
         public static AccountCategory Find(int id)
         {

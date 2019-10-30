@@ -13,6 +13,20 @@ namespace PostingEngine.TaxLotMethods
 
     class BaseTaxLotMethodology
     {
+        public static ITaxLotMethodology GetTaxLotMethodology(string methodology)
+        {
+            switch( methodology.ToLowerInvariant())
+            {
+                default:
+                case "fifo":
+                    return new FIFOTaxLotMethod();
+                case "lifo":
+                    return new LIFOTaxLotMethod();
+                case "mintax":
+                    return new MinTaxLotMethod();
+            }
+        }
+
         /// <summary>
         /// Get the open Tax lots for the specified trade passed in
         /// </summary>

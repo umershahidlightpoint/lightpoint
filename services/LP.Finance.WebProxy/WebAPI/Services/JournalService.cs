@@ -299,6 +299,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             journalStats journalStats = new journalStats();
             bool whereAdded = false;
 
+            // Depending on type
             var query = $@"select 
                         d.overall_count   , 
                         (sum(d.debit)  OVER()) as totalDebit,
