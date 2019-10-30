@@ -11,8 +11,7 @@ import {
   AutoSizeAllColumns,
   HeightStyle,
   Style,
-  PercentageFormatter,
-  TextAlignRight
+  PercentageFormatter
 } from 'src/shared/utils/Shared';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import * as moment from 'moment';
@@ -51,6 +50,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   isExpanded = false;
   disableCharts = true;
   isTaxRateActive = false;
+  isDailyPnLActive = false;
 
   monthsArray = [
     { id: 0, month: 'January' },
@@ -108,6 +108,9 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   }
 
   onTabChange(e) {
+    if (e.index === 1) {
+      this.isDailyPnLActive = true;
+    }
     if (e.index === 2) {
       this.isTaxRateActive = true;
     }
@@ -250,7 +253,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         field: 'startOfMonthEstimateNav',
         sortable: true,
         editable: true,
-        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params =>
           this.numberFormatter(params.node.data.startOfMonthEstimateNav, false)
@@ -260,7 +262,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         field: 'performance',
         sortable: true,
         editable: true,
-        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.performance, false)
       },
@@ -269,7 +270,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         field: 'monthEndNav',
         sortable: true,
         // editable: true,
-        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.monthEndNav, false)
       },
@@ -278,7 +278,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         field: 'mtd',
         sortable: true,
         editable: true,
-        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.mtd, true)
       },
@@ -287,7 +286,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         field: 'ytdNetPerformance',
         sortable: true,
         suppressCellFlash: true,
-        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.ytdNetPerformance, false)
       },
@@ -295,7 +293,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         headerName: 'QTD Net %',
         field: 'qtd',
         sortable: true,
-        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.qtd, true)
       },
@@ -303,7 +300,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         headerName: 'YTD Net %',
         field: 'ytd',
         sortable: true,
-        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.ytd, true)
       },
@@ -311,7 +307,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         headerName: 'ITD Net %',
         field: 'itd',
         sortable: true,
-        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.itd, true)
       },

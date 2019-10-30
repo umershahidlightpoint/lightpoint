@@ -84,7 +84,7 @@
 
     <!-- Daily PNL Tab Starts -->
     <p-tabPanel header="Daily PnL" [ngStyle]="style">
-      <app-daily-pnl></app-daily-pnl>
+      <app-daily-pnl *ngIf="isDailyPnLActive"></app-daily-pnl>
     </p-tabPanel>
     <!-- Daily PNL Tab Ends -->
 

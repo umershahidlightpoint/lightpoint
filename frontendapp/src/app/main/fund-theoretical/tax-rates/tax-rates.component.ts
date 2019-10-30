@@ -8,7 +8,6 @@ import {
   SideBar,
   AutoSizeAllColumns,
   PercentageFormatter,
-  TextAlignRight,
   DateFormatter
 } from 'src/shared/utils/Shared';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
@@ -19,7 +18,6 @@ import { takeWhile } from 'rxjs/operators';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 import { TemplateRendererComponent } from 'src/app/template-renderer/template-renderer.component';
 import { ToastrService } from 'ngx-toastr';
-import * as moment from 'moment';
 import { TaxRateData } from 'src/shared/Models';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
 
@@ -169,7 +167,6 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         field: 'longTermTaxRate',
         sortable: true,
         filter: true,
-        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.longTermTaxRate, true)
       },
@@ -178,7 +175,6 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         field: 'shortTermTaxRate',
         sortable: true,
         editable: true,
-        cellStyle: TextAlignRight,
         type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.shortTermTaxRate, true)
       },
@@ -187,7 +183,6 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         field: 'shortTermPeriod',
         sortable: true,
         editable: true,
-        cellStyle: TextAlignRight,
         type: 'numericColumn'
       },
       {

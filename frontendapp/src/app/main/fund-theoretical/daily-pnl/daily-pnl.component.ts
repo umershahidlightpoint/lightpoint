@@ -3,8 +3,8 @@ import {
   HeightStyle,
   SideBar,
   AutoSizeAllColumns,
-  TextAlignRight,
-  PercentageFormatter
+  PercentageFormatter,
+  DateFormatter
 } from 'src/shared/utils/Shared';
 import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
@@ -87,14 +87,13 @@ export class DailyPnlComponent implements OnInit {
       // getRowNodeId: data => {
       //   return data.rowId;
       // },
-      onGridReady: params => {},
+      onGridReady: params => {
+        AutoSizeAllColumns(params);
+      },
       onFirstDataRendered: params => {
-        this.dailyPnlGrid.api.sizeColumnsToFit();
+        AutoSizeAllColumns(params);
       },
-      onCellValueChanged: params => {
-        this.dailyPnlGrid.api.sizeColumnsToFit();
-        AutoSizeAllColumns(this.dailyPnlGrid);
-      },
+      onCellValueChanged: params => {},
       defaultColDef: {
         resizable: true
       }
@@ -123,7 +122,7 @@ export class DailyPnlComponent implements OnInit {
       },
       {
         headerName: 'Portfolio*',
-        field: 'portfolio',
+        field: 'portFolio',
         editable: true,
         cellEditor: 'agSelectCellEditor',
         cellEditorParams: {
@@ -196,11 +195,11 @@ export class DailyPnlComponent implements OnInit {
       },
       {
         headerName: '6md Beta Net Exposure',
-        field: 'sixMdBetaNetEposure'
+        field: 'sixMdBetaNetExposure'
       },
       {
         headerName: '2Yw Beta Net Exposure',
-        field: 'twoywBetaNetExposure'
+        field: 'twoYwBetaNetExposure'
       },
       {
         headerName: '6md Beta Short Exposure',
@@ -265,21 +264,40 @@ export class DailyPnlComponent implements OnInit {
       {
         headerName: 'ITD PnL',
         field: 'itdPnL'
+      },
+      {
+        headerName: 'Created By',
+        field: 'createdBy',
+        hide: true
+      },
+      {
+        headerName: 'Last Updated By ',
+        field: 'lastUpdatedBy ',
+        hide: true
+      },
+      {
+        headerName: 'Created Date',
+        field: 'createdDate',
+        hide: true
+      },
+      {
+        headerName: 'Last Updated Date',
+        field: 'lastUpdatedDate',
+        hide: true
       }
     ];
-    // colDefs.forEach(colDef => {
-    //   if (
-    //     !(
-    //       colDef.field === 'modified' ||
-    //       colDef.field === 'businessDate' ||
-    //       colDef.field === 'portfolio' ||
-    //       colDef.field === 'fund'
-    //     )
-    //   ) {
-    //     colDef['type'] = 'numericColumn';
-    //     colDef['cellStyle'] = TextAlignRight;
-    //   }
-    // });
+    colDefs.forEach(colDef => {
+      if (
+        !(
+          colDef.field === 'modified' ||
+          colDef.field === 'businessDate' ||
+          colDef.field === 'portfolio' ||
+          colDef.field === 'fund'
+        )
+      ) {
+        colDef['type'] = 'numericColumn';
+      }
+    });
     return colDefs;
   }
 
@@ -308,7 +326,6 @@ export class DailyPnlComponent implements OnInit {
     let rowNodeId = 1;
     this.financeService.uploadDailyUnofficialPnl(this.fileToUpload).subscribe(response => {
       console.log('Response', response);
-
       if (response.isSuccessful) {
         // const modifiedData = response.payload.map(data => {
         //   return { ...data, RowId: rowNodeId++, Estimated: true };
@@ -319,7 +336,7 @@ export class DailyPnlComponent implements OnInit {
         // AutoSizeAllColumns(this.dailyPnlGrid);
         // this.disableCommit = false;
         this.dailyPnLData = response.payload.map(data => ({
-          businessDate: data.BusinessDate,
+          businessDate: DateFormatter(data.BusinessDate),
           fund: data.Fund,
           portFolio: data.PortFolio,
           tradePnL: data.TradePnL,
@@ -335,10 +352,28 @@ export class DailyPnlComponent implements OnInit {
           netExposure: data.NetExposure,
           sixMdBetaNetExposure: data.SixMdBetaNetExposure,
           twoYwBetaNetExposure: data.TwoYwBetaNetExposure,
-          sixMdBetaShortExposure: data.SixMdBetaShortExposure
+          sixMdBetaShortExposure: data.SixMdBetaShortExposure,
+          navMarket: data.NavMarket,
+          dividendUSD: data.DividendUSD,
+          commUSD: data.CommUSD,
+          feeTaxesUSD: data.FeeTaxesUSD,
+          financingUSD: data.FinancingUSD,
+          otherUSD: data.OtherUSD,
+          pnLPercentage: data.PnLPercentage,
+          mtdPercentageReturn: 0, //data.MTDPercentageReturn,
+          qtdPercentageReturn: 0, //data.QTDPercentageReturn,
+          ytdPercentageReturn: 0, //data.YTDPercentageReturn,
+          itdPercentageReturn: 0, //data.ITDPercentageReturn,
+          mtdPnL: 0, //data.MtdPnL,
+          qtdPnL: 0, //data.QtdPnL,
+          ytdPnL: 0, //data.YtdPnL,
+          itdPnL: 0, //data.ItdPnL
+          createdBy: data.CreatedBy,
+          lastUpdatedBy: data.LastUpdatedBy,
+          createdDate: data.CreatedDate,
+          lastUpdatedDate: data.lastUpdatedDate
         }));
         this.dailyPnlGrid.api.setRowData(this.dailyPnLData);
-        this.dailyPnlGrid.api.sizeColumnsToFit();
       } else {
         this.toastrService.error('Something went wrong! Try Again.');
       }

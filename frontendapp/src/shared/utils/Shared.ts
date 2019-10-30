@@ -532,10 +532,6 @@ export const PercentageFormatter = (value: number) => {
   return value * 100;
 };
 
-export const TextAlignRight = () => {
-  return { textAlign: 'end' };
-};
-
 export const DateFormatter = dateToFormat => {
   return moment(dateToFormat).format('YYYY-MM-DD');
 };

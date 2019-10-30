@@ -128,6 +128,7 @@ export class ReportGridComponent implements OnInit, OnChanges, OnDestroy {
         field: 'debit',
         width: 120,
         headerName: 'Debit',
+        type: 'numericColumn',
         cellStyle: params => {
           if (params.data.debitPercentage > 0) {
             return {
@@ -135,7 +136,6 @@ export class ReportGridComponent implements OnInit, OnChanges, OnDestroy {
               backgroundRepeat: 'no-repeat'
             };
           }
-          return { textAlign: 'end' };
         },
         cellClass: params => {
           if (params.data.debitPercentage > 0) {
@@ -150,6 +150,7 @@ export class ReportGridComponent implements OnInit, OnChanges, OnDestroy {
         headerName: 'Credit',
         filter: true,
         width: 120,
+        type: 'numericColumn',
         cellStyle: params => {
           if (params.data.creditPercentage > 0) {
             return {
@@ -160,7 +161,7 @@ export class ReportGridComponent implements OnInit, OnChanges, OnDestroy {
               color: 'red'
             };
           }
-          return { textAlign: 'end', color: 'red' };
+          return { color: 'red' };
         },
         cellClass: params => {
           if (params.data.creditPercentage > 0) {
@@ -177,14 +178,15 @@ export class ReportGridComponent implements OnInit, OnChanges, OnDestroy {
         filter: true,
         cellClass: 'rightAlign',
         sortable: true,
+        type: 'numericColumn',
         cellStyle: params => {
           if (params.data.accountName === 'Total' && params.data.balance !== 0) {
             return { backgroundColor: 'red' };
           }
           if (params.data.accountName !== 'Total' && params.data.balance > 0) {
-            return { textAlign: 'end', color: 'green' };
+            return { color: 'green' };
           } else if (params.data.accountName !== 'Total' && params.data.balance < 0) {
-            return { textAlign: 'end', color: 'red' };
+            return { color: 'red' };
           }
         },
         valueFormatter: absCurrencyFormatter
