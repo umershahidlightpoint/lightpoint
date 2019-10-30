@@ -7,11 +7,3 @@
   padding: 2px;
   width: 15%;
 }
-
-.fixHeight {
-  height: 30px;
-}
-
-.disabled-btn {
-  cursor: not-allowed;
-}
