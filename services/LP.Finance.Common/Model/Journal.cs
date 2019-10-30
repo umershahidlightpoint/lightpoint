@@ -2,14 +2,25 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LP.Finance.Common.Models
 {
     public class Journal : IDbAction, IDbModel
     {
+        // Default Constructor
+        public Journal()
+        {
+            GeneratedBy = "system";
+        }
+
+        public Journal(Account account, string journalEvent, DateTime valueDate)
+        {
+            GeneratedBy = "system";
+            When = valueDate;
+            Account = account;
+            Event = journalEvent;
+        }
+
         public int Id { get; set; }
         public Account Account { get; set; }
         public double Value { get; set; }

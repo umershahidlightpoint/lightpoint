@@ -1,6 +1,7 @@
 ﻿using LP.Finance.Common.Models;
 using PostingEngine.Contracts;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PostingEngine.TaxLotMethods
 {
@@ -13,14 +14,8 @@ namespace PostingEngine.TaxLotMethods
     {
         public List<TaxLotDetail> GetOpenLots(PostingEngineEnvironment env, Transaction element)
         {
-            var side = element.Side.ToLowerInvariant();
-
-            if (side.Equals("buy") || side.Equals("short"))
-            {
-                return null;
-            }
-
-            return null;
+            var openlots = new BaseTaxLotMethodology().OpenTaxLots(env, element).OrderByDescending(i => i.Trade.TradeDate).ToList();
+            return openlots;
         }
     }
 
