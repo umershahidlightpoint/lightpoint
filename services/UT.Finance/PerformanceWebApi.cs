@@ -38,6 +38,8 @@ namespace UT.Finance
 
             var result = JsonConvert.DeserializeObject<List<MonthlyPerformance>>(serializedPayload);
 
+            Assert.IsTrue(response.isSuccessful, "Request Call Successful");
+
             Assert.IsTrue((Math.Round(result[0].MTD.Value *100,2) == Math.Round(result[0].YTD * 100, 2)) && (Math.Round(result[0].MTD.Value * 100, 2) == Math.Round(result[0].QTD * 100, 2)) && (Math.Round(result[0].MTD.Value * 100, 2) == Math.Round(result[0].ITD * 100, 2)), "Expected result");
 
             Assert.IsTrue((Math.Round(result[1].QTD * 100, 2) == Math.Round(0.0297029702970297M * 100, 2)) && (Math.Round(result[1].YTD * 100, 2) == Math.Round(0.0297029702970297M * 100, 2)) && (Math.Round(result[1].ITD * 100, 2) == Math.Round(0.0297029702970297M * 100, 2)), "Expected result");

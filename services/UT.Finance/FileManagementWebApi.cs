@@ -31,9 +31,11 @@ namespace UT.Finance
 
             var response = JsonConvert.DeserializeObject<Response>(fileManagement.Result);
 
-            var serializedPayload = JsonConvert.SerializeObject(response.data);
+            var serializedPayload = JsonConvert.SerializeObject(response.payload);
 
             dynamic result = JsonConvert.DeserializeObject(serializedPayload);
+
+            Assert.IsTrue(response.isSuccessful, "Request Call Successful");
 
             Assert.IsTrue(result.Count >= 0, "Expected result");
 
