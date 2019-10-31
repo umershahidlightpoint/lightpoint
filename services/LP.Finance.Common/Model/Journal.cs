@@ -13,9 +13,24 @@ namespace LP.Finance.Common.Models
             GeneratedBy = "system";
         }
 
-        public Journal(Account account, string journalEvent, DateTime valueDate)
+        public Journal(Journal source)
         {
-            GeneratedBy = "system";
+            // Clone the Journal, this is to make Journal creation easier, and then have the developer just override the changes
+            GeneratedBy = source.GeneratedBy;
+            Source = source.Source;
+            When = source.When;
+            FxCurrency = source.FxCurrency;
+            Symbol = source.Symbol;
+            Quantity = source.Quantity;
+            Event = source.Event;
+            FxRate = source.FxRate;
+            Fund = source.Fund;
+            StartPrice = source.StartPrice;
+            EndPrice = source.EndPrice;
+        }
+
+        public Journal(Account account, string journalEvent, DateTime valueDate) : this()
+        {
             When = valueDate;
             Account = account;
             Event = journalEvent;
@@ -43,7 +58,7 @@ namespace LP.Finance.Common.Models
         public double Quantity { get; set; }
 
         public string Symbol { get; set; }
-
+        public string CreditDebit { get; set; }
         public string GeneratedBy { get; set; }
 
         // Get a list of Journal Entries for this trade
@@ -109,7 +124,7 @@ namespace LP.Finance.Common.Models
             // read the table structure from the database
             var localconnection = new SqlConnection(connection.ConnectionString + ";Password=ggtuser");
             localconnection.Open();
-            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 id, source, account_id, value, [when], generated_by, fund, fx_currency, fxrate, quantity, symbol, event, start_price, end_price FROM Journal", localconnection))
+            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 id, source, account_id, value, [when], generated_by, fund, fx_currency, fxrate, quantity, symbol, event, start_price, end_price, credit_debit FROM Journal", localconnection))
             {
                 adapter.Fill(table);
             };
@@ -135,6 +150,7 @@ namespace LP.Finance.Common.Models
             row["event"] = this.Event;
             row["start_price"] = this.StartPrice;
             row["end_price"] = this.EndPrice;
+            row["credit_debit"] = this.CreditDebit;
 
         }
     }

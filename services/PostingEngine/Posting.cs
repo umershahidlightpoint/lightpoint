@@ -415,7 +415,6 @@ namespace PostingEngine
 
                 // BUY || SHORT trades
                 var buyShort = tradeData.Where(i => i.TradeDate.Equals(valueDate) && (i.IsBuy() || i.IsShort())).ToList();
-
                 foreach(var trade in buyShort)
                 {
                     if ( trade.Symbol.Equals("IBM"))
@@ -452,6 +451,33 @@ namespace PostingEngine
                     }
                         // We only process trades that have not broken
                         if (ignoreTrades.Contains(trade.LpOrderId))
+                        continue;
+                    try
+                    {
+                        var processed = new Posting().ProcessTradeEvent(postingEnv, trade);
+                        if (!processed)
+                        {
+                            // Lets add to the ignore list
+                            ignoreTrades.Add(trade.LpOrderId);
+                        }
+                    }
+                    catch (Exception exe)
+                    {
+                        postingEnv.AddMessage(exe.Message);
+
+                        Error(exe, trade);
+                    }
+                }
+
+                // Credit || DEBIT Entries
+                var debitCover = tradeData.Where(i => i.TradeDate.Equals(valueDate) && (i.IsDebit() || i.IsCredit())).ToList();
+                foreach (var trade in debitCover)
+                {
+                    if (trade.Symbol.Equals("IBM"))
+                    {
+                    }
+                    // We only process trades that have not broken
+                    if (ignoreTrades.Contains(trade.LpOrderId))
                         continue;
                     try
                     {

@@ -230,39 +230,16 @@ order by UpdatedOn desc
                         d.[account_id],
                         d.AccountCategory,
                         d.AccountType,
-                        d.accountName,
-                        d.accountDescription,
                         d.[fund],
                         d.[value],
                         d.[source],
                         d.[when],
                         d.[event],
-                        d.[generated_by],
                         d.[start_price],
                         d.[end_price]
                         from(
-                            SELECT 
-                                    (CASE WHEN value < 0 THEN value else 0 END  ) debit,
-                                    (CASE WHEN value > 0 THEN value else 0 END  ) credit, 
-                                    [journal].[id],
-                                    [account_id],
-                                    [fund],
-                                    [account_category].[name] as AccountCategory,  
-                                    [account_type].[name] as AccountType,  
-                                    [account].[name] as accountName,
-                                    [account].[description] as accountDescription,
-                                    [value],
-                                    [source],
-                                    [when],
-                                    [event],
-                                    [generated_by],
-                                    [start_price],
-                                    [end_price]
-                                    FROM [journal] with(nolock) 
-                        join account  on [journal]. [account_id] = account.id 
-                        join [account_type] on  [account].account_type_id = [account_type].id
-                        join [account_category] on  [account_type].account_category_id = [account_category].id 
-						where [journal].source ='{orderId}') as d";
+                            SELECT * from vwJournal
+						where source ='{orderId}') as d";
 
             MetaData metaData = null;
 

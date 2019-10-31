@@ -63,7 +63,9 @@ namespace PostingEngine.PostingRules
                     When = env.ValueDate,
                     FxCurrency = element.SettleCurrency,
                     FxRate = fxrate,
-                    Value = env.DebitOrCredit(accountToFrom.From, moneyUSD),
+                    CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
+                    Value = moneyUSD,
+                    Event = "settlementdate",
                     Fund = debitEntry.Fund,
                 };
 
@@ -74,7 +76,8 @@ namespace PostingEngine.PostingRules
                     When = env.ValueDate,
                     FxCurrency = element.SettleCurrency,
                     FxRate = fxrate,
-                    Value = env.DebitOrCredit(accountToFrom.To, moneyUSD* -1),
+                    CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD* -1),
+                    Value = moneyUSD * -1,
                     Fund = creditEntry.Fund,
                 };
 

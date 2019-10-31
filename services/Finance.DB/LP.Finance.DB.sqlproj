@@ -60,6 +60,7 @@
     <Folder Include="Tables" />
     <Folder Include="Triggers" />
     <Folder Include="StoredProcs" />
+    <Folder Include="Views" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\file.sql" />
@@ -88,5 +89,6 @@
     <Build Include="Tables\unofficial_daily_pnl_history.sql" />
     <Build Include="Tables\tax_rate.sql" />
     <Build Include="StoredProcs\TaxRates.sql" />
+    <Build Include="Views\vwJournal.sql" />
   </ItemGroup>
 </Project>

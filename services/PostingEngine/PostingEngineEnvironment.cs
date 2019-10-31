@@ -142,47 +142,66 @@ namespace PostingEngine
         }
 
         /// <summary>
-        /// Determine the sign on the journal entries to reflect the following
+        /// Determine how to set the Value of the Journal, this will be based on the 
         /// </summary>
-        /// <param name="toAccount"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        /* Account      Increase    Decrease
-         * Assets       Debit       Credit
-         * Expences     Debit       Credit
-         * Liabilities  Credit      Debit
-         * Equity       Credit      Debit
-         * Revenue      Credit      Debit
-         */ 
-        internal double DebitOrCredit(Account toAccount, double value)
+        /// <param name="debitAccount">The account from where the flow will start</param>
+        /// <param name="creditAccount">The account to where the flow will end</param>
+        /// <param name="debit">Is this from the perspective of the debit account</param>
+        /// <param name="value">The value to be posted</param>
+        /// <returns>The correct signed value</returns>
+        internal double SignedValue(Account debitAccount, Account creditAccount, bool debit, double value)
         {
+            if (debit)
+                return value;
+
+            if (debitAccount.Type.Category.Id == AccountCategory.AC_ASSET && creditAccount.Type.Category.Id == AccountCategory.AC_LIABILITY)
+                return value;
+
+            if (debitAccount.Type.Category.Id == AccountCategory.AC_ASSET && creditAccount.Type.Category.Id == AccountCategory.AC_ASSET)
+                return value * -1;
+
+            if (debitAccount.Type.Category.Id == AccountCategory.AC_LIABILITY && creditAccount.Type.Category.Id == AccountCategory.AC_ASSET)
+                return value;
+
+            if (debitAccount.Type.Category.Id == AccountCategory.AC_LIABILITY && creditAccount.Type.Category.Id == AccountCategory.AC_REVENUES)
+                return value * -1;
+
             return value;
+        }
 
-            var retValue = 0.0;
+        /// <summary>
+        /// return if the value indicates a credit or a debit 
+        /// </summary>
+        /// <param name="account"></param>
+        /// <param name="value"></param>
+        /// <returns>if the Journal entry is a credit or a debit</returns>
+        /* Account      Increase    Decrease
+            * Assets       Debit       Credit
+            * Expences     Debit       Credit
+            * Liabilities  Credit      Debit
+            * Equity       Credit      Debit
+            * Revenue      Credit      Debit
+            */
+        internal string DebitOrCredit(Account account, double value)
+        {
+            var creditordebit = "credit";
 
-            // Determine how to treat the value passed
-            switch(toAccount.Type.Category.Id)
+            switch (account.Type.Category.Id)
             {
                 case AccountCategory.AC_ASSET:
                 case AccountCategory.AC_EXPENCES:
-                    if ( value > 0 )
-                        retValue = value * -1;
-                    else
-                        retValue = value;
+                    if (value >= 0) creditordebit = "debit";
                     break;
                 case AccountCategory.AC_EQUITY:
                 case AccountCategory.AC_LIABILITY:
                 case AccountCategory.AC_REVENUES:
-                    retValue = value;
+                    if (value >= 0) creditordebit = "credit";
                     break;
                 default:
-                    retValue = value;
                     break;
             }
 
-            return retValue;
+            return creditordebit;
         }
-
-
     }
 }

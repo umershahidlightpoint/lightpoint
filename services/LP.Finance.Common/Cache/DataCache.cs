@@ -5,7 +5,7 @@ namespace LP.Finance.Common.Cache
 {
     public class DataCache
     {
-        private static int numberOfMinsCached = 30;
+        private static int numberOfMinsCached = 1;
 
         private static object lockHandle = "DataCache_lock";
 

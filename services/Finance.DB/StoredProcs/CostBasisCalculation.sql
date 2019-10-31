@@ -5,39 +5,42 @@ AS
 DECLARE @bDate as Date
 SET @bDate = @businessDate
 
-SELECT @bDate as busdate, journal.symbol, sum(value) as Balance, sum(quantity) as Quantity, Abs(sum(value)) / sum(quantity) as CostBasis, 'LONG' as Side, Avg(journal.end_price) as eod_price
+SELECT @bDate as busdate, j.symbol, sum(value) as Balance, sum(j.quantity) as Quantity, Abs(sum(value)) / sum(j.quantity) as CostBasis, 'LONG' as Side, Avg(j.end_price) as eod_price
 into #costbasis_long
-FROM journal with(nolock)
-inner join account a on a.id = journal.account_id
+FROM vwJournal j
+inner join account a on a.id = j.account_id
 inner join account_type a_t on a_t.id = a.account_type_id
 where a_t.name = 'LONG POSITIONS AT COST'
-and journal.[event] = 'tradedate'
-and journal.[when] <= @bDate
-group by a.name, journal.symbol
-having sum(quantity) != 0
+and j.[event] = 'tradedate'
+and j.[when] <= @bDate
+group by a.name, j.symbol
+having sum(j.quantity) != 0
 
 -- Unrealized
-SELECT @bDate as busdate, journal.symbol, sum(value) as unrealized_pnl, 'LONG' as Side
+SELECT @bDate as busdate, J.symbol, sum(value) as unrealized_pnl, 'LONG' as Side
 into #unrealized_long
-FROM journal with(nolock)
-inner join account a on a.id = journal.account_id
+FROM vwJournal j
+inner join account a on a.id = j.account_id
 inner join account_type a_t on a_t.id = a.account_type_id
 where a_t.name = 'Mark to Market Longs'
-and journal.[when] <= @bDate
-group by a.name, journal.symbol
+and [event] = 'unrealizedpnl'
+and j.[when] <= @bDate
+group by a.name, j.symbol
 
 -- realized
-SELECT @bDate as busdate, journal.symbol, sum(value) as realized_pnl, 'LONG' as Side
+SELECT @bDate as busdate, j.symbol, sum(value) as realized_pnl, 'LONG' as Side
 into #realized_long
-FROM journal with(nolock)
-inner join account a on a.id = journal.account_id
+FROM vwJournal j
+inner join account a on a.id = j.account_id
 inner join account_type a_t on a_t.id = a.account_type_id
-where a_t.name = 'REALIZED GAIN/(LOSS)'
-and journal.[when] <= @bDate
-group by a.name, journal.symbol
+where a_t.name = 'LONG POSITIONS AT COST'
+and event = 'realizedpnl'
+and j.[when] <= @bDate
+group by a.name, j.symbol
 
 begin tran
 delete from cost_basis where business_date = @bDate and Side = 'LONG'
+delete from cost_basis where business_date = @bDate and Side = 'SHORT'
 
 insert into cost_basis ( business_date, symbol, balance, quantity, cost_basis, side, realized_pnl, unrealized_pnl, eod_price )
 select cb.busdate, cb.symbol, cb.Balance, cb.Quantity, cb.CostBasis, cb.Side, coalesce(rl.realized_pnl,0), coalesce(ul.unrealized_pnl,0) , cb.eod_price

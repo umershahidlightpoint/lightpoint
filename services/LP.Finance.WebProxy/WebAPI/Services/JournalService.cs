@@ -323,8 +323,18 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         d.modifiable
                         from(
                             SELECT overall_count = COUNT(*) OVER(),
-                                    (CASE WHEN value < 0 THEN value else 0 END  ) debit,
-                                    (CASE WHEN value > 0 THEN value else 0 END  ) credit, 
+                                    (CASE 
+										WHEN [account_category].[name] in ('Asset', 'Expenses') and value < 0  THEN ABS(value) 
+                                        WHEN [account_category].[name] not in ('Asset', 'Expenses') and value > 0  THEN ABS(value) 
+										Else 0
+										END  ) credit,
+                                    (CASE 
+										WHEN [account_category].[name] in ('Asset','Expenses') and value > 0  THEN ABS(value) 
+                                        WHEN [account_category].[name] not in ('Asset','Expenses') and value < 0  THEN ABS(value) 
+										Else 0
+										END  ) debit,
+                                    --(CASE WHEN value < 0 THEN value else 0 END  ) debit,
+                                    --(CASE WHEN value > 0 THEN value else 0 END  ) credit, 
                                     [journal].[id],
                                     [account_id],
                                     [fund],

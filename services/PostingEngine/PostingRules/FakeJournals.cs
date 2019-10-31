@@ -50,29 +50,25 @@ namespace PostingEngine.PostingRules
 
             if (element.LocalNetNotional != 0.0)
             {
-                var debit = new Journal
+                var debit = new Journal(accountToFrom.From, "journal", env.ValueDate)
                 {
                     Source = element.LpOrderId,
-                    Account = accountToFrom.From,
                     Quantity = element.Quantity,
-                    When = env.ValueDate,
                     FxCurrency = element.TradeCurrency,
                     FxRate = fxrate,
-                    Value = env.DebitOrCredit(accountToFrom.From, moneyUSD),
-                    Event = "journal",
+                    CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
+                    Value = moneyUSD,
                     Fund = element.Fund,
                 };
 
-                var credit = new Journal
+                var credit = new Journal(accountToFrom.To, "journal", env.ValueDate)
                 {
                     Source = element.LpOrderId,
-                    Account = accountToFrom.To,
                     Quantity = element.Quantity,
-                    When = env.ValueDate,
                     FxCurrency = element.TradeCurrency,
                     FxRate = fxrate,
-                    Event = "journal",
-                    Value = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
+                    CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
+                    Value = moneyUSD * -1,
                     Fund = element.Fund,
                 };
 
@@ -275,7 +271,8 @@ namespace PostingEngine.PostingRules
                     When = env.ValueDate,
                     FxCurrency = element.TradeCurrency,
                     FxRate = fxrate,
-                    Value = env.DebitOrCredit(accountToFrom.From, moneyUSD),
+                    CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
+                    Value = moneyUSD,
                     Event = "journal",
                     Symbol = element.Symbol,
                     Fund = element.Fund,
@@ -289,7 +286,8 @@ namespace PostingEngine.PostingRules
                     When = env.ValueDate,
                     FxCurrency = element.TradeCurrency,
                     FxRate = fxrate,
-                    Value = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
+                    CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD),
+                    Value = moneyUSD,
                     Event = "journal",
                     Symbol = element.Symbol,
                     Fund = element.Fund,

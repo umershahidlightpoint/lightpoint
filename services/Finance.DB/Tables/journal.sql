@@ -14,6 +14,7 @@
 	[event] VARCHAR(100) NULL DEFAULT (''), 
     [start_price] DECIMAL(22, 9) NOT NULL DEFAULT 0.0, 
     [end_price] DECIMAL(22, 9) NOT NULL DEFAULT 0.0, 
+    [credit_debit] NCHAR(10) NOT NULL DEFAULT '', 
     CONSTRAINT [PK_journal] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
