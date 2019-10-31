@@ -14,6 +14,7 @@ import { DecimalPipe } from '@angular/common';
 import { FinancePocServiceProxy } from 'src/shared/service-proxies/service-proxies';
 import { ToastrService } from 'ngx-toastr';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
+import { DailyUnofficialPnLData } from 'src/shared/Models/funds-theoretical';
 
 @Component({
   selector: 'app-daily-pnl',
@@ -23,10 +24,11 @@ import { UtilsConfig } from 'src/shared/Models/utils-config';
 export class DailyPnlComponent implements OnInit {
   dailyPnlGrid: GridOptions;
   selectedDate = null;
-  dailyPnLData: Array<object>;
+  dailyPnLData: Array<DailyUnofficialPnLData>;
   funds: Array<string>;
   fileToUpload: File = null;
   totalGridRows: number;
+  isExpanded = false;
 
   styleForHeight = HeightStyle(224);
 
@@ -360,14 +362,14 @@ export class DailyPnlComponent implements OnInit {
           financingUSD: data.FinancingUSD,
           otherUSD: data.OtherUSD,
           pnLPercentage: data.PnLPercentage,
-          mtdPercentageReturn: 0, //data.MTDPercentageReturn,
-          qtdPercentageReturn: 0, //data.QTDPercentageReturn,
-          ytdPercentageReturn: 0, //data.YTDPercentageReturn,
-          itdPercentageReturn: 0, //data.ITDPercentageReturn,
-          mtdPnL: 0, //data.MtdPnL,
-          qtdPnL: 0, //data.QtdPnL,
-          ytdPnL: 0, //data.YtdPnL,
-          itdPnL: 0, //data.ItdPnL
+          mtdPercentageReturn: data.MTDPercentageReturn,
+          qtdPercentageReturn: data.QTDPercentageReturn,
+          ytdPercentageReturn: data.YTDPercentageReturn,
+          itdPercentageReturn: data.ITDPercentageReturn,
+          mtdPnL: data.MTDPnL,
+          qtdPnL: data.QTDPnL,
+          ytdPnL: data.YTDPnL,
+          itdPnL: data.ITDPnL,
           createdBy: data.CreatedBy,
           lastUpdatedBy: data.LastUpdatedBy,
           createdDate: data.CreatedDate,

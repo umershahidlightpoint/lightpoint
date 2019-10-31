@@ -682,12 +682,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 trialBalanceReport.Add(trialBalance);
             }
 
-            dynamic reportObject = new System.Dynamic.ExpandoObject();
-
-            reportObject.data = trialBalanceReport;
-            reportObject.stats = stats;
-
-            return reportObject;
+            return Utils.Wrap(true, trialBalanceReport, HttpStatusCode.OK, null, null, stats);
         }
 
         private decimal? GetDecimal(object o, bool absValue = true)

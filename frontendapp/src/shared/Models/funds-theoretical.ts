@@ -50,3 +50,41 @@ export interface TaxRateData {
   isOverLapped: boolean;
   isGapPresent: boolean;
 }
+
+export interface DailyUnofficialPnLData {
+  businessDate: string;
+  fund: string;
+  portFolio: string;
+  tradePnL: number;
+  day: string;
+  dailyPercentageReturn: number;
+  longPnL: number;
+  longPercentageChange: number;
+  shortPnL: number;
+  shortPercentageChange: number;
+  longExposure: number;
+  shortExposure: number;
+  grossExposure: number;
+  netExposure: number;
+  sixMdBetaNetExposure: number;
+  twoYwBetaNetExposure: number;
+  sixMdBetaShortExposure: number;
+  navMarket: number;
+  dividendUSD: number;
+  commUSD: number;
+  feeTaxesUSD: number;
+  financingUSD: number;
+  otherUSD: number;
+  pnLPercentage: number;
+  mtdPercentageReturn: number;
+  qtdPercentageReturn: number;
+  itdPercentageReturn: number;
+  mtdPnL: number;
+  qtdPnL: number;
+  ytdPnL: number;
+  itdPnL: number;
+  createdBy: number;
+  lastUpdatedBy: number;
+  createdDate: number;
+  lastUpdatedDate: number;
+}

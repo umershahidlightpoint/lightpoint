@@ -12,8 +12,8 @@
       "rule": ""
     },
     {
-      "source": "Fund",
-      "destination": "Fund",
+      "source": "Portfolio",
+      "destination": "Portfolio",
       "function": null,
       "format": "",
       "type": "char",
@@ -21,8 +21,8 @@
       "rule": ""
     },
     {
-      "source": "Portfolio",
-      "destination": "Portfolio",
+      "source": "Fund",
+      "destination": "Fund",
       "function": null,
       "format": "",
       "type": "char",

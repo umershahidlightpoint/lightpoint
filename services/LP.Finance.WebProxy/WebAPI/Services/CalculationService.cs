@@ -29,7 +29,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         private readonly FileProcessor fileProcessor = new FileProcessor();
         private readonly FileManagementService fileManagementService = new FileManagementService();
 
-        public object GetMonthlyPerformance(DateTime? dateFrom = null, DateTime? dateTo = null, string fund = null, string portfolio = null)
+        public object GetMonthlyPerformance(DateTime? dateFrom = null, DateTime? dateTo = null, string fund = null,
+            string portfolio = null)
         {
             List<SqlParameter> sqlParams = new List<SqlParameter>();
 
@@ -62,7 +63,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             if (dateFrom.HasValue)
             {
                 sqlParams.Add(new SqlParameter("dateFrom", dateFrom.Value.Date.ToString("yyyy-MM-dd")));
-                query += dateTo.HasValue ? " AND performance_date >= @dateFrom" : " WHERE performance_date >= @dateFrom";
+                query += dateTo.HasValue
+                    ? " AND performance_date >= @dateFrom"
+                    : " WHERE performance_date >= @dateFrom";
             }
 
             if (!IsNullOrWhiteSpace(fund))
@@ -87,7 +90,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
-            return Utils.Wrap(true,json);
+            return Utils.Wrap(true, json);
         }
 
         public object CalculateMonthlyPerformance(List<MonthlyPerformance> obj)
@@ -95,34 +98,16 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             try
             {
                 var sorted = obj.OrderBy(x => x.PerformanceDate).ThenBy(x => x.RowId).ToList();
-                var initialPerformance = sorted.FirstOrDefault();
 
-                var groupedByYear = sorted.GroupBy(x => x.PerformanceDate.Year).ToList();
+                var groupedByPortfolio = sorted.GroupBy(x => x.PortFolio).Select(x => new
+                {
+                    Portfolio = x.Key,
+                    YearlyData = x.ToList().GroupBy(y => y.PerformanceDate.Year)
+                }).ToList();
+
+                //var groupedByYear = sorted.GroupBy(x => x.PerformanceDate.Year).ToList();
                 
-               // var groupedByYearAndMonth = groupedByYear.Select(x=> x.)
-
-                //Get prior date as reference point.
-                //var priorPerformanceDate = initialPerformance.PerformanceDate.AddMonths(-1);
-
-                //var query = $@"select id,performance_date,fund,portfolio,monthly_end_nav,performance_date,mtd,ytd_net_performance,qtd_net_perc,ytd_net_perc,itd_net_perc from monthly_performance where performance_date = @entryDate";
-                //List<SqlParameter> priorPerformanceParams = new List<SqlParameter>()
-                //    {
-                //       new SqlParameter("entryDate", priorPerformanceDate)
-                //    };
-                //var priorPerformanceData = sqlHelper.GetDataTable(query, CommandType.Text, priorPerformanceParams.ToArray());
-
-                //var priorData = priorPerformanceData.AsEnumerable().Select(x => new MonthlyPerformance
-                //{
-                //    Id = Convert.ToInt32(x["id"]),
-                //    PerformanceDate = Convert.ToDateTime(x["performance_date"]),
-                //    MonthEndNav = Convert.ToDecimal(x["monthly_end_nav"]),
-                //    YTDNetPerformance = Convert.ToDecimal(x["ytd_net_performance"]),
-                //    Performance = Convert.ToDecimal(x["performance"]),
-                //    ITD = Convert.ToDecimal(x["itd_net_perc"]),
-                //    QTD = Convert.ToDecimal(x["qtd_net_perc"]),
-                //    YTD = Convert.ToDecimal(x["ytd_net_perc"]),
-                //    MTD = Convert.ToDecimal(x["mtd"])
-                //}).FirstOrDefault();
+              
 
                 MonthlyPerformance priorData = null;
                 MonthlyPerformance priorDataForInception = priorData;
@@ -130,37 +115,56 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 Dictionary<int, int> quarterCount = new Dictionary<int, int>();
                 InitializeQuarterDictionary(quarterCount);
 
-                foreach (var group in groupedByYear)
+                foreach (var portfolio in groupedByPortfolio)
                 {
-                    foreach (var item in group)
+                    foreach (var group in portfolio.YearlyData)
                     {
-                        if (item.MonthEndNav.HasValue)
+                        foreach (var item in group)
                         {
-                            if (priorData != null)
+                            if (item.MonthEndNav.HasValue)
                             {
-                            }
-                        }
-
-                        if (item.MTD.HasValue)
-                        {
-                            if (priorData != null)
-                            {
-                                if (CheckForBeginningOfQuarter(item.PerformanceDate) && quarterCount[item.PerformanceDate.Month] == 0)
+                                if (priorData != null)
                                 {
-                                    //Beginning of quarter, hence value will be the same as MTD.
-                                    newDecimalValue = item.MTD.HasValue ? item.MTD.Value : 0;
-                                    if (CheckForChanges(item.QTD, newDecimalValue))
-                                    {
-                                        item.Modified = true;
-                                    }
+                                }
+                            }
 
-                                    item.QTD = newDecimalValue;
-                                    quarterCount[item.PerformanceDate.Month] += 1;
+                            if (item.MTD.HasValue)
+                            {
+                                if (priorData != null)
+                                {
+                                    if (CheckForBeginningOfQuarter(item.PerformanceDate) && quarterCount[item.PerformanceDate.Month] == 0)
+                                    {
+                                        //Beginning of quarter, hence value will be the same as MTD.
+                                        newDecimalValue = item.MTD.HasValue ? item.MTD.Value : 0;
+                                        if (CheckForChanges(item.QTD, newDecimalValue))
+                                        {
+                                            item.Modified = true;
+                                        }
+
+                                        item.QTD = newDecimalValue;
+                                        quarterCount[item.PerformanceDate.Month] += 1;
+                                    }
+                                    else
+                                    {
+                                        //For QTD, determine the month offset of this quarter. If it is the beginning of the quarter for e.g (April for Q2), value will remain the same. Otherwise, calculated value will depend on the previous result.
+                                        newDecimalValue = CalculateQTD(item, priorData);
+                                        if (CheckForChanges(item.QTD, newDecimalValue))
+                                        {
+                                            item.Modified = true;
+                                        }
+
+                                        if (CheckForBeginningOfQuarter(item.PerformanceDate))
+                                        {
+                                            quarterCount[item.PerformanceDate.Month] += 1;
+                                        }
+
+                                        item.QTD = newDecimalValue;
+
+                                    }
                                 }
                                 else
                                 {
-                                    //For QTD, determine the month offset of this quarter. If it is the beginning of the quarter for e.g (April for Q2), value will remain the same. Otherwise, calculated value will depend on the previous result.
-                                    newDecimalValue = CalculateQTD(item, priorData);
+                                    newDecimalValue = item.MTD.HasValue ? item.MTD.Value : 0;
                                     if (CheckForChanges(item.QTD, newDecimalValue))
                                     {
                                         item.Modified = true;
@@ -172,112 +176,102 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                     }
 
                                     item.QTD = newDecimalValue;
-                                   
+                                }
+
+                                if (priorData != null)
+                                {
+                                    // As the data is grouped by year, so for the first iteration, value will remain the same. Otherwise, calculated value will depend on the previous result.
+                                    newDecimalValue = CalculateYTD(item, priorData);
+                                    if (CheckForChanges(item.YTD, newDecimalValue))
+                                    {
+                                        item.Modified = true;
+                                    }
+
+                                    item.YTD = newDecimalValue;
+                                }
+                                else
+                                {
+                                    newDecimalValue = item.MTD.HasValue ? item.MTD.Value : 0;
+                                    if (CheckForChanges(item.YTD, newDecimalValue))
+                                    {
+                                        item.Modified = true;
+                                    }
+
+                                    item.YTD = newDecimalValue;
+                                }
+
+                                if (priorDataForInception != null)
+                                {
+                                    //For ITD, value will always be calculated based on the previous result.
+                                    newDecimalValue = CalculateITD(item, priorDataForInception);
+                                    if (CheckForChanges(item.ITD, newDecimalValue))
+                                    {
+                                        item.Modified = true;
+                                    }
+
+                                    item.ITD = newDecimalValue;
+                                }
+                                else
+                                {
+                                    newDecimalValue = item.MTD.HasValue ? item.MTD.Value : 0;
+                                    if (CheckForChanges(item.ITD, newDecimalValue))
+                                    {
+                                        item.Modified = true;
+                                    }
+
+                                    item.ITD = newDecimalValue;
                                 }
                             }
-                            else
+
+                            if (item.Performance.HasValue)
                             {
-                                newDecimalValue = item.MTD.HasValue ? item.MTD.Value : 0;
-                                if (CheckForChanges(item.QTD, newDecimalValue))
+                                if (priorData != null)
                                 {
-                                    item.Modified = true;
-                                }
+                                    //For YTD, determine the month offset of this year. If it is the beginning of the year for e.g. (January), value will remain the same. Otherwise, calculated value will depend on the previous result.
+                                    newDecimalValue = CalculateYTDPerformance(item, priorData);
+                                    if (CheckForChanges(item.YTDNetPerformance, newDecimalValue))
+                                    {
+                                        item.Modified = true;
+                                    }
 
-                                if (CheckForBeginningOfQuarter(item.PerformanceDate))
+                                    item.YTDNetPerformance = newDecimalValue;
+                                }
+                                else
                                 {
-                                    quarterCount[item.PerformanceDate.Month] += 1;
-                                }
+                                    newDecimalValue = item.Performance.HasValue ? item.Performance.Value : 0;
+                                    if (CheckForChanges(item.YTDNetPerformance, newDecimalValue))
+                                    {
+                                        item.Modified = true;
+                                    }
 
-                                item.QTD = newDecimalValue;
+                                    item.YTDNetPerformance = newDecimalValue;
+                                }
                             }
 
-                            if (priorData != null)
+                            priorData = item;
+                            priorDataForInception = item;
+                            if (!CheckForBeginningOfQuarter(item.PerformanceDate))
                             {
-                                // As the data is grouped by year, so for the first iteration, value will remain the same. Otherwise, calculated value will depend on the previous result.
-                                newDecimalValue = CalculateYTD(item, priorData);
-                                if (CheckForChanges(item.YTD, newDecimalValue))
-                                {
-                                    item.Modified = true;
-                                }
-
-                                item.YTD = newDecimalValue;
-                            }
-                            else
-                            {
-                                newDecimalValue = item.MTD.HasValue ? item.MTD.Value : 0;
-                                if (CheckForChanges(item.YTD, newDecimalValue))
-                                {
-                                    item.Modified = true;
-                                }
-
-                                item.YTD = newDecimalValue;
-                            }
-
-                            if (priorDataForInception != null)
-                            {
-                                //For ITD, value will always be calculated based on the previous result.
-                                newDecimalValue = CalculateITD(item, priorDataForInception);
-                                if (CheckForChanges(item.ITD, newDecimalValue))
-                                {
-                                    item.Modified = true;
-                                }
-
-                                item.ITD = newDecimalValue;
-                            }
-                            else
-                            {
-                                newDecimalValue = item.MTD.HasValue ? item.MTD.Value : 0;
-                                if (CheckForChanges(item.ITD, newDecimalValue))
-                                {
-                                    item.Modified = true;
-                                }
-
-                                item.ITD = newDecimalValue;
+                                ResetQuarterDictionary(quarterCount);
                             }
                         }
 
-                        if (item.Performance.HasValue)
-                        {
-                            if (priorData != null)
-                            {
-                                //For YTD, determine the month offset of this year. If it is the beginning of the year for e.g. (January), value will remain the same. Otherwise, calculated value will depend on the previous result.
-                                newDecimalValue = CalculateYTDPerformance(item, priorData);
-                                if (CheckForChanges(item.YTDNetPerformance, newDecimalValue))
-                                {
-                                    item.Modified = true;
-                                }
-
-                                item.YTDNetPerformance = newDecimalValue;
-                            }
-                            else
-                            {
-                                newDecimalValue = item.Performance.HasValue ? item.Performance.Value : 0;
-                                if (CheckForChanges(item.YTDNetPerformance, newDecimalValue))
-                                {
-                                    item.Modified = true;
-                                }
-
-                                item.YTDNetPerformance = newDecimalValue;
-                            }
-                        }
-
-                        priorData = item;
-                        priorDataForInception = item;
-                        if (!CheckForBeginningOfQuarter(item.PerformanceDate))
-                        {
-                            ResetQuarterDictionary(quarterCount);
-                        }
+                        priorData = null;
+                        ResetQuarterDictionary(quarterCount);
                     }
 
-                    priorData = null;
                     ResetQuarterDictionary(quarterCount);
+                    priorData = null;
+                    priorDataForInception = null;
                 }
 
-                return Utils.Wrap(true, groupedByYear.SelectMany(x => x.Select(y => y).ToList()), HttpStatusCode.OK, "Performance calculated successfully");
+                //return Utils.Wrap(true, groupedByYear.SelectMany(x => x.Select(y => y).ToList()), HttpStatusCode.OK, "Performance calculated successfully");
+                return Utils.Wrap(true, sorted, HttpStatusCode.OK, "Performance calculated successfully");
             }
             catch
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError, "An error occured during calculation");
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    "An error occured during calculation");
             }
         }
 
@@ -311,7 +305,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         private bool CheckForBeginningOfQuarter(DateTime date)
         {
-            if(date.Month == 1 || date.Month == 4 || date.Month == 7 || date.Month == 10)
+            if (date.Month == 1 || date.Month == 4 || date.Month == 7 || date.Month == 10)
             {
                 return true;
             }
@@ -399,33 +393,19 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 sqlHelper.SqlRollbackTransaction();
                 sqlHelper.CloseConnection();
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError, "An error occured while saving calculations");
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    "An error occured while saving calculations");
             }
         }
 
         public async Task<object> UploadMonthlyPerformance(HttpRequestMessage requestMessage)
         {
-            if (!requestMessage.Content.IsMimeMultipartContent())
+            var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "PerformanceData");
+            if (!uploadedResult.Item1)
                 return Utils.Wrap(false);
 
-            var provider = new MultipartMemoryStreamProvider();
-            await requestMessage.Content.ReadAsMultipartAsync(provider);
-
-            var currentDir = AppDomain.CurrentDomain.BaseDirectory;
-            Directory.CreateDirectory(currentDir + Path.DirectorySeparatorChar + "PerformanceData");
-
-            var performancePath = "";
-            var performanceFileName = "";
-            foreach (var file in provider.Contents)
-            {
-                performanceFileName = file.Headers.ContentDisposition.FileName.Trim('\"');
-                var buffer = await file.ReadAsByteArrayAsync();
-
-                performancePath = currentDir + "PerformanceData" + Path.DirectorySeparatorChar +
-                                  $"{DateTime.Now:yy-MM-dd-hh-mm-ss}-{performanceFileName}";
-
-                System.IO.File.WriteAllBytes(performancePath, buffer);
-            }
+            var performancePath = uploadedResult.Item2;
+            var performanceFileName = uploadedResult.Item3;
 
             var recordBody = fileProcessor.ImportFile(performancePath, "Performance", "PerformanceFormats", ',');
 
@@ -464,11 +444,25 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var priorYTDNetPerformance = prior.YTDNetPerformance;
             return currentPerformance + priorYTDNetPerformance;
         }
+        public decimal CalculateDailyPnl(decimal? current, decimal? prior)
+        {
+            var currentMeasure = current.HasValue ? current.Value : 0;
+            var priorMeasure = prior.HasValue ? prior.Value : 0;
+            return currentMeasure + priorMeasure;
+        }
 
         public decimal CalculateQTD(MonthlyPerformance current, MonthlyPerformance prior)
         {
             var convertedPriorQTD = prior.QTD + 1;
             var convertedCurrentMTD = current.MTD.HasValue ? current.MTD.Value + 1 : 1;
+            //return (convertedPriorQTD * convertedCurrentMTD) - 1;
+            return Math.Round((convertedPriorQTD * convertedCurrentMTD) - 1, 16);
+        }
+
+        public decimal CalculateDailyQTD(DailyPnL current, DailyPnL prior)
+        {
+            var convertedPriorQTD = prior.QTDPercentageReturn.Value + 1;
+            var convertedCurrentMTD = current.MTDPercentageReturn.HasValue ? current.MTDPercentageReturn.Value + 1 : 1;
             //return (convertedPriorQTD * convertedCurrentMTD) - 1;
             return Math.Round((convertedPriorQTD * convertedCurrentMTD) - 1, 16);
         }
@@ -481,12 +475,35 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return Math.Round((convertedPriorYTD * convertedCurrentMTD) - 1, 16);
         }
 
+        public decimal CalculateDailyYTD(DailyPnL current, DailyPnL prior)
+        {
+            var convertedPriorYTD = prior.YTDPercentageReturn.Value + 1;
+            var convertedCurrentMTD = current.MTDPercentageReturn.HasValue ? current.MTDPercentageReturn.Value + 1 : 1;
+            //return (convertedPriorYTD * convertedCurrentMTD) - 1;
+            return Math.Round((convertedPriorYTD * convertedCurrentMTD) - 1, 16);
+        }
+
         public decimal CalculateITD(MonthlyPerformance current, MonthlyPerformance prior)
         {
             var convertedPriorYTD = prior.ITD + 1;
             var convertedCurrentMTD = current.MTD.HasValue ? current.MTD.Value + 1 : 1;
             //return (convertedPriorYTD * convertedCurrentMTD) - 1;
             return Math.Round((convertedPriorYTD * convertedCurrentMTD) - 1, 16);
+        }
+
+        public decimal CalculateDailyITD(DailyPnL current, DailyPnL prior)
+        {
+            var convertedPriorYTD = prior.ITDPercentageReturn.Value + 1;
+            var convertedCurrentMTD = current.MTDPercentageReturn.HasValue ? current.MTDPercentageReturn.Value + 1 : 1;
+            //return (convertedPriorYTD * convertedCurrentMTD) - 1;
+            return Math.Round((convertedPriorYTD * convertedCurrentMTD) - 1, 16);
+        }
+
+        public decimal CalculateDailyMTD(DailyPnL current, DailyPnL prior)
+        {
+            var convertedPriorDaily = prior.DailyPercentageReturn.Value + 1;
+            var convertedCurrentDaily = current.DailyPercentageReturn.HasValue ? current.DailyPercentageReturn.Value + 1 : 1;
+            return Math.Round((convertedPriorDaily * convertedCurrentDaily) - 1, 16);
         }
 
         public object GetMonthlyPerformanceAudit(int id)
@@ -500,7 +517,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, auditTrailParams.ToArray());
             var jsonResult = JsonConvert.SerializeObject(dataTable);
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
-            return Utils.Wrap(true,json);
+            return Utils.Wrap(true, json);
         }
 
         public object GetDailyUnofficialPnl()
@@ -530,7 +547,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
-            return Utils.Wrap(true,json);
+            return Utils.Wrap(true, json);
         }
 
         public object GetDailyUnofficialPnlAudit()
@@ -567,7 +584,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError, "An error occured while fetching Daily Unofficial Pnl");
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    "An error occured while fetching Daily Unofficial Pnl");
             }
         }
 
@@ -604,51 +622,25 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, auditTrailParams.ToArray());
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
                 dynamic json = JsonConvert.DeserializeObject(jsonResult);
-                return Utils.Wrap(true, json, HttpStatusCode.OK, "Daily Unofficial Pnl Audit Trail fetched successfully");
+                return Utils.Wrap(true, json, HttpStatusCode.OK,
+                    "Daily Unofficial Pnl Audit Trail fetched successfully");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError, "An error occured while fetching Daily Unofficial Pnl Audit Trail");
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    "An error occured while fetching Daily Unofficial Pnl Audit Trail");
             }
-        }
-
-        public async Task<Tuple<bool, string, string>> WriteFileToServer(HttpRequestMessage requestMessage)
-        {
-            if (!requestMessage.Content.IsMimeMultipartContent())
-                return new Tuple<bool, string, string>(false, null, null);
-
-            var provider = new MultipartMemoryStreamProvider();
-            await requestMessage.Content.ReadAsMultipartAsync(provider);
-
-            var currentDir = AppDomain.CurrentDomain.BaseDirectory;
-            Directory.CreateDirectory(currentDir + Path.DirectorySeparatorChar + "PerformanceData");
-
-            var performancePath = "";
-            var performanceFileName = "";
-            foreach (var file in provider.Contents)
-            {
-                performanceFileName = file.Headers.ContentDisposition.FileName.Trim('\"');
-                var buffer = await file.ReadAsByteArrayAsync();
-
-                performancePath = currentDir + "PerformanceData" + Path.DirectorySeparatorChar +
-                                  $"{DateTime.Now:yy-MM-dd-hh-mm-ss}-{performanceFileName}";
-
-                System.IO.File.WriteAllBytes(performancePath, buffer);
-            }
-
-            return new Tuple<bool, string, string>(true, performancePath, performanceFileName);
         }
 
         public async Task<object> UploadDailyUnofficialPnl(HttpRequestMessage requestMessage)
         {
-            var uploadedResult = await WriteFileToServer(requestMessage);
+            var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "PerformanceData");
             if (!uploadedResult.Item1)
-            {
                 return Utils.Wrap(false);
-            }
-            var performancePath = uploadedResult.Item2;
-            var performanceFileName = uploadedResult.Item3;
-            var recordBody = fileProcessor.ImportFile(performancePath, "DailyPnl", "PerformanceFormats", ',');
+
+            var dailyPnlPath = uploadedResult.Item2;
+            var dailyPnlFileName = uploadedResult.Item3;
+            var recordBody = fileProcessor.ImportFile(dailyPnlPath, "DailyPnl", "PerformanceFormats", ',');
 
             var records = JsonConvert.SerializeObject(recordBody.Item1);
             var performanceRecords = JsonConvert.DeserializeObject<List<DailyPnL>>(records);
@@ -665,18 +657,175 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             List<FileInputDto> fileList = new List<FileInputDto>
             {
-                new FileInputDto(performancePath, performanceFileName, performanceRecords.Count, "DailyUnofficialPnl",
+                new FileInputDto(dailyPnlPath, dailyPnlFileName, performanceRecords.Count, "DailyUnofficialPnl",
                     "Upload",
                     failedPerformanceList,
                     DateTime.Now)
             };
 
             fileManagementService.InsertActivityAndPositionFilesForSilver(fileList);
-//            var monthlyPerformanceResult = CalculateMonthlyPerformance(performanceRecords);
-//            var monthlyPerformance = monthlyPerformanceResult.GetType().GetProperty("payload")
-//                ?.GetValue(monthlyPerformanceResult, null);
+            var dailyPerformanceResult = CalculateDailyPerformance(performanceRecords);
+            var dailyPerformance = dailyPerformanceResult.GetType().GetProperty("payload")
+                ?.GetValue(dailyPerformanceResult, null);
 
-            return Utils.Wrap(true, performanceRecords, null);
+            return Utils.Wrap(true, dailyPerformance, null);
+        }
+
+        public object CalculateDailyPerformance(List<DailyPnL> performanceRecords)
+        {
+            var sorted = performanceRecords.OrderBy(x => x.BusinessDate).ThenBy(x => x.RowId).ToList();
+
+            var groupedByPortfolio = sorted.GroupBy(x => x.PortFolio).Select(x => new
+            {
+                Portfolio = x.Key,
+                YearlyData = x.ToList().GroupBy(y => y.BusinessDate.Year).Select(z=> new
+                {
+                    Year = z.Key,
+                    MonthlyData = z.ToList().GroupBy(w=> w.BusinessDate.Month)
+                })
+            }).ToList();
+
+            //var groupedByYear = sorted.GroupBy(x => x.PerformanceDate.Year).ToList();
+
+            DailyPnL priorData = null;
+            int monthIndex = 0;
+            int totalMonthlyRecords = 0;
+            DailyPnL priorDataYearlyPnl = priorData;
+            DailyPnL priorDataQuarterlyPnl = priorData;
+            DailyPnL priorDataInceptionPnl = priorData;
+
+            DailyPnL priorDataForQuarter = priorData;
+            DailyPnL priorDataForYear = priorData;
+            DailyPnL priorDataForInception = priorData;
+
+            decimal newDecimalValue = 0;
+            Dictionary<int, int> quarterCount = new Dictionary<int, int>();
+            InitializeQuarterDictionary(quarterCount);
+
+            foreach(var portfolio in groupedByPortfolio)
+            {
+                foreach(var year in portfolio.YearlyData)
+                {
+                    foreach(var month in year.MonthlyData)
+                    {
+                        totalMonthlyRecords = month.Count() - 1;
+                        monthIndex = 0;
+                        foreach(var item in month)
+                        {
+                            if(priorData != null)
+                            {
+                                item.MTDPercentageReturn = CalculateDailyMTD(item, priorData);
+                                item.MTDPnL = CalculateDailyPnl(item.Day, priorData.Day);
+                            }
+                            else
+                            {
+                                item.MTDPercentageReturn = item.DailyPercentageReturn;
+                                item.MTDPnL = item.Day;
+                            }
+
+                            if (priorDataForYear != null)
+                            {
+                                item.YTDPercentageReturn = CalculateDailyYTD(item, priorDataForYear);
+                            }
+                            else
+                            {
+                                item.YTDPercentageReturn = item.MTDPercentageReturn;
+                            }
+
+                            if (priorDataForInception != null)
+                            {
+                                item.ITDPercentageReturn = CalculateDailyITD(item, priorDataForInception);
+                            }
+                            else
+                            {
+                                item.ITDPercentageReturn = item.MTDPercentageReturn;
+                            }
+
+                            if (priorDataForQuarter != null)
+                            {
+                                if(CheckForBeginningOfQuarter(item.BusinessDate))
+                                {
+                                    item.QTDPercentageReturn = item.MTDPercentageReturn;
+                                }
+                                else
+                                {
+                                    item.QTDPercentageReturn = CalculateDailyQTD(item, priorDataForQuarter);
+                                }
+                            }
+                            else
+                            {
+                                item.QTDPercentageReturn = item.MTDPercentageReturn;
+                            }
+
+
+                            //Calculations for QTD,YTD,ITD values.
+
+                            if(priorDataQuarterlyPnl != null)
+                            {
+                                if (CheckForBeginningOfQuarter(item.BusinessDate))
+                                {
+                                    item.QTDPnL = item.MTDPnL;
+                                }
+                                else
+                                {
+                                    item.QTDPnL = CalculateDailyPnl(item.Day, priorDataQuarterlyPnl.QTDPnL);
+                                }
+                            }
+                            else
+                            {
+                                item.QTDPnL = item.MTDPnL;
+                            }
+
+                            if(priorDataYearlyPnl != null)
+                            {
+                                item.YTDPnL = CalculateDailyPnl(item.Day, priorDataYearlyPnl.YTDPnL);
+                            }
+                            else
+                            {
+                                item.YTDPnL = item.MTDPnL;
+                            }
+
+                            if(priorDataInceptionPnl != null)
+                            {
+                                item.ITDPnL = CalculateDailyPnl(item.Day, priorDataInceptionPnl.ITDPnL);
+                            }
+                            else
+                            {
+                                item.ITDPnL = item.MTDPnL;
+                            }
+
+                            priorData = item;
+                            priorDataQuarterlyPnl = item;
+                            priorDataYearlyPnl = item;
+                            priorDataInceptionPnl = item;
+                            //We have reached the end of the month. At this point, the calculated value of MTD represents MTD returns for that month. 
+                            //We will use this value of MTD as reference for QTD,YTD,ITD percentage/returns calculation.
+                            if(monthIndex == totalMonthlyRecords)
+                            {
+                                priorDataForYear = item;
+                                priorDataForQuarter = item;
+                                priorDataForInception = item;
+                            }
+                         
+                            monthIndex++;
+                        }
+
+                        priorData = null;
+                    }
+
+                    priorDataForYear = null;
+                    priorDataYearlyPnl = null;
+                    priorDataQuarterlyPnl = null;
+                    priorDataForQuarter = null;
+                }
+
+                priorDataForInception = null;
+                priorDataForQuarter = null;
+                priorDataInceptionPnl = null;
+                priorDataQuarterlyPnl = null;
+            }
+
+            return Utils.Wrap(true, sorted, HttpStatusCode.OK, "Performance calculated successfully");
         }
     }
 }

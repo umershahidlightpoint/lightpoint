@@ -151,7 +151,8 @@ namespace LP.Finance.Common
             return await result;
         }
 
-        public static object Wrap(bool status, object payload = null, object statusCode = null, string message = null, object metaData = null, object stats = null)
+        public static object Wrap(bool status, object payload = null, object statusCode = null, string message = null,
+            object metaData = null, object stats = null)
         {
             return new
             {
@@ -178,7 +179,8 @@ namespace LP.Finance.Common
         //    };
         //}
 
-        public static object GridWrap(object payload, object metaData = null, object stats = null, object statusCode = null, object message = null)
+        public static object GridWrap(object payload, object metaData = null, object stats = null,
+            object statusCode = null, object message = null)
         {
             return new
             {
@@ -318,6 +320,34 @@ namespace LP.Finance.Common
             ThreadPool.QueueUserWorkItem(new WaitCallback(Save), new {json, filename});
         }
 
+        public static async Task<Tuple<bool, string, string>> SaveFileToServerAsync(HttpRequestMessage requestMessage,
+            string folderToSave)
+        {
+            if (!requestMessage.Content.IsMimeMultipartContent())
+                return new Tuple<bool, string, string>(false, null, null);
+
+            var provider = new MultipartMemoryStreamProvider();
+            await requestMessage.Content.ReadAsMultipartAsync(provider);
+
+            var currentDir = AppDomain.CurrentDomain.BaseDirectory;
+            Directory.CreateDirectory(currentDir + Path.DirectorySeparatorChar + folderToSave);
+
+            var savedFilePath = "";
+            var savedFileName = "";
+            foreach (var file in provider.Contents)
+            {
+                savedFileName = file.Headers.ContentDisposition.FileName.Trim('\"');
+                var buffer = await file.ReadAsByteArrayAsync();
+
+                savedFilePath = currentDir + folderToSave + Path.DirectorySeparatorChar +
+                                $"{DateTime.Now:yy-MM-dd-hh-mm-ss}-{savedFileName}";
+
+                File.WriteAllBytes(savedFilePath, buffer);
+            }
+
+            return new Tuple<bool, string, string>(true, savedFilePath, savedFileName);
+        }
+
         public static object RunQuery(string connection, string query, SqlParameter[] parameters = null)
         {
             var status = false;
@@ -352,7 +382,7 @@ namespace LP.Finance.Common
             dynamic json = JsonConvert.DeserializeObject(content);
 
             // This Wraps the Results into an Envelope that Contains Additional Metadata
-            return json.Count > 0 ? Utils.Wrap(status, json,null,null, metaData) : Utils.Wrap(status);
+            return json.Count > 0 ? Utils.Wrap(status, json, null, null, metaData) : Utils.Wrap(status);
         }
 
         public static object GetTable(string connection, string tablename)
@@ -377,7 +407,8 @@ namespace LP.Finance.Common
 
     public class SQLBulkHelper
     {
-        public void Insert(string tablename, IDbModel[] models, SqlConnection connection, SqlTransaction transaction, bool fireTriggers = false)
+        public void Insert(string tablename, IDbModel[] models, SqlConnection connection, SqlTransaction transaction,
+            bool fireTriggers = false)
         {
             if (models.Length == 0)
                 return;
@@ -391,7 +422,8 @@ namespace LP.Finance.Common
                 table.Rows.Add(row);
             }
 
-            using (var bulk = new SqlBulkCopy(connection, fireTriggers ? SqlBulkCopyOptions.FireTriggers : SqlBulkCopyOptions.Default, transaction))
+            using (var bulk = new SqlBulkCopy(connection,
+                fireTriggers ? SqlBulkCopyOptions.FireTriggers : SqlBulkCopyOptions.Default, transaction))
             {
                 bulk.BatchSize = 1000;
                 bulk.DestinationTableName = tablename;
@@ -417,7 +449,6 @@ namespace LP.Finance.Common
             }
 
             // Get the Columns we Need to Generate the UI Grid
-
             foreach (var element in dataTable.Rows)
             {
                 var dataRow = element as DataRow;

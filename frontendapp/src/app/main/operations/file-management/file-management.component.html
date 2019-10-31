@@ -3,7 +3,7 @@
   <div class="ml-3">
     <h4>LightPoint Files</h4>
   </div>
-  <div class="ml-auto">
+  <div class="ml-auto mr-3">
     <app-grid-utils [gridOptions]="filesGridOptions" (refresh)="refreshFilesGrid()" [excelParams]="excelParams">
     </app-grid-utils>
   </div>
@@ -15,7 +15,7 @@
   </ag-grid-angular>
   <!----- Action buttons Template Starts ----->
   <ng-template #actionButtons let-row>
-    <button class="btn action-btn height-30px" (click)="downloadFile(row)" tooltip="View" placement="auto"
+    <button class="btn action-btn width-15 height-30px" (click)="downloadFile(row)" tooltip="View" placement="auto"
       container="body">
       <i class="fa fa-download" aria-hidden="true"></i>
     </button>

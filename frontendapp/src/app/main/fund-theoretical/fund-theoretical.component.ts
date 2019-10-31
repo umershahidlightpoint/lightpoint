@@ -16,7 +16,7 @@ import {
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import * as moment from 'moment';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { MonthlyPerformanceData } from 'src/shared/Models';
+import { MonthlyPerformanceData } from 'src/shared/Models/funds-theoretical';
 import { DataGridModalComponent } from '../../../shared/Component/data-grid-modal/data-grid-modal.component';
 import { DecimalPipe } from '@angular/common';
 import { AgGridCheckboxComponent } from '../../../shared/Component/ag-grid-checkbox/ag-grid-checkbox.component';
@@ -350,6 +350,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       (params.colDef.field === 'portfolio' && params.data.portfolio !== 'None') ||
       params.colDef.field === 'estimated'
     ) {
+      this.doCalculation();
       this.disableCommit = false;
       const row = this.fundTheoreticalGrid.api.getRowNode(params.data.rowId);
       row.setDataValue('modified', true);

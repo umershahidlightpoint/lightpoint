@@ -3,7 +3,7 @@ import { IToolPanel, IToolPanelParams } from 'ag-grid-community';
 import { FinancePocServiceProxy } from '../../service-proxies/service-proxies';
 import { ToastrService } from 'ngx-toastr';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
-import { GridLayout } from 'src/shared/Models';
+import { GridLayout } from 'src/shared/Models/funds-theoretical';
 import { AutoSizeAllColumns } from 'src/shared/utils/Shared';
 
 @Component({

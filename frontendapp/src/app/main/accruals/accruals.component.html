@@ -1,13 +1,13 @@
 <p-tabView [ngStyle]="style">
   <p-tabPanel header="OMS Accruals" [ngStyle]="style">
-    <div style="clear: both"></div>
+    <div class="clearfix"></div>
     <div [ngStyle]="styleForHeight">
-      <ag-grid-angular style="width: 100%; height: 45%" class="ag-theme-balham" [gridOptions]="gridOptions"
+      <ag-grid-angular class="w-100 height-45 ag-theme-balham" [gridOptions]="gridOptions"
         (rowSelected)="onRowSelected($event)" [rowData]="rowData">
       </ag-grid-angular>
 
       <h4>Allocations</h4>
-      <ag-grid-angular style="width: 100%; height: 45%" class="ag-theme-balham" [gridOptions]="allocationsGridOptions"
+      <ag-grid-angular class="w-100 height-45 ag-theme-balham" [gridOptions]="allocationsGridOptions"
         [rowData]="allocationsData">
       </ag-grid-angular>
 
