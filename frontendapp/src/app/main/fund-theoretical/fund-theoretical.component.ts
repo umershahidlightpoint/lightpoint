@@ -350,6 +350,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       (params.colDef.field === 'portfolio' && params.data.portfolio !== 'None') ||
       params.colDef.field === 'estimated'
     ) {
+      this.doCalculation();
       this.disableCommit = false;
       const row = this.fundTheoreticalGrid.api.getRowNode(params.data.rowId);
       row.setDataValue('modified', true);
