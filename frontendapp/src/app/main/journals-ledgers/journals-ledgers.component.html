@@ -59,12 +59,12 @@
         <!----- Clear Button  Div Ends ----->
 
         <!----- Buttons Div Starts ----->
-        <div class="ml-auto">
+        <div class="ml-auto mr-3">
           <app-grid-utils class="mr-4" [gridOptions]="gridOptions" (refresh)="refreshGrid()"
             [excelParams]="excelParams">
           </app-grid-utils>
           <!----- Create Journal Button  ----->
-          <div class="mr-4 d-inline-block add-journal-btn">
+          <div class="d-inline-block add-journal-btn">
             <button class="btn btn-info" type="button" (click)="openJournalModal()" tooltip="Create Journal"
               placement="top">
               <i class="fa fa-plus" aria-hidden="true"></i>
