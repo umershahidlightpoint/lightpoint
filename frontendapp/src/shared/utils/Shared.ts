@@ -52,7 +52,7 @@ export const IgnoreFields = [
   'totalCredit',
   'overall_count',
   'account_id',
-  'value',
+  //'value',
   'LpOrderId',
   'FilledQuantity',
   'OrderedQuantity'
@@ -258,6 +258,12 @@ export const FormatNumber = numberToFormat => {
   }
 };
 
+export const MoneyFormat = numberToFormat => {
+  if (numberToFormat !== null) {
+    return numberToFormat.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+  }
+};
+
 export const FormatNumber4 = numberToFormat => {
   if (numberToFormat !== null) {
     return numberToFormat.toFixed(4);
@@ -391,7 +397,7 @@ export const CommonCols = () => {
       field: 'debit',
       aggFunc: 'sum',
       headerName: '$Debit',
-      valueFormatter: currencyFormatter,
+      valueFormatter: moneyFormatter,
       width: 100,
       colId: 'debit',
       cellStyle: { 'text-align': 'right' },
@@ -411,7 +417,7 @@ export const CommonCols = () => {
       field: 'credit',
       aggFunc: 'sum',
       headerName: '$Credit',
-      valueFormatter: currencyFormatter,
+      valueFormatter: moneyFormatter,
       width: 100,
       colId: 'credit',
       cellStyle: { 'text-align': 'right' },
@@ -438,7 +444,7 @@ export const CommonCols = () => {
       field: 'balance',
       aggFunc: 'sum',
       headerName: '$Balance',
-      valueFormatter: currencyFormatter,
+      valueFormatter: moneyFormatter,
       width: 100,
       colId: 'balance',
       cellStyle: { 'text-align': 'right' },
@@ -523,6 +529,13 @@ function currencyFormatter(params) {
     return;
   }
   return CommaSeparatedFormat(params.value);
+}
+
+function moneyFormatter(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  return MoneyFormat(params.value);
 }
 
 export const FormatDate = (date: any, format: string) => {

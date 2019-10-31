@@ -3,7 +3,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import * as moment from 'moment';
-import { FormatNumber4, CommaSeparatedFormat } from 'src/shared/utils/Shared';
+import { FormatNumber4, CommaSeparatedFormat, FormatNumber, MoneyFormat } from 'src/shared/utils/Shared';
 
 @Injectable()
 export class DataDictionary {
@@ -114,26 +114,28 @@ export class DataDictionary {
                 columnDefinition = {
                     field: 'credit',
                     width: 120,
+                    colId: 'credit',
                     headerName: 'Credit',
                     sortable: true,
                     cellStyle: { 'text-align': 'right' },
                     filter: true,
-                    valueFormatter: valueFormatter
+                    valueFormatter: moneyFormatter
                 };
-                cellClassRules(columnDefinition);
+                cellClassRulesCredit(columnDefinition);
                 break;
             };
             case 'debit': {
                 columnDefinition = {
                     field: 'debit',
                     width: 120,
+                    colId: 'debit',
                     headerName: 'Debit',
                     sortable: true,
                     filter: true,
                     cellStyle: { 'text-align': 'right' },
-                    valueFormatter: valueFormatter
+                    valueFormatter: moneyFormatter
                 };
-                cellClassRules(columnDefinition);
+                cellClassRulesDebit(columnDefinition);
                 break;
             };
             default: {
@@ -144,6 +146,45 @@ export class DataDictionary {
         return columnDefinition;
     }
 }
+
+function cellClassRulesCredit(columnDefinition: any) {
+    columnDefinition['cellClassRules'] = {
+        redFont(params) {
+            if (params.node.rowPinned) {
+                return false;
+            } else {
+                return params.value < 0;
+            }
+        },
+        footerRow(params) {
+            if (params.node.rowPinned) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    };
+}
+
+function cellClassRulesDebit(columnDefinition: any) {
+    columnDefinition['cellClassRules'] = {
+        footerRow(params) {
+            if (params.node.rowPinned) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    };
+}
+
+function moneyFormatter(params) {
+    if (params.value === undefined) {
+      return;
+    }
+    return MoneyFormat(params.value);
+  }
+  
 
 function cellClassRules(columnDefinition: any) {
     columnDefinition['cellClassRules'] = {
