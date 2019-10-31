@@ -91,7 +91,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
     this.isDataLoaded = false;
     this.financeService.getTrialBalanceReport(toDate, fromDate, fund).subscribe(response => {
       this.trialBalanceReportStats = response.stats;
-      this.trialBalanceReport = response.data.map(data => ({
+      this.trialBalanceReport = response.payload.map(data => ({
         accountName: data.AccountName,
         credit: FormatNumber(data.Credit),
         creditPercentage: data.CreditPercentage,
