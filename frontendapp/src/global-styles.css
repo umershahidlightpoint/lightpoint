@@ -21,7 +21,6 @@ body {
 .edit-btn-props {
   margin: 0 8px;
   padding: 2px;
-  width: 15%;
 }
 
 /******************************
@@ -41,6 +40,10 @@ body {
 
 .width-38 {
   width: 38%;
+}
+
+.width-15 {
+  width: 15%;
 }
 
 /******************************

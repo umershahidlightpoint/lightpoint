@@ -1,10 +1,4 @@
-.action-btn {
-  margin: 0 8px;
-  padding: 2px;
-  width: 15%;
-}
-
-.action-btn:focus {
+.edit-btn-props:focus {
   outline: none;
 }
 
