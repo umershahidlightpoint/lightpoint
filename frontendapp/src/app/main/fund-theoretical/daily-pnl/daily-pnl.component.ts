@@ -14,6 +14,7 @@ import { DecimalPipe } from '@angular/common';
 import { FinancePocServiceProxy } from 'src/shared/service-proxies/service-proxies';
 import { ToastrService } from 'ngx-toastr';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
+import { DailyUnofficialPnLData } from 'src/shared/Models/funds-theoretical';
 
 @Component({
   selector: 'app-daily-pnl',
@@ -23,10 +24,11 @@ import { UtilsConfig } from 'src/shared/Models/utils-config';
 export class DailyPnlComponent implements OnInit {
   dailyPnlGrid: GridOptions;
   selectedDate = null;
-  dailyPnLData: Array<object>;
+  dailyPnLData: Array<DailyUnofficialPnLData>;
   funds: Array<string>;
   fileToUpload: File = null;
   totalGridRows: number;
+  isExpanded = false;
 
   styleForHeight = HeightStyle(224);
 

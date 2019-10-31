@@ -1,29 +1,14 @@
-<!----- Action Buttons Div Starts ----->
-<div class="row">
-  <div class="ml-auto mt-1 mr-2">
-    <!----- Refresh Button Div ----->
-    <!-- <div class="mr-2 d-inline-block">
-      <button (click)="refreshGrid()" class="btn btn-info" tooltip="Refresh" placement="top">
-        <i class="fa fa-refresh"></i></button>
-    </div> -->
-    <!-- Export Excel Div -->
-    <!-- <div class="mr-2  d-inline-block">
-      <button (click)="onBtExport()" class="btn btn-info" tooltip="Export to Excel" placement="top">
-        <i class="fa fa-arrow-circle-o-down"></i>
-      </button>
-    </div> -->
-  </div>
-</div>
-<!----- Action Buttons Div Ends ----->
-
-<!-- Show Date Picker Div -->
+<!-- Action Buttons Form Tag Starts -->
 <form>
+  <!-- Form Row Div Starts -->
   <div class="form-row">
     <!-- <div class="col-2">
       <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date" [(ngModel)]="selectedDate"
         (ngModelChange)="changeDate($event)" name="selectedDate" [singleDatePicker]="true" [autoApply]="true"
         autocomplete="off" [showDropdowns]="true" />
     </div> -->
+
+    <!-- Fileupload Div Starts -->
     <div class="col-6">
       <!-- <button class="btn btn-info" type="button" (click)="doRefresh()">
         Refresh
@@ -33,7 +18,10 @@
         Upload
       </button>
     </div>
-    <div class="ml-auto">
+    <!-- Fileupload Div Ends -->
+
+    <!-- Action Buttons Div Starts -->
+    <div class="ml-auto h-100">
       <!-- <div class="col-6">
         <button class="btn btn-info ml-2" type="button" [disabled]="disableCommit" (click)="commitPerformanceData()">
           Commit
@@ -44,18 +32,37 @@
       <app-grid-utils class="mr-0" [utilsConfig]="utilsConfig" [gridOptions]="dailyPnlGrid" (refresh)="refreshGrid()">
       </app-grid-utils>
       <!-- Grid Utils Ends -->
+
+      <!-- Show Calculation Graphs Button -->
+      <button class="btn btn-info ml-2" type="button" tooltip="View Graph" [disabled]="disableCharts"
+        (click)="expandedClicked()">
+        <i class="fa fa-line-chart"></i>
+      </button>
+      <!-- Show Calculation Graphs Button -->
+
+      <!-- App Calculation Graphs Div Starts -->
+      <div *ngIf="isExpanded" class="col-6">
+        <app-calculation-graphs class="w-50 h-50" [chartData]="graphObject">
+        </app-calculation-graphs>
+      </div>
+      <!-- App Calculation Graphs Div Ends -->
+
     </div>
+    <!-- Action Buttons Div Ends -->
   </div>
+  <!-- Form Row Div Ends -->
 </form>
-<!-- Show Date Picker Div Ends -->
+<!-- Action Buttons Form Tag Ends -->
 
 <!----- Div To Measure Identifier starts ----->
 <div #divToMeasure>
   <!----- Style For Height ----->
   <div [ngStyle]="styleForHeight">
-    <!----- Ag Grid Selector ----->
+
+    <!----- Ag Grid Tag Starts ----->
     <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="dailyPnlGrid">
     </ag-grid-angular>
+    <!----- Ag Grid Tag Ends ----->
 
   </div>
 </div>

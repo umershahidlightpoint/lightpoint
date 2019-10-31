@@ -18,7 +18,7 @@ import { takeWhile } from 'rxjs/operators';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 import { TemplateRendererComponent } from 'src/app/template-renderer/template-renderer.component';
 import { ToastrService } from 'ngx-toastr';
-import { TaxRateData } from 'src/shared/Models';
+import { TaxRateData } from 'src/shared/Models/funds-theoretical';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
 
 @Component({

@@ -1,7 +1,11 @@
-<!-- Show Date Picker Div -->
+<!-- Action Buttons Form Tag Starts -->
 <form>
+  <!-- Form Row Div Starts -->
   <div class="form-row">
+    <!-- Action Buttons Div Starts -->
     <div class="ml-auto w-100">
+
+      <!-- Action Buttons Flex End Div Starts -->
       <div class="col-12 d-flex justify-content-end">
 
         <!-- Overlapping Label Div Starts -->
@@ -9,6 +13,7 @@
           <p class="legend-label">Overlap</p>
         </div>
         <!-- Overlapping Label Div Ends -->
+
         <!-- Overlapping Color Div Starts -->
         <div *ngIf="showOverlappingBtn">
           <button class="btn overlap-color height-38px width-38px mr-2">
@@ -21,6 +26,7 @@
           <p class="legend-label">Gap</p>
         </div>
         <!-- Overlapping Label Div Ends -->
+
         <!-- Gap Color Div Starts -->
         <div *ngIf="showGapBtn">
           <button class="btn gap-color height-38px width-38px mr-2">
@@ -39,18 +45,26 @@
         </button>
         <!-- Add Tax Rate Button Ends -->
       </div>
+      <!-- Action Buttons Flex End Div Ends -->
+
     </div>
+    <!-- Action Buttons Div Ends -->
   </div>
+  <!-- Form Row Div Ends -->
 </form>
-<!-- Show Date Picker Div Ends -->
+<!-- Action Buttons Form Tag Ends -->
 
 <!-- Div To Measure Identifier Starts -->
 <div #divToMeasure>
-  <!-- Style For Height -->
+
+  <!-- Style For Height Div Starts-->
   <div [ngStyle]="styleForHeight">
-    <!-- Ag Grid Selector -->
+
+    <!-- Ag Grid Selector Starts -->
     <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="taxRatesGrid">
     </ag-grid-angular>
+    <!-- Ag Grid Selector Ends -->
+
     <!-- Action Buttons Template Starts -->
     <ng-template #actionButtons let-row>
       <button class="btn action-btn width-15 height-30px" (click)="editTaxRate(row)" tooltip="Edit" placement="auto"
@@ -63,14 +77,19 @@
       </button>
     </ng-template>
     <!-- Action Buttons Template Ends -->
+
   </div>
+  <!-- Style For Height Div Ends -->
+
 </div>
 <!-- Div To Measure Identifier Ends -->
 
-<!-- Tax Rate Modal -->
+<!-- Tax Rate Modal Selector Starts-->
 <app-tax-rate-modal #taxRateModal (closeModalEvent)="closeTaxRateModal()">
 </app-tax-rate-modal>
+<!-- Tax Rate Modal Selector Ends-->
 
-<!-- Confirmation Modal Component -->
+<!-- Confirmation Modal Component Selector Starts -->
 <app-confirmation-modal #confirmationModal (confirmDeletion)="deleteTaxRate()" [modalTitle]="'Delete Tax Rate'">
 </app-confirmation-modal>
+<!-- Confirmation Modal Component Selector Ends -->
