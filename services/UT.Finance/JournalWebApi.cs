@@ -31,12 +31,18 @@ namespace UT.Finance
         public void GetTrialBalanceReport()
         {
             var trialBalanceReport = Utils.GetWebApiData("FinanceWebApi", trialBalanceReportURL);
-
             Task.WaitAll(trialBalanceReport);
+            var response = JsonConvert.DeserializeObject<Response>(trialBalanceReport.Result);
+            var serializedStats = JsonConvert.SerializeObject(response.stats);
+            dynamic result = JsonConvert.DeserializeObject(serializedStats);
 
-            dynamic result = JsonConvert.DeserializeObject<object>(trialBalanceReport.Result);
+            var responsePayload = JsonConvert.DeserializeObject<Response>(trialBalanceReport.Result);
+            var serializedPayload = JsonConvert.SerializeObject(responsePayload.payload);
+            dynamic fResult = JsonConvert.DeserializeObject(serializedPayload);
 
-            Assert.IsTrue(result.stats.totalDebit == result.stats.totalCredit, "Total debit and credit are knocking off");
+            Assert.IsTrue(fResult.isSuccessful, "Request Call Successful");
+            Assert.IsTrue(result.totalDebit == result.totalCredit, "Total debit and credit are knocking off");
+            Assert.IsTrue(fResult.Count >= 0, "Expected Result");
         }
 
         [TestMethod]

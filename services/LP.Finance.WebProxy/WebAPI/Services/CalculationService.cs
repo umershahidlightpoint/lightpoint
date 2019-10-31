@@ -29,7 +29,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         private readonly FileProcessor fileProcessor = new FileProcessor();
         private readonly FileManagementService fileManagementService = new FileManagementService();
 
-        public object GetMonthlyPerformance(DateTime? dateFrom = null, DateTime? dateTo = null, string fund = null, string portfolio = null)
+        public object GetMonthlyPerformance(DateTime? dateFrom = null, DateTime? dateTo = null, string fund = null,
+            string portfolio = null)
         {
             List<SqlParameter> sqlParams = new List<SqlParameter>();
 
@@ -62,7 +63,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             if (dateFrom.HasValue)
             {
                 sqlParams.Add(new SqlParameter("dateFrom", dateFrom.Value.Date.ToString("yyyy-MM-dd")));
-                query += dateTo.HasValue ? " AND performance_date >= @dateFrom" : " WHERE performance_date >= @dateFrom";
+                query += dateTo.HasValue
+                    ? " AND performance_date >= @dateFrom"
+                    : " WHERE performance_date >= @dateFrom";
             }
 
             if (!IsNullOrWhiteSpace(fund))
@@ -87,7 +90,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
-            return Utils.Wrap(true,json);
+            return Utils.Wrap(true, json);
         }
 
         public object CalculateMonthlyPerformance(List<MonthlyPerformance> obj)
@@ -267,7 +270,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
             catch
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError, "An error occured during calculation");
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    "An error occured during calculation");
             }
         }
 
@@ -301,7 +305,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         private bool CheckForBeginningOfQuarter(DateTime date)
         {
-            if(date.Month == 1 || date.Month == 4 || date.Month == 7 || date.Month == 10)
+            if (date.Month == 1 || date.Month == 4 || date.Month == 7 || date.Month == 10)
             {
                 return true;
             }
@@ -389,33 +393,19 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 sqlHelper.SqlRollbackTransaction();
                 sqlHelper.CloseConnection();
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError, "An error occured while saving calculations");
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    "An error occured while saving calculations");
             }
         }
 
         public async Task<object> UploadMonthlyPerformance(HttpRequestMessage requestMessage)
         {
-            if (!requestMessage.Content.IsMimeMultipartContent())
+            var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "PerformanceData");
+            if (!uploadedResult.Item1)
                 return Utils.Wrap(false);
 
-            var provider = new MultipartMemoryStreamProvider();
-            await requestMessage.Content.ReadAsMultipartAsync(provider);
-
-            var currentDir = AppDomain.CurrentDomain.BaseDirectory;
-            Directory.CreateDirectory(currentDir + Path.DirectorySeparatorChar + "PerformanceData");
-
-            var performancePath = "";
-            var performanceFileName = "";
-            foreach (var file in provider.Contents)
-            {
-                performanceFileName = file.Headers.ContentDisposition.FileName.Trim('\"');
-                var buffer = await file.ReadAsByteArrayAsync();
-
-                performancePath = currentDir + "PerformanceData" + Path.DirectorySeparatorChar +
-                                  $"{DateTime.Now:yy-MM-dd-hh-mm-ss}-{performanceFileName}";
-
-                System.IO.File.WriteAllBytes(performancePath, buffer);
-            }
+            var performancePath = uploadedResult.Item2;
+            var performanceFileName = uploadedResult.Item3;
 
             var recordBody = fileProcessor.ImportFile(performancePath, "Performance", "PerformanceFormats", ',');
 
@@ -527,7 +517,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, auditTrailParams.ToArray());
             var jsonResult = JsonConvert.SerializeObject(dataTable);
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
-            return Utils.Wrap(true,json);
+            return Utils.Wrap(true, json);
         }
 
         public object GetDailyUnofficialPnl()
@@ -557,7 +547,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
-            return Utils.Wrap(true,json);
+            return Utils.Wrap(true, json);
         }
 
         public object GetDailyUnofficialPnlAudit()
@@ -594,7 +584,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError, "An error occured while fetching Daily Unofficial Pnl");
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    "An error occured while fetching Daily Unofficial Pnl");
             }
         }
 
@@ -631,51 +622,25 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, auditTrailParams.ToArray());
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
                 dynamic json = JsonConvert.DeserializeObject(jsonResult);
-                return Utils.Wrap(true, json, HttpStatusCode.OK, "Daily Unofficial Pnl Audit Trail fetched successfully");
+                return Utils.Wrap(true, json, HttpStatusCode.OK,
+                    "Daily Unofficial Pnl Audit Trail fetched successfully");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError, "An error occured while fetching Daily Unofficial Pnl Audit Trail");
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    "An error occured while fetching Daily Unofficial Pnl Audit Trail");
             }
-        }
-
-        public async Task<Tuple<bool, string, string>> WriteFileToServer(HttpRequestMessage requestMessage)
-        {
-            if (!requestMessage.Content.IsMimeMultipartContent())
-                return new Tuple<bool, string, string>(false, null, null);
-
-            var provider = new MultipartMemoryStreamProvider();
-            await requestMessage.Content.ReadAsMultipartAsync(provider);
-
-            var currentDir = AppDomain.CurrentDomain.BaseDirectory;
-            Directory.CreateDirectory(currentDir + Path.DirectorySeparatorChar + "PerformanceData");
-
-            var performancePath = "";
-            var performanceFileName = "";
-            foreach (var file in provider.Contents)
-            {
-                performanceFileName = file.Headers.ContentDisposition.FileName.Trim('\"');
-                var buffer = await file.ReadAsByteArrayAsync();
-
-                performancePath = currentDir + "PerformanceData" + Path.DirectorySeparatorChar +
-                                  $"{DateTime.Now:yy-MM-dd-hh-mm-ss}-{performanceFileName}";
-
-                System.IO.File.WriteAllBytes(performancePath, buffer);
-            }
-
-            return new Tuple<bool, string, string>(true, performancePath, performanceFileName);
         }
 
         public async Task<object> UploadDailyUnofficialPnl(HttpRequestMessage requestMessage)
         {
-            var uploadedResult = await WriteFileToServer(requestMessage);
+            var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "PerformanceData");
             if (!uploadedResult.Item1)
-            {
                 return Utils.Wrap(false);
-            }
-            var performancePath = uploadedResult.Item2;
-            var performanceFileName = uploadedResult.Item3;
-            var recordBody = fileProcessor.ImportFile(performancePath, "DailyPnl", "PerformanceFormats", ',');
+
+            var dailyPnlPath = uploadedResult.Item2;
+            var dailyPnlFileName = uploadedResult.Item3;
+            var recordBody = fileProcessor.ImportFile(dailyPnlPath, "DailyPnl", "PerformanceFormats", ',');
 
             var records = JsonConvert.SerializeObject(recordBody.Item1);
             var performanceRecords = JsonConvert.DeserializeObject<List<DailyPnL>>(records);
@@ -692,7 +657,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             List<FileInputDto> fileList = new List<FileInputDto>
             {
-                new FileInputDto(performancePath, performanceFileName, performanceRecords.Count, "DailyUnofficialPnl",
+                new FileInputDto(dailyPnlPath, dailyPnlFileName, performanceRecords.Count, "DailyUnofficialPnl",
                     "Upload",
                     failedPerformanceList,
                     DateTime.Now)
