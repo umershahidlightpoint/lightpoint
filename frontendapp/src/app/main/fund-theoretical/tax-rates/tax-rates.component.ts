@@ -163,7 +163,7 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         filter: true
       },
       {
-        headerName: 'Long Term Tax Rate%',
+        headerName: 'Long Term Tax Rate %',
         field: 'longTermTaxRate',
         sortable: true,
         filter: true,
@@ -171,7 +171,7 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         valueFormatter: params => this.numberFormatter(params.node.data.longTermTaxRate, true)
       },
       {
-        headerName: 'Short Term Tax Rate%',
+        headerName: 'Short Term Tax Rate %',
         field: 'shortTermTaxRate',
         sortable: true,
         editable: true,

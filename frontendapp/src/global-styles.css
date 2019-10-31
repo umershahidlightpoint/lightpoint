@@ -95,7 +95,7 @@ body {
 ********    Commons    ********
 ******************************/
 .opacity-1 {
-  opacity: 1;
+  opacity: 1 !important;
 }
 
 .cursor-not-allowed {
