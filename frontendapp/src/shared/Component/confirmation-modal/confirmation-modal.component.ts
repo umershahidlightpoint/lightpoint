@@ -8,6 +8,7 @@ import { ModalDirective } from 'ngx-bootstrap';
 })
 export class ConfirmationModalComponent implements OnInit {
   @Input('modalTitle') title: string;
+  @Input('modalDescription') description = 'Are you really sure?';
   @ViewChild('confirm') confirmModal: ModalDirective;
   @Output() confirmDeletion = new EventEmitter<any>();
 
