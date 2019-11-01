@@ -24,7 +24,8 @@
           <div class="col-2">
             <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
               [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate"
-              [singleDatePicker]="true" [autoApply]="true" autocomplete="off" [showDropdowns]="true" />
+              [singleDatePicker]="true" [autoApply]="true" autocomplete="off" [showDropdowns]="true"
+              [locale]="{firstDay: 1}" />
           </div>
           <!-- Date Picker Div Ends -->
 
