@@ -125,7 +125,6 @@ export class DailyPnlComponent implements OnInit {
       {
         headerName: 'Portfolio*',
         field: 'portFolio',
-        editable: true,
         cellEditor: 'agSelectCellEditor',
         cellEditorParams: {
           values: ['None', 'PORTFOLIO A', 'ASIA_FOCUS']
@@ -135,7 +134,6 @@ export class DailyPnlComponent implements OnInit {
         headerName: 'Fund*',
         field: 'fund',
         filter: true,
-        editable: true,
         cellEditor: 'agSelectCellEditor',
         cellEditorParams: {
           values: ['None', ...this.funds]
@@ -144,52 +142,46 @@ export class DailyPnlComponent implements OnInit {
       {
         headerName: 'Trade P/L',
         field: 'tradePnL',
-        editable: true
+        valueFormatter: params => this.numberFormatter(params.node.data.tradePnL, false)
       },
       {
         headerName: 'Day',
         field: 'day',
-        editable: true
+        valueFormatter: params => this.numberFormatter(params.node.data.day, false)
       },
       {
         headerName: 'Daily % Return',
         field: 'dailyPercentageReturn',
-        editable: true
+        valueFormatter: params => this.numberFormatter(params.node.data.dailyPercentageReturn, true)
       },
       {
         headerName: 'Long P/L',
         field: 'longPnL',
-        editable: true
+        valueFormatter: params => this.numberFormatter(params.node.data.longPnL, false)
       },
       {
         headerName: 'Long % Change',
-        field: 'longPercentageChange',
-        editable: true
+        field: 'longPercentageChange'
       },
       {
         headerName: 'Short P/L',
-        field: 'shortPnL',
-        editable: true
+        field: 'shortPnL'
       },
       {
         headerName: 'Short % Change',
-        field: 'shortPercentageChange',
-        editable: true
+        field: 'shortPercentageChange'
       },
       {
         headerName: 'Long Exposure',
-        field: 'longExposure',
-        editable: true
+        field: 'longExposure'
       },
       {
         headerName: 'Short Exposure',
-        field: 'shortExposure',
-        editable: true
+        field: 'shortExposure'
       },
       {
         headerName: 'Gross Exposure',
-        field: 'grossExposure',
-        editable: true
+        field: 'grossExposure'
       },
       {
         headerName: 'Net Exposure',
@@ -237,35 +229,43 @@ export class DailyPnlComponent implements OnInit {
       },
       {
         headerName: 'MTD % Return',
-        field: 'mtdPercentageReturn'
+        field: 'mtdPercentageReturn',
+        valueFormatter: params => this.numberFormatter(params.node.data.mtdPercentageReturn, true)
       },
       {
         headerName: 'QTD % Return',
-        field: 'qtdPercentageReturn'
+        field: 'qtdPercentageReturn',
+        valueFormatter: params => this.numberFormatter(params.node.data.qtdPercentageReturn, true)
       },
       {
         headerName: 'YTD % Return',
-        field: 'ytdPercentageReturn'
+        field: 'ytdPercentageReturn',
+        valueFormatter: params => this.numberFormatter(params.node.data.ytdPercentageReturn, true)
       },
       {
         headerName: 'ITD % Return',
-        field: 'itdPercentageReturn'
+        field: 'itdPercentageReturn',
+        valueFormatter: params => this.numberFormatter(params.node.data.itdPercentageReturn, true)
       },
       {
         headerName: 'MTD PnL',
-        field: 'mtdPnL'
+        field: 'mtdPnL',
+        valueFormatter: params => this.numberFormatter(params.node.data.mtdPnL, false)
       },
       {
         headerName: 'QTD PnL',
-        field: 'qtdPnL'
+        field: 'qtdPnL',
+        valueFormatter: params => this.numberFormatter(params.node.data.qtdPnL, false)
       },
       {
         headerName: 'YTD PnL',
-        field: 'ytdPnL'
+        field: 'ytdPnL',
+        valueFormatter: params => this.numberFormatter(params.node.data.ytdPnL, false)
       },
       {
         headerName: 'ITD PnL',
-        field: 'itdPnL'
+        field: 'itdPnL',
+        valueFormatter: params => this.numberFormatter(params.node.data.itdPnL, false)
       },
       {
         headerName: 'Created By',
