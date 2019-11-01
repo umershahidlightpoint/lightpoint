@@ -398,6 +398,29 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
+        private bool InsertDailyPnl(List<DailyPnL> obj)
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+            try
+            {
+                sqlHelper.VerifyConnection();
+                sqlHelper.SqlBeginTransaction();
+
+                new SQLBulkHelper().Insert("unofficial_daily_pnl", obj.ToArray(), sqlHelper.GetConnection(),
+                    sqlHelper.GetTransaction());
+                
+                sqlHelper.SqlCommitTransaction();
+                sqlHelper.CloseConnection();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                sqlHelper.SqlRollbackTransaction();
+                sqlHelper.CloseConnection();
+                return false;
+            }
+        }
+
         public async Task<object> UploadMonthlyPerformance(HttpRequestMessage requestMessage)
         {
             var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "PerformanceData");
@@ -501,7 +524,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public decimal CalculateDailyMTD(DailyPnL current, DailyPnL prior)
         {
-            var convertedPriorDaily = prior.DailyPercentageReturn.Value + 1;
+            var convertedPriorDaily = prior.MTDPercentageReturn.Value + 1;
             var convertedCurrentDaily = current.DailyPercentageReturn.HasValue ? current.DailyPercentageReturn.Value + 1 : 1;
             return Math.Round((convertedPriorDaily * convertedCurrentDaily) - 1, 16);
         }
@@ -634,28 +657,30 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public async Task<object> UploadDailyUnofficialPnl(HttpRequestMessage requestMessage)
         {
-            var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "PerformanceData");
-            if (!uploadedResult.Item1)
-                return Utils.Wrap(false);
-
-            var dailyPnlPath = uploadedResult.Item2;
-            var dailyPnlFileName = uploadedResult.Item3;
-            var recordBody = fileProcessor.ImportFile(dailyPnlPath, "DailyPnl", "PerformanceFormats", ',');
-
-            var records = JsonConvert.SerializeObject(recordBody.Item1);
-            var performanceRecords = JsonConvert.DeserializeObject<List<DailyPnL>>(records);
-
-            var failedRecords = new Dictionary<object, Row>();
-            var key = 0;
-            foreach (var item in recordBody.Item2)
+            try
             {
-                failedRecords.Add(key++, item);
-            }
+                var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "PerformanceData");
+                if (!uploadedResult.Item1)
+                    return Utils.Wrap(false);
 
-            var failedPerformanceList =
-                fileManagementService.MapFailedRecords(failedRecords, DateTime.Now, uploadedResult.Item3);
+                var dailyPnlPath = uploadedResult.Item2;
+                var dailyPnlFileName = uploadedResult.Item3;
+                var recordBody = fileProcessor.ImportFile(dailyPnlPath, "DailyPnl", "PerformanceFormats", ',');
 
-            List<FileInputDto> fileList = new List<FileInputDto>
+                var records = JsonConvert.SerializeObject(recordBody.Item1);
+                var performanceRecords = JsonConvert.DeserializeObject<List<DailyPnL>>(records);
+
+                var failedRecords = new Dictionary<object, Row>();
+                var key = 0;
+                foreach (var item in recordBody.Item2)
+                {
+                    failedRecords.Add(key++, item);
+                }
+
+                var failedPerformanceList =
+                    fileManagementService.MapFailedRecords(failedRecords, DateTime.Now, uploadedResult.Item3);
+
+                List<FileInputDto> fileList = new List<FileInputDto>
             {
                 new FileInputDto(dailyPnlPath, dailyPnlFileName, performanceRecords.Count, "DailyUnofficialPnl",
                     "Upload",
@@ -663,12 +688,25 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     DateTime.Now)
             };
 
-            fileManagementService.InsertActivityAndPositionFilesForSilver(fileList);
-            var dailyPerformanceResult = CalculateDailyPerformance(performanceRecords);
-            var dailyPerformance = dailyPerformanceResult.GetType().GetProperty("payload")
-                ?.GetValue(dailyPerformanceResult, null);
+                fileManagementService.InsertActivityAndPositionFilesForSilver(fileList);
+                var dailyPerformanceResult = CalculateDailyPerformance(performanceRecords);
+                var dailyPerformance = dailyPerformanceResult.GetType().GetProperty("payload")
+                    ?.GetValue(dailyPerformanceResult, null);
+                bool insertDailyPnl = InsertDailyPnl((List<DailyPnL>)dailyPerformance);
+                if (insertDailyPnl)
+                {
+                    return Utils.Wrap(true, dailyPerformance, null);
+                }
+                else
+                {
+                    return Utils.Wrap(false);
+                }
+            }
+            catch(Exception ex)
+            {
+                return Utils.Wrap(false);
 
-            return Utils.Wrap(true, dailyPerformance, null);
+            }
         }
 
         public object CalculateDailyPerformance(List<DailyPnL> performanceRecords)
