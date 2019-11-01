@@ -423,6 +423,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public async Task<object> UploadMonthlyPerformance(HttpRequestMessage requestMessage)
         {
+            if (!ClearMonthlyPerformance())
+            {
+                return Utils.Wrap(false, "Monthly Performance data could not be deleted! Please try again.");
+            }
+
             var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "PerformanceData");
             if (!uploadedResult.Item1)
                 return Utils.Wrap(false);
@@ -459,6 +464,32 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 ?.GetValue(monthlyPerformanceResult, null);
 
             return Utils.Wrap(true, monthlyPerformance, HttpStatusCode.OK);
+        }
+
+        private bool ClearMonthlyPerformance()
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+
+            try
+            {
+                sqlHelper.VerifyConnection();
+
+                var monthlyPerformanceQuery = $@"DELETE FROM [monthly_performance_history];
+                                                DELETE FROM [monthly_performance]";
+
+                sqlHelper.Delete(monthlyPerformanceQuery, CommandType.Text);
+
+                sqlHelper.CloseConnection();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                sqlHelper.CloseConnection();
+                Console.WriteLine($"SQL Rollback Transaction Exception: {ex}");
+
+                return false;
+            }
         }
 
         public decimal CalculateYTDPerformance(MonthlyPerformance current, MonthlyPerformance prior)

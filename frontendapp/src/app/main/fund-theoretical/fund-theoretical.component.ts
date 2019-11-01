@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
@@ -18,6 +18,7 @@ import * as moment from 'moment';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { MonthlyPerformanceData } from 'src/shared/Models/funds-theoretical';
 import { DataGridModalComponent } from '../../../shared/Component/data-grid-modal/data-grid-modal.component';
+import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 import { DecimalPipe } from '@angular/common';
 import { AgGridCheckboxComponent } from '../../../shared/Component/ag-grid-checkbox/ag-grid-checkbox.component';
 
@@ -28,6 +29,8 @@ import { AgGridCheckboxComponent } from '../../../shared/Component/ag-grid-check
 })
 export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   @ViewChild('dataGridModal') dataGridModal: DataGridModalComponent;
+  @ViewChild('confirmationModal') confirmationModal: ConfirmationModalComponent;
+  @ViewChild('fileInput') fileInput: ElementRef;
 
   rowData: Array<Account>;
   fundTheoreticalGrid: GridOptions;
@@ -39,7 +42,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   currentMonth: string;
   currentYear: number;
   selectedDate = null;
-  showDatePicker = false;
   disableCommit = true;
   totalGridRows: number;
   generateFundsDate;
@@ -48,9 +50,15 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   fileToUpload: File = null;
   graphObject: any;
   isExpanded = false;
+  disableFileUpload = true;
   disableCharts = true;
   isTaxRateActive = false;
   isDailyPnLActive = false;
+
+  confirmOption = {
+    generateRows: false,
+    uploadRows: false
+  };
 
   monthsArray = [
     { id: 0, month: 'January' },
@@ -144,9 +152,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         this.monthlyPerformanceData.push(this.createRow(this.currentYear, this.currentMonth, 0));
       }
 
-      if (this.monthlyPerformanceData.length === 0) {
-        this.showDatePicker = true;
-      }
       this.fundTheoreticalGrid.api.setRowData(this.monthlyPerformanceData);
     });
   }
@@ -465,6 +470,15 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   }
 
   generateRows() {
+    if (this.monthlyPerformanceData.length > 0) {
+      this.confirmOption.generateRows = true;
+      this.confirmationModal.showModal();
+    } else {
+      this.generateMonthlyPerformanceRows();
+    }
+  }
+
+  private generateMonthlyPerformanceRows() {
     const today = moment();
     const totalMonths = today.diff(this.generateFundsDate, 'months');
     let count = 0;
@@ -483,13 +497,24 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       count++;
     }
     this.totalGridRows = count;
-    this.showDatePicker = false;
     this.disableCharts = false;
+    this.selectedDate = null;
+    this.confirmOption.generateRows = false;
     this.fundTheoreticalGrid.api.setRowData(this.monthlyPerformanceData);
   }
 
   onFileInput(files: FileList) {
+    this.disableFileUpload = false;
     this.fileToUpload = files.item(0);
+  }
+
+  uploadRows() {
+    if (this.monthlyPerformanceData.length > 0) {
+      this.confirmOption.uploadRows = true;
+      this.confirmationModal.showModal();
+    } else {
+      this.uploadMonthlyPerformance();
+    }
   }
 
   uploadMonthlyPerformance() {
@@ -504,13 +529,24 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         this.fundTheoreticalGrid.api.setRowData(this.monthlyPerformanceData);
         AutoSizeAllColumns(this.fundTheoreticalGrid);
 
-        this.showDatePicker = false;
-        this.disableCharts = false;
+        this.disableFileUpload = true;
+        this.fileInput.nativeElement.value = '';
+        this.confirmOption.uploadRows = false;
         this.disableCommit = false;
+        this.disableCharts = false;
       } else {
         this.toastrService.error('Something went wrong! Try Again.');
       }
     });
+  }
+
+  confirmReset() {
+    const { generateRows, uploadRows } = this.confirmOption;
+    if (generateRows) {
+      this.generateMonthlyPerformanceRows();
+    } else if (uploadRows) {
+      this.uploadMonthlyPerformance();
+    }
   }
 
   doCalculation() {
