@@ -1,5 +1,6 @@
 ﻿using LP.Finance.Common.Models;
 using PostingEngine.Contracts;
+using PostingEngine.MarketData;
 using PostingEngine.PostingRules;
 using PostingEngine.TaxLotMethods;
 using System;
@@ -72,8 +73,11 @@ namespace PostingEngine
         public Dictionary<string, IPostingRule> rules = new Dictionary<string, IPostingRule>
         {
             {"Common Stock", new CommonStock() },
+            {"Equity Option", new EquityOption() },
+            {"Equity Swap", new DefaultRule() },
+            {"Physical index future.", new DefaultRule() },
             {"Journals", new FakeJournals() },
-            //{"Cross", new Cross() },
+            // -- {"Cross", new Cross() },
             {"Cash", new Cash() },
         };
 
@@ -154,6 +158,11 @@ namespace PostingEngine
             if (debit)
                 return value;
 
+            if (debitAccount.Type.Category.Id == creditAccount.Type.Category.Id)
+            {
+                return value * -1;
+            }
+
             if (debitAccount.Type.Category.Id == AccountCategory.AC_ASSET && creditAccount.Type.Category.Id == AccountCategory.AC_LIABILITY)
                 return value;
 
@@ -165,6 +174,9 @@ namespace PostingEngine
 
             if (debitAccount.Type.Category.Id == AccountCategory.AC_LIABILITY && creditAccount.Type.Category.Id == AccountCategory.AC_REVENUES)
                 return value * -1;
+
+            if (debitAccount.Type.Category.Id == AccountCategory.AC_ASSET && creditAccount.Type.Category.Id == AccountCategory.AC_REVENUES)
+                return value;
 
             return value;
         }

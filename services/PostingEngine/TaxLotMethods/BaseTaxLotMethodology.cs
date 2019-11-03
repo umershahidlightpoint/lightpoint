@@ -1,5 +1,6 @@
 ﻿using LP.Finance.Common.Models;
 using PostingEngine.Contracts;
+using PostingEngine.MarketData;
 using System.Collections.Generic;
 using System.Linq;
 

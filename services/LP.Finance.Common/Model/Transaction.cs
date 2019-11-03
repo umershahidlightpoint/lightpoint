@@ -48,6 +48,8 @@ namespace LP.Finance.Common.Models
         public string Status { get; set; }
         public string TransactionType { get; set; }
 
+        public string BloombergCode { get; set; }
+
         public string Long
         {
             get

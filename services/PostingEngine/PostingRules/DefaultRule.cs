@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace PostingEngine.PostingRules
 {
-    public class CommonStock : PostingRule, IPostingRule
+    public class DefaultRule : PostingRule, IPostingRule
     {
         public bool IsValid(PostingEngineEnvironment env, Transaction element)
         {
@@ -158,7 +158,7 @@ namespace PostingEngine.PostingRules
                 fxrate = Convert.ToDouble(env.FxRates[element.SettleCurrency].Rate);
             }
 
-            var moneyUSD = Math.Abs(element.NetMoney) / fxrate;
+            var moneyUSD = element.NetMoney / fxrate;
 
             if (element.NetMoney != 0.0)
             {
@@ -451,7 +451,6 @@ namespace PostingEngine.PostingRules
                                 {
 
                                 }
-
                                 var PnL = Math.Abs(tl.Quantity) * (tl.CostBasis - tl.TradePrice);
                                 PostRealizedPnl(
                                     env, 
@@ -482,7 +481,7 @@ namespace PostingEngine.PostingRules
                                     When = env.ValueDate,
                                     StartPrice = tl.TradePrice,
                                     EndPrice = tl.CostBasis,
-                                    Value = env.SignedValue(fromAccount, toAccount, true, PnL),
+                                    Value = PnL,
                                     FxCurrency = element.TradeCurrency,
                                     Quantity = element.Quantity,
                                     Symbol = element.Symbol,
@@ -503,7 +502,7 @@ namespace PostingEngine.PostingRules
                                     Quantity = element.Quantity,
                                     FxRate = 1,
                                     CreditDebit = env.DebitOrCredit(toAccount, PnL * -1),
-                                    Value = env.SignedValue(fromAccount, toAccount, false, PnL),
+                                    Value = PnL * -1,
                                     Event = "realizedpnl",
                                     Fund = tradeAllocations[0].Fund,
                                 };
@@ -591,17 +590,15 @@ namespace PostingEngine.PostingRules
 
             if (element.NetMoney != 0.0)
             {
-                var moneyUSD = Math.Abs(element.NetMoney) / fxrate;
-
-                // BUY -- Debit
-                // SELL -- Credit
-
+                var moneyUSD = element.NetMoney / fxrate;
                 if ( element.IsSell() || element.IsCover())
+                {
                     moneyUSD = moneyUSD * -1;
+                }
 
                 var eodPrice = env.EODMarketPrices[element.Symbol].Price;
 
-                var fromJournal = new Journal(accountToFrom.From, "tradedate", env.ValueDate)
+                var debitJournal = new Journal(accountToFrom.From, "tradedate", env.ValueDate)
                 {
                     Source = debitEntry.LpOrderId,
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
@@ -615,7 +612,7 @@ namespace PostingEngine.PostingRules
                     Fund = debitEntry.Fund,
                 };
 
-                var toJournal = new Journal(accountToFrom.To, "tradedate", env.ValueDate)
+                var creditJournal = new Journal(accountToFrom.To, "tradedate", env.ValueDate)
                 {
                     Source = creditEntry.LpOrderId,
                     FxCurrency = element.TradeCurrency,
@@ -629,7 +626,7 @@ namespace PostingEngine.PostingRules
                     Fund = creditEntry.Fund,
                 };
 
-                env.Journals.AddRange(new[] { fromJournal, toJournal });
+                env.Journals.AddRange(new[] { debitJournal, creditJournal });
             }
         }
 
@@ -651,7 +648,7 @@ namespace PostingEngine.PostingRules
 
             }
 
-            var fromJournal = new Journal
+            var debitJournal = new Journal
             {
                 Source = element.LpOrderId,
                 Account = accountToFrom.From,
@@ -659,7 +656,7 @@ namespace PostingEngine.PostingRules
                 StartPrice = start,
                 EndPrice = end,
                 CreditDebit = env.DebitOrCredit(accountToFrom.From, pnL),
-                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, pnL),
+                Value = pnL,
                 FxCurrency = element.TradeCurrency,
                 Quantity = element.Quantity,
                 Symbol = element.Symbol,
@@ -668,23 +665,22 @@ namespace PostingEngine.PostingRules
                 Fund = tradeAllocations[0].Fund,
             };
 
-            var toJournal = new Journal(accountToFrom.To, "realizedpnl", env.ValueDate)
+            var creditJournal = new Journal(accountToFrom.To, "realizedpnl", env.ValueDate)
             {
                 Source = element.LpOrderId,
+                Account = accountToFrom.To,
                 FxCurrency = element.TradeCurrency,
                 StartPrice = start,
                 EndPrice = end,
                 Symbol = element.Symbol,
                 Quantity = element.Quantity,
                 FxRate = 1,
-                Fund = tradeAllocations[0].Fund,
-
-                Account = accountToFrom.To,
                 CreditDebit = env.DebitOrCredit(accountToFrom.To, pnL * -1),
-                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, pnL),
+                Value = pnL * -1,
+                Fund = tradeAllocations[0].Fund,
             };
 
-            env.Journals.AddRange(new[] { fromJournal, toJournal });
+            env.Journals.AddRange(new[] { debitJournal, creditJournal });
         }
         private void PostUnRealizedPnl(PostingEngineEnvironment env, Transaction element, double unrealizedPnl, double start, double end, double fxrate)
         {

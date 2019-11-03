@@ -2,6 +2,7 @@
 using LP.Finance.Common.Models;
 using Newtonsoft.Json;
 using PostingEngine.Contracts;
+using PostingEngine.MarketData;
 using PostingEngine.PostingRules;
 using PostingEngine.TaxLotMethods;
 using SqlDAL.Core;
@@ -24,7 +25,7 @@ namespace PostingEngine
         private static readonly string
             connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
-        private static readonly string root = "http://localhost";
+        private static readonly string root = "http://dev11";
 
         private static readonly string accrualsURL = root + ":9091/api/accruals/data?period=";
         private static readonly string tradesURL = root + ":9091/api/trade/data?period=";

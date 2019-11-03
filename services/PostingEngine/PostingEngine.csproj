@@ -51,10 +51,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Contracts\WhatSide.cs" />
-    <Compile Include="FxRates.cs" />
+    <Compile Include="MarketData\CostBasises.cs" />
+    <Compile Include="MarketData\FxRate.cs" />
+    <Compile Include="MarketData\FxRates.cs" />
+    <Compile Include="MarketData\MarketPrice.cs" />
+    <Compile Include="MarketData\MarketPrices.cs" />
+    <Compile Include="MarketData\TaxRate.cs" />
+    <Compile Include="MarketData\TaxRates.cs" />
+    <Compile Include="MarketData\TradeTaxRate.cs" />
     <Compile Include="Posting.cs" />
     <Compile Include="PostingEngineEnvironment.cs" />
     <Compile Include="PostingRules\Cash.cs" />
+    <Compile Include="PostingRules\DefaultRule.cs" />
+    <Compile Include="PostingRules\EquityOption.cs" />
     <Compile Include="PostingRules\Cross.cs" />
     <Compile Include="PostingRules\PostingRule.cs" />
     <Compile Include="TaxLotMethods\BaseTaxLotMethodology.cs" />

@@ -597,10 +597,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         (SUM(summary.Debit) over()) as DebitSum, 
                         (SUM(summary.Credit) over()) as CreditSum
                         from ( 
-                        select account_id, 
-                        sum( (CASE WHEN value < 0 THEN value else 0 END  )) Debit,
-                        sum( (CASE WHEN value > 0 THEN value else 0 END  )) Credit
-				        from journal with(nolock) ";
+                            select account_id, 
+                            sum(debit) Debit,
+                            sum(credit) Credit
+				            from vwJournal with(nolock) ";
 
             List<SqlParameter> sqlParams = new List<SqlParameter>();
 
