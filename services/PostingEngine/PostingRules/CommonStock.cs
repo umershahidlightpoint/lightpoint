@@ -599,7 +599,7 @@ namespace PostingEngine.PostingRules
                 if ( element.IsSell() || element.IsCover())
                     moneyUSD = moneyUSD * -1;
 
-                var eodPrice = env.EODMarketPrices[element.Symbol].Price;
+                var eodPrice = env.EODMarketPrices[element.BloombergCode].Price;
 
                 var fromJournal = new Journal(accountToFrom.From, "tradedate", env.ValueDate)
                 {

@@ -74,11 +74,13 @@ namespace PostingEngine
         {
             {"Common Stock", new CommonStock() },
             {"Equity Option", new EquityOption() },
+            {"Journals", new FakeJournals() },
+            {"Cash", new Cash() },
+            // -- {"Cross", new Cross() },
+
+            // Default for the moment
             {"Equity Swap", new DefaultRule() },
             {"Physical index future.", new DefaultRule() },
-            {"Journals", new FakeJournals() },
-            // -- {"Cross", new Cross() },
-            {"Cash", new Cash() },
         };
 
         internal double CalculateCB(Transaction element, string symbol, string side)

@@ -643,7 +643,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
 
             query = query +
-                    "  group by journal.account_id ) summary right join  account on summary.account_id= account.id ";
+                    "  group by vwJournal.account_id ) summary right join  account on summary.account_id= account.id ";
 
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
 
