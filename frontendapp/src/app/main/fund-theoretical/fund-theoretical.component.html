@@ -21,20 +21,22 @@
         <div class="form-row">
 
           <!-- Date Picker Div Starts -->
-          <div class="col-2" *ngIf="showDatePicker">
+          <div class="col-2">
             <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
               [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate"
-              [singleDatePicker]="true" [autoApply]="true" autocomplete="off" [showDropdowns]="true" />
+              [singleDatePicker]="true" [autoApply]="true" autocomplete="off" [showDropdowns]="true"
+              [locale]="{firstDay: 1}" />
           </div>
           <!-- Date Picker Div Ends -->
 
           <!-- Generate Rows Div Starts -->
-          <div class="col-6" *ngIf="showDatePicker">
+          <div class="col-6">
             <button class="btn btn-info" type="button" (click)="generateRows()" [disabled]="!generateFundsDate">
               Generate Rows
             </button>
-            <input class="btn btn-info file-upload-btn" type="file" (change)="onFileInput($event.target.files)">
-            <button class="btn btn-info ml-2" type="button" (click)="uploadMonthlyPerformance()">
+            <input #fileInput class="btn btn-info file-upload-btn" type="file"
+              (change)="onFileInput($event.target.files)">
+            <button class="btn btn-info ml-2" type="button" (click)="uploadRows()" [disabled]="disableFileUpload">
               Upload
             </button>
           </div>
@@ -110,3 +112,8 @@
 <app-data-grid-modal #dataGridModal [gridTitle]="title">
 </app-data-grid-modal>
 <!-- Data Grid Modal Component Selector Ends -->
+
+<!-- Confirmation Modal Component -->
+<app-confirmation-modal #confirmationModal (confirmDeletion)="confirmReset()" [modalTitle]="'Reset Performance'"
+  [modalDescription]="'All your changes will be lost.\nAre you sure you want to reset performance?'">
+</app-confirmation-modal>
