@@ -784,7 +784,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                             if(priorData != null)
                             {
                                 item.MTDPercentageReturn = CalculateDailyMTD(item, priorData);
-                                item.MTDPnL = CalculateDailyPnl(item.Day, priorData.Day);
+                                item.MTDPnL = CalculateDailyPnl(item.Day, priorData.MTDPnL);
                             }
                             else
                             {
