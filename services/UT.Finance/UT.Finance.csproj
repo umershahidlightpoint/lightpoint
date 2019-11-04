@@ -53,6 +53,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DailyPnLWebApi.cs" />
     <Compile Include="FileManagementWebApi.cs" />
     <Compile Include="GridViewsWebApi.cs" />
     <Compile Include="Prices.cs" />

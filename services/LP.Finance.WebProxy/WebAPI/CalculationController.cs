@@ -90,5 +90,11 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return await controller.UploadDailyUnofficialPnl(Request);
         }
+
+        [HttpPost, Route("dailyUnofficialPnlAudit/calculate")]
+        public object CalculateDailyUnofficialPnl(List<DailyPnL> obj)
+        {
+            return controller.CalculateDailyUnofficialPnl(obj);
+        }
     }
 }
