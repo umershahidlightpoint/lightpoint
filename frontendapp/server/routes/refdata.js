@@ -2,10 +2,11 @@ const express = require('express');
 const http = require('http');
 const router = express.Router();
 
-/* GET API Listing */
+const rootUri = 'http://localhost:9091/api';
+
+/* GET API */
 router.get('*', (req, res) => {
-  var rootUri = 'http://localhost:9091/api';
-  console.log(rootUri + req.url);
+  console.log('GET ::', rootUri + req.url);
 
   http
     .get(rootUri + req.url, response => {
