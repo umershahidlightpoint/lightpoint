@@ -65,8 +65,47 @@ export class DailyPnlComponent implements OnInit {
   }
 
   getDailyPnL() {
-    this.financeService.getMonthlyPerformance().subscribe(response => {
-      this.dailyPnLData = response.data;
+    this.financeService.getDailyUnofficialPnL().subscribe(response => {
+      //this.dailyPnLData = response.data;
+      this.dailyPnLData = response.payload.map(data => ({
+        businessDate: DateFormatter(data.BusinessDate),
+        fund: data.Fund,
+        portFolio: data.PortFolio,
+        tradePnL: data.TradePnL,
+        day: data.Day,
+        dailyPercentageReturn: data.DailyPercentageReturn,
+        longPnL: data.LongPnL,
+        longPercentageChange: data.LongPercentageChange,
+        shortPnL: data.ShortPnL,
+        shortPercentageChange: data.ShortPercentageChange,
+        longExposure: data.LongExposure,
+        shortExposure: data.ShortExposure,
+        grossExposure: data.GrossExposure,
+        netExposure: data.NetExposure,
+        sixMdBetaNetExposure: data.SixMdBetaNetExposure,
+        twoYwBetaNetExposure: data.TwoYwBetaNetExposure,
+        sixMdBetaShortExposure: data.SixMdBetaShortExposure,
+        navMarket: data.NavMarket,
+        dividendUSD: data.DividendUSD,
+        commUSD: data.CommUSD,
+        feeTaxesUSD: data.FeeTaxesUSD,
+        financingUSD: data.FinancingUSD,
+        otherUSD: data.OtherUSD,
+        pnLPercentage: data.PnLPercentage,
+        mtdPercentageReturn: data.MTDPercentageReturn,
+        qtdPercentageReturn: data.QTDPercentageReturn,
+        ytdPercentageReturn: data.YTDPercentageReturn,
+        itdPercentageReturn: data.ITDPercentageReturn,
+        mtdPnL: data.MTDPnL,
+        qtdPnL: data.QTDPnL,
+        ytdPnL: data.YTDPnL,
+        itdPnL: data.ITDPnL,
+        createdBy: data.CreatedBy,
+        lastUpdatedBy: data.LastUpdatedBy,
+        createdDate: data.CreatedDate,
+        lastUpdatedDate: data.lastUpdatedDate
+      }));
+      this.dailyPnlGrid.api.setRowData(this.dailyPnLData);
     });
   }
 
@@ -411,8 +450,8 @@ export class DailyPnlComponent implements OnInit {
   }
 
   refreshGrid() {
-    // this.dailyPnlGrid.api.showLoadingOverlay();
-    // this.getDailyPnL();
+    this.dailyPnlGrid.api.showLoadingOverlay();
+    this.getDailyPnL();
   }
 
   numberFormatter(numberToFormat, isInPercentage) {

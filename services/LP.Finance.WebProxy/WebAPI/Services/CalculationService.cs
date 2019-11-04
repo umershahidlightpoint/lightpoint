@@ -406,6 +406,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.VerifyConnection();
                 sqlHelper.SqlBeginTransaction();
 
+                var monthlyPerformanceQuery = $@"DELETE FROM [unofficial_daily_pnl];";
+
+                sqlHelper.Delete(monthlyPerformanceQuery, CommandType.Text);
+
                 new SQLBulkHelper().Insert("unofficial_daily_pnl", obj.ToArray(), sqlHelper.GetConnection(),
                     sqlHelper.GetTransaction());
                 
@@ -491,6 +495,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 return false;
             }
         }
+
 
         public decimal CalculateYTDPerformance(MonthlyPerformance current, MonthlyPerformance prior)
         {
@@ -617,7 +622,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                           ,[qtd_pnl] as QTDPnL
                           ,[ytd_pnl] as YTDPnL
                           ,[itd_pnl] as ITDPnL
-                      FROM [dbo].[unofficial_daily_pnl]";
+                      FROM [dbo].[unofficial_daily_pnl] ORDER BY business_date ASC, id ASC";
 
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
 
