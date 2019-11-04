@@ -6,6 +6,7 @@ using LP.Finance.Common.Dtos;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using PostingEngine;
+using PostingEngine.MarketData;
 
 namespace UT.Finance
 {

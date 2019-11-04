@@ -7,6 +7,20 @@ namespace LP.Finance.Common.Model
 {
     public class DailyPnL : IDbModel
     {
+        public DailyPnL()
+        {
+
+        }
+        public DailyPnL(DateTime businessDate, string portfolio, string fund, decimal tradePnL, decimal day, decimal dailyPercentageReturn)
+        {
+            this.BusinessDate = businessDate;
+            this.PortFolio = portfolio;
+            this.Fund = fund;
+            this.TradePnL = tradePnL;
+            this.Day = day;
+            this.DailyPercentageReturn = dailyPercentageReturn;
+        }
+
         public int Id { get; set; }
         public int RowId { get; set; }
         public bool Modified { get; set; }

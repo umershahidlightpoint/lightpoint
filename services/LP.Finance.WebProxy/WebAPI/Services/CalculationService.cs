@@ -887,5 +887,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             return Utils.Wrap(true, sorted, HttpStatusCode.OK, "Performance calculated successfully");
         }
+
+        public object CalculateDailyUnofficialPnl(List<DailyPnL> obj)
+        {
+            return CalculateDailyPerformance(obj);
+        }
     }
 }

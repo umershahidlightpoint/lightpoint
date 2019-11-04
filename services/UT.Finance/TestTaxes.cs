@@ -20,7 +20,7 @@ namespace UT.Finance
             var date = DateTime.Now.Date;
             var businessDate = date.BusinessDate().Date;
 
-            var taxRate = new TaxRates().Get(businessDate);
+            var taxRate = new PostingEngine.MarketData.TaxRates().Get(businessDate);
 
             Assert.IsTrue(taxRate != null, $"expected Taxrate for {businessDate}");
             Assert.IsTrue(taxRate != null && taxRate.ShortTermPeriod == 365, $"expected 365 for short term period");
