@@ -76,7 +76,7 @@
 
             <!-- App Calculation Graphs Div Starts -->
             <div *ngIf="isExpanded" class="col-6">
-              <app-calculation-graphs class="w-50 h-50" [chartData]="graphObject">
+              <app-calculation-graphs class="w-50 h-50" [chartData]="graphObject" [mode]="'many'">
               </app-calculation-graphs>
             </div>
             <!-- App Calculation Graphs Div Ends -->

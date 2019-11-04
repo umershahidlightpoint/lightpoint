@@ -574,65 +574,56 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return Utils.Wrap(true, json);
         }
 
+       
+
         public object GetDailyUnofficialPnl()
-        {
-            var query = $@"SELECT id AS Id,
-                           created_date as Created_Date,
-                            last_updated_date as LastUpdatedDate,
-                            created_by as CreatedBy
-                            last_updated_by as LastUpdatedBy
-                            business_date as BusinessDate,
-                            portfolio as PortFolio,
-                            fund as Fund,
-                            trading_mtd_pnl as TradingMtdPnl,
-                            calc_trading_mtd_pnl as CalcTradingMtdPnl,
-                            trading_ytd_pnl as TradingYtdPnl,
-                            mtd_final_pnl as MtdFinalPnl,
-                            ytd_final_pnl as YtdFinalPnl,
-                            mtd_ipo_pnl as MtdIpoPnl,
-                            ytd_ipo_pnl as YtdIpoPnl,
-                            mtd_total_pnl as MtdTotalPnl,
-                            calc_mtd_total as CalcMtdTotal,
-                            ytd_total_pnl as YtdTotalPnl";
-
-            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
-
-            var jsonResult = JsonConvert.SerializeObject(dataTable);
-
-            dynamic json = JsonConvert.DeserializeObject(jsonResult);
-
-            return Utils.Wrap(true, json);
-        }
-
-        public object GetDailyUnofficialPnlAudit()
         {
             try
             {
-                var query = $@"SELECT id AS Id,
-                           created_date as Created_Date,
-                            last_updated_date as LastUpdatedDate,
-                            created_by as CreatedBy
-                            last_updated_by as LastUpdatedBy
-                            business_date as BusinessDate,
-                            portfolio as PortFolio,
-                            fund as Fund,
-                            trading_mtd_pnl as TradingMtdPnl,
-                            calc_trading_mtd_pnl as CalcTradingMtdPnl,
-                            trading_ytd_pnl as TradingYtdPnl,
-                            mtd_final_pnl as MtdFinalPnl,
-                            ytd_final_pnl as YtdFinalPnl,
-                            mtd_ipo_pnl as MtdIpoPnl,
-                            ytd_ipo_pnl as YtdIpoPnl,
-                            mtd_total_pnl as MtdTotalPnl,
-                            calc_mtd_total as CalcMtdTotal,
-                            ytd_total_pnl as YtdTotalPnl
-                            from unofficial_daily_pnl";
+                var query = $@"SELECT [id] as Id
+                          ,[created_by] as CreatedBy
+                          ,[created_date] as CreatedDate
+                          ,[last_updated_by] as LastUpdatedBy
+                          ,[last_updated_date] as LastUpdatedDate
+                          ,[business_date] as BusinessDate
+                          ,[portfolio] as PortFolio
+                          ,[fund] as Fund
+                          ,[trade_pnl] as TradePnL
+                          ,[day] as Day
+                          ,[daily_percentage_return] as DailyPercentageReturn
+                          ,[long_pnl] as LongPnL
+                          ,[long_percentage_change] as LongPercentageChange
+                          ,[short_pnl] as ShortPnL
+                          ,[short_percentage_change] as ShortPercentageChange
+                          ,[long_exposure] as LongExposure
+                          ,[short_exposure] as ShortExposure
+                          ,[gross_exposure] as GrossExposure
+                          ,[net_exposure] as NetExposure
+                          ,[six_md_beta_net_exposure] as SixMdBetaNetExposure
+                          ,[two_yw_beta_net_exposure] as TwoYwBetaNetExposure
+                          ,[six_md_beta_short_exposure] as SixMdBetaShortExposure
+                          ,[nav_market] as NavMarket
+                          ,[dividend_usd] as DividendUSD
+                          ,[comm_usd] as CommUSD
+                          ,[fee_taxes_usd] as FeeTaxesUSD
+                          ,[financing_usd] as FinancingUSD
+                          ,[other_usd] as OtherUSD
+                          ,[pnl_percentage] as PnLPercentage
+                          ,[mtd_percentage_return] as MTDPercentageReturn
+                          ,[qtd_percentage_return] as QTDPercentageReturn
+                          ,[ytd_percentage_return] as YTDPercentageReturn
+                          ,[itd_percentage_return] as ITDPercentageReturn
+                          ,[mtd_pnl] as MTDPnL
+                          ,[qtd_pnl] as QTDPnL
+                          ,[ytd_pnl] as YTDPnL
+                          ,[itd_pnl] as ITDPnL
+                      FROM [dbo].[unofficial_daily_pnl]";
 
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
 
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
 
-                dynamic json = JsonConvert.DeserializeObject(jsonResult);
+                var json = JsonConvert.DeserializeObject<List<DailyPnL>>(jsonResult);
 
                 return Utils.Wrap(true, json, HttpStatusCode.OK, "Daily Unofficial Pnl fetched successfully");
             }

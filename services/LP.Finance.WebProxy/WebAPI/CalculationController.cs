@@ -75,7 +75,7 @@ namespace LP.Finance.WebProxy.WebAPI
         [HttpGet]
         public object GetDailyUnofficialPnl()
         {
-            return controller.GetMonthlyPerformance();
+            return controller.GetDailyUnofficialPnl();
         }
 
         [Route("dailyUnofficialPnlAudit")]

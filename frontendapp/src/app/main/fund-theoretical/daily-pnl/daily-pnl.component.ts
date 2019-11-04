@@ -15,6 +15,7 @@ import { FinancePocServiceProxy } from 'src/shared/service-proxies/service-proxi
 import { ToastrService } from 'ngx-toastr';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
 import { DailyUnofficialPnLData } from 'src/shared/Models/funds-theoretical';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-daily-pnl',
@@ -29,6 +30,10 @@ export class DailyPnlComponent implements OnInit {
   fileToUpload: File = null;
   totalGridRows: number;
   isExpanded = false;
+  graphObject: any = null;
+  disableCharts = true;
+  sliderValue = 0;
+  
 
   styleForHeight = HeightStyle(224);
 
@@ -305,23 +310,42 @@ export class DailyPnlComponent implements OnInit {
 
   getContextMenuItems(params) {
     const addDefaultItems = [
-      // {
-      //   name: 'Add Row',
-      //   action: () => {
-      //   }
-      // },
-      // {
-      //   name: 'Delete Row',
-      //   action: () => {
-      //   }
-      // },
-      // {
-      //   name: 'View Audit Trail',
-      //   action: () => {
-      //   }
-      // }
+      {
+        name: 'Visualize',
+        action: () => {
+          this.visualizeData(); 
+        }
+      }
     ];
     return GetContextMenu(false, addDefaultItems, true, null, params);
+  }
+
+  expandedClicked() {
+    this.isExpanded = !this.isExpanded;
+  }
+
+  visualizeData() {
+    const focusedCell = this.dailyPnlGrid.api.getFocusedCell();
+    const selectedRow = this.dailyPnlGrid.api.getDisplayedRowAtIndex(focusedCell.rowIndex).data;
+    const column = focusedCell.column.getColDef().field;
+    const columnLabel = focusedCell.column.getUserProvidedColDef().headerName;
+    this.graphObject = [{ label: columnLabel, data: [] }];
+    const toDate = moment(selectedRow.businessDate);
+    const fromDate = moment(selectedRow.businessDate).subtract(30, 'days');
+    const selectedPortfolio = selectedRow.portFolio;
+    this.dailyPnlGrid.api.forEachNodeAfterFilter((rowNode, index) => {
+      let currentDate = moment(rowNode.data.businessDate);
+      if(rowNode.data.portFolio === selectedPortfolio && currentDate.isSameOrAfter(fromDate) && currentDate.isSameOrBefore(toDate)){
+        this.graphObject.forEach(element => {
+          element.data.push({
+            date: rowNode.data.businessDate,
+            value: rowNode.data[column]
+          })
+        });
+      }
+    });
+    this.isExpanded = true;
+    this.disableCharts = false;
   }
 
   uploadDailyUnofficialPnl() {

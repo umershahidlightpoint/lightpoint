@@ -152,6 +152,9 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         this.monthlyPerformanceData.push(this.createRow(this.currentYear, this.currentMonth, 0));
       }
 
+      if(this.monthlyPerformanceData.length > 0){
+        this.disableCharts = false;
+      }
       this.fundTheoreticalGrid.api.setRowData(this.monthlyPerformanceData);
     });
   }
