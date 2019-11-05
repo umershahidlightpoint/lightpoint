@@ -31,9 +31,9 @@ namespace UT.Finance
 
             Task.WaitAll(getCostBasisReport);
 
-            dynamic result = JsonConvert.DeserializeObject<object>(getCostBasisReport.Result);
+            var result = JsonConvert.DeserializeObject<Response>(getCostBasisReport.Result);
 
-            Assert.IsTrue(result.data.Count >= 0, "Expected result");
+            Assert.IsTrue(result.isSuccessful, "Expected successful response");
 
         }
 
@@ -45,9 +45,9 @@ namespace UT.Finance
 
             Task.WaitAll(getTaxLotReport);
 
-            dynamic result = JsonConvert.DeserializeObject<object>(getTaxLotReport.Result);
+            var result = JsonConvert.DeserializeObject<Response>(getTaxLotReport.Result);
 
-            Assert.IsTrue(result.data.Count >= 0, "Expected result");
+            Assert.IsTrue(result.isSuccessful, "Expected successful response");
 
         }
 
