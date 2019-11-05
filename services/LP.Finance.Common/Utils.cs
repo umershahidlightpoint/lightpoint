@@ -171,6 +171,23 @@ namespace LP.Finance.Common
             return await result;
         }
 
+        public static async Task<string> DeleteWebApi(string webApi, string webUri)
+        {
+            Task<string> result = null;
+
+            var client = new HttpClient();
+            string projectWebApi = ConfigurationManager.AppSettings[webApi];
+            var url = $"{projectWebApi}{webUri}";
+
+            HttpResponseMessage response = await client.DeleteAsync(url);
+            if (response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.BadRequest)
+            {
+                result = response.Content.ReadAsStringAsync();
+            }
+
+            return await result;
+        }
+
         public static object Wrap(bool status, object payload = null, object statusCode = null, string message = null,
             object metaData = null, object stats = null)
         {
