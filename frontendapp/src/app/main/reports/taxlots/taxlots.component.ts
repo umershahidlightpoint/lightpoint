@@ -199,7 +199,7 @@ export class TaxLotsComponent implements OnInit, AfterViewInit {
     this.isLoading = true;
     this.financeService.getTaxLotsReport(toDate, fromDate, fund).subscribe(response => {
       this.stats = response.stats;
-      this.data = response.data;
+      this.data = response.payload;
       this.isLoading = false;
       this.gridOptions.api.sizeColumnsToFit();
       this.gridOptions.api.setRowData(this.data);

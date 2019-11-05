@@ -309,7 +309,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     this.isLoading = true;
     this.financeService.getTaxLotReport(toDate, fromDate, fund).subscribe(response => {
       this.stats = response.stats;
-      this.data = response.data;
+      this.data = response.payload;
       this.isLoading = false;
       this.gridOptions.api.sizeColumnsToFit();
       this.gridOptions.api.setRowData(this.data);
@@ -321,12 +321,12 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       //this.stats = response.stats;
       //this.data = response.data;
       this.closingTaxLots.api.sizeColumnsToFit();
-      this.closingTaxLots.api.setRowData(response.data);
+      this.closingTaxLots.api.setRowData(response.payload);
 
-      if (response.data.length == 0) {
+      if (response.payload.length == 0) {
         this.tradeSelectionSubject.next('');
       } else {
-        this.tradeSelectionSubject.next(response.data[0].closing_lot_id);
+        this.tradeSelectionSubject.next(response.payload[0].closing_lot_id);
       }
     });
   }

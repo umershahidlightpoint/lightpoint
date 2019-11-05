@@ -220,7 +220,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.isLoading = true;
     this.financeService.getCostBasisReport(date, fund).subscribe(response => {
       this.trialBalanceReportStats = response.stats;
-      this.trialBalanceReport = response.data;
+      this.trialBalanceReport = response.payload;
       this.gridOptions.api.setRowData(this.trialBalanceReport);
       this.gridOptions.api.sizeColumnsToFit();
       this.isLoading = false;
@@ -230,7 +230,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   rowSelected(row) {
     const { symbol } = row.data;
     this.financeService.getCostBasisChart(symbol).subscribe(response => {
-      this.chartData = response.data;
+      this.chartData = response.payload;
 
       this.mapCostBasisData(this.chartData, this.selectedChartOption);
       this.mapChartsData(this.chartData);
