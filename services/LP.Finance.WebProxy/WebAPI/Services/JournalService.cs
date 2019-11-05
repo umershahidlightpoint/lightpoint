@@ -606,7 +606,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             if (from.HasValue)
             {
-                query = query + " where journal.[when] >= @from";
+                query = query + " where vwJournal.[when] >= @from";
                 whereAdded = true;
                 sqlParams.Add(new SqlParameter("from", from));
             }
@@ -615,12 +615,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 if (whereAdded)
                 {
-                    query = query + " and journal.[when] <= @to";
+                    query = query + " and vwJournal.[when] <= @to";
                     sqlParams.Add(new SqlParameter("to", to));
                 }
                 else
                 {
-                    query = query + " where journal.[when] <= @to";
+                    query = query + " where vwJournal.[when] <= @to";
                     whereAdded = true;
                     sqlParams.Add(new SqlParameter("to", to));
                 }
@@ -630,13 +630,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 if (whereAdded)
                 {
-                    query = query + " and journal.[fund] = @fund";
+                    query = query + " and vwJournal.[fund] = @fund";
                     whereAdded = true;
                     sqlParams.Add(new SqlParameter("fund", fund));
                 }
                 else
                 {
-                    query = query + " where journal.[fund] = @fund";
+                    query = query + " where vwJournal.[fund] = @fund";
                     whereAdded = true;
                     sqlParams.Add(new SqlParameter("fund", fund));
                 }
