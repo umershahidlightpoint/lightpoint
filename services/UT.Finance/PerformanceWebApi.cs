@@ -48,13 +48,13 @@ namespace UT.Finance
 
             Assert.IsTrue((Math.Round(result[3].QTD *100, 2) == Math.Round(0.00925925925925926M * 100, 2)) && (Math.Round(result[3].YTD * 100, 2) == Math.Round(0.00925925925925926M * 100, 2)) && (Math.Round(result[3].ITD * 100, 2) == Math.Round(0.00925925925925926M * 100, 2)), "Expected result");
 
-            Assert.IsTrue((Math.Round(result[4].QTD *100,2) == Math.Round(0.0577857785778578M * 100, 2)) && (Math.Round(result[4].YTD * 100, 2) == Math.Round(0.0577857785778578M * 100, 2)) && (Math.Round(result[4].ITD * 100, 2) == Math.Round(0.0577857785778578M * 100, 2)), "Expected result");
+            Assert.IsTrue((Math.Round(result[4].QTD *100,2) == Math.Round(0.0272727272727273M * 100, 2)) && (Math.Round(result[4].YTD * 100, 2) == Math.Round(0.0577857785778578M * 100, 2)) && (Math.Round(result[4].ITD * 100, 2) == Math.Round(0.0577857785778578M * 100, 2)), "Expected result");
 
-            Assert.IsTrue((Math.Round(result[5].QTD * 100, 2) == Math.Round(0.0074415539038181M * 100, 2)) && (Math.Round(result[5].YTD * 100, 2) == Math.Round(0.0772642358575481M * 100, 2)) && (Math.Round(result[5].ITD * 100, 2) == Math.Round(0.0772642358575481M * 100, 2)), "Expected result");
+            Assert.IsTrue((Math.Round(result[5].QTD * 100, 2) == Math.Round(-0.0283018867924528M * 100, 2)) && (Math.Round(result[5].YTD * 100, 2) == Math.Round(0.0090711175616837M * 100, 2)) && (Math.Round(result[5].ITD * 100, 2) == Math.Round(0.0090711175616837M * 100, 2)), "Expected result");
 
-            Assert.IsTrue((Math.Round(result[6].QTD * 100, 2) == Math.Round(0.06M * 100, 2)) && (Math.Round(result[6].YTD * 100, 2) == Math.Round(0.141900090009001M * 100, 2)) && (Math.Round(result[6].ITD * 100, 2) == Math.Round(0.141900090009001M * 100, 2)), "Expected result");
+            Assert.IsTrue((Math.Round(result[6].QTD * 100, 2) == Math.Round(0.06M * 100, 2)) && (Math.Round(result[6].YTD * 100, 2) == Math.Round(0.0698148148148148M * 100, 2)) && (Math.Round(result[6].ITD * 100, 2) == Math.Round(0.0698148148148148M * 100, 2)), "Expected result");
 
-            Assert.IsTrue((Math.Round(result[7].QTD * 100, 2) == Math.Round(0.1357142857142857M * 100, 2)) && (Math.Round(result[7].YTD * 100, 2) == Math.Round(0.223464382152501M * 100, 2)) && (Math.Round(result[7].ITD * 100, 2) == Math.Round(0.223464382152501M * 100, 2)), "Expected result");
+            Assert.IsTrue((Math.Round(result[7].QTD * 100, 2) == Math.Round(0.0714285714285714M * 100, 2)) && (Math.Round(result[7].YTD * 100, 2) == Math.Round(0.13334190561913331M * 100, 2)) && (Math.Round(result[7].ITD * 100, 2) == Math.Round(0.13334190561913331M * 100, 2)), "Expected result");
 
         }
 
