@@ -174,7 +174,8 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       this.dataDictionary.column('NetPrice'),
       this.dataDictionary.column('SettleNetPrice'),
       this.dataDictionary.column('start_price'),
-      this.dataDictionary.column('end_price')
+      this.dataDictionary.column('end_price'),
+      this.dataDictionary.column('fxrate')
     ];
     const cdefs = this.agGridUtls.customizeColumns(colDefs, columns, this.ignoreFields);
     this.gridOptions.api.setColumnDefs(cdefs);

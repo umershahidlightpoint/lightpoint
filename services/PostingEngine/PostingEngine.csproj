@@ -56,6 +56,8 @@
     <Compile Include="MarketData\FxRates.cs" />
     <Compile Include="MarketData\MarketPrice.cs" />
     <Compile Include="MarketData\MarketPrices.cs" />
+    <Compile Include="MarketData\SecurityDetail.cs" />
+    <Compile Include="MarketData\SecurityDetails.cs" />
     <Compile Include="MarketData\TaxRate.cs" />
     <Compile Include="MarketData\TaxRates.cs" />
     <Compile Include="MarketData\TradeTaxRate.cs" />

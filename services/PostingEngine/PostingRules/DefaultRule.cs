@@ -62,21 +62,27 @@ namespace PostingEngine.PostingRules
                     }
                     else
                     {
-                        if (env.PrevMarketPrices.ContainsKey(symbol))
-                            prevEodPrice = env.PrevMarketPrices[symbol].Price;
+                        if (env.PrevMarketPrices.ContainsKey(element.BloombergCode))
+                            prevEodPrice = env.PrevMarketPrices[element.BloombergCode].Price;
 
-                        if (env.EODMarketPrices.ContainsKey(symbol))
-                            eodPrice = env.EODMarketPrices[symbol].Price;
+                        if (env.EODMarketPrices.ContainsKey(element.BloombergCode))
+                            eodPrice = env.EODMarketPrices[element.BloombergCode].Price;
                     }
 
                     var fxRate = 1;
 
-                    var unrealizedPnl = quantity * (eodPrice - prevEodPrice);
+                    var multiplier = 1.0;
+
+                    if (env.SecurityDetails.ContainsKey(element.BloombergCode))
+                        multiplier = env.SecurityDetails[element.BloombergCode].Multiplier;
+
+                    var unrealizedPnl = quantity * (eodPrice - prevEodPrice) * multiplier ;
 
                     var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Mark to Market Longs")).FirstOrDefault(), listOfFromTags, element);
 
                     if ( taxlot.Side == "SHORT" )
                     {
+                        unrealizedPnl = unrealizedPnl * -1;
                         fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Mark to Market Shorts")).FirstOrDefault(), listOfFromTags, element);
                     }
 
@@ -130,72 +136,7 @@ namespace PostingEngine.PostingRules
 
         public void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
-            // Retrieve Allocation Objects for this trade
-            var tradeAllocations = env.Allocations.Where(i => i.ParentOrderId == element.ParentOrderId).ToList();
-
-            // Reversing the trade date activity
-            var debitEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[1] : tradeAllocations[0];
-            var creditEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[0] : tradeAllocations[1];
-
-            var accountToFrom = GetFromToAccountOnSettlement(element, debitEntry, creditEntry);
-
-            if ( accountToFrom.To == null || accountToFrom.From == null)
-            {
-                env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
-                return;
-            }
-
-            new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
-            new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
-
-            // This is the fully loaded value to tbe posting
-
-            double fxrate = 1.0;
-
-            // Lets get fx rate if needed
-            if (!element.SettleCurrency.Equals("USD"))
-            {
-                fxrate = Convert.ToDouble(env.FxRates[element.SettleCurrency].Rate);
-            }
-
-            var moneyUSD = element.NetMoney / fxrate;
-
-            if (element.NetMoney != 0.0)
-            {
-                var debit = new Journal
-                {
-                    Source = debitEntry.LpOrderId,
-                    Account = accountToFrom.From,
-                    When = env.ValueDate,
-                    FxCurrency = element.SettleCurrency,
-                    Symbol = debitEntry.Symbol,
-                    Quantity = element.Quantity,
-                    FxRate = fxrate,
-                    CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
-                    Event = "settlement",
-                    Fund = debitEntry.Fund,
-                };
-
-                var credit = new Journal
-                {
-                    Source = creditEntry.LpOrderId,
-                    Account = accountToFrom.To,
-                    When = env.ValueDate,
-                    FxCurrency = element.SettleCurrency,
-                    FxRate = fxrate,
-                    Symbol = creditEntry.Symbol,
-                    Quantity = element.Quantity,
-                    CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
-                    Event = "settlement",
-                    Fund = creditEntry.Fund,
-                };
-
-                env.Journals.AddRange( new [] { debit, credit } );
-
-                //new Journal[] { debit, credit }.Save(env);
-            }
+            // NO Need for Swaps and Futures as we don't own the stock
         }
 
         private AccountToFrom RealizedPnlPostingAccounts(Transaction element)
@@ -253,112 +194,6 @@ namespace PostingEngine.PostingRules
             }
 
             var toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CHANGE IN UNREALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfToTags, element);
-
-            return new AccountToFrom
-            {
-                From = fromAccount,
-                To = toAccount
-            };
-        }
-
-        private AccountToFrom GetFromToAccount(Transaction element)
-        {
-            var type = element.GetType();
-            var accountTypes = AccountType.All;
-
-            var listOfFromTags = new List<Tag> {
-                Tag.Find("SecurityType"),
-                Tag.Find("CustodianCode")
-             };
-
-            var listOfToTags = new List<Tag>
-            {
-                Tag.Find("SecurityType"),
-                Tag.Find("CustodianCode")
-            };
-
-            Account fromAccount = null; // Debiting Account
-            Account toAccount = null; // Crediting Account
-
-            switch (element.Side.ToLowerInvariant())
-            {
-                case "buy":
-                    fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("LONG POSITIONS AT COST")).FirstOrDefault(), listOfFromTags, element);
-                    toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
-                    break;
-                case "sell":
-                    fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("LONG POSITIONS AT COST")).FirstOrDefault(), listOfFromTags, element);
-                    toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
-                    break;
-                case "short":
-                    fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("SHORT POSITIONS AT COST")).FirstOrDefault(), listOfFromTags, element);
-                    toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
-                    break;
-                case "cover":
-                    fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("SHORT POSITIONS AT COST")).FirstOrDefault(), listOfFromTags, element);
-                    toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
-                    break;
-            }
-
-            return new AccountToFrom
-            {
-                From = fromAccount,
-                To = toAccount
-            };
-        }
-
-        /// <summary>
-        /// Dealing with the settlement event
-        /// </summary>
-        /// <param name="element"></param>
-        /// <param name="debit"></param>
-        /// <param name="credit"></param>
-        /// <returns></returns>
-        private AccountToFrom GetFromToAccountOnSettlement(Transaction element, Transaction debit, Transaction credit)
-        {
-            var type = element.GetType();
-            var accountTypes = AccountType.All;
-
-            var listOfFromTags = new List<Tag>
-            {
-                Tag.Find("SecurityType"),
-                Tag.Find("CustodianCode")
-            };
-
-            var listOfToTags = new List<Tag> {
-                Tag.Find("SecurityType"),
-                Tag.Find("CustodianCode")
-             };
-
-            Account fromAccount = null; // Debiting Account
-            Account toAccount = null; // Crediting Account
-            switch (element.Side.ToLowerInvariant())
-            {
-                case "buy":
-                    fromAccount = new AccountUtils()
-                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfFromTags, debit);
-                    toAccount = new AccountUtils()
-                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("Settled Cash")).FirstOrDefault(), listOfToTags, debit);
-                    break;
-                case "sell":
-                    fromAccount = new AccountUtils()
-                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfFromTags, debit);
-                    toAccount = new AccountUtils()
-                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("Settled Cash")).FirstOrDefault(), listOfToTags, debit);
-                    break;
-                case "short":
-                    fromAccount = new AccountUtils()
-                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfFromTags, debit);
-                    toAccount = new AccountUtils()
-                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("Settled Cash")).FirstOrDefault(), listOfToTags, debit);
-                    break;
-                case "cover":
-                    fromAccount = new AccountUtils()
-                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfFromTags, debit);
-                    toAccount = new AccountUtils()
-                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("Settled Cash")).FirstOrDefault(), listOfToTags, debit);
-                    break;
-            }
 
             return new AccountToFrom
             {
@@ -443,7 +278,7 @@ namespace PostingEngine.PostingRules
                                     env, 
                                     env.FindTrade(lot.Trade.LpOrderId), 
                                     unrealizedPnl,
-                                    env.PrevMarketPrices[lot.Trade.Symbol].Price,
+                                    env.PrevMarketPrices[lot.Trade.BloombergCode].Price,
                                     element.SettleNetPrice, 1);
 
                                 // This is realized Pnl, need to post this as a journal entry
@@ -541,83 +376,6 @@ namespace PostingEngine.PostingRules
             } else
             {
                 // We have a Debit / Credit Dividends
-            }
-
-
-            //var debitEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[0] : tradeAllocations[1];
-            //var creditEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[1] : tradeAllocations[0];
-
-            var accountToFrom = GetFromToAccount(element);
-
-            if (accountToFrom.To == null || accountToFrom.From == null)
-            {
-                env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
-                return;
-            }
-
-            new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
-            new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
-
-            double fxrate = 1.0;
-
-            if ( element.IsSell())
-            {
-
-            }
-
-            if (element.IsCover())
-            {
-
-            }
-
-            // Lets get fx rate if needed
-            if ( !element.TradeCurrency.Equals("USD"))
-            {
-                fxrate = Convert.ToDouble(env.FxRates[element.TradeCurrency].Rate);
-            }
-
-            if (element.NetMoney != 0.0)
-            {
-                var moneyUSD = element.NetMoney / fxrate;
-                if ( element.IsSell() || element.IsCover())
-                {
-                    moneyUSD = moneyUSD * -1;
-                }
-
-                var eodPrice = env.EODMarketPrices[element.Symbol].Price;
-
-                var debitJournal = new Journal(accountToFrom.From, "tradedate", env.ValueDate)
-                {
-                    Source = element.LpOrderId,
-                    StartPrice = element.SettleNetPrice,
-                    FxCurrency = element.TradeCurrency,
-                    Quantity = element.Quantity,
-                    Symbol = element.Symbol,
-                    Fund = tradeAllocations[0].Fund,
-
-                    CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
-                    FxRate = fxrate,
-                    EndPrice = eodPrice,
-                };
-
-                var creditJournal = new Journal(accountToFrom.To, "tradedate", env.ValueDate)
-                {
-                    Source = element.LpOrderId,
-                    FxCurrency = element.TradeCurrency,
-                    Symbol = element.Symbol,
-                    Quantity = element.Quantity,
-                    StartPrice = element.SettleNetPrice,
-
-                    FxRate = fxrate,
-                    CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
-                    
-                    EndPrice = eodPrice,
-                    Fund = tradeAllocations[0].Fund,
-                };
-
-                env.Journals.AddRange(new[] { debitJournal, creditJournal });
             }
         }
 

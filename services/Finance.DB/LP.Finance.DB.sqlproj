@@ -90,5 +90,6 @@
     <Build Include="Tables\tax_rate.sql" />
     <Build Include="StoredProcs\TaxRates.sql" />
     <Build Include="Views\vwJournal.sql" />
+    <Build Include="StoredProcs\Reconcile.sql" />
   </ItemGroup>
 </Project>

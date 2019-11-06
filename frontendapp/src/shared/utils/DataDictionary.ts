@@ -48,6 +48,18 @@ export class DataDictionary {
                 };
                 break;
             };
+            case 'fxrate': {
+                columnDefinition = {
+                    field: 'fxrate',
+                    width: 120,
+                    headerName: 'Fx Rate',
+                    sortable: true,
+                    cellStyle: { 'text-align': 'right' },
+                    filter: true,
+                    valueFormatter: priceFormatter
+                };
+                break;
+            };
             case 'NetPrice': {
                 columnDefinition = {
                     field: 'NetPrice',

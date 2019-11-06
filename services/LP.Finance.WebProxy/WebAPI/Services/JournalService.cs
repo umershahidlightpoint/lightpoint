@@ -320,6 +320,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         d.[event],
                         d.[start_price],
                         d.[end_price],
+                        d.[fxrate],
                         d.modifiable
                         from(
                             SELECT overall_count = COUNT(*) OVER(),
@@ -348,6 +349,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                     [event],
                                     [start_price],
                                     [end_price],
+                                    [fxrate],
                                     (CASE WHEN [journal].[generated_by] = 'user' THEN 'true' else 'false' END  ) modifiable
                                     FROM [journal] with(nolock) 
                         join account  on [journal]. [account_id] = account.id 

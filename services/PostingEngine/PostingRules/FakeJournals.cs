@@ -46,7 +46,7 @@ namespace PostingEngine.PostingRules
                 fxrate = Convert.ToDouble(env.FxRates[element.TradeCurrency].Rate);
             }
 
-            var moneyUSD = element.LocalNetNotional / fxrate;
+            var moneyUSD = element.LocalNetNotional * fxrate;
 
             if (element.LocalNetNotional != 0.0)
             {
@@ -259,7 +259,7 @@ namespace PostingEngine.PostingRules
                 fxrate = Convert.ToDouble(env.FxRates[element.TradeCurrency].Rate);
             }
 
-            var moneyUSD = element.LocalNetNotional / fxrate;
+            var moneyUSD = element.LocalNetNotional * fxrate;
 
             if (element.LocalNetNotional != 0.0)
             {

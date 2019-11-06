@@ -61,6 +61,7 @@ namespace PostingEngine
         public List<Journal> Journals { get; set; }
         public TaxRate TaxRate { get; set; }
 
+        // Rates are all multiplied, and we store that rate in the system
         public Dictionary<string, FxRate> FxRates { get; set; }
         public Dictionary<string, MarketPrice> PrevMarketPrices { get; set; }
         public Dictionary<string, MarketPrice> EODMarketPrices { get; set; }
@@ -135,6 +136,7 @@ namespace PostingEngine
         public Dictionary<string, int> Messages { get; private set; }
 
         public ITaxLotMethodology Methodology { get; set; }
+        public Dictionary<string, SecurityDetail> SecurityDetails { get; internal set; }
 
         /// <summary>
         /// Find the Transaction that matches this element.

@@ -52,7 +52,7 @@ namespace PostingEngine.PostingRules
                 fxrate = Convert.ToDouble(env.FxRates[element.SettleCurrency].Rate);
             }
 
-            var moneyUSD = element.NetMoney / fxrate;
+            var moneyUSD = element.NetMoney * fxrate;
 
             if (element.NetMoney != 0.0)
             {
@@ -192,23 +192,15 @@ namespace PostingEngine.PostingRules
 
             double fxrate = 1.0;
 
-            if ( element.LpOrderId.ToLower().Equals("79e41950a1874755ba5c264c40505464"))
-            {
-
-            }
             // Lets get fx rate if needed
             if ( !element.TradeCurrency.Equals("USD"))
             {
                 fxrate = Convert.ToDouble(env.FxRates[element.TradeCurrency].Rate);
             }
 
-            if (element.LpOrderId == "a12bde3e8342464b841d8b550d7cba69&EFIX@C")
-            {
-            }
-
             if (element.NetMoney != 0.0)
             {
-                var moneyUSD = (element.NetMoney / fxrate);
+                var moneyUSD = (element.NetMoney * fxrate);
                 var creditAmount = moneyUSD;
                 var debitAmount = moneyUSD * -1;
 

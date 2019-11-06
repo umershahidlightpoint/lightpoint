@@ -22,15 +22,10 @@ namespace PostingEngine.MarketData
                 return Utils.GetFile<Dictionary<string, FxRate>>("fxrates");
             }
 
-            var maxdate = now.ToString("MM-dd-yyyy 23:59:59");
+            var maxdate = now.ToString("yyyy-MM-dd");
 
-            var sql = $@"select c.CurrencyCode, fx.FxRate, fx.*, p.SourceName from [PriceMaster].[dbo].[FXRate] fx
-inner join [SecurityMaster].[dbo].[Currency] c on c.CurrencyId = fx.CurrencyId
-inner join [PriceMaster].[dbo].[PriceSource] p on p.PriceSourceID = fx.PriceSourceID
--- where c.CurrencyCode = 'JPY'
-where Runtime = ( select max(Runtime) from [PriceMaster].[dbo].[FXRate] where runtime <= '{maxdate}') -- Specify the date and grab the latest
-order by c.CurrencyCode desc
-";
+            var sql = $@"select CurrencyCode, CalculatedFxRate as FxRate from [PriceMaster].[dbo].[vwNormalizedEodFxRates] where BusDate = '{maxdate}'
+                         order by CurrencyCode desc";
 
             var list = new Dictionary<string, FxRate>();
 
@@ -60,5 +55,4 @@ order by c.CurrencyCode desc
             return list;
         }
     }
-
 }

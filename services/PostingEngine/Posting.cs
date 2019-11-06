@@ -25,11 +25,11 @@ namespace PostingEngine
         private static readonly string
             connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
-        private static readonly string root = "http://dev11";
+        private static readonly string urlRoot = ConfigurationManager.AppSettings["root"].ToString();
 
-        private static readonly string accrualsURL = root + ":9091/api/accruals/data?period=";
-        private static readonly string tradesURL = root + ":9091/api/trade/data?period=";
-        private static readonly string allocationsURL = root + ":9091/api/allocation/data?period=";
+        private static readonly string accrualsURL = urlRoot + ":9091/api/accruals/data?period=";
+        private static readonly string tradesURL = urlRoot + ":9091/api/trade/data?period=";
+        private static readonly string allocationsURL = urlRoot + ":9091/api/allocation/data?period=";
 
         private static string Period;
         private static Guid Key;
@@ -127,6 +127,7 @@ namespace PostingEngine
 
                 var postingEnv = new PostingEngineEnvironment(connection, transaction)
                 {
+                    SecurityDetails = new SecurityDetails().Get(),
                     Categories = AccountCategory.Categories,
                     Types = AccountType.All,
                     ValueDate = DateTime.Now.Date,
@@ -230,6 +231,7 @@ namespace PostingEngine
 
                 var postingEnv = new PostingEngineEnvironment(connection, transaction)
                 {
+                    SecurityDetails = new SecurityDetails().Get(),
                     Categories = AccountCategory.Categories,
                     Types = AccountType.All,
                     BusinessDate = businessDate,

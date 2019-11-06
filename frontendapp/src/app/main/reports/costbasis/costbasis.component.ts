@@ -152,7 +152,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           filter: true,
           cellClass: 'rightAlign',
           sortable: true,
-          valueFormatter: absCurrencyFormatter
+          valueFormatter: currencyFormatter
         },
         {
           field: 'CostBasis',

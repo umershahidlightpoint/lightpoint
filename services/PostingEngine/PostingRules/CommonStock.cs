@@ -53,30 +53,35 @@ namespace PostingEngine.PostingRules
 
                     if (env.ValueDate == element.TradeDate)
                     {
-                        if (env.EODMarketPrices.ContainsKey(symbol))
+                        if (env.EODMarketPrices.ContainsKey(element.BloombergCode))
                         {
-                            eodPrice = env.EODMarketPrices[symbol].Price;
+                            eodPrice = env.EODMarketPrices[element.BloombergCode].Price;
                         }
 
                         prevEodPrice = element.SettleNetPrice;
                     }
                     else
                     {
-                        if (env.PrevMarketPrices.ContainsKey(symbol))
-                            prevEodPrice = env.PrevMarketPrices[symbol].Price;
+                        if (env.PrevMarketPrices.ContainsKey(element.BloombergCode))
+                            prevEodPrice = env.PrevMarketPrices[element.BloombergCode].Price;
 
-                        if (env.EODMarketPrices.ContainsKey(symbol))
-                            eodPrice = env.EODMarketPrices[symbol].Price;
+                        if (env.EODMarketPrices.ContainsKey(element.BloombergCode))
+                            eodPrice = env.EODMarketPrices[element.BloombergCode].Price;
                     }
 
-                    var fxRate = 1;
+                    var fxRate = 1.0;
+                    if (!element.TradeCurrency.Equals("USD"))
+                    {
+                        fxRate = Convert.ToDouble(env.FxRates[element.TradeCurrency].Rate);
+                    }
 
-                    var unrealizedPnl = quantity * (eodPrice - prevEodPrice);
+                    var unrealizedPnl = quantity * (eodPrice - prevEodPrice) * fxRate;
 
                     var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Mark to Market Longs")).FirstOrDefault(), listOfFromTags, element);
 
                     if ( taxlot.Side == "SHORT" )
                     {
+                        unrealizedPnl = unrealizedPnl * -1;
                         fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Mark to Market Shorts")).FirstOrDefault(), listOfFromTags, element);
                     }
 
@@ -158,7 +163,7 @@ namespace PostingEngine.PostingRules
                 fxrate = Convert.ToDouble(env.FxRates[element.SettleCurrency].Rate);
             }
 
-            var moneyUSD = Math.Abs(element.NetMoney) / fxrate;
+            var moneyUSD = Math.Abs(element.NetMoney) * fxrate;
 
             if (element.NetMoney != 0.0)
             {
@@ -438,12 +443,12 @@ namespace PostingEngine.PostingRules
                                 else
                                     taxlotStatus.Status = "Partially Closed";
 
-                                var unrealizedPnl = taxlotStatus.Quantity * (element.SettleNetPrice - env.PrevMarketPrices[lot.Trade.Symbol].Price);
+                                var unrealizedPnl = taxlotStatus.Quantity * (element.SettleNetPrice - env.PrevMarketPrices[lot.Trade.BloombergCode].Price);
                                 PostUnRealizedPnl(
                                     env, 
                                     env.FindTrade(lot.Trade.LpOrderId), 
                                     unrealizedPnl,
-                                    env.PrevMarketPrices[lot.Trade.Symbol].Price,
+                                    env.PrevMarketPrices[lot.Trade.BloombergCode].Price,
                                     element.SettleNetPrice, 1);
 
                                 // This is realized Pnl, need to post this as a journal entry
@@ -556,6 +561,10 @@ namespace PostingEngine.PostingRules
 
             var accountToFrom = GetFromToAccount(element, debitEntry, creditEntry);
 
+            if ( element.Symbol.Equals("FB") && element.IsShort())
+            {
+
+            }
             if (debitEntry.Symbol.Equals("@CASHUSD"))
             {
                 env.AddMessage($"Unexpected Cash allocation please investigate {element.LpOrderId}");
@@ -591,7 +600,7 @@ namespace PostingEngine.PostingRules
 
             if (element.NetMoney != 0.0)
             {
-                var moneyUSD = Math.Abs(element.NetMoney) / fxrate;
+                var moneyUSD = Math.Abs(element.NetMoney) * fxrate;
 
                 // BUY -- Debit
                 // SELL -- Credit

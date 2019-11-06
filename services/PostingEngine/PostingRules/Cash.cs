@@ -112,7 +112,7 @@ namespace PostingEngine.PostingRules
 
             if (element.Quantity != 0.0)
             {
-                var moneyUSD = ((element.Quantity * element.TradePrice) / fxrate);
+                var moneyUSD = ((element.Quantity * element.TradePrice) * fxrate);
                 var creditAmount = moneyUSD;
                 var debitAmount = moneyUSD * -1;
 

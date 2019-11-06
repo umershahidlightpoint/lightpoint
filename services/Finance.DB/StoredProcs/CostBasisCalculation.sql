@@ -5,7 +5,7 @@ AS
 DECLARE @bDate as Date
 SET @bDate = @businessDate
 
-SELECT @bDate as busdate, j.symbol, sum(value) as Balance, sum(j.quantity) as Quantity, Abs(sum(value)) / sum(j.quantity) as CostBasis, 'LONG' as Side, Avg(j.end_price) as eod_price
+SELECT @bDate as busdate, j.symbol, sum(debit - credit) as Balance, sum(j.quantity) as Quantity, Abs(sum(value)) / sum(j.quantity) as CostBasis, 'LONG' as Side, Avg(j.end_price) as eod_price
 into #costbasis_long
 FROM vwJournal j
 inner join account a on a.id = j.account_id
@@ -17,7 +17,7 @@ group by a.name, j.symbol
 having sum(j.quantity) != 0
 
 -- Unrealized
-SELECT @bDate as busdate, J.symbol, sum(value) as unrealized_pnl, 'LONG' as Side
+SELECT @bDate as busdate, J.symbol, sum(debit - credit) as unrealized_pnl, 'LONG' as Side
 into #unrealized_long
 FROM vwJournal j
 inner join account a on a.id = j.account_id
@@ -28,7 +28,7 @@ and j.[when] <= @bDate
 group by a.name, j.symbol
 
 -- realized
-SELECT @bDate as busdate, j.symbol, sum(value) as realized_pnl, 'LONG' as Side
+SELECT @bDate as busdate, j.symbol, sum(debit - credit) as realized_pnl, 'LONG' as Side
 into #realized_long
 FROM vwJournal j
 inner join account a on a.id = j.account_id
@@ -38,7 +38,7 @@ and event = 'realizedpnl'
 and j.[when] <= @bDate
 group by a.name, j.symbol
 
-SELECT @bDate as busdate, j.symbol, sum(value) as Balance, sum(j.quantity) as Quantity, Abs(sum(value)) / sum(j.quantity) as CostBasis, 'SHORT' as Side, Avg(j.end_price) as eod_price
+SELECT @bDate as busdate, j.symbol, sum(debit - credit) as Balance, sum(j.quantity) as Quantity, Abs(sum(value) / sum(j.quantity)) as CostBasis, 'SHORT' as Side, Avg(j.end_price) as eod_price
 into #costbasis_short
 FROM vwJournal j
 inner join account a on a.id = j.account_id
@@ -50,7 +50,7 @@ group by a.name, j.symbol
 having sum(j.quantity) != 0
 
 -- Unrealized
-SELECT @bDate as busdate, J.symbol, sum(value) as unrealized_pnl, 'SHORT' as Side
+SELECT @bDate as busdate, J.symbol, sum(debit - credit) as unrealized_pnl, 'SHORT' as Side
 into #unrealized_short
 FROM vwJournal j
 inner join account a on a.id = j.account_id
@@ -61,7 +61,7 @@ and j.[when] <= @bDate
 group by a.name, j.symbol
 
 -- realized
-SELECT @bDate as busdate, j.symbol, sum(value) as realized_pnl, 'LONG' as Side
+SELECT @bDate as busdate, j.symbol, sum(debit - credit) as realized_pnl, 'LONG' as Side
 into #realized_short
 FROM vwJournal j
 inner join account a on a.id = j.account_id

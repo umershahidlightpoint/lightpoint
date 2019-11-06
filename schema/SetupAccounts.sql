@@ -84,6 +84,10 @@ Updates
 */
 update account_type set name = 'Mark to Market Longs' where name = 'UNREALIZED P/L-BALANCE SHEET LONGS'
 update account_type set name = 'Mark to Market Shorts' where name = 'UNREALIZED P/L-BALANCE SHEET'
+update account_type set name = 'Settled Cash' where name = 'DUE FROM/(TO) PRIME BROKERS ( Settled Activity )'
+update account_type set name = 'SHORT POSITIONS AT COST' where name = 'SHORT POSITIONS-COST'
+update account_type set name = 'ACCRUED EXPENSES' where name = 'ACCRUED EXPENSES:     All called payables'
+
 
 -- DONE
 
