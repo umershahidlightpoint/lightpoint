@@ -50,6 +50,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   sortColum: any;
   sortDirection: any;
   businessDate: any;
+  generateFilesLoader = false;
 
   excelParams = {
     fileName: 'Journal Logs',
@@ -232,10 +233,12 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     const obj = {
       businessDate: this.businessDate != null ? this.businessDate.startDate : null
     };
+    this.generateFilesLoader = true;
     this.financeService
       .generateFiles(obj)
       .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {
+        this.generateFilesLoader = false;
         if (response.isSuccessful) {
           this.toastrService.success('Files are Generated for Processing');
         } else {

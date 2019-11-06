@@ -13,9 +13,10 @@
       <!-- <button class="btn btn-info" type="button" (click)="doRefresh()">
         Refresh
       </button> -->
-      <input class="btn btn-info file-upload-btn" type="file" (change)="onFileInput($event.target.files)">
-      <button class="btn btn-info ml-2" type="button" (click)="uploadDailyUnofficialPnl()">
+      <input #fileInput class="btn btn-info file-upload-btn" type="file" (change)="onFileInput($event.target.files)">
+      <button class="btn btn-info ml-2" type="button" (click)="uploadDailyUnofficialPnl()" [disabled]="uploadLoader || disableFileUpload">
         Upload
+        <span *ngIf="uploadLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
       </button>
     </div>
     <!-- Fileupload Div Ends -->
