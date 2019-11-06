@@ -124,7 +124,7 @@ namespace UT.Finance
         public async Task UpdateAccount()
         {
             var accounts = await GetAccounts();
-            var lastAccount = accounts.Item1.FirstOrDefault();
+            var lastAccount = accounts.Item1.FirstOrDefault(x => x.CanEdited);
 
             var payload = new AccountInputDto
             {
@@ -142,12 +142,35 @@ namespace UT.Finance
             Assert.IsTrue(response.isSuccessful, "Account Updated");
         }
 
+        // Unit Test to Update Non Editable Account
+        [TestMethod]
+        public async Task UpdateNonEditableAccount()
+        {
+            var accounts = await GetAccounts();
+            var lastAccount = accounts.Item1.FirstOrDefault(x => x.CanEdited == false);
+
+            var payload = new AccountInputDto
+            {
+                Description = lastAccount?.Description + " Updated",
+                Type = lastAccount?.TypeId,
+                Tags = new List<AccountTagInputDto>()
+            };
+
+            var account = Utils.PutWebApi("FinanceWebApi", $"{AccountsUrl}/{lastAccount?.AccountId}", payload);
+
+            Task.WaitAll(account);
+
+            var response = JsonConvert.DeserializeObject<Response>(account.Result);
+
+            Assert.IsTrue(response.isSuccessful == false, "Account not Updated");
+        }
+
         // Unit Test to Delete Account
         [TestMethod]
         public async Task DeleteAccount()
         {
             var accounts = await GetAccounts();
-            var lastAccount = accounts.Item1.FirstOrDefault();
+            var lastAccount = accounts.Item1.FirstOrDefault(x => x.CanDeleted);
 
             var account = Utils.DeleteWebApi("FinanceWebApi", $"{AccountsUrl}/{lastAccount?.AccountId}");
 
@@ -156,6 +179,22 @@ namespace UT.Finance
             var response = JsonConvert.DeserializeObject<Response>(account.Result);
 
             Assert.IsTrue(response.isSuccessful, "Account Deleted");
+        }
+
+        // Unit Test to Delete Non Deletable Account
+        [TestMethod]
+        public async Task DeleteNonDeletableAccount()
+        {
+            var accounts = await GetAccounts();
+            var lastAccount = accounts.Item1.FirstOrDefault(x => x.CanDeleted == false);
+
+            var account = Utils.DeleteWebApi("FinanceWebApi", $"{AccountsUrl}/{lastAccount?.AccountId}");
+
+            Task.WaitAll(account);
+
+            var response = JsonConvert.DeserializeObject<Response>(account.Result);
+
+            Assert.IsTrue(response.isSuccessful == false, "Account Deleted");
         }
 
         // Unit Test for Accounts List
@@ -180,40 +219,6 @@ namespace UT.Finance
 
             return new Tuple<List<AccountOutputDto>, Response>(payload, response);
         }
-
-//        private static async Task<List<AccountCategoryOutputDto>> GetAccountCategories()
-//        {
-//            var accountCategories = await Utils.GetWebApiData("FinanceWebApi", $"{AccountCategoriesUrl}");
-//
-//            var response = JsonConvert.DeserializeObject<Response>(accountCategories);
-//
-//            var payload = JsonConvert.SerializeObject(response.payload);
-//
-//            return JsonConvert.DeserializeObject<List<AccountCategoryOutputDto>>(payload);
-//        }
-//
-//        private static async Task<List<AccountTypeOutputDto>> GetAccountTypes(int? accountCategoryId)
-//        {
-//            var accountTypes = await Utils.GetWebApiData("FinanceWebApi",
-//                $"{AccountTypesUrl}?accountCategoryId={accountCategoryId}");
-//
-//            var response = JsonConvert.DeserializeObject<Response>(accountTypes);
-//
-//            var payload = JsonConvert.SerializeObject(response.payload);
-//
-//            return JsonConvert.DeserializeObject<List<AccountTypeOutputDto>>(payload);
-//        }
-//
-//        private static async Task<List<AccountTagOutputDto>> GetAccountTags()
-//        {
-//            var accountTags = await Utils.GetWebApiData("FinanceWebApi", $"{AccountTagsUrl}");
-//
-//            var response = JsonConvert.DeserializeObject<Response>(accountTags);
-//
-//            var payload = JsonConvert.SerializeObject(response.payload);
-//
-//            return JsonConvert.DeserializeObject<List<AccountTagOutputDto>>(payload);
-//        }
 
         private static async Task<List<T>> GetList<T>(string url)
         {
