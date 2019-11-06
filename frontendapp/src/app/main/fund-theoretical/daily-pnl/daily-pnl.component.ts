@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import {
   HeightStyle,
   SideBar,
@@ -33,7 +33,9 @@ export class DailyPnlComponent implements OnInit {
   graphObject: any = null;
   disableCharts = true;
   sliderValue = 0;
-  
+  uploadLoader = false;
+  disableFileUpload = true;
+  @ViewChild('fileInput') fileInput: ElementRef;
 
   styleForHeight = HeightStyle(224);
 
@@ -389,7 +391,9 @@ export class DailyPnlComponent implements OnInit {
 
   uploadDailyUnofficialPnl() {
     let rowNodeId = 1;
+    this.uploadLoader = true;
     this.financeService.uploadDailyUnofficialPnl(this.fileToUpload).subscribe(response => {
+      this.uploadLoader = false;
       console.log('Response', response);
       if (response.isSuccessful) {
         // const modifiedData = response.payload.map(data => {
@@ -400,6 +404,8 @@ export class DailyPnlComponent implements OnInit {
         // this.dailyPnlGrid.api.setRowData(this.dailyPnLData);
         // AutoSizeAllColumns(this.dailyPnlGrid);
         // this.disableCommit = false;
+        this.fileInput.nativeElement.value = '';
+        this.disableFileUpload = true;
         this.dailyPnLData = response.payload.map(data => ({
           businessDate: DateFormatter(data.BusinessDate),
           fund: data.Fund,
@@ -464,6 +470,7 @@ export class DailyPnlComponent implements OnInit {
   }
 
   onFileInput(files: FileList) {
+    this.disableFileUpload = false;
     this.fileToUpload = files.item(0);
   }
 }

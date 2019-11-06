@@ -146,16 +146,23 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                     }
                                     else
                                     {
-                                        //For QTD, determine the month offset of this quarter. If it is the beginning of the quarter for e.g (April for Q2), value will remain the same. Otherwise, calculated value will depend on the previous result.
-                                        newDecimalValue = CalculateQTD(item, priorData);
-                                        if (CheckForChanges(item.QTD, newDecimalValue))
-                                        {
-                                            item.Modified = true;
-                                        }
-
                                         if (CheckForBeginningOfQuarter(item.PerformanceDate))
                                         {
                                             quarterCount[item.PerformanceDate.Month] += 1;
+                                        }
+
+                                        //For QTD, determine the month offset of this quarter. If it is the beginning of the quarter for e.g (April for Q2), value will remain the same. Otherwise, calculated value will depend on the previous result.
+                                        if (IfDatesLieInTheSameQuarter(priorData.PerformanceDate, item.PerformanceDate))
+                                        {
+                                            newDecimalValue = CalculateQTD(item, priorData);
+                                        }
+                                        else
+                                        {
+                                            newDecimalValue = item.MTD.HasValue ? item.MTD.Value : 0;
+                                        }
+                                        if (CheckForChanges(item.QTD, newDecimalValue))
+                                        {
+                                            item.Modified = true;
                                         }
 
                                         item.QTD = newDecimalValue;
@@ -312,6 +319,33 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             else
             {
                 return false;
+            }
+        }
+
+        private bool IfDatesLieInTheSameQuarter(DateTime priorDate, DateTime currentDate)
+        {
+            int startOfQuarter = priorDate.Month;
+            int endOfQuarter = GetRelevantQuarter(startOfQuarter) + 2;
+            return (currentDate.Month >= startOfQuarter && currentDate.Month <= endOfQuarter);
+        }
+
+        private int GetRelevantQuarter(int month)
+        {
+            if(month == 1 || month == 2 || month == 3)
+            {
+                return 1;
+            }
+            else if(month == 4 || month == 5 || month == 6)
+            {
+                return 4;
+            }
+            else if(month == 7 || month == 8 || month == 9)
+            {
+                return 7;
+            }
+            else
+            {
+                return 10;
             }
         }
 
@@ -814,7 +848,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                 }
                                 else
                                 {
-                                    item.QTDPercentageReturn = CalculateDailyQTD(item, priorDataForQuarter);
+                                    if(IfDatesLieInTheSameQuarter(priorDataForQuarter.BusinessDate, item.BusinessDate))
+                                    {
+                                        item.QTDPercentageReturn = CalculateDailyQTD(item, priorDataForQuarter);
+                                    }
+                                    else
+                                    {
+                                        item.QTDPercentageReturn = item.MTDPercentageReturn;
+                                    }
                                 }
                             }
                             else

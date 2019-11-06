@@ -34,7 +34,8 @@
         </div>
 
         <div class="col-2 p-0">
-          <button class="btn btn-info" type="button" [disabled]="isLoading" (click)="generateFiles()">
+          <button class="btn btn-info" type="button" [disabled]="isLoading || generateFilesLoader" (click)="generateFiles()">
+              <span *ngIf="generateFilesLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             Silver End of Day
           </button>
         </div>
