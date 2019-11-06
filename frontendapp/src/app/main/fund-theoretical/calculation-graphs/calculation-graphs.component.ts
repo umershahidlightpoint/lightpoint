@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectorRef, OnChanges, SimpleChanges } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
@@ -10,19 +10,28 @@ import { delay } from 'rxjs/operators';
 })
 export class CalculationGraphsComponent implements OnInit, OnChanges {
   @Input() chartData: any;
+  @Input() mode: string;
   QTDData: any[] = [];
   YTDData: any[] = [];
   ITDData: any[] = [];
+  singleChartData: any[] = [];
+  title: string;
   showChart = false;
 
   propIDQTD = 'QTDLineChart';
   propIDYTD = 'YTDLineChart';
   propIDITD = 'ITDLineChart';
+  propIDSingle = 'SingleLineChart';
   divHeight = 180;
   divWidth = '95%';
   lineColors = ['#ff6960', '#00bd9a'];
 
-  constructor(private toastrService: ToastrService) {}
+  constructor(
+    private toastrService: ToastrService,
+    private cdRef: ChangeDetectorRef
+    ) {
+
+    }
 
   ngOnInit() {}
 
@@ -32,19 +41,25 @@ export class CalculationGraphsComponent implements OnInit, OnChanges {
       let cData;
       currentValue.forEach((element, index) => {
         cData = element.data;
-        if (cData.length === 0) {
-          this.showChart = false;
+        if(this.mode === 'single'){
+            this.singleChartData = cData;
+            this.title = element.label;
+            // this.cdRef.detectChanges();
         } else {
-          if (index === 1) {
-            this.QTDData = cData;
+          if (cData.length === 0) {
+            this.showChart = false;
+          } else {
+            if (index === 1) {
+              this.QTDData = cData;
+            }
+            if (index === 2) {
+              this.YTDData = cData;
+            }
+            if (index === 3) {
+              this.ITDData = cData;
+            }
           }
-          if (index === 2) {
-            this.YTDData = cData;
-          }
-          if (index === 3) {
-            this.ITDData = cData;
-          }
-        }
+      }
       });
       if (cData.length > 0) {
         this.showChart = true;

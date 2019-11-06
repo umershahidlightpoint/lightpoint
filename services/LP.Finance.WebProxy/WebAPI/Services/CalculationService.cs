@@ -146,16 +146,23 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                     }
                                     else
                                     {
-                                        //For QTD, determine the month offset of this quarter. If it is the beginning of the quarter for e.g (April for Q2), value will remain the same. Otherwise, calculated value will depend on the previous result.
-                                        newDecimalValue = CalculateQTD(item, priorData);
-                                        if (CheckForChanges(item.QTD, newDecimalValue))
-                                        {
-                                            item.Modified = true;
-                                        }
-
                                         if (CheckForBeginningOfQuarter(item.PerformanceDate))
                                         {
                                             quarterCount[item.PerformanceDate.Month] += 1;
+                                        }
+
+                                        //For QTD, determine the month offset of this quarter. If it is the beginning of the quarter for e.g (April for Q2), value will remain the same. Otherwise, calculated value will depend on the previous result.
+                                        if (IfDatesLieInTheSameQuarter(priorData.PerformanceDate, item.PerformanceDate))
+                                        {
+                                            newDecimalValue = CalculateQTD(item, priorData);
+                                        }
+                                        else
+                                        {
+                                            newDecimalValue = item.MTD.HasValue ? item.MTD.Value : 0;
+                                        }
+                                        if (CheckForChanges(item.QTD, newDecimalValue))
+                                        {
+                                            item.Modified = true;
                                         }
 
                                         item.QTD = newDecimalValue;
@@ -315,6 +322,33 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
+        private bool IfDatesLieInTheSameQuarter(DateTime priorDate, DateTime currentDate)
+        {
+            int startOfQuarter = priorDate.Month;
+            int endOfQuarter = GetRelevantQuarter(startOfQuarter) + 2;
+            return (currentDate.Month >= startOfQuarter && currentDate.Month <= endOfQuarter);
+        }
+
+        private int GetRelevantQuarter(int month)
+        {
+            if(month == 1 || month == 2 || month == 3)
+            {
+                return 1;
+            }
+            else if(month == 4 || month == 5 || month == 6)
+            {
+                return 4;
+            }
+            else if(month == 7 || month == 8 || month == 9)
+            {
+                return 7;
+            }
+            else
+            {
+                return 10;
+            }
+        }
+
         public static object DBNullValueorStringIfNotNull(string value)
         {
             if (IsNullOrEmpty(value))
@@ -406,6 +440,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.VerifyConnection();
                 sqlHelper.SqlBeginTransaction();
 
+                var monthlyPerformanceQuery = $@"DELETE FROM [unofficial_daily_pnl];";
+
+                sqlHelper.Delete(monthlyPerformanceQuery, CommandType.Text);
+
                 new SQLBulkHelper().Insert("unofficial_daily_pnl", obj.ToArray(), sqlHelper.GetConnection(),
                     sqlHelper.GetTransaction());
                 
@@ -492,6 +530,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
+
         public decimal CalculateYTDPerformance(MonthlyPerformance current, MonthlyPerformance prior)
         {
             var currentPerformance = current.Performance.HasValue ? current.Performance.Value : 0;
@@ -574,65 +613,56 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return Utils.Wrap(true, json);
         }
 
+       
+
         public object GetDailyUnofficialPnl()
-        {
-            var query = $@"SELECT id AS Id,
-                           created_date as Created_Date,
-                            last_updated_date as LastUpdatedDate,
-                            created_by as CreatedBy
-                            last_updated_by as LastUpdatedBy
-                            business_date as BusinessDate,
-                            portfolio as PortFolio,
-                            fund as Fund,
-                            trading_mtd_pnl as TradingMtdPnl,
-                            calc_trading_mtd_pnl as CalcTradingMtdPnl,
-                            trading_ytd_pnl as TradingYtdPnl,
-                            mtd_final_pnl as MtdFinalPnl,
-                            ytd_final_pnl as YtdFinalPnl,
-                            mtd_ipo_pnl as MtdIpoPnl,
-                            ytd_ipo_pnl as YtdIpoPnl,
-                            mtd_total_pnl as MtdTotalPnl,
-                            calc_mtd_total as CalcMtdTotal,
-                            ytd_total_pnl as YtdTotalPnl";
-
-            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
-
-            var jsonResult = JsonConvert.SerializeObject(dataTable);
-
-            dynamic json = JsonConvert.DeserializeObject(jsonResult);
-
-            return Utils.Wrap(true, json);
-        }
-
-        public object GetDailyUnofficialPnlAudit()
         {
             try
             {
-                var query = $@"SELECT id AS Id,
-                           created_date as Created_Date,
-                            last_updated_date as LastUpdatedDate,
-                            created_by as CreatedBy
-                            last_updated_by as LastUpdatedBy
-                            business_date as BusinessDate,
-                            portfolio as PortFolio,
-                            fund as Fund,
-                            trading_mtd_pnl as TradingMtdPnl,
-                            calc_trading_mtd_pnl as CalcTradingMtdPnl,
-                            trading_ytd_pnl as TradingYtdPnl,
-                            mtd_final_pnl as MtdFinalPnl,
-                            ytd_final_pnl as YtdFinalPnl,
-                            mtd_ipo_pnl as MtdIpoPnl,
-                            ytd_ipo_pnl as YtdIpoPnl,
-                            mtd_total_pnl as MtdTotalPnl,
-                            calc_mtd_total as CalcMtdTotal,
-                            ytd_total_pnl as YtdTotalPnl
-                            from unofficial_daily_pnl";
+                var query = $@"SELECT [id] as Id
+                          ,[created_by] as CreatedBy
+                          ,[created_date] as CreatedDate
+                          ,[last_updated_by] as LastUpdatedBy
+                          ,[last_updated_date] as LastUpdatedDate
+                          ,[business_date] as BusinessDate
+                          ,[portfolio] as PortFolio
+                          ,[fund] as Fund
+                          ,[trade_pnl] as TradePnL
+                          ,[day] as Day
+                          ,[daily_percentage_return] as DailyPercentageReturn
+                          ,[long_pnl] as LongPnL
+                          ,[long_percentage_change] as LongPercentageChange
+                          ,[short_pnl] as ShortPnL
+                          ,[short_percentage_change] as ShortPercentageChange
+                          ,[long_exposure] as LongExposure
+                          ,[short_exposure] as ShortExposure
+                          ,[gross_exposure] as GrossExposure
+                          ,[net_exposure] as NetExposure
+                          ,[six_md_beta_net_exposure] as SixMdBetaNetExposure
+                          ,[two_yw_beta_net_exposure] as TwoYwBetaNetExposure
+                          ,[six_md_beta_short_exposure] as SixMdBetaShortExposure
+                          ,[nav_market] as NavMarket
+                          ,[dividend_usd] as DividendUSD
+                          ,[comm_usd] as CommUSD
+                          ,[fee_taxes_usd] as FeeTaxesUSD
+                          ,[financing_usd] as FinancingUSD
+                          ,[other_usd] as OtherUSD
+                          ,[pnl_percentage] as PnLPercentage
+                          ,[mtd_percentage_return] as MTDPercentageReturn
+                          ,[qtd_percentage_return] as QTDPercentageReturn
+                          ,[ytd_percentage_return] as YTDPercentageReturn
+                          ,[itd_percentage_return] as ITDPercentageReturn
+                          ,[mtd_pnl] as MTDPnL
+                          ,[qtd_pnl] as QTDPnL
+                          ,[ytd_pnl] as YTDPnL
+                          ,[itd_pnl] as ITDPnL
+                      FROM [dbo].[unofficial_daily_pnl] ORDER BY business_date ASC, id ASC";
 
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
 
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
 
-                dynamic json = JsonConvert.DeserializeObject(jsonResult);
+                var json = JsonConvert.DeserializeObject<List<DailyPnL>>(jsonResult);
 
                 return Utils.Wrap(true, json, HttpStatusCode.OK, "Daily Unofficial Pnl fetched successfully");
             }
@@ -784,7 +814,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                             if(priorData != null)
                             {
                                 item.MTDPercentageReturn = CalculateDailyMTD(item, priorData);
-                                item.MTDPnL = CalculateDailyPnl(item.Day, priorData.Day);
+                                item.MTDPnL = CalculateDailyPnl(item.Day, priorData.MTDPnL);
                             }
                             else
                             {
@@ -818,7 +848,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                 }
                                 else
                                 {
-                                    item.QTDPercentageReturn = CalculateDailyQTD(item, priorDataForQuarter);
+                                    if(IfDatesLieInTheSameQuarter(priorDataForQuarter.BusinessDate, item.BusinessDate))
+                                    {
+                                        item.QTDPercentageReturn = CalculateDailyQTD(item, priorDataForQuarter);
+                                    }
+                                    else
+                                    {
+                                        item.QTDPercentageReturn = item.MTDPercentageReturn;
+                                    }
                                 }
                             }
                             else
@@ -895,6 +932,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
 
             return Utils.Wrap(true, sorted, HttpStatusCode.OK, "Performance calculated successfully");
+        }
+
+        public object CalculateDailyUnofficialPnl(List<DailyPnL> obj)
+        {
+            return CalculateDailyPerformance(obj);
         }
     }
 }

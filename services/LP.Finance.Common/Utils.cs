@@ -6,6 +6,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -124,7 +125,7 @@ namespace LP.Finance.Common
             var content = new StringContent(JsonConvert.SerializeObject(webContent), Encoding.UTF8, "application/json");
 
             HttpResponseMessage response = await client.PostAsync(url, content);
-            if (response.IsSuccessStatusCode)
+            if (response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.BadRequest)
             {
                 result = response.Content.ReadAsStringAsync();
             }
@@ -143,7 +144,43 @@ namespace LP.Finance.Common
             var content = new StringContent(JsonConvert.SerializeObject(webContent), Encoding.UTF8, "application/json");
 
             HttpResponseMessage response = await client.PostAsync(url, content);
-            if (response.IsSuccessStatusCode)
+            if (response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.BadRequest)
+            {
+                result = response.Content.ReadAsStringAsync();
+            }
+
+            return await result;
+        }
+
+        public static async Task<string> PutWebApi(string webApi, string webUri, object webContent)
+        {
+            Task<string> result = null;
+
+            var client = new HttpClient();
+            string projectWebApi = ConfigurationManager.AppSettings[webApi];
+            var url = $"{projectWebApi}{webUri}";
+
+            var content = new StringContent(JsonConvert.SerializeObject(webContent), Encoding.UTF8, "application/json");
+
+            HttpResponseMessage response = await client.PutAsync(url, content);
+            if (response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.BadRequest)
+            {
+                result = response.Content.ReadAsStringAsync();
+            }
+
+            return await result;
+        }
+
+        public static async Task<string> DeleteWebApi(string webApi, string webUri)
+        {
+            Task<string> result = null;
+
+            var client = new HttpClient();
+            string projectWebApi = ConfigurationManager.AppSettings[webApi];
+            var url = $"{projectWebApi}{webUri}";
+
+            HttpResponseMessage response = await client.DeleteAsync(url);
+            if (response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.BadRequest)
             {
                 result = response.Content.ReadAsStringAsync();
             }

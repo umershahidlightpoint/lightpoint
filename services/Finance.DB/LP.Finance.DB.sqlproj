@@ -91,5 +91,7 @@
     <Build Include="StoredProcs\TaxRates.sql" />
     <Build Include="Views\vwJournal.sql" />
     <Build Include="StoredProcs\Reconcile.sql" />
+    <Build Include="StoredProcs\FundTheoretical.sql" />
+    <Build Include="StoredProcs\DailyPnl.sql" />
   </ItemGroup>
 </Project>

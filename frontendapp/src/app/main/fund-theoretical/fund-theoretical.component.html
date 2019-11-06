@@ -36,17 +36,19 @@
             </button>
             <input #fileInput class="btn btn-info file-upload-btn" type="file"
               (change)="onFileInput($event.target.files)">
-            <button class="btn btn-info ml-2" type="button" (click)="uploadRows()" [disabled]="disableFileUpload">
+            <button class="btn btn-info ml-2" type="button" (click)="uploadRows()" [disabled]="disableFileUpload || uploadLoader" >
               Upload
+              <span *ngIf="uploadLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             </button>
           </div>
           <!-- Generate Rows Div Ends -->
 
           <!-- Action Buttons Div Starts -->
           <div class="ml-auto mr-2">
-            <button class="btn btn-info ml-2" type="button" [disabled]="disableCommit"
+            <button class="btn btn-info ml-2" type="button" [disabled]="disableCommit || commitLoader"
               (click)="commitPerformanceData()">
               Commit
+              <span *ngIf="commitLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             </button>
             <button class="btn btn-info ml-2" type="button" tooltip="View Graph" [disabled]="disableCharts"
               (click)="expandedClicked()">
@@ -76,7 +78,7 @@
 
             <!-- App Calculation Graphs Div Starts -->
             <div *ngIf="isExpanded" class="col-6">
-              <app-calculation-graphs class="w-50 h-50" [chartData]="graphObject">
+              <app-calculation-graphs class="w-50 h-50" [chartData]="graphObject" [mode]="'many'">
               </app-calculation-graphs>
             </div>
             <!-- App Calculation Graphs Div Ends -->

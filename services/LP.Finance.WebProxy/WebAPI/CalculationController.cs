@@ -75,7 +75,7 @@ namespace LP.Finance.WebProxy.WebAPI
         [HttpGet]
         public object GetDailyUnofficialPnl()
         {
-            return controller.GetMonthlyPerformance();
+            return controller.GetDailyUnofficialPnl();
         }
 
         [Route("dailyUnofficialPnlAudit")]
@@ -89,6 +89,12 @@ namespace LP.Finance.WebProxy.WebAPI
         public async Task<object> UploadDailyUnofficialPnl()
         {
             return await controller.UploadDailyUnofficialPnl(Request);
+        }
+
+        [HttpPost, Route("dailyUnofficialPnlAudit/calculate")]
+        public object CalculateDailyUnofficialPnl(List<DailyPnL> obj)
+        {
+            return controller.CalculateDailyUnofficialPnl(obj);
         }
     }
 }

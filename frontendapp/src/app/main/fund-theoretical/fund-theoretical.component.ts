@@ -54,6 +54,8 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   disableCharts = true;
   isTaxRateActive = false;
   isDailyPnLActive = false;
+  uploadLoader = false;
+  commitLoader = false;
 
   confirmOption = {
     generateRows: false,
@@ -152,6 +154,9 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         this.monthlyPerformanceData.push(this.createRow(this.currentYear, this.currentMonth, 0));
       }
 
+      if(this.monthlyPerformanceData.length > 0){
+        this.disableCharts = false;
+      }
       this.fundTheoreticalGrid.api.setRowData(this.monthlyPerformanceData);
     });
   }
@@ -519,7 +524,9 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
   uploadMonthlyPerformance() {
     let rowNodeId = 1;
+    this.uploadLoader = true;
     this.financeService.uploadMonthlyPerformance(this.fileToUpload).subscribe(response => {
+      this.uploadLoader = false;
       if (response.isSuccessful) {
         const modifiedData = response.payload.map(data => {
           return { ...data, RowId: rowNodeId++, Estimated: true };
@@ -586,7 +593,9 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         performanceDate: data.year + '-' + this.getMomentMonth(data.month) + '-' + '01'
       }));
 
+      this.commitLoader = true;
       this.financeService.commitMonthlyPerformance(formattedRecords).subscribe(response => {
+        this.commitLoader = false;
         if (response.isSuccessful) {
           this.toastrService.success('Sucessfully Commited.');
           this.getMonthlyPerformance();

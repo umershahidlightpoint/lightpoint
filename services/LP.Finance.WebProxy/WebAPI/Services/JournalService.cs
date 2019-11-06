@@ -286,21 +286,23 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         private object AllData(int pageNumber, int pageSize, string sortColum = "id", string sortDirection = "asc",
             int accountId = 0, int value = 0)
         {
-            // Get the Data, We will Get the Results Later
-            var transactionResults = Utils.GetWebApiData(allocationsURL);
-
-            dynamic postingEngine = new PostingEngineService().GetProgress();
-
-            if (postingEngine.IsRunning)
+            try
             {
-                return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
-            }
+                // Get the Data, We will Get the Results Later
+                var transactionResults = Utils.GetWebApiData(allocationsURL);
 
-            journalStats journalStats = new journalStats();
-            bool whereAdded = false;
+                dynamic postingEngine = new PostingEngineService().GetProgress();
 
-            // Depending on type
-            var query = $@"select 
+                if (postingEngine.IsRunning)
+                {
+                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                }
+
+                journalStats journalStats = new journalStats();
+                bool whereAdded = false;
+
+                // Depending on type
+                var query = $@"select 
                         d.overall_count   , 
                         (sum(d.debit)  OVER()) as totalDebit,
                         (sum(d.credit)  OVER()) as totalCredit, 
@@ -356,170 +358,180 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         join [account_type] on  [account].account_type_id = [account_type].id
                         join [account_category] on  [account_type].account_category_id = [account_category].id";
 
-            List<SqlParameter> sqlParams = new List<SqlParameter>();
-            sqlParams.Add(new SqlParameter("pageNumber", pageNumber));
-            sqlParams.Add(new SqlParameter("pageSize", pageSize));
+                List<SqlParameter> sqlParams = new List<SqlParameter>();
+                sqlParams.Add(new SqlParameter("pageNumber", pageNumber));
+                sqlParams.Add(new SqlParameter("pageSize", pageSize));
 
-            if (accountId > 0 || value > 0)
-            {
-                query = query + "where";
-            }
-
-            if (accountId > 0)
-            {
-                query = query + "   account.id = @accountId";
-                whereAdded = true;
-                sqlParams.Add(new SqlParameter("accountId", accountId));
-            }
-
-            if (value > 0)
-            {
-                if (whereAdded)
+                if (accountId > 0 || value > 0)
                 {
-                    query = query + " and  [journal].[value] > @value";
-                }
-                else
-                {
-                    query = query + "  [journal].[value] > " + @value;
+                    query = query + "where";
                 }
 
-                sqlParams.Add(new SqlParameter("@value", @value));
+                if (accountId > 0)
+                {
+                    query = query + "   account.id = @accountId";
+                    whereAdded = true;
+                    sqlParams.Add(new SqlParameter("accountId", accountId));
+                }
+
+                if (value > 0)
+                {
+                    if (whereAdded)
+                    {
+                        query = query + " and  [journal].[value] > @value";
+                    }
+                    else
+                    {
+                        query = query + "  [journal].[value] > " + @value;
+                    }
+
+                    sqlParams.Add(new SqlParameter("@value", @value));
+                }
+
+
+                if (sortColum == "id" && sortDirection == "1")
+                {
+                    query = query + "  ORDER BY  [journal].[id] asc ";
+                }
+
+                if (sortColum == "source" && sortDirection == "1")
+                {
+                    query = query + "  ORDER BY  [journal].[source] asc ";
+                }
+
+                if (sortColum == "source" && sortDirection == "-1")
+                {
+                    query = query + "  ORDER BY  [journal].[source] desc ";
+                }
+
+                if (sortColum == "when" && sortDirection == "1")
+                {
+                    query = query + "  ORDER BY  [journal].[when] asc ";
+                }
+
+                if (sortColum == "when" && sortDirection == "-1")
+                {
+                    query = query + "  ORDER BY  [journal].[when] desc ";
+                }
+
+                if (pageSize > 0)
+                {
+                    query = query + "   OFFSET(@pageNumber -1) * @pageSize ROWS FETCH NEXT @pageSize  ROWS ONLY";
+                }
+
+                query = query + " ) as d ORDER BY  [d].[id] desc";
+
+                Console.WriteLine("===");
+                Console.WriteLine(query);
+                Console.WriteLine("===");
+
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+
+                transactionResults.Wait();
+
+                var res = JsonConvert.DeserializeObject<PayLoad>(transactionResults.Result);
+
+                var elements = JsonConvert.DeserializeObject<Transaction[]>(res.payload);
+                var dictionary = elements.ToDictionary(i => i.TradeId, i => i);
+
+                foreach (var element in dataTable.Rows)
+                {
+                    var dataRow = element as DataRow;
+
+                    dataRow["debit"] = Math.Abs(Convert.ToDecimal(dataRow["debit"]));
+                }
+
+                HelperFunctions.Join(dataTable, dictionary, "source");
+
+                var metaData = MetaData.ToMetaData(dataTable);
+
+                metaData.Total = dataTable.Rows.Count > 0 ? Convert.ToInt32(dataTable.Rows[0][0]) : 0;
+                journalStats.totalCredit = dataTable.Rows.Count > 0 ? Convert.ToDouble(dataTable.Rows[0]["totalDebit"]) : 0;
+                journalStats.totalDebit = dataTable.Rows.Count > 0
+                    ? Math.Abs(Convert.ToDouble(dataTable.Rows[0]["totalCredit"]))
+                    : 0;
+
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+                dynamic json = JsonConvert.DeserializeObject(jsonResult);
+
+                var returnResult = Utils.Wrap(true, json, HttpStatusCode.OK, null, metaData, journalStats);
+
+                return returnResult;
             }
-
-
-            if (sortColum == "id" && sortDirection == "1")
+            catch(Exception ex)
             {
-                query = query + "  ORDER BY  [journal].[id] asc ";
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
-
-            if (sortColum == "source" && sortDirection == "1")
-            {
-                query = query + "  ORDER BY  [journal].[source] asc ";
-            }
-
-            if (sortColum == "source" && sortDirection == "-1")
-            {
-                query = query + "  ORDER BY  [journal].[source] desc ";
-            }
-
-            if (sortColum == "when" && sortDirection == "1")
-            {
-                query = query + "  ORDER BY  [journal].[when] asc ";
-            }
-
-            if (sortColum == "when" && sortDirection == "-1")
-            {
-                query = query + "  ORDER BY  [journal].[when] desc ";
-            }
-
-            if (pageSize > 0)
-            {
-                query = query + "   OFFSET(@pageNumber -1) * @pageSize ROWS FETCH NEXT @pageSize  ROWS ONLY";
-            }
-
-            query = query + " ) as d ORDER BY  [d].[id] desc";
-
-            Console.WriteLine("===");
-            Console.WriteLine(query);
-            Console.WriteLine("===");
-
-            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
-
-            transactionResults.Wait();
-
-            var res = JsonConvert.DeserializeObject<PayLoad>(transactionResults.Result);
-
-            var elements = JsonConvert.DeserializeObject<Transaction[]>(res.payload);
-            var dictionary = elements.ToDictionary(i => i.TradeId, i => i);
-
-            foreach (var element in dataTable.Rows)
-            {
-                var dataRow = element as DataRow;
-
-                dataRow["debit"] = Math.Abs(Convert.ToDecimal(dataRow["debit"]));
-            }
-
-            HelperFunctions.Join(dataTable, dictionary, "source");
-
-            var metaData = MetaData.ToMetaData(dataTable);
-
-            metaData.Total = dataTable.Rows.Count > 0 ? Convert.ToInt32(dataTable.Rows[0][0]) : 0;
-            journalStats.totalCredit = dataTable.Rows.Count > 0 ? Convert.ToDouble(dataTable.Rows[0]["totalDebit"]) : 0;
-            journalStats.totalDebit = dataTable.Rows.Count > 0
-                ? Math.Abs(Convert.ToDouble(dataTable.Rows[0]["totalCredit"]))
-                : 0;
-
-            var jsonResult = JsonConvert.SerializeObject(dataTable);
-            dynamic json = JsonConvert.DeserializeObject(jsonResult);
-
-            var returnResult = Utils.Wrap(true, json, HttpStatusCode.OK, null, metaData, journalStats);
-
-            return returnResult;
         }
 
         public object GetCostBasisReport(DateTime? date, string fund)
         {
-            dynamic postingEngine = new PostingEngineService().GetProgress();
-            if (postingEngine.IsRunning)
+            try
             {
-                return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
-            }
+                dynamic postingEngine = new PostingEngineService().GetProgress();
+                if (postingEngine.IsRunning)
+                {
+                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                }
 
-            var businessDate = System.DateTime.Now;
-            if (date.HasValue)
-                businessDate = date.Value.Date;
+                var businessDate = System.DateTime.Now;
+                if (date.HasValue)
+                    businessDate = date.Value.Date;
 
-            var query = $@"select business_date, symbol, Balance, Quantity, cost_basis as CostBasis, Side,
+                var query = $@"select business_date, symbol, Balance, Quantity, cost_basis as CostBasis, Side,
                         realized_pnl,
                         unrealized_pnl,
                         realized_pnl + unrealized_pnl as Pnl
                        from cost_basis
                         where business_date = '{businessDate.ToString("MM-dd-yyyy")}'";
 
-            List<SqlParameter> sqlParams = new List<SqlParameter>();
+                List<SqlParameter> sqlParams = new List<SqlParameter>();
 
-            /*
-            if (date.HasValue)
-            {
-                sqlParams.Add(new SqlParameter("date", date));
-                query = query + " AND journal.[when] <= @date";
+                /*
+                if (date.HasValue)
+                {
+                    sqlParams.Add(new SqlParameter("date", date));
+                    query = query + " AND journal.[when] <= @date";
+                }
+
+                if (fund != "ALL")
+                {
+                    sqlParams.Add(new SqlParameter("fund", fund));
+                    query = query + " AND journal.[fund] = @fund";
+                }
+
+                query = query +
+                        "  GROUP BY a.name, journal.symbol";
+                */
+
+
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+                var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                return reportObject;
             }
-
-            if (fund != "ALL")
+            catch(Exception ex)
             {
-                sqlParams.Add(new SqlParameter("fund", fund));
-                query = query + " AND journal.[fund] = @fund";
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
-
-            query = query +
-                    "  GROUP BY a.name, journal.symbol";
-            */
-
-
-            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
-
-            dynamic reportObject = new System.Dynamic.ExpandoObject();
-
-            reportObject.data = dataTable;
-
-            return reportObject;
         }
 
         public object GetCostBasisChart(string symbol)
         {
-            dynamic postingEngine = new PostingEngineService().GetProgress();
-
-            if (postingEngine.IsRunning)
+            try
             {
-                return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
-            }
+                dynamic postingEngine = new PostingEngineService().GetProgress();
 
-            List<SqlParameter> sqlParams = new List<SqlParameter>
+                if (postingEngine.IsRunning)
+                {
+                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                }
+
+                List<SqlParameter> sqlParams = new List<SqlParameter>
             {
                 new SqlParameter("symbol", symbol)
             };
 
-            var query = $@"SELECT business_date AS Date, 
+                var query = $@"SELECT business_date AS Date, 
                         Balance, 
                         Quantity, 
                         cost_basis as CostBasis,
@@ -531,69 +543,79 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         where symbol = @symbol 
                         order BY business_date asc";
 
-            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
-
-            dynamic reportObject = new System.Dynamic.ExpandoObject();
-
-            reportObject.data = dataTable;
-
-            return reportObject;
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+                var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                return reportObject;
+            }
+            catch(Exception ex)
+            {
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+            }
         }
 
         public object GetTaxLotReport(DateTime? from = null, DateTime? to = null, string fund = "")
         {
-            dynamic postingEngine = new PostingEngineService().GetProgress();
-            if (postingEngine.IsRunning)
+            try
             {
-                return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                dynamic postingEngine = new PostingEngineService().GetProgress();
+                if (postingEngine.IsRunning)
+                {
+                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                }
+
+                var query = $@"select * from tax_lot_status";
+
+                List<SqlParameter> sqlParams = new List<SqlParameter>();
+
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+                var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                return reportObject;
             }
-
-            var query = $@"select * from tax_lot_status";
-
-            List<SqlParameter> sqlParams = new List<SqlParameter>();
-
-            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
-
-            dynamic reportObject = new System.Dynamic.ExpandoObject();
-
-            reportObject.data = dataTable;
-
-            return reportObject;
+            catch(Exception ex)
+            {
+                return Utils.Wrap(true, null, HttpStatusCode.InternalServerError);
+            }
         }
 
         public object GetTaxLotsReport(DateTime? from = null, DateTime? to = null, string fund = "")
         {
-            dynamic postingEngine = new PostingEngineService().GetProgress();
-            if (postingEngine.IsRunning)
+            try
             {
-                return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                dynamic postingEngine = new PostingEngineService().GetProgress();
+                if (postingEngine.IsRunning)
+                {
+                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                }
+
+                var query = $@"select *, (cost_basis - trade_price)*quantity as realized_pnl from tax_lot";
+
+                List<SqlParameter> sqlParams = new List<SqlParameter>();
+
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+
+                var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                return reportObject;
             }
-
-            var query = $@"select *, (cost_basis - trade_price)*quantity as realized_pnl from tax_lot";
-
-            List<SqlParameter> sqlParams = new List<SqlParameter>();
-
-            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
-
-            dynamic reportObject = new System.Dynamic.ExpandoObject();
-
-            reportObject.data = dataTable;
-
-            return reportObject;
+            catch(Exception ex)
+            {
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+            }
         }
 
         public object GetTrialBalanceReport(DateTime? from = null, DateTime? to = null, string fund = "")
         {
-            dynamic postingEngine = new PostingEngineService().GetProgress();
-
-            if (postingEngine.IsRunning)
+            try
             {
-                return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
-            }
+                dynamic postingEngine = new PostingEngineService().GetProgress();
 
-            bool whereAdded = false;
+                if (postingEngine.IsRunning)
+                {
+                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                }
 
-            var query = $@"select account.name as AccountName,  
+                bool whereAdded = false;
+
+                var query = $@"select account.name as AccountName,  
                         summary.Debit, summary.Credit,
                         abs(summary.Debit) - abs(summary.Credit) as Balance,
                         (SUM(summary.Debit) over()) as DebitSum, 
@@ -604,87 +626,92 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                             sum(credit) Credit
 				            from vwJournal with(nolock) ";
 
-            List<SqlParameter> sqlParams = new List<SqlParameter>();
+                List<SqlParameter> sqlParams = new List<SqlParameter>();
 
-            if (from.HasValue)
-            {
-                query = query + " where journal.[when] >= @from";
-                whereAdded = true;
-                sqlParams.Add(new SqlParameter("from", from));
-            }
-
-            if (to.HasValue)
-            {
-                if (whereAdded)
+                if (from.HasValue)
                 {
-                    query = query + " and journal.[when] <= @to";
-                    sqlParams.Add(new SqlParameter("to", to));
-                }
-                else
-                {
-                    query = query + " where journal.[when] <= @to";
+                    query = query + " where vwJournal.[when] >= @from";
                     whereAdded = true;
-                    sqlParams.Add(new SqlParameter("to", to));
+                    sqlParams.Add(new SqlParameter("from", from));
                 }
-            }
 
-            if (fund != "ALL")
+                if (to.HasValue)
+                {
+                    if (whereAdded)
+                    {
+                        query = query + " and vwJournal.[when] <= @to";
+                        sqlParams.Add(new SqlParameter("to", to));
+                    }
+                    else
+                    {
+                        query = query + " where vwJournal.[when] <= @to";
+                        whereAdded = true;
+                        sqlParams.Add(new SqlParameter("to", to));
+                    }
+                }
+
+                if (fund != "ALL")
+                {
+                    if (whereAdded)
+                    {
+                        query = query + " and vwJournal.[fund] = @fund";
+                        whereAdded = true;
+                        sqlParams.Add(new SqlParameter("fund", fund));
+                    }
+                    else
+                    {
+                        query = query + " where vwJournal.[fund] = @fund";
+                        whereAdded = true;
+                        sqlParams.Add(new SqlParameter("fund", fund));
+                    }
+                }
+
+                query = query +
+                        "  group by vwJournal.account_id ) summary right join  account on summary.account_id= account.id ";
+
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+
+                journalStats stats = new journalStats();
+                List<TrialBalanceReportOutPutDto> trialBalanceReport = new List<TrialBalanceReportOutPutDto>();
+
+                stats.totalDebit = dataTable.Rows[0]["DebitSum"] != DBNull.Value
+                    ? Math.Abs(Convert.ToDouble(dataTable.Rows[0]["DebitSum"]))
+                    : 0;
+                stats.totalCredit = dataTable.Rows[0]["CreditSum"] != DBNull.Value
+                    ? Convert.ToDouble(dataTable.Rows[0]["CreditSum"])
+                    : 0;
+
+                foreach (DataRow row in dataTable.Rows)
+                {
+                    TrialBalanceReportOutPutDto trialBalance = new TrialBalanceReportOutPutDto();
+                    trialBalance.AccountName = (string)row["AccountName"];
+                    trialBalance.Credit = GetDecimal(row["Credit"]);
+                    trialBalance.Debit = GetDecimal(row["Debit"]);
+                    trialBalance.Balance = GetDecimal(row["Balance"], false);
+
+                    if (trialBalance.Credit.HasValue)
+                    {
+                        trialBalance.CreditPercentage = stats.totalCredit > 0
+                            ? Math.Abs((trialBalance.Credit.Value / Convert.ToInt64(stats.totalCredit)) * 100)
+                            : 0;
+                    }
+
+                    if (trialBalance.Debit.HasValue)
+                    {
+                        trialBalance.DebitPercentage = stats.totalDebit > 0
+                            ? Math.Abs((trialBalance.Debit.Value / Convert.ToInt64(stats.totalCredit)) * 100)
+                            : 0;
+                    }
+
+                    trialBalanceReport.Add(trialBalance);
+                }
+
+                return Utils.Wrap(true, trialBalanceReport, HttpStatusCode.OK, null, null, stats);
+            }
+            catch(Exception ex)
             {
-                if (whereAdded)
-                {
-                    query = query + " and journal.[fund] = @fund";
-                    whereAdded = true;
-                    sqlParams.Add(new SqlParameter("fund", fund));
-                }
-                else
-                {
-                    query = query + " where journal.[fund] = @fund";
-                    whereAdded = true;
-                    sqlParams.Add(new SqlParameter("fund", fund));
-                }
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
-
-            query = query +
-                    "  group by vwJournal.account_id ) summary right join  account on summary.account_id= account.id ";
-
-            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
-
-            journalStats stats = new journalStats();
-            List<TrialBalanceReportOutPutDto> trialBalanceReport = new List<TrialBalanceReportOutPutDto>();
-
-            stats.totalDebit = dataTable.Rows[0]["DebitSum"] != DBNull.Value
-                ? Math.Abs(Convert.ToDouble(dataTable.Rows[0]["DebitSum"]))
-                : 0;
-            stats.totalCredit = dataTable.Rows[0]["CreditSum"] != DBNull.Value
-                ? Convert.ToDouble(dataTable.Rows[0]["CreditSum"])
-                : 0;
-
-            foreach (DataRow row in dataTable.Rows)
-            {
-                TrialBalanceReportOutPutDto trialBalance = new TrialBalanceReportOutPutDto();
-                trialBalance.AccountName = (string) row["AccountName"];
-                trialBalance.Credit = GetDecimal(row["Credit"]);
-                trialBalance.Debit = GetDecimal(row["Debit"]);
-                trialBalance.Balance = GetDecimal(row["Balance"], false);
-
-                if (trialBalance.Credit.HasValue)
-                {
-                    trialBalance.CreditPercentage = stats.totalCredit > 0
-                        ? Math.Abs((trialBalance.Credit.Value / Convert.ToInt64(stats.totalCredit)) * 100)
-                        : 0;
-                }
-
-                if (trialBalance.Debit.HasValue)
-                {
-                    trialBalance.DebitPercentage = stats.totalDebit > 0
-                        ? Math.Abs((trialBalance.Debit.Value / Convert.ToInt64(stats.totalCredit)) * 100)
-                        : 0;
-                }
-
-                trialBalanceReport.Add(trialBalance);
-            }
-
-            return Utils.Wrap(true, trialBalanceReport, HttpStatusCode.OK, null, null, stats);
         }
 
         private decimal? GetDecimal(object o, bool absValue = true)
@@ -796,14 +823,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     Accounts = y.SelectMany(z => z.Accounts).ToList()
                 }).ToList();
 
-                dynamic tileObject = new System.Dynamic.ExpandoObject();
-                tileObject.payload = tileData;
-                tileObject.status = HttpStatusCode.OK;
+                var tileObject = Utils.Wrap(true, tileData, HttpStatusCode.OK);
                 return tileObject;
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false);
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
         }
 
@@ -846,23 +871,26 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object GetClosingTaxLots(string orderid)
         {
-            dynamic postingEngine = new PostingEngineService().GetProgress();
-            if (postingEngine.IsRunning)
+            try
             {
-                return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                dynamic postingEngine = new PostingEngineService().GetProgress();
+                if (postingEngine.IsRunning)
+                {
+                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                }
+
+                var query = $@"select *, (cost_basis - trade_price)*quantity as realized_pnl from tax_lot where open_lot_id='{orderid}'";
+
+                List<SqlParameter> sqlParams = new List<SqlParameter>();
+
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+                var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                return reportObject;
             }
-
-            var query = $@"select *, (cost_basis - trade_price)*quantity as realized_pnl from tax_lot where open_lot_id='{orderid}'";
-
-            List<SqlParameter> sqlParams = new List<SqlParameter>();
-
-            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
-
-            dynamic reportObject = new System.Dynamic.ExpandoObject();
-
-            reportObject.data = dataTable;
-
-            return reportObject;
+            catch(Exception ex)
+            {
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+            }
         }
     }
 }

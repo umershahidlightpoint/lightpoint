@@ -14,7 +14,7 @@ namespace LP.Finance.WebProxy.WebAPI.Resolvers
             var performanceDateTo = string.IsNullOrWhiteSpace(dateTo) ? (DateTime?)null : Convert.ToDateTime(dateTo);
             var monthlyPerformanceResult =
                 new CalculationService().GetMonthlyPerformance(performanceDateFrom, performanceDateTo, fund, portfolio);
-            var monthlyPerformance = monthlyPerformanceResult.GetType().GetProperty("data")
+            var monthlyPerformance = monthlyPerformanceResult.GetType().GetProperty("payload")
                 ?.GetValue(monthlyPerformanceResult, null);
 
             var records = JsonConvert.SerializeObject(monthlyPerformance);
