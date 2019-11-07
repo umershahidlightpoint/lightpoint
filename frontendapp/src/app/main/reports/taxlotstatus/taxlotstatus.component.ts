@@ -120,6 +120,14 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           hide: true
         },
         {
+          field: 'trade_date',
+          width: 120,
+          headerName: 'Trade Date',
+          sortable: true,
+          filter: true,
+          valueFormatter: DateFormatter
+        },
+        {
           field: 'business_date',
           width: 120,
           headerName: 'Date',
@@ -168,7 +176,17 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           cellClass: 'rightAlign',
           valueFormatter: currencyFormatter,
           aggFunc: 'sum'
+        },
+        {
+          field: 'investment_at_cost',
+          headerName: 'Investment @ Cost',
+          width: 100,
+          filter: true,
+          sortable: true,
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
         }
+
       ],
       defaultColDef: {
         sortable: true,
@@ -226,6 +244,14 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           headerName: 'Closing Tax Lot',
           sortable: true,
           filter: true
+        },
+        {
+          field: 'trade_date',
+          width: 120,
+          headerName: 'Trade Date',
+          sortable: true,
+          filter: true,
+          valueFormatter: DateFormatter
         },
         {
           field: 'business_date',

@@ -209,6 +209,8 @@ namespace PostingEngine.PostingRules
             if ( element.IsBuy() || element.IsShort())
             {
                 var tl = new TaxLotStatus {
+                    TradeDate = element.TradeDate,
+                    InvestmentAtCost = element.NetMoney,
                     BusinessDate = element.TradeDate,
                     Symbol = element.Symbol,
                     Side = element.Side,

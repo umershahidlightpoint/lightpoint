@@ -7,7 +7,8 @@
 	[business_date] [date] NOT NULL,
 	[cost_basis] [numeric](18, 9) NOT NULL,
 	[trade_price] [numeric](18, 9) NOT NULL,
- CONSTRAINT [PK_tax_lots] PRIMARY KEY CLUSTERED 
+ [trade_date] NCHAR(10) NOT NULL DEFAULT getdate(), 
+    CONSTRAINT [PK_tax_lots] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]

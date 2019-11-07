@@ -163,10 +163,20 @@ namespace PostingEngine.PostingRules
                 fxrate = Convert.ToDouble(env.FxRates[element.SettleCurrency].Rate);
             }
 
-            var moneyUSD = Math.Abs(element.NetMoney) * fxrate;
-
             if (element.NetMoney != 0.0)
             {
+                var moneyUSD = Math.Abs(element.NetMoney) * fxrate;
+
+                // BUY -- Debit
+                // SELL -- Credit
+
+                if (element.IsShort() || element.IsSell())
+                    moneyUSD = moneyUSD * -1;
+
+                if ( element.Symbol.Equals("FB"))
+                {
+
+                }
                 var debit = new Journal
                 {
                     Source = debitEntry.LpOrderId,
@@ -379,6 +389,8 @@ namespace PostingEngine.PostingRules
             if ( element.IsBuy() || element.IsShort())
             {
                 var tl = new TaxLotStatus {
+                    InvestmentAtCost = element.NetMoney,
+                    TradeDate = element.TradeDate,
                     BusinessDate = element.TradeDate,
                     Symbol = element.Symbol,
                     Side = element.Side,
@@ -429,7 +441,8 @@ namespace PostingEngine.PostingRules
                             if (Math.Abs(taxlotStatus.Quantity) >= Math.Abs(workingQuantity))
                             {
                                 var tl = new TaxLot {
-                                    BusinessDate = env.ValueDate,
+                                    TradeDate = element.TradeDate,
+                                    BusinessDate = env.BusinessDate,
                                     OpeningLotId = lot.Trade.LpOrderId,
                                     ClosingLotId = element.LpOrderId,
                                     TradePrice = lot.Trade.SettleNetPrice, // Opening Trade Price
@@ -520,6 +533,7 @@ namespace PostingEngine.PostingRules
                             else
                             {
                                 var tl = new TaxLot {
+                                    TradeDate = element.TradeDate,
                                     BusinessDate = env.ValueDate,
                                     OpeningLotId = lot.Trade.LpOrderId,
                                     ClosingLotId = element.LpOrderId,
@@ -581,16 +595,6 @@ namespace PostingEngine.PostingRules
             new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
 
             double fxrate = 1.0;
-
-            if ( element.IsSell())
-            {
-
-            }
-
-            if (element.IsCover())
-            {
-
-            }
 
             // Lets get fx rate if needed
             if ( !element.TradeCurrency.Equals("USD"))
@@ -655,9 +659,9 @@ namespace PostingEngine.PostingRules
             new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
 
             var fund = tradeAllocations[0].Fund;
-            if (String.IsNullOrEmpty(fund))
+            if (element.IsSell() || element.IsCover())
             {
-
+                pnL = pnL * -1;
             }
 
             var fromJournal = new Journal

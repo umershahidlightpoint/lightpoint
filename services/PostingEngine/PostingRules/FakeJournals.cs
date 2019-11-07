@@ -237,8 +237,8 @@ namespace PostingEngine.PostingRules
             // Need to consider both
             if ( element.TradeDate.Date != element.SettleDate.Date)
             {
-                //env.AddMessage($"Journal needs to be checked {element.LpOrderId}, {element.TradeDate}, {element.SettleDate}");
-                //return;
+                env.AddMessage($"Journal needs to be checked {element.LpOrderId}, {element.TradeDate}, {element.SettleDate}");
+                return;
             }
 
             var accountToFrom = GetFromToAccount(element);
@@ -254,6 +254,10 @@ namespace PostingEngine.PostingRules
 
             double fxrate = 1.0;
 
+            if (element.LocalNetNotional == 50000)
+            {
+
+            }
             if (!element.SettleCurrency.Equals("USD"))
             {
                 fxrate = Convert.ToDouble(env.FxRates[element.TradeCurrency].Rate);

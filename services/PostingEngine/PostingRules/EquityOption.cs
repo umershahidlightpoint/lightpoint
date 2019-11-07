@@ -381,6 +381,8 @@ namespace PostingEngine.PostingRules
             if ( element.IsBuy() || element.IsShort())
             {
                 var tl = new TaxLotStatus {
+                    TradeDate = element.TradeDate,
+                    InvestmentAtCost = element.NetMoney,
                     BusinessDate = element.TradeDate,
                     Symbol = element.Symbol,
                     Side = element.Side,
@@ -579,16 +581,6 @@ namespace PostingEngine.PostingRules
 
             double fxrate = 1.0;
 
-            if ( element.IsSell())
-            {
-
-            }
-
-            if (element.IsCover())
-            {
-
-            }
-
             // Lets get fx rate if needed
             if ( !element.TradeCurrency.Equals("USD"))
             {
@@ -597,7 +589,7 @@ namespace PostingEngine.PostingRules
 
             if (element.NetMoney != 0.0)
             {
-                var moneyUSD = element.NetMoney * fxrate;
+                var moneyUSD = Math.Abs(element.NetMoney) * fxrate;
                 if ( element.IsSell() || element.IsCover())
                 {
                     moneyUSD = moneyUSD * -1;

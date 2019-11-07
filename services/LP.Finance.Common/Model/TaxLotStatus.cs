@@ -16,6 +16,8 @@ namespace LP.Finance.Common.Models
         public string Symbol { get; set; }
         public string Side { get; set; }
 
+        public double InvestmentAtCost { get; set; }
+        public DateTime TradeDate { get; set; }
         public DateTime BusinessDate { get; set; }
         public string Status { get; set; }
         public double Quantity { get; set; }
@@ -81,7 +83,7 @@ namespace LP.Finance.Common.Models
             // read the table structure from the database
             var localconnection = new SqlConnection(connection.ConnectionString + ";Password=ggtuser");
             localconnection.Open();
-            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 open_id, status, side, quantity, symbol, business_date, original_quantity FROM tax_lot_status", localconnection))
+            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 open_id, status, side, quantity, symbol, business_date, original_quantity, trade_date, investment_at_cost FROM tax_lot_status", localconnection))
             {
                 adapter.Fill(table);
             };
@@ -99,6 +101,8 @@ namespace LP.Finance.Common.Models
             row["quantity"] = this.Quantity;
             row["original_quantity"] = this.OriginalQuantity;
             row["business_date"] = this.BusinessDate;
+            row["trade_date"] = this.TradeDate;
+            row["investment_at_cost"] = this.InvestmentAtCost;
         }
     }
 

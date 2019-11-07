@@ -5,7 +5,7 @@ const request = require('request');
 const multer = require('multer');
 var upload = multer();
 
-const rootUri = 'http://localhost:9092/api';
+const rootUri = 'http://dev11:9092/api';
 
 /* GET API */
 router.get('*', (req, res) => {
@@ -51,7 +51,7 @@ HttpRequest = (req, res, method) => {
   const data = JSON.stringify(req.body);
 
   const options = {
-    hostname: 'localhost',
+    hostname: 'dev11',
     port: 9092,
     path: '/api' + req.url,
     method: method,
