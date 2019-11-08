@@ -7,7 +7,8 @@
 	[business_date] [date] NOT NULL,
 	[cost_basis] [numeric](18, 9) NOT NULL,
 	[trade_price] [numeric](18, 9) NOT NULL,
- [trade_date] NCHAR(10) NOT NULL DEFAULT getdate(), 
+	[trade_date] DATE NOT NULL DEFAULT getdate(), 
+	[investment_at_cost] DECIMAL(18, 6) NOT NULL DEFAULT 0, 
     CONSTRAINT [PK_tax_lots] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC

@@ -19,7 +19,7 @@ import {
   SetDateRange,
   CommaSeparatedFormat,
   HeightStyle,
-  DateFormatter
+  DateFormatter,
 } from 'src/shared/utils/Shared';
 import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
@@ -125,16 +125,18 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           headerName: 'Trade Date',
           sortable: true,
           filter: true,
-          valueFormatter: DateFormatter
+          valueFormatter: dateFormatter
         },
+        /*
         {
           field: 'business_date',
           width: 120,
           headerName: 'Date',
           sortable: true,
           filter: true,
-          valueFormatter: DateFormatter
+          valueFormatter: dateFormatter
         },
+        */
         {
           field: 'symbol',
           width: 120,
@@ -251,16 +253,18 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           headerName: 'Trade Date',
           sortable: true,
           filter: true,
-          valueFormatter: DateFormatter
+          valueFormatter: dateFormatter
         },
+        /*
         {
           field: 'business_date',
           width: 120,
           headerName: 'Business Date',
           sortable: true,
           filter: true,
-          valueFormatter: DateFormatter
+          valueFormatter: dateFormatter
         },
+        */
         {
           field: 'realized_pnl',
           width: 120,
@@ -338,6 +342,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       this.data = response.payload;
       this.isLoading = false;
       this.gridOptions.api.sizeColumnsToFit();
+      debugger
       this.gridOptions.api.setRowData(this.data);
     });
   }
@@ -457,6 +462,13 @@ function currencyFormatter(params) {
     return;
   }
   return CommaSeparatedFormat(params.value);
+}
+
+function dateFormatter(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  return DateFormatter(params.value);
 }
 
 function priceFormatter(params) {

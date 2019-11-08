@@ -12,6 +12,7 @@ namespace LP.Finance.Common.Models
     {
         public string OpeningLotId { get; set; }
         public string ClosingLotId { get; set; }
+        public double InvestmentAtCost { get; set; }
         public DateTime TradeDate { get; set; }
         public DateTime BusinessDate { get; set; }
         public double Quantity { get; set; }
@@ -37,9 +38,9 @@ namespace LP.Finance.Common.Models
             get
             {
                 var sql = @"insert into tax_lot
-                            (closing_lot_id, open_lot_id, quantity, business_date, cost_basis, trade_price, trade_date) 
+                            (closing_lot_id, open_lot_id, quantity, business_date, cost_basis, trade_price, trade_date, investment_at_cost) 
                             values 
-                            (@closing_lot_id, @open_lot_id, @quantity, @business_date, @cost_basis, @trade_price, @trade_date)";
+                            (@closing_lot_id, @open_lot_id, @quantity, @business_date, @cost_basis, @trade_price, @trade_date, @investment_at_cost)";
                 var sqlParams = new SqlParameter[]
                 {
                     new SqlParameter("closing_lot_id", ClosingLotId),
@@ -49,6 +50,7 @@ namespace LP.Finance.Common.Models
                     new SqlParameter("trade_date", TradeDate),
                     new SqlParameter("cost_basis", CostBasis),
                     new SqlParameter("trade_price", TradePrice),
+                    new SqlParameter("investment_at_cost", InvestmentAtCost),
                 };
 
                 return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);
@@ -79,7 +81,7 @@ namespace LP.Finance.Common.Models
             // read the table structure from the database
             var localconnection = new SqlConnection(connection.ConnectionString + ";Password=ggtuser");
             localconnection.Open();
-            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 cost_basis, trade_price, open_lot_id, closing_lot_id, quantity, buisness_date, trade_date FROM tax_lot", localconnection))
+            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 cost_basis, trade_price, open_lot_id, closing_lot_id, quantity, buisness_date, trade_date, investment_at_cost FROM tax_lot", localconnection))
             {
                 adapter.Fill(table);
             };
@@ -97,6 +99,7 @@ namespace LP.Finance.Common.Models
             row["quantity"] = this.Quantity;
             row["business_date"] = this.BusinessDate;
             row["trade_date"] = this.TradeDate;
+            row["investment_at_cost"] = this.InvestmentAtCost;
         }
     }
 

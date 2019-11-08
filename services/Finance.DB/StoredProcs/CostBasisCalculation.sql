@@ -5,6 +5,24 @@ AS
 DECLARE @bDate as Date
 SET @bDate = @businessDate
 
+select 
+@bDate as busdate,
+symbol, 
+SUM(tls.investment_at_cost + Coalesce(tl.investment_at_cost, 0)) * -1 as Balance, 
+SUM(tls.original_quantity +Coalesce(tl.quantity, 0)) as Quantity, 
+ABS(SUM(tls.investment_at_cost + Coalesce(tl.investment_at_cost, 0)) / SUM(tls.original_quantity +Coalesce(tl.quantity, 0))) as CostBasis, 
+CASE
+	WHEN tls.side = 'BUY' then 'LONG'
+	ELSE 'SHORT'
+End as Side,
+0 as eod_price
+into #costbasis_all
+from tax_lot_status tls
+left outer join tax_lot tl on tl.Open_lot_id = tls.open_id and tls.trade_date <= @bDate and tl.trade_date <= @bDate
+-- where tls.trade_date <= @bDate and tl.trade_date <= @bDate
+group by symbol, side
+
+
 SELECT @bDate as busdate, j.symbol, sum(debit - credit) as Balance, sum(j.quantity) as Quantity, Abs(sum(value)) / sum(j.quantity) as CostBasis, 'LONG' as Side, Avg(j.end_price) as eod_price
 into #costbasis_long
 FROM vwJournal j
@@ -77,15 +95,17 @@ delete from cost_basis where business_date = @bDate and Side = 'SHORT'
 
 insert into cost_basis ( business_date, symbol, balance, quantity, cost_basis, side, realized_pnl, unrealized_pnl, eod_price )
 select cb.busdate, cb.symbol, cb.Balance, cb.Quantity, cb.CostBasis, cb.Side, coalesce(rl.realized_pnl,0), coalesce(ul.unrealized_pnl,0) , cb.eod_price
-from #costbasis_long cb 
+from #costbasis_all cb 
 left outer join #unrealized_long ul on ul.busdate = cb.busdate and ul.symbol = cb.symbol and ul.Side = cb.Side
 left outer join #realized_long rl on rl.busdate = cb.busdate and rl.symbol = cb.symbol and rl.Side = cb.Side
+where cb.Side = 'LONG'
 
 insert into cost_basis ( business_date, symbol, balance, quantity, cost_basis, side, realized_pnl, unrealized_pnl, eod_price )
 select cb.busdate, cb.symbol, cb.Balance, cb.Quantity, cb.CostBasis, cb.Side, coalesce(rl.realized_pnl,0), coalesce(ul.unrealized_pnl,0) , cb.eod_price
-from #costbasis_short cb 
+from #costbasis_all cb 
 left outer join #unrealized_short ul on ul.busdate = cb.busdate and ul.symbol = cb.symbol and ul.Side = cb.Side
 left outer join #realized_short rl on rl.busdate = cb.busdate and rl.symbol = cb.symbol and rl.Side = cb.Side
+where cb.Side = 'SHORT'
 
 commit tran
 

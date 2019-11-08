@@ -546,6 +546,10 @@ export const PercentageFormatter = (value: number) => {
   return value * 100;
 };
 
+export const DateFormatterCol = (dateToFormat: Date) => {
+  return moment(dateToFormat).format('YYYY-MM-DD');
+};
+
 export const DateFormatter = dateToFormat => {
   return moment(dateToFormat).format('YYYY-MM-DD');
 };

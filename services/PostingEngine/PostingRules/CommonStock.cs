@@ -442,6 +442,7 @@ namespace PostingEngine.PostingRules
                             {
                                 var tl = new TaxLot {
                                     TradeDate = element.TradeDate,
+                                    InvestmentAtCost = element.NetMoney,
                                     BusinessDate = env.BusinessDate,
                                     OpeningLotId = lot.Trade.LpOrderId,
                                     ClosingLotId = element.LpOrderId,
@@ -534,6 +535,7 @@ namespace PostingEngine.PostingRules
                             {
                                 var tl = new TaxLot {
                                     TradeDate = element.TradeDate,
+                                    InvestmentAtCost = element.NetMoney,
                                     BusinessDate = env.ValueDate,
                                     OpeningLotId = lot.Trade.LpOrderId,
                                     ClosingLotId = element.LpOrderId,
