@@ -243,7 +243,7 @@ namespace PostingEngine
                     Methodology = BaseTaxLotMethodology.GetTaxLotMethodology("FIFO") // Needs to be driven by the system setup
                 };
 
-                PostingEngineCallBack?.Invoke("Starting Batch Posting Engine -- Trades on" + DateTime.Now);
+                PostingEngineCallBack?.Invoke($"Starting Batch Posting Engine -- Trades on {DateTime.Now}");
 
                 new JournalLog()
                 {

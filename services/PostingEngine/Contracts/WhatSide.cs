@@ -67,6 +67,12 @@ namespace PostingEngine.Contracts
             return side.ToLowerInvariant().Equals(SHORT);
         }
 
+        public static bool IsShort(this TaxLotStatus tls)
+        {
+            if (string.IsNullOrEmpty(tls.Side)) return false;
+            return tls.Side.ToLowerInvariant().Equals(SHORT);
+        }
+
         public static bool IsCover(this string side)
         {
             if (string.IsNullOrEmpty(side)) return false;

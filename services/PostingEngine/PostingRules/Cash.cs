@@ -90,58 +90,6 @@ namespace PostingEngine.PostingRules
             }
 
             return;
-
-            var accountToFrom = GetFromToAccount(element);
-
-            if (accountToFrom.To == null || accountToFrom.From == null)
-            {
-                env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
-                return;
-            }
-
-            new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
-            new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
-
-            double fxrate = 1.0;
-
-            // Lets get fx rate if needed
-            if ( !element.TradeCurrency.Equals("USD"))
-            {
-                fxrate = Convert.ToDouble(env.FxRates[element.TradeCurrency].Rate);
-            }
-
-            if (element.Quantity != 0.0)
-            {
-                var moneyUSD = ((element.Quantity * element.TradePrice) * fxrate);
-                var creditAmount = moneyUSD;
-                var debitAmount = moneyUSD * -1;
-
-                var debitJournal = new Journal
-                {
-                    Source = element.LpOrderId,
-                    Account = accountToFrom.From,
-                    When = env.ValueDate,
-                    Value = debitAmount,
-                    Quantity = element.Quantity,
-                    FxCurrency = element.TradeCurrency,
-                    FxRate = fxrate,
-                    Fund = element.Fund,
-                };
-
-                var creditJournal = new Journal
-                {
-                    Source = element.LpOrderId,
-                    Account = accountToFrom.To,
-                    When = env.ValueDate,
-                    FxCurrency = element.TradeCurrency,
-                    FxRate = fxrate,
-                    Value = creditAmount,
-                    Quantity = element.Quantity,
-                    Fund = element.Fund,
-                };
-
-                new Journal[] { debitJournal, creditJournal }.Save(env);
-            }
         }
 
         public bool IsValid(PostingEngineEnvironment env, Transaction element)

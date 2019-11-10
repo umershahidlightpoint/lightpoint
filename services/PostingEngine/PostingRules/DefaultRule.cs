@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace PostingEngine.PostingRules
 {
-    public class DefaultRule : PostingRule, IPostingRule
+    public class DefaultRule : DefaultPostingRules, IPostingRule
     {
         public bool IsValid(PostingEngineEnvironment env, Transaction element)
         {
@@ -19,7 +19,7 @@ namespace PostingEngine.PostingRules
         /// </summary>
         /// <param name="env"></param>
         /// <param name="element">Trade we aee interested in</param>
-        public void DailyEvent(PostingEngineEnvironment env, Transaction element)
+        public new void DailyEvent(PostingEngineEnvironment env, Transaction element)
         {
             // Calculate the unrealized PNL
             if (env.TaxLotStatus.ContainsKey(element.LpOrderId))
@@ -76,7 +76,7 @@ namespace PostingEngine.PostingRules
                     if (env.SecurityDetails.ContainsKey(element.BloombergCode))
                         multiplier = env.SecurityDetails[element.BloombergCode].Multiplier;
 
-                    var unrealizedPnl = quantity * (eodPrice - prevEodPrice) * multiplier ;
+                    var unrealizedPnl = quantity * (eodPrice - prevEodPrice) * multiplier * fxRate;
 
                     var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Mark to Market Longs")).FirstOrDefault(), listOfFromTags, element);
 
@@ -134,7 +134,7 @@ namespace PostingEngine.PostingRules
 
         }
 
-        public void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
+        public new void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
             // NO Need for Swaps and Futures as we don't own the stock
         }
@@ -202,15 +202,23 @@ namespace PostingEngine.PostingRules
             };
         }
 
-        public void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
+        public new void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
+            double fxrate = 1.0;
+
+            // Lets get fx rate if needed
+            if (!element.TradeCurrency.Equals("USD"))
+            {
+                fxrate = Convert.ToDouble(env.FxRates[element.TradeCurrency].Rate);
+            }
+
             var tradeAllocations = env.Allocations.Where(i => i.LpOrderId == element.LpOrderId).ToList();
 
             if ( element.IsBuy() || element.IsShort())
             {
                 var tl = new TaxLotStatus {
                     TradeDate = element.TradeDate,
-                    InvestmentAtCost = element.NetMoney,
+                    InvestmentAtCost = element.NetMoney * fxrate,
                     BusinessDate = element.TradeDate,
                     Symbol = element.Symbol,
                     Side = element.Side,

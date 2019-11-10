@@ -129,7 +129,7 @@ export class JournalsComponent implements OnInit, OnChanges {
           filter: true,
         },
         {
-          field: 'accountName',
+          field: 'AccountName',
           width: 120,
           headerName: 'Account Name',
           enableRowGroup: true,
@@ -137,7 +137,7 @@ export class JournalsComponent implements OnInit, OnChanges {
           filter: true,
         },
         {
-          field: 'accountDescription',
+          field: 'AccountDescription',
           width: 120,
           headerName: 'Account Description',
           enableRowGroup: true,

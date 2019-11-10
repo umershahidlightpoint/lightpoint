@@ -230,6 +230,8 @@ order by UpdatedOn desc
                         d.[account_id],
                         d.AccountCategory,
                         d.AccountType,
+                        d.AccountName,
+                        d.AccountDescription,
                         d.[fund],
                         d.[value],
                         d.[source],

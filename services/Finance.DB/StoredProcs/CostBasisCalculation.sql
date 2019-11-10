@@ -5,12 +5,19 @@ AS
 DECLARE @bDate as Date
 SET @bDate = @businessDate
 
+select SecurityCode, BbergCode, coalesce(sd.Multiplier, sf.ContractSize) as Multiplier 
+into #security_details
+from SecurityMaster..Security s
+left join SecurityMaster..SecDerivatives sd on sd.SecurityId = s.SecurityId
+left join SecurityMaster..SecFutures sf on sf.SecurityId = s.SecurityId
+where coalesce(sd.Multiplier, sf.ContractSize) is not null
+
 select 
 @bDate as busdate,
 symbol, 
 SUM(tls.investment_at_cost + Coalesce(tl.investment_at_cost, 0)) * -1 as Balance, 
 SUM(tls.original_quantity +Coalesce(tl.quantity, 0)) as Quantity, 
-ABS(SUM(tls.investment_at_cost + Coalesce(tl.investment_at_cost, 0)) / SUM(tls.original_quantity +Coalesce(tl.quantity, 0))) as CostBasis, 
+ABS(SUM(tls.investment_at_cost + Coalesce(tl.investment_at_cost, 0)) / SUM(tls.original_quantity +Coalesce(tl.quantity, 0))) / Max(Coalesce(sd.Multiplier, 1)) as CostBasis, 
 CASE
 	WHEN tls.side = 'BUY' then 'LONG'
 	ELSE 'SHORT'
@@ -19,6 +26,7 @@ End as Side,
 into #costbasis_all
 from tax_lot_status tls
 left outer join tax_lot tl on tl.Open_lot_id = tls.open_id and tls.trade_date <= @bDate and tl.trade_date <= @bDate
+left outer join #security_details sd on sd.SecurityCode = tls.symbol
 -- where tls.trade_date <= @bDate and tl.trade_date <= @bDate
 group by symbol, side
 
@@ -41,7 +49,7 @@ FROM vwJournal j
 inner join account a on a.id = j.account_id
 inner join account_type a_t on a_t.id = a.account_type_id
 where a_t.name = 'Mark to Market Longs'
-and [event] = 'unrealizedpnl'
+and [event] in ('unrealizedpnl', 'realizedpnl') -- Need to ensure that we remove the realized from the unrealized
 and j.[when] <= @bDate
 group by a.name, j.symbol
 
@@ -51,7 +59,7 @@ into #realized_long
 FROM vwJournal j
 inner join account a on a.id = j.account_id
 inner join account_type a_t on a_t.id = a.account_type_id
-where a_t.name = 'LONG POSITIONS AT COST'
+where a_t.name = 'Mark to Market Longs'
 and event = 'realizedpnl'
 and j.[when] <= @bDate
 group by a.name, j.symbol
@@ -74,7 +82,7 @@ FROM vwJournal j
 inner join account a on a.id = j.account_id
 inner join account_type a_t on a_t.id = a.account_type_id
 where a_t.name = 'Mark to Market Shorts'
-and [event] = 'unrealizedpnl'
+and [event] in ('unrealizedpnl', 'realizedpnl')
 and j.[when] <= @bDate
 group by a.name, j.symbol
 
@@ -84,7 +92,7 @@ into #realized_short
 FROM vwJournal j
 inner join account a on a.id = j.account_id
 inner join account_type a_t on a_t.id = a.account_type_id
-where a_t.name = 'SHORT POSITIONS AT COST'
+where a_t.name = 'Mark to Market Shorts'
 and event = 'realizedpnl'
 and j.[when] <= @bDate
 group by a.name, j.symbol

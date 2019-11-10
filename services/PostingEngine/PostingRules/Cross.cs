@@ -7,14 +7,14 @@ using System.Linq;
 namespace PostingEngine.PostingRules
 {
 
-    public class Cross : PostingRule, IPostingRule
+    public class Cross : DefaultPostingRules, IPostingRule
     {
         public bool IsValid(PostingEngineEnvironment env, Transaction element)
         {
             return true;
         }
 
-        public void DailyEvent(PostingEngineEnvironment env, Transaction element)
+        public new void DailyEvent(PostingEngineEnvironment env, Transaction element)
         {
             /*
              * Are there accruals for this trade, we grab them as needed
@@ -22,7 +22,7 @@ namespace PostingEngine.PostingRules
             throw new NotImplementedException();
         }
 
-        public void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
+        public new void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
             // Retrieve Allocation Objects for this trade
             var tradeAllocations = env.Allocations.Where(i => i.ParentOrderId == element.ParentOrderId).ToList();
@@ -171,7 +171,7 @@ namespace PostingEngine.PostingRules
             };
         }
 
-        public void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
+        public new void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
             // Retrieve Allocation Objects for this trade
             var tradeAllocations = env.Allocations.Where(i => i.ParentOrderId == element.ParentOrderId).ToList();

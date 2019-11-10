@@ -481,7 +481,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var query = $@"select business_date, symbol, Balance, Quantity, cost_basis as CostBasis, Side,
                         realized_pnl,
                         unrealized_pnl,
-                        realized_pnl + unrealized_pnl as Pnl
+                        unrealized_pnl - realized_pnl as Pnl
                        from cost_basis
                         where business_date = '{businessDate.ToString("MM-dd-yyyy")}'";
 
@@ -538,7 +538,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         side,
                         realized_pnl,
                         unrealized_pnl,
-                        realized_pnl + unrealized_pnl as Pnl
+                        unrealized_pnl - realized_pnl as Pnl
                         FROM cost_basis WITH(NOLOCK) 
                         where symbol = @symbol 
                         order BY business_date asc";
