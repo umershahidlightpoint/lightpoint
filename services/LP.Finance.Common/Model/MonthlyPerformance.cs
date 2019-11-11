@@ -56,7 +56,7 @@ namespace LP.Finance.Common.Model
             var table = new DataTable();
 
             // read the table structure from the database
-            var localconnection = new SqlConnection(connection.ConnectionString);
+            var localconnection = new SqlConnection(connection.ConnectionString + ";Password=ggtuser") ;
             localconnection.Open();
             using (var adapter = new SqlDataAdapter($"SELECT TOP 0 created_date, last_updated_date, created_by, performance_date, fund,portfolio, monthly_end_nav, performance, mtd, ytd_net_performance, qtd_net_perc, ytd_net_perc,  itd_net_perc, estimated, start_month_estimate_nav FROM monthly_performance", localconnection))
             {

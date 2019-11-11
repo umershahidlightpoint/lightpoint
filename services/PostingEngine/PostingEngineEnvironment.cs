@@ -83,6 +83,7 @@ namespace PostingEngine
 
             // Default for the moment
             {"Equity Swap", new DefaultRule() },
+            {"FORWARD", new DefaultRule() },
             {"Physical index future.", new DefaultRule() },
         };
 

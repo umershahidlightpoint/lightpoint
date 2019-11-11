@@ -66,7 +66,7 @@ namespace LP.Finance.Common.Model
             var table = new DataTable();
 
             // read the table structure from the database
-            var localconnection = new SqlConnection(connection.ConnectionString);
+            var localconnection = new SqlConnection(connection.ConnectionString + ";Password=ggtuser");
             localconnection.Open();
             //var query = $"SELECT TOP 0 created_by, created_date, last_updated_by, last_updated_date, business_date, portfolio, fund, trade_pnl,day, daily_percentage_return, long_pnl, long_percentage_change, short_pnl, short_percentage_change, long_exposure, short_exposure, gross_exposure, net_exposure, six_md_beta_net_exposure, two_yw_beta_net_exposure, six_md_beta_short_exposure, nav_market, dividend_usd, comm_usd, fee_taxes_usd, financing_usd, other_usd, pnl_percentage, mtd_percentage_return, qtd_percentage_return, ytd_percentage_return, itd_percentage_return, mtd_pnl, qtd_pnl, ytd_pnl, itd_pnl FROM unofficial_daily_pnl";
             var query = $"SELECT TOP 0 created_by, created_date, last_updated_by, last_updated_date, business_date, portfolio, fund , trade_pnl, day, daily_percentage_return, long_pnl, long_percentage_change, short_pnl, short_percentage_change, long_exposure, short_exposure, gross_exposure, net_exposure, six_md_beta_net_exposure, two_yw_beta_net_exposure, six_md_beta_short_exposure, nav_market, dividend_usd, comm_usd, fee_taxes_usd, financing_usd, other_usd, pnl_percentage, mtd_percentage_return, qtd_percentage_return, ytd_percentage_return, itd_percentage_return, mtd_pnl, qtd_pnl, ytd_pnl, itd_pnl FROM unofficial_daily_pnl";

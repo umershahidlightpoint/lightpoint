@@ -21,122 +21,12 @@ namespace PostingEngine.PostingRules
         /// <param name="element">Trade we aee interested in</param>
         public new void DailyEvent(PostingEngineEnvironment env, Transaction element)
         {
-            // Calculate the unrealized PNL
-            if (env.TaxLotStatus.ContainsKey(element.LpOrderId))
-            {
-                var tradeAllocations = env.Allocations.Where(i => i.ParentOrderId == element.ParentOrderId).ToList();
-
-                // Determine if we need to accumulate unrealized PNL
-                var taxlot = env.TaxLotStatus[element.LpOrderId];
-                if ( !taxlot.Status.ToLowerInvariant().Equals("closed"))
-                {
-                    var type = element.GetType();
-                    var accountTypes = AccountType.All;
-
-                    var listOfFromTags = new List<Tag>
-                    {
-                        Tag.Find("SecurityType"),
-                        Tag.Find("CustodianCode")
-                    };
-
-                    var listOfToTags = new List<Tag> {
-                        Tag.Find("SecurityType"),
-                        Tag.Find("CustodianCode")
-                     };
-
-                    // We have an open / partially closed tax lot so now need to calculate unrealized Pnl
-                    var quantity = taxlot.Quantity;
-                    var symbol = element.Symbol;
-
-                    var prevEodPrice = 0.0;
-                    var eodPrice = 0.0;
-
-                    if (env.ValueDate == element.TradeDate)
-                    {
-                        if (env.EODMarketPrices.ContainsKey(symbol))
-                        {
-                            eodPrice = env.EODMarketPrices[symbol].Price;
-                        }
-
-                        prevEodPrice = element.SettleNetPrice;
-                    }
-                    else
-                    {
-                        if (env.PrevMarketPrices.ContainsKey(element.BloombergCode))
-                            prevEodPrice = env.PrevMarketPrices[element.BloombergCode].Price;
-
-                        if (env.EODMarketPrices.ContainsKey(element.BloombergCode))
-                            eodPrice = env.EODMarketPrices[element.BloombergCode].Price;
-                    }
-
-                    var fxRate = 1;
-
-                    var multiplier = 1.0;
-
-                    if (env.SecurityDetails.ContainsKey(element.BloombergCode))
-                        multiplier = env.SecurityDetails[element.BloombergCode].Multiplier;
-
-                    var unrealizedPnl = quantity * (eodPrice - prevEodPrice) * multiplier * fxRate;
-
-                    var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Mark to Market Longs")).FirstOrDefault(), listOfFromTags, element);
-
-                    if ( taxlot.Side == "SHORT" )
-                    {
-                        unrealizedPnl = unrealizedPnl * -1;
-                        fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Mark to Market Shorts")).FirstOrDefault(), listOfFromTags, element);
-                    }
-
-                    var toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CHANGE IN UNREALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfToTags, element);
-
-                    new AccountUtils().SaveAccountDetails(env, fromAccount);
-                    new AccountUtils().SaveAccountDetails(env, toAccount);
-
-                    var fund = tradeAllocations[0].Fund;
-
-                    var debit = new Journal
-                    {
-                        Source = element.LpOrderId,
-                        Account = fromAccount,
-                        When = env.ValueDate,
-                        FxCurrency = element.SettleCurrency,
-                        Symbol = symbol,
-                        Quantity = quantity,
-                        FxRate = fxRate,
-                        Value = env.SignedValue(fromAccount, toAccount, true, unrealizedPnl),
-                        CreditDebit = env.DebitOrCredit(fromAccount, taxlot.Side.IsShort() ? unrealizedPnl * -1 : unrealizedPnl),
-                        StartPrice = prevEodPrice,
-                        EndPrice = eodPrice,
-                        Event = "unrealizedpnl",
-                        Fund = fund,
-                    };
-
-                    var credit = new Journal
-                    {
-                        Source = element.LpOrderId,
-                        Account = toAccount,
-                        When = env.ValueDate,
-                        FxCurrency = element.SettleCurrency,
-                        FxRate = fxRate,
-                        Symbol = symbol,
-                        Quantity = quantity,
-                        Value = env.SignedValue(fromAccount, toAccount, false, unrealizedPnl),
-                        CreditDebit = env.DebitOrCredit(toAccount, unrealizedPnl),
-                        Event = "unrealizedpnl",
-                        StartPrice = prevEodPrice,
-                        EndPrice = eodPrice,
-                        Fund = fund,
-                    };
-
-                    env.Journals.AddRange(new[] { debit, credit });
-
-                }
-            }
-
+            base.DailyEvent(env, element);
         }
 
         public new void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
-            // NO Need for Swaps and Futures as we don't own the stock
+            // NO Need for Swaps and Futures / Forwards as we don't own the stock
         }
 
         private AccountToFrom RealizedPnlPostingAccounts(Transaction element)

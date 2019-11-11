@@ -128,13 +128,17 @@ namespace PostingEngine.PostingRules
                     }
 
                     var fxRate = 1.0;
+                    var multiplier = 1.0;
+
+                    if (env.SecurityDetails.ContainsKey(element.BloombergCode))
+                        multiplier = env.SecurityDetails[element.BloombergCode].Multiplier;
 
                     if (!element.TradeCurrency.Equals("USD"))
                     {
                         fxRate = Convert.ToDouble(env.FxRates[element.TradeCurrency].Rate);
                     }
 
-                    var unrealizedPnl = quantity * (eodPrice - prevEodPrice) * fxRate;
+                    var unrealizedPnl = quantity * (eodPrice - prevEodPrice) * fxRate * multiplier;
 
                     var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Mark to Market Longs")).FirstOrDefault(), listOfFromTags, element);
 

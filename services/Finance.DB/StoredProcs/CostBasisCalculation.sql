@@ -89,7 +89,7 @@ insert into cost_basis ( business_date, symbol, balance, quantity, cost_basis, s
 select cb.busdate, cb.symbol, 
 cb.Balance + coalesce(rl.realized_pnl,0), 
 cb.Quantity, 
-ABS((cb.Balance - coalesce(rl.realized_pnl,0)) / cb.Quantity) / coalesce(sd.Multiplier,1), 
+ABS((cb.Balance + coalesce(rl.realized_pnl,0)) / cb.Quantity) / coalesce(sd.Multiplier,1), 
 cb.Side, coalesce(rl.realized_pnl,0), coalesce(ul.unrealized_pnl,0) , cb.eod_price
 from #costbasis_all cb 
 left outer join #unrealized_long ul on ul.busdate = cb.busdate and ul.symbol = cb.symbol and ul.Side = cb.Side
@@ -101,7 +101,7 @@ insert into cost_basis ( business_date, symbol, balance, quantity, cost_basis, s
 select cb.busdate, cb.symbol, 
 cb.Balance + coalesce(rl.realized_pnl,0), 
 cb.Quantity, 
-ABS((cb.Balance - coalesce(rl.realized_pnl,0)) / cb.Quantity) / coalesce(sd.Multiplier,1), 
+ABS((cb.Balance + coalesce(rl.realized_pnl,0)) / cb.Quantity) / coalesce(sd.Multiplier,1), 
 cb.Side, coalesce(rl.realized_pnl,0), coalesce(ul.unrealized_pnl,0) , cb.eod_price
 from #costbasis_all cb 
 left outer join #unrealized_short ul on ul.busdate = cb.busdate and ul.symbol = cb.symbol and ul.Side = cb.Side
