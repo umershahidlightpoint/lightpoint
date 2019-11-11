@@ -356,13 +356,13 @@ namespace PostingEngine.PostingRules
                                 else
                                     taxlotStatus.Status = "Partially Closed";
 
-                                var unrealizedPnl = taxlotStatus.Quantity * (element.SettleNetPrice - env.PrevMarketPrices[lot.Trade.BloombergCode].Price);
+                                var unrealizedPnl = Math.Abs(tl.Quantity) * (element.SettleNetPrice - env.PrevMarketPrices[lot.Trade.BloombergCode].Price);
                                 PostUnRealizedPnl(
                                     env,
                                     env.FindTrade(lot.Trade.LpOrderId),
                                     unrealizedPnl,
                                     env.PrevMarketPrices[lot.Trade.BloombergCode].Price,
-                                    element.SettleNetPrice, 1);
+                                    element.SettleNetPrice, fxrate);
 
                                 var PnL = Math.Abs(tl.Quantity) * (tl.CostBasis - tl.TradePrice) * fxrate;
                                 PostRealizedPnl(
@@ -619,7 +619,7 @@ namespace PostingEngine.PostingRules
 
                 Account = accountToFrom.From,
                 CreditDebit = env.DebitOrCredit(accountToFrom.From, unrealizedPnl),
-                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, unrealizedPnl),
+                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, unrealizedPnl) * fxrate,
             };
 
             var toJournal = new Journal(fromJournal)
@@ -639,7 +639,7 @@ namespace PostingEngine.PostingRules
 
                 Account = accountToFrom.To,
                 CreditDebit = env.DebitOrCredit(accountToFrom.To, unrealizedPnl),
-                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, unrealizedPnl),
+                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, unrealizedPnl) * fxrate,
             };
 
             env.Journals.AddRange(new[] { fromJournal, toJournal });
