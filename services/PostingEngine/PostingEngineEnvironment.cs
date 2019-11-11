@@ -29,6 +29,8 @@ namespace PostingEngine
         public DateTime ValueDate { get; set; }
         public DateTime BusinessDate { get; set; }
 
+        public bool SkipWeekends { get; set; }
+
         public DateTime RunDate { get; set; }
         public AccountCategory[] Categories { get; set; }
         public List<AccountType> Types { get; set; }
@@ -67,21 +69,26 @@ namespace PostingEngine
         public Dictionary<string, MarketPrice> EODMarketPrices { get; set; }
         public Dictionary<string, CostBasisDto> CostBasis { get; set; }
 
+        public Dictionary<string, IPostingRule> Rules { get; set; }
 
         // Map of Product type to IPostingRule, now we can run each of these in parellel, once we have the data
         // which is readonly we can spin up a number of Tasks, each responsible for processing the right product
         // type, keep the commits to the database towards the end
-        public Dictionary<string, IPostingRule> rules = new Dictionary<string, IPostingRule>
+        public readonly Dictionary<string, IPostingRule> TradingRules = new Dictionary<string, IPostingRule>
         {
             {"Common Stock", new CommonStock() },
             {"Equity Option", new EquityOption() },
-            {"Journals", new FakeJournals() },
             {"Cash", new Cash() },
             // -- {"Cross", new Cross() },
 
             // Default for the moment
             {"Equity Swap", new DefaultRule() },
             {"Physical index future.", new DefaultRule() },
+        };
+
+        public readonly Dictionary<string, IPostingRule> JournalRules = new Dictionary<string, IPostingRule>
+        {
+            {"Journals", new FakeJournals() },
         };
 
         internal double CalculateCB(Transaction element, string symbol, string side)

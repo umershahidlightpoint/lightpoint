@@ -250,10 +250,24 @@ namespace PostingEngine
                     Key = Key, RunDate = postingEnv.RunDate, Action = "Starting Batch Posting Engine -- Trades",
                     ActionOn = DateTime.Now
                 }.Save(connection, transaction);
+
+
+                // Run the trades pass next
+                // Lets do Trading Activity, so no Journals
                 sw.Reset();
                 sw.Start();
-                // Run the trades pass next
+                postingEnv.Rules = postingEnv.TradingRules;
+                postingEnv.SkipWeekends = true;
+                postingEnv.Trades = tradeList.Where(i => !i.SecurityType.Equals("Journals")).ToArray();
                 int count = RunAsync(connection, transaction, postingEnv).GetAwaiter().GetResult();
+                sw.Stop();
+
+                // Lets do the Journal Activity and only Journals
+                sw.Start();
+                postingEnv.Rules = postingEnv.JournalRules;
+                postingEnv.SkipWeekends = false;
+                postingEnv.Trades = tradeList.Where(i => i.SecurityType.Equals("Journals")).ToArray();
+                count = count + RunAsync(connection, transaction, postingEnv).GetAwaiter().GetResult();
                 sw.Stop();
 
                 if (postingEnv.Journals.Count() > 0)
@@ -376,6 +390,13 @@ namespace PostingEngine
             return postingEnv.Trades.Count();
         }
 
+        /// <summary>
+        /// Process all activity
+        /// </summary>
+        /// <param name="connection">Database connection</param>
+        /// <param name="transaction">Transaction</param>
+        /// <param name="postingEnv">The posting environment</param>
+        /// <returns></returns>
         static async Task<int> RunAsync(SqlConnection connection, SqlTransaction transaction, PostingEngineEnvironment postingEnv)
         {
             var minTradeDate = postingEnv.Trades.Min(i => i.TradeDate.Date);
@@ -392,10 +413,15 @@ namespace PostingEngine
 
             while (valueDate <= endDate)
             {
-                if (!valueDate.IsBusinessDate())
+                // Skipping none business dates, this is to ensure that we are not accumalating unrealizedpnl,
+                // but we need to ensure that Journal's need to include weekends, so we need to treat this seperatly
+                if (postingEnv.SkipWeekends)
                 {
-                    valueDate = valueDate.AddDays(1);
-                    continue;
+                    if (!valueDate.IsBusinessDate())
+                    {
+                        valueDate = valueDate.AddDays(1);
+                        continue;
+                    }
                 }
 
                 var sw = new Stopwatch();
@@ -420,10 +446,6 @@ namespace PostingEngine
                 var buyShort = tradeData.Where(i => i.TradeDate.Equals(valueDate) && (i.IsBuy() || i.IsShort())).ToList();
                 foreach(var trade in buyShort)
                 {
-                    if ( trade.Symbol.Equals("IBM"))
-                    {
-
-                    }
                     // We only process trades that have not broken
                     if (ignoreTrades.Contains(trade.LpOrderId))
                         continue;
@@ -476,9 +498,6 @@ namespace PostingEngine
                 var debitCover = tradeData.Where(i => i.TradeDate.Equals(valueDate) && (i.IsDebit() || i.IsCredit())).ToList();
                 foreach (var trade in debitCover)
                 {
-                    if (trade.Symbol.Equals("IBM"))
-                    {
-                    }
                     // We only process trades that have not broken
                     if (ignoreTrades.Contains(trade.LpOrderId))
                         continue;
@@ -502,10 +521,6 @@ namespace PostingEngine
                 // Do Settlement and Daily Events here
                 foreach (var element in tradeData)
                 {
-                    if (element.Symbol.Equals("IBM"))
-                    {
-                    }
-
                     // We only process trades that have not broken
                     if (ignoreTrades.Contains(element.LpOrderId))
                     continue;
@@ -639,7 +654,7 @@ namespace PostingEngine
     {
         public IPostingRule GetRule(PostingEngineEnvironment env, Transaction element)
         {
-            return env.rules.Where(i => i.Key.Equals(element.SecurityType)).FirstOrDefault().Value;
+            return env.Rules.Where(i => i.Key.Equals(element.SecurityType)).FirstOrDefault().Value;
         }
 
         public bool ProcessTradeEvent(PostingEngineEnvironment env, Transaction element)
@@ -653,7 +668,7 @@ namespace PostingEngine
             }
 
             // Find me the rule
-            var rule = env.rules.Where(i => i.Key.Equals(element.SecurityType)).FirstOrDefault().Value;
+            var rule = env.Rules.Where(i => i.Key.Equals(element.SecurityType)).FirstOrDefault().Value;
             if (rule == null)
             {
                 env.AddMessage($"No rule associated with {element.SecurityType}");
@@ -717,7 +732,7 @@ namespace PostingEngine
             */
 
             // Find me the rule
-            var rule = env.rules.Where(i => i.Key.Equals(element.SecurityType)).FirstOrDefault().Value;
+            var rule = env.Rules.Where(i => i.Key.Equals(element.SecurityType)).FirstOrDefault().Value;
             if (rule == null)
             {
                 env.AddMessage($"No rule associated with {element.SecurityType}");
