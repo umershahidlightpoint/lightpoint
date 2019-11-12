@@ -17,7 +17,8 @@ import {
   SetDateRange,
   CommaSeparatedFormat,
   HeightStyle,
-  FormatDate
+  FormatDate,
+  DateFormatter
 } from 'src/shared/utils/Shared';
 import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
@@ -32,6 +33,7 @@ import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 })
 export class CostBasisComponent implements OnInit, AfterViewInit {
   gridOptions: GridOptions;
+  timeseriesOptions: GridOptions;
   gridColumnApi;
   pinnedBottomRowData;
   fund: any = 'All Funds';
@@ -194,6 +196,101 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       }
     } as GridOptions;
     this.gridOptions.sideBar = SideBar(GridId.costBasisId, GridName.costBasis, this.gridOptions);
+
+    this.timeseriesOptions = {
+      rowData: null,
+      pinnedBottomRowData: null,
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      onFilterChanged: this.onFilterChanged.bind(this),
+      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
+      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
+      // Custom made methods for Grid Menu Layout
+      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
+      clearExternalFilter: this.clearFilters.bind(this),
+      getExternalFilterState: this.getExternalFilterState.bind(this),
+      rowSelection: 'single',
+      rowGroupPanelShow: 'after',
+      suppressColumnVirtualisation: true,
+      getContextMenuItems: params => this.getContextMenuItems(params),
+      onGridReady: params => {
+        this.gridColumnApi = params.columnApi;
+        this.gridOptions.excelStyles = ExcelStyle;
+      },
+      onFirstDataRendered: params => {
+        params.api.forEachNode(node => {
+          node.expanded = true;
+        });
+        params.api.onGroupExpandedOrCollapsed();
+      },
+      enableFilter: true,
+      animateRows: true,
+      alignedGrids: [],
+      suppressHorizontalScroll: false,
+      columnDefs: [
+        {
+          field: 'Date',
+          width: 120,
+          headerName: 'Date',
+          valueFormatter: dateFormatter
+        },
+        {
+          field: 'Balance',
+          headerName: 'Exposure (at Cost)',
+          cellClass: 'rightAlign',
+          sortable: true,
+          filter: true,
+          width: 120,
+          valueFormatter: currencyFormatter
+        },
+        {
+          field: 'Quantity',
+          headerName: 'Quantity',
+          width: 100,
+          filter: true,
+          cellClass: 'rightAlign',
+          sortable: true,
+          valueFormatter: currencyFormatter
+        },
+        {
+          field: 'CostBasis',
+          headerName: 'Cost Basis',
+          width: 100,
+          filter: true,
+          cellClass: 'rightAlign',
+          sortable: true,
+          valueFormatter: costBasisFormatter
+        },
+        {
+          field: 'Side',
+          width: 50,
+          headerName: 'Side'
+        },
+        {
+          field: 'unrealized_pnl',
+          cellClass: 'rightAlign',
+          headerName: 'Unrealized P&L',
+          valueFormatter: currencyFormatter
+        },
+        {
+          field: 'realized_pnl',
+          cellClass: 'rightAlign',
+          headerName: 'Realized P&L',
+          valueFormatter: currencyFormatter
+        },
+        {
+          field: 'Pnl',
+          cellClass: 'rightAlign',
+          headerName: 'Net P&L',
+          valueFormatter: currencyFormatter
+        }
+      ],
+      defaultColDef: {
+        sortable: true,
+        resizable: true,
+        filter: true
+      }
+    } as GridOptions;
+    this.timeseriesOptions.sideBar = SideBar(GridId.timeseriesId, GridName.timeseries, this.timeseriesOptions);
   }
 
   ngAfterViewInit(): void {
@@ -230,10 +327,14 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   rowSelected(row) {
     const { symbol } = row.data;
     this.financeService.getCostBasisChart(symbol).subscribe(response => {
+      debugger
       this.chartData = response.payload;
+      this.chartData = this.chartData.sort((x,y) => {return new Date(y.Date).getTime() - new Date(x.Date).getTime()});
 
-      this.mapCostBasisData(this.chartData, this.selectedChartOption);
-      this.mapChartsData(this.chartData);
+      this.mapCostBasisData(response.payload, this.selectedChartOption);
+      this.mapChartsData(response.payload);
+      this.timeseriesOptions.api.setRowData(this.chartData);
+      this.timeseriesOptions.api.sizeColumnsToFit();
       this.displayChart = true;
     });
   }
@@ -363,6 +464,13 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.gridOptions.api.exportDataAsExcel(params);
     this.downloadExcelUtils.ToastrMessage();
   }
+}
+
+function dateFormatter(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  return DateFormatter(params.value);
 }
 
 function currencyFormatter(params) {

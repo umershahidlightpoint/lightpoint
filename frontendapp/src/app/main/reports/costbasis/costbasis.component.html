@@ -81,7 +81,10 @@
   <div class="row">
     <!-- Report AG Grid Column Starts -->
     <div class="col-6" [ngStyle]="styleForHeight">
-      <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions">
+      <ag-grid-angular class="w-100 h-50 ag-theme-balham" [gridOptions]="gridOptions">
+      </ag-grid-angular>
+
+      <ag-grid-angular class="w-100 h-50 ag-theme-balham" [gridOptions]="timeseriesOptions">
       </ag-grid-angular>
     </div>
     <!-- Report AG Grid Column Ends -->

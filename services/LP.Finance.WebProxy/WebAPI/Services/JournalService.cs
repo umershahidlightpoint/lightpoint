@@ -538,7 +538,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         side,
                         realized_pnl,
                         unrealized_pnl,
-                        unrealized_pnl - realized_pnl as Pnl
+                        unrealized_pnl + realized_pnl as Pnl
                         FROM cost_basis WITH(NOLOCK) 
                         where symbol = @symbol 
                         order BY business_date asc";
