@@ -46,6 +46,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   totalGridRows: number;
   generateFundsDate;
   funds: Array<string>;
+  portfolios: Array<string>;
   title: string;
   fileToUpload: File = null;
   graphObject: any;
@@ -113,6 +114,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.getFunds();
+    this.getPortfolios();
     this.getMonthlyPerformance();
     this.initGrid();
   }
@@ -130,6 +132,14 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     this.financeService.getFunds().subscribe(response => {
       this.funds = response.payload.map(item => item.FundCode);
       this.funds.push('None');
+      this.initCols();
+    });
+  }
+
+  getPortfolios() {
+    this.financeService.getPortfolios().subscribe(response => {
+      this.portfolios = response.payload.map(item => item.PortfolioCode);
+      this.portfolios.push('None');
       this.initCols();
     });
   }
@@ -255,7 +265,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         filter: true,
         cellEditor: 'agSelectCellEditor',
         cellEditorParams: {
-          values: ['None', 'PORTFOLIO A', 'ASIA_FOCUS']
+          values: this.portfolios
         }
       },
       {

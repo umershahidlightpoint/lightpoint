@@ -1,4 +1,6 @@
 ﻿using LP.Finance.Common;
+using LP.Finance.Common.Calculators;
+using LP.Finance.Common.Model;
 using LP.Finance.Common.Models;
 using Newtonsoft.Json;
 using PostingEngine.Contracts;
@@ -34,6 +36,93 @@ namespace PostingEngine
         private static string Period;
         private static Guid Key;
         private static PostingEngineCallBack PostingEngineCallBack;
+
+        public static void PullFromBookmon()
+        {
+            PostingEngineCallBack?.Invoke("Pull From Book Mon Calculation Started");
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                var sql = @"
+                        declare @minDate as Date
+                        declare @maxDate as Date
+
+                        select @minDate = min([when]), @maxDate = max([when]) from FundAccounting..Journal
+
+                        exec FundAccounting..PullDailyActivity @minDate, @maxDate
+                        ";
+                var command = new SqlCommand(sql, connection);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public static void CalculateDailyPnl()
+        {
+            PostingEngineCallBack?.Invoke("Daily Pnl Calculation Started");
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                //connection.Open();
+                //var transaction = connection.BeginTransaction();
+
+                PostingEngineCallBack?.Invoke("Getting Daily Pnl Data");
+
+                var performanceRecords = DailyPnL.GetList(connectionString);
+
+                var dailyPerformanceResult = new DailyPnlCalculator().CalculateDailyPerformance(performanceRecords);
+                var dailyPerformance = dailyPerformanceResult.GetType().GetProperty("payload")
+                    ?.GetValue(dailyPerformanceResult, null);
+                bool insertDailyPnl = UpdateDailyPnl((List<DailyPnL>)dailyPerformance, connectionString);
+
+                //transaction.Commit();
+            }
+        }
+
+        private static bool UpdateDailyPnl(List<DailyPnL> records, string connectionString)
+        {
+            var query = $@"update unofficial_daily_pnl set 
+                itd_pnl=@ITDPnL, 
+                ytd_pnl=@YTDPnL, 
+                qtd_pnl=@QTDPnL,
+                mtd_pnl=@MTDPnL,
+                last_updated_date = getDate(),
+                last_updated_by = 'system',
+                itd_percentage_return=@ITDPercentageReturn,
+                qtd_percentage_return=@QTDPercentageReturn,
+                ytd_percentage_return=@YTDPercentageReturn,
+                mtd_percentage_return=@MTDPercentageReturn
+                where id=@id";
+
+            var connection = new SqlConnection(connectionString);
+            connection.Open();
+            var transaction = connection.BeginTransaction();
+            foreach (var record in records)
+            {
+                var sqlParams = new SqlParameter[]
+                {
+                    new SqlParameter("id", record.Id),
+
+                    new SqlParameter("ITDPnL", record.ITDPnL),
+                    new SqlParameter("YTDPnL", record.YTDPnL),
+                    new SqlParameter("QTDPnL", record.QTDPnL),
+                    new SqlParameter("MTDPnL", record.MTDPnL),
+
+                    new SqlParameter("ITDPercentageReturn", record.ITDPercentageReturn),
+                    new SqlParameter("YTDPercentageReturn", record.YTDPercentageReturn),
+                    new SqlParameter("QTDPercentageReturn", record.QTDPercentageReturn),
+                    new SqlParameter("MTDPercentageReturn", record.MTDPercentageReturn),
+                };
+
+                var command = new SqlCommand(query, connection);
+                command.Transaction = transaction;
+                command.Parameters.AddRange(sqlParams);
+                command.ExecuteNonQuery();
+            }
+            transaction.Commit();
+
+            return true;
+        }
 
         public static void CalculateCostBasis()
         {
@@ -86,7 +175,18 @@ namespace PostingEngine
 
             // Driven by calculation
 
-            CalculateCostBasis();
+            if (calculation.Equals("CostBasis"))
+            {
+                CalculateCostBasis();
+            }
+            else if (calculation.Equals("DailyPnl"))
+            {
+                CalculateDailyPnl();
+            }
+            else if (calculation.Equals("PullFromBookmon"))
+            {
+                PullFromBookmon();
+            }
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
 ﻿using LP.FileProcessing;
 using LP.FileProcessing.MetaData;
 using LP.Finance.Common;
+using LP.Finance.Common.Calculators;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Model;
 using Newtonsoft.Json;
@@ -294,14 +295,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        private void InitializeQuarterDictionary(Dictionary<int, int> quarterCount)
-        {
-            quarterCount.Add(1, 0);
-            quarterCount.Add(4, 0);
-            quarterCount.Add(7, 0);
-            quarterCount.Add(10, 0);
-        }
-
         private void ResetQuarterDictionary(Dictionary<int, int> quarterCount)
         {
             foreach (var key in quarterCount.Keys.ToList())
@@ -530,6 +523,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
+        private void InitializeQuarterDictionary(Dictionary<int, int> quarterCount)
+        {
+            quarterCount.Add(1, 0);
+            quarterCount.Add(4, 0);
+            quarterCount.Add(7, 0);
+            quarterCount.Add(10, 0);
+        }
 
         public decimal CalculateYTDPerformance(MonthlyPerformance current, MonthlyPerformance prior)
         {
@@ -537,25 +537,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var priorYTDNetPerformance = prior.YTDNetPerformance;
             return currentPerformance + priorYTDNetPerformance;
         }
-        public decimal CalculateDailyPnl(decimal? current, decimal? prior)
-        {
-            var currentMeasure = current.HasValue ? current.Value : 0;
-            var priorMeasure = prior.HasValue ? prior.Value : 0;
-            return currentMeasure + priorMeasure;
-        }
 
         public decimal CalculateQTD(MonthlyPerformance current, MonthlyPerformance prior)
         {
             var convertedPriorQTD = prior.QTD + 1;
             var convertedCurrentMTD = current.MTD.HasValue ? current.MTD.Value + 1 : 1;
-            //return (convertedPriorQTD * convertedCurrentMTD) - 1;
-            return Math.Round((convertedPriorQTD * convertedCurrentMTD) - 1, 16);
-        }
-
-        public decimal CalculateDailyQTD(DailyPnL current, DailyPnL prior)
-        {
-            var convertedPriorQTD = prior.QTDPercentageReturn.Value + 1;
-            var convertedCurrentMTD = current.MTDPercentageReturn.HasValue ? current.MTDPercentageReturn.Value + 1 : 1;
             //return (convertedPriorQTD * convertedCurrentMTD) - 1;
             return Math.Round((convertedPriorQTD * convertedCurrentMTD) - 1, 16);
         }
@@ -568,35 +554,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return Math.Round((convertedPriorYTD * convertedCurrentMTD) - 1, 16);
         }
 
-        public decimal CalculateDailyYTD(DailyPnL current, DailyPnL prior)
-        {
-            var convertedPriorYTD = prior.YTDPercentageReturn.Value + 1;
-            var convertedCurrentMTD = current.MTDPercentageReturn.HasValue ? current.MTDPercentageReturn.Value + 1 : 1;
-            //return (convertedPriorYTD * convertedCurrentMTD) - 1;
-            return Math.Round((convertedPriorYTD * convertedCurrentMTD) - 1, 16);
-        }
-
         public decimal CalculateITD(MonthlyPerformance current, MonthlyPerformance prior)
         {
             var convertedPriorYTD = prior.ITD + 1;
             var convertedCurrentMTD = current.MTD.HasValue ? current.MTD.Value + 1 : 1;
             //return (convertedPriorYTD * convertedCurrentMTD) - 1;
             return Math.Round((convertedPriorYTD * convertedCurrentMTD) - 1, 16);
-        }
-
-        public decimal CalculateDailyITD(DailyPnL current, DailyPnL prior)
-        {
-            var convertedPriorYTD = prior.ITDPercentageReturn.Value + 1;
-            var convertedCurrentMTD = current.MTDPercentageReturn.HasValue ? current.MTDPercentageReturn.Value + 1 : 1;
-            //return (convertedPriorYTD * convertedCurrentMTD) - 1;
-            return Math.Round((convertedPriorYTD * convertedCurrentMTD) - 1, 16);
-        }
-
-        public decimal CalculateDailyMTD(DailyPnL current, DailyPnL prior)
-        {
-            var convertedPriorDaily = prior.MTDPercentageReturn.Value + 1;
-            var convertedCurrentDaily = current.DailyPercentageReturn.HasValue ? current.DailyPercentageReturn.Value + 1 : 1;
-            return Math.Round((convertedPriorDaily * convertedCurrentDaily) - 1, 16);
         }
 
         public object GetMonthlyPerformanceAudit(int id)
@@ -750,7 +713,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             };
 
                 fileManagementService.InsertActivityAndPositionFilesForSilver(fileList);
-                var dailyPerformanceResult = CalculateDailyPerformance(performanceRecords);
+                var dailyPerformanceResult = new DailyPnlCalculator().CalculateDailyPerformance(performanceRecords);
                 var dailyPerformance = dailyPerformanceResult.GetType().GetProperty("payload")
                     ?.GetValue(dailyPerformanceResult, null);
                 bool insertDailyPnl = InsertDailyPnl((List<DailyPnL>)dailyPerformance);
@@ -770,173 +733,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        public object CalculateDailyPerformance(List<DailyPnL> performanceRecords)
-        {
-            var sorted = performanceRecords.OrderBy(x => x.BusinessDate).ThenBy(x => x.RowId).ToList();
-
-            var groupedByPortfolio = sorted.GroupBy(x => x.PortFolio).Select(x => new
-            {
-                Portfolio = x.Key,
-                YearlyData = x.ToList().GroupBy(y => y.BusinessDate.Year).Select(z=> new
-                {
-                    Year = z.Key,
-                    MonthlyData = z.ToList().GroupBy(w=> w.BusinessDate.Month)
-                })
-            }).ToList();
-
-            //var groupedByYear = sorted.GroupBy(x => x.PerformanceDate.Year).ToList();
-
-            DailyPnL priorData = null;
-            int monthIndex = 0;
-            int totalMonthlyRecords = 0;
-            DailyPnL priorDataYearlyPnl = priorData;
-            DailyPnL priorDataQuarterlyPnl = priorData;
-            DailyPnL priorDataInceptionPnl = priorData;
-
-            DailyPnL priorDataForQuarter = priorData;
-            DailyPnL priorDataForYear = priorData;
-            DailyPnL priorDataForInception = priorData;
-
-            decimal newDecimalValue = 0;
-            Dictionary<int, int> quarterCount = new Dictionary<int, int>();
-            InitializeQuarterDictionary(quarterCount);
-
-            foreach(var portfolio in groupedByPortfolio)
-            {
-                foreach(var year in portfolio.YearlyData)
-                {
-                    foreach(var month in year.MonthlyData)
-                    {
-                        totalMonthlyRecords = month.Count() - 1;
-                        monthIndex = 0;
-                        foreach(var item in month)
-                        {
-                            if(priorData != null)
-                            {
-                                item.MTDPercentageReturn = CalculateDailyMTD(item, priorData);
-                                item.MTDPnL = CalculateDailyPnl(item.Day, priorData.MTDPnL);
-                            }
-                            else
-                            {
-                                item.MTDPercentageReturn = item.DailyPercentageReturn;
-                                item.MTDPnL = item.Day;
-                            }
-
-                            if (priorDataForYear != null)
-                            {
-                                item.YTDPercentageReturn = CalculateDailyYTD(item, priorDataForYear);
-                            }
-                            else
-                            {
-                                item.YTDPercentageReturn = item.MTDPercentageReturn;
-                            }
-
-                            if (priorDataForInception != null)
-                            {
-                                item.ITDPercentageReturn = CalculateDailyITD(item, priorDataForInception);
-                            }
-                            else
-                            {
-                                item.ITDPercentageReturn = item.MTDPercentageReturn;
-                            }
-
-                            if (priorDataForQuarter != null)
-                            {
-                                if(CheckForBeginningOfQuarter(item.BusinessDate))
-                                {
-                                    item.QTDPercentageReturn = item.MTDPercentageReturn;
-                                }
-                                else
-                                {
-                                    if(IfDatesLieInTheSameQuarter(priorDataForQuarter.BusinessDate, item.BusinessDate))
-                                    {
-                                        item.QTDPercentageReturn = CalculateDailyQTD(item, priorDataForQuarter);
-                                    }
-                                    else
-                                    {
-                                        item.QTDPercentageReturn = item.MTDPercentageReturn;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                item.QTDPercentageReturn = item.MTDPercentageReturn;
-                            }
-
-
-                            //Calculations for QTD,YTD,ITD values.
-
-                            if(priorDataQuarterlyPnl != null)
-                            {
-                                if (CheckForBeginningOfQuarter(item.BusinessDate))
-                                {
-                                    item.QTDPnL = item.MTDPnL;
-                                }
-                                else
-                                {
-                                    item.QTDPnL = CalculateDailyPnl(item.Day, priorDataQuarterlyPnl.QTDPnL);
-                                }
-                            }
-                            else
-                            {
-                                item.QTDPnL = item.MTDPnL;
-                            }
-
-                            if(priorDataYearlyPnl != null)
-                            {
-                                item.YTDPnL = CalculateDailyPnl(item.Day, priorDataYearlyPnl.YTDPnL);
-                            }
-                            else
-                            {
-                                item.YTDPnL = item.MTDPnL;
-                            }
-
-                            if(priorDataInceptionPnl != null)
-                            {
-                                item.ITDPnL = CalculateDailyPnl(item.Day, priorDataInceptionPnl.ITDPnL);
-                            }
-                            else
-                            {
-                                item.ITDPnL = item.MTDPnL;
-                            }
-
-                            priorData = item;
-                            priorDataQuarterlyPnl = item;
-                            priorDataYearlyPnl = item;
-                            priorDataInceptionPnl = item;
-                            //We have reached the end of the month. At this point, the calculated value of MTD represents MTD returns for that month. 
-                            //We will use this value of MTD as reference for QTD,YTD,ITD percentage/returns calculation.
-                            if(monthIndex == totalMonthlyRecords)
-                            {
-                                priorDataForYear = item;
-                                priorDataForQuarter = item;
-                                priorDataForInception = item;
-                            }
-                         
-                            monthIndex++;
-                        }
-
-                        priorData = null;
-                    }
-
-                    priorDataForYear = null;
-                    priorDataYearlyPnl = null;
-                    priorDataQuarterlyPnl = null;
-                    priorDataForQuarter = null;
-                }
-
-                priorDataForInception = null;
-                priorDataForQuarter = null;
-                priorDataInceptionPnl = null;
-                priorDataQuarterlyPnl = null;
-            }
-
-            return Utils.Wrap(true, sorted, HttpStatusCode.OK, "Performance calculated successfully");
-        }
 
         public object CalculateDailyUnofficialPnl(List<DailyPnL> obj)
         {
-            return CalculateDailyPerformance(obj);
+            return new DailyPnlCalculator().CalculateDailyPerformance(obj);
         }
     }
 }

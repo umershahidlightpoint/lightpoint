@@ -26,9 +26,35 @@ namespace PostingEngineCmd
             // Then Cost Basis
             CostBasis();
 
-            //RunSomeTests();
+            // Pull from BookMon
+            PullFromBookmon();
+
+            // Unofficial Daily Pnl
+            CalculateDailyPnl();
         }
 
+        static void PullFromBookmon()
+        {
+            var key = System.Guid.NewGuid();
+
+            // This runs thru everything, we need more or a scalpable
+            PostingEngine.PostingEngine.RunCalculation("PullFromBookmon", key, (message, totalRows, rowsDone) => {
+                if (message.StartsWith("Processing"))
+                {
+                    // Do nothing
+                    return;
+                }
+                if (message.StartsWith("Completed"))
+                {
+                    var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
+
+                    Console.WriteLine($"{message}, % Completed {completed}");
+                    return;
+                }
+
+                Console.WriteLine($"{message}");
+            });
+        }
         static void SingleTrade()
         {
             var key = System.Guid.NewGuid();
@@ -100,5 +126,30 @@ namespace PostingEngineCmd
             });
 
         }
+
+        static void CalculateDailyPnl()
+        {
+            var key = System.Guid.NewGuid();
+
+            // This runs thru everything, we need more or a scalpable
+            PostingEngine.PostingEngine.RunCalculation("DailyPnl", key, (message, totalRows, rowsDone) => {
+                if (message.StartsWith("Processing"))
+                {
+                    // Do nothing
+                    return;
+                }
+                if (message.StartsWith("Completed"))
+                {
+                    var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
+
+                    Console.WriteLine($"{message}, % Completed {completed}");
+                    return;
+                }
+
+                Console.WriteLine($"{message}");
+            });
+
+        }
+
     }
 }

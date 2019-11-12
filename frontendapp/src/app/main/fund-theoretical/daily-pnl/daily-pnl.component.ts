@@ -27,6 +27,7 @@ export class DailyPnlComponent implements OnInit {
   selectedDate = null;
   dailyPnLData: Array<DailyUnofficialPnLData>;
   funds: Array<string>;
+  portfolios: Array<string>;
   fileToUpload: File = null;
   totalGridRows: number;
   isExpanded = false;
@@ -62,6 +63,13 @@ export class DailyPnlComponent implements OnInit {
   getFunds() {
     this.financeService.getFunds().subscribe(response => {
       this.funds = response.payload.map(item => item.FundCode);
+      this.initCols();
+    });
+  }
+
+  getPortfolios() {
+    this.financeService.getPortfolios().subscribe(response => {
+      this.portfolios = response.payload.map(item => item.PortfolioCode);
       this.initCols();
     });
   }
@@ -173,7 +181,7 @@ export class DailyPnlComponent implements OnInit {
         field: 'portFolio',
         cellEditor: 'agSelectCellEditor',
         cellEditorParams: {
-          values: ['None', 'PORTFOLIO A', 'ASIA_FOCUS']
+          values: ['None', ...this.portfolios]
         }
       },
       {
@@ -207,71 +215,88 @@ export class DailyPnlComponent implements OnInit {
       },
       {
         headerName: 'Long % Change',
-        field: 'longPercentageChange'
+        field: 'longPercentageChange',
+        valueFormatter: params => this.numberFormatter(params.node.data.longPercentageChange, false)
       },
       {
         headerName: 'Short P/L',
-        field: 'shortPnL'
+        field: 'shortPnL',
+        valueFormatter: params => this.numberFormatter(params.node.data.shortPnL, false)
       },
       {
         headerName: 'Short % Change',
-        field: 'shortPercentageChange'
+        field: 'shortPercentageChange',
+        valueFormatter: params => this.numberFormatter(params.node.data.shortPercentageChange, false)
       },
       {
         headerName: 'Long Exposure',
-        field: 'longExposure'
+        field: 'longExposure',
+        valueFormatter: params => this.numberFormatter(params.node.data.longExposure, false)
       },
       {
         headerName: 'Short Exposure',
-        field: 'shortExposure'
+        field: 'shortExposure',
+        valueFormatter: params => this.numberFormatter(params.node.data.shortExposure, false)
       },
       {
         headerName: 'Gross Exposure',
-        field: 'grossExposure'
+        field: 'grossExposure',
+        valueFormatter: params => this.numberFormatter(params.node.data.grossExposure, false)
       },
       {
         headerName: 'Net Exposure',
-        field: 'netExposure'
+        field: 'netExposure',
+        valueFormatter: params => this.numberFormatter(params.node.data.netExposure, false)
       },
       {
         headerName: '6md Beta Net Exposure',
-        field: 'sixMdBetaNetExposure'
+        field: 'sixMdBetaNetExposure',
+        valueFormatter: params => this.numberFormatter(params.node.data.sixMdBetaNetExposure, false)
       },
       {
         headerName: '2Yw Beta Net Exposure',
-        field: 'twoYwBetaNetExposure'
+        field: 'twoYwBetaNetExposure',
+        valueFormatter: params => this.numberFormatter(params.node.data.twoYwBetaNetExposure, false)
       },
       {
         headerName: '6md Beta Short Exposure',
-        field: 'sixMdBetaShortExposure'
+        field: 'sixMdBetaShortExposure',
+        valueFormatter: params => this.numberFormatter(params.node.data.sixMdBetaShortExposure, false)
       },
       {
         headerName: 'Nav Market',
-        field: 'navMarket'
+        field: 'navMarket',
+        valueFormatter: params => this.numberFormatter(params.node.data.navMarket, false)
       },
       {
         headerName: 'Dividend USD',
-        field: 'dividendUSD'
+        field: 'dividendUSD',
+        valueFormatter: params => this.numberFormatter(params.node.data.dividendUSD, false)
       },
       {
         headerName: 'Comm USD',
-        field: 'commUSD'
+        field: 'commUSD',
+        valueFormatter: params => this.numberFormatter(params.node.data.commUSD, false)
       },
       {
         headerName: 'Fee/Taxes USD',
-        field: 'feeTaxesUSD'
+        field: 'feeTaxesUSD',
+        valueFormatter: params => this.numberFormatter(params.node.data.feeTaxesUSD, false)
       },
       {
         headerName: 'Financing USD',
-        field: 'financingUSD'
+        field: 'financingUSD',
+        valueFormatter: params => this.numberFormatter(params.node.data.financingUSD, false)
       },
       {
         headerName: 'Other USD',
-        field: 'otherUSD'
+        field: 'otherUSD',
+        valueFormatter: params => this.numberFormatter(params.node.data.otherUSD, false)
       },
       {
         headerName: 'P/L %',
-        field: 'pnLPercentage'
+        field: 'pnLPercentage',
+        valueFormatter: params => this.numberFormatter(params.node.data.pnLPercentage, true)
       },
       {
         headerName: 'MTD % Return',
