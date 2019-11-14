@@ -12,7 +12,7 @@ aria-hidden="true" [config]="{backdrop: false}"><!-- Date Picker Div Starts -->
       </div>
       <div class="modal-body">
         <div class="row">
-          <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
+          <input ngxDaterangepickerMd class="form-control" id="dateInput" type="text" placeholder="Choose date"
             [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate"
             [singleDatePicker]="true" [autoApply]="true" autocomplete="off" [showDropdowns]="true"
             [locale]="{firstDay: 1}" />

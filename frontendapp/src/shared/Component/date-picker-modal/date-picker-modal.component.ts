@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, Input, ViewChild, Output } from '@angular/core';
+import { Component, OnInit, EventEmitter, Input, ViewChild, Output, AfterViewInit } from '@angular/core';
 import { ModalDirective } from 'ngx-bootstrap';
 
 @Component({
@@ -6,7 +6,7 @@ import { ModalDirective } from 'ngx-bootstrap';
   templateUrl: './date-picker-modal.component.html',
   styleUrls: ['./date-picker-modal.component.css']
 })
-export class DatePickerModalComponent implements OnInit {
+export class DatePickerModalComponent implements OnInit, AfterViewInit {
   @Input('modalTitle') title: string;
   @Input('modalDescription') description = 'Are you really sure?';
   @ViewChild('confirm') confirm: ModalDirective;
@@ -16,6 +16,9 @@ export class DatePickerModalComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+  }
+
+  ngAfterViewInit(){
   }
 
   showModal(params) {
@@ -32,12 +35,14 @@ export class DatePickerModalComponent implements OnInit {
   }
 
   changeDate(date) {
-    let obj = {
-      selectedDate: date.startDate,
-      params : this.agGridParams
+    if(date.startDate != null){
+      let obj = {
+        selectedDate: date.startDate,
+        params : this.agGridParams
+      }
+      this.dateSelected.emit(obj);
+      this.confirm.hide();
     }
-    this.dateSelected.emit(obj);
-    this.confirm.hide();
   }
 
 }
