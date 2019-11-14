@@ -12,7 +12,6 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -24,11 +23,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
     public class CalculationService : ICalculationService
     {
         private static readonly string
-            connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+            ConnectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
-        public SqlHelper sqlHelper = new SqlHelper(connectionString);
-        private readonly FileProcessor fileProcessor = new FileProcessor();
-        private readonly FileManagementService fileManagementService = new FileManagementService();
+        public SqlHelper SqlHelper = new SqlHelper(ConnectionString);
+        private readonly FileProcessor _fileProcessor = new FileProcessor();
+        private readonly FileManagementService _fileManagementService = new FileManagementService();
 
         public object GetMonthlyPerformance(DateTime? dateFrom = null, DateTime? dateTo = null, string fund = null,
             string portfolio = null)
@@ -53,7 +52,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         created_date AS CreatedDate, 
                         last_updated_date AS LastUpdatedDate 
                         FROM monthly_performance";
-
 
             if (dateTo.HasValue)
             {
@@ -85,7 +83,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             query += " ORDER BY performance_date ASC, id ASC";
 
-            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+            var dataTable = SqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
 
             var jsonResult = JsonConvert.SerializeObject(dataTable);
 
@@ -106,13 +104,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     YearlyData = x.ToList().GroupBy(y => y.PerformanceDate.Year)
                 }).ToList();
 
-                //var groupedByYear = sorted.GroupBy(x => x.PerformanceDate.Year).ToList();
-                
-              
+                // var groupedByYear = sorted.GroupBy(x => x.PerformanceDate.Year).ToList();
 
                 MonthlyPerformance priorData = null;
                 MonthlyPerformance priorDataForInception = priorData;
+
                 decimal newDecimalValue = 0;
+
                 Dictionary<int, int> quarterCount = new Dictionary<int, int>();
                 InitializeQuarterDictionary(quarterCount);
 
@@ -133,10 +131,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                             {
                                 if (priorData != null)
                                 {
-                                    if (CheckForBeginningOfQuarter(item.PerformanceDate) && quarterCount[item.PerformanceDate.Month] == 0)
+                                    if (CheckForBeginningOfQuarter(item.PerformanceDate) &&
+                                        quarterCount[item.PerformanceDate.Month] == 0)
                                     {
-                                        //Beginning of quarter, hence value will be the same as MTD.
+                                        // Beginning of quarter, hence value will be the same as MTD.
                                         newDecimalValue = item.MTD.HasValue ? item.MTD.Value : 0;
+
                                         if (CheckForChanges(item.QTD, newDecimalValue))
                                         {
                                             item.Modified = true;
@@ -152,7 +152,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                             quarterCount[item.PerformanceDate.Month] += 1;
                                         }
 
-                                        //For QTD, determine the month offset of this quarter. If it is the beginning of the quarter for e.g (April for Q2), value will remain the same. Otherwise, calculated value will depend on the previous result.
+                                        // For QTD, determine the month offset of this quarter. If it is the beginning of the quarter for e.g (April for Q2), value will remain the same. Otherwise, calculated value will depend on the previous result.
                                         if (IfDatesLieInTheSameQuarter(priorData.PerformanceDate, item.PerformanceDate))
                                         {
                                             newDecimalValue = CalculateQTD(item, priorData);
@@ -161,13 +161,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                         {
                                             newDecimalValue = item.MTD.HasValue ? item.MTD.Value : 0;
                                         }
+
                                         if (CheckForChanges(item.QTD, newDecimalValue))
                                         {
                                             item.Modified = true;
                                         }
 
                                         item.QTD = newDecimalValue;
-
                                     }
                                 }
                                 else
@@ -210,7 +210,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                                 if (priorDataForInception != null)
                                 {
-                                    //For ITD, value will always be calculated based on the previous result.
+                                    // For ITD, value will always be calculated based on the previous result.
                                     newDecimalValue = CalculateITD(item, priorDataForInception);
                                     if (CheckForChanges(item.ITD, newDecimalValue))
                                     {
@@ -235,7 +235,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                             {
                                 if (priorData != null)
                                 {
-                                    //For YTD, determine the month offset of this year. If it is the beginning of the year for e.g. (January), value will remain the same. Otherwise, calculated value will depend on the previous result.
+                                    // For YTD, determine the month offset of this year. If it is the beginning of the year for e.g. (January), value will remain the same. Otherwise, calculated value will depend on the previous result.
                                     newDecimalValue = CalculateYTDPerformance(item, priorData);
                                     if (CheckForChanges(item.YTDNetPerformance, newDecimalValue))
                                     {
@@ -258,6 +258,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                             priorData = item;
                             priorDataForInception = item;
+
                             if (!CheckForBeginningOfQuarter(item.PerformanceDate))
                             {
                                 ResetQuarterDictionary(quarterCount);
@@ -273,7 +274,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     priorDataForInception = null;
                 }
 
-                //return Utils.Wrap(true, groupedByYear.SelectMany(x => x.Select(y => y).ToList()), HttpStatusCode.OK, "Performance calculated successfully");
+                // return Utils.Wrap(true, groupedByYear.SelectMany(x => x.Select(y => y).ToList()), HttpStatusCode.OK, "Performance calculated successfully");
                 return Utils.Wrap(true, sorted, HttpStatusCode.OK, "Performance calculated successfully");
             }
             catch
@@ -319,20 +320,21 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             int startOfQuarter = priorDate.Month;
             int endOfQuarter = GetRelevantQuarter(startOfQuarter) + 2;
+
             return (currentDate.Month >= startOfQuarter && currentDate.Month <= endOfQuarter);
         }
 
         private int GetRelevantQuarter(int month)
         {
-            if(month == 1 || month == 2 || month == 3)
+            if (month == 1 || month == 2 || month == 3)
             {
                 return 1;
             }
-            else if(month == 4 || month == 5 || month == 6)
+            else if (month == 4 || month == 5 || month == 6)
             {
                 return 4;
             }
-            else if(month == 7 || month == 8 || month == 9)
+            else if (month == 7 || month == 8 || month == 9)
             {
                 return 7;
             }
@@ -383,7 +385,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 listOfParameters.Add(monthlyPerformanceParameters);
             }
 
-            SqlHelper sqlHelper = new SqlHelper(connectionString);
+            SqlHelper sqlHelper = new SqlHelper(ConnectionString);
             try
             {
                 sqlHelper.VerifyConnection();
@@ -406,100 +408,107 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                           ,[estimated] = @estimated
                                           ,[start_month_estimate_nav] = @start_month_estimate_nav
                                            where [id] = @id";
+
                 foreach (var item in listOfParameters)
                 {
                     sqlHelper.Update(updatePerformanceQuery, CommandType.Text, item.ToArray());
                 }
 
-
                 sqlHelper.SqlCommitTransaction();
                 sqlHelper.CloseConnection();
+
                 return Utils.Wrap(true, null, HttpStatusCode.OK, "Calculations saved successfully");
             }
             catch (Exception ex)
             {
                 sqlHelper.SqlRollbackTransaction();
                 sqlHelper.CloseConnection();
+
                 return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
                     "An error occured while saving calculations");
             }
         }
 
-        private bool InsertDailyPnl(List<DailyPnL> obj)
+        public async Task<object> UploadMonthlyPerformance(HttpRequestMessage requestMessage)
         {
-            SqlHelper sqlHelper = new SqlHelper(connectionString);
             try
             {
-                sqlHelper.VerifyConnection();
-                sqlHelper.SqlBeginTransaction();
+                if (!ClearMonthlyPerformance())
+                {
+                    return Utils.Wrap(false, "Monthly Performance data could not be deleted! Please try again.");
+                }
 
-                var monthlyPerformanceQuery = $@"DELETE FROM [unofficial_daily_pnl];";
+                var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "PerformanceData");
+                if (!uploadedResult.Item1)
+                    return Utils.Wrap(false);
 
-                sqlHelper.Delete(monthlyPerformanceQuery, CommandType.Text);
+                var performancePath = uploadedResult.Item2;
+                var performanceFileName = uploadedResult.Item3;
 
-                new SQLBulkHelper().Insert("unofficial_daily_pnl", obj.ToArray(), sqlHelper.GetConnection(),
-                    sqlHelper.GetTransaction());
-                
-                sqlHelper.SqlCommitTransaction();
-                sqlHelper.CloseConnection();
-                return true;
+                var recordBody = _fileProcessor.ImportFile(performancePath, "Performance", "PerformanceFormats", ',');
+
+                var records = JsonConvert.SerializeObject(recordBody.Item1);
+                var performanceRecords = JsonConvert.DeserializeObject<List<MonthlyPerformance>>(records);
+
+                var failedRecords = new Dictionary<object, Row>();
+                var key = 0;
+                foreach (var item in recordBody.Item2)
+                {
+                    failedRecords.Add(key++, item);
+                }
+
+                var failedPerformanceList =
+                    _fileManagementService.MapFailedRecords(failedRecords, DateTime.Now, performanceFileName);
+
+                List<FileInputDto> fileList = new List<FileInputDto>
+                {
+                    new FileInputDto(performancePath, performanceFileName, performanceRecords.Count,
+                        "MonthlyPerformance",
+                        "Upload",
+                        failedPerformanceList,
+                        DateTime.Now)
+                };
+
+                _fileManagementService.InsertActivityAndPositionFilesForSilver(fileList);
+                var monthlyPerformanceResult = CalculateMonthlyPerformance(performanceRecords);
+                var monthlyPerformance = monthlyPerformanceResult.GetType().GetProperty("payload")
+                    ?.GetValue(monthlyPerformanceResult, null);
+
+                var insertedMonthlyPerformance =
+                    AddOrUpdateMonthlyPerformance((List<MonthlyPerformance>) monthlyPerformance);
+                var insertStatus = (bool) insertedMonthlyPerformance.GetType().GetProperty("isSuccessful")
+                    ?.GetValue(insertedMonthlyPerformance, null);
+
+                if (insertStatus)
+                {
+                    return Utils.Wrap(true, monthlyPerformance, HttpStatusCode.OK);
+                }
+
+                return Utils.Wrap(false);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                sqlHelper.SqlRollbackTransaction();
-                sqlHelper.CloseConnection();
-                return false;
+                return Utils.Wrap(false);
             }
         }
 
-        public async Task<object> UploadMonthlyPerformance(HttpRequestMessage requestMessage)
+        public object GetMonthlyPerformanceStatus()
         {
-            if (!ClearMonthlyPerformance())
-            {
-                return Utils.Wrap(false, "Monthly Performance data could not be deleted! Please try again.");
-            }
+            SqlHelper sqlHelper = new SqlHelper(ConnectionString);
 
-            var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "PerformanceData");
-            if (!uploadedResult.Item1)
-                return Utils.Wrap(false);
+            var query = $@"SELECT TOP (1) [id] 
+                        FROM [monthly_performance]";
 
-            var performancePath = uploadedResult.Item2;
-            var performanceFileName = uploadedResult.Item3;
+            var hasMonthlyPerformance = sqlHelper.GetScalarValue(query, CommandType.Text);
 
-            var recordBody = fileProcessor.ImportFile(performancePath, "Performance", "PerformanceFormats", ',');
+            var status = hasMonthlyPerformance != null;
 
-            var records = JsonConvert.SerializeObject(recordBody.Item1);
-            var performanceRecords = JsonConvert.DeserializeObject<List<MonthlyPerformance>>(records);
-
-            var failedRecords = new Dictionary<object, Row>();
-            var key = 0;
-            foreach (var item in recordBody.Item2)
-            {
-                failedRecords.Add(key++, item);
-            }
-
-            var failedPerformanceList =
-                fileManagementService.MapFailedRecords(failedRecords, DateTime.Now, performanceFileName);
-
-            List<FileInputDto> fileList = new List<FileInputDto>
-            {
-                new FileInputDto(performancePath, performanceFileName, performanceRecords.Count, "MonthlyPerformance",
-                    "Upload",
-                    failedPerformanceList,
-                    DateTime.Now)
-            };
-
-            fileManagementService.InsertActivityAndPositionFilesForSilver(fileList);
-            var monthlyPerformanceResult = CalculateMonthlyPerformance(performanceRecords);
-            var monthlyPerformance = monthlyPerformanceResult.GetType().GetProperty("payload")
-                ?.GetValue(monthlyPerformanceResult, null);
-
-            return Utils.Wrap(true, monthlyPerformance, HttpStatusCode.OK);
+            return Utils.Wrap(true, status, HttpStatusCode.OK);
         }
 
         private bool ClearMonthlyPerformance()
         {
-            SqlHelper sqlHelper = new SqlHelper(connectionString);
+            SqlHelper sqlHelper = new SqlHelper(ConnectionString);
 
             try
             {
@@ -535,6 +544,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             var currentPerformance = current.Performance.HasValue ? current.Performance.Value : 0;
             var priorYTDNetPerformance = prior.YTDNetPerformance;
+
             return currentPerformance + priorYTDNetPerformance;
         }
 
@@ -542,7 +552,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             var convertedPriorQTD = prior.QTD + 1;
             var convertedCurrentMTD = current.MTD.HasValue ? current.MTD.Value + 1 : 1;
-            //return (convertedPriorQTD * convertedCurrentMTD) - 1;
+
+            // return (convertedPriorQTD * convertedCurrentMTD) - 1;
             return Math.Round((convertedPriorQTD * convertedCurrentMTD) - 1, 16);
         }
 
@@ -550,7 +561,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             var convertedPriorYTD = prior.YTD + 1;
             var convertedCurrentMTD = current.MTD.HasValue ? current.MTD.Value + 1 : 1;
-            //return (convertedPriorYTD * convertedCurrentMTD) - 1;
+
+            // return (convertedPriorYTD * convertedCurrentMTD) - 1;
             return Math.Round((convertedPriorYTD * convertedCurrentMTD) - 1, 16);
         }
 
@@ -558,7 +570,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             var convertedPriorYTD = prior.ITD + 1;
             var convertedCurrentMTD = current.MTD.HasValue ? current.MTD.Value + 1 : 1;
-            //return (convertedPriorYTD * convertedCurrentMTD) - 1;
+
+            // return (convertedPriorYTD * convertedCurrentMTD) - 1;
             return Math.Round((convertedPriorYTD * convertedCurrentMTD) - 1, 16);
         }
 
@@ -570,13 +583,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 new SqlParameter("id", id)
             };
-            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, auditTrailParams.ToArray());
+
+            var dataTable = SqlHelper.GetDataTable(query, CommandType.Text, auditTrailParams.ToArray());
             var jsonResult = JsonConvert.SerializeObject(dataTable);
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
+
             return Utils.Wrap(true, json);
         }
-
-       
 
         public object GetDailyUnofficialPnl()
         {
@@ -621,7 +634,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                           ,[itd_pnl] as ITDPnL
                       FROM [dbo].[unofficial_daily_pnl] ORDER BY business_date ASC, id ASC";
 
-                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
+                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text);
 
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
 
@@ -634,6 +647,105 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
                     "An error occured while fetching Daily Unofficial Pnl");
             }
+        }
+
+        public object CalculateDailyUnofficialPnl(List<DailyPnL> obj)
+        {
+            return new DailyPnlCalculator().CalculateDailyPerformance(obj);
+        }
+
+        public async Task<object> UploadDailyUnofficialPnl(HttpRequestMessage requestMessage)
+        {
+            try
+            {
+                var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "PerformanceData");
+                if (!uploadedResult.Item1)
+                    return Utils.Wrap(false);
+
+                var dailyPnlPath = uploadedResult.Item2;
+                var dailyPnlFileName = uploadedResult.Item3;
+                var recordBody = _fileProcessor.ImportFile(dailyPnlPath, "DailyPnl", "PerformanceFormats", ',');
+
+                var records = JsonConvert.SerializeObject(recordBody.Item1);
+                var performanceRecords = JsonConvert.DeserializeObject<List<DailyPnL>>(records);
+
+                var failedRecords = new Dictionary<object, Row>();
+                var key = 0;
+                foreach (var item in recordBody.Item2)
+                {
+                    failedRecords.Add(key++, item);
+                }
+
+                var failedPerformanceList =
+                    _fileManagementService.MapFailedRecords(failedRecords, DateTime.Now, uploadedResult.Item3);
+
+                List<FileInputDto> fileList = new List<FileInputDto>
+                {
+                    new FileInputDto(dailyPnlPath, dailyPnlFileName, performanceRecords.Count, "DailyUnofficialPnl",
+                        "Upload",
+                        failedPerformanceList,
+                        DateTime.Now)
+                };
+
+                _fileManagementService.InsertActivityAndPositionFilesForSilver(fileList);
+                var dailyPerformanceResult = new DailyPnlCalculator().CalculateDailyPerformance(performanceRecords);
+                var dailyPerformance = dailyPerformanceResult.GetType().GetProperty("payload")
+                    ?.GetValue(dailyPerformanceResult, null);
+                bool insertDailyPnl = InsertDailyPnl((List<DailyPnL>) dailyPerformance);
+                if (insertDailyPnl)
+                {
+                    return Utils.Wrap(true, dailyPerformance, null);
+                }
+                else
+                {
+                    return Utils.Wrap(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Utils.Wrap(false);
+            }
+        }
+
+        private bool InsertDailyPnl(List<DailyPnL> obj)
+        {
+            SqlHelper sqlHelper = new SqlHelper(ConnectionString);
+            try
+            {
+                sqlHelper.VerifyConnection();
+                sqlHelper.SqlBeginTransaction();
+
+                var monthlyPerformanceQuery = $@"DELETE FROM [unofficial_daily_pnl];";
+
+                sqlHelper.Delete(monthlyPerformanceQuery, CommandType.Text);
+
+                new SQLBulkHelper().Insert("unofficial_daily_pnl", obj.ToArray(), sqlHelper.GetConnection(),
+                    sqlHelper.GetTransaction());
+
+                sqlHelper.SqlCommitTransaction();
+                sqlHelper.CloseConnection();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                sqlHelper.SqlRollbackTransaction();
+                sqlHelper.CloseConnection();
+                return false;
+            }
+        }
+
+        public object GetDailyUnofficialPnlStatus()
+        {
+            SqlHelper sqlHelper = new SqlHelper(ConnectionString);
+
+            var query = $@"SELECT TOP (1) [id] 
+                        FROM [unofficial_daily_pnl]";
+
+            var hasDailyPnl = sqlHelper.GetScalarValue(query, CommandType.Text);
+
+            var status = hasDailyPnl != null;
+
+            return Utils.Wrap(true, status, HttpStatusCode.OK);
         }
 
         public object GetDailyUnofficialPnlAudit(int id)
@@ -666,9 +778,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 {
                     new SqlParameter("id", id)
                 };
-                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, auditTrailParams.ToArray());
+
+                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text, auditTrailParams.ToArray());
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
                 dynamic json = JsonConvert.DeserializeObject(jsonResult);
+
                 return Utils.Wrap(true, json, HttpStatusCode.OK,
                     "Daily Unofficial Pnl Audit Trail fetched successfully");
             }
@@ -677,66 +791,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
                     "An error occured while fetching Daily Unofficial Pnl Audit Trail");
             }
-        }
-
-        public async Task<object> UploadDailyUnofficialPnl(HttpRequestMessage requestMessage)
-        {
-            try
-            {
-                var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "PerformanceData");
-                if (!uploadedResult.Item1)
-                    return Utils.Wrap(false);
-
-                var dailyPnlPath = uploadedResult.Item2;
-                var dailyPnlFileName = uploadedResult.Item3;
-                var recordBody = fileProcessor.ImportFile(dailyPnlPath, "DailyPnl", "PerformanceFormats", ',');
-
-                var records = JsonConvert.SerializeObject(recordBody.Item1);
-                var performanceRecords = JsonConvert.DeserializeObject<List<DailyPnL>>(records);
-
-                var failedRecords = new Dictionary<object, Row>();
-                var key = 0;
-                foreach (var item in recordBody.Item2)
-                {
-                    failedRecords.Add(key++, item);
-                }
-
-                var failedPerformanceList =
-                    fileManagementService.MapFailedRecords(failedRecords, DateTime.Now, uploadedResult.Item3);
-
-                List<FileInputDto> fileList = new List<FileInputDto>
-            {
-                new FileInputDto(dailyPnlPath, dailyPnlFileName, performanceRecords.Count, "DailyUnofficialPnl",
-                    "Upload",
-                    failedPerformanceList,
-                    DateTime.Now)
-            };
-
-                fileManagementService.InsertActivityAndPositionFilesForSilver(fileList);
-                var dailyPerformanceResult = new DailyPnlCalculator().CalculateDailyPerformance(performanceRecords);
-                var dailyPerformance = dailyPerformanceResult.GetType().GetProperty("payload")
-                    ?.GetValue(dailyPerformanceResult, null);
-                bool insertDailyPnl = InsertDailyPnl((List<DailyPnL>)dailyPerformance);
-                if (insertDailyPnl)
-                {
-                    return Utils.Wrap(true, dailyPerformance, null);
-                }
-                else
-                {
-                    return Utils.Wrap(false);
-                }
-            }
-            catch(Exception ex)
-            {
-                return Utils.Wrap(false);
-
-            }
-        }
-
-
-        public object CalculateDailyUnofficialPnl(List<DailyPnL> obj)
-        {
-            return new DailyPnlCalculator().CalculateDailyPerformance(obj);
         }
     }
 }
