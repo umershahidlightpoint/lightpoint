@@ -21,6 +21,7 @@ import { DataGridModalComponent } from '../../../shared/Component/data-grid-moda
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 import { DecimalPipe } from '@angular/common';
 import { AgGridCheckboxComponent } from '../../../shared/Component/ag-grid-checkbox/ag-grid-checkbox.component';
+import { DatePickerModalComponent } from 'src/shared/Component/date-picker-modal/date-picker-modal.component';
 
 @Component({
   selector: 'app-fund-theoretical',
@@ -30,6 +31,7 @@ import { AgGridCheckboxComponent } from '../../../shared/Component/ag-grid-check
 export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   @ViewChild('dataGridModal') dataGridModal: DataGridModalComponent;
   @ViewChild('confirmationModal') confirmationModal: ConfirmationModalComponent;
+  @ViewChild('datePickerModal') datePickerModal: DatePickerModalComponent;
   @ViewChild('fileInput') fileInput: ElementRef;
 
   rowData: Array<Account>;
@@ -57,6 +59,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   isDailyPnLActive = false;
   uploadLoader = false;
   commitLoader = false;
+  private components;
 
   confirmOption = {
     generateRows: false,
@@ -398,9 +401,21 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   getContextMenuItems(params) {
     const addDefaultItems = [
       {
+        name: 'Add Current Month',
+        action: () => {
+          this.addCurrentMonth(params);
+        }
+      },
+      {
+        name: 'Add Next Month',
+        action: () => {
+          this.addNextMonth(params);
+        }
+      },
+      {
         name: 'Add Row',
         action: () => {
-          this.addRow(params);
+          this.datePickerModal.showModal(params);
         }
       },
       {
@@ -419,11 +434,46 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     return GetContextMenu(false, addDefaultItems, true, null, params);
   }
 
-  addRow(params) {
+  addCurrentMonth(params) {
     const index = params.node.rowIndex;
     const newRow = this.createRow(
       params.node.data.year,
       params.node.data.month,
+      this.totalGridRows + 1
+    );
+    params.api.updateRowData({
+      add: [newRow],
+      addIndex: index + 1
+    });
+    this.totalGridRows += 1;
+  }
+
+  addNextMonth(params) {
+    let forMonth = moment().year(params.node.data.year).month(params.node.data.month);
+    const nextMonth = forMonth.add(1,'month').format('MMMM');
+    const newYear = forMonth.format('YYYY');
+    const index = params.node.rowIndex;
+    const newRow = this.createRow(
+      newYear,
+      nextMonth,
+      this.totalGridRows + 1
+    );
+    params.api.updateRowData({
+      add: [newRow],
+      addIndex: index + 1
+    });
+    this.totalGridRows += 1;
+  }
+
+  addCustom($event) {
+    const params = $event.params;
+    const date = $event.selectedDate;
+    const year = date.format('YYYY');
+    const month = date.format('MMMM');
+    const index = params.node.rowIndex;
+    const newRow = this.createRow(
+      year,
+      month,
       this.totalGridRows + 1
     );
     params.api.updateRowData({

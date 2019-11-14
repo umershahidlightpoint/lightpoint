@@ -119,3 +119,6 @@
 <app-confirmation-modal #confirmationModal (confirmDeletion)="confirmReset()" [modalTitle]="'Reset Performance'"
   [modalDescription]="'All your changes will be lost.\nAre you sure you want to reset performance?'">
 </app-confirmation-modal>
+
+<app-date-picker-modal #datePickerModal (dateSelected)="addCustom($event)" [modalTitle]="'Select a Date'">
+</app-date-picker-modal>
