@@ -93,6 +93,7 @@ import { AgGridCheckboxComponent } from '../shared/Component/ag-grid-checkbox/ag
 import { CalculationGraphsComponent } from './main/fund-theoretical/calculation-graphs/calculation-graphs.component';
 import { TaxRatesComponent } from './main/fund-theoretical/tax-rates/tax-rates.component';
 import { TaxRateModalComponent } from './main/fund-theoretical/tax-rates/tax-rate-modal/tax-rate-modal.component';
+import { FileUploadComponent } from './main/operations/file-upload/file-upload.component';
 
 @NgModule({
   declarations: [
@@ -139,7 +140,8 @@ import { TaxRateModalComponent } from './main/fund-theoretical/tax-rates/tax-rat
     AgGridCheckboxComponent,
     CalculationGraphsComponent,
     TaxRatesComponent,
-    TaxRateModalComponent
+    TaxRateModalComponent,
+    FileUploadComponent
   ],
   imports: [
     BrowserModule,

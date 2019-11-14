@@ -534,6 +534,11 @@ export class FinancePocServiceProxy {
     return this.http.get(url);
   }
 
+  getMonthlyPerformanceStatus(): Observable<any> {
+    const url = this.baseUrl + '/calculation/monthlyPerformance/status';
+    return this.http.get(url);
+  }
+
   uploadMonthlyPerformance(file: File): Observable<any> {
     const url = this.baseUrl + '/calculation/monthlyPerformance/upload';
     const formData: FormData = new FormData();
@@ -544,6 +549,13 @@ export class FinancePocServiceProxy {
   getDailyUnofficialPnL(): Observable<any> {
     const url = this.baseUrl + '/calculation/dailyUnofficialPnl';
     return this.http.get(url);
+  }
+
+  uploadDailyUnofficialPnl(file: File): Observable<any> {
+    const url = this.baseUrl + '/calculation/dailyUnofficialPnlAudit/upload';
+    const formData: FormData = new FormData();
+    formData.append('fileKey', file, file.name);
+    return this.http.post(url, formData);
   }
 
   getTaxRates(): Observable<any> {
@@ -564,12 +576,5 @@ export class FinancePocServiceProxy {
   deleteTaxRate(id) {
     const url = this.baseUrl + '/taxRate/' + id;
     return this.http.delete(url).pipe(map((response: any) => response));
-  }
-
-  uploadDailyUnofficialPnl(file: File): Observable<any> {
-    const url = this.baseUrl + '/calculation/dailyUnofficialPnlAudit/upload';
-    const formData: FormData = new FormData();
-    formData.append('fileKey', file, file.name);
-    return this.http.post(url, formData);
   }
 }

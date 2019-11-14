@@ -16,31 +16,40 @@
       </ag-grid-angular>
     </div>
   </p-tabPanel>
+  <!-- Logs Tab Ends -->
 
   <!-- Tasks Tab -->
   <p-tabPanel #task header="Tasks" [ngStyle]="style">
     <div [ngStyle]="styleForTasksHeight">
+      <!-- Tasks Div -->
       <div class="row">
-        <!-- Run Posting Engine Div -->
+
+        <!-- Run Engine Div -->
         <div class="col-3">
           <p-dropdown [options]="periods" [(ngModel)]="selectedPeriod" optionLabel="name"></p-dropdown>
           <button class="btn btn-info ml-2" type="button" [disabled]="isLoading" (click)="runEngine()">
             Run Engine
           </button>
         </div>
+        <!-- Run Engine Div Ends -->
+
+        <!-- Silver End of Day Div -->
         <div class="col-2">
           <input type="text" class="form-control" ngxDaterangepickerMd placeholder="Business Date"
             [(ngModel)]="businessDate" [singleDatePicker]="true" [autoApply]="true" [locale]="{firstDay: 1}" />
         </div>
-
         <div class="col-2 p-0">
-          <button class="btn btn-info" type="button" [disabled]="isLoading || generateFilesLoader" (click)="generateFiles()">
-              <span *ngIf="generateFilesLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          <button class="btn btn-info" type="button" [disabled]="isLoading || generateFilesLoader"
+            (click)="generateFiles()">
+            <span *ngIf="generateFilesLoader" class="spinner-border spinner-border-sm" role="status"
+              aria-hidden="true"></span>
             Silver End of Day
           </button>
         </div>
+        <!-- Silver End of Day Div Ends -->
+
+        <!-- Clear Journal Div -->
         <div class="col-5">
-          <!-- Clear Journal Div -->
           <form class="float-right" [formGroup]="clearJournalForm" (ngSubmit)="openModal()">
             <div class="mr-3">
               <div class="form-check">
@@ -57,6 +66,8 @@
             </div>
           </form>
         </div>
+        <!-- Clear Journal Div Ends -->
+
         <!-- Posting Engine Messages Div -->
         <div *ngIf="isLoading">
           <h3 class="mt-4">Progress</h3>
@@ -66,28 +77,53 @@
             </div>
           </div>
         </div>
+        <!-- Posting Engine Messages Div Ends -->
+
       </div>
+      <!-- Tasks Div Ends -->
+
     </div>
     <!-- Confirmation Modal Selector -->
     <app-confirmation-modal #confirmModal (confirmDeletion)="clearJournal()" [modalTitle]="'Clear Journal'">
     </app-confirmation-modal>
+    <!-- Confirmation Modal Selector Ends -->
+
   </p-tabPanel>
+  <!-- Tasks Tab Ends -->
+
+  <!-- File Uploads Tab -->
+  <p-tabPanel header="Uploads" [ngStyle]="style">
+    <app-file-upload></app-file-upload>
+  </p-tabPanel>
+  <!-- File Uploads Tab Ends -->
 
   <!-- Files Tab -->
   <p-tabPanel header="Import / Export" [ngStyle]="style">
-    <!-- <router-outlet></router-outlet> -->
     <div class="row">
+
+      <!-- File Management Div -->
       <div class="col-6">
         <app-file-management *ngIf="fileManagementActive"></app-file-management>
       </div>
+      <!-- File Management Div Ends -->
+
+      <!-- Silver File Management -->
       <div class="col-6">
         <app-silver-file-management *ngIf="fileManagementActive"></app-silver-file-management>
       </div>
+      <!-- Silver File Management Ends -->
+
     </div>
   </p-tabPanel>
+  <!-- Files Tab Ends -->
+
+  <!-- File Exception Tab -->
   <p-tabPanel header="Export Exceptions" [ngStyle]="style">
     <div class="col-12">
       <app-file-exception *ngIf="exportExceptionActive"></app-file-exception>
     </div>
   </p-tabPanel>
+  <!-- File Exception Tab Ends -->
+
 </p-tabView>
+<!-- Main Tab View Ends -->
