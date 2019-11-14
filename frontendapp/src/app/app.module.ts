@@ -94,6 +94,7 @@ import { CalculationGraphsComponent } from './main/fund-theoretical/calculation-
 import { TaxRatesComponent } from './main/fund-theoretical/tax-rates/tax-rates.component';
 import { TaxRateModalComponent } from './main/fund-theoretical/tax-rates/tax-rate-modal/tax-rate-modal.component';
 import { DatePickerModalComponent } from '../shared/Component/date-picker-modal/date-picker-modal.component';
+import { FileUploadComponent } from './main/operations/file-upload/file-upload.component';
 
 @NgModule({
   declarations: [
@@ -141,7 +142,8 @@ import { DatePickerModalComponent } from '../shared/Component/date-picker-modal/
     CalculationGraphsComponent,
     TaxRatesComponent,
     TaxRateModalComponent,
-    DatePickerModalComponent
+    DatePickerModalComponent,
+    FileUploadComponent
   ],
   imports: [
     BrowserModule,
