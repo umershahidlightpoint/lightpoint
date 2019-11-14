@@ -28,7 +28,7 @@ export class FileUploadComponent implements OnInit {
 
   changeFileType(selectedFileType) {
     this.disableFileUpload =
-      this.fileToUpload === null && this.fileType === 'Select a File Type' ? true : false;
+      this.fileToUpload === null || this.fileType === 'Select a File Type' ? true : false;
     this.fileType = selectedFileType;
   }
 
