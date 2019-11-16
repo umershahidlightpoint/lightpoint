@@ -86,6 +86,7 @@ import { GridUtilsComponent } from '../shared/Component/grid-utils/grid-utils.co
 import { FileExceptionComponent } from './main/operations/file-exception/file-exception.component';
 import { FundTheoreticalComponent } from './main/fund-theoretical/fund-theoretical.component';
 import { DailyPnlComponent } from './main/fund-theoretical/daily-pnl/daily-pnl.component';
+import { MarketPricesComponent } from './main/fund-theoretical/market-prices/market-prices.component';
 import { PerformanceCanDeactivateGuard } from '../shared/guards/performance-can-deactivate-guard.service';
 import { DataGridModalComponent } from '../shared/Component/data-grid-modal/data-grid-modal.component';
 import { DecimalPipe } from '@angular/common';
@@ -135,6 +136,7 @@ import { TaxRateModalComponent } from './main/fund-theoretical/tax-rates/tax-rat
     FileExceptionComponent,
     FundTheoreticalComponent,
     DailyPnlComponent,
+    MarketPricesComponent,
     DataGridModalComponent,
     AgGridCheckboxComponent,
     CalculationGraphsComponent,
