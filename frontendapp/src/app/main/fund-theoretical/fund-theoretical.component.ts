@@ -54,6 +54,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   disableFileUpload = true;
   disableCharts = true;
   isTaxRateActive = false;
+  isMarketPricesActive = false;
   isDailyPnLActive = false;
   uploadLoader = false;
   commitLoader = false;
@@ -120,11 +121,15 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   }
 
   onTabChange(e) {
+    debugger
     if (e.index === 1) {
       this.isDailyPnLActive = true;
     }
     if (e.index === 2) {
       this.isTaxRateActive = true;
+    }
+    if(e.index === 3 ) {
+      this.isMarketPricesActive = true;
     }
   }
 

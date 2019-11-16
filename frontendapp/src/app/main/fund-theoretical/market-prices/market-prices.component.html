@@ -1,0 +1,73 @@
+<!-- Action Buttons Form Tag Starts -->
+<form>
+  <!-- Form Row Div Starts -->
+  <div class="form-row">
+    <!-- <div class="col-2">
+      <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date" [(ngModel)]="selectedDate"
+        (ngModelChange)="changeDate($event)" name="selectedDate" [singleDatePicker]="true" [autoApply]="true"
+        autocomplete="off" [showDropdowns]="true" />
+    </div> -->
+
+    <!-- Fileupload Div Starts -->
+    <div class="col-6">
+      <!-- <button class="btn btn-info" type="button" (click)="doRefresh()">
+        Refresh
+      </button> -->
+      <input #fileInput class="btn btn-info file-upload-btn" type="file" (change)="onFileInput($event.target.files)">
+      <button class="btn btn-info ml-2" type="button" (click)="uploadDailyUnofficialPnl()" [disabled]="uploadLoader || disableFileUpload">
+        Upload
+        <span *ngIf="uploadLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      </button>
+    </div>
+    <!-- Fileupload Div Ends -->
+    
+    <!-- Action Buttons Div Starts -->
+    <div class="ml-auto mr-2">
+      <!-- <div class="col-6">
+        <button class="btn btn-info ml-2" type="button" [disabled]="disableCommit" (click)="commitPerformanceData()">
+          Commit
+        </button>
+      </div> -->
+
+      <!-- Grid Utils Starts -->
+      <app-grid-utils class="mr-0" [utilsConfig]="utilsConfig" [gridOptions]="dailyPnlGrid" (refresh)="refreshGrid()">
+      </app-grid-utils>
+      <!-- Grid Utils Ends -->
+
+      <!-- Show Calculation Graphs Button -->
+      <button class="btn btn-info" type="button" tooltip="View Graph" [disabled]="disableCharts"
+        (click)="expandedClicked()">
+        <i class="fa fa-line-chart"></i>
+      </button>
+      <!-- Show Calculation Graphs Button -->
+
+
+    </div>
+    <!-- Action Buttons Div Ends -->
+  </div>
+  <!-- Form Row Div Ends -->
+</form>
+<!-- Action Buttons Form Tag Ends -->
+
+<!----- Div To Measure Identifier starts ----->
+<div #divToMeasure>
+  <!----- Style For Height ----->
+  <div [ngStyle]="styleForHeight">
+    <div class="row h-100">
+      <!----- Ag Grid Tag Starts ----->
+      <div [ngClass]="{'col-6': isExpanded, 'col-12': !isExpanded}">
+      <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="dailyPnlGrid">
+      </ag-grid-angular>
+    </div>
+      <!----- Ag Grid Tag Ends ----->
+      
+      <!-- App Calculation Graphs Div Starts -->
+      <div *ngIf ="isExpanded" class="col-6">
+        <app-calculation-graphs class="w-50 h-50" [chartData]="graphObject" [mode]="'single'">
+        </app-calculation-graphs>
+      </div>
+      <!-- App Calculation Graphs Div Ends -->
+    </div>
+  </div>
+</div>
+<!----- Div To Measure Identifier Ends ----->

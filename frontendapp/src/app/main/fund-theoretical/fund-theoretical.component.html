@@ -13,7 +13,7 @@
   <p-tabView [ngStyle]="style" (onChange)="onTabChange($event)">
 
     <!-- Fund Theoretical Tab Starts -->
-    <p-tabPanel header=" Fund Theoretical" [ngStyle]="style">
+    <p-tabPanel header="Fund Theoretical" [ngStyle]="style">
 
       <!-- Action Buttons Form Tag Starts -->
       <form>
@@ -104,6 +104,13 @@
       <app-tax-rates *ngIf="isTaxRateActive"></app-tax-rates>
     </p-tabPanel>
     <!-- Tax Rate Tab Ends -->
+
+    <!-- Tax Rate Tab Starts -->
+    <p-tabPanel header="Market Prices" [ngStyle]="style">
+      <app-market-prices *ngIf="isMarketPricesActive"></app-market-prices>
+    </p-tabPanel>
+    <!-- Tax Rate Tab Ends -->
+
   </p-tabView>
   <!-- Tab View Tag Ends -->
 

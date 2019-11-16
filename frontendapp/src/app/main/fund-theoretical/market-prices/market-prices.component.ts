@@ -18,11 +18,11 @@ import { DailyUnofficialPnLData } from 'src/shared/Models/funds-theoretical';
 import * as moment from 'moment';
 
 @Component({
-  selector: 'app-daily-pnl',
-  templateUrl: './daily-pnl.component.html',
-  styleUrls: ['./daily-pnl.component.css']
+  selector: 'app-market-prices',
+  templateUrl: './market-prices.component.html',
+  styleUrls: ['./market-prices.component.css']
 })
-export class DailyPnlComponent implements OnInit {
+export class MarketPricesComponent implements OnInit {
   dailyPnlGrid: GridOptions;
   selectedDate = null;
   dailyPnLData: Array<DailyUnofficialPnLData>;
@@ -76,12 +76,8 @@ export class DailyPnlComponent implements OnInit {
 
   getDailyPnL() {
     this.financeService.getDailyUnofficialPnL().subscribe(response => {
-      
-      debugger
-
-      let sortedData = response.payload.sort((x,y) => { return new Date(y.BusinessDate).getTime() - new Date(x.BusinessDate).getTime()});
-
-      this.dailyPnLData = sortedData.map(data => ({
+      //this.dailyPnLData = response.data;
+      this.dailyPnLData = response.payload.map(data => ({
         businessDate: DateFormatter(data.BusinessDate),
         fund: data.Fund,
         portFolio: data.PortFolio,
