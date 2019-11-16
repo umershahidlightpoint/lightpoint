@@ -32,6 +32,7 @@ insert into Account_type (account_category_id, name) values (1, 'LEASEHOLD IMPRO
 insert into Account_type (account_category_id, name) values (1, 'ACCUMULATED AMORTIZATION')
 insert into Account_type (account_category_id, name) values (1, 'ORGANIZATION COSTS')
 insert into Account_type (account_category_id, name) values (1, 'PREPAID EXPENSES')
+insert into Account_type (account_category_id, name) values (1, 'Mark to Market longs fx translation gain or loss')
 -- DONE
 
 /*
@@ -66,6 +67,9 @@ insert into Account_type (account_category_id, name) values (4, 'DIVIDEND INCOME
 insert into Account_type (account_category_id, name) values (4, 'FOREIGN WITHHOLDING TAX')
 insert into Account_type (account_category_id, name) values (4, 'INTEREST INCOME ( Fixed Income Coupon )')
 insert into Account_type (account_category_id, name) values (4, 'Interest Income on  PB Balances')
+insert into Account_type (account_category_id, name) values (4, 'fx gain or loss on unsettled balance')
+insert into Account_type (account_category_id, name) values (4, 'fx gain or loss in revenue')
+
 -- DONE
 
 /*
