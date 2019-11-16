@@ -14,30 +14,19 @@ namespace LP.Finance.WebProxy.WebAPI
     {
         private ICalculationService controller = new CalculationService();
 
-        // GET api/fileManagement/files
-        [Route("monthlyPerformance")]
-        [HttpGet]
+        [HttpGet, Route("monthlyPerformance")]
         public object GetMonthlyPerformance()
         {
             return controller.GetMonthlyPerformance();
         }
 
-        [Route("monthlyPerformanceAudit")]
-        [HttpGet]
-        public object GetMonthlyPerformanceAudit(int id)
-        {
-            return controller.GetMonthlyPerformanceAudit(id);
-        }
-
-        [Route("monthlyPerformance")]
-        [HttpPost]
+        [HttpPost, Route("monthlyPerformance")]
         public object AddMonthlyPerformance(List<MonthlyPerformance> obj)
         {
             return controller.CalculateMonthlyPerformance(obj);
         }
 
-        [Route("monthlyPerformance")]
-        [HttpPut]
+        [HttpPut, Route("monthlyPerformance")]
         public object ModifyMonthlyPerformance(List<MonthlyPerformance> obj)
         {
             return controller.AddOrUpdateMonthlyPerformance(obj);
@@ -49,18 +38,28 @@ namespace LP.Finance.WebProxy.WebAPI
             return await controller.UploadMonthlyPerformance(Request);
         }
 
+        [HttpGet, Route("monthlyPerformance/status")]
+        public object GetMonthlyPerformanceStatus()
+        {
+            return controller.GetMonthlyPerformanceStatus();
+        }
+
+        [HttpGet, Route("monthlyPerformanceAudit")]
+        public object GetMonthlyPerformanceAudit(int id)
+        {
+            return controller.GetMonthlyPerformanceAudit(id);
+        }
+
         [HttpPost, Route("monthlyPerformance/graphql")]
         public async Task<IHttpActionResult> Post([FromBody] GraphQLQuery query)
         {
-
-            var schema = new Schema { Query = new PerformanceQuery() };
+            var schema = new Schema {Query = new PerformanceQuery()};
             var inputs = query.Variables.ToInputs();
             var result = await new DocumentExecuter().ExecuteAsync(_ =>
             {
                 _.Inputs = inputs;
                 _.Schema = schema;
                 _.Query = query.Query;
-
             }).ConfigureAwait(false);
 
             if (result.Errors?.Count > 0)
@@ -71,24 +70,28 @@ namespace LP.Finance.WebProxy.WebAPI
             return Ok(result);
         }
 
-        [Route("dailyUnofficialPnl")]
-        [HttpGet]
+        [HttpGet, Route("dailyUnofficialPnl")]
         public object GetDailyUnofficialPnl()
         {
             return controller.GetDailyUnofficialPnl();
-        }
-
-        [Route("dailyUnofficialPnlAudit")]
-        [HttpGet]
-        public object GetDailyUnofficialPnlAudit(int id)
-        {
-            return controller.GetMonthlyPerformanceAudit(id);
         }
 
         [HttpPost, Route("dailyUnofficialPnlAudit/upload")]
         public async Task<object> UploadDailyUnofficialPnl()
         {
             return await controller.UploadDailyUnofficialPnl(Request);
+        }
+
+        [HttpGet, Route("dailyUnofficialPnl/status")]
+        public object GetDailyUnofficialPnlStatus()
+        {
+            return controller.GetDailyUnofficialPnlStatus();
+        }
+
+        [HttpGet, Route("dailyUnofficialPnlAudit")]
+        public object GetDailyUnofficialPnlAudit(int id)
+        {
+            return controller.GetMonthlyPerformanceAudit(id);
         }
 
         [HttpPost, Route("dailyUnofficialPnlAudit/calculate")]

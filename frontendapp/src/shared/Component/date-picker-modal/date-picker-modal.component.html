@@ -1,0 +1,24 @@
+
+<div bsModal #confirm="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal"
+aria-hidden="true" [config]="{backdrop: false}"><!-- Date Picker Div Starts -->
+  <div class="modal-dialog modal-dialog-centered" id="modal-lg">
+    <div class="modal-content modal-width">
+      <!-- Modal Header Start -->
+      <div class="modal-header">
+        <h3>{{title}}</h3>
+        <button type="button" class="close" (click)="closeModal()">
+          &times;
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <input ngxDaterangepickerMd class="form-control" id="dateInput" type="text" placeholder="Choose date"
+            [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate"
+            [singleDatePicker]="true" [autoApply]="true" autocomplete="off" [showDropdowns]="true"
+            [locale]="{firstDay: 1}" />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Date Picker Div Ends -->

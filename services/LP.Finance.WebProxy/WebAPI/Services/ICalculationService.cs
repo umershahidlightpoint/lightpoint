@@ -8,16 +8,18 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 {
     public interface ICalculationService
     {
-        object GetMonthlyPerformance(DateTime? dateTo = null, DateTime? dateFrom = null, string fund = null, string portfolio = null);
+        object GetMonthlyPerformance(DateTime? dateTo = null, DateTime? dateFrom = null, string fund = null,
+            string portfolio = null);
+
         object CalculateMonthlyPerformance(List<MonthlyPerformance> dto);
         object AddOrUpdateMonthlyPerformance(List<MonthlyPerformance> dto);
         Task<object> UploadMonthlyPerformance(HttpRequestMessage requestMessage);
+        object GetMonthlyPerformanceStatus();
         object GetMonthlyPerformanceAudit(int id);
         object GetDailyUnofficialPnl();
-        object GetDailyUnofficialPnlAudit(int id);
-        Task<object> UploadDailyUnofficialPnl(HttpRequestMessage requestMessage);
         object CalculateDailyUnofficialPnl(List<DailyPnL> obj);
-
-
+        Task<object> UploadDailyUnofficialPnl(HttpRequestMessage requestMessage);
+        object GetDailyUnofficialPnlStatus();
+        object GetDailyUnofficialPnlAudit(int id);
     }
 }

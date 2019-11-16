@@ -10,17 +10,14 @@
 
     <!-- Fileupload Div Starts -->
     <div class="col-6">
-      <!-- <button class="btn btn-info" type="button" (click)="doRefresh()">
-        Refresh
-      </button> -->
-      <input #fileInput class="btn btn-info file-upload-btn" type="file" (change)="onFileInput($event.target.files)">
+      <!-- <input #fileInput class="btn btn-info file-upload-btn" type="file" (change)="onFileInput($event.target.files)">
       <button class="btn btn-info ml-2" type="button" (click)="uploadDailyUnofficialPnl()" [disabled]="uploadLoader || disableFileUpload">
         Upload
         <span *ngIf="uploadLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-      </button>
+      </button> -->
     </div>
     <!-- Fileupload Div Ends -->
-    
+
     <!-- Action Buttons Div Starts -->
     <div class="ml-auto mr-2">
       <!-- <div class="col-6">
@@ -35,7 +32,8 @@
       <!-- Grid Utils Ends -->
 
       <!-- Show Calculation Graphs Button -->
-      <button class="btn btn-info" type="button" tooltip="View Graph" [disabled]="disableCharts"
+      <ng-template #tooltipTemplate>{{isExpanded ? 'Hide Graph' : 'View Graph'}}</ng-template>
+      <button class="btn btn-info" type="button" [tooltip]="tooltipTemplate" [disabled]="disableCharts"
         (click)="expandedClicked()">
         <i class="fa fa-line-chart"></i>
       </button>
@@ -56,13 +54,13 @@
     <div class="row h-100">
       <!----- Ag Grid Tag Starts ----->
       <div [ngClass]="{'col-6': isExpanded, 'col-12': !isExpanded}">
-      <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="dailyPnlGrid">
-      </ag-grid-angular>
-    </div>
+        <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="dailyPnlGrid">
+        </ag-grid-angular>
+      </div>
       <!----- Ag Grid Tag Ends ----->
-      
+
       <!-- App Calculation Graphs Div Starts -->
-      <div *ngIf ="isExpanded" class="col-6">
+      <div *ngIf="isExpanded" class="col-6">
         <app-calculation-graphs class="w-50 h-50" [chartData]="graphObject" [mode]="'single'">
         </app-calculation-graphs>
       </div>
