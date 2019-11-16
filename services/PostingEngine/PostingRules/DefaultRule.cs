@@ -97,9 +97,9 @@ namespace PostingEngine.PostingRules
             double fxrate = 1.0;
 
             // Lets get fx rate if needed
-            if (!element.TradeCurrency.Equals("USD"))
+            if (!element.TradeCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(env.FxRates[element.TradeCurrency].Rate);
+                fxrate = Convert.ToDouble(env.EODFxRates[element.TradeCurrency].Rate);
             }
 
             var tradeAllocations = env.Allocations.Where(i => i.LpOrderId == element.LpOrderId).ToList();

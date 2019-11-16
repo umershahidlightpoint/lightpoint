@@ -64,7 +64,8 @@ namespace PostingEngine
         public TaxRate TaxRate { get; set; }
 
         // Rates are all multiplied, and we store that rate in the system
-        public Dictionary<string, FxRate> FxRates { get; set; }
+        public Dictionary<string, FxRate> EODFxRates { get; set; }
+        public Dictionary<string, FxRate> PrevFxRates { get; set; }
         public Dictionary<string, MarketPrice> PrevMarketPrices { get; set; }
         public Dictionary<string, MarketPrice> EODMarketPrices { get; set; }
         public Dictionary<string, CostBasisDto> CostBasis { get; set; }
@@ -78,12 +79,12 @@ namespace PostingEngine
         {
             {"Common Stock", new CommonStock() },
             {"Equity Option", new EquityOption() },
-            {"Cash", new Cash() },
+            {"Cash", new CashRule() },
             // -- {"Cross", new Cross() },
 
             // Default for the moment
             {"Equity Swap", new DefaultRule() },
-            {"FORWARD", new DefaultRule() },
+            {"FORWARD", new ForwardRule() },
             {"Physical index future.", new DefaultRule() },
         };
 

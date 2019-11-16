@@ -47,6 +47,7 @@ namespace LP.Finance.Common.Models
         public double Fees { get; set; }
         public string Status { get; set; }
         public string TransactionType { get; set; }
+        public string TransactionCategory { get; set; }
 
         public string BloombergCode { get; set; }
 

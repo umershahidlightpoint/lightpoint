@@ -83,6 +83,8 @@ $@"select
 	TradeCurrency, TradePrice, TradeDate, 
 	SettleCurrency, SettlePrice, SettleDate, 
 	TradeType,
+    TransactionCategory,
+    TransactionType,
 	Status, 
 	NetMoney,Commission, Fees, 
 	SettleNetMoney, NetPrice, SettleNetPrice,

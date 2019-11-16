@@ -78,6 +78,23 @@ namespace PostingEngine.PostingRules
     {
         internal void DailyEvent(PostingEngineEnvironment env, Transaction element)
         {
+            double tradefxrate = 1.0;
+            double settlefxrate = 1.0;
+            double fxrate = 1.0;
+
+            // Lets get fx rate if needed
+            if (!element.TradeCurrency.Equals("USD"))
+            {
+                tradefxrate = Convert.ToDouble(env.EODFxRates[element.TradeCurrency].Rate);
+                fxrate = tradefxrate;
+            }
+
+            if (!element.SettleCurrency.Equals(env.BaseCurrency))
+            {
+                settlefxrate = Convert.ToDouble(env.EODFxRates[element.SettleCurrency].Rate);
+                fxrate = settlefxrate;
+            }
+
             // Calculate the unrealized PNL
             if (env.TaxLotStatus.ContainsKey(element.LpOrderId))
             {
@@ -127,18 +144,12 @@ namespace PostingEngine.PostingRules
                             eodPrice = env.EODMarketPrices[element.BloombergCode].Price;
                     }
 
-                    var fxRate = 1.0;
                     var multiplier = 1.0;
 
                     if (env.SecurityDetails.ContainsKey(element.BloombergCode))
                         multiplier = env.SecurityDetails[element.BloombergCode].Multiplier;
 
-                    if (!element.TradeCurrency.Equals("USD"))
-                    {
-                        fxRate = Convert.ToDouble(env.FxRates[element.TradeCurrency].Rate);
-                    }
-
-                    var unrealizedPnl = quantity * (eodPrice - prevEodPrice) * fxRate * multiplier;
+                    var unrealizedPnl = quantity * (eodPrice - prevEodPrice) * fxrate * multiplier;
 
                     var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Mark to Market Longs")).FirstOrDefault(), listOfFromTags, element);
 
@@ -163,7 +174,7 @@ namespace PostingEngine.PostingRules
                         FxCurrency = element.SettleCurrency,
                         Symbol = symbol,
                         Quantity = quantity,
-                        FxRate = fxRate,
+                        FxRate = fxrate,
                         Value = env.SignedValue(fromAccount, toAccount, true, unrealizedPnl),
                         CreditDebit = env.DebitOrCredit(fromAccount, taxlot.IsShort() ? unrealizedPnl * -1 : unrealizedPnl),
                         StartPrice = prevEodPrice,
@@ -178,7 +189,7 @@ namespace PostingEngine.PostingRules
                         Account = toAccount,
                         When = env.ValueDate,
                         FxCurrency = element.SettleCurrency,
-                        FxRate = fxRate,
+                        FxRate = fxrate,
                         Symbol = symbol,
                         Quantity = quantity,
                         Value = env.SignedValue(fromAccount, toAccount, false, unrealizedPnl),
@@ -190,12 +201,37 @@ namespace PostingEngine.PostingRules
                     };
 
                     env.Journals.AddRange(new[] { debit, credit });
+                    if (fxrate != 1.0)
+                    {
+                        if (element.TradeDate != env.ValueDate && element.SettleDate >= env.ValueDate)
+                        {
+                            var fxJournals = new CommonRules().CreateFx(env, "daily", element.NetMoney, quantity, null, element);
+                            env.Journals.AddRange(fxJournals);
+                        }
+                    }
 
                 }
             }
         }
         internal void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
+            double tradefxrate = 1.0;
+            double settlefxrate = 1.0;
+            double fxrate = 1.0;
+
+            // Lets get fx rate if needed
+            if (!element.TradeCurrency.Equals("USD"))
+            {
+                tradefxrate = Convert.ToDouble(env.EODFxRates[element.TradeCurrency].Rate);
+                fxrate = tradefxrate;
+            }
+
+            if (!element.SettleCurrency.Equals(env.BaseCurrency))
+            {
+                settlefxrate = Convert.ToDouble(env.EODFxRates[element.SettleCurrency].Rate);
+                fxrate = settlefxrate;
+            }
+
             // Retrieve Allocation Objects for this trade
             var tradeAllocations = env.Allocations.Where(i => i.ParentOrderId == element.ParentOrderId).ToList();
 
@@ -215,14 +251,6 @@ namespace PostingEngine.PostingRules
             new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
 
             // This is the fully loaded value to tbe posting
-
-            double fxrate = 1.0;
-
-            // Lets get fx rate if needed
-            if (!element.SettleCurrency.Equals("USD"))
-            {
-                fxrate = Convert.ToDouble(env.FxRates[element.SettleCurrency].Rate);
-            }
 
             if (element.NetMoney != 0.0)
             {
@@ -269,8 +297,6 @@ namespace PostingEngine.PostingRules
                 };
 
                 env.Journals.AddRange(new[] { debit, credit });
-
-                //new Journal[] { debit, credit }.Save(env);
             }
         }
         internal void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
@@ -278,12 +304,21 @@ namespace PostingEngine.PostingRules
             double fxrate = 1.0;
 
             // Lets get fx rate if needed
-            if (!element.TradeCurrency.Equals("USD"))
+            if (!element.TradeCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(env.FxRates[element.TradeCurrency].Rate);
+                fxrate = Convert.ToDouble(env.EODFxRates[element.TradeCurrency].Rate);
             }
 
             var tradeAllocations = env.Allocations.Where(i => i.LpOrderId == element.LpOrderId).ToList();
+
+            if ( element.IsCredit() || element.IsDebit())
+            {
+                if ( element.TransactionCategory == "Cash Dividends")
+                {
+                    // We have a Cash Dividend, so how do we treat this
+                    return;
+                }
+            }
 
             if (element.IsBuy() || element.IsShort())
             {

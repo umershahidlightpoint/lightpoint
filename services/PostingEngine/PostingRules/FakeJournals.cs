@@ -41,9 +41,9 @@ namespace PostingEngine.PostingRules
 
             double fxrate = 1.0;
 
-            if (!element.SettleCurrency.Equals("USD"))
+            if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(env.FxRates[element.TradeCurrency].Rate);
+                fxrate = Convert.ToDouble(env.EODFxRates[element.SettleCurrency].Rate);
             }
 
             var moneyUSD = element.LocalNetNotional * fxrate;
@@ -163,7 +163,7 @@ namespace PostingEngine.PostingRules
                         else
                         {
                             var symbol = element.Symbol;
-                            symbol = this._codeMap.ContainsKey(symbol) ? _codeMap[symbol] : symbol;
+                            symbol = _codeMap.ContainsKey(symbol) ? _codeMap[symbol] : symbol;
 
                             var paidAccount = AccountType.Find("Expenses Paid");
                             var payableAccount = AccountType.Find("ACCRUED EXPENSES");
@@ -208,7 +208,7 @@ namespace PostingEngine.PostingRules
                     else // Default Action
                     {
                         var symbol = element.Symbol;
-                        symbol = this._codeMap.ContainsKey(symbol) ? _codeMap[symbol] : symbol;
+                        symbol = _codeMap.ContainsKey(symbol) ? _codeMap[symbol] : symbol;
 
                         var paidAccount = AccountType.Find("Expenses Paid");
                         var payableAccount = AccountType.Find("ACCRUED EXPENSES");
@@ -254,13 +254,9 @@ namespace PostingEngine.PostingRules
 
             double fxrate = 1.0;
 
-            if (element.LocalNetNotional == 50000)
+            if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-
-            }
-            if (!element.SettleCurrency.Equals("USD"))
-            {
-                fxrate = Convert.ToDouble(env.FxRates[element.TradeCurrency].Rate);
+                fxrate = Convert.ToDouble(env.EODFxRates[element.SettleCurrency].Rate);
             }
 
             var moneyUSD = element.LocalNetNotional * fxrate;
@@ -318,7 +314,7 @@ namespace PostingEngine.PostingRules
             return validAccrual ;
         }
 
-        private Dictionary<string, string> _codeMap = new Dictionary<string, string>() {
+        internal static Dictionary<string, string> _codeMap = new Dictionary<string, string>() {
             { "ZZ_AUDIT_FEE", "Audit Fee" },
             { "ZZ_MANAGEMENT_FEES", "Management Fees" },
             { "ZZ_ACCOUNTING_FEES", "Acounting Fees" },

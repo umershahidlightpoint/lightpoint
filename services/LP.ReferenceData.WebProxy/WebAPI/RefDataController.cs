@@ -66,6 +66,10 @@ namespace LP.ReferenceData.WebProxy.WebAPI
                     result = Utils.GetTable(connectionString, "custodian");
                     Utils.Save(result, "custodian");
                     break;
+                case "portfolio":
+                    result = Utils.GetTable(connectionString, "portfolio");
+                    Utils.Save(result, "portfolio");
+                    break;
                 case "broker":
                     result = Utils.GetTable(connectionString, "broker");
                     Utils.Save(result, "broker");

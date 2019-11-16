@@ -231,7 +231,8 @@ namespace PostingEngine
                     Categories = AccountCategory.Categories,
                     Types = AccountType.All,
                     ValueDate = DateTime.Now.Date,
-                    FxRates = new FxRates().Get(DateTime.Now.Date),
+                    EODFxRates = new FxRates().Get(DateTime.Now.Date),
+                    PrevFxRates = new FxRates().Get(DateTime.Now.Date.PrevBusinessDate()),
                     RunDate = System.DateTime.Now.Date,
                     Allocations = allocationList,
                     Trades = tradeList,
@@ -452,7 +453,8 @@ namespace PostingEngine
             while (valueDate <= endDate)
             {
                 postingEnv.ValueDate = valueDate;
-                postingEnv.FxRates = new FxRates().Get(valueDate);
+                postingEnv.EODFxRates = new FxRates().Get(valueDate);
+                postingEnv.PrevFxRates = new FxRates().Get(valueDate.PrevBusinessDate());
                 postingEnv.TaxRate = new TaxRates().Get(valueDate);
 
                 try
@@ -530,7 +532,8 @@ namespace PostingEngine
                 postingEnv.ValueDate = valueDate;
 
                 // FX Rates
-                postingEnv.FxRates = new FxRates().Get(valueDate);
+                postingEnv.EODFxRates = new FxRates().Get(valueDate);
+                postingEnv.PrevFxRates = new FxRates().Get(valueDate.PrevBusinessDate());
 
                 // Get todays Market Prices
                 postingEnv.EODMarketPrices = new MarketPrices().Get(valueDate);

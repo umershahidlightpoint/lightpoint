@@ -63,8 +63,9 @@
     <Compile Include="MarketData\TradeTaxRate.cs" />
     <Compile Include="Posting.cs" />
     <Compile Include="PostingEngineEnvironment.cs" />
-    <Compile Include="PostingRules\Cash.cs" />
+    <Compile Include="PostingRules\CashRule.cs" />
     <Compile Include="PostingRules\CommonRules.cs" />
+    <Compile Include="PostingRules\ForwardRule.cs" />
     <Compile Include="PostingRules\DefaultRule.cs" />
     <Compile Include="PostingRules\EquityOption.cs" />
     <Compile Include="PostingRules\Cross.cs" />
