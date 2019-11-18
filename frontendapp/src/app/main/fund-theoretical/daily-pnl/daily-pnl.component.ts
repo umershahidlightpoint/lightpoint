@@ -74,12 +74,21 @@ export class DailyPnlComponent implements OnInit {
     });
   }
 
+  sortDailyPnl(x,y){
+    let dateDiff = new Date(y.BusinessDate).getTime() - new Date(x.BusinessDate).getTime();
+    if(dateDiff != 0){
+      return dateDiff;
+    } else{
+      return y.Id - x.Id;
+    }
+  }
+
   getDailyPnL() {
     this.financeService.getDailyUnofficialPnL().subscribe(response => {
       
       debugger
 
-      let sortedData = response.payload.sort((x,y) => { return new Date(y.BusinessDate).getTime() - new Date(x.BusinessDate).getTime()});
+      let sortedData = response.payload.sort((x,y) => this.sortDailyPnl(x,y));
 
       this.dailyPnLData = sortedData.map(data => ({
         businessDate: DateFormatter(data.BusinessDate),

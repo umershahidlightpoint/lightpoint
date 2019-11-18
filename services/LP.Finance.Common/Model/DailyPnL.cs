@@ -71,6 +71,7 @@ namespace LP.Finance.Common.Model
 
         public int Id { get; set; }
         public int RowId { get; set; }
+        public bool ExistingRecord { get; set; }
         public bool Modified { get; set; }
         public DateTime BusinessDate { get; set; }
         public string Fund { get; set; }
