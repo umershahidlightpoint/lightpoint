@@ -17,7 +17,7 @@ export class FileUploadComponent implements OnInit {
   uploadLoader = false;
   confirmStatus = false;
   fileType = 'Select a File Type';
-  fileTypes = ['Monthly Performance', 'Daily PnL'];
+  fileTypes = ['Monthly Performance', 'Daily PnL', 'Market Prices'];
 
   constructor(
     private financeService: FinancePocServiceProxy,
@@ -55,6 +55,8 @@ export class FileUploadComponent implements OnInit {
       });
     } else if (this.fileType === 'Daily PnL') {
       this.uploadDailyUnofficialPnl();
+    } else if (this.fileType === 'Market Prices') {
+      this.uploadMarketData();
     }
   }
 
@@ -81,6 +83,19 @@ export class FileUploadComponent implements OnInit {
   uploadDailyUnofficialPnl() {
     this.uploadLoader = true;
     this.financeService.uploadDailyUnofficialPnl(this.fileToUpload).subscribe(response => {
+      this.uploadLoader = false;
+      if (response.isSuccessful) {
+        this.clearForm();
+        this.toastrService.success('File uploaded successfully!');
+      } else {
+        this.toastrService.error('Something went wrong! Try Again.');
+      }
+    });
+  }
+
+  uploadMarketData() {
+    this.uploadLoader = true;
+    this.financeService.uploadMarketPriceData(this.fileToUpload).subscribe(response => {
       this.uploadLoader = false;
       if (response.isSuccessful) {
         this.clearForm();

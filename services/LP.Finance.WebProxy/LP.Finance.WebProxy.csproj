@@ -84,6 +84,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WebAPI\MarketDataController.cs" />
     <Compile Include="WebAPI\Services\TaxRateService.cs" />
     <Compile Include="WebAPI\Services\ITaxRateService.cs" />
     <Compile Include="WebAPI\TaxRateController.cs" />
@@ -146,6 +147,10 @@
     </None>
     <None Include="..\LP.FileProcessing\PerformanceFormats\DailyPnl.json">
       <Link>PerformanceFormats\DailyPnl.json</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\LP.FileProcessing\PerformanceFormats\MarketDataPrices.json">
+      <Link>PerformanceFormats\MarketDataPrices.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="..\LP.FileProcessing\PerformanceFormats\Performance.json">

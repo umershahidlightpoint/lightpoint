@@ -165,6 +165,38 @@ namespace PostingEngine.PostingRules.Utilities
             return account;
         }
 
+        public Account CreateAccount(AccountType accountType, List<string> tags)
+        {
+            var accountName = $"{accountType.Name} -- {string.Join("-", tags)}";
+            var description = $"{string.Join("-", tags)}";
+
+            // Lets check to see if we have created this account already
+            if (accounts.ContainsKey(accountName))
+            {
+                return accounts[accountName];
+            }
+
+            var existingAccount = Account.All.Where(a => a.Name.Equals(accountName) && a.Type.Id == accountType.Id).FirstOrDefault();
+            if (existingAccount != null)
+            {
+                return existingAccount;
+            }
+
+            var account = new Account
+            {
+                // Need to revisit this ASAP
+                //Type = def.AccountCategory,
+                Name = accountName,
+                Description = description,
+                Type = accountType,
+                Tags = new List<AccountTag>()
+            };
+
+            accounts.Add(accountName, account);
+
+            return account;
+        }
+
         public AccountToFrom GetFromToAccount(Transaction element)
         {
             var type = element.GetType();

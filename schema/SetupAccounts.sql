@@ -69,6 +69,7 @@ insert into Account_type (account_category_id, name) values (4, 'INTEREST INCOME
 insert into Account_type (account_category_id, name) values (4, 'Interest Income on  PB Balances')
 insert into Account_type (account_category_id, name) values (4, 'fx gain or loss on unsettled balance')
 insert into Account_type (account_category_id, name) values (4, 'fx gain or loss in revenue')
+insert into Account_type (account_category_id, name) values (4, 'fx gain or loss on settled balance')
 
 -- DONE
 

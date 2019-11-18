@@ -539,6 +539,18 @@ export class FinancePocServiceProxy {
     return this.http.get(url);
   }
 
+  getMarketPriceData() :Observable<any> {
+    const url = this.baseUrl + '/marketdata/prices';
+    return this.http.get(url);
+  }
+
+  uploadMarketPriceData(file: File): Observable<any> {
+    const url = this.baseUrl + '/marketdata/prices/upload';
+    const formData: FormData = new FormData();
+    formData.append('fileKey', file, file.name);
+    return this.http.post(url, formData);
+  }
+
   uploadMonthlyPerformance(file: File): Observable<any> {
     const url = this.baseUrl + '/calculation/monthlyPerformance/upload';
     const formData: FormData = new FormData();

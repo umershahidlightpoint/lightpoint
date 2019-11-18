@@ -21,16 +21,19 @@ namespace PostingEngineCmd
             var date = System.DateTime.Now.Date;
             date = date.PrevBusinessDate();
 
-            ITD(date);
+            //ITD(date);
 
             // Then Cost Basis
-            CostBasis();
+            //CostBasis();
 
             // Pull from BookMon
-            PullFromBookmon();
+            //PullFromBookmon();
+
+            // Settled Cash
+            //CalculateDailyPnl();
 
             // Unofficial Daily Pnl
-            CalculateDailyPnl();
+            SettledCashBalances();
         }
 
         static void PullFromBookmon()
@@ -39,6 +42,29 @@ namespace PostingEngineCmd
 
             // This runs thru everything, we need more or a scalpable
             PostingEngine.PostingEngine.RunCalculation("PullFromBookmon", key, (message, totalRows, rowsDone) => {
+                if (message.StartsWith("Processing"))
+                {
+                    // Do nothing
+                    return;
+                }
+                if (message.StartsWith("Completed"))
+                {
+                    var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
+
+                    Console.WriteLine($"{message}, % Completed {completed}");
+                    return;
+                }
+
+                Console.WriteLine($"{message}");
+            });
+        }
+
+        static void SettledCashBalances()
+        {
+            var key = System.Guid.NewGuid();
+
+            // This runs thru everything, we need more or a scalpable
+            PostingEngine.PostingEngine.RunCalculation("SettledCashBalances", key, (message, totalRows, rowsDone) => {
                 if (message.StartsWith("Processing"))
                 {
                     // Do nothing

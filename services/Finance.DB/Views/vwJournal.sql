@@ -17,6 +17,7 @@
 									[journal].[quantity],
                                     [journal].[id],
                                     [account_id],
+                                    [fx_currency],
                                     [fund],
                                     [account_category].[name] as AccountCategory,  
                                     [account_type].[name] as AccountType,
@@ -25,7 +26,8 @@
                                     [value],
                                     [source],
                                     [start_price],
-                                    [end_price]
+                                    [end_price],
+									[fxrate]
                                     FROM [journal] with(nolock) 
                         join account with(nolock)  on [journal]. [account_id] = account.id 
                         join [account_type] with(nolock) on  [account].account_type_id = [account_type].id
