@@ -14,7 +14,6 @@ import { DecimalPipe } from '@angular/common';
 import { FinancePocServiceProxy } from 'src/shared/service-proxies/service-proxies';
 import { ToastrService } from 'ngx-toastr';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
-import { DailyUnofficialPnLData } from 'src/shared/Models/funds-theoretical';
 import * as moment from 'moment';
 
 @Component({
@@ -23,11 +22,9 @@ import * as moment from 'moment';
   styleUrls: ['./market-prices.component.css']
 })
 export class MarketPricesComponent implements OnInit {
-  dailyPnlGrid: GridOptions;
+  dataGridOptions: GridOptions;
   selectedDate = null;
-  dailyPnLData: Array<DailyUnofficialPnLData>;
-  funds: Array<string>;
-  portfolios: Array<string>;
+  gridData: any;
   fileToUpload: File = null;
   totalGridRows: number;
   isExpanded = false;
@@ -55,72 +52,20 @@ export class MarketPricesComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.getFunds();
-    this.getDailyPnL();
+    this.getData();
     this.initGrid();
   }
 
-  getFunds() {
-    this.financeService.getFunds().subscribe(response => {
-      this.funds = response.payload.map(item => item.FundCode);
-      this.initCols();
-    });
-  }
-
-  getPortfolios() {
-    this.financeService.getPortfolios().subscribe(response => {
-      this.portfolios = response.payload.map(item => item.PortfolioCode);
-      this.initCols();
-    });
-  }
-
-  getDailyPnL() {
-    this.financeService.getDailyUnofficialPnL().subscribe(response => {
-      //this.dailyPnLData = response.data;
-      this.dailyPnLData = response.payload.map(data => ({
-        businessDate: DateFormatter(data.BusinessDate),
-        fund: data.Fund,
-        portFolio: data.PortFolio,
-        tradePnL: data.TradePnL,
-        day: data.Day,
-        dailyPercentageReturn: data.DailyPercentageReturn,
-        longPnL: data.LongPnL,
-        longPercentageChange: data.LongPercentageChange,
-        shortPnL: data.ShortPnL,
-        shortPercentageChange: data.ShortPercentageChange,
-        longExposure: data.LongExposure,
-        shortExposure: data.ShortExposure,
-        grossExposure: data.GrossExposure,
-        netExposure: data.NetExposure,
-        sixMdBetaNetExposure: data.SixMdBetaNetExposure,
-        twoYwBetaNetExposure: data.TwoYwBetaNetExposure,
-        sixMdBetaShortExposure: data.SixMdBetaShortExposure,
-        navMarket: data.NavMarket,
-        dividendUSD: data.DividendUSD,
-        commUSD: data.CommUSD,
-        feeTaxesUSD: data.FeeTaxesUSD,
-        financingUSD: data.FinancingUSD,
-        otherUSD: data.OtherUSD,
-        pnLPercentage: data.PnLPercentage,
-        mtdPercentageReturn: data.MTDPercentageReturn,
-        qtdPercentageReturn: data.QTDPercentageReturn,
-        ytdPercentageReturn: data.YTDPercentageReturn,
-        itdPercentageReturn: data.ITDPercentageReturn,
-        mtdPnL: data.MTDPnL,
-        qtdPnL: data.QTDPnL,
-        ytdPnL: data.YTDPnL,
-        itdPnL: data.ITDPnL,
-        createdBy: data.CreatedBy,
-        lastUpdatedBy: data.LastUpdatedBy,
-        createdDate: data.CreatedDate,
-        lastUpdatedDate: data.lastUpdatedDate
-      }));
-      this.dailyPnlGrid.api.setRowData(this.dailyPnLData);
+  getData() {
+    this.financeService.getMarketPriceData().subscribe(response => {
+      debugger;
+      this.gridData = response.payload;
+      this.dataGridOptions.api.setRowData(this.gridData);
     });
   }
 
   initGrid() {
-    this.dailyPnlGrid = {
+    this.dataGridOptions = {
       columnDefs: this.getColDefs(),
       rowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
@@ -139,11 +84,8 @@ export class MarketPricesComponent implements OnInit {
       pivotRowTotals: 'after',
       enableCellChangeFlash: true,
       animateRows: true,
-      // deltaRowDataMode: true,
-      // getRowNodeId: data => {
-      //   return data.rowId;
-      // },
       onGridReady: params => {
+        //this.dataGridOptions.api = params.api;
         AutoSizeAllColumns(params);
       },
       onFirstDataRendered: params => {
@@ -154,210 +96,36 @@ export class MarketPricesComponent implements OnInit {
         resizable: true
       }
     } as GridOptions;
-    this.dailyPnlGrid.sideBar = SideBar(GridId.dailyPnlId, GridName.dailyPnl, this.dailyPnlGrid);
+    this.dataGridOptions.sideBar = SideBar(GridId.dailyPnlId, GridName.dailyPnl, this.dataGridOptions);
   }
 
   initCols() {
     const colDefs = this.getColDefs();
-    this.dailyPnlGrid.api.setColumnDefs(colDefs);
-    this.dailyPnlGrid.api.sizeColumnsToFit();
+    this.dataGridOptions.api.setColumnDefs(colDefs);
+    this.dataGridOptions.api.sizeColumnsToFit();
   }
 
   getColDefs() {
     const colDefs = [
       {
-        headerName: 'Is Modified',
-        field: 'modified',
-        hide: true
-      },
-      {
         headerName: 'Business Date',
-        field: 'businessDate',
+        field: 'business_date',
         filter: true,
         suppressCellFlash: true
       },
       {
-        headerName: 'Portfolio*',
-        field: 'portFolio',
-        cellEditor: 'agSelectCellEditor',
-        cellEditorParams: {
-          values: ['None', ...this.portfolios]
-        }
+        headerName: 'Symbol',
+        field: 'symbol',
       },
       {
-        headerName: 'Fund*',
-        field: 'fund',
-        filter: true,
-        cellEditor: 'agSelectCellEditor',
-        cellEditorParams: {
-          values: ['None', ...this.funds]
-        }
+        headerName: 'Event',
+        field: 'event',
       },
       {
-        headerName: 'Trade P/L',
-        field: 'tradePnL',
-        valueFormatter: params => this.numberFormatter(params.node.data.tradePnL, false)
+        headerName: 'Price',
+        field: 'price',
+        valueFormatter: params => this.numberFormatter(params.node.data.price, false)
       },
-      {
-        headerName: 'Day',
-        field: 'day',
-        valueFormatter: params => this.numberFormatter(params.node.data.day, false)
-      },
-      {
-        headerName: 'Daily % Return',
-        field: 'dailyPercentageReturn',
-        valueFormatter: params => this.numberFormatter(params.node.data.dailyPercentageReturn, true)
-      },
-      {
-        headerName: 'Long P/L',
-        field: 'longPnL',
-        valueFormatter: params => this.numberFormatter(params.node.data.longPnL, false)
-      },
-      {
-        headerName: 'Long % Change',
-        field: 'longPercentageChange',
-        valueFormatter: params => this.numberFormatter(params.node.data.longPercentageChange, false)
-      },
-      {
-        headerName: 'Short P/L',
-        field: 'shortPnL',
-        valueFormatter: params => this.numberFormatter(params.node.data.shortPnL, false)
-      },
-      {
-        headerName: 'Short % Change',
-        field: 'shortPercentageChange',
-        valueFormatter: params => this.numberFormatter(params.node.data.shortPercentageChange, false)
-      },
-      {
-        headerName: 'Long Exposure',
-        field: 'longExposure',
-        valueFormatter: params => this.numberFormatter(params.node.data.longExposure, false)
-      },
-      {
-        headerName: 'Short Exposure',
-        field: 'shortExposure',
-        valueFormatter: params => this.numberFormatter(params.node.data.shortExposure, false)
-      },
-      {
-        headerName: 'Gross Exposure',
-        field: 'grossExposure',
-        valueFormatter: params => this.numberFormatter(params.node.data.grossExposure, false)
-      },
-      {
-        headerName: 'Net Exposure',
-        field: 'netExposure',
-        valueFormatter: params => this.numberFormatter(params.node.data.netExposure, false)
-      },
-      {
-        headerName: '6md Beta Net Exposure',
-        field: 'sixMdBetaNetExposure',
-        valueFormatter: params => this.numberFormatter(params.node.data.sixMdBetaNetExposure, false)
-      },
-      {
-        headerName: '2Yw Beta Net Exposure',
-        field: 'twoYwBetaNetExposure',
-        valueFormatter: params => this.numberFormatter(params.node.data.twoYwBetaNetExposure, false)
-      },
-      {
-        headerName: '6md Beta Short Exposure',
-        field: 'sixMdBetaShortExposure',
-        valueFormatter: params => this.numberFormatter(params.node.data.sixMdBetaShortExposure, false)
-      },
-      {
-        headerName: 'Nav Market',
-        field: 'navMarket',
-        valueFormatter: params => this.numberFormatter(params.node.data.navMarket, false)
-      },
-      {
-        headerName: 'Dividend USD',
-        field: 'dividendUSD',
-        valueFormatter: params => this.numberFormatter(params.node.data.dividendUSD, false)
-      },
-      {
-        headerName: 'Comm USD',
-        field: 'commUSD',
-        valueFormatter: params => this.numberFormatter(params.node.data.commUSD, false)
-      },
-      {
-        headerName: 'Fee/Taxes USD',
-        field: 'feeTaxesUSD',
-        valueFormatter: params => this.numberFormatter(params.node.data.feeTaxesUSD, false)
-      },
-      {
-        headerName: 'Financing USD',
-        field: 'financingUSD',
-        valueFormatter: params => this.numberFormatter(params.node.data.financingUSD, false)
-      },
-      {
-        headerName: 'Other USD',
-        field: 'otherUSD',
-        valueFormatter: params => this.numberFormatter(params.node.data.otherUSD, false)
-      },
-      {
-        headerName: 'P/L %',
-        field: 'pnLPercentage',
-        valueFormatter: params => this.numberFormatter(params.node.data.pnLPercentage, true)
-      },
-      {
-        headerName: 'MTD % Return',
-        field: 'mtdPercentageReturn',
-        valueFormatter: params => this.numberFormatter(params.node.data.mtdPercentageReturn, true)
-      },
-      {
-        headerName: 'QTD % Return',
-        field: 'qtdPercentageReturn',
-        valueFormatter: params => this.numberFormatter(params.node.data.qtdPercentageReturn, true)
-      },
-      {
-        headerName: 'YTD % Return',
-        field: 'ytdPercentageReturn',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdPercentageReturn, true)
-      },
-      {
-        headerName: 'ITD % Return',
-        field: 'itdPercentageReturn',
-        valueFormatter: params => this.numberFormatter(params.node.data.itdPercentageReturn, true)
-      },
-      {
-        headerName: 'MTD PnL',
-        field: 'mtdPnL',
-        valueFormatter: params => this.numberFormatter(params.node.data.mtdPnL, false)
-      },
-      {
-        headerName: 'QTD PnL',
-        field: 'qtdPnL',
-        valueFormatter: params => this.numberFormatter(params.node.data.qtdPnL, false)
-      },
-      {
-        headerName: 'YTD PnL',
-        field: 'ytdPnL',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdPnL, false)
-      },
-      {
-        headerName: 'ITD PnL',
-        field: 'itdPnL',
-        valueFormatter: params => this.numberFormatter(params.node.data.itdPnL, false)
-      },
-      {
-        headerName: 'Created By',
-        field: 'createdBy',
-        hide: true
-      },
-      {
-        headerName: 'Last Updated By ',
-        field: 'lastUpdatedBy ',
-        hide: true
-      },
-      {
-        headerName: 'Created Date',
-        field: 'createdDate',
-        hide: true
-      },
-      {
-        headerName: 'Last Updated Date',
-        field: 'lastUpdatedDate',
-        hide: true
-      }
     ];
     colDefs.forEach(colDef => {
       if (
@@ -391,15 +159,15 @@ export class MarketPricesComponent implements OnInit {
   }
 
   visualizeData() {
-    const focusedCell = this.dailyPnlGrid.api.getFocusedCell();
-    const selectedRow = this.dailyPnlGrid.api.getDisplayedRowAtIndex(focusedCell.rowIndex).data;
+    const focusedCell = this.dataGridOptions.api.getFocusedCell();
+    const selectedRow = this.dataGridOptions.api.getDisplayedRowAtIndex(focusedCell.rowIndex).data;
     const column = focusedCell.column.getColDef().field;
     const columnLabel = focusedCell.column.getUserProvidedColDef().headerName;
     this.graphObject = [{ label: columnLabel, data: [] }];
     const toDate = moment(selectedRow.businessDate);
     const fromDate = moment(selectedRow.businessDate).subtract(30, 'days');
     const selectedPortfolio = selectedRow.portFolio;
-    this.dailyPnlGrid.api.forEachNodeAfterFilter((rowNode, index) => {
+    this.dataGridOptions.api.forEachNodeAfterFilter((rowNode, index) => {
       let currentDate = moment(rowNode.data.businessDate);
       if(rowNode.data.portFolio === selectedPortfolio && currentDate.isSameOrAfter(fromDate) && currentDate.isSameOrBefore(toDate)){
         this.graphObject.forEach(element => {
@@ -414,62 +182,18 @@ export class MarketPricesComponent implements OnInit {
     this.disableCharts = false;
   }
 
-  uploadDailyUnofficialPnl() {
+  uploadData() {
+    debugger
     let rowNodeId = 1;
     this.uploadLoader = true;
-    this.financeService.uploadDailyUnofficialPnl(this.fileToUpload).subscribe(response => {
+    this.financeService.uploadMarketPriceData(this.fileToUpload).subscribe(response => {
       this.uploadLoader = false;
       console.log('Response', response);
       if (response.isSuccessful) {
-        // const modifiedData = response.payload.map(data => {
-        //   return { ...data, RowId: rowNodeId++, Estimated: true };
-        // });
-        // this.totalGridRows = rowNodeId;
-        // // this.dailyPnLData = this.formatPerformanceData(modifiedData);
-        // this.dailyPnlGrid.api.setRowData(this.dailyPnLData);
-        // AutoSizeAllColumns(this.dailyPnlGrid);
-        // this.disableCommit = false;
         this.fileInput.nativeElement.value = '';
         this.disableFileUpload = true;
-        this.dailyPnLData = response.payload.map(data => ({
-          businessDate: DateFormatter(data.BusinessDate),
-          fund: data.Fund,
-          portFolio: data.PortFolio,
-          tradePnL: data.TradePnL,
-          day: data.Day,
-          dailyPercentageReturn: data.DailyPercentageReturn,
-          longPnL: data.LongPnL,
-          longPercentageChange: data.LongPercentageChange,
-          shortPnL: data.ShortPnL,
-          shortPercentageChange: data.ShortPercentageChange,
-          longExposure: data.LongExposure,
-          shortExposure: data.ShortExposure,
-          grossExposure: data.GrossExposure,
-          netExposure: data.NetExposure,
-          sixMdBetaNetExposure: data.SixMdBetaNetExposure,
-          twoYwBetaNetExposure: data.TwoYwBetaNetExposure,
-          sixMdBetaShortExposure: data.SixMdBetaShortExposure,
-          navMarket: data.NavMarket,
-          dividendUSD: data.DividendUSD,
-          commUSD: data.CommUSD,
-          feeTaxesUSD: data.FeeTaxesUSD,
-          financingUSD: data.FinancingUSD,
-          otherUSD: data.OtherUSD,
-          pnLPercentage: data.PnLPercentage,
-          mtdPercentageReturn: data.MTDPercentageReturn,
-          qtdPercentageReturn: data.QTDPercentageReturn,
-          ytdPercentageReturn: data.YTDPercentageReturn,
-          itdPercentageReturn: data.ITDPercentageReturn,
-          mtdPnL: data.MTDPnL,
-          qtdPnL: data.QTDPnL,
-          ytdPnL: data.YTDPnL,
-          itdPnL: data.ITDPnL,
-          createdBy: data.CreatedBy,
-          lastUpdatedBy: data.LastUpdatedBy,
-          createdDate: data.CreatedDate,
-          lastUpdatedDate: data.lastUpdatedDate
-        }));
-        this.dailyPnlGrid.api.setRowData(this.dailyPnLData);
+        this.gridData = response.payload
+        this.dataGridOptions.api.setRowData(this.gridData);
       } else {
         this.toastrService.error('Something went wrong! Try Again.');
       }
@@ -481,8 +205,8 @@ export class MarketPricesComponent implements OnInit {
   }
 
   refreshGrid() {
-    this.dailyPnlGrid.api.showLoadingOverlay();
-    this.getDailyPnL();
+    this.dataGridOptions.api.showLoadingOverlay();
+    this.getData();
   }
 
   numberFormatter(numberToFormat, isInPercentage) {

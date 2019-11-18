@@ -98,6 +98,7 @@
     <Compile Include="Model\JournalLog.cs" />
     <Compile Include="Model\Ledger.cs" />
     <Compile Include="Model\DailyPnL.cs" />
+    <Compile Include="Model\MarketDataPrice.cs" />
     <Compile Include="Model\MonthlyPerformance.cs" />
     <Compile Include="Model\Position.cs" />
     <Compile Include="Model\TaxLot.cs" />

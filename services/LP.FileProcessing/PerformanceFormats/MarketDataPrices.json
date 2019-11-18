@@ -1,0 +1,42 @@
+{
+  "Header": [],
+  "Trailer": [],
+  "Record": [
+    {
+      "source": "Date",
+      "destination": "BusinessDate",
+      "function": null,
+      "format": "",
+      "type": "date",
+      "offset": 0,
+      "rule": ""
+    },
+    {
+      "source": "SecurityId",
+      "destination": "Symbol",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 1,
+      "rule": ""
+    },
+    {
+      "source": "Price",
+      "destination": "Price",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 2,
+      "rule": ""
+    },
+    {
+      "source": "CCY",
+      "destination": "Currency",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 3,
+      "rule": ""
+    }
+  ]
+}

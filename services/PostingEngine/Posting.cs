@@ -124,6 +124,159 @@ namespace PostingEngine
             return true;
         }
 
+        public static void SettledCashBalances()
+        {
+            var dates = "select minDate = min([when]), maxDate = max([when]) from Journal";
+
+            var sql = $@"select Symbol, fx_currency, source, fund, sum(credit-debit) as balance from vwJournal 
+                        where AccountType = 'Settled Cash'
+                        and [when] < @busDate
+                        and [event] not in ('journal')
+                        group by Symbol, fx_currency, source, fund";
+
+            PostingEngineCallBack?.Invoke("SettledCash Calculation Started");
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                Setup(connection);
+
+                var transaction = connection.BeginTransaction();
+
+                var env = new PostingEngineEnvironment(connection, transaction)
+                {
+                    SecurityDetails = new SecurityDetails().Get(),
+                    Categories = AccountCategory.Categories,
+                    Types = AccountType.All,
+                    RunDate = System.DateTime.Now.Date,
+                };
+
+                var table = new DataTable();
+
+                // read the table structure from the database
+                using (var adapter = new SqlDataAdapter(dates, new SqlConnection(connectionString)))
+                {
+                    adapter.Fill(table);
+                };
+
+                var valueDate = Convert.ToDateTime(table.Rows[0]["minDate"]);
+                var endDate = Convert.ToDateTime(table.Rows[0]["maxDate"]);
+
+                var rowsCompleted = 1;
+                var numberOfDays = (endDate - valueDate).Days;
+                while (valueDate <= endDate)
+                {
+                    if (!valueDate.IsBusinessDate())
+                    {
+                        valueDate = valueDate.AddDays(1);
+                        continue;
+                    }
+
+                    var EODFxRates = new FxRates().Get(valueDate);
+                    var PrevFxRates = new FxRates().Get(valueDate.PrevBusinessDate());
+
+                    try
+                    {
+                        var sqlParams = new SqlParameter[]
+                        {
+                            new SqlParameter("busDate", valueDate),
+                        };
+
+                        var con = new SqlConnection(connectionString);
+                        con.Open();
+                        var command = new SqlCommand(sql, con);
+                        //command.Transaction = transaction;
+                        command.Parameters.AddRange(sqlParams);
+                        var reader = command.ExecuteReader(System.Data.CommandBehavior.SingleResult);
+
+                        while (reader.Read())
+                        {
+                            var settledCash = new
+                            {
+                                Symbol = reader.GetFieldValue<string>(0),
+                                Currency = reader.GetFieldValue<string>(1),
+                                Source = reader.GetFieldValue<string>(2),
+                                Fund = reader.GetFieldValue<string>(3),
+                                Balance = reader.GetFieldValue<decimal>(4)
+                            };
+
+                            if (settledCash.Currency.Equals("USD"))
+                                continue;
+
+                            // Now Generate the correct set of entries
+                            /*
+                             * TODO Fx Calcs
+                             */
+                            Console.WriteLine(settledCash.Currency);
+
+                            var local = Convert.ToDouble(settledCash.Balance / PrevFxRates[settledCash.Currency].Rate);
+                            var prev = Convert.ToDouble(PrevFxRates[settledCash.Currency].Rate);
+                            var eod = Convert.ToDouble(EODFxRates[settledCash.Currency].Rate);
+
+                            var changeDelta = eod - prev;
+                            var change = changeDelta * local;
+
+                            var fromTo = new CommonRules().GetAccounts(env, "Settled Cash", "fx gain or loss on settled balance", new string[] { settledCash.Currency }.ToList());
+
+                            var debit = new Journal(fromTo.From, "settled-cash-fx", valueDate)
+                            {
+                                Source = settledCash.Source,
+                                Fund = settledCash.Fund,
+                                Quantity = local,
+
+                                FxCurrency = settledCash.Currency,
+                                Symbol = settledCash.Symbol,
+                                FxRate = changeDelta,
+                                StartPrice = prev,
+                                EndPrice = eod,
+
+                                Value = env.SignedValue(fromTo.From, fromTo.To, true, change),
+                                CreditDebit = env.DebitOrCredit(fromTo.From, change),
+                            };
+
+                            var credit = new Journal(fromTo.To, "settled-cash-fx", valueDate)
+                            {
+                                Source = settledCash.Source,
+                                Fund = settledCash.Fund,
+                                Quantity = local,
+
+                                FxCurrency = settledCash.Currency,
+                                Symbol = settledCash.Symbol,
+                                FxRate = changeDelta,
+                                StartPrice = prev,
+                                EndPrice = eod,
+
+                                Value = env.SignedValue(fromTo.From, fromTo.To, false, change),
+                                CreditDebit = env.DebitOrCredit(fromTo.To, change),
+                            };
+
+
+                            env.Journals.AddRange(new List<Journal>(new[] { debit, credit }));
+
+                            Console.WriteLine(change);
+                        }
+                        reader.Close();
+
+                    }
+                    catch (Exception ex)
+                    {
+                        PostingEngineCallBack?.Invoke($"Exception on {valueDate}, {ex.Message}");
+                    }
+
+                    PostingEngineCallBack?.Invoke($"Complete CostBasis for {valueDate}", numberOfDays, rowsCompleted++);
+                    valueDate = valueDate.AddDays(1);
+                }
+
+                // Now lets save the journals
+                if (env.Journals.Count() > 0)
+                {
+                    new SQLBulkHelper().Insert("journal", env.Journals.ToArray(), connection, transaction);
+                }
+
+                transaction.Commit();
+            }
+        }
         public static void CalculateCostBasis()
         {
             PostingEngineCallBack?.Invoke("Cost Basis Calculation Started");
@@ -187,6 +340,10 @@ namespace PostingEngine
             {
                 PullFromBookmon();
             }
+            else if ( calculation.Equals("SettledCashBalances"))
+            {
+                SettledCashBalances();
+            }
         }
 
         /// <summary>
@@ -199,6 +356,11 @@ namespace PostingEngine
         {
             Key = key;
             PostingEngineCallBack = postingEngineCallBack;
+
+            var allocations = GetTransactions(allocationsURL + "ITD");
+            var trades = GetTransactions(tradesURL + "ITD");
+            var accruals = GetTransactions(accrualsURL + "ITD");
+            Task.WaitAll(new Task[] { allocations, trades, accruals });
 
             using (var connection = new SqlConnection(connectionString))
             {
@@ -214,10 +376,6 @@ namespace PostingEngine
                 var transaction = connection.BeginTransaction();
                 var sw = new Stopwatch();
 
-                var allocations = GetTransactions(allocationsURL + "ITD");
-                var trades = GetTransactions(tradesURL + "ITD");
-                var accruals = GetTransactions(accrualsURL + "ITD");
-                Task.WaitAll(new Task[] { allocations, trades, accruals });
 
                 var allocationsResult = JsonConvert.DeserializeObject<PayLoad>(allocations.Result);
 
@@ -645,6 +803,7 @@ namespace PostingEngine
                     }
                 }
 
+                // Cash Settlement amounts
                 if (postingEnv.Journals.Count() > 0)
                 {
                     new SQLBulkHelper().Insert("journal", postingEnv.Journals.ToArray(), connection, transaction);

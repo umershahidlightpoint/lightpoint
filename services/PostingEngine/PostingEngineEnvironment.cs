@@ -12,7 +12,7 @@ namespace PostingEngine
 {
     public class PostingEngineEnvironment
     {
-        public PostingEngineEnvironment(SqlConnection connection, SqlTransaction transaction)
+        public PostingEngineEnvironment(SqlConnection connection, SqlTransaction transaction = null)
         {
             Connection = connection;
             Transaction = transaction;
