@@ -21,16 +21,17 @@ namespace PostingEngineCmd
             var date = System.DateTime.Now.Date;
             date = date.PrevBusinessDate();
 
-            //ITD(date);
+            // Pull from BookMon
+            PullFromBookmon();
+
+            // Get all Activity
+            ITD(date);
 
             // Then Cost Basis
-            //CostBasis();
-
-            // Pull from BookMon
-            //PullFromBookmon();
+            CostBasis();
 
             // Settled Cash
-            //CalculateDailyPnl();
+            CalculateDailyPnl();
 
             // Unofficial Daily Pnl
             SettledCashBalances();

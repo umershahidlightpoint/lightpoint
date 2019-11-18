@@ -39,7 +39,7 @@ namespace PostingEngine
 
         public static void PullFromBookmon()
         {
-            PostingEngineCallBack?.Invoke("Pull From Book Mon Calculation Started");
+            PostingEngineCallBack?.Invoke("Pull From BookMon Calculation Started");
 
             using (var connection = new SqlConnection(connectionString))
             {
@@ -48,9 +48,10 @@ namespace PostingEngine
                         declare @minDate as Date
                         declare @maxDate as Date
 
-                        select @minDate = min([when]), @maxDate = max([when]) from FundAccounting..Journal
+                        select @minDate = min(busDate), @maxDate = max(busDate) from PositionMaster..IntraDayPositionSplit
 
                         exec FundAccounting..PullDailyActivity @minDate, @maxDate
+                        exec FundAccounting..PullDailyMarketPrices @minDate, @maxDate
                         ";
                 var command = new SqlCommand(sql, connection);
                 command.ExecuteNonQuery();
@@ -126,6 +127,8 @@ namespace PostingEngine
 
         public static void SettledCashBalances()
         {
+            DeleteJournals("settled-cash-fx");
+
             var dates = "select minDate = min([when]), maxDate = max([when]) from Journal";
 
             var sql = $@"select Symbol, fx_currency, source, fund, sum(credit-debit) as balance from vwJournal 
@@ -205,17 +208,13 @@ namespace PostingEngine
                                 continue;
 
                             // Now Generate the correct set of entries
-                            /*
-                             * TODO Fx Calcs
-                             */
-                            Console.WriteLine(settledCash.Currency);
 
                             var local = Convert.ToDouble(settledCash.Balance / PrevFxRates[settledCash.Currency].Rate);
                             var prev = Convert.ToDouble(PrevFxRates[settledCash.Currency].Rate);
                             var eod = Convert.ToDouble(EODFxRates[settledCash.Currency].Rate);
 
                             var changeDelta = eod - prev;
-                            var change = changeDelta * local;
+                            var change = changeDelta * local * -1;
 
                             var fromTo = new CommonRules().GetAccounts(env, "Settled Cash", "fx gain or loss on settled balance", new string[] { settledCash.Currency }.ToList());
 
@@ -253,8 +252,6 @@ namespace PostingEngine
 
 
                             env.Journals.AddRange(new List<Journal>(new[] { debit, credit }));
-
-                            Console.WriteLine(change);
                         }
                         reader.Close();
 
@@ -558,6 +555,32 @@ namespace PostingEngine
 
                 transaction.Commit();
                 postingEngineCallBack?.Invoke("Posting Engine Processing Completed");
+            }
+        }
+
+        private static void DeleteJournals(string eventName)
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+
+            try
+            {
+                sqlHelper.VerifyConnection();
+
+                List<SqlParameter> journalParameters = new List<SqlParameter>
+                {
+                    new SqlParameter("event", eventName)
+                };
+
+                var journalQuery = $@"DELETE FROM [journal]
+                                    WHERE [journal].[event] = @event";
+
+                sqlHelper.Delete(journalQuery, CommandType.Text, journalParameters.ToArray());
+
+                sqlHelper.CloseConnection();
+            }
+            catch (Exception ex)
+            {
+                PostingEngineCallBack?.Invoke($"Unable to delete Journal Entries for Event : {eventName}, {ex.Message}");
             }
         }
 

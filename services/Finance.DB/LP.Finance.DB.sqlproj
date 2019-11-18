@@ -95,5 +95,6 @@
     <Build Include="StoredProcs\DailyPnl.sql" />
     <Build Include="StoredProcs\PullDailyActivity.sql" />
     <Build Include="Tables\market_prices.sql" />
+    <Build Include="StoredProcs\PullDailyMarketPrices.sql" />
   </ItemGroup>
 </Project>
