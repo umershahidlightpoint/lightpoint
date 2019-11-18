@@ -65,93 +65,96 @@ namespace LP.Finance.Common.Calculators
                         monthIndex = 0;
                         foreach (var item in month)
                         {
-                            if (priorData != null)
+                            if (!item.ExistingRecord)
                             {
-                                item.MTDPercentageReturn = CalculateDailyMTD(item, priorData);
-                                item.MTDPnL = CalculateDailyPnl(item.Day, priorData.MTDPnL);
-                            }
-                            else
-                            {
-                                item.MTDPercentageReturn = item.DailyPercentageReturn;
-                                item.MTDPnL = item.Day;
-                            }
-
-                            if (priorDataForYear != null)
-                            {
-                                item.YTDPercentageReturn = CalculateDailyYTD(item, priorDataForYear);
-                            }
-                            else
-                            {
-                                item.YTDPercentageReturn = item.MTDPercentageReturn;
-                            }
-
-                            if (priorDataForInception != null)
-                            {
-                                item.ITDPercentageReturn = CalculateDailyITD(item, priorDataForInception);
-                            }
-                            else
-                            {
-                                item.ITDPercentageReturn = item.MTDPercentageReturn;
-                            }
-
-                            if (priorDataForQuarter != null)
-                            {
-                                if (CheckForBeginningOfQuarter(item.BusinessDate))
+                                if (priorData != null)
                                 {
-                                    item.QTDPercentageReturn = item.MTDPercentageReturn;
+                                    item.MTDPercentageReturn = CalculateDailyMTD(item, priorData);
+                                    item.MTDPnL = CalculateDailyPnl(item.Day, priorData.MTDPnL);
                                 }
                                 else
                                 {
-                                    if (IfDatesLieInTheSameQuarter(priorDataForQuarter.BusinessDate, item.BusinessDate))
-                                    {
-                                        item.QTDPercentageReturn = CalculateDailyQTD(item, priorDataForQuarter);
-                                    }
-                                    else
+                                    item.MTDPercentageReturn = item.DailyPercentageReturn;
+                                    item.MTDPnL = item.Day;
+                                }
+
+                                if (priorDataForYear != null)
+                                {
+                                    item.YTDPercentageReturn = CalculateDailyYTD(item, priorDataForYear);
+                                }
+                                else
+                                {
+                                    item.YTDPercentageReturn = item.MTDPercentageReturn;
+                                }
+
+                                if (priorDataForInception != null)
+                                {
+                                    item.ITDPercentageReturn = CalculateDailyITD(item, priorDataForInception);
+                                }
+                                else
+                                {
+                                    item.ITDPercentageReturn = item.MTDPercentageReturn;
+                                }
+
+                                if (priorDataForQuarter != null)
+                                {
+                                    if (CheckForBeginningOfQuarter(item.BusinessDate))
                                     {
                                         item.QTDPercentageReturn = item.MTDPercentageReturn;
                                     }
-                                }
-                            }
-                            else
-                            {
-                                item.QTDPercentageReturn = item.MTDPercentageReturn;
-                            }
-
-
-                            //Calculations for QTD,YTD,ITD values.
-
-                            if (priorDataQuarterlyPnl != null)
-                            {
-                                if (CheckForBeginningOfQuarter(item.BusinessDate))
-                                {
-                                    item.QTDPnL = item.MTDPnL;
+                                    else
+                                    {
+                                        if (IfDatesLieInTheSameQuarter(priorDataForQuarter.BusinessDate, item.BusinessDate))
+                                        {
+                                            item.QTDPercentageReturn = CalculateDailyQTD(item, priorDataForQuarter);
+                                        }
+                                        else
+                                        {
+                                            item.QTDPercentageReturn = item.MTDPercentageReturn;
+                                        }
+                                    }
                                 }
                                 else
                                 {
-                                    item.QTDPnL = CalculateDailyPnl(item.Day, priorDataQuarterlyPnl.QTDPnL);
+                                    item.QTDPercentageReturn = item.MTDPercentageReturn;
                                 }
-                            }
-                            else
-                            {
-                                item.QTDPnL = item.MTDPnL;
-                            }
 
-                            if (priorDataYearlyPnl != null)
-                            {
-                                item.YTDPnL = CalculateDailyPnl(item.Day, priorDataYearlyPnl.YTDPnL);
-                            }
-                            else
-                            {
-                                item.YTDPnL = item.MTDPnL;
-                            }
 
-                            if (priorDataInceptionPnl != null)
-                            {
-                                item.ITDPnL = CalculateDailyPnl(item.Day, priorDataInceptionPnl.ITDPnL);
-                            }
-                            else
-                            {
-                                item.ITDPnL = item.MTDPnL;
+                                //Calculations for QTD,YTD,ITD values.
+
+                                if (priorDataQuarterlyPnl != null)
+                                {
+                                    if (CheckForBeginningOfQuarter(item.BusinessDate))
+                                    {
+                                        item.QTDPnL = item.MTDPnL;
+                                    }
+                                    else
+                                    {
+                                        item.QTDPnL = CalculateDailyPnl(item.Day, priorDataQuarterlyPnl.QTDPnL);
+                                    }
+                                }
+                                else
+                                {
+                                    item.QTDPnL = item.MTDPnL;
+                                }
+
+                                if (priorDataYearlyPnl != null)
+                                {
+                                    item.YTDPnL = CalculateDailyPnl(item.Day, priorDataYearlyPnl.YTDPnL);
+                                }
+                                else
+                                {
+                                    item.YTDPnL = item.MTDPnL;
+                                }
+
+                                if (priorDataInceptionPnl != null)
+                                {
+                                    item.ITDPnL = CalculateDailyPnl(item.Day, priorDataInceptionPnl.ITDPnL);
+                                }
+                                else
+                                {
+                                    item.ITDPnL = item.MTDPnL;
+                                }
                             }
 
                             priorData = item;
@@ -166,7 +169,7 @@ namespace LP.Finance.Common.Calculators
                                 priorDataForQuarter = item;
                                 priorDataForInception = item;
                             }
-
+                            
                             monthIndex++;
                         }
 

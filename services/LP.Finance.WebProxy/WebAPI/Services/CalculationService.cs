@@ -649,6 +649,69 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
+        public Tuple<bool,List<DailyPnL>> GetLatestDailyPnlPerPortfolio()
+        {
+            try
+            {
+                var query = $@"select [id] as Id
+                          ,[created_by] as CreatedBy
+                          ,[created_date] as CreatedDate
+                          ,[last_updated_by] as LastUpdatedBy
+                          ,[last_updated_date] as LastUpdatedDate
+                          ,[business_date] as BusinessDate
+                          ,[portfolio] as PortFolio
+                          ,[fund] as Fund
+                          ,[trade_pnl] as TradePnL
+                          ,[day] as Day
+                          ,[daily_percentage_return] as DailyPercentageReturn
+                          ,[long_pnl] as LongPnL
+                          ,[long_percentage_change] as LongPercentageChange
+                          ,[short_pnl] as ShortPnL
+                          ,[short_percentage_change] as ShortPercentageChange
+                          ,[long_exposure] as LongExposure
+                          ,[short_exposure] as ShortExposure
+                          ,[gross_exposure] as GrossExposure
+                          ,[net_exposure] as NetExposure
+                          ,[six_md_beta_net_exposure] as SixMdBetaNetExposure
+                          ,[two_yw_beta_net_exposure] as TwoYwBetaNetExposure
+                          ,[six_md_beta_short_exposure] as SixMdBetaShortExposure
+                          ,[nav_market] as NavMarket
+                          ,[dividend_usd] as DividendUSD
+                          ,[comm_usd] as CommUSD
+                          ,[fee_taxes_usd] as FeeTaxesUSD
+                          ,[financing_usd] as FinancingUSD
+                          ,[other_usd] as OtherUSD
+                          ,[pnl_percentage] as PnLPercentage
+                          ,[mtd_percentage_return] as MTDPercentageReturn
+                          ,[qtd_percentage_return] as QTDPercentageReturn
+                          ,[ytd_percentage_return] as YTDPercentageReturn
+                          ,[itd_percentage_return] as ITDPercentageReturn
+                          ,[mtd_pnl] as MTDPnL
+                          ,[qtd_pnl] as QTDPnL
+                          ,[ytd_pnl] as YTDPnL
+                          ,[itd_pnl] as ITDPnL from (SELECT u.* ,row_number() over (partition by u.portfolio order by u.business_date desc,u.id desc)
+                            as rn from unofficial_daily_pnl u) a
+	                        where a.rn = 1";
+
+                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text);
+
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+
+                var dailyPnlList = JsonConvert.DeserializeObject<List<DailyPnL>>(jsonResult);
+
+                foreach(var item in dailyPnlList)
+                {
+                    item.ExistingRecord = true;
+                }
+
+                return new Tuple<bool, List<DailyPnL>>(true, dailyPnlList);
+            }
+            catch (Exception ex)
+            {
+                return new Tuple<bool, List<DailyPnL>>(false, null);
+            }
+        }
+
         public object CalculateDailyUnofficialPnl(List<DailyPnL> obj)
         {
             return new DailyPnlCalculator().CalculateDailyPerformance(obj);
@@ -688,6 +751,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 };
 
                 _fileManagementService.InsertActivityAndPositionFilesForSilver(fileList);
+                var previousData = GetLatestDailyPnlPerPortfolio();
+                var previousList = previousData.Item2;
+                if (previousData.Item1)
+                {
+                    performanceRecords = performanceRecords.Concat(previousList).ToList();
+                }
                 var dailyPerformanceResult = new DailyPnlCalculator().CalculateDailyPerformance(performanceRecords);
                 var dailyPerformance = dailyPerformanceResult.GetType().GetProperty("payload")
                     ?.GetValue(dailyPerformanceResult, null);
@@ -709,17 +778,18 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         private bool InsertDailyPnl(List<DailyPnL> obj)
         {
+            List<DailyPnL> recordsToBeInserted = obj.Where(x => !x.ExistingRecord).ToList();
             SqlHelper sqlHelper = new SqlHelper(ConnectionString);
             try
             {
                 sqlHelper.VerifyConnection();
                 sqlHelper.SqlBeginTransaction();
 
-                var monthlyPerformanceQuery = $@"DELETE FROM [unofficial_daily_pnl];";
+                //var monthlyPerformanceQuery = $@"DELETE FROM [unofficial_daily_pnl];";
 
-                sqlHelper.Delete(monthlyPerformanceQuery, CommandType.Text);
+                //sqlHelper.Delete(monthlyPerformanceQuery, CommandType.Text);
 
-                new SQLBulkHelper().Insert("unofficial_daily_pnl", obj.ToArray(), sqlHelper.GetConnection(),
+                new SQLBulkHelper().Insert("unofficial_daily_pnl", recordsToBeInserted.ToArray(), sqlHelper.GetConnection(),
                     sqlHelper.GetTransaction());
 
                 sqlHelper.SqlCommitTransaction();
