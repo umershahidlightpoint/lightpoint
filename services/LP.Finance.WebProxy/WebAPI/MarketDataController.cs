@@ -39,16 +39,20 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             try
             {
-                var query = $@"SELECT *
-                      FROM [dbo].[market_prices] ORDER BY business_date ASC";
+                var query = $@"SELECT id as Id,
+                                business_date as BusinessDate,
+                                security_id as SecurityId, 
+                                symbol as Symbol, 
+                                event as Event,
+                                price as Price,
+                                last_updated_by as LastUpdatedBy,
+                                last_updated_on as LastUpdatedOn FROM [dbo].[market_prices] ORDER BY business_date ASC";
 
                 var dataTable = SqlHelper.GetDataTable(query, CommandType.Text);
 
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
 
-                //var json = JsonConvert.DeserializeObject<List<DailyPnL>>(jsonResult);
-
-                dynamic json = JsonConvert.DeserializeObject(jsonResult);
+                var json = JsonConvert.DeserializeObject<List<MarketDataPrice>>(jsonResult);
 
                 return Utils.Wrap(true, json, HttpStatusCode.OK, "Market Prices fetched successfully");
             }

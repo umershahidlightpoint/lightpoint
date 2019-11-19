@@ -33,6 +33,7 @@ export class MarketPricesComponent implements OnInit {
   sliderValue = 0;
   uploadLoader = false;
   disableFileUpload = true;
+  disableCommit = true;
   @ViewChild('fileInput') fileInput: ElementRef;
 
   styleForHeight = HeightStyle(224);
@@ -58,9 +59,18 @@ export class MarketPricesComponent implements OnInit {
 
   getData() {
     this.financeService.getMarketPriceData().subscribe(response => {
-      debugger;
-      this.gridData = response.payload;
-      this.dataGridOptions.api.setRowData(this.gridData);
+      if(response.isSuccessful){
+        this.gridData = response.payload.map(data => ({
+          id: data.Id,
+          securityId: data.SecurityId,
+          businessDate: DateFormatter(data.BusinessDate),
+          symbol: data.Symbol,
+          event: data.Event,
+          price: data.Price,
+          modified: false,
+        }));
+        this.dataGridOptions.api.setRowData(this.gridData);
+      }
     });
   }
 
@@ -91,7 +101,9 @@ export class MarketPricesComponent implements OnInit {
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
       },
-      onCellValueChanged: params => {},
+      onCellValueChanged: params => {
+        this.onCellValueChanged(params);
+      },
       defaultColDef: {
         resizable: true
       }
@@ -105,11 +117,20 @@ export class MarketPricesComponent implements OnInit {
     this.dataGridOptions.api.sizeColumnsToFit();
   }
 
+  onCellValueChanged(params) {
+    if (params.colDef.field === 'price') {
+      this.disableCommit = false;
+      const row = this.dataGridOptions.api.getRowNode(params.data.id);
+      row.setDataValue('modified', true);
+    }
+  }
+
   getColDefs() {
     const colDefs = [
       {
         headerName: 'Business Date',
-        field: 'business_date',
+        field: 'businessDate',
+        sortable: true,
         filter: true,
         suppressCellFlash: true
       },
@@ -124,21 +145,13 @@ export class MarketPricesComponent implements OnInit {
       {
         headerName: 'Price',
         field: 'price',
+        editable: true,
+        sortable: true,
+        type: 'numericColumn',
         valueFormatter: params => this.numberFormatter(params.node.data.price, false)
       },
     ];
-    colDefs.forEach(colDef => {
-      if (
-        !(
-          colDef.field === 'modified' ||
-          colDef.field === 'businessDate' ||
-          colDef.field === 'portfolio' ||
-          colDef.field === 'fund'
-        )
-      ) {
-        colDef['type'] = 'numericColumn';
-      }
-    });
+
     return colDefs;
   }
 
