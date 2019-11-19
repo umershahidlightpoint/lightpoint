@@ -17,6 +17,7 @@ using LP.FileProcessing.MetaData;
 using LP.Finance.Common.Dtos;
 using System.Data;
 using System.Net;
+using System.Data.SqlClient;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -24,7 +25,8 @@ namespace LP.Finance.WebProxy.WebAPI
     {
         Task<object> Upload(HttpRequestMessage requestMessage);
         object GetPrices();
-        object SetPrices(List<object> obj);
+        object SetPrices(List<MarketPriceInputDto> obj);
+        object AuditTrail(int id);
     }
 
     internal class MarketDataService : IMarketDataService
@@ -63,9 +65,52 @@ namespace LP.Finance.WebProxy.WebAPI
             }
         }
 
-        public object SetPrices(List<object> obj)
+        public object SetPrices(List<MarketPriceInputDto> obj)
         {
-            throw new System.NotImplementedException();
+            List<List<SqlParameter>> listOfParameters = new List<List<SqlParameter>>();
+            foreach (var item in obj)
+            {
+                List<SqlParameter> marketPriceParams = new List<SqlParameter>
+                {
+                    new SqlParameter("id", item.Id),
+                    new SqlParameter("price", item.Price),
+                    new SqlParameter("lastUpdatedBy", "John Smith"),
+                    new SqlParameter("lastUpdatedOn", DateTime.UtcNow)
+                };
+
+                listOfParameters.Add(marketPriceParams);
+            }
+
+            SqlHelper sqlHelper = new SqlHelper(ConnectionString);
+            try
+            {
+                sqlHelper.VerifyConnection();
+                sqlHelper.SqlBeginTransaction();
+
+                var query = $@"UPDATE [dbo].[market_prices]
+                                                SET [price] = @price,
+                                                [last_updated_by] = @lastUpdatedBy,
+                                                [last_updated_on] = @lastUpdatedOn
+                                                where [id] = @id";
+
+                foreach (var item in listOfParameters)
+                {
+                    sqlHelper.Update(query, CommandType.Text, item.ToArray());
+                }
+
+                sqlHelper.SqlCommitTransaction();
+                sqlHelper.CloseConnection();
+
+                return Utils.Wrap(true, null, HttpStatusCode.OK, "Prices updated successfully");
+            }
+            catch (Exception ex)
+            {
+                sqlHelper.SqlRollbackTransaction();
+                sqlHelper.CloseConnection();
+
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    "An error occured while updating prices");
+            }
         }
 
         public async Task<object> Upload(HttpRequestMessage requestMessage)
@@ -135,12 +180,13 @@ namespace LP.Finance.WebProxy.WebAPI
                 sqlHelper.VerifyConnection();
                 sqlHelper.SqlBeginTransaction();
 
-                var monthlyPerformanceQuery = $@"DELETE FROM [market_prices] where event = 'upload'";
+                var monthlyPerformanceQuery = $@" DELETE FROM [market_prices_history] where event = 'upload'
+                                                  DELETE FROM [market_prices] where event = 'upload'";
 
                 sqlHelper.Delete(monthlyPerformanceQuery, CommandType.Text);
 
                 new SQLBulkHelper().Insert("market_prices", obj.ToArray(), sqlHelper.GetConnection(),
-                    sqlHelper.GetTransaction());
+                    sqlHelper.GetTransaction(), true);
 
                 sqlHelper.SqlCommitTransaction();
                 sqlHelper.CloseConnection();
@@ -151,6 +197,34 @@ namespace LP.Finance.WebProxy.WebAPI
                 sqlHelper.SqlRollbackTransaction();
                 sqlHelper.CloseConnection();
                 return false;
+            }
+        }
+
+        public object AuditTrail(int id)
+        {
+            try
+            {
+                var query = $@"SELECT id as Id,
+                                business_date as BusinessDate,
+                                security_id as SecurityId, 
+                                symbol as Symbol, 
+                                event as Event,
+                                price as Price,
+                                last_updated_by as LastUpdatedBy,
+                                last_updated_on as LastUpdatedOn FROM [dbo].[market_prices] history where market_price_id = {id}";
+
+                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text);
+
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+
+                var json = JsonConvert.DeserializeObject<List<MarketDataPrice>>(jsonResult);
+
+                return Utils.Wrap(true, json, HttpStatusCode.OK, "Market Prices Audit Trail fetched successfully");
+            }
+            catch (Exception ex)
+            {
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    "An error occured while fetching Market Prices Audit Trail");
             }
         }
     }
@@ -168,8 +242,14 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.GetPrices();
         }
 
+        [HttpGet, Route("audit")]
+        public object GetAuditTrail(int id)
+        {
+            return controller.AuditTrail(id);
+        }
+
         [HttpPut, Route("prices")]
-        public object SetPrices(List<object> obj)
+        public object SetPrices(List<MarketPriceInputDto> obj)
         {
             return controller.SetPrices(obj);
         }

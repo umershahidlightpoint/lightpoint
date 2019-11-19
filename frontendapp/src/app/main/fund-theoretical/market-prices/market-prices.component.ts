@@ -48,6 +48,8 @@ export class MarketPricesComponent implements OnInit {
   ranges: any = Ranges;
 
   styleForHeight = HeightStyle(224);
+  overlappingStyle = { backgroundColor: '#f9a89f' };
+
 
   utilsConfig: UtilsConfig = {
     expandGrid: false,
@@ -56,6 +58,7 @@ export class MarketPricesComponent implements OnInit {
     resetGrid: false,
     exportExcel: false
   };
+  commitLoader = false;
 
   constructor(
     private financeService: FinancePocServiceProxy,
@@ -69,6 +72,7 @@ export class MarketPricesComponent implements OnInit {
   }
 
   getData() {
+    this.disableCommit = true;
     this.financeService.getMarketPriceData().subscribe(response => {
       if (response.isSuccessful) {
         this.gridData = response.payload.map(data => ({
@@ -103,9 +107,10 @@ export class MarketPricesComponent implements OnInit {
       rowGroupPanelShow: "after",
       pivotPanelShow: "after",
       singleClickEdit: true,
-      pivotColumnGroupTotals: "after",
-      pivotRowTotals: "after",
-      enableCellChangeFlash: true,
+      pivotColumnGroupTotals: 'after',
+      pivotRowTotals: 'after',
+      // enableCellChangeFlash: true,
+      // deltaRowDataMode: true,
       animateRows: true,
       onGridReady: params => {
         //this.marketPriceGrid.api = params.api;
@@ -116,6 +121,14 @@ export class MarketPricesComponent implements OnInit {
       },
       onCellValueChanged: params => {
         this.onCellValueChanged(params);
+      },
+      getRowStyle: params => {
+        if (params.data.modified) {
+          return this.overlappingStyle;
+        }
+      },
+      getRowNodeId: data => {
+        return data.id;
       },
       defaultColDef: {
         resizable: true
@@ -177,7 +190,7 @@ export class MarketPricesComponent implements OnInit {
   }
 
   onCellValueChanged(params) {
-    if (params.colDef.field === "price") {
+    if (params.colDef.field === 'price' && params.oldValue != params.newValue) {
       this.disableCommit = false;
       const row = this.marketPriceGrid.api.getRowNode(params.data.id);
       row.setDataValue("modified", true);
@@ -206,10 +219,14 @@ export class MarketPricesComponent implements OnInit {
         field: "price",
         editable: true,
         sortable: true,
-        type: "numericColumn",
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.price, false)
-      }
+        type: 'numericColumn',
+        valueFormatter: params => this.numberFormatter(params.node.data.price, false)
+      },
+      {
+        headerName: 'Is Modified',
+        field: 'modified',
+        hide: true
+      },
     ];
 
     return colDefs;
@@ -280,6 +297,29 @@ export class MarketPricesComponent implements OnInit {
     this.isExpanded = true;
     this.disableCharts = false;
   }
+
+  commitMarketPriceData() {
+    const recordsToCommit = [];
+    this.marketPriceGrid.api.forEachNode((node, index) => {
+      if (node.data.modified) {
+        recordsToCommit.push({
+          Id: node.data.id,
+          Price: node.data.price
+        });
+      }
+    });
+    this.commitLoader = true;
+    this.financeService.editMarketPriceData(recordsToCommit).subscribe(response => {
+    this.commitLoader = false;
+    this.disableCommit = true;
+    if (response.isSuccessful) {
+      this.toastrService.success('Sucessfully Commited.');
+      this.getData();
+    } else {
+      this.toastrService.error('Something went wrong! Try Again.');
+    }
+  });
+}
 
   uploadData() {
     let rowNodeId = 1;
