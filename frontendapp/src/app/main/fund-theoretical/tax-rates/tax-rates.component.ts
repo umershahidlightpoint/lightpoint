@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy, TemplateRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, OnDestroy, TemplateRef } from '@angular/core';
 import { TaxRateModalComponent } from './tax-rate-modal/tax-rate-modal.component';
 import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
@@ -26,10 +26,10 @@ import { UtilsConfig } from 'src/shared/Models/utils-config';
   templateUrl: './tax-rates.component.html',
   styleUrls: ['./tax-rates.component.css']
 })
-export class TaxRatesComponent implements OnInit, OnDestroy {
-  @ViewChild('taxRateModal',{ static: false }) taxRateModal: TaxRateModalComponent;
-  @ViewChild('actionButtons',{ static: false }) actionButtons: TemplateRef<any>;
-  @ViewChild('confirmationModal',{ static: false }) confirmationModal: ConfirmationModalComponent;
+export class TaxRatesComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('taxRateModal', { static: false }) taxRateModal: TaxRateModalComponent;
+  @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<any>;
+  @ViewChild('confirmationModal', { static: false }) confirmationModal: ConfirmationModalComponent;
 
   taxRatesGrid: GridOptions;
   effectiveFromToDate: { startDate: Moment; endDate: Moment };
@@ -58,11 +58,13 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
     public decimalPipe: DecimalPipe
   ) {
     this.isSubscriptionAlive = true;
+    this.initGrid();
   }
 
-  ngOnInit() {
+  ngOnInit() {}
+
+  ngAfterViewInit() {
     this.getTaxRates();
-    this.initGrid();
   }
 
   getTaxRates() {
@@ -105,11 +107,11 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
 
         this.taxRatesGrid.api.setRowData(this.taxRatesData);
       });
+    this.setColDefs();
   }
 
   initGrid() {
     this.taxRatesGrid = {
-      columnDefs: this.getColDefs(),
       rowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       getExternalFilterState: () => {
@@ -143,8 +145,8 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
     this.taxRatesGrid.sideBar = SideBar(GridId.taxRatesId, GridName.taxRates, this.taxRatesGrid);
   }
 
-  getColDefs() {
-    return [
+  setColDefs() {
+    const colDefs = [
       {
         headerName: 'Id',
         field: 'id',
@@ -219,6 +221,7 @@ export class TaxRatesComponent implements OnInit, OnDestroy {
         hide: true
       }
     ];
+    this.taxRatesGrid.api.setColumnDefs(colDefs);
   }
 
   getContextMenuItems(params) {

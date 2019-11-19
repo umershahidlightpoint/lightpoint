@@ -25,8 +25,8 @@ import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-mo
   styleUrls: ['./operations.component.css']
 })
 export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked {
-  @ViewChild('confirmModal',{ static: false }) confirmationModal: ConfirmationModalComponent;
-  @ViewChild('logScroll',{ static: false }) private logContainer: ElementRef;
+  @ViewChild('confirmModal', { static: false }) confirmationModal: ConfirmationModalComponent;
+  @ViewChild('logScroll', { static: false }) private logContainer: ElementRef;
 
   public gridOptions: GridOptions;
   public rowData: any[];
@@ -278,10 +278,10 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
           }
         });
     }
-    if (e.index === 2) {
+    if (e.index === 3) {
       this.fileManagementActive = true;
     }
-    if (e.index === 3) {
+    if (e.index === 4) {
       this.exportExceptionActive = true;
     }
   }

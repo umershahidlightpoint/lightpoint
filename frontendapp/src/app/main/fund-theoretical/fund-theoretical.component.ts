@@ -1,47 +1,41 @@
-import {
-  Component,
-  OnInit,
-  AfterViewInit,
-  ViewChild,
-  ElementRef
-} from "@angular/core";
-import { FinancePocServiceProxy } from "../../../shared/service-proxies/service-proxies";
-import { GridOptions } from "ag-grid-community";
-import { ToastrService } from "ngx-toastr";
-import { Account, AccountCategory } from "../../../shared/Models/account";
-import { DataService } from "src/shared/common/data.service";
-import { GridId, GridName } from "src/shared/utils/AppEnums";
-import { GridLayoutMenuComponent } from "src/shared/Component/grid-layout-menu/grid-layout-menu.component";
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { GridOptions } from 'ag-grid-community';
+import { ToastrService } from 'ngx-toastr';
+import { Account, AccountCategory } from '../../../shared/Models/account';
+import { DataService } from 'src/shared/common/data.service';
+import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import {
   SideBar,
   AutoSizeAllColumns,
   HeightStyle,
   Style,
   PercentageFormatter
-} from "src/shared/utils/Shared";
-import { DownloadExcelUtils } from "src/shared/utils/DownloadExcelUtils";
-import * as moment from "moment";
-import { GetContextMenu } from "src/shared/utils/ContextMenu";
-import { MonthlyPerformanceData } from "src/shared/Models/funds-theoretical";
-import { DataGridModalComponent } from "../../../shared/Component/data-grid-modal/data-grid-modal.component";
-import { ConfirmationModalComponent } from "src/shared/Component/confirmation-modal/confirmation-modal.component";
-import { DecimalPipe } from "@angular/common";
-import { AgGridCheckboxComponent } from "../../../shared/Component/ag-grid-checkbox/ag-grid-checkbox.component";
-import { DatePickerModalComponent } from "src/shared/Component/date-picker-modal/date-picker-modal.component";
+} from 'src/shared/utils/Shared';
+import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
+import * as moment from 'moment';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { MonthlyPerformanceData } from 'src/shared/Models/funds-theoretical';
+import { DataGridModalComponent } from '../../../shared/Component/data-grid-modal/data-grid-modal.component';
+import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
+import { DecimalPipe } from '@angular/common';
+import { AgGridCheckboxComponent } from '../../../shared/Component/ag-grid-checkbox/ag-grid-checkbox.component';
+import { DatePickerModalComponent } from 'src/shared/Component/date-picker-modal/date-picker-modal.component';
 
 @Component({
-  selector: "app-fund-theoretical",
-  templateUrl: "./fund-theoretical.component.html",
-  styleUrls: ["./fund-theoretical.component.css"]
+  selector: 'app-fund-theoretical',
+  templateUrl: './fund-theoretical.component.html',
+  styleUrls: ['./fund-theoretical.component.css']
 })
 export class FundTheoreticalComponent implements OnInit, AfterViewInit {
-  @ViewChild("dataGridModal", { static: false })
+  @ViewChild('dataGridModal', { static: false })
   dataGridModal: DataGridModalComponent;
-  @ViewChild("confirmationModal", { static: false })
+  @ViewChild('confirmationModal', { static: false })
   confirmationModal: ConfirmationModalComponent;
-  @ViewChild("datePickerModal", { static: false })
+  @ViewChild('datePickerModal', { static: false })
   datePickerModal: DatePickerModalComponent;
-  @ViewChild("fileInput", { static: false }) fileInput: ElementRef;
+  @ViewChild('fileInput', { static: false }) fileInput: ElementRef;
 
   rowData: Array<Account>;
   fundTheoreticalGrid: GridOptions;
@@ -77,18 +71,18 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   };
 
   monthsArray = [
-    { id: 0, month: "January" },
-    { id: 1, month: "February" },
-    { id: 2, month: "March" },
-    { id: 3, month: "April" },
-    { id: 4, month: "May" },
-    { id: 5, month: "June" },
-    { id: 6, month: "July" },
-    { id: 7, month: "August" },
-    { id: 8, month: "September" },
-    { id: 9, month: "October" },
-    { id: 10, month: "November" },
-    { id: 11, month: "December" }
+    { id: 0, month: 'January' },
+    { id: 1, month: 'February' },
+    { id: 2, month: 'March' },
+    { id: 3, month: 'April' },
+    { id: 4, month: 'May' },
+    { id: 5, month: 'June' },
+    { id: 6, month: 'July' },
+    { id: 7, month: 'August' },
+    { id: 8, month: 'September' },
+    { id: 9, month: 'October' },
+    { id: 10, month: 'November' },
+    { id: 11, month: 'December' }
   ];
 
   style = Style;
@@ -96,12 +90,12 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   styleForHeight = HeightStyle(224);
 
   containerDiv = {
-    border: "1px solid #eee",
-    padding: "4px",
-    marginTop: "20px",
-    width: "100%",
-    height: "calc(100vh - 125px)",
-    boxSizing: "border-box"
+    border: '1px solid #eee',
+    padding: '4px',
+    marginTop: '20px',
+    width: '100%',
+    height: 'calc(100vh - 125px)',
+    boxSizing: 'border-box'
   };
 
   constructor(
@@ -112,10 +106,8 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     private downloadExcelUtils: DownloadExcelUtils
   ) {
     this.hideGrid = false;
-    this.currentYear = moment().get("year");
-    const currentMonthObj = this.monthsArray.find(
-      obj => obj.id === moment().get("month")
-    );
+    this.currentYear = moment().get('year');
+    const currentMonthObj = this.monthsArray.find(obj => obj.id === moment().get('month'));
     this.currentMonth = currentMonthObj.month;
   }
 
@@ -135,7 +127,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   }
 
   onTabChange(e) {
-    debugger;
     if (e.index === 1) {
       this.isDailyPnLActive = true;
     }
@@ -150,7 +141,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   getFunds() {
     this.financeService.getFunds().subscribe(response => {
       this.funds = response.payload.map(item => item.FundCode);
-      this.funds.push("None");
+      this.funds.push('None');
       this.initCols();
     });
   }
@@ -158,7 +149,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   getPortfolios() {
     this.financeService.getPortfolios().subscribe(response => {
       this.portfolios = response.payload.map(item => item.PortfolioCode);
-      this.portfolios.push("None");
+      this.portfolios.push('None');
       this.initCols();
     });
   }
@@ -176,14 +167,11 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       }
 
       const isCurrentMonthAdded = this.monthlyPerformanceData.find(
-        data =>
-          data.month === this.currentMonth && data.year === this.currentYear
+        data => data.month === this.currentMonth && data.year === this.currentYear
       );
 
       if (!isCurrentMonthAdded && this.monthlyPerformanceData.length > 0) {
-        this.monthlyPerformanceData.push(
-          this.createRow(this.currentYear, this.currentMonth, 0)
-        );
+        this.monthlyPerformanceData.push(this.createRow(this.currentYear, this.currentMonth, 0));
       }
 
       if (this.monthlyPerformanceData.length > 0) {
@@ -206,12 +194,12 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       clearExternalFilter: () => {},
       onFilterChanged: this.generateData.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),
-      rowSelection: "single",
-      rowGroupPanelShow: "after",
-      pivotPanelShow: "after",
+      rowSelection: 'single',
+      rowGroupPanelShow: 'after',
+      pivotPanelShow: 'after',
       singleClickEdit: true,
-      pivotColumnGroupTotals: "after",
-      pivotRowTotals: "after",
+      pivotColumnGroupTotals: 'after',
+      pivotRowTotals: 'after',
       enableCellChangeFlash: true,
       animateRows: true,
       deltaRowDataMode: true,
@@ -243,140 +231,133 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   getColDefs() {
     return [
       {
-        headerName: "Is Modified",
-        field: "modified",
+        headerName: 'Is Modified',
+        field: 'modified',
         hide: true
       },
       {
-        headerName: "Estimated",
-        field: "estimated",
-        cellEditor: "agSelectCellEditor",
+        headerName: 'Estimated',
+        field: 'estimated',
+        cellEditor: 'agSelectCellEditor',
         cellRendererFramework: AgGridCheckboxComponent,
         // To call onCellValueChangedMethod from AgGridCheckboxComponent
         customMethod: params => this.onCellValueChanged(params)
       },
       {
-        headerName: "Year",
-        field: "year",
+        headerName: 'Year',
+        field: 'year',
         sortable: true,
         filter: true,
         suppressCellFlash: true
       },
       {
-        headerName: "Month",
-        field: "month",
+        headerName: 'Month',
+        field: 'month',
         sortable: true,
         filter: true,
         suppressCellFlash: true
       },
       {
-        headerName: "Fund*",
-        field: "fund",
+        headerName: 'Fund*',
+        field: 'fund',
         sortable: true,
         filter: true,
         editable: true,
-        cellEditor: "agSelectCellEditor",
+        cellEditor: 'agSelectCellEditor',
         cellEditorParams: {
           values: this.funds
         }
       },
       {
-        headerName: "Portfolio*",
-        field: "portfolio",
+        headerName: 'Portfolio*',
+        field: 'portfolio',
         editable: true,
         filter: true,
-        cellEditor: "agSelectCellEditor",
+        cellEditor: 'agSelectCellEditor',
         cellEditorParams: {
           values: this.portfolios
         }
       },
       {
-        headerName: "Start of Month Estimate NAV*",
-        field: "startOfMonthEstimateNav",
+        headerName: 'Start of Month Estimate NAV*',
+        field: 'startOfMonthEstimateNav',
         sortable: true,
         editable: true,
-        type: "numericColumn",
+        type: 'numericColumn',
         valueFormatter: params =>
           this.numberFormatter(params.node.data.startOfMonthEstimateNav, false)
       },
       {
-        headerName: "Performance*",
-        field: "performance",
+        headerName: 'Performance*',
+        field: 'performance',
         sortable: true,
         editable: true,
-        type: "numericColumn",
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.performance, false)
+        type: 'numericColumn',
+        valueFormatter: params => this.numberFormatter(params.node.data.performance, false)
       },
       {
-        headerName: "Admin Month End NAV",
-        field: "monthEndNav",
+        headerName: 'Admin Month End NAV',
+        field: 'monthEndNav',
         sortable: true,
         // editable: true,
-        type: "numericColumn",
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.monthEndNav, false)
+        type: 'numericColumn',
+        valueFormatter: params => this.numberFormatter(params.node.data.monthEndNav, false)
       },
       {
-        headerName: "MTD*",
-        field: "mtd",
+        headerName: 'MTD*',
+        field: 'mtd',
         sortable: true,
         editable: true,
-        type: "numericColumn",
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.mtd, true)
+        type: 'numericColumn',
+        valueFormatter: params => this.numberFormatter(params.node.data.mtd, true)
       },
       {
-        headerName: "YTD Net Perf",
-        field: "ytdNetPerformance",
+        headerName: 'YTD Net Perf',
+        field: 'ytdNetPerformance',
         sortable: true,
         suppressCellFlash: true,
-        type: "numericColumn",
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.ytdNetPerformance, false)
+        type: 'numericColumn',
+        valueFormatter: params => this.numberFormatter(params.node.data.ytdNetPerformance, false)
       },
       {
-        headerName: "QTD Net %",
-        field: "qtd",
+        headerName: 'QTD Net %',
+        field: 'qtd',
         sortable: true,
-        type: "numericColumn",
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.qtd, true)
+        type: 'numericColumn',
+        valueFormatter: params => this.numberFormatter(params.node.data.qtd, true)
       },
       {
-        headerName: "YTD Net %",
-        field: "ytd",
+        headerName: 'YTD Net %',
+        field: 'ytd',
         sortable: true,
-        type: "numericColumn",
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.ytd, true)
+        type: 'numericColumn',
+        valueFormatter: params => this.numberFormatter(params.node.data.ytd, true)
       },
       {
-        headerName: "ITD Net %",
-        field: "itd",
+        headerName: 'ITD Net %',
+        field: 'itd',
         sortable: true,
-        type: "numericColumn",
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.itd, true)
+        type: 'numericColumn',
+        valueFormatter: params => this.numberFormatter(params.node.data.itd, true)
       },
       {
-        headerName: "Created By",
-        field: "createdBy",
+        headerName: 'Created By',
+        field: 'createdBy',
         hide: true
       },
       {
-        headerName: "Last Updated By ",
-        field: "lastUpdatedBy ",
+        headerName: 'Last Updated By ',
+        field: 'lastUpdatedBy ',
         hide: true
       },
       {
-        headerName: "Created Date",
-        field: "createdDate",
+        headerName: 'Created Date',
+        field: 'createdDate',
         hide: true
       },
       {
-        headerName: "Last Updated Date",
-        field: "lastUpdatedDate",
+        headerName: 'Last Updated Date',
+        field: 'lastUpdatedDate',
         hide: true
       }
     ];
@@ -384,9 +365,9 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
   onCellValueChanged(params) {
     if (
-      (params.colDef.field === "monthEndNav" ||
-        params.colDef.field === "performance" ||
-        params.colDef.field === "mtd") &&
+      (params.colDef.field === 'monthEndNav' ||
+        params.colDef.field === 'performance' ||
+        params.colDef.field === 'mtd') &&
       params.newValue != params.oldValue
     ) {
       this.doCalculation();
@@ -395,35 +376,31 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     }
 
     if (
-      (params.colDef.field === "fund" && params.data.fund !== "None") ||
-      (params.colDef.field === "portfolio" &&
-        params.data.portfolio !== "None") ||
-      params.colDef.field === "estimated"
+      (params.colDef.field === 'fund' && params.data.fund !== 'None') ||
+      (params.colDef.field === 'portfolio' && params.data.portfolio !== 'None') ||
+      params.colDef.field === 'estimated'
     ) {
       this.doCalculation();
       this.disableCommit = false;
       const row = this.fundTheoreticalGrid.api.getRowNode(params.data.rowId);
-      row.setDataValue("modified", true);
+      row.setDataValue('modified', true);
     }
 
     if (
-      params.colDef.field === "performance" ||
-      params.colDef.field === "startOfMonthEstimateNav"
+      params.colDef.field === 'performance' ||
+      params.colDef.field === 'startOfMonthEstimateNav'
     ) {
       let monthEndNavSum;
 
-      if (params.colDef.field === "performance") {
-        monthEndNavSum =
-          parseInt(params.newValue) +
-          parseInt(params.data.startOfMonthEstimateNav);
+      if (params.colDef.field === 'performance') {
+        monthEndNavSum = parseInt(params.newValue) + parseInt(params.data.startOfMonthEstimateNav);
       } else {
-        monthEndNavSum =
-          parseInt(params.newValue) + parseInt(params.data.performance);
+        monthEndNavSum = parseInt(params.newValue) + parseInt(params.data.performance);
       }
       const row = this.fundTheoreticalGrid.api.getRowNode(params.data.rowId);
       params.data.modified = true;
       setTimeout(() => {
-        row.setDataValue("monthEndNav", monthEndNavSum.toString());
+        row.setDataValue('monthEndNav', monthEndNavSum.toString());
       }, 500);
     }
   }
@@ -431,31 +408,31 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   getContextMenuItems(params) {
     const addDefaultItems = [
       {
-        name: "Add Current Month",
+        name: 'Add Current Month',
         action: () => {
           this.addCurrentMonth(params);
         }
       },
       {
-        name: "Add Next Month",
+        name: 'Add Next Month',
         action: () => {
           this.addNextMonth(params);
         }
       },
       {
-        name: "Add Row",
+        name: 'Add Row',
         action: () => {
           this.datePickerModal.showModal(params);
         }
       },
       {
-        name: "Delete Row",
+        name: 'Delete Row',
         action: () => {
           this.deleteRow(params);
         }
       },
       {
-        name: "View Audit Trail",
+        name: 'View Audit Trail',
         action: () => {
           this.viewRow(params);
         }
@@ -482,8 +459,8 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     let forMonth = moment()
       .year(params.node.data.year)
       .month(params.node.data.month);
-    const nextMonth = forMonth.add(1, "month").format("MMMM");
-    const newYear = forMonth.format("YYYY");
+    const nextMonth = forMonth.add(1, 'month').format('MMMM');
+    const newYear = forMonth.format('YYYY');
     const index = params.node.rowIndex;
     const newRow = this.createRow(newYear, nextMonth, this.totalGridRows + 1);
     params.api.updateRowData({
@@ -496,8 +473,8 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   addCustom($event) {
     const params = $event.params;
     const date = $event.selectedDate;
-    const year = date.format("YYYY");
-    const month = date.format("MMMM");
+    const year = date.format('YYYY');
+    const month = date.format('MMMM');
     const index = params.node.rowIndex;
     const newRow = this.createRow(year, month, this.totalGridRows + 1);
     params.api.updateRowData({
@@ -514,7 +491,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         remove: [rowData]
       });
     } else {
-      this.toastrService.error("Cannot delete this record!");
+      this.toastrService.error('Cannot delete this record!');
     }
   }
 
@@ -527,7 +504,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       const modifiedCols = columns.map(col => {
         return { ...col, editable: false };
       });
-      this.title = "Audit Trail";
+      this.title = 'Audit Trail';
       this.dataGridModal.openModal(modifiedCols, modifiedData);
     });
   }
@@ -542,10 +519,10 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     let formattedValue;
     switch (option) {
       case 1:
-        formattedValue = moment(dateObject).get("year");
+        formattedValue = moment(dateObject).get('year');
         break;
       case 2:
-        const monthId = moment(dateObject).get("month");
+        const monthId = moment(dateObject).get('month');
         formattedValue = this.monthsArray.find(obj => obj.id === monthId);
         formattedValue = formattedValue.month;
         break;
@@ -569,7 +546,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
   private generateMonthlyPerformanceRows() {
     const today = moment();
-    const totalMonths = today.diff(this.generateFundsDate, "months");
+    const totalMonths = today.diff(this.generateFundsDate, 'months');
     let count = 0;
     const generateFundsDate = this.generateFundsDate;
     this.monthlyPerformanceData = [];
@@ -582,7 +559,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         )
       );
 
-      generateFundsDate.add(1, "month");
+      generateFundsDate.add(1, 'month');
       count++;
     }
     this.totalGridRows = count;
@@ -609,30 +586,26 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   uploadMonthlyPerformance() {
     let rowNodeId = 1;
     this.uploadLoader = true;
-    this.financeService
-      .uploadMonthlyPerformance(this.fileToUpload)
-      .subscribe(response => {
-        this.uploadLoader = false;
-        if (response.isSuccessful) {
-          const modifiedData = response.payload.map(data => {
-            return { ...data, RowId: rowNodeId++, Estimated: true };
-          });
-          this.totalGridRows = rowNodeId;
-          this.monthlyPerformanceData = this.formatPerformanceData(
-            modifiedData
-          );
-          this.fundTheoreticalGrid.api.setRowData(this.monthlyPerformanceData);
-          AutoSizeAllColumns(this.fundTheoreticalGrid);
+    this.financeService.uploadMonthlyPerformance(this.fileToUpload).subscribe(response => {
+      this.uploadLoader = false;
+      if (response.isSuccessful) {
+        const modifiedData = response.payload.map(data => {
+          return { ...data, RowId: rowNodeId++, Estimated: true };
+        });
+        this.totalGridRows = rowNodeId;
+        this.monthlyPerformanceData = this.formatPerformanceData(modifiedData);
+        this.fundTheoreticalGrid.api.setRowData(this.monthlyPerformanceData);
+        AutoSizeAllColumns(this.fundTheoreticalGrid);
 
-          this.disableFileUpload = true;
-          this.fileInput.nativeElement.value = "";
-          this.confirmOption.uploadRows = false;
-          this.disableCommit = false;
-          this.disableCharts = false;
-        } else {
-          this.toastrService.error("Something went wrong! Try Again.");
-        }
-      });
+        this.disableFileUpload = true;
+        this.fileInput.nativeElement.value = '';
+        this.confirmOption.uploadRows = false;
+        this.disableCommit = false;
+        this.disableCharts = false;
+      } else {
+        this.toastrService.error('Something went wrong! Try Again.');
+      }
+    });
   }
 
   confirmReset() {
@@ -652,19 +625,16 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
     const formattedRecords = rowRecords.map(data => ({
       ...data,
-      fund: data.fund === "None" ? null : data.fund,
-      portfolio: data.portfolio === "None" ? null : data.portfolio,
-      performanceDate:
-        data.year + "-" + this.getMomentMonth(data.month) + "-" + "01"
+      fund: data.fund === 'None' ? null : data.fund,
+      portfolio: data.portfolio === 'None' ? null : data.portfolio,
+      performanceDate: data.year + '-' + this.getMomentMonth(data.month) + '-' + '01'
     }));
 
-    this.financeService
-      .calMonthlyPerformance(formattedRecords)
-      .subscribe(response => {
-        const rows = this.formatPerformanceData(response.payload);
-        this.fundTheoreticalGrid.api.setRowData(rows);
-        this.generateData();
-      });
+    this.financeService.calMonthlyPerformance(formattedRecords).subscribe(response => {
+      const rows = this.formatPerformanceData(response.payload);
+      this.fundTheoreticalGrid.api.setRowData(rows);
+      this.generateData();
+    });
   }
 
   commitPerformanceData() {
@@ -679,26 +649,23 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     if (recordsToCommit.length > 0) {
       formattedRecords = recordsToCommit.map(data => ({
         ...data,
-        fund: data.fund === "None" ? null : data.fund,
-        portfolio: data.portfolio === "None" ? null : data.portfolio,
-        performanceDate:
-          data.year + "-" + this.getMomentMonth(data.month) + "-" + "01"
+        fund: data.fund === 'None' ? null : data.fund,
+        portfolio: data.portfolio === 'None' ? null : data.portfolio,
+        performanceDate: data.year + '-' + this.getMomentMonth(data.month) + '-' + '01'
       }));
 
       this.commitLoader = true;
-      this.financeService
-        .commitMonthlyPerformance(formattedRecords)
-        .subscribe(response => {
-          this.commitLoader = false;
-          if (response.isSuccessful) {
-            this.toastrService.success("Sucessfully Commited.");
-            this.getMonthlyPerformance();
-          } else {
-            this.toastrService.error("Something went wrong! Try Again.");
-          }
-        });
+      this.financeService.commitMonthlyPerformance(formattedRecords).subscribe(response => {
+        this.commitLoader = false;
+        if (response.isSuccessful) {
+          this.toastrService.success('Sucessfully Commited.');
+          this.getMonthlyPerformance();
+        } else {
+          this.toastrService.error('Something went wrong! Try Again.');
+        }
+      });
     } else {
-      this.toastrService.error("No changes to commit.");
+      this.toastrService.error('No changes to commit.');
     }
     this.disableCommit = true;
   }
@@ -710,26 +677,19 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
   generateData() {
     this.graphObject = [
-      { label: "ytdNetPerformance", data: [] },
-      { label: "YTD", data: [] },
-      { label: "QTD", data: [] },
-      { label: "ITD", data: [] }
+      { label: 'ytdNetPerformance', data: [] },
+      { label: 'YTD', data: [] },
+      { label: 'QTD', data: [] },
+      { label: 'ITD', data: [] }
     ];
 
     this.graphObject.forEach(model => {
       this.fundTheoreticalGrid.api.forEachNodeAfterFilter((rowNode, index) => {
         model.data.push({
-          date:
-            rowNode.data.year +
-            "-" +
-            this.getMomentMonth(rowNode.data.month) +
-            "-" +
-            "01",
+          date: rowNode.data.year + '-' + this.getMomentMonth(rowNode.data.month) + '-' + '01',
           value:
             rowNode.data[
-              model.label === "ytdNetPerformance"
-                ? "ytdNetPerformance"
-                : model.label.toLowerCase()
+              model.label === 'ytdNetPerformance' ? 'ytdNetPerformance' : model.label.toLowerCase()
             ] * 100
         });
       });
@@ -737,30 +697,28 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   }
 
   formatPerformanceData(records) {
-    const formattedRecords: Array<MonthlyPerformanceData> = records.map(
-      record => ({
-        id: record.Id,
-        rowId: record.RowId,
-        modified: record.Modified,
-        estimated: record.Estimated,
-        year: this.DateFormatter(record.PerformanceDate, 1, true),
-        month: this.DateFormatter(record.PerformanceDate, 2, true),
-        fund: record.Fund === null ? "None" : record.Fund,
-        portfolio: record.PortFolio === null ? "None" : record.PortFolio,
-        monthEndNav: record.MonthEndNav,
-        startOfMonthEstimateNav: record.StartOfMonthEstimateNav,
-        performance: record.Performance,
-        mtd: record.MTD,
-        ytdNetPerformance: record.YTDNetPerformance,
-        qtd: record.QTD,
-        ytd: record.YTD,
-        itd: record.ITD,
-        createdBy: record.CreatedBy,
-        lastUpdatedBy: record.lastUpdatedBy,
-        createdDate: record.createdDate,
-        lastUpdatedDate: record.lastUpdatedBy
-      })
-    );
+    const formattedRecords: Array<MonthlyPerformanceData> = records.map(record => ({
+      id: record.Id,
+      rowId: record.RowId,
+      modified: record.Modified,
+      estimated: record.Estimated,
+      year: this.DateFormatter(record.PerformanceDate, 1, true),
+      month: this.DateFormatter(record.PerformanceDate, 2, true),
+      fund: record.Fund === null ? 'None' : record.Fund,
+      portfolio: record.PortFolio === null ? 'None' : record.PortFolio,
+      monthEndNav: record.MonthEndNav,
+      startOfMonthEstimateNav: record.StartOfMonthEstimateNav,
+      performance: record.Performance,
+      mtd: record.MTD,
+      ytdNetPerformance: record.YTDNetPerformance,
+      qtd: record.QTD,
+      ytd: record.YTD,
+      itd: record.ITD,
+      createdBy: record.CreatedBy,
+      lastUpdatedBy: record.lastUpdatedBy,
+      createdDate: record.createdDate,
+      lastUpdatedDate: record.lastUpdatedBy
+    }));
     return formattedRecords;
   }
 
@@ -772,8 +730,8 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       estimated: true,
       year: generatedYear,
       month: generatedMonth,
-      fund: "None",
-      portfolio: "None",
+      fund: 'None',
+      portfolio: 'None',
       monthEndNav: 0,
       startOfMonthEstimateNav: 0,
       performance: 0,
@@ -782,10 +740,10 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       qtd: 0,
       ytd: 0,
       itd: 0,
-      createdBy: "",
-      lastUpdatedBy: "",
-      createdDate: "",
-      lastUpdatedDate: ""
+      createdBy: '',
+      lastUpdatedBy: '',
+      createdDate: '',
+      lastUpdatedDate: ''
     };
   }
 
@@ -793,7 +751,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     const momentMonth = this.monthsArray.find(obj => obj.month === month);
     const monthInNum = momentMonth.id + 1;
     if (monthInNum < 9) {
-      return "0" + monthInNum;
+      return '0' + monthInNum;
     } else {
       return monthInNum;
     }
@@ -801,15 +759,9 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
   onBtExport() {
     const params = {
-      fileName: "Accounts",
-      sheetName: "First Sheet",
-      columnKeys: [
-        "accountName",
-        "description",
-        "category",
-        "hasJournal",
-        "type"
-      ]
+      fileName: 'Accounts',
+      sheetName: 'First Sheet',
+      columnKeys: ['accountName', 'description', 'category', 'hasJournal', 'type']
     };
     this.fundTheoreticalGrid.api.exportDataAsExcel(params);
     this.downloadExcelUtils.ToastrMessage();
@@ -824,7 +776,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     if (isInPercentage) {
       per = PercentageFormatter(numberToFormat);
     }
-    const formattedValue = this.decimalPipe.transform(per, "1.2-2");
+    const formattedValue = this.decimalPipe.transform(per, '1.2-2');
     return formattedValue.toString();
   }
 }

@@ -85,8 +85,6 @@ export class DailyPnlComponent implements OnInit {
 
   getDailyPnL() {
     this.financeService.getDailyUnofficialPnL().subscribe(response => {
-      
-      debugger
 
       let sortedData = response.payload.sort((x,y) => this.sortDailyPnl(x,y));
 
