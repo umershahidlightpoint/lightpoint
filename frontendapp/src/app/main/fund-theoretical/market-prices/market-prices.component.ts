@@ -38,6 +38,28 @@ export class MarketPricesComponent implements OnInit {
 
   styleForHeight = HeightStyle(224);
   overlappingStyle = { backgroundColor: '#f9a89f' };
+  vRanges = [{
+    Description: 'Last 30 days',
+    Days: 30
+  },
+  {
+    Description: 'Last 2 months',
+    Days: 60
+  },
+  {
+    Description: 'Last 6 months',
+    Days: 180
+  },
+  {
+    Description: 'Last year',
+    Days: 360
+  },
+  {
+    Description: 'Custom',
+    Days: 0
+  }];
+
+  vRange = this.vRanges[0].Days;
 
 
   utilsConfig: UtilsConfig = {
@@ -189,18 +211,22 @@ export class MarketPricesComponent implements OnInit {
     this.isExpanded = !this.isExpanded;
   }
 
+  vChange($event){
+
+  }
+
   visualizeData() {
     const focusedCell = this.dataGridOptions.api.getFocusedCell();
     const selectedRow = this.dataGridOptions.api.getDisplayedRowAtIndex(focusedCell.rowIndex).data;
-    const column = focusedCell.column.getColDef().field;
+    const column = 'price';
     const columnLabel = focusedCell.column.getUserProvidedColDef().headerName;
-    this.graphObject = [{ label: columnLabel, data: [] }];
+    const selectedSymbol = selectedRow.symbol;
+    this.graphObject = [{ label: 'Symbol - ' + selectedSymbol, data: [] }];
     const toDate = moment(selectedRow.businessDate);
     const fromDate = moment(selectedRow.businessDate).subtract(30, 'days');
-    const selectedPortfolio = selectedRow.portFolio;
     this.dataGridOptions.api.forEachNodeAfterFilter((rowNode, index) => {
       let currentDate = moment(rowNode.data.businessDate);
-      if(rowNode.data.portFolio === selectedPortfolio && currentDate.isSameOrAfter(fromDate) && currentDate.isSameOrBefore(toDate)){
+      if(rowNode.data.symbol === selectedSymbol && currentDate.isSameOrAfter(fromDate) && currentDate.isSameOrBefore(toDate)){
         this.graphObject.forEach(element => {
           element.data.push({
             date: rowNode.data.businessDate,

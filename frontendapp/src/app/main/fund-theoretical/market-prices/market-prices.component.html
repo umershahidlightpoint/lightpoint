@@ -2,6 +2,13 @@
 <form>
   <!-- Form Row Div Starts -->
   <div class="form-row">
+      <div class="col-md-2">
+          <select class="form-control" [(ngModel)]="vRange" (ngModelChange)="vChange($event)">
+            <option *ngFor="let a of vRanges" [ngValue]="a.Days">
+              {{ a.Description }}
+            </option>
+          </select>
+        </div>
     <!-- <div class="col-2">
       <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date" [(ngModel)]="selectedDate"
         (ngModelChange)="changeDate($event)" name="selectedDate" [singleDatePicker]="true" [autoApply]="true"
