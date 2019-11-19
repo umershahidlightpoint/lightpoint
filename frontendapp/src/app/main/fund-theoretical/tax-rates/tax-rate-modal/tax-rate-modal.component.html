@@ -28,8 +28,7 @@
               <div *ngIf="!editTaxRate" class="col-sm-9">
                 <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
                   [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate"
-                  [showDropdowns]="true" [autoApply]="true" autocomplete="off" [locale]="{firstDay: 1}"
-                  [disabled]="editTaxRate" />
+                  [showDropdowns]="true" [autoApply]="true" autocomplete="off" [disabled]="editTaxRate" />
               </div>
               <div *ngIf="editTaxRate" class="col-sm-9">
                 <input class="form-control" type="text"
