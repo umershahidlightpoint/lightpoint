@@ -1,5 +1,6 @@
 ﻿using LP.Finance.Common.Models;
 using PostingEngine.Contracts;
+using PostingEngine.MarketData;
 using PostingEngine.PostingRules.Utilities;
 using System;
 using System.Collections.Generic;
@@ -83,15 +84,15 @@ namespace PostingEngine.PostingRules
             double fxrate = 1.0;
 
             // Lets get fx rate if needed
-            if (!element.TradeCurrency.Equals("USD"))
+            if (!element.TradeCurrency.Equals(env.BaseCurrency))
             {
-                tradefxrate = Convert.ToDouble(env.EODFxRates[element.TradeCurrency].Rate);
+                tradefxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.TradeCurrency).Rate);
                 fxrate = tradefxrate;
             }
 
             if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                settlefxrate = Convert.ToDouble(env.EODFxRates[element.SettleCurrency].Rate);
+                settlefxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
                 fxrate = settlefxrate;
             }
 
@@ -205,7 +206,7 @@ namespace PostingEngine.PostingRules
                     {
                         if (element.TradeDate != env.ValueDate && element.SettleDate >= env.ValueDate)
                         {
-                            var fxJournals = new CommonRules().CreateFx(env, "daily", element.NetMoney, quantity, null, element);
+                            var fxJournals = new FxPosting().CreateFx(env, "daily", element.NetMoney, quantity, null, element);
                             env.Journals.AddRange(fxJournals);
                         }
                     }
@@ -220,15 +221,15 @@ namespace PostingEngine.PostingRules
             double fxrate = 1.0;
 
             // Lets get fx rate if needed
-            if (!element.TradeCurrency.Equals("USD"))
+            if (!element.TradeCurrency.Equals(env.BaseCurrency))
             {
-                tradefxrate = Convert.ToDouble(env.EODFxRates[element.TradeCurrency].Rate);
+                tradefxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.TradeCurrency).Rate);
                 fxrate = tradefxrate;
             }
 
             if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                settlefxrate = Convert.ToDouble(env.EODFxRates[element.SettleCurrency].Rate);
+                settlefxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
                 fxrate = settlefxrate;
             }
 
@@ -306,7 +307,7 @@ namespace PostingEngine.PostingRules
             // Lets get fx rate if needed
             if (!element.TradeCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(env.EODFxRates[element.TradeCurrency].Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.TradeCurrency).Rate);
             }
 
             var tradeAllocations = env.Allocations.Where(i => i.LpOrderId == element.LpOrderId).ToList();

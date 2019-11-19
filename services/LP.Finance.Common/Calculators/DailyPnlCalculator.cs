@@ -51,7 +51,6 @@ namespace LP.Finance.Common.Calculators
             DailyPnL priorDataForYear = priorData;
             DailyPnL priorDataForInception = priorData;
 
-            decimal newDecimalValue = 0;
             Dictionary<int, int> quarterCount = new Dictionary<int, int>();
             InitializeQuarterDictionary(quarterCount);
 
