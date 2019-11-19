@@ -48,8 +48,7 @@ export class MarketPricesComponent implements OnInit {
   ranges: any = Ranges;
 
   styleForHeight = HeightStyle(224);
-  overlappingStyle = { backgroundColor: '#f9a89f' };
-
+  overlappingStyle = { backgroundColor: "#f9a89f" };
 
   utilsConfig: UtilsConfig = {
     expandGrid: false,
@@ -107,8 +106,8 @@ export class MarketPricesComponent implements OnInit {
       rowGroupPanelShow: "after",
       pivotPanelShow: "after",
       singleClickEdit: true,
-      pivotColumnGroupTotals: 'after',
-      pivotRowTotals: 'after',
+      pivotColumnGroupTotals: "after",
+      pivotRowTotals: "after",
       // enableCellChangeFlash: true,
       // deltaRowDataMode: true,
       animateRows: true,
@@ -182,7 +181,7 @@ export class MarketPricesComponent implements OnInit {
 
   clearFilters() {
     this.marketPriceGrid.api.redrawRows();
-    this.selected = null;
+    (this.filterBySymbol = ""), (this.selected = null);
     this.startDate = moment("01-01-1901", "MM-DD-YYYY");
     this.endDate = moment();
     this.marketPriceGrid.api.setFilterModel(null);
@@ -190,7 +189,7 @@ export class MarketPricesComponent implements OnInit {
   }
 
   onCellValueChanged(params) {
-    if (params.colDef.field === 'price' && params.oldValue != params.newValue) {
+    if (params.colDef.field === "price" && params.oldValue != params.newValue) {
       this.disableCommit = false;
       const row = this.marketPriceGrid.api.getRowNode(params.data.id);
       row.setDataValue("modified", true);
@@ -219,14 +218,15 @@ export class MarketPricesComponent implements OnInit {
         field: "price",
         editable: true,
         sortable: true,
-        type: 'numericColumn',
-        valueFormatter: params => this.numberFormatter(params.node.data.price, false)
+        type: "numericColumn",
+        valueFormatter: params =>
+          this.numberFormatter(params.node.data.price, false)
       },
       {
-        headerName: 'Is Modified',
-        field: 'modified',
+        headerName: "Is Modified",
+        field: "modified",
         hide: true
-      },
+      }
     ];
 
     return colDefs;
@@ -252,17 +252,58 @@ export class MarketPricesComponent implements OnInit {
 
   openDataGridModal(rowNode) {
     const { id } = rowNode.node.data;
-    // this.financeService.monthlyPerformanceAudit(id).subscribe(response => {
-    // const { payload } = response;
-    // const modifiedData = this.formatPerformanceData(payload);
-    const columns = this.getColDefs();
-    const modifiedCols = columns.map(col => {
-      return { ...col, editable: false };
+    this.financeService.getMarketPriceAudit(id).subscribe(response => {
+      const { payload } = response;
+      const columns = this.getAuditColDefs();
+      const modifiedCols = columns.map(col => {
+        return { ...col, editable: false };
+      });
+      this.title = "Market Price";
+      this.dataGridModal.openModal(modifiedCols, payload);
     });
-    this.title = "Market Price";
-    this.dataGridModal.openModal(modifiedCols, null);
-    // });
   }
+
+  getAuditColDefs() {
+    return [
+      {
+        headerName: "Business Date",
+        field: "BusinessDate",
+        sortable: true
+      },
+      {
+        headerName: "Symbol",
+        field: "Symbol"
+      },
+      {
+        headerName: "Event",
+        field: "Event"
+      },
+      {
+        headerName: "LastUpdatedBy",
+        field: "LastUpdatedBy"
+      },
+      {
+        headerName: "LastUpdatedOn",
+        field: "LastUpdatedOn"
+      },
+      {
+        headerName: "Price",
+        field: "Price"
+      },
+      {
+        headerName: "SecurityId",
+        field: "SecurityId"
+      }
+    ];
+  }
+  //   BusinessDate: "2018-12-31T00:00:00"
+  // Event: "upload"
+  // Id: 1
+  // LastUpdatedBy: "webservice"
+  // LastUpdatedOn: "2019-11-19T15:05:13.397"
+  // Price: 16.37
+  // SecurityId: 0
+  // Symbol: "ACBI"
 
   expandedClicked() {
     this.isExpanded = !this.isExpanded;
@@ -309,17 +350,19 @@ export class MarketPricesComponent implements OnInit {
       }
     });
     this.commitLoader = true;
-    this.financeService.editMarketPriceData(recordsToCommit).subscribe(response => {
-    this.commitLoader = false;
-    this.disableCommit = true;
-    if (response.isSuccessful) {
-      this.toastrService.success('Sucessfully Commited.');
-      this.getData();
-    } else {
-      this.toastrService.error('Something went wrong! Try Again.');
-    }
-  });
-}
+    this.financeService
+      .editMarketPriceData(recordsToCommit)
+      .subscribe(response => {
+        this.commitLoader = false;
+        this.disableCommit = true;
+        if (response.isSuccessful) {
+          this.toastrService.success("Sucessfully Commited.");
+          this.getData();
+        } else {
+          this.toastrService.error("Something went wrong! Try Again.");
+        }
+      });
+  }
 
   uploadData() {
     let rowNodeId = 1;

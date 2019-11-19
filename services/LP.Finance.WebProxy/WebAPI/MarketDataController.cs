@@ -152,9 +152,12 @@ namespace LP.Finance.WebProxy.WebAPI
                 var dailyPerformance = dailyPerformanceResult.GetType().GetProperty("payload")
                     ?.GetValue(dailyPerformanceResult, null);
                 */
-                foreach(var i in performanceRecords) { i.Event = "upload";
+                foreach (var i in performanceRecords)
+                {
+                    i.Event = "upload";
                     i.LastUpdatedOn = DateTime.Now;
-                    i.LastUpdatedBy = "webservice"; }
+                    i.LastUpdatedBy = "webservice";
+                }
 
                 bool insertinto = InsertData(performanceRecords);
                 if (insertinto)
@@ -211,7 +214,7 @@ namespace LP.Finance.WebProxy.WebAPI
                                 event as Event,
                                 price as Price,
                                 last_updated_by as LastUpdatedBy,
-                                last_updated_on as LastUpdatedOn FROM [dbo].[market_prices] history where market_price_id = {id}";
+                                last_updated_on as LastUpdatedOn FROM [dbo].[market_prices_history] history where market_price_id = {id}";
 
                 var dataTable = SqlHelper.GetDataTable(query, CommandType.Text);
 
