@@ -2,7 +2,7 @@
 <form>
   <div class="form-row">
       <div class="col-md-2">
-          <select class="form-control" [(ngModel)]="vRange" (ngModelChange)="vChange($event)">
+          <select class="form-control" [(ngModel)]="vRange" [selectedIndex]="0" (ngModelChange)="vChange($event)">
             <option *ngFor="let a of vRanges" [ngValue]="a.Days">
               {{ a.Description }}
             </option>

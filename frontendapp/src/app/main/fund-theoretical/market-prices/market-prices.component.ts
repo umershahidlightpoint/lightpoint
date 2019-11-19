@@ -70,7 +70,7 @@ export class MarketPricesComponent implements OnInit {
     Days: 0
   }];
 
-  vRange = this.vRanges[0].Days;
+  vRange = this.vRanges[0];
 
   utilsConfig: UtilsConfig = {
     expandGrid: false,
@@ -263,7 +263,7 @@ export class MarketPricesComponent implements OnInit {
         }
       },
       {
-        name: "View",
+        name: "Audit Trail",
         action: () => {
           this.openDataGridModal(params);
         }
@@ -343,7 +343,7 @@ export class MarketPricesComponent implements OnInit {
     const selectedSymbol = selectedRow.symbol;
     this.graphObject = [{ label: 'Symbol - ' + selectedSymbol, data: [] }];
     const toDate = moment(selectedRow.businessDate);
-    const fromDate = moment(selectedRow.businessDate).subtract(30, 'days');
+    const fromDate = moment(selectedRow.businessDate).subtract(this.vRange.Days, 'days');
     this.marketPriceGrid.api.forEachNodeAfterFilter((rowNode, index) => {
       let currentDate = moment(rowNode.data.businessDate);
       if(rowNode.data.symbol === selectedSymbol && currentDate.isSameOrAfter(fromDate) && currentDate.isSameOrBefore(toDate)){
