@@ -1,5 +1,6 @@
 ﻿using LP.Finance.Common.Models;
 using PostingEngine.Contracts;
+using PostingEngine.MarketData;
 using PostingEngine.PostingRules.Utilities;
 using System;
 using System.Collections.Generic;
@@ -99,7 +100,7 @@ namespace PostingEngine.PostingRules
             // Lets get fx rate if needed
             if (!element.TradeCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(env.EODFxRates[element.TradeCurrency].Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.TradeCurrency).Rate);
             }
 
             var tradeAllocations = env.Allocations.Where(i => i.LpOrderId == element.LpOrderId).ToList();

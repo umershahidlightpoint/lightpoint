@@ -1,5 +1,6 @@
 ﻿using LP.Finance.Common.Models;
 using PostingEngine.Contracts;
+using PostingEngine.MarketData;
 using PostingEngine.PostingRules.Utilities;
 using System;
 using System.Collections.Generic;
@@ -107,12 +108,12 @@ namespace PostingEngine.PostingRules
             // Lets get fx rate if needed
             if (!element.TradeCurrency.Equals(env.BaseCurrency))
             {
-                tradefxrate = Convert.ToDouble(env.EODFxRates[element.TradeCurrency].Rate);
+                tradefxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.TradeCurrency).Rate);
             }
 
             if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                settlefxrate = Convert.ToDouble(env.EODFxRates[element.SettleCurrency].Rate);
+                settlefxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
                 fxrate = settlefxrate;
             }
 

@@ -1,28 +1,33 @@
-import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild } from "@angular/core";
 import {
   HeightStyle,
   SideBar,
   AutoSizeAllColumns,
   PercentageFormatter,
-  DateFormatter
-} from 'src/shared/utils/Shared';
-import { GridOptions } from 'ag-grid-community';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { DecimalPipe } from '@angular/common';
-import { FinancePocServiceProxy } from 'src/shared/service-proxies/service-proxies';
-import { ToastrService } from 'ngx-toastr';
-import { UtilsConfig } from 'src/shared/Models/utils-config';
-import * as moment from 'moment';
+  DateFormatter,
+  Ranges
+} from "src/shared/utils/Shared";
+import { GridOptions } from "ag-grid-community";
+import { GridLayoutMenuComponent } from "src/shared/Component/grid-layout-menu/grid-layout-menu.component";
+import { GridId, GridName } from "src/shared/utils/AppEnums";
+import { GetContextMenu } from "src/shared/utils/ContextMenu";
+import { DecimalPipe } from "@angular/common";
+import { FinancePocServiceProxy } from "src/shared/service-proxies/service-proxies";
+import { ToastrService } from "ngx-toastr";
+import { UtilsConfig } from "src/shared/Models/utils-config";
+import * as moment from "moment";
+import { DataGridModalComponent } from "src/shared/Component/data-grid-modal/data-grid-modal.component";
 
 @Component({
-  selector: 'app-market-prices',
-  templateUrl: './market-prices.component.html',
-  styleUrls: ['./market-prices.component.css']
+  selector: "app-market-prices",
+  templateUrl: "./market-prices.component.html",
+  styleUrls: ["./market-prices.component.css"]
 })
 export class MarketPricesComponent implements OnInit {
-  dataGridOptions: GridOptions;
+  @ViewChild("fileInput") fileInput: ElementRef;
+  @ViewChild("dataGridModal") dataGridModal: DataGridModalComponent;
+
+  marketPriceGrid: GridOptions;
   selectedDate = null;
   gridData: any;
   fileToUpload: File = null;
@@ -34,7 +39,13 @@ export class MarketPricesComponent implements OnInit {
   uploadLoader = false;
   disableFileUpload = true;
   disableCommit = true;
-  @ViewChild('fileInput') fileInput: ElementRef;
+  title: string;
+  filterBySymbol = "";
+  selected: { startDate: moment.Moment; endDate: moment.Moment };
+  startDate: any;
+  endDate: any;
+
+  ranges: any = Ranges;
 
   styleForHeight = HeightStyle(224);
   overlappingStyle = { backgroundColor: '#f9a89f' };
@@ -85,7 +96,7 @@ export class MarketPricesComponent implements OnInit {
   getData() {
     this.disableCommit = true;
     this.financeService.getMarketPriceData().subscribe(response => {
-      if(response.isSuccessful){
+      if (response.isSuccessful) {
         this.gridData = response.payload.map(data => ({
           id: data.Id,
           securityId: data.SecurityId,
@@ -93,15 +104,15 @@ export class MarketPricesComponent implements OnInit {
           symbol: data.Symbol,
           event: data.Event,
           price: data.Price,
-          modified: false,
+          modified: false
         }));
-        this.dataGridOptions.api.setRowData(this.gridData);
+        this.marketPriceGrid.api.setRowData(this.gridData);
       }
     });
   }
 
   initGrid() {
-    this.dataGridOptions = {
+    this.marketPriceGrid = {
       columnDefs: this.getColDefs(),
       rowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
@@ -111,10 +122,12 @@ export class MarketPricesComponent implements OnInit {
       pinnedBottomRowData: null,
       onRowSelected: params => {},
       clearExternalFilter: () => {},
+      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
+      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),
-      rowSelection: 'single',
-      rowGroupPanelShow: 'after',
-      pivotPanelShow: 'after',
+      rowSelection: "single",
+      rowGroupPanelShow: "after",
+      pivotPanelShow: "after",
       singleClickEdit: true,
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
@@ -122,7 +135,7 @@ export class MarketPricesComponent implements OnInit {
       // deltaRowDataMode: true,
       animateRows: true,
       onGridReady: params => {
-        //this.dataGridOptions.api = params.api;
+        //this.marketPriceGrid.api = params.api;
         AutoSizeAllColumns(params);
       },
       onFirstDataRendered: params => {
@@ -143,43 +156,89 @@ export class MarketPricesComponent implements OnInit {
         resizable: true
       }
     } as GridOptions;
-    this.dataGridOptions.sideBar = SideBar(GridId.dailyPnlId, GridName.dailyPnl, this.dataGridOptions);
+    this.marketPriceGrid.sideBar = SideBar(
+      GridId.dailyPnlId,
+      GridName.dailyPnl,
+      this.marketPriceGrid
+    );
   }
 
   initCols() {
     const colDefs = this.getColDefs();
-    this.dataGridOptions.api.setColumnDefs(colDefs);
-    this.dataGridOptions.api.sizeColumnsToFit();
+    this.marketPriceGrid.api.setColumnDefs(colDefs);
+    this.marketPriceGrid.api.sizeColumnsToFit();
+  }
+
+  doesExternalFilterPass(node) {
+    const businessDate = new Date(node.data.businessDate);
+
+    if ((this.filterBySymbol !== "" && this.startDate) || this.endDate) {
+      return (
+        node.data.symbol
+          .toLowerCase()
+          .includes(this.filterBySymbol.toLowerCase()) &&
+        businessDate >= this.startDate.toDate() &&
+        businessDate <= this.endDate.toDate()
+      );
+    }
+
+    if (this.filterBySymbol !== "") {
+      return node.data.symbol
+        .toLowerCase()
+        .includes(this.filterBySymbol.toLowerCase());
+    }
+
+    if (this.startDate || this.endDate) {
+      return (
+        businessDate >= this.startDate.toDate() &&
+        businessDate <= this.endDate.toDate()
+      );
+    }
+  }
+
+  isExternalFilterPresent() {
+    if (this.startDate || this.endDate || this.filterBySymbol !== "") {
+      return true;
+    }
+  }
+
+  clearFilters() {
+    this.marketPriceGrid.api.redrawRows();
+    this.selected = null;
+    this.startDate = moment("01-01-1901", "MM-DD-YYYY");
+    this.endDate = moment();
+    this.marketPriceGrid.api.setFilterModel(null);
+    this.marketPriceGrid.api.onFilterChanged();
   }
 
   onCellValueChanged(params) {
     if (params.colDef.field === 'price' && params.oldValue != params.newValue) {
       this.disableCommit = false;
-      const row = this.dataGridOptions.api.getRowNode(params.data.id);
-      row.setDataValue('modified', true);
+      const row = this.marketPriceGrid.api.getRowNode(params.data.id);
+      row.setDataValue("modified", true);
     }
   }
 
   getColDefs() {
     const colDefs = [
       {
-        headerName: 'Business Date',
-        field: 'businessDate',
+        headerName: "Business Date",
+        field: "businessDate",
         sortable: true,
         filter: true,
         suppressCellFlash: true
       },
       {
-        headerName: 'Symbol',
-        field: 'symbol',
+        headerName: "Symbol",
+        field: "symbol"
       },
       {
-        headerName: 'Event',
-        field: 'event',
+        headerName: "Event",
+        field: "event"
       },
       {
-        headerName: 'Price',
-        field: 'price',
+        headerName: "Price",
+        field: "price",
         editable: true,
         sortable: true,
         type: 'numericColumn',
@@ -198,13 +257,33 @@ export class MarketPricesComponent implements OnInit {
   getContextMenuItems(params) {
     const addDefaultItems = [
       {
-        name: 'Visualize',
+        name: "Visualize",
         action: () => {
-          this.visualizeData(); 
+          this.visualizeData();
+        }
+      },
+      {
+        name: "View",
+        action: () => {
+          this.openDataGridModal(params);
         }
       }
     ];
     return GetContextMenu(false, addDefaultItems, true, null, params);
+  }
+
+  openDataGridModal(rowNode) {
+    const { id } = rowNode.node.data;
+    // this.financeService.monthlyPerformanceAudit(id).subscribe(response => {
+    // const { payload } = response;
+    // const modifiedData = this.formatPerformanceData(payload);
+    const columns = this.getColDefs();
+    const modifiedCols = columns.map(col => {
+      return { ...col, editable: false };
+    });
+    this.title = "Market Price";
+    this.dataGridModal.openModal(modifiedCols, null);
+    // });
   }
 
   expandedClicked() {
@@ -216,22 +295,22 @@ export class MarketPricesComponent implements OnInit {
   }
 
   visualizeData() {
-    const focusedCell = this.dataGridOptions.api.getFocusedCell();
-    const selectedRow = this.dataGridOptions.api.getDisplayedRowAtIndex(focusedCell.rowIndex).data;
+    const focusedCell = this.marketPriceGrid.api.getFocusedCell();
+    const selectedRow = this.marketPriceGrid.api.getDisplayedRowAtIndex(focusedCell.rowIndex).data;
     const column = 'price';
     const columnLabel = focusedCell.column.getUserProvidedColDef().headerName;
     const selectedSymbol = selectedRow.symbol;
     this.graphObject = [{ label: 'Symbol - ' + selectedSymbol, data: [] }];
     const toDate = moment(selectedRow.businessDate);
     const fromDate = moment(selectedRow.businessDate).subtract(30, 'days');
-    this.dataGridOptions.api.forEachNodeAfterFilter((rowNode, index) => {
+    this.marketPriceGrid.api.forEachNodeAfterFilter((rowNode, index) => {
       let currentDate = moment(rowNode.data.businessDate);
       if(rowNode.data.symbol === selectedSymbol && currentDate.isSameOrAfter(fromDate) && currentDate.isSameOrBefore(toDate)){
         this.graphObject.forEach(element => {
           element.data.push({
             date: rowNode.data.businessDate,
             value: rowNode.data[column]
-          })
+          });
         });
       }
     });
@@ -241,7 +320,7 @@ export class MarketPricesComponent implements OnInit {
 
   commitMarketPriceData() {
     const recordsToCommit = [];
-    this.dataGridOptions.api.forEachNode((node, index) => {
+    this.marketPriceGrid.api.forEachNode((node, index) => {
       if (node.data.modified) {
         recordsToCommit.push({
           Id: node.data.id,
@@ -263,29 +342,46 @@ export class MarketPricesComponent implements OnInit {
 }
 
   uploadData() {
-    debugger
     let rowNodeId = 1;
     this.uploadLoader = true;
-    this.financeService.uploadMarketPriceData(this.fileToUpload).subscribe(response => {
-      this.uploadLoader = false;
-      console.log('Response', response);
-      if (response.isSuccessful) {
-        this.fileInput.nativeElement.value = '';
-        this.disableFileUpload = true;
-        this.gridData = response.payload
-        this.dataGridOptions.api.setRowData(this.gridData);
-      } else {
-        this.toastrService.error('Something went wrong! Try Again.');
-      }
-    });
+    this.financeService
+      .uploadMarketPriceData(this.fileToUpload)
+      .subscribe(response => {
+        this.uploadLoader = false;
+        console.log("Response", response);
+        if (response.isSuccessful) {
+          this.fileInput.nativeElement.value = "";
+          this.disableFileUpload = true;
+          this.gridData = response.payload;
+          this.marketPriceGrid.api.setRowData(this.gridData);
+        } else {
+          this.toastrService.error("Something went wrong! Try Again.");
+        }
+      });
   }
 
-  changeDate(date) {
-    const { startDate } = date;
+  ngModelChange(date) {
+    this.startDate = date.startDate;
+    this.endDate = date.endDate;
+    this.marketPriceGrid.api.onFilterChanged();
+  }
+
+  onSymbolKey(e) {
+    this.filterBySymbol = e.srcElement.value;
+    this.marketPriceGrid.api.onFilterChanged();
+
+    // For the moment we react to each key stroke
+    if (e.code === "Enter" || e.code === "Tab") {
+    }
+  }
+
+  ngModelChangeSymbol(e) {
+    this.filterBySymbol = e;
+    this.marketPriceGrid.api.onFilterChanged();
   }
 
   refreshGrid() {
-    this.dataGridOptions.api.showLoadingOverlay();
+    this.marketPriceGrid.api.showLoadingOverlay();
     this.getData();
   }
 
@@ -294,7 +390,7 @@ export class MarketPricesComponent implements OnInit {
     if (isInPercentage) {
       per = PercentageFormatter(numberToFormat);
     }
-    const formattedValue = this.decimalPipe.transform(per, '1.2-2');
+    const formattedValue = this.decimalPipe.transform(per, "1.2-2");
     return formattedValue.toString();
   }
 

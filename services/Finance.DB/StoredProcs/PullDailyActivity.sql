@@ -55,7 +55,10 @@ order by BusDate desc
 
 delete from FundAccounting..unofficial_daily_pnl where business_date >= @startDate and business_date <= @enddate
 
-insert into FundAccounting..unofficial_daily_pnl (created_by, created_date, 
+insert into FundAccounting..unofficial_daily_pnl (
+last_updated_by,
+last_updated_date,
+created_by, created_date, 
 business_date, fund, portfolio, trade_pnl, [day], daily_percentage_return, long_pnl, long_percentage_change, short_pnl, short_percentage_change,
 long_exposure,
 short_exposure,
@@ -75,6 +78,8 @@ qtd_percentage_return,
 mtd_percentage_return
 )
 select 
+'system',
+GETDATE(),
 'system',
 GETDATE(),
 l.BusDate, 

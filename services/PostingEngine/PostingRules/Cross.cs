@@ -1,4 +1,5 @@
 ﻿using LP.Finance.Common.Models;
+using PostingEngine.MarketData;
 using PostingEngine.PostingRules.Utilities;
 using System;
 using System.Collections.Generic;
@@ -49,7 +50,7 @@ namespace PostingEngine.PostingRules
             // Lets get fx rate if needed
             if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(env.EODFxRates[element.SettleCurrency].Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
             }
 
             var moneyUSD = element.NetMoney * fxrate;
@@ -193,9 +194,9 @@ namespace PostingEngine.PostingRules
             double fxrate = 1.0;
 
             // Lets get fx rate if needed
-            if ( !element.TradeCurrency.Equals("USD"))
+            if ( !element.TradeCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(env.EODFxRates[element.TradeCurrency].Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.TradeCurrency).Rate);
             }
 
             if (element.NetMoney != 0.0)

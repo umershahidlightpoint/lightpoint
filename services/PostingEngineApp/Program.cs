@@ -2,6 +2,7 @@
 using LP.Finance.Common.Models;
 using Newtonsoft.Json;
 using PostingEngine;
+using PostingEngine.MarketData;
 using System;
 using System.Configuration;
 using System.Data.SqlClient;
@@ -16,33 +17,40 @@ namespace PostingEngineCmd
     {
         static void Main(string[] args)
         {
+            FxRates.CacheData();
+            MarketPrices.CacheData();
+
+
             // Generate Journals First
             // Doing this for the previous Business Date
             var date = System.DateTime.Now.Date;
             date = date.PrevBusinessDate();
 
             // Pull from BookMon
-            PullFromBookmon();
+            PullFromBookmon(date);
 
             // Get all Activity
             ITD(date);
 
             // Then Cost Basis
-            CostBasis();
+            CostBasis(date);
 
             // Settled Cash
-            CalculateDailyPnl();
+            CalculateDailyPnl(date);
 
             // Unofficial Daily Pnl
-            SettledCashBalances();
+            SettledCashBalances(date);
+
+            // Mark to Market Cash Fx
+            UnrealizedCashBalances(date);
         }
 
-        static void PullFromBookmon()
+        static void PullFromBookmon(DateTime valueDate)
         {
             var key = System.Guid.NewGuid();
 
             // This runs thru everything, we need more or a scalpable
-            PostingEngine.PostingEngine.RunCalculation("PullFromBookmon", key, (message, totalRows, rowsDone) => {
+            PostingEngine.PostingEngine.RunCalculation("PullFromBookmon", valueDate, key,  (message, totalRows, rowsDone) => {
                 if (message.StartsWith("Processing"))
                 {
                     // Do nothing
@@ -59,13 +67,34 @@ namespace PostingEngineCmd
                 Console.WriteLine($"{message}");
             });
         }
-
-        static void SettledCashBalances()
+        static void UnrealizedCashBalances(DateTime valueDate)
         {
             var key = System.Guid.NewGuid();
 
             // This runs thru everything, we need more or a scalpable
-            PostingEngine.PostingEngine.RunCalculation("SettledCashBalances", key, (message, totalRows, rowsDone) => {
+            PostingEngine.PostingEngine.RunCalculation("UnrealizedCashBalances", valueDate, key,  (message, totalRows, rowsDone) => {
+                if (message.StartsWith("Processing"))
+                {
+                    // Do nothing
+                    return;
+                }
+                if (message.StartsWith("Completed"))
+                {
+                    var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
+
+                    Console.WriteLine($"{message}, % Completed {completed}");
+                    return;
+                }
+
+                Console.WriteLine($"{message}");
+            });
+        }
+        static void SettledCashBalances(DateTime valueDate)
+        {
+            var key = System.Guid.NewGuid();
+
+            // This runs thru everything, we need more or a scalpable
+            PostingEngine.PostingEngine.RunCalculation("SettledCashBalances", valueDate, key,  (message, totalRows, rowsDone) => {
                 if (message.StartsWith("Processing"))
                 {
                     // Do nothing
@@ -130,12 +159,12 @@ namespace PostingEngineCmd
 
         }
 
-        static void CostBasis()
+        static void CostBasis(DateTime valueDate)
         {
             var key = System.Guid.NewGuid();
 
             // This runs thru everything, we need more or a scalpable
-            PostingEngine.PostingEngine.RunCalculation("CostBasis", key, (message, totalRows, rowsDone) => {
+            PostingEngine.PostingEngine.RunCalculation("CostBasis", valueDate, key, (message, totalRows, rowsDone) => {
                 if (message.StartsWith("Processing"))
                 {
                     // Do nothing
@@ -154,12 +183,12 @@ namespace PostingEngineCmd
 
         }
 
-        static void CalculateDailyPnl()
+        static void CalculateDailyPnl(DateTime valueDate)
         {
             var key = System.Guid.NewGuid();
 
             // This runs thru everything, we need more or a scalpable
-            PostingEngine.PostingEngine.RunCalculation("DailyPnl", key, (message, totalRows, rowsDone) => {
+            PostingEngine.PostingEngine.RunCalculation("DailyPnl", valueDate, key, (message, totalRows, rowsDone) => {
                 if (message.StartsWith("Processing"))
                 {
                     // Do nothing
