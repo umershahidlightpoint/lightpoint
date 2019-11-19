@@ -16,6 +16,7 @@ import { FinancePocServiceProxy } from "src/shared/service-proxies/service-proxi
 import { ToastrService } from "ngx-toastr";
 import { UtilsConfig } from "src/shared/Models/utils-config";
 import * as moment from "moment";
+import { DataGridModalComponent } from "src/shared/Component/data-grid-modal/data-grid-modal.component";
 
 @Component({
   selector: "app-market-prices",
@@ -24,8 +25,9 @@ import * as moment from "moment";
 })
 export class MarketPricesComponent implements OnInit {
   @ViewChild("fileInput") fileInput: ElementRef;
+  @ViewChild("dataGridModal") dataGridModal: DataGridModalComponent;
 
-  dataGridOptions: GridOptions;
+  marketPriceGrid: GridOptions;
   selectedDate = null;
   gridData: any;
   fileToUpload: File = null;
@@ -37,6 +39,11 @@ export class MarketPricesComponent implements OnInit {
   uploadLoader = false;
   disableFileUpload = true;
   disableCommit = true;
+  title: string;
+  filterBySymbol = "";
+  selected: { startDate: moment.Moment; endDate: moment.Moment };
+  startDate: any;
+  endDate: any;
 
   ranges: any = Ranges;
 
@@ -73,13 +80,13 @@ export class MarketPricesComponent implements OnInit {
           price: data.Price,
           modified: false
         }));
-        this.dataGridOptions.api.setRowData(this.gridData);
+        this.marketPriceGrid.api.setRowData(this.gridData);
       }
     });
   }
 
   initGrid() {
-    this.dataGridOptions = {
+    this.marketPriceGrid = {
       columnDefs: this.getColDefs(),
       rowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
@@ -89,6 +96,8 @@ export class MarketPricesComponent implements OnInit {
       pinnedBottomRowData: null,
       onRowSelected: params => {},
       clearExternalFilter: () => {},
+      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
+      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),
       rowSelection: "single",
       rowGroupPanelShow: "after",
@@ -99,7 +108,7 @@ export class MarketPricesComponent implements OnInit {
       enableCellChangeFlash: true,
       animateRows: true,
       onGridReady: params => {
-        //this.dataGridOptions.api = params.api;
+        //this.marketPriceGrid.api = params.api;
         AutoSizeAllColumns(params);
       },
       onFirstDataRendered: params => {
@@ -112,23 +121,65 @@ export class MarketPricesComponent implements OnInit {
         resizable: true
       }
     } as GridOptions;
-    this.dataGridOptions.sideBar = SideBar(
+    this.marketPriceGrid.sideBar = SideBar(
       GridId.dailyPnlId,
       GridName.dailyPnl,
-      this.dataGridOptions
+      this.marketPriceGrid
     );
   }
 
   initCols() {
     const colDefs = this.getColDefs();
-    this.dataGridOptions.api.setColumnDefs(colDefs);
-    this.dataGridOptions.api.sizeColumnsToFit();
+    this.marketPriceGrid.api.setColumnDefs(colDefs);
+    this.marketPriceGrid.api.sizeColumnsToFit();
+  }
+
+  doesExternalFilterPass(node) {
+    const businessDate = new Date(node.data.businessDate);
+
+    if ((this.filterBySymbol !== "" && this.startDate) || this.endDate) {
+      return (
+        node.data.symbol
+          .toLowerCase()
+          .includes(this.filterBySymbol.toLowerCase()) &&
+        businessDate >= this.startDate.toDate() &&
+        businessDate <= this.endDate.toDate()
+      );
+    }
+
+    if (this.filterBySymbol !== "") {
+      return node.data.symbol
+        .toLowerCase()
+        .includes(this.filterBySymbol.toLowerCase());
+    }
+
+    if (this.startDate || this.endDate) {
+      return (
+        businessDate >= this.startDate.toDate() &&
+        businessDate <= this.endDate.toDate()
+      );
+    }
+  }
+
+  isExternalFilterPresent() {
+    if (this.startDate || this.endDate || this.filterBySymbol !== "") {
+      return true;
+    }
+  }
+
+  clearFilters() {
+    this.marketPriceGrid.api.redrawRows();
+    this.selected = null;
+    this.startDate = moment("01-01-1901", "MM-DD-YYYY");
+    this.endDate = moment();
+    this.marketPriceGrid.api.setFilterModel(null);
+    this.marketPriceGrid.api.onFilterChanged();
   }
 
   onCellValueChanged(params) {
     if (params.colDef.field === "price") {
       this.disableCommit = false;
-      const row = this.dataGridOptions.api.getRowNode(params.data.id);
+      const row = this.marketPriceGrid.api.getRowNode(params.data.id);
       row.setDataValue("modified", true);
     }
   }
@@ -171,9 +222,29 @@ export class MarketPricesComponent implements OnInit {
         action: () => {
           this.visualizeData();
         }
+      },
+      {
+        name: "View",
+        action: () => {
+          this.openDataGridModal(params);
+        }
       }
     ];
     return GetContextMenu(false, addDefaultItems, true, null, params);
+  }
+
+  openDataGridModal(rowNode) {
+    const { id } = rowNode.node.data;
+    // this.financeService.monthlyPerformanceAudit(id).subscribe(response => {
+    // const { payload } = response;
+    // const modifiedData = this.formatPerformanceData(payload);
+    const columns = this.getColDefs();
+    const modifiedCols = columns.map(col => {
+      return { ...col, editable: false };
+    });
+    this.title = "Market Price";
+    this.dataGridModal.openModal(modifiedCols, null);
+    // });
   }
 
   expandedClicked() {
@@ -181,8 +252,8 @@ export class MarketPricesComponent implements OnInit {
   }
 
   visualizeData() {
-    const focusedCell = this.dataGridOptions.api.getFocusedCell();
-    const selectedRow = this.dataGridOptions.api.getDisplayedRowAtIndex(
+    const focusedCell = this.marketPriceGrid.api.getFocusedCell();
+    const selectedRow = this.marketPriceGrid.api.getDisplayedRowAtIndex(
       focusedCell.rowIndex
     ).data;
     const column = focusedCell.column.getColDef().field;
@@ -191,7 +262,7 @@ export class MarketPricesComponent implements OnInit {
     const toDate = moment(selectedRow.businessDate);
     const fromDate = moment(selectedRow.businessDate).subtract(30, "days");
     const selectedPortfolio = selectedRow.portFolio;
-    this.dataGridOptions.api.forEachNodeAfterFilter((rowNode, index) => {
+    this.marketPriceGrid.api.forEachNodeAfterFilter((rowNode, index) => {
       let currentDate = moment(rowNode.data.businessDate);
       if (
         rowNode.data.portFolio === selectedPortfolio &&
@@ -222,7 +293,7 @@ export class MarketPricesComponent implements OnInit {
           this.fileInput.nativeElement.value = "";
           this.disableFileUpload = true;
           this.gridData = response.payload;
-          this.dataGridOptions.api.setRowData(this.gridData);
+          this.marketPriceGrid.api.setRowData(this.gridData);
         } else {
           this.toastrService.error("Something went wrong! Try Again.");
         }
@@ -230,14 +301,27 @@ export class MarketPricesComponent implements OnInit {
   }
 
   ngModelChange(date) {
-    const { startDate } = date;
-    const { endDate } = date;
-    console.log("Start Date ==>", startDate.format("YYYY-MM-DD"));
-    console.log("End Date ==>", endDate.format("YYYY-MM-DD"));
+    this.startDate = date.startDate;
+    this.endDate = date.endDate;
+    this.marketPriceGrid.api.onFilterChanged();
+  }
+
+  onSymbolKey(e) {
+    this.filterBySymbol = e.srcElement.value;
+    this.marketPriceGrid.api.onFilterChanged();
+
+    // For the moment we react to each key stroke
+    if (e.code === "Enter" || e.code === "Tab") {
+    }
+  }
+
+  ngModelChangeSymbol(e) {
+    this.filterBySymbol = e;
+    this.marketPriceGrid.api.onFilterChanged();
   }
 
   refreshGrid() {
-    this.dataGridOptions.api.showLoadingOverlay();
+    this.marketPriceGrid.api.showLoadingOverlay();
     this.getData();
   }
 
