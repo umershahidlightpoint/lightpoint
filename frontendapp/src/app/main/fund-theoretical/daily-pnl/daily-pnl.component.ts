@@ -36,7 +36,7 @@ export class DailyPnlComponent implements OnInit {
   sliderValue = 0;
   uploadLoader = false;
   disableFileUpload = true;
-  @ViewChild('fileInput') fileInput: ElementRef;
+  @ViewChild('fileInput',{ static: false }) fileInput: ElementRef;
 
   styleForHeight = HeightStyle(224);
 

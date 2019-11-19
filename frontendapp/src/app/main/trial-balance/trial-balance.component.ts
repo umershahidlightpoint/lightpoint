@@ -34,8 +34,8 @@ import { AgGridUtils } from 'src/shared/utils/ag-grid-utils';
   styleUrls: ['./trial-balance.component.css']
 })
 export class TrialGridExampleComponent implements OnInit, AfterContentInit {
-  @ViewChild('dataModal') dataModal: DataModalComponent;
-  @ViewChild('reportModal') reportModal: ReportModalComponent;
+  @ViewChild('dataModal',{ static: false }) dataModal: DataModalComponent;
+  @ViewChild('reportModal',{ static: false }) reportModal: ReportModalComponent;
 
   private rowData: [];
   private columns: any;

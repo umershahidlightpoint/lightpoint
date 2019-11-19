@@ -1,15 +1,25 @@
-import { Component, OnInit, Input, ViewChild, Output, EventEmitter } from '@angular/core';
-import { TrialBalanceReport, TrialBalanceReportStats } from 'src/shared/Models/trial-balance';
-import { ModalDirective } from 'ngx-bootstrap';
-import { HeightStyle } from 'src/shared/utils/Shared';
+import {
+  Component,
+  OnInit,
+  Input,
+  ViewChild,
+  Output,
+  EventEmitter
+} from "@angular/core";
+import {
+  TrialBalanceReport,
+  TrialBalanceReportStats
+} from "src/shared/Models/trial-balance";
+import { ModalDirective } from "ngx-bootstrap";
+import { HeightStyle } from "src/shared/utils/Shared";
 
 @Component({
-  selector: 'app-report-modal',
-  templateUrl: './report-modal.component.html',
-  styleUrls: ['./report-modal.component.css']
+  selector: "app-report-modal",
+  templateUrl: "./report-modal.component.html",
+  styleUrls: ["./report-modal.component.css"]
 })
 export class ReportModalComponent implements OnInit {
-  @ViewChild('modal') modal: ModalDirective;
+  @ViewChild("modal", { static: false }) modal: ModalDirective;
   @Input() title: string;
   @Input() tableHeader: string;
 
@@ -22,11 +32,11 @@ export class ReportModalComponent implements OnInit {
   styleForHeight = HeightStyle(220);
 
   containerDiv = {
-    borderLeft: '1px solid #cecece',
-    borderRight: '1px solid #cecece',
-    width: '100%',
-    boxSizing: 'border-box',
-    overflow: 'overlay'
+    borderLeft: "1px solid #cecece",
+    borderRight: "1px solid #cecece",
+    width: "100%",
+    boxSizing: "border-box",
+    overflow: "overlay"
   };
 
   constructor() {}

@@ -2,23 +2,23 @@
 <div class="line-chart-wrapper" *ngIf="showChart">
   <div *ngIf="mode == 'many'">
     <div class="chart-title">QTD Net %</div>
-    <eikos-line-plot class="d-block chart" [propID]="propIDQTD" [colors]="lineColors" [data]="QTDData"
+    <eikos-line-plot class="d-block chart" [propID]="propIDQTD" [lineColors]="lineColors" [data]="QTDData"
       [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
     </eikos-line-plot>
 
     <div class="chart-title">YTD Net %</div>
-    <eikos-line-plot class="d-block chart" [propID]="propIDYTD" [colors]="lineColors" [data]="YTDData"
+    <eikos-line-plot class="d-block chart" [propID]="propIDYTD" [lineColors]="lineColors" [data]="YTDData"
       [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
     </eikos-line-plot>
 
     <div class="chart-title">ITD Net %</div>
-    <eikos-line-plot class="d-block chart" [propID]="propIDITD" [colors]="lineColors" [data]="ITDData"
+    <eikos-line-plot class="d-block chart" [propID]="propIDITD" [lineColors]="lineColors" [data]="ITDData"
       [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
     </eikos-line-plot>
   </div>
   <div *ngIf="mode == 'single'">
     <div class="chart-title">{{title}}</div>
-    <eikos-line-plot class="d-block chart" [propID]="propIDSingle" [colors]="lineColors" [data]="singleChartData"
+    <eikos-line-plot class="d-block chart" [propID]="propIDSingle" [lineColors]="lineColors" [data]="singleChartData"
       [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="410" [divWidth]="divWidth">
     </eikos-line-plot>
   </div>

@@ -7,20 +7,20 @@ import {
   Input,
   EventEmitter,
   OnDestroy
-} from '@angular/core';
-import { ModalDirective } from 'ngx-bootstrap';
-import { HeightStyle } from 'src/shared/utils/Shared';
+} from "@angular/core";
+import { ModalDirective } from "ngx-bootstrap";
+import { HeightStyle } from "src/shared/utils/Shared";
 
 @Component({
-  selector: 'app-data-modal',
-  templateUrl: './data-modal.component.html',
-  styleUrls: ['./data-modal.component.css']
+  selector: "app-data-modal",
+  templateUrl: "./data-modal.component.html",
+  styleUrls: ["./data-modal.component.css"]
 })
 export class DataModalComponent implements OnInit, OnDestroy {
-  @ViewChild('modal') modal: ModalDirective;
+  @ViewChild("modal", { static: false }) modal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
   @Input() orderId: string;
-  @Input() title = 'Data Details';
+  @Input() title = "Data Details";
 
   tableData: any;
   backdrop: any;
@@ -28,11 +28,11 @@ export class DataModalComponent implements OnInit, OnDestroy {
   styleForHeight = HeightStyle(220);
 
   containerDiv = {
-    borderLeft: '1px solid #cecece',
-    borderRight: '1px solid #cecece',
-    width: '100%',
-    boxSizing: 'border-box',
-    overflow: 'overlay'
+    borderLeft: "1px solid #cecece",
+    borderRight: "1px solid #cecece",
+    width: "100%",
+    boxSizing: "border-box",
+    overflow: "overlay"
   };
 
   constructor() {}
@@ -48,10 +48,16 @@ export class DataModalComponent implements OnInit, OnDestroy {
 
     let columnStates = cols
       .filter(i => !i.hide)
-      .map(i => ({ field: i.colId, headerName: this.mapHeaderName(columns, i.colId) }));
+      .map(i => ({
+        field: i.colId,
+        headerName: this.mapHeaderName(columns, i.colId)
+      }));
 
     // name, value
-    this.tableData = columnStates.map(i => ({ name: i.headerName, value: data[i.field] }));
+    this.tableData = columnStates.map(i => ({
+      name: i.headerName,
+      value: data[i.field]
+    }));
 
     this.modal.show();
   }

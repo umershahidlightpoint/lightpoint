@@ -24,7 +24,7 @@ import { ReportGridComponent } from '../report-grid/report-grid.component';
   styleUrls: ['./trial-balance.component.css']
 })
 export class TrialBalanceComponent implements OnInit, AfterViewInit {
-  @ViewChild('trialBalanceReportGrid')
+  @ViewChild('trialBalanceReportGrid',{ static: false })
   private trialBalanceReportGrid: ReportGridComponent;
 
   fund: any = 'All Funds';

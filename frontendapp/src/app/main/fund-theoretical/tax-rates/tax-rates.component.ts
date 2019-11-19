@@ -27,9 +27,9 @@ import { UtilsConfig } from 'src/shared/Models/utils-config';
   styleUrls: ['./tax-rates.component.css']
 })
 export class TaxRatesComponent implements OnInit, OnDestroy {
-  @ViewChild('taxRateModal') taxRateModal: TaxRateModalComponent;
-  @ViewChild('actionButtons') actionButtons: TemplateRef<any>;
-  @ViewChild('confirmationModal') confirmationModal: ConfirmationModalComponent;
+  @ViewChild('taxRateModal',{ static: false }) taxRateModal: TaxRateModalComponent;
+  @ViewChild('actionButtons',{ static: false }) actionButtons: TemplateRef<any>;
+  @ViewChild('confirmationModal',{ static: false }) confirmationModal: ConfirmationModalComponent;
 
   taxRatesGrid: GridOptions;
   effectiveFromToDate: { startDate: Moment; endDate: Moment };

@@ -16,7 +16,7 @@ import * as moment from 'moment';
   styleUrls: ['./file-exception.component.css']
 })
 export class FileExceptionComponent implements OnInit, AfterViewInit {
-  @ViewChild('actionButtons') actionButtons: TemplateRef<any>;
+  @ViewChild('actionButtons',{ static: false }) actionButtons: TemplateRef<any>;
 
   isEngineRunning = false;
   hideGrid = false;

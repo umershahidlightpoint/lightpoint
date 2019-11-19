@@ -16,7 +16,7 @@ import { Journal } from '../../../../shared/Models/journal';
   styleUrls: ['./journal-modal.component.css']
 })
 export class JournalModalComponent implements OnInit, OnDestroy {
-  @ViewChild('modal') modal: ModalDirective;
+  @ViewChild('modal',{ static: false }) modal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
 
   allAccounts: Account;

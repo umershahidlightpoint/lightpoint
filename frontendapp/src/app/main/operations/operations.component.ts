@@ -25,8 +25,8 @@ import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-mo
   styleUrls: ['./operations.component.css']
 })
 export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked {
-  @ViewChild('confirmModal') confirmationModal: ConfirmationModalComponent;
-  @ViewChild('logScroll') private logContainer: ElementRef;
+  @ViewChild('confirmModal',{ static: false }) confirmationModal: ConfirmationModalComponent;
+  @ViewChild('logScroll',{ static: false }) private logContainer: ElementRef;
 
   public gridOptions: GridOptions;
   public rowData: any[];

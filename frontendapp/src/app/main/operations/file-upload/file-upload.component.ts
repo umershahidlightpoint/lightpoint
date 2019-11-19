@@ -9,8 +9,8 @@ import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-mo
   styleUrls: ['./file-upload.component.css']
 })
 export class FileUploadComponent implements OnInit {
-  @ViewChild('confirmationModal') confirmationModal: ConfirmationModalComponent;
-  @ViewChild('fileInput') fileInput: ElementRef;
+  @ViewChild('confirmationModal',{ static: false }) confirmationModal: ConfirmationModalComponent;
+  @ViewChild('fileInput',{ static: false }) fileInput: ElementRef;
 
   fileToUpload: File = null;
   disableFileUpload = true;

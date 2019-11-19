@@ -36,9 +36,9 @@ import { ReportModalComponent } from 'src/shared/Component/report-modal/report-m
   styleUrls: ['./journals-ledgers.component.css']
 })
 export class JournalsLedgersComponent implements OnInit, AfterViewInit {
-  @ViewChild('journalModal') journalModal: JournalModalComponent;
-  @ViewChild('dataModal') dataModal: DataModalComponent;
-  @ViewChild('reportModal') reportModal: ReportModalComponent;
+  @ViewChild('journalModal',{ static: false }) journalModal: JournalModalComponent;
+  @ViewChild('dataModal',{ static: false }) dataModal: DataModalComponent;
+  @ViewChild('reportModal',{ static: false }) reportModal: ReportModalComponent;
 
   private columns: any;
 

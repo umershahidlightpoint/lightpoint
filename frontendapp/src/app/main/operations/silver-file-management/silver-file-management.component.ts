@@ -15,7 +15,7 @@ import { GetContextMenu } from 'src/shared/utils/ContextMenu';
   styleUrls: ['./silver-file-management.component.css']
 })
 export class SilverFileManagementComponent implements OnInit, OnDestroy {
-  @ViewChild('actionButtons') actionButtons: TemplateRef<any>;
+  @ViewChild('actionButtons',{ static: false }) actionButtons: TemplateRef<any>;
 
   filesGridOptions: GridOptions;
   files: SilverFile[];

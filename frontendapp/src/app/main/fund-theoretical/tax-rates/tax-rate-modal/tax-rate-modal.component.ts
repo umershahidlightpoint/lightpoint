@@ -11,7 +11,7 @@ import { FinancePocServiceProxy } from '../../../../../shared/service-proxies/se
   styleUrls: ['./tax-rate-modal.component.css']
 })
 export class TaxRateModalComponent implements OnInit, OnDestroy {
-  @ViewChild('modal') modal: ModalDirective;
+  @ViewChild('modal',{ static: false }) modal: ModalDirective;
   @Output() closeModalEvent = new EventEmitter<any>();
 
   taxRate: any;

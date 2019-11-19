@@ -14,7 +14,7 @@ import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/util
   styleUrls: ['./accruals.component.css']
 })
 export class AccrualsComponent implements OnInit, AfterViewInit {
-  @ViewChild('dataModal') dataModal: DataModalComponent;
+  @ViewChild('dataModal',{ static: false }) dataModal: DataModalComponent;
 
   public gridOptions: GridOptions;
   public allocationsGridOptions: GridOptions;

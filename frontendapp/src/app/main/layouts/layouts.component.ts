@@ -16,8 +16,8 @@ import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-mo
   styleUrls: ['./layouts.component.css']
 })
 export class LayoutsComponent implements OnInit, AfterViewInit {
-  @ViewChild('confirmationModal') confirmModal: ConfirmationModalComponent;
-  @ViewChild('actionButtons') actionButtons: TemplateRef<any>;
+  @ViewChild('confirmationModal',{ static: false }) confirmModal: ConfirmationModalComponent;
+  @ViewChild('actionButtons',{ static: false }) actionButtons: TemplateRef<any>;
 
   isEngineRunning = false;
   hideGrid = false;
