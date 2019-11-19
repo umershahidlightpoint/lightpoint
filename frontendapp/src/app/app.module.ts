@@ -157,7 +157,7 @@ import { FileUploadComponent } from './main/operations/file-upload/file-upload.c
     MaterialModule,
     NgxDaterangepickerMd.forRoot({
       applyLabel: 'Okay',
-      firstDay: 3
+      firstDay: 1
     }),
     AppRoutingModule,
     TableModule,
