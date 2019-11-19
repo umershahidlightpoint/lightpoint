@@ -1,17 +1,17 @@
-import { Component, OnInit, ViewChild, Input } from '@angular/core';
-import { GridOptions } from 'ag-grid-community';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { Style, AutoSizeAllColumns } from 'src/shared/utils/Shared';
-import { ModalDirective } from 'ngx-bootstrap';
+import { Component, OnInit, ViewChild, Input } from "@angular/core";
+import { GridOptions } from "ag-grid-community";
+import { GridLayoutMenuComponent } from "src/shared/Component/grid-layout-menu/grid-layout-menu.component";
+import { Style, AutoSizeAllColumns } from "src/shared/utils/Shared";
+import { ModalDirective } from "ngx-bootstrap";
 
 @Component({
-  selector: 'app-data-grid-modal',
-  templateUrl: './data-grid-modal.component.html',
-  styleUrls: ['./data-grid-modal.component.css']
+  selector: "app-data-grid-modal",
+  templateUrl: "./data-grid-modal.component.html",
+  styleUrls: ["./data-grid-modal.component.css"]
 })
 export class DataGridModalComponent implements OnInit {
-  @ViewChild('modal') modal: ModalDirective;
-  @Input('gridTitle') title: string;
+  @ViewChild("modal") modal: ModalDirective;
+  @Input("gridTitle") title: string;
 
   public gridOptions: GridOptions;
 
@@ -19,10 +19,10 @@ export class DataGridModalComponent implements OnInit {
 
   setWidthAndHeight(width, height) {
     this.style = {
-      marginTop: '20px',
+      marginTop: "20px",
       width,
       height,
-      boxSizing: 'border-box'
+      boxSizing: "border-box"
     };
   }
 
@@ -45,11 +45,11 @@ export class DataGridModalComponent implements OnInit {
         return {};
       },
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
-      rowSelection: 'single',
-      rowGroupPanelShow: 'after',
-      pivotPanelShow: 'always',
-      pivotColumnGroupTotals: 'after',
-      pivotRowTotals: 'after',
+      rowSelection: "single",
+      rowGroupPanelShow: "after",
+      pivotPanelShow: "always",
+      pivotColumnGroupTotals: "after",
+      pivotRowTotals: "after",
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
@@ -62,6 +62,8 @@ export class DataGridModalComponent implements OnInit {
     this.gridOptions.api.setColumnDefs(colDefs);
     this.gridOptions.api.setRowData(rowData);
     this.modal.show();
+    // this.gridOptions.api.sizeColumnsToFit();
+    AutoSizeAllColumns(this.gridOptions);
   }
 
   closeModal() {
