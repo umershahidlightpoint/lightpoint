@@ -114,7 +114,7 @@ namespace LP.Finance.Common.Models
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Delete with Transaction Exception: {ex}");
+                    Console.WriteLine($"Stored Procedure CostBasisCalculation Exception: {ex}");
                     throw;
                 }
             }

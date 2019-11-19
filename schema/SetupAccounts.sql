@@ -33,6 +33,7 @@ insert into Account_type (account_category_id, name) values (1, 'ACCUMULATED AMO
 insert into Account_type (account_category_id, name) values (1, 'ORGANIZATION COSTS')
 insert into Account_type (account_category_id, name) values (1, 'PREPAID EXPENSES')
 insert into Account_type (account_category_id, name) values (1, 'Mark to Market longs fx translation gain or loss')
+
 -- DONE
 
 /*
@@ -70,6 +71,7 @@ insert into Account_type (account_category_id, name) values (4, 'Interest Income
 insert into Account_type (account_category_id, name) values (4, 'fx gain or loss on unsettled balance')
 insert into Account_type (account_category_id, name) values (4, 'fx gain or loss in revenue')
 insert into Account_type (account_category_id, name) values (4, 'fx gain or loss on settled balance')
+insert into Account_type (account_category_id, name) values (4, 'change in unrealized do to fx translation')
 
 -- DONE
 

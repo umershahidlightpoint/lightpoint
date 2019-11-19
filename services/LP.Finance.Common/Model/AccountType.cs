@@ -21,7 +21,11 @@ namespace LP.Finance.Common.Models
         }
         public static AccountType Find(string key)
         {
-            return All.Where(i => i.Name.Equals(key)).FirstOrDefault();
+            var accountType = All.Where(i => i.Name.Equals(key)).FirstOrDefault();
+            if (accountType != null)
+                return accountType;
+
+            throw new ApplicationException($"AccountType [{key}] does not exist");
         }
 
         public static AccountType[] Load(SqlConnection connection)

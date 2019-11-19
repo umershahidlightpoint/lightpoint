@@ -12,6 +12,8 @@ namespace PostingEngine.MarketData
 
         private readonly bool Mock = false;
 
+        public static void CacheData() { }
+
         public Dictionary<string, MarketPrice> Get(DateTime now)
         {
             if (Mock)

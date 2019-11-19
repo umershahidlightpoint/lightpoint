@@ -1,4 +1,5 @@
 ﻿using LP.Finance.Common.Models;
+using PostingEngine.MarketData;
 using PostingEngine.PostingRules.Utilities;
 using System;
 using System.Collections.Generic;
@@ -80,7 +81,7 @@ namespace PostingEngine.PostingRules
 
             if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(env.EODFxRates[element.SettleCurrency].Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
             }
 
             var moneyUSD = element.LocalNetNotional * fxrate;
