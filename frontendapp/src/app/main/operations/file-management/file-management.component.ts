@@ -1,4 +1,4 @@
-import { Component, TemplateRef, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, TemplateRef, OnInit, AfterViewInit, ViewChild, OnDestroy } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { takeWhile } from 'rxjs/operators';
@@ -15,8 +15,8 @@ import { GetContextMenu } from 'src/shared/utils/ContextMenu';
   templateUrl: './file-management.component.html',
   styleUrls: ['./file-management.component.css']
 })
-export class FileManagementComponent implements OnInit, OnDestroy {
-  @ViewChild('actionButtons',{ static: false }) actionButtons: TemplateRef<any>;
+export class FileManagementComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<any>;
 
   filesGridOptions: GridOptions;
   files: File[];
@@ -43,16 +43,45 @@ export class FileManagementComponent implements OnInit, OnDestroy {
   constructor(
     private financeService: FinancePocServiceProxy,
     private toastrService: ToastrService
-  ) {}
-
-  ngOnInit() {
+  ) {
     this.isSubscriptionAlive = true;
     this.initGrid();
-    this.loadFilesGrid();
+  }
+
+  ngOnInit() {}
+
+  ngAfterViewInit() {
+    this.getFiles();
   }
 
   initGrid() {
-    const columnDefsForFiles = [
+    this.filesGridOptions = {
+      rowData: null,
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      getExternalFilterState: () => {
+        return {};
+      },
+      onGridReady: params => {},
+      onFirstDataRendered: params => {
+        AutoSizeAllColumns(params);
+      },
+      enableFilter: true,
+      animateRows: true,
+      alignedGrids: [],
+      suppressHorizontalScroll: false,
+      suppressColumnVirtualisation: true
+    } as GridOptions;
+
+    this.filesGridOptions.getRowStyle = params => {
+      if (params.data.exceptions) {
+        return { backgroundColor: '#ffcfcf' };
+      }
+    };
+    this.filesGridOptions.sideBar = SideBar(GridId.filesId, GridName.files, this.filesGridOptions);
+  }
+
+  setColDefs() {
+    const colDefs = [
       {
         field: 'id',
         headerName: 'Id',
@@ -116,33 +145,10 @@ export class FileManagementComponent implements OnInit, OnDestroy {
         }
       }
     ];
-    this.filesGridOptions = {
-      rowData: null,
-      columnDefs: columnDefsForFiles,
-      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      getExternalFilterState: () => {
-        return {};
-      },
-      onGridReady: params => {},
-      onFirstDataRendered: params => {
-        AutoSizeAllColumns(params);
-      },
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      suppressHorizontalScroll: false,
-      suppressColumnVirtualisation: true
-    } as GridOptions;
-
-    this.filesGridOptions.getRowStyle = function(params) {
-      if (params.data.exceptions) {
-        return { backgroundColor: '#ffcfcf' };
-      }
-    };
-    this.filesGridOptions.sideBar = SideBar(GridId.filesId, GridName.files, this.filesGridOptions);
+    this.filesGridOptions.api.setColumnDefs(colDefs);
   }
 
-  private getFiles() {
+  getFiles() {
     this.financeService
       .getFiles()
       .pipe(takeWhile(() => this.isSubscriptionAlive))
@@ -162,14 +168,11 @@ export class FileManagementComponent implements OnInit, OnDestroy {
         }));
         this.filesGridOptions.api.setRowData(this.files);
       });
+    this.setColDefs();
   }
 
   refreshFilesGrid() {
     this.filesGridOptions.api.showLoadingOverlay();
-    this.getFiles();
-  }
-
-  loadFilesGrid() {
     this.getFiles();
   }
 
@@ -182,7 +185,6 @@ export class FileManagementComponent implements OnInit, OnDestroy {
         }
       }
     ];
-    //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(false, process, true, null, params);
   };
 
@@ -193,8 +195,6 @@ export class FileManagementComponent implements OnInit, OnDestroy {
       }
     });
   }
-
-  downloadFile(file) {}
 
   processFile(params) {
     const local = this;
@@ -209,6 +209,8 @@ export class FileManagementComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  downloadFile(file) {}
 
   ngOnDestroy() {
     this.isSubscriptionAlive = false;

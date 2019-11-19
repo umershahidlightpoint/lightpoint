@@ -1,4 +1,4 @@
-import { Component, TemplateRef, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, TemplateRef, OnInit, AfterViewInit, ViewChild, OnDestroy } from '@angular/core';
 import { FinancePocServiceProxy } from '../../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { takeWhile } from 'rxjs/operators';
@@ -14,8 +14,8 @@ import { GetContextMenu } from 'src/shared/utils/ContextMenu';
   templateUrl: './silver-file-management.component.html',
   styleUrls: ['./silver-file-management.component.css']
 })
-export class SilverFileManagementComponent implements OnInit, OnDestroy {
-  @ViewChild('actionButtons',{ static: false }) actionButtons: TemplateRef<any>;
+export class SilverFileManagementComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<any>;
 
   filesGridOptions: GridOptions;
   files: SilverFile[];
@@ -36,16 +36,43 @@ export class SilverFileManagementComponent implements OnInit, OnDestroy {
     boxSizing: 'border-box'
   };
 
-  constructor(private financeService: FinancePocServiceProxy) {}
-
-  ngOnInit() {
+  constructor(private financeService: FinancePocServiceProxy) {
     this.isSubscriptionAlive = true;
     this.initGrid();
+  }
+
+  ngOnInit() {}
+
+  ngAfterViewInit() {
     this.getSilverFiles();
   }
 
   initGrid() {
-    const columnDefsForFiles = [
+    this.filesGridOptions = {
+      rowData: null,
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      getExternalFilterState: () => {
+        return {};
+      },
+      onGridReady: params => {},
+      onFirstDataRendered: params => {
+        AutoSizeAllColumns(params);
+      },
+      enableFilter: true,
+      animateRows: true,
+      alignedGrids: [],
+      suppressHorizontalScroll: false,
+      suppressColumnVirtualisation: true
+    } as GridOptions;
+    this.filesGridOptions.sideBar = SideBar(
+      GridId.silverFilesId,
+      GridName.silverFiles,
+      this.filesGridOptions
+    );
+  }
+
+  setColDefs() {
+    const colDefs = [
       {
         field: 'name',
         headerName: 'Name',
@@ -75,28 +102,7 @@ export class SilverFileManagementComponent implements OnInit, OnDestroy {
         }
       }
     ];
-    this.filesGridOptions = {
-      rowData: null,
-      columnDefs: columnDefsForFiles,
-      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      getExternalFilterState: () => {
-        return {};
-      },
-      onGridReady: params => {},
-      onFirstDataRendered: params => {
-        AutoSizeAllColumns(params);
-      },
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      suppressHorizontalScroll: false,
-      suppressColumnVirtualisation: true
-    } as GridOptions;
-    this.filesGridOptions.sideBar = SideBar(
-      GridId.silverFilesId,
-      GridName.silverFiles,
-      this.filesGridOptions
-    );
+    this.filesGridOptions.api.setColumnDefs(colDefs);
   }
 
   getSilverFiles() {
@@ -111,6 +117,7 @@ export class SilverFileManagementComponent implements OnInit, OnDestroy {
         }));
         this.filesGridOptions.api.setRowData(this.files);
       });
+    this.setColDefs();
   }
 
   refreshFilesGrid() {
