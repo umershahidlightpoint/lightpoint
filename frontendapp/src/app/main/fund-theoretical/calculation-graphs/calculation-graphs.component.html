@@ -1,6 +1,10 @@
 <!-- Charts Div Starts  -->
-<div class="line-chart-wrapper" *ngIf="showChart">
-  <div *ngIf="mode == 'many'">
+<div class="line-chart-wrapper">
+  <eikos-line-plot [data]="lineData" [threshold]="threshold" [title]="lineTitle" [lineColors]="lineColors"
+    [xAxisLabel]="xAxisLabel" [yAxisLabel]="yAxisLabel" [divHeight]="divSize" [divWidth]="divSize"
+    [dateTimeFormat]="'MM-DD-YYYY'">
+  </eikos-line-plot>
+  <!-- <div *ngIf="mode == 'many'">
     <div class="chart-title">QTD Net %</div>
     <eikos-line-plot class="d-block chart" [propID]="propIDQTD" [lineColors]="lineColors" [data]="QTDData"
       [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
@@ -21,6 +25,6 @@
     <eikos-line-plot class="d-block chart" [propID]="propIDSingle" [lineColors]="lineColors" [data]="singleChartData"
       [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="410" [divWidth]="divWidth">
     </eikos-line-plot>
-  </div>
+  </div> -->
 </div>
 <!-- Charts Div Ends  -->
