@@ -45,7 +45,8 @@ export class MarketPricesComponent implements OnInit {
   selected: { startDate: moment.Moment; endDate: moment.Moment };
   startDate: any;
   endDate: any;
-
+  selectedYAxis: any = null;
+  selectedXAxis: any = null;
   ranges: any = Ranges;
 
   styleForHeight = HeightStyle(224);
@@ -71,7 +72,7 @@ export class MarketPricesComponent implements OnInit {
     Days: 0
   }];
 
-  vRange = this.vRanges[0];
+  vRange = this.vRanges[0].Days;
 
   utilsConfig: UtilsConfig = {
     expandGrid: false,
@@ -333,27 +334,87 @@ export class MarketPricesComponent implements OnInit {
   }
 
   vChange($event){
+    console.log($event);
+    if(this.selectedXAxis != null && this.selectedYAxis != null){
+      this.refreshGraph();
+      }
+  }
 
+  private refreshGraph() {
+    let data = {};
+    let toDate;
+    let fromDate;
+    let column = 'price';
+    data[this.selectedYAxis] = [];
+    if (this.vRange != 0) {
+      toDate = moment(this.selectedXAxis);
+      fromDate = moment(this.selectedXAxis).subtract(this.vRange, 'days');
+    }
+    this.marketPriceGrid.api.forEachNodeAfterFilter((rowNode, index) => {
+      let currentDate = moment(rowNode.data.businessDate);
+      if (this.vRange != 0) {
+        if (rowNode.data.symbol === this.selectedYAxis && currentDate.isSameOrAfter(fromDate) && currentDate.isSameOrBefore(toDate)) {
+          data[this.selectedYAxis].push({
+            date: rowNode.data.businessDate,
+            value: rowNode.data[column]
+          });
+        }
+      }
+      else {
+        if (rowNode.data.symbol === this.selectedYAxis) {
+          data[this.selectedYAxis].push({
+            date: rowNode.data.businessDate,
+            value: rowNode.data[column]
+          });
+        }
+      }
+    });
+    this.graphObject = {
+      xAxisLabel: 'Date',
+      yAxisLabel: 'Symbol',
+      lineColors: ['#ff6960', '#00bd9a'],
+      height: 410,
+      width: '95%',
+      chartTitle: this.selectedYAxis,
+      propId: 'line',
+      graphData: data,
+      dateTimeFormat: 'YYYY-MM-DD'
+    };
   }
 
   visualizeData() {
     let data = {};
+    let toDate;
+    let fromDate;
     const focusedCell = this.marketPriceGrid.api.getFocusedCell();
     const selectedRow = this.marketPriceGrid.api.getDisplayedRowAtIndex(focusedCell.rowIndex).data;
     const column = 'price';
-    const columnLabel = focusedCell.column.getUserProvidedColDef().headerName;
     const selectedSymbol = selectedRow.symbol;
     data[selectedSymbol] = [];
-    const toDate = moment(selectedRow.businessDate);
-    const fromDate = moment(selectedRow.businessDate).subtract(this.vRange.Days, 'days');
+    if(this.vRange != 0){
+      toDate = moment(selectedRow.businessDate);
+      fromDate = moment(selectedRow.businessDate).subtract(this.vRange, 'days');
+    }
+
+    this.selectedXAxis = toDate;
+    this.selectedYAxis = selectedSymbol;
     this.marketPriceGrid.api.forEachNodeAfterFilter((rowNode, index) => {
-      let currentDate = moment(rowNode.data.businessDate);
+    let currentDate = moment(rowNode.data.businessDate);
+    if(this.vRange != 0){
       if(rowNode.data.symbol === selectedSymbol && currentDate.isSameOrAfter(fromDate) && currentDate.isSameOrBefore(toDate)){
         data[selectedSymbol].push({
           date: rowNode.data.businessDate,
           value: rowNode.data[column]
         });
       }
+    } else{
+      if(rowNode.data.symbol === selectedSymbol){
+        data[selectedSymbol].push({
+          date: rowNode.data.businessDate,
+          value: rowNode.data[column]
+        });
+      }
+    }
     });
 
     this.graphObject = {
@@ -420,6 +481,7 @@ export class MarketPricesComponent implements OnInit {
     this.startDate = date.startDate;
     this.endDate = date.endDate;
     this.marketPriceGrid.api.onFilterChanged();
+    this.refreshGraph();
   }
 
   onSymbolKey(e) {
