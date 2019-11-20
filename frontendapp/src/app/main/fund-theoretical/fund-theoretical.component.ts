@@ -676,24 +676,41 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   }
 
   generateData() {
-    this.graphObject = [
-      { label: 'ytdNetPerformance', data: [] },
-      { label: 'YTD', data: [] },
+    const dataObject = [
+      // { label: 'YTDNetPerformance', data: [] },
       { label: 'QTD', data: [] },
+      { label: 'YTD', data: [] },
       { label: 'ITD', data: [] }
     ];
 
-    this.graphObject.forEach(model => {
+    let chartData = {};
+    dataObject.forEach(model => {
       this.fundTheoreticalGrid.api.forEachNodeAfterFilter((rowNode, index) => {
         model.data.push({
-          date: rowNode.data.year + '-' + this.getMomentMonth(rowNode.data.month) + '-' + '01',
+          date: this.getMomentMonth(rowNode.data.month) + '-' + '01' + '-' + rowNode.data.year,
           value:
             rowNode.data[
-              model.label === 'ytdNetPerformance' ? 'ytdNetPerformance' : model.label.toLowerCase()
+              model.label === 'YTDNetPerformance' ? 'ytdNetPerformance' : model.label.toLowerCase()
             ] * 100
         });
       });
+      chartData = {
+        ...chartData,
+        [model.label]: model.data
+      };
     });
+
+    this.graphObject = {
+      xAxisLabel: 'Date',
+      yAxisLabel: 'Value',
+      lineColors: ['#34A9FF', '#FFA000', ' #00BD9A'],
+      height: '100%',
+      width: '100%',
+      chartTitle: 'Monthly Performance',
+      propId: 'line',
+      graphData: chartData,
+      dateTimeFormat: 'MM-DD-YYYY'
+    };
   }
 
   formatPerformanceData(records) {
