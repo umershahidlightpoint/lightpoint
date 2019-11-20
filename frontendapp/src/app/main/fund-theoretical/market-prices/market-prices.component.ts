@@ -17,6 +17,7 @@ import { ToastrService } from 'ngx-toastr';
 import { UtilsConfig } from "src/shared/Models/utils-config";
 import * as moment from 'moment';
 import { DataGridModalComponent } from "src/shared/Component/data-grid-modal/data-grid-modal.component";
+import { GraphObject } from 'src/shared/Models/graph-object';
 
 @Component({
   selector: "app-market-prices",
@@ -33,7 +34,7 @@ export class MarketPricesComponent implements OnInit {
   fileToUpload: File = null;
   totalGridRows: number;
   isExpanded = false;
-  graphObject: any = null;
+  graphObject: GraphObject = null;
   disableCharts = true;
   sliderValue = 0;
   uploadLoader = false;
@@ -336,25 +337,37 @@ export class MarketPricesComponent implements OnInit {
   }
 
   visualizeData() {
+    let data = {};
     const focusedCell = this.marketPriceGrid.api.getFocusedCell();
     const selectedRow = this.marketPriceGrid.api.getDisplayedRowAtIndex(focusedCell.rowIndex).data;
     const column = 'price';
     const columnLabel = focusedCell.column.getUserProvidedColDef().headerName;
     const selectedSymbol = selectedRow.symbol;
-    this.graphObject = [{ label: 'Symbol - ' + selectedSymbol, data: [] }];
+    data[selectedSymbol] = [];
     const toDate = moment(selectedRow.businessDate);
     const fromDate = moment(selectedRow.businessDate).subtract(this.vRange.Days, 'days');
     this.marketPriceGrid.api.forEachNodeAfterFilter((rowNode, index) => {
       let currentDate = moment(rowNode.data.businessDate);
       if(rowNode.data.symbol === selectedSymbol && currentDate.isSameOrAfter(fromDate) && currentDate.isSameOrBefore(toDate)){
-        this.graphObject.forEach(element => {
-          element.data.push({
-            date: rowNode.data.businessDate,
-            value: rowNode.data[column]
-          });
+        data[selectedSymbol].push({
+          date: rowNode.data.businessDate,
+          value: rowNode.data[column]
         });
       }
     });
+
+    this.graphObject = {
+      xAxisLabel: 'Date',
+      yAxisLabel: 'Symbol',
+      lineColors: ['#ff6960', '#00bd9a'],
+      height: 410,
+      width: '95%',
+      chartTitle: selectedSymbol,
+      propId: 'line',
+      graphData: data,
+      dateTimeFormat: 'YYYY-MM-DD'
+    };
+
     this.isExpanded = true;
     this.disableCharts = false;
   }

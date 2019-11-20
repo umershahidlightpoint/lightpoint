@@ -2,6 +2,7 @@ import { Component, OnInit, Input, ChangeDetectorRef, OnChanges, SimpleChanges }
 import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
+import { GraphObject } from 'src/shared/Models/graph-object';
 
 @Component({
   selector: 'app-calculation-graphs',
@@ -9,22 +10,9 @@ import { delay } from 'rxjs/operators';
   styleUrls: ['./calculation-graphs.component.css']
 })
 export class CalculationGraphsComponent implements OnInit, OnChanges {
-  @Input() chartData: any;
+  @Input() chartObject: GraphObject;
   @Input() mode: string;
-  QTDData: any[] = [];
-  YTDData: any[] = [];
-  ITDData: any[] = [];
-  singleChartData: any[] = [];
-  title: string;
   showChart = false;
-
-  propIDQTD = 'QTDLineChart';
-  propIDYTD = 'YTDLineChart';
-  propIDITD = 'ITDLineChart';
-  propIDSingle = 'SingleLineChart';
-  divHeight = 180;
-  divWidth = '95%';
-  lineColors = ['#ff6960', '#00bd9a'];
 
   constructor(
     private toastrService: ToastrService,
@@ -36,32 +24,9 @@ export class CalculationGraphsComponent implements OnInit, OnChanges {
   ngOnInit() {}
 
   ngOnChanges(change: SimpleChanges) {
-    const { currentValue } = change.chartData;
+    const { currentValue } = change.chartObject;
     if (currentValue !== undefined) {
-      let cData;
-      currentValue.forEach((element, index) => {
-        cData = element.data;
-        if(this.mode === 'single'){
-            this.singleChartData = cData;
-            this.title = element.label;
-            // this.cdRef.detectChanges();
-        } else {
-          if (cData.length === 0) {
-            this.showChart = false;
-          } else {
-            if (index === 1) {
-              this.QTDData = cData;
-            }
-            if (index === 2) {
-              this.YTDData = cData;
-            }
-            if (index === 3) {
-              this.ITDData = cData;
-            }
-          }
-      }
-      });
-      if (cData.length > 0) {
+      if (currentValue.graphData) {
         this.showChart = true;
       } else {
         of()
