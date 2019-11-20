@@ -1,4 +1,11 @@
-import { Component, OnInit, Input, ChangeDetectorRef, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input,
+  ChangeDetectorRef,
+  OnChanges,
+  SimpleChanges
+} from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
