@@ -16,6 +16,7 @@ import { ToastrService } from 'ngx-toastr';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
 import { DailyUnofficialPnLData } from 'src/shared/Models/funds-theoretical';
 import * as moment from 'moment';
+import { GraphObject } from 'src/shared/Models/graph-object';
 
 @Component({
   selector: 'app-daily-pnl',
@@ -31,7 +32,7 @@ export class DailyPnlComponent implements OnInit {
   fileToUpload: File = null;
   totalGridRows: number;
   isExpanded = false;
-  graphObject: any = null;
+  graphObject: GraphObject = null;
   disableCharts = true;
   sliderValue = 0;
   uploadLoader = false;
@@ -402,25 +403,36 @@ export class DailyPnlComponent implements OnInit {
   }
 
   visualizeData() {
+    let data = {};
     const focusedCell = this.dailyPnlGrid.api.getFocusedCell();
     const selectedRow = this.dailyPnlGrid.api.getDisplayedRowAtIndex(focusedCell.rowIndex).data;
     const column = focusedCell.column.getColDef().field;
     const columnLabel = focusedCell.column.getUserProvidedColDef().headerName;
-    this.graphObject = [{ label: columnLabel, data: [] }];
+    data[columnLabel] = [];
     const toDate = moment(selectedRow.businessDate);
     const fromDate = moment(selectedRow.businessDate).subtract(30, 'days');
     const selectedPortfolio = selectedRow.portFolio;
     this.dailyPnlGrid.api.forEachNodeAfterFilter((rowNode, index) => {
       let currentDate = moment(rowNode.data.businessDate);
       if(rowNode.data.portFolio === selectedPortfolio && currentDate.isSameOrAfter(fromDate) && currentDate.isSameOrBefore(toDate)){
-        this.graphObject.forEach(element => {
-          element.data.push({
-            date: rowNode.data.businessDate,
-            value: rowNode.data[column]
-          })
+        data[columnLabel].push({
+          date: rowNode.data.businessDate,
+          value: rowNode.data[column]
         });
       }
     });
+
+    this.graphObject = {
+      xAxisLabel: 'Date',
+      yAxisLabel: columnLabel,
+      lineColors: ['#ff6960', '#00bd9a'],
+      height: 410,
+      width: '95%',
+      chartTitle: selectedPortfolio,
+      propId: 'line',
+      graphData: data,
+      dateTimeFormat: 'YYYY-MM-DD'
+    };
     this.isExpanded = true;
     this.disableCharts = false;
   }
