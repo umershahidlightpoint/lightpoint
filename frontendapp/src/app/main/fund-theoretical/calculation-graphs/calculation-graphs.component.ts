@@ -21,12 +21,7 @@ export class CalculationGraphsComponent implements OnInit, OnChanges {
   @Input() mode: string;
   showChart = false;
 
-  constructor(
-    private toastrService: ToastrService,
-    private cdRef: ChangeDetectorRef
-    ) {
-
-    }
+  constructor(private toastrService: ToastrService, private cdRef: ChangeDetectorRef) {}
 
   ngOnInit() {}
 

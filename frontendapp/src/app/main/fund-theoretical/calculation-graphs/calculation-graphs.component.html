@@ -1,8 +1,9 @@
 <!-- Charts Div Starts  -->
 <div class="line-chart-wrapper" *ngIf="showChart">
-    <div class="chart-title">{{chartObject.chartTitle}}</div>
-    <eikos-line-plot class="d-block chart" [propID]="chartObject.propId" [lineColors]="chartObject.lineColors" [data]="chartObject.graphData"
-      [xAxisLabel]="chartObject.xAxisLabel" [dateTimeFormat]="chartObject.dateTimeFormat" [yAxisLabel]="chartObject.yAxisLabel" [divHeight]="chartObject.height" [divWidth]="chartObject.width">
-    </eikos-line-plot>
+  <div class="chart-title">{{chartObject.chartTitle}}</div>
+  <eikos-line-plot class="d-block chart" [propID]="chartObject.propId" [lineColors]="chartObject.lineColors"
+    [data]="chartObject.graphData" [xAxisLabel]="chartObject.xAxisLabel" [dateTimeFormat]="chartObject.dateTimeFormat"
+    [yAxisLabel]="chartObject.yAxisLabel" [divHeight]="chartObject.height" [divWidth]="chartObject.width">
+  </eikos-line-plot>
 </div>
 <!-- Charts Div Ends  -->
