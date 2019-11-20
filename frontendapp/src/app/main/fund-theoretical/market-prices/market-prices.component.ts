@@ -98,7 +98,8 @@ export class MarketPricesComponent implements OnInit {
     this.disableCommit = true;
     this.financeService.getMarketPriceData().subscribe(response => {
       if (response.isSuccessful) {
-        this.gridData = response.payload.map(data => ({
+        let data = response.payload.sort((x,y) => {return new Date(y.BusinessDate).getTime() - new Date(x.BusinessDate).getTime()});
+        this.gridData = data.map(data => ({
           id: data.Id,
           securityId: data.SecurityId,
           businessDate: DateFormatter(data.BusinessDate),
@@ -376,7 +377,7 @@ export class MarketPricesComponent implements OnInit {
       height: 410,
       width: '95%',
       chartTitle: this.selectedYAxis,
-      propId: 'line',
+      propId: 'marketDataLineChart',
       graphData: data,
       dateTimeFormat: 'YYYY-MM-DD'
     };
@@ -417,6 +418,8 @@ export class MarketPricesComponent implements OnInit {
     }
     });
 
+    debugger;
+
     this.graphObject = {
       xAxisLabel: 'Date',
       yAxisLabel: 'Symbol',
@@ -424,7 +427,7 @@ export class MarketPricesComponent implements OnInit {
       height: 410,
       width: '95%',
       chartTitle: selectedSymbol,
-      propId: 'line',
+      propId: 'marketPriceLineChart',
       graphData: data,
       dateTimeFormat: 'YYYY-MM-DD'
     };

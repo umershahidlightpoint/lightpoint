@@ -429,7 +429,7 @@ export class DailyPnlComponent implements OnInit {
       height: 410,
       width: '95%',
       chartTitle: selectedPortfolio,
-      propId: 'line',
+      propId: 'dailyPnLLineChart',
       graphData: data,
       dateTimeFormat: 'YYYY-MM-DD'
     };

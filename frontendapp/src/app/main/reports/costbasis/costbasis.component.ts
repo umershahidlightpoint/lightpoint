@@ -40,8 +40,8 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   funds: Fund;
   DateRangeLabel: string;
   selectedDate: any;
-  startDate: any;
-  endDate: any;
+  startDate: Date;
+  endDate: Date;
   trialBalanceReport: Array<TrialBalanceReport>;
   trialBalanceReportStats: TrialBalanceReportStats;
   isLoading = false;
@@ -74,7 +74,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   propIDCostBasis = 'CostBasisLineChart';
   propIDBalance = 'BalanceLineChart';
   propIDQuantity = 'QuantityLineChart';
-  divHeight = 180;
+  divHeight = 200;
   divWidth = '95%';
   lineColors = ['#ff6960', '#00bd9a'];
 
@@ -98,10 +98,11 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.initGrid();
     this.getFunds();
-    // this.getReport(null, null, 'ALL');
   }
 
   initGrid() {
+    this.startDate = new Date();
+    this.startDate.setDate(this.startDate.getDate() -1);
     this.gridOptions = {
       rowData: null,
       pinnedBottomRowData: null,
@@ -136,7 +137,9 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
         {
           field: 'symbol',
           width: 120,
-          headerName: 'Symbol'
+          headerName: 'Symbol',
+          sortable:true,
+          filter:true,
         },
         {
           field: 'Balance',
@@ -160,15 +163,17 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           field: 'CostBasis',
           headerName: 'Cost Basis',
           width: 100,
+          sortable: true,
           filter: true,
           cellClass: 'rightAlign',
-          sortable: true,
           valueFormatter: costBasisFormatter
         },
         {
           field: 'Side',
           width: 50,
-          headerName: 'Side'
+          headerName: 'Side',
+          sortable: true,
+          filter: true,
         },
         {
           field: 'unrealized_pnl',
@@ -231,6 +236,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           field: 'Date',
           width: 120,
           headerName: 'Date',
+          sortable: true,
           valueFormatter: dateFormatter
         },
         {
@@ -263,24 +269,29 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
         {
           field: 'Side',
           width: 50,
+          sortable: true,
+          filter: true,
           headerName: 'Side'
         },
         {
           field: 'unrealized_pnl',
           cellClass: 'rightAlign',
           headerName: 'Unrealized P&L',
+          sortable: true,
           valueFormatter: currencyFormatter
         },
         {
           field: 'realized_pnl',
           cellClass: 'rightAlign',
           headerName: 'Realized P&L',
+          sortable: true,
           valueFormatter: currencyFormatter
         },
         {
           field: 'Pnl',
           cellClass: 'rightAlign',
           headerName: 'Net P&L',
+          sortable: true,
           valueFormatter: currencyFormatter
         }
       ],
@@ -298,7 +309,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       this.hideGrid = obj;
       if (!this.hideGrid) {
         this.getFunds();
-        this.getReport(null, 'ALL');
+        this.getReport(this.startDate, 'ALL');
       }
     });
   }
@@ -341,36 +352,50 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   mapCostBasisData(data: any, chartType: string) {
     this.labels = data.map(item => item.Date);
-    this.cbData = data.map(item => ({
-      date: FormatDate(item.Date, 'YYYY-MM-DD'),
-      value: item[chartType]
-    }));
+    this.cbData = {
+      chartType:data.map(item => ({
+        date: FormatDate(item.Date, 'YYYY-MM-DD'),
+        value: item[chartType]
+    }))};
   }
 
   mapChartsData(data: any) {
     this.labels = data.map(item => item.Date);
 
-    this.bData = data.map(item => ({
-      date: FormatDate(item.Date, 'YYYY-MM-DD'),
-      value: item.Balance
-    }));
-    this.qData = data.map(item => ({
-      date: FormatDate(item.Date, 'YYYY-MM-DD'),
-      value: item.Quantity
-    }));
+    this.bData = {
+      'Balance': data.map(item => ({
+        date: FormatDate(item.Date, 'YYYY-MM-DD'),
+        value: item.Balance
+      }))
+    };
 
-    this.unrealizedData = data.map(item => ({
-      date: FormatDate(item.Date, 'YYYY-MM-DD'),
-      value: item.unrealized_pnl
-    }));
-    this.realizedData = data.map(item => ({
-      date: FormatDate(item.Date, 'YYYY-MM-DD'),
-      value: item.realized_pnl
-    }));
-    this.netpnlData = data.map(item => ({
-      date: FormatDate(item.Date, 'YYYY-MM-DD'),
-      value: item.Pnl
-    }));
+    this.qData = {
+      'Quantity' : data.map(item => ({
+        date: FormatDate(item.Date, 'YYYY-MM-DD'),
+        value: item.Quantity
+      }))
+    };
+
+    this.unrealizedData = {
+      'unrealized_pnl' : data.map(item => ({
+        date: FormatDate(item.Date, 'YYYY-MM-DD'),
+        value: item.unrealized_pnl
+      }))
+    };
+
+    this.realizedData = {
+      'realized_pnl' : data.map(item => ({
+        date: FormatDate(item.Date, 'YYYY-MM-DD'),
+        value: item.realized_pnl
+      }))
+    };
+
+    this.netpnlData = {
+      'Pnl' : data.map(item => ({
+        date: FormatDate(item.Date, 'YYYY-MM-DD'),
+        value: item.Pnl
+      }))
+    };
   }
 
   onFilterChanged() {
@@ -413,9 +438,11 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.fund = 'All Funds';
     this.selectedDate = null;
     this.DateRangeLabel = '';
-    this.startDate = '';
-    this.endDate = '';
-    this.getReport(null, 'ALL');
+    this.startDate = new Date();
+    this.startDate.setDate(this.startDate.getDate() -1);
+
+    this.endDate = undefined;
+    this.getReport(this.startDate, 'ALL');
   }
 
   getExternalFilterState() {
@@ -453,7 +480,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
     this.clearFilters();
-    this.getReport(null, 'ALL');
+    this.getReport(this.startDate, 'ALL');
   }
 
   onBtExport() {

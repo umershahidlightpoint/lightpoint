@@ -88,13 +88,18 @@
       </ag-grid-angular>
     </div>
     <!-- Report AG Grid Column Ends -->
+    <!--
+      
+    -->
     <!-- Chart Column Starts -->
-    <div class="col-6 mt-3" [ngStyle]="styleForHeight">
+    <div class="col-6 mt-3 row-3" [ngStyle]="styleForHeight">
       <div *ngIf="displayChart" class="line-chart-wrapper d-flex flex-wrap">
 
         <div class="w-50">
           <div class="chart-title">Investment at Cost</div>
           <eikos-line-plot class="d-block chart" [propID]="propIDBalance" [lineColors]="lineColors" [data]="bData"
+            [dateTimeFormat]="'YYYY-MM-DD'"
+            [threshold] = 0
             [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
           </eikos-line-plot>
         </div>
@@ -102,6 +107,8 @@
         <div class="w-50">
           <div class="chart-title">Quantity</div>
           <eikos-line-plot class="d-block chart" [propID]="propIDQuantity" [lineColors]="lineColors" [data]="qData"
+            [dateTimeFormat]="'YYYY-MM-DD'"
+            [threshold] = 0
             [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
           </eikos-line-plot>
         </div>
@@ -109,6 +116,8 @@
         <div class="w-50">
           <div class="chart-title">Exposure (at Cost)</div>
           <eikos-line-plot class="d-block chart" [propID]="propIDCostBasis" [lineColors]="lineColors" [data]="cbData"
+            [dateTimeFormat]="'YYYY-MM-DD'"          
+            [threshold] = 0
             [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
           </eikos-line-plot>
         </div>
@@ -116,7 +125,9 @@
         <div class="w-50">
           <div class="chart-title">Unrealized P&L</div>
           <eikos-line-plot class="d-block chart" [propID]="'unrealizedData'" [lineColors]="lineColors"
+            [dateTimeFormat]="'YYYY-MM-DD'"
             [data]="unrealizedData" [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight"
+            [threshold] = 0
             [divWidth]="divWidth">
           </eikos-line-plot>
         </div>
@@ -124,6 +135,8 @@
 
           <div class="chart-title">Realized P&L</div>
           <eikos-line-plot class="d-block chart" [propID]="'realalizedData'" [lineColors]="lineColors"
+            [dateTimeFormat]="'YYYY-MM-DD'"
+            [threshold] = 0
             [data]="realizedData" [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
           </eikos-line-plot>
         </div>
@@ -131,6 +144,8 @@
 
           <div class="chart-title">Net P&L</div>
           <eikos-line-plot class="d-block chart" [propID]="'netpnlData'" [lineColors]="lineColors" [data]="netpnlData"
+            [dateTimeFormat]="'YYYY-MM-DD'"
+            [threshold] = 0
             [xAxisLabel]="'Date'" [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
           </eikos-line-plot>
         </div>
