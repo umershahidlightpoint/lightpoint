@@ -96,5 +96,8 @@
     <Build Include="StoredProcs\PullDailyActivity.sql" />
     <Build Include="Tables\market_prices.sql" />
     <Build Include="StoredProcs\PullDailyMarketPrices.sql" />
+    <Build Include="Tables\market_prices_history.sql" />
+    <Build Include="Triggers\market_data_price_insert_trigger.sql" />
+    <Build Include="Triggers\market_data_price_update_trigger.sql" />
   </ItemGroup>
 </Project>

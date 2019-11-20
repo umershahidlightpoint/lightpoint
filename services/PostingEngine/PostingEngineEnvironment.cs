@@ -23,10 +23,15 @@ namespace PostingEngine
             TaxLotStatus = new Dictionary<string, TaxLotStatus>();
         }
 
+        public string ConnectionString { get; set; }
+
+        public PostingEngineCallBack CallBack { get; set; }
+
         public string BaseCurrency { get; set; }
         public string RunId { get; internal set; }
         public string Period { get; set; }
         public DateTime ValueDate { get; set; }
+        public DateTime PreviousValueDate { get; set; }
         public DateTime BusinessDate { get; set; }
 
         public bool SkipWeekends { get; set; }
@@ -64,8 +69,6 @@ namespace PostingEngine
         public TaxRate TaxRate { get; set; }
 
         // Rates are all multiplied, and we store that rate in the system
-        public Dictionary<string, FxRate> EODFxRates { get; set; }
-        public Dictionary<string, FxRate> PrevFxRates { get; set; }
         public Dictionary<string, MarketPrice> PrevMarketPrices { get; set; }
         public Dictionary<string, MarketPrice> EODMarketPrices { get; set; }
         public Dictionary<string, CostBasisDto> CostBasis { get; set; }

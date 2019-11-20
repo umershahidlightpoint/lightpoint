@@ -1,8 +1,8 @@
-import { Component, OnInit, ViewChild, Input } from "@angular/core";
-import { GridOptions } from "ag-grid-community";
+import { Component, OnInit, ViewChild, Input } from '@angular/core';
+import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from "src/shared/Component/grid-layout-menu/grid-layout-menu.component";
 import { Style, AutoSizeAllColumns } from "src/shared/utils/Shared";
-import { ModalDirective } from "ngx-bootstrap";
+import { ModalDirective } from 'ngx-bootstrap';
 
 @Component({
   selector: "app-data-grid-modal",
@@ -62,6 +62,8 @@ export class DataGridModalComponent implements OnInit {
     this.gridOptions.api.setColumnDefs(colDefs);
     this.gridOptions.api.setRowData(rowData);
     this.modal.show();
+    // this.gridOptions.api.sizeColumnsToFit();
+    AutoSizeAllColumns(this.gridOptions);
   }
 
   closeModal() {

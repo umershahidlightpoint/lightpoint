@@ -7,6 +7,28 @@ namespace PostingEngine.PostingRules.Utilities
 {
     class AccountUtils
     {
+        public AccountToFrom GetAccounts(PostingEngineEnvironment env, string fromType, string toType, List<Tag> tags, Transaction element)
+        {
+            var fromAccount = CreateAccount(AccountType.Find(fromType), tags, element);
+            var toAccount = CreateAccount(AccountType.Find(toType), tags, element);
+
+            SaveAccountDetails(env, fromAccount);
+            SaveAccountDetails(env, toAccount);
+
+            return new AccountToFrom { From = fromAccount, To = toAccount };
+        }
+
+        public AccountToFrom GetAccounts(PostingEngineEnvironment env, string fromType, string toType, List<string> tags)
+        {
+            var fromAccount = CreateAccount(AccountType.Find(fromType), tags);
+            var toAccount = CreateAccount(AccountType.Find(toType), tags);
+
+            SaveAccountDetails(env, fromAccount);
+            SaveAccountDetails(env, toAccount);
+
+            return new AccountToFrom { From = fromAccount, To = toAccount };
+        }
+
         // Collect a list of accounts that are generated
         private static readonly Dictionary<string, Account> accounts = new Dictionary<string, Account>();
         public static void LoadAll()

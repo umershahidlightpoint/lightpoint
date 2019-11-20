@@ -1,36 +1,63 @@
 <!-- Action Buttons Form Tag Starts -->
 <form>
-  <!-- Form Row Div Starts -->
   <div class="form-row">
+      <div class="col-md-2">
+          <select class="form-control" [(ngModel)]="vRange" [selectedIndex]="0" (ngModelChange)="vChange($event)">
+            <option *ngFor="let a of vRanges" [ngValue]="a.Days">
+              {{ a.Description }}
+            </option>
+          </select>
+        </div>
     <!-- <div class="col-2">
       <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date" [(ngModel)]="selectedDate"
         (ngModelChange)="changeDate($event)" name="selectedDate" [singleDatePicker]="true" [autoApply]="true"
         autocomplete="off" [showDropdowns]="true" />
     </div> -->
+    <!----- Symbol Filter Div Starts----->
+    <div class="col-2">
+      <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol" [(ngModel)]="filterBySymbol"
+        (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" />
+    </div>
+    <!----- Symbol Filter Div Ends----->
+
+    <!----- Date Picker Div Starts----->
+    <div class="col-4">
+      <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off" placeholder="Choose date"
+        [(ngModel)]="selected" name="selectedDaterange" [showClearButton]="true" [alwaysShowCalendars]="true"
+        (ngModelChange)="ngModelChange($event)" [keepCalendarOpeningWithRange]="true" />
+    </div>
+    <!----- Date Picker Div Ends----->
+
+    <!----- Clear Button  Div Starts ----->
+    <div class="mr-auto">
+      <button (click)="clearFilters()" class="btn btn-info" tooltip="Clear" placement="top">
+        <i class="fa fa-remove"></i>
+      </button>
+    </div>
+    <!----- Clear Button  Div Ends ----->
 
     <!-- Fileupload Div Starts -->
-    <div class="col-6">
-      <!-- <button class="btn btn-info" type="button" (click)="doRefresh()">
+    <!-- <div class="col-6"> -->
+    <!-- <button class="btn btn-info" type="button" (click)="doRefresh()">
         Refresh
       </button> -->
-      <input #fileInput class="btn btn-info file-upload-btn" type="file" (change)="onFileInput($event.target.files)">
+    <!-- <input #fileInput class="btn btn-info file-upload-btn" type="file" (change)="onFileInput($event.target.files)">
       <button class="btn btn-info ml-2" type="button" (click)="uploadData()" [disabled]="uploadLoader || disableFileUpload">
         Upload
         <span *ngIf="uploadLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
       </button>
-    </div>
+    </div> -->
     <!-- Fileupload Div Ends -->
-    
+
     <!-- Action Buttons Div Starts -->
     <div class="ml-auto mr-2">
-      <!-- <div class="col-6">
-        <button class="btn btn-info ml-2" type="button" [disabled]="disableCommit" (click)="commitPerformanceData()">
+        <button class="btn btn-info mr-2" type="button" [disabled]="disableCommit" (click)="commitMarketPriceData()">
           Commit
         </button>
-      </div> -->
 
       <!-- Grid Utils Starts -->
-      <app-grid-utils class="mr-0" [utilsConfig]="utilsConfig" [gridOptions]="dataGridOptions" (refresh)="refreshGrid()">
+      <app-grid-utils class="mr-0" [utilsConfig]="utilsConfig" [gridOptions]="marketPriceGrid"
+        (refresh)="refreshGrid()">
       </app-grid-utils>
       <!-- Grid Utils Ends -->
 
@@ -56,13 +83,13 @@
     <div class="row h-100">
       <!----- Ag Grid Tag Starts ----->
       <div [ngClass]="{'col-6': isExpanded, 'col-12': !isExpanded}">
-      <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="dataGridOptions">
-      </ag-grid-angular>
-    </div>
+        <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="marketPriceGrid">
+        </ag-grid-angular>
+      </div>
       <!----- Ag Grid Tag Ends ----->
-      
+
       <!-- App Calculation Graphs Div Starts -->
-      <div *ngIf ="isExpanded" class="col-6">
+      <div *ngIf="isExpanded" class="col-6">
         <app-calculation-graphs class="w-50 h-50" [chartData]="graphObject" [mode]="'single'">
         </app-calculation-graphs>
       </div>
@@ -71,3 +98,8 @@
   </div>
 </div>
 <!----- Div To Measure Identifier Ends ----->
+
+<!-- Data Grid Modal Component Selector Starts -->
+<app-data-grid-modal #dataGridModal [gridTitle]="title">
+</app-data-grid-modal>
+<!-- Data Grid Modal Component Selector Ends -->

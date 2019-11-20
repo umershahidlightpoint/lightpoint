@@ -69,6 +69,7 @@
     <Compile Include="PostingRules\DefaultRule.cs" />
     <Compile Include="PostingRules\EquityOption.cs" />
     <Compile Include="PostingRules\Cross.cs" />
+    <Compile Include="PostingRules\FxPosting.cs" />
     <Compile Include="PostingRules\PostingRule.cs" />
     <Compile Include="TaxLotMethods\BaseTaxLotMethodology.cs" />
     <Compile Include="TaxLotMethods\FIFOTaxLotMethod.cs" />

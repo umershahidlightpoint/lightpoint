@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using PostingEngine.Contracts;
 using PostingEngine.MarketData;
 using PostingEngine.PostingRules;
+using PostingEngine.PostingRules.Utilities;
 using PostingEngine.TaxLotMethods;
 using SqlDAL.Core;
 using System;
@@ -125,6 +126,76 @@ namespace PostingEngine
             return true;
         }
 
+        public static void UnrealizedCashBalances(DateTime valueDate)
+        {
+            DeleteJournals("unrealized-cash-fx");
+
+            PostingEngineCallBack?.Invoke("UnrealizedCashBalances Calculation Started");
+
+            var dates = "select minDate = min([when]), maxDate = max([when]) from Journal";
+            var table = new DataTable();
+
+            // read the table structure from the database
+            using (var adapter = new SqlDataAdapter(dates, new SqlConnection(connectionString)))
+            {
+                adapter.Fill(table);
+            };
+
+            var startDate = Convert.ToDateTime(table.Rows[0]["minDate"]);
+            var endDate = Convert.ToDateTime(table.Rows[0]["maxDate"]);
+
+            valueDate = startDate;
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                Setup(connection);
+
+                //var transaction = connection.BeginTransaction();
+
+                var env = new PostingEngineEnvironment(connection)
+                {
+                    ConnectionString = connectionString,
+                    ValueDate = valueDate,
+                    PreviousValueDate = valueDate.PrevBusinessDate(),
+                    BaseCurrency = "USD",
+                    SecurityDetails = new SecurityDetails().Get(),
+                    Categories = AccountCategory.Categories,
+                    Types = AccountType.All,
+                    RunDate = System.DateTime.Now.Date,
+                };
+
+                var rowsCompleted = 1;
+                var numberOfDays = (endDate - valueDate).Days;
+                while (valueDate <= endDate)
+                {
+                    if (!valueDate.IsBusinessDate())
+                    {
+                        valueDate = valueDate.AddDays(1);
+                        continue;
+                    }
+
+                    env.ValueDate = valueDate;
+                    env.PreviousValueDate = valueDate.PrevBusinessDate();
+
+                    new FxPosting().CreateFxUnsettled(env);
+
+                    valueDate = valueDate.AddDays(1);
+                }
+
+                var transaction = connection.BeginTransaction();
+
+                if (env.Journals.Count() > 0)
+                {
+                    new SQLBulkHelper().Insert("journal", env.Journals.ToArray(), connection, transaction);
+                }
+
+                transaction.Commit();
+            }
+
+        }
+
         public static void SettledCashBalances()
         {
             DeleteJournals("settled-cash-fx");
@@ -149,6 +220,7 @@ namespace PostingEngine
 
                 var env = new PostingEngineEnvironment(connection, transaction)
                 {
+                    BaseCurrency = "USD",
                     SecurityDetails = new SecurityDetails().Get(),
                     Categories = AccountCategory.Categories,
                     Types = AccountType.All,
@@ -175,9 +247,8 @@ namespace PostingEngine
                         valueDate = valueDate.AddDays(1);
                         continue;
                     }
-
-                    var EODFxRates = new FxRates().Get(valueDate);
-                    var PrevFxRates = new FxRates().Get(valueDate.PrevBusinessDate());
+                    env.ValueDate = valueDate;
+                    env.PreviousValueDate = valueDate.PrevBusinessDate();
 
                     try
                     {
@@ -204,19 +275,20 @@ namespace PostingEngine
                                 Balance = reader.GetFieldValue<decimal>(4)
                             };
 
-                            if (settledCash.Currency.Equals("USD"))
+                            if (settledCash.Currency.Equals(env.BaseCurrency))
                                 continue;
 
                             // Now Generate the correct set of entries
 
-                            var local = Convert.ToDouble(settledCash.Balance / PrevFxRates[settledCash.Currency].Rate);
-                            var prev = Convert.ToDouble(PrevFxRates[settledCash.Currency].Rate);
-                            var eod = Convert.ToDouble(EODFxRates[settledCash.Currency].Rate);
+                            var prev = Convert.ToDouble(FxRates.Find(env.PreviousValueDate, settledCash.Currency).Rate);
+                            var eod = Convert.ToDouble(FxRates.Find(env.ValueDate, settledCash.Currency).Rate);
+
+                            var local = Convert.ToDouble(Convert.ToDouble(settledCash.Balance) / prev);
 
                             var changeDelta = eod - prev;
                             var change = changeDelta * local * -1;
 
-                            var fromTo = new CommonRules().GetAccounts(env, "Settled Cash", "fx gain or loss on settled balance", new string[] { settledCash.Currency }.ToList());
+                            var fromTo = new AccountUtils().GetAccounts(env, "Settled Cash", "fx gain or loss on settled balance", new string[] { settledCash.Currency }.ToList());
 
                             var debit = new Journal(fromTo.From, "settled-cash-fx", valueDate)
                             {
@@ -318,7 +390,7 @@ namespace PostingEngine
             }
         }
 
-        public static void RunCalculation(string calculation, Guid key, PostingEngineCallBack postingEngineCallBack)
+        public static void RunCalculation(string calculation, DateTime valueDate, Guid key, PostingEngineCallBack postingEngineCallBack)
         {
             Key = key;
             PostingEngineCallBack = postingEngineCallBack;
@@ -340,6 +412,10 @@ namespace PostingEngine
             else if ( calculation.Equals("SettledCashBalances"))
             {
                 SettledCashBalances();
+            }
+            else if (calculation.Equals("UnrealizedCashBalances"))
+            {
+                UnrealizedCashBalances(valueDate);
             }
         }
 
@@ -382,12 +458,12 @@ namespace PostingEngine
 
                 var postingEnv = new PostingEngineEnvironment(connection, transaction)
                 {
+                    BaseCurrency = "USD",
                     SecurityDetails = new SecurityDetails().Get(),
                     Categories = AccountCategory.Categories,
                     Types = AccountType.All,
                     ValueDate = DateTime.Now.Date,
-                    EODFxRates = new FxRates().Get(DateTime.Now.Date),
-                    PrevFxRates = new FxRates().Get(DateTime.Now.Date.PrevBusinessDate()),
+                    PreviousValueDate = DateTime.Now.Date.PrevBusinessDate(),
                     RunDate = System.DateTime.Now.Date,
                     Allocations = allocationList,
                     Trades = tradeList,
@@ -487,6 +563,7 @@ namespace PostingEngine
 
                 var postingEnv = new PostingEngineEnvironment(connection, transaction)
                 {
+                    BaseCurrency = "USD",
                     SecurityDetails = new SecurityDetails().Get(),
                     Categories = AccountCategory.Categories,
                     Types = AccountType.All,
@@ -515,6 +592,7 @@ namespace PostingEngine
                 postingEnv.Rules = postingEnv.TradingRules;
                 postingEnv.SkipWeekends = true;
                 postingEnv.Trades = tradeList.Where(i => !i.SecurityType.Equals("Journals")).ToArray();
+                postingEnv.CallBack = postingEngineCallBack;
                 int count = RunAsync(connection, transaction, postingEnv).GetAwaiter().GetResult();
                 sw.Stop();
 
@@ -523,6 +601,7 @@ namespace PostingEngine
                 postingEnv.Rules = postingEnv.JournalRules;
                 postingEnv.SkipWeekends = false;
                 postingEnv.Trades = tradeList.Where(i => i.SecurityType.Equals("Journals")).ToArray();
+                postingEnv.CallBack = postingEngineCallBack;
                 count = count + RunAsync(connection, transaction, postingEnv).GetAwaiter().GetResult();
                 sw.Stop();
 
@@ -634,8 +713,8 @@ namespace PostingEngine
             while (valueDate <= endDate)
             {
                 postingEnv.ValueDate = valueDate;
-                postingEnv.EODFxRates = new FxRates().Get(valueDate);
-                postingEnv.PrevFxRates = new FxRates().Get(valueDate.PrevBusinessDate());
+                postingEnv.PreviousValueDate = valueDate.PrevBusinessDate();
+
                 postingEnv.TaxRate = new TaxRates().Get(valueDate);
 
                 try
@@ -711,10 +790,10 @@ namespace PostingEngine
                 sw.Start();
 
                 postingEnv.ValueDate = valueDate;
+                postingEnv.PreviousValueDate = valueDate.PrevBusinessDate();
 
                 // FX Rates
-                postingEnv.EODFxRates = new FxRates().Get(valueDate);
-                postingEnv.PrevFxRates = new FxRates().Get(valueDate.PrevBusinessDate());
+                // FxRates.Find()
 
                 // Get todays Market Prices
                 postingEnv.EODMarketPrices = new MarketPrices().Get(valueDate);
