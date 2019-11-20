@@ -175,9 +175,9 @@ namespace PostingEngine.PostingRules
 
 
                 env.Journals.AddRange(new List<Journal>(new[] { debit, credit }));
-
-                // Lets do some magic
             }
+
+            connection.Close();
         }
     }
 }

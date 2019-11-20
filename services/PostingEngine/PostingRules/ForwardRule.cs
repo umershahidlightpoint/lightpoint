@@ -188,13 +188,14 @@ namespace PostingEngine.PostingRules
                                 else
                                     taxlotStatus.Status = "Partially Closed";
 
-                                var unrealizedPnl = taxlotStatus.Quantity * (element.SettleNetPrice - env.PrevMarketPrices[lot.Trade.Symbol].Price) * fxrate;
+                                var prevPrice = MarketPrices.Find(env.PreviousValueDate, lot.Trade.Symbol).Price;
+                                var unrealizedPnl = taxlotStatus.Quantity * (element.SettleNetPrice - prevPrice) * fxrate;
 
                                 PostUnRealizedPnl(
                                     env, 
                                     env.FindTrade(lot.Trade.LpOrderId), 
                                     unrealizedPnl,
-                                    env.PrevMarketPrices[lot.Trade.BloombergCode].Price,
+                                    MarketPrices.Find(env.PreviousValueDate, lot.Trade.BloombergCode).Price,
                                     element.SettleNetPrice, fxrate);
 
                                 var PnL = Math.Abs(tl.Quantity) * (tl.CostBasis - tl.TradePrice) * fxrate;

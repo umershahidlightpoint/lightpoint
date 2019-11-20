@@ -174,12 +174,13 @@ namespace PostingEngine.PostingRules
                                 else
                                     taxlotStatus.Status = "Partially Closed";
 
-                                var unrealizedPnl = taxlotStatus.Quantity * (element.SettleNetPrice - env.PrevMarketPrices[lot.Trade.Symbol].Price);
+                                var prevPrice = MarketPrices.Find(env.PreviousValueDate, lot.Trade.Symbol).Price;
+                                var unrealizedPnl = taxlotStatus.Quantity * (element.SettleNetPrice - prevPrice);
                                 PostUnRealizedPnl(
                                     env, 
                                     env.FindTrade(lot.Trade.LpOrderId), 
                                     unrealizedPnl,
-                                    env.PrevMarketPrices[lot.Trade.BloombergCode].Price,
+                                    MarketPrices.Find(env.PreviousValueDate, lot.Trade.BloombergCode).Price,
                                     element.SettleNetPrice, 1);
 
                                 // This is realized Pnl, need to post this as a journal entry

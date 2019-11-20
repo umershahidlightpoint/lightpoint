@@ -129,21 +129,17 @@ namespace PostingEngine.PostingRules
 
                     if (env.ValueDate == element.TradeDate)
                     {
-                        if (env.EODMarketPrices.ContainsKey(element.BloombergCode))
-                        {
-                            eodPrice = env.EODMarketPrices[element.BloombergCode].Price;
-                        }
-
+                        eodPrice = MarketPrices.Find(env.ValueDate, element.BloombergCode).Price;
                         prevEodPrice = element.SettleNetPrice;
                     }
                     else
                     {
-                        if (env.PrevMarketPrices.ContainsKey(element.BloombergCode))
-                            prevEodPrice = env.PrevMarketPrices[element.BloombergCode].Price;
-
-                        if (env.EODMarketPrices.ContainsKey(element.BloombergCode))
-                            eodPrice = env.EODMarketPrices[element.BloombergCode].Price;
+                        prevEodPrice = MarketPrices.Find(env.PreviousValueDate, element.BloombergCode).Price;
+                        eodPrice = MarketPrices.Find(env.ValueDate, element.BloombergCode).Price;
                     }
+
+                    if (eodPrice - prevEodPrice == 0)
+                        return;
 
                     var multiplier = 1.0;
 
@@ -396,12 +392,13 @@ namespace PostingEngine.PostingRules
                                 else
                                     taxlotStatus.Status = "Partially Closed";
 
-                                var unrealizedPnl = Math.Abs(tl.Quantity) * (element.SettleNetPrice - env.PrevMarketPrices[lot.Trade.BloombergCode].Price);
+                                var prevPrice = MarketPrices.Find(env.PreviousValueDate, lot.Trade.BloombergCode).Price;
+                                var unrealizedPnl = Math.Abs(tl.Quantity) * (element.SettleNetPrice - prevPrice);
                                 PostUnRealizedPnl(
                                     env,
                                     env.FindTrade(lot.Trade.LpOrderId),
                                     unrealizedPnl,
-                                    env.PrevMarketPrices[lot.Trade.BloombergCode].Price,
+                                    MarketPrices.Find(env.PreviousValueDate, lot.Trade.BloombergCode).Price,
                                     element.SettleNetPrice, fxrate);
 
                                 var PnL = Math.Abs(tl.Quantity) * (tl.CostBasis - tl.TradePrice) * fxrate;
@@ -478,7 +475,7 @@ namespace PostingEngine.PostingRules
                                     Quantity = taxlotStatus.Quantity
                                 };
                                 tl.Save(env.Connection, env.Transaction);
-                                workingQuantity -= Math.Abs(taxlotStatus.Quantity);
+                                workingQuantity += Math.Abs(taxlotStatus.Quantity);
 
                                 var PnL = tl.Quantity * (tl.CostBasis - tl.TradePrice) * fxrate;
 
@@ -543,7 +540,7 @@ namespace PostingEngine.PostingRules
                 if (element.IsSell() || element.IsCover())
                     moneyUSD = moneyUSD * -1;
 
-                var eodPrice = env.EODMarketPrices[element.BloombergCode].Price;
+                var eodPrice = MarketPrices.Find(env.ValueDate, element.BloombergCode).Price;
 
                 var fromJournal = new Journal(accountToFrom.From, "tradedate", env.ValueDate)
                 {

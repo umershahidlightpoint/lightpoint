@@ -26,8 +26,8 @@ namespace PostingEngineCmd
             var date = System.DateTime.Now.Date;
             date = date.PrevBusinessDate();
 
-            // Pull from BookMon
-            PullFromBookmon(date);
+            // Pull from Legacy System
+            PullFromLegacySystem(date);
 
             // Get all Activity
             ITD(date);
@@ -45,7 +45,7 @@ namespace PostingEngineCmd
             UnrealizedCashBalances(date);
         }
 
-        static void PullFromBookmon(DateTime valueDate)
+        static void PullFromLegacySystem(DateTime valueDate)
         {
             var key = System.Guid.NewGuid();
 
