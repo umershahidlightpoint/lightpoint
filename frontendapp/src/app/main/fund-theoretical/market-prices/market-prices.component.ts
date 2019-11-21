@@ -100,7 +100,10 @@ export class MarketPricesComponent implements OnInit {
     this.disableCommit = true;
     this.financeService.getMarketPriceData().subscribe(response => {
       if (response.isSuccessful) {
-        this.gridData = response.payload.map(data => ({
+        let data = response.payload.sort((x, y) => {
+          return new Date(y.BusinessDate).getTime() - new Date(x.BusinessDate).getTime();
+        });
+        this.gridData = data.map(data => ({
           id: data.Id,
           securityId: data.SecurityId,
           businessDate: DateFormatter(data.BusinessDate),
@@ -117,7 +120,7 @@ export class MarketPricesComponent implements OnInit {
   initGrid() {
     this.marketPriceGrid = {
       columnDefs: this.getColDefs(),
-      rowData: [],
+      rowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       getExternalFilterState: () => {
         return {};
@@ -417,6 +420,8 @@ export class MarketPricesComponent implements OnInit {
         }
       }
     });
+
+    debugger;
 
     this.graphObject = {
       xAxisLabel: 'Date',

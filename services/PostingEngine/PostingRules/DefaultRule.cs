@@ -98,9 +98,9 @@ namespace PostingEngine.PostingRules
             double fxrate = 1.0;
 
             // Lets get fx rate if needed
-            if (!element.TradeCurrency.Equals(env.BaseCurrency))
+            if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.TradeCurrency).Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
             }
 
             var tradeAllocations = env.Allocations.Where(i => i.LpOrderId == element.LpOrderId).ToList();
@@ -174,12 +174,13 @@ namespace PostingEngine.PostingRules
                                 else
                                     taxlotStatus.Status = "Partially Closed";
 
-                                var unrealizedPnl = taxlotStatus.Quantity * (element.SettleNetPrice - env.PrevMarketPrices[lot.Trade.Symbol].Price);
+                                var prevPrice = MarketPrices.Find(env.PreviousValueDate, lot.Trade.Symbol).Price;
+                                var unrealizedPnl = taxlotStatus.Quantity * (element.SettleNetPrice - prevPrice);
                                 PostUnRealizedPnl(
                                     env, 
                                     env.FindTrade(lot.Trade.LpOrderId), 
                                     unrealizedPnl,
-                                    env.PrevMarketPrices[lot.Trade.BloombergCode].Price,
+                                    MarketPrices.Find(env.PreviousValueDate, lot.Trade.BloombergCode).Price,
                                     element.SettleNetPrice, 1);
 
                                 // This is realized Pnl, need to post this as a journal entry
@@ -218,7 +219,7 @@ namespace PostingEngine.PostingRules
                                     StartPrice = tl.TradePrice,
                                     EndPrice = tl.CostBasis,
                                     Value = PnL,
-                                    FxCurrency = element.TradeCurrency,
+                                    FxCurrency = element.SettleCurrency,
                                     Quantity = element.Quantity,
                                     Symbol = element.Symbol,
                                     FxRate = 1,
@@ -231,7 +232,7 @@ namespace PostingEngine.PostingRules
                                     Source = element.LpOrderId,
                                     Account = toAccount,
                                     When = env.ValueDate,
-                                    FxCurrency = element.TradeCurrency,
+                                    FxCurrency = element.SettleCurrency,
                                     StartPrice = tl.TradePrice,
                                     EndPrice = tl.CostBasis,
                                     Symbol = element.Symbol,
@@ -307,7 +308,7 @@ namespace PostingEngine.PostingRules
                 EndPrice = end,
                 CreditDebit = env.DebitOrCredit(accountToFrom.From, pnL),
                 Value = pnL,
-                FxCurrency = element.TradeCurrency,
+                FxCurrency = element.SettleCurrency,
                 Quantity = element.Quantity,
                 Symbol = element.Symbol,
                 FxRate = 1,
@@ -319,7 +320,7 @@ namespace PostingEngine.PostingRules
             {
                 Source = element.LpOrderId,
                 Account = accountToFrom.To,
-                FxCurrency = element.TradeCurrency,
+                FxCurrency = element.SettleCurrency,
                 StartPrice = start,
                 EndPrice = end,
                 Symbol = element.Symbol,
@@ -348,7 +349,7 @@ namespace PostingEngine.PostingRules
             {
                 Source = element.LpOrderId,
                 When = env.ValueDate,
-                FxCurrency = element.TradeCurrency,
+                FxCurrency = element.SettleCurrency,
                 Symbol = element.Symbol,
                 Quantity = element.Quantity,
                 Event = "unrealizedpnl",

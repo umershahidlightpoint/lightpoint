@@ -336,8 +336,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                         WHEN [account_category].[name] not in ('Asset','Expenses') and value < 0  THEN ABS(value) 
 										Else 0
 										END  ) debit,
-                                    --(CASE WHEN value < 0 THEN value else 0 END  ) debit,
-                                    --(CASE WHEN value > 0 THEN value else 0 END  ) credit, 
                                     [journal].[id],
                                     [account_id],
                                     [fund],
@@ -354,9 +352,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                     [fxrate],
                                     (CASE WHEN [journal].[generated_by] = 'user' THEN 'true' else 'false' END  ) modifiable
                                     FROM [journal] with(nolock) 
-                        join account  on [journal]. [account_id] = account.id 
-                        join [account_type] on  [account].account_type_id = [account_type].id
-                        join [account_category] on  [account_type].account_category_id = [account_category].id";
+                        join account with(nolock) on [journal]. [account_id] = account.id 
+                        join [account_type] with(nolock) on  [account].account_type_id = [account_type].id
+                        join [account_category] with(nolock) on  [account_type].account_category_id = [account_category].id";
 
                 List<SqlParameter> sqlParams = new List<SqlParameter>();
                 sqlParams.Add(new SqlParameter("pageNumber", pageNumber));
@@ -548,6 +546,35 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 return reportObject;
             }
             catch(Exception ex)
+            {
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public object GetReconReport(DateTime? date, string fund)
+        {
+            try
+            {
+                dynamic postingEngine = new PostingEngineService().GetProgress();
+                if (postingEngine.IsRunning)
+                {
+                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                }
+
+                var businessDate = System.DateTime.Now.PrevBusinessDate();
+                if (date.HasValue)
+                    businessDate = date.Value.Date;
+
+                var query = $@"DayPnlReconcile";
+
+                List<SqlParameter> sqlParams = new List<SqlParameter>();
+                sqlParams.Add(new SqlParameter("@businessDate", businessDate));
+
+                var dataTable = sqlHelper.GetDataTables(query, CommandType.StoredProcedure, sqlParams.ToArray());
+                var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                return reportObject;
+            }
+            catch (Exception ex)
             {
                 return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
             }

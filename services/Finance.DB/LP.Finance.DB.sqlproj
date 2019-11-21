@@ -90,7 +90,7 @@
     <Build Include="Tables\tax_rate.sql" />
     <Build Include="StoredProcs\TaxRates.sql" />
     <Build Include="Views\vwJournal.sql" />
-    <Build Include="StoredProcs\Reconcile.sql" />
+    <Build Include="StoredProcs\DayPnlReconcile.sql" />
     <Build Include="StoredProcs\FundTheoretical.sql" />
     <Build Include="StoredProcs\DailyPnl.sql" />
     <Build Include="StoredProcs\PullDailyActivity.sql" />
@@ -99,5 +99,6 @@
     <Build Include="Tables\market_prices_history.sql" />
     <Build Include="Triggers\market_data_price_insert_trigger.sql" />
     <Build Include="Triggers\market_data_price_update_trigger.sql" />
+    <Build Include="Views\vwTaxLots.sql" />
   </ItemGroup>
 </Project>

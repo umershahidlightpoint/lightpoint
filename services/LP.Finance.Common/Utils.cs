@@ -339,10 +339,9 @@ namespace LP.Finance.Common
                 if (File.Exists(file))
                     File.Delete(file);
 
-                var result = JsonConvert.SerializeObject(state.json);
-
                 try
                 {
+                    var result = JsonConvert.SerializeObject(state.json);
                     File.WriteAllText(file, result);
                 }
                 catch (Exception ex)

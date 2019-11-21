@@ -16,7 +16,7 @@ import { FundTheoreticalComponent } from './main/fund-theoretical/fund-theoretic
 import { PerformanceCanDeactivateGuard } from 'src/shared/guards/performance-can-deactivate-guard.service';
 
 const routes: Routes = [
-  { path: '', component: JournalsLedgersComponent },
+  { path: '', component: ReportsComponent }, // Default
   { path: 'journals-ledgers', component: JournalsLedgersComponent },
   { path: 'trial-balance', component: TrialGridExampleComponent },
   { path: 'runlogs', component: RunLogsComponent },

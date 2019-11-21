@@ -34,8 +34,8 @@ export class DataGridModalComponent implements OnInit {
 
   initGrid() {
     this.gridOptions = {
-      rowData: null,
-      columnDefs: null,
+      rowData: [],
+      columnDefs: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onGridReady: params => {},
       onFirstDataRendered: params => {

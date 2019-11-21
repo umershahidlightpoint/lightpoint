@@ -146,7 +146,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   initGrid() {
     this.gridOptions = {
-      rowData: null,
+      rowData: [],
       columnDefs: this.columnDefs,
       sideBar: SideBar,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },

@@ -19,10 +19,10 @@ export class LeftMenuComponent implements OnInit {
   public linkText = false;
 
   public userPages: Page[] = [
-    { name: 'Journals', routerLink: '/journals-ledgers', icon: 'fa-book' },
-    { name: 'Trial Balance', routerLink: 'trial-balance', icon: 'fa-balance-scale' },
     { name: 'Reports', routerLink: '/reports', icon: 'fa-bar-chart' },
-    { name: 'Fund Theoretical', routerLink: '/fund-theoretical', icon: 'fa-calculator' }
+    { name: 'Data Services', routerLink: '/fund-theoretical', icon: 'fa-calculator' },
+    { name: 'Research', routerLink: '/journals-ledgers', icon: 'fa-book' },
+    { name: 'Trial Balance', routerLink: 'trial-balance', icon: 'fa-balance-scale' },
   ];
 
   public adminPages: Page[] = [

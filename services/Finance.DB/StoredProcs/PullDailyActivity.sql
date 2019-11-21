@@ -86,12 +86,22 @@ l.BusDate,
 l.Fund, 
 l.PortfolioCode, 
 s.TradePnl + l.TradePnl as TradePnl, 
-s.DayPnL + l.DayPnL as DayPnL, 
-(l.DayPnL + s.DayPnL) / (l.NavMkt + s.NavMkt) as DayReturn,
+s.DayPnL + l.DayPnL as DayPnL,
+Case
+WHEN (l.NavMkt + s.NavMkt) = 0 THEN 0
+ELSE
+	(l.DayPnL + s.DayPnL) / (l.NavMkt + s.NavMkt)
+end as DayReturn,
 l.DayPnL as LongPnl,
-l.DayPnL / coalesce(l.Delta, 1) as LongPercentage,
+CASE
+	WHEN l.Delta =0 then 0
+	ELSE l.DayPnL / l.Delta
+END AS LongPercentage,
 s.DayPnL as ShortPnl,
-s.DayPnL / coalesce(s.Delta, 1) as ShortPercentage,
+CASE
+	WHEN s.Delta =0 then 0
+	ELSE s.DayPnL / s.Delta
+END AS ShortPercentage,
 l.LongExposure, 
 s.ShortExposure,
 Abs(l.LongExposure) + Abs(s.ShortExposure) as GrossPnl,
@@ -109,7 +119,11 @@ l.NavMkt + s.NavMkt as NavMkt,
 l.YTDPnL + s.YTDPnL as YTD,
 l.QTDPnL + s.QTDPnL as QTD,
 l.MTDPnL + s.MTDPnL as MTD,
-(l.DayPnL + s.DayPnL) / (l.NavMkt + s.NavMkt) as PNLPercentage,
+CASE
+WHEN (l.NavMkt + s.NavMkt) = 0 THEN 0
+ELSE
+	(l.DayPnL + s.DayPnL) / (l.NavMkt + s.NavMkt)
+end as PNLPercentage,
 0 as ITDPercentage,
 0 as YTDPercentage,
 0 as QTDPercentage,

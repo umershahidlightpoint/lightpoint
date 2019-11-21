@@ -56,6 +56,7 @@ namespace PostingEngine
                         ";
                 var command = new SqlCommand(sql, connection);
                 command.ExecuteNonQuery();
+                connection.Close();
             }
         }
 
@@ -77,6 +78,7 @@ namespace PostingEngine
                     ?.GetValue(dailyPerformanceResult, null);
                 bool insertDailyPnl = UpdateDailyPnl((List<DailyPnL>)dailyPerformance, connectionString);
 
+                connection.Close();
                 //transaction.Commit();
             }
         }
@@ -122,6 +124,7 @@ namespace PostingEngine
                 command.ExecuteNonQuery();
             }
             transaction.Commit();
+            connection.Close();
 
             return true;
         }
@@ -181,6 +184,8 @@ namespace PostingEngine
 
                     new FxPosting().CreateFxUnsettled(env);
 
+                    PostingEngineCallBack?.Invoke($"Complete UnrealizedCashBalances for {valueDate.ToString("MM-dd-yyyy")}", numberOfDays, rowsCompleted++);
+
                     valueDate = valueDate.AddDays(1);
                 }
 
@@ -192,6 +197,7 @@ namespace PostingEngine
                 }
 
                 transaction.Commit();
+                connection.Close();
             }
 
         }
@@ -326,14 +332,14 @@ namespace PostingEngine
                             env.Journals.AddRange(new List<Journal>(new[] { debit, credit }));
                         }
                         reader.Close();
-
+                        con.Close();
                     }
                     catch (Exception ex)
                     {
-                        PostingEngineCallBack?.Invoke($"Exception on {valueDate}, {ex.Message}");
+                        PostingEngineCallBack?.Invoke($"Exception on {valueDate.ToString("MM-dd-yyyy")}, {ex.Message}");
                     }
 
-                    PostingEngineCallBack?.Invoke($"Complete CostBasis for {valueDate}", numberOfDays, rowsCompleted++);
+                    PostingEngineCallBack?.Invoke($"Complete SettledCashBalances for {valueDate.ToString("MM-dd-yyyy")}", numberOfDays, rowsCompleted++);
                     valueDate = valueDate.AddDays(1);
                 }
 
@@ -344,11 +350,25 @@ namespace PostingEngine
                 }
 
                 transaction.Commit();
+                connection.Close();
             }
         }
         public static void CalculateCostBasis()
         {
             PostingEngineCallBack?.Invoke("Cost Basis Calculation Started");
+
+            var dates = "select minDate = min([when]), maxDate = max([when]) from Journal";
+            var table = new DataTable();
+
+            // read the table structure from the database
+            using (var adapter = new SqlDataAdapter(dates, new SqlConnection(connectionString)))
+            {
+                adapter.Fill(table);
+            };
+
+            var valueDate = Convert.ToDateTime(table.Rows[0]["minDate"]);
+            valueDate = new DateTime(2019, 1, 1);
+            var endDate = Convert.ToDateTime(table.Rows[0]["maxDate"]);
 
             using (var connection = new SqlConnection(connectionString))
             {
@@ -357,36 +377,31 @@ namespace PostingEngine
 
                 PostingEngineCallBack?.Invoke("Getting Trade Data");
 
-                var trades = GetTransactions(tradesURL + "ITD");
-                Task.WaitAll(new Task[] { trades});
-
-                var tradeList = JsonConvert.DeserializeObject<Transaction[]>(trades.Result);
-
-                var minTradeDate = tradeList.Min(i => i.TradeDate.Date);
-                var maxTradeDate = tradeList.Max(i => i.TradeDate.Date);
-
-                var valueDate = minTradeDate;
-                var endDate = DateTime.Now.Date;
-
                 var rowsCompleted = 1;
                 var numberOfDays = (endDate - valueDate).Days;
                 while (valueDate <= endDate)
                 {
+                    if (!valueDate.IsBusinessDate())
+                    {
+                        valueDate = valueDate.AddDays(1);
+                        continue;
+                    }
+
                     try
                     {
                         CostBasisDto.Calculate(connection, transaction, valueDate);
                     }
                     catch ( Exception ex )
                     {
-                        PostingEngineCallBack?.Invoke($"Exception on {valueDate}, {ex.Message}");
+                        PostingEngineCallBack?.Invoke($"Exception on {valueDate.ToString("MM-dd-yyyy")}, {ex.Message}");
                     }
 
-                    PostingEngineCallBack?.Invoke($"Complete CostBasis for {valueDate}", numberOfDays, rowsCompleted++);
+                    PostingEngineCallBack?.Invoke($"Complete CostBasis for {valueDate.ToString("MM-dd-yyyy")}", numberOfDays, rowsCompleted++);
                     valueDate = valueDate.AddDays(1);
                 }
 
                 transaction.Commit();
-                
+                connection.Close();
             }
         }
 
@@ -736,7 +751,7 @@ namespace PostingEngine
                     postingEnv.Journals.Clear();
                 }
 
-                PostingEngineCallBack?.Invoke($"Completed {valueDate}", totalDays, daysProcessed++);
+                PostingEngineCallBack?.Invoke($"Completed {valueDate.ToString("MM-dd-yyyy")}", totalDays, daysProcessed++);
                 valueDate = valueDate.AddDays(1);
             }
 
@@ -786,6 +801,11 @@ namespace PostingEngine
                     }
                 }
 
+                if ( valueDate == endDate)
+                {
+                    Debugger.Break();
+                }
+
                 var sw = new Stopwatch();
                 sw.Start();
 
@@ -796,8 +816,8 @@ namespace PostingEngine
                 // FxRates.Find()
 
                 // Get todays Market Prices
-                postingEnv.EODMarketPrices = new MarketPrices().Get(valueDate);
-                postingEnv.PrevMarketPrices = new MarketPrices().Get(valueDate.PrevBusinessDate());
+                //postingEnv.EODMarketPrices = new MarketPrices().Get(valueDate);
+                //postingEnv.PrevMarketPrices = new MarketPrices().Get(valueDate.PrevBusinessDate());
 
                 //PostingEngineCallBack?.Invoke($"Pulled FxRates {valueDate} in {sw.ElapsedMilliseconds} ms");
 
@@ -915,7 +935,7 @@ namespace PostingEngine
                 }
                 sw.Stop();
 
-                PostingEngineCallBack?.Invoke($"Completed {valueDate} in {sw.ElapsedMilliseconds} ms", totalDays, daysProcessed++);
+                PostingEngineCallBack?.Invoke($"Completed {valueDate.ToString("MM-dd-yyyy")} in {sw.ElapsedMilliseconds} ms", totalDays, daysProcessed++);
                 valueDate = valueDate.AddDays(1);
             }
 

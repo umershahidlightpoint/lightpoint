@@ -27,7 +27,25 @@ namespace PostingEngine.MarketData
             if (_all.ContainsKey(key))
                 return _all[key];
 
-            return _dummyFx;
+            // We need to manufactor a rate
+            var priorDate = busDate.PrevBusinessDate();
+            var nextDate = busDate.NextBusinessDate();
+
+            var priorRate = 0.0;
+
+            bDate = priorDate.ToString("MM-dd-yyyy");
+            key = $"{currency}@{bDate}";
+            if (_all.ContainsKey(key))
+            {
+                priorRate = _all[key].Rate;
+            }
+
+            return new FxRate
+            {
+                Rate = priorRate
+            };
+
+            //return _dummyFx;
         }
         public static void CacheData()
         {

@@ -84,9 +84,9 @@ namespace PostingEngine.PostingRules
             double fxrate = 1.0;
 
             // Lets get fx rate if needed
-            if (!element.TradeCurrency.Equals(env.BaseCurrency))
+            if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                tradefxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.TradeCurrency).Rate);
+                tradefxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
                 fxrate = tradefxrate;
             }
 
@@ -129,21 +129,17 @@ namespace PostingEngine.PostingRules
 
                     if (env.ValueDate == element.TradeDate)
                     {
-                        if (env.EODMarketPrices.ContainsKey(element.BloombergCode))
-                        {
-                            eodPrice = env.EODMarketPrices[element.BloombergCode].Price;
-                        }
-
+                        eodPrice = MarketPrices.Find(env.ValueDate, element.BloombergCode).Price;
                         prevEodPrice = element.SettleNetPrice;
                     }
                     else
                     {
-                        if (env.PrevMarketPrices.ContainsKey(element.BloombergCode))
-                            prevEodPrice = env.PrevMarketPrices[element.BloombergCode].Price;
-
-                        if (env.EODMarketPrices.ContainsKey(element.BloombergCode))
-                            eodPrice = env.EODMarketPrices[element.BloombergCode].Price;
+                        prevEodPrice = MarketPrices.Find(env.PreviousValueDate, element.BloombergCode).Price;
+                        eodPrice = MarketPrices.Find(env.ValueDate, element.BloombergCode).Price;
                     }
+
+                    if (eodPrice - prevEodPrice == 0)
+                        return;
 
                     var multiplier = 1.0;
 
@@ -221,9 +217,9 @@ namespace PostingEngine.PostingRules
             double fxrate = 1.0;
 
             // Lets get fx rate if needed
-            if (!element.TradeCurrency.Equals(env.BaseCurrency))
+            if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                tradefxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.TradeCurrency).Rate);
+                tradefxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
                 fxrate = tradefxrate;
             }
 
@@ -305,9 +301,9 @@ namespace PostingEngine.PostingRules
             double fxrate = 1.0;
 
             // Lets get fx rate if needed
-            if (!element.TradeCurrency.Equals(env.BaseCurrency))
+            if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.TradeCurrency).Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
             }
 
             var tradeAllocations = env.Allocations.Where(i => i.LpOrderId == element.LpOrderId).ToList();
@@ -396,12 +392,13 @@ namespace PostingEngine.PostingRules
                                 else
                                     taxlotStatus.Status = "Partially Closed";
 
-                                var unrealizedPnl = Math.Abs(tl.Quantity) * (element.SettleNetPrice - env.PrevMarketPrices[lot.Trade.BloombergCode].Price);
+                                var prevPrice = MarketPrices.Find(env.PreviousValueDate, lot.Trade.BloombergCode).Price;
+                                var unrealizedPnl = Math.Abs(tl.Quantity) * (element.SettleNetPrice - prevPrice);
                                 PostUnRealizedPnl(
                                     env,
                                     env.FindTrade(lot.Trade.LpOrderId),
                                     unrealizedPnl,
-                                    env.PrevMarketPrices[lot.Trade.BloombergCode].Price,
+                                    MarketPrices.Find(env.PreviousValueDate, lot.Trade.BloombergCode).Price,
                                     element.SettleNetPrice, fxrate);
 
                                 var PnL = Math.Abs(tl.Quantity) * (tl.CostBasis - tl.TradePrice) * fxrate;
@@ -435,7 +432,7 @@ namespace PostingEngine.PostingRules
                                     StartPrice = tl.TradePrice,
                                     EndPrice = tl.CostBasis,
                                     Value = env.SignedValue(fromAccount, toAccount, true, PnL),
-                                    FxCurrency = element.TradeCurrency,
+                                    FxCurrency = element.SettleCurrency,
                                     Quantity = element.Quantity,
                                     Symbol = element.Symbol,
                                     FxRate = 1,
@@ -448,7 +445,7 @@ namespace PostingEngine.PostingRules
                                     Source = element.LpOrderId,
                                     Account = toAccount,
                                     When = env.ValueDate,
-                                    FxCurrency = element.TradeCurrency,
+                                    FxCurrency = element.SettleCurrency,
                                     StartPrice = tl.TradePrice,
                                     EndPrice = tl.CostBasis,
                                     Symbol = element.Symbol,
@@ -478,7 +475,7 @@ namespace PostingEngine.PostingRules
                                     Quantity = taxlotStatus.Quantity
                                 };
                                 tl.Save(env.Connection, env.Transaction);
-                                workingQuantity -= Math.Abs(taxlotStatus.Quantity);
+                                workingQuantity += Math.Abs(taxlotStatus.Quantity);
 
                                 var PnL = tl.Quantity * (tl.CostBasis - tl.TradePrice) * fxrate;
 
@@ -543,14 +540,14 @@ namespace PostingEngine.PostingRules
                 if (element.IsSell() || element.IsCover())
                     moneyUSD = moneyUSD * -1;
 
-                var eodPrice = env.EODMarketPrices[element.BloombergCode].Price;
+                var eodPrice = MarketPrices.Find(env.ValueDate, element.BloombergCode).Price;
 
                 var fromJournal = new Journal(accountToFrom.From, "tradedate", env.ValueDate)
                 {
                     Source = debitEntry.LpOrderId,
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
                     Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
-                    FxCurrency = element.TradeCurrency,
+                    FxCurrency = element.SettleCurrency,
                     Quantity = element.Quantity,
                     Symbol = debitEntry.Symbol,
                     FxRate = fxrate,
@@ -562,7 +559,7 @@ namespace PostingEngine.PostingRules
                 var toJournal = new Journal(accountToFrom.To, "tradedate", env.ValueDate)
                 {
                     Source = creditEntry.LpOrderId,
-                    FxCurrency = element.TradeCurrency,
+                    FxCurrency = element.SettleCurrency,
                     Symbol = creditEntry.Symbol,
                     Quantity = element.Quantity,
                     FxRate = fxrate,
@@ -606,7 +603,7 @@ namespace PostingEngine.PostingRules
                 EndPrice = end,
                 CreditDebit = env.DebitOrCredit(accountToFrom.From, pnL),
                 Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, pnL),
-                FxCurrency = element.TradeCurrency,
+                FxCurrency = element.SettleCurrency,
                 Quantity = element.Quantity,
                 Symbol = element.Symbol,
                 FxRate = 1,
@@ -617,7 +614,7 @@ namespace PostingEngine.PostingRules
             var toJournal = new Journal(accountToFrom.To, "realizedpnl", env.ValueDate)
             {
                 Source = element.LpOrderId,
-                FxCurrency = element.TradeCurrency,
+                FxCurrency = element.SettleCurrency,
                 StartPrice = start,
                 EndPrice = end,
                 Symbol = element.Symbol,
@@ -648,7 +645,7 @@ namespace PostingEngine.PostingRules
             {
                 Source = element.LpOrderId,
                 When = env.ValueDate,
-                FxCurrency = element.TradeCurrency,
+                FxCurrency = element.SettleCurrency,
                 Symbol = element.Symbol,
                 Quantity = element.Quantity,
                 Event = "unrealizedpnl",

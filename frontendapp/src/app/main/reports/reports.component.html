@@ -10,23 +10,29 @@
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
   <!-- Tab View Starts -->
   <p-tabView [ngStyle]="style" (onChange)="tabChanged($event)">
-    <!-- Trial Balance Report Tab Starts -->
-    <p-tabPanel #trialBalance header="Trial Balance" [ngStyle]="style">
-      <rep-trial-balance></rep-trial-balance>
-    </p-tabPanel>
-    <!-- Trial Balance Report Tab Ends-->
-
     <!-- -->
     <p-tabPanel #costBasis header="Cost Basis" [ngStyle]="style">
       <rep-costbasis *ngIf="costBasisReportActive"></rep-costbasis>
     </p-tabPanel>
     <!-- -->
 
-        <!-- -->
+    <!-- -->
     <p-tabPanel #taxlot header="Tax Lots Open/Closed" [ngStyle]="style">
       <rep-taxlotstatus></rep-taxlotstatus>
     </p-tabPanel>
-        <!-- -->
+    <!-- -->
+
+    <!-- -->
+    <p-tabPanel #daypnl header="DayPnl Reconcile" [ngStyle]="style">
+      <rep-daypnl-reconcile></rep-daypnl-reconcile>
+    </p-tabPanel>
+    <!-- -->
+    
+    <!-- Trial Balance Report Tab Starts -->
+    <p-tabPanel #trialBalance header="Trial Balance" [ngStyle]="style">
+      <rep-trial-balance *ngIf="trialBalanceReportActive"></rep-trial-balance>
+    </p-tabPanel>
+    <!-- Trial Balance Report Tab Ends-->
 
     <!-- 
     <p-tabPanel #taxlot header="Tax Lots Open/Closed" [ngStyle]="style">

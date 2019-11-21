@@ -69,8 +69,8 @@ namespace PostingEngine
         public TaxRate TaxRate { get; set; }
 
         // Rates are all multiplied, and we store that rate in the system
-        public Dictionary<string, MarketPrice> PrevMarketPrices { get; set; }
-        public Dictionary<string, MarketPrice> EODMarketPrices { get; set; }
+        //public Dictionary<string, MarketPrice> PrevMarketPrices { get; set; }
+        //public Dictionary<string, MarketPrice> EODMarketPrices { get; set; }
         public Dictionary<string, CostBasisDto> CostBasis { get; set; }
 
         public Dictionary<string, IPostingRule> Rules { get; set; }

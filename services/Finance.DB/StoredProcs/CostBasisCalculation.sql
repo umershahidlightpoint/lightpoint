@@ -27,8 +27,10 @@ into #costbasis_all
 from tax_lot_status tls
 left outer join tax_lot tl on tl.Open_lot_id = tls.open_id and tls.trade_date <= @bDate and tl.trade_date <= @bDate
 left outer join #security_details sd on sd.SecurityCode = tls.symbol
--- where tls.trade_date <= @bDate and tl.trade_date <= @bDate
 group by symbol, side
+having SUM(tls.original_quantity +Coalesce(tl.quantity, 0)) != 0
+-- where tls.trade_date <= @bDate and tl.trade_date <= @bDate
+
 
 
 /*

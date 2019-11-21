@@ -7,7 +7,8 @@ import { Style } from 'src/shared/utils/Shared';
   styleUrls: ['./reports.component.css']
 })
 export class ReportsComponent {
-  costBasisReportActive = false;
+  costBasisReportActive = true;
+  trialBalanceReportActive = false;
   style = Style;
 
   processingMsgDiv = {
@@ -20,8 +21,13 @@ export class ReportsComponent {
   };
 
   tabChanged(e) {
-    if (e.index === 1) {
+    debugger;
+    if (e.index === 0) {
       this.costBasisReportActive = true;
     }
+    if (e.index === 3) {
+      this.trialBalanceReportActive = true;
+    }
+
   }
 }

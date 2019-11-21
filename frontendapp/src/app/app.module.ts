@@ -72,6 +72,7 @@ import { OperationsComponent } from './main/operations/operations.component';
 import { ButtonRendererComponent } from '../renderer/buttonRenderer';
 import { BalanceReportComponent } from './main/reports/balance-report/balance-report.component';
 import { CostBasisComponent } from './main/reports/costbasis/costbasis.component';
+import { DayPnlComponent } from './main/reports/daypnl-reconcile/daypnl-reconcile.component';
 import { TaxLotStatusComponent } from './main/reports/taxlotstatus/taxlotstatus.component';
 import { TaxLotsComponent } from './main/reports/taxlots/taxlots.component';
 import { TrialBalanceComponent } from './main/reports/trial-balance/trial-balance.component';
@@ -123,6 +124,7 @@ import { FileUploadComponent } from './main/operations/file-upload/file-upload.c
     ButtonRendererComponent,
     BalanceReportComponent,
     CostBasisComponent,
+    DayPnlComponent,
     TaxLotStatusComponent,
     TaxLotsComponent,
     TrialBalanceComponent,
