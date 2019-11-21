@@ -303,9 +303,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 // Depending on type
                 var query = $@"select 
-                        d.overall_count   , 
-                        (sum(d.debit)  OVER()) as totalDebit,
-                        (sum(d.credit)  OVER()) as totalCredit, 
                         d.debit,
                         d.credit, 
                         abs(d.debit) - abs(d.credit) as balance,
@@ -325,8 +322,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         d.[fxrate],
                         d.modifiable
                         from(
-                            SELECT overall_count = COUNT(*) OVER(),
+                            SELECT
                                     (CASE 
+
 										WHEN [account_category].[name] in ('Asset', 'Expenses') and value < 0  THEN ABS(value) 
                                         WHEN [account_category].[name] not in ('Asset', 'Expenses') and value > 0  THEN ABS(value) 
 										Else 0
@@ -412,12 +410,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     query = query + "  ORDER BY  [journal].[when] desc ";
                 }
 
+                query = query + " ) as d ORDER BY  [d].[id] desc";
+
                 if (pageSize > 0)
                 {
-                    query = query + "   OFFSET(@pageNumber -1) * @pageSize ROWS FETCH NEXT @pageSize  ROWS ONLY";
+                    query = query + " OFFSET(@pageNumber -1) * @pageSize ROWS FETCH NEXT @pageSize  ROWS ONLY";
                 }
 
-                query = query + " ) as d ORDER BY  [d].[id] desc";
 
                 Console.WriteLine("===");
                 Console.WriteLine(query);
@@ -443,11 +442,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var metaData = MetaData.ToMetaData(dataTable);
 
-                metaData.Total = dataTable.Rows.Count > 0 ? Convert.ToInt32(dataTable.Rows[0][0]) : 0;
-                journalStats.totalCredit = dataTable.Rows.Count > 0 ? Convert.ToDouble(dataTable.Rows[0]["totalDebit"]) : 0;
-                journalStats.totalDebit = dataTable.Rows.Count > 0
-                    ? Math.Abs(Convert.ToDouble(dataTable.Rows[0]["totalCredit"]))
-                    : 0;
+                metaData.Total = dataTable.Rows.Count > 0 ? dataTable.Rows.Count : 0;
+                //journalStats.totalCredit = dataTable.Rows.Count > 0 ? Convert.ToDouble(dataTable.Rows[0]["totalDebit"]) : 0;
+                //journalStats.totalDebit = dataTable.Rows.Count > 0
+                //    ? Math.Abs(Convert.ToDouble(dataTable.Rows[0]["totalCredit"]))
+                //    : 0;
+
+                journalStats.totalCredit = 0;
+                journalStats.totalDebit = 0;
 
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
                 dynamic json = JsonConvert.DeserializeObject(jsonResult);

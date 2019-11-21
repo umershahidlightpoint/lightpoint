@@ -48,16 +48,16 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
 
   private columns: any;
 
-  public rowData: [];
+  public rowData: any[] = [];
 
   isEngineRunning = false;
   hideGrid = false;
   gridOptions: GridOptions;
   gridLayouts: any;
   pinnedBottomRowData;
-  totalRecords: number;
-  totalDebit: number;
-  totalCredit: number;
+  totalRecords: number = 0;
+  totalDebit: number = 0;
+  totalCredit: number = 0;
   fund: any = "All Funds";
   filterBySymbol = "";
   symbol = "";
@@ -195,12 +195,12 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     this.dataService.flag$.subscribe(obj => {
       this.hideGrid = obj;
       if (!this.hideGrid) {
-        this.getAllData();
+        this.getAllData(true);
       }
     });
   }
 
-  getAllData() {
+  getAllData(initialLoad) {
     this.symbol = "ALL";
     const localThis = this;
     this.page = 0;
@@ -217,22 +217,28 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       localThis.cdRef.detectChanges();
     });
 
+    this.getJournalData(1, 10000, initialLoad);
+  }
+
+  getJournalData(pageNumber, pageSize, initialLoad){
     this.financeService
-      .getJournals(
-        this.symbol,
-        this.page,
-        this.pageSize,
-        this.accountSearch.id,
-        this.valueFilter,
-        this.sortColum,
-        this.sortDirection
-      )
-      .subscribe(result => {
+    .getJournals(
+      this.symbol,
+      pageNumber,
+      pageSize,
+      this.accountSearch.id,
+      this.valueFilter,
+      this.sortColum,
+      this.sortDirection
+    )
+    .subscribe(result => {
+      if(result.meta.Total > 0){
+        pageNumber += 1;
+        this.getJournalData(pageNumber, 10000, false);
+  
         this.columns = result.meta.Columns;
-        this.totalRecords = result.meta.Total;
-        this.totalCredit = result.stats.totalCredit;
-        this.totalDebit = result.stats.totalDebit;
-        this.rowData = [];
+        this.totalRecords += result.meta.Total;
+        //this.rowData = [];
         const someArray = [];
         // tslint:disable-next-line: forin
         for (const item in result.payload) {
@@ -251,16 +257,23 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
           someArray.push(someObject);
         }
         this.customizeColumns(this.columns);
-        this.rowData = someArray as [];
-        this.gridOptions.api.setRowData(this.rowData);
+        this.rowData = this.rowData.concat(someArray as []);
+        if(!initialLoad){
+          this.gridOptions.api.updateRowData({ add: someArray});
+        } else{
+          this.gridOptions.api.setRowData(this.rowData);
+        }
+
+        this.totalCredit = CalTotal(this.rowData, "credit");
+        this.totalDebit = CalTotal(this.rowData, "debit"),
         this.pinnedBottomRowData = [
           {
             source: "Total Records:" + this.totalRecords,
             AccountType: "",
             accountName: "",
             when: "",
-            debit: Math.abs(this.totalDebit),
-            credit: Math.abs(this.totalCredit),
+            debit: this.totalDebit,
+            credit: this.totalCredit,
             balance: Math.abs(this.totalDebit) - Math.abs(this.totalCredit),
             Commission: CalTotal(this.rowData, "Commission"),
             Fees: CalTotal(this.rowData, "Fees"),
@@ -274,7 +287,9 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
         this.gridOptions.api.refreshCells();
         AutoSizeAllColumns(this.gridOptions);
-      });
+      }
+    });
+  
   }
 
   onFilterChanged() {
@@ -475,7 +490,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   }
 
   closeJournalModal() {
-    this.getAllData();
+    this.getAllData(true);
   }
 
   closeOrderModal() {
@@ -500,8 +515,10 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   }
 
   refreshGrid() {
+    this.totalRecords = 0;
+    this.rowData = [];
     this.gridOptions.api.showLoadingOverlay();
-    this.getAllData();
+    this.getAllData(true);
   }
 
   setGroupingState(value: boolean) {
