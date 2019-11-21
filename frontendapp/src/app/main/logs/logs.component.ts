@@ -63,7 +63,7 @@ export class LogsComponent implements OnInit {
 
   constructor(private financeService: FinancePocServiceProxy) {
     this.gridOptions = {
-      rowData: null,
+      rowData: [],
       columnDefs: this.columnDefs,
       onGridReady: () => {
         this.gridOptions.api.sizeColumnsToFit();

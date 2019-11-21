@@ -1,11 +1,11 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { FinancePocServiceProxy } from '../../../../shared/service-proxies/service-proxies';
-import { Fund } from '../../../../shared/Models/account';
+import { Component, OnInit, AfterViewInit } from "@angular/core";
+import { FinancePocServiceProxy } from "../../../../shared/service-proxies/service-proxies";
+import { Fund } from "../../../../shared/Models/account";
 import {
   TrialBalanceReport,
   TrialBalanceReportStats
-} from '../../../../shared/Models/trial-balance';
-import { DataService } from '../../../../shared/common/data.service';
+} from "../../../../shared/Models/trial-balance";
+import { DataService } from "../../../../shared/common/data.service";
 import {
   Ranges,
   Style,
@@ -19,24 +19,24 @@ import {
   HeightStyle,
   FormatDate,
   DateFormatter
-} from 'src/shared/utils/Shared';
-import { GridOptions } from 'ag-grid-community';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
+} from "src/shared/utils/Shared";
+import { GridOptions } from "ag-grid-community";
+import { GridLayoutMenuComponent } from "src/shared/Component/grid-layout-menu/grid-layout-menu.component";
+import { GetContextMenu } from "src/shared/utils/ContextMenu";
+import { GridId, GridName } from "src/shared/utils/AppEnums";
+import { DownloadExcelUtils } from "src/shared/utils/DownloadExcelUtils";
 
 @Component({
-  selector: 'rep-costbasis',
-  templateUrl: './costbasis.component.html',
-  styleUrls: ['./costbasis.component.css']
+  selector: "rep-costbasis",
+  templateUrl: "./costbasis.component.html",
+  styleUrls: ["./costbasis.component.css"]
 })
 export class CostBasisComponent implements OnInit, AfterViewInit {
   gridOptions: GridOptions;
   timeseriesOptions: GridOptions;
   gridColumnApi;
   pinnedBottomRowData;
-  fund: any = 'All Funds';
+  fund: any = "All Funds";
   funds: Fund;
   DateRangeLabel: string;
   selectedDate: any;
@@ -57,12 +57,12 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   labels: string[] = [];
   displayChart = false;
 
-  selectedChartOption: any = 'CostBasis';
-  selectedChartTitle: any = 'Cost Basis';
+  selectedChartOption: any = "CostBasis";
+  selectedChartTitle: any = "Cost Basis";
   chartOptions: any = [
-    { key: 'CostBasis', value: 'Cost Basis' },
-    { key: 'Balance', value: 'Balance' },
-    { key: 'Quantity', value: 'Quantity' }
+    { key: "CostBasis", value: "Cost Basis" },
+    { key: "Balance", value: "Balance" },
+    { key: "Quantity", value: "Quantity" }
   ];
 
   ranges: any = Ranges;
@@ -71,20 +71,20 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   styleForHeight = HeightStyle(220);
 
-  propIDCostBasis = 'CostBasisLineChart';
-  propIDBalance = 'BalanceLineChart';
-  propIDQuantity = 'QuantityLineChart';
+  propIDCostBasis = "CostBasisLineChart";
+  propIDBalance = "BalanceLineChart";
+  propIDQuantity = "QuantityLineChart";
   divHeight = 200;
-  divWidth = '95%';
-  lineColors = ['#ff6960', '#00bd9a'];
+  divWidth = "95%";
+  lineColors = ["#ff6960", "#00bd9a"];
 
   processingMsgDiv = {
-    border: '1px solid #eee',
-    padding: '4px',
-    marginTop: '20px',
-    width: '100%',
-    height: 'calc(100vh - 125px)',
-    boxSizing: 'border-box'
+    border: "1px solid #eee",
+    padding: "4px",
+    marginTop: "20px",
+    width: "100%",
+    height: "calc(100vh - 125px)",
+    boxSizing: "border-box"
   };
 
   constructor(
@@ -102,7 +102,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   initGrid() {
     this.startDate = new Date();
-    this.startDate.setDate(this.startDate.getDate() -1);
+    this.startDate.setDate(this.startDate.getDate() - 1);
     this.gridOptions = {
       rowData: null,
       pinnedBottomRowData: null,
@@ -110,13 +110,13 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       onFilterChanged: this.onFilterChanged.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      // Custom made methods for Grid Menu Layout
+      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
       isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       clearExternalFilter: this.clearFilters.bind(this),
       getExternalFilterState: this.getExternalFilterState.bind(this),
-      rowSelection: 'single',
+      rowSelection: "single",
       onCellClicked: this.rowSelected.bind(this),
-      rowGroupPanelShow: 'after',
+      rowGroupPanelShow: "after",
       suppressColumnVirtualisation: true,
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
@@ -135,62 +135,62 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       suppressHorizontalScroll: false,
       columnDefs: [
         {
-          field: 'symbol',
+          field: "symbol",
           width: 120,
-          headerName: 'Symbol',
-          sortable:true,
-          filter:true,
+          headerName: "Symbol",
+          sortable: true,
+          filter: true
         },
         {
-          field: 'Balance',
-          headerName: 'Exposure (at Cost)',
-          cellClass: 'rightAlign',
+          field: "Balance",
+          headerName: "Exposure (at Cost)",
+          cellClass: "rightAlign",
           sortable: true,
           filter: true,
           width: 120,
           valueFormatter: currencyFormatter
         },
         {
-          field: 'Quantity',
-          headerName: 'Quantity',
+          field: "Quantity",
+          headerName: "Quantity",
           width: 100,
           filter: true,
-          cellClass: 'rightAlign',
+          cellClass: "rightAlign",
           sortable: true,
           valueFormatter: currencyFormatter
         },
         {
-          field: 'CostBasis',
-          headerName: 'Cost Basis',
+          field: "CostBasis",
+          headerName: "Cost Basis",
           width: 100,
           sortable: true,
           filter: true,
-          cellClass: 'rightAlign',
+          cellClass: "rightAlign",
           valueFormatter: costBasisFormatter
         },
         {
-          field: 'Side',
+          field: "Side",
           width: 50,
-          headerName: 'Side',
+          headerName: "Side",
           sortable: true,
-          filter: true,
+          filter: true
         },
         {
-          field: 'unrealized_pnl',
-          cellClass: 'rightAlign',
-          headerName: 'Unrealized P&L',
+          field: "unrealized_pnl",
+          cellClass: "rightAlign",
+          headerName: "Unrealized P&L",
           valueFormatter: currencyFormatter
         },
         {
-          field: 'realized_pnl',
-          cellClass: 'rightAlign',
-          headerName: 'Realized P&L',
+          field: "realized_pnl",
+          cellClass: "rightAlign",
+          headerName: "Realized P&L",
           valueFormatter: currencyFormatter
         },
         {
-          field: 'Pnl',
-          cellClass: 'rightAlign',
-          headerName: 'Net P&L',
+          field: "Pnl",
+          cellClass: "rightAlign",
+          headerName: "Net P&L",
           valueFormatter: currencyFormatter
         }
       ],
@@ -200,21 +200,25 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(GridId.costBasisId, GridName.costBasis, this.gridOptions);
+    this.gridOptions.sideBar = SideBar(
+      GridId.costBasisId,
+      GridName.costBasis,
+      this.gridOptions
+    );
 
     this.timeseriesOptions = {
-      rowData: null,
+      rowData: [],
       pinnedBottomRowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onFilterChanged: this.onFilterChanged.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      // Custom made methods for Grid Menu Layout
+      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
       isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       clearExternalFilter: this.clearFilters.bind(this),
       getExternalFilterState: this.getExternalFilterState.bind(this),
-      rowSelection: 'single',
-      rowGroupPanelShow: 'after',
+      rowSelection: "single",
+      rowGroupPanelShow: "after",
       suppressColumnVirtualisation: true,
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
@@ -233,64 +237,64 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       suppressHorizontalScroll: false,
       columnDefs: [
         {
-          field: 'Date',
+          field: "Date",
           width: 120,
-          headerName: 'Date',
+          headerName: "Date",
           sortable: true,
           valueFormatter: dateFormatter
         },
         {
-          field: 'Balance',
-          headerName: 'Exposure (at Cost)',
-          cellClass: 'rightAlign',
+          field: "Balance",
+          headerName: "Exposure (at Cost)",
+          cellClass: "rightAlign",
           sortable: true,
           filter: true,
           width: 120,
           valueFormatter: currencyFormatter
         },
         {
-          field: 'Quantity',
-          headerName: 'Quantity',
+          field: "Quantity",
+          headerName: "Quantity",
           width: 100,
           filter: true,
-          cellClass: 'rightAlign',
+          cellClass: "rightAlign",
           sortable: true,
           valueFormatter: currencyFormatter
         },
         {
-          field: 'CostBasis',
-          headerName: 'Cost Basis',
+          field: "CostBasis",
+          headerName: "Cost Basis",
           width: 100,
           filter: true,
-          cellClass: 'rightAlign',
+          cellClass: "rightAlign",
           sortable: true,
           valueFormatter: costBasisFormatter
         },
         {
-          field: 'Side',
+          field: "Side",
           width: 50,
           sortable: true,
           filter: true,
-          headerName: 'Side'
+          headerName: "Side"
         },
         {
-          field: 'unrealized_pnl',
-          cellClass: 'rightAlign',
-          headerName: 'Unrealized P&L',
+          field: "unrealized_pnl",
+          cellClass: "rightAlign",
+          headerName: "Unrealized P&L",
           sortable: true,
           valueFormatter: currencyFormatter
         },
         {
-          field: 'realized_pnl',
-          cellClass: 'rightAlign',
-          headerName: 'Realized P&L',
+          field: "realized_pnl",
+          cellClass: "rightAlign",
+          headerName: "Realized P&L",
           sortable: true,
           valueFormatter: currencyFormatter
         },
         {
-          field: 'Pnl',
-          cellClass: 'rightAlign',
-          headerName: 'Net P&L',
+          field: "Pnl",
+          cellClass: "rightAlign",
+          headerName: "Net P&L",
           sortable: true,
           valueFormatter: currencyFormatter
         }
@@ -301,7 +305,11 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-    this.timeseriesOptions.sideBar = SideBar(GridId.timeseriesId, GridName.timeseries, this.timeseriesOptions);
+    this.timeseriesOptions.sideBar = SideBar(
+      GridId.timeseriesId,
+      GridName.timeseries,
+      this.timeseriesOptions
+    );
   }
 
   ngAfterViewInit(): void {
@@ -309,7 +317,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       this.hideGrid = obj;
       if (!this.hideGrid) {
         this.getFunds();
-        this.getReport(this.startDate, 'ALL');
+        this.getReport(this.startDate, "ALL");
       }
     });
   }
@@ -338,9 +346,11 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   rowSelected(row) {
     const { symbol } = row.data;
     this.financeService.getCostBasisChart(symbol).subscribe(response => {
-      debugger
+      debugger;
       this.chartData = response.payload;
-      this.chartData = this.chartData.sort((x,y) => {return new Date(y.Date).getTime() - new Date(x.Date).getTime()});
+      this.chartData = this.chartData.sort((x, y) => {
+        return new Date(y.Date).getTime() - new Date(x.Date).getTime();
+      });
 
       this.mapCostBasisData(response.payload, this.selectedChartOption);
       this.mapChartsData(response.payload);
@@ -353,46 +363,47 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   mapCostBasisData(data: any, chartType: string) {
     this.labels = data.map(item => item.Date);
     this.cbData = {
-      chartType:data.map(item => ({
-        date: FormatDate(item.Date, 'YYYY-MM-DD'),
+      chartType: data.map(item => ({
+        date: FormatDate(item.Date, "YYYY-MM-DD"),
         value: item[chartType]
-    }))};
+      }))
+    };
   }
 
   mapChartsData(data: any) {
     this.labels = data.map(item => item.Date);
 
     this.bData = {
-      'Balance': data.map(item => ({
-        date: FormatDate(item.Date, 'YYYY-MM-DD'),
+      Balance: data.map(item => ({
+        date: FormatDate(item.Date, "YYYY-MM-DD"),
         value: item.Balance
       }))
     };
 
     this.qData = {
-      'Quantity' : data.map(item => ({
-        date: FormatDate(item.Date, 'YYYY-MM-DD'),
+      Quantity: data.map(item => ({
+        date: FormatDate(item.Date, "YYYY-MM-DD"),
         value: item.Quantity
       }))
     };
 
     this.unrealizedData = {
-      'unrealized_pnl' : data.map(item => ({
-        date: FormatDate(item.Date, 'YYYY-MM-DD'),
+      unrealized_pnl: data.map(item => ({
+        date: FormatDate(item.Date, "YYYY-MM-DD"),
         value: item.unrealized_pnl
       }))
     };
 
     this.realizedData = {
-      'realized_pnl' : data.map(item => ({
-        date: FormatDate(item.Date, 'YYYY-MM-DD'),
+      realized_pnl: data.map(item => ({
+        date: FormatDate(item.Date, "YYYY-MM-DD"),
         value: item.realized_pnl
       }))
     };
 
     this.netpnlData = {
-      'Pnl' : data.map(item => ({
-        date: FormatDate(item.Date, 'YYYY-MM-DD'),
+      Pnl: data.map(item => ({
+        date: FormatDate(item.Date, "YYYY-MM-DD"),
         value: item.Pnl
       }))
     };
@@ -426,31 +437,33 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.endDate = dates[1];
 
     this.selectedDate =
-      dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
+      dateFilter.startDate !== ""
+        ? { startDate: this.startDate, endDate: this.endDate }
+        : null;
   }
 
   getRangeLabel() {
-    this.DateRangeLabel = '';
+    this.DateRangeLabel = "";
     this.DateRangeLabel = GetDateRangeLabel(this.startDate, this.endDate);
   }
 
   clearFilters() {
-    this.fund = 'All Funds';
+    this.fund = "All Funds";
     this.selectedDate = null;
-    this.DateRangeLabel = '';
+    this.DateRangeLabel = "";
     this.startDate = new Date();
-    this.startDate.setDate(this.startDate.getDate() -1);
+    this.startDate.setDate(this.startDate.getDate() - 1);
 
     this.endDate = undefined;
-    this.getReport(this.startDate, 'ALL');
+    this.getReport(this.startDate, "ALL");
   }
 
   getExternalFilterState() {
     return {
       fundFilter: this.fund,
       dateFilter: {
-        startDate: this.startDate !== undefined ? this.startDate : '',
-        endDate: this.endDate !== undefined ? this.endDate : ''
+        startDate: this.startDate !== undefined ? this.startDate : "",
+        endDate: this.endDate !== undefined ? this.endDate : ""
       }
     };
   }
@@ -459,19 +472,27 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     if (!selectedDate.startDate) {
       return;
     }
-    this.startDate = selectedDate.startDate.format('YYYY-MM-DD');
-    this.getReport(this.startDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
+    this.startDate = selectedDate.startDate.format("YYYY-MM-DD");
+    this.getReport(
+      this.startDate,
+      this.fund === "All Funds" ? "ALL" : this.fund
+    );
     this.getRangeLabel();
   }
 
   changeFund(selectedFund) {
     this.fund = selectedFund;
-    this.getReport(this.startDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
+    this.getReport(
+      this.startDate,
+      this.fund === "All Funds" ? "ALL" : this.fund
+    );
   }
 
   changeChart(selectedChart) {
     this.selectedChartOption = selectedChart;
-    this.selectedChartTitle = this.chartOptions.find(({ key }) => selectedChart === key).value;
+    this.selectedChartTitle = this.chartOptions.find(
+      ({ key }) => selectedChart === key
+    ).value;
     if (this.chartData) {
       this.mapCostBasisData(this.chartData, this.selectedChartOption);
     }
@@ -480,13 +501,13 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
     this.clearFilters();
-    this.getReport(this.startDate, 'ALL');
+    this.getReport(this.startDate, "ALL");
   }
 
   onBtExport() {
     const params = {
-      fileName: 'Cost Basis Reports',
-      sheetName: 'First Sheet'
+      fileName: "Cost Basis Reports",
+      sheetName: "First Sheet"
     };
     this.gridOptions.api.exportDataAsExcel(params);
     this.downloadExcelUtils.ToastrMessage();

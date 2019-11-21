@@ -188,7 +188,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
 
   initGrid() {
     this.gridOptions = {
-      rowData: null,
+      rowData: [],
       columnDefs: this.columnDefs,
       onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
