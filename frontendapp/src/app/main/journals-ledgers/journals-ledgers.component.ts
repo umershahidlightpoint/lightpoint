@@ -69,7 +69,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   page: any;
   pageSize: any;
   tableHeader: string;
-  isDataStreaming = true;
+  isDataStreaming = false;
 
   ranges: any = Ranges;
 
@@ -196,6 +196,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   }
 
   getAllData(initialLoad) {
+    this.isDataStreaming = true;
     this.symbol = 'ALL';
     const localThis = this;
     this.page = 0;
@@ -258,8 +259,8 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
           }
 
           this.totalCredit = CalTotal(this.rowData, 'credit');
-          (this.totalDebit = CalTotal(this.rowData, 'debit')),
-            (this.pinnedBottomRowData = [
+          this.totalDebit = CalTotal(this.rowData, 'debit');
+          this.pinnedBottomRowData = [
               {
                 source: 'Total Records:' + this.totalRecords,
                 AccountType: '',
@@ -276,13 +277,15 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
                 NetMoney: CalTotal(this.rowData, 'NetMoney'),
                 LocalNetNotional: CalTotal(this.rowData, 'LocalNetNotional')
               }
-            ]);
+            ];
           this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
           this.gridOptions.api.refreshCells();
           AutoSizeAllColumns(this.gridOptions);
         } else {
           this.isDataStreaming = false;
         }
+      }, error => {
+        this.isDataStreaming = false;
       });
   }
 
