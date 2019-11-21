@@ -79,6 +79,7 @@ $@"select
     ParentOrderId,
 	LpOrderId, AccrualId,  Action, coalesce(s.SecurityCode, Symbol) as Symbol, Side, Quantity, TimeInForce, OrderType, SecurityType,  BloombergCode,
 	CustodianCode, ExecutionBroker, TradeId, Fund, 
+    trade.SecurityId,
 	PMCode, PortfolioCode, Trader, 
 	TradeCurrency, TradePrice, TradeDate, 
 	SettleCurrency, SettlePrice, SettleDate, 

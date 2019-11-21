@@ -62,6 +62,7 @@ namespace PostingEngine.PostingRules
                 Source = element.LpOrderId,
                 FxCurrency = element.SettleCurrency,
                 Symbol = element.Symbol,
+                SecurityId = element.SecurityId,
                 Quantity = quantity,
                 FxRate = effectiveRate,
                 StartPrice = prevEodFxRate,
@@ -78,6 +79,7 @@ namespace PostingEngine.PostingRules
                 FxCurrency = element.SettleCurrency,
                 FxRate = effectiveRate,
                 Symbol = element.Symbol,
+                SecurityId = element.SecurityId,
                 Quantity = quantity,
                 StartPrice = prevEodFxRate,
                 EndPrice = eodFxRate,
@@ -98,7 +100,7 @@ namespace PostingEngine.PostingRules
         /// <returns></returns>
         internal void CreateFxUnsettled(PostingEngineEnvironment env)
         {
-            var sql = $@"select credit, debit, symbol, quantity, fx_currency, fund, source, fxrate from vwJournal 
+            var sql = $@"select credit, debit, symbol, quantity, fx_currency, fund, source, fxrate, security_id from vwJournal 
                          where [event] = 'unrealizedpnl' 
                          and AccountType = 'CHANGE IN UNREALIZED GAIN/(LOSS)' 
                          and fx_currency != '{env.BaseCurrency}'
@@ -124,6 +126,7 @@ namespace PostingEngine.PostingRules
                     Fund = reader.GetFieldValue<string>(5),
                     Source = reader.GetFieldValue<string>(6),
                     FxRate = Convert.ToDouble(reader.GetFieldValue<decimal>(7)),
+                    SecurityId = reader.GetFieldValue<int>(8),
                 };
 
                 if (unsettledPnl.Currency.Equals(env.BaseCurrency))
@@ -147,6 +150,7 @@ namespace PostingEngine.PostingRules
                     Fund = unsettledPnl.Fund,
                     FxCurrency = unsettledPnl.Currency,
                     Symbol = unsettledPnl.Symbol,
+                    SecurityId = unsettledPnl.SecurityId,
                     Quantity = Convert.ToDouble(unsettledPnl.Quantity),
 
                     FxRate = change,
@@ -163,6 +167,7 @@ namespace PostingEngine.PostingRules
                     Fund = unsettledPnl.Fund,
                     FxCurrency = unsettledPnl.Currency,
                     Symbol = unsettledPnl.Symbol,
+                    SecurityId = unsettledPnl.SecurityId,
                     Quantity = Convert.ToDouble(unsettledPnl.Quantity),
 
                     FxRate = change,

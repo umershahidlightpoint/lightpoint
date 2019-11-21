@@ -208,11 +208,11 @@ namespace PostingEngine
 
             var dates = "select minDate = min([when]), maxDate = max([when]) from Journal";
 
-            var sql = $@"select Symbol, fx_currency, source, fund, sum(credit-debit) as balance from vwJournal 
+            var sql = $@"select Symbol, fx_currency, source, fund, sum(credit-debit) as balance, security_id from vwJournal 
                         where AccountType = 'Settled Cash'
                         and [when] < @busDate
                         and [event] not in ('journal')
-                        group by Symbol, fx_currency, source, fund";
+                        group by Symbol, fx_currency, source, fund, security_id";
 
             PostingEngineCallBack?.Invoke("SettledCash Calculation Started");
 
@@ -278,7 +278,8 @@ namespace PostingEngine
                                 Currency = reader.GetFieldValue<string>(1),
                                 Source = reader.GetFieldValue<string>(2),
                                 Fund = reader.GetFieldValue<string>(3),
-                                Balance = reader.GetFieldValue<decimal>(4)
+                                Balance = reader.GetFieldValue<decimal>(4),
+                                SecurityId = reader.GetFieldValue<int>(5)
                             };
 
                             if (settledCash.Currency.Equals(env.BaseCurrency))
@@ -304,6 +305,7 @@ namespace PostingEngine
 
                                 FxCurrency = settledCash.Currency,
                                 Symbol = settledCash.Symbol,
+                                SecurityId = settledCash.SecurityId,
                                 FxRate = changeDelta,
                                 StartPrice = prev,
                                 EndPrice = eod,
@@ -320,6 +322,7 @@ namespace PostingEngine
 
                                 FxCurrency = settledCash.Currency,
                                 Symbol = settledCash.Symbol,
+                                SecurityId = settledCash.SecurityId,
                                 FxRate = changeDelta,
                                 StartPrice = prev,
                                 EndPrice = eod,
@@ -799,11 +802,6 @@ namespace PostingEngine
                         valueDate = valueDate.AddDays(1);
                         continue;
                     }
-                }
-
-                if ( valueDate == endDate)
-                {
-                    Debugger.Break();
                 }
 
                 var sw = new Stopwatch();

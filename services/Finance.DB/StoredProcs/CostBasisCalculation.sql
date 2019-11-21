@@ -14,7 +14,7 @@ where coalesce(sd.Multiplier, sf.ContractSize) is not null
 
 select 
 @bDate as busdate,
-symbol, 
+tls.symbol, 
 SUM(tls.investment_at_cost + Coalesce(tl.investment_at_cost, 0)) * -1 as Balance, 
 SUM(tls.original_quantity +Coalesce(tl.quantity, 0)) as Quantity, 
 ABS(SUM(tls.investment_at_cost + Coalesce(tl.investment_at_cost, 0)) / SUM(tls.original_quantity +Coalesce(tl.quantity, 0))) / Max(Coalesce(sd.Multiplier, 1)) as CostBasis, 
@@ -22,12 +22,13 @@ CASE
 	WHEN tls.side = 'BUY' then 'LONG'
 	ELSE 'SHORT'
 End as Side,
-0 as eod_price
+Max(coalesce(mp.price,0)) as eod_price
 into #costbasis_all
 from tax_lot_status tls
 left outer join tax_lot tl on tl.Open_lot_id = tls.open_id and tls.trade_date <= @bDate and tl.trade_date <= @bDate
 left outer join #security_details sd on sd.SecurityCode = tls.symbol
-group by symbol, side
+left outer join market_prices mp on mp.symbol = tls.symbol and mp.business_date = @bDate
+group by tls.symbol, side
 having SUM(tls.original_quantity +Coalesce(tl.quantity, 0)) != 0
 -- where tls.trade_date <= @bDate and tl.trade_date <= @bDate
 

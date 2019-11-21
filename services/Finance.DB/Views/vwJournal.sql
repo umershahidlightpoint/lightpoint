@@ -14,6 +14,7 @@
 										Else 0
 										END  ) debit,
 									[journal].[symbol],
+									[journal].[security_id],
 									[journal].[quantity],
                                     [journal].[id],
                                     [account_id],

@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // Point static path to dist
-app.use(express.static(path.join(__dirname, 'dist/accountApp')));
+app.use(express.static(path.join(__dirname, './accountApp')));
 
 // Set our api routes
 app.use('/finance', finance);
@@ -27,7 +27,7 @@ app.use('/refdata', refdata);
 
 // Catch all other routes and return the index file
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist/accountApp/index.html'));
+  res.sendFile(path.join(__dirname, 'accountApp/index.html'));
 });
 
 /**

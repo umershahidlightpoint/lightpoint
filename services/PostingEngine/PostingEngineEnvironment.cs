@@ -161,6 +161,18 @@ namespace PostingEngine
             return trade;
         }
 
+        internal List<Accrual> FindAccruals(string lpAccrualId)
+        {
+            var list = Accruals.Values.Where(i =>i.AccrualId != null).Where(i => i.AccrualId.Equals(lpAccrualId)).ToList();
+            return list;
+        }
+
+        internal List<Transaction> FindAllocations(string lpAccrualId)
+        {
+            var list = Allocations.Where(i => i.AccrualId != null).Where(i => i.AccrualId.Equals(lpAccrualId)).ToList();
+            return list;
+        }
+
         /// <summary>
         /// Determine how to set the Value of the Journal, this will be based on the 
         /// </summary>

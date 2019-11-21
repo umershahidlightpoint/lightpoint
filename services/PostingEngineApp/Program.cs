@@ -20,14 +20,13 @@ namespace PostingEngineCmd
             FxRates.CacheData();
             MarketPrices.CacheData();
 
-
             // Generate Journals First
             // Doing this for the previous Business Date
             var date = System.DateTime.Now.Date;
             date = date.PrevBusinessDate();
 
             // Pull from Legacy System
-            PullFromLegacySystem(date);
+            //PullFromLegacySystem(date);
 
             // Get all Activity
             ITD(date);

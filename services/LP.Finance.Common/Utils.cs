@@ -478,10 +478,15 @@ namespace LP.Finance.Common
     {
         public static DataTable Join<T>(DataTable dataTable, Dictionary<string, T> elements, string key)
         {
+            var skipColumns = new List<string>();
+
             var properties = typeof(Transaction).GetProperties();
             foreach (var prop in properties)
             {
-                dataTable.Columns.Add(prop.Name, prop.PropertyType);
+                if (!dataTable.Columns.Contains(prop.Name))
+                    dataTable.Columns.Add(prop.Name, prop.PropertyType);
+                else
+                    skipColumns.Add(prop.Name);
             }
 
             // Get the Columns we Need to Generate the UI Grid
@@ -501,7 +506,8 @@ namespace LP.Finance.Common
                     // Copy Data to the Row
                     foreach (var prop in properties)
                     {
-                        dataRow[prop.Name] = prop.GetValue(found);
+                        if ( !skipColumns.Contains(prop.Name))
+                            dataRow[prop.Name] = prop.GetValue(found);
                     }
                 }
             }

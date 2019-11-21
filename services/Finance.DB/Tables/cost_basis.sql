@@ -7,8 +7,10 @@
 	[cost_basis] [numeric](18, 9) NOT NULL,
 	[side] [varchar](10) NULL,
 	[generated_on] [datetime] NOT NULL,
- [realized_pnl] NUMERIC(18, 9) NULL DEFAULT 0, 
+	[realized_pnl] NUMERIC(18, 9) NULL DEFAULT 0, 
     [unrealized_pnl] NUMERIC(18, 9) NULL DEFAULT 0, 
+	[realized_pnl_fx] NUMERIC(18, 9) NULL DEFAULT 0, 
+    [unrealized_pnl_fx] NUMERIC(18, 9) NULL DEFAULT 0, 
     [eod_price] NUMERIC(18, 9) NULL DEFAULT 0, 
     CONSTRAINT [PK_cost_basis] PRIMARY KEY CLUSTERED 
 (

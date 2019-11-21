@@ -163,12 +163,10 @@ namespace PostingEngine.PostingRules
 
                     var fund = tradeAllocations[0].Fund;
 
-                    var debit = new Journal
+                    var debit = new Journal(element)
                     {
-                        Source = element.LpOrderId,
                         Account = fromAccount,
                         When = env.ValueDate,
-                        FxCurrency = element.SettleCurrency,
                         Symbol = symbol,
                         Quantity = quantity,
                         FxRate = fxrate,
@@ -180,14 +178,11 @@ namespace PostingEngine.PostingRules
                         Fund = fund,
                     };
 
-                    var credit = new Journal
+                    var credit = new Journal(element)
                     {
-                        Source = element.LpOrderId,
                         Account = toAccount,
                         When = env.ValueDate,
-                        FxCurrency = element.SettleCurrency,
                         FxRate = fxrate,
-                        Symbol = symbol,
                         Quantity = quantity,
                         Value = env.SignedValue(fromAccount, toAccount, false, unrealizedPnl),
                         CreditDebit = env.DebitOrCredit(toAccount, unrealizedPnl),
@@ -270,6 +265,7 @@ namespace PostingEngine.PostingRules
                     When = env.ValueDate,
                     FxCurrency = element.SettleCurrency,
                     Symbol = debitEntry.Symbol,
+                    SecurityId = debitEntry.SecurityId,
                     Quantity = element.Quantity,
                     FxRate = fxrate,
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
@@ -286,6 +282,7 @@ namespace PostingEngine.PostingRules
                     FxCurrency = element.SettleCurrency,
                     FxRate = fxrate,
                     Symbol = creditEntry.Symbol,
+                    SecurityId = creditEntry.SecurityId,
                     Quantity = element.Quantity,
                     CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
                     Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
@@ -423,33 +420,26 @@ namespace PostingEngine.PostingRules
 
 
                                 // Now Generate Entries
-                                var fromJournal = new Journal
+                                var fromJournal = new Journal(element)
                                 {
-                                    Source = element.LpOrderId,
                                     Account = fromAccount,
                                     CreditDebit = env.DebitOrCredit(fromAccount, PnL),
                                     When = env.ValueDate,
                                     StartPrice = tl.TradePrice,
                                     EndPrice = tl.CostBasis,
                                     Value = env.SignedValue(fromAccount, toAccount, true, PnL),
-                                    FxCurrency = element.SettleCurrency,
-                                    Quantity = element.Quantity,
-                                    Symbol = element.Symbol,
                                     FxRate = 1,
                                     Event = "realizedpnl",
                                     Fund = tradeAllocations[0].Fund,
                                 };
 
-                                var toJournal = new Journal
+                                var toJournal = new Journal(element)
                                 {
-                                    Source = element.LpOrderId,
                                     Account = toAccount,
                                     When = env.ValueDate,
-                                    FxCurrency = element.SettleCurrency,
                                     StartPrice = tl.TradePrice,
                                     EndPrice = tl.CostBasis,
-                                    Symbol = element.Symbol,
-                                    Quantity = element.Quantity,
+                                    
                                     FxRate = 1,
                                     CreditDebit = env.DebitOrCredit(toAccount, PnL * -1),
                                     Value = env.SignedValue(fromAccount, toAccount, false, PnL),
@@ -550,6 +540,7 @@ namespace PostingEngine.PostingRules
                     FxCurrency = element.SettleCurrency,
                     Quantity = element.Quantity,
                     Symbol = debitEntry.Symbol,
+                    SecurityId = debitEntry.SecurityId,
                     FxRate = fxrate,
                     StartPrice = element.SettleNetPrice,
                     EndPrice = eodPrice,
@@ -561,6 +552,7 @@ namespace PostingEngine.PostingRules
                     Source = creditEntry.LpOrderId,
                     FxCurrency = element.SettleCurrency,
                     Symbol = creditEntry.Symbol,
+                    SecurityId = creditEntry.SecurityId,
                     Quantity = element.Quantity,
                     FxRate = fxrate,
                     CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
@@ -594,18 +586,14 @@ namespace PostingEngine.PostingRules
                 pnL = pnL * -1;
             }
 
-            var fromJournal = new Journal
+            var fromJournal = new Journal(element)
             {
-                Source = element.LpOrderId,
                 Account = accountToFrom.From,
                 When = env.ValueDate,
                 StartPrice = start,
                 EndPrice = end,
                 CreditDebit = env.DebitOrCredit(accountToFrom.From, pnL),
                 Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, pnL),
-                FxCurrency = element.SettleCurrency,
-                Quantity = element.Quantity,
-                Symbol = element.Symbol,
                 FxRate = 1,
                 Event = "realizedpnl",
                 Fund = tradeAllocations[0].Fund,
@@ -618,6 +606,7 @@ namespace PostingEngine.PostingRules
                 StartPrice = start,
                 EndPrice = end,
                 Symbol = element.Symbol,
+                SecurityId = element.SecurityId,
                 Quantity = element.Quantity,
                 FxRate = 1,
                 Fund = tradeAllocations[0].Fund,
@@ -641,13 +630,9 @@ namespace PostingEngine.PostingRules
             new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
             new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
 
-            var fromJournal = new Journal
+            var fromJournal = new Journal(element)
             {
-                Source = element.LpOrderId,
                 When = env.ValueDate,
-                FxCurrency = element.SettleCurrency,
-                Symbol = element.Symbol,
-                Quantity = element.Quantity,
                 Event = "unrealizedpnl",
                 FxRate = fxrate,
                 Fund = tradeAllocations[0].Fund,

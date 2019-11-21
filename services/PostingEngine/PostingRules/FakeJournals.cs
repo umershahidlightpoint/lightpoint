@@ -3,6 +3,7 @@ using PostingEngine.MarketData;
 using PostingEngine.PostingRules.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace PostingEngine.PostingRules
@@ -16,6 +17,15 @@ namespace PostingEngine.PostingRules
 
         public void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
+            if ( element.Symbol.Equals("ZZ_CASH_DIVIDENDS") )
+            {
+                Debugger.Break();
+            }
+
+            var accrual = env.FindAccruals(element.AccrualId);
+            var allocations = env.FindAllocations(element.AccrualId);
+            var allocation = allocations.Where(i => !i.Symbol.Equals(element.Symbol)).FirstOrDefault();
+
             if (element.Status.Equals("Cancelled"))
             {
                 env.AddMessage($"Entry has been cancelled {element.LpOrderId} :: {element.Side}");
@@ -53,6 +63,9 @@ namespace PostingEngine.PostingRules
             {
                 var debit = new Journal(accountToFrom.From, "journal", env.ValueDate)
                 {
+                    Symbol = allocation != null ? allocation.Symbol : element.Symbol,
+                    SecurityId = allocation != null ? allocation.SecurityId : element.SecurityId,
+
                     Source = element.LpOrderId,
                     Quantity = element.Quantity,
                     FxCurrency = element.SettleCurrency,
@@ -64,6 +77,9 @@ namespace PostingEngine.PostingRules
 
                 var credit = new Journal(accountToFrom.To, "journal", env.ValueDate)
                 {
+                    Symbol = allocation != null ? allocation.Symbol : element.Symbol,
+                    SecurityId = allocation != null ? allocation.SecurityId : element.SecurityId,
+
                     Source = element.LpOrderId,
                     Quantity = element.Quantity,
                     FxCurrency = element.SettleCurrency,
@@ -229,6 +245,16 @@ namespace PostingEngine.PostingRules
 
         public void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
+
+            if (element.Symbol.Equals("ZZ_CASH_DIVIDENDS"))
+            {
+                Debugger.Break();
+            }
+
+            var accrual = env.FindAccruals(element.AccrualId);
+            var allocations = env.FindAllocations(element.AccrualId);
+            var allocation = allocations.Where(i => !i.Symbol.Equals(element.Symbol)).FirstOrDefault();
+
             if ( element.Status.Equals("Cancelled"))
             {
                 env.AddMessage($"Entry has been cancelled {element.LpOrderId} :: {element.Side}");
@@ -264,33 +290,31 @@ namespace PostingEngine.PostingRules
 
             if (element.LocalNetNotional != 0.0)
             {
-                var debit = new Journal
+                var debit = new Journal(element)
                 {
-                    Source = element.LpOrderId,
+                    Symbol = allocation != null ? allocation.Symbol : element.Symbol,
+                    SecurityId = allocation != null ? allocation.SecurityId : element.SecurityId,
+
                     Account = accountToFrom.From,
-                    Quantity = element.Quantity,
                     When = env.ValueDate,
-                    FxCurrency = element.SettleCurrency,
                     FxRate = fxrate,
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
                     Value = moneyUSD,
                     Event = "journal",
-                    Symbol = element.Symbol,
                     Fund = element.Fund,
                 };
 
-                var credit = new Journal
+                var credit = new Journal(element)
                 {
-                    Source = element.LpOrderId,
+                    Symbol = allocation != null ? allocation.Symbol : element.Symbol,
+                    SecurityId = allocation != null ? allocation.SecurityId : element.SecurityId,
+
                     Account = accountToFrom.To,
-                    Quantity = element.Quantity,
                     When = env.ValueDate,
-                    FxCurrency = element.SettleCurrency,
                     FxRate = fxrate,
                     CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD),
                     Value = moneyUSD,
                     Event = "journal",
-                    Symbol = element.Symbol,
                     Fund = element.Fund,
                 };
 

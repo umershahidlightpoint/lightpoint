@@ -86,33 +86,25 @@ namespace PostingEngine.PostingRules
 
             var moneyUSD = element.LocalNetNotional * fxrate;
 
-            var debit = new Journal
+            var debit = new Journal (element)
             {
-                Source = element.LpOrderId,
                 Account = accountToFrom.From,
-                Quantity = element.Quantity,
                 When = env.ValueDate,
-                FxCurrency = element.SettleCurrency,
                 FxRate = fxrate,
                 CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
                 Value = moneyUSD * -1,
                 Event = "journal",
-                Symbol = element.Symbol,
                 Fund = element.Fund,
             };
 
-            var credit = new Journal
+            var credit = new Journal(element)
             {
-                Source = element.LpOrderId,
                 Account = accountToFrom.To,
-                Quantity = element.Quantity,
                 When = env.ValueDate,
-                FxCurrency = element.SettleCurrency,
                 FxRate = fxrate,
                 CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD),
                 Value = moneyUSD * -1,
                 Event = "journal",
-                Symbol = element.Symbol,
                 Fund = element.Fund,
             };
 

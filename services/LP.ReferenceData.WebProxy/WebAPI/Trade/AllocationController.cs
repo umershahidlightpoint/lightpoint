@@ -92,6 +92,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
     ParentOrderId, LpOrderId, AccrualId, Action, coalesce(s.SecurityCode, Symbol) as Symbol, 
     Side, Quantity, TimeInForce, OrderType, SecurityType,  BloombergCode,
 	CustodianCode, ExecutionBroker, TradeId, Fund, 
+    allocation.SecurityId,
 	PMCode, PortfolioCode, Trader, 
 	TradeCurrency, TradePrice, TradeDate, 
 	SettleCurrency, SettlePrice, SettleDate, 

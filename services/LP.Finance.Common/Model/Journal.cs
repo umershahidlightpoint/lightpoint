@@ -13,6 +13,17 @@ namespace LP.Finance.Common.Models
             GeneratedBy = "system";
         }
 
+        public Journal(Transaction element)
+        {
+            GeneratedBy = "system";
+
+            Source = element.LpOrderId;
+            FxCurrency = element.SettleCurrency;
+            Symbol = element.Symbol;
+            SecurityId = element.SecurityId;
+            Quantity = element.Quantity;
+        }
+
         public Journal(Journal source)
         {
             // Clone the Journal, this is to make Journal creation easier, and then have the developer just override the changes
@@ -21,6 +32,7 @@ namespace LP.Finance.Common.Models
             When = source.When;
             FxCurrency = source.FxCurrency;
             Symbol = source.Symbol;
+            SecurityId = source.SecurityId;
             Quantity = source.Quantity;
             Event = source.Event;
             FxRate = source.FxRate;
@@ -58,6 +70,7 @@ namespace LP.Finance.Common.Models
         public double Quantity { get; set; }
 
         public string Symbol { get; set; }
+        public int SecurityId { get; set; }
         public string CreditDebit { get; set; }
         public string GeneratedBy { get; set; }
 
@@ -124,7 +137,7 @@ namespace LP.Finance.Common.Models
             // read the table structure from the database
             var localconnection = new SqlConnection(connection.ConnectionString + ";Password=ggtuser");
             localconnection.Open();
-            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 id, source, account_id, value, [when], generated_by, fund, fx_currency, fxrate, quantity, symbol, event, start_price, end_price, credit_debit FROM Journal", localconnection))
+            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 id, source, account_id, value, [when], generated_by, fund, fx_currency, fxrate, quantity, symbol, event, start_price, end_price, credit_debit, security_id FROM Journal", localconnection))
             {
                 adapter.Fill(table);
             };
@@ -151,7 +164,7 @@ namespace LP.Finance.Common.Models
             row["start_price"] = this.StartPrice;
             row["end_price"] = this.EndPrice;
             row["credit_debit"] = this.CreditDebit;
-
+            row["security_id"] = this.SecurityId;
         }
     }
 
