@@ -37,7 +37,7 @@ export class DailyPnlComponent implements OnInit {
   sliderValue = 0;
   uploadLoader = false;
   disableFileUpload = true;
-  @ViewChild('fileInput',{ static: false }) fileInput: ElementRef;
+  @ViewChild('fileInput', { static: false }) fileInput: ElementRef;
 
   styleForHeight = HeightStyle(224);
 
@@ -75,19 +75,18 @@ export class DailyPnlComponent implements OnInit {
     });
   }
 
-  sortDailyPnl(x,y){
+  sortDailyPnl(x, y) {
     let dateDiff = new Date(y.BusinessDate).getTime() - new Date(x.BusinessDate).getTime();
-    if(dateDiff != 0){
+    if (dateDiff != 0) {
       return dateDiff;
-    } else{
+    } else {
       return y.Id - x.Id;
     }
   }
 
   getDailyPnL() {
     this.financeService.getDailyUnofficialPnL().subscribe(response => {
-
-      let sortedData = response.payload.sort((x,y) => this.sortDailyPnl(x,y));
+      let sortedData = response.payload.sort((x, y) => this.sortDailyPnl(x, y));
 
       this.dailyPnLData = sortedData.map(data => ({
         businessDate: DateFormatter(data.BusinessDate),
@@ -238,7 +237,8 @@ export class DailyPnlComponent implements OnInit {
       {
         headerName: 'Short % Change',
         field: 'shortPercentageChange',
-        valueFormatter: params => this.numberFormatter(params.node.data.shortPercentageChange, false)
+        valueFormatter: params =>
+          this.numberFormatter(params.node.data.shortPercentageChange, false)
       },
       {
         headerName: 'Long Exposure',
@@ -273,7 +273,8 @@ export class DailyPnlComponent implements OnInit {
       {
         headerName: '6md Beta Short Exposure',
         field: 'sixMdBetaShortExposure',
-        valueFormatter: params => this.numberFormatter(params.node.data.sixMdBetaShortExposure, false)
+        valueFormatter: params =>
+          this.numberFormatter(params.node.data.sixMdBetaShortExposure, false)
       },
       {
         headerName: 'Nav Market',
@@ -391,7 +392,7 @@ export class DailyPnlComponent implements OnInit {
       {
         name: 'Visualize',
         action: () => {
-          this.visualizeData(); 
+          this.visualizeData();
         }
       }
     ];
@@ -414,7 +415,11 @@ export class DailyPnlComponent implements OnInit {
     const selectedPortfolio = selectedRow.portFolio;
     this.dailyPnlGrid.api.forEachNodeAfterFilter((rowNode, index) => {
       let currentDate = moment(rowNode.data.businessDate);
-      if(rowNode.data.portFolio === selectedPortfolio && currentDate.isSameOrAfter(fromDate) && currentDate.isSameOrBefore(toDate)){
+      if (
+        rowNode.data.portFolio === selectedPortfolio &&
+        currentDate.isSameOrAfter(fromDate) &&
+        currentDate.isSameOrBefore(toDate)
+      ) {
         data[columnLabel].push({
           date: rowNode.data.businessDate,
           value: rowNode.data[column]
@@ -429,7 +434,7 @@ export class DailyPnlComponent implements OnInit {
       height: 410,
       width: '95%',
       chartTitle: selectedPortfolio,
-      propId: 'line',
+      propId: 'lineDailyPnL',
       graphData: data,
       dateTimeFormat: 'YYYY-MM-DD'
     };
