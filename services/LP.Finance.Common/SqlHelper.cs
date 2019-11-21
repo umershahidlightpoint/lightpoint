@@ -118,6 +118,32 @@ namespace SqlDAL.Core
             }
         }
 
+        public DataTableCollection GetDataTables(string commandText, CommandType commandType, SqlParameter[] parameters = null)
+        {
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+
+                using (var command = new SqlCommand(commandText, connection))
+                {
+                    command.CommandType = commandType;
+                    if (parameters != null)
+                    {
+                        foreach (var parameter in parameters)
+                        {
+                            command.Parameters.Add(parameter);
+                        }
+                    }
+
+                    var dataSet = new DataSet();
+                    var dataAdapter = new SqlDataAdapter(command);
+                    dataAdapter.Fill(dataSet);
+
+                    return dataSet.Tables;
+                }
+            }
+        }
+
         public DataSet GetDataSet(string commandText, CommandType commandType, SqlParameter[] parameters = null)
         {
             using (var connection = new SqlConnection(ConnectionString))

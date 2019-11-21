@@ -8,6 +8,7 @@ import { Style } from 'src/shared/utils/Shared';
 })
 export class ReportsComponent {
   costBasisReportActive = true;
+  trialBalanceReportActive = false;
   style = Style;
 
   processingMsgDiv = {
@@ -24,5 +25,9 @@ export class ReportsComponent {
     if (e.index === 0) {
       this.costBasisReportActive = true;
     }
+    if (e.index === 3) {
+      this.trialBalanceReportActive = true;
+    }
+
   }
 }

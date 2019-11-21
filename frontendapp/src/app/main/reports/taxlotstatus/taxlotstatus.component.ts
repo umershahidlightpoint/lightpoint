@@ -342,7 +342,6 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       this.data = response.payload;
       this.isLoading = false;
       this.gridOptions.api.sizeColumnsToFit();
-      debugger
       this.gridOptions.api.setRowData(this.data);
     });
   }
@@ -354,6 +353,8 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       this.closingTaxLots.api.sizeColumnsToFit();
       this.closingTaxLots.api.setRowData(response.payload);
 
+      debugger;
+      
       if (response.payload.length == 0) {
         this.tradeSelectionSubject.next('');
       } else {

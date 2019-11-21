@@ -194,9 +194,9 @@ namespace PostingEngine.PostingRules
             double fxrate = 1.0;
 
             // Lets get fx rate if needed
-            if ( !element.TradeCurrency.Equals(env.BaseCurrency))
+            if ( !element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.TradeCurrency).Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
             }
 
             if (element.NetMoney != 0.0)
@@ -211,7 +211,7 @@ namespace PostingEngine.PostingRules
                     Account = accountToFrom.From,
                     When = env.ValueDate,
                     Value = debitAmount,
-                    FxCurrency = element.TradeCurrency,
+                    FxCurrency = element.SettleCurrency,
                     FxRate = fxrate,
                     Fund = debitEntry.Fund,
                 };
@@ -221,7 +221,7 @@ namespace PostingEngine.PostingRules
                     Source = creditEntry.LpOrderId,
                     Account = accountToFrom.To,
                     When = env.ValueDate,
-                    FxCurrency = element.TradeCurrency,
+                    FxCurrency = element.SettleCurrency,
                     FxRate = fxrate,
                     Value = creditAmount,
                     Fund = creditEntry.Fund,

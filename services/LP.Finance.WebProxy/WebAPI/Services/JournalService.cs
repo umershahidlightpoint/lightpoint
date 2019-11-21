@@ -551,6 +551,35 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
+        public object GetReconReport(DateTime? date, string fund)
+        {
+            try
+            {
+                dynamic postingEngine = new PostingEngineService().GetProgress();
+                if (postingEngine.IsRunning)
+                {
+                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                }
+
+                var businessDate = System.DateTime.Now.PrevBusinessDate();
+                if (date.HasValue)
+                    businessDate = date.Value.Date;
+
+                var query = $@"DayPnlReconcile";
+
+                List<SqlParameter> sqlParams = new List<SqlParameter>();
+                sqlParams.Add(new SqlParameter("@businessDate", businessDate));
+
+                var dataTable = sqlHelper.GetDataTables(query, CommandType.StoredProcedure, sqlParams.ToArray());
+                var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                return reportObject;
+            }
+            catch (Exception ex)
+            {
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+            }
+        }
+
         public object GetTaxLotReport(DateTime? from = null, DateTime? to = null, string fund = "")
         {
             try

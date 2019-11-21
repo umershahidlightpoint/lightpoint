@@ -22,9 +22,15 @@
     </p-tabPanel>
     <!-- -->
 
+    <!-- -->
+    <p-tabPanel #daypnl header="DayPnl Reconcile" [ngStyle]="style">
+      <rep-daypnl-reconcile></rep-daypnl-reconcile>
+    </p-tabPanel>
+    <!-- -->
+    
     <!-- Trial Balance Report Tab Starts -->
     <p-tabPanel #trialBalance header="Trial Balance" [ngStyle]="style">
-      <rep-trial-balance></rep-trial-balance>
+      <rep-trial-balance *ngIf="trialBalanceReportActive"></rep-trial-balance>
     </p-tabPanel>
     <!-- Trial Balance Report Tab Ends-->
 

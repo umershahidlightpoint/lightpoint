@@ -84,9 +84,9 @@ namespace PostingEngine.PostingRules
             double fxrate = 1.0;
 
             // Lets get fx rate if needed
-            if (!element.TradeCurrency.Equals(env.BaseCurrency))
+            if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                tradefxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.TradeCurrency).Rate);
+                tradefxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
                 fxrate = tradefxrate;
             }
 
@@ -217,9 +217,9 @@ namespace PostingEngine.PostingRules
             double fxrate = 1.0;
 
             // Lets get fx rate if needed
-            if (!element.TradeCurrency.Equals(env.BaseCurrency))
+            if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                tradefxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.TradeCurrency).Rate);
+                tradefxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
                 fxrate = tradefxrate;
             }
 
@@ -301,9 +301,9 @@ namespace PostingEngine.PostingRules
             double fxrate = 1.0;
 
             // Lets get fx rate if needed
-            if (!element.TradeCurrency.Equals(env.BaseCurrency))
+            if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.TradeCurrency).Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
             }
 
             var tradeAllocations = env.Allocations.Where(i => i.LpOrderId == element.LpOrderId).ToList();
@@ -432,7 +432,7 @@ namespace PostingEngine.PostingRules
                                     StartPrice = tl.TradePrice,
                                     EndPrice = tl.CostBasis,
                                     Value = env.SignedValue(fromAccount, toAccount, true, PnL),
-                                    FxCurrency = element.TradeCurrency,
+                                    FxCurrency = element.SettleCurrency,
                                     Quantity = element.Quantity,
                                     Symbol = element.Symbol,
                                     FxRate = 1,
@@ -445,7 +445,7 @@ namespace PostingEngine.PostingRules
                                     Source = element.LpOrderId,
                                     Account = toAccount,
                                     When = env.ValueDate,
-                                    FxCurrency = element.TradeCurrency,
+                                    FxCurrency = element.SettleCurrency,
                                     StartPrice = tl.TradePrice,
                                     EndPrice = tl.CostBasis,
                                     Symbol = element.Symbol,
@@ -547,7 +547,7 @@ namespace PostingEngine.PostingRules
                     Source = debitEntry.LpOrderId,
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
                     Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
-                    FxCurrency = element.TradeCurrency,
+                    FxCurrency = element.SettleCurrency,
                     Quantity = element.Quantity,
                     Symbol = debitEntry.Symbol,
                     FxRate = fxrate,
@@ -559,7 +559,7 @@ namespace PostingEngine.PostingRules
                 var toJournal = new Journal(accountToFrom.To, "tradedate", env.ValueDate)
                 {
                     Source = creditEntry.LpOrderId,
-                    FxCurrency = element.TradeCurrency,
+                    FxCurrency = element.SettleCurrency,
                     Symbol = creditEntry.Symbol,
                     Quantity = element.Quantity,
                     FxRate = fxrate,
@@ -603,7 +603,7 @@ namespace PostingEngine.PostingRules
                 EndPrice = end,
                 CreditDebit = env.DebitOrCredit(accountToFrom.From, pnL),
                 Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, pnL),
-                FxCurrency = element.TradeCurrency,
+                FxCurrency = element.SettleCurrency,
                 Quantity = element.Quantity,
                 Symbol = element.Symbol,
                 FxRate = 1,
@@ -614,7 +614,7 @@ namespace PostingEngine.PostingRules
             var toJournal = new Journal(accountToFrom.To, "realizedpnl", env.ValueDate)
             {
                 Source = element.LpOrderId,
-                FxCurrency = element.TradeCurrency,
+                FxCurrency = element.SettleCurrency,
                 StartPrice = start,
                 EndPrice = end,
                 Symbol = element.Symbol,
@@ -645,7 +645,7 @@ namespace PostingEngine.PostingRules
             {
                 Source = element.LpOrderId,
                 When = env.ValueDate,
-                FxCurrency = element.TradeCurrency,
+                FxCurrency = element.SettleCurrency,
                 Symbol = element.Symbol,
                 Quantity = element.Quantity,
                 Event = "unrealizedpnl",

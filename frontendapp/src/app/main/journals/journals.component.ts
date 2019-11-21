@@ -42,6 +42,7 @@ export class JournalsComponent implements OnInit, OnChanges {
         }
       });
     } else {
+      debugger;
       this.subscription.subscribe(data => {
         if (data != null) {
           this.getTradeJournals(data);
@@ -58,6 +59,7 @@ export class JournalsComponent implements OnInit, OnChanges {
         }
       });
     } else {
+      debugger;
       this.subscription.subscribe(data => {
         if (data != null) {
           this.getTradeJournals(data);

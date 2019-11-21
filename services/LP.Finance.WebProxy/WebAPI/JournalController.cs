@@ -55,6 +55,13 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.GetCostBasisChart(symbol);
         }
 
+        [Route("recon")]
+        [HttpGet]
+        public object GetReconReport(DateTime? date = null, string fund = "ALL")
+        {
+            return controller.GetReconReport(date, fund);
+        }
+
         [Route("taxLotReport")]
         [HttpGet]
         public object GetTaxLotReport(DateTime? from = null, DateTime? to = null, string fund = "ALL")

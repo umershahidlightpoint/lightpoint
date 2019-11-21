@@ -904,9 +904,6 @@ namespace PostingEngine
                 // Do Settlement and Daily Events here
                 foreach (var element in tradeData)
                 {
-                    if (element.BloombergCode.Equals("CCL"))
-                        Debugger.Break();
-
                     // We only process trades that have not broken
                     if (ignoreTrades.Contains(element.LpOrderId))
                     continue;
