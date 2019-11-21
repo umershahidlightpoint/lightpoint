@@ -128,6 +128,7 @@ export class DailyPnlComponent implements OnInit {
         lastUpdatedDate: data.lastUpdatedDate
       }));
       this.dailyPnlGrid.api.setRowData(this.dailyPnLData);
+      AutoSizeAllColumns(this.dailyPnlGrid);
     });
   }
 
@@ -159,7 +160,7 @@ export class DailyPnlComponent implements OnInit {
         AutoSizeAllColumns(params);
       },
       onFirstDataRendered: params => {
-        AutoSizeAllColumns(params);
+        // AutoSizeAllColumns(params);
       },
       onCellValueChanged: params => {},
       defaultColDef: {
