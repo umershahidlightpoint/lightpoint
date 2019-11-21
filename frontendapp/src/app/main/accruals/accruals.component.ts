@@ -124,7 +124,7 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
 
   initGrid() {
     this.gridOptions = {
-      rowData: null,
+      rowData: [],
       columnDefs: this.columnDefs,
       onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
@@ -150,7 +150,7 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
     this.gridOptions.sideBar = SideBar(GridId.accrualsId, GridName.accruals, this.gridOptions);
 
     this.allocationsGridOptions = {
-      rowData: null,
+      rowData: [],
       columnDefs: this.columnDefs,
       onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },

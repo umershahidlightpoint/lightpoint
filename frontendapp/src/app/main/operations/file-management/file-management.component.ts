@@ -56,7 +56,7 @@ export class FileManagementComponent implements OnInit, AfterViewInit, OnDestroy
 
   initGrid() {
     this.filesGridOptions = {
-      rowData: null,
+      rowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       getExternalFilterState: () => {
         return {};

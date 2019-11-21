@@ -50,7 +50,7 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
 
   initGrid() {
     this.gridOptions = {
-      rowData: null,
+      rowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       pinnedBottomRowData: null,
       rowGroupPanelShow: 'after',

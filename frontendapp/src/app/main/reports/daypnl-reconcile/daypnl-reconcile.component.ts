@@ -109,13 +109,13 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     this.startDate = new Date();
     this.startDate.setDate(this.startDate.getDate() -1);
     this.gridOptions = {
-      rowData: null,
-      pinnedBottomRowData: null,
+      rowData: [],
+      pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onFilterChanged: this.onFilterChanged.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      // Custom made methods for Grid Menu Layout
+      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
       isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       clearExternalFilter: this.clearFilters.bind(this),
       getExternalFilterState: this.getExternalFilterState.bind(this),
@@ -179,13 +179,13 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     this.gridOptions.sideBar = SideBar(GridId.costBasisId, GridName.costBasis, this.gridOptions);
 
     this.bookmonOptions = {
-      rowData: null,
-      pinnedBottomRowData: null,
+      rowData: [],
+      pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onFilterChanged: this.onFilterChanged.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      // Custom made methods for Grid Menu Layout
+      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
       isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       clearExternalFilter: this.clearFilters.bind(this),
       getExternalFilterState: this.getExternalFilterState.bind(this),
@@ -248,13 +248,13 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     } as GridOptions;
 
     this.portfolioOptions = {
-      rowData: null,
-      pinnedBottomRowData: null,
+      rowData: [],
+      pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onFilterChanged: this.onFilterChanged.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      // Custom made methods for Grid Menu Layout
+      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
       isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       clearExternalFilter: this.clearFilters.bind(this),
       getExternalFilterState: this.getExternalFilterState.bind(this),

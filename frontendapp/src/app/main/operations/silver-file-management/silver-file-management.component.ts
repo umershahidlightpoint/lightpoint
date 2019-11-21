@@ -49,7 +49,7 @@ export class SilverFileManagementComponent implements OnInit, AfterViewInit, OnD
 
   initGrid() {
     this.filesGridOptions = {
-      rowData: null,
+      rowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       getExternalFilterState: () => {
         return {};
