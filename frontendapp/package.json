@@ -36,7 +36,7 @@
     "font-awesome": "^4.7.0",
     "moment": "^2.24.0",
     "multer": "^1.4.2",
-    "ngcatalyst": "^1.0.6",
+    "ngcatalyst": "^1.0.7",
     "ngx-bootstrap": "^5.2.0",
     "ngx-daterangepicker-material": "^2.1.5",
     "ngx-toastr": "^11.2.1",

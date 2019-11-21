@@ -37,7 +37,7 @@ export class DailyPnlComponent implements OnInit {
   sliderValue = 0;
   uploadLoader = false;
   disableFileUpload = true;
-  @ViewChild("fileInput", { static: false }) fileInput: ElementRef;
+  @ViewChild('fileInput', { static: false }) fileInput: ElementRef;
 
   styleForHeight = HeightStyle(224);
 
@@ -76,8 +76,7 @@ export class DailyPnlComponent implements OnInit {
   }
 
   sortDailyPnl(x, y) {
-    let dateDiff =
-      new Date(y.BusinessDate).getTime() - new Date(x.BusinessDate).getTime();
+    let dateDiff = new Date(y.BusinessDate).getTime() - new Date(x.BusinessDate).getTime();
     if (dateDiff != 0) {
       return dateDiff;
     } else {
@@ -247,8 +246,8 @@ export class DailyPnlComponent implements OnInit {
           this.numberFormatter(params.node.data.shortPnL, false)
       },
       {
-        headerName: "Short % Change",
-        field: "shortPercentageChange",
+        headerName: 'Short % Change',
+        field: 'shortPercentageChange',
         valueFormatter: params =>
           this.numberFormatter(params.node.data.shortPercentageChange, false)
       },
@@ -289,8 +288,8 @@ export class DailyPnlComponent implements OnInit {
           this.numberFormatter(params.node.data.twoYwBetaNetExposure, false)
       },
       {
-        headerName: "6md Beta Short Exposure",
-        field: "sixMdBetaShortExposure",
+        headerName: '6md Beta Short Exposure',
+        field: 'sixMdBetaShortExposure',
         valueFormatter: params =>
           this.numberFormatter(params.node.data.sixMdBetaShortExposure, false)
       },
@@ -469,7 +468,7 @@ export class DailyPnlComponent implements OnInit {
       height: 410,
       width: "95%",
       chartTitle: selectedPortfolio,
-      propId: "dailyPnLLineChart",
+      propId: 'lineDailyPnL',
       graphData: data,
       dateTimeFormat: "YYYY-MM-DD"
     };

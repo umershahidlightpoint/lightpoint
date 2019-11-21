@@ -707,7 +707,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       height: '100%',
       width: '100%',
       chartTitle: 'Monthly Performance',
-      propId: 'monthlyPerformanceline',
+      propId: 'linePerformance',
       graphData: chartData,
       dateTimeFormat: 'MM-DD-YYYY'
     };
