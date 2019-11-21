@@ -5,10 +5,10 @@ import {
   ViewChild,
   ChangeDetectorRef,
   AfterViewInit
-} from '@angular/core';
+} from "@angular/core";
 import "ag-grid-enterprise";
-import { GridOptions } from 'ag-grid-community';
-import * as moment from 'moment';
+import { GridOptions } from "ag-grid-community";
+import * as moment from "moment";
 /* Services/Components Imports */
 import {
   SideBar,
@@ -37,14 +37,16 @@ import { DataDictionary } from "../../../shared/utils/DataDictionary";
 import { ReportModalComponent } from "src/shared/Component/report-modal/report-modal.component";
 
 @Component({
-  selector: 'app-journals-ledgers',
-  templateUrl: './journals-ledgers.component.html',
-  styleUrls: ['./journals-ledgers.component.css']
+  selector: "app-journals-ledgers",
+  templateUrl: "./journals-ledgers.component.html",
+  styleUrls: ["./journals-ledgers.component.css"]
 })
 export class JournalsLedgersComponent implements OnInit, AfterViewInit {
-  @ViewChild('journalModal',{ static: false }) journalModal: JournalModalComponent;
-  @ViewChild('dataModal',{ static: false }) dataModal: DataModalComponent;
-  @ViewChild('reportModal',{ static: false }) reportModal: ReportModalComponent;
+  @ViewChild("journalModal", { static: false })
+  journalModal: JournalModalComponent;
+  @ViewChild("dataModal", { static: false }) dataModal: DataModalComponent;
+  @ViewChild("reportModal", { static: false })
+  reportModal: ReportModalComponent;
 
   private columns: any;
 
@@ -117,8 +119,10 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     this.gridOptions = {
       rowData: null,
       onCellDoubleClicked: this.openDataModal.bind(this),
-      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
+      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
       isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
+
+      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       clearExternalFilter: this.clearFilters.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),

@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild } from "@angular/core";
 import {
   HeightStyle,
   SideBar,
@@ -7,17 +7,17 @@ import {
   DateFormatter,
   Ranges
 } from "src/shared/utils/Shared";
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions } from "ag-grid-community";
 import { GridLayoutMenuComponent } from "src/shared/Component/grid-layout-menu/grid-layout-menu.component";
 import { GridId, GridName } from "src/shared/utils/AppEnums";
 import { GetContextMenu } from "src/shared/utils/ContextMenu";
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe } from "@angular/common";
 import { FinancePocServiceProxy } from "src/shared/service-proxies/service-proxies";
-import { ToastrService } from 'ngx-toastr';
+import { ToastrService } from "ngx-toastr";
 import { UtilsConfig } from "src/shared/Models/utils-config";
-import * as moment from 'moment';
+import * as moment from "moment";
 import { DataGridModalComponent } from "src/shared/Component/data-grid-modal/data-grid-modal.component";
-import { GraphObject } from 'src/shared/Models/graph-object';
+import { GraphObject } from "src/shared/Models/graph-object";
 
 @Component({
   selector: "app-market-prices",
@@ -26,7 +26,8 @@ import { GraphObject } from 'src/shared/Models/graph-object';
 })
 export class MarketPricesComponent implements OnInit {
   @ViewChild("fileInput", { static: false }) fileInput: ElementRef;
-  @ViewChild("dataGridModal", { static: false }) dataGridModal: DataGridModalComponent;
+  @ViewChild("dataGridModal", { static: false })
+  dataGridModal: DataGridModalComponent;
 
   marketPriceGrid: GridOptions;
   selectedDate = null;
@@ -50,27 +51,29 @@ export class MarketPricesComponent implements OnInit {
   ranges: any = Ranges;
 
   styleForHeight = HeightStyle(224);
-  overlappingStyle = { backgroundColor: '#f9a89f' };
-  vRanges = [{
-    Description: 'Last 30 days',
-    Days: 30
-  },
-  {
-    Description: 'Last 2 months',
-    Days: 60
-  },
-  {
-    Description: 'Last 6 months',
-    Days: 180
-  },
-  {
-    Description: 'Last year',
-    Days: 360
-  },
-  {
-    Description: 'Custom',
-    Days: 0
-  }];
+  overlappingStyle = { backgroundColor: "#f9a89f" };
+  vRanges = [
+    {
+      Description: "Last 30 days",
+      Days: 30
+    },
+    {
+      Description: "Last 2 months",
+      Days: 60
+    },
+    {
+      Description: "Last 6 months",
+      Days: 180
+    },
+    {
+      Description: "Last year",
+      Days: 360
+    },
+    {
+      Description: "Custom",
+      Days: 0
+    }
+  ];
 
   vRange = this.vRanges[0].Days;
 
@@ -98,7 +101,12 @@ export class MarketPricesComponent implements OnInit {
     this.disableCommit = true;
     this.financeService.getMarketPriceData().subscribe(response => {
       if (response.isSuccessful) {
-        let data = response.payload.sort((x,y) => {return new Date(y.BusinessDate).getTime() - new Date(x.BusinessDate).getTime()});
+        let data = response.payload.sort((x, y) => {
+          return (
+            new Date(y.BusinessDate).getTime() -
+            new Date(x.BusinessDate).getTime()
+          );
+        });
         this.gridData = data.map(data => ({
           id: data.Id,
           securityId: data.SecurityId,
@@ -116,7 +124,7 @@ export class MarketPricesComponent implements OnInit {
   initGrid() {
     this.marketPriceGrid = {
       columnDefs: this.getColDefs(),
-      rowData: [],
+      rowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       getExternalFilterState: () => {
         return {};
@@ -334,34 +342,37 @@ export class MarketPricesComponent implements OnInit {
     this.isExpanded = !this.isExpanded;
   }
 
-  vChange($event){
+  vChange($event) {
     console.log($event);
-    if(this.selectedXAxis != null && this.selectedYAxis != null){
+    if (this.selectedXAxis != null && this.selectedYAxis != null) {
       this.refreshGraph();
-      }
+    }
   }
 
   private refreshGraph() {
     let data = {};
     let toDate;
     let fromDate;
-    let column = 'price';
+    let column = "price";
     data[this.selectedYAxis] = [];
     if (this.vRange != 0) {
       toDate = moment(this.selectedXAxis);
-      fromDate = moment(this.selectedXAxis).subtract(this.vRange, 'days');
+      fromDate = moment(this.selectedXAxis).subtract(this.vRange, "days");
     }
     this.marketPriceGrid.api.forEachNodeAfterFilter((rowNode, index) => {
       let currentDate = moment(rowNode.data.businessDate);
       if (this.vRange != 0) {
-        if (rowNode.data.symbol === this.selectedYAxis && currentDate.isSameOrAfter(fromDate) && currentDate.isSameOrBefore(toDate)) {
+        if (
+          rowNode.data.symbol === this.selectedYAxis &&
+          currentDate.isSameOrAfter(fromDate) &&
+          currentDate.isSameOrBefore(toDate)
+        ) {
           data[this.selectedYAxis].push({
             date: rowNode.data.businessDate,
             value: rowNode.data[column]
           });
         }
-      }
-      else {
+      } else {
         if (rowNode.data.symbol === this.selectedYAxis) {
           data[this.selectedYAxis].push({
             date: rowNode.data.businessDate,
@@ -371,15 +382,15 @@ export class MarketPricesComponent implements OnInit {
       }
     });
     this.graphObject = {
-      xAxisLabel: 'Date',
-      yAxisLabel: 'Symbol',
-      lineColors: ['#ff6960', '#00bd9a'],
+      xAxisLabel: "Date",
+      yAxisLabel: "Symbol",
+      lineColors: ["#ff6960", "#00bd9a"],
       height: 410,
-      width: '95%',
+      width: "95%",
       chartTitle: this.selectedYAxis,
-      propId: 'marketDataLineChart',
+      propId: "marketDataLineChart",
       graphData: data,
-      dateTimeFormat: 'YYYY-MM-DD'
+      dateTimeFormat: "YYYY-MM-DD"
     };
   }
 
@@ -388,48 +399,54 @@ export class MarketPricesComponent implements OnInit {
     let toDate;
     let fromDate;
     const focusedCell = this.marketPriceGrid.api.getFocusedCell();
-    const selectedRow = this.marketPriceGrid.api.getDisplayedRowAtIndex(focusedCell.rowIndex).data;
-    const column = 'price';
+    const selectedRow = this.marketPriceGrid.api.getDisplayedRowAtIndex(
+      focusedCell.rowIndex
+    ).data;
+    const column = "price";
     const selectedSymbol = selectedRow.symbol;
     data[selectedSymbol] = [];
-    if(this.vRange != 0){
+    if (this.vRange != 0) {
       toDate = moment(selectedRow.businessDate);
-      fromDate = moment(selectedRow.businessDate).subtract(this.vRange, 'days');
+      fromDate = moment(selectedRow.businessDate).subtract(this.vRange, "days");
     }
 
     this.selectedXAxis = toDate;
     this.selectedYAxis = selectedSymbol;
     this.marketPriceGrid.api.forEachNodeAfterFilter((rowNode, index) => {
-    let currentDate = moment(rowNode.data.businessDate);
-    if(this.vRange != 0){
-      if(rowNode.data.symbol === selectedSymbol && currentDate.isSameOrAfter(fromDate) && currentDate.isSameOrBefore(toDate)){
-        data[selectedSymbol].push({
-          date: rowNode.data.businessDate,
-          value: rowNode.data[column]
-        });
+      let currentDate = moment(rowNode.data.businessDate);
+      if (this.vRange != 0) {
+        if (
+          rowNode.data.symbol === selectedSymbol &&
+          currentDate.isSameOrAfter(fromDate) &&
+          currentDate.isSameOrBefore(toDate)
+        ) {
+          data[selectedSymbol].push({
+            date: rowNode.data.businessDate,
+            value: rowNode.data[column]
+          });
+        }
+      } else {
+        if (rowNode.data.symbol === selectedSymbol) {
+          data[selectedSymbol].push({
+            date: rowNode.data.businessDate,
+            value: rowNode.data[column]
+          });
+        }
       }
-    } else{
-      if(rowNode.data.symbol === selectedSymbol){
-        data[selectedSymbol].push({
-          date: rowNode.data.businessDate,
-          value: rowNode.data[column]
-        });
-      }
-    }
     });
 
     debugger;
 
     this.graphObject = {
-      xAxisLabel: 'Date',
-      yAxisLabel: 'Symbol',
-      lineColors: ['#ff6960', '#00bd9a'],
+      xAxisLabel: "Date",
+      yAxisLabel: "Symbol",
+      lineColors: ["#ff6960", "#00bd9a"],
       height: 410,
-      width: '95%',
+      width: "95%",
       chartTitle: selectedSymbol,
-      propId: 'marketPriceLineChart',
+      propId: "marketPriceLineChart",
       graphData: data,
-      dateTimeFormat: 'YYYY-MM-DD'
+      dateTimeFormat: "YYYY-MM-DD"
     };
 
     this.isExpanded = true;

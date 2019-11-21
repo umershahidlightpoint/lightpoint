@@ -61,7 +61,7 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
 
   initGrid() {
     this.allocationsGridOptions = {
-      rowData: null,
+      rowData: [],
       columnDefs: this.columnDefs,
       //onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },

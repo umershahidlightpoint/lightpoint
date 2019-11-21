@@ -1,8 +1,14 @@
 /* Core/Libraries Imports */
-import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterContentInit } from '@angular/core';
-import 'ag-grid-enterprise';
-import { GridOptions } from 'ag-grid-community';
-import * as moment from 'moment';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ChangeDetectorRef,
+  AfterContentInit
+} from "@angular/core";
+import "ag-grid-enterprise";
+import { GridOptions } from "ag-grid-community";
+import * as moment from "moment";
 /* Services/Components Imports */
 import {
   SideBar,
@@ -18,24 +24,25 @@ import {
   AutoSizeAllColumns,
   CommonCols,
   CalTotal
-} from 'src/shared/utils/Shared';
-import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
-import { DataService } from 'src/shared/common/data.service';
-import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
-import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
-import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
-import { AgGridUtils } from 'src/shared/utils/ag-grid-utils';
+} from "src/shared/utils/Shared";
+import { FinancePocServiceProxy } from "../../../shared/service-proxies/service-proxies";
+import { DataService } from "src/shared/common/data.service";
+import { DataModalComponent } from "../../../shared/Component/data-modal/data-modal.component";
+import { GridLayoutMenuComponent } from "../../../shared/Component/grid-layout-menu/grid-layout-menu.component";
+import { GridId, GridName } from "src/shared/utils/AppEnums";
+import { ReportModalComponent } from "src/shared/Component/report-modal/report-modal.component";
+import { GetContextMenu, ViewChart } from "src/shared/utils/ContextMenu";
+import { AgGridUtils } from "src/shared/utils/ag-grid-utils";
 
 @Component({
-  selector: 'app-trial-balance',
-  templateUrl: './trial-balance.component.html',
-  styleUrls: ['./trial-balance.component.css']
+  selector: "app-trial-balance",
+  templateUrl: "./trial-balance.component.html",
+  styleUrls: ["./trial-balance.component.css"]
 })
 export class TrialGridExampleComponent implements OnInit, AfterContentInit {
-  @ViewChild('dataModal',{ static: false }) dataModal: DataModalComponent;
-  @ViewChild('reportModal',{ static: false }) reportModal: ReportModalComponent;
+  @ViewChild("dataModal", { static: false }) dataModal: DataModalComponent;
+  @ViewChild("reportModal", { static: false })
+  reportModal: ReportModalComponent;
 
   private rowData: [];
   private columns: any;
@@ -46,7 +53,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   totalRecords: number;
   totalDebit: number;
   totalCredit: number;
-  fund: any = 'All Funds';
+  fund: any = "All Funds";
   funds: any;
   DateRangeLabel: any;
   selected: { startDate: moment.Moment; endDate: moment.Moment };
@@ -70,17 +77,17 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   styleForHeight = HeightStyle(220);
 
   excelParams = {
-    fileName: 'Trial Balance',
-    sheetName: 'First Sheet'
+    fileName: "Trial Balance",
+    sheetName: "First Sheet"
   };
 
   containerDiv = {
-    border: '1px solid #eee',
-    padding: '4px',
-    marginTop: '20px',
-    width: '100%',
-    height: 'calc(100vh - 125px)',
-    boxSizing: 'border-box'
+    border: "1px solid #eee",
+    padding: "4px",
+    marginTop: "20px",
+    width: "100%",
+    height: "calc(100vh - 125px)",
+    boxSizing: "border-box"
   };
 
   constructor(
@@ -113,12 +120,13 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       onCellDoubleClicked: this.openModal.bind(this),
       onFilterChanged: this.onFilterChanged.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
+      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
       isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       getExternalFilterState: this.getExternalFilterState.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       clearExternalFilter: this.clearFilters.bind(this),
-      rowSelection: 'single',
-      rowGroupPanelShow: 'after',
+      rowSelection: "single",
+      rowGroupPanelShow: "after",
       suppressColumnVirtualisation: true,
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
@@ -146,7 +154,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   }
 
   openModal(row) {
-    if (row.colDef.headerName === 'Group') {
+    if (row.colDef.headerName === "Group") {
       return;
     }
     // We can drive the screen that we wish to display from here
@@ -162,22 +170,26 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
 
     // Now need to go thru this list and group the right fields
     colDefs.forEach(col => {
-      if (col.field === 'AccountCategory') {
+      if (col.field === "AccountCategory") {
         col.rowGroup = true;
       }
-      if (col.field === 'accountName') {
+      if (col.field === "accountName") {
         col.rowGroup = true;
       }
     });
 
-    const cdefs = this.agGridUtls.customizeColumns(colDefs, columns, this.ignoreFields);
+    const cdefs = this.agGridUtls.customizeColumns(
+      colDefs,
+      columns,
+      this.ignoreFields
+    );
     this.gridOptions.api.setColumnDefs(cdefs);
   }
 
   getContextMenuItems(params) {
     const addCustomItems = [
       {
-        name: 'View Chart',
+        name: "View Chart",
         action: () => {
           const record = ViewChart(params);
           this.tableHeader = record[0];
@@ -190,14 +202,14 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   }
 
   getTrialBalance() {
-    this.symbol = 'ALL';
+    this.symbol = "ALL";
     const localThis = this;
     this.page = 0;
     this.pageSize = 0;
     this.accountSearch.id = 0;
     this.valueFilter = 0;
-    this.sortColum = '';
-    this.sortDirection = '';
+    this.sortColum = "";
+    this.sortDirection = "";
     this.financeService.getFunds().subscribe(result => {
       const localfunds = result.payload.map(item => ({
         FundCode: item.FundCode
@@ -228,8 +240,10 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
           // tslint:disable-next-line: forin
           for (const i in this.columns) {
             const field = this.columns[i].field;
-            if (this.columns[i].Type == 'System.DateTime') {
-              someObject[field] = moment(result.payload[item][field]).format('MM-DD-YYYY');
+            if (this.columns[i].Type == "System.DateTime") {
+              someObject[field] = moment(result.payload[item][field]).format(
+                "MM-DD-YYYY"
+              );
             } else {
               someObject[field] = result.payload[item][field];
             }
@@ -241,20 +255,20 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
         this.gridOptions.api.setRowData(this.rowData);
         this.pinnedBottomRowData = [
           {
-            source: 'Total Records:' + this.totalRecords,
-            AccountType: '',
-            accountName: '',
-            when: '',
+            source: "Total Records:" + this.totalRecords,
+            AccountType: "",
+            accountName: "",
+            when: "",
             debit: Math.abs(this.totalDebit),
             credit: Math.abs(this.totalCredit),
             balance: Math.abs(this.totalDebit) - Math.abs(this.totalCredit),
-            Commission: CalTotal(this.rowData, 'Commission'),
-            Fees: CalTotal(this.rowData, 'Fees'),
-            TradePrice: CalTotal(this.rowData, 'TradePrice'),
-            NetPrice: CalTotal(this.rowData, 'NetPrice'),
-            SettleNetPrice: CalTotal(this.rowData, 'SettleNetPrice'),
-            NetMoney: CalTotal(this.rowData, 'NetMoney'),
-            LocalNetNotional: CalTotal(this.rowData, 'LocalNetNotional')
+            Commission: CalTotal(this.rowData, "Commission"),
+            Fees: CalTotal(this.rowData, "Fees"),
+            TradePrice: CalTotal(this.rowData, "TradePrice"),
+            NetPrice: CalTotal(this.rowData, "NetPrice"),
+            SettleNetPrice: CalTotal(this.rowData, "SettleNetPrice"),
+            NetMoney: CalTotal(this.rowData, "NetMoney"),
+            LocalNetNotional: CalTotal(this.rowData, "LocalNetNotional")
           }
         ];
         this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
@@ -270,7 +284,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   }
 
   getRangeLabel() {
-    this.DateRangeLabel = '';
+    this.DateRangeLabel = "";
     this.DateRangeLabel = GetDateRangeLabel(this.startDate, this.endDate);
   }
 
@@ -278,21 +292,25 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     return {
       fundFilter: this.fund,
       dateFilter:
-        this.DateRangeLabel !== ''
+        this.DateRangeLabel !== ""
           ? this.DateRangeLabel
           : {
-              startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
-              endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
+              startDate:
+                this.startDate !== null
+                  ? this.startDate.format("YYYY-MM-DD")
+                  : "",
+              endDate:
+                this.endDate !== null ? this.endDate.format("YYYY-MM-DD") : ""
             }
     };
   }
 
   setWidthAndHeight(width, height) {
     this.style = {
-      marginTop: '20px',
+      marginTop: "20px",
       width,
       height,
-      boxSizing: 'border-box'
+      boxSizing: "border-box"
     };
   }
 
@@ -317,13 +335,18 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   }
 
   isExternalFilterPresent() {
-    if (this.fund !== 'All Funds' || this.startDate) {
+    if (this.fund !== "All Funds" || this.startDate) {
       return true;
     }
   }
 
   doesExternalFilterPass(node: any) {
-    return DoesExternalFilterPass(node, this.fund, moment(this.startDate), moment(this.endDate));
+    return DoesExternalFilterPass(
+      node,
+      this.fund,
+      moment(this.startDate),
+      moment(this.endDate)
+    );
   }
 
   setDateRange(dateFilter: any) {
@@ -332,16 +355,18 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     this.endDate = dates[1];
 
     this.selected =
-      dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
+      dateFilter.startDate !== ""
+        ? { startDate: this.startDate, endDate: this.endDate }
+        : null;
   }
 
   clearFilters() {
     this.gridOptions.api.redrawRows();
-    this.fund = 'All Funds';
-    this.DateRangeLabel = '';
+    this.fund = "All Funds";
+    this.DateRangeLabel = "";
     this.selected = null;
-    this.startDate = '';
-    this.endDate = '';
+    this.startDate = "";
+    this.endDate = "";
     this.gridOptions.api.setFilterModel(null);
     this.gridOptions.api.onFilterChanged();
   }

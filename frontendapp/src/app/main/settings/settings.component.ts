@@ -69,7 +69,7 @@ export class SettingsComponent implements OnInit {
 
   constructor(private financeService: FinancePocServiceProxy, private agGridUtils: AgGridUtils) {
     this.gridOptions = {
-      rowData: null,
+      rowData: [],
       columnDefs: this.columnDefs,
       onGridReady: () => {
         //this.gridOptions.api.sizeColumnsToFit();
@@ -85,7 +85,7 @@ export class SettingsComponent implements OnInit {
     } as GridOptions;
 
     this.allocationsGridOptions = {
-      rowData: null,
+      rowData: [],
       columnDefs: this.columnDefs,
       onGridReady: () => {
         //this.gridOptions.api.sizeColumnsToFit();

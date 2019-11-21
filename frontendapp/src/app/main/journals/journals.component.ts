@@ -1,20 +1,31 @@
-import { Component, OnInit, OnChanges, Input, SimpleChanges } from '@angular/core';
-import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
-import { GridOptions } from 'ag-grid-community';
-import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
-import { DataService } from 'src/shared/common/data.service';
-import { SideBar, AutoSizeAllColumns, FormatNumber4, CommaSeparatedFormat } from 'src/shared/utils/Shared';
-import { PostingEngineService } from 'src/shared/common/posting-engine.service';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { DataDictionary } from 'src/shared/utils/DataDictionary';
+import {
+  Component,
+  OnInit,
+  OnChanges,
+  Input,
+  SimpleChanges
+} from "@angular/core";
+import { FinancePocServiceProxy } from "../../../shared/service-proxies/service-proxies";
+import { GridOptions } from "ag-grid-community";
+import { AgGridUtils } from "../../../shared/utils/ag-grid-utils";
+import { DataService } from "src/shared/common/data.service";
+import {
+  SideBar,
+  AutoSizeAllColumns,
+  FormatNumber4,
+  CommaSeparatedFormat
+} from "src/shared/utils/Shared";
+import { PostingEngineService } from "src/shared/common/posting-engine.service";
+import { GridLayoutMenuComponent } from "src/shared/Component/grid-layout-menu/grid-layout-menu.component";
+import { GridId, GridName } from "src/shared/utils/AppEnums";
+import { DataDictionary } from "src/shared/utils/DataDictionary";
 
-import { Observable } from 'rxjs';
+import { Observable } from "rxjs";
 
 @Component({
-  selector: 'app-journals',
-  templateUrl: './journals.component.html',
-  styleUrls: ['./journals.component.css']
+  selector: "app-journals",
+  templateUrl: "./journals.component.html",
+  styleUrls: ["./journals.component.css"]
 })
 export class JournalsComponent implements OnInit, OnChanges {
   @Input() subscription: Observable<string>;
@@ -42,7 +53,6 @@ export class JournalsComponent implements OnInit, OnChanges {
         }
       });
     } else {
-      debugger;
       this.subscription.subscribe(data => {
         if (data != null) {
           this.getTradeJournals(data);
@@ -59,7 +69,6 @@ export class JournalsComponent implements OnInit, OnChanges {
         }
       });
     } else {
-      debugger;
       this.subscription.subscribe(data => {
         if (data != null) {
           this.getTradeJournals(data);
@@ -70,7 +79,7 @@ export class JournalsComponent implements OnInit, OnChanges {
 
   initGrid() {
     this.journalsGridOptions = {
-      rowData: null,
+      rowData: [],
       columnDefs: this.columnDefs,
       //onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
@@ -107,64 +116,68 @@ export class JournalsComponent implements OnInit, OnChanges {
       );
 
       let columnDefs = [
-        this.dataDictionary.column('when'),
-        this.dataDictionary.column('event'),
-        this.dataDictionary.column('debit'),
-        this.dataDictionary.column('credit'),
-        this.dataDictionary.column('balance'),
-        this.dataDictionary.column('end_price'),
-        this.dataDictionary.column('start_price'),
+        this.dataDictionary.column("when"),
+        this.dataDictionary.column("event"),
+        this.dataDictionary.column("debit"),
+        this.dataDictionary.column("credit"),
+        this.dataDictionary.column("balance"),
+        this.dataDictionary.column("end_price"),
+        this.dataDictionary.column("start_price"),
         {
-          field: 'AccountCategory',
+          field: "AccountCategory",
           width: 120,
-          headerName: 'Category',
+          headerName: "Category",
           enableRowGroup: true,
           sortable: true,
-          filter: true,
+          filter: true
         },
         {
-          field: 'AccountType',
+          field: "AccountType",
           width: 120,
-          headerName: 'Type',
+          headerName: "Type",
           enableRowGroup: true,
           sortable: true,
-          filter: true,
+          filter: true
         },
         {
-          field: 'AccountName',
+          field: "AccountName",
           width: 120,
-          headerName: 'Account Name',
+          headerName: "Account Name",
           enableRowGroup: true,
           sortable: true,
-          filter: true,
+          filter: true
         },
         {
-          field: 'AccountDescription',
+          field: "AccountDescription",
           width: 120,
-          headerName: 'Account Description',
+          headerName: "Account Description",
           enableRowGroup: true,
           sortable: true,
-          filter: true,
+          filter: true
         },
         {
-          field: 'fund',
+          field: "fund",
           width: 120,
-          headerName: 'Fund',
+          headerName: "Fund",
           enableRowGroup: true,
           sortable: true,
-          filter: true,
-        },
+          filter: true
+        }
       ];
-      const cdefs = this.agGridUtils.customizeColumns(columnDefs, this.journalsTradesData.meta.Columns, [
-        'account_id',
-        'id',
-        'value',
-        'source',
-        'generated_by',
-        'Id',
-        'AllocationId',
-        'EMSOrderId'
-      ]);
+      const cdefs = this.agGridUtils.customizeColumns(
+        columnDefs,
+        this.journalsTradesData.meta.Columns,
+        [
+          "account_id",
+          "id",
+          "value",
+          "source",
+          "generated_by",
+          "Id",
+          "AllocationId",
+          "EMSOrderId"
+        ]
+      );
       this.journalsGridOptions.api.setColumnDefs(cdefs);
       this.journalsData = someArray as [];
     });
@@ -188,4 +201,3 @@ function valueFormatter(params) {
 
   return CommaSeparatedFormat(params.value);
 }
-

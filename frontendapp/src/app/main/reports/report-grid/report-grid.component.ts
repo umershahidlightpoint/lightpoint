@@ -9,20 +9,28 @@ import {
   Output,
   AfterViewInit,
   EventEmitter
-} from '@angular/core';
-import { GridOptions } from 'ag-grid-community';
-import { CommaSeparatedFormat, AutoSizeAllColumns, SideBar } from 'src/shared/utils/Shared';
-import { TrialBalanceReport, TrialBalanceReportStats } from 'src/shared/Models/trial-balance';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
+} from "@angular/core";
+import { GridOptions } from "ag-grid-community";
+import {
+  CommaSeparatedFormat,
+  AutoSizeAllColumns,
+  SideBar
+} from "src/shared/utils/Shared";
+import {
+  TrialBalanceReport,
+  TrialBalanceReportStats
+} from "src/shared/Models/trial-balance";
+import { GridLayoutMenuComponent } from "src/shared/Component/grid-layout-menu/grid-layout-menu.component";
+import { GetContextMenu } from "src/shared/utils/ContextMenu";
+import { GridId, GridName } from "src/shared/utils/AppEnums";
 
 @Component({
-  selector: 'app-report-grid',
-  templateUrl: './report-grid.component.html',
-  styleUrls: ['./report-grid.component.css']
+  selector: "app-report-grid",
+  templateUrl: "./report-grid.component.html",
+  styleUrls: ["./report-grid.component.css"]
 })
-export class ReportGridComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
+export class ReportGridComponent
+  implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @Input() tableHeader: string;
   @Input() trialBalanceReport: Array<TrialBalanceReport>;
   @Input() trialBalanceReportStats: TrialBalanceReportStats;
@@ -43,15 +51,23 @@ export class ReportGridComponent implements OnInit, OnChanges, OnDestroy, AfterV
   }
 
   ngAfterViewInit(): void {
-    debugger
+    debugger;
     AutoSizeAllColumns(this.gridOptions);
     this.gridOptions.api.sizeColumnsToFit();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    const { tableHeader, trialBalanceReport, trialBalanceReportStats } = changes;
+    const {
+      tableHeader,
+      trialBalanceReport,
+      trialBalanceReportStats
+    } = changes;
     if (this.isTrialBalance && this.isDataLoaded) {
-      this.initGridData(tableHeader, this.trialBalanceReport, this.trialBalanceReportStats);
+      this.initGridData(
+        tableHeader,
+        this.trialBalanceReport,
+        this.trialBalanceReportStats
+      );
     } else if (
       trialBalanceReport.currentValue !== undefined &&
       tableHeader.currentValue !== undefined
@@ -64,12 +80,16 @@ export class ReportGridComponent implements OnInit, OnChanges, OnDestroy, AfterV
     }
   }
 
-  initGridData(tableHeader: any, trialBalanceReport: any, trialBalanceReportStats: any) {
+  initGridData(
+    tableHeader: any,
+    trialBalanceReport: any,
+    trialBalanceReportStats: any
+  ) {
     this.gridOptions.api.setColumnDefs(this.initColDefs(tableHeader));
     this.gridOptions.api.setRowData(trialBalanceReport);
     const pinnedBottomRowData = [
       {
-        accountName: 'Total ',
+        accountName: "Total ",
         debit: Math.abs(trialBalanceReportStats.totalDebit),
         credit: Math.abs(trialBalanceReportStats.totalCredit),
         balance:
@@ -85,14 +105,14 @@ export class ReportGridComponent implements OnInit, OnChanges, OnDestroy, AfterV
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      pinnedBottomRowData: null,
+      pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      // Custom made methods for Grid Menu Layout
+      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
       isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       getExternalFilterState: this.getExternalFilterState.bind(this),
       clearExternalFilter: this.clear.bind(this),
-      rowSelection: 'single',
-      rowGroupPanelShow: 'after',
+      rowSelection: "single",
+      rowGroupPanelShow: "after",
       suppressColumnVirtualisation: true,
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {},
@@ -125,36 +145,38 @@ export class ReportGridComponent implements OnInit, OnChanges, OnDestroy, AfterV
   initColDefs(headerName) {
     return [
       {
-        colId: 'accountName',
-        field: 'accountName',
+        colId: "accountName",
+        field: "accountName",
         width: 120,
         headerName
       },
       {
-        colId: 'debit',
-        field: 'debit',
+        colId: "debit",
+        field: "debit",
         width: 120,
-        headerName: 'Debit',
+        headerName: "Debit",
         cellStyle: params => {
           if (params.data.debitPercentage > 0) {
             return {
-              backgroundSize: !params.data.debitPercentage ? 0 : params.data.debitPercentage + '%',
-              backgroundRepeat: 'no-repeat'
+              backgroundSize: !params.data.debitPercentage
+                ? 0
+                : params.data.debitPercentage + "%",
+              backgroundRepeat: "no-repeat"
             };
           }
-          return { textAlign: 'end' };
+          return { textAlign: "end" };
         },
         cellClass: params => {
           if (params.data.debitPercentage > 0) {
-            return 'debit';
+            return "debit";
           }
         },
         valueFormatter: currencyFormatter
       },
       {
-        colId: 'credit',
-        field: 'credit',
-        headerName: 'Credit',
+        colId: "credit",
+        field: "credit",
+        headerName: "Credit",
         filter: true,
         width: 120,
         cellStyle: params => {
@@ -162,36 +184,42 @@ export class ReportGridComponent implements OnInit, OnChanges, OnDestroy, AfterV
             return {
               backgroundSize: !params.data.creditPercentage
                 ? 0
-                : params.data.creditPercentage + '%',
-              backgroundRepeat: 'no-repeat',
-              color: 'red'
+                : params.data.creditPercentage + "%",
+              backgroundRepeat: "no-repeat",
+              color: "red"
             };
           }
-          return { textAlign: 'end', color: 'red' };
+          return { textAlign: "end", color: "red" };
         },
         cellClass: params => {
           if (params.data.creditPercentage > 0) {
-            return 'credit';
+            return "credit";
           }
         },
         valueFormatter: currencyFormatter
       },
       {
-        colId: 'balance',
-        field: 'balance',
-        headerName: 'Balance',
+        colId: "balance",
+        field: "balance",
+        headerName: "Balance",
         width: 100,
         filter: true,
-        cellClass: 'rightAlign',
+        cellClass: "rightAlign",
         sortable: true,
         cellStyle: params => {
-          if (params.data.accountName === 'Total' && params.data.balance !== 0) {
-            return { backgroundColor: 'red' };
+          if (
+            params.data.accountName === "Total" &&
+            params.data.balance !== 0
+          ) {
+            return { backgroundColor: "red" };
           }
-          if (params.data.accountName !== 'Total' && params.data.balance > 0) {
-            return { textAlign: 'end', color: 'green' };
-          } else if (params.data.accountName !== 'Total' && params.data.balance < 0) {
-            return { textAlign: 'end', color: 'red' };
+          if (params.data.accountName !== "Total" && params.data.balance > 0) {
+            return { textAlign: "end", color: "green" };
+          } else if (
+            params.data.accountName !== "Total" &&
+            params.data.balance < 0
+          ) {
+            return { textAlign: "end", color: "red" };
           }
         },
         valueFormatter: absCurrencyFormatter
