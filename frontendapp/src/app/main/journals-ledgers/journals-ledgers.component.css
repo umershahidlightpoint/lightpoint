@@ -43,17 +43,19 @@ html {
 }
 
 /*
-  Want to make sure the scrollbar is shown
+  Want to Make Sure the Scrollbar is Shown
   */
 .ag-body-viewport-wrapper.ag-layout-normal {
   overflow-x: scroll;
   overflow-y: scroll;
 }
+
 ::-webkit-scrollbar {
   -webkit-appearance: none;
   width: 8px;
   height: 8px;
 }
+
 ::-webkit-scrollbar-thumb {
   border-radius: 4px;
   background-color: rgba(0, 0, 0, 0.5);
@@ -62,4 +64,8 @@ html {
 
 .add-journal-btn {
   margin-left: -0.9rem;
+}
+
+.font-weight-500 {
+  font-weight: 500;
 }
