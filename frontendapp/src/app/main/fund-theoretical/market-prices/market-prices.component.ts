@@ -117,6 +117,7 @@ export class MarketPricesComponent implements OnInit {
           modified: false
         }));
         this.marketPriceGrid.api.setRowData(this.gridData);
+        this.marketPriceGrid.api.sizeColumnsToFit();
       }
     });
   }
@@ -148,9 +149,7 @@ export class MarketPricesComponent implements OnInit {
         //this.marketPriceGrid.api = params.api;
         AutoSizeAllColumns(params);
       },
-      onFirstDataRendered: params => {
-        AutoSizeAllColumns(params);
-      },
+      onFirstDataRendered: params => {},
       onCellValueChanged: params => {
         this.onCellValueChanged(params);
       },
@@ -176,7 +175,7 @@ export class MarketPricesComponent implements OnInit {
   initCols() {
     const colDefs = this.getColDefs();
     this.marketPriceGrid.api.setColumnDefs(colDefs);
-    this.marketPriceGrid.api.sizeColumnsToFit();
+    // this.marketPriceGrid.api.sizeColumnsToFit();
   }
 
   doesExternalFilterPass(node) {
