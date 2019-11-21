@@ -606,6 +606,7 @@ namespace PostingEngine
                 sw.Start();
                 postingEnv.Rules = postingEnv.TradingRules;
                 postingEnv.SkipWeekends = true;
+                // differentiating between trades and journals. Moving forward we can create journal entries per symbol in a parallel fashion.
                 postingEnv.Trades = tradeList.Where(i => !i.SecurityType.Equals("Journals")).ToArray();
                 postingEnv.CallBack = postingEngineCallBack;
                 int count = RunAsync(connection, transaction, postingEnv).GetAwaiter().GetResult();
@@ -615,6 +616,7 @@ namespace PostingEngine
                 sw.Start();
                 postingEnv.Rules = postingEnv.JournalRules;
                 postingEnv.SkipWeekends = false;
+                // zz_ journal entries from legacy system. just create double entry in portfolio accounting for each journal entry in the legacy system.
                 postingEnv.Trades = tradeList.Where(i => i.SecurityType.Equals("Journals")).ToArray();
                 postingEnv.CallBack = postingEngineCallBack;
                 count = count + RunAsync(connection, transaction, postingEnv).GetAwaiter().GetResult();
@@ -826,6 +828,7 @@ namespace PostingEngine
                 //PostingEngineCallBack?.Invoke($"Sorted / Filtered Trades in {sw.ElapsedMilliseconds} ms");
 
                 // BUY || SHORT trades
+                // creates tax lots
                 var buyShort = tradeData.Where(i => i.TradeDate.Equals(valueDate) && (i.IsBuy() || i.IsShort())).ToList();
                 foreach(var trade in buyShort)
                 {
@@ -851,6 +854,8 @@ namespace PostingEngine
                 }
 
                 // SELL || COVER trades
+                //alleviates tax lots
+                // generates realized pnl.
                 var sellCover = tradeData.Where(i => i.TradeDate.Equals(valueDate) && (i.IsSell() || i.IsCover())).ToList();
                 foreach (var trade in sellCover)
                 {
@@ -878,6 +883,7 @@ namespace PostingEngine
                 }
 
                 // Credit || DEBIT Entries
+                //interest payments, dividends etc
                 var debitCover = tradeData.Where(i => i.TradeDate.Equals(valueDate) && (i.IsDebit() || i.IsCredit())).ToList();
                 foreach (var trade in debitCover)
                 {
@@ -902,6 +908,8 @@ namespace PostingEngine
                 }
 
                 // Do Settlement and Daily Events here
+                // daily event for generating unrealized pnl.
+                // settlement date reverses trade date entries.
                 foreach (var element in tradeData)
                 {
                     // We only process trades that have not broken
