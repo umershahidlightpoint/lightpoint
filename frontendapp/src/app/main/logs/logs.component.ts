@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { Style, HeightStyle } from 'src/shared/utils/Shared';
 import * as moment from 'moment';
@@ -61,7 +61,7 @@ export class LogsComponent implements OnInit {
     };
   }
 
-  constructor(private financeService: FinancePocServiceProxy) {
+  constructor(private financeService: FinanceServiceProxy) {
     this.gridOptions = {
       rowData: [],
       columnDefs: this.columnDefs,

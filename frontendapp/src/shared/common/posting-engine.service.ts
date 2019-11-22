@@ -1,5 +1,5 @@
 import { Injectable, Output, EventEmitter } from '@angular/core';
-import { FinancePocServiceProxy } from '../service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../service-proxies/service-proxies';
 import { takeWhile } from 'rxjs/operators';
 import { DataService } from './data.service';
 
@@ -11,7 +11,7 @@ export class PostingEngineService {
   progress = 0;
   isSubscriptionAlive: boolean;
 
-  constructor(private financeService: FinancePocServiceProxy, private dataService: DataService) {
+  constructor(private financeService: FinanceServiceProxy, private dataService: DataService) {
     this.isSubscriptionAlive = true;
   }
 

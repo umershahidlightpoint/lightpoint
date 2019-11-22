@@ -7,7 +7,7 @@ import {
   EventEmitter,
   Input
 } from "@angular/core";
-import { FinancePocServiceProxy } from "../../../shared/service-proxies/service-proxies";
+import { FinanceServiceProxy } from "../../../shared/service-proxies/service-proxies";
 import { GridOptions } from "ag-grid-community";
 import { AgGridUtils } from "../../../shared/utils/ag-grid-utils";
 import { DataModalComponent } from "../../../shared/Component/data-modal/data-modal.component";
@@ -61,7 +61,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
   }
 
   constructor(
-    private financeService: FinancePocServiceProxy,
+    private financeService: FinanceServiceProxy,
     private postingEngineService: PostingEngineService,
     private dataService: DataService,
     private agGridUtils: AgGridUtils

@@ -20,7 +20,7 @@ import {
 import { GetContextMenu } from "src/shared/utils/ContextMenu";
 import { DecimalPipe } from "@angular/common";
 import { Moment } from "moment";
-import { FinancePocServiceProxy } from "src/shared/service-proxies/service-proxies";
+import { FinanceServiceProxy } from "src/shared/service-proxies/service-proxies";
 import { takeWhile } from "rxjs/operators";
 import { ConfirmationModalComponent } from "src/shared/Component/confirmation-modal/confirmation-modal.component";
 import { TemplateRendererComponent } from "src/app/template-renderer/template-renderer.component";
@@ -64,7 +64,7 @@ export class TaxRatesComponent implements OnInit, AfterViewInit, OnDestroy {
   overlappingStyle = { backgroundColor: "#f9a89f" };
 
   constructor(
-    private financeService: FinancePocServiceProxy,
+    private financeService: FinanceServiceProxy,
     private toastrService: ToastrService,
     public decimalPipe: DecimalPipe
   ) {

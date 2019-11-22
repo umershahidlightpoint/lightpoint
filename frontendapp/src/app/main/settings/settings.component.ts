@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
 import { Style, HeightStyle } from '../../../shared/utils/Shared';
@@ -67,7 +67,7 @@ export class SettingsComponent implements OnInit {
     }
   }
 
-  constructor(private financeService: FinancePocServiceProxy, private agGridUtils: AgGridUtils) {
+  constructor(private financeService: FinanceServiceProxy, private agGridUtils: AgGridUtils) {
     this.gridOptions = {
       rowData: [],
       columnDefs: this.columnDefs,

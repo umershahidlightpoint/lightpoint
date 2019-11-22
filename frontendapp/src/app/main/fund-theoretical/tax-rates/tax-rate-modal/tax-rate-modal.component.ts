@@ -1,9 +1,16 @@
-import { Component, OnInit, ViewChild, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  Output,
+  EventEmitter,
+  OnDestroy
+} from '@angular/core';
 import { ModalDirective } from 'ngx-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import { takeWhile } from 'rxjs/operators';
 import * as moment from 'moment';
-import { FinancePocServiceProxy } from '../../../../../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../../../../../shared/service-proxies/service-proxies';
 
 @Component({
   selector: 'app-tax-rate-modal',
@@ -11,7 +18,7 @@ import { FinancePocServiceProxy } from '../../../../../shared/service-proxies/se
   styleUrls: ['./tax-rate-modal.component.css']
 })
 export class TaxRateModalComponent implements OnInit, OnDestroy {
-  @ViewChild('modal',{ static: false }) modal: ModalDirective;
+  @ViewChild('modal', { static: false }) modal: ModalDirective;
   @Output() closeModalEvent = new EventEmitter<any>();
 
   taxRate: any;
@@ -26,7 +33,7 @@ export class TaxRateModalComponent implements OnInit, OnDestroy {
 
   constructor(
     private toastrService: ToastrService,
-    private financeService: FinancePocServiceProxy
+    private financeService: FinanceServiceProxy
   ) {}
 
   ngOnInit() {

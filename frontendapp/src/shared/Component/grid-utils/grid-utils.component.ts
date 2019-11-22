@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
-import { FinancePocServiceProxy } from 'src/shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
 import { AutoSizeAllColumns } from 'src/shared/utils/Shared';
 
@@ -22,7 +22,7 @@ export class GridUtilsComponent implements OnInit {
   @Output() refresh: EventEmitter<any> = new EventEmitter<any>();
 
   constructor(
-    private financeService: FinancePocServiceProxy,
+    private financeService: FinanceServiceProxy,
     private downloadExcelUtils: DownloadExcelUtils
   ) {}
 

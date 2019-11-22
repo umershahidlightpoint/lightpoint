@@ -1,5 +1,5 @@
 import { Component, TemplateRef, OnInit, AfterViewInit, ViewChild, OnDestroy } from '@angular/core';
-import { FinancePocServiceProxy } from '../../../../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { takeWhile } from 'rxjs/operators';
 import { TemplateRendererComponent } from '../../../template-renderer/template-renderer.component';
@@ -36,7 +36,7 @@ export class SilverFileManagementComponent implements OnInit, AfterViewInit, OnD
     boxSizing: 'border-box'
   };
 
-  constructor(private financeService: FinancePocServiceProxy) {
+  constructor(private financeService: FinanceServiceProxy) {
     this.isSubscriptionAlive = true;
     this.initGrid();
   }

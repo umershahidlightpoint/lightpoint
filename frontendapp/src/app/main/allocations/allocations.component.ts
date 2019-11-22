@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
 import { DataService } from 'src/shared/common/data.service';
@@ -21,7 +21,7 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
   columnDefs = [];
 
   constructor(
-    private financeService: FinancePocServiceProxy,
+    private financeService: FinanceServiceProxy,
     private dataService: DataService,
     private agGridUtils: AgGridUtils
   ) {

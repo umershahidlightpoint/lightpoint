@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
-import { FinancePocServiceProxy } from '../../../../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
 import { Fund } from '../../../../shared/Models/account';
 import {
   TrialBalanceReport,
@@ -56,7 +56,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
   };
 
   constructor(
-    private financeService: FinancePocServiceProxy,
+    private financeService: FinanceServiceProxy,
     private dataService: DataService,
     private downloadExcelUtils: DownloadExcelUtils
   ) {

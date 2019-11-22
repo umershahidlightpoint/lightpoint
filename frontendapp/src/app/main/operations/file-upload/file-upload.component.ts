@@ -1,5 +1,5 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
-import { FinancePocServiceProxy } from 'src/shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies';
 import { ToastrService } from 'ngx-toastr';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 
@@ -20,7 +20,7 @@ export class FileUploadComponent implements OnInit {
   fileTypes = ['Monthly Performance', 'Daily PnL', 'Market Prices'];
 
   constructor(
-    private financeService: FinancePocServiceProxy,
+    private financeService: FinanceServiceProxy,
     private toastrService: ToastrService
   ) {}
 

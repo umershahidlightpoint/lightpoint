@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, TemplateRef, ViewChild } from '@angular/core';
-import { FinancePocServiceProxy } from 'src/shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies';
 import { take } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { GridOptions } from 'ag-grid-community';
@@ -29,7 +29,7 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
   styleForHeight = HeightStyle(180);
 
   constructor(
-    private financeService: FinancePocServiceProxy,
+    private financeService: FinanceServiceProxy,
     private toastrService: ToastrService,
     private dataService: DataService
   ) {}
