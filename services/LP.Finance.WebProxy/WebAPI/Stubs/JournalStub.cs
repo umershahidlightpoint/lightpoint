@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
 using LP.Finance.WebProxy.WebAPI.Services;
@@ -69,6 +70,11 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
         }
 
         public object GetReconReport(DateTime? date, string fund)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object GetSummarizedJournal(List<GridLayoutDto> layout)
         {
             throw new NotImplementedException();
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using LP.Finance.Common.Dtos;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
@@ -20,5 +21,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object GetTaxLotsReport(DateTime? from, DateTime? to, string fund);
         object GetAccountingTileData(DateTime? from, DateTime? to, string fund);
         object GetClosingTaxLots(string orderid);
+        object GetSummarizedJournal(List<GridLayoutDto> layout);
     }
 }

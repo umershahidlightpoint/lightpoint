@@ -3,6 +3,7 @@ using System.Web.Http;
 using LP.Finance.Common.Dtos;
 using LP.Finance.WebProxy.WebAPI.Services;
 using LP.Finance.Common.Cache;
+using System.Collections.Generic;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -121,6 +122,13 @@ namespace LP.Finance.WebProxy.WebAPI
         public object DeleteJournal(Guid source)
         {
             return controller.DeleteJournal(source);
+        }
+
+        [Route("summary")]
+        [HttpPost]
+        public object GetSummarizedJournal(List<GridLayoutDto> layout)
+        {
+            return controller.GetSummarizedJournal(layout);
         }
     }
 }
