@@ -23,6 +23,7 @@ namespace LP.Finance.Common
         public int? rowGroupIndex { get; set; }
         public string colId { get; set; }
         public bool hide { get; set; }
+        public string aggFunc { get; set; }
     }
 
     public class Response

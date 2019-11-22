@@ -605,4 +605,9 @@ export class FinanceServiceProxy {
     const url = this.baseUrl + '/taxRate/' + id;
     return this.http.delete(url).pipe(map((response: any) => response));
   }
+
+  getJournalSummary(payload: any): Observable<any> {
+    const url = this.baseUrl + '/journal/summary';
+    return this.http.post(url, {payload}).pipe(map((response: any) => response));
+  }
 }

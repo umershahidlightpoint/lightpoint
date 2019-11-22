@@ -929,28 +929,32 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object GetSummarizedJournal(List<GridLayoutDto> layout)
         {
-            var groups = layout.Where(x => x.rowGroupIndex.HasValue).OrderBy(x => x.rowGroupIndex).ToList();
-            var map = new Dictionary<string, string>();
-            map.Add("fund", "fund");
-            map.Add("AccountCategory", "[account_category].[name] as AccountCategory");
-            map.Add("AccountType", "[account_type].[name] as AccountType");
-            map.Add("accountName", "[account].[name] as accountName");
-            map.Add("Quantity", "Quantity");
-            map.Add("Symbol", "Symbol");
-            StringBuilder dynamicMainSelect = new StringBuilder();
-            StringBuilder dynamicInnerSelect = new StringBuilder();
-            StringBuilder dynamicGrouping = new StringBuilder();
-            foreach (var item in groups)
+            try
             {
-                dynamicMainSelect.Append("d.").Append(item.colId).Append(",");
-                dynamicInnerSelect.Append(map[item.colId]).Append(",");
-                dynamicGrouping.Append("d.").Append(item.colId).Append(",");
-            }
+                var groups = layout.Where(x => x.rowGroupIndex.HasValue).OrderBy(x => x.rowGroupIndex).ToList();
+                if (groups.Count > 0)
+                {
+                    var map = new Dictionary<string, string>();
+                    map.Add("fund", "fund");
+                    map.Add("AccountCategory", "[account_category].[name] as AccountCategory");
+                    map.Add("AccountType", "[account_type].[name] as AccountType");
+                    map.Add("accountName", "[account].[name] as accountName");
+                    map.Add("Quantity", "Quantity");
+                    map.Add("Symbol", "Symbol");
+                    StringBuilder dynamicMainSelect = new StringBuilder();
+                    StringBuilder dynamicInnerSelect = new StringBuilder();
+                    StringBuilder dynamicGrouping = new StringBuilder();
+                    foreach (var item in groups)
+                    {
+                        dynamicMainSelect.Append("d.").Append(item.colId).Append(",");
+                        dynamicInnerSelect.Append(map[item.colId]).Append(",");
+                        dynamicGrouping.Append("d.").Append(item.colId).Append(",");
+                    }
 
-            string mainSelect = dynamicMainSelect.ToString();
-            string innerSelect = dynamicInnerSelect.ToString();
-            string grouping = dynamicGrouping.ToString().TrimEnd(',');
-            var query = $@"select 
+                    string mainSelect = dynamicMainSelect.ToString();
+                    string innerSelect = dynamicInnerSelect.ToString();
+                    string grouping = dynamicGrouping.ToString().TrimEnd(',');
+                    var query = $@"select 
                         {mainSelect}
 						sum(d.debit) as debitSum,
                         sum(d.credit) as creditSum
@@ -972,22 +976,36 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         join[account_type] with(nolock) on[account].account_type_id = [account_type].id
                         join[account_category] with(nolock) on[account_type].account_category_id = [account_category].id ) as d group by {grouping}";
 
-            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
-            var metaData = MetaData.ToMetaData(dataTable);
-            foreach(var item in metaData.Columns)
-            {
-                var group = groups.Where(x => x.colId == item.field).FirstOrDefault();
-                if(group != null)
+                    var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
+                    var metaData = MetaData.ToMetaData(dataTable);
+                    foreach (var item in metaData.Columns)
+                    {
+                        var group = groups.Where(x => x.colId == item.field).FirstOrDefault();
+                        if (group != null)
+                        {
+                            item.colId = item.field;
+                            item.rowGroupIndex = group.rowGroupIndex;
+                        }
+                        else
+                        {
+                            item.aggFunc = "sum";
+                        }
+                    }
+
+                    var jsonResult = JsonConvert.SerializeObject(dataTable);
+                    dynamic json = JsonConvert.DeserializeObject(jsonResult);
+                    var result = Utils.Wrap(true, json, HttpStatusCode.OK, null, metaData);
+                    return result;
+                }
+                else
                 {
-                    item.colId = item.field;
-                    item.rowGroupIndex = group.rowGroupIndex; 
+                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Grouping is not Present in this Layout");
                 }
             }
-
-            var jsonResult = JsonConvert.SerializeObject(dataTable);
-            dynamic json = JsonConvert.DeserializeObject(jsonResult);
-            var result = Utils.Wrap(true, json, HttpStatusCode.OK, null, metaData);
-            return result;
+            catch (Exception ex)
+            {
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError, "Something Bad Happened!");
+            }
         }
     }
 }

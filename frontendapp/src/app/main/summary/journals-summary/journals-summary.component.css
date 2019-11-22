@@ -1,0 +1,12 @@
+/******************************
+***  AG Grid Column Styles  ***
+******************************/
+::ng-deep .redFont {
+  color: red;
+  font-style: italic;
+}
+
+::ng-deep .greenFont {
+  color: green;
+  font-style: italic;
+}

@@ -5,15 +5,16 @@
     <div class="col-3">
         <select class="form-control" [(ngModel)]="gridLayout" (ngModelChange)="changeGridLayout($event)">
             <option [disabled]="true">Select a Layout</option>
-            <option *ngFor="let gridLayout of gridLayouts">
-                {{ gridLayout }}
+            <option *ngFor="let gridLayout of gridLayouts" [ngValue]="gridLayout">
+                {{ gridLayout.GridLayoutName }}
             </option>
         </select>
     </div>
     <!-- Layouts Dropdown Div Ends -->
     <!-- Grid Util Actions -->
     <div class="ml-auto mr-2">
-        <app-grid-utils class="mr-4" [gridOptions]="gridOptions" (refresh)="refreshGrid()" [excelParams]="excelParams">
+        <app-grid-utils class="mr-4" [gridOptions]="gridOptions" [utilsConfig]="utilsConfig" (refresh)="refreshGrid()"
+            [excelParams]="excelParams">
         </app-grid-utils>
     </div>
     <!-- Grid Util Actions Ends -->
