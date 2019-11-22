@@ -6,7 +6,7 @@ import {
   ViewChild,
   OnDestroy
 } from '@angular/core';
-import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { takeWhile } from 'rxjs/operators';
 import * as moment from 'moment';
@@ -105,7 +105,7 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   ];
 
   constructor(
-    private financeService: FinancePocServiceProxy,
+    private financeService: FinanceServiceProxy,
     private toastrService: ToastrService,
     private postingEngineService: PostingEngineService
   ) {

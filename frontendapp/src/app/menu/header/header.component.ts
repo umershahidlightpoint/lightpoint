@@ -2,7 +2,7 @@ import { Component, OnInit, Input, DoCheck, AfterViewInit, OnDestroy } from '@an
 import { MatSidenav } from '@angular/material';
 import * as moment from 'moment';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
-import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { takeWhile } from 'rxjs/operators';
 
 @Component({
@@ -22,7 +22,7 @@ export class HeaderComponent implements OnInit, DoCheck, AfterViewInit, OnDestro
 
   constructor(
     private postingEngineService: PostingEngineService,
-    private financeService: FinancePocServiceProxy
+    private financeService: FinanceServiceProxy
   ) {
     this.isSubscriptionAlive = true;
   }

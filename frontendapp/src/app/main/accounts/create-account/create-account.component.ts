@@ -24,7 +24,7 @@ import {
   Account,
   AccountTag
 } from "../../../../shared/Models/account";
-import { FinancePocServiceProxy } from "../../../../shared/service-proxies/service-proxies";
+import { FinanceServiceProxy } from "../../../../shared/service-proxies/service-proxies";
 import { ToastrService } from "ngx-toastr";
 import { takeWhile } from "rxjs/operators";
 
@@ -63,7 +63,7 @@ export class CreateAccountComponent implements OnInit, OnChanges {
   constructor(
     private router: Router,
     private formBuilder: FormBuilder,
-    private financePocServiceProxy: FinancePocServiceProxy,
+    private financePocServiceProxy: FinanceServiceProxy,
     private toastrService: ToastrService
   ) {
     this.isSubscriptionAlive = true;

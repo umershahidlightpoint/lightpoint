@@ -11,7 +11,7 @@ import { GridLayoutMenuComponent } from "src/shared/Component/grid-layout-menu/g
 import { GridId, GridName } from "src/shared/utils/AppEnums";
 import { GetContextMenu } from "src/shared/utils/ContextMenu";
 import { DecimalPipe } from "@angular/common";
-import { FinancePocServiceProxy } from "src/shared/service-proxies/service-proxies";
+import { FinanceServiceProxy } from "src/shared/service-proxies/service-proxies";
 import { ToastrService } from "ngx-toastr";
 import { UtilsConfig } from "src/shared/Models/utils-config";
 import { DailyUnofficialPnLData } from "src/shared/Models/funds-theoretical";
@@ -50,7 +50,7 @@ export class DailyPnlComponent implements OnInit {
   };
 
   constructor(
-    private financeService: FinancePocServiceProxy,
+    private financeService: FinanceServiceProxy,
     private toastrService: ToastrService,
     public decimalPipe: DecimalPipe
   ) {}

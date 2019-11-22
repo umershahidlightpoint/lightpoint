@@ -1,5 +1,11 @@
 /* Core/Library Imports */
-import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ChangeDetectorRef,
+  AfterViewInit
+} from '@angular/core';
 import 'ag-grid-enterprise';
 import { GridOptions } from 'ag-grid-community';
 import * as moment from 'moment';
@@ -19,7 +25,7 @@ import {
   CalTotal
 } from 'src/shared/utils/Shared';
 import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
-import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { DataService } from '../../../shared/common/data.service';
 import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
@@ -51,9 +57,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   gridOptions: GridOptions;
   gridLayouts: any;
   pinnedBottomRowData;
-  totalRecords: number = 0;
-  totalDebit: number = 0;
-  totalCredit: number = 0;
+  totalRecords = 0;
   fund: any = 'All Funds';
   filterBySymbol = '';
   symbol = '';
@@ -95,7 +99,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
 
   constructor(
     private cdRef: ChangeDetectorRef,
-    private financeService: FinancePocServiceProxy,
+    private financeService: FinanceServiceProxy,
     private dataService: DataService,
     private postingEngineService: PostingEngineService,
     private agGridUtls: AgGridUtils,
@@ -182,7 +186,11 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       this.dataDictionary.column('end_price'),
       this.dataDictionary.column('fxrate')
     ];
-    const cdefs = this.agGridUtls.customizeColumns(colDefs, columns, this.ignoreFields);
+    const cdefs = this.agGridUtls.customizeColumns(
+      colDefs,
+      columns,
+      this.ignoreFields
+    );
     this.gridOptions.api.setColumnDefs(cdefs);
   }
 
@@ -227,66 +235,89 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         this.sortColum,
         this.sortDirection
       )
-      .subscribe(result => {
-        if (result.meta.Total > 0) {
-          pageNumber += 1;
-          this.getJournalData(pageNumber, 10000, false);
+      .subscribe(
+        result => {
+          if (result.meta.Total > 0) {
+            pageNumber += 1;
+            this.getJournalData(pageNumber, 10000, false);
 
-          this.columns = result.meta.Columns;
-          this.totalRecords += result.meta.Total;
-          //this.rowData = [];
-          const someArray = [];
-          // tslint:disable-next-line: forin
-          for (const item in result.payload) {
-            const someObject = {};
+            this.columns = result.meta.Columns;
+            this.totalRecords += result.meta.Total;
+            //this.rowData = [];
+            const someArray = [];
             // tslint:disable-next-line: forin
-            for (const i in this.columns) {
-              const field = this.columns[i].field;
-              if (this.columns[i].Type == 'System.DateTime') {
-                someObject[field] = moment(result.payload[item][field]).format('MM-DD-YYYY');
-              } else {
-                someObject[field] = result.payload[item][field];
+            for (const item in result.payload) {
+              const someObject = {};
+              // tslint:disable-next-line: forin
+              for (const i in this.columns) {
+                const field = this.columns[i].field;
+                if (this.columns[i].Type == 'System.DateTime') {
+                  someObject[field] = moment(
+                    result.payload[item][field]
+                  ).format('MM-DD-YYYY');
+                } else {
+                  someObject[field] = result.payload[item][field];
+                }
               }
+              someArray.push(someObject);
             }
-            someArray.push(someObject);
-          }
-          this.customizeColumns(this.columns);
-          this.rowData = this.rowData.concat(someArray as []);
-          if (!initialLoad) {
-            this.gridOptions.api.updateRowData({ add: someArray });
-          } else {
-            this.gridOptions.api.setRowData(this.rowData);
-          }
+            this.customizeColumns(this.columns);
+            this.rowData = this.rowData.concat(someArray as []);
+            if (!initialLoad) {
+              this.gridOptions.api.updateRowData({ add: someArray });
+            } else {
+              this.gridOptions.api.setRowData(this.rowData);
+            }
 
-          this.totalCredit = CalTotal(this.rowData, 'credit');
-          this.totalDebit = CalTotal(this.rowData, 'debit');
-          this.pinnedBottomRowData = [
+            const fieldsSum: Array<{ name: string; total: number }> = CalTotal(
+              this.rowData,
+              [
+                { name: 'debit', total: 0 },
+                { name: 'credit', total: 0 },
+                { name: 'Commission', total: 0 },
+                { name: 'Fees', total: 0 },
+                { name: 'TradePrice', total: 0 },
+                { name: 'NetPrice', total: 0 },
+                { name: 'SettleNetPrice', total: 0 },
+                { name: 'NetMoney', total: 0 },
+                { name: 'LocalNetNotional', total: 0 },
+                { name: 'value', total: 0 }
+              ]
+            );
+            this.pinnedBottomRowData = [
               {
                 source: 'Total Records:' + this.totalRecords,
                 AccountType: '',
                 accountName: '',
                 when: '',
-                debit: this.totalDebit,
-                credit: this.totalCredit,
-                balance: Math.abs(this.totalDebit) - Math.abs(this.totalCredit),
-                Commission: CalTotal(this.rowData, 'Commission'),
-                Fees: CalTotal(this.rowData, 'Fees'),
-                TradePrice: CalTotal(this.rowData, 'TradePrice'),
-                NetPrice: CalTotal(this.rowData, 'NetPrice'),
-                SettleNetPrice: CalTotal(this.rowData, 'SettleNetPrice'),
-                NetMoney: CalTotal(this.rowData, 'NetMoney'),
-                LocalNetNotional: CalTotal(this.rowData, 'LocalNetNotional')
+                SecurityId: 0,
+                debit: Math.abs(fieldsSum[0].total),
+                credit: Math.abs(fieldsSum[1].total),
+                balance:
+                  Math.abs(fieldsSum[0].total) - Math.abs(fieldsSum[1].total),
+                Commission: fieldsSum[2].total,
+                Fees: fieldsSum[3].total,
+                TradePrice: fieldsSum[4].total,
+                NetPrice: fieldsSum[5].total,
+                SettleNetPrice: fieldsSum[6].total,
+                NetMoney: fieldsSum[7].total,
+                LocalNetNotional: fieldsSum[8].total,
+                value: fieldsSum[9].total
               }
             ];
-          this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
-          this.gridOptions.api.refreshCells();
-          AutoSizeAllColumns(this.gridOptions);
-        } else {
+            this.gridOptions.api.setPinnedBottomRowData(
+              this.pinnedBottomRowData
+            );
+            this.gridOptions.api.refreshCells();
+            AutoSizeAllColumns(this.gridOptions);
+          } else {
+            this.isDataStreaming = false;
+          }
+        },
+        error => {
           this.isDataStreaming = false;
         }
-      }, error => {
-        this.isDataStreaming = false;
-      });
+      );
   }
 
   onFilterChanged() {
@@ -339,19 +370,28 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     const { symbolFilter } = object;
     const { dateFilter } = object;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
-    this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
+    this.filterBySymbol =
+      symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
     this.setDateRange(dateFilter);
     this.gridOptions.api.onFilterChanged();
   }
 
   isExternalFilterPresent() {
-    if (this.fund !== 'All Funds' || this.startDate || this.filterBySymbol !== '') {
+    if (
+      this.fund !== 'All Funds' ||
+      this.startDate ||
+      this.filterBySymbol !== ''
+    ) {
       return true;
     }
   }
 
   doesExternalFilterPass(node: any) {
-    if (this.fund !== 'All Funds' && this.filterBySymbol !== '' && this.startDate) {
+    if (
+      this.fund !== 'All Funds' &&
+      this.filterBySymbol !== '' &&
+      this.startDate
+    ) {
       const cellFund = node.data.fund;
       const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
       const cellDate = new Date(node.data.when);
@@ -391,11 +431,15 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     }
     if (this.startDate) {
       const cellDate = new Date(node.data.when);
-      return this.startDate.toDate() <= cellDate && this.endDate.toDate() >= cellDate;
+      return (
+        this.startDate.toDate() <= cellDate && this.endDate.toDate() >= cellDate
+      );
     }
     if (this.filterBySymbol !== '') {
       const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
-      return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase());
+      return cellSymbol
+        .toLowerCase()
+        .includes(this.filterBySymbol.toLowerCase());
     }
   }
 
@@ -405,7 +449,9 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     this.endDate = dates[1];
 
     this.selected =
-      dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
+      dateFilter.startDate !== ''
+        ? { startDate: this.startDate, endDate: this.endDate }
+        : null;
   }
 
   getContextMenuItems(params) {
@@ -428,7 +474,13 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       }
     ];
     //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
-    return GetContextMenu(false, addDefaultItems, false, addCustomItems, params);
+    return GetContextMenu(
+      false,
+      addDefaultItems,
+      false,
+      addCustomItems,
+      params
+    );
   }
 
   clearFilters() {
@@ -451,8 +503,12 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         this.DateRangeLabel !== ''
           ? this.DateRangeLabel
           : {
-              startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
-              endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
+              startDate:
+                this.startDate !== null
+                  ? this.startDate.format('YYYY-MM-DD')
+                  : '',
+              endDate:
+                this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
             }
     };
   }

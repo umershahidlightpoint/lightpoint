@@ -9,7 +9,7 @@ import {
 } from "@angular/core";
 import { Router } from "@angular/router";
 import { CreateAccountComponent } from "./create-account/create-account.component";
-import { FinancePocServiceProxy } from "../../../shared/service-proxies/service-proxies";
+import { FinanceServiceProxy } from "../../../shared/service-proxies/service-proxies";
 import { GridOptions } from "ag-grid-community";
 import { TemplateRendererComponent } from "../../template-renderer/template-renderer.component";
 import { ToastrService } from "ngx-toastr";
@@ -66,7 +66,7 @@ export class AccountComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private financePocServiceProxy: FinancePocServiceProxy,
+    private financePocServiceProxy: FinanceServiceProxy,
     private toastrService: ToastrService,
     private dataService: DataService,
     private downloadExcelUtils: DownloadExcelUtils

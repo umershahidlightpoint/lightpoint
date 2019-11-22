@@ -1,5 +1,5 @@
 import { Component, TemplateRef, OnInit, AfterViewInit, ViewChild, OnDestroy } from '@angular/core';
-import { FinancePocServiceProxy } from '../../../../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { takeWhile } from 'rxjs/operators';
 import { TemplateRendererComponent } from '../../../template-renderer/template-renderer.component';
@@ -41,7 +41,7 @@ export class FileManagementComponent implements OnInit, AfterViewInit, OnDestroy
   styleForLogsHeight = HeightStyle(220);
 
   constructor(
-    private financeService: FinancePocServiceProxy,
+    private financeService: FinanceServiceProxy,
     private toastrService: ToastrService
   ) {
     this.isSubscriptionAlive = true;

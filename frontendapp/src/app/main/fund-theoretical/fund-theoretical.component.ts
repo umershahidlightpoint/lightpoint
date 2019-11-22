@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
-import { FinancePocServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { Account, AccountCategory } from '../../../shared/Models/account';
@@ -99,7 +99,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   };
 
   constructor(
-    private financeService: FinancePocServiceProxy,
+    private financeService: FinanceServiceProxy,
     private toastrService: ToastrService,
     private dataService: DataService,
     public decimalPipe: DecimalPipe,

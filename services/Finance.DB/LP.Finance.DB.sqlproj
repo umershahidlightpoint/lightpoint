@@ -99,6 +99,5 @@
     <Build Include="Tables\market_prices_history.sql" />
     <Build Include="Triggers\market_data_price_insert_trigger.sql" />
     <Build Include="Triggers\market_data_price_update_trigger.sql" />
-    <Build Include="Views\vwTaxLots.sql" />
   </ItemGroup>
 </Project>

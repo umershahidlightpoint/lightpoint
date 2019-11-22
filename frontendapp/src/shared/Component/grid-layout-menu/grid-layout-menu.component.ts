@@ -1,6 +1,6 @@
 import { Component, ChangeDetectorRef, ViewChild } from "@angular/core";
 import { IToolPanel, IToolPanelParams } from "ag-grid-community";
-import { FinancePocServiceProxy } from "../../service-proxies/service-proxies";
+import { FinanceServiceProxy } from "../../service-proxies/service-proxies";
 import { ToastrService } from "ngx-toastr";
 import { ConfirmationModalComponent } from "src/shared/Component/confirmation-modal/confirmation-modal.component";
 import { GridLayout } from "src/shared/Models/funds-theoretical";
@@ -45,7 +45,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
   isNewLayout = false;
 
   constructor(
-    private financeService: FinancePocServiceProxy,
+    private financeService: FinanceServiceProxy,
     private cdRef: ChangeDetectorRef,
     private toastrService: ToastrService
   ) {

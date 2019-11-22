@@ -2,9 +2,9 @@
 Core/Libraries Imports
 */
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, ErrorHandler } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { MaterialModule } from './material.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AngularSplitModule } from 'angular-split';
@@ -42,7 +42,7 @@ import { NgcatalystModule } from 'ngcatalyst';
 Services/Components
 */
 import { SidenavService } from '../shared/common/sidenav.service';
-import { FinancePocServiceProxy } from '../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../shared/service-proxies/service-proxies';
 import { PostingEngineService } from '../shared/common/posting-engine.service';
 import { DataService } from '../shared/common/data.service';
 import { AgGridUtils } from '../shared/utils/ag-grid-utils';
@@ -97,6 +97,8 @@ import { TaxRatesComponent } from './main/fund-theoretical/tax-rates/tax-rates.c
 import { TaxRateModalComponent } from './main/fund-theoretical/tax-rates/tax-rate-modal/tax-rate-modal.component';
 import { DatePickerModalComponent } from '../shared/Component/date-picker-modal/date-picker-modal.component';
 import { FileUploadComponent } from './main/operations/file-upload/file-upload.component';
+import { SummaryComponent } from './main/summary/summary.component';
+import { JournalsSummaryComponent } from './main/summary/journals-summary/journals-summary.component';
 
 @NgModule({
   declarations: [
@@ -147,7 +149,9 @@ import { FileUploadComponent } from './main/operations/file-upload/file-upload.c
     TaxRatesComponent,
     TaxRateModalComponent,
     DatePickerModalComponent,
-    FileUploadComponent
+    FileUploadComponent,
+    SummaryComponent,
+    JournalsSummaryComponent
   ],
   imports: [
     BrowserModule,
@@ -193,7 +197,7 @@ import { FileUploadComponent } from './main/operations/file-upload/file-upload.c
     NgcatalystModule
   ],
   providers: [
-    FinancePocServiceProxy,
+    FinanceServiceProxy,
     MessageService,
     DataService,
     SidenavService,

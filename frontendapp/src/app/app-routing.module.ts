@@ -14,10 +14,12 @@ import { TrialGridExampleComponent } from './main/trial-balance/trial-balance.co
 import { LayoutsComponent } from './main/layouts/layouts.component';
 import { FundTheoreticalComponent } from './main/fund-theoretical/fund-theoretical.component';
 import { PerformanceCanDeactivateGuard } from 'src/shared/guards/performance-can-deactivate-guard.service';
+import { SummaryComponent } from './main/summary/summary.component';
 
 const routes: Routes = [
   { path: '', component: ReportsComponent }, // Default
   { path: 'journals-ledgers', component: JournalsLedgersComponent },
+  { path: 'summary', component: SummaryComponent },
   { path: 'trial-balance', component: TrialGridExampleComponent },
   { path: 'runlogs', component: RunLogsComponent },
   { path: 'operations', component: OperationsComponent },
@@ -25,7 +27,11 @@ const routes: Routes = [
   { path: 'trade-allocation', component: TradeAllocationComponent },
   { path: 'journal-allocation', component: JournalAllocationComponent },
   { path: 'settings', component: SettingsComponent },
-  { path: 'fund-theoretical', component: FundTheoreticalComponent, canDeactivate: [PerformanceCanDeactivateGuard] },
+  {
+    path: 'fund-theoretical',
+    component: FundTheoreticalComponent,
+    canDeactivate: [PerformanceCanDeactivateGuard]
+  },
   { path: 'reports', component: ReportsComponent },
   {
     path: 'accounts',

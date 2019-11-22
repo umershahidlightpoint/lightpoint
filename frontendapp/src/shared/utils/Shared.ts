@@ -165,12 +165,16 @@ export const CalTotalRecords = gridOptions => {
   return pinnedBottomRowData;
 };
 
-export const CalTotal = (rows, field) => {
-  let fieldSum = 0;
+export const CalTotal = (
+  rows: Array<any>,
+  fields: Array<{ name: string; total: number }>
+) => {
   rows.forEach(row => {
-    fieldSum += row[field];
+    fields.map(field => {
+      field.total += row[field.name];
+    });
   });
-  return fieldSum;
+  return fields;
 };
 
 export const GetDateRangeLabel = (startDate, endDate) => {
@@ -196,7 +200,10 @@ export const GetDateRangeLabel = (startDate, endDate) => {
   ) {
     return 'MTD';
   }
-  if (moment().diff(startDate, 'days') === 0 && moment().diff(endDate, 'days') === 0) {
+  if (
+    moment().diff(startDate, 'days') === 0 &&
+    moment().diff(endDate, 'days') === 0
+  ) {
     return 'Today';
   }
   return '';
@@ -204,7 +211,8 @@ export const GetDateRangeLabel = (startDate, endDate) => {
 
 export const SetDateRange = (dateFilter, startDate, endDate) => {
   if (typeof dateFilter === 'object') {
-    startDate = dateFilter.startDate !== '' ? moment(dateFilter.startDate) : null;
+    startDate =
+      dateFilter.startDate !== '' ? moment(dateFilter.startDate) : null;
     endDate = dateFilter.endDate !== '' ? moment(dateFilter.endDate) : null;
   }
 
@@ -236,7 +244,11 @@ export const DoesExternalFilterPass = (node, fund, startDate, endDate) => {
     const cellFund = node.data.fund;
     const cellDate = new Date(node.data.when);
 
-    return cellFund === fund && startDate.toDate() <= cellDate && endDate.toDate() >= cellDate;
+    return (
+      cellFund === fund &&
+      startDate.toDate() <= cellDate &&
+      endDate.toDate() >= cellDate
+    );
   }
 
   if (fund !== 'All Funds') {

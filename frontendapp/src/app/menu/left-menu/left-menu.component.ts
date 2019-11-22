@@ -22,7 +22,8 @@ export class LeftMenuComponent implements OnInit {
     { name: 'Reports', routerLink: '/reports', icon: 'fa-bar-chart' },
     { name: 'Data Services', routerLink: '/fund-theoretical', icon: 'fa-calculator' },
     { name: 'Research', routerLink: '/journals-ledgers', icon: 'fa-book' },
-    { name: 'Trial Balance', routerLink: 'trial-balance', icon: 'fa-balance-scale' },
+    { name: 'Summary', routerLink: '/summary', icon: 'fa-briefcase' },
+    { name: 'Trial Balance', routerLink: 'trial-balance', icon: 'fa-balance-scale' }
   ];
 
   public adminPages: Page[] = [

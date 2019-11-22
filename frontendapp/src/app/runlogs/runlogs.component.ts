@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FinancePocServiceProxy } from '../../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../../shared/service-proxies/service-proxies';
 import { PrimengTableHelper } from '../../shared/helpers/PrimengTableHelper';
 import { LazyLoadEvent } from 'primeng/components/common/lazyloadevent';
 import { LogsComponent } from '../main/logs/logs.component';
@@ -21,7 +21,7 @@ export class RunLogsComponent implements OnInit {
   ledgerGrid = false;
   ledgerInput = false;
   droppedData: string;
-  constructor(private financeService: FinancePocServiceProxy) {}
+  constructor(private financeService: FinanceServiceProxy) {}
 
   getLegderByFundId(fundId?: string, event?: LazyLoadEvent) {
     if (fundId != null) {
