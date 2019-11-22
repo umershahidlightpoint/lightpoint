@@ -118,6 +118,8 @@ export class JournalsSummaryComponent implements OnInit, OnDestroy {
         response => {
           if (response.isSuccessful) {
             this.setGridState(response);
+          } else {
+            this.toastrService.error(response.message);
           }
         },
         error => {
