@@ -1,0 +1,28 @@
+<!-- Journals Summary Container -->
+<!-- Actions Div -->
+<div class="row mt-2">
+    <!-- Layouts Dropdown Div -->
+    <div class="col-3">
+        <select class="form-control" [(ngModel)]="gridLayout" (ngModelChange)="changeGridLayout($event)">
+            <option [disabled]="true">Select a Layout</option>
+            <option *ngFor="let gridLayout of gridLayouts">
+                {{ gridLayout }}
+            </option>
+        </select>
+    </div>
+    <!-- Layouts Dropdown Div Ends -->
+    <!-- Grid Util Actions -->
+    <div class="ml-auto mr-2">
+        <app-grid-utils class="mr-4" [gridOptions]="gridOptions" (refresh)="refreshGrid()" [excelParams]="excelParams">
+        </app-grid-utils>
+    </div>
+    <!-- Grid Util Actions Ends -->
+</div>
+<!-- Actions Div Ends -->
+<!-- Journals Summary Grid -->
+<div [ngStyle]="styleForHeight">
+    <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions">
+    </ag-grid-angular>
+</div>
+<!-- Journals Summary Grid Ends -->
+<!-- Journals Summary Container Ends -->

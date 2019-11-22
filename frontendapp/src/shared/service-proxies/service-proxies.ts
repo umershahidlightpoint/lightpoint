@@ -1,5 +1,5 @@
-import { Injectable, ErrorHandler, Injector } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Injectable, Injector } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -9,7 +9,6 @@ import {
   IsPostingEngineRunning
 } from '../Models/posting-engine';
 import { LedgerInput } from '../Models/account';
-import { ErrorService } from './error-service';
 import { ToastrService } from 'ngx-toastr';
 
 export const API_BASE_URL = environment.remoteServerUrl;
@@ -21,27 +20,10 @@ export class FinanceServiceProxy {
   private baseUrl: string;
   private refDataUrl: string;
 
-  constructor(
-    http: HttpClient,
-    private injector: Injector,
-    private toastrService: ToastrService
-  ) {
+  constructor(http: HttpClient, private injector: Injector, private toastrService: ToastrService) {
     this.http = http;
     this.baseUrl = API_BASE_URL;
     this.refDataUrl = REF_DATA_BASE_URL;
-  }
-
-  handleError(error: any): void {
-    const errorService = this.injector.get(ErrorService);
-    // console.log(
-    //   errorService.getServerStack(error),
-    //   'Server Stack <',
-    //   errorService.getServerMessage(error),
-    //   'Server Msg <'
-    // );
-    if (error instanceof HttpErrorResponse) {
-      this.toastrService.error('Server Side Error!');
-    }
   }
 
   /*
@@ -64,9 +46,7 @@ export class FinanceServiceProxy {
     params.page = page;
     params.fund_id = id;
     const url = this.baseUrl + '/ledgers';
-    return this.http
-      .get(url, { params })
-      .pipe(map((response: any) => response));
+    return this.http.get(url, { params }).pipe(map((response: any) => response));
   }
 
   /*
@@ -97,9 +77,7 @@ export class FinanceServiceProxy {
   Get the Allocations / AccrualId is Necessary as this is the Linkage between the Accrual and the Allocation / Trade
   */
   getAccrualAllocations(accrualId: string) {
-    const url = encodeURI(
-      this.refDataUrl + '/accruals/allocations?accrualid=' + accrualId
-    );
+    const url = encodeURI(this.refDataUrl + '/accruals/allocations?accrualid=' + accrualId);
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
@@ -114,16 +92,12 @@ export class FinanceServiceProxy {
   }
 
   getTradeAllocations(orderId: string) {
-    const url = encodeURI(
-      this.refDataUrl + '/trades/allocations?orderId=' + orderId
-    );
+    const url = encodeURI(this.refDataUrl + '/trades/allocations?orderId=' + orderId);
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
   getTradeJournals(orderId: string) {
-    const url = encodeURI(
-      this.refDataUrl + '/trades/journals?orderId=' + orderId
-    );
+    const url = encodeURI(this.refDataUrl + '/trades/journals?orderId=' + orderId);
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
@@ -274,9 +248,7 @@ export class FinanceServiceProxy {
       params.keyword = keyword;
     }
 
-    return this.http
-      .get(url, { params })
-      .pipe(map((response: any) => response));
+    return this.http.get(url, { params }).pipe(map((response: any) => response));
   }
 
   /*
@@ -297,9 +269,7 @@ export class FinanceServiceProxy {
       params.keyword = keyword;
     }
 
-    return this.http
-      .get(url, { params })
-      .pipe(map((response: any) => response));
+    return this.http.get(url, { params }).pipe(map((response: any) => response));
   }
 
   /*
@@ -395,11 +365,7 @@ export class FinanceServiceProxy {
   */
   getGridLayouts(gridId, userId) {
     const url = encodeURI(
-      this.baseUrl +
-        '/DataGrid/GetDataGridLayouts?gridId=' +
-        gridId +
-        '&userId=' +
-        userId
+      this.baseUrl + '/DataGrid/GetDataGridLayouts?gridId=' + gridId + '&userId=' + userId
     );
     return this.http.get(url).pipe(map((response: any) => response));
   }
@@ -425,9 +391,7 @@ export class FinanceServiceProxy {
   */
   startPostingEngine(period: any): Observable<PostingEngine> {
     const url = this.baseUrl + '/postingEngine?period=' + period;
-    return this.http
-      .get<PostingEngine>(url)
-      .pipe(map((response: PostingEngine) => response));
+    return this.http.get<PostingEngine>(url).pipe(map((response: PostingEngine) => response));
   }
 
   /*
@@ -435,9 +399,7 @@ export class FinanceServiceProxy {
   */
   startPostingEngineSingleOrder(orderId: any): Observable<PostingEngine> {
     const url = this.baseUrl + '/postingEngine/order?orderId=' + orderId;
-    return this.http
-      .get<PostingEngine>(url)
-      .pipe(map((response: PostingEngine) => response));
+    return this.http.get<PostingEngine>(url).pipe(map((response: PostingEngine) => response));
   }
 
   /*
@@ -492,8 +454,7 @@ export class FinanceServiceProxy {
   Get Cost Basis Report
   */
   getCostBasisReport(date, fund) {
-    const url =
-      this.baseUrl + '/journal/costbasisReport?date=' + date + '&fund=' + fund;
+    const url = this.baseUrl + '/journal/costbasisReport?date=' + date + '&fund=' + fund;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
@@ -507,13 +468,7 @@ export class FinanceServiceProxy {
 
   getTaxLotReport(fromDate, toDate, fund) {
     const url =
-      this.baseUrl +
-      '/journal/taxlotReport?from=' +
-      fromDate +
-      '&to=' +
-      toDate +
-      '&fund=' +
-      fund;
+      this.baseUrl + '/journal/taxlotReport?from=' + fromDate + '&to=' + toDate + '&fund=' + fund;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
@@ -524,13 +479,7 @@ export class FinanceServiceProxy {
 
   getTaxLotsReport(fromDate, toDate, fund) {
     const url =
-      this.baseUrl +
-      '/journal/taxlotsReport?from=' +
-      fromDate +
-      '&to=' +
-      toDate +
-      '&fund=' +
-      fund;
+      this.baseUrl + '/journal/taxlotsReport?from=' + fromDate + '&to=' + toDate + '&fund=' + fund;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 

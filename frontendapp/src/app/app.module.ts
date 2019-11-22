@@ -97,7 +97,8 @@ import { TaxRatesComponent } from './main/fund-theoretical/tax-rates/tax-rates.c
 import { TaxRateModalComponent } from './main/fund-theoretical/tax-rates/tax-rate-modal/tax-rate-modal.component';
 import { DatePickerModalComponent } from '../shared/Component/date-picker-modal/date-picker-modal.component';
 import { FileUploadComponent } from './main/operations/file-upload/file-upload.component';
-// import { ServerErrorInterceptor } from 'src/shared/service-proxies/server-error-interceptor';
+import { SummaryComponent } from './main/summary/summary.component';
+import { JournalsSummaryComponent } from './main/summary/journals-summary/journals-summary.component';
 
 @NgModule({
   declarations: [
@@ -148,7 +149,9 @@ import { FileUploadComponent } from './main/operations/file-upload/file-upload.c
     TaxRatesComponent,
     TaxRateModalComponent,
     DatePickerModalComponent,
-    FileUploadComponent
+    FileUploadComponent,
+    SummaryComponent,
+    JournalsSummaryComponent
   ],
   imports: [
     BrowserModule,
@@ -203,12 +206,6 @@ import { FileUploadComponent } from './main/operations/file-upload/file-upload.c
     DataDictionary,
     PerformanceCanDeactivateGuard,
     DecimalPipe
-    // { provide: ErrorHandler, useClass: FinanceServiceProxy },
-    // {
-    //   provide: HTTP_INTERCEPTORS,
-    //   useClass: ServerErrorInterceptor,
-    //   multi: true
-    // }
   ],
   bootstrap: [AppComponent]
 })
