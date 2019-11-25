@@ -1,21 +1,3 @@
-// import { Component, OnInit } from '@angular/core';
-// import { DataService } from '../../../../shared/common/data.service';
-// import { GridOptions } from 'ag-grid-community';
-
-// @Component({
-//   selector: 'app-journals-summay-detail',
-//   templateUrl: './journals-summay-detail.component.html',
-//   styleUrls: ['./journals-summay-detail.component.css']
-// })
-// export class JournalsSummayDetailComponent implements OnInit {
-  
-//   private columns: any;
-
-//   constructor(private dataService: DataService) {}
-
-//   ngOnInit() {}
-
-// }
 /* Core/Library Imports */
 import {
   Component,
@@ -29,32 +11,17 @@ import { GridOptions } from 'ag-grid-community';
 import * as moment from 'moment';
 /* Services/Components Imports */
 import {
-  SideBar,
-  Ranges,
   Style,
   IgnoreFields,
-  ExcelStyle,
-  CalTotalRecords,
-  GetDateRangeLabel,
-  SetDateRange,
   HeightStyle,
   AutoSizeAllColumns,
   CommonCols,
   CalTotal
 } from 'src/shared/utils/Shared';
-import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
 import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
-import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { DataService } from '../../../../shared/common/data.service';
 import { AgGridUtils } from '../../../../shared/utils/AgGridUtils';
-// import { JournalModalComponent } from './journal-modal/journal-modal.component';
-import { JournalModalComponent } from '../../journals-ledgers/journal-modal/journal-modal.component';
-
-import { DataModalComponent } from '../../../../shared/Component/data-modal/data-modal.component';
-import { GridLayoutMenuComponent } from '../../../../shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { GridId, GridName } from '../../../../shared/utils/AppEnums';
 import { DataDictionary } from '../../../../shared/utils/DataDictionary';
-import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
 
 @Component({
   selector: 'app-journals-summay-detail',
@@ -62,29 +29,15 @@ import { ReportModalComponent } from 'src/shared/Component/report-modal/report-m
   styleUrls: ['./journals-summay-detail.component.css']
 })
 export class JournalsSummayDetailComponent implements OnInit, AfterViewInit {
-  @ViewChild('journalModal', { static: false })
-  journalModal: JournalModalComponent;
-  @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
-  @ViewChild('reportModal', { static: false })
-  reportModal: ReportModalComponent;
-
   private columns: any;
 
   public rowData: any[] = [];
 
-  isEngineRunning = false;
   hideGrid = false;
   gridOptions: GridOptions;
-  gridLayouts: any;
   pinnedBottomRowData;
   totalRecords = 0;
-  fund: any = 'All Funds';
-  filterBySymbol = '';
   symbol = '';
-  DateRangeLabel: string;
-  selected: { startDate: moment.Moment; endDate: moment.Moment };
-  startDate: any;
-  endDate: any;
   funds: any;
   accountSearch = { id: undefined };
   valueFilter: number;
@@ -92,10 +45,7 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit {
   sortDirection: any;
   page: any;
   pageSize: any;
-  tableHeader: string;
   isDataStreaming = false;
-
-  ranges: any = Ranges;
 
   ignoreFields = IgnoreFields;
 
@@ -121,33 +71,18 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit {
     private cdRef: ChangeDetectorRef,
     private financeService: FinanceServiceProxy,
     private dataService: DataService,
-    private postingEngineService: PostingEngineService,
     private agGridUtls: AgGridUtils,
     private dataDictionary: DataDictionary
   ) {
     this.hideGrid = false;
-    this.DateRangeLabel = '';
     this.initGird();
   }
 
-  ngOnInit() {
-    this.isEngineRunning = this.postingEngineService.getStatus();
-  }
+  ngOnInit() {}
 
   initGird() {
     this.gridOptions = {
       rowData: null,
-      onCellDoubleClicked: this.openDataModal.bind(this),
-      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
-      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
-
-      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
-      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      clearExternalFilter: this.clearFilters.bind(this),
-      getContextMenuItems: this.getContextMenuItems.bind(this),
-      onFilterChanged: this.onFilterChanged.bind(this),
-      getExternalFilterState: this.getExternalFilterState.bind(this),
-      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       pinnedBottomRowData: null,
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
@@ -155,9 +90,6 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit {
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
       suppressColumnVirtualisation: true,
-      onGridReady: params => {
-        this.gridOptions.excelStyles = ExcelStyle;
-      },
 
       onFirstDataRendered: params => {
         params.api.forEachNode(node => {
@@ -175,11 +107,6 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(
-      GridId.journalsLedgersId,
-      GridName.journalsLedgers,
-      this.gridOptions
-    );
   }
 
   /*
@@ -338,242 +265,5 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit {
           this.isDataStreaming = false;
         }
       );
-  }
-
-  onFilterChanged() {
-    this.pinnedBottomRowData = CalTotalRecords(this.gridOptions);
-    this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
-  }
-
-  getRangeLabel() {
-    this.DateRangeLabel = '';
-    this.DateRangeLabel = GetDateRangeLabel(this.startDate, this.endDate);
-  }
-
-  setWidthAndHeight(width, height) {
-    this.style = {
-      marginTop: '20px',
-      width,
-      height,
-      boxSizing: 'border-box'
-    };
-  }
-
-  ngModelChange(e) {
-    this.startDate = e.startDate;
-    this.endDate = e.endDate;
-    this.getRangeLabel();
-    this.gridOptions.api.onFilterChanged();
-  }
-
-  ngModelChangeSymbol(e) {
-    this.filterBySymbol = e;
-    this.gridOptions.api.onFilterChanged();
-  }
-
-  ngModelChangeFund(e) {
-    this.fund = e;
-    this.gridOptions.api.onFilterChanged();
-  }
-
-  onSymbolKey(e) {
-    this.filterBySymbol = e.srcElement.value;
-    this.gridOptions.api.onFilterChanged();
-
-    // For the moment we react to each key stroke
-    if (e.code === 'Enter' || e.code === 'Tab') {
-    }
-  }
-
-  isExternalFilterPassed(object) {
-    const { fundFilter } = object;
-    const { symbolFilter } = object;
-    const { dateFilter } = object;
-    this.fund = fundFilter !== undefined ? fundFilter : this.fund;
-    this.filterBySymbol =
-      symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
-    this.setDateRange(dateFilter);
-    this.gridOptions.api.onFilterChanged();
-  }
-
-  isExternalFilterPresent() {
-    if (
-      this.fund !== 'All Funds' ||
-      this.startDate ||
-      this.filterBySymbol !== ''
-    ) {
-      return true;
-    }
-  }
-
-  doesExternalFilterPass(node: any) {
-    if (
-      this.fund !== 'All Funds' &&
-      this.filterBySymbol !== '' &&
-      this.startDate
-    ) {
-      const cellFund = node.data.fund;
-      const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
-      const cellDate = new Date(node.data.when);
-      return (
-        cellFund === this.fund &&
-        cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) &&
-        this.startDate.toDate() <= cellDate &&
-        this.endDate.toDate() >= cellDate
-      );
-    }
-    if (this.fund !== 'All Funds' && this.filterBySymbol !== '') {
-      const cellFund = node.data.fund;
-      const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
-      return cellFund === this.fund && cellSymbol.includes(this.filterBySymbol);
-    }
-    if (this.fund !== 'All Funds' && this.startDate) {
-      const cellFund = node.data.fund;
-      const cellDate = new Date(node.data.when);
-      return (
-        cellFund === this.fund &&
-        this.startDate.toDate() <= cellDate &&
-        this.endDate.toDate() >= cellDate
-      );
-    }
-    if (this.filterBySymbol !== '' && this.startDate) {
-      const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
-      const cellDate = new Date(node.data.when);
-      return (
-        cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) &&
-        this.startDate.toDate() <= cellDate &&
-        this.endDate.toDate() >= cellDate
-      );
-    }
-    if (this.fund !== 'All Funds') {
-      const cellFund = node.data.fund;
-      return cellFund === this.fund;
-    }
-    if (this.startDate) {
-      const cellDate = new Date(node.data.when);
-      return (
-        this.startDate.toDate() <= cellDate && this.endDate.toDate() >= cellDate
-      );
-    }
-    if (this.filterBySymbol !== '') {
-      const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
-      return cellSymbol
-        .toLowerCase()
-        .includes(this.filterBySymbol.toLowerCase());
-    }
-  }
-
-  setDateRange(dateFilter: any) {
-    const dates = SetDateRange(dateFilter, this.startDate, this.endDate);
-    this.startDate = dates[0];
-    this.endDate = dates[1];
-
-    this.selected =
-      dateFilter.startDate !== ''
-        ? { startDate: this.startDate, endDate: this.endDate }
-        : null;
-  }
-
-  getContextMenuItems(params) {
-    const addDefaultItems = [
-      {
-        name: 'Edit',
-        action: () => {
-          this.openEditModal(params.node.data);
-        }
-      }
-    ];
-    const addCustomItems = [
-      {
-        name: 'View Chart',
-        action: () => {
-          const record = ViewChart(params);
-          this.tableHeader = record[0];
-          this.openChartModal(record[1]);
-        }
-      }
-    ];
-    //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
-    return GetContextMenu(
-      false,
-      addDefaultItems,
-      false,
-      addCustomItems,
-      params
-    );
-  }
-
-  clearFilters() {
-    this.gridOptions.api.redrawRows();
-    this.fund = 'All Funds';
-    this.filterBySymbol = '';
-    this.DateRangeLabel = '';
-    this.selected = null;
-    this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
-    this.endDate = moment();
-    this.gridOptions.api.setFilterModel(null);
-    this.gridOptions.api.onFilterChanged();
-  }
-
-  getExternalFilterState() {
-    return {
-      fundFilter: this.fund,
-      symbolFilter: this.filterBySymbol,
-      dateFilter:
-        this.DateRangeLabel !== ''
-          ? this.DateRangeLabel
-          : {
-              startDate:
-                this.startDate !== null
-                  ? this.startDate.format('YYYY-MM-DD')
-                  : '',
-              endDate:
-                this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
-            }
-    };
-  }
-
-  openJournalModal() {
-    this.journalModal.openModal({});
-  }
-
-  closeJournalModal() {
-    this.getAllData(true);
-  }
-
-  closeOrderModal() {
-    // this.getAllData();
-  }
-
-  openDataModal(row) {
-    // We can drive the screen that we wish to display from here
-    if (row.colDef.headerName === 'Group') {
-      return;
-    }
-    const cols = this.gridOptions.columnApi.getColumnState();
-    this.dataModal.openModal(row, cols);
-  }
-
-  openEditModal(data) {
-    this.journalModal.openModal(data);
-  }
-
-  openChartModal(data) {
-    this.reportModal.openModal(data);
-  }
-
-  refreshGrid() {
-    this.totalRecords = 0;
-    this.rowData = [];
-    this.gridOptions.api.showLoadingOverlay();
-    this.getAllData(true);
-  }
-
-  setGroupingState(value: boolean) {
-    this.gridOptions.api.forEachNode((node, index) => {
-      if (node.group) {
-        node.setExpanded(value);
-      }
-    });
   }
 }
