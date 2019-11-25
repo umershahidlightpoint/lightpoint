@@ -10,7 +10,7 @@ import { LogsComponent } from '../main/logs/logs.component';
   styleUrls: ['./runlogs.component.css']
 })
 export class RunLogsComponent implements OnInit {
-  @ViewChild('app-logs',{ static: false }) journalsLedgers: LogsComponent;
+  @ViewChild('app-logs', { static: false }) journalsLedgers: LogsComponent;
 
   fundId: any;
   ledger: any[];
@@ -44,7 +44,7 @@ export class RunLogsComponent implements OnInit {
   }
 
   createLedger() {
-    //this.applegdermodal.show();
+    // this.applegdermodal.show();
   }
 
   initializeCol() {}

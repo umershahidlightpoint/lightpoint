@@ -1,5 +1,4 @@
 import { Component, OnInit, Injector } from '@angular/core';
-import { AppComponentBase } from '../shared/common/app-component-base';
 import { onMainContentChange } from './menu/animations/animations';
 import { SidenavService } from '../shared/common/sidenav.service';
 
@@ -9,11 +8,10 @@ import { SidenavService } from '../shared/common/sidenav.service';
   styleUrls: ['./app.component.css'],
   animations: [onMainContentChange]
 })
-export class AppComponent extends AppComponentBase implements OnInit {
+export class AppComponent implements OnInit {
   public onSideNavChange: boolean;
 
-  constructor(injector: Injector, private sidenavService: SidenavService) {
-    super(injector);
+  constructor(private sidenavService: SidenavService) {
     this.sidenavService.sideNavState$.subscribe(res => {
       this.onSideNavChange = res;
     });

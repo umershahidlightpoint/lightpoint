@@ -4,31 +4,30 @@ import {
   AfterViewInit,
   TemplateRef,
   ViewChild
-} from "@angular/core";
-import { FinanceServiceProxy } from "src/shared/service-proxies/service-proxies";
-import { takeWhile } from "rxjs/operators";
-import { ToastrService } from "ngx-toastr";
-import { GridOptions } from "ag-grid-community";
+} from '@angular/core';
+import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies';
+import { ToastrService } from 'ngx-toastr';
+import { GridOptions } from 'ag-grid-community';
 import {
   SideBar,
   HeightStyle,
   AutoSizeAllColumns
-} from "src/shared/utils/Shared";
-import { GridLayoutMenuComponent } from "src/shared/Component/grid-layout-menu/grid-layout-menu.component";
-import { DataService } from "src/shared/common/data.service";
-import { GridId, GridName } from "src/shared/utils/AppEnums";
-import { TemplateRendererComponent } from "src/app/template-renderer/template-renderer.component";
-import { ConfirmationModalComponent } from "src/shared/Component/confirmation-modal/confirmation-modal.component";
+} from 'src/shared/utils/Shared';
+import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { DataService } from 'src/shared/common/data.service';
+import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { TemplateRendererComponent } from 'src/app/template-renderer/template-renderer.component';
+import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 
 @Component({
-  selector: "app-layouts",
-  templateUrl: "./layouts.component.html",
-  styleUrls: ["./layouts.component.css"]
+  selector: 'app-layouts',
+  templateUrl: './layouts.component.html',
+  styleUrls: ['./layouts.component.css']
 })
 export class LayoutsComponent implements OnInit, AfterViewInit {
-  @ViewChild("confirmationModal", { static: false })
+  @ViewChild('confirmationModal', { static: false })
   confirmModal: ConfirmationModalComponent;
-  @ViewChild("actionButtons", { static: false }) actionButtons: TemplateRef<
+  @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<
     any
   >;
 
@@ -40,9 +39,6 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
   selectedLayout = null;
   gridLayoutJson = null;
 
-  // For unsubscribing all subscriptions
-  isSubscriptionAlive: boolean;
-
   styleForHeight = HeightStyle(180);
 
   constructor(
@@ -50,7 +46,6 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
     private toastrService: ToastrService,
     private dataService: DataService
   ) {
-    this.isSubscriptionAlive = true;
     this.initGrid();
   }
 
@@ -73,10 +68,10 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
       sideBar: SideBar,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       pinnedBottomRowData: null,
-      rowGroupPanelShow: "after",
-      pivotPanelShow: "after",
-      pivotColumnGroupTotals: "after",
-      pivotRowTotals: "after",
+      rowGroupPanelShow: 'after',
+      pivotPanelShow: 'after',
+      pivotColumnGroupTotals: 'after',
+      pivotRowTotals: 'after',
       suppressColumnVirtualisation: true,
       getExternalFilterState: () => {
         return {};
@@ -107,33 +102,33 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
   customizeColumns() {
     const colDefs = [
       {
-        field: "id",
-        headerName: "gridId",
+        field: 'id',
+        headerName: 'gridId',
         hide: true
       },
       {
-        field: "userId",
-        headerName: "User Id"
+        field: 'userId',
+        headerName: 'User Id'
       },
       {
-        field: "gridName",
-        headerName: "Grid Name"
+        field: 'gridName',
+        headerName: 'Grid Name'
       },
       {
-        field: "gridLayoutName",
-        headerName: "Grid Layout Name"
+        field: 'gridLayoutName',
+        headerName: 'Grid Layout Name'
       },
       {
-        field: "isPublic",
-        headerName: "Is Public"
+        field: 'isPublic',
+        headerName: 'Is Public'
       },
       {
-        field: "gridState",
-        headerName: "Grid State",
+        field: 'gridState',
+        headerName: 'Grid State',
         hide: true
       },
       {
-        headerName: "Actions",
+        headerName: 'Actions',
         cellRendererFramework: TemplateRendererComponent,
         cellRendererParams: {
           ngTemplate: this.actionButtons
@@ -144,20 +139,17 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
   }
 
   getGridLayouts() {
-    this.financeService
-      .getAllGridLayouts()
-      .pipe(takeWhile(() => this.isSubscriptionAlive))
-      .subscribe(
-        response => {
-          if (response.isSuccessful) {
-            this.gridLayouts = response.payload;
-            this.rowData = response.payload.map(layout => ({
-              gridId: layout.Id,
-              userId: layout.UserId,
-              gridName: layout.GridName,
-              gridLayoutName: layout.GridLayoutName,
-              isPublic: layout.IsPublic,
-              gridState: `[{
+    this.financeService.getAllGridLayouts().subscribe(
+      response => {
+        if (response.isSuccessful) {
+          this.gridLayouts = response.payload;
+          this.rowData = response.payload.map(layout => ({
+            gridId: layout.Id,
+            userId: layout.UserId,
+            gridName: layout.GridName,
+            gridLayoutName: layout.GridLayoutName,
+            isPublic: layout.IsPublic,
+            gridState: `[{
                 "ColumnState":  ${layout.ColumnState},
                 "GroupState":  ${layout.GroupState},
                 "SortState":  ${layout.SortState},
@@ -165,18 +157,18 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
                 "ExternalFilterState":  ${layout.ExternalFilterState},
                 "PivotMode":  ${layout.PivotMode}
               }]`
-            }));
-          }
-          this.gridOptions.api.setRowData(this.rowData);
-
-          AutoSizeAllColumns(this.gridOptions);
-
-          this.gridOptions.api.sizeColumnsToFit();
-        },
-        error => {
-          this.toastrService.error("Something went wrong. Try again later!");
+          }));
         }
-      );
+        this.gridOptions.api.setRowData(this.rowData);
+
+        AutoSizeAllColumns(this.gridOptions);
+
+        this.gridOptions.api.sizeColumnsToFit();
+      },
+      error => {
+        this.toastrService.error('Something went wrong. Try again later!');
+      }
+    );
     this.customizeColumns();
   }
 
@@ -193,15 +185,15 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
     this.financeService.deleteGridLayout(this.selectedLayout.gridId).subscribe(
       response => {
         if (response.isSuccessful) {
-          this.toastrService.success("Grid layout is successfully deleted!");
+          this.toastrService.success('Grid layout is successfully deleted!');
           this.getGridLayouts();
           this.gridLayoutJson = null;
         } else {
-          this.toastrService.error("Something went wrong. Try again later!");
+          this.toastrService.error('Something went wrong. Try again later!');
         }
       },
       error => {
-        this.toastrService.error("Something went wrong. Try again later!");
+        this.toastrService.error('Something went wrong. Try again later!');
       }
     );
   }

@@ -54,11 +54,3 @@ export interface Fund {
   fundId: number;
   fundCode: string;
 }
-
-export class LedgerInput {
-  value: number | undefined;
-  customer_id: string | undefined;
-  account_id: string | undefined;
-  fund_id: string | undefined;
-  effectiveDate: any | undefined;
-}
