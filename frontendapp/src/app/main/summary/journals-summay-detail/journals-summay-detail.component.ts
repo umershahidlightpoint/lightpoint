@@ -4,10 +4,13 @@ import {
   OnInit,
   ViewChild,
   ChangeDetectorRef,
-  AfterViewInit
+  AfterViewInit,
+  Input,
+  OnChanges,
+  SimpleChanges
 } from '@angular/core';
 import 'ag-grid-enterprise';
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions, IDatasource, IGetRowsParams } from 'ag-grid-community';
 import * as moment from 'moment';
 /* Services/Components Imports */
 import {
@@ -28,9 +31,10 @@ import { DataDictionary } from '../../../../shared/utils/DataDictionary';
   templateUrl: './journals-summay-detail.component.html',
   styleUrls: ['./journals-summay-detail.component.css']
 })
-export class JournalsSummayDetailComponent implements OnInit, AfterViewInit {
-  private columns: any;
+export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnChanges {
+  @Input() filters: any;
 
+  private columns: any;
   public rowData: any[] = [];
 
   hideGrid = false;
@@ -46,6 +50,7 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit {
   page: any;
   pageSize: any;
   isDataStreaming = false;
+  payloadFilters: any;
 
   ignoreFields = IgnoreFields;
 
@@ -67,6 +72,84 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit {
     boxSizing: 'border-box'
   };
 
+  journalsDataSource: IDatasource = {
+    getRows: (params: IGetRowsParams) => {
+      const payload = {
+        pageNumber: params.endRow / 100,
+        pageSize: 100,
+        filters: this.payloadFilters
+      };
+      this.financeService.getJournalDetails(payload).subscribe(
+        result => {
+          if (result.meta.Total > 0) {
+            this.columns = result.meta.Columns;
+            this.totalRecords += result.meta.Total;
+            // this.rowData = [];
+            const someArray = [];
+            // tslint:disable-next-line: forin
+            for (const item in result.payload) {
+              const someObject = {};
+              // tslint:disable-next-line: forin
+              for (const i in this.columns) {
+                const field = this.columns[i].field;
+                if (this.columns[i].Type == 'System.DateTime') {
+                  someObject[field] = moment(result.payload[item][field]).format('MM-DD-YYYY');
+                } else {
+                  someObject[field] = result.payload[item][field];
+                }
+              }
+              someArray.push(someObject);
+            }
+            this.customizeColumns(this.columns);
+            this.rowData = this.rowData.concat(someArray as []);
+
+            const fieldsSum: Array<{ name: string; total: number }> = CalTotal(this.rowData, [
+              { name: 'debit', total: 0 },
+              { name: 'credit', total: 0 },
+              { name: 'Commission', total: 0 },
+              { name: 'Fees', total: 0 },
+              { name: 'TradePrice', total: 0 },
+              { name: 'NetPrice', total: 0 },
+              { name: 'SettleNetPrice', total: 0 },
+              { name: 'NetMoney', total: 0 },
+              { name: 'LocalNetNotional', total: 0 },
+              { name: 'value', total: 0 }
+            ]);
+            this.pinnedBottomRowData = [
+              {
+                source: 'Total Records:' + this.totalRecords,
+                AccountType: '',
+                accountName: '',
+                when: '',
+                SecurityId: 0,
+                debit: Math.abs(fieldsSum[0].total),
+                credit: Math.abs(fieldsSum[1].total),
+                balance: Math.abs(fieldsSum[0].total) - Math.abs(fieldsSum[1].total),
+                Commission: fieldsSum[2].total,
+                Fees: fieldsSum[3].total,
+                TradePrice: fieldsSum[4].total,
+                NetPrice: fieldsSum[5].total,
+                SettleNetPrice: fieldsSum[6].total,
+                NetMoney: fieldsSum[7].total,
+                LocalNetNotional: fieldsSum[8].total,
+                value: fieldsSum[9].total
+              }
+            ];
+            this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
+            this.gridOptions.api.refreshCells();
+            params.successCallback(this.rowData, -1);
+            AutoSizeAllColumns(this.gridOptions);
+          } else {
+            this.isDataStreaming = false;
+          }
+        },
+        error => {
+          params.failCallback();
+        }
+      );
+    }
+  };
+
   constructor(
     private cdRef: ChangeDetectorRef,
     private financeService: FinanceServiceProxy,
@@ -80,9 +163,28 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {}
 
+  ngAfterViewInit() {
+    this.dataService.flag$.subscribe(obj => {
+      this.hideGrid = obj;
+      if (!this.hideGrid) {
+        this.getAllData(true);
+      }
+    });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    const { filters } = changes;
+    this.payloadFilters = filters.currentValue;
+    this.gridOptions.api.setDatasource(this.journalsDataSource);
+    this.totalRecords = 0;
+  }
+
   initGird() {
     this.gridOptions = {
       rowData: null,
+      rowModelType: 'infinite',
+      cacheBlockSize: 100,
+      paginationPageSize: 100,
       pinnedBottomRowData: null,
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
@@ -90,7 +192,9 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit {
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
       suppressColumnVirtualisation: true,
-
+      onGridReady: params => {
+        // params.api.setDatasource(this.journalsDataSource);
+      },
       onFirstDataRendered: params => {
         params.api.forEachNode(node => {
           node.expanded = true;
@@ -133,25 +237,12 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit {
       this.dataDictionary.column('end_price'),
       this.dataDictionary.column('fxrate')
     ];
-    const cdefs = this.agGridUtls.customizeColumns(
-      colDefs,
-      columns,
-      this.ignoreFields
-    );
+    const cdefs = this.agGridUtls.customizeColumns(colDefs, columns, this.ignoreFields);
     this.gridOptions.api.setColumnDefs(cdefs);
   }
 
-  ngAfterViewInit() {
-    this.dataService.flag$.subscribe(obj => {
-      this.hideGrid = obj;
-      if (!this.hideGrid) {
-        this.getAllData(true);
-      }
-    });
-  }
-
   getAllData(initialLoad) {
-    this.isDataStreaming = true;
+    // this.isDataStreaming = true;
     this.symbol = 'ALL';
     const localThis = this;
     this.page = 0;
@@ -168,7 +259,7 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit {
       localThis.cdRef.detectChanges();
     });
 
-    this.getJournalData(1, 10000, initialLoad);
+    // this.getJournalData(1, 10000, initialLoad);
   }
 
   getJournalData(pageNumber, pageSize, initialLoad) {
@@ -190,7 +281,7 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit {
 
             this.columns = result.meta.Columns;
             this.totalRecords += result.meta.Total;
-            //this.rowData = [];
+            // this.rowData = [];
             const someArray = [];
             // tslint:disable-next-line: forin
             for (const item in result.payload) {
@@ -199,9 +290,7 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit {
               for (const i in this.columns) {
                 const field = this.columns[i].field;
                 if (this.columns[i].Type == 'System.DateTime') {
-                  someObject[field] = moment(
-                    result.payload[item][field]
-                  ).format('MM-DD-YYYY');
+                  someObject[field] = moment(result.payload[item][field]).format('MM-DD-YYYY');
                 } else {
                   someObject[field] = result.payload[item][field];
                 }
@@ -216,21 +305,18 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit {
               this.gridOptions.api.setRowData(this.rowData);
             }
 
-            const fieldsSum: Array<{ name: string; total: number }> = CalTotal(
-              this.rowData,
-              [
-                { name: 'debit', total: 0 },
-                { name: 'credit', total: 0 },
-                { name: 'Commission', total: 0 },
-                { name: 'Fees', total: 0 },
-                { name: 'TradePrice', total: 0 },
-                { name: 'NetPrice', total: 0 },
-                { name: 'SettleNetPrice', total: 0 },
-                { name: 'NetMoney', total: 0 },
-                { name: 'LocalNetNotional', total: 0 },
-                { name: 'value', total: 0 }
-              ]
-            );
+            const fieldsSum: Array<{ name: string; total: number }> = CalTotal(this.rowData, [
+              { name: 'debit', total: 0 },
+              { name: 'credit', total: 0 },
+              { name: 'Commission', total: 0 },
+              { name: 'Fees', total: 0 },
+              { name: 'TradePrice', total: 0 },
+              { name: 'NetPrice', total: 0 },
+              { name: 'SettleNetPrice', total: 0 },
+              { name: 'NetMoney', total: 0 },
+              { name: 'LocalNetNotional', total: 0 },
+              { name: 'value', total: 0 }
+            ]);
             this.pinnedBottomRowData = [
               {
                 source: 'Total Records:' + this.totalRecords,
@@ -240,8 +326,7 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit {
                 SecurityId: 0,
                 debit: Math.abs(fieldsSum[0].total),
                 credit: Math.abs(fieldsSum[1].total),
-                balance:
-                  Math.abs(fieldsSum[0].total) - Math.abs(fieldsSum[1].total),
+                balance: Math.abs(fieldsSum[0].total) - Math.abs(fieldsSum[1].total),
                 Commission: fieldsSum[2].total,
                 Fees: fieldsSum[3].total,
                 TradePrice: fieldsSum[4].total,
@@ -252,9 +337,7 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit {
                 value: fieldsSum[9].total
               }
             ];
-            this.gridOptions.api.setPinnedBottomRowData(
-              this.pinnedBottomRowData
-            );
+            this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
             this.gridOptions.api.refreshCells();
             AutoSizeAllColumns(this.gridOptions);
           } else {
