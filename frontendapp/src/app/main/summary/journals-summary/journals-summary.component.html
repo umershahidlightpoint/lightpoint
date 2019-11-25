@@ -39,7 +39,7 @@
 
     <!-- Journals Summary Details -->
     <div [ngClass]="{'h-50' : toggleGridBool, 'd-none' : !toggleGridBool}">
-        <app-journals-summay-detail></app-journals-summay-detail>
+        <app-journals-summay-detail [filters]="filters"></app-journals-summay-detail>
     </div>
     <!-- Journals Summary Details Ends -->
 </div>

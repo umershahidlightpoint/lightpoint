@@ -17,6 +17,7 @@ export class JournalsSummaryComponent implements OnInit {
   gridLayouts: string;
   gridOptions: GridOptions;
   currentLayout: any;
+  filters: any;
   toggleGridBool = false;
 
   styleForHeight = HeightStyle(228);
@@ -72,16 +73,6 @@ export class JournalsSummaryComponent implements OnInit {
   initGird() {
     this.gridOptions = {
       rowData: [],
-      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
-      // isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
-      // isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
-      // doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      // clearExternalFilter: this.clearFilters.bind(this),
-      // onFilterChanged: this.onFilterChanged.bind(this),
-      // getExternalFilterState: this.getExternalFilterState.bind(this),
-      // frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-
-      // onCellDoubleClicked: this.openDataModal.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),
       // pinnedBottomRowData: null,
       rowSelection: 'single',
@@ -115,50 +106,15 @@ export class JournalsSummaryComponent implements OnInit {
     const addDefaultItems = [];
     if (!params.node.group) {
       addDefaultItems.push({
-          name: 'Details',
-          action: () => {
-            this.getJournalDetails(params);
-          }
+        name: 'Details',
+        action: () => {
+          this.getJournalDetails(params);
+          this.toggleGridBool = true;
+        }
       });
     }
 
     return GetContextMenu(false, addDefaultItems, true, null, params);
-  }
-
-  getJournalDetails(params){
-    let filteredColDef = params.columnApi.columnController.columnDefs.filter(i => i.rowGroupIndex != null);
-    let filterList = [];
-    for(var i = 0; i < filteredColDef.length; i++){
-      let colData = [];
-      colData.push(params.node.data[filteredColDef[i].colId]);
-      filterList.push({
-        column: filteredColDef[i].colId,
-        data: colData
-      })
-    }
-    let payLoad = {
-      pageNumber: 1,
-      pageSize: 100,
-      filters: filterList
-    };
-    this.fetchJournalDetails(payLoad);
-  }
-
-  fetchJournalDetails(payload){
-    this.financeService
-      .getJournalDetails(payload)
-      .subscribe(
-        response => {
-          if (response.isSuccessful) {
-            //this.setGridState(response);
-          } else {
-            this.toastrService.error(response.message);
-          }
-        },
-        error => {
-          this.toastrService.error('Something went wrong. Try again later!');
-        }
-      );
   }
 
   getJournalsSummary(gridLayout: any) {
@@ -178,7 +134,7 @@ export class JournalsSummaryComponent implements OnInit {
     );
   }
 
-  private setGridState(response: any) {
+  setGridState(response: any) {
     const colDefs = response.meta.Columns.map(element => {
       if (element.aggFunc) {
         element = {
@@ -206,5 +162,21 @@ export class JournalsSummaryComponent implements OnInit {
         node.setExpanded(true);
       }
     });
+  }
+
+  getJournalDetails(params) {
+    const filteredColDef = params.columnApi.columnController.columnDefs.filter(
+      i => i.rowGroupIndex != null
+    );
+    const filterList = [];
+    for (let i = 0; i < filteredColDef.length; i++) {
+      const colData = [];
+      colData.push(params.node.data[filteredColDef[i].colId]);
+      filterList.push({
+        column: filteredColDef[i].colId,
+        data: colData
+      });
+    }
+    this.filters = filterList;
   }
 }
