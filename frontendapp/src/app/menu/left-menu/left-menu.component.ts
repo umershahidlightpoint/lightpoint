@@ -21,8 +21,8 @@ export class LeftMenuComponent implements OnInit {
   public userPages: Page[] = [
     { name: 'Reports', routerLink: '/reports', icon: 'fa-bar-chart' },
     { name: 'Data Services', routerLink: '/fund-theoretical', icon: 'fa-calculator' },
-    { name: 'Research', routerLink: '/journals-ledgers', icon: 'fa-book' },
     { name: 'Analysis', routerLink: '/analysis', icon: 'fa-line-chart' },
+    { name: 'Research', routerLink: '/journals-ledgers', icon: 'fa-book' },
     { name: 'Trial Balance', routerLink: 'trial-balance', icon: 'fa-balance-scale' }
   ];
 
