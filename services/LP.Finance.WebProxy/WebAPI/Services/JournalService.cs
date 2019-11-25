@@ -939,6 +939,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     map.Add("AccountCategory", "[account_category].[name] as AccountCategory");
                     map.Add("AccountType", "[account_type].[name] as AccountType");
                     map.Add("accountName", "[account].[name] as accountName");
+                    map.Add("when", "[when]");
                     map.Add("Quantity", "Quantity");
                     map.Add("Symbol", "Symbol");
                     StringBuilder dynamicMainSelect = new StringBuilder();
@@ -946,15 +947,16 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     StringBuilder dynamicGrouping = new StringBuilder();
                     foreach (var item in groups)
                     {
-                        dynamicMainSelect.Append("d.").Append(item.colId).Append(",");
+                        dynamicMainSelect.Append("d.[").Append(item.colId).Append("],");
                         dynamicInnerSelect.Append(map[item.colId]).Append(",");
-                        dynamicGrouping.Append("d.").Append(item.colId).Append(",");
+                        dynamicGrouping.Append("d.[").Append(item.colId).Append("],");
                     }
 
                     string mainSelect = dynamicMainSelect.ToString();
                     string innerSelect = dynamicInnerSelect.ToString();
                     string grouping = dynamicGrouping.ToString().TrimEnd(',');
                     var query = $@"select 
+                        count(*) as count,
                         {mainSelect}
 						sum(d.debit) as debitSum,
                         sum(d.credit) as creditSum
@@ -976,6 +978,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         join[account_type] with(nolock) on[account].account_type_id = [account_type].id
                         join[account_category] with(nolock) on[account_type].account_category_id = [account_category].id ) as d group by {grouping}";
 
+                    Console.WriteLine(query);
                     var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
                     var metaData = MetaData.ToMetaData(dataTable);
                     foreach (var item in metaData.Columns)

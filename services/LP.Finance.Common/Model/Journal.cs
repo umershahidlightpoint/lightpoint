@@ -13,10 +13,8 @@ namespace LP.Finance.Common.Models
             GeneratedBy = "system";
         }
 
-        public Journal(Transaction element)
+        public Journal(Transaction element) : this()
         {
-            GeneratedBy = "system";
-
             Source = element.LpOrderId;
             FxCurrency = element.SettleCurrency;
             Symbol = element.Symbol;
@@ -39,6 +37,13 @@ namespace LP.Finance.Common.Models
             Fund = source.Fund;
             StartPrice = source.StartPrice;
             EndPrice = source.EndPrice;
+        }
+
+        public Journal(Transaction element, Account account, string journalEvent, DateTime valueDate) : this(element)
+        {
+            When = valueDate;
+            Account = account;
+            Event = journalEvent;
         }
 
         public Journal(Account account, string journalEvent, DateTime valueDate) : this()
