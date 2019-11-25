@@ -607,7 +607,7 @@ export class FinanceServiceProxy {
   }
 
   getJournalSummary(payload: any): Observable<any> {
-    const url = this.baseUrl + '/journal/summary';
+    const url = this.baseUrl + '/analysis/journal';
     return this.http.post(url, JSON.parse(payload)).pipe(map((response: any) => response));
   }
 }
