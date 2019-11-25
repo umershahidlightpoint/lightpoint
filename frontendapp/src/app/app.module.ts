@@ -45,7 +45,7 @@ import { SidenavService } from '../shared/common/sidenav.service';
 import { FinanceServiceProxy } from '../shared/service-proxies/service-proxies';
 import { PostingEngineService } from '../shared/common/posting-engine.service';
 import { DataService } from '../shared/common/data.service';
-import { AgGridUtils } from '../shared/utils/ag-grid-utils';
+import { AgGridUtils } from '../shared/utils/AgGridUtils';
 import { DataDictionary } from '../shared/utils/DataDictionary';
 
 import { TemplateRendererComponent } from './template-renderer/template-renderer.component';

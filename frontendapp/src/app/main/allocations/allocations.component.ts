@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
-import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
+import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { SideBar, AutoSizeAllColumns } from 'src/shared/utils/Shared';

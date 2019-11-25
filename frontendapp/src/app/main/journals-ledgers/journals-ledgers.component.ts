@@ -22,7 +22,7 @@ import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
 import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { DataService } from '../../../shared/common/data.service';
-import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
+import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
 import { JournalModalComponent } from './journal-modal/journal-modal.component';
 import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
 import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-menu/grid-layout-menu.component';

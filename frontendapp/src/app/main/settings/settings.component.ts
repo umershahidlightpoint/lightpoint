@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
-import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
+import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
 import { Style, HeightStyle } from '../../../shared/utils/Shared';
 
 @Component({
