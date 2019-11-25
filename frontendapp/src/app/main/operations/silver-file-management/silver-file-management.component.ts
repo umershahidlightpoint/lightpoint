@@ -8,7 +8,7 @@ import {
 import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { TemplateRendererComponent } from '../../../template-renderer/template-renderer.component';
-import { SilverFile } from 'src/shared/models/silverFile';
+import { SilverFile } from 'src/shared/Models/silver-file';
 import { SideBar, Style, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
