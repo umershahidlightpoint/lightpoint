@@ -1,5 +1,4 @@
 <!-- Journals Summary Container -->
-<!-- Actions Div -->
 <div class="row mt-2">
     <!-- Layouts Dropdown Div -->
     <div class="col-3">
@@ -11,19 +10,37 @@
         </select>
     </div>
     <!-- Layouts Dropdown Div Ends -->
-    <!-- Grid Util Actions -->
-    <div class="ml-auto mr-2">
-        <app-grid-utils class="mr-4" [gridOptions]="gridOptions" [utilsConfig]="utilsConfig" (refresh)="refreshGrid()"
+
+    <!-- Actions Div -->
+    <div class="ml-auto">
+        <!-- Grid Util Actions -->
+        <app-grid-utils class="mr-2" [gridOptions]="gridOptions" [utilsConfig]="utilsConfig" (refresh)="refreshGrid()"
             [excelParams]="excelParams">
         </app-grid-utils>
+        <!-- Grid Util Actions Ends -->
+        <!-- Details Grid Toggle -->
+        <ng-template #tooltipTemplate>{{!toggleGridBool ? 'Expand' : 'Collapse'}}</ng-template>
+        <button class="btn btn-info" (click)="toggleGrid()" [tooltip]="tooltipTemplate" placement="top">
+            <i *ngIf="!toggleGridBool" class="fa fa-chevron-up"></i>
+            <i *ngIf="toggleGridBool" class="fa fa-chevron-down"></i>
+        </button>
+        <!-- Details Grid Toggle Ends -->
     </div>
-    <!-- Grid Util Actions Ends -->
+    <!-- Actions Div Ends -->
 </div>
-<!-- Actions Div Ends -->
-<!-- Journals Summary Grid -->
+
+
 <div [ngStyle]="styleForHeight">
-    <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions">
-    </ag-grid-angular>
+    <!-- Journals Summary Grid -->
+    <div [ngClass]="{'h-50' : toggleGridBool, 'h-100' : !toggleGridBool}">
+        <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions"></ag-grid-angular>
+    </div>
+    <!-- Journals Summary Grid Ends -->
+
+    <!-- Journals Summary Details -->
+    <div [ngClass]="{'h-50' : toggleGridBool, 'd-none' : !toggleGridBool}">
+        <app-journals-summay-detail [filters]="filters"></app-journals-summay-detail>
+    </div>
+    <!-- Journals Summary Details Ends -->
 </div>
-<!-- Journals Summary Grid Ends -->
 <!-- Journals Summary Container Ends -->

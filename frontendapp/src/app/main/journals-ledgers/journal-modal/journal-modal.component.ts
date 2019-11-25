@@ -1,9 +1,14 @@
 /* Core/Libraries */
-import { Component, OnInit, ViewChild, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { ModalDirective } from 'ngx-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { takeWhile } from 'rxjs/operators';
 
 /* Services/Components */
 import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
@@ -15,8 +20,8 @@ import { Journal } from '../../../../shared/Models/journal';
   templateUrl: './journal-modal.component.html',
   styleUrls: ['./journal-modal.component.css']
 })
-export class JournalModalComponent implements OnInit, OnDestroy {
-  @ViewChild('modal',{ static: false }) modal: ModalDirective;
+export class JournalModalComponent implements OnInit {
+  @ViewChild('modal', { static: false }) modal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
 
   allAccounts: Account;
@@ -28,7 +33,6 @@ export class JournalModalComponent implements OnInit, OnDestroy {
   accountFund: string;
   selectedRow: Journal;
   editJournal: boolean;
-  isSubscriptionAlive: boolean;
   journalForm: FormGroup;
   backdrop: any;
 
@@ -43,29 +47,22 @@ export class JournalModalComponent implements OnInit, OnDestroy {
     this.getFunds();
     this.buildForm();
     this.editJournal = false;
-    this.isSubscriptionAlive = true;
   }
 
   getAccounts() {
-    this.financePocServiceProxy
-      .getAllAccounts()
-      .pipe(takeWhile(() => this.isSubscriptionAlive))
-      .subscribe(response => {
-        if (response.isSuccessful) {
-          this.allAccounts = response.payload;
-        }
-      });
+    this.financePocServiceProxy.getAllAccounts().subscribe(response => {
+      if (response.isSuccessful) {
+        this.allAccounts = response.payload;
+      }
+    });
   }
 
   getFunds() {
-    this.financePocServiceProxy
-      .getFunds()
-      .pipe(takeWhile(() => this.isSubscriptionAlive))
-      .subscribe(response => {
-        if (response.payload) {
-          this.funds = response.payload;
-        }
-      });
+    this.financePocServiceProxy.getFunds().subscribe(response => {
+      if (response.payload) {
+        this.funds = response.payload;
+      }
+    });
   }
 
   buildForm() {
@@ -88,7 +85,6 @@ export class JournalModalComponent implements OnInit, OnDestroy {
       const { source } = this.selectedRow;
       this.financePocServiceProxy
         .updateJournal(source, journalObject)
-        .pipe(takeWhile(() => this.isSubscriptionAlive))
         .subscribe(response => {
           if (response.isSuccessful) {
             this.toastrService.success('Journal is updated successfully !');
@@ -100,34 +96,33 @@ export class JournalModalComponent implements OnInit, OnDestroy {
           }
         });
     } else {
-      this.financePocServiceProxy.createJounal(journalObject).subscribe(response => {
-        if (response.isSuccessful) {
-          this.toastrService.success('Journal is created successfully !');
-          this.modal.hide();
-          this.modalClose.emit(true);
-          setTimeout(() => this.clearForm(), 500);
-        } else {
-          this.toastrService.error('Failed to create Journal !');
-        }
-      });
+      this.financePocServiceProxy
+        .createJounal(journalObject)
+        .subscribe(response => {
+          if (response.isSuccessful) {
+            this.toastrService.success('Journal is created successfully !');
+            this.modal.hide();
+            this.modalClose.emit(true);
+            setTimeout(() => this.clearForm(), 500);
+          } else {
+            this.toastrService.error('Failed to create Journal !');
+          }
+        });
     }
   }
 
   deleteJournal() {
     const { source } = this.selectedRow;
-    this.financePocServiceProxy
-      .deleteJournal(source)
-      .pipe(takeWhile(() => this.isSubscriptionAlive))
-      .subscribe(response => {
-        if (response.isSuccessful) {
-          this.toastrService.success('Journal is deleted successfully!');
-          this.modal.hide();
-          this.modalClose.emit(true);
-          setTimeout(() => this.clearForm(), 500);
-        } else {
-          this.toastrService.error('Failed to delete Journal!');
-        }
-      });
+    this.financePocServiceProxy.deleteJournal(source).subscribe(response => {
+      if (response.isSuccessful) {
+        this.toastrService.success('Journal is deleted successfully!');
+        this.modal.hide();
+        this.modalClose.emit(true);
+        setTimeout(() => this.clearForm(), 500);
+      } else {
+        this.toastrService.error('Failed to delete Journal!');
+      }
+    });
   }
 
   onAccountSelect() {
@@ -146,31 +141,30 @@ export class JournalModalComponent implements OnInit, OnDestroy {
       const { source } = rowData;
       const { modifiable } = rowData;
       if (modifiable === 'false') {
-        this.toastrService.error('System Generated Journals are not Editable !');
+        this.toastrService.error(
+          'System Generated Journals are not Editable !'
+        );
         this.closeModal();
         return;
       }
-      this.financePocServiceProxy
-        .getJournal(source)
-        .pipe(takeWhile(() => this.isSubscriptionAlive))
-        .subscribe(response => {
-          if (response.isSuccessful) {
-            const { JournalAccounts } = response.payload[0];
-            const fromAccount = JournalAccounts[0];
-            const toAccount = JournalAccounts[1];
-            this.fromAccountId = fromAccount.AccountFromId;
-            this.toAccountId = toAccount.AccountToId;
-            this.accountFund = response.payload[0].Fund;
-            this.journalForm.patchValue({
-              value: toAccount.Value,
-              fromAccount: this.fromAccountId,
-              toAccount: this.toAccountId,
-              fund: this.accountFund
-            });
-          } else {
-            this.toastrService.error('Something went wrong!');
-          }
-        });
+      this.financePocServiceProxy.getJournal(source).subscribe(response => {
+        if (response.isSuccessful) {
+          const { JournalAccounts } = response.payload[0];
+          const fromAccount = JournalAccounts[0];
+          const toAccount = JournalAccounts[1];
+          this.fromAccountId = fromAccount.AccountFromId;
+          this.toAccountId = toAccount.AccountToId;
+          this.accountFund = response.payload[0].Fund;
+          this.journalForm.patchValue({
+            value: toAccount.Value,
+            fromAccount: this.fromAccountId,
+            toAccount: this.toAccountId,
+            fund: this.accountFund
+          });
+        } else {
+          this.toastrService.error('Something went wrong!');
+        }
+      });
     } else {
       this.buildForm();
     }
@@ -188,9 +182,5 @@ export class JournalModalComponent implements OnInit, OnDestroy {
     this.fromAccountCheck = null;
     this.journalForm.reset();
     this.buildForm();
-  }
-
-  ngOnDestroy() {
-    this.isSubscriptionAlive = false;
   }
 }

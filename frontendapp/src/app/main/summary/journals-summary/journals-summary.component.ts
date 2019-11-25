@@ -1,22 +1,25 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { GridOptions } from 'ag-grid-community';
 import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies';
-import { takeWhile } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { GridId } from '../../../../shared/utils/AppEnums';
 import { HeightStyle, ExcelStyle } from 'src/shared/utils/Shared';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-journals-summary',
   templateUrl: './journals-summary.component.html',
   styleUrls: ['./journals-summary.component.css']
 })
-export class JournalsSummaryComponent implements OnInit, OnDestroy {
+export class JournalsSummaryComponent implements OnInit {
   gridLayout = 'Select a Layout';
   gridLayouts: string;
-  isSubscriptionAlive: boolean;
   gridOptions: GridOptions;
+  currentLayout: any;
+  filters: any;
+  toggleGridBool = false;
 
   styleForHeight = HeightStyle(228);
 
@@ -33,53 +36,49 @@ export class JournalsSummaryComponent implements OnInit, OnDestroy {
     sheetName: 'First Sheet'
   };
 
-  constructor(private financeService: FinanceServiceProxy, private toastrService: ToastrService) {
-    this.isSubscriptionAlive = true;
+  constructor(
+    private financeService: FinanceServiceProxy,
+    private toastrService: ToastrService,
+    private decimalPipe: DecimalPipe
+  ) {
     this.initGird();
     this.getGridLayouts();
   }
 
   ngOnInit(): void {}
 
+  toggleGrid() {
+    this.toggleGridBool = !this.toggleGridBool;
+  }
+
   getGridLayouts(): void {
-    this.financeService
-      .getGridLayouts(GridId.journalsLedgersId, 1)
-      .pipe(takeWhile(() => this.isSubscriptionAlive))
-      .subscribe(
-        response => {
-          if (response.isSuccessful) {
-            this.gridLayouts = response.payload;
-          }
-        },
-        error => {
-          this.toastrService.error('Something went wrong. Try again later!');
+    this.financeService.getGridLayouts(GridId.journalsLedgersId, 1).subscribe(
+      response => {
+        if (response.isSuccessful) {
+          this.gridLayouts = response.payload;
         }
-      );
+      },
+      error => {
+        this.toastrService.error('Something went wrong. Try again later!');
+      }
+    );
   }
 
   changeGridLayout(selectedLayout: any): void {
     this.gridOptions.api.showLoadingOverlay();
+    this.currentLayout = selectedLayout;
     this.getJournalsSummary(selectedLayout);
   }
 
   refreshGrid() {
     this.gridOptions.api.showLoadingOverlay();
+    this.getJournalsSummary(this.currentLayout);
   }
 
   initGird() {
     this.gridOptions = {
       rowData: [],
-      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
-      // isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
-      // isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
-      // doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      // clearExternalFilter: this.clearFilters.bind(this),
-      // onFilterChanged: this.onFilterChanged.bind(this),
-      // getExternalFilterState: this.getExternalFilterState.bind(this),
-      // frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-
-      // onCellDoubleClicked: this.openDataModal.bind(this),
-      // getContextMenuItems: this.getContextMenuItems.bind(this),
+      getContextMenuItems: this.getContextMenuItems.bind(this),
       // pinnedBottomRowData: null,
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
@@ -108,33 +107,47 @@ export class JournalsSummaryComponent implements OnInit, OnDestroy {
     } as GridOptions;
   }
 
-  getContextMenuItems(params) {}
-
-  getJournalsSummary(gridLayout: any) {
-    this.financeService
-      .getJournalSummary(gridLayout.ColumnState)
-      .pipe(takeWhile(() => this.isSubscriptionAlive))
-      .subscribe(
-        response => {
-          if (response.isSuccessful) {
-            this.setGridState(response);
-          } else {
-            this.toastrService.error(response.message);
-          }
-        },
-        error => {
-          this.toastrService.error('Something went wrong. Try again later!');
+  getContextMenuItems(params) {
+    const addDefaultItems = [];
+    if (!params.node.group) {
+      addDefaultItems.push({
+        name: 'Details',
+        action: () => {
+          this.getJournalDetails(params);
+          this.toggleGridBool = true;
         }
-      );
+      });
+    }
+
+    return GetContextMenu(false, addDefaultItems, true, null, params);
   }
 
-  private setGridState(response: any) {
+  getJournalsSummary(gridLayout: any) {
+    this.financeService.getJournalSummary(gridLayout.ColumnState).subscribe(
+      response => {
+        if (response.isSuccessful) {
+          this.setGridState(response);
+        } else {
+          this.toastrService.error(response.message);
+          this.gridOptions.api.hideOverlay();
+        }
+      },
+      error => {
+        this.toastrService.error('Something went wrong. Try again later!');
+        this.gridOptions.api.hideOverlay();
+      }
+    );
+  }
+
+  setGridState(response: any) {
     const colDefs = response.meta.Columns.map(element => {
       if (element.aggFunc) {
         element = {
           ...element,
           type: 'numericColumn',
-          cellClass: 'twoDecimalPlaces',
+          valueFormatter: params => {
+            return this.numberFormatter(params.value);
+          },
           cellClassRules: {
             greenFont(params) {
               return params.value > 0;
@@ -145,10 +158,24 @@ export class JournalsSummaryComponent implements OnInit, OnDestroy {
           }
         };
       }
-
       return element;
     });
     this.gridOptions.api.setRowData(response.payload);
+    let totalDebits = 0;
+    let totalCredits = 0;
+
+    response.payload.forEach(data => {
+      totalDebits += data.debitSum;
+      totalCredits += data.creditSum;
+    });
+
+    const pinnedBottomRowData = [
+      {
+        debitSum: totalDebits,
+        creditSum: totalCredits
+      }
+    ];
+    this.gridOptions.api.setPinnedBottomRowData(pinnedBottomRowData);
     this.gridOptions.api.setColumnDefs(colDefs);
     this.gridOptions.api.sizeColumnsToFit();
     this.gridOptions.api.forEachNode((node, index) => {
@@ -158,7 +185,23 @@ export class JournalsSummaryComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    this.isSubscriptionAlive = false;
+  getJournalDetails(params) {
+    const filteredColDef = params.columnApi.columnController.columnDefs.filter(
+      i => i.rowGroupIndex != null
+    );
+    const filterList = [];
+    for (let i = 0; i < filteredColDef.length; i++) {
+      const colData = [];
+      colData.push(params.node.data[filteredColDef[i].colId]);
+      filterList.push({
+        column: filteredColDef[i].colId,
+        data: colData
+      });
+    }
+    this.filters = filterList;
+  }
+
+  numberFormatter(numberToFormat) {
+    return this.decimalPipe.transform(numberToFormat, '1.2-2');
   }
 }
