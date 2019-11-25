@@ -6,6 +6,7 @@ import { GridId } from '../../../../shared/utils/AppEnums';
 import { HeightStyle, ExcelStyle } from 'src/shared/utils/Shared';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-journals-summary',
@@ -35,7 +36,11 @@ export class JournalsSummaryComponent implements OnInit {
     sheetName: 'First Sheet'
   };
 
-  constructor(private financeService: FinanceServiceProxy, private toastrService: ToastrService) {
+  constructor(
+    private financeService: FinanceServiceProxy,
+    private toastrService: ToastrService,
+    private decimalPipe: DecimalPipe
+  ) {
     this.initGird();
     this.getGridLayouts();
   }
@@ -140,7 +145,9 @@ export class JournalsSummaryComponent implements OnInit {
         element = {
           ...element,
           type: 'numericColumn',
-          cellClass: 'twoDecimalPlaces',
+          valueFormatter: params => {
+            return this.numberFormatter(params.value);
+          },
           cellClassRules: {
             greenFont(params) {
               return params.value > 0;
@@ -151,10 +158,24 @@ export class JournalsSummaryComponent implements OnInit {
           }
         };
       }
-
       return element;
     });
     this.gridOptions.api.setRowData(response.payload);
+    let totalDebits = 0;
+    let totalCredits = 0;
+
+    response.payload.forEach(data => {
+      totalDebits += data.debitSum;
+      totalCredits += data.creditSum;
+    });
+
+    const pinnedBottomRowData = [
+      {
+        debitSum: totalDebits,
+        creditSum: totalCredits
+      }
+    ];
+    this.gridOptions.api.setPinnedBottomRowData(pinnedBottomRowData);
     this.gridOptions.api.setColumnDefs(colDefs);
     this.gridOptions.api.sizeColumnsToFit();
     this.gridOptions.api.forEachNode((node, index) => {
@@ -178,5 +199,9 @@ export class JournalsSummaryComponent implements OnInit {
       });
     }
     this.filters = filterList;
+  }
+
+  numberFormatter(numberToFormat) {
+    return this.decimalPipe.transform(numberToFormat, '1.2-2');
   }
 }
