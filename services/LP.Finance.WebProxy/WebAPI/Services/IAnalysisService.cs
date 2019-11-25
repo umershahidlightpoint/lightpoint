@@ -10,6 +10,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
     interface IAnalysisService
     {
         object GetSummarizedJournal(List<GridLayoutDto> layout);
+        object GetJournalDetails(JournalGridMain obj);
 
     }
 }

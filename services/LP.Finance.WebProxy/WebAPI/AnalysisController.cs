@@ -19,5 +19,12 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return controller.GetSummarizedJournal(layout);
         }
+
+        [Route("journalDetails")]
+        [HttpPost]
+        public object Data(JournalGridMain obj)
+        {
+            return controller.GetJournalDetails(obj);
+        }
     }
 }

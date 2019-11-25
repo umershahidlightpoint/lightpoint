@@ -6,6 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { GridId } from '../../../../shared/utils/AppEnums';
 import { HeightStyle, ExcelStyle } from 'src/shared/utils/Shared';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 
 @Component({
   selector: 'app-journals-summary',
@@ -79,7 +80,7 @@ export class JournalsSummaryComponent implements OnInit, OnDestroy {
       // frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
 
       // onCellDoubleClicked: this.openDataModal.bind(this),
-      // getContextMenuItems: this.getContextMenuItems.bind(this),
+      getContextMenuItems: this.getContextMenuItems.bind(this),
       // pinnedBottomRowData: null,
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
@@ -108,7 +109,55 @@ export class JournalsSummaryComponent implements OnInit, OnDestroy {
     } as GridOptions;
   }
 
-  getContextMenuItems(params) {}
+  getContextMenuItems(params) {
+    const addDefaultItems = [];
+    if (!params.node.group) {
+      addDefaultItems.push({
+          name: 'Details',
+          action: () => {
+            this.getJournalDetails(params);
+          }
+      });
+    }
+
+    return GetContextMenu(false, addDefaultItems, true, null, params);
+  }
+
+  getJournalDetails(params){
+    let filteredColDef = params.columnApi.columnController.columnDefs.filter(i => i.rowGroupIndex != null);
+    let filterList = [];
+    for(var i = 0; i < filteredColDef.length; i++){
+      let colData = [];
+      colData.push(params.node.data[filteredColDef[i].colId]);
+      filterList.push({
+        column: filteredColDef[i].colId,
+        data: colData
+      })
+    }
+    let payLoad = {
+      pageNumber: 1,
+      pageSize: 100,
+      filters: filterList
+    };
+    this.fetchJournalDetails(payLoad);
+  }
+
+  fetchJournalDetails(payload){
+    this.financeService
+      .getJournalDetails(payload)
+      .subscribe(
+        response => {
+          if (response.isSuccessful) {
+            //this.setGridState(response);
+          } else {
+            this.toastrService.error(response.message);
+          }
+        },
+        error => {
+          this.toastrService.error('Something went wrong. Try again later!');
+        }
+      );
+  }
 
   getJournalsSummary(gridLayout: any) {
     this.financeService
