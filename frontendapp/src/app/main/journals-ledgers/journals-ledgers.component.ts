@@ -1,13 +1,7 @@
 /* Core/Library Imports */
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  ChangeDetectorRef,
-  AfterViewInit
-} from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import 'ag-grid-enterprise';
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions, IDatasource, IGetRowsParams } from 'ag-grid-community';
 import * as moment from 'moment';
 /* Services/Components Imports */
 import {
@@ -42,8 +36,19 @@ import { ReportModalComponent } from 'src/shared/Component/report-modal/report-m
   styleUrls: ['./journals-ledgers.component.css']
 })
 export class JournalsLedgersComponent implements OnInit, AfterViewInit {
-  @ViewChild('journalModal', { static: false })
-  journalModal: JournalModalComponent;
+  constructor(
+    private financeService: FinanceServiceProxy,
+    private dataService: DataService,
+    private postingEngineService: PostingEngineService,
+    private cdRef: ChangeDetectorRef,
+    private agGridUtls: AgGridUtils,
+    private dataDictionary: DataDictionary
+  ) {
+    this.hideGrid = false;
+    this.DateRangeLabel = '';
+    this.initGird();
+  }
+  @ViewChild('journalModal', { static: false }) journalModal: JournalModalComponent;
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
   @ViewChild('reportModal', { static: false })
   reportModal: ReportModalComponent;
@@ -97,19 +102,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     boxSizing: 'border-box'
   };
 
-  constructor(
-    private cdRef: ChangeDetectorRef,
-    private financeService: FinanceServiceProxy,
-    private dataService: DataService,
-    private postingEngineService: PostingEngineService,
-    private agGridUtls: AgGridUtils,
-    private dataDictionary: DataDictionary
-  ) {
-    this.hideGrid = false;
-    this.DateRangeLabel = '';
-    this.initGird();
-  }
-
   ngOnInit() {
     this.isEngineRunning = this.postingEngineService.getStatus();
   }
@@ -117,16 +109,15 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   initGird() {
     this.gridOptions = {
       rowData: null,
-      onCellDoubleClicked: this.openDataModal.bind(this),
       /* Custom Method Binding to Clear External Filters from Grid Layout Component */
-      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
-
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
+      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       clearExternalFilter: this.clearFilters.bind(this),
-      getContextMenuItems: this.getContextMenuItems.bind(this),
       onFilterChanged: this.onFilterChanged.bind(this),
       getExternalFilterState: this.getExternalFilterState.bind(this),
+      onCellDoubleClicked: this.openDataModal.bind(this),
+      getContextMenuItems: this.getContextMenuItems.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       pinnedBottomRowData: null,
       rowSelection: 'single',
@@ -135,10 +126,10 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
       suppressColumnVirtualisation: true,
+      suppressHorizontalScroll: false,
       onGridReady: params => {
         this.gridOptions.excelStyles = ExcelStyle;
       },
-
       onFirstDataRendered: params => {
         params.api.forEachNode(node => {
           node.expanded = true;
@@ -148,7 +139,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
-      suppressHorizontalScroll: false,
       defaultColDef: {
         sortable: true,
         resizable: true,
@@ -186,11 +176,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       this.dataDictionary.column('end_price'),
       this.dataDictionary.column('fxrate')
     ];
-    const cdefs = this.agGridUtls.customizeColumns(
-      colDefs,
-      columns,
-      this.ignoreFields
-    );
+    const cdefs = this.agGridUtls.customizeColumns(colDefs, columns, this.ignoreFields);
     this.gridOptions.api.setColumnDefs(cdefs);
   }
 
@@ -243,7 +229,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
 
             this.columns = result.meta.Columns;
             this.totalRecords += result.meta.Total;
-            //this.rowData = [];
+            // this.rowData = [];
             const someArray = [];
             // tslint:disable-next-line: forin
             for (const item in result.payload) {
@@ -252,9 +238,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
               for (const i in this.columns) {
                 const field = this.columns[i].field;
                 if (this.columns[i].Type == 'System.DateTime') {
-                  someObject[field] = moment(
-                    result.payload[item][field]
-                  ).format('MM-DD-YYYY');
+                  someObject[field] = moment(result.payload[item][field]).format('MM-DD-YYYY');
                 } else {
                   someObject[field] = result.payload[item][field];
                 }
@@ -269,21 +253,18 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
               this.gridOptions.api.setRowData(this.rowData);
             }
 
-            const fieldsSum: Array<{ name: string; total: number }> = CalTotal(
-              this.rowData,
-              [
-                { name: 'debit', total: 0 },
-                { name: 'credit', total: 0 },
-                { name: 'Commission', total: 0 },
-                { name: 'Fees', total: 0 },
-                { name: 'TradePrice', total: 0 },
-                { name: 'NetPrice', total: 0 },
-                { name: 'SettleNetPrice', total: 0 },
-                { name: 'NetMoney', total: 0 },
-                { name: 'LocalNetNotional', total: 0 },
-                { name: 'value', total: 0 }
-              ]
-            );
+            const fieldsSum: Array<{ name: string; total: number }> = CalTotal(this.rowData, [
+              { name: 'debit', total: 0 },
+              { name: 'credit', total: 0 },
+              { name: 'Commission', total: 0 },
+              { name: 'Fees', total: 0 },
+              { name: 'TradePrice', total: 0 },
+              { name: 'NetPrice', total: 0 },
+              { name: 'SettleNetPrice', total: 0 },
+              { name: 'NetMoney', total: 0 },
+              { name: 'LocalNetNotional', total: 0 },
+              { name: 'value', total: 0 }
+            ]);
             this.pinnedBottomRowData = [
               {
                 source: 'Total Records:' + this.totalRecords,
@@ -293,8 +274,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
                 SecurityId: 0,
                 debit: Math.abs(fieldsSum[0].total),
                 credit: Math.abs(fieldsSum[1].total),
-                balance:
-                  Math.abs(fieldsSum[0].total) - Math.abs(fieldsSum[1].total),
+                balance: Math.abs(fieldsSum[0].total) - Math.abs(fieldsSum[1].total),
                 Commission: fieldsSum[2].total,
                 Fees: fieldsSum[3].total,
                 TradePrice: fieldsSum[4].total,
@@ -305,9 +285,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
                 value: fieldsSum[9].total
               }
             ];
-            this.gridOptions.api.setPinnedBottomRowData(
-              this.pinnedBottomRowData
-            );
+            this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
             this.gridOptions.api.refreshCells();
             AutoSizeAllColumns(this.gridOptions);
           } else {
@@ -370,28 +348,19 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     const { symbolFilter } = object;
     const { dateFilter } = object;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
-    this.filterBySymbol =
-      symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
+    this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
     this.setDateRange(dateFilter);
     this.gridOptions.api.onFilterChanged();
   }
 
   isExternalFilterPresent() {
-    if (
-      this.fund !== 'All Funds' ||
-      this.startDate ||
-      this.filterBySymbol !== ''
-    ) {
+    if (this.fund !== 'All Funds' || this.startDate || this.filterBySymbol !== '') {
       return true;
     }
   }
 
   doesExternalFilterPass(node: any) {
-    if (
-      this.fund !== 'All Funds' &&
-      this.filterBySymbol !== '' &&
-      this.startDate
-    ) {
+    if (this.fund !== 'All Funds' && this.filterBySymbol !== '' && this.startDate) {
       const cellFund = node.data.fund;
       const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
       const cellDate = new Date(node.data.when);
@@ -431,15 +400,11 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     }
     if (this.startDate) {
       const cellDate = new Date(node.data.when);
-      return (
-        this.startDate.toDate() <= cellDate && this.endDate.toDate() >= cellDate
-      );
+      return this.startDate.toDate() <= cellDate && this.endDate.toDate() >= cellDate;
     }
     if (this.filterBySymbol !== '') {
       const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
-      return cellSymbol
-        .toLowerCase()
-        .includes(this.filterBySymbol.toLowerCase());
+      return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase());
     }
   }
 
@@ -449,9 +414,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     this.endDate = dates[1];
 
     this.selected =
-      dateFilter.startDate !== ''
-        ? { startDate: this.startDate, endDate: this.endDate }
-        : null;
+      dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
   }
 
   getContextMenuItems(params) {
@@ -474,13 +437,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       }
     ];
     //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
-    return GetContextMenu(
-      false,
-      addDefaultItems,
-      false,
-      addCustomItems,
-      params
-    );
+    return GetContextMenu(false, addDefaultItems, false, addCustomItems, params);
   }
 
   clearFilters() {
@@ -503,12 +460,8 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         this.DateRangeLabel !== ''
           ? this.DateRangeLabel
           : {
-              startDate:
-                this.startDate !== null
-                  ? this.startDate.format('YYYY-MM-DD')
-                  : '',
-              endDate:
-                this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
+              startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
+              endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
             }
     };
   }
