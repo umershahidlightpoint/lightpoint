@@ -123,12 +123,5 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return controller.DeleteJournal(source);
         }
-
-        [Route("summary")]
-        [HttpPost]
-        public object GetSummarizedJournal(List<GridLayoutDto> layout)
-        {
-            return controller.GetSummarizedJournal(layout);
-        }
     }
 }

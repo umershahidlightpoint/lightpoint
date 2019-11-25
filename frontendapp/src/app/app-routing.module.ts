@@ -19,7 +19,7 @@ import { SummaryComponent } from './main/summary/summary.component';
 const routes: Routes = [
   { path: '', component: ReportsComponent }, // Default
   { path: 'journals-ledgers', component: JournalsLedgersComponent },
-  { path: 'summary', component: SummaryComponent },
+  { path: 'analysis', component: SummaryComponent },
   { path: 'trial-balance', component: TrialGridExampleComponent },
   { path: 'runlogs', component: RunLogsComponent },
   { path: 'operations', component: OperationsComponent },
