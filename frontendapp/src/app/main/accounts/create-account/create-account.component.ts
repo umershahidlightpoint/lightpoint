@@ -4,7 +4,7 @@ import {
   Validators,
   FormArray,
   FormBuilder
-} from "@angular/forms";
+} from '@angular/forms';
 import {
   Component,
   OnInit,
@@ -14,24 +14,24 @@ import {
   EventEmitter,
   OnChanges,
   SimpleChanges
-} from "@angular/core";
-import { ModalDirective } from "ngx-bootstrap";
-import { Router } from "@angular/router";
+} from '@angular/core';
+import { ModalDirective } from 'ngx-bootstrap';
+import { Router } from '@angular/router';
 import {
   CreateAccount,
   EditAccount,
   AccountCategory,
   Account,
   AccountTag
-} from "../../../../shared/Models/account";
-import { FinanceServiceProxy } from "../../../../shared/service-proxies/service-proxies";
-import { ToastrService } from "ngx-toastr";
-import { takeWhile } from "rxjs/operators";
+} from '../../../../shared/Models/account';
+import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
+import { ToastrService } from 'ngx-toastr';
+import { takeWhile } from 'rxjs/operators';
 
 @Component({
-  selector: "app-create-account",
-  templateUrl: "./create-account.component.html",
-  styleUrls: ["./create-account.component.css"]
+  selector: 'app-create-account',
+  templateUrl: './create-account.component.html',
+  styleUrls: ['./create-account.component.css']
 })
 export class CreateAccountComponent implements OnInit, OnChanges {
   editCase = false;
@@ -40,8 +40,6 @@ export class CreateAccountComponent implements OnInit, OnChanges {
   accountCategory: string;
   noAccountDef = false;
   canEditAccount = true;
-  // For unsubscribing all subscriptions
-  isSubscriptionAlive: boolean;
 
   // Account Model
   rowDataSelected: Account;
@@ -50,9 +48,9 @@ export class CreateAccountComponent implements OnInit, OnChanges {
   accountInstance: CreateAccount;
   editAccountInstance: EditAccount;
 
-  @Input("selectedAccCategory")
+  @Input('selectedAccCategory')
   selectedAccountCategory: AccountCategory;
-  @ViewChild("modal", { static: false }) modal: ModalDirective;
+  @ViewChild('modal', { static: false }) modal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
 
   accountForm: FormGroup;
@@ -65,9 +63,7 @@ export class CreateAccountComponent implements OnInit, OnChanges {
     private formBuilder: FormBuilder,
     private financePocServiceProxy: FinanceServiceProxy,
     private toastrService: ToastrService
-  ) {
-    this.isSubscriptionAlive = true;
-  }
+  ) {}
 
   ngOnInit() {
     this.buildForm();
@@ -75,22 +71,21 @@ export class CreateAccountComponent implements OnInit, OnChanges {
 
   buildForm() {
     this.accountForm = this.formBuilder.group({
-      description: new FormControl("", Validators.required),
-      type: new FormControl("", Validators.required),
+      description: new FormControl('', Validators.required),
+      type: new FormControl('', Validators.required),
       tagsList: this.formBuilder.array([])
     });
-    this.tags = this.accountForm.get("tagsList") as FormArray;
+    this.tags = this.accountForm.get('tagsList') as FormArray;
   }
 
   getAccountTypes(selectedAccountCategoryId) {
     this.financePocServiceProxy
       .accountTypes(selectedAccountCategoryId)
-      .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {
         if (response.isSuccessful) {
           this.accountTypes = response.payload;
         } else {
-          this.toastrService.error("Failed to fetch account categories!");
+          this.toastrService.error('Failed to fetch account categories!');
         }
       });
   }
@@ -105,13 +100,13 @@ export class CreateAccountComponent implements OnInit, OnChanges {
   }
 
   addTag(selectedAccTags): void {
-    selectedAccTags["description"] = "";
-    selectedAccTags["isChecked"] = true;
+    selectedAccTags['description'] = '';
+    selectedAccTags['isChecked'] = true;
     this.tags.push(this.createTag(selectedAccTags));
   }
 
   deleteTag(tagToDelete) {
-    const control = <FormArray>this.accountForm.controls["tagsList"];
+    const control = <FormArray>this.accountForm.controls['tagsList'];
     for (let i = control.length - 1; i >= 0; i--) {
       if (control.at(i).value.tagId === tagToDelete.tagId) {
         control.removeAt(i);
@@ -119,8 +114,8 @@ export class CreateAccountComponent implements OnInit, OnChanges {
     }
     this.accountTags.forEach(tag => {
       if (tag.Id == tagToDelete.tagId) {
-        tag["isChecked"] = false;
-        tag["description"] = "";
+        tag['isChecked'] = false;
+        tag['description'] = '';
       }
     });
   }
@@ -128,42 +123,36 @@ export class CreateAccountComponent implements OnInit, OnChanges {
   getAccountTags(typeId) {
     const accTypeId = typeId;
     if (this.editCase) {
-      this.financePocServiceProxy
-        .accountTags()
-        .pipe(takeWhile(() => this.isSubscriptionAlive))
-        .subscribe(
-          response => {
-            if (response.payload.length < 1) {
-              this.noAccountDef = true;
-              return;
-            }
-            this.accountTags = response.payload;
-            if (accTypeId !== this.rowDataSelected.typeId) {
-              this.clearTagsListArray();
-            } else {
-              this.hasExistingAccount(this.rowDataSelected);
-            }
-          },
-          error => {
-            this.toastrService.error("Something went wrong. Try again later!");
+      this.financePocServiceProxy.accountTags().subscribe(
+        response => {
+          if (response.payload.length < 1) {
+            this.noAccountDef = true;
+            return;
           }
-        );
+          this.accountTags = response.payload;
+          if (accTypeId !== this.rowDataSelected.typeId) {
+            this.clearTagsListArray();
+          } else {
+            this.hasExistingAccount(this.rowDataSelected);
+          }
+        },
+        error => {
+          this.toastrService.error('Something went wrong. Try again later!');
+        }
+      );
     } else {
-      this.financePocServiceProxy
-        .accountTags()
-        .pipe(takeWhile(() => this.isSubscriptionAlive))
-        .subscribe(
-          response => {
-            if (response.payload.length < 1) {
-              this.noAccountDef = true;
-              return;
-            }
-            this.accountTags = response.payload;
-          },
-          error => {
-            this.toastrService.error("Something went wrong. Try again later!");
+      this.financePocServiceProxy.accountTags().subscribe(
+        response => {
+          if (response.payload.length < 1) {
+            this.noAccountDef = true;
+            return;
           }
-        );
+          this.accountTags = response.payload;
+        },
+        error => {
+          this.toastrService.error('Something went wrong. Try again later!');
+        }
+      );
     }
   }
 
@@ -178,14 +167,14 @@ export class CreateAccountComponent implements OnInit, OnChanges {
           temp.map(accountTags => {
             Tags.forEach(tag => {
               if (tag.Id === accountTags.Id) {
-                accountTags["isChecked"] = true;
-                accountTags["description"] = tag["Value"];
+                accountTags['isChecked'] = true;
+                accountTags['description'] = tag['Value'];
                 return accountTags;
               }
             });
           });
           temp = temp.filter(tag => {
-            if (tag.hasOwnProperty("isChecked")) {
+            if (tag.hasOwnProperty('isChecked')) {
               return tag;
             }
           });
@@ -225,7 +214,7 @@ export class CreateAccountComponent implements OnInit, OnChanges {
   close() {
     this.modal.hide();
     setTimeout(() => this.clearForm(), 250);
-    this.router.navigateByUrl("/accounts");
+    this.router.navigateByUrl('/accounts');
   }
 
   onSave() {
@@ -248,14 +237,14 @@ export class CreateAccountComponent implements OnInit, OnChanges {
           .subscribe(
             response => {
               if (response.isSuccessful) {
-                this.toastrService.success("Account edited successfully!");
+                this.toastrService.success('Account edited successfully!');
               } else {
-                this.toastrService.error("Account edited failed!");
+                this.toastrService.error('Account edited failed!');
               }
             },
             error => {
               this.toastrService.error(
-                "Something went wrong. Try again later!"
+                'Something went wrong. Try again later!'
               );
             }
           );
@@ -271,14 +260,14 @@ export class CreateAccountComponent implements OnInit, OnChanges {
           .subscribe(
             response => {
               if (response.isSuccessful) {
-                this.toastrService.success("Account edited successfully!");
+                this.toastrService.success('Account edited successfully!');
               } else {
-                this.toastrService.error("Account edition failed!");
+                this.toastrService.error('Account edition failed!');
               }
             },
             error => {
               this.toastrService.error(
-                "Something went wrong. Try again later!"
+                'Something went wrong. Try again later!'
               );
             }
           );
@@ -292,25 +281,25 @@ export class CreateAccountComponent implements OnInit, OnChanges {
       this.financePocServiceProxy.createAccount(this.accountInstance).subscribe(
         response => {
           if (response.isSuccessful) {
-            this.toastrService.success("Account created successfully!");
+            this.toastrService.success('Account created successfully!');
           } else {
-            this.toastrService.error("Account creation failed!");
+            this.toastrService.error('Account creation failed!');
           }
         },
         error => {
-          this.toastrService.error("Something went wrong. Try again later!");
+          this.toastrService.error('Something went wrong. Try again later!');
         }
       );
     }
     this.modalClose.emit(true);
     this.modal.hide();
     setTimeout(() => this.clearForm(), 1000);
-    this.router.navigateByUrl("/accounts");
+    this.router.navigateByUrl('/accounts');
   }
 
   clearForm() {
-    this.accountForm.controls["description"].reset();
-    this.accountForm.controls["type"].reset();
+    this.accountForm.controls['description'].reset();
+    this.accountForm.controls['type'].reset();
     this.clearTagsListArray();
     this.accountTags = null;
     this.canEditAccount = true;
@@ -322,7 +311,7 @@ export class CreateAccountComponent implements OnInit, OnChanges {
   }
 
   clearTagsListArray() {
-    const control = <FormArray>this.accountForm.controls["tagsList"];
+    const control = <FormArray>this.accountForm.controls['tagsList'];
     for (let i = control.length - 1; i >= 0; i--) {
       control.removeAt(i);
     }

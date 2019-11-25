@@ -32,7 +32,7 @@ import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-m
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
 import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
-import { AgGridUtils } from 'src/shared/utils/ag-grid-utils';
+import { AgGridUtils } from 'src/shared/utils/AgGridUtils';
 
 @Component({
   selector: 'app-trial-balance',

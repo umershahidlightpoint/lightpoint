@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
-import { AgGridUtils } from '../../../shared/utils/ag-grid-utils';
+import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { SideBar, AutoSizeAllColumns } from 'src/shared/utils/Shared';
@@ -17,7 +17,6 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
   public allocationsGridOptions: GridOptions;
   public allocationsData: [];
   allocationTradesData: any;
-  isSubscriptionAlive: boolean;
   columnDefs = [];
 
   constructor(
@@ -29,7 +28,6 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.isSubscriptionAlive = true;
     this.dataService.allocationId.subscribe(data => {
       if (data != null) {
         this.getTradeAllocations(data);
@@ -94,11 +92,11 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
         result.data,
         this.allocationTradesData.meta.Columns
       );
-      const cdefs = this.agGridUtils.customizeColumns([], this.allocationTradesData.meta.Columns, [
-        'Id',
-        'AllocationId',
-        'EMSOrderId'
-      ]);
+      const cdefs = this.agGridUtils.customizeColumns(
+        [],
+        this.allocationTradesData.meta.Columns,
+        ['Id', 'AllocationId', 'EMSOrderId']
+      );
       this.allocationsGridOptions.api.setColumnDefs(cdefs);
       this.allocationsData = someArray as [];
     });

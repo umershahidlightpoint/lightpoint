@@ -1,7 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { GridOptions } from 'ag-grid-community';
 import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies';
-import { takeWhile } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { GridId } from '../../../../shared/utils/AppEnums';
 import { HeightStyle, ExcelStyle } from 'src/shared/utils/Shared';
@@ -13,11 +12,12 @@ import { GetContextMenu } from 'src/shared/utils/ContextMenu';
   templateUrl: './journals-summary.component.html',
   styleUrls: ['./journals-summary.component.css']
 })
-export class JournalsSummaryComponent implements OnInit, OnDestroy {
+export class JournalsSummaryComponent implements OnInit {
   gridLayout = 'Select a Layout';
   gridLayouts: string;
-  isSubscriptionAlive: boolean;
   gridOptions: GridOptions;
+  currentLayout: any;
+  toggleGridBool = false;
 
   styleForHeight = HeightStyle(228);
 
@@ -35,36 +35,38 @@ export class JournalsSummaryComponent implements OnInit, OnDestroy {
   };
 
   constructor(private financeService: FinanceServiceProxy, private toastrService: ToastrService) {
-    this.isSubscriptionAlive = true;
     this.initGird();
     this.getGridLayouts();
   }
 
   ngOnInit(): void {}
 
+  toggleGrid() {
+    this.toggleGridBool = !this.toggleGridBool;
+  }
+
   getGridLayouts(): void {
-    this.financeService
-      .getGridLayouts(GridId.journalsLedgersId, 1)
-      .pipe(takeWhile(() => this.isSubscriptionAlive))
-      .subscribe(
-        response => {
-          if (response.isSuccessful) {
-            this.gridLayouts = response.payload;
-          }
-        },
-        error => {
-          this.toastrService.error('Something went wrong. Try again later!');
+    this.financeService.getGridLayouts(GridId.journalsLedgersId, 1).subscribe(
+      response => {
+        if (response.isSuccessful) {
+          this.gridLayouts = response.payload;
         }
-      );
+      },
+      error => {
+        this.toastrService.error('Something went wrong. Try again later!');
+      }
+    );
   }
 
   changeGridLayout(selectedLayout: any): void {
     this.gridOptions.api.showLoadingOverlay();
+    this.currentLayout = selectedLayout;
     this.getJournalsSummary(selectedLayout);
   }
 
   refreshGrid() {
     this.gridOptions.api.showLoadingOverlay();
+    this.getJournalsSummary(this.currentLayout);
   }
 
   initGird() {
@@ -160,21 +162,20 @@ export class JournalsSummaryComponent implements OnInit, OnDestroy {
   }
 
   getJournalsSummary(gridLayout: any) {
-    this.financeService
-      .getJournalSummary(gridLayout.ColumnState)
-      .pipe(takeWhile(() => this.isSubscriptionAlive))
-      .subscribe(
-        response => {
-          if (response.isSuccessful) {
-            this.setGridState(response);
-          } else {
-            this.toastrService.error(response.message);
-          }
-        },
-        error => {
-          this.toastrService.error('Something went wrong. Try again later!');
+    this.financeService.getJournalSummary(gridLayout.ColumnState).subscribe(
+      response => {
+        if (response.isSuccessful) {
+          this.setGridState(response);
+        } else {
+          this.toastrService.error(response.message);
+          this.gridOptions.api.hideOverlay();
         }
-      );
+      },
+      error => {
+        this.toastrService.error('Something went wrong. Try again later!');
+        this.gridOptions.api.hideOverlay();
+      }
+    );
   }
 
   private setGridState(response: any) {
@@ -205,9 +206,5 @@ export class JournalsSummaryComponent implements OnInit, OnDestroy {
         node.setExpanded(true);
       }
     });
-  }
-
-  ngOnDestroy(): void {
-    this.isSubscriptionAlive = false;
   }
 }

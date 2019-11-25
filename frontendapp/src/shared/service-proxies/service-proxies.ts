@@ -8,7 +8,6 @@ import {
   PostingEngineStatus,
   IsPostingEngineRunning
 } from '../Models/posting-engine';
-import { LedgerInput } from '../Models/account';
 import { ToastrService } from 'ngx-toastr';
 
 export const API_BASE_URL = environment.remoteServerUrl;
@@ -199,22 +198,6 @@ export class FinanceServiceProxy {
     }
 
     return this.http.get(url).pipe(map((response: any) => response));
-  }
-
-  /*
-  Create a Ledger
-  */
-  createLedger(data: LedgerInput) {
-    const url = this.baseUrl + '/ledgers';
-    return this.http.post(url, data).pipe(map((response: any) => response));
-  }
-
-  /*
-  Update a Ledger
-  */
-  updateLedger(ledgerId: any | undefined, data: LedgerInput) {
-    const url = this.baseUrl + '/ledgers/' + ledgerId;
-    return this.http.put(url, data).pipe(map((response: any) => response));
   }
 
   /*

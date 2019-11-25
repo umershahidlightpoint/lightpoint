@@ -5,22 +5,21 @@ import {
   ViewChild,
   Output,
   Input,
-  EventEmitter,
-  OnDestroy
-} from "@angular/core";
-import { ModalDirective } from "ngx-bootstrap";
-import { HeightStyle } from "src/shared/utils/Shared";
+  EventEmitter
+} from '@angular/core';
+import { ModalDirective } from 'ngx-bootstrap';
+import { HeightStyle } from 'src/shared/utils/Shared';
 
 @Component({
-  selector: "app-data-modal",
-  templateUrl: "./data-modal.component.html",
-  styleUrls: ["./data-modal.component.css"]
+  selector: 'app-data-modal',
+  templateUrl: './data-modal.component.html',
+  styleUrls: ['./data-modal.component.css']
 })
-export class DataModalComponent implements OnInit, OnDestroy {
-  @ViewChild("modal", { static: false }) modal: ModalDirective;
+export class DataModalComponent implements OnInit {
+  @ViewChild('modal', { static: false }) modal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
   @Input() orderId: string;
-  @Input() title = "Data Details";
+  @Input() title = 'Data Details';
 
   tableData: any;
   backdrop: any;
@@ -28,11 +27,11 @@ export class DataModalComponent implements OnInit, OnDestroy {
   styleForHeight = HeightStyle(220);
 
   containerDiv = {
-    borderLeft: "1px solid #cecece",
-    borderRight: "1px solid #cecece",
-    width: "100%",
-    boxSizing: "border-box",
-    overflow: "overlay"
+    borderLeft: '1px solid #cecece',
+    borderRight: '1px solid #cecece',
+    width: '100%',
+    boxSizing: 'border-box',
+    overflow: 'overlay'
   };
 
   constructor() {}
@@ -76,6 +75,4 @@ export class DataModalComponent implements OnInit, OnDestroy {
     }
     return match;
   }
-
-  ngOnDestroy() {}
 }

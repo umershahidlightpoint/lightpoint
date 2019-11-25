@@ -1,9 +1,14 @@
-import { Component, TemplateRef, OnInit, AfterViewInit, ViewChild, OnDestroy } from '@angular/core';
+import {
+  Component,
+  TemplateRef,
+  OnInit,
+  AfterViewInit,
+  ViewChild
+} from '@angular/core';
 import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
-import { takeWhile } from 'rxjs/operators';
 import { TemplateRendererComponent } from '../../../template-renderer/template-renderer.component';
-import { SilverFile } from 'src/shared/models/silverFile';
+import { SilverFile } from 'src/shared/Models/silver-file';
 import { SideBar, Style, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
@@ -14,12 +19,13 @@ import { GetContextMenu } from 'src/shared/utils/ContextMenu';
   templateUrl: './silver-file-management.component.html',
   styleUrls: ['./silver-file-management.component.css']
 })
-export class SilverFileManagementComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<any>;
+export class SilverFileManagementComponent implements OnInit, AfterViewInit {
+  @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<
+    any
+  >;
 
   filesGridOptions: GridOptions;
   files: SilverFile[];
-  isSubscriptionAlive: boolean;
 
   excelParams = {
     fileName: 'Silver File',
@@ -37,7 +43,6 @@ export class SilverFileManagementComponent implements OnInit, AfterViewInit, OnD
   };
 
   constructor(private financeService: FinanceServiceProxy) {
-    this.isSubscriptionAlive = true;
     this.initGrid();
   }
 
@@ -106,17 +111,14 @@ export class SilverFileManagementComponent implements OnInit, AfterViewInit, OnD
   }
 
   getSilverFiles() {
-    this.financeService
-      .getSilverFiles()
-      .pipe(takeWhile(() => this.isSubscriptionAlive))
-      .subscribe(result => {
-        this.files = result.payload.map(item => ({
-          name: item.Name,
-          uploadDate: item.UploadDate,
-          size: item.Size
-        }));
-        this.filesGridOptions.api.setRowData(this.files);
-      });
+    this.financeService.getSilverFiles().subscribe(result => {
+      this.files = result.payload.map(item => ({
+        name: item.Name,
+        uploadDate: item.UploadDate,
+        size: item.Size
+      }));
+      this.filesGridOptions.api.setRowData(this.files);
+    });
     this.setColDefs();
   }
 
@@ -130,8 +132,4 @@ export class SilverFileManagementComponent implements OnInit, AfterViewInit, OnD
   };
 
   downloadFile(file) {}
-
-  ngOnDestroy() {
-    this.isSubscriptionAlive = false;
-  }
 }
