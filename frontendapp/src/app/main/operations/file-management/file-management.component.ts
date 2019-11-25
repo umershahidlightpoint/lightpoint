@@ -1,10 +1,20 @@
-import { Component, TemplateRef, OnInit, AfterViewInit, ViewChild, OnDestroy } from '@angular/core';
+import {
+  Component,
+  TemplateRef,
+  OnInit,
+  AfterViewInit,
+  ViewChild
+} from '@angular/core';
 import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
-import { takeWhile } from 'rxjs/operators';
 import { TemplateRendererComponent } from '../../../template-renderer/template-renderer.component';
 import { File } from 'src/shared/models/files';
-import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';
+import {
+  SideBar,
+  Style,
+  AutoSizeAllColumns,
+  HeightStyle
+} from 'src/shared/utils/Shared';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { ToastrService } from 'ngx-toastr';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
@@ -15,12 +25,13 @@ import { GetContextMenu } from 'src/shared/utils/ContextMenu';
   templateUrl: './file-management.component.html',
   styleUrls: ['./file-management.component.css']
 })
-export class FileManagementComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<any>;
+export class FileManagementComponent implements OnInit, AfterViewInit {
+  @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<
+    any
+  >;
 
   filesGridOptions: GridOptions;
   files: File[];
-  isSubscriptionAlive: boolean;
 
   excelParams = {
     fileName: 'File Management',
@@ -44,7 +55,6 @@ export class FileManagementComponent implements OnInit, AfterViewInit, OnDestroy
     private financeService: FinanceServiceProxy,
     private toastrService: ToastrService
   ) {
-    this.isSubscriptionAlive = true;
     this.initGrid();
   }
 
@@ -77,7 +87,11 @@ export class FileManagementComponent implements OnInit, AfterViewInit, OnDestroy
         return { backgroundColor: '#ffcfcf' };
       }
     };
-    this.filesGridOptions.sideBar = SideBar(GridId.filesId, GridName.files, this.filesGridOptions);
+    this.filesGridOptions.sideBar = SideBar(
+      GridId.filesId,
+      GridName.files,
+      this.filesGridOptions
+    );
   }
 
   setColDefs() {
@@ -135,8 +149,18 @@ export class FileManagementComponent implements OnInit, AfterViewInit, OnDestroy
         enableRowGroup: true,
         resizable: true
       },
-      { field: 'actionStartDate', headerName: 'Start Date', sortable: true, filter: true },
-      { field: 'actionEndDate', headerName: 'End Date', sortable: true, filter: true },
+      {
+        field: 'actionStartDate',
+        headerName: 'Start Date',
+        sortable: true,
+        filter: true
+      },
+      {
+        field: 'actionEndDate',
+        headerName: 'End Date',
+        sortable: true,
+        filter: true
+      },
       {
         headerName: 'View',
         cellRendererFramework: TemplateRendererComponent,
@@ -149,25 +173,22 @@ export class FileManagementComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   getFiles() {
-    this.financeService
-      .getFiles()
-      .pipe(takeWhile(() => this.isSubscriptionAlive))
-      .subscribe(result => {
-        this.files = result.payload.map(item => ({
-          id: item.id,
-          name: item.name,
-          path: item.path,
-          source: item.source,
-          statistics: item.statistics,
-          fileActionId: item.file_action_id,
-          action: item.action,
-          actionStartDate: item.action_start_date,
-          actionEndDate: item.action_end_date,
-          businessDate: item.business_date,
-          exceptions: item.exceptions
-        }));
-        this.filesGridOptions.api.setRowData(this.files);
-      });
+    this.financeService.getFiles().subscribe(result => {
+      this.files = result.payload.map(item => ({
+        id: item.id,
+        name: item.name,
+        path: item.path,
+        source: item.source,
+        statistics: item.statistics,
+        fileActionId: item.file_action_id,
+        action: item.action,
+        actionStartDate: item.action_start_date,
+        actionEndDate: item.action_end_date,
+        businessDate: item.business_date,
+        exceptions: item.exceptions
+      }));
+      this.filesGridOptions.api.setRowData(this.files);
+    });
     this.setColDefs();
   }
 
@@ -211,8 +232,4 @@ export class FileManagementComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   downloadFile(file) {}
-
-  ngOnDestroy() {
-    this.isSubscriptionAlive = false;
-  }
 }

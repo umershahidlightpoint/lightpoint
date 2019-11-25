@@ -4,11 +4,9 @@ import {
   ViewChild,
   Output,
   EventEmitter,
-  OnDestroy
 } from '@angular/core';
 import { ModalDirective } from 'ngx-bootstrap';
 import { ToastrService } from 'ngx-toastr';
-import { takeWhile } from 'rxjs/operators';
 import * as moment from 'moment';
 import { FinanceServiceProxy } from '../../../../../shared/service-proxies/service-proxies';
 
@@ -17,7 +15,7 @@ import { FinanceServiceProxy } from '../../../../../shared/service-proxies/servi
   templateUrl: './tax-rate-modal.component.html',
   styleUrls: ['./tax-rate-modal.component.css']
 })
-export class TaxRateModalComponent implements OnInit, OnDestroy {
+export class TaxRateModalComponent implements OnInit {
   @ViewChild('modal', { static: false }) modal: ModalDirective;
   @Output() closeModalEvent = new EventEmitter<any>();
 
@@ -28,7 +26,6 @@ export class TaxRateModalComponent implements OnInit, OnDestroy {
   shortTermPeriod = 365;
   lastTaxRateData;
   editTaxRate: boolean;
-  isSubscriptionAlive: boolean;
   backdrop: any;
 
   constructor(
@@ -38,7 +35,6 @@ export class TaxRateModalComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.editTaxRate = false;
-    this.isSubscriptionAlive = true;
   }
 
   changeDate(date) {
@@ -123,9 +119,5 @@ export class TaxRateModalComponent implements OnInit, OnDestroy {
     this.longTermTaxRate = 0;
     this.shortTermTaxRate = 0;
     this.shortTermPeriod = 365;
-  }
-
-  ngOnDestroy() {
-    this.isSubscriptionAlive = false;
   }
 }

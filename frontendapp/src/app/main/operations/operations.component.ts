@@ -4,18 +4,21 @@ import {
   OnInit,
   AfterViewChecked,
   ViewChild,
-  OnDestroy
 } from '@angular/core';
 import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
-import { takeWhile } from 'rxjs/operators';
 import * as moment from 'moment';
 import { FormGroup, FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';
+import {
+  SideBar,
+  Style,
+  AutoSizeAllColumns,
+  HeightStyle
+} from 'src/shared/utils/Shared';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 
@@ -24,15 +27,15 @@ import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-mo
   templateUrl: './operations.component.html',
   styleUrls: ['./operations.component.css']
 })
-export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked {
-  @ViewChild('confirmModal', { static: false }) confirmationModal: ConfirmationModalComponent;
+export class OperationsComponent implements OnInit, AfterViewChecked {
+  @ViewChild('confirmModal', { static: false })
+  confirmationModal: ConfirmationModalComponent;
   @ViewChild('logScroll', { static: false }) private logContainer: ElementRef;
 
   public gridOptions: GridOptions;
   public rowData: any[];
   private bottomOptions: any = { alignedGrids: [] };
 
-  isSubscriptionAlive: boolean;
   isLoading = false;
   postingEngineStatus = false;
   fileManagementActive = false;
@@ -113,7 +116,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   ngOnInit() {
-    this.isSubscriptionAlive = true;
     // /*
     // Align Scroll of Grid and Footer Grid
     // */
@@ -168,7 +170,11 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
         resizable: true
       }
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(GridId.logsId, GridName.logs, this.gridOptions);
+    this.gridOptions.sideBar = SideBar(
+      GridId.logsId,
+      GridName.logs,
+      this.gridOptions
+    );
   }
 
   private getJournalLogs() {
@@ -206,7 +212,10 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   validateClearForm() {
-    return !this.clearJournalForm.value.system && !this.clearJournalForm.value.user ? true : false;
+    return !this.clearJournalForm.value.system &&
+      !this.clearJournalForm.value.user
+      ? true
+      : false;
   }
 
   /* This needs to call out to the Posting Engine and invoke the process,
@@ -216,7 +225,6 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
     this.postingEngineStatus = true;
     this.financeService
       .startPostingEngine(this.selectedPeriod.name)
-      .pipe(takeWhile(() => this.isSubscriptionAlive))
       .subscribe(response => {
         if (response.IsRunning) {
           this.isLoading = true;
@@ -231,52 +239,47 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   generateFiles() {
     const obj = {
-      businessDate: this.businessDate != null ? this.businessDate.startDate : null
+      businessDate:
+        this.businessDate != null ? this.businessDate.startDate : null
     };
     this.generateFilesLoader = true;
-    this.financeService
-      .generateFiles(obj)
-      .pipe(takeWhile(() => this.isSubscriptionAlive))
-      .subscribe(response => {
-        this.generateFilesLoader = false;
-        if (response.isSuccessful) {
-          this.toastrService.success('Files are Generated for Processing');
-        } else {
-          this.toastrService.error('Something went wrong, Please try again later.');
-        }
-      });
+    this.financeService.generateFiles(obj).subscribe(response => {
+      this.generateFilesLoader = false;
+      if (response.isSuccessful) {
+        this.toastrService.success('Files are Generated for Processing');
+      } else {
+        this.toastrService.error(
+          'Something went wrong, Please try again later.'
+        );
+      }
+    });
   }
 
   getLogs() {
     setTimeout(() => {
-      this.financeService
-        .runningEngineStatus(this.key)
-        .pipe(takeWhile(() => this.isSubscriptionAlive))
-        .subscribe(response => {
-          this.isLoading = response.Status;
-          this.progress = response.progress;
-          this.messages = response.message === '' ? this.messages : response.message;
-          if (response.Status) {
-            this.getLogs();
-          } else {
-            this.messages = '';
-          }
-        });
+      this.financeService.runningEngineStatus(this.key).subscribe(response => {
+        this.isLoading = response.Status;
+        this.progress = response.progress;
+        this.messages =
+          response.message === '' ? this.messages : response.message;
+        if (response.Status) {
+          this.getLogs();
+        } else {
+          this.messages = '';
+        }
+      });
     }, 3000);
   }
 
   isPostingEngineRunning(e) {
     if (e.index === 1) {
-      this.financeService
-        .isPostingEngineRunning()
-        .pipe(takeWhile(() => this.isSubscriptionAlive))
-        .subscribe(response => {
-          if (response.IsRunning) {
-            this.isLoading = true;
-            this.key = response.key;
-            this.getLogs();
-          }
-        });
+      this.financeService.isPostingEngineRunning().subscribe(response => {
+        if (response.IsRunning) {
+          this.isLoading = true;
+          this.key = response.key;
+          this.getLogs();
+        }
+      });
     }
     if (e.index === 3) {
       this.fileManagementActive = true;
@@ -297,16 +300,13 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
         : this.clearJournalForm.value.system
         ? 'system'
         : 'user';
-    this.financeService
-      .clearJournals(type)
-      .pipe(takeWhile(() => this.isSubscriptionAlive))
-      .subscribe(response => {
-        if (response.isSuccessful) {
-          this.toastrService.success('Journals are cleared successfully!');
-        } else {
-          this.toastrService.error('Failed to clear Journals!');
-        }
-      });
+    this.financeService.clearJournals(type).subscribe(response => {
+      if (response.isSuccessful) {
+        this.toastrService.success('Journals are cleared successfully!');
+      } else {
+        this.toastrService.error('Failed to clear Journals!');
+      }
+    });
     this.clearForm();
   }
 
@@ -317,9 +317,5 @@ export class OperationsComponent implements OnInit, OnDestroy, AfterViewChecked 
   getContextMenuItems(params) {
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(true, null, true, null, params);
-  }
-
-  ngOnDestroy() {
-    this.isSubscriptionAlive = false;
   }
 }
