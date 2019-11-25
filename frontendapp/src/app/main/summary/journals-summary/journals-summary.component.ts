@@ -15,7 +15,8 @@ export class JournalsSummaryComponent implements OnInit {
   gridLayout = 'Select a Layout';
   gridLayouts: string;
   gridOptions: GridOptions;
-  toggleGridBool: Boolean = false;
+  currentLayout: any;
+  toggleGridBool = false;
 
   styleForHeight = HeightStyle(228);
 
@@ -32,10 +33,7 @@ export class JournalsSummaryComponent implements OnInit {
     sheetName: 'First Sheet'
   };
 
-  constructor(
-    private financeService: FinanceServiceProxy,
-    private toastrService: ToastrService
-  ) {
+  constructor(private financeService: FinanceServiceProxy, private toastrService: ToastrService) {
     this.initGird();
     this.getGridLayouts();
   }
@@ -61,11 +59,13 @@ export class JournalsSummaryComponent implements OnInit {
 
   changeGridLayout(selectedLayout: any): void {
     this.gridOptions.api.showLoadingOverlay();
+    this.currentLayout = selectedLayout;
     this.getJournalsSummary(selectedLayout);
   }
 
   refreshGrid() {
     this.gridOptions.api.showLoadingOverlay();
+    this.getJournalsSummary(this.currentLayout);
   }
 
   initGird() {
@@ -117,10 +117,12 @@ export class JournalsSummaryComponent implements OnInit {
           this.setGridState(response);
         } else {
           this.toastrService.error(response.message);
+          this.gridOptions.api.hideOverlay();
         }
       },
       error => {
         this.toastrService.error('Something went wrong. Try again later!');
+        this.gridOptions.api.hideOverlay();
       }
     );
   }

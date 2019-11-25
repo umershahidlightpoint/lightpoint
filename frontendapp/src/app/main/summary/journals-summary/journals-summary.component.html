@@ -1,5 +1,4 @@
 <!-- Journals Summary Container -->
-<!-- Actions Div -->
 <div class="row mt-2">
     <!-- Layouts Dropdown Div -->
     <div class="col-3">
@@ -9,24 +8,25 @@
                 {{ gridLayout.GridLayoutName }}
             </option>
         </select>
-        <!-- Layouts Dropdown Div Ends -->
     </div>
-    
-    <!-- Grid Util Actions -->
-    <div class="ml-auto mr-2">
-        <app-grid-utils class="mr-4" [gridOptions]="gridOptions" [utilsConfig]="utilsConfig" (refresh)="refreshGrid()"
+    <!-- Layouts Dropdown Div Ends -->
+
+    <!-- Actions Div -->
+    <div class="ml-auto">
+        <!-- Grid Util Actions -->
+        <app-grid-utils class="mr-2" [gridOptions]="gridOptions" [utilsConfig]="utilsConfig" (refresh)="refreshGrid()"
             [excelParams]="excelParams">
         </app-grid-utils>
         <!-- Grid Util Actions Ends -->
-    </div>
-<!-- Actions Div Ends -->
-    <div  class="mr-2 d-inline-block">
+        <!-- Details Grid Toggle -->
         <ng-template #tooltipTemplate>{{!toggleGridBool ? 'Expand' : 'Collapse'}}</ng-template>
-        <button  class="btn btn-info" (click)="toggleGrid()" [tooltip]="tooltipTemplate" placement="top">
-        <i *ngIf="!toggleGridBool" class="fa fa-chevron-up"></i>
-        <i *ngIf="toggleGridBool" class="fa fa-chevron-down"></i>
+        <button class="btn btn-info" (click)="toggleGrid()" [tooltip]="tooltipTemplate" placement="top">
+            <i *ngIf="!toggleGridBool" class="fa fa-chevron-up"></i>
+            <i *ngIf="toggleGridBool" class="fa fa-chevron-down"></i>
         </button>
+        <!-- Details Grid Toggle Ends -->
     </div>
+    <!-- Actions Div Ends -->
 </div>
 
 
@@ -37,13 +37,10 @@
     </div>
     <!-- Journals Summary Grid Ends -->
 
-    <!-- Get Journals Summary Details -->
-     <!--  -->
+    <!-- Journals Summary Details -->
     <div [ngClass]="{'h-50' : toggleGridBool, 'd-none' : !toggleGridBool}">
         <app-journals-summay-detail></app-journals-summay-detail>
     </div>
-    
-    <!-- End Get Journals Summary Details -->
+    <!-- Journals Summary Details Ends -->
 </div>
-
 <!-- Journals Summary Container Ends -->
