@@ -97,8 +97,11 @@ import { TaxRatesComponent } from './main/fund-theoretical/tax-rates/tax-rates.c
 import { TaxRateModalComponent } from './main/fund-theoretical/tax-rates/tax-rate-modal/tax-rate-modal.component';
 import { DatePickerModalComponent } from '../shared/Component/date-picker-modal/date-picker-modal.component';
 import { FileUploadComponent } from './main/operations/file-upload/file-upload.component';
+
+// Summary
 import { SummaryComponent } from './main/summary/summary.component';
 import { JournalsSummaryComponent } from './main/summary/journals-summary/journals-summary.component';
+import { JournalsSummayDetailComponent} from './main/summary/journals-summay-detail/journals-summay-detail.component';
 
 @NgModule({
   declarations: [
@@ -151,7 +154,8 @@ import { JournalsSummaryComponent } from './main/summary/journals-summary/journa
     DatePickerModalComponent,
     FileUploadComponent,
     SummaryComponent,
-    JournalsSummaryComponent
+    JournalsSummaryComponent,
+    JournalsSummayDetailComponent
   ],
   imports: [
     BrowserModule,

@@ -9,21 +9,41 @@
                 {{ gridLayout.GridLayoutName }}
             </option>
         </select>
+        <!-- Layouts Dropdown Div Ends -->
     </div>
-    <!-- Layouts Dropdown Div Ends -->
+    
     <!-- Grid Util Actions -->
     <div class="ml-auto mr-2">
         <app-grid-utils class="mr-4" [gridOptions]="gridOptions" [utilsConfig]="utilsConfig" (refresh)="refreshGrid()"
             [excelParams]="excelParams">
         </app-grid-utils>
+        <!-- Grid Util Actions Ends -->
     </div>
-    <!-- Grid Util Actions Ends -->
-</div>
 <!-- Actions Div Ends -->
-<!-- Journals Summary Grid -->
-<div [ngStyle]="styleForHeight">
-    <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions">
-    </ag-grid-angular>
+    <div  class="mr-2 d-inline-block">
+        <ng-template #tooltipTemplate>{{!toggleGridBool ? 'Expand' : 'Collapse'}}</ng-template>
+        <button  class="btn btn-info" (click)="toggleGrid()" [tooltip]="tooltipTemplate" placement="top">
+        <i *ngIf="!toggleGridBool" class="fa fa-chevron-up"></i>
+        <i *ngIf="toggleGridBool" class="fa fa-chevron-down"></i>
+        </button>
+    </div>
 </div>
-<!-- Journals Summary Grid Ends -->
+
+
+<div [ngStyle]="styleForHeight">
+    <!-- Journals Summary Grid -->
+    <div [ngClass]="{'h-50' : toggleGridBool, 'h-100' : !toggleGridBool}">
+        <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions"></ag-grid-angular>
+    </div>
+    <!-- Journals Summary Grid Ends -->
+
+    <!-- Get Journals Summary Details -->
+     <!--  -->
+    <div [ngClass]="{'h-50' : toggleGridBool, 'd-none' : !toggleGridBool}">
+        <app-journals-summay-detail></app-journals-summay-detail>
+    </div>
+    
+    <!-- End Get Journals Summary Details -->
+</div>
+
 <!-- Journals Summary Container Ends -->

@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { GridOptions } from 'ag-grid-community';
 import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies';
+import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
 import { takeWhile } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { GridId } from '../../../../shared/utils/AppEnums';
@@ -17,6 +18,7 @@ export class JournalsSummaryComponent implements OnInit, OnDestroy {
   gridLayouts: string;
   isSubscriptionAlive: boolean;
   gridOptions: GridOptions;
+  toggleGridBool: Boolean = false;
 
   styleForHeight = HeightStyle(228);
 
@@ -33,13 +35,20 @@ export class JournalsSummaryComponent implements OnInit, OnDestroy {
     sheetName: 'First Sheet'
   };
 
-  constructor(private financeService: FinanceServiceProxy, private toastrService: ToastrService) {
+  constructor(
+    private financeService: FinanceServiceProxy,
+    private toastrService: ToastrService
+  ) {
     this.isSubscriptionAlive = true;
     this.initGird();
     this.getGridLayouts();
   }
 
   ngOnInit(): void {}
+
+  toggleGrid() {
+    this.toggleGridBool = !this.toggleGridBool;
+  }
 
   getGridLayouts(): void {
     this.financeService
@@ -107,8 +116,6 @@ export class JournalsSummaryComponent implements OnInit, OnDestroy {
       }
     } as GridOptions;
   }
-
-  getContextMenuItems(params) {}
 
   getJournalsSummary(gridLayout: any) {
     this.financeService
