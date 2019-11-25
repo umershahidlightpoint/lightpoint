@@ -236,8 +236,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     string grouping = dynamicGrouping.ToString().TrimEnd(',');
                     var query = $@"select 
                         {mainSelect}
+                        count(*) as groupCount,
 						sum(d.debit) as debitSum,
-                        sum(d.credit) as creditSum
+                        sum(d.credit) as creditSum,
+                        sum(abs(d.debit)) - sum(abs(d.credit)) as balance
                         from(
                             SELECT
                                     {innerSelect}
