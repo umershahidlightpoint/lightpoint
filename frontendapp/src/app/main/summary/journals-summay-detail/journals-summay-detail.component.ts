@@ -29,6 +29,7 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
   overallTotalRecords = 0;
 
   ignoreFields = IgnoreFields;
+  groupSelectionChanges = false;
 
   excelParams = {
     fileName: 'Journals',
@@ -46,11 +47,48 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
 
   journalsDataSource: IDatasource = {
     getRows: (params: IGetRowsParams) => {
+      let gridPayloadFilters = [];
+      if(this.groupSelectionChanges){
+        gridPayloadFilters = this.payloadFilters;
+      } else{
+        let customFilters = [];
+        for (let key of Object.keys(params.filterModel)) {
+          let filterData = [];
+          filterData.push(params.filterModel[key].filter);
+          customFilters.push({
+            column: key,
+            data: filterData
+          });
+        }
+        for(var i = 0; i < this.payloadFilters.length; i++){
+          var filterInstance = this.gridOptions.api.getFilterInstance(this.payloadFilters[i].column);
+          var model = filterInstance.getModel();
+          let found = false;
+          let filterData = [];
+          for(var j = 0; j< customFilters.length; j++){
+            if(customFilters[j].column == this.payloadFilters[i].column){
+              found = true;
+              customFilters[j].data[0] = model.filter;
+            }
+          }
+          if(!found){
+            filterData.push(model.filter);
+            customFilters.push({
+              column: this.payloadFilters[i].column,
+              data: filterData
+            });
+          }
+        }
+        
+        gridPayloadFilters = customFilters;
+      }
+
       const payload = {
         pageNumber: params.endRow / this.pageSize,
         pageSize: this.pageSize,
-        filters: this.payloadFilters
+        filters: gridPayloadFilters
       };
+
       this.financeService.getJournalDetails(payload).subscribe(
         result => {
           if (result.meta.Total > 0) {
@@ -78,6 +116,31 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
             }
 
             this.customizeColumns(this.columns);
+
+            if(this.groupSelectionChanges){
+              setTimeout(() => {
+                var model = {} as any;
+              for(var i = 0; i< this.payloadFilters.length; i++){
+                // get filter model
+                model[this.payloadFilters[i].column] = this.payloadFilters[i].data[0];
+
+                var filterInstance = this.gridOptions.api.getFilterInstance(this.payloadFilters[i].column);
+                filterInstance.setModel({
+                  type:'equals',
+                  filter: this.payloadFilters[i].data[0]
+              });
+                // model[this.payloadFilters[i].column] = {
+                //   filter: this.payloadFilters[i].data[0]
+                // }
+              let modelTemp = filterInstance.getModel();
+              console.log(modelTemp,"-----------------------------------");
+              }
+              // filterInstance.init(model);
+              this.customizeColumns(this.columns);
+              this.groupSelectionChanges = false;
+              }, 10);
+            }
+
             this.rowData = this.rowData.concat(someArray as []);
 
             const fieldsSum: Array<{ name: string; total: number }> = CalTotal(this.rowData, [
@@ -133,6 +196,7 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
           }
         },
         error => {
+          this.groupSelectionChanges = false;
           params.failCallback();
         }
       );
@@ -154,6 +218,7 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
   ngOnChanges(changes: SimpleChanges) {
     const { filters } = changes;
     if (filters.currentValue !== undefined) {
+      this.groupSelectionChanges = true;
       this.payloadFilters = filters.currentValue;
       this.totalRecords = 0;
       this.rowData = [];
@@ -167,6 +232,7 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
       rowData: null,
       rowModelType: 'infinite',
       cacheBlockSize: this.pageSize,
+      floatingFilter: true,
       paginationPageSize: this.pageSize,
       pinnedBottomRowData: null,
       rowSelection: 'single',
