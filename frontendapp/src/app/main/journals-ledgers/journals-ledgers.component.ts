@@ -192,7 +192,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     );
     // console.log('Columns', columns);
     // console.log('Col Defs', cdefs);
-    // this.gridOptions.api.setColumnDefs(cdefs);
+    this.gridOptions.api.setColumnDefs(cdefs);
   }
 
   ngAfterViewInit() {
