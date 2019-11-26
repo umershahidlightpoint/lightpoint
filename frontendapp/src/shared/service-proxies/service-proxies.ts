@@ -8,7 +8,6 @@ import {
   PostingEngineStatus,
   IsPostingEngineRunning
 } from '../Models/posting-engine';
-import { ToastrService } from 'ngx-toastr';
 
 export const API_BASE_URL = environment.remoteServerUrl;
 export const REF_DATA_BASE_URL = environment.referenceDataUrl;
@@ -19,7 +18,7 @@ export class FinanceServiceProxy {
   private baseUrl: string;
   private refDataUrl: string;
 
-  constructor(http: HttpClient, private injector: Injector, private toastrService: ToastrService) {
+  constructor(http: HttpClient, private injector: Injector) {
     this.http = http;
     this.baseUrl = API_BASE_URL;
     this.refDataUrl = REF_DATA_BASE_URL;

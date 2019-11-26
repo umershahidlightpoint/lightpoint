@@ -64,9 +64,12 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   isExpanded = false;
   disableFileUpload = true;
   disableCharts = true;
+
+  isDailyPnLActive = false;
   isTaxRateActive = false;
   isMarketPricesActive = false;
-  isDailyPnLActive = false;
+  isFxRateActive = false;
+
   uploadLoader = false;
   commitLoader = false;
   private components;
@@ -144,6 +147,9 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     }
     if (e.index === 3) {
       this.isMarketPricesActive = true;
+    }
+    if (e.index === 4) {
+      this.isFxRateActive = true;
     }
   }
 
