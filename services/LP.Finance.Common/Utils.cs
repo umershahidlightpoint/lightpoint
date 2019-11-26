@@ -41,6 +41,8 @@ namespace LP.Finance.Common
     public class MetaData
     {
         public int Total { get; set; }
+        public int TotalRecords { get; set; }
+
         public List<ColumnDef> Columns { get; set; }
 
         /// <summary>

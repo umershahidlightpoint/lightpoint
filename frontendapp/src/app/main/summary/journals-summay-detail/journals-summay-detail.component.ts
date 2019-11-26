@@ -2,8 +2,6 @@
 import {
   Component,
   OnInit,
-  ViewChild,
-  ChangeDetectorRef,
   AfterViewInit,
   Input,
   OnChanges,
@@ -14,9 +12,7 @@ import { GridOptions, IDatasource, IGetRowsParams } from 'ag-grid-community';
 import * as moment from 'moment';
 /* Services/Components Imports */
 import {
-  Style,
   IgnoreFields,
-  HeightStyle,
   AutoSizeAllColumns,
   CommonCols,
   CalTotal
@@ -31,16 +27,19 @@ import { DataDictionary } from '../../../../shared/utils/DataDictionary';
   templateUrl: './journals-summay-detail.component.html',
   styleUrls: ['./journals-summay-detail.component.css']
 })
-export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnChanges {
+export class JournalsSummayDetailComponent
+  implements OnInit, AfterViewInit, OnChanges {
   @Input() filters: any;
 
   private columns: any;
   public rowData: any[] = [];
 
   gridOptions: GridOptions;
-  pinnedBottomRowData;
-  totalRecords = 0;
   payloadFilters: any;
+  pinnedBottomRowData: any;
+  pageSize = 100;
+  totalRecords = 0;
+  overallTotalRecords = 0;
 
   ignoreFields = IgnoreFields;
   groupSelectionChanges = false;
@@ -98,8 +97,8 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
       }
 
       const payload = {
-        pageNumber: params.endRow / 100,
-        pageSize: 100,
+        pageNumber: params.endRow / this.pageSize,
+        pageSize: this.pageSize,
         filters: gridPayloadFilters
       };
 
@@ -108,7 +107,11 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
           if (result.meta.Total > 0) {
             this.columns = result.meta.Columns;
             this.totalRecords += result.meta.Total;
-            // this.rowData = [];
+            this.overallTotalRecords =
+              params.endRow / this.pageSize === 1
+                ? result.meta.TotalRecords
+                : this.overallTotalRecords;
+
             const someArray = [];
             // tslint:disable-next-line: forin
             for (const item in result.payload) {
@@ -117,13 +120,16 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
               for (const i in this.columns) {
                 const field = this.columns[i].field;
                 if (this.columns[i].Type == 'System.DateTime') {
-                  someObject[field] = moment(result.payload[item][field]).format('MM-DD-YYYY');
+                  someObject[field] = moment(
+                    result.payload[item][field]
+                  ).format('MM-DD-YYYY');
                 } else {
                   someObject[field] = result.payload[item][field];
                 }
               }
               someArray.push(someObject);
             }
+
             this.customizeColumns(this.columns);
 
             if(this.groupSelectionChanges){
@@ -152,28 +158,37 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
 
             this.rowData = this.rowData.concat(someArray as []);
 
-            const fieldsSum: Array<{ name: string; total: number }> = CalTotal(this.rowData, [
-              { name: 'debit', total: 0 },
-              { name: 'credit', total: 0 },
-              { name: 'Commission', total: 0 },
-              { name: 'Fees', total: 0 },
-              { name: 'TradePrice', total: 0 },
-              { name: 'NetPrice', total: 0 },
-              { name: 'SettleNetPrice', total: 0 },
-              { name: 'NetMoney', total: 0 },
-              { name: 'LocalNetNotional', total: 0 },
-              { name: 'value', total: 0 }
-            ]);
+            const fieldsSum: Array<{ name: string; total: number }> = CalTotal(
+              this.rowData,
+              [
+                { name: 'debit', total: 0 },
+                { name: 'credit', total: 0 },
+                { name: 'Commission', total: 0 },
+                { name: 'Fees', total: 0 },
+                { name: 'TradePrice', total: 0 },
+                { name: 'NetPrice', total: 0 },
+                { name: 'SettleNetPrice', total: 0 },
+                { name: 'NetMoney', total: 0 },
+                { name: 'LocalNetNotional', total: 0 },
+                { name: 'value', total: 0 }
+              ]
+            );
             this.pinnedBottomRowData = [
               {
-                source: 'Total Records:' + this.totalRecords,
+                id: '',
+                source:
+                  'Displaying Records: ' +
+                  this.totalRecords +
+                  '/' +
+                  this.overallTotalRecords,
                 AccountType: '',
                 accountName: '',
                 when: '',
                 SecurityId: 0,
                 debit: Math.abs(fieldsSum[0].total),
                 credit: Math.abs(fieldsSum[1].total),
-                balance: Math.abs(fieldsSum[0].total) - Math.abs(fieldsSum[1].total),
+                balance:
+                  Math.abs(fieldsSum[0].total) - Math.abs(fieldsSum[1].total),
                 Commission: fieldsSum[2].total,
                 Fees: fieldsSum[3].total,
                 TradePrice: fieldsSum[4].total,
@@ -184,13 +199,25 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
                 value: fieldsSum[9].total
               }
             ];
-            this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
-            this.gridOptions.api.refreshCells();
-            params.successCallback(this.rowData, -1);
- 
 
+            const lastRow = () => {
+              if (this.overallTotalRecords <= this.pageSize) {
+                return this.overallTotalRecords;
+              } else if (this.totalRecords !== this.overallTotalRecords) {
+                return -1;
+              } else {
+                return this.totalRecords;
+              }
+            };
+
+            params.successCallback(this.rowData, lastRow());
+            this.gridOptions.api.setPinnedBottomRowData(
+              this.pinnedBottomRowData
+            );
+            this.gridOptions.api.refreshCells();
             AutoSizeAllColumns(this.gridOptions);
           } else {
+            params.failCallback();
           }
         },
         error => {
@@ -204,8 +231,7 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
   constructor(
     private financeService: FinanceServiceProxy,
     private agGridUtls: AgGridUtils,
-    private dataDictionary: DataDictionary,
-    private cdRef: ChangeDetectorRef
+    private dataDictionary: DataDictionary
   ) {
     this.initGird();
   }
@@ -230,9 +256,9 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
     this.gridOptions = {
       rowData: null,
       rowModelType: 'infinite',
-      cacheBlockSize: 100,
+      cacheBlockSize: this.pageSize,
       floatingFilter: true,
-      paginationPageSize: 100,
+      paginationPageSize: this.pageSize,
       pinnedBottomRowData: null,
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
@@ -245,20 +271,13 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
         loadingRenderer: params => {
           if (params.value !== undefined) {
             return params.value;
-          } else {
-            return '<img src="../images/loading.gif">';
+          } else if (params.colDef.field === 'id') {
+            return '<img src="../../../../assets/images/loader.gif">';
           }
         }
       },
-      onGridReady: params => {
-      },
-      onFirstDataRendered: params => {
-        console.log("entering in on first data rendered");
-        params.api.forEachNode(node => {
-          node.expanded = true;
-        });
-        params.api.onGroupExpandedOrCollapsed();
-      },
+      onGridReady: params => {},
+      onFirstDataRendered: params => {},
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
@@ -272,7 +291,7 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
 
   customizeColumns(columns: any) {
     const colDefs = [
-      ...CommonCols(),
+      ...CommonCols(false),
       {
         field: 'Quantity',
         aggFunc: 'sum',
@@ -284,14 +303,26 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
         filter: true,
         type: 'numericColumn'
       },
-      this.dataDictionary.column('TradePrice'),
-      this.dataDictionary.column('NetPrice'),
-      this.dataDictionary.column('SettleNetPrice'),
-      this.dataDictionary.column('start_price'),
-      this.dataDictionary.column('end_price'),
-      this.dataDictionary.column('fxrate')
+      this.dataDictionary.column('TradePrice', false),
+      this.dataDictionary.column('NetPrice', false),
+      this.dataDictionary.column('SettleNetPrice', false),
+      this.dataDictionary.column('start_price', false),
+      this.dataDictionary.column('end_price', false),
+      this.dataDictionary.column('fxrate', false)
     ];
-    const cdefs = this.agGridUtls.customizeColumns(colDefs, columns, this.ignoreFields);
+    const cdefs = this.agGridUtls.customizeColumns(
+      colDefs,
+      columns,
+      this.ignoreFields,
+      false
+    );
+
+    cdefs.forEach(col => {
+      if (col.field === 'id') {
+        col.cellRenderer = 'loadingRenderer';
+      }
+    });
+
     this.gridOptions.api.setColumnDefs(cdefs);
   }
 }
