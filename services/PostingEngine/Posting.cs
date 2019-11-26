@@ -857,12 +857,10 @@ namespace PostingEngine
                 var sellCover = tradeData.Where(i => i.TradeDate.Equals(valueDate) && (i.IsSell() || i.IsCover())).ToList();
                 foreach (var trade in sellCover)
                 {
-                    if (trade.Symbol.Equals("IBM"))
-                    {
-                    }
-                        // We only process trades that have not broken
-                        if (ignoreTrades.Contains(trade.LpOrderId))
+                    // We only process trades that have not broken
+                    if (ignoreTrades.Contains(trade.LpOrderId))
                         continue;
+
                     try
                     {
                         var processed = new Posting().ProcessTradeEvent(postingEnv, trade);
@@ -916,6 +914,10 @@ namespace PostingEngine
 
                     try
                     {
+                        if (element.Symbol.Equals("BWX") && element.SettleDate.Equals(postingEnv.ValueDate))
+                        {
+                        }
+
                         var processed = new Posting().Process(postingEnv, element);
                         if ( !processed )
                         {

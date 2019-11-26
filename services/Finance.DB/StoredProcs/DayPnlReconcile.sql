@@ -7,19 +7,20 @@ set @busdate = @businessDate
 select p.BusDate, s.BbergCode as SecurityCode, Fund, p.Currency,  Sum(DayPnL) as DayPnl 
 into #bookmon_pnl
 from PositionMaster..intradayPositionSplit p
-inner join SecurityMaster..Security s on s.SecurityCode = p.SecurityCode
+inner join SecurityMaster..Security s on s.EzeTicker = p.SecurityCode
 inner join ( select BusDate, Max(LastModifiedOn) as lmo  from PositionMaster..intradayPositionSplit group by BusDate) as lmo on lmo.BusDate = p.BusDate and lmo.lmo = p.LastModifiedOn
 where p.BusDate = @busDate and p.SecurityCode not like '@CASH%' and p.SecurityCode not like 'ZZ_%'
 group by p.BusDate, s.BbergCode, Fund, p.Currency
 order by p.BusDate, BbergCode, Fund, p.Currency
 
 
-select [when] as BusDate, symbol as SecurityCode, Fund, fx_currency as Currency, sum(credit - debit) as DayPnl 
+select [when] as BusDate, s.BbergCode as SecurityCode, Fund, fx_currency as Currency, sum(credit - debit) as DayPnl 
 into #pa_pnl
-from vwJournal where [when] = @busDate
-and AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'fx gain or loss on unsettled balance')
-group by [when], Symbol, Fund, fx_currency
-order by [when], Symbol, Fund, fx_currency
+from vwJournal 
+inner join SecurityMaster..Security s on s.SecurityId = vwJournal.Security_id
+where [when] = @busDate and AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'fx gain or loss on unsettled balance', 'change in unrealized do to fx translation')
+group by [when], s.BbergCode, Fund, fx_currency
+order by [when], s.BbergCode, Fund, fx_currency
 
 
 -- Recon

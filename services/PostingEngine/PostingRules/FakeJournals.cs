@@ -17,11 +17,6 @@ namespace PostingEngine.PostingRules
 
         public void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
-            if ( element.Symbol.Equals("ZZ_CASH_DIVIDENDS") )
-            {
-                Debugger.Break();
-            }
-
             var accrual = env.FindAccruals(element.AccrualId);
             var allocations = env.FindAllocations(element.AccrualId);
             var allocation = allocations.Where(i => !i.Symbol.Equals(element.Symbol)).FirstOrDefault();
@@ -245,12 +240,6 @@ namespace PostingEngine.PostingRules
 
         public void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
-
-            if (element.Symbol.Equals("ZZ_CASH_DIVIDENDS"))
-            {
-                Debugger.Break();
-            }
-
             var accrual = env.FindAccruals(element.AccrualId);
             var allocations = env.FindAllocations(element.AccrualId);
             var allocation = allocations.Where(i => !i.Symbol.Equals(element.Symbol)).FirstOrDefault();

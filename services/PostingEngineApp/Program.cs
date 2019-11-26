@@ -26,7 +26,7 @@ namespace PostingEngineCmd
             date = date.PrevBusinessDate();
 
             // Pull from Legacy System
-            //PullFromLegacySystem(date);
+            PullFromLegacySystem(date);
 
             // Get all Activity
             ITD(date);
