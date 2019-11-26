@@ -43,7 +43,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var totalCountColumn = obj.pageNumber == 1 ? "d.overall_count," : "";
                 var totalCountQuery = obj.pageNumber == 1 ? "overall_count = COUNT(*) OVER()," : "";
 
-                var query = $@"select 
+                var query = $@"select
+                               {totalCountQuery}
                               debit,
                               credit, 
                               abs(debit) - abs(credit) as balance,

@@ -291,7 +291,7 @@ export class JournalsSummayDetailComponent
 
   customizeColumns(columns: any) {
     const colDefs = [
-      ...CommonCols(false),
+      ...CommonCols(true),
       {
         field: 'Quantity',
         aggFunc: 'sum',
@@ -303,12 +303,12 @@ export class JournalsSummayDetailComponent
         filter: true,
         type: 'numericColumn'
       },
-      this.dataDictionary.column('TradePrice', false),
-      this.dataDictionary.column('NetPrice', false),
-      this.dataDictionary.column('SettleNetPrice', false),
-      this.dataDictionary.column('start_price', false),
-      this.dataDictionary.column('end_price', false),
-      this.dataDictionary.column('fxrate', false)
+      this.dataDictionary.column('TradePrice', true),
+      this.dataDictionary.column('NetPrice', true),
+      this.dataDictionary.column('SettleNetPrice', true),
+      this.dataDictionary.column('start_price', true),
+      this.dataDictionary.column('end_price', true),
+      this.dataDictionary.column('fxrate', true)
     ];
     const cdefs = this.agGridUtls.customizeColumns(
       colDefs,
