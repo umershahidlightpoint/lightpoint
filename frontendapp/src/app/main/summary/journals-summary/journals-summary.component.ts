@@ -166,13 +166,26 @@ export class JournalsSummaryComponent implements OnInit {
           },
           cellClassRules: {
             greenFont(params) {
+              if (params.node.rowPinned) {
+                return false;
+              }
               return params.colDef.headerName === 'balance' && params.value > 0;
             },
             redFont(params) {
+              if (params.node.rowPinned) {
+                return false;
+              }
               return (
                 params.colDef.headerName === 'creditSum' ||
                 (params.colDef.headerName === 'balance' && params.value < 0)
               );
+            },
+            footerRow(params) {
+              if (params.node.rowPinned) {
+                return true;
+              } else {
+                return false;
+              }
             }
           }
         };
