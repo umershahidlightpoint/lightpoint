@@ -2,8 +2,6 @@
 import {
   Component,
   OnInit,
-  ViewChild,
-  ChangeDetectorRef,
   AfterViewInit,
   Input,
   OnChanges,
@@ -14,9 +12,7 @@ import { GridOptions, IDatasource, IGetRowsParams } from 'ag-grid-community';
 import * as moment from 'moment';
 /* Services/Components Imports */
 import {
-  Style,
   IgnoreFields,
-  HeightStyle,
   AutoSizeAllColumns,
   CommonCols,
   CalTotal
@@ -39,9 +35,11 @@ export class JournalsSummayDetailComponent
   public rowData: any[] = [];
 
   gridOptions: GridOptions;
-  pinnedBottomRowData;
-  totalRecords = 0;
   payloadFilters: any;
+  pinnedBottomRowData: any;
+  pageSize = 100;
+  totalRecords = 0;
+  overallTotalRecords = 0;
 
   ignoreFields = IgnoreFields;
 
@@ -62,8 +60,8 @@ export class JournalsSummayDetailComponent
   journalsDataSource: IDatasource = {
     getRows: (params: IGetRowsParams) => {
       const payload = {
-        pageNumber: params.endRow / 100,
-        pageSize: 100,
+        pageNumber: params.endRow / this.pageSize,
+        pageSize: this.pageSize,
         filters: this.payloadFilters
       };
       this.financeService.getJournalDetails(payload).subscribe(
@@ -71,7 +69,11 @@ export class JournalsSummayDetailComponent
           if (result.meta.Total > 0) {
             this.columns = result.meta.Columns;
             this.totalRecords += result.meta.Total;
-            // this.rowData = [];
+            this.overallTotalRecords =
+              params.endRow / this.pageSize === 1
+                ? result.meta.TotalRecords
+                : this.overallTotalRecords;
+
             const someArray = [];
             // tslint:disable-next-line: forin
             for (const item in result.payload) {
@@ -89,6 +91,7 @@ export class JournalsSummayDetailComponent
               }
               someArray.push(someObject);
             }
+
             this.customizeColumns(this.columns);
             this.rowData = this.rowData.concat(someArray as []);
 
@@ -109,7 +112,12 @@ export class JournalsSummayDetailComponent
             );
             this.pinnedBottomRowData = [
               {
-                source: 'Total Records:' + this.totalRecords,
+                id: '',
+                source:
+                  'Displaying Records: ' +
+                  this.totalRecords +
+                  '/' +
+                  this.overallTotalRecords,
                 AccountType: '',
                 accountName: '',
                 when: '',
@@ -128,13 +136,25 @@ export class JournalsSummayDetailComponent
                 value: fieldsSum[9].total
               }
             ];
+
+            const lastRow = () => {
+              if (this.overallTotalRecords <= this.pageSize) {
+                return this.overallTotalRecords;
+              } else if (this.totalRecords !== this.overallTotalRecords) {
+                return -1;
+              } else {
+                return this.totalRecords;
+              }
+            };
+
+            params.successCallback(this.rowData, lastRow());
             this.gridOptions.api.setPinnedBottomRowData(
               this.pinnedBottomRowData
             );
             this.gridOptions.api.refreshCells();
-            params.successCallback(this.rowData, -1);
             AutoSizeAllColumns(this.gridOptions);
           } else {
+            params.failCallback();
           }
         },
         error => {
@@ -171,8 +191,8 @@ export class JournalsSummayDetailComponent
     this.gridOptions = {
       rowData: null,
       rowModelType: 'infinite',
-      cacheBlockSize: 100,
-      paginationPageSize: 100,
+      cacheBlockSize: this.pageSize,
+      paginationPageSize: this.pageSize,
       pinnedBottomRowData: null,
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
@@ -185,8 +205,8 @@ export class JournalsSummayDetailComponent
         loadingRenderer: params => {
           if (params.value !== undefined) {
             return params.value;
-          } else {
-            return '<img src="../images/loading.gif">';
+          } else if (params.colDef.field === 'id') {
+            return '<img src="../../../../assets/images/loader.gif">';
           }
         }
       },

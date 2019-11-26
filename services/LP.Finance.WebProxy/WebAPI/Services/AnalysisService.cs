@@ -11,14 +11,13 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
     public class AnalysisService : IAnalysisService
     {
         private static readonly string
-           connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+            connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
         public SqlHelper sqlHelper = new SqlHelper(connectionString);
         private static readonly string allocationsURL = "/api/allocation?period=ITD";
@@ -41,9 +40,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 journalStats journalStats = new journalStats();
                 bool whereAdded = false;
                 int index = 0;
+                var totalCountColumn = obj.pageNumber == 1 ? "d.overall_count," : "";
+                var totalCountQuery = obj.pageNumber == 1 ? "overall_count = COUNT(*) OVER()," : "";
 
                 // Depending on type
                 var query = $@"select 
+                        {totalCountColumn}
                         d.debit,
                         d.credit, 
                         abs(d.debit) - abs(d.credit) as balance,
@@ -65,7 +67,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         d.[fxrate],
                         d.modifiable
                         from(
-                            SELECT
+                            SELECT {totalCountQuery}
                                     (CASE 
 
 										WHEN [account_category].[name] in ('Asset', 'Expenses') and value < 0  THEN ABS(value) 
@@ -103,7 +105,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlParams.Add(new SqlParameter("pageNumber", obj.pageNumber));
                 sqlParams.Add(new SqlParameter("pageSize", obj.pageSize));
 
-                foreach(var item in obj.filters)
+                foreach (var item in obj.filters)
                 {
                     bool orAdded = false;
                     index = 0;
@@ -120,7 +122,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                     foreach (var value in item.data)
                     {
-                        if(index == 0)
+                        if (index == 0)
                         {
                             query = query + "(";
                         }
@@ -128,30 +130,33 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         {
                             query = query + "or ";
                         }
+
                         if (item.column == "fund")
                         {
                             query = query + $" [journal].fund = @fund{index}";
                             sqlParams.Add(new SqlParameter($"fund{index}", value));
                         }
-                        else if(item.column == "AccountCategory")
+                        else if (item.column == "AccountCategory")
                         {
                             query = query + $"[account_category].name = @account_category{index}";
                             sqlParams.Add(new SqlParameter($"account_category{index}", value));
                         }
-                        else if(item.column == "account")
+                        else if (item.column == "account")
                         {
                             query = query + $"[account].name = @account_name{index}";
                             sqlParams.Add(new SqlParameter($"account_name{index}", value));
                         }
-                        else if(item.column == "account_type")
+                        else if (item.column == "account_type")
                         {
                             query = query + $"[account_type].name = @account_type{index}";
                             sqlParams.Add(new SqlParameter($"account_type{index}", value));
                         }
-                        if(index == dataCount)
+
+                        if (index == dataCount)
                         {
                             query = query + ")";
                         }
+
                         index++;
                         orAdded = true;
                     }
@@ -190,6 +195,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var metaData = MetaData.ToMetaData(dataTable);
 
                 metaData.Total = dataTable.Rows.Count > 0 ? dataTable.Rows.Count : 0;
+                metaData.TotalRecords = obj.pageNumber == 1 ? Convert.ToInt32(dataTable.Rows[0][0]) : 0;
 
                 journalStats.totalCredit = 0;
                 journalStats.totalDebit = 0;

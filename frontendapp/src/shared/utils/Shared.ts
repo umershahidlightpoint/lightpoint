@@ -319,7 +319,8 @@ export const CommonCols = isJournalGrid => {
       minWidth: 50,
       headerName: 'Id',
       filter: isJournalGrid ? 'agNumberColumnFilter' : true,
-      colId: 'id'
+      colId: 'id',
+      cellRenderer: 'loadingRenderer'
     },
     {
       field: 'source',
