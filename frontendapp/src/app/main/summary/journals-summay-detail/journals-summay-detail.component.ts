@@ -211,12 +211,7 @@ export class JournalsSummayDetailComponent
         }
       },
       onGridReady: params => {},
-      onFirstDataRendered: params => {
-        params.api.forEachNode(node => {
-          node.expanded = true;
-        });
-        params.api.onGroupExpandedOrCollapsed();
-      },
+      onFirstDataRendered: params => {},
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
@@ -255,6 +250,13 @@ export class JournalsSummayDetailComponent
       this.ignoreFields,
       false
     );
+
+    cdefs.forEach(col => {
+      if (col.field === 'id') {
+        col.cellRenderer = 'loadingRenderer';
+      }
+    });
+
     this.gridOptions.api.setColumnDefs(cdefs);
   }
 }
