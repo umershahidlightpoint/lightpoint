@@ -38,8 +38,7 @@ export class AgGridUtils {
     columns: any,
     ignoreFields: any,
     isJournalGrid,
-    sumFields: any = ['debit', 'credit', 'balance', 'TradePrice']
-    // isJournalGrid: boolean
+    sumFields: any = ['debit', 'credit', 'balance']
   ) {
     const cdefs = Object.assign([], colDefs);
 
@@ -72,18 +71,6 @@ export class AgGridUtils {
 
             return column.filter;
           })();
-
-          // clone.aggFunc = (() => {
-          //   if (
-          //     isJournalGrid &&
-          //     (column.Type == 'System.Int32' ||
-          //       column.Type == 'System.Decimal' ||
-          //       column.Type == 'System.Double')
-          //   ) {
-          //     return 'sum';
-          //   }
-          //   return null;
-          // })();
 
           clone.colId = column.field;
           clone.valueFormatter = null;

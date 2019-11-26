@@ -10,3 +10,7 @@
   color: green;
   font-style: italic;
 }
+
+::ng-deep .footerRow {
+  font-weight: bold;
+}
