@@ -1,26 +1,10 @@
 /* Core/Library Imports */
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  ChangeDetectorRef,
-  AfterViewInit,
-  Input,
-  OnChanges,
-  SimpleChanges
-} from '@angular/core';
+import { Component, OnInit, AfterViewInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import 'ag-grid-enterprise';
 import { GridOptions, IDatasource, IGetRowsParams } from 'ag-grid-community';
 import * as moment from 'moment';
 /* Services/Components Imports */
-import {
-  Style,
-  IgnoreFields,
-  HeightStyle,
-  AutoSizeAllColumns,
-  CommonCols,
-  CalTotal
-} from 'src/shared/utils/Shared';
+import { IgnoreFields, AutoSizeAllColumns, CommonCols, CalTotal } from 'src/shared/utils/Shared';
 import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
 import { DataService } from '../../../../shared/common/data.service';
 import { AgGridUtils } from '../../../../shared/utils/AgGridUtils';
@@ -38,9 +22,11 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
   public rowData: any[] = [];
 
   gridOptions: GridOptions;
-  pinnedBottomRowData;
-  totalRecords = 0;
   payloadFilters: any;
+  pinnedBottomRowData: any;
+  pageSize = 100;
+  totalRecords = 0;
+  overallTotalRecords = 0;
 
   ignoreFields = IgnoreFields;
 
@@ -61,8 +47,8 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
   journalsDataSource: IDatasource = {
     getRows: (params: IGetRowsParams) => {
       const payload = {
-        pageNumber: params.endRow / 100,
-        pageSize: 100,
+        pageNumber: params.endRow / this.pageSize,
+        pageSize: this.pageSize,
         filters: this.payloadFilters
       };
       this.financeService.getJournalDetails(payload).subscribe(
@@ -70,7 +56,11 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
           if (result.meta.Total > 0) {
             this.columns = result.meta.Columns;
             this.totalRecords += result.meta.Total;
-            // this.rowData = [];
+            this.overallTotalRecords =
+              params.endRow / this.pageSize === 1
+                ? result.meta.TotalRecords
+                : this.overallTotalRecords;
+
             const someArray = [];
             // tslint:disable-next-line: forin
             for (const item in result.payload) {
@@ -86,6 +76,7 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
               }
               someArray.push(someObject);
             }
+
             this.customizeColumns(this.columns);
             this.rowData = this.rowData.concat(someArray as []);
 
@@ -103,7 +94,8 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
             ]);
             this.pinnedBottomRowData = [
               {
-                source: 'Total Records:' + this.totalRecords,
+                id: '',
+                source: 'Displaying Records: ' + this.totalRecords + '/' + this.overallTotalRecords,
                 AccountType: '',
                 accountName: '',
                 when: '',
@@ -121,11 +113,23 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
                 value: fieldsSum[9].total
               }
             ];
+
+            const lastRow = () => {
+              if (this.overallTotalRecords <= this.pageSize) {
+                return this.overallTotalRecords;
+              } else if (this.totalRecords !== this.overallTotalRecords) {
+                return -1;
+              } else {
+                return this.totalRecords;
+              }
+            };
+
+            params.successCallback(this.rowData, lastRow());
             this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
             this.gridOptions.api.refreshCells();
-            params.successCallback(this.rowData, -1);
             AutoSizeAllColumns(this.gridOptions);
           } else {
+            params.failCallback();
           }
         },
         error => {
@@ -162,8 +166,8 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
     this.gridOptions = {
       rowData: null,
       rowModelType: 'infinite',
-      cacheBlockSize: 100,
-      paginationPageSize: 100,
+      cacheBlockSize: this.pageSize,
+      paginationPageSize: this.pageSize,
       pinnedBottomRowData: null,
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
@@ -176,8 +180,8 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
         loadingRenderer: params => {
           if (params.value !== undefined) {
             return params.value;
-          } else {
-            return '<img src="../images/loading.gif">';
+          } else if (params.colDef.field === 'id') {
+            return '<img src="../../../../assets/images/loader.gif">';
           }
         }
       },
