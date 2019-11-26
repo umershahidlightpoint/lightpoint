@@ -13,17 +13,21 @@ export class SettingsComponent implements OnInit {
   private gridOptions: GridOptions;
   private allocationsGridOptions: GridOptions;
 
-  private currencies = [ { code:'USD', description:'USD'}, 
-  { code:'JPY', description:'JPY'}];
+  private currencies = [
+    { code: 'USD', description: 'USD' },
+    { code: 'JPY', description: 'JPY' }
+  ];
   reportingCurrency = this.currencies[0];
 
   reportingDate = '';
 
-  private methods = [ { code:'FIFO', description:'First In First Out'}, 
-             { code:'LIFO', description:'Last In First Out'}];
+  private methods = [
+    { code: 'FIFO', description: 'First In First Out' },
+    { code: 'LIFO', description: 'Last In First Out' }
+  ];
 
   methodology: any;
-  
+
   bottomOptions = { alignedGrids: [] };
   accrualsData: any;
   allocationAccrualsData: any;
@@ -50,24 +54,30 @@ export class SettingsComponent implements OnInit {
 
   onRowSelected(event) {
     if (event.node.selected) {
-      this.financeService.getAccrualAllocations(event.node.data.AccrualId).subscribe(result => {
-        this.allocationAccrualsData = result;
-        const someArray = this.agGridUtils.columizeData(
-          result.data,
-          this.allocationAccrualsData.meta.Columns
-        );
-        const cdefs = this.agGridUtils.customizeColumns(
-          [],
-          this.allocationAccrualsData.meta.Columns,
-          ['Id', 'AllocationId', 'EMSOrderId']
-        );
+      this.financeService
+        .getAccrualAllocations(event.node.data.AccrualId)
+        .subscribe(result => {
+          this.allocationAccrualsData = result;
+          const someArray = this.agGridUtils.columizeData(
+            result.data,
+            this.allocationAccrualsData.meta.Columns
+          );
+          const cdefs = this.agGridUtils.customizeColumns(
+            [],
+            this.allocationAccrualsData.meta.Columns,
+            ['Id', 'AllocationId', 'EMSOrderId'],
+            false
+          );
 
-        this.allocationsGridOptions.api.setColumnDefs(cdefs);
-      });
+          this.allocationsGridOptions.api.setColumnDefs(cdefs);
+        });
     }
   }
 
-  constructor(private financeService: FinanceServiceProxy, private agGridUtils: AgGridUtils) {
+  constructor(
+    private financeService: FinanceServiceProxy,
+    private agGridUtils: AgGridUtils
+  ) {
     this.gridOptions = {
       rowData: [],
       columnDefs: this.columnDefs,
@@ -115,8 +125,16 @@ export class SettingsComponent implements OnInit {
 
     this.financeService.getAccruals().subscribe(result => {
       this.accrualsData = result;
-      const someArray = this.agGridUtils.columizeData(result.data, this.accrualsData.meta.Columns);
-      const cdefs = this.agGridUtils.customizeColumns([], this.accrualsData.meta.Columns, []);
+      const someArray = this.agGridUtils.columizeData(
+        result.data,
+        this.accrualsData.meta.Columns
+      );
+      const cdefs = this.agGridUtils.customizeColumns(
+        [],
+        this.accrualsData.meta.Columns,
+        [],
+        false
+      );
 
       this.gridOptions.api.setColumnDefs(cdefs);
     });

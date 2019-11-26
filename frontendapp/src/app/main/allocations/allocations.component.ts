@@ -95,7 +95,8 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
       const cdefs = this.agGridUtils.customizeColumns(
         [],
         this.allocationTradesData.meta.Columns,
-        ['Id', 'AllocationId', 'EMSOrderId']
+        ['Id', 'AllocationId', 'EMSOrderId'],
+        false
       );
       this.allocationsGridOptions.api.setColumnDefs(cdefs);
       this.allocationsData = someArray as [];

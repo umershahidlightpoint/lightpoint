@@ -166,7 +166,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   Drives the columns that will be defined on the UI, and what can be done with those fields
   */
   customizeColumns(columns: any) {
-    const colDefs = CommonCols();
+    const colDefs = CommonCols(false);
 
     // Now need to go thru this list and group the right fields
     colDefs.forEach(col => {
@@ -181,7 +181,8 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     const cdefs = this.agGridUtls.customizeColumns(
       colDefs,
       columns,
-      this.ignoreFields
+      this.ignoreFields,
+      false
     );
     this.gridOptions.api.setColumnDefs(cdefs);
   }

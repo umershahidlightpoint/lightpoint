@@ -31,7 +31,8 @@ import { DataDictionary } from '../../../../shared/utils/DataDictionary';
   templateUrl: './journals-summay-detail.component.html',
   styleUrls: ['./journals-summay-detail.component.css']
 })
-export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnChanges {
+export class JournalsSummayDetailComponent
+  implements OnInit, AfterViewInit, OnChanges {
   @Input() filters: any;
 
   private columns: any;
@@ -79,7 +80,9 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
               for (const i in this.columns) {
                 const field = this.columns[i].field;
                 if (this.columns[i].Type == 'System.DateTime') {
-                  someObject[field] = moment(result.payload[item][field]).format('MM-DD-YYYY');
+                  someObject[field] = moment(
+                    result.payload[item][field]
+                  ).format('MM-DD-YYYY');
                 } else {
                   someObject[field] = result.payload[item][field];
                 }
@@ -89,18 +92,21 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
             this.customizeColumns(this.columns);
             this.rowData = this.rowData.concat(someArray as []);
 
-            const fieldsSum: Array<{ name: string; total: number }> = CalTotal(this.rowData, [
-              { name: 'debit', total: 0 },
-              { name: 'credit', total: 0 },
-              { name: 'Commission', total: 0 },
-              { name: 'Fees', total: 0 },
-              { name: 'TradePrice', total: 0 },
-              { name: 'NetPrice', total: 0 },
-              { name: 'SettleNetPrice', total: 0 },
-              { name: 'NetMoney', total: 0 },
-              { name: 'LocalNetNotional', total: 0 },
-              { name: 'value', total: 0 }
-            ]);
+            const fieldsSum: Array<{ name: string; total: number }> = CalTotal(
+              this.rowData,
+              [
+                { name: 'debit', total: 0 },
+                { name: 'credit', total: 0 },
+                { name: 'Commission', total: 0 },
+                { name: 'Fees', total: 0 },
+                { name: 'TradePrice', total: 0 },
+                { name: 'NetPrice', total: 0 },
+                { name: 'SettleNetPrice', total: 0 },
+                { name: 'NetMoney', total: 0 },
+                { name: 'LocalNetNotional', total: 0 },
+                { name: 'value', total: 0 }
+              ]
+            );
             this.pinnedBottomRowData = [
               {
                 source: 'Total Records:' + this.totalRecords,
@@ -110,7 +116,8 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
                 SecurityId: 0,
                 debit: Math.abs(fieldsSum[0].total),
                 credit: Math.abs(fieldsSum[1].total),
-                balance: Math.abs(fieldsSum[0].total) - Math.abs(fieldsSum[1].total),
+                balance:
+                  Math.abs(fieldsSum[0].total) - Math.abs(fieldsSum[1].total),
                 Commission: fieldsSum[2].total,
                 Fees: fieldsSum[3].total,
                 TradePrice: fieldsSum[4].total,
@@ -121,7 +128,9 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
                 value: fieldsSum[9].total
               }
             ];
-            this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
+            this.gridOptions.api.setPinnedBottomRowData(
+              this.pinnedBottomRowData
+            );
             this.gridOptions.api.refreshCells();
             params.successCallback(this.rowData, -1);
             AutoSizeAllColumns(this.gridOptions);
@@ -201,7 +210,7 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
 
   customizeColumns(columns: any) {
     const colDefs = [
-      ...CommonCols(),
+      ...CommonCols(false),
       {
         field: 'Quantity',
         aggFunc: 'sum',
@@ -213,14 +222,19 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
         filter: true,
         type: 'numericColumn'
       },
-      this.dataDictionary.column('TradePrice'),
-      this.dataDictionary.column('NetPrice'),
-      this.dataDictionary.column('SettleNetPrice'),
-      this.dataDictionary.column('start_price'),
-      this.dataDictionary.column('end_price'),
-      this.dataDictionary.column('fxrate')
+      this.dataDictionary.column('TradePrice', false),
+      this.dataDictionary.column('NetPrice', false),
+      this.dataDictionary.column('SettleNetPrice', false),
+      this.dataDictionary.column('start_price', false),
+      this.dataDictionary.column('end_price', false),
+      this.dataDictionary.column('fxrate', false)
     ];
-    const cdefs = this.agGridUtls.customizeColumns(colDefs, columns, this.ignoreFields);
+    const cdefs = this.agGridUtls.customizeColumns(
+      colDefs,
+      columns,
+      this.ignoreFields,
+      false
+    );
     this.gridOptions.api.setColumnDefs(cdefs);
   }
 }
