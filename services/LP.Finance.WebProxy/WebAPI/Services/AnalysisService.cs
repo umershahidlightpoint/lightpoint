@@ -141,7 +141,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var metaData = MetaData.ToMetaData(dataTable);
 
                 metaData.Total = dataTable.Rows.Count > 0 ? dataTable.Rows.Count : 0;
-                metaData.TotalRecords = obj.pageNumber == 1 ? Convert.ToInt32(dataTable.Rows[0][0]) : 0;
+                metaData.TotalRecords = obj.pageNumber == 1 && dataTable.Rows.Count > 0 ? Convert.ToInt32(dataTable.Rows[0][0]) : 0;
 
                 journalStats.totalCredit = 0;
                 journalStats.totalDebit = 0;

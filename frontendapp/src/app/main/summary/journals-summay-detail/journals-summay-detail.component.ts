@@ -50,7 +50,7 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
       let gridPayloadFilters = [];
       if(this.groupSelectionChanges){
         gridPayloadFilters = this.payloadFilters;
-      } else{
+      } else {
         let customFilters = [];
         for (let key of Object.keys(params.filterModel)) {
           let filterData = [];
@@ -60,6 +60,24 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
             data: filterData
           });
         }
+        // for(var i = 0; i < this.payloadFilters.length; i++){
+        //   let found = false;
+        //   let filterData = [];
+        //   for(var j = 0; j< customFilters.length; j++){
+        //     if(customFilters[j].column == this.payloadFilters[i].column){
+        //       found = true;
+        //       customFilters[j].data[0] = this.payloadFilters[i].data[0];
+        //     }
+        //   }
+        //   if(!found){
+        //     filterData.push(this.payloadFilters[i].data[0]);
+        //     customFilters.push({
+        //       column: this.payloadFilters[i].column,
+        //       data: filterData
+        //     });
+        //   }
+        // }
+
         for(var i = 0; i < this.payloadFilters.length; i++){
           var filterInstance = this.gridOptions.api.getFilterInstance(this.payloadFilters[i].column);
           var model = filterInstance.getModel();
@@ -88,10 +106,14 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
         pageSize: this.pageSize,
         filters: gridPayloadFilters
       };
-
+      if(payload.pageNumber === 1){
+        this.rowData = [];
+        this.totalRecords = 0;
+        this.overallTotalRecords = 0;
+      }
       this.financeService.getJournalDetails(payload).subscribe(
         result => {
-          if (result.meta.Total > 0) {
+          if (result.meta.Total >= 0) {
             this.columns = result.meta.Columns;
             this.totalRecords += result.meta.Total;
             this.overallTotalRecords =
@@ -118,7 +140,9 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
             this.customizeColumns(this.columns);
 
             if(this.groupSelectionChanges){
+              this.groupSelectionChanges = false;
               setTimeout(() => {
+                this.clearAllFilters();
                 var model = {} as any;
               for(var i = 0; i< this.payloadFilters.length; i++){
                 // get filter model
@@ -137,8 +161,7 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
               }
               // filterInstance.init(model);
               this.customizeColumns(this.columns);
-              this.groupSelectionChanges = false;
-              }, 10);
+              }, 1);
             }
 
             this.rowData = this.rowData.concat(someArray as []);
@@ -262,6 +285,20 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
         filter: true
       }
     } as GridOptions;
+  }
+
+  clearAllFilters(){
+    // let cols = this.gridOptions.columnApi.getAllColumns();
+    // if(cols != null){
+    //   for(let i = 0; i< cols.length; i++){
+    //     let columnFilter = this.gridOptions.api.getFilterInstance(cols[i].getColId());
+    //     let model = columnFilter.getModel();
+    //     if(model){
+    //       columnFilter.setModel(null);
+    //     }
+    //   }
+    // }
+    this.gridOptions.api.setFilterModel(null);
   }
 
   customizeColumns(columns: any) {
