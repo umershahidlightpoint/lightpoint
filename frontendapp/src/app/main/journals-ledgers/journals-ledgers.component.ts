@@ -7,7 +7,7 @@ import {
   ChangeDetectorRef
 } from '@angular/core';
 import 'ag-grid-enterprise';
-import { GridOptions, IDatasource, IGetRowsParams } from 'ag-grid-community';
+import { GridOptions, IDatasource, IServerSideDatasource, IServerSideGetRowsParams, IGetRowsParams } from 'ag-grid-community';
 import * as moment from 'moment';
 /* Services/Components Imports */
 import {
@@ -71,7 +71,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   sortColum: string;
   sortDirection: string;
   page: number;
-  pageSize: any;
   tableHeader: string;
   isDataStreaming = false;
   colDefs;
@@ -97,6 +96,39 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     height: 'calc(100vh - 125px)',
     boxSizing: 'border-box'
   };
+
+  pageSize = 100;
+  pageNumber = 0;
+
+  datasource : IServerSideDatasource = {
+    getRows: (params: IServerSideGetRowsParams) => {
+      this.pageNumber =  params.request.endRow / this.pageSize;
+      console.log(JSON.stringify(params.request, null, 1));
+  
+    
+    this.valueFilter = 0;
+    this.sortColum = '';
+    this.sortDirection = '';
+    let payload = {
+      ...params.request,
+      pageNumber: this.pageNumber,
+      pageSize: this.pageSize
+    }
+      this.financeService.getServerSideJournals(payload).subscribe(result => {
+          if(result.isSuccessful){
+            this.rowData = this.rowData.concat(result.payload);
+            params.successCallback(this.rowData, -1);
+            this.gridOptions.api.refreshCells();
+            AutoSizeAllColumns(this.gridOptions);
+          } else{
+            params.failCallback();
+          }
+    }, error => {
+      params.failCallback();
+    })
+
+  }
+};
 
   constructor(
     private financeService: FinanceServiceProxy,
@@ -155,6 +187,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       pinnedBottomRowData: null,
       rowSelection: 'single',
+      rowModelType: 'serverSide',
       rowGroupPanelShow: 'after',
       pivotPanelShow: 'after',
       pivotColumnGroupTotals: 'after',
@@ -163,6 +196,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       suppressColumnVirtualisation: true,
       suppressHorizontalScroll: false,
       onGridReady: params => {
+        params.api.setServerSideDatasource(this.datasource);
         this.gridOptions.excelStyles = ExcelStyle;
       },
       onFirstDataRendered: params => {
@@ -185,7 +219,10 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       GridName.journalsLedgers,
       this.gridOptions
     );
+
   }
+
+  
 
   /*
   Drives the columns that will be defined on the UI, and what can be done with those fields
@@ -233,8 +270,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     this.isDataStreaming = true;
     this.symbol = 'ALL';
     const localThis = this;
-    this.page = 0;
-    this.pageSize = 0;
+    
     this.accountSearch.id = 0;
     this.valueFilter = 0;
     this.sortColum = '';
@@ -247,7 +283,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       localThis.cdRef.detectChanges();
     });
 
-    this.getJournalData(1, 10000, initialLoad);
+    //this.getJournalData(1, 10000, initialLoad);
   }
 
   getJournalData(pageNumber, pageSize, initialLoad) {
@@ -348,8 +384,8 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   }
 
   onFilterChanged() {
-    this.pinnedBottomRowData = CalTotalRecords(this.gridOptions);
-    this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
+    // this.pinnedBottomRowData = CalTotalRecords(this.gridOptions);
+    // this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
   }
 
   getRangeLabel() {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
+using LP.Finance.Common.Model;
 using LP.Finance.WebProxy.WebAPI.Services;
 
 namespace LP.Finance.WebProxy.WebAPI.Stubs
@@ -75,6 +76,11 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
         }
 
         public object GetSummarizedJournal(List<GridLayoutDto> layout)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object serverSideJournals(ServerRowModel obj)
         {
             throw new NotImplementedException();
         }

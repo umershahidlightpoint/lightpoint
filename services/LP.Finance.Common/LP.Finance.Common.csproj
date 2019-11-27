@@ -105,9 +105,13 @@
     <Compile Include="Model\MarketDataPrice.cs" />
     <Compile Include="Model\MonthlyPerformance.cs" />
     <Compile Include="Model\Position.cs" />
+    <Compile Include="Model\RowGroupCols.cs" />
+    <Compile Include="Model\ServerRowModel.cs" />
+    <Compile Include="Model\SortModel.cs" />
     <Compile Include="Model\TaxLot.cs" />
     <Compile Include="Model\TaxLotStatus.cs" />
     <Compile Include="Model\TaxRate.cs" />
+    <Compile Include="Model\ValueCols.cs" />
     <Compile Include="Model\Wrap.cs" />
     <Compile Include="Model\PayLoad.cs" />
     <Compile Include="Model\Tag.cs" />

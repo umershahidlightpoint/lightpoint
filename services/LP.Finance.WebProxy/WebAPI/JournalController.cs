@@ -4,6 +4,7 @@ using LP.Finance.Common.Dtos;
 using LP.Finance.WebProxy.WebAPI.Services;
 using LP.Finance.Common.Cache;
 using System.Collections.Generic;
+using LP.Finance.Common.Model;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -100,13 +101,13 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.GetJournal(source);
         }
 
-        [HttpPost]
-        public object AddJournal(JournalInputDto journal)
-        {
-            return !ModelState.IsValid || journal == null
-                ? BadRequest(ModelState)
-                : controller.AddJournal(journal);
-        }
+        //[HttpPost]
+        //public object AddJournal(JournalInputDto journal)
+        //{
+        //    return !ModelState.IsValid || journal == null
+        //        ? BadRequest(ModelState)
+        //        : controller.AddJournal(journal);
+        //}
 
         [Route("{source:guid}")]
         [HttpPut]
@@ -123,5 +124,13 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return controller.DeleteJournal(source);
         }
+
+        [Route("serverSide")]
+        [HttpPost]
+        public object GetServerSideJournals(ServerRowModel obj)
+        {
+            return controller.serverSideJournals(obj);
+        }
+        
     }
 }
