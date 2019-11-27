@@ -22,9 +22,9 @@ export class LogsComponent implements OnInit {
   pageSize: any;
   accountSearch = { id: undefined };
   valueFilter: number;
-  sortColum: any;
-  sortDirection: any;
-  page: any;
+  sortColum: string;
+  sortDirection: string;
+  page: number;
 
   style = Style;
 

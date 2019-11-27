@@ -32,12 +32,12 @@ export class TradesComponent implements OnInit, AfterViewInit {
   public rowData: [];
 
   bottomOptions = { alignedGrids: [] };
-  pageSize: any;
+  pageSize: number;
   accountSearch = { id: undefined };
   valueFilter: number;
-  sortColum: any;
-  sortDirection: any;
-  page: any;
+  sortColum: string;
+  sortDirection: string;
+  page: number;
   columnDefs = [];
   tradesData: any;
   hideGrid: boolean;

@@ -3,7 +3,7 @@ import {
   ElementRef,
   OnInit,
   AfterViewChecked,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
@@ -46,12 +46,12 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
   messages: any;
   progress: any;
   symbol: string;
-  page: any;
-  pageSize: any;
+  page: number;
+  pageSize: number;
   accountSearch = { id: undefined };
   valueFilter: number;
-  sortColum: any;
-  sortDirection: any;
+  sortColum: string;
+  sortDirection: string;
   businessDate: any;
   generateFilesLoader = false;
 

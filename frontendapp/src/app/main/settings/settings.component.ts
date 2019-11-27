@@ -31,12 +31,12 @@ export class SettingsComponent implements OnInit {
   bottomOptions = { alignedGrids: [] };
   accrualsData: any;
   allocationAccrualsData: any;
-  pageSize: any;
+  pageSize: number;
   accountSearch = { id: undefined };
   valueFilter: number;
-  sortColum: any;
-  sortDirection: any;
-  page: any;
+  sortColum: string;
+  sortDirection: string;
+  page: number;
   columnDefs = [];
 
   style = Style;
