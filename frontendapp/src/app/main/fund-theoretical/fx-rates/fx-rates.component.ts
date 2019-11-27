@@ -31,7 +31,7 @@ export class FxRatesComponent implements OnInit {
   title: string;
   gridData: any;
   totalGridRows: number;
-  marketPriceGrid: GridOptions;
+  fxRate: GridOptions;
 
   isExpanded = false;
   graphObject: GraphObject = null;
@@ -42,7 +42,7 @@ export class FxRatesComponent implements OnInit {
   disableFileUpload = true;
   disableCommit = true;
 
-  filterBySymbol = '';
+  filterByCurrency = '';
 
   selectedDate = null;
   selected: { startDate: moment.Moment; endDate: moment.Moment };
@@ -120,14 +120,14 @@ export class FxRatesComponent implements OnInit {
           currency: data.Currency,
           modified: false
         }));
-        this.marketPriceGrid.api.setRowData(this.gridData);
-        this.marketPriceGrid.api.sizeColumnsToFit();
+        this.fxRate.api.setRowData(this.gridData);
+        this.fxRate.api.sizeColumnsToFit();
       }
     });
   }
 
   initGrid() {
-    this.marketPriceGrid = {
+    this.fxRate = {
       columnDefs: this.getColDefs(),
       rowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
@@ -150,7 +150,7 @@ export class FxRatesComponent implements OnInit {
       // deltaRowDataMode: true,
       animateRows: true,
       onGridReady: params => {
-        //this.marketPriceGrid.api = params.api;
+        //this.fxRate.api = params.api;
         // AutoSizeAllColumns(params);
         params.api.sizeColumnsToFit();
       },
@@ -170,36 +170,36 @@ export class FxRatesComponent implements OnInit {
         resizable: true
       }
     } as GridOptions;
-    this.marketPriceGrid.sideBar = SideBar(
-      GridId.dailyPnlId,
-      GridName.dailyPnl,
-      this.marketPriceGrid
+    this.fxRate.sideBar = SideBar(
+      GridId.fxRateId,
+      GridName.fxRate,
+      this.fxRate
     );
   }
 
   initCols() {
     const colDefs = this.getColDefs();
-    this.marketPriceGrid.api.setColumnDefs(colDefs);
-    // this.marketPriceGrid.api.sizeColumnsToFit();
+    this.fxRate.api.setColumnDefs(colDefs);
+    // this.fxRate.api.sizeColumnsToFit();
   }
 
   doesExternalFilterPass(node) {
     const businessDate = new Date(node.data.businessDate);
 
-    if ((this.filterBySymbol !== '' && this.startDate) || this.endDate) {
+    if ((this.filterByCurrency !== '' && this.startDate) || this.endDate) {
       return (
-        node.data.symbol
+        node.data.currency
           .toLowerCase()
-          .includes(this.filterBySymbol.toLowerCase()) &&
+          .includes(this.filterByCurrency.toLowerCase()) &&
         businessDate >= this.startDate.toDate() &&
         businessDate <= this.endDate.toDate()
       );
     }
 
-    if (this.filterBySymbol !== '') {
-      return node.data.symbol
+    if (this.filterByCurrency !== '') {
+      return node.data.currency
         .toLowerCase()
-        .includes(this.filterBySymbol.toLowerCase());
+        .includes(this.filterByCurrency.toLowerCase());
     }
 
     if (this.startDate || this.endDate) {
@@ -211,24 +211,24 @@ export class FxRatesComponent implements OnInit {
   }
 
   isExternalFilterPresent() {
-    if (this.startDate || this.endDate || this.filterBySymbol !== '') {
+    if (this.startDate || this.endDate || this.filterByCurrency !== '') {
       return true;
     }
   }
 
   clearFilters() {
-    this.marketPriceGrid.api.redrawRows();
-    (this.filterBySymbol = ''), (this.selected = null);
+    this.fxRate.api.redrawRows();
+    (this.filterByCurrency = ''), (this.selected = null);
     this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
     this.endDate = moment();
-    this.marketPriceGrid.api.setFilterModel(null);
-    this.marketPriceGrid.api.onFilterChanged();
+    this.fxRate.api.setFilterModel(null);
+    this.fxRate.api.onFilterChanged();
   }
 
   onCellValueChanged(params) {
     if (params.colDef.field === 'price' && params.oldValue != params.newValue) {
       this.disableCommit = false;
-      const row = this.marketPriceGrid.api.getRowNode(params.data.id);
+      const row = this.fxRate.api.getRowNode(params.data.id);
       row.setDataValue('modified', true);
     }
   }
@@ -352,7 +352,7 @@ export class FxRatesComponent implements OnInit {
       toDate = moment(this.selectedXAxis);
       fromDate = moment(this.selectedXAxis).subtract(this.vRange, 'days');
     }
-    this.marketPriceGrid.api.forEachNodeAfterFilter((rowNode, index) => {
+    this.fxRate.api.forEachNodeAfterFilter((rowNode, index) => {
       let currentDate = moment(rowNode.data.businessDate);
       if (this.vRange != 0) {
         if (
@@ -391,8 +391,8 @@ export class FxRatesComponent implements OnInit {
     let data = {};
     let toDate;
     let fromDate;
-    const focusedCell = this.marketPriceGrid.api.getFocusedCell();
-    const selectedRow = this.marketPriceGrid.api.getDisplayedRowAtIndex(
+    const focusedCell = this.fxRate.api.getFocusedCell();
+    const selectedRow = this.fxRate.api.getDisplayedRowAtIndex(
       focusedCell.rowIndex
     ).data;
     const column = 'price';
@@ -405,7 +405,7 @@ export class FxRatesComponent implements OnInit {
 
     this.selectedXAxis = toDate;
     this.selectedYAxis = selectedSymbol;
-    this.marketPriceGrid.api.forEachNodeAfterFilter((rowNode, index) => {
+    this.fxRate.api.forEachNodeAfterFilter((rowNode, index) => {
       let currentDate = moment(rowNode.data.businessDate);
       if (this.vRange != 0) {
         if (
@@ -446,7 +446,7 @@ export class FxRatesComponent implements OnInit {
 
   commitMarketPriceData() {
     const recordsToCommit = [];
-    this.marketPriceGrid.api.forEachNode((node, index) => {
+    this.fxRate.api.forEachNode((node, index) => {
       if (node.data.modified) {
         recordsToCommit.push({
           Id: node.data.id,
@@ -480,7 +480,7 @@ export class FxRatesComponent implements OnInit {
           this.fileInput.nativeElement.value = '';
           this.disableFileUpload = true;
           this.gridData = response.payload;
-          this.marketPriceGrid.api.setRowData(this.gridData);
+          this.fxRate.api.setRowData(this.gridData);
         } else {
           this.toastrService.error('Something went wrong! Try Again.');
         }
@@ -490,13 +490,13 @@ export class FxRatesComponent implements OnInit {
   ngModelChange(date) {
     this.startDate = date.startDate;
     this.endDate = date.endDate;
-    this.marketPriceGrid.api.onFilterChanged();
+    this.fxRate.api.onFilterChanged();
     this.refreshGraph();
   }
 
   onSymbolKey(e) {
-    this.filterBySymbol = e.srcElement.value;
-    this.marketPriceGrid.api.onFilterChanged();
+    this.filterByCurrency = e.srcElement.value;
+    this.fxRate.api.onFilterChanged();
 
     // For the moment we react to each key stroke
     if (e.code === 'Enter' || e.code === 'Tab') {
@@ -504,12 +504,12 @@ export class FxRatesComponent implements OnInit {
   }
 
   ngModelChangeSymbol(e) {
-    this.filterBySymbol = e;
-    this.marketPriceGrid.api.onFilterChanged();
+    this.filterByCurrency = e;
+    this.fxRate.api.onFilterChanged();
   }
 
   refreshGrid() {
-    this.marketPriceGrid.api.showLoadingOverlay();
+    this.fxRate.api.showLoadingOverlay();
     this.getData();
   }
 

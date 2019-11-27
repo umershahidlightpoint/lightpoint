@@ -162,8 +162,8 @@ export class MarketPricesComponent implements OnInit {
       }
     } as GridOptions;
     this.marketPriceGrid.sideBar = SideBar(
-      GridId.dailyPnlId,
-      GridName.dailyPnl,
+      GridId.marketPriceId,
+      GridName.marketPrice,
       this.marketPriceGrid
     );
   }
