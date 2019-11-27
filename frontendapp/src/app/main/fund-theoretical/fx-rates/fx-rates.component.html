@@ -10,7 +10,7 @@
 
     <!----- Symbol Filter Div Starts----->
     <div class="col-2">
-      <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol" [(ngModel)]="filterBySymbol"
+      <input type="text" autocomplete="off" placeholder="Filter by Currency" name="currency" [(ngModel)]="filterByCurrency"
         (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" />
         <!----- Symbol Filter Div Ends----->
     </div>
@@ -64,7 +64,7 @@
 
       <!----- Ag Grid Tag Starts ----->
       <div [ngClass]="{'col-6': isExpanded, 'col-12': !isExpanded}">
-        <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="marketPriceGrid">
+        <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="fxRate">
         </ag-grid-angular>
         <!----- Ag Grid Tag Ends ----->
       </div>

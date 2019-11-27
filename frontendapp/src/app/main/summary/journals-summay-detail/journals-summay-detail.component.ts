@@ -60,43 +60,43 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
             data: filterData
           });
         }
-        // for(var i = 0; i < this.payloadFilters.length; i++){
-        //   let found = false;
-        //   let filterData = [];
-        //   for(var j = 0; j< customFilters.length; j++){
-        //     if(customFilters[j].column == this.payloadFilters[i].column){
-        //       found = true;
-        //       customFilters[j].data[0] = this.payloadFilters[i].data[0];
-        //     }
-        //   }
-        //   if(!found){
-        //     filterData.push(this.payloadFilters[i].data[0]);
-        //     customFilters.push({
-        //       column: this.payloadFilters[i].column,
-        //       data: filterData
-        //     });
-        //   }
-        // }
-
         for(var i = 0; i < this.payloadFilters.length; i++){
-          var filterInstance = this.gridOptions.api.getFilterInstance(this.payloadFilters[i].column);
-          var model = filterInstance.getModel();
           let found = false;
           let filterData = [];
           for(var j = 0; j< customFilters.length; j++){
             if(customFilters[j].column == this.payloadFilters[i].column){
               found = true;
-              customFilters[j].data[0] = model.filter;
+              customFilters[j].data[0] = this.payloadFilters[i].data[0];
             }
           }
           if(!found){
-            filterData.push(model.filter);
+            filterData.push(this.payloadFilters[i].data[0]);
             customFilters.push({
               column: this.payloadFilters[i].column,
               data: filterData
             });
           }
         }
+
+        // for(var i = 0; i < this.payloadFilters.length; i++){
+        //   var filterInstance = this.gridOptions.api.getFilterInstance(this.payloadFilters[i].column);
+        //   var model = filterInstance.getModel();
+        //   let found = false;
+        //   let filterData = [];
+        //   for(var j = 0; j< customFilters.length; j++){
+        //     if(customFilters[j].column == this.payloadFilters[i].column){
+        //       found = true;
+        //       customFilters[j].data[0] = model.filter;
+        //     }
+        //   }
+        //   if(!found){
+        //     filterData.push(model.filter);
+        //     customFilters.push({
+        //       column: this.payloadFilters[i].column,
+        //       data: filterData
+        //     });
+        //   }
+        // }
         
         gridPayloadFilters = customFilters;
       }
@@ -141,27 +141,24 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
 
             if(this.groupSelectionChanges){
               this.groupSelectionChanges = false;
-              setTimeout(() => {
-                this.clearAllFilters();
-                var model = {} as any;
-              for(var i = 0; i< this.payloadFilters.length; i++){
-                // get filter model
-                model[this.payloadFilters[i].column] = this.payloadFilters[i].data[0];
+              // setTimeout(() => {
+              //   this.clearAllFilters();
+              //   var model = {} as any;
+              // for(var i = 0; i< this.payloadFilters.length; i++){
+              //   // get filter model
+              //   model[this.payloadFilters[i].column] = this.payloadFilters[i].data[0];
 
-                var filterInstance = this.gridOptions.api.getFilterInstance(this.payloadFilters[i].column);
-                filterInstance.setModel({
-                  type:'equals',
-                  filter: this.payloadFilters[i].data[0]
-              });
-                // model[this.payloadFilters[i].column] = {
-                //   filter: this.payloadFilters[i].data[0]
-                // }
-              let modelTemp = filterInstance.getModel();
-              console.log(modelTemp,"-----------------------------------");
-              }
-              // filterInstance.init(model);
-              this.customizeColumns(this.columns);
-              }, 1);
+              //   var filterInstance = this.gridOptions.api.getFilterInstance(this.payloadFilters[i].column);
+              //   filterInstance.setModel({
+              //     type:'equals',
+              //     filter: this.payloadFilters[i].data[0]
+              // });
+               
+              // let modelTemp = filterInstance.getModel();
+              // console.log(modelTemp,"-----------------------------------");
+              // }
+              // this.customizeColumns(this.columns);
+              // }, 1);
             }
 
             this.rowData = this.rowData.concat(someArray as []);
@@ -255,7 +252,6 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
       rowData: null,
       rowModelType: 'infinite',
       cacheBlockSize: this.pageSize,
-      floatingFilter: true,
       paginationPageSize: this.pageSize,
       pinnedBottomRowData: null,
       rowSelection: 'single',
@@ -288,22 +284,12 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
   }
 
   clearAllFilters(){
-    // let cols = this.gridOptions.columnApi.getAllColumns();
-    // if(cols != null){
-    //   for(let i = 0; i< cols.length; i++){
-    //     let columnFilter = this.gridOptions.api.getFilterInstance(cols[i].getColId());
-    //     let model = columnFilter.getModel();
-    //     if(model){
-    //       columnFilter.setModel(null);
-    //     }
-    //   }
-    // }
     this.gridOptions.api.setFilterModel(null);
   }
 
   customizeColumns(columns: any) {
     const colDefs = [
-      ...CommonCols(true),
+      ...CommonCols(false),
       {
         field: 'Quantity',
         aggFunc: 'sum',
@@ -315,12 +301,12 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
         filter: true,
         type: 'numericColumn'
       },
-      this.dataDictionary.column('TradePrice', true),
-      this.dataDictionary.column('NetPrice', true),
-      this.dataDictionary.column('SettleNetPrice', true),
-      this.dataDictionary.column('start_price', true),
-      this.dataDictionary.column('end_price', true),
-      this.dataDictionary.column('fxrate', true)
+      this.dataDictionary.column('TradePrice', false),
+      this.dataDictionary.column('NetPrice', false),
+      this.dataDictionary.column('SettleNetPrice', false),
+      this.dataDictionary.column('start_price', false),
+      this.dataDictionary.column('end_price', false),
+      this.dataDictionary.column('fxrate', false)
     ];
     const cdefs = this.agGridUtls.customizeColumns(colDefs, columns, this.ignoreFields, false);
 
