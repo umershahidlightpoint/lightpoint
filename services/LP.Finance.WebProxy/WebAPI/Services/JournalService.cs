@@ -1018,70 +1018,46 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 journalStats journalStats = new journalStats();
                 bool whereAdded = false;
+                string mainSelect = "";
+                string grouping = "";
+                string query;
 
-                // Depending on type
-                var query = $@"select 
-                        d.debit,
-                        d.credit, 
-                        abs(d.debit) - abs(d.credit) as balance,
-                        d.[id],
-                        d.[account_id],
-                        d.[fund],
-                        d.[symbol] as Symbol,
-                        d.[security_id],
-                        d.AccountCategory,
-                        d.AccountType,
-                        d.accountName,
-                        d.accountDescription,
-                        d.[value],
-                        d.[source],
-                        d.[when],
-                        d.[event],
-                        d.[start_price],
-                        d.[end_price],
-                        d.[fxrate],
-                        d.modifiable
-                        from(
-                            SELECT
-                                    (CASE 
-
-										WHEN [account_category].[name] in ('Asset', 'Expenses') and value < 0  THEN ABS(value) 
-                                        WHEN [account_category].[name] not in ('Asset', 'Expenses') and value > 0  THEN ABS(value) 
-										Else 0
-										END  ) credit,
-                                    (CASE 
-										WHEN [account_category].[name] in ('Asset','Expenses') and value > 0  THEN ABS(value) 
-                                        WHEN [account_category].[name] not in ('Asset','Expenses') and value < 0  THEN ABS(value) 
-										Else 0
-										END  ) debit,
-                                    [journal].[id],
-                                    [account_id],
-                                    [fund],
-                                    [symbol],
-                                    [security_id],
-                                    [account_category].[name] as AccountCategory,  
-                                    [account_type].[name] as AccountType,  
-                                    [account].[name] as accountName,
-                                    [account].[description] as accountDescription,
-                                    [value],
-                                    [source],
-                                    [when],
-                                    [event],
-                                    [start_price],
-                                    [end_price],
-                                    [fxrate],
-                                    (CASE WHEN [journal].[generated_by] = 'user' THEN 'true' else 'false' END  ) modifiable
-                                    FROM [journal] with(nolock) 
-                        join account with(nolock) on [journal]. [account_id] = account.id 
-                        join [account_type] with(nolock) on  [account].account_type_id = [account_type].id
-                        join [account_category] with(nolock) on  [account_type].account_category_id = [account_category].id";
+                if (obj.rowGroupCols.Count == 0)
+                {
+                    query = $@"select * from vwJournal";
+                }
+                else if(obj.rowGroupCols.Count > 0 && obj.groupKeys.Count == 0)
+                {
+                    query = $@"select 
+                        {obj.rowGroupCols[0].id},
+                        count(*) as groupCount,
+						sum(debit) as debitSum,
+                        sum(credit) as creditSum,
+                        sum(abs(debit)) - sum(abs(credit)) as balance
+                        from vwJournal group by {obj.rowGroupCols[0].id}";
+                }
+                else
+                {
+                    query = $@"select * from vwJournal where {obj.rowGroupCols[0].id} = '{obj.groupKeys[0]}'";
+                }
 
                 List<SqlParameter> sqlParams = new List<SqlParameter>();
                 sqlParams.Add(new SqlParameter("pageNumber", obj.pageNumber));
                 sqlParams.Add(new SqlParameter("pageSize", obj.pageSize));
 
-               
-                query = query + " ) as d ORDER BY  [d].[id] desc";
+
+                if (obj.rowGroupCols.Count == 0)
+                {
+                    query = query + " ORDER BY [id] desc";
+                }
+                else if(obj.rowGroupCols.Count > 0 && obj.groupKeys.Count == 0)
+                {
+                    query = query + $" ORDER BY {obj.rowGroupCols[0].id} desc";
+                }
+                else
+                {
+                    query = query + $" ORDER BY {obj.rowGroupCols[0].id} desc";
+                }
 
                 if (obj.pageSize > 0)
                 {
@@ -1098,12 +1074,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
              
 
-                foreach (var element in dataTable.Rows)
-                {
-                    var dataRow = element as DataRow;
+                //foreach (var element in dataTable.Rows)
+                //{
+                //    var dataRow = element as DataRow;
 
-                    dataRow["debit"] = Math.Abs(Convert.ToDecimal(dataRow["debit"]));
-                }
+                //    dataRow["debit"] = Math.Abs(Convert.ToDecimal(dataRow["debit"]));
+                //}
 
                 //HelperFunctions.Join(dataTable, dictionary, "source");
 

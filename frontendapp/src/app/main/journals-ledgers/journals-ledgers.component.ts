@@ -114,6 +114,9 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       pageNumber: this.pageNumber,
       pageSize: this.pageSize
     }
+    if(this.pageNumber == 1){
+      this.rowData = [];
+    }
       this.financeService.getServerSideJournals(payload).subscribe(result => {
           if(result.isSuccessful){
             this.rowData = this.rowData.concat(result.payload);
@@ -267,7 +270,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   }
 
   getAllData(initialLoad) {
-    this.isDataStreaming = true;
+    this.isDataStreaming = false;
     this.symbol = 'ALL';
     const localThis = this;
     
