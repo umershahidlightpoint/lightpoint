@@ -410,8 +410,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     ) {
       this.doCalculation();
       this.disableCommit = false;
-      const row = this.fundTheoreticalGrid.api.getRowNode(params.data.rowId);
-      row.setDataValue('modified', true);
+      params.data.modified = true;
     }
 
     if (
