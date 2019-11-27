@@ -60,12 +60,12 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   symbol: string;
   startDate: any;
   endDate: any;
-  page: any;
-  pageSize: any;
+  page: number;
+  pageSize: number;
   accountSearch = { id: undefined };
   valueFilter: number;
-  sortColum: any;
-  sortDirection: any;
+  sortColum: string;
+  sortDirection: string;
   tableHeader: string;
 
   ranges = Ranges;

@@ -34,12 +34,12 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
   public allocationsData: [];
 
   bottomOptions = { alignedGrids: [] };
-  pageSize: any;
+  pageSize: number;
   accountSearch = { id: undefined };
   valueFilter: number;
-  sortColum: any;
-  sortDirection: any;
-  page: any;
+  sortColum: string;
+  sortDirection: string;
+  page: number;
   orderId: number;
   columnDefs = [];
   title = '';
