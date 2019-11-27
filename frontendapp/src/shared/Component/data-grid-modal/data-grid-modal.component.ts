@@ -39,7 +39,7 @@ export class DataGridModalComponent implements OnInit {
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onGridReady: params => {},
       onFirstDataRendered: params => {
-        AutoSizeAllColumns(params);
+        // AutoSizeAllColumns(params);
       },
       getExternalFilterState: () => {
         return {};
@@ -62,8 +62,8 @@ export class DataGridModalComponent implements OnInit {
     this.gridOptions.api.setColumnDefs(colDefs);
     this.gridOptions.api.setRowData(rowData);
     this.modal.show();
-    // this.gridOptions.api.sizeColumnsToFit();
-    AutoSizeAllColumns(this.gridOptions);
+    this.gridOptions.api.sizeColumnsToFit();
+    // AutoSizeAllColumns(this.gridOptions);
   }
 
   closeModal() {

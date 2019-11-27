@@ -15,7 +15,6 @@ import {
 
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies';
 import { FxratesApiService } from '../../../../services/fxrates-api.service';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
@@ -28,9 +27,8 @@ import { GraphObject } from 'src/shared/Models/graph-object';
 })
 export class FxRatesComponent implements OnInit {
   @ViewChild('fileInput', { static: false }) fileInput: ElementRef;
-  @ViewChild('dataGridModal', { static: false })
+  @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
   title: string;
-  dataGridModal: DataGridModalComponent;
   gridData: any;
   totalGridRows: number;
   marketPriceGrid: GridOptions;
@@ -38,7 +36,7 @@ export class FxRatesComponent implements OnInit {
   isExpanded = false;
   graphObject: GraphObject = null;
   disableCharts = true;
-  
+
   fileToUpload: File = null;
   uploadLoader = false;
   disableFileUpload = true;
@@ -93,7 +91,6 @@ export class FxRatesComponent implements OnInit {
   commitLoader = false;
 
   constructor(
-    // private financeService: FinanceServiceProxy,
     private fxratesApiService: FxratesApiService,
     private toastrService: ToastrService,
     public decimalPipe: DecimalPipe
@@ -106,7 +103,7 @@ export class FxRatesComponent implements OnInit {
 
   getData() {
     this.disableCommit = true;
-    this.fxratesApiService.getMarketPriceData().subscribe(response => {
+    this.fxratesApiService.getFxRatesData().subscribe(response => {
       if (response.isSuccessful) {
         let data = response.payload.sort((x, y) => {
           return (
@@ -118,9 +115,9 @@ export class FxRatesComponent implements OnInit {
           id: data.Id,
           securityId: data.SecurityId,
           businessDate: DateFormatter(data.BusinessDate),
-          symbol: data.Symbol,
           event: data.Event,
           price: data.Price,
+          currency: data.Currency,
           modified: false
         }));
         this.marketPriceGrid.api.setRowData(this.gridData);
@@ -154,7 +151,8 @@ export class FxRatesComponent implements OnInit {
       animateRows: true,
       onGridReady: params => {
         //this.marketPriceGrid.api = params.api;
-        AutoSizeAllColumns(params);
+        // AutoSizeAllColumns(params);
+        params.api.sizeColumnsToFit();
       },
       onFirstDataRendered: params => {},
       onCellValueChanged: params => {
@@ -245,10 +243,6 @@ export class FxRatesComponent implements OnInit {
         suppressCellFlash: true
       },
       {
-        headerName: 'Symbol',
-        field: 'symbol'
-      },
-      {
         headerName: 'Event',
         field: 'event'
       },
@@ -260,6 +254,10 @@ export class FxRatesComponent implements OnInit {
         type: 'numericColumn',
         valueFormatter: params =>
           this.numberFormatter(params.node.data.price, false)
+      },
+      {
+        headerName: 'Currency',
+        field: 'currency'
       },
       {
         headerName: 'Is Modified',
@@ -280,7 +278,7 @@ export class FxRatesComponent implements OnInit {
         }
       },
       {
-        name: 'Audit Trail',
+        name: 'FxRate Audit Trail',
         action: () => {
           this.openDataGridModal(params);
         }
@@ -291,13 +289,13 @@ export class FxRatesComponent implements OnInit {
 
   openDataGridModal(rowNode) {
     const { id } = rowNode.node.data;
-    this.fxratesApiService.getMarketPriceAudit(id).subscribe(response => {
+    this.fxratesApiService.GetAuditTrail(id).subscribe(response => {
       const { payload } = response;
       const columns = this.getAuditColDefs();
       const modifiedCols = columns.map(col => {
         return { ...col, editable: false };
       });
-      this.title = 'Market Price';
+      this.title = 'Fx Rate';
       this.dataGridModal.openModal(modifiedCols, payload);
     });
   }
@@ -308,10 +306,6 @@ export class FxRatesComponent implements OnInit {
         headerName: 'Business Date',
         field: 'BusinessDate',
         sortable: true
-      },
-      {
-        headerName: 'Symbol',
-        field: 'Symbol'
       },
       {
         headerName: 'Event',
@@ -328,28 +322,21 @@ export class FxRatesComponent implements OnInit {
       {
         headerName: 'Price',
         field: 'Price'
-      },
-      {
-        headerName: 'SecurityId',
-        field: 'SecurityId'
       }
     ];
   }
-  //   BusinessDate: "2018-12-31T00:00:00"
+  // BusinessDate: "2018-12-31T00:00:00"
   // Event: "upload"
   // Id: 1
   // LastUpdatedBy: "webservice"
   // LastUpdatedOn: "2019-11-19T15:05:13.397"
   // Price: 16.37
-  // SecurityId: 0
-  // Symbol: "ACBI"
 
   expandedClicked() {
     this.isExpanded = !this.isExpanded;
   }
 
   vChange($event) {
-    console.log($event);
     if (this.selectedXAxis != null && this.selectedYAxis != null) {
       this.refreshGraph();
     }
@@ -394,7 +381,7 @@ export class FxRatesComponent implements OnInit {
       height: 410,
       width: '95%',
       chartTitle: this.selectedYAxis,
-      propId: 'lineMarketPrice',
+      propId: 'lineFxPrice',
       graphData: data,
       dateTimeFormat: 'YYYY-MM-DD'
     };
@@ -448,7 +435,7 @@ export class FxRatesComponent implements OnInit {
       height: 410,
       width: '95%',
       chartTitle: selectedSymbol,
-      propId: 'lineMarketPrice',
+      propId: 'lineFxPrice',
       graphData: data,
       dateTimeFormat: 'YYYY-MM-DD'
     };
@@ -469,7 +456,7 @@ export class FxRatesComponent implements OnInit {
     });
     this.commitLoader = true;
     this.fxratesApiService
-      .editMarketPriceData(recordsToCommit)
+      .editFxRatePriceData(recordsToCommit)
       .subscribe(response => {
         this.commitLoader = false;
         this.disableCommit = true;
@@ -486,10 +473,9 @@ export class FxRatesComponent implements OnInit {
     let rowNodeId = 1;
     this.uploadLoader = true;
     this.fxratesApiService
-      .uploadMarketPriceData(this.fileToUpload)
+      .uploadFxData(this.fileToUpload)
       .subscribe(response => {
         this.uploadLoader = false;
-        console.log('Response', response);
         if (response.isSuccessful) {
           this.fileInput.nativeElement.value = '';
           this.disableFileUpload = true;

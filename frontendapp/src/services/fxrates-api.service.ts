@@ -18,23 +18,23 @@ export class FxratesApiService {
     this.refDataUrl = REF_DATA_BASE_URL;
   }
 
-  getMarketPriceData(): Observable<any> {
-    const url = this.baseUrl + '/marketdata/prices';
+  getFxRatesData(): Observable<any> {
+    const url = this.baseUrl + '/fxRates/fxRate';
     return this.http.get(url);
   }
 
-  getMarketPriceAudit(id): Observable<any> {
-    const url = this.baseUrl + '/marketdata/audit?id=' + id;
+  GetAuditTrail(id): Observable<any> {
+    const url = this.baseUrl + '/fxRates/audit?id=' + id;
     return this.http.get(url);
   }
 
-  editMarketPriceData(data): Observable<any> {
-    const url = this.baseUrl + '/marketdata/prices';
+  editFxRatePriceData(data): Observable<any> {
+    const url = this.baseUrl + '/fxRates/fxRate';
     return this.http.put(url, data);
   }
 
-  uploadMarketPriceData(file: File): Observable<any> {
-    const url = this.baseUrl + '/marketdata/prices/upload';
+  uploadFxData(file: File): Observable<any> {
+    const url = this.baseUrl + '/fxRates/upload';
     const formData: FormData = new FormData();
     formData.append('fileKey', file, file.name);
     return this.http.post(url, formData);

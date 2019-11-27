@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[fx_rates_history]
 (
-	[Id] INT NOT NULL PRIMARY KEY,
+	[Id] INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
 	[fx_rate_id] [int] NOT NULL,
 	[business_date] DATETIME NOT NULL, 
 	[currency] varchar(100) not null,

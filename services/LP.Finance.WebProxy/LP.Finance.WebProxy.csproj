@@ -157,6 +157,7 @@
     </None>
     <None Include="..\LP.FileProcessing\PerformanceFormats\FxRates.json">
       <Link>PerformanceFormats\FxRates.json</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="..\LP.FileProcessing\PerformanceFormats\MarketDataPrices.json">
       <Link>PerformanceFormats\MarketDataPrices.json</Link>

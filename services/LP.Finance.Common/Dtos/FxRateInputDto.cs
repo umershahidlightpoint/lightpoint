@@ -9,6 +9,6 @@ namespace LP.Finance.Common.Dtos
     public class FxRateInputDto
     {
         public int Id { get; set; }
-        public decimal Currency { get; set; }
+        public decimal Price { get; set; }
     }
 }

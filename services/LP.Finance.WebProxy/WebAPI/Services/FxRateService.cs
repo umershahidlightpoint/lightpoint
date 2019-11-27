@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -26,7 +27,29 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         private readonly FileManagementService _fileManagementService = new FileManagementService();
         public object AuditTrail(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var query = $@"SELECT id as Id,
+                                business_date as BusinessDate, 
+                                event as Event,
+                                price as Price,
+                                currency as Currency,
+                                last_updated_by as LastUpdatedBy,
+                                last_updated_on as LastUpdatedOn FROM [dbo].[fx_rates_history] history where fx_rate_id = {id}";
+
+                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text);
+
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+
+                var json = JsonConvert.DeserializeObject<List<FxRate>>(jsonResult);
+
+                return Utils.Wrap(true, json, HttpStatusCode.OK, "FxRates Audit Trail fetched successfully");
+            }
+            catch (Exception ex)
+            {
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    "An error occured while fetching FxRates Audit Trail");
+            }
         }
 
         public object GetFxRates()
@@ -39,7 +62,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                 event as Event,
                                 price as Price,
                                 last_updated_by as LastUpdatedBy,
-                                last_updated_on as LastUpdatedOn FROM [dbo].[market_prices] ORDER BY business_date ASC";
+                                last_updated_on as LastUpdatedOn FROM [dbo].[fx_rates] ORDER BY business_date ASC";
 
                 var dataTable = SqlHelper.GetDataTable(query, CommandType.Text);
 
@@ -58,8 +81,54 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object SetFxRates(List<FxRateInputDto> obj)
         {
-            throw new NotImplementedException();
+            List<List<SqlParameter>> listOfParameters = new List<List<SqlParameter>>();
+            foreach (var item in obj)
+            {
+                List<SqlParameter> fxRateParams = new List<SqlParameter>
+                {
+                    new SqlParameter("id", item.Id),
+                    new SqlParameter("price", item.Price),
+                    new SqlParameter("event", "modified"),
+                    new SqlParameter("lastUpdatedBy", "John Smith"),
+                    new SqlParameter("lastUpdatedOn", DateTime.UtcNow)
+                };
+
+                listOfParameters.Add(fxRateParams);
+            }
+
+            SqlHelper sqlHelper = new SqlHelper(ConnectionString);
+            try
+            {
+                sqlHelper.VerifyConnection();
+                sqlHelper.SqlBeginTransaction();
+
+                var query = $@"UPDATE [dbo].[fx_rates]
+                                                SET [price] = @price,
+                                                [event] = @event,
+                                                [last_updated_by] = @lastUpdatedBy,
+                                                [last_updated_on] = @lastUpdatedOn
+                                                where [id] = @id";
+
+                foreach (var item in listOfParameters)
+                {
+                    sqlHelper.Update(query, CommandType.Text, item.ToArray());
+                }
+
+                sqlHelper.SqlCommitTransaction();
+                sqlHelper.CloseConnection();
+
+                return Utils.Wrap(true, null, HttpStatusCode.OK, "Prices updated successfully");
+            }
+            catch (Exception ex)
+            {
+                sqlHelper.SqlRollbackTransaction();
+                sqlHelper.CloseConnection();
+
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    "An error occured while updating prices");
+            }
         }
+
 
         public async Task<object> Upload(HttpRequestMessage requestMessage)
         {
@@ -74,7 +143,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var recordBody = _fileProcessor.ImportFile(path, "FxRates", "PerformanceFormats", ',');
 
                 var records = JsonConvert.SerializeObject(recordBody.Item1);
-                var fxRates = JsonConvert.DeserializeObject<List<MarketDataPrice>>(records);
+                var fxRates = JsonConvert.DeserializeObject<List<FxRate>>(records);
 
                 var failedRecords = new Dictionary<object, Row>();
                 var key = 0;
@@ -119,7 +188,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        private bool InsertData(List<MarketDataPrice> obj)
+        private bool InsertData(List<FxRate> obj)
         {
             SqlHelper sqlHelper = new SqlHelper(ConnectionString);
             try
