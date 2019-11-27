@@ -42,26 +42,14 @@ import { ReportModalComponent } from 'src/shared/Component/report-modal/report-m
   styleUrls: ['./journals-ledgers.component.css']
 })
 export class JournalsLedgersComponent implements OnInit, AfterViewInit {
-  constructor(
-    private financeService: FinanceServiceProxy,
-    private dataService: DataService,
-    private postingEngineService: PostingEngineService,
-    private cdRef: ChangeDetectorRef,
-    private agGridUtls: AgGridUtils,
-    private dataDictionary: DataDictionary
-  ) {
-    this.hideGrid = false;
-    this.DateRangeLabel = '';
-    this.initGird();
-  }
   @ViewChild('journalModal', { static: false })
-  journalModal: JournalModalComponent;
-  @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
+  @ViewChild('dataModal', { static: false })
+  dataModal: DataModalComponent;
   @ViewChild('reportModal', { static: false })
+  journalModal: JournalModalComponent;
   reportModal: ReportModalComponent;
 
   private columns: any;
-
   public rowData: any[] = [];
 
   isEngineRunning = false;
@@ -70,22 +58,23 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   gridLayouts: any;
   pinnedBottomRowData;
   totalRecords = 0;
-  fund: any = 'All Funds';
+  fund = 'All Funds';
   filterBySymbol = '';
   symbol = '';
   DateRangeLabel: string;
   selected: { startDate: moment.Moment; endDate: moment.Moment };
-  startDate: any;
-  endDate: any;
+  startDate: moment.Moment;
+  endDate: moment.Moment;
   funds: any;
   accountSearch = { id: undefined };
   valueFilter: number;
-  sortColum: any;
-  sortDirection: any;
-  page: any;
+  sortColum: string;
+  sortDirection: string;
+  page: number;
   pageSize: any;
   tableHeader: string;
   isDataStreaming = false;
+  colDefs;
 
   ranges: any = Ranges;
 
@@ -109,13 +98,51 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     boxSizing: 'border-box'
   };
 
+  constructor(
+    private financeService: FinanceServiceProxy,
+    private dataService: DataService,
+    private postingEngineService: PostingEngineService,
+    private cdRef: ChangeDetectorRef,
+    private agGridUtls: AgGridUtils,
+    private dataDictionary: DataDictionary
+  ) {
+    this.initColDefs();
+    this.hideGrid = false;
+    this.DateRangeLabel = '';
+    this.initGird();
+  }
+
   ngOnInit() {
     this.isEngineRunning = this.postingEngineService.getStatus();
+  }
+
+  initColDefs() {
+    this.colDefs = [
+      ...CommonCols(true),
+      {
+        field: 'Quantity',
+        aggFunc: 'sum',
+        width: 100,
+        colId: 'Quantity',
+        headerName: 'Quantity',
+        sortable: true,
+        enableRowGroup: true,
+        filter: 'agNumberColumnFilter',
+        type: 'numericColumn'
+      },
+      this.dataDictionary.column('TradePrice', true),
+      this.dataDictionary.column('NetPrice', true),
+      this.dataDictionary.column('SettleNetPrice', true),
+      this.dataDictionary.column('start_price', true),
+      this.dataDictionary.column('end_price', true),
+      this.dataDictionary.column('fxrate', true)
+    ];
   }
 
   initGird() {
     this.gridOptions = {
       rowData: null,
+      columnDefs: this.colDefs,
       /* Custom Method Binding to Clear External Filters from Grid Layout Component */
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
@@ -190,8 +217,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       this.ignoreFields,
       true
     );
-    // console.log('Columns', columns);
-    // console.log('Col Defs', cdefs);
     this.gridOptions.api.setColumnDefs(cdefs);
   }
 
@@ -262,7 +287,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
               }
               someArray.push(someObject);
             }
-            this.customizeColumns(this.columns);
+            // this.customizeColumns(this.columns);
             this.rowData = this.rowData.concat(someArray as []);
             if (!initialLoad) {
               this.gridOptions.api.updateRowData({ add: someArray });
