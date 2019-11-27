@@ -3,12 +3,12 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false,
-  remoteServerUrl: 'http://dev11:3000/finance',
-  referenceDataUrl: 'http://dev11:3000/refdata'
-  //remoteServerUrl: 'http://localhost:9092/api',
-  //referenceDataUrl: 'http://localhost:3000/refdata'
-};
+         production: false,
+         remoteServerUrl: 'http://localhost:3000/finance',
+         referenceDataUrl: 'http://localhost:3000/refdata'
+         //remoteServerUrl: 'http://localhost:9092/api',
+         //referenceDataUrl: 'http://localhost:3000/refdata'
+       };
 
 /*
  * For easier debugging in development mode, you can import the following file
