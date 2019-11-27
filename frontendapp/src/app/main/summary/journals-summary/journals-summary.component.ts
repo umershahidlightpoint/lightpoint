@@ -7,6 +7,13 @@ import { HeightStyle, ExcelStyle } from 'src/shared/utils/Shared';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { DecimalPipe } from '@angular/common';
+import {
+  valueFormatter,
+  moneyFormatter,
+  cellClassRulesDebit,
+  cellClassRulesCredit,
+  cellClassRules
+} from 'src/shared/utils/DataDictionary';
 
 @Component({
   selector: 'app-journals-summary',
@@ -89,12 +96,7 @@ export class JournalsSummaryComponent implements OnInit {
       onGridReady: params => {
         this.gridOptions.excelStyles = ExcelStyle;
       },
-      onFirstDataRendered: params => {
-        params.api.forEachNode(node => {
-          node.expanded = true;
-        });
-        params.api.onGroupExpandedOrCollapsed();
-      },
+      onFirstDataRendered: params => {},
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
@@ -160,49 +162,28 @@ export class JournalsSummaryComponent implements OnInit {
       if (element.aggFunc) {
         element = {
           ...element,
-          type: 'numericColumn',
+          cellStyle: { 'text-align': 'right' },
           valueFormatter: params => {
-            return this.numberFormatter(params.value);
-          },
-          cellClassRules: {
-            greenFont(params) {
-              if (params.node.rowPinned) {
-                return false;
-              }
-              return params.colDef.headerName === 'balance' && params.value > 0;
-            },
-            redFont(params) {
-              if (params.node.rowPinned) {
-                return false;
-              }
-              return (
-                params.colDef.headerName === 'creditSum' ||
-                (params.colDef.headerName === 'balance' && params.value < 0)
-              );
-            },
-            footerRow(params) {
-              if (params.node.rowPinned) {
-                return true;
-              } else {
-                return false;
-              }
-            }
+            return element.field === 'balance' ? valueFormatter(params) : moneyFormatter(params);
           }
         };
+        if (element.field === 'balance') {
+          cellClassRules(element);
+        } else if (element.field === 'debitSum') {
+          cellClassRulesDebit(element);
+        } else if (element.field === 'creditSum') {
+          cellClassRulesCredit(element);
+        }
       }
+
       return element;
     });
-    const pinnedBottomRowData = this.getBottomRowData(response);
 
+    const pinnedBottomRowData = this.getBottomRowData(response);
     this.gridOptions.api.setRowData(response.payload);
     this.gridOptions.api.setPinnedBottomRowData(pinnedBottomRowData);
     this.gridOptions.api.setColumnDefs(colDefs);
     this.gridOptions.api.sizeColumnsToFit();
-    this.gridOptions.api.forEachNode((node, index) => {
-      if (node.group) {
-        node.setExpanded(true);
-      }
-    });
   }
 
   getBottomRowData(response: any) {
@@ -220,9 +201,5 @@ export class JournalsSummaryComponent implements OnInit {
       }
     ];
     return pinnedBottomRowData;
-  }
-
-  numberFormatter(numberToFormat) {
-    return this.decimalPipe.transform(numberToFormat, '1.2-2');
   }
 }

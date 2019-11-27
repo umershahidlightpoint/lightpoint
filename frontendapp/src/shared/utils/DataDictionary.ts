@@ -164,7 +164,7 @@ export class DataDictionary {
   }
 }
 
-function cellClassRulesCredit(columnDefinition: any) {
+export function cellClassRulesCredit(columnDefinition: any) {
   columnDefinition['cellClassRules'] = {
     redFont(params) {
       if (params.node.rowPinned) {
@@ -183,7 +183,7 @@ function cellClassRulesCredit(columnDefinition: any) {
   };
 }
 
-function cellClassRulesDebit(columnDefinition: any) {
+export function cellClassRulesDebit(columnDefinition: any) {
   columnDefinition['cellClassRules'] = {
     footerRow(params) {
       if (params.node.rowPinned) {
@@ -195,14 +195,14 @@ function cellClassRulesDebit(columnDefinition: any) {
   };
 }
 
-function moneyFormatter(params) {
+export function moneyFormatter(params) {
   if (params.value === undefined) {
     return;
   }
   return MoneyFormat(params.value);
 }
 
-function cellClassRules(columnDefinition: any) {
+export function cellClassRules(columnDefinition: any) {
   columnDefinition['cellClassRules'] = {
     greenFont(params) {
       if (params.node.rowPinned) {
@@ -235,7 +235,7 @@ function priceFormatter(params) {
   return FormatNumber4(params.value);
 }
 
-function valueFormatter(params) {
+export function valueFormatter(params) {
   if (params.value === undefined) {
     return;
   }
