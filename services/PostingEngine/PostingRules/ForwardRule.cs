@@ -124,6 +124,7 @@ namespace PostingEngine.PostingRules
                 var tl = new TaxLotStatus {
                     TradeDate = element.TradeDate,
                     InvestmentAtCost = element.NetMoney * tradefxrate,
+                    FxRate = tradefxrate,
                     BusinessDate = element.TradeDate,
                     Symbol = element.Symbol,
                     Side = element.Side,

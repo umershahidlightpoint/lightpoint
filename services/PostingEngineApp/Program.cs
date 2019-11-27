@@ -23,7 +23,7 @@ namespace PostingEngineCmd
             // Generate Journals First
             // Doing this for the previous Business Date
             var date = System.DateTime.Now.Date;
-            date = date.PrevBusinessDate();
+            date = date.PrevBusinessDate().PrevBusinessDate();
 
             // Pull from Legacy System
             PullFromLegacySystem(date);

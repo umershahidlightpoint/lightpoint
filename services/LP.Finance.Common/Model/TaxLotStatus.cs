@@ -22,6 +22,7 @@ namespace LP.Finance.Common.Models
         public string Status { get; set; }
         public double Quantity { get; set; }
         public double OriginalQuantity { get; set; }
+        public double FxRate { get; set; }
 
         // Get a list of Journal Entries for this trade
         public static KeyValuePair<string, SqlParameter[]> List(string orderId)
@@ -83,7 +84,7 @@ namespace LP.Finance.Common.Models
             // read the table structure from the database
             var localconnection = new SqlConnection(connection.ConnectionString + ";Password=ggtuser");
             localconnection.Open();
-            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 open_id, status, side, quantity, symbol, business_date, original_quantity, trade_date, investment_at_cost FROM tax_lot_status", localconnection))
+            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 open_id, status, side, quantity, symbol, business_date, original_quantity, trade_date, investment_at_cost, fx_rate FROM tax_lot_status", localconnection))
             {
                 adapter.Fill(table);
             };
@@ -103,6 +104,7 @@ namespace LP.Finance.Common.Models
             row["business_date"] = this.BusinessDate;
             row["trade_date"] = this.TradeDate;
             row["investment_at_cost"] = this.InvestmentAtCost;
+            row["fx_rate"] = this.FxRate;
         }
     }
 

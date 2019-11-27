@@ -27,7 +27,8 @@ order by [when], s.BbergCode, Fund, fx_currency
 select 
 coalesce(p.BusDate, b.BusDate) as BusDate, 
 coalesce(p.SecurityCode, b.SecurityCode) as Symbol, 
-coalesce(p.Fund, b.Fund), coalesce(p.Currency, b.Currency) as Currency,
+coalesce(p.Fund, b.Fund), 
+coalesce(p.Currency, b.Currency) as Currency,
 coalesce(b.DayPnl,0) - coalesce(p.DayPnl,0) as Diff_DayPnl, 
 'BookMon -->' as BookMon, 
 b.*, 
@@ -36,7 +37,7 @@ p.*
 from #pa_pnl p
 full outer join #bookmon_pnl b on b.Busdate = p.BusDate and b.SecurityCode = p.SecurityCode and b.Fund = p.fund 
 -- and b.Currency = p.Currency
-order by coalesce(p.DayPnl,0) - coalesce(b.DayPnl,0)
+order by Symbol, p.fund
 
 select * from #pa_pnl
 

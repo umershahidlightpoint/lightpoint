@@ -10,6 +10,7 @@
 	[generated_on] [datetime] NOT NULL,
 	[trade_date] DATETIME NOT NULL DEFAULT getdate(), 
     [investment_at_cost] DECIMAL(18, 6) NOT NULL DEFAULT 0, 
+    [fx_rate] DECIMAL(18, 6) NOT NULL DEFAULT 0, 
     CONSTRAINT [PK_tax_lot_status] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC

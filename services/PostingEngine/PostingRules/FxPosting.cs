@@ -143,7 +143,6 @@ namespace PostingEngine.PostingRules
                 // Get accounts
                 var fromTo = new AccountUtils().GetAccounts(env, "Mark to Market longs fx translation gain or loss", "change in unrealized do to fx translation", new string[] { unsettledPnl.Currency }.ToList());
 
-
                 var debit = new Journal(fromTo.From, "unrealized-cash-fx", env.ValueDate)
                 {
                     Source = unsettledPnl.Source,
@@ -177,9 +176,9 @@ namespace PostingEngine.PostingRules
                     Value = env.SignedValue(fromTo.From, fromTo.To, false, fxCash),
                     CreditDebit = env.DebitOrCredit(fromTo.To, fxCash),
                 };
-
-
                 env.Journals.AddRange(new List<Journal>(new[] { debit, credit }));
+
+
             }
 
             connection.Close();

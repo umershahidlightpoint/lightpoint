@@ -425,7 +425,13 @@ namespace PostingEngine
             }
             else if (calculation.Equals("PullFromBookmon"))
             {
-                PullFromBookmon();
+                try
+                {
+                    PullFromBookmon();
+                } catch ( Exception ex )
+                {
+                    Console.WriteLine(ex);
+                }
             }
             else if ( calculation.Equals("SettledCashBalances"))
             {
