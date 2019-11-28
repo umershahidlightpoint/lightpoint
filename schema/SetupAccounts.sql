@@ -72,6 +72,7 @@ insert into Account_type (account_category_id, name) values (4, 'fx gain or loss
 insert into Account_type (account_category_id, name) values (4, 'fx gain or loss in revenue')
 insert into Account_type (account_category_id, name) values (4, 'fx gain or loss on settled balance')
 insert into Account_type (account_category_id, name) values (4, 'change in unrealized do to fx translation')
+insert into Account_type (account_category_id, name) values (4, 'REALIZED GAIN/(LOSS) DUE TO FX')
 
 -- DONE
 
