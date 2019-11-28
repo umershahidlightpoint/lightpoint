@@ -1,0 +1,25 @@
+<!----- Hide Grid Div Starts ----->
+<div *ngIf="hideGrid" [ngStyle]="containerDiv">
+    <div class="d-flex align-items-center justify-content-center">
+        <h1> Posting Engine is Running. Please Wait. </h1>
+    </div>
+</div>
+<!----- Hide Grid Div Ends ----->
+
+<!----- Div Starts ----->
+<div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
+    <p-tabView [ngStyle]="style">
+        <!-- Journal Tab Starts -->
+        <p-tabPanel header="Journals">
+            <app-journals-ledgers> </app-journals-ledgers>
+        </p-tabPanel>
+        <!-- Journal Tab Ends -->
+
+        <!-- Journal Tab Starts -->
+        <p-tabPanel header="Server Side Journals">
+            <app-journals-server-side> </app-journals-server-side>
+        </p-tabPanel>
+        <!-- Journal Tab Ends -->
+    </p-tabView>
+</div>
+<!-- Div Ends -->

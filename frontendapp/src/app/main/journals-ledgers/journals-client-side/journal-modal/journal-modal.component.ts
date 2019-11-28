@@ -4,16 +4,16 @@ import {
   OnInit,
   ViewChild,
   Output,
-  EventEmitter,
+  EventEmitter
 } from '@angular/core';
 import { ModalDirective } from 'ngx-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 /* Services/Components */
-import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
-import { Account, Fund } from '../../../../shared/Models/account';
-import { Journal } from '../../../../shared/Models/journal';
+import { FinanceServiceProxy } from '../../../../../shared/service-proxies/service-proxies';
+import { Account, Fund } from '../../../../../shared/Models/account';
+import { Journal } from '../../../../../shared/Models/journal';
 
 @Component({
   selector: 'app-journal-modal',

@@ -81,11 +81,9 @@ import { TaxRatesComponent } from './main/fund-theoretical/tax-rates/tax-rates.c
 // Summary
 import { SummaryComponent } from './main/summary/summary.component';
 import { JournalsSummaryComponent } from './main/summary/journals-summary/journals-summary.component';
-import { JournalsSummayDetailComponent} from './main/summary/journals-summay-detail/journals-summay-detail.component';
+import { JournalsSummayDetailComponent } from './main/summary/journals-summay-detail/journals-summay-detail.component';
 
 // Journals Ledger
-import { JournalsLedgersComponent } from './main/journals-ledgers/journals-ledgers.component';
-import { JournalModalComponent } from './main/journals-ledgers/journal-modal/journal-modal.component';
 import { AccountComponent } from './main/accounts/account.component';
 import { CreateAccountComponent } from './main/accounts/create-account/create-account.component';
 
@@ -134,6 +132,10 @@ import { PerformanceCanDeactivateGuard } from '../shared/guards/performance-can-
 import { DataGridModalComponent } from '../shared/Component/data-grid-modal/data-grid-modal.component';
 import { TaxRateModalComponent } from './main/fund-theoretical/tax-rates/tax-rate-modal/tax-rate-modal.component';
 import { DatePickerModalComponent } from '../shared/Component/date-picker-modal/date-picker-modal.component';
+import { JournalsServerSideComponent } from './main/journals-ledgers/journals-server-side/journals-server-side.component';
+import { JournalModalComponent } from './main/journals-ledgers/journals-client-side/journal-modal/journal-modal.component';
+import { JournalsLayoutComponent } from './main/journals-ledgers/journals-layout.component';
+import { JournalsLedgersComponent } from './main/journals-ledgers/journals-client-side/journals-ledgers.component';
 
 @NgModule({
   declarations: [
@@ -200,7 +202,9 @@ import { DatePickerModalComponent } from '../shared/Component/date-picker-modal/
     GridUtilsComponent,
     DataGridModalComponent,
     TaxRateModalComponent,
-    DatePickerModalComponent
+    DatePickerModalComponent,
+    JournalsServerSideComponent,
+    JournalsLayoutComponent
   ],
   imports: [
     BrowserModule,

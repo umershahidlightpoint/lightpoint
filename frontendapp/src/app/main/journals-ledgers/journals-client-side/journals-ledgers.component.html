@@ -1,0 +1,104 @@
+<!----- Hide Grid Div Starts ----->
+<div *ngIf="hideGrid" [ngStyle]="containerDiv">
+  <div class="d-flex align-items-center justify-content-center">
+    <h1> Posting Engine is Running. Please Wait. </h1>
+  </div>
+</div>
+<!----- Hide Grid Div Ends ----->
+
+<!----- Div Starts ----->
+<div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
+  <div class="row ">
+    <!-- Funds Dropdown Div Starts -->
+    <div class="col-md-2">
+      <select class="form-control" [(ngModel)]="fund" (ngModelChange)="ngModelChangeFund($event)">
+        <option selected>All Funds</option>
+        <option *ngFor="let f of funds" [ngValue]="f.FundCode">
+          {{ f.FundCode }}
+        </option>
+      </select>
+    </div>
+    <!-- Funds Dropdown Div Ends -->
+
+    <!-- Symbol filter -->
+    <div class="col-md-2">
+      <form>
+        <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol" [(ngModel)]="filterBySymbol"
+          (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" />
+      </form>
+    </div>
+    <!-- Funds Dropdown Div Ends -->
+
+    <!-- Date Range Label Div Starts -->
+    <div>
+      <label class="text-right"> {{ DateRangeLabel }} </label>
+    </div>
+    <!-- Date Range Label Div Ends -->
+
+    <!-- Date Picker Div Starts -->
+    <div class="col-md-5">
+      <form>
+        <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off" placeholder="Choose date"
+          [(ngModel)]="selected" name="selectedDaterange" [ranges]="ranges" [showClearButton]="true"
+          [alwaysShowCalendars]="true" (ngModelChange)="ngModelChange($event)" [keepCalendarOpeningWithRange]="true" />
+      </form>
+    </div>
+    <!-- Date Picker Div Ends -->
+
+    <!-- Clear Button  Div Starts -->
+    <div class="mr-auto">
+      <button (click)="clearFilters()" class="btn btn-info" tooltip="Clear" placement="top">
+        <i class="fa fa-remove"></i>
+      </button>
+    </div>
+    <!-- Clear Button  Div Ends -->
+
+    <!-- Buttons Div Starts -->
+    <div class="ml-auto mr-3">
+      <!-- Loading Spinner -->
+      <div *ngIf="isDataStreaming" class="d-flex">
+        <div class="pt-1 pr-2 font-weight-500">Streaming Data</div>
+        <div class="spinner-border text-info" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+      <!-- Loading Spinner Ends -->
+
+      <div *ngIf="!isDataStreaming">
+        <!-- Grid Util Actions -->
+        <app-grid-utils class="mr-4" [gridOptions]="gridOptions" (refresh)="refreshGrid()" [excelParams]="excelParams">
+        </app-grid-utils>
+        <!-- Grid Util Actions Ends -->
+
+        <!-- Create Journal Button -->
+        <div class="d-inline-block add-journal-btn">
+          <button class="btn btn-info" type="button" (click)="openJournalModal()" tooltip="Create Journal"
+            placement="top">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Buttons Div Ends -->
+  </div>
+
+  <div class="clearfix"></div>
+  <!-- Journals Div Starts -->
+  <div #divToMeasureJournal>
+    <div [ngStyle]="styleForHeight">
+      <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions">
+      </ag-grid-angular>
+    </div>
+  </div>
+  <!-- Journals Div Endss -->
+</div>
+<!-- Div Ends -->
+
+<app-journal-modal #journalModal (modalClose)="closeJournalModal()">
+</app-journal-modal>
+
+<app-data-modal #dataModal (modalClose)="closeOrderModal()" [orderId]="orderId" [title]="'Order Detail'">
+</app-data-modal>
+
+<app-report-modal #reportModal [title]="'Report'" [tableHeader]="tableHeader">
+</app-report-modal>
