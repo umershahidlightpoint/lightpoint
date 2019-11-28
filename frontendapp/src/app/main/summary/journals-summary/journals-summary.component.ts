@@ -123,6 +123,7 @@ export class JournalsSummaryComponent implements OnInit {
   }
 
   getJournalsSummary(gridLayout: any) {
+    debugger
     this.financeService.getJournalSummary(gridLayout.ColumnState).subscribe(
       response => {
         if (response.isSuccessful) {

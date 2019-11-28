@@ -4,10 +4,10 @@
 
 export const environment = {
   production: false,
-  remoteServerUrl: 'http://dev11:3000/finance',
-  referenceDataUrl: 'http://dev11:3000/refdata'
-  //remoteServerUrl: 'http://localhost:9092/api',
-  //referenceDataUrl: 'http://localhost:3000/refdata'
+  //remoteServerUrl: 'http://dev11:3000/finance',
+  //referenceDataUrl: 'http://dev11:3000/refdata'
+  remoteServerUrl: 'http://dev11:9092/api',
+  referenceDataUrl: 'http://dev11:9091/api'
 };
 
 /*
