@@ -27,7 +27,8 @@ import { GraphObject } from 'src/shared/Models/graph-object';
 })
 export class FxRatesComponent implements OnInit {
   @ViewChild('fileInput', { static: false }) fileInput: ElementRef;
-  @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
+  @ViewChild('dataGridModal', { static: false })
+  dataGridModal: DataGridModalComponent;
   title: string;
   gridData: any;
   totalGridRows: number;
@@ -105,7 +106,7 @@ export class FxRatesComponent implements OnInit {
     this.disableCommit = true;
     this.fxratesApiService.getFxRatesData().subscribe(response => {
       if (response.isSuccessful) {
-        let data = response.payload.sort((x, y) => {
+        const data = response.payload.sort((x, y) => {
           return (
             new Date(y.BusinessDate).getTime() -
             new Date(x.BusinessDate).getTime()
@@ -146,12 +147,8 @@ export class FxRatesComponent implements OnInit {
       singleClickEdit: true,
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
-      // enableCellChangeFlash: true,
-      // deltaRowDataMode: true,
       animateRows: true,
       onGridReady: params => {
-        //this.fxRate.api = params.api;
-        // AutoSizeAllColumns(params);
         params.api.sizeColumnsToFit();
       },
       onFirstDataRendered: params => {},
@@ -180,7 +177,6 @@ export class FxRatesComponent implements OnInit {
   initCols() {
     const colDefs = this.getColDefs();
     this.fxRate.api.setColumnDefs(colDefs);
-    // this.fxRate.api.sizeColumnsToFit();
   }
 
   doesExternalFilterPass(node) {
@@ -325,12 +321,6 @@ export class FxRatesComponent implements OnInit {
       }
     ];
   }
-  // BusinessDate: "2018-12-31T00:00:00"
-  // Event: "upload"
-  // Id: 1
-  // LastUpdatedBy: "webservice"
-  // LastUpdatedOn: "2019-11-19T15:05:13.397"
-  // Price: 16.37
 
   expandedClicked() {
     this.isExpanded = !this.isExpanded;
@@ -343,17 +333,17 @@ export class FxRatesComponent implements OnInit {
   }
 
   private refreshGraph() {
-    let data = {};
+    const data = {};
     let toDate;
     let fromDate;
-    let column = 'price';
+    const column = 'price';
     data[this.selectedYAxis] = [];
     if (this.vRange != 0) {
       toDate = moment(this.selectedXAxis);
       fromDate = moment(this.selectedXAxis).subtract(this.vRange, 'days');
     }
     this.fxRate.api.forEachNodeAfterFilter((rowNode, index) => {
-      let currentDate = moment(rowNode.data.businessDate);
+      const currentDate = moment(rowNode.data.businessDate);
       if (this.vRange != 0) {
         if (
           rowNode.data.symbol === this.selectedYAxis &&
@@ -374,6 +364,7 @@ export class FxRatesComponent implements OnInit {
         }
       }
     });
+
     this.graphObject = {
       xAxisLabel: 'Date',
       yAxisLabel: 'Symbol',
@@ -388,7 +379,7 @@ export class FxRatesComponent implements OnInit {
   }
 
   visualizeData() {
-    let data = {};
+    const data = {};
     let toDate;
     let fromDate;
     const focusedCell = this.fxRate.api.getFocusedCell();
@@ -406,7 +397,7 @@ export class FxRatesComponent implements OnInit {
     this.selectedXAxis = toDate;
     this.selectedYAxis = selectedSymbol;
     this.fxRate.api.forEachNodeAfterFilter((rowNode, index) => {
-      let currentDate = moment(rowNode.data.businessDate);
+      const currentDate = moment(rowNode.data.businessDate);
       if (this.vRange != 0) {
         if (
           rowNode.data.symbol === selectedSymbol &&
@@ -470,7 +461,6 @@ export class FxRatesComponent implements OnInit {
   }
 
   uploadData() {
-    let rowNodeId = 1;
     this.uploadLoader = true;
     this.fxratesApiService
       .uploadFxData(this.fileToUpload)

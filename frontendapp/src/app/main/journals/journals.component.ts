@@ -9,13 +9,7 @@ import { FinanceServiceProxy } from '../../../shared/service-proxies/service-pro
 import { GridOptions } from 'ag-grid-community';
 import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
 import { DataService } from 'src/shared/common/data.service';
-import {
-  SideBar,
-  AutoSizeAllColumns,
-  FormatNumber4,
-  CommaSeparatedFormat
-} from 'src/shared/utils/Shared';
-import { PostingEngineService } from 'src/shared/common/posting-engine.service';
+import { SideBar, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataDictionary } from 'src/shared/utils/DataDictionary';
@@ -29,7 +23,7 @@ import { Observable } from 'rxjs';
 })
 export class JournalsComponent implements OnInit, OnChanges {
   @Input() subscription: Observable<string>;
-  @Input() title: string = 'Journals';
+  @Input() title = 'Journals';
 
   public journalsGridOptions: GridOptions;
   public journalsData: [];
@@ -81,18 +75,13 @@ export class JournalsComponent implements OnInit, OnChanges {
     this.journalsGridOptions = {
       rowData: [],
       columnDefs: this.columnDefs,
-      //onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       getExternalFilterState: () => {
         return {};
       },
-      onGridReady: () => {
-        // this.gridOptions.api.sizeColumnsToFit();
-      },
+      onGridReady: () => {},
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
-
-        // params.api.sizeColumnsToFit();
       },
       suppressColumnVirtualisation: true,
       enableFilter: true,
@@ -115,7 +104,7 @@ export class JournalsComponent implements OnInit, OnChanges {
         this.journalsTradesData.meta.Columns
       );
 
-      let columnDefs = [
+      const columnDefs = [
         this.dataDictionary.column('when', false),
         this.dataDictionary.column('event', false),
         this.dataDictionary.column('debit', false),
@@ -183,22 +172,4 @@ export class JournalsComponent implements OnInit, OnChanges {
       this.journalsData = someArray as [];
     });
   }
-}
-
-function priceFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  return FormatNumber4(params.value);
-}
-
-function valueFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  if (params.value === 0.0) {
-    return;
-  }
-
-  return CommaSeparatedFormat(params.value);
 }

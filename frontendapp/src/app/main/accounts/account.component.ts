@@ -83,43 +83,32 @@ export class AccountComponent implements OnInit, AfterViewInit {
       {
         headerName: 'Account Id',
         field: 'accountId',
-        resizable: true,
         hide: true
       },
       {
         headerName: 'Name',
         field: 'accountName',
-        resizable: true,
-        sortable: true,
         filter: true
       },
       {
         headerName: 'Description',
         field: 'description',
-        resizable: true,
-        sortable: true,
         filter: true
       },
       { headerName: 'Category Id', field: 'categoryId', hide: true },
       {
         headerName: 'Category',
         field: 'category',
-        resizable: true,
-        sortable: true,
         filter: true
       },
       {
         headerName: 'Has Journal',
         field: 'hasJournal',
-        resizable: true,
-        sortable: true,
         filter: true
       },
       {
         headerName: 'Account Type',
         field: 'type',
-        resizable: true,
-        sortable: true,
         filter: true
       },
       { headerName: 'CanDeleted', field: 'canDeleted', hide: true },
@@ -129,7 +118,8 @@ export class AccountComponent implements OnInit, AfterViewInit {
         cellRendererFramework: TemplateRendererComponent,
         cellRendererParams: {
           ngTemplate: this.actionButtons
-        }
+        },
+        filter: false
       }
     ]);
   }
@@ -157,6 +147,11 @@ export class AccountComponent implements OnInit, AfterViewInit {
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
         params.api.sizeColumnsToFit();
+      },
+      defaultColDef: {
+        sortable: true,
+        resizable: true,
+        filter: true
       }
     } as GridOptions;
     this.gridOptions.sideBar = SideBar(

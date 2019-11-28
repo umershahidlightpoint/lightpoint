@@ -12,19 +12,18 @@ import * as moment from 'moment';
 export class LogsComponent implements OnInit {
   public gridOptions: GridOptions;
   public rowData: [];
-  private defaultColDef;
 
   bottomOptions = { alignedGrids: [] };
   selected: { startDate: moment.Moment; endDate: moment.Moment };
   startDate: any;
   endDate: any;
-  symbol: string;
-  pageSize: any;
   accountSearch = { id: undefined };
+  symbol: string;
+  sortColum: string;
+  sortDirection: string;
   valueFilter: number;
-  sortColum: any;
-  sortDirection: any;
-  page: any;
+  pageSize: number;
+  page: number;
 
   style = Style;
 
@@ -74,15 +73,15 @@ export class LogsComponent implements OnInit {
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
-      suppressHorizontalScroll: true
+      suppressHorizontalScroll: true,
+      defaultColDef: {
+        sortable: true,
+        resizable: true
+      }
     } as GridOptions;
   }
 
   ngOnInit() {
-    this.defaultColDef = {
-      sortable: true,
-      resizable: true
-    };
     // align scroll of grid and footer grid
     this.gridOptions.alignedGrids.push(this.bottomOptions);
     this.bottomOptions.alignedGrids.push(this.gridOptions);

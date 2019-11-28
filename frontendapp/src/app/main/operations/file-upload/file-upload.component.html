@@ -1,5 +1,6 @@
 <!-- File Upload Container -->
 <div class="row mt-2">
+
   <!-- File Type Dropdown Div -->
   <div class="col-3">
     <select class="form-control" [(ngModel)]="fileType" (ngModelChange)="changeFileType($event)">
@@ -10,6 +11,7 @@
     </select>
   </div>
   <!-- File Type Dropdown Div Ends -->
+
   <!-- File Upload Input Div -->
   <div class="col-9">
     <input #fileInput class="btn btn-info mr-2 file-input" type="file" (change)="onFileInput($event.target.files)">
@@ -19,6 +21,7 @@
     </button>
   </div>
   <!-- File Upload Input Div Ends -->
+
 </div>
 <!-- File Upload Container Ends -->
 

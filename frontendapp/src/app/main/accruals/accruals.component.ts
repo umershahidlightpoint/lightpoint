@@ -34,12 +34,12 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
   public allocationsData: [];
 
   bottomOptions = { alignedGrids: [] };
-  pageSize: any;
   accountSearch = { id: undefined };
+  sortColum: string;
+  sortDirection: string;
   valueFilter: number;
-  sortColum: any;
-  sortDirection: any;
-  page: any;
+  pageSize: number;
+  page: number;
   orderId: number;
   columnDefs = [];
   title = '';
@@ -167,7 +167,8 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
       animateRows: true,
       alignedGrids: [],
       suppressHorizontalScroll: false,
-      suppressColumnVirtualisation: true
+      suppressColumnVirtualisation: true,
+      defaultColDef: this.defaultColDef
     } as GridOptions;
     this.gridOptions.sideBar = SideBar(
       GridId.accrualsId,
@@ -196,7 +197,8 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
       animateRows: true,
       alignedGrids: [],
       suppressHorizontalScroll: false,
-      suppressColumnVirtualisation: true
+      suppressColumnVirtualisation: true,
+      defaultColDef: this.defaultColDef
     } as GridOptions;
     this.allocationsGridOptions.sideBar = SideBar(
       GridId.selectedAccrualsId,

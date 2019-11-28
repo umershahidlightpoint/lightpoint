@@ -190,8 +190,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       this.ignoreFields,
       true
     );
-    // console.log('Columns', columns);
-    // console.log('Col Defs', cdefs);
     this.gridOptions.api.setColumnDefs(cdefs);
   }
 
