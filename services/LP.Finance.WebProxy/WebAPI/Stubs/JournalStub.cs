@@ -84,5 +84,10 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
         {
             throw new NotImplementedException();
         }
+
+        public object GetJournalsMetaData(JournalMetaInputDto obj)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

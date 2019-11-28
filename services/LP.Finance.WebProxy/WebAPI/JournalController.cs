@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Web.Http;
 using LP.Finance.Common.Dtos;
 using LP.Finance.WebProxy.WebAPI.Services;
 using LP.Finance.Common.Cache;
-using System.Collections.Generic;
 using LP.Finance.Common.Model;
 
 namespace LP.Finance.WebProxy.WebAPI
@@ -86,7 +86,6 @@ namespace LP.Finance.WebProxy.WebAPI
         }
 
 
-        
         [Route("trialBalanceTile")]
         [HttpGet]
         public object TrialBalanceTile(DateTime? from = null, DateTime? to = null, string fund = "ALL")
@@ -101,13 +100,13 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.GetJournal(source);
         }
 
-        //[HttpPost]
-        //public object AddJournal(JournalInputDto journal)
-        //{
-        //    return !ModelState.IsValid || journal == null
-        //        ? BadRequest(ModelState)
-        //        : controller.AddJournal(journal);
-        //}
+        [HttpPost]
+        public object AddJournal(JournalInputDto journal)
+        {
+            return !ModelState.IsValid || journal == null
+                ? BadRequest(ModelState)
+                : controller.AddJournal(journal);
+        }
 
         [Route("{source:guid}")]
         [HttpPut]
@@ -131,6 +130,12 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return controller.serverSideJournals(obj);
         }
-        
+
+        [Route("metaData")]
+        [HttpPost]
+        public object GetJournalsMetaData(JournalMetaInputDto obj)
+        {
+            return controller.GetJournalsMetaData(obj);
+        }
     }
 }

@@ -11,6 +11,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using LP.Finance.Common.Model;
 
 namespace LP.Finance.Common
 {
@@ -42,7 +43,7 @@ namespace LP.Finance.Common
     {
         public int Total { get; set; }
         public int TotalRecords { get; set; }
-
+        public List<FilterValues> Filters { get; set; }
         public List<ColumnDef> Columns { get; set; }
 
         /// <summary>
@@ -512,7 +513,7 @@ namespace LP.Finance.Common
                     // Copy Data to the Row
                     foreach (var prop in properties)
                     {
-                        if ( !skipColumns.Contains(prop.Name))
+                        if (!skipColumns.Contains(prop.Name))
                             dataRow[prop.Name] = prop.GetValue(found);
                     }
                 }

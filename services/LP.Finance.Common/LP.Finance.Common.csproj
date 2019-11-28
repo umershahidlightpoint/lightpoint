@@ -57,6 +57,7 @@
     <Compile Include="Calculators\DailyPnlCalculator.cs" />
     <Compile Include="CustomValidators\MinimumElementsAttribute.cs" />
     <Compile Include="DateFunctions.cs" />
+    <Compile Include="Dtos\JournalMetaInputDto.cs" />
     <Compile Include="Dtos\GridLayoutDto.cs" />
     <Compile Include="Dtos\JournalGridFilters.cs" />
     <Compile Include="Dtos\JournalGridMain.cs" />
@@ -85,6 +86,7 @@
     <Compile Include="Dtos\AccountTagInputDto.cs" />
     <Compile Include="Dtos\TrialBalanceReportOutPutDto.cs" />
     <Compile Include="Dtos\TrialBalanceTileOutputDto.cs" />
+    <Compile Include="Model\FilterValues.cs" />
     <Compile Include="Model\GraphQLQuery.cs" />
     <Compile Include="Mappers\EntityMapper.cs" />
     <Compile Include="Mappers\IEntityMapper.cs" />

@@ -464,7 +464,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 return returnResult;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
@@ -515,7 +515,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
                 return reportObject;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
@@ -533,9 +533,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
 
                 List<SqlParameter> sqlParams = new List<SqlParameter>
-            {
-                new SqlParameter("symbol", symbol)
-            };
+                {
+                    new SqlParameter("symbol", symbol)
+                };
 
                 var query = $@"SELECT business_date AS Date, 
                         Balance, 
@@ -553,7 +553,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
                 return reportObject;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
@@ -606,7 +606,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
                 return reportObject;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Utils.Wrap(true, null, HttpStatusCode.InternalServerError);
             }
@@ -631,7 +631,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
                 return reportObject;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
@@ -719,7 +719,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 foreach (DataRow row in dataTable.Rows)
                 {
                     TrialBalanceReportOutPutDto trialBalance = new TrialBalanceReportOutPutDto();
-                    trialBalance.AccountName = (string)row["AccountName"];
+                    trialBalance.AccountName = (string) row["AccountName"];
                     trialBalance.Credit = GetDecimal(row["Credit"]);
                     trialBalance.Debit = GetDecimal(row["Debit"]);
                     trialBalance.Balance = GetDecimal(row["Balance"], false);
@@ -743,7 +743,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 return Utils.Wrap(true, trialBalanceReport, HttpStatusCode.OK, null, null, stats);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
@@ -914,7 +914,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
 
-                var query = $@"select *, (cost_basis - trade_price)*quantity as realized_pnl from tax_lot where open_lot_id='{orderid}'";
+                var query =
+                    $@"select *, (cost_basis - trade_price)*quantity as realized_pnl from tax_lot where open_lot_id='{orderid}'";
 
                 List<SqlParameter> sqlParams = new List<SqlParameter>();
 
@@ -922,7 +923,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
                 return reportObject;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
@@ -1026,7 +1027,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 {
                     query = $@"select * from vwJournal";
                 }
-                else if(obj.rowGroupCols.Count > 0 && obj.groupKeys.Count == 0)
+                else if (obj.rowGroupCols.Count > 0 && obj.groupKeys.Count == 0)
                 {
                     query = $@"select 
                         {obj.rowGroupCols[0].id},
@@ -1050,7 +1051,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 {
                     query = query + " ORDER BY [id] desc";
                 }
-                else if(obj.rowGroupCols.Count > 0 && obj.groupKeys.Count == 0)
+                else if (obj.rowGroupCols.Count > 0 && obj.groupKeys.Count == 0)
                 {
                     query = query + $" ORDER BY {obj.rowGroupCols[0].id} desc";
                 }
@@ -1071,8 +1072,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
 
-
-             
 
                 //foreach (var element in dataTable.Rows)
                 //{
@@ -1104,6 +1103,58 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             catch (Exception ex)
             {
                 return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public object GetJournalsMetaData(JournalMetaInputDto obj)
+        {
+            try
+            {
+                SqlHelper sqlHelper = new SqlHelper(connectionString);
+                var filtersQueries = new List<string>();
+
+                var columnsQuery = $@"SELECT TOP 0 * FROM {obj.TableName}";
+
+                var dataTable = sqlHelper.GetDataTable(columnsQuery, CommandType.Text);
+
+                var meta = MetaData.ToMetaData(dataTable);
+
+                if (obj.Filters.Count > 1)
+                {
+                    for (var i = 0; i < obj.Filters.Count; i++)
+                    {
+                        filtersQueries.Insert(i, $@"SELECT DISTINCT t.{obj.Filters[i]} FROM {obj.TableName} t");
+                    }
+                }
+                filtersQueries.Add($@"SELECT DISTINCT {obj.Filters.FirstOrDefault()} FROM {obj.TableName}");
+
+                meta.Filters = new List<FilterValues>();
+                for (var i = 0; i < obj.Filters.Count; i++)
+                {
+                    List<object> filterValues;
+                    using (var reader =
+                        sqlHelper.GetDataReader(filtersQueries[i], CommandType.Text, null,
+                            out var sqlConnection))
+                    {
+                        filterValues = new List<object>();
+                        while (reader.Read())
+                        {
+                            filterValues.Add(reader[obj.Filters[i]]);
+                        }
+
+                        reader.Close();
+                        sqlConnection.Close();
+                    }
+
+                    meta.Filters.Insert(i, new FilterValues() {ColumnName = obj.Filters[i], Values = filterValues});
+                }
+
+                return Utils.Wrap(true, meta, HttpStatusCode.OK);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
             }
         }
     }
