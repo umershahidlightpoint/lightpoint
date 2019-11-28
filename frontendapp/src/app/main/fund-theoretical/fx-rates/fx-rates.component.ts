@@ -346,7 +346,7 @@ export class FxRatesComponent implements OnInit {
       const currentDate = moment(rowNode.data.businessDate);
       if (this.vRange != 0) {
         if (
-          rowNode.data.symbol === this.selectedYAxis &&
+          rowNode.data.currency === this.selectedYAxis &&
           currentDate.isSameOrAfter(fromDate) &&
           currentDate.isSameOrBefore(toDate)
         ) {
@@ -356,7 +356,7 @@ export class FxRatesComponent implements OnInit {
           });
         }
       } else {
-        if (rowNode.data.symbol === this.selectedYAxis) {
+        if (rowNode.data.currency === this.selectedYAxis) {
           data[this.selectedYAxis].push({
             date: rowNode.data.businessDate,
             value: rowNode.data[column]
@@ -367,7 +367,7 @@ export class FxRatesComponent implements OnInit {
 
     this.graphObject = {
       xAxisLabel: 'Date',
-      yAxisLabel: 'Symbol',
+      yAxisLabel: 'currency',
       lineColors: ['#ff6960', '#00bd9a'],
       height: 410,
       width: '95%',
@@ -387,31 +387,31 @@ export class FxRatesComponent implements OnInit {
       focusedCell.rowIndex
     ).data;
     const column = 'price';
-    const selectedSymbol = selectedRow.symbol;
-    data[selectedSymbol] = [];
+    const selectedCurrency = selectedRow.currency;
+    data[selectedCurrency] = [];
     if (this.vRange != 0) {
       toDate = moment(selectedRow.businessDate);
       fromDate = moment(selectedRow.businessDate).subtract(this.vRange, 'days');
     }
 
     this.selectedXAxis = toDate;
-    this.selectedYAxis = selectedSymbol;
+    this.selectedYAxis = selectedCurrency;
     this.fxRate.api.forEachNodeAfterFilter((rowNode, index) => {
       const currentDate = moment(rowNode.data.businessDate);
       if (this.vRange != 0) {
         if (
-          rowNode.data.symbol === selectedSymbol &&
+          rowNode.data.currency === selectedCurrency &&
           currentDate.isSameOrAfter(fromDate) &&
           currentDate.isSameOrBefore(toDate)
         ) {
-          data[selectedSymbol].push({
+          data[selectedCurrency].push({
             date: rowNode.data.businessDate,
             value: rowNode.data[column]
           });
         }
       } else {
-        if (rowNode.data.symbol === selectedSymbol) {
-          data[selectedSymbol].push({
+        if (rowNode.data.currency === selectedCurrency) {
+          data[selectedCurrency].push({
             date: rowNode.data.businessDate,
             value: rowNode.data[column]
           });
@@ -421,11 +421,11 @@ export class FxRatesComponent implements OnInit {
 
     this.graphObject = {
       xAxisLabel: 'Date',
-      yAxisLabel: 'Symbol',
+      yAxisLabel: 'Price',
       lineColors: ['#ff6960', '#00bd9a'],
       height: 410,
       width: '95%',
-      chartTitle: selectedSymbol,
+      chartTitle: selectedCurrency,
       propId: 'lineFxPrice',
       graphData: data,
       dateTimeFormat: 'YYYY-MM-DD'
