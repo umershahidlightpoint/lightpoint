@@ -1023,54 +1023,59 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 string grouping = "";
                 string query;
 
-                if (obj.rowGroupCols.Count == 0)
-                {
-                    query = $@"select * from vwJournal";
-                }
-                else if (obj.rowGroupCols.Count > 0 && obj.groupKeys.Count == 0)
-                {
-                    query = $@"select 
-                        {obj.rowGroupCols[0].id},
-                        count(*) as groupCount,
-						sum(debit) as debitSum,
-                        sum(credit) as creditSum,
-                        sum(abs(debit)) - sum(abs(credit)) as balance
-                        from vwJournal group by {obj.rowGroupCols[0].id}";
-                }
-                else
-                {
-                    query = $@"select * from vwJournal where {obj.rowGroupCols[0].id} = '{obj.groupKeys[0]}'";
-                }
+                var sql = Utils.BuildSql(obj, "vwjournal");
 
-                List<SqlParameter> sqlParams = new List<SqlParameter>();
-                sqlParams.Add(new SqlParameter("pageNumber", obj.pageNumber));
-                sqlParams.Add(new SqlParameter("pageSize", obj.pageSize));
+      //          if (obj.rowGroupCols.Count == 0)
+      //          {
+      //              query = $@"select * from vwJournal";
+      //          }
+      //          else if(obj.rowGroupCols.Count > 0 && obj.groupKeys.Count == 0)
+      //          {
+      //              query = $@"select 
+      //                  {obj.rowGroupCols[0].id},
+      //                  count(*) as groupCount,
+      //sum(debit) as debitSum,
+      //                  sum(credit) as creditSum,
+      //                  sum(abs(debit)) - sum(abs(credit)) as balance
+      //                  from vwJournal group by {obj.rowGroupCols[0].id}";
+      //          }
+      //          else
+      //          {
+      //              query = $@"select * from vwJournal where {obj.rowGroupCols[0].id} = '{obj.groupKeys[0]}'";
+      //          }
 
-
-                if (obj.rowGroupCols.Count == 0)
-                {
-                    query = query + " ORDER BY [id] desc";
-                }
-                else if (obj.rowGroupCols.Count > 0 && obj.groupKeys.Count == 0)
-                {
-                    query = query + $" ORDER BY {obj.rowGroupCols[0].id} desc";
-                }
-                else
-                {
-                    query = query + $" ORDER BY {obj.rowGroupCols[0].id} desc";
-                }
-
-                if (obj.pageSize > 0)
-                {
-                    query = query + " OFFSET(@pageNumber -1) * @pageSize ROWS FETCH NEXT @pageSize  ROWS ONLY";
-                }
+                //          List<SqlParameter> sqlParams = new List<SqlParameter>();
+                //          sqlParams.Add(new SqlParameter("pageNumber", obj.pageNumber));
+                //          sqlParams.Add(new SqlParameter("pageSize", obj.pageSize));
 
 
-                Console.WriteLine("===");
-                Console.WriteLine(query);
-                Console.WriteLine("===");
+                //          if (obj.rowGroupCols.Count == 0)
+                //          {
+                //              query = query + " ORDER BY [id] desc";
+                //          }
+                //          else if(obj.rowGroupCols.Count > 0 && obj.groupKeys.Count == 0)
+                //          {
+                //              query = query + $" ORDER BY {obj.rowGroupCols[0].id} desc";
+                //          }
+                //          else
+                //          {
+                //              query = query + $" ORDER BY {obj.rowGroupCols[0].id} desc";
+                //          }
 
-                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+                //          if (obj.pageSize > 0)
+                //          {
+                //              query = query + " OFFSET(@pageNumber -1) * @pageSize ROWS FETCH NEXT @pageSize  ROWS ONLY";
+                //          }
+
+
+                //Console.WriteLine("===");
+                //Console.WriteLine(query);
+                //Console.WriteLine("===");
+
+                var dataTable = sqlHelper.GetDataTable(sql.Item1, CommandType.Text, sql.Item2.ToArray());
+                int? lastRow = Utils.GetRowCount(obj, dataTable);
+
+
 
 
                 //foreach (var element in dataTable.Rows)
@@ -1089,7 +1094,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 //journalStats.totalDebit = dataTable.Rows.Count > 0
                 //    ? Math.Abs(Convert.ToDouble(dataTable.Rows[0]["totalCredit"]))
                 //    : 0;
-
+                metaData.LastRow = lastRow;
                 journalStats.totalCredit = 0;
                 journalStats.totalDebit = 0;
 
