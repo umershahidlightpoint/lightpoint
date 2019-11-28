@@ -131,7 +131,8 @@ export class TradesComponent implements OnInit, AfterViewInit {
         const cdefs = this.agGridUtils.customizeColumns(
           [],
           this.tradesData.meta.Columns,
-          []
+          [],
+          false
         );
         this.gridOptions.api.setColumnDefs(cdefs);
         this.rowData = someArray as [];
@@ -147,7 +148,8 @@ export class TradesComponent implements OnInit, AfterViewInit {
         const cdefs = this.agGridUtils.customizeColumns(
           [],
           this.tradesData.meta.Columns,
-          []
+          [],
+          false
         );
         this.gridOptions.api.setColumnDefs(cdefs);
         this.rowData = someArray as [];

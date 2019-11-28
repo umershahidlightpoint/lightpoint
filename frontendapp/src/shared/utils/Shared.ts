@@ -312,12 +312,13 @@ export const AutoSizeAllColumns = params => {
   }
 };
 
-export const CommonCols = () => {
+export const CommonCols = isJournalGrid => {
   return [
     {
       field: 'id',
       minWidth: 50,
       headerName: 'Id',
+      filter: isJournalGrid ? 'agNumberColumnFilter' : true,
       colId: 'id'
     },
     {
@@ -325,6 +326,7 @@ export const CommonCols = () => {
       minWidth: 300,
       enableRowGroup: true,
       headerName: 'Source',
+      filter: isJournalGrid ? 'agTextColumnFilter' : true,
       colId: 'source'
     },
     {
@@ -332,7 +334,7 @@ export const CommonCols = () => {
       headerName: 'Fund',
       enableRowGroup: true,
       enablePivot: true,
-      filter: true,
+      filter: isJournalGrid ? 'agTextColumnFilter' : true,
       width: 120,
       colId: 'fund'
     },
@@ -343,7 +345,7 @@ export const CommonCols = () => {
       rowGroup: false,
       width: 100,
       enablePivot: true,
-      filter: true,
+      filter: isJournalGrid ? 'agTextColumnFilter' : true,
       colId: 'AccountCategory'
     },
     {
@@ -352,7 +354,7 @@ export const CommonCols = () => {
       enableRowGroup: true,
       width: 200,
       enablePivot: true,
-      filter: true,
+      filter: isJournalGrid ? 'agTextColumnFilter' : true,
       colId: 'AccountType'
     },
     {
@@ -361,7 +363,7 @@ export const CommonCols = () => {
       sortable: true,
       rowGroup: false,
       enableRowGroup: true,
-      filter: true,
+      filter: isJournalGrid ? 'agTextColumnFilter' : true,
       colId: 'accountName'
     },
     {
@@ -369,7 +371,7 @@ export const CommonCols = () => {
       headerName: 'Account Description',
       sortable: true,
       enableRowGroup: true,
-      filter: true,
+      filter: isJournalGrid ? 'agTextColumnFilter' : true,
       colId: 'accountDescription'
     },
     {
@@ -380,7 +382,7 @@ export const CommonCols = () => {
       width: 100,
       enablePivot: true,
       colId: 'when',
-      filter: 'agDateColumnFilter',
+      filter: isJournalGrid ? 'agDateColumnFilter' : true,
       filterParams: {
         comparator(filterLocalDateAtMidnight, cellValue) {
           const dateAsString = cellValue;
@@ -409,9 +411,11 @@ export const CommonCols = () => {
       field: 'debit',
       aggFunc: 'sum',
       headerName: '$Debit',
+      filter: isJournalGrid ? 'agNumberColumnFilter' : true,
       valueFormatter: moneyFormatter,
       width: 100,
       colId: 'debit',
+      type: 'numericColumn',
       cellStyle: { 'text-align': 'right' },
       cellClass: 'twoDecimalPlaces',
       cellClassRules: {
@@ -432,6 +436,7 @@ export const CommonCols = () => {
       valueFormatter: moneyFormatter,
       width: 100,
       colId: 'credit',
+      filter: isJournalGrid ? 'agNumberColumnFilter' : true,
       cellStyle: { 'text-align': 'right' },
       cellClass: 'twoDecimalPlaces',
       cellClassRules: {
@@ -459,6 +464,7 @@ export const CommonCols = () => {
       valueFormatter: moneyFormatter,
       width: 100,
       colId: 'balance',
+      filter: isJournalGrid ? 'agNumberColumnFilter' : true,
       cellStyle: { 'text-align': 'right' },
       cellClass: 'twoDecimalPlaces',
       cellClassRules: {
@@ -494,7 +500,7 @@ export const CommonCols = () => {
       headerName: 'Quantity',
       sortable: true,
       enableRowGroup: true,
-      filter: true,
+      filter: isJournalGrid ? 'agNumberColumnFilter' : true,
       type: 'numericColumn'
     },
 
@@ -504,7 +510,7 @@ export const CommonCols = () => {
       headerName: 'Trade Ccy',
       sortable: true,
       enableRowGroup: true,
-      filter: true,
+      filter: isJournalGrid ? 'agTextColumnFilter' : true,
       colId: 'TradeCurrency'
     },
     {
@@ -512,7 +518,7 @@ export const CommonCols = () => {
       headerName: 'Settle Ccy',
       sortable: true,
       enableRowGroup: true,
-      filter: true,
+      filter: isJournalGrid ? 'agTextColumnFilter' : true,
       width: 100,
       colId: 'SettleCurrency'
     },
@@ -521,7 +527,7 @@ export const CommonCols = () => {
       headerName: 'Symbol',
       sortable: true,
       enableRowGroup: true,
-      filter: true,
+      filter: isJournalGrid ? 'agTextColumnFilter' : true,
       colId: 'Symbol'
     },
     {
@@ -529,7 +535,7 @@ export const CommonCols = () => {
       headerName: 'Side',
       sortable: true,
       enableRowGroup: true,
-      filter: true,
+      filter: isJournalGrid ? 'agTextColumnFilter' : true,
       width: 100,
       colId: 'Side'
     }

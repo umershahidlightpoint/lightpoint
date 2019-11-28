@@ -11,14 +11,13 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
     public class AnalysisService : IAnalysisService
     {
         private static readonly string
-           connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+            connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
         public SqlHelper sqlHelper = new SqlHelper(connectionString);
         private static readonly string allocationsURL = "/api/allocation?period=ITD";
@@ -41,69 +40,37 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 journalStats journalStats = new journalStats();
                 bool whereAdded = false;
                 int index = 0;
+                var totalCountColumn = obj.pageNumber == 1 ? "d.overall_count," : "";
+                var totalCountQuery = obj.pageNumber == 1 ? "overall_count = COUNT(*) OVER()," : "";
 
-                // Depending on type
-                var query = $@"select 
-                        d.debit,
-                        d.credit, 
-                        abs(d.debit) - abs(d.credit) as balance,
-                        d.[id],
-                        d.[account_id],
-                        d.[fund],
-                        d.[symbol] as Symbol,
-                        d.[security_id],
-                        d.AccountCategory,
-                        d.AccountType,
-                        d.accountName,
-                        d.accountDescription,
-                        d.[value],
-                        d.[source],
-                        d.[when],
-                        d.[event],
-                        d.[start_price],
-                        d.[end_price],
-                        d.[fxrate],
-                        d.modifiable
-                        from(
-                            SELECT
-                                    (CASE 
-
-										WHEN [account_category].[name] in ('Asset', 'Expenses') and value < 0  THEN ABS(value) 
-                                        WHEN [account_category].[name] not in ('Asset', 'Expenses') and value > 0  THEN ABS(value) 
-										Else 0
-										END  ) credit,
-                                    (CASE 
-										WHEN [account_category].[name] in ('Asset','Expenses') and value > 0  THEN ABS(value) 
-                                        WHEN [account_category].[name] not in ('Asset','Expenses') and value < 0  THEN ABS(value) 
-										Else 0
-										END  ) debit,
-                                    [journal].[id],
-                                    [account_id],
-                                    [fund],
-                                    [symbol],
-                                    [security_id],
-                                    [account_category].[name] as AccountCategory,  
-                                    [account_type].[name] as AccountType,  
-                                    [account].[name] as accountName,
-                                    [account].[description] as accountDescription,
-                                    [value],
-                                    [source],
-                                    [when],
-                                    [event],
-                                    [start_price],
-                                    [end_price],
-                                    [fxrate],
-                                    (CASE WHEN [journal].[generated_by] = 'user' THEN 'true' else 'false' END  ) modifiable
-                                    FROM [journal] with(nolock) 
-                        join account with(nolock) on [journal]. [account_id] = account.id 
-                        join [account_type] with(nolock) on  [account].account_type_id = [account_type].id
-                        join [account_category] with(nolock) on  [account_type].account_category_id = [account_category].id";
+                var query = $@"select
+                               {totalCountQuery}
+                              debit,
+                              credit, 
+                              abs(debit) - abs(credit) as balance,
+                              [id],
+                              [account_id],
+                              [fund],
+                              [symbol] as Symbol,
+                              [security_id],
+                              AccountCategory,
+                              AccountType,
+                              accountName,
+                              accountDescription,
+                              [value],
+                              [source],
+                              [when],
+                              [event],
+                              [start_price],
+                              [end_price],
+                              [fxrate]
+                              from vwJournal";
 
                 List<SqlParameter> sqlParams = new List<SqlParameter>();
                 sqlParams.Add(new SqlParameter("pageNumber", obj.pageNumber));
                 sqlParams.Add(new SqlParameter("pageSize", obj.pageSize));
 
-                foreach(var item in obj.filters)
+                foreach (var item in obj.filters)
                 {
                     bool orAdded = false;
                     index = 0;
@@ -120,7 +87,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                     foreach (var value in item.data)
                     {
-                        if(index == 0)
+                        if (index == 0)
                         {
                             query = query + "(";
                         }
@@ -128,36 +95,20 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         {
                             query = query + "or ";
                         }
-                        if (item.column == "fund")
-                        {
-                            query = query + $" [journal].fund = @fund{index}";
-                            sqlParams.Add(new SqlParameter($"fund{index}", value));
-                        }
-                        else if(item.column == "AccountCategory")
-                        {
-                            query = query + $"[account_category].name = @account_category{index}";
-                            sqlParams.Add(new SqlParameter($"account_category{index}", value));
-                        }
-                        else if(item.column == "account")
-                        {
-                            query = query + $"[account].name = @account_name{index}";
-                            sqlParams.Add(new SqlParameter($"account_name{index}", value));
-                        }
-                        else if(item.column == "account_type")
-                        {
-                            query = query + $"[account_type].name = @account_type{index}";
-                            sqlParams.Add(new SqlParameter($"account_type{index}", value));
-                        }
-                        if(index == dataCount)
+
+                        query = query + $"{item.column} = @{item.column}{index}";
+                        sqlParams.Add(new SqlParameter($"{item.column}{index}", value));
+                        if (index == dataCount)
                         {
                             query = query + ")";
                         }
+
                         index++;
                         orAdded = true;
                     }
                 }
 
-                query = query + " ) as d ORDER BY  [d].[id] desc";
+                query = query + " ORDER BY [id] desc";
 
                 if (obj.pageSize > 0)
                 {
@@ -190,6 +141,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var metaData = MetaData.ToMetaData(dataTable);
 
                 metaData.Total = dataTable.Rows.Count > 0 ? dataTable.Rows.Count : 0;
+                metaData.TotalRecords = obj.pageNumber == 1 && dataTable.Rows.Count > 0 ? Convert.ToInt32(dataTable.Rows[0][0]) : 0;
 
                 journalStats.totalCredit = 0;
                 journalStats.totalDebit = 0;
@@ -227,37 +179,21 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     StringBuilder dynamicGrouping = new StringBuilder();
                     foreach (var item in groups)
                     {
-                        dynamicMainSelect.Append("d.[").Append(item.colId).Append("],");
+                        dynamicMainSelect.Append("[").Append(item.colId).Append("],");
                         dynamicInnerSelect.Append(map[item.colId]).Append(",");
-                        dynamicGrouping.Append("d.[").Append(item.colId).Append("],");
+                        dynamicGrouping.Append("[").Append(item.colId).Append("],");
                     }
 
                     string mainSelect = dynamicMainSelect.ToString();
-                    string innerSelect = dynamicInnerSelect.ToString();
                     string grouping = dynamicGrouping.ToString().TrimEnd(',');
+                    
                     var query = $@"select 
                         {mainSelect}
                         count(*) as groupCount,
-						sum(d.debit) as debitSum,
-                        sum(d.credit) as creditSum,
-                        sum(abs(d.debit)) - sum(abs(d.credit)) as balance
-                        from(
-                            SELECT
-                                    {innerSelect}
-                                    (CASE
-                                        WHEN[account_category].[name] in ('Asset', 'Expenses') and value < 0  THEN ABS(value)
-                                        WHEN[account_category].[name] not in ('Asset', 'Expenses') and value > 0  THEN ABS(value)
-                                        Else 0
-                                        END) credit,
-                                    (CASE
-                                        WHEN[account_category].[name] in ('Asset', 'Expenses') and value > 0  THEN ABS(value)
-                                        WHEN[account_category].[name] not in ('Asset', 'Expenses') and value < 0  THEN ABS(value)
-                                        Else 0
-                                        END) debit
-                                    FROM[journal] with(nolock)
-                        join account with(nolock) on[journal]. [account_id] = account.id
-                        join[account_type] with(nolock) on[account].account_type_id = [account_type].id
-                        join[account_category] with(nolock) on[account_type].account_category_id = [account_category].id ) as d group by {grouping}";
+						sum(debit) as debitSum,
+                        sum(credit) as creditSum,
+                        sum(abs(debit)) - sum(abs(credit)) as balance
+                        from vwJournal group by {grouping}";
 
                     Console.WriteLine(">>>>>");
                     Console.WriteLine(query);

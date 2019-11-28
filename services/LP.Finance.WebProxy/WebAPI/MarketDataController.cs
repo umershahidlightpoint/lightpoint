@@ -74,6 +74,7 @@ namespace LP.Finance.WebProxy.WebAPI
                 {
                     new SqlParameter("id", item.Id),
                     new SqlParameter("price", item.Price),
+                    new SqlParameter("event", "modified"),
                     new SqlParameter("lastUpdatedBy", "John Smith"),
                     new SqlParameter("lastUpdatedOn", DateTime.UtcNow)
                 };
@@ -89,6 +90,7 @@ namespace LP.Finance.WebProxy.WebAPI
 
                 var query = $@"UPDATE [dbo].[market_prices]
                                                 SET [price] = @price,
+                                                [event] = @event,
                                                 [last_updated_by] = @lastUpdatedBy,
                                                 [last_updated_on] = @lastUpdatedOn
                                                 where [id] = @id";
@@ -162,7 +164,7 @@ namespace LP.Finance.WebProxy.WebAPI
                 bool insertinto = InsertData(performanceRecords);
                 if (insertinto)
                 {
-                    return Utils.Wrap(true, performanceRecords, null);
+                    return Utils.Wrap(true);
                 }
                 else
                 {

@@ -1,5 +1,6 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies';
+import { FxratesApiService } from 'src/services/fxrates-api.service';
 import { ToastrService } from 'ngx-toastr';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 
@@ -9,18 +10,20 @@ import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-mo
   styleUrls: ['./file-upload.component.css']
 })
 export class FileUploadComponent implements OnInit {
-  @ViewChild('confirmationModal',{ static: false }) confirmationModal: ConfirmationModalComponent;
-  @ViewChild('fileInput',{ static: false }) fileInput: ElementRef;
+  @ViewChild('confirmationModal', { static: false })
+  confirmationModal: ConfirmationModalComponent;
+  @ViewChild('fileInput', { static: false }) fileInput: ElementRef;
 
   fileToUpload: File = null;
   disableFileUpload = true;
   uploadLoader = false;
   confirmStatus = false;
   fileType = 'Select a File Type';
-  fileTypes = ['Monthly Performance', 'Daily PnL', 'Market Prices'];
+  fileTypes = ['Monthly Performance', 'Daily PnL', 'Market Prices', 'FxRates'];
 
   constructor(
     private financeService: FinanceServiceProxy,
+    private fxratesApiService:FxratesApiService,
     private toastrService: ToastrService
   ) {}
 
@@ -28,12 +31,15 @@ export class FileUploadComponent implements OnInit {
 
   changeFileType(selectedFileType) {
     this.disableFileUpload =
-      this.fileToUpload === null || this.fileType === 'Select a File Type' ? true : false;
+      this.fileToUpload === null || this.fileType === 'Select a File Type'
+        ? true
+        : false;
     this.fileType = selectedFileType;
   }
 
   onFileInput(files: FileList) {
-    this.disableFileUpload = this.fileType === 'Select a File Type' ? true : false;
+    this.disableFileUpload =
+      this.fileType === 'Select a File Type' ? true : false;
     this.fileToUpload = files.item(0);
   }
 
@@ -57,6 +63,8 @@ export class FileUploadComponent implements OnInit {
       this.uploadDailyUnofficialPnl();
     } else if (this.fileType === 'Market Prices') {
       this.uploadMarketData();
+    } else if (this.fileType === 'FxRates') {
+      this.uploadFxRatesData();
     }
   }
 
@@ -68,42 +76,63 @@ export class FileUploadComponent implements OnInit {
 
   uploadMonthlyPerformance() {
     this.uploadLoader = true;
-    this.financeService.uploadMonthlyPerformance(this.fileToUpload).subscribe(response => {
-      this.uploadLoader = false;
-      this.confirmStatus = false;
-      if (response.isSuccessful) {
-        this.clearForm();
-        this.toastrService.success('File uploaded successfully!');
-      } else {
-        this.toastrService.error('Something went wrong! Try Again.');
-      }
-    });
+    this.financeService
+      .uploadMonthlyPerformance(this.fileToUpload)
+      .subscribe(response => {
+        this.uploadLoader = false;
+        this.confirmStatus = false;
+        if (response.isSuccessful) {
+          this.clearForm();
+          this.toastrService.success('File uploaded successfully!');
+        } else {
+          this.toastrService.error('Something went wrong! Try Again.');
+        }
+      });
   }
 
   uploadDailyUnofficialPnl() {
     this.uploadLoader = true;
-    this.financeService.uploadDailyUnofficialPnl(this.fileToUpload).subscribe(response => {
-      this.uploadLoader = false;
-      if (response.isSuccessful) {
-        this.clearForm();
-        this.toastrService.success('File uploaded successfully!');
-      } else {
-        this.toastrService.error('Something went wrong! Try Again.');
-      }
-    });
+    this.financeService
+      .uploadDailyUnofficialPnl(this.fileToUpload)
+      .subscribe(response => {
+        this.uploadLoader = false;
+        if (response.isSuccessful) {
+          this.clearForm();
+          this.toastrService.success('File uploaded successfully!');
+        } else {
+          this.toastrService.error('Something went wrong! Try Again.');
+        }
+      });
   }
 
   uploadMarketData() {
     this.uploadLoader = true;
-    this.financeService.uploadMarketPriceData(this.fileToUpload).subscribe(response => {
-      this.uploadLoader = false;
-      if (response.isSuccessful) {
-        this.clearForm();
-        this.toastrService.success('File uploaded successfully!');
-      } else {
-        this.toastrService.error('Something went wrong! Try Again.');
-      }
-    });
+    this.financeService
+      .uploadMarketPriceData(this.fileToUpload)
+      .subscribe(response => {
+        this.uploadLoader = false;
+        if (response.isSuccessful) {
+          this.clearForm();
+          this.toastrService.success('File uploaded successfully!');
+        } else {
+          this.toastrService.error('Something went wrong! Try Again.');
+        }
+      });
+  }
+
+  uploadFxRatesData() {
+    this.uploadLoader = true;
+    this.fxratesApiService
+      .uploadFxData(this.fileToUpload)
+      .subscribe(response => {
+        this.uploadLoader = false;
+        if (response.isSuccessful) {
+          this.clearForm();
+          this.toastrService.success('File uploaded successfully!');
+        } else {
+          this.toastrService.error('Something went wrong! Try Again.');
+        }
+      });
   }
 
   clearForm() {

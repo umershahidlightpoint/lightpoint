@@ -1,0 +1,86 @@
+<!-- Action Buttons Form Tag Starts -->
+  <div class="form-row">
+      <div class="col-md-2">
+          <select class="form-control" [(ngModel)]="vRange" [selectedIndex]="0" (ngModelChange)="vChange($event)">
+            <option *ngFor="let a of vRanges" [ngValue]="a.Days">
+              {{ a.Description }}
+            </option>
+          </select>
+        </div>
+
+    <!----- Symbol Filter Div Starts----->
+    <div class="col-2">
+      <input type="text" autocomplete="off" placeholder="Filter by Currency" name="currency" [(ngModel)]="filterByCurrency"
+        (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" />
+        <!----- Symbol Filter Div Ends----->
+    </div>
+    
+    <!----- Date Picker Div Starts----->
+    <div class="col-4">
+      <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off" placeholder="Choose date"
+        [(ngModel)]="selected" name="selectedDaterange" [showClearButton]="true" [alwaysShowCalendars]="true"
+        (ngModelChange)="ngModelChange($event)" [keepCalendarOpeningWithRange]="true" />
+        <!----- Date Picker Div Ends----->
+    </div>
+
+    <!----- Clear Button  Div Starts ----->
+    <div class="mr-auto">
+      <button (click)="clearFilters()" class="btn btn-info" tooltip="Clear" placement="top">
+        <i class="fa fa-remove"></i>
+      </button>
+      <!----- Clear Button  Div Ends ----->
+    </div>
+
+    <!-- Action Buttons Div Starts -->
+    <div class="ml-auto mr-2">
+        <button class="btn btn-info mr-2" type="button" [disabled]="disableCommit" (click)="commitMarketPriceData()">
+          Commit
+        </button>
+
+      <!-- Grid Utils Starts -->
+      <app-grid-utils class="mr-0" [utilsConfig]="utilsConfig" [gridOptions]="marketPriceGrid"
+        (refresh)="refreshGrid()">
+        <!-- Grid Utils Ends -->
+      </app-grid-utils>
+      
+
+      <!-- Show Calculation Graphs Button -->
+      <button class="btn btn-info" type="button" tooltip="View Graph" [disabled]="disableCharts"
+        (click)="expandedClicked()">
+        <i class="fa fa-line-chart"></i>
+        <!-- Show Calculation Graphs Button -->
+      </button>
+      <!-- Action Buttons Div Ends -->
+    </div>
+    <!-- Action Buttons Form Tag Ends -->
+  </div>
+
+
+<!----- Div To Measure Identifier starts ----->
+<div #divToMeasure>
+  <!----- Style For Height ----->
+  <div [ngStyle]="styleForHeight">
+    <div class="row h-100">
+
+      <!----- Ag Grid Tag Starts ----->
+      <div [ngClass]="{'col-6': isExpanded, 'col-12': !isExpanded}">
+        <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="fxRate">
+        </ag-grid-angular>
+        <!----- Ag Grid Tag Ends ----->
+      </div>
+      
+      <!-- App Calculation Graphs Div Starts -->
+      <div *ngIf="isExpanded" class="col-6">
+        <app-calculation-graphs class="w-50 h-75" [chartObject]="graphObject" [mode]="'single'">
+        </app-calculation-graphs>
+        <!-- App Calculation Graphs Div Ends -->
+      </div>
+      
+    </div>
+  </div>
+  <!----- Div To Measure Identifier Ends ----->
+</div>
+
+<!-- Data Grid Modal Component Selector Starts -->
+<app-data-grid-modal #dataGridModal [gridTitle]="title"></app-data-grid-modal>
+<!-- Data Grid Modal Component Selector Ends -->

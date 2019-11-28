@@ -7,6 +7,13 @@ import { HeightStyle, ExcelStyle } from 'src/shared/utils/Shared';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { DecimalPipe } from '@angular/common';
+import {
+  valueFormatter,
+  moneyFormatter,
+  cellClassRulesDebit,
+  cellClassRulesCredit,
+  cellClassRules
+} from 'src/shared/utils/DataDictionary';
 
 @Component({
   selector: 'app-journals-summary',
@@ -79,7 +86,6 @@ export class JournalsSummaryComponent implements OnInit {
     this.gridOptions = {
       rowData: [],
       getContextMenuItems: this.getContextMenuItems.bind(this),
-      // pinnedBottomRowData: null,
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
       pivotPanelShow: 'after',
@@ -90,12 +96,7 @@ export class JournalsSummaryComponent implements OnInit {
       onGridReady: params => {
         this.gridOptions.excelStyles = ExcelStyle;
       },
-      onFirstDataRendered: params => {
-        params.api.forEachNode(node => {
-          node.expanded = true;
-        });
-        params.api.onGroupExpandedOrCollapsed();
-      },
+      onFirstDataRendered: params => {},
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
@@ -140,57 +141,12 @@ export class JournalsSummaryComponent implements OnInit {
     );
   }
 
-  setGridState(response: any) {
-    const colDefs = response.meta.Columns.map(element => {
-      if (element.aggFunc) {
-        element = {
-          ...element,
-          type: 'numericColumn',
-          valueFormatter: params => {
-            return this.numberFormatter(params.value);
-          },
-          cellClassRules: {
-            greenFont(params) {
-              return params.value > 0;
-            },
-            redFont(params) {
-              return params.value < 0;
-            }
-          }
-        };
-      }
-      return element;
-    });
-    this.gridOptions.api.setRowData(response.payload);
-    let totalDebits = 0;
-    let totalCredits = 0;
-
-    response.payload.forEach(data => {
-      totalDebits += data.debitSum;
-      totalCredits += data.creditSum;
-    });
-
-    const pinnedBottomRowData = [
-      {
-        debitSum: totalDebits,
-        creditSum: totalCredits
-      }
-    ];
-    this.gridOptions.api.setPinnedBottomRowData(pinnedBottomRowData);
-    this.gridOptions.api.setColumnDefs(colDefs);
-    this.gridOptions.api.sizeColumnsToFit();
-    this.gridOptions.api.forEachNode((node, index) => {
-      if (node.group) {
-        node.setExpanded(true);
-      }
-    });
-  }
-
   getJournalDetails(params) {
     const filteredColDef = params.columnApi.columnController.columnDefs.filter(
       i => i.rowGroupIndex != null
     );
     const filterList = [];
+    // tslint:disable-next-line: prefer-for-of
     for (let i = 0; i < filteredColDef.length; i++) {
       const colData = [];
       colData.push(params.node.data[filteredColDef[i].colId]);
@@ -202,7 +158,49 @@ export class JournalsSummaryComponent implements OnInit {
     this.filters = filterList;
   }
 
-  numberFormatter(numberToFormat) {
-    return this.decimalPipe.transform(numberToFormat, '1.2-2');
+  setGridState(response: any) {
+    const colDefs = response.meta.Columns.map(element => {
+      if (element.aggFunc) {
+        element = {
+          ...element,
+          cellStyle: { 'text-align': 'right' },
+          valueFormatter: params => {
+            return element.field === 'balance' ? valueFormatter(params) : moneyFormatter(params);
+          }
+        };
+        if (element.field === 'balance') {
+          cellClassRules(element);
+        } else if (element.field === 'debitSum') {
+          cellClassRulesDebit(element);
+        } else if (element.field === 'creditSum') {
+          cellClassRulesCredit(element);
+        }
+      }
+
+      return element;
+    });
+
+    const pinnedBottomRowData = this.getBottomRowData(response);
+    this.gridOptions.api.setRowData(response.payload);
+    this.gridOptions.api.setPinnedBottomRowData(pinnedBottomRowData);
+    this.gridOptions.api.setColumnDefs(colDefs);
+    this.gridOptions.api.sizeColumnsToFit();
+  }
+
+  getBottomRowData(response: any) {
+    let totalDebits = 0;
+    let totalCredits = 0;
+    response.payload.forEach(data => {
+      totalDebits += data.debitSum;
+      totalCredits += data.creditSum;
+    });
+    const pinnedBottomRowData = [
+      {
+        debitSum: totalDebits,
+        creditSum: totalCredits,
+        balance: totalDebits - totalCredits
+      }
+    ];
+    return pinnedBottomRowData;
   }
 }

@@ -9,16 +9,17 @@ import { RunLogsComponent } from './runlogs/runlogs.component';
 import { ReportsComponent } from './main/reports/reports.component';
 import { AccountComponent } from './main/accounts/account.component';
 import { CreateAccountComponent } from './main/accounts/create-account/create-account.component';
-import { JournalsLedgersComponent } from './main/journals-ledgers/journals-ledgers.component';
+import { JournalsLedgersComponent } from './main/journals-ledgers/journals-client-side/journals-ledgers.component';
 import { TrialGridExampleComponent } from './main/trial-balance/trial-balance.component';
 import { LayoutsComponent } from './main/layouts/layouts.component';
 import { FundTheoreticalComponent } from './main/fund-theoretical/fund-theoretical.component';
 import { PerformanceCanDeactivateGuard } from 'src/shared/guards/performance-can-deactivate-guard.service';
 import { SummaryComponent } from './main/summary/summary.component';
+import { JournalsLayoutComponent } from './main/journals-ledgers/journals-layout.component';
 
 const routes: Routes = [
   { path: '', component: ReportsComponent }, // Default
-  { path: 'journals-ledgers', component: JournalsLedgersComponent },
+  { path: 'journals-ledgers', component: JournalsLayoutComponent },
   { path: 'analysis', component: SummaryComponent },
   { path: 'trial-balance', component: TrialGridExampleComponent },
   { path: 'runlogs', component: RunLogsComponent },

@@ -5,7 +5,6 @@ import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { SideBar, AutoSizeAllColumns } from 'src/shared/utils/Shared';
-import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 
 @Component({
@@ -95,7 +94,8 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
       const cdefs = this.agGridUtils.customizeColumns(
         [],
         this.allocationTradesData.meta.Columns,
-        ['Id', 'AllocationId', 'EMSOrderId']
+        ['Id', 'AllocationId', 'EMSOrderId'],
+        false
       );
       this.allocationsGridOptions.api.setColumnDefs(cdefs);
       this.allocationsData = someArray as [];

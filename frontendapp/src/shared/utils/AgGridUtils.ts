@@ -37,6 +37,7 @@ export class AgGridUtils {
     colDefs: any,
     columns: any,
     ignoreFields: any,
+    isJournalGrid,
     sumFields: any = ['debit', 'credit', 'balance']
   ) {
     const cdefs = Object.assign([], colDefs);
@@ -50,7 +51,27 @@ export class AgGridUtils {
           const clone = { ...colDefs[0] };
           clone.field = column.field;
           clone.headerName = column.headerName;
-          clone.filter = column.filter;
+          clone.filter = (() => {
+            if (
+              isJournalGrid &&
+              (column.Type == 'System.Int32' ||
+                column.Type == 'System.Decimal' ||
+                column.Type == 'System.Double')
+            ) {
+              return 'agNumberColumnFilter';
+            }
+
+            if (isJournalGrid && column.Type == 'System.String') {
+              return 'agTextColumnFilter';
+            }
+
+            if (isJournalGrid && column.Type == 'System.DateTime') {
+              return 'agDateColumnFilter';
+            }
+
+            return column.filter;
+          })();
+
           clone.colId = column.field;
           clone.valueFormatter = null;
           clone.cellStyle = null;

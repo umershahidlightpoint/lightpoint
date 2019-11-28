@@ -64,12 +64,14 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   isExpanded = false;
   disableFileUpload = true;
   disableCharts = true;
+
+  isDailyPnLActive = false;
   isTaxRateActive = false;
   isMarketPricesActive = false;
-  isDailyPnLActive = false;
+  isFxRateActive = false;
+
   uploadLoader = false;
   commitLoader = false;
-  private components;
 
   confirmOption = {
     generateRows: false,
@@ -144,6 +146,9 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     }
     if (e.index === 3) {
       this.isMarketPricesActive = true;
+    }
+    if (e.index === 4) {
+      this.isFxRateActive = true;
     }
   }
 
@@ -404,8 +409,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     ) {
       this.doCalculation();
       this.disableCommit = false;
-      const row = this.fundTheoreticalGrid.api.getRowNode(params.data.rowId);
-      row.setDataValue('modified', true);
+      params.data.modified = true;
     }
 
     if (
@@ -481,7 +485,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   }
 
   addNextMonth(params) {
-    let forMonth = moment()
+    const forMonth = moment()
       .year(params.node.data.year)
       .month(params.node.data.month);
     const nextMonth = forMonth.add(1, 'month').format('MMMM');
@@ -541,6 +545,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     } else {
       dateObject = date;
     }
+
     let formattedValue;
     switch (option) {
       case 1:

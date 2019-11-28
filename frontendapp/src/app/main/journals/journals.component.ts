@@ -4,32 +4,26 @@ import {
   OnChanges,
   Input,
   SimpleChanges
-} from "@angular/core";
-import { FinanceServiceProxy } from "../../../shared/service-proxies/service-proxies";
-import { GridOptions } from "ag-grid-community";
-import { AgGridUtils } from "../../../shared/utils/AgGridUtils";
-import { DataService } from "src/shared/common/data.service";
-import {
-  SideBar,
-  AutoSizeAllColumns,
-  FormatNumber4,
-  CommaSeparatedFormat
-} from "src/shared/utils/Shared";
-import { PostingEngineService } from "src/shared/common/posting-engine.service";
-import { GridLayoutMenuComponent } from "src/shared/Component/grid-layout-menu/grid-layout-menu.component";
-import { GridId, GridName } from "src/shared/utils/AppEnums";
-import { DataDictionary } from "src/shared/utils/DataDictionary";
+} from '@angular/core';
+import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { GridOptions } from 'ag-grid-community';
+import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
+import { DataService } from 'src/shared/common/data.service';
+import { SideBar, AutoSizeAllColumns } from 'src/shared/utils/Shared';
+import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { DataDictionary } from 'src/shared/utils/DataDictionary';
 
-import { Observable } from "rxjs";
+import { Observable } from 'rxjs';
 
 @Component({
-  selector: "app-journals",
-  templateUrl: "./journals.component.html",
-  styleUrls: ["./journals.component.css"]
+  selector: 'app-journals',
+  templateUrl: './journals.component.html',
+  styleUrls: ['./journals.component.css']
 })
 export class JournalsComponent implements OnInit, OnChanges {
   @Input() subscription: Observable<string>;
-  @Input() title: string = "Journals";
+  @Input() title = 'Journals';
 
   public journalsGridOptions: GridOptions;
   public journalsData: [];
@@ -81,18 +75,13 @@ export class JournalsComponent implements OnInit, OnChanges {
     this.journalsGridOptions = {
       rowData: [],
       columnDefs: this.columnDefs,
-      //onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       getExternalFilterState: () => {
         return {};
       },
-      onGridReady: () => {
-        // this.gridOptions.api.sizeColumnsToFit();
-      },
+      onGridReady: () => {},
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
-
-        // params.api.sizeColumnsToFit();
       },
       suppressColumnVirtualisation: true,
       enableFilter: true,
@@ -115,50 +104,50 @@ export class JournalsComponent implements OnInit, OnChanges {
         this.journalsTradesData.meta.Columns
       );
 
-      let columnDefs = [
-        this.dataDictionary.column("when"),
-        this.dataDictionary.column("event"),
-        this.dataDictionary.column("debit"),
-        this.dataDictionary.column("credit"),
-        this.dataDictionary.column("balance"),
-        this.dataDictionary.column("end_price"),
-        this.dataDictionary.column("start_price"),
+      const columnDefs = [
+        this.dataDictionary.column('when', false),
+        this.dataDictionary.column('event', false),
+        this.dataDictionary.column('debit', false),
+        this.dataDictionary.column('credit', false),
+        this.dataDictionary.column('balance', false),
+        this.dataDictionary.column('end_price', false),
+        this.dataDictionary.column('start_price', false),
         {
-          field: "AccountCategory",
+          field: 'AccountCategory',
           width: 120,
-          headerName: "Category",
+          headerName: 'Category',
           enableRowGroup: true,
           sortable: true,
           filter: true
         },
         {
-          field: "AccountType",
+          field: 'AccountType',
           width: 120,
-          headerName: "Type",
+          headerName: 'Type',
           enableRowGroup: true,
           sortable: true,
           filter: true
         },
         {
-          field: "AccountName",
+          field: 'AccountName',
           width: 120,
-          headerName: "Account Name",
+          headerName: 'Account Name',
           enableRowGroup: true,
           sortable: true,
           filter: true
         },
         {
-          field: "AccountDescription",
+          field: 'AccountDescription',
           width: 120,
-          headerName: "Account Description",
+          headerName: 'Account Description',
           enableRowGroup: true,
           sortable: true,
           filter: true
         },
         {
-          field: "fund",
+          field: 'fund',
           width: 120,
-          headerName: "Fund",
+          headerName: 'Fund',
           enableRowGroup: true,
           sortable: true,
           filter: true
@@ -168,36 +157,19 @@ export class JournalsComponent implements OnInit, OnChanges {
         columnDefs,
         this.journalsTradesData.meta.Columns,
         [
-          "account_id",
-          "id",
-          "value",
-          "source",
-          "generated_by",
-          "Id",
-          "AllocationId",
-          "EMSOrderId"
-        ]
+          'account_id',
+          'id',
+          'value',
+          'source',
+          'generated_by',
+          'Id',
+          'AllocationId',
+          'EMSOrderId'
+        ],
+        false
       );
       this.journalsGridOptions.api.setColumnDefs(cdefs);
       this.journalsData = someArray as [];
     });
   }
-}
-
-function priceFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  return FormatNumber4(params.value);
-}
-
-function valueFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  if (params.value === 0.0) {
-    return;
-  }
-
-  return CommaSeparatedFormat(params.value);
 }

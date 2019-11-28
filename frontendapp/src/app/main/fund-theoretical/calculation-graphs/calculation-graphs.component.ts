@@ -21,12 +21,11 @@ export class CalculationGraphsComponent implements OnInit, OnChanges {
   @Input() mode: string;
   showChart = false;
 
-  constructor(private toastrService: ToastrService, private cdRef: ChangeDetectorRef) {}
+  constructor(private toastrService: ToastrService) {}
 
   ngOnInit() {}
 
   ngOnChanges(change: SimpleChanges) {
-    debugger;
     const { currentValue } = change.chartObject;
     if (currentValue !== undefined) {
       if (currentValue.graphData) {

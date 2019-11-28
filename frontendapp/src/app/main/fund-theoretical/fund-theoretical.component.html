@@ -33,12 +33,6 @@
             <button class="btn btn-info" type="button" (click)="generateRows()" [disabled]="!generateFundsDate">
               Generate Rows
             </button>
-            <!-- <input #fileInput class="btn btn-info file-upload-btn" type="file"
-              (change)="onFileInput($event.target.files)">
-            <button class="btn btn-info ml-2" type="button" (click)="uploadRows()" [disabled]="disableFileUpload || uploadLoader" >
-              Upload
-              <span *ngIf="uploadLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            </button> -->
           </div>
           <!-- Generate Rows Div Ends -->
 
@@ -109,8 +103,14 @@
     <!-- Tax Rate Tab Starts -->
     <p-tabPanel header="Market Prices" [ngStyle]="style">
       <app-market-prices *ngIf="isMarketPricesActive"></app-market-prices>
+      <!-- Tax Rate Tab Ends -->
     </p-tabPanel>
-    <!-- Tax Rate Tab Ends -->
+
+    <!-- Fx Rate Tab -->
+    <p-tabPanel header="Fx Rates" [ngStyle]="style">
+      <app-fx-rates *ngIf="isFxRateActive"></app-fx-rates>
+      <!-- Fx Rate Tab -->
+    </p-tabPanel>
 
   </p-tabView>
   <!-- Tab View Tag Ends -->
