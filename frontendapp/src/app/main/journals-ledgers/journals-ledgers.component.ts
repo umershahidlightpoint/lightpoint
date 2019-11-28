@@ -131,7 +131,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
               this.rowData = this.rowData.concat(result.payload);
             }
 
-            params.successCallback(this.rowData, -1);
+            params.successCallback(this.rowData, result.meta.LastRow);
             this.gridOptions.api.refreshCells();
             AutoSizeAllColumns(this.gridOptions);
           } else {

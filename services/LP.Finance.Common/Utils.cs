@@ -453,7 +453,7 @@ namespace LP.Finance.Common
         {
             List<SqlParameter> sqlParams = new List<SqlParameter>();
             string selectSql = CreateSelectSql(obj);
-            string fromSql = $" FROM {from} ";
+            string fromSql = $" FROM [{from}] ";
             string whereSql = CreateWhereSql(obj, ref sqlParams);
             string limitSql = CreateLimitSql(obj, ref sqlParams);
             string orderBySql = CreateOrderBySql(obj);
@@ -479,7 +479,7 @@ namespace LP.Finance.Common
                 List<string> colsToGroupBy = new List<string>();
                 int count = obj.groupKeys.Count == 0 ? 0 : obj.groupKeys.Count;
                 var rowGroupCol = obj.rowGroupCols[count];
-                colsToGroupBy.Add(rowGroupCol.field);
+                colsToGroupBy.Add($"[{rowGroupCol.field}]");
                 string query = " group by ";
                 query = query + string.Join(",", colsToGroupBy.Select(x => x)) + " ";
                 return query;
@@ -504,7 +504,7 @@ namespace LP.Finance.Common
 
                 int count = obj.groupKeys.Count == 0 ? 0 : obj.groupKeys.Count;
                 var rowGroupCol = obj.rowGroupCols[count];
-                sortParts.Add(rowGroupCol.field);
+                sortParts.Add($"[{rowGroupCol.field}]");
             }
 
             if(sortParts.Count > 0)
@@ -535,7 +535,7 @@ namespace LP.Finance.Common
                 {
                     string colName = obj.rowGroupCols[index].id;
                     sqlParams.Add(new SqlParameter($"{colName}{index}", item));
-                    whereParts.Add($" {colName} = @{colName}{index} ");
+                    whereParts.Add($" [{colName}] = @{colName}{index} ");
                     index++;
                 }
             }
@@ -559,7 +559,7 @@ namespace LP.Finance.Common
             {
                 int count = obj.groupKeys.Count == 0 ? 0 : obj.groupKeys.Count;
                 var rowGroupCol = obj.rowGroupCols[count];
-                query = query + $"{rowGroupCol.field},";
+                query = query + $"[{rowGroupCol.field}],";
                 
                 query = query + $@"count(*) as groupCount,
 						sum(debit) as debit,
@@ -580,7 +580,7 @@ namespace LP.Finance.Common
                 return null;
             }
             int currentLastRow = request.startRow + results.Rows.Count;
-            if(currentLastRow <= request.endRow)
+            if(currentLastRow < request.endRow)
             {
                 return currentLastRow;
             }
