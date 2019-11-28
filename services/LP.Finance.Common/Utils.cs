@@ -1,4 +1,5 @@
-﻿using LP.Finance.Common.Models;
+﻿using LP.Finance.Common.Model;
+using LP.Finance.Common.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace LP.Finance.Common
 {
@@ -42,6 +44,7 @@ namespace LP.Finance.Common
     {
         public int Total { get; set; }
         public int TotalRecords { get; set; }
+        public int? LastRow { get; set; }
 
         public List<ColumnDef> Columns { get; set; }
 
@@ -444,6 +447,147 @@ namespace LP.Finance.Common
                 dataTable.Columns.Remove("total");
 
             return total;
+        }
+
+        public static Tuple<string, List<SqlParameter>> BuildSql(ServerRowModel obj, string from)
+        {
+            List<SqlParameter> sqlParams = new List<SqlParameter>();
+            string selectSql = CreateSelectSql(obj);
+            string fromSql = $" FROM {from} ";
+            string whereSql = CreateWhereSql(obj, ref sqlParams);
+            string limitSql = CreateLimitSql(obj, ref sqlParams);
+            string orderBySql = CreateOrderBySql(obj);
+            string groupBySql = CreateGroupBySql(obj);
+
+            string query = selectSql + fromSql + whereSql + groupBySql + orderBySql + limitSql;
+            return new Tuple<string, List<SqlParameter>>(query, sqlParams);
+        }
+
+        private static bool IsDoingGrouping(List<RowGroupCols> rowGroupCols, List<string> groupKeys)
+        {
+            // we are not doing grouping if at the lowest level. we are at the lowest level
+            // if we are grouping by more columns than we have keys for (that means the user
+            // has not expanded a lowest level group, OR we are not grouping at all).
+            return rowGroupCols.Count > groupKeys.Count;
+        }
+
+
+        private static string CreateGroupBySql(ServerRowModel obj)
+        {
+            if (IsDoingGrouping(obj.rowGroupCols, obj.groupKeys))
+            {
+                List<string> colsToGroupBy = new List<string>();
+                int count = obj.groupKeys.Count == 0 ? 0 : obj.groupKeys.Count;
+                var rowGroupCol = obj.rowGroupCols[count];
+                colsToGroupBy.Add(rowGroupCol.field);
+                string query = " group by ";
+                query = query + string.Join(",", colsToGroupBy.Select(x => x)) + " ";
+                return query;
+            }
+            else
+            {
+                // select all columns
+                return "";
+            }
+        }
+
+        private static string CreateOrderBySql(ServerRowModel obj)
+        {
+            var grouping = IsDoingGrouping(obj.rowGroupCols, obj.groupKeys);
+            List<string> sortParts = new List<string>();
+            if (grouping)
+            {
+                //foreach(var item in obj.rowGroupCols)
+                //{
+                //    sortParts.Add(item.id);
+                //}
+
+                int count = obj.groupKeys.Count == 0 ? 0 : obj.groupKeys.Count;
+                var rowGroupCol = obj.rowGroupCols[count];
+                sortParts.Add(rowGroupCol.field);
+            }
+
+            if(sortParts.Count > 0)
+            {
+                return " order by " + string.Join(",", sortParts.Select(x => x));
+            }
+            else
+            {
+                return " order by id desc";
+            }
+        }
+
+        private static string CreateLimitSql(ServerRowModel obj, ref List<SqlParameter> sqlParams)
+        {
+            sqlParams.Add(new SqlParameter("pageNumber", obj.pageNumber));
+            sqlParams.Add(new SqlParameter("pageSize", obj.pageSize));
+            return " OFFSET(@pageNumber -1) * @pageSize ROWS FETCH NEXT @pageSize  ROWS ONLY";
+        }
+
+        private static string CreateWhereSql(ServerRowModel obj, ref List<SqlParameter> sqlParams)
+        {
+            List<string> whereParts = new List<string>();
+            int index = 0;
+            string query = "";
+            if (obj.groupKeys.Count > 0)
+            {
+                foreach(var item in obj.groupKeys)
+                {
+                    string colName = obj.rowGroupCols[index].id;
+                    sqlParams.Add(new SqlParameter($"{colName}{index}", item));
+                    whereParts.Add($" {colName} = @{colName}{index} ");
+                    index++;
+                }
+            }
+
+            if(whereParts.Count > 0)
+            {
+                query = query + " where " + string.Join(" and ", whereParts.Select(x => x));
+                return query;
+            }
+            else
+            {
+                return " ";
+            }
+        }
+
+        private static string CreateSelectSql(ServerRowModel obj)
+        {
+            var grouping = IsDoingGrouping(obj.rowGroupCols, obj.groupKeys);
+            string query = "select ";
+            if (grouping)
+            {
+                int count = obj.groupKeys.Count == 0 ? 0 : obj.groupKeys.Count;
+                var rowGroupCol = obj.rowGroupCols[count];
+                query = query + $"{rowGroupCol.field},";
+                
+                query = query + $@"count(*) as groupCount,
+						sum(debit) as debit,
+                        sum(credit) as credit,
+                        sum(abs(debit)) - sum(abs(credit)) as balance ";
+                return query;
+            }
+            else
+            {
+                return "select * ";
+            }
+        }
+
+        public static int? GetRowCount(ServerRowModel request, DataTable results)
+        {
+            if (results.Rows.Count == 0)
+            {
+                return null;
+            }
+            int currentLastRow = request.startRow + results.Rows.Count;
+            if(currentLastRow <= request.endRow)
+            {
+                return currentLastRow;
+            }
+            else
+            {
+                return -1;
+            }
         }
     }
 
