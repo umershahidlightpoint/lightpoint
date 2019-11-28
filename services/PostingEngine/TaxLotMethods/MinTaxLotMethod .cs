@@ -9,7 +9,7 @@ namespace PostingEngine.TaxLotMethods
     /// Need to calculate a tax liability and then sort the Open Tax lots in ascending order, so that we close out tax lots according to min tax liability
     /// </summary>
     /// <param name="element">Closing Tax Lot</param>
-    /// <returns>List of matched open Lots / ordered in LIFO</returns>
+    /// <returns>List of matched open Lots / ordered by Min Tax effect</returns>
     public class MinTaxLotMethod : ITaxLotMethodology
     {
         public List<TaxLotDetail> GetOpenLots(PostingEngineEnvironment env, Transaction element)
