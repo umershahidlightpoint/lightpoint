@@ -7,7 +7,13 @@ import {
   ChangeDetectorRef
 } from '@angular/core';
 import 'ag-grid-enterprise';
-import { GridOptions, IDatasource, IServerSideDatasource, IServerSideGetRowsParams, IGetRowsParams } from 'ag-grid-community';
+import {
+  GridOptions,
+  IDatasource,
+  IServerSideDatasource,
+  IServerSideGetRowsParams,
+  IGetRowsParams
+} from 'ag-grid-community';
 import * as moment from 'moment';
 /* Services/Components Imports */
 import {
@@ -74,6 +80,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   tableHeader: string;
   isDataStreaming = false;
   colDefs;
+  previousColGroup;
 
   ranges: any = Ranges;
 
@@ -100,38 +107,46 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   pageSize = 100;
   pageNumber = 0;
 
-  datasource : IServerSideDatasource = {
+  datasource: IServerSideDatasource = {
     getRows: (params: IServerSideGetRowsParams) => {
-      this.pageNumber =  params.request.endRow / this.pageSize;
+      this.pageNumber = params.request.endRow / this.pageSize;
       console.log(JSON.stringify(params.request, null, 1));
-  
-    
-    this.valueFilter = 0;
-    this.sortColum = '';
-    this.sortDirection = '';
-    let payload = {
-      ...params.request,
-      pageNumber: this.pageNumber,
-      pageSize: this.pageSize
-    }
-    if(this.pageNumber == 1){
-      this.rowData = [];
-    }
-      this.financeService.getServerSideJournals(payload).subscribe(result => {
-          if(result.isSuccessful){
-            this.rowData = this.rowData.concat(result.payload);
+
+      this.valueFilter = 0;
+      this.sortColum = '';
+      this.sortDirection = '';
+      let payload = {
+        ...params.request,
+        pageNumber: this.pageNumber,
+        pageSize: this.pageSize
+      };
+
+      this.financeService.getServerSideJournals(payload).subscribe(
+        result => {
+          if (result.isSuccessful) {
+
+            if (this.pageNumber === 1) {
+              this.rowData = result.payload;
+            } else {
+              this.rowData = this.rowData.concat(result.payload);
+            }
+
             params.successCallback(this.rowData, -1);
             this.gridOptions.api.refreshCells();
             AutoSizeAllColumns(this.gridOptions);
-          } else{
+          } else {
             params.failCallback();
           }
-    }, error => {
-      params.failCallback();
-    })
-
-  }
-};
+        },
+        error => {
+          params.failCallback();
+        }
+      );
+      if (payload.rowGroupCols.length > 0) {
+        this.previousColGroup = payload.rowGroupCols[0].id;
+      }
+    }
+  };
 
   constructor(
     private financeService: FinanceServiceProxy,
@@ -222,10 +237,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       GridName.journalsLedgers,
       this.gridOptions
     );
-
   }
-
-  
 
   /*
   Drives the columns that will be defined on the UI, and what can be done with those fields
@@ -273,7 +285,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     this.isDataStreaming = false;
     this.symbol = 'ALL';
     const localThis = this;
-    
+
     this.accountSearch.id = 0;
     this.valueFilter = 0;
     this.sortColum = '';
