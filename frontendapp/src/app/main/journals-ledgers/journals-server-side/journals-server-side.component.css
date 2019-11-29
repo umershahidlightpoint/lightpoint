@@ -1,0 +1,71 @@
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.md-datepicker-input-container {
+  width: 150px;
+}
+
+.mat-datepicker-content .mat-calendar {
+  zoom: 0.5;
+}
+
+@media (min-width: 320px) {
+  ::ng-deep.md-drppicker.shown.drops-down-right {
+    width: 320px;
+  }
+}
+@media (min-width: 768px) {
+  ::ng-deep.md-drppicker.shown.drops-down-right {
+    width: auto;
+  }
+}
+
+::ng-deep.greenBackground {
+  background-color: #b5e6b5;
+}
+
+::ng-deep .redFont {
+  color: red;
+  font-style: italic;
+}
+
+::ng-deep .greenFont {
+  color: green;
+  font-style: italic;
+}
+
+::ng-deep .footerRow {
+  font-weight: bold;
+}
+
+/*
+  Want to Make Sure the Scrollbar is Shown
+  */
+.ag-body-viewport-wrapper.ag-layout-normal {
+  overflow-x: scroll;
+  overflow-y: scroll;
+}
+
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.add-journal-btn {
+  margin-left: -0.9rem;
+}
+
+.font-weight-500 {
+  font-weight: 500;
+}

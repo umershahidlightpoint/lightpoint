@@ -165,7 +165,10 @@ export const CalTotalRecords = gridOptions => {
   return pinnedBottomRowData;
 };
 
-export const CalTotal = (rows: Array<any>, fields: Array<{ name: string; total: number }>) => {
+export const CalTotal = (
+  rows: Array<any>,
+  fields: Array<{ name: string; total: number }>
+) => {
   rows.forEach(row => {
     fields.map(field => {
       field.total += row[field.name];
@@ -197,7 +200,10 @@ export const GetDateRangeLabel = (startDate, endDate) => {
   ) {
     return 'MTD';
   }
-  if (moment().diff(startDate, 'days') === 0 && moment().diff(endDate, 'days') === 0) {
+  if (
+    moment().diff(startDate, 'days') === 0 &&
+    moment().diff(endDate, 'days') === 0
+  ) {
     return 'Today';
   }
   return '';
@@ -205,7 +211,8 @@ export const GetDateRangeLabel = (startDate, endDate) => {
 
 export const SetDateRange = (dateFilter, startDate, endDate) => {
   if (typeof dateFilter === 'object') {
-    startDate = dateFilter.startDate !== '' ? moment(dateFilter.startDate) : null;
+    startDate =
+      dateFilter.startDate !== '' ? moment(dateFilter.startDate) : null;
     endDate = dateFilter.endDate !== '' ? moment(dateFilter.endDate) : null;
   }
 
@@ -237,7 +244,11 @@ export const DoesExternalFilterPass = (node, fund, startDate, endDate) => {
     const cellFund = node.data.fund;
     const cellDate = new Date(node.data.when);
 
-    return cellFund === fund && startDate.toDate() <= cellDate && endDate.toDate() >= cellDate;
+    return (
+      cellFund === fund &&
+      startDate.toDate() <= cellDate &&
+      endDate.toDate() >= cellDate
+    );
   }
 
   if (fund !== 'All Funds') {
@@ -308,7 +319,8 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       minWidth: 50,
       headerName: 'Id',
       filter: isJournalGrid ? 'agNumberColumnFilter' : true,
-      colId: 'id'
+      colId: 'id',
+      rowGroup: false
     },
     {
       field: 'source',
@@ -346,7 +358,8 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       ...(filters !== null && {
         filterParams: {
           cellHeight: 20,
-          values: filters.find(item => item.ColumnName === 'AccountCategory').Values,
+          values: filters.find(item => item.ColumnName === 'AccountCategory')
+            .Values,
           debounceMs: 1000
         }
       })
@@ -362,7 +375,8 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       ...(filters !== null && {
         filterParams: {
           cellHeight: 20,
-          values: filters.find(item => item.ColumnName === 'AccountType').Values,
+          values: filters.find(item => item.ColumnName === 'AccountType')
+            .Values,
           debounceMs: 1000
         }
       })
@@ -378,7 +392,8 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       ...(filters !== null && {
         filterParams: {
           cellHeight: 20,
-          values: filters.find(item => item.ColumnName === 'AccountName').Values,
+          values: filters.find(item => item.ColumnName === 'AccountName')
+            .Values,
           debounceMs: 1000
         }
       })

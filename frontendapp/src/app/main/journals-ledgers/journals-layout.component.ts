@@ -6,10 +6,16 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./journals-layout.component.css']
 })
 export class JournalsLayoutComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
+  isServerJournalActive: boolean;
+  constructor() {
+    this.isServerJournalActive = false;
   }
 
+  ngOnInit() {}
+
+  onTabChange(e) {
+    if (e.index === 1) {
+      this.isServerJournalActive = true;
+    }
+  }
 }

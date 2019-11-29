@@ -8,7 +8,7 @@
 
 <!----- Div Starts ----->
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
-    <p-tabView [ngStyle]="style">
+    <p-tabView [ngStyle]="style" (onChange)="onTabChange($event)">
         <!-- Journal Tab Starts -->
         <p-tabPanel header="Journals">
             <app-journals-ledgers> </app-journals-ledgers>
@@ -17,7 +17,7 @@
 
         <!-- Journal Tab Starts -->
         <p-tabPanel header="Server Side Journals">
-            <app-journals-server-side> </app-journals-server-side>
+            <app-journals-server-side *ngIf="isServerJournalActive"> </app-journals-server-side>
         </p-tabPanel>
         <!-- Journal Tab Ends -->
     </p-tabView>

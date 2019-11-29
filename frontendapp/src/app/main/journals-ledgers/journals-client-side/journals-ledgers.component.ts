@@ -347,6 +347,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   }
 
   ngModelChangeSymbol(e) {
+    console.log('On Model Change Symbol');
     this.filterBySymbol = e;
     this.gridOptions.api.onFilterChanged();
   }
