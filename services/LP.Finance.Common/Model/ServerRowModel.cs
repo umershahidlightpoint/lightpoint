@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ namespace LP.Finance.Common.Model
         public List<ValueCols> valueCols { get; set; }
         public List<string> groupKeys { get; set; }
         public List<SortModel> sortModel { get; set; }
-        public dynamic filterModel { get; set; }
+        public ExpandoObject filterModel { get; set; }
 
     }
 }

@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LP.Finance.Common.Model;
 using System.Linq;
+using System.Dynamic;
 
 namespace LP.Finance.Common
 {
@@ -541,7 +542,35 @@ namespace LP.Finance.Common
                 }
             }
 
-            if(whereParts.Count > 0)
+
+            var filterDict = (IDictionary<string, dynamic>)(obj.filterModel);
+            if (filterDict != null)
+            {
+                foreach (var col in filterDict)
+                {
+                    string columnName = col.Key;
+                    var value = (IDictionary<string, object>)(col.Value);
+                    List<string> filterModelWhereList = new List<string>();
+                    if ((string)value["filterType"] == "set")
+                    {
+                        List<object> values = (List<object>)value["values"];
+                        foreach (var item in values)
+                        {
+                            sqlParams.Add(new SqlParameter($"{columnName}{index}", item));
+                            filterModelWhereList.Add($"@{columnName}{index}");
+                            index++;
+                        }
+                        if (filterModelWhereList.Count > 0)
+                        {
+                            string concat = string.Join(",", filterModelWhereList.Select(x => x));
+                            whereParts.Add($"[{columnName}] IN ({concat})");
+                        }
+                    }
+                }
+            }
+            
+
+            if (whereParts.Count > 0)
             {
                 query = query + " where " + string.Join(" and ", whereParts.Select(x => x));
                 return query;
