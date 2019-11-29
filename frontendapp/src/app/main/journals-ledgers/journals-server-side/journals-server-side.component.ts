@@ -29,6 +29,7 @@ import { GridLayoutMenuComponent } from '../../../../shared/Component/grid-layou
 import { GridId, GridName } from '../../../../shared/utils/AppEnums';
 import { DataDictionary } from '../../../../shared/utils/DataDictionary';
 import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
+import { UtilsConfig } from 'src/shared/Models/utils-config';
 
 @Component({
   selector: 'app-journals-server-side',
@@ -58,9 +59,9 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   endDate: moment.Moment;
   funds: any;
   accountSearch = { id: undefined };
-  valueFilter: number;
-  sortColum: string;
-  sortDirection: string;
+  valueFilter = 0;
+  sortColum = '';
+  sortDirection = '';
   page: number;
   pageNumber = 0;
   pageSize = 100;
@@ -91,19 +92,27 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     boxSizing: 'border-box'
   };
 
+  utilsConfig: UtilsConfig = {
+    expandGrid: false,
+    collapseGrid: false,
+    refreshGrid: true,
+    resetGrid: false,
+    exportExcel: true
+  };
+
   datasource: IServerSideDatasource = {
     getRows: (params: IServerSideGetRowsParams) => {
       this.pageNumber = params.request.endRow / this.pageSize;
-      console.log('PARAMS :: ', JSON.stringify(params.request, null, 1));
-
-      this.valueFilter = 0;
-      this.sortColum = '';
-      this.sortDirection = '';
+      const { dateFilter } = this.getServerSideExternalFilter();
       const payload = {
         ...params.request,
+        externalFilterModel: { dateFilter },
         pageNumber: this.pageNumber,
         pageSize: this.pageSize
       };
+
+      console.log('PARAMS :: ', JSON.stringify(params.request, null, 1));
+      console.log('PAYLOAD :: ', JSON.stringify(payload, null, 1));
 
       this.financeService.getServerSideJournals(payload).subscribe(
         result => {
@@ -132,7 +141,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
             console.log('FIELDS SUM :: ', fieldsSum);
             this.pinnedBottomRowData = [
               {
-                source: 'Total Records:' + this.totalRecords,
+                // source: 'Total Records: ' + this.totalRecords,
                 AccountType: '',
                 accountName: '',
                 when: '',
@@ -224,7 +233,9 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         this.dataDictionary.column('end_price', true),
         this.dataDictionary.column('fxrate', true)
       ];
+
       this.gridOptions.api.setColumnDefs(this.colDefs);
+      console.log('COL DEFS :: ', this.colDefs);
     });
   }
 
@@ -256,10 +267,10 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         this.gridOptions.excelStyles = ExcelStyle;
       },
       onFirstDataRendered: params => {
-        params.api.forEachNode(node => {
-          node.expanded = true;
-        });
-        params.api.onGroupExpandedOrCollapsed();
+        // params.api.forEachNode(node => {
+        //   node.expanded = true;
+        // });
+        // params.api.onGroupExpandedOrCollapsed();
       },
       enableFilter: true,
       animateRows: true,
@@ -582,6 +593,17 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     };
   }
 
+  getServerSideExternalFilter() {
+    return {
+      ...(this.startDate !== null && {
+        dateFilter: {
+          startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
+          endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
+        }
+      })
+    };
+  }
+
   openJournalModal() {
     this.journalModal.openModal({});
   }
@@ -614,8 +636,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   refreshGrid() {
     this.totalRecords = 0;
     this.rowData = [];
-    // this.gridOptions.api.showLoadingOverlay();
-    // this.getAllData(true);
+    this.gridOptions.api.showLoadingOverlay();
+    this.gridOptions.api.setServerSideDatasource(this.datasource);
   }
 
   setGroupingState(value: boolean) {

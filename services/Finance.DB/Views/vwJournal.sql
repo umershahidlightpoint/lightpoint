@@ -22,8 +22,8 @@
                                     [fund],
                                     [account_category].[name] as AccountCategory,  
                                     [account_type].[name] as AccountType,
-									[account].[name] as AccountName,
-									[account].[description] as AccountDescription,
+									[account].[name] as accountName, -- Changed to CamelCase
+									[account].[description] as accountDescription, -- Changed to CamelCase
                                     [value],
                                     [source],
                                     [start_price],

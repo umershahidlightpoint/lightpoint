@@ -68,7 +68,7 @@
 
             <div *ngIf="!isDataStreaming">
                 <!-- Grid Util Actions -->
-                <app-grid-utils class="mr-4" [gridOptions]="gridOptions" (refresh)="refreshGrid()"
+                <app-grid-utils class="mr-4" [utilsConfig]="utilsConfig" [gridOptions]="gridOptions" (refresh)="refreshGrid()"
                     [excelParams]="excelParams">
                 </app-grid-utils>
                 <!-- Grid Util Actions Ends -->
