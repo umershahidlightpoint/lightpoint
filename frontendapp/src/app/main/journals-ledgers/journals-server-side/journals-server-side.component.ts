@@ -58,9 +58,9 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   endDate: moment.Moment;
   funds: any;
   accountSearch = { id: undefined };
-  valueFilter: number;
-  sortColum: string;
-  sortDirection: string;
+  valueFilter = 0;
+  sortColum = '';
+  sortDirection = '';
   page: number;
   pageNumber = 0;
   pageSize = 100;
@@ -94,16 +94,16 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   datasource: IServerSideDatasource = {
     getRows: (params: IServerSideGetRowsParams) => {
       this.pageNumber = params.request.endRow / this.pageSize;
-      console.log('PARAMS :: ', JSON.stringify(params.request, null, 1));
-
-      this.valueFilter = 0;
-      this.sortColum = '';
-      this.sortDirection = '';
+      const { dateFilter } = this.getServerSideExternalFilter();
       const payload = {
         ...params.request,
+        externalFilterModel: { dateFilter },
         pageNumber: this.pageNumber,
         pageSize: this.pageSize
       };
+
+      console.log('PARAMS :: ', JSON.stringify(params.request, null, 1));
+      console.log('PAYLOAD :: ', JSON.stringify(payload, null, 1));
 
       this.financeService.getServerSideJournals(payload).subscribe(
         result => {
@@ -132,7 +132,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
             console.log('FIELDS SUM :: ', fieldsSum);
             this.pinnedBottomRowData = [
               {
-                source: 'Total Records:' + this.totalRecords,
+                source: 'Total Records: ' + this.totalRecords,
                 AccountType: '',
                 accountName: '',
                 when: '',
@@ -256,10 +256,10 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         this.gridOptions.excelStyles = ExcelStyle;
       },
       onFirstDataRendered: params => {
-        params.api.forEachNode(node => {
-          node.expanded = true;
-        });
-        params.api.onGroupExpandedOrCollapsed();
+        // params.api.forEachNode(node => {
+        //   node.expanded = true;
+        // });
+        // params.api.onGroupExpandedOrCollapsed();
       },
       enableFilter: true,
       animateRows: true,
@@ -579,6 +579,17 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
               startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
               endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
             }
+    };
+  }
+
+  getServerSideExternalFilter() {
+    return {
+      ...(this.startDate !== null && {
+        dateFilter: {
+          startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
+          endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
+        }
+      })
     };
   }
 
