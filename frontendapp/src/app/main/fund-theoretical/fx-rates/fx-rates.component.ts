@@ -239,6 +239,10 @@ export class FxRatesComponent implements OnInit {
         suppressCellFlash: true
       },
       {
+        headerName: 'Currency',
+        field: 'currency'
+      },
+      {
         headerName: 'Event',
         field: 'event'
       },
@@ -250,10 +254,6 @@ export class FxRatesComponent implements OnInit {
         type: 'numericColumn',
         valueFormatter: params =>
           this.numberFormatter(params.node.data.price, false)
-      },
-      {
-        headerName: 'Currency',
-        field: 'currency'
       },
       {
         headerName: 'Is Modified',

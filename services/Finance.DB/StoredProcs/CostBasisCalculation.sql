@@ -17,7 +17,7 @@ select
 tls.symbol, 
 SUM(tls.investment_at_cost + Coalesce(tl.investment_at_cost, 0)) * -1 as Balance, 
 SUM(tls.original_quantity +Coalesce(tl.quantity, 0)) as Quantity, 
-ABS(SUM(tls.investment_at_cost + Coalesce(tl.investment_at_cost, 0)) / SUM(tls.original_quantity +Coalesce(tl.quantity, 0))) / Max(Coalesce(sd.Multiplier, 1)) as CostBasis, 
+-- ABS(SUM(tls.investment_at_cost + Coalesce(tl.investment_at_cost, 0)) / SUM(tls.original_quantity +Coalesce(tl.quantity, 0))) / Max(Coalesce(sd.Multiplier, 1)) as CostBasis, 
 CASE
 	WHEN tls.side = 'BUY' then 'LONG'
 	ELSE 'SHORT'
@@ -30,8 +30,9 @@ left outer join #security_details sd on sd.SecurityCode = tls.symbol
 left outer join market_prices mp on mp.symbol = tls.symbol and mp.business_date = @bDate
 where tls.business_date <= @bDate
 group by tls.symbol, side
-having SUM(tls.original_quantity +Coalesce(tl.quantity, 0)) != 0
--- where tls.trade_date <= @bDate and tl.trade_date <= @bDate
+-- This condition needs to be removed
+-- having SUM(tls.original_quantity +Coalesce(tl.quantity, 0)) != 0
+
 
 
 
@@ -93,7 +94,10 @@ insert into cost_basis ( business_date, symbol, balance, quantity, cost_basis, s
 select cb.busdate, cb.symbol, 
 cb.Balance + coalesce(rl.realized_pnl,0), 
 cb.Quantity, 
-ABS((cb.Balance + coalesce(rl.realized_pnl,0)) / cb.Quantity) / coalesce(sd.Multiplier,1), 
+case
+	When cb.Quantity != 0 then ABS((cb.Balance + coalesce(rl.realized_pnl,0)) / cb.Quantity) / coalesce(sd.Multiplier,1)
+	else 0
+end,
 cb.Side, coalesce(rl.realized_pnl,0), coalesce(ul.unrealized_pnl,0) , cb.eod_price
 from #costbasis_all cb 
 left outer join #unrealized_long ul on ul.busdate = cb.busdate and ul.symbol = cb.symbol and ul.Side = cb.Side
@@ -105,7 +109,10 @@ insert into cost_basis ( business_date, symbol, balance, quantity, cost_basis, s
 select cb.busdate, cb.symbol, 
 cb.Balance + coalesce(rl.realized_pnl,0), 
 cb.Quantity, 
-ABS((cb.Balance + coalesce(rl.realized_pnl,0)) / cb.Quantity) / coalesce(sd.Multiplier,1), 
+case
+	When cb.Quantity != 0 then ABS((cb.Balance + coalesce(rl.realized_pnl,0)) / cb.Quantity) / coalesce(sd.Multiplier,1)
+	else 0
+end,
 cb.Side, coalesce(rl.realized_pnl,0), coalesce(ul.unrealized_pnl,0) , cb.eod_price
 from #costbasis_all cb 
 left outer join #unrealized_short ul on ul.busdate = cb.busdate and ul.symbol = cb.symbol and ul.Side = cb.Side
