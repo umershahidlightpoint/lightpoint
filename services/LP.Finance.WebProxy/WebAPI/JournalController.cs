@@ -4,6 +4,7 @@ using LP.Finance.Common.Dtos;
 using LP.Finance.WebProxy.WebAPI.Services;
 using LP.Finance.Common.Cache;
 using System.Collections.Generic;
+using LP.Finance.Common.Model;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -122,6 +123,20 @@ namespace LP.Finance.WebProxy.WebAPI
         public object DeleteJournal(Guid source)
         {
             return controller.DeleteJournal(source);
+        }
+
+        [Route("serverSide")]
+        [HttpPost]
+        public object GetServerSideJournals(ServerRowModel obj)
+        {
+            return controller.serverSideJournals(obj);
+        }
+
+        [Route("metaData")]
+        [HttpPost]
+        public object GetJournalsMetaData(JournalMetaInputDto obj)
+        {
+            return controller.GetJournalsMetaData(obj);
         }
     }
 }

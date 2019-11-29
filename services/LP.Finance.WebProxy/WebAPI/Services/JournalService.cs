@@ -9,6 +9,7 @@ using System.Text;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Mappers;
+using LP.Finance.Common.Model;
 using LP.Finance.Common.Models;
 using Newtonsoft.Json;
 using SqlDAL.Core;
@@ -1008,6 +1009,87 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             catch (Exception ex)
             {
                 return Utils.Wrap(false, null, HttpStatusCode.InternalServerError, "Something Bad Happened!");
+            }
+        }
+
+        public object serverSideJournals(ServerRowModel obj)
+        {
+            try
+            {
+                journalStats journalStats = new journalStats();
+                var sql = Utils.BuildSql(obj, "vwjournal");
+                var dataTable = sqlHelper.GetDataTable(sql.Item1, CommandType.Text, sql.Item2.ToArray());
+                int? lastRow = Utils.GetRowCount(obj, dataTable);
+                var metaData = MetaData.ToMetaData(dataTable);
+
+                metaData.Total = dataTable.Rows.Count > 0 ? dataTable.Rows.Count : 0;
+                metaData.LastRow = lastRow;
+                journalStats.totalCredit = 0;
+                journalStats.totalDebit = 0;
+
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+                dynamic json = JsonConvert.DeserializeObject(jsonResult);
+
+                var returnResult = Utils.Wrap(true, json, HttpStatusCode.OK, null, metaData, journalStats);
+
+                return returnResult;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+        }
+
+        public object GetJournalsMetaData(JournalMetaInputDto obj)
+        {
+            try
+            {
+                SqlHelper sqlHelper = new SqlHelper(connectionString);
+                var filtersQueries = new List<string>();
+
+                var columnsQuery = $@"SELECT TOP 0 * FROM {obj.TableName}";
+
+                var dataTable = sqlHelper.GetDataTable(columnsQuery, CommandType.Text);
+
+                var meta = MetaData.ToMetaData(dataTable);
+
+                if (obj.Filters.Count > 1)
+                {
+                    for (var i = 0; i < obj.Filters.Count; i++)
+                    {
+                        filtersQueries.Insert(i, $@"SELECT DISTINCT t.{obj.Filters[i]} FROM {obj.TableName} t");
+                    }
+                }
+                filtersQueries.Add($@"SELECT DISTINCT {obj.Filters.FirstOrDefault()} FROM {obj.TableName}");
+
+                meta.Filters = new List<FilterValues>();
+                for (var i = 0; i < obj.Filters.Count; i++)
+                {
+                    List<object> filterValues;
+                    using (var reader =
+                        sqlHelper.GetDataReader(filtersQueries[i], CommandType.Text, null,
+                            out var sqlConnection))
+                    {
+                        filterValues = new List<object>();
+                        while (reader.Read())
+                        {
+                            filterValues.Add(reader[obj.Filters[i]]);
+                        }
+
+                        reader.Close();
+                        sqlConnection.Close();
+                    }
+
+                    meta.Filters.Insert(i, new FilterValues() { ColumnName = obj.Filters[i], Values = filterValues });
+                }
+
+                return Utils.Wrap(true, meta, HttpStatusCode.OK);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
             }
         }
     }

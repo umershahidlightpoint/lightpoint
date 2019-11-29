@@ -61,6 +61,7 @@
     <Compile Include="Dtos\GridLayoutDto.cs" />
     <Compile Include="Dtos\JournalGridFilters.cs" />
     <Compile Include="Dtos\JournalGridMain.cs" />
+    <Compile Include="Dtos\JournalMetaInputDto.cs" />
     <Compile Include="Dtos\MarketPriceInputDto.cs" />
     <Compile Include="Dtos\TaxRateOutputDto.cs" />
     <Compile Include="Dtos\TaxRateInputDto.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="Dtos\AccountTagInputDto.cs" />
     <Compile Include="Dtos\TrialBalanceReportOutPutDto.cs" />
     <Compile Include="Dtos\TrialBalanceTileOutputDto.cs" />
+    <Compile Include="Model\FilterValues.cs" />
     <Compile Include="Model\FxRate.cs" />
     <Compile Include="Model\GraphQLQuery.cs" />
     <Compile Include="Mappers\EntityMapper.cs" />
@@ -107,9 +109,13 @@
     <Compile Include="Model\MarketDataPrice.cs" />
     <Compile Include="Model\MonthlyPerformance.cs" />
     <Compile Include="Model\Position.cs" />
+    <Compile Include="Model\RowGroupCols.cs" />
+    <Compile Include="Model\ServerRowModel.cs" />
+    <Compile Include="Model\SortModel.cs" />
     <Compile Include="Model\TaxLot.cs" />
     <Compile Include="Model\TaxLotStatus.cs" />
     <Compile Include="Model\TaxRate.cs" />
+    <Compile Include="Model\ValueCols.cs" />
     <Compile Include="Model\Wrap.cs" />
     <Compile Include="Model\PayLoad.cs" />
     <Compile Include="Model\Tag.cs" />
