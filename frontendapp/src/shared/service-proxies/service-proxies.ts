@@ -599,7 +599,12 @@ export class FinanceServiceProxy {
   }
 
   getServerSideJournals(obj) {
-    let url = this.baseUrl + '/journal/serverSide';
-    return this.http.post(url,obj).pipe(map((response: any) => response));
+    const url = this.baseUrl + '/journal/serverSide';
+    return this.http.post(url, obj).pipe(map((response: any) => response));
+  }
+
+  getServerSideJournalsMeta(obj) {
+    const url = this.baseUrl + '/journal/metaData';
+    return this.http.post(url, obj).pipe(map((response: any) => response));
   }
 }

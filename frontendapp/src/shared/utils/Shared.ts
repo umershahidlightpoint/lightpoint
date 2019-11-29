@@ -52,7 +52,7 @@ export const IgnoreFields = [
   'totalCredit',
   'overall_count',
   'account_id',
-  //'value',
+  // 'value',
   'LpOrderId',
   'FilledQuantity',
   'OrderedQuantity'
@@ -165,10 +165,7 @@ export const CalTotalRecords = gridOptions => {
   return pinnedBottomRowData;
 };
 
-export const CalTotal = (
-  rows: Array<any>,
-  fields: Array<{ name: string; total: number }>
-) => {
+export const CalTotal = (rows: Array<any>, fields: Array<{ name: string; total: number }>) => {
   rows.forEach(row => {
     fields.map(field => {
       field.total += row[field.name];
@@ -200,10 +197,7 @@ export const GetDateRangeLabel = (startDate, endDate) => {
   ) {
     return 'MTD';
   }
-  if (
-    moment().diff(startDate, 'days') === 0 &&
-    moment().diff(endDate, 'days') === 0
-  ) {
+  if (moment().diff(startDate, 'days') === 0 && moment().diff(endDate, 'days') === 0) {
     return 'Today';
   }
   return '';
@@ -211,8 +205,7 @@ export const GetDateRangeLabel = (startDate, endDate) => {
 
 export const SetDateRange = (dateFilter, startDate, endDate) => {
   if (typeof dateFilter === 'object') {
-    startDate =
-      dateFilter.startDate !== '' ? moment(dateFilter.startDate) : null;
+    startDate = dateFilter.startDate !== '' ? moment(dateFilter.startDate) : null;
     endDate = dateFilter.endDate !== '' ? moment(dateFilter.endDate) : null;
   }
 
@@ -244,11 +237,7 @@ export const DoesExternalFilterPass = (node, fund, startDate, endDate) => {
     const cellFund = node.data.fund;
     const cellDate = new Date(node.data.when);
 
-    return (
-      cellFund === fund &&
-      startDate.toDate() <= cellDate &&
-      endDate.toDate() >= cellDate
-    );
+    return cellFund === fund && startDate.toDate() <= cellDate && endDate.toDate() >= cellDate;
   }
 
   if (fund !== 'All Funds') {
@@ -312,7 +301,7 @@ export const AutoSizeAllColumns = params => {
   }
 };
 
-export const CommonCols = isJournalGrid => {
+export const CommonCols = (isJournalGrid, filters = null) => {
   return [
     {
       field: 'id',
@@ -334,9 +323,16 @@ export const CommonCols = isJournalGrid => {
       headerName: 'Fund',
       enableRowGroup: true,
       enablePivot: true,
-      filter: isJournalGrid ? 'agTextColumnFilter' : true,
+      filter: filters !== null ? 'agSetColumnFilter' : true,
       width: 120,
-      colId: 'fund'
+      colId: 'fund',
+      ...(filters !== null && {
+        filterParams: {
+          cellHeight: 20,
+          values: filters.find(item => item.ColumnName === 'fund').Values,
+          debounceMs: 1000
+        }
+      })
     },
     {
       field: 'AccountCategory',
@@ -345,8 +341,15 @@ export const CommonCols = isJournalGrid => {
       rowGroup: false,
       width: 100,
       enablePivot: true,
-      filter: isJournalGrid ? 'agTextColumnFilter' : true,
-      colId: 'AccountCategory'
+      filter: filters !== null ? 'agSetColumnFilter' : true,
+      colId: 'AccountCategory',
+      ...(filters !== null && {
+        filterParams: {
+          cellHeight: 20,
+          values: filters.find(item => item.ColumnName === 'AccountCategory').Values,
+          debounceMs: 1000
+        }
+      })
     },
     {
       field: 'AccountType',
@@ -354,8 +357,15 @@ export const CommonCols = isJournalGrid => {
       enableRowGroup: true,
       width: 200,
       enablePivot: true,
-      filter: isJournalGrid ? 'agTextColumnFilter' : true,
-      colId: 'AccountType'
+      filter: filters !== null ? 'agSetColumnFilter' : true,
+      colId: 'AccountType',
+      ...(filters !== null && {
+        filterParams: {
+          cellHeight: 20,
+          values: filters.find(item => item.ColumnName === 'AccountType').Values,
+          debounceMs: 1000
+        }
+      })
     },
     {
       field: 'accountName',
@@ -363,8 +373,15 @@ export const CommonCols = isJournalGrid => {
       sortable: true,
       rowGroup: false,
       enableRowGroup: true,
-      filter: isJournalGrid ? 'agTextColumnFilter' : true,
-      colId: 'accountName'
+      filter: filters !== null ? 'agSetColumnFilter' : true,
+      colId: 'accountName',
+      ...(filters !== null && {
+        filterParams: {
+          cellHeight: 20,
+          values: filters.find(item => item.ColumnName === 'AccountName').Values,
+          debounceMs: 1000
+        }
+      })
     },
     {
       field: 'accountDescription',
@@ -404,7 +421,8 @@ export const CommonCols = isJournalGrid => {
           if (cellDate > filterLocalDateAtMidnight) {
             return 1;
           }
-        }
+        },
+        values: []
       }
     },
     {
@@ -527,8 +545,15 @@ export const CommonCols = isJournalGrid => {
       headerName: 'Symbol',
       sortable: true,
       enableRowGroup: true,
-      filter: isJournalGrid ? 'agTextColumnFilter' : true,
-      colId: 'Symbol'
+      filter: filters !== null ? 'agSetColumnFilter' : true,
+      colId: 'Symbol',
+      ...(filters !== null && {
+        filterParams: {
+          cellHeight: 20,
+          values: filters.find(item => item.ColumnName === 'symbol').Values,
+          debounceMs: 1000
+        }
+      })
     },
     {
       field: 'Side',
