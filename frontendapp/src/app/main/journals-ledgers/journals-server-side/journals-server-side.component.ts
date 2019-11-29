@@ -1,17 +1,7 @@
 /* Core/Library Imports */
-import {
-  Component,
-  OnInit,
-  AfterViewInit,
-  ViewChild,
-  ChangeDetectorRef
-} from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import 'ag-grid-enterprise';
-import {
-  GridOptions,
-  IServerSideDatasource,
-  IServerSideGetRowsParams
-} from 'ag-grid-community';
+import { GridOptions, IServerSideDatasource, IServerSideGetRowsParams } from 'ag-grid-community';
 import * as moment from 'moment';
 /* Services/Components Imports */
 import {
@@ -45,13 +35,10 @@ import { ReportModalComponent } from 'src/shared/Component/report-modal/report-m
   templateUrl: './journals-server-side.component.html',
   styleUrls: ['./journals-server-side.component.css']
 })
-export class JournalsServerSideComponent implements OnInit {
-  @ViewChild('journalModal', { static: false })
-  @ViewChild('dataModal', { static: false })
-  dataModal: DataModalComponent;
-  @ViewChild('reportModal', { static: false })
-  journalModal: JournalModalComponent;
-  reportModal: ReportModalComponent;
+export class JournalsServerSideComponent implements OnInit, AfterViewInit {
+  @ViewChild('journalModal', { static: false }) journalModal: JournalModalComponent;
+  @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
+  @ViewChild('reportModal', { static: false }) reportModal: ReportModalComponent;
 
   private columns: any;
   public rowData: any[] = [];
@@ -71,10 +58,12 @@ export class JournalsServerSideComponent implements OnInit {
   endDate: moment.Moment;
   funds: any;
   accountSearch = { id: undefined };
-  valueFilter: number;
-  sortColum: string;
-  sortDirection: string;
+  valueFilter = 0;
+  sortColum = '';
+  sortDirection = '';
   page: number;
+  pageNumber = 0;
+  pageSize = 100;
   tableHeader: string;
   isDataStreaming = false;
   colDefs;
@@ -102,22 +91,19 @@ export class JournalsServerSideComponent implements OnInit {
     boxSizing: 'border-box'
   };
 
-  pageSize = 100;
-  pageNumber = 0;
-
   datasource: IServerSideDatasource = {
     getRows: (params: IServerSideGetRowsParams) => {
       this.pageNumber = params.request.endRow / this.pageSize;
-      console.log(JSON.stringify(params.request, null, 1));
-
-      this.valueFilter = 0;
-      this.sortColum = '';
-      this.sortDirection = '';
+      const { dateFilter } = this.getServerSideExternalFilter();
       const payload = {
         ...params.request,
+        externalFilterModel: { dateFilter },
         pageNumber: this.pageNumber,
         pageSize: this.pageSize
       };
+
+      console.log('PARAMS :: ', JSON.stringify(params.request, null, 1));
+      console.log('PAYLOAD :: ', JSON.stringify(payload, null, 1));
 
       this.financeService.getServerSideJournals(payload).subscribe(
         result => {
@@ -131,33 +117,29 @@ export class JournalsServerSideComponent implements OnInit {
             params.successCallback(this.rowData, result.meta.LastRow);
             this.gridOptions.api.refreshCells();
 
-            const fieldsSum: Array<{ name: string; total: number }> = CalTotal(
-              this.rowData,
-              [
-                { name: 'debit', total: 0 },
-                { name: 'credit', total: 0 },
-                { name: 'Commission', total: 0 },
-                { name: 'Fees', total: 0 },
-                { name: 'TradePrice', total: 0 },
-                { name: 'NetPrice', total: 0 },
-                { name: 'SettleNetPrice', total: 0 },
-                { name: 'NetMoney', total: 0 },
-                { name: 'LocalNetNotional', total: 0 },
-                { name: 'value', total: 0 }
-              ]
-            );
-            console.log('FIELDS SUM', fieldsSum);
+            const fieldsSum: Array<{ name: string; total: number }> = CalTotal(this.rowData, [
+              { name: 'debit', total: 0 },
+              { name: 'credit', total: 0 },
+              { name: 'Commission', total: 0 },
+              { name: 'Fees', total: 0 },
+              { name: 'TradePrice', total: 0 },
+              { name: 'NetPrice', total: 0 },
+              { name: 'SettleNetPrice', total: 0 },
+              { name: 'NetMoney', total: 0 },
+              { name: 'LocalNetNotional', total: 0 },
+              { name: 'value', total: 0 }
+            ]);
+            console.log('FIELDS SUM :: ', fieldsSum);
             this.pinnedBottomRowData = [
               {
-                source: 'Total Records:' + this.totalRecords,
+                source: 'Total Records: ' + this.totalRecords,
                 AccountType: '',
                 accountName: '',
                 when: '',
                 SecurityId: 0,
                 debit: Math.abs(fieldsSum[0].total),
                 credit: Math.abs(fieldsSum[1].total),
-                balance:
-                  Math.abs(fieldsSum[0].total) - Math.abs(fieldsSum[1].total),
+                balance: Math.abs(fieldsSum[0].total) - Math.abs(fieldsSum[1].total),
                 Commission: Math.abs(fieldsSum[2].total),
                 Fees: Math.abs(fieldsSum[3].total),
                 TradePrice: fieldsSum[4].total,
@@ -168,9 +150,7 @@ export class JournalsServerSideComponent implements OnInit {
                 value: Math.abs(fieldsSum[9].total)
               }
             ];
-            this.gridOptions.api.setPinnedBottomRowData(
-              this.pinnedBottomRowData
-            );
+            this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
             this.gridOptions.api.refreshCells();
 
             AutoSizeAllColumns(this.gridOptions);
@@ -206,17 +186,19 @@ export class JournalsServerSideComponent implements OnInit {
     this.isEngineRunning = this.postingEngineService.getStatus();
   }
 
+  ngAfterViewInit() {
+    this.dataService.flag$.subscribe(obj => {
+      this.hideGrid = obj;
+      if (!this.hideGrid) {
+        // this.getAllData(true);
+      }
+    });
+  }
+
   initColDefs() {
     const payload = {
       tableName: 'vwJournal',
-      filters: [
-        'fund',
-        'symbol',
-        'AccountCategory',
-        'AccountType',
-        'AccountName',
-        'fx_currency'
-      ]
+      filters: ['fund', 'symbol', 'AccountCategory', 'AccountType', 'AccountName', 'fx_currency']
     };
     this.financeService.getServerSideJournalsMeta(payload).subscribe(result => {
       let commonColDefs = result.payload.Columns;
@@ -274,10 +256,10 @@ export class JournalsServerSideComponent implements OnInit {
         this.gridOptions.excelStyles = ExcelStyle;
       },
       onFirstDataRendered: params => {
-        params.api.forEachNode(node => {
-          node.expanded = true;
-        });
-        params.api.onGroupExpandedOrCollapsed();
+        // params.api.forEachNode(node => {
+        //   node.expanded = true;
+        // });
+        // params.api.onGroupExpandedOrCollapsed();
       },
       enableFilter: true,
       animateRows: true,
@@ -319,22 +301,8 @@ export class JournalsServerSideComponent implements OnInit {
       this.dataDictionary.column('end_price', true),
       this.dataDictionary.column('fxrate', true)
     ];
-    const cdefs = this.agGridUtls.customizeColumns(
-      colDefs,
-      columns,
-      this.ignoreFields,
-      true
-    );
+    const cdefs = this.agGridUtls.customizeColumns(colDefs, columns, this.ignoreFields, true);
     this.gridOptions.api.setColumnDefs(cdefs);
-  }
-
-  ngAfterViewInit() {
-    this.dataService.flag$.subscribe(obj => {
-      this.hideGrid = obj;
-      if (!this.hideGrid) {
-        this.getAllData(true);
-      }
-    });
   }
 
   getAllData(initialLoad) {
@@ -384,9 +352,7 @@ export class JournalsServerSideComponent implements OnInit {
               for (const i in this.columns) {
                 const field = this.columns[i].field;
                 if (this.columns[i].Type == 'System.DateTime') {
-                  someObject[field] = moment(
-                    result.payload[item][field]
-                  ).format('MM-DD-YYYY');
+                  someObject[field] = moment(result.payload[item][field]).format('MM-DD-YYYY');
                 } else {
                   someObject[field] = result.payload[item][field];
                 }
@@ -401,21 +367,18 @@ export class JournalsServerSideComponent implements OnInit {
               this.gridOptions.api.setRowData(this.rowData);
             }
 
-            const fieldsSum: Array<{ name: string; total: number }> = CalTotal(
-              this.rowData,
-              [
-                { name: 'debit', total: 0 },
-                { name: 'credit', total: 0 },
-                { name: 'Commission', total: 0 },
-                { name: 'Fees', total: 0 },
-                { name: 'TradePrice', total: 0 },
-                { name: 'NetPrice', total: 0 },
-                { name: 'SettleNetPrice', total: 0 },
-                { name: 'NetMoney', total: 0 },
-                { name: 'LocalNetNotional', total: 0 },
-                { name: 'value', total: 0 }
-              ]
-            );
+            const fieldsSum: Array<{ name: string; total: number }> = CalTotal(this.rowData, [
+              { name: 'debit', total: 0 },
+              { name: 'credit', total: 0 },
+              { name: 'Commission', total: 0 },
+              { name: 'Fees', total: 0 },
+              { name: 'TradePrice', total: 0 },
+              { name: 'NetPrice', total: 0 },
+              { name: 'SettleNetPrice', total: 0 },
+              { name: 'NetMoney', total: 0 },
+              { name: 'LocalNetNotional', total: 0 },
+              { name: 'value', total: 0 }
+            ]);
             console.log('FIELDS SUM', fieldsSum);
             this.pinnedBottomRowData = [
               {
@@ -426,8 +389,7 @@ export class JournalsServerSideComponent implements OnInit {
                 SecurityId: 0,
                 debit: Math.abs(fieldsSum[0].total),
                 credit: Math.abs(fieldsSum[1].total),
-                balance:
-                  Math.abs(fieldsSum[0].total) - Math.abs(fieldsSum[1].total),
+                balance: Math.abs(fieldsSum[0].total) - Math.abs(fieldsSum[1].total),
                 Commission: Math.abs(fieldsSum[2].total),
                 Fees: Math.abs(fieldsSum[3].total),
                 TradePrice: fieldsSum[4].total,
@@ -438,9 +400,7 @@ export class JournalsServerSideComponent implements OnInit {
                 value: Math.abs(fieldsSum[9].total)
               }
             ];
-            this.gridOptions.api.setPinnedBottomRowData(
-              this.pinnedBottomRowData
-            );
+            this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
             this.gridOptions.api.refreshCells();
             AutoSizeAllColumns(this.gridOptions);
           } else {
@@ -504,28 +464,19 @@ export class JournalsServerSideComponent implements OnInit {
     const { symbolFilter } = object;
     const { dateFilter } = object;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
-    this.filterBySymbol =
-      symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
+    this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
     this.setDateRange(dateFilter);
     this.gridOptions.api.onFilterChanged();
   }
 
   isExternalFilterPresent() {
-    if (
-      this.fund !== 'All Funds' ||
-      this.startDate ||
-      this.filterBySymbol !== ''
-    ) {
+    if (this.fund !== 'All Funds' || this.startDate || this.filterBySymbol !== '') {
       return true;
     }
   }
 
   doesExternalFilterPass(node: any) {
-    if (
-      this.fund !== 'All Funds' &&
-      this.filterBySymbol !== '' &&
-      this.startDate
-    ) {
+    if (this.fund !== 'All Funds' && this.filterBySymbol !== '' && this.startDate) {
       const cellFund = node.data.fund;
       const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
       const cellDate = new Date(node.data.when);
@@ -565,15 +516,11 @@ export class JournalsServerSideComponent implements OnInit {
     }
     if (this.startDate) {
       const cellDate = new Date(node.data.when);
-      return (
-        this.startDate.toDate() <= cellDate && this.endDate.toDate() >= cellDate
-      );
+      return this.startDate.toDate() <= cellDate && this.endDate.toDate() >= cellDate;
     }
     if (this.filterBySymbol !== '') {
       const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
-      return cellSymbol
-        .toLowerCase()
-        .includes(this.filterBySymbol.toLowerCase());
+      return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase());
     }
   }
 
@@ -583,9 +530,7 @@ export class JournalsServerSideComponent implements OnInit {
     this.endDate = dates[1];
 
     this.selected =
-      dateFilter.startDate !== ''
-        ? { startDate: this.startDate, endDate: this.endDate }
-        : null;
+      dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
   }
 
   getContextMenuItems(params) {
@@ -608,13 +553,7 @@ export class JournalsServerSideComponent implements OnInit {
       }
     ];
     //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
-    return GetContextMenu(
-      false,
-      addDefaultItems,
-      false,
-      addCustomItems,
-      params
-    );
+    return GetContextMenu(false, addDefaultItems, false, addCustomItems, params);
   }
 
   clearFilters() {
@@ -637,13 +576,20 @@ export class JournalsServerSideComponent implements OnInit {
         this.DateRangeLabel !== ''
           ? this.DateRangeLabel
           : {
-              startDate:
-                this.startDate !== null
-                  ? this.startDate.format('YYYY-MM-DD')
-                  : '',
-              endDate:
-                this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
+              startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
+              endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
             }
+    };
+  }
+
+  getServerSideExternalFilter() {
+    return {
+      ...(this.startDate !== null && {
+        dateFilter: {
+          startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
+          endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
+        }
+      })
     };
   }
 
@@ -652,7 +598,7 @@ export class JournalsServerSideComponent implements OnInit {
   }
 
   closeJournalModal() {
-    this.getAllData(true);
+    // this.getAllData(true);
   }
 
   closeOrderModal() {
@@ -679,8 +625,8 @@ export class JournalsServerSideComponent implements OnInit {
   refreshGrid() {
     this.totalRecords = 0;
     this.rowData = [];
-    this.gridOptions.api.showLoadingOverlay();
-    this.getAllData(true);
+    // this.gridOptions.api.showLoadingOverlay();
+    // this.getAllData(true);
   }
 
   setGroupingState(value: boolean) {

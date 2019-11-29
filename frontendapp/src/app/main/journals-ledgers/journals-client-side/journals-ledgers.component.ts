@@ -42,26 +42,11 @@ import { ReportModalComponent } from 'src/shared/Component/report-modal/report-m
   styleUrls: ['./journals-ledgers.component.css']
 })
 export class JournalsLedgersComponent implements OnInit, AfterViewInit {
-  constructor(
-    private financeService: FinanceServiceProxy,
-    private dataService: DataService,
-    private postingEngineService: PostingEngineService,
-    private cdRef: ChangeDetectorRef,
-    private agGridUtls: AgGridUtils,
-    private dataDictionary: DataDictionary
-  ) {
-    this.hideGrid = false;
-    this.DateRangeLabel = '';
-    this.initGird();
-  }
-  @ViewChild('journalModal', { static: false })
-  journalModal: JournalModalComponent;
+  @ViewChild('journalModal', { static: false }) journalModal: JournalModalComponent;
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
-  @ViewChild('reportModal', { static: false })
-  reportModal: ReportModalComponent;
+  @ViewChild('reportModal', { static: false }) reportModal: ReportModalComponent;
 
   private columns: any;
-
   public rowData: any[] = [];
 
   isEngineRunning = false;
@@ -109,8 +94,30 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     boxSizing: 'border-box'
   };
 
+  constructor(
+    private financeService: FinanceServiceProxy,
+    private dataService: DataService,
+    private postingEngineService: PostingEngineService,
+    private cdRef: ChangeDetectorRef,
+    private agGridUtls: AgGridUtils,
+    private dataDictionary: DataDictionary
+  ) {
+    this.hideGrid = false;
+    this.DateRangeLabel = '';
+    this.initGird();
+  }
+
   ngOnInit() {
     this.isEngineRunning = this.postingEngineService.getStatus();
+  }
+
+  ngAfterViewInit() {
+    this.dataService.flag$.subscribe(obj => {
+      this.hideGrid = obj;
+      if (!this.hideGrid) {
+        this.getAllData(true);
+      }
+    });
   }
 
   initGird() {
@@ -132,7 +139,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       pivotPanelShow: 'after',
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
-      floatingFilter: true,
       suppressColumnVirtualisation: true,
       suppressHorizontalScroll: false,
       onGridReady: params => {
@@ -191,15 +197,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       true
     );
     this.gridOptions.api.setColumnDefs(cdefs);
-  }
-
-  ngAfterViewInit() {
-    this.dataService.flag$.subscribe(obj => {
-      this.hideGrid = obj;
-      if (!this.hideGrid) {
-        this.getAllData(true);
-      }
-    });
   }
 
   getAllData(initialLoad) {
