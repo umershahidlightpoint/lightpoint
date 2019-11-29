@@ -243,7 +243,7 @@ export class FxRatesComponent implements OnInit {
         field: 'event'
       },
       {
-        headerName: 'Price',
+        headerName: 'Fx Rate',
         field: 'price',
         editable: true,
         sortable: true,
@@ -508,7 +508,7 @@ export class FxRatesComponent implements OnInit {
     if (isInPercentage) {
       per = PercentageFormatter(numberToFormat);
     }
-    const formattedValue = this.decimalPipe.transform(per, '1.2-2');
+    const formattedValue = this.decimalPipe.transform(per, '1.8-8');
     return formattedValue.toString();
   }
 

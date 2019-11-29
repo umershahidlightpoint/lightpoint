@@ -509,7 +509,7 @@ export class MarketPricesComponent implements OnInit {
     if (isInPercentage) {
       per = PercentageFormatter(numberToFormat);
     }
-    const formattedValue = this.decimalPipe.transform(per, '1.2-2');
+    const formattedValue = this.decimalPipe.transform(per, '1.4-4');
     return formattedValue.toString();
   }
 

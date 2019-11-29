@@ -17,16 +17,16 @@ namespace PostingEngineCmd
     {
         static void Main(string[] args)
         {
-            FxRates.CacheData();
-            MarketPrices.CacheData();
-
             // Generate Journals First
             // Doing this for the previous Business Date
             var date = System.DateTime.Now.Date;
             date = date.PrevBusinessDate();
 
-            // Pull from Legacy System
+            // Pull data from the legacy system, market prices, fx rates, and daily Pnl data from BookMon
             PullFromLegacySystem(date);
+
+            FxRates.CacheData();
+            MarketPrices.CacheData();
 
             // Get all Activity
             ITD(date);
