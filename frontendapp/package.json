@@ -30,6 +30,7 @@
     "angular-split": "^3.0.0",
     "body-parser": "^1.19.0",
     "bootstrap": "^4.3.1",
+    "build": "^0.1.4",
     "core-js": "^3.4.1",
     "cors": "^2.8.5",
     "express": "^4.17.1",
@@ -43,6 +44,7 @@
     "primeicons": "^2.0.0",
     "primeng": "^7.1.2",
     "request": "^2.88.0",
+    "run": "^1.4.0",
     "rxjs": "~6.5.3",
     "tslib": "^1.10.0",
     "zone.js": "~0.10.2"
