@@ -25,6 +25,12 @@
 </div>
 <!-- File Upload Container Ends -->
 
+    <!-- AG Grid for file Upload -->
+    <div [ngStyle]="styleForLogsHeight" [ngClass]="{'w-100' : displayGrid, 'd-none' : !displayGrid}">
+      <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="uploadGrid">
+      </ag-grid-angular>
+    </div>
+
 <!-- Confirmation Modal Component -->
 <app-confirmation-modal #confirmationModal (confirmDeletion)="confirmReset()" [modalTitle]="'Reset Performance'"
   [modalDescription]="'All your changes will be lost.\nAre you sure you want to reset performance?'">
