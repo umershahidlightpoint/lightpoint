@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions, ColGroupDef, ColDef } from 'ag-grid-community';
 import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies';
 import { ToastrService } from 'ngx-toastr';
 import { GridId } from '../../../../shared/utils/AppEnums';
@@ -14,6 +14,7 @@ import {
   cellClassRulesCredit,
   cellClassRules
 } from 'src/shared/utils/DataDictionary';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'app-journals-summary',
@@ -108,7 +109,7 @@ export class JournalsSummaryComponent implements OnInit {
     } as GridOptions;
   }
 
-  getContextMenuItems(params) {
+  getContextMenuItems(params): Array<ContextMenu> {
     const addDefaultItems = [];
     if (!params.node.group) {
       addDefaultItems.push({
@@ -124,7 +125,6 @@ export class JournalsSummaryComponent implements OnInit {
   }
 
   getJournalsSummary(gridLayout: any) {
-    debugger
     this.financeService.getJournalSummary(gridLayout.ColumnState).subscribe(
       response => {
         if (response.isSuccessful) {
@@ -159,26 +159,30 @@ export class JournalsSummaryComponent implements OnInit {
   }
 
   setGridState(response: any) {
-    const colDefs = response.meta.Columns.map(element => {
-      if (element.aggFunc) {
-        element = {
-          ...element,
-          cellStyle: { 'text-align': 'right' },
-          valueFormatter: params => {
-            return element.field === 'balance' ? valueFormatter(params) : moneyFormatter(params);
+    const colDefs: Array<ColDef | ColGroupDef> = response.meta.Columns.map(
+      element => {
+        if (element.aggFunc) {
+          element = {
+            ...element,
+            cellStyle: { 'text-align': 'right' },
+            valueFormatter: params => {
+              return element.field === 'balance'
+                ? valueFormatter(params)
+                : moneyFormatter(params);
+            }
+          };
+          if (element.field === 'balance') {
+            cellClassRules(element);
+          } else if (element.field === 'debitSum') {
+            cellClassRulesDebit(element);
+          } else if (element.field === 'creditSum') {
+            cellClassRulesCredit(element);
           }
-        };
-        if (element.field === 'balance') {
-          cellClassRules(element);
-        } else if (element.field === 'debitSum') {
-          cellClassRulesDebit(element);
-        } else if (element.field === 'creditSum') {
-          cellClassRulesCredit(element);
         }
-      }
 
-      return element;
-    });
+        return element;
+      }
+    );
 
     const pinnedBottomRowData = this.getBottomRowData(response);
     this.gridOptions.api.setRowData(response.payload);

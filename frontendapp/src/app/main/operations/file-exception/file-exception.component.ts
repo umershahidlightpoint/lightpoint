@@ -1,9 +1,19 @@
-import { Component, OnInit, AfterViewInit, TemplateRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies';
 import { take } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
-import { GridOptions } from 'ag-grid-community';
-import { SideBar, HeightStyle, AutoSizeAllColumns } from 'src/shared/utils/Shared';
+import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
+import {
+  SideBar,
+  HeightStyle,
+  AutoSizeAllColumns
+} from 'src/shared/utils/Shared';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
@@ -16,7 +26,9 @@ import * as moment from 'moment';
   styleUrls: ['./file-exception.component.css']
 })
 export class FileExceptionComponent implements OnInit, AfterViewInit {
-  @ViewChild('actionButtons',{ static: false }) actionButtons: TemplateRef<any>;
+  @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<
+    any
+  >;
 
   isEngineRunning = false;
   hideGrid = false;
@@ -76,7 +88,7 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
             params.api.sizeColumnsToFit();
           }
         },
-        getDetailRowData: function(params) {
+        getDetailRowData: params => {
           params.successCallback(params.data.exceptionList);
         },
         getExternalFilterState: () => {
@@ -107,7 +119,7 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
   }
 
   customizeColumns() {
-    const colDefs = [
+    const colDefs: Array<ColDef | ColGroupDef> = [
       {
         field: 'id',
         headerName: 'File Exception Id',
@@ -160,7 +172,6 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
           this.gridOptions.api.setRowData(this.rowData);
 
           AutoSizeAllColumns(this.gridOptions);
-
           this.gridOptions.api.sizeColumnsToFit();
         },
         error => {

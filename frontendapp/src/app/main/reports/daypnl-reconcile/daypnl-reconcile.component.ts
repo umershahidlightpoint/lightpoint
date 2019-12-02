@@ -13,18 +13,17 @@ import {
   ExcelStyle,
   CalTotalRecords,
   GetDateRangeLabel,
-  FormatNumber4,
   SetDateRange,
   CommaSeparatedFormat,
   HeightStyle,
-  FormatDate,
-  DateFormatter
+  FormatDate
 } from 'src/shared/utils/Shared';
 import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'rep-daypnl-reconcile',
@@ -55,9 +54,8 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
   qData: any;
 
   reconciledData: any;
-  bookmonData:any;
-  portfolioData:any;
-
+  bookmonData: any;
+  portfolioData: any;
 
   labels: string[] = [];
   displayChart = false;
@@ -107,7 +105,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
 
   initGrid() {
     this.startDate = new Date();
-    this.startDate.setDate(this.startDate.getDate() -1);
+    this.startDate.setDate(this.startDate.getDate() - 1);
     this.gridOptions = {
       rowData: [],
       pinnedBottomRowData: [],
@@ -143,15 +141,15 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
           field: 'Symbol',
           width: 120,
           headerName: 'Symbol',
-          sortable:true,
-          filter:true,
+          sortable: true,
+          filter: true
         },
         {
           field: 'Fund',
           width: 120,
           headerName: 'Fund',
-          sortable:true,
-          filter:true,
+          sortable: true,
+          filter: true
         },
         {
           field: 'Diff_DayPnl',
@@ -167,8 +165,8 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
           width: 50,
           headerName: 'Currency',
           sortable: true,
-          filter: true,
-        },
+          filter: true
+        }
       ],
       defaultColDef: {
         sortable: true,
@@ -176,7 +174,11 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(GridId.costBasisId, GridName.costBasis, this.gridOptions);
+    this.gridOptions.sideBar = SideBar(
+      GridId.costBasisId,
+      GridName.costBasis,
+      this.gridOptions
+    );
 
     this.bookmonOptions = {
       rowData: [],
@@ -213,15 +215,15 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
           field: 'SecurityCode',
           width: 120,
           headerName: 'Symbol',
-          sortable:true,
-          filter:true,
+          sortable: true,
+          filter: true
         },
         {
           field: 'Fund',
           width: 120,
           headerName: 'Fund',
-          sortable:true,
-          filter:true,
+          sortable: true,
+          filter: true
         },
         {
           field: 'DayPnl',
@@ -237,8 +239,8 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
           width: 50,
           headerName: 'Currency',
           sortable: true,
-          filter: true,
-        },
+          filter: true
+        }
       ],
       defaultColDef: {
         sortable: true,
@@ -282,15 +284,15 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
           field: 'SecurityCode',
           width: 120,
           headerName: 'Symbol',
-          sortable:true,
-          filter:true,
+          sortable: true,
+          filter: true
         },
         {
           field: 'Fund',
           width: 120,
           headerName: 'Fund',
-          sortable:true,
-          filter:true,
+          sortable: true,
+          filter: true
         },
         {
           field: 'DayPnl',
@@ -306,8 +308,8 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
           width: 50,
           headerName: 'Currency',
           sortable: true,
-          filter: true,
-        },
+          filter: true
+        }
       ],
       defaultColDef: {
         sortable: true,
@@ -315,7 +317,6 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-
   }
 
   ngAfterViewInit(): void {
@@ -365,21 +366,21 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     let mySymbol = row.data.Symbol;
 
     this.bookmonOptions.api.forEachNodeAfterFilter((rowNode, index) => {
-      if ( rowNode.data.SecurityCode === mySymbol) {
+      if (rowNode.data.SecurityCode === mySymbol) {
         rowNode.setSelected(true);
       } else {
         rowNode.setSelected(false);
       }
-      });
+    });
 
-      this.portfolioOptions.api.forEachNodeAfterFilter((rowNode, index) => {
-        if ( rowNode.data.SecurityCode === mySymbol) {
-          rowNode.setSelected(true);
-        } else {
-          rowNode.setSelected(false);
-        }
-        });
-  
+    this.portfolioOptions.api.forEachNodeAfterFilter((rowNode, index) => {
+      if (rowNode.data.SecurityCode === mySymbol) {
+        rowNode.setSelected(true);
+      } else {
+        rowNode.setSelected(false);
+      }
+    });
+
     /*
     this.financeService.getCostBasisChart(symbol).subscribe(response => {
       debugger
@@ -396,45 +397,46 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
   mapCostBasisData(data: any, chartType: string) {
     this.labels = data.map(item => item.Date);
     this.cbData = {
-      chartType:data.map(item => ({
+      chartType: data.map(item => ({
         date: FormatDate(item.Date, 'YYYY-MM-DD'),
         value: item[chartType]
-    }))};
+      }))
+    };
   }
 
   mapChartsData(data: any) {
     this.labels = data.map(item => item.Date);
 
     this.bData = {
-      'Balance': data.map(item => ({
+      Balance: data.map(item => ({
         date: FormatDate(item.Date, 'YYYY-MM-DD'),
         value: item.Balance
       }))
     };
 
     this.qData = {
-      'Quantity' : data.map(item => ({
+      Quantity: data.map(item => ({
         date: FormatDate(item.Date, 'YYYY-MM-DD'),
         value: item.Quantity
       }))
     };
 
     this.unrealizedData = {
-      'unrealized_pnl' : data.map(item => ({
+      unrealized_pnl: data.map(item => ({
         date: FormatDate(item.Date, 'YYYY-MM-DD'),
         value: item.unrealized_pnl
       }))
     };
 
     this.realizedData = {
-      'realized_pnl' : data.map(item => ({
+      realized_pnl: data.map(item => ({
         date: FormatDate(item.Date, 'YYYY-MM-DD'),
         value: item.realized_pnl
       }))
     };
 
     this.netpnlData = {
-      'Pnl' : data.map(item => ({
+      Pnl: data.map(item => ({
         date: FormatDate(item.Date, 'YYYY-MM-DD'),
         value: item.Pnl
       }))
@@ -458,7 +460,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
 
   doesExternalFilterPass(node: any) {}
 
-  getContextMenuItems(params) {
+  getContextMenuItems(params): Array<ContextMenu> {
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(true, null, true, null, params);
   }
@@ -469,7 +471,9 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     this.endDate = dates[1];
 
     this.selectedDate =
-      dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
+      dateFilter.startDate !== ''
+        ? { startDate: this.startDate, endDate: this.endDate }
+        : null;
   }
 
   getRangeLabel() {
@@ -482,7 +486,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     this.selectedDate = null;
     this.DateRangeLabel = '';
     this.startDate = new Date();
-    this.startDate.setDate(this.startDate.getDate() -1);
+    this.startDate.setDate(this.startDate.getDate() - 1);
 
     this.endDate = undefined;
     this.getReport(this.startDate, 'ALL');
@@ -503,18 +507,26 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
       return;
     }
     this.startDate = selectedDate.startDate.format('YYYY-MM-DD');
-    this.getReport(this.startDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
+    this.getReport(
+      this.startDate,
+      this.fund === 'All Funds' ? 'ALL' : this.fund
+    );
     this.getRangeLabel();
   }
 
   changeFund(selectedFund) {
     this.fund = selectedFund;
-    this.getReport(this.startDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
+    this.getReport(
+      this.startDate,
+      this.fund === 'All Funds' ? 'ALL' : this.fund
+    );
   }
 
   changeChart(selectedChart) {
     this.selectedChartOption = selectedChart;
-    this.selectedChartTitle = this.chartOptions.find(({ key }) => selectedChart === key).value;
+    this.selectedChartTitle = this.chartOptions.find(
+      ({ key }) => selectedChart === key
+    ).value;
     if (this.chartData) {
       this.mapCostBasisData(this.chartData, this.selectedChartOption);
     }
@@ -538,30 +550,9 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
   }
 }
 
-function dateFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  return DateFormatter(params.value);
-}
-
 function currencyFormatter(params) {
   if (params.value === undefined) {
     return;
   }
   return CommaSeparatedFormat(params.value);
-}
-
-function costBasisFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  return FormatNumber4(params.value);
-}
-
-function absCurrencyFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  return CommaSeparatedFormat(Math.abs(params.value));
 }

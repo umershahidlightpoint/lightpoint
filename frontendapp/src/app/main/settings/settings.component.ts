@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
 import { Style, HeightStyle } from '../../../shared/utils/Shared';
 
@@ -37,7 +37,7 @@ export class SettingsComponent implements OnInit {
   sortColum: any;
   sortDirection: any;
   page: any;
-  columnDefs = [];
+  columnDefs: Array<ColDef | ColGroupDef>;
 
   style = Style;
 

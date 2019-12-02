@@ -1,7 +1,7 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import * as moment from 'moment';
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions, ColGroupDef, ColDef } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import {
@@ -19,6 +19,8 @@ import { FxratesApiService } from '../../../../services/fxrates-api.service';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 import { GraphObject } from 'src/shared/Models/graph-object';
+import { ContextMenu } from 'src/shared/Models/common';
+import { DataDictionary } from 'src/shared/utils/DataDictionary';
 
 @Component({
   selector: 'app-fx-rates',
@@ -94,7 +96,7 @@ export class FxRatesComponent implements OnInit {
   constructor(
     private fxratesApiService: FxratesApiService,
     private toastrService: ToastrService,
-    public decimalPipe: DecimalPipe
+    public dataDictionary: DataDictionary
   ) {}
 
   ngOnInit() {
@@ -179,7 +181,7 @@ export class FxRatesComponent implements OnInit {
     this.fxRate.api.setColumnDefs(colDefs);
   }
 
-  doesExternalFilterPass(node) {
+  doesExternalFilterPass(node): boolean {
     const businessDate = new Date(node.data.businessDate);
 
     if ((this.filterByCurrency !== '' && this.startDate) || this.endDate) {
@@ -206,7 +208,7 @@ export class FxRatesComponent implements OnInit {
     }
   }
 
-  isExternalFilterPresent() {
+  isExternalFilterPresent(): boolean {
     if (this.startDate || this.endDate || this.filterByCurrency !== '') {
       return true;
     }
@@ -253,7 +255,7 @@ export class FxRatesComponent implements OnInit {
         sortable: true,
         type: 'numericColumn',
         valueFormatter: params =>
-          this.numberFormatter(params.node.data.price, false)
+          this.dataDictionary.numberFormatter(params.node.data.price, false)
       },
       {
         headerName: 'Is Modified',
@@ -265,7 +267,7 @@ export class FxRatesComponent implements OnInit {
     return colDefs;
   }
 
-  getContextMenuItems(params) {
+  getContextMenuItems(params): Array<ContextMenu> {
     const addDefaultItems = [
       {
         name: 'Visualize',
@@ -296,7 +298,7 @@ export class FxRatesComponent implements OnInit {
     });
   }
 
-  getAuditColDefs() {
+  getAuditColDefs(): Array<ColDef | ColGroupDef> {
     return [
       {
         headerName: 'Business Date',
@@ -501,15 +503,6 @@ export class FxRatesComponent implements OnInit {
   refreshGrid() {
     this.fxRate.api.showLoadingOverlay();
     this.getData();
-  }
-
-  numberFormatter(numberToFormat, isInPercentage) {
-    let per = numberToFormat;
-    if (isInPercentage) {
-      per = PercentageFormatter(numberToFormat);
-    }
-    const formattedValue = this.decimalPipe.transform(per, '1.8-8');
-    return formattedValue.toString();
   }
 
   onFileInput(files: FileList) {

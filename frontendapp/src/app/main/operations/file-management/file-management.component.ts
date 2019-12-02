@@ -6,7 +6,7 @@ import {
   ViewChild
 } from '@angular/core';
 import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { TemplateRendererComponent } from '../../../template-renderer/template-renderer.component';
 import { File } from 'src/shared/models/files';
 import {
@@ -19,6 +19,7 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { ToastrService } from 'ngx-toastr';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'app-file-management',
@@ -95,7 +96,7 @@ export class FileManagementComponent implements OnInit, AfterViewInit {
   }
 
   setColDefs() {
-    const colDefs = [
+    const colDefs: Array<ColDef | ColGroupDef> = [
       {
         field: 'id',
         headerName: 'Id',
@@ -197,7 +198,7 @@ export class FileManagementComponent implements OnInit, AfterViewInit {
     this.getFiles();
   }
 
-  getContextMenuItems = params => {
+  getContextMenuItems = (params: Array<ContextMenu>) => {
     const process = [
       {
         name: 'Process',

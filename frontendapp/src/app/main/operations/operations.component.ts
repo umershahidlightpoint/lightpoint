@@ -3,7 +3,7 @@ import {
   ElementRef,
   OnInit,
   AfterViewChecked,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
@@ -21,6 +21,7 @@ import {
 } from 'src/shared/utils/Shared';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'app-operations',
@@ -46,12 +47,12 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
   messages: any;
   progress: any;
   symbol: string;
-  page: any;
-  pageSize: any;
+  page: number;
+  pageSize: number;
   accountSearch = { id: undefined };
   valueFilter: number;
-  sortColum: any;
-  sortDirection: any;
+  sortColum: string;
+  sortDirection: string;
   businessDate: any;
   generateFilesLoader = false;
 
@@ -314,7 +315,7 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
     this.clearJournalForm.reset();
   }
 
-  getContextMenuItems(params) {
+  getContextMenuItems(params): Array<ContextMenu> {
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(true, null, true, null, params);
   }

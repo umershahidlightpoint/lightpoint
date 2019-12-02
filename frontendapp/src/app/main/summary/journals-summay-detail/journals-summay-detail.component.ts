@@ -1,10 +1,28 @@
 /* Core/Library Imports */
-import { Component, OnInit, AfterViewInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  Input,
+  OnChanges,
+  SimpleChanges
+} from '@angular/core';
 import 'ag-grid-enterprise';
-import { GridOptions, IDatasource, IGetRowsParams } from 'ag-grid-community';
+import {
+  GridOptions,
+  IDatasource,
+  IGetRowsParams,
+  ColDef,
+  ColGroupDef
+} from 'ag-grid-community';
 import * as moment from 'moment';
 /* Services/Components Imports */
-import { IgnoreFields, AutoSizeAllColumns, CommonCols, CalTotal } from 'src/shared/utils/Shared';
+import {
+  IgnoreFields,
+  AutoSizeAllColumns,
+  CommonCols,
+  CalTotal
+} from 'src/shared/utils/Shared';
 import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
 import { DataService } from '../../../../shared/common/data.service';
 import { AgGridUtils } from '../../../../shared/utils/AgGridUtils';
@@ -15,11 +33,12 @@ import { DataDictionary } from '../../../../shared/utils/DataDictionary';
   templateUrl: './journals-summay-detail.component.html',
   styleUrls: ['./journals-summay-detail.component.css']
 })
-export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnChanges {
+export class JournalsSummayDetailComponent
+  implements OnInit, AfterViewInit, OnChanges {
   @Input() filters: any;
 
-  private columns: any;
-  public rowData: any[] = [];
+  private columns: Array<any>;
+  rowData: any[] = [];
 
   gridOptions: GridOptions;
   payloadFilters: any;
@@ -131,7 +150,9 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
               for (const i in this.columns) {
                 const field = this.columns[i].field;
                 if (this.columns[i].Type == 'System.DateTime') {
-                  someObject[field] = moment(result.payload[item][field]).format('MM-DD-YYYY');
+                  someObject[field] = moment(
+                    result.payload[item][field]
+                  ).format('MM-DD-YYYY');
                 } else {
                   someObject[field] = result.payload[item][field];
                 }
@@ -164,29 +185,37 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
 
             this.rowData = this.rowData.concat(someArray as []);
 
-            const fieldsSum: Array<{ name: string; total: number }> = CalTotal(this.rowData, [
-              { name: 'debit', total: 0 },
-              { name: 'credit', total: 0 },
-              { name: 'Commission', total: 0 },
-              { name: 'Fees', total: 0 },
-              { name: 'TradePrice', total: 0 },
-              { name: 'NetPrice', total: 0 },
-              { name: 'SettleNetPrice', total: 0 },
-              { name: 'NetMoney', total: 0 },
-              { name: 'LocalNetNotional', total: 0 },
-              { name: 'value', total: 0 }
-            ]);
+            const fieldsSum: Array<{ name: string; total: number }> = CalTotal(
+              this.rowData,
+              [
+                { name: 'debit', total: 0 },
+                { name: 'credit', total: 0 },
+                { name: 'Commission', total: 0 },
+                { name: 'Fees', total: 0 },
+                { name: 'TradePrice', total: 0 },
+                { name: 'NetPrice', total: 0 },
+                { name: 'SettleNetPrice', total: 0 },
+                { name: 'NetMoney', total: 0 },
+                { name: 'LocalNetNotional', total: 0 },
+                { name: 'value', total: 0 }
+              ]
+            );
             this.pinnedBottomRowData = [
               {
                 id: '',
-                source: 'Displaying Records: ' + this.totalRecords + '/' + this.overallTotalRecords,
+                source:
+                  'Displaying Records: ' +
+                  this.totalRecords +
+                  '/' +
+                  this.overallTotalRecords,
                 AccountType: '',
                 accountName: '',
                 when: '',
                 SecurityId: 0,
                 debit: Math.abs(fieldsSum[0].total),
                 credit: Math.abs(fieldsSum[1].total),
-                balance: Math.abs(fieldsSum[0].total) - Math.abs(fieldsSum[1].total),
+                balance:
+                  Math.abs(fieldsSum[0].total) - Math.abs(fieldsSum[1].total),
                 Commission: fieldsSum[2].total,
                 Fees: fieldsSum[3].total,
                 TradePrice: fieldsSum[4].total,
@@ -209,7 +238,9 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
             };
 
             params.successCallback(this.rowData, lastRow());
-            this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
+            this.gridOptions.api.setPinnedBottomRowData(
+              this.pinnedBottomRowData
+            );
             this.gridOptions.api.refreshCells();
             AutoSizeAllColumns(this.gridOptions);
           } else {
@@ -309,7 +340,12 @@ export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnC
       this.dataDictionary.column('end_price', false),
       this.dataDictionary.column('fxrate', false)
     ];
-    const cdefs = this.agGridUtls.customizeColumns(colDefs, columns, this.ignoreFields, false);
+    const cdefs = this.agGridUtls.customizeColumns(
+      colDefs,
+      columns,
+      this.ignoreFields,
+      false
+    );
 
     cdefs.forEach(col => {
       if (col.field === 'id') {

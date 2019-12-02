@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -66,9 +67,32 @@ namespace LP.Finance.Common
                 {
                     filter = true,
                     headerName =
-                        col.ColumnName, // This will be driven by a data dictionary that will provide the write names in the System
+                    col.ColumnName, // This will be driven by a data dictionary that will provide the write names in the System
                     field = col.ColumnName,
                     Type = col.DataType.ToString()
+                });
+            }
+
+            return metaData;
+        }
+
+        public static MetaData ToMetaData(object table)
+        {
+            var metaData = new MetaData();
+            metaData.Columns = new List<ColumnDef>();
+
+            Type t = table.GetType();
+            PropertyInfo[] props = t.GetProperties();
+
+            foreach (var col in props)
+            {
+                metaData.Columns.Add(new ColumnDef
+                {
+                    filter = true,
+                    headerName =
+                        col.Name, // This will be driven by a data dictionary that will provide the write names in the System
+                    field = col.Name,
+                    Type = col.GetType().ToString()
                 });
             }
 

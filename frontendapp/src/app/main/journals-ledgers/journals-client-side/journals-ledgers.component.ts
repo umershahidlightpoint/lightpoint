@@ -1,5 +1,11 @@
 /* Core/Library Imports */
-import { Component, OnInit, AfterViewInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+  ChangeDetectorRef
+} from '@angular/core';
 import 'ag-grid-enterprise';
 import { GridOptions, IDatasource, IGetRowsParams } from 'ag-grid-community';
 import * as moment from 'moment';
@@ -29,6 +35,7 @@ import { GridLayoutMenuComponent } from '../../../../shared/Component/grid-layou
 import { GridId, GridName } from '../../../../shared/utils/AppEnums';
 import { DataDictionary } from '../../../../shared/utils/DataDictionary';
 import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'app-journals-ledgers',
@@ -36,9 +43,11 @@ import { ReportModalComponent } from 'src/shared/Component/report-modal/report-m
   styleUrls: ['./journals-ledgers.component.css']
 })
 export class JournalsLedgersComponent implements OnInit, AfterViewInit {
-  @ViewChild('journalModal', { static: false }) journalModal: JournalModalComponent;
+  @ViewChild('journalModal', { static: false })
+  journalModal: JournalModalComponent;
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
-  @ViewChild('reportModal', { static: false }) reportModal: ReportModalComponent;
+  @ViewChild('reportModal', { static: false })
+  reportModal: ReportModalComponent;
 
   private columns: any;
   public rowData: any[] = [];
@@ -59,10 +68,10 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   funds: any;
   accountSearch = { id: undefined };
   valueFilter: number;
-  sortColum: any;
-  sortDirection: any;
-  page: any;
-  pageSize: any;
+  sortColum: string;
+  sortDirection: string;
+  page: number;
+  pageSize: number;
   tableHeader: string;
   isDataStreaming = false;
 
@@ -184,7 +193,12 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       this.dataDictionary.column('end_price', true),
       this.dataDictionary.column('fxrate', true)
     ];
-    const cdefs = this.agGridUtls.customizeColumns(colDefs, columns, this.ignoreFields, true);
+    const cdefs = this.agGridUtls.customizeColumns(
+      colDefs,
+      columns,
+      this.ignoreFields,
+      true
+    );
     this.gridOptions.api.setColumnDefs(cdefs);
   }
 
@@ -238,7 +252,9 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
               for (const i in this.columns) {
                 const field = this.columns[i].field;
                 if (this.columns[i].Type == 'System.DateTime') {
-                  someObject[field] = moment(result.payload[item][field]).format('MM-DD-YYYY');
+                  someObject[field] = moment(
+                    result.payload[item][field]
+                  ).format('MM-DD-YYYY');
                 } else {
                   someObject[field] = result.payload[item][field];
                 }
@@ -253,19 +269,21 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
               this.gridOptions.api.setRowData(this.rowData);
             }
 
-            const fieldsSum: Array<{ name: string; total: number }> = CalTotal(this.rowData, [
-              { name: 'debit', total: 0 },
-              { name: 'credit', total: 0 },
-              { name: 'Commission', total: 0 },
-              { name: 'Fees', total: 0 },
-              { name: 'TradePrice', total: 0 },
-              { name: 'NetPrice', total: 0 },
-              { name: 'SettleNetPrice', total: 0 },
-              { name: 'NetMoney', total: 0 },
-              { name: 'LocalNetNotional', total: 0 },
-              { name: 'value', total: 0 }
-            ]);
-            console.log('FIELDS SUM', fieldsSum);
+            const fieldsSum: Array<{ name: string; total: number }> = CalTotal(
+              this.rowData,
+              [
+                { name: 'debit', total: 0 },
+                { name: 'credit', total: 0 },
+                { name: 'Commission', total: 0 },
+                { name: 'Fees', total: 0 },
+                { name: 'TradePrice', total: 0 },
+                { name: 'NetPrice', total: 0 },
+                { name: 'SettleNetPrice', total: 0 },
+                { name: 'NetMoney', total: 0 },
+                { name: 'LocalNetNotional', total: 0 },
+                { name: 'value', total: 0 }
+              ]
+            );
             this.pinnedBottomRowData = [
               {
                 source: 'Total Records:' + this.totalRecords,
@@ -275,7 +293,8 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
                 SecurityId: 0,
                 debit: Math.abs(fieldsSum[0].total),
                 credit: Math.abs(fieldsSum[1].total),
-                balance: Math.abs(fieldsSum[0].total) - Math.abs(fieldsSum[1].total),
+                balance:
+                  Math.abs(fieldsSum[0].total) - Math.abs(fieldsSum[1].total),
                 Commission: Math.abs(fieldsSum[2].total),
                 Fees: Math.abs(fieldsSum[3].total),
                 TradePrice: fieldsSum[4].total,
@@ -286,7 +305,9 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
                 value: Math.abs(fieldsSum[9].total)
               }
             ];
-            this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
+            this.gridOptions.api.setPinnedBottomRowData(
+              this.pinnedBottomRowData
+            );
             this.gridOptions.api.refreshCells();
             AutoSizeAllColumns(this.gridOptions);
           } else {
@@ -326,7 +347,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   }
 
   ngModelChangeSymbol(e) {
-    console.log('On Model Change Symbol');
     this.filterBySymbol = e;
     this.gridOptions.api.onFilterChanged();
   }
@@ -350,19 +370,28 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     const { symbolFilter } = object;
     const { dateFilter } = object;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
-    this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
+    this.filterBySymbol =
+      symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
     this.setDateRange(dateFilter);
     this.gridOptions.api.onFilterChanged();
   }
 
   isExternalFilterPresent() {
-    if (this.fund !== 'All Funds' || this.startDate || this.filterBySymbol !== '') {
+    if (
+      this.fund !== 'All Funds' ||
+      this.startDate ||
+      this.filterBySymbol !== ''
+    ) {
       return true;
     }
   }
 
   doesExternalFilterPass(node: any) {
-    if (this.fund !== 'All Funds' && this.filterBySymbol !== '' && this.startDate) {
+    if (
+      this.fund !== 'All Funds' &&
+      this.filterBySymbol !== '' &&
+      this.startDate
+    ) {
       const cellFund = node.data.fund;
       const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
       const cellDate = new Date(node.data.when);
@@ -373,11 +402,13 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         this.endDate.toDate() >= cellDate
       );
     }
+
     if (this.fund !== 'All Funds' && this.filterBySymbol !== '') {
       const cellFund = node.data.fund;
       const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
       return cellFund === this.fund && cellSymbol.includes(this.filterBySymbol);
     }
+
     if (this.fund !== 'All Funds' && this.startDate) {
       const cellFund = node.data.fund;
       const cellDate = new Date(node.data.when);
@@ -387,6 +418,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         this.endDate.toDate() >= cellDate
       );
     }
+
     if (this.filterBySymbol !== '' && this.startDate) {
       const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
       const cellDate = new Date(node.data.when);
@@ -396,17 +428,24 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         this.endDate.toDate() >= cellDate
       );
     }
+
     if (this.fund !== 'All Funds') {
       const cellFund = node.data.fund;
       return cellFund === this.fund;
     }
+
     if (this.startDate) {
       const cellDate = new Date(node.data.when);
-      return this.startDate.toDate() <= cellDate && this.endDate.toDate() >= cellDate;
+      return (
+        this.startDate.toDate() <= cellDate && this.endDate.toDate() >= cellDate
+      );
     }
+
     if (this.filterBySymbol !== '') {
       const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
-      return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase());
+      return cellSymbol
+        .toLowerCase()
+        .includes(this.filterBySymbol.toLowerCase());
     }
   }
 
@@ -416,10 +455,12 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
     this.endDate = dates[1];
 
     this.selected =
-      dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
+      dateFilter.startDate !== ''
+        ? { startDate: this.startDate, endDate: this.endDate }
+        : null;
   }
 
-  getContextMenuItems(params) {
+  getContextMenuItems(params): Array<ContextMenu> {
     const addDefaultItems = [
       {
         name: 'Edit',
@@ -439,7 +480,13 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       }
     ];
     //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
-    return GetContextMenu(false, addDefaultItems, false, addCustomItems, params);
+    return GetContextMenu(
+      false,
+      addDefaultItems,
+      false,
+      addCustomItems,
+      params
+    );
   }
 
   clearFilters() {
@@ -462,8 +509,12 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         this.DateRangeLabel !== ''
           ? this.DateRangeLabel
           : {
-              startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
-              endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
+              startDate:
+                this.startDate !== null
+                  ? this.startDate.format('YYYY-MM-DD')
+                  : '',
+              endDate:
+                this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
             }
     };
   }

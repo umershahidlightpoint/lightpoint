@@ -7,7 +7,7 @@ import {
   AfterContentInit
 } from '@angular/core';
 import 'ag-grid-enterprise';
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import * as moment from 'moment';
 /* Services/Components Imports */
 import {
@@ -33,6 +33,7 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
 import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
 import { AgGridUtils } from 'src/shared/utils/AgGridUtils';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'app-trial-balance',
@@ -43,9 +44,8 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
   @ViewChild('reportModal', { static: false })
   reportModal: ReportModalComponent;
-
   private rowData: [];
-  private columns: any;
+  private columns: Array<any>;
 
   hideGrid = false;
   gridOptions: GridOptions;
@@ -60,12 +60,12 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   symbol: string;
   startDate: any;
   endDate: any;
-  page: any;
-  pageSize: any;
+  page: number;
+  pageSize: number;
   accountSearch = { id: undefined };
   valueFilter: number;
-  sortColum: any;
-  sortDirection: any;
+  sortColum: string;
+  sortDirection: string;
   tableHeader: string;
 
   ranges = Ranges;
@@ -187,7 +187,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     this.gridOptions.api.setColumnDefs(cdefs);
   }
 
-  getContextMenuItems(params) {
+  getContextMenuItems(params): Array<ContextMenu> {
     const addCustomItems = [
       {
         name: 'View Chart',
@@ -356,13 +356,13 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     this.gridOptions.api.onFilterChanged();
   }
 
-  isExternalFilterPresent() {
+  isExternalFilterPresent(): boolean {
     if (this.fund !== 'All Funds' || this.startDate) {
       return true;
     }
   }
 
-  doesExternalFilterPass(node: any) {
+  doesExternalFilterPass(node: any): boolean {
     return DoesExternalFilterPass(
       node,
       this.fund,

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { Style, HeightStyle } from 'src/shared/utils/Shared';
 import * as moment from 'moment';
 
@@ -32,7 +32,7 @@ export class LogsComponent implements OnInit {
   /*
   We can define how we need to show the data here, as this is a log file we should group by the rundate
   */
-  columnDefs = [
+  columnDefs: Array<ColDef | ColGroupDef> = [
     {
       field: 'rundate',
       headerName: 'Run Date',

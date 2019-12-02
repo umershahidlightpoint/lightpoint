@@ -172,10 +172,25 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     i.LastUpdatedBy = "webservice";
                 }
 
+
                 bool insertinto = InsertData(fxRates);
+
+                var dupesTemp = fxRates.GroupBy(x => new { x.BusinessDate, x.Currency }).ToList();
+                var dupes = dupesTemp.Where(x => x.Skip(1).Any()).ToList();
+                if (dupes.Any())
+                {
+                    var items = dupes.SelectMany(x => x.Select(y => y)).ToList();
+                    var metaData = MetaData.ToMetaData(items[0]);
+                    foreach (var item in metaData.Columns)
+                    {
+                        Console.WriteLine(item);
+                    }
+                    return Utils.Wrap(true, items, HttpStatusCode.Forbidden,null, metaData.Columns);
+                }
+
                 if (insertinto)
                 {
-                    return Utils.Wrap(true, fxRates, null);
+                    return Utils.Wrap(true, fxRates, HttpStatusCode.OK);
                 }
                 else
                 {
@@ -196,8 +211,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.VerifyConnection();
                 sqlHelper.SqlBeginTransaction();
 
-                var monthlyPerformanceQuery = $@" DELETE FROM [fx_rates_history] where event = 'upload'
-                                                  DELETE FROM [fx_rates] where event = 'upload'";
+                var monthlyPerformanceQuery = $@" DELETE FROM [fx_rates_history]
+                                                  DELETE FROM [fx_rates]";
 
                 sqlHelper.Delete(monthlyPerformanceQuery, CommandType.Text);
 
