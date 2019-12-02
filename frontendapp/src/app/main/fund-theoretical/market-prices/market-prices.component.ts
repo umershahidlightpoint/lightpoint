@@ -19,6 +19,7 @@ import * as moment from 'moment';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 import { GraphObject } from 'src/shared/Models/graph-object';
 import { ContextMenu } from 'src/shared/Models/common';
+import { DataDictionary } from 'src/shared/utils/DataDictionary';
 
 @Component({
   selector: 'app-market-prices',
@@ -90,7 +91,7 @@ export class MarketPricesComponent implements OnInit {
   constructor(
     private financeService: FinanceServiceProxy,
     private toastrService: ToastrService,
-    public decimalPipe: DecimalPipe
+    public dataDictionary: DataDictionary
   ) {}
 
   ngOnInit() {
@@ -251,7 +252,7 @@ export class MarketPricesComponent implements OnInit {
         sortable: true,
         type: 'numericColumn',
         valueFormatter: params =>
-          this.numberFormatter(params.node.data.price, false)
+          this.dataDictionary.numberFormatter(params.node.data.price, false)
       },
       {
         headerName: 'Is Modified',
@@ -507,15 +508,6 @@ export class MarketPricesComponent implements OnInit {
   refreshGrid() {
     this.marketPriceGrid.api.showLoadingOverlay();
     this.getData();
-  }
-
-  numberFormatter(numberToFormat, isInPercentage): string {
-    let per = numberToFormat;
-    if (isInPercentage) {
-      per = PercentageFormatter(numberToFormat);
-    }
-    const formattedValue = this.decimalPipe.transform(per, '1.4-4');
-    return formattedValue.toString();
   }
 
   onFileInput(files: FileList) {

@@ -14,7 +14,6 @@ import {
   ExcelStyle,
   CalTotalRecords,
   GetDateRangeLabel,
-  FormatNumber4,
   SetDateRange,
   CommaSeparatedFormat,
   HeightStyle
@@ -311,13 +310,6 @@ function currencyFormatter(params) {
     return;
   }
   return CommaSeparatedFormat(params.value);
-}
-
-function costBasisFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  return FormatNumber4(params.value);
 }
 
 function absCurrencyFormatter(params) {

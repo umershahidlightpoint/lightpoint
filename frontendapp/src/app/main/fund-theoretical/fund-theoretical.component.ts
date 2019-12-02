@@ -29,6 +29,7 @@ import { DecimalPipe } from '@angular/common';
 import { AgGridCheckboxComponent } from '../../../shared/Component/ag-grid-checkbox/ag-grid-checkbox.component';
 import { DatePickerModalComponent } from 'src/shared/Component/date-picker-modal/date-picker-modal.component';
 import { ContextMenu } from 'src/shared/Models/common';
+import { DataDictionary } from 'src/shared/utils/DataDictionary';
 
 @Component({
   selector: 'app-fund-theoretical',
@@ -111,7 +112,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     private financeService: FinanceServiceProxy,
     private toastrService: ToastrService,
     private dataService: DataService,
-    public decimalPipe: DecimalPipe,
+    public dataDictionary: DataDictionary,
     private downloadExcelUtils: DownloadExcelUtils
   ) {
     this.portfolios = [];
@@ -305,7 +306,10 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         editable: true,
         type: 'numericColumn',
         valueFormatter: params =>
-          this.numberFormatter(params.node.data.startOfMonthEstimateNav, false)
+          this.dataDictionary.numberFormatter(
+            params.node.data.startOfMonthEstimateNav,
+            false
+          )
       },
       {
         headerName: 'Performance*',
@@ -314,7 +318,10 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         editable: true,
         type: 'numericColumn',
         valueFormatter: params =>
-          this.numberFormatter(params.node.data.performance, false)
+          this.dataDictionary.numberFormatter(
+            params.node.data.performance,
+            false
+          )
       },
       {
         headerName: 'Admin Month End NAV',
@@ -323,7 +330,10 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         // editable: true,
         type: 'numericColumn',
         valueFormatter: params =>
-          this.numberFormatter(params.node.data.monthEndNav, false)
+          this.dataDictionary.numberFormatter(
+            params.node.data.monthEndNav,
+            false
+          )
       },
       {
         headerName: 'MTD*',
@@ -332,7 +342,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         editable: true,
         type: 'numericColumn',
         valueFormatter: params =>
-          this.numberFormatter(params.node.data.mtd, true)
+          this.dataDictionary.numberFormatter(params.node.data.mtd, true)
       },
       {
         headerName: 'YTD Net Perf',
@@ -341,7 +351,10 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         suppressCellFlash: true,
         type: 'numericColumn',
         valueFormatter: params =>
-          this.numberFormatter(params.node.data.ytdNetPerformance, false)
+          this.dataDictionary.numberFormatter(
+            params.node.data.ytdNetPerformance,
+            false
+          )
       },
       {
         headerName: 'QTD Net %',
@@ -349,7 +362,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         sortable: true,
         type: 'numericColumn',
         valueFormatter: params =>
-          this.numberFormatter(params.node.data.qtd, true)
+          this.dataDictionary.numberFormatter(params.node.data.qtd, true)
       },
       {
         headerName: 'YTD Net %',
@@ -357,7 +370,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         sortable: true,
         type: 'numericColumn',
         valueFormatter: params =>
-          this.numberFormatter(params.node.data.ytd, true)
+          this.dataDictionary.numberFormatter(params.node.data.ytd, true)
       },
       {
         headerName: 'ITD Net %',
@@ -365,7 +378,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
         sortable: true,
         type: 'numericColumn',
         valueFormatter: params =>
-          this.numberFormatter(params.node.data.itd, true)
+          this.dataDictionary.numberFormatter(params.node.data.itd, true)
       },
       {
         headerName: 'Created By',
@@ -840,14 +853,5 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
   refreshGrid() {
     this.fundTheoreticalGrid.api.showLoadingOverlay();
-  }
-
-  numberFormatter(numberToFormat, isInPercentage): string {
-    let per = numberToFormat;
-    if (isInPercentage) {
-      per = PercentageFormatter(numberToFormat);
-    }
-    const formattedValue = this.decimalPipe.transform(per, '1.2-2');
-    return formattedValue.toString();
   }
 }

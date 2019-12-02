@@ -20,7 +20,7 @@ import {
   FormatDate,
   DateFormatter
 } from 'src/shared/utils/Shared';
-import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
+import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
@@ -533,11 +533,4 @@ function costBasisFormatter(params): string {
     return;
   }
   return FormatNumber4(params.value);
-}
-
-function absCurrencyFormatter(params): string {
-  if (params.value === undefined) {
-    return;
-  }
-  return CommaSeparatedFormat(Math.abs(params.value));
 }

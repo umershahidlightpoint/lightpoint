@@ -13,11 +13,9 @@ import {
   HeightStyle,
   SideBar,
   AutoSizeAllColumns,
-  PercentageFormatter,
   DateFormatter
 } from 'src/shared/utils/Shared';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { DecimalPipe } from '@angular/common';
 import { Moment } from 'moment';
 import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
@@ -26,6 +24,7 @@ import { ToastrService } from 'ngx-toastr';
 import { TaxRateData } from 'src/shared/Models/funds-theoretical';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
 import { ContextMenu } from 'src/shared/Models/common';
+import { DataDictionary } from 'src/shared/utils/DataDictionary';
 
 @Component({
   selector: 'app-tax-rates',
@@ -64,7 +63,7 @@ export class TaxRatesComponent implements OnInit, AfterViewInit {
   constructor(
     private financeService: FinanceServiceProxy,
     private toastrService: ToastrService,
-    public decimalPipe: DecimalPipe
+    private dataDictionary: DataDictionary
   ) {
     this.initGrid();
   }
@@ -180,7 +179,10 @@ export class TaxRatesComponent implements OnInit, AfterViewInit {
         filter: true,
         type: 'numericColumn',
         valueFormatter: params =>
-          this.numberFormatter(params.node.data.longTermTaxRate, true)
+          this.dataDictionary.numberFormatter(
+            params.node.data.longTermTaxRate,
+            true
+          )
       },
       {
         headerName: 'Short Term Tax Rate %',
@@ -189,7 +191,10 @@ export class TaxRatesComponent implements OnInit, AfterViewInit {
         editable: true,
         type: 'numericColumn',
         valueFormatter: params =>
-          this.numberFormatter(params.node.data.shortTermTaxRate, true)
+          this.dataDictionary.numberFormatter(
+            params.node.data.shortTermTaxRate,
+            true
+          )
       },
       {
         headerName: 'Short Term Period',
@@ -286,14 +291,5 @@ export class TaxRatesComponent implements OnInit, AfterViewInit {
         this.toastrService.error('Something went wrong. Try again later!');
       }
     );
-  }
-
-  numberFormatter(numberToFormat, isInPercentage): string {
-    let per = numberToFormat;
-    if (isInPercentage) {
-      per = PercentageFormatter(numberToFormat);
-    }
-    const formattedValue = this.decimalPipe.transform(per, '1.2-2');
-    return formattedValue.toString();
   }
 }

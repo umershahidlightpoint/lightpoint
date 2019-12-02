@@ -1,20 +1,20 @@
 // tslint:disable: forin
 // tslint:disable: triple-equals
 import { Injectable } from '@angular/core';
-import { environment } from '../../environments/environment';
-import * as moment from 'moment';
 import {
   FormatNumber4,
   CommaSeparatedFormat,
   FormatNumber,
-  MoneyFormat
+  MoneyFormat,
+  PercentageFormatter
 } from 'src/shared/utils/Shared';
+import { DecimalPipe } from '@angular/common';
 
 @Injectable()
 export class DataDictionary {
-  constructor() {}
+  constructor(private decimalPipe: DecimalPipe) {}
 
-  public column(field: string, isJournalGrid: boolean) {
+  column(field: string, isJournalGrid: boolean) {
     let columnDefinition = {};
 
     switch (field) {
@@ -257,6 +257,15 @@ export class DataDictionary {
     }
 
     return columnDefinition;
+  }
+
+  numberFormatter(numberToFormat, isInPercentage?: boolean): string {
+    let per = numberToFormat;
+    if (isInPercentage) {
+      per = PercentageFormatter(numberToFormat);
+    }
+    const formattedValue = this.decimalPipe.transform(per, '1.2-2');
+    return formattedValue.toString();
   }
 }
 
