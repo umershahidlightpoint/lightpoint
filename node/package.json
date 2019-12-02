@@ -9,7 +9,7 @@
     "dev": "ts-node-dev --respawn --transpileOnly ./src/server.ts",
     "start": "node ./server.js",
     "test": "NODE_ENV=test nyc mocha --exit -r ts-node/register src/**/*.test.ts",
-    "copy": "copyfiles server.js config.js server/**/* node_modules/**/* ../deployment/",
+    "deploy": "copyfiles server.js config.js server/**/* node_modules/**/* ../distribution/Web/server/",
     "prod": "node ../deployment/server.js"
   },
   "author": "LightPointFT",
