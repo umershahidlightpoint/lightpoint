@@ -4,19 +4,10 @@ import { FxratesApiService } from 'src/services/fxrates-api.service';
 import { ToastrService } from 'ngx-toastr';
 
 /* Services/Components Imports */
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions, ColGroupDef, ColDef } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import {
-  SideBar,
-  Style,
-  IgnoreFields,
-  AutoSizeAllColumns,
-  HeightStyle,
-  CommonCols
-} from 'src/shared/utils/Shared';
+import { IgnoreFields, HeightStyle } from 'src/shared/utils/Shared';
 import { AgGridUtils } from '../../../../shared/utils/AgGridUtils';
-// import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { DataDictionary } from '../../../../shared/utils/DataDictionary';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 
@@ -32,13 +23,11 @@ export class FileUploadComponent implements OnInit {
 
   styleForLogsHeight = HeightStyle(220);
   uploadGrid: GridOptions;
-  displayGrid: Boolean = false;
+  displayGrid = false;
   fxRateDupList: any;
   ignoreFields = IgnoreFields;
-
-  private columns: any;
-
-  public rowData: any[] = [];
+  columns: Array<ColDef | ColGroupDef>;
+  rowData: any[] = [];
 
   fileToUpload: File = null;
   disableFileUpload = true;
@@ -51,7 +40,6 @@ export class FileUploadComponent implements OnInit {
     private financeService: FinanceServiceProxy,
     private fxratesApiService: FxratesApiService,
     private toastrService: ToastrService,
-    private agGridUtls: AgGridUtils,
     private dataDictionary: DataDictionary
   ) {}
 
@@ -80,7 +68,7 @@ export class FileUploadComponent implements OnInit {
         params.api.sizeColumnsToFit();
       },
       onFirstDataRendered: params => {
-      params.api.sizeColumnsToFit();
+        params.api.sizeColumnsToFit();
       },
       defaultColDef: {
         resizable: true
@@ -177,7 +165,6 @@ export class FileUploadComponent implements OnInit {
           this.clearForm();
           this.toastrService.success('File uploaded successfully!');
         } else if (response.isSuccessful && response.statusCode == 403) {
-          debugger;
           this.displayGrid = true;
 
           this.columns = response.meta;
@@ -225,11 +212,11 @@ export class FileUploadComponent implements OnInit {
   Drives the columns that will be defined on the UI, and what can be done with those fields
   */
   customizeColumns(columns: any) {
-    var storeColumns =[];
-    for( let i=1; i< columns.length; i++) {
-        storeColumns.push(this.dataDictionary.column(columns[i].field, true));
+    const storeColumns = [];
+    for (let i = 1; i < columns.length; i++) {
+      storeColumns.push(this.dataDictionary.column(columns[i].field, true));
     }
-      this.uploadGrid.api.setColumnDefs(storeColumns);
+    this.uploadGrid.api.setColumnDefs(storeColumns);
   }
 
   clearForm() {

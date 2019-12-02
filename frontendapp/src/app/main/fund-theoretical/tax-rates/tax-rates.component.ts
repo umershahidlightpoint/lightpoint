@@ -6,7 +6,7 @@ import {
   TemplateRef
 } from '@angular/core';
 import { TaxRateModalComponent } from './tax-rate-modal/tax-rate-modal.component';
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import {
@@ -154,7 +154,7 @@ export class TaxRatesComponent implements OnInit, AfterViewInit {
   }
 
   setColDefs() {
-    const colDefs = [
+    const colDefs: Array<ColDef | ColGroupDef> = [
       {
         headerName: 'Id',
         field: 'id',
@@ -287,7 +287,7 @@ export class TaxRatesComponent implements OnInit, AfterViewInit {
     );
   }
 
-  numberFormatter(numberToFormat, isInPercentage) {
+  numberFormatter(numberToFormat, isInPercentage): string {
     let per = numberToFormat;
     if (isInPercentage) {
       per = PercentageFormatter(numberToFormat);

@@ -6,7 +6,7 @@ import {
   ElementRef
 } from '@angular/core';
 import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { Account, AccountCategory } from '../../../shared/Models/account';
 import { DataService } from 'src/shared/common/data.service';
@@ -247,7 +247,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     this.fundTheoreticalGrid.api.sizeColumnsToFit();
   }
 
-  getColDefs() {
+  getColDefs(): Array<ColDef | any> {
     return [
       {
         headerName: 'Is Modified',
@@ -758,7 +758,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     };
   }
 
-  formatPerformanceData(records) : Array<MonthlyPerformanceData> {
+  formatPerformanceData(records): Array<MonthlyPerformanceData> {
     const formattedRecords: Array<MonthlyPerformanceData> = records.map(
       record => ({
         id: record.Id,
@@ -841,7 +841,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     this.fundTheoreticalGrid.api.showLoadingOverlay();
   }
 
-  numberFormatter(numberToFormat, isInPercentage) {
+  numberFormatter(numberToFormat, isInPercentage): string {
     let per = numberToFormat;
     if (isInPercentage) {
       per = PercentageFormatter(numberToFormat);

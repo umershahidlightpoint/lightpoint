@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies';
 import { ToastrService } from 'ngx-toastr';
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import {
   SideBar,
   HeightStyle,
@@ -100,7 +100,7 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
   }
 
   customizeColumns() {
-    const colDefs = [
+    const colDefs: Array<ColDef | ColGroupDef> = [
       {
         field: 'id',
         headerName: 'gridId',

@@ -7,9 +7,10 @@ import {
   ComponentRef,
   Output,
   AfterViewInit,
-  EventEmitter
+  EventEmitter,
+  OnDestroy
 } from '@angular/core';
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import {
   CommaSeparatedFormat,
   AutoSizeAllColumns,
@@ -28,7 +29,8 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
   templateUrl: './report-grid.component.html',
   styleUrls: ['./report-grid.component.css']
 })
-export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit {
+export class ReportGridComponent
+  implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   @Input() tableHeader: string;
   @Input() trialBalanceReport: Array<TrialBalanceReport>;
   @Input() trialBalanceReportStats: TrialBalanceReportStats;
@@ -49,7 +51,6 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    debugger;
     AutoSizeAllColumns(this.gridOptions);
     this.gridOptions.api.sizeColumnsToFit();
   }
@@ -140,7 +141,7 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  initColDefs(headerName) {
+  initColDefs(headerName): Array<ColDef | ColGroupDef> {
     return [
       {
         colId: 'accountName',

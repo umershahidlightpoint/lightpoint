@@ -1,7 +1,7 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import * as moment from 'moment';
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions, ColGroupDef, ColDef } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import {
@@ -179,7 +179,7 @@ export class FxRatesComponent implements OnInit {
     this.fxRate.api.setColumnDefs(colDefs);
   }
 
-  doesExternalFilterPass(node) {
+  doesExternalFilterPass(node): boolean {
     const businessDate = new Date(node.data.businessDate);
 
     if ((this.filterByCurrency !== '' && this.startDate) || this.endDate) {
@@ -206,7 +206,7 @@ export class FxRatesComponent implements OnInit {
     }
   }
 
-  isExternalFilterPresent() {
+  isExternalFilterPresent(): boolean {
     if (this.startDate || this.endDate || this.filterByCurrency !== '') {
       return true;
     }
@@ -296,7 +296,7 @@ export class FxRatesComponent implements OnInit {
     });
   }
 
-  getAuditColDefs() {
+  getAuditColDefs(): Array<ColDef | ColGroupDef> {
     return [
       {
         headerName: 'Business Date',
@@ -503,7 +503,7 @@ export class FxRatesComponent implements OnInit {
     this.getData();
   }
 
-  numberFormatter(numberToFormat, isInPercentage) {
+  numberFormatter(numberToFormat, isInPercentage): string {
     let per = numberToFormat;
     if (isInPercentage) {
       per = PercentageFormatter(numberToFormat);

@@ -1,12 +1,12 @@
-import { Component, OnInit, AfterViewInit } from "@angular/core";
-import { FinanceServiceProxy } from "../../../../shared/service-proxies/service-proxies";
-import { Fund } from "../../../../shared/Models/account";
+import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
+import { Fund } from '../../../../shared/Models/account';
 import {
   TrialBalanceReport,
   TrialBalanceReportStats
-} from "../../../../shared/Models/trial-balance";
-import { DataService } from "../../../../shared/common/data.service";
-import * as moment from "moment";
+} from '../../../../shared/Models/trial-balance';
+import { DataService } from '../../../../shared/common/data.service';
+import * as moment from 'moment';
 import {
   Ranges,
   Style,
@@ -18,23 +18,23 @@ import {
   SetDateRange,
   CommaSeparatedFormat,
   HeightStyle
-} from "src/shared/utils/Shared";
-import { GridOptions } from "ag-grid-community";
-import { GridLayoutMenuComponent } from "src/shared/Component/grid-layout-menu/grid-layout-menu.component";
-import { GetContextMenu } from "src/shared/utils/ContextMenu";
-import { GridId, GridName } from "src/shared/utils/AppEnums";
-import { DownloadExcelUtils } from "src/shared/utils/DownloadExcelUtils";
+} from 'src/shared/utils/Shared';
+import { GridOptions } from 'ag-grid-community';
+import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
 @Component({
-  selector: "rep-taxlots",
-  templateUrl: "./taxlots.component.html",
-  styleUrls: ["./taxlots.component.css"]
+  selector: 'rep-taxlots',
+  templateUrl: './taxlots.component.html',
+  styleUrls: ['./taxlots.component.css']
 })
 export class TaxLotsComponent implements OnInit, AfterViewInit {
   private gridColumnApi;
   pinnedBottomRowData;
   gridOptions: GridOptions;
-  fund: any = "All Funds";
+  fund: any = 'All Funds';
   funds: Fund;
   DateRangeLabel: string;
   startDate: any;
@@ -54,12 +54,12 @@ export class TaxLotsComponent implements OnInit, AfterViewInit {
   styleForHeight = HeightStyle(220);
 
   processingMsgDiv = {
-    border: "1px solid #eee",
-    padding: "4px",
-    marginTop: "20px",
-    width: "100%",
-    height: "calc(100vh - 125px)",
-    boxSizing: "border-box"
+    border: '1px solid #eee',
+    padding: '4px',
+    marginTop: '20px',
+    width: '100%',
+    height: 'calc(100vh - 125px)',
+    boxSizing: 'border-box'
   };
 
   constructor(
@@ -88,8 +88,8 @@ export class TaxLotsComponent implements OnInit, AfterViewInit {
       isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       clearExternalFilter: this.clearFilters.bind(this),
       getExternalFilterState: this.getExternalFilterState.bind(this),
-      rowSelection: "single",
-      rowGroupPanelShow: "after",
+      rowSelection: 'single',
+      rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
@@ -111,58 +111,58 @@ export class TaxLotsComponent implements OnInit, AfterViewInit {
       suppressHorizontalScroll: false,
       columnDefs: [
         {
-          field: "closing_lot_id",
+          field: 'closing_lot_id',
           width: 120,
-          headerName: "Closing Tax Lot",
+          headerName: 'Closing Tax Lot',
           sortable: true,
           filter: true
         },
         {
-          field: "open_lot_id",
+          field: 'open_lot_id',
           width: 120,
-          headerName: "Open Tax Lot",
+          headerName: 'Open Tax Lot',
           sortable: true,
           filter: true
         },
         {
-          field: "business_date",
+          field: 'business_date',
           width: 120,
-          headerName: "Business Date",
+          headerName: 'Business Date',
           sortable: true,
           filter: true
         },
         {
-          field: "realized_pnl",
+          field: 'realized_pnl',
           width: 120,
-          headerName: "Realized P&L",
+          headerName: 'Realized P&L',
           sortable: true,
           filter: true,
-          cellClass: "rightAlign",
+          cellClass: 'rightAlign',
           valueFormatter: currencyFormatter
         },
         {
-          field: "trade_price",
+          field: 'trade_price',
           width: 120,
-          headerName: "Opening Price",
+          headerName: 'Opening Price',
           sortable: true,
           filter: true,
-          cellClass: "rightAlign"
+          cellClass: 'rightAlign'
         },
         {
-          field: "cost_basis",
+          field: 'cost_basis',
           width: 120,
-          headerName: "Closing Price",
+          headerName: 'Closing Price',
           sortable: true,
-          cellClass: "rightAlign",
+          cellClass: 'rightAlign',
           filter: true
         },
         {
-          field: "quantity",
-          headerName: "Quantity",
+          field: 'quantity',
+          headerName: 'Quantity',
           width: 100,
           filter: true,
           sortable: true,
-          cellClass: "rightAlign",
+          cellClass: 'rightAlign',
           valueFormatter: absCurrencyFormatter
         }
       ],
@@ -184,7 +184,7 @@ export class TaxLotsComponent implements OnInit, AfterViewInit {
       this.hideGrid = obj;
       if (!this.hideGrid) {
         this.getFunds();
-        this.getReport(null, null, "ALL");
+        this.getReport(null, null, 'ALL');
       }
     });
   }
@@ -240,23 +240,23 @@ export class TaxLotsComponent implements OnInit, AfterViewInit {
     this.endDate = dates[1];
 
     this.selected =
-      dateFilter.startDate !== ""
+      dateFilter.startDate !== ''
         ? { startDate: this.startDate, endDate: this.endDate }
         : null;
   }
 
   getRangeLabel() {
-    this.DateRangeLabel = "";
+    this.DateRangeLabel = '';
     this.DateRangeLabel = GetDateRangeLabel(this.startDate, this.endDate);
   }
 
   clearFilters() {
-    this.fund = "All Funds";
+    this.fund = 'All Funds';
     this.selected = null;
-    this.DateRangeLabel = "";
-    this.startDate = moment("01-01-1901", "MM-DD-YYYY");
+    this.DateRangeLabel = '';
+    this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
     this.endDate = moment();
-    this.getReport(null, null, "ALL");
+    this.getReport(null, null, 'ALL');
   }
 
   getExternalFilterState() {
@@ -270,12 +270,12 @@ export class TaxLotsComponent implements OnInit, AfterViewInit {
     if (!selectedDate.startDate) {
       return;
     }
-    this.startDate = selectedDate.startDate.format("YYYY-MM-DD");
-    this.endDate = selectedDate.endDate.format("YYYY-MM-DD");
+    this.startDate = selectedDate.startDate.format('YYYY-MM-DD');
+    this.endDate = selectedDate.endDate.format('YYYY-MM-DD');
     this.getReport(
       this.startDate,
       this.endDate,
-      this.fund === "All Funds" ? "ALL" : this.fund
+      this.fund === 'All Funds' ? 'ALL' : this.fund
     );
     this.getRangeLabel();
   }
@@ -285,14 +285,14 @@ export class TaxLotsComponent implements OnInit, AfterViewInit {
     this.getReport(
       this.startDate,
       this.endDate,
-      this.fund === "All Funds" ? "ALL" : this.fund
+      this.fund === 'All Funds' ? 'ALL' : this.fund
     );
   }
 
   onBtExport() {
     const params = {
-      fileName: "Trial Balance Reports",
-      sheetName: "First Sheet"
+      fileName: 'Trial Balance Reports',
+      sheetName: 'First Sheet'
     };
     this.gridOptions.api.exportDataAsExcel(params);
     this.downloadExcelUtils.ToastrMessage();
@@ -301,7 +301,7 @@ export class TaxLotsComponent implements OnInit, AfterViewInit {
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
     this.clearFilters();
-    this.getReport(null, null, "ALL");
+    this.getReport(null, null, 'ALL');
   }
 }
 

@@ -6,7 +6,7 @@ import {
   ViewChild
 } from '@angular/core';
 import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { TemplateRendererComponent } from '../../../template-renderer/template-renderer.component';
 import { SilverFile } from 'src/shared/Models/silver-file';
 import { SideBar, Style, AutoSizeAllColumns } from 'src/shared/utils/Shared';
@@ -77,7 +77,7 @@ export class SilverFileManagementComponent implements OnInit, AfterViewInit {
   }
 
   setColDefs() {
-    const colDefs = [
+    const colDefs: Array<ColDef | ColGroupDef> = [
       {
         field: 'name',
         headerName: 'Name',

@@ -7,7 +7,7 @@ import {
   DateFormatter,
   Ranges
 } from 'src/shared/utils/Shared';
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
@@ -176,7 +176,7 @@ export class MarketPricesComponent implements OnInit {
     // this.marketPriceGrid.api.sizeColumnsToFit();
   }
 
-  doesExternalFilterPass(node) {
+  doesExternalFilterPass(node): boolean {
     const businessDate = new Date(node.data.businessDate);
 
     if ((this.filterBySymbol !== '' && this.startDate) || this.endDate) {
@@ -203,7 +203,7 @@ export class MarketPricesComponent implements OnInit {
     }
   }
 
-  isExternalFilterPresent() {
+  isExternalFilterPresent(): boolean {
     if (this.startDate || this.endDate || this.filterBySymbol !== '') {
       return true;
     }
@@ -226,7 +226,7 @@ export class MarketPricesComponent implements OnInit {
     }
   }
 
-  getColDefs() {
+  getColDefs(): Array<ColDef | ColGroupDef> {
     const colDefs = [
       {
         headerName: 'Business Date',
@@ -293,7 +293,7 @@ export class MarketPricesComponent implements OnInit {
     });
   }
 
-  getAuditColDefs() {
+  getAuditColDefs(): Array<ColDef | ColGroupDef> {
     return [
       {
         headerName: 'Business Date',
@@ -508,7 +508,7 @@ export class MarketPricesComponent implements OnInit {
     this.getData();
   }
 
-  numberFormatter(numberToFormat, isInPercentage) {
+  numberFormatter(numberToFormat, isInPercentage): string {
     let per = numberToFormat;
     if (isInPercentage) {
       per = PercentageFormatter(numberToFormat);
