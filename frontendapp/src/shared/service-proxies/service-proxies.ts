@@ -9,9 +9,6 @@ import {
   IsPostingEngineRunning
 } from '../Models/posting-engine';
 
-export const API_BASE_URL = environment.remoteServerUrl;
-export const REF_DATA_BASE_URL = environment.referenceDataUrl;
-
 @Injectable()
 export class FinanceServiceProxy {
   private http: HttpClient;
@@ -19,9 +16,10 @@ export class FinanceServiceProxy {
   private refDataUrl: string;
 
   constructor(http: HttpClient, private injector: Injector) {
+    debugger
     this.http = http;
-    this.baseUrl = API_BASE_URL;
-    this.refDataUrl = REF_DATA_BASE_URL;
+    this.baseUrl = window['config'].remoteServerUrl;
+    this.refDataUrl = window['config'].referenceDataUrl;
   }
 
   /*

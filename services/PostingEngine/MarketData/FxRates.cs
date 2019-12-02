@@ -11,7 +11,7 @@ namespace PostingEngine.MarketData
 {
     public class FxRates
     {
-        private static readonly string connectionString = ConfigurationManager.ConnectionStrings["PriceMasterDB"].ToString();
+        private static readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
         private static readonly bool Mock = false;
 
@@ -54,8 +54,8 @@ namespace PostingEngine.MarketData
                 _all = Utils.GetFile<Dictionary<string, FxRate>>("all_fxrates");
             }
 
-            var sql = $@"select BusDate, CurrencyCode, CalculatedFxRate as FxRate from [PriceMaster].[dbo].[vwNormalizedEodFxRates]
-                         order by BusDate, CurrencyCode desc";
+            var sql = $@"select business_date, currency, price from fx_rates
+                         order by business_date, currency desc";
 
             var list = new Dictionary<string, FxRate>();
 
@@ -98,8 +98,9 @@ namespace PostingEngine.MarketData
 
             var maxdate = now.ToString("yyyy-MM-dd");
 
-            var sql = $@"select CurrencyCode, CalculatedFxRate as FxRate from [PriceMaster].[dbo].[vwNormalizedEodFxRates] where BusDate = '{maxdate}'
-                         order by CurrencyCode desc";
+            var sql = $@"select business_date, currency, price from fx_rates
+                         where business_date = '{maxdate}'
+                         order by currency desc";
 
             var list = new Dictionary<string, FxRate>();
 

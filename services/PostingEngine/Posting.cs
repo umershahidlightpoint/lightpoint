@@ -53,6 +53,7 @@ namespace PostingEngine
 
                         exec FundAccounting..PullDailyActivity @minDate, @maxDate
                         exec FundAccounting..PullDailyMarketPrices @minDate, @maxDate
+                        exec FundAccounting..PullDailyFxPrices @minDate, @maxDate
                         ";
                 var command = new SqlCommand(sql, connection);
                 command.ExecuteNonQuery();

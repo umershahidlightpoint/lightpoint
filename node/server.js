@@ -6,6 +6,8 @@ const bodyParser = require('body-parser');
 
 const cors = require('cors');
 
+const config = require('./config');
+
 // Get our API routes
 const finance = require('./server/routes/finance');
 const refdata = require('./server/routes/refdata');
@@ -19,7 +21,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // Point static path to dist
-app.use(express.static(path.join(__dirname, './accountApp')));
+app.use(express.static(path.join(__dirname, './dist/AccountApp')));
 
 // Set our api routes
 app.use('/finance', finance);
@@ -27,13 +29,13 @@ app.use('/refdata', refdata);
 
 // Catch all other routes and return the index file
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'accountApp/index.html'));
+  res.sendFile(path.join(__dirname, './dist/AccountApp/index.html'));
 });
 
 /**
  * Get port from environment and store in Express.
  */
-const port = process.env.PORT || '3000';
+const port = process.env.PORT || config.port;
 app.set('port', port);
 
 /**

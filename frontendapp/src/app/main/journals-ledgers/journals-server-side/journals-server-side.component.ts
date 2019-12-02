@@ -29,6 +29,7 @@ import { GridLayoutMenuComponent } from '../../../../shared/Component/grid-layou
 import { GridId, GridName } from '../../../../shared/utils/AppEnums';
 import { DataDictionary } from '../../../../shared/utils/DataDictionary';
 import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
+import { UtilsConfig } from 'src/shared/Models/utils-config';
 
 @Component({
   selector: 'app-journals-server-side',
@@ -91,6 +92,14 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     boxSizing: 'border-box'
   };
 
+  utilsConfig: UtilsConfig = {
+    expandGrid: false,
+    collapseGrid: false,
+    refreshGrid: true,
+    resetGrid: false,
+    exportExcel: true
+  };
+
   datasource: IServerSideDatasource = {
     getRows: (params: IServerSideGetRowsParams) => {
       this.pageNumber = params.request.endRow / this.pageSize;
@@ -132,7 +141,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
             console.log('FIELDS SUM :: ', fieldsSum);
             this.pinnedBottomRowData = [
               {
-                source: 'Total Records: ' + this.totalRecords,
+                // source: 'Total Records: ' + this.totalRecords,
                 AccountType: '',
                 accountName: '',
                 when: '',
@@ -224,7 +233,9 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         this.dataDictionary.column('end_price', true),
         this.dataDictionary.column('fxrate', true)
       ];
+
       this.gridOptions.api.setColumnDefs(this.colDefs);
+      console.log('COL DEFS :: ', this.colDefs);
     });
   }
 
@@ -625,8 +636,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   refreshGrid() {
     this.totalRecords = 0;
     this.rowData = [];
-    // this.gridOptions.api.showLoadingOverlay();
-    // this.getAllData(true);
+    this.gridOptions.api.showLoadingOverlay();
+    this.gridOptions.api.setServerSideDatasource(this.datasource);
   }
 
   setGroupingState(value: boolean) {

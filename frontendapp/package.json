@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve -o",
     "build": "ng build",
+    "deploy": "copyfiles dist/AccountApp/**/* ../distribution/Web/server/",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
@@ -30,6 +31,7 @@
     "angular-split": "^3.0.0",
     "body-parser": "^1.19.0",
     "bootstrap": "^4.3.1",
+    "build": "^0.1.4",
     "core-js": "^3.4.1",
     "cors": "^2.8.5",
     "express": "^4.17.1",
@@ -43,6 +45,7 @@
     "primeicons": "^2.0.0",
     "primeng": "^7.1.2",
     "request": "^2.88.0",
+    "run": "^1.4.0",
     "rxjs": "~6.5.3",
     "tslib": "^1.10.0",
     "zone.js": "~0.10.2"
@@ -56,6 +59,7 @@
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "~12.12.8",
     "codelyzer": "~5.2.0",
+    "copyfiles": "^2.1.1",
     "jasmine-core": "~3.5.0",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~4.4.1",

@@ -21,7 +21,7 @@ namespace PostingEngine.MarketData
                 _all = Utils.GetFile<Dictionary<string, MarketPrice>>("all_marketprices");
             }
 
-            var sql = $@"select business_date, symbol, price from FundAccounting..market_prices";
+            var sql = $@"select business_date, symbol, MAX(price) from FundAccounting..market_prices group by business_date, symbol";
 
             var list = new Dictionary<string, MarketPrice>();
 

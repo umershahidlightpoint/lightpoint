@@ -4,12 +4,15 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import * as moment from 'moment';
 
-export const API_BASE_URL = environment.remoteServerUrl;
-export const REF_DATA_BASE_URL = environment.referenceDataUrl;
-
 @Injectable()
 export class AgGridUtils {
-  constructor() {}
+  baseUrl:string;
+  refDataUrl: string;
+
+  constructor() {
+    this.baseUrl = window['config'].remoteServerUrl;
+    this.refDataUrl = window['config'].referenceDataUrl;
+  }
 
   columizeData(data: any, columns: any) {
     const someArray = [];

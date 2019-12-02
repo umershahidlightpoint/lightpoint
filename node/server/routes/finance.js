@@ -3,9 +3,13 @@ const router = express.Router();
 const http = require('http');
 const request = require('request');
 const multer = require('multer');
+
+const config = require('../../config');
+
 var upload = multer();
 
-const rootUri = 'http://localhost:9092/api';
+// const rootUri = 'http://localhost:9092/api';
+rootUri = config.financeWebApi;
 
 /* GET API */
 router.get('*', (req, res) => {
