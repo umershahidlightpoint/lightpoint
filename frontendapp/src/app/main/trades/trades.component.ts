@@ -8,7 +8,7 @@ import {
   Input
 } from '@angular/core';
 import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
 import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
@@ -17,6 +17,7 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { SideBar, Style, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { ContextMenu } from 'src/shared/Models/common';
 @Component({
   selector: 'app-trades',
   templateUrl: './trades.component.html',
@@ -24,21 +25,20 @@ import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 })
 export class TradesComponent implements OnInit, AfterViewInit {
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
-
   @Output() titleEmitter = new EventEmitter<string>();
   @Input() tradeType = '';
 
-  public gridOptions: GridOptions;
-  public rowData: [];
+  gridOptions: GridOptions;
+  rowData: [];
 
   bottomOptions = { alignedGrids: [] };
-  pageSize: any;
+  pageSize: number;
   accountSearch = { id: undefined };
   valueFilter: number;
-  sortColum: any;
-  sortDirection: any;
-  page: any;
-  columnDefs = [];
+  sortColum: string;
+  sortDirection: string;
+  page: number;
+  columnDefs: Array<ColDef | ColGroupDef>;
   tradesData: any;
   hideGrid: boolean;
   title = '';
@@ -171,7 +171,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
         // this.getLogs();
       });
   }
-  getContextMenuItems(params) {
+  getContextMenuItems(params): Array<ContextMenu> {
     const addDefaultItems = [
       {
         name: 'Process',

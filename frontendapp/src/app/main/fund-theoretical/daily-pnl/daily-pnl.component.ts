@@ -6,7 +6,7 @@ import {
   PercentageFormatter,
   DateFormatter
 } from 'src/shared/utils/Shared';
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
@@ -17,6 +17,7 @@ import { UtilsConfig } from 'src/shared/Models/utils-config';
 import { DailyUnofficialPnLData } from 'src/shared/Models/funds-theoretical';
 import * as moment from 'moment';
 import { GraphObject } from 'src/shared/Models/graph-object';
+import { AgGridColumn } from 'ag-grid-angular';
 
 @Component({
   selector: 'app-daily-pnl',
@@ -155,10 +156,6 @@ export class DailyPnlComponent implements OnInit {
       pivotRowTotals: 'after',
       enableCellChangeFlash: true,
       animateRows: true,
-      // deltaRowDataMode: true,
-      // getRowNodeId: data => {
-      //   return data.rowId;
-      // },
       onGridReady: params => {
         AutoSizeAllColumns(params);
       },
@@ -183,7 +180,7 @@ export class DailyPnlComponent implements OnInit {
     this.dailyPnlGrid.api.sizeColumnsToFit();
   }
 
-  getColDefs() {
+  getColDefs(): Array<ColDef | ColGroupDef> {
     const colDefs = [
       {
         headerName: 'Is Modified',
@@ -540,7 +537,7 @@ export class DailyPnlComponent implements OnInit {
     this.getDailyPnL();
   }
 
-  numberFormatter(numberToFormat, isInPercentage) {
+  numberFormatter(numberToFormat, isInPercentage): string {
     let per = numberToFormat;
     if (isInPercentage) {
       per = PercentageFormatter(numberToFormat);

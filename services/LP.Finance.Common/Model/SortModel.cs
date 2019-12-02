@@ -8,7 +8,7 @@ namespace LP.Finance.Common.Model
 {
     public class SortModel
     {
-        public string sortId { get; set; }
+        public string colId { get; set; }
         public string sort { get; set; }
     }
 }

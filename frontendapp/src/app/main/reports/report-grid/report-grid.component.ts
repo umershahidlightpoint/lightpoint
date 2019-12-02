@@ -7,9 +7,10 @@ import {
   ComponentRef,
   Output,
   AfterViewInit,
-  EventEmitter
+  EventEmitter,
+  OnDestroy
 } from '@angular/core';
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import {
   CommaSeparatedFormat,
   AutoSizeAllColumns,
@@ -22,13 +23,15 @@ import {
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'app-report-grid',
   templateUrl: './report-grid.component.html',
   styleUrls: ['./report-grid.component.css']
 })
-export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit {
+export class ReportGridComponent
+  implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   @Input() tableHeader: string;
   @Input() trialBalanceReport: Array<TrialBalanceReport>;
   @Input() trialBalanceReportStats: TrialBalanceReportStats;
@@ -49,7 +52,6 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    debugger;
     AutoSizeAllColumns(this.gridOptions);
     this.gridOptions.api.sizeColumnsToFit();
   }
@@ -140,7 +142,7 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  initColDefs(headerName) {
+  initColDefs(headerName): Array<ColDef | ColGroupDef> {
     return [
       {
         colId: 'accountName',
@@ -237,7 +239,7 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit {
     this.clearFilters.emit();
   }
 
-  getContextMenuItems(params) {
+  getContextMenuItems(params): Array<ContextMenu> {
     return GetContextMenu(true, null, true, null, params);
   }
 

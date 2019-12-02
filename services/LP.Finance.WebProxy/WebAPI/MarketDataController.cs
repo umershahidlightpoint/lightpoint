@@ -18,6 +18,7 @@ using LP.Finance.Common.Dtos;
 using System.Data;
 using System.Net;
 using System.Data.SqlClient;
+using System.Linq;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -162,9 +163,23 @@ namespace LP.Finance.WebProxy.WebAPI
                 }
 
                 bool insertinto = InsertData(performanceRecords);
+
+                var dupesTemp = performanceRecords.GroupBy(x => new { x.BusinessDate, x.Symbol }).ToList();
+                var dupes = dupesTemp.Where(x => x.Skip(1).Any()).ToList();
+                if (dupes.Any())
+                {
+                    var items = dupes.SelectMany(x => x.Select(y => y)).ToList();
+                    var metaData = MetaData.ToMetaData(items[0]);
+                    foreach (var item in metaData.Columns)
+                    {
+                        Console.WriteLine(item);
+                    }
+                    return Utils.Wrap(true, items, HttpStatusCode.Forbidden, null, metaData.Columns);
+                }
+
                 if (insertinto)
                 {
-                    return Utils.Wrap(true);
+                    return Utils.Wrap(true, null, HttpStatusCode.OK);
                 }
                 else
                 {
@@ -185,8 +200,8 @@ namespace LP.Finance.WebProxy.WebAPI
                 sqlHelper.VerifyConnection();
                 sqlHelper.SqlBeginTransaction();
 
-                var monthlyPerformanceQuery = $@" DELETE FROM [market_prices_history] where event = 'upload'
-                                                  DELETE FROM [market_prices] where event = 'upload'";
+                var monthlyPerformanceQuery = $@" DELETE FROM [market_prices_history]
+                                                  DELETE FROM [market_prices]";
 
                 sqlHelper.Delete(monthlyPerformanceQuery, CommandType.Text);
 
