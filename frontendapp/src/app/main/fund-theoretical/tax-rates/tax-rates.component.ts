@@ -25,6 +25,7 @@ import { TemplateRendererComponent } from 'src/app/template-renderer/template-re
 import { ToastrService } from 'ngx-toastr';
 import { TaxRateData } from 'src/shared/Models/funds-theoretical';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'app-tax-rates',
@@ -234,7 +235,7 @@ export class TaxRatesComponent implements OnInit, AfterViewInit {
     this.taxRatesGrid.api.setColumnDefs(colDefs);
   }
 
-  getContextMenuItems(params) {
+  getContextMenuItems(params): Array<ContextMenu> {
     const addDefaultItems = [];
     return GetContextMenu(false, addDefaultItems, true, null, params);
   }

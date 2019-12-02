@@ -14,6 +14,7 @@ import {
   cellClassRulesCredit,
   cellClassRules
 } from 'src/shared/utils/DataDictionary';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'app-journals-summary',
@@ -108,7 +109,7 @@ export class JournalsSummaryComponent implements OnInit {
     } as GridOptions;
   }
 
-  getContextMenuItems(params) {
+  getContextMenuItems(params): Array<ContextMenu> {
     const addDefaultItems = [];
     if (!params.node.group) {
       addDefaultItems.push({

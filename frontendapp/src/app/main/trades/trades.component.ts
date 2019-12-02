@@ -17,6 +17,7 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { SideBar, Style, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { ContextMenu } from 'src/shared/Models/common';
 @Component({
   selector: 'app-trades',
   templateUrl: './trades.component.html',
@@ -170,7 +171,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
         // this.getLogs();
       });
   }
-  getContextMenuItems(params) {
+  getContextMenuItems(params): Array<ContextMenu> {
     const addDefaultItems = [
       {
         name: 'Process',

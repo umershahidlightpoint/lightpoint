@@ -23,6 +23,7 @@ import {
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'app-report-grid',
@@ -238,7 +239,7 @@ export class ReportGridComponent
     this.clearFilters.emit();
   }
 
-  getContextMenuItems(params) {
+  getContextMenuItems(params): Array<ContextMenu> {
     return GetContextMenu(true, null, true, null, params);
   }
 

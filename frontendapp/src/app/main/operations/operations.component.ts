@@ -21,6 +21,7 @@ import {
 } from 'src/shared/utils/Shared';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'app-operations',
@@ -314,7 +315,7 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
     this.clearJournalForm.reset();
   }
 
-  getContextMenuItems(params) {
+  getContextMenuItems(params): Array<ContextMenu> {
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(true, null, true, null, params);
   }

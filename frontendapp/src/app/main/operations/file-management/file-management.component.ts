@@ -19,6 +19,7 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { ToastrService } from 'ngx-toastr';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'app-file-management',
@@ -197,7 +198,7 @@ export class FileManagementComponent implements OnInit, AfterViewInit {
     this.getFiles();
   }
 
-  getContextMenuItems = params => {
+  getContextMenuItems = (params: Array<ContextMenu>) => {
     const process = [
       {
         name: 'Process',

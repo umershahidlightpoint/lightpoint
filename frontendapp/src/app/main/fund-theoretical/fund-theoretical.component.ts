@@ -28,6 +28,7 @@ import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-mo
 import { DecimalPipe } from '@angular/common';
 import { AgGridCheckboxComponent } from '../../../shared/Component/ag-grid-checkbox/ag-grid-checkbox.component';
 import { DatePickerModalComponent } from 'src/shared/Component/date-picker-modal/date-picker-modal.component';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'app-fund-theoretical',
@@ -432,8 +433,8 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     }
   }
 
-  getContextMenuItems(params) {
-    const addDefaultItems = [
+  getContextMenuItems(params): Array<ContextMenu> {
+    const addDefaultItems: Array<ContextMenu> = [
       {
         name: 'Add Current Month',
         action: () => {

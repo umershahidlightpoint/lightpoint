@@ -35,6 +35,7 @@ import { GridLayoutMenuComponent } from '../../../../shared/Component/grid-layou
 import { GridId, GridName } from '../../../../shared/utils/AppEnums';
 import { DataDictionary } from '../../../../shared/utils/DataDictionary';
 import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'app-journals-ledgers',
@@ -459,7 +460,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
         : null;
   }
 
-  getContextMenuItems(params) {
+  getContextMenuItems(params): Array<ContextMenu> {
     const addDefaultItems = [
       {
         name: 'Edit',

@@ -33,6 +33,7 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
 import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
 import { AgGridUtils } from 'src/shared/utils/AgGridUtils';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'app-trial-balance',
@@ -186,7 +187,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     this.gridOptions.api.setColumnDefs(cdefs);
   }
 
-  getContextMenuItems(params) {
+  getContextMenuItems(params): Array<ContextMenu> {
     const addCustomItems = [
       {
         name: 'View Chart',

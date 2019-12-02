@@ -42,6 +42,7 @@ import { GridId, GridName } from '../../../../shared/utils/AppEnums';
 import { DataDictionary } from '../../../../shared/utils/DataDictionary';
 import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'app-journals-server-side',
@@ -599,7 +600,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         : null;
   }
 
-  getContextMenuItems(params) {
+  getContextMenuItems(params): Array<ContextMenu> {
     const addDefaultItems = [
       {
         name: 'Edit',

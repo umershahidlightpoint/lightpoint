@@ -18,6 +18,7 @@ import { UtilsConfig } from 'src/shared/Models/utils-config';
 import * as moment from 'moment';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 import { GraphObject } from 'src/shared/Models/graph-object';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'app-market-prices',
@@ -262,7 +263,7 @@ export class MarketPricesComponent implements OnInit {
     return colDefs;
   }
 
-  getContextMenuItems(params) {
+  getContextMenuItems(params): Array<ContextMenu> {
     const addDefaultItems = [
       {
         name: 'Visualize',

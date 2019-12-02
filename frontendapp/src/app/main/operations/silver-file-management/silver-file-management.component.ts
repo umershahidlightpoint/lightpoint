@@ -13,6 +13,7 @@ import { SideBar, Style, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'app-silver-file-management',
@@ -127,7 +128,7 @@ export class SilverFileManagementComponent implements OnInit, AfterViewInit {
     this.getSilverFiles();
   }
 
-  getContextMenuItems = params => {
+  getContextMenuItems = (params: Array<ContextMenu>) => {
     return GetContextMenu(true, null, true, null, params);
   };
 

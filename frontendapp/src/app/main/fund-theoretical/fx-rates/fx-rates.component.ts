@@ -19,6 +19,7 @@ import { FxratesApiService } from '../../../../services/fxrates-api.service';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 import { GraphObject } from 'src/shared/Models/graph-object';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'app-fx-rates',
@@ -265,7 +266,7 @@ export class FxRatesComponent implements OnInit {
     return colDefs;
   }
 
-  getContextMenuItems(params) {
+  getContextMenuItems(params): Array<ContextMenu> {
     const addDefaultItems = [
       {
         name: 'Visualize',

@@ -26,6 +26,7 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'rep-taxlotstatus',
@@ -388,7 +389,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
 
   doesExternalFilterPass(node: any) {}
 
-  getContextMenuItems(params) {
+  getContextMenuItems(params): Array<ContextMenu> {
     //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(true, null, true, null, params);
   }
