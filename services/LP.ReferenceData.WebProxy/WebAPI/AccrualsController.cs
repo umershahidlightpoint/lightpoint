@@ -14,17 +14,12 @@ All the PNL and CASH adjustments flow into BookMon. It also updates the accrual 
 Most of the accrual logic built into OpsBlotter UI and the transaction addition logic is in OMS service. 
 
 */
-using System.Collections;
-using System.Linq;
 using System;
 using System.Web.Http;
-using System.IO;
 using Newtonsoft.Json;
 using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Security.Principal;
-using System.Threading;
 using LP.Finance.Common;
 using LP.Core;
 
