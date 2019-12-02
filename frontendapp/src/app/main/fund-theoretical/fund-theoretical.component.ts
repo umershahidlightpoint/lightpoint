@@ -420,11 +420,9 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
       if (params.colDef.field === 'performance') {
         monthEndNavSum =
-          parseInt(params.newValue) +
-          parseInt(params.data.startOfMonthEstimateNav);
+          +params.newValue + +params.data.startOfMonthEstimateNav;
       } else {
-        monthEndNavSum =
-          parseInt(params.newValue) + parseInt(params.data.performance);
+        monthEndNavSum = +params.newValue + +params.data.performance;
       }
       const row = this.fundTheoreticalGrid.api.getRowNode(params.data.rowId);
       params.data.modified = true;
@@ -538,7 +536,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     });
   }
 
-  DateFormatter(date, option, isStringFormat) {
+  DateFormatter(date, option, isStringFormat): string {
     let dateObject;
     if (isStringFormat) {
       dateObject = moment(date);
@@ -760,7 +758,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     };
   }
 
-  formatPerformanceData(records) {
+  formatPerformanceData(records) : Array<MonthlyPerformanceData> {
     const formattedRecords: Array<MonthlyPerformanceData> = records.map(
       record => ({
         id: record.Id,
@@ -788,7 +786,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     return formattedRecords;
   }
 
-  createRow(generatedYear, generatedMonth, rowNodeId) {
+  createRow(generatedYear, generatedMonth, rowNodeId): MonthlyPerformanceData {
     return {
       id: 0,
       rowId: rowNodeId,
@@ -813,7 +811,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     };
   }
 
-  getMomentMonth(month) {
+  getMomentMonth(month): string | number {
     const momentMonth = this.monthsArray.find(obj => obj.month === month);
     const monthInNum = momentMonth.id + 1;
     if (monthInNum < 9) {
