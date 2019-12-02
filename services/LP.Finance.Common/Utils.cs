@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using LP.Finance.Common.Model;
 using System.Linq;
 using System.Dynamic;
+using System.Reflection;
 
 namespace LP.Finance.Common
 {
@@ -499,15 +500,16 @@ namespace LP.Finance.Common
             List<string> sortParts = new List<string>();
             bool groupSortsPresent = false;
             int count = obj.groupKeys.Count == 0 ? 0 : obj.groupKeys.Count;
-            if((obj.sortModel.Count == obj.rowGroupCols.Count && obj.rowGroupCols.Count > 0 && obj.groupKeys.Count == 0))
+            if ((obj.sortModel.Count == obj.rowGroupCols.Count && obj.rowGroupCols.Count > 0 &&
+                 obj.groupKeys.Count == 0))
             {
                 //when the complete group is clicked for sorting. just sort by the root level node initially. Rest of the sorting will be applied as the user drills down.
                 // do nothing
             }
             else if (obj.sortModel.Count > 0)
             {
-                var modifiedRowGroupCols = obj.rowGroupCols.Select(x=> x.id).ToList();
-                if(obj.groupKeys.Count == 0)
+                var modifiedRowGroupCols = obj.rowGroupCols.Select(x => x.id).ToList();
+                if (obj.groupKeys.Count == 0)
                 {
                     modifiedRowGroupCols.RemoveRange(0, modifiedRowGroupCols.Count);
                 }
@@ -515,10 +517,10 @@ namespace LP.Finance.Common
                 {
                     modifiedRowGroupCols.RemoveRange(0, count);
                 }
-                
+
                 foreach (var item in obj.sortModel)
                 {
-                    if(grouping && modifiedRowGroupCols.IndexOf(item.colId) < 0)
+                    if (grouping && modifiedRowGroupCols.IndexOf(item.colId) < 0)
                     {
                         //ignore because these groupings are not focused right now
                     }
@@ -534,7 +536,7 @@ namespace LP.Finance.Common
             {
                 var rowGroupCol = obj.rowGroupCols[count];
                 var direction = obj.sortModel.Where(x => x.colId == rowGroupCol.field).FirstOrDefault();
-                if(direction != null)
+                if (direction != null)
                 {
                     sortParts.Add($"[{rowGroupCol.field}] {direction.sort}");
                 }
@@ -568,7 +570,7 @@ namespace LP.Finance.Common
             string query = "";
             if (obj.groupKeys.Count > 0)
             {
-                foreach(var item in obj.groupKeys)
+                foreach (var item in obj.groupKeys)
                 {
                     string colName = obj.rowGroupCols[index].id;
                     sqlParams.Add(new SqlParameter($"{colName}{index}", item));
@@ -577,24 +579,24 @@ namespace LP.Finance.Common
                 }
             }
 
-
-            var filterDict = (IDictionary<string, dynamic>)(obj.filterModel);
+            var filterDict = (IDictionary<string, dynamic>) (obj.filterModel);
             if (filterDict != null)
             {
                 foreach (var col in filterDict)
                 {
                     string columnName = col.Key;
-                    var value = (IDictionary<string, object>)(col.Value);
+                    var value = (IDictionary<string, object>) (col.Value);
                     List<string> filterModelWhereList = new List<string>();
-                    if ((string)value["filterType"] == "set")
+                    if ((string) value["filterType"] == "set")
                     {
-                        List<object> values = (List<object>)value["values"];
+                        List<object> values = (List<object>) value["values"];
                         foreach (var item in values)
                         {
                             sqlParams.Add(new SqlParameter($"{columnName}{index}", item));
                             filterModelWhereList.Add($"@{columnName}{index}");
                             index++;
                         }
+
                         if (filterModelWhereList.Count > 0)
                         {
                             string concat = string.Join(",", filterModelWhereList.Select(x => x));
@@ -603,17 +605,63 @@ namespace LP.Finance.Common
                     }
                 }
             }
-            
 
+            var externalWhere = CreateExternalWhereSql(obj, ref sqlParams);
             if (whereParts.Count > 0)
             {
+                whereParts.AddRange(externalWhere);
                 query = query + " where " + string.Join(" and ", whereParts.Select(x => x));
                 return query;
             }
-            else
+
+            if (externalWhere.Count > 0)
             {
-                return " ";
+                query = query + " where " + string.Join(" and ", externalWhere.Select(x => x));
+                return query;
             }
+
+            return " ";
+        }
+
+        private static List<string> CreateExternalWhereSql(ServerRowModel obj, ref List<SqlParameter> sqlParams)
+        {
+            List<string> whereParts = new List<string>();
+
+            var filterDictionary = (IDictionary<string, dynamic>) (obj.externalFilterModel);
+            if (filterDictionary != null)
+            {
+                foreach (var col in filterDictionary)
+                {
+                    var filterObject = (IDictionary<string, object>) (col.Value);
+                    if ((string) filterObject["filterType"] == "set")
+                    {
+                        string columnName = col.Key;
+                        var filterValue = (string) filterObject["values"];
+                        sqlParams.Add(new SqlParameter($"{columnName}", filterValue));
+                        whereParts.Add($"[{columnName}] = @{columnName}");
+                    }
+
+                    if ((string) filterObject["filterType"] == "text")
+                    {
+                        string columnName = col.Key;
+                        var filterValue = (string) filterObject["values"];
+                        sqlParams.Add(new SqlParameter($"{columnName}", filterValue));
+                        whereParts.Add($"[{columnName}] LIKE '%'+@{columnName}+'%'");
+                    }
+
+                    if ((string) filterObject["filterType"] == "date")
+                    {
+                        string columnName = col.Key;
+                        var dateFrom = (string) filterObject["dateFrom"];
+                        var dateTo = (string) filterObject["dateTo"];
+                        sqlParams.Add(new SqlParameter($"dateFrom", dateFrom));
+                        sqlParams.Add(new SqlParameter($"dateTo", dateTo));
+                        whereParts.Add($"[{columnName}] >= @dateFrom and [{columnName}] <= @dateTo");
+                    }
+                }
+            }
+
+            return whereParts;
         }
 
         private static string CreateSelectSql(ServerRowModel obj)
@@ -625,7 +673,7 @@ namespace LP.Finance.Common
                 int count = obj.groupKeys.Count == 0 ? 0 : obj.groupKeys.Count;
                 var rowGroupCol = obj.rowGroupCols[count];
                 query = query + $"[{rowGroupCol.field}],";
-                
+
                 query = query + $@"count(*) as groupCount,
 						sum(debit) as debit,
                         sum(credit) as credit,
@@ -644,8 +692,9 @@ namespace LP.Finance.Common
             {
                 return null;
             }
+
             int currentLastRow = request.startRow + results.Rows.Count;
-            if(currentLastRow < request.endRow)
+            if (currentLastRow < request.endRow)
             {
                 return currentLastRow;
             }
@@ -721,7 +770,7 @@ namespace LP.Finance.Common
                     // Copy Data to the Row
                     foreach (var prop in properties)
                     {
-                        if ( !skipColumns.Contains(prop.Name))
+                        if (!skipColumns.Contains(prop.Name))
                             dataRow[prop.Name] = prop.GetValue(found);
                     }
                 }

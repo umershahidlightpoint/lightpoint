@@ -103,10 +103,10 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   datasource: IServerSideDatasource = {
     getRows: (params: IServerSideGetRowsParams) => {
       this.pageNumber = params.request.endRow / this.pageSize;
-      const { dateFilter } = this.getServerSideExternalFilter();
+      const { fund, symbol, when } = this.getServerSideExternalFilter();
       const payload = {
         ...params.request,
-        externalFilterModel: { dateFilter },
+        externalFilterModel: { fund, symbol, when },
         pageNumber: this.pageNumber,
         pageSize: this.pageSize
       };
@@ -199,7 +199,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.dataService.flag$.subscribe(obj => {
       this.hideGrid = obj;
       if (!this.hideGrid) {
-        // this.getAllData(true);
+        this.getAllData(true);
       }
     });
   }
@@ -317,7 +317,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   }
 
   getAllData(initialLoad) {
-    this.isDataStreaming = false;
+    // this.isDataStreaming = false;
     this.symbol = 'ALL';
     const localThis = this;
     this.accountSearch.id = 0;
@@ -595,10 +595,15 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
   getServerSideExternalFilter() {
     return {
+      ...(this.fund !== 'All Funds' && { fund: { values: this.fund, filterType: 'set' } }),
+      ...(this.filterBySymbol !== '' && {
+        symbol: { values: this.filterBySymbol, filterType: 'text' }
+      }),
       ...(this.startDate !== null && {
-        dateFilter: {
-          startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
-          endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
+        when: {
+          dateFrom: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
+          dateTo: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : '',
+          filterType: 'date'
         }
       })
     };
