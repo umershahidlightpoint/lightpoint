@@ -497,19 +497,54 @@ namespace LP.Finance.Common
         {
             var grouping = IsDoingGrouping(obj.rowGroupCols, obj.groupKeys);
             List<string> sortParts = new List<string>();
-            if (grouping)
+            bool groupSortsPresent = false;
+            int count = obj.groupKeys.Count == 0 ? 0 : obj.groupKeys.Count;
+            if((obj.sortModel.Count == obj.rowGroupCols.Count && obj.rowGroupCols.Count > 0 && obj.groupKeys.Count == 0))
             {
-                //foreach(var item in obj.rowGroupCols)
-                //{
-                //    sortParts.Add(item.id);
-                //}
-
-                int count = obj.groupKeys.Count == 0 ? 0 : obj.groupKeys.Count;
-                var rowGroupCol = obj.rowGroupCols[count];
-                sortParts.Add($"[{rowGroupCol.field}]");
+                //when the complete group is clicked for sorting. just sort by the root level node initially. Rest of the sorting will be applied as the user drills down.
+                // do nothing
+            }
+            else if (obj.sortModel.Count > 0)
+            {
+                var modifiedRowGroupCols = obj.rowGroupCols.Select(x=> x.id).ToList();
+                if(obj.groupKeys.Count == 0)
+                {
+                    modifiedRowGroupCols.RemoveRange(0, modifiedRowGroupCols.Count);
+                }
+                else
+                {
+                    modifiedRowGroupCols.RemoveRange(0, count);
+                }
+                
+                foreach (var item in obj.sortModel)
+                {
+                    if(grouping && modifiedRowGroupCols.IndexOf(item.colId) < 0)
+                    {
+                        //ignore because these groupings are not focused right now
+                    }
+                    else
+                    {
+                        sortParts.Add($"[{item.colId}] {item.sort}");
+                        groupSortsPresent = true;
+                    }
+                }
             }
 
-            if(sortParts.Count > 0)
+            if ((grouping && obj.sortModel.Count == 0) || (!groupSortsPresent && grouping))
+            {
+                var rowGroupCol = obj.rowGroupCols[count];
+                var direction = obj.sortModel.Where(x => x.colId == rowGroupCol.field).FirstOrDefault();
+                if(direction != null)
+                {
+                    sortParts.Add($"[{rowGroupCol.field}] {direction.sort}");
+                }
+                else
+                {
+                    sortParts.Add($"[{rowGroupCol.field}]");
+                }
+            }
+
+            if (sortParts.Count > 0)
             {
                 return " order by " + string.Join(",", sortParts.Select(x => x));
             }
