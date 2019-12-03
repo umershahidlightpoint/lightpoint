@@ -5,6 +5,13 @@ AS
 DECLARE @bDate as Date
 SET @bDate = @businessDate
 
+-- Determine the begining of the fiscal year
+Declare @start as Date
+set @start = DATEADD(YEAR, DATEDIFF(YEAR, 0, @bdate), 0)
+
+print @bDate
+print @start
+
 select SecurityCode, BbergCode, coalesce(sd.Multiplier, sf.ContractSize) as Multiplier 
 into #security_details
 from SecurityMaster..Security s
@@ -12,11 +19,45 @@ left join SecurityMaster..SecDerivatives sd on sd.SecurityId = s.SecurityId
 left join SecurityMaster..SecFutures sf on sf.SecurityId = s.SecurityId
 where coalesce(sd.Multiplier, sf.ContractSize) is not null
 
+
+select 
+	@bDate as busdate,
+	tax_lot_status.symbol, 
+	open_id, 
+	sum(investment_at_cost) as original_iac, 
+	sum(original_quantity) as original_quantity, 
+	Max(coalesce(mp.price, 0)) as eod_price,
+	CASE
+		WHEN tax_lot_status.side = 'BUY' then 'LONG'
+		ELSE 'SHORT'
+	End as Side
+into #original
+from tax_lot_status
+left outer join market_prices mp on mp.symbol = tax_lot_status.symbol and mp.business_date = @bDate
+where trade_date <= @bDate
+group by tax_lot_status.symbol, open_id, side
+order by symbol asc
+
+select 
+	@bDate as busdate,
+	tax_lot_status.symbol, 
+	tax_lot.open_lot_id, 
+	sum(tax_lot.investment_at_cost) as activity_iac,
+	sum(tax_lot.quantity) as activity_quantity
+into #activity
+from tax_lot_status
+inner join tax_lot on tax_lot.Open_lot_id = tax_lot_status.open_id
+where tax_lot.trade_date <= @bdate
+group by tax_lot_status.symbol, tax_lot.open_lot_id
+order by symbol
+
+
+/*
 select 
 @bDate as busdate,
 tls.symbol, 
-SUM(tls.investment_at_cost + Coalesce(tl.investment_at_cost, 0)) * -1 as Balance, 
-SUM(tls.original_quantity +Coalesce(tl.quantity, 0)) as Quantity, 
+SUM(tls.investment_at_cost) as Balance, -- + Coalesce(tl.investment_at_cost, 0)) * -1 as Balance, 
+SUM(tls.quantity) as Quantity, 
 -- ABS(SUM(tls.investment_at_cost + Coalesce(tl.investment_at_cost, 0)) / SUM(tls.original_quantity +Coalesce(tl.quantity, 0))) / Max(Coalesce(sd.Multiplier, 1)) as CostBasis, 
 CASE
 	WHEN tls.side = 'BUY' then 'LONG'
@@ -25,15 +66,22 @@ End as Side,
 Max(coalesce(mp.price,0)) as eod_price
 into #costbasis_all
 from tax_lot_status tls
-left outer join tax_lot tl on tl.Open_lot_id = tls.open_id and tl.trade_date <= @bDate
-left outer join #security_details sd on sd.SecurityCode = tls.symbol
 left outer join market_prices mp on mp.symbol = tls.symbol and mp.business_date = @bDate
 where tls.business_date <= @bDate
-group by tls.symbol, side
--- This condition needs to be removed
--- having SUM(tls.original_quantity +Coalesce(tl.quantity, 0)) != 0
+group by tls.symbol, Side
+*/
 
-
+select 
+	@bDate as busdate,
+	o.symbol, 
+	sum(original_iac) - sum(coalesce(activity_iac,0)) as Balance,
+	sum(o.original_quantity) + sum(coalesce(a.activity_quantity, 0)) as Quantity, 
+	o.side, 
+	MAX(o.eod_price) as eod_price
+into #costbasis_all
+from #original o
+left outer join #activity a on a.symbol = o.symbol and a.open_lot_id = o.open_id
+group by o.symbol, o.side
 
 
 /*
@@ -47,7 +95,7 @@ inner join account a on a.id = j.account_id
 inner join account_type a_t on a_t.id = a.account_type_id
 where a_t.name = 'Mark to Market Longs'
 and [event] in ('unrealizedpnl', 'realizedpnl') -- Need to ensure that we remove the realized from the unrealized
-and j.[when] <= @bDate
+and j.[when] between @start and @bDate
 group by a.name, j.symbol
 
 -- realized
@@ -58,7 +106,7 @@ inner join account a on a.id = j.account_id
 inner join account_type a_t on a_t.id = a.account_type_id
 where a_t.name = 'Mark to Market Longs'
 and event = 'realizedpnl'
-and j.[when] <= @bDate
+and j.[when] between @start and @bDate
 group by a.name, j.symbol
 
 /*
@@ -72,7 +120,7 @@ inner join account a on a.id = j.account_id
 inner join account_type a_t on a_t.id = a.account_type_id
 where a_t.name = 'Mark to Market Shorts'
 and [event] in ('unrealizedpnl', 'realizedpnl')
-and j.[when] <= @bDate
+and j.[when] between @start and @bDate
 group by a.name, j.symbol
 
 -- realized
@@ -83,7 +131,7 @@ inner join account a on a.id = j.account_id
 inner join account_type a_t on a_t.id = a.account_type_id
 where a_t.name = 'Mark to Market Shorts'
 and event = 'realizedpnl'
-and j.[when] <= @bDate
+and j.[when] between @start and @bDate
 group by a.name, j.symbol
 
 begin tran
