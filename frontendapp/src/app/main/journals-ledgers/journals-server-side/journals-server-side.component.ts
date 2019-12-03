@@ -135,7 +135,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         result => {
           if (result.isSuccessful) {
             result.payload.forEach(result => {
-              result.when = result.when.slice(0, 10);
+              result.when = moment(result.when).format('MM-DD-YYYY');
             });
             if (this.pageNumber === 1) {
               this.rowData = result.payload;
@@ -299,10 +299,10 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         // });
         // params.api.onGroupExpandedOrCollapsed();
       },
-      getChildCount : data => {
+      getChildCount: data => {
         //data contains a group that is returned from the api
-        return data ? data.groupCount : 0
-    },
+        return data ? data.groupCount : 0;
+      },
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
