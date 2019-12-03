@@ -22,7 +22,6 @@ import {
   Style,
   IgnoreFields,
   ExcelStyle,
-  CalTotalRecords,
   GetDateRangeLabel,
   SetDateRange,
   HeightStyle,
@@ -43,6 +42,8 @@ import { DataDictionary } from '../../../../shared/utils/DataDictionary';
 import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
 import { ContextMenu } from 'src/shared/Models/common';
+import { timer, Subject } from 'rxjs';
+import { debounce } from 'rxjs/operators';
 
 @Component({
   selector: 'app-journals-server-side',
@@ -57,6 +58,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   reportModal: ReportModalComponent;
 
   private columns: any;
+  private filterSubject: Subject<string> = new Subject();
   public rowData: any[] = [];
 
   isEngineRunning = false;
@@ -132,6 +134,9 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       this.financeService.getServerSideJournals(payload).subscribe(
         result => {
           if (result.isSuccessful) {
+            result.payload.forEach(result => {
+              result.when = moment(result.when).format('MM-DD-YYYY');
+            });
             if (this.pageNumber === 1) {
               this.rowData = result.payload;
             } else {
@@ -156,6 +161,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
                 { name: 'value', total: 0 }
               ]
             );
+
             console.log('FIELDS SUM :: ', fieldsSum);
             this.pinnedBottomRowData = [
               {
@@ -214,6 +220,9 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.isEngineRunning = this.postingEngineService.getStatus();
+    this.filterSubject.pipe(debounce(() => timer(500))).subscribe(() => {
+      this.gridOptions.api.onFilterChanged();
+    });
   }
 
   ngAfterViewInit() {
@@ -240,20 +249,10 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.financeService.getServerSideJournalsMeta(payload).subscribe(result => {
       let commonColDefs = result.payload.Columns;
       commonColDefs = CommonCols(true, result.payload.Filters);
+      commonColDefs.find(item => item.field === 'Symbol').field = 'symbol';
 
       this.colDefs = [
         ...commonColDefs,
-        {
-          field: 'Quantity',
-          aggFunc: 'sum',
-          width: 100,
-          colId: 'Quantity',
-          headerName: 'Quantity',
-          sortable: true,
-          enableRowGroup: true,
-          filter: 'agNumberColumnFilter',
-          type: 'numericColumn'
-        },
         this.dataDictionary.column('TradePrice', true),
         this.dataDictionary.column('NetPrice', true),
         this.dataDictionary.column('SettleNetPrice', true),
@@ -300,6 +299,10 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         // });
         // params.api.onGroupExpandedOrCollapsed();
       },
+      getChildCount: data => {
+        //data contains a group that is returned from the api
+        return data ? data.groupCount : 0;
+      },
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
@@ -322,17 +325,6 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   customizeColumns(columns: any) {
     const colDefs = [
       ...CommonCols(true),
-      {
-        field: 'Quantity',
-        aggFunc: 'sum',
-        width: 100,
-        colId: 'Quantity',
-        headerName: 'Quantity',
-        sortable: true,
-        enableRowGroup: true,
-        filter: 'agNumberColumnFilter',
-        type: 'numericColumn'
-      },
       this.dataDictionary.column('TradePrice', true),
       this.dataDictionary.column('NetPrice', true),
       this.dataDictionary.column('SettleNetPrice', true),
@@ -361,8 +353,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       const localfunds = result.payload.map(item => ({
         FundCode: item.FundCode
       }));
-      localThis.funds = localfunds;
-      localThis.cdRef.detectChanges();
+      this.funds = localfunds;
+      this.cdRef.detectChanges();
     });
 
     // this.getJournalData(1, 10000, initialLoad);
@@ -492,9 +484,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   }
 
   ngModelChangeSymbol(e) {
-    console.log('On Model Change Symbol');
     this.filterBySymbol = e;
-    this.gridOptions.api.onFilterChanged();
   }
 
   ngModelChangeFund(e) {
@@ -503,8 +493,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   }
 
   onSymbolKey(e) {
-    this.filterBySymbol = e.srcElement.value;
-    this.gridOptions.api.onFilterChanged();
+    this.filterSubject.next(e.srcElement.value);
 
     // For the moment we react to each key stroke
     if (e.code === 'Enter' || e.code === 'Tab') {
@@ -661,14 +650,18 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
   getServerSideExternalFilter() {
     return {
-      ...(this.fund !== 'All Funds' && { fund: { values: this.fund, filterType: 'set' } }),
+      ...(this.fund !== 'All Funds' && {
+        fund: { values: this.fund, filterType: 'set' }
+      }),
       ...(this.filterBySymbol !== '' && {
         symbol: { values: this.filterBySymbol, filterType: 'text' }
       }),
       ...(this.startDate !== null && {
         when: {
-          dateFrom: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
-          dateTo: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : '',
+          dateFrom:
+            this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
+          dateTo:
+            this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : '',
           filterType: 'date'
         }
       })

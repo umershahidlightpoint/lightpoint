@@ -560,13 +560,29 @@ namespace LP.Finance.Common
             {
                 var rowGroupCol = obj.rowGroupCols[count];
                 var direction = obj.sortModel.Where(x => x.colId == rowGroupCol.field).FirstOrDefault();
-                if (direction != null)
+
+                //check if sorting is being performed on an aggreagte column
+                if(obj.sortModel.Count > 0)
                 {
-                    sortParts.Add($"[{rowGroupCol.field}] {direction.sort}");
+                    foreach(var item in obj.sortModel)
+                    {
+                        if (obj.valueCols.Any(x => x.field == item.colId))
+                        {
+                            sortParts.Add($"[{item.colId}] {item.sort}");
+                        }
+                    }
                 }
-                else
+
+                if (sortParts.Count == 0)
                 {
-                    sortParts.Add($"[{rowGroupCol.field}]");
+                    if (direction != null)
+                    {
+                        sortParts.Add($"[{rowGroupCol.field}] {direction.sort}");
+                    }
+                    else
+                    {
+                        sortParts.Add($"[{rowGroupCol.field}]");
+                    }
                 }
             }
 
@@ -650,6 +666,7 @@ namespace LP.Finance.Common
         private static List<string> CreateExternalWhereSql(ServerRowModel obj, ref List<SqlParameter> sqlParams)
         {
             List<string> whereParts = new List<string>();
+            var index = 1;
 
             var filterDictionary = (IDictionary<string, dynamic>) (obj.externalFilterModel);
             if (filterDictionary != null)
@@ -661,16 +678,18 @@ namespace LP.Finance.Common
                     {
                         string columnName = col.Key;
                         var filterValue = (string) filterObject["values"];
-                        sqlParams.Add(new SqlParameter($"{columnName}", filterValue));
-                        whereParts.Add($"[{columnName}] = @{columnName}");
+                        sqlParams.Add(new SqlParameter($"{columnName}{index}", filterValue));
+                        whereParts.Add($"[{columnName}] = @{columnName}{index}");
+                        index++;
                     }
 
                     if ((string) filterObject["filterType"] == "text")
                     {
                         string columnName = col.Key;
                         var filterValue = (string) filterObject["values"];
-                        sqlParams.Add(new SqlParameter($"{columnName}", filterValue));
-                        whereParts.Add($"[{columnName}] LIKE '%'+@{columnName}+'%'");
+                        sqlParams.Add(new SqlParameter($"{columnName}{index}", filterValue));
+                        whereParts.Add($"[{columnName}] LIKE '%'+@{columnName}{index}+'%'");
+                        index++;
                     }
 
                     if ((string) filterObject["filterType"] == "date")
@@ -678,9 +697,10 @@ namespace LP.Finance.Common
                         string columnName = col.Key;
                         var dateFrom = (string) filterObject["dateFrom"];
                         var dateTo = (string) filterObject["dateTo"];
-                        sqlParams.Add(new SqlParameter($"dateFrom", dateFrom));
-                        sqlParams.Add(new SqlParameter($"dateTo", dateTo));
-                        whereParts.Add($"[{columnName}] >= @dateFrom and [{columnName}] <= @dateTo");
+                        sqlParams.Add(new SqlParameter($"dateFrom{index}", dateFrom));
+                        sqlParams.Add(new SqlParameter($"dateTo{index}", dateTo));
+                        whereParts.Add($"[{columnName}] >= @dateFrom{index} and [{columnName}] <= @dateTo{index}");
+                        index++;
                     }
                 }
             }
@@ -697,17 +717,39 @@ namespace LP.Finance.Common
                 int count = obj.groupKeys.Count == 0 ? 0 : obj.groupKeys.Count;
                 var rowGroupCol = obj.rowGroupCols[count];
                 query = query + $"[{rowGroupCol.field}],";
-
-                query = query + $@"count(*) as groupCount,
-						sum(debit) as debit,
-                        sum(credit) as credit,
-                        sum(abs(debit)) - sum(abs(credit)) as balance ";
+                var aggCols = GetAggregateColumns(obj);
+                query = query + string.Join(",", aggCols.Select(x => x));
                 return query;
             }
             else
             {
                 return "select * ";
             }
+        }
+
+        private static List<string> GetAggregateColumns(ServerRowModel obj)
+        {
+            List<string> aggregateCols = new List<string>();
+            if(obj.valueCols.Count > 0)
+            {
+                aggregateCols.Add("count(*) as groupCount");
+                foreach(var col in obj.valueCols)
+                {
+                    if (col.field.Equals("balance"))
+                    {
+                        if (obj.valueCols.Any(x => x.field == "debit") && obj.valueCols.Any(x => x.field == "credit"))
+                        {
+                            aggregateCols.Add($"{col.aggFunc}(abs(debit)) - {col.aggFunc}(abs(credit)) as {col.field}");
+                        }
+                    }
+                    else
+                    {
+                        aggregateCols.Add($"{col.aggFunc}({col.field}) as {col.field}");
+                    }
+                }
+            }
+
+            return aggregateCols;
         }
 
         public static int? GetRowCount(ServerRowModel request, DataTable results)

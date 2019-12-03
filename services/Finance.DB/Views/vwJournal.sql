@@ -13,9 +13,9 @@
                                         WHEN [account_category].[name] not in ('Asset','Expenses') and value < 0  THEN ABS(value) 
 										Else 0
 										END  ) debit,
-									[journal].[symbol],
+									[journal].[symbol] as Symbol,
 									[journal].[security_id],
-									[journal].[quantity],
+									[journal].[quantity] as Quantity,
                                     [journal].[id],
                                     [account_id],
                                     [fx_currency],
