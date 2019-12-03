@@ -140,7 +140,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
             if (this.pageNumber === 1) {
               this.rowData = result.payload;
             } else {
-              this.rowData = this.rowData.concat(result.payload);
+              //this.rowData = this.rowData.concat(result.payload);
+              this.rowData = result.payload;
             }
 
             params.successCallback(this.rowData, result.meta.LastRow);

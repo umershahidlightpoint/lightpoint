@@ -646,7 +646,7 @@ namespace LP.Finance.Common
                 }
             }
 
-            var externalWhere = CreateExternalWhereSql(obj, ref sqlParams);
+            var externalWhere = CreateExternalWhereSql(obj, ref sqlParams, index);
             if (whereParts.Count > 0)
             {
                 whereParts.AddRange(externalWhere);
@@ -663,10 +663,9 @@ namespace LP.Finance.Common
             return " ";
         }
 
-        private static List<string> CreateExternalWhereSql(ServerRowModel obj, ref List<SqlParameter> sqlParams)
+        private static List<string> CreateExternalWhereSql(ServerRowModel obj, ref List<SqlParameter> sqlParams, int index = 0)
         {
             List<string> whereParts = new List<string>();
-            var index = 1;
 
             var filterDictionary = (IDictionary<string, dynamic>) (obj.externalFilterModel);
             if (filterDictionary != null)
