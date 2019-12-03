@@ -489,6 +489,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
   ngModelChangeFund(e) {
     this.fund = e;
+    this.gridOptions.api.onFilterChanged();
   }
 
   onSymbolKey(e) {
