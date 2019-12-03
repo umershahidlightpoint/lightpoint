@@ -650,6 +650,7 @@ namespace LP.Finance.Common
         private static List<string> CreateExternalWhereSql(ServerRowModel obj, ref List<SqlParameter> sqlParams)
         {
             List<string> whereParts = new List<string>();
+            var index = 1;
 
             var filterDictionary = (IDictionary<string, dynamic>) (obj.externalFilterModel);
             if (filterDictionary != null)
@@ -661,16 +662,18 @@ namespace LP.Finance.Common
                     {
                         string columnName = col.Key;
                         var filterValue = (string) filterObject["values"];
-                        sqlParams.Add(new SqlParameter($"{columnName}", filterValue));
-                        whereParts.Add($"[{columnName}] = @{columnName}");
+                        sqlParams.Add(new SqlParameter($"{columnName}{index}", filterValue));
+                        whereParts.Add($"[{columnName}] = @{columnName}{index}");
+                        index++;
                     }
 
                     if ((string) filterObject["filterType"] == "text")
                     {
                         string columnName = col.Key;
                         var filterValue = (string) filterObject["values"];
-                        sqlParams.Add(new SqlParameter($"{columnName}", filterValue));
-                        whereParts.Add($"[{columnName}] LIKE '%'+@{columnName}+'%'");
+                        sqlParams.Add(new SqlParameter($"{columnName}{index}", filterValue));
+                        whereParts.Add($"[{columnName}] LIKE '%'+@{columnName}{index}+'%'");
+                        index++;
                     }
 
                     if ((string) filterObject["filterType"] == "date")
@@ -678,9 +681,10 @@ namespace LP.Finance.Common
                         string columnName = col.Key;
                         var dateFrom = (string) filterObject["dateFrom"];
                         var dateTo = (string) filterObject["dateTo"];
-                        sqlParams.Add(new SqlParameter($"dateFrom", dateFrom));
-                        sqlParams.Add(new SqlParameter($"dateTo", dateTo));
-                        whereParts.Add($"[{columnName}] >= @dateFrom and [{columnName}] <= @dateTo");
+                        sqlParams.Add(new SqlParameter($"dateFrom{index}", dateFrom));
+                        sqlParams.Add(new SqlParameter($"dateTo{index}", dateTo));
+                        whereParts.Add($"[{columnName}] >= @dateFrom{index} and [{columnName}] <= @dateTo{index}");
+                        index++;
                     }
                 }
             }
