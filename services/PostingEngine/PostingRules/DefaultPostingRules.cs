@@ -317,7 +317,7 @@ namespace PostingEngine.PostingRules
                                 var tl = new TaxLot
                                 {
                                     TradeDate = element.TradeDate,
-                                    InvestmentAtCost = element.NetMoney * fxrate,
+                                    InvestmentAtCost = workingQuantity * lot.Trade.SettleNetPrice * fxrate,
                                     BusinessDate = env.BusinessDate,
                                     OpeningLotId = lot.Trade.LpOrderId,
                                     ClosingLotId = element.LpOrderId,
@@ -418,7 +418,7 @@ namespace PostingEngine.PostingRules
                                 var tl = new TaxLot
                                 {
                                     TradeDate = element.TradeDate,
-                                    InvestmentAtCost = element.NetMoney * fxrate,
+                                    InvestmentAtCost = taxlotStatus.Quantity * -1 * lot.Trade.SettleNetPrice * fxrate,
                                     BusinessDate = env.ValueDate,
                                     OpeningLotId = lot.Trade.LpOrderId,
                                     ClosingLotId = element.LpOrderId,
@@ -428,7 +428,7 @@ namespace PostingEngine.PostingRules
                                 };
                                 tl.Save(env.Connection, env.Transaction);
 
-                                workingQuantity -= taxlotStatus.Quantity;
+                                workingQuantity += taxlotStatus.Quantity;
 
                                 var PnL = Math.Abs(tl.Quantity) * (tl.CostBasis - tl.TradePrice) * fxrate;
 

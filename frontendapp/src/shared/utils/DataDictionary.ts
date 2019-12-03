@@ -26,7 +26,7 @@ export class DataDictionary {
           sortable: true,
           filter: isJournalGrid ? 'agNumberColumnFilter' : true,
           cellStyle: { 'text-align': 'right' },
-          valueFormatter
+          valueFormatter: moneyFormatter
         };
         cellClassRules(columnDefinition);
         break;
