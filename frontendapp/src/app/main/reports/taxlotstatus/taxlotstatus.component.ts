@@ -17,6 +17,7 @@ import {
   GetDateRangeLabel,
   FormatNumber4,
   SetDateRange,
+  MoneyFormat,  
   CommaSeparatedFormat,
   HeightStyle,
   DateFormatter
@@ -187,8 +188,8 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           width: 100,
           filter: true,
           sortable: true,
-          cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          cellClass: "rightAlign",
+          valueFormatter: moneyFormatter
         }
       ],
       defaultColDef: {
@@ -272,8 +273,8 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           headerName: 'Realized P&L',
           sortable: true,
           filter: true,
-          cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          cellClass: "rightAlign",
+          valueFormatter: moneyFormatter
         },
         {
           field: 'quantity',
@@ -469,6 +470,13 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       this.tradeSelectionSubject.next(event.node.data.closing_lot_id);
     }
   }
+}
+
+function moneyFormatter(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  return MoneyFormat(params.value);
 }
 
 function currencyFormatter(params) {

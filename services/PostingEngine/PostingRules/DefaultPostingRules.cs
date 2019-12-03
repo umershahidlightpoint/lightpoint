@@ -414,6 +414,7 @@ namespace PostingEngine.PostingRules
                             }
                             else
                             {
+                                // Close out the tax lot
                                 var tl = new TaxLot
                                 {
                                     TradeDate = element.TradeDate,
@@ -423,12 +424,13 @@ namespace PostingEngine.PostingRules
                                     ClosingLotId = element.LpOrderId,
                                     TradePrice = lot.Trade.SettleNetPrice,
                                     CostBasis = element.SettleNetPrice,
-                                    Quantity = taxlotStatus.Quantity
+                                    Quantity = taxlotStatus.Quantity * -1
                                 };
                                 tl.Save(env.Connection, env.Transaction);
-                                workingQuantity += Math.Abs(taxlotStatus.Quantity);
 
-                                var PnL = tl.Quantity * (tl.CostBasis - tl.TradePrice) * fxrate;
+                                workingQuantity -= taxlotStatus.Quantity;
+
+                                var PnL = Math.Abs(tl.Quantity) * (tl.CostBasis - tl.TradePrice) * fxrate;
 
                                 PostRealizedPnl(env, element, PnL, tl.TradePrice, tl.CostBasis, fxrate);
 
@@ -438,11 +440,6 @@ namespace PostingEngine.PostingRules
                         }
                     }
                 }
-
-                // Given the openlots we now need to match off quantity
-                var residualQuantity = element.Quantity;
-
-
             }
             else
             {

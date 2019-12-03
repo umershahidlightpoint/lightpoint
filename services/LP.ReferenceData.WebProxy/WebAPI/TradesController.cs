@@ -1,14 +1,9 @@
-﻿using System.Collections;
-using System.Linq;
-using System;
+﻿using System;
 using System.Web.Http;
-using System.IO;
 using Newtonsoft.Json;
 using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
-using System.Security.Principal;
-using System.Threading;
 using LP.Finance.Common;
 using LP.Core;
 

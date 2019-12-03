@@ -14,6 +14,8 @@ import {
   CalTotalRecords,
   GetDateRangeLabel,
   FormatNumber4,
+  FormatNumber2,
+  MoneyFormat,
   SetDateRange,
   CommaSeparatedFormat,
   HeightStyle,
@@ -149,7 +151,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           sortable: true,
           filter: true,
           width: 120,
-          valueFormatter: currencyFormatter
+          valueFormatter: moneyFormatter
         },
         {
           field: 'Quantity',
@@ -177,22 +179,22 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           filter: true
         },
         {
-          field: 'unrealized_pnl',
-          cellClass: 'rightAlign',
-          headerName: 'Unrealized P&L',
-          valueFormatter: currencyFormatter
+          field: "unrealized_pnl",
+          cellClass: "rightAlign",
+          headerName: "Unrealized P&L",
+          valueFormatter: moneyFormatter
         },
         {
-          field: 'realized_pnl',
-          cellClass: 'rightAlign',
-          headerName: 'Realized P&L',
-          valueFormatter: currencyFormatter
+          field: "realized_pnl",
+          cellClass: "rightAlign",
+          headerName: "Realized P&L",
+          valueFormatter: moneyFormatter
         },
         {
-          field: 'Pnl',
-          cellClass: 'rightAlign',
-          headerName: 'Net P&L',
-          valueFormatter: currencyFormatter
+          field: "Pnl",
+          cellClass: "rightAlign",
+          headerName: "Net P&L",
+          valueFormatter: moneyFormatter
         }
       ],
       defaultColDef: {
@@ -251,7 +253,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           sortable: true,
           filter: true,
           width: 120,
-          valueFormatter: currencyFormatter
+          valueFormatter: moneyFormatter
         },
         {
           field: 'Quantity',
@@ -283,21 +285,21 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           cellClass: 'rightAlign',
           headerName: 'Unrealized P&L',
           sortable: true,
-          valueFormatter: currencyFormatter
+          valueFormatter: moneyFormatter
         },
         {
           field: 'realized_pnl',
           cellClass: 'rightAlign',
           headerName: 'Realized P&L',
           sortable: true,
-          valueFormatter: currencyFormatter
+          valueFormatter: moneyFormatter
         },
         {
           field: 'Pnl',
           cellClass: 'rightAlign',
           headerName: 'Net P&L',
           sortable: true,
-          valueFormatter: currencyFormatter
+          valueFormatter: moneyFormatter
         }
       ],
       defaultColDef: {
@@ -533,4 +535,25 @@ function costBasisFormatter(params): string {
     return;
   }
   return FormatNumber4(params.value);
+}
+
+function decimnalFormatter2(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  return FormatNumber2(params.value);
+}
+
+function moneyFormatter(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  return MoneyFormat(params.value);
+}
+
+function absCurrencyFormatter(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  return CommaSeparatedFormat(Math.abs(params.value));
 }
