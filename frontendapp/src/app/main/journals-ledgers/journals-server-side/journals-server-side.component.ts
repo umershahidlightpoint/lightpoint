@@ -253,17 +253,6 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
       this.colDefs = [
         ...commonColDefs,
-        {
-          field: 'Quantity',
-          aggFunc: 'sum',
-          width: 100,
-          colId: 'Quantity',
-          headerName: 'Quantity',
-          sortable: true,
-          enableRowGroup: true,
-          filter: 'agNumberColumnFilter',
-          type: 'numericColumn'
-        },
         this.dataDictionary.column('TradePrice', true),
         this.dataDictionary.column('NetPrice', true),
         this.dataDictionary.column('SettleNetPrice', true),
@@ -310,6 +299,10 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         // });
         // params.api.onGroupExpandedOrCollapsed();
       },
+      getChildCount : data => {
+        //data contains a group that is returned from the api
+        return data ? data.groupCount : 0
+    },
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
@@ -332,17 +325,6 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   customizeColumns(columns: any) {
     const colDefs = [
       ...CommonCols(true),
-      {
-        field: 'Quantity',
-        aggFunc: 'sum',
-        width: 100,
-        colId: 'Quantity',
-        headerName: 'Quantity',
-        sortable: true,
-        enableRowGroup: true,
-        filter: 'agNumberColumnFilter',
-        type: 'numericColumn'
-      },
       this.dataDictionary.column('TradePrice', true),
       this.dataDictionary.column('NetPrice', true),
       this.dataDictionary.column('SettleNetPrice', true),
