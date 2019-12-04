@@ -7,7 +7,7 @@ import {
   AfterContentInit
 } from '@angular/core';
 import 'ag-grid-enterprise';
-import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
+import { GridOptions } from 'ag-grid-community';
 import * as moment from 'moment';
 /* Services/Components Imports */
 import {
@@ -188,7 +188,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   }
 
   getContextMenuItems(params): Array<ContextMenu> {
-    const addCustomItems = [
+    const addCustomItems: Array<ContextMenu> = [
       {
         name: 'View Chart',
         action: () => {
@@ -204,7 +204,6 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
 
   getTrialBalance() {
     this.symbol = 'ALL';
-    const localThis = this;
     this.page = 0;
     this.pageSize = 0;
     this.accountSearch.id = 0;
@@ -215,8 +214,8 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       const localfunds = result.payload.map(item => ({
         FundCode: item.FundCode
       }));
-      localThis.funds = localfunds;
-      localThis.cdRef.detectChanges();
+      this.funds = localfunds;
+      this.cdRef.detectChanges();
     });
     this.financeService
       .getJournals(

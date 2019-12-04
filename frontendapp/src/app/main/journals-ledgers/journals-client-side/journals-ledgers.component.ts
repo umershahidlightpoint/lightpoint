@@ -50,7 +50,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   reportModal: ReportModalComponent;
 
   private columns: any;
-  public rowData: any[] = [];
+  rowData: any[] = [];
 
   isEngineRunning = false;
   hideGrid = false;
@@ -205,7 +205,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   getAllData(initialLoad) {
     this.isDataStreaming = true;
     this.symbol = 'ALL';
-    const localThis = this;
     this.page = 0;
     this.pageSize = 0;
     this.accountSearch.id = 0;
@@ -216,8 +215,8 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       const localfunds = result.payload.map(item => ({
         FundCode: item.FundCode
       }));
-      localThis.funds = localfunds;
-      localThis.cdRef.detectChanges();
+      this.funds = localfunds;
+      this.cdRef.detectChanges();
     });
 
     this.getJournalData(1, 10000, initialLoad);

@@ -3,7 +3,7 @@ import {
   OnInit,
   Input,
   DoCheck,
-  AfterViewInit,
+  AfterViewInit
 } from '@angular/core';
 import { MatSidenav } from '@angular/material';
 import * as moment from 'moment';
@@ -29,22 +29,21 @@ export class HeaderComponent implements OnInit, DoCheck, AfterViewInit {
     private financeService: FinanceServiceProxy
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.date = moment().format('MM-DD-YYYY');
+    this.effectiveDate = this.getPreviousWorkday(moment()).format('MM-DD-YYYY'); // moment().add('days', -1).format('MM-DD-YYYY');
+    this.isPostingEngineRunning();
+  }
 
   getPreviousWorkday(day: any) {
-    var prevDay = moment(day).add('days', -1);
+    const prevDay = moment(day).add('days', -1);
 
     return [1, 2, 3, 4, 5].indexOf(prevDay.day()) > -1
       ? prevDay
       : prevDay.add('days', -1);
   }
 
-  ngAfterViewInit() {
-    this.date = moment().format('MM-DD-YYYY');
-    this.effectiveDate = this.getPreviousWorkday(moment()).format('MM-DD-YYYY'); // moment().add('days', -1).format('MM-DD-YYYY');
-
-    this.isPostingEngineRunning();
-  }
+  ngAfterViewInit() {}
 
   ngDoCheck() {
     const isEngineRunning = this.postingEngineService.getStatus();

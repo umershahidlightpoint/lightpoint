@@ -55,6 +55,8 @@
   <ItemGroup>
     <Compile Include="DailyPnLWebApi.cs" />
     <Compile Include="FileManagementWebApi.cs" />
+    <Compile Include="FileUploadFxRatesWebApi.cs" />
+    <Compile Include="FileUploadMarketPriceWebApi.cs" />
     <Compile Include="GridViewsWebApi.cs" />
     <Compile Include="Prices.cs" />
     <Compile Include="Dates.cs" />
@@ -69,6 +71,18 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="TestFiles\FxRates.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\FxRatesDup.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\MarketDataPrices.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\MarketDataPricesDup.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LP.Finance.Common\LP.Finance.Common.csproj">
