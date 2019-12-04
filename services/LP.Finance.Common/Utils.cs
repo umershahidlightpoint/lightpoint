@@ -16,6 +16,7 @@ using LP.Finance.Common.Model;
 using System.Linq;
 using System.Dynamic;
 using System.Reflection;
+using System.Globalization;
 
 namespace LP.Finance.Common
 {
@@ -183,6 +184,34 @@ namespace LP.Finance.Common
             if (response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.BadRequest)
             {
                 result = response.Content.ReadAsStringAsync();
+            }
+
+            return await result;
+        }
+
+        public static async Task<string> PostFileApi(string webApi, string webUri, string filePath)
+        {
+            Task<string> result = null;
+
+            string projectWebApi = ConfigurationManager.AppSettings[webApi];
+            var url = $"{projectWebApi}{webUri}";
+
+            var bytes = File.ReadAllBytes(filePath);
+            using (var client = new HttpClient())
+            {
+                using (var content =
+                    new MultipartFormDataContent("Upload-" + DateTime.Now.ToString(CultureInfo.InvariantCulture)))
+                {
+                    content.Add(new StreamContent(new MemoryStream(bytes)), Path.GetFileNameWithoutExtension(filePath), Path.GetFileName(filePath));
+
+                    using (var response = await client.PostAsync(url, content))
+                    {
+                        if (response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.BadRequest)
+                        {
+                            result = response.Content.ReadAsStringAsync();
+                        }
+                    }
+                }
             }
 
             return await result;
@@ -844,4 +873,5 @@ namespace LP.Finance.Common
             return dataTable;
         }
     }
+
 }
