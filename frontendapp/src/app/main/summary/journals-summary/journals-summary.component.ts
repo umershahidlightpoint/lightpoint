@@ -54,8 +54,8 @@ export class JournalsSummaryComponent implements OnInit {
   styleForHeight = HeightStyle(228);
 
   utilsConfig: UtilsConfig = {
-    expandGrid: true,
-    collapseGrid: true,
+    expandGrid: false,
+    collapseGrid: false,
     refreshGrid: true,
     resetGrid: false,
     exportExcel: true

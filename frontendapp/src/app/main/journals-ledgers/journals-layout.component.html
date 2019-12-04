@@ -10,15 +10,15 @@
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
     <p-tabView [ngStyle]="style" (onChange)="onTabChange($event)">
         <!-- Server Side Journal Tab Starts -->
-        <p-tabPanel header="Server Side Journals">
+        <p-tabPanel header="Journals">
             <app-journals-server-side></app-journals-server-side>
         </p-tabPanel>
         <!-- Server Side Journal Tab Ends -->
 
         <!-- Journal Tab Starts -->
-        <p-tabPanel header="Client Side Journals">
+        <!-- <p-tabPanel header="Client Side Journals">
             <app-journals-ledgers *ngIf="isClientJournalActive"></app-journals-ledgers>
-        </p-tabPanel>
+        </p-tabPanel> -->
         <!-- Journal Tab Ends -->
     </p-tabView>
 </div>
