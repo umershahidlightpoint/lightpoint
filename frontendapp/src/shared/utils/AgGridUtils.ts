@@ -41,6 +41,7 @@ export class AgGridUtils {
     columns: any,
     ignoreFields: any,
     isJournalGrid,
+    addAggFunc: boolean = true,
     sumFields: any = ['debit', 'credit', 'balance']
   ) {
     const cdefs = Object.assign([], colDefs);
@@ -89,9 +90,11 @@ export class AgGridUtils {
             if (sumFields.filter(i => i == column.field).length > 0) {
               clone.aggFunc = 'sum';
             } else {
-              clone.aggFunc = values => {
-                return 0;
-              };
+              if(addAggFunc){
+                clone.aggFunc = values => {
+                  return 0;
+                };
+              }
             }
 
             clone.cellStyle = { 'text-align': 'right' };
@@ -135,7 +138,15 @@ export class AgGridUtils {
     }
     return cdefs;
   }
+
+  disableColumnFilters(colDefs: any, disabledFilterList: any){
+    let filteredCols = colDefs.filter(x=> (disabledFilterList.includes(x.colId) || disabledFilterList.includes(x.field)));
+    filteredCols.map(x=> x.filter = false);
+    return colDefs;
+  }
 }
+
+
 
 function currencyFormatter(params) {
   return formatNumber(params.value);

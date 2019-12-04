@@ -479,7 +479,7 @@ namespace LP.Finance.Common
         public static Tuple<string, List<SqlParameter>> BuildSql(ServerRowModel obj, string from)
         {
             List<SqlParameter> sqlParams = new List<SqlParameter>();
-            string selectSql = CreateSelectSql(obj);
+            string selectSql = CreateSelectSql(obj, from);
             string fromSql = $" FROM [{from}] ";
             string whereSql = CreateWhereSql(obj, ref sqlParams);
             string limitSql = CreateLimitSql(obj, ref sqlParams);
@@ -643,6 +643,15 @@ namespace LP.Finance.Common
                             whereParts.Add($"[{columnName}] IN ({concat})");
                         }
                     }
+                    else if((string)value["filterType"] == "date")
+                    {
+                        if((string)value["type"] == "equals")
+                        {
+                            sqlParams.Add(new SqlParameter($"{columnName}{index}", (object)value["dateFrom"]));
+                            whereParts.Add($"[{columnName}] = @{columnName}{index}");
+                            index++;
+                        }
+                    }
                 }
             }
 
@@ -707,7 +716,7 @@ namespace LP.Finance.Common
             return whereParts;
         }
 
-        private static string CreateSelectSql(ServerRowModel obj)
+        private static string CreateSelectSql(ServerRowModel obj, string from)
         {
             var grouping = IsDoingGrouping(obj.rowGroupCols, obj.groupKeys);
             string query = "select ";
@@ -722,7 +731,14 @@ namespace LP.Finance.Common
             }
             else
             {
-                return "select * ";
+                if (obj.valueCols.Any(x => x.field == "debit") && obj.valueCols.Any(x => x.field == "credit") && obj.valueCols.Any(x => x.field == "balance"))
+                {
+                    return "select (abs(debit)) - (abs(credit)) as balance, * ";
+                }
+                else
+                {
+                    return "select * ";
+                }
             }
         }
 

@@ -248,22 +248,44 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       ]
     };
     this.financeService.getServerSideJournalsMeta(payload).subscribe(result => {
-      let commonColDefs = result.payload.Columns;
-      commonColDefs = CommonCols(true, result.payload.Filters);
-      commonColDefs.find(item => item.field === 'Symbol').field = 'symbol';
-
-      this.colDefs = [
+      const metaColumns = result.payload.Columns;
+      const commonColDefs = CommonCols(true, result.payload.Filters);
+      const disabledFilters = [
+        'id',
+        'source',
+        'accountDescription',
+        'debit',
+        'credit',
+        'balance',
+        'Quantity',
+        'TradeCurrency',
+        'SettleCurrency',
+        'Side',
+        'fxrate',
+        'event',
+        'security_id',
+        'fx_currency',
+        'value',
+        'start_price',
+        'end_price'
+      ];
+      const colDefs = [
         ...commonColDefs,
-        this.dataDictionary.column('TradePrice', true),
-        this.dataDictionary.column('NetPrice', true),
-        this.dataDictionary.column('SettleNetPrice', true),
-        this.dataDictionary.column('start_price', true),
-        this.dataDictionary.column('end_price', true),
         this.dataDictionary.column('fxrate', true)
       ];
 
-      this.gridOptions.api.setColumnDefs(this.colDefs);
-      console.log('COL DEFS :: ', this.colDefs);
+      const cdefs = this.agGridUtls.customizeColumns(
+        colDefs,
+        metaColumns,
+        this.ignoreFields,
+        true,
+        false
+      );
+
+      debugger;
+      const afterDisableFilters = this.agGridUtls.disableColumnFilters(cdefs,disabledFilters);
+      this.gridOptions.api.setColumnDefs(afterDisableFilters);
+      console.log('COL DEFS :: ', afterDisableFilters);
     });
   }
 
