@@ -139,4 +139,6 @@ export class SettingsComponent implements OnInit {
       this.gridOptions.api.setColumnDefs(cdefs);
     });
   }
+
+  changeDate(event) {}
 }

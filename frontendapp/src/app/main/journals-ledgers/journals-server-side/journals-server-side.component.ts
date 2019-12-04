@@ -250,7 +250,6 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.financeService.getServerSideJournalsMeta(payload).subscribe(result => {
       let commonColDefs = result.payload.Columns;
       commonColDefs = CommonCols(true, result.payload.Filters);
-      commonColDefs.find(item => item.field === 'Symbol').field = 'symbol';
 
       this.colDefs = [
         ...commonColDefs,
@@ -345,7 +344,6 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   getAllData(initialLoad) {
     // this.isDataStreaming = false;
     this.symbol = 'ALL';
-    const localThis = this;
     this.accountSearch.id = 0;
     this.valueFilter = 0;
     this.sortColum = '';
