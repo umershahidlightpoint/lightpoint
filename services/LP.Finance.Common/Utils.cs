@@ -744,7 +744,13 @@ namespace LP.Finance.Common
                 case "lessThan":
                     symbol = "<=";
                     break;
+                case "lessThanOrEqual":
+                    symbol = "<=";
+                    break;
                 case "greaterThan":
+                    symbol = ">=";
+                    break;
+                case "greaterThanOrEqual":
                     symbol = ">=";
                     break;
                 case "notEqual":
@@ -810,12 +816,22 @@ namespace LP.Finance.Common
 
         private static int ExtractNumberFilter(List<SqlParameter> sqlParams, List<string> whereParts, int index, string columnName, IDictionary<string, object> value)
         {
-            if ((string)value["type"] == "equals")
+            if ((string)value["type"] == "inRange")
             {
                 sqlParams.Add(new SqlParameter($"{columnName}{index}", (object)value["filter"]));
-                whereParts.Add($"[{columnName}] = @{columnName}{index}");
+                whereParts.Add($"[{columnName}] >= @{columnName}{index}");
                 index++;
+
+                sqlParams.Add(new SqlParameter($"{columnName}{index}", (object)value["filterTo"]));
+                whereParts.Add($"[{columnName}] <= @{columnName}{index}");
+                index++;
+
+                return index;
             }
+
+            sqlParams.Add(new SqlParameter($"{columnName}{index}", (object)value["filter"]));
+            whereParts.Add($"[{columnName}] {GetOperator((string)value["type"])} @{columnName}{index}");
+            index++;
             return index;
         }
 
