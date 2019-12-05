@@ -654,33 +654,9 @@ namespace LP.Finance.Common
                 foreach (var col in filterDict)
                 {
                     string columnName = col.Key;
-                    var value = (IDictionary<string, object>) (col.Value);
+                    var value = (IDictionary<string, object>)(col.Value);
                     List<string> filterModelWhereList = new List<string>();
-                    if ((string) value["filterType"] == "set")
-                    {
-                        List<object> values = (List<object>) value["values"];
-                        foreach (var item in values)
-                        {
-                            sqlParams.Add(new SqlParameter($"{columnName}{index}", item));
-                            filterModelWhereList.Add($"@{columnName}{index}");
-                            index++;
-                        }
-
-                        if (filterModelWhereList.Count > 0)
-                        {
-                            string concat = string.Join(",", filterModelWhereList.Select(x => x));
-                            whereParts.Add($"[{columnName}] IN ({concat})");
-                        }
-                    }
-                    else if((string)value["filterType"] == "date")
-                    {
-                        if((string)value["type"] == "equals")
-                        {
-                            sqlParams.Add(new SqlParameter($"{columnName}{index}", (object)value["dateFrom"]));
-                            whereParts.Add($"[{columnName}] = @{columnName}{index}");
-                            index++;
-                        }
-                    }
+                    index = ExtractInGridFilters(sqlParams, whereParts, index, columnName, value, filterModelWhereList);
                 }
             }
 
@@ -699,6 +675,60 @@ namespace LP.Finance.Common
             }
 
             return " ";
+        }
+
+        private static int ExtractInGridFilters(List<SqlParameter> sqlParams, List<string> whereParts, int index, string columnName, IDictionary<string, object> value, List<string> filterModelWhereList)
+        {
+            switch ((string)value["filterType"])
+            {
+                case "set":
+                    
+                    index = ExtractSetFilters(sqlParams, whereParts, index, columnName, value, filterModelWhereList);
+                    break;
+
+                case "date":
+                    index = ExtractDateFilter(sqlParams, whereParts, index, columnName, value);
+                    break;
+                case "text":
+                    // todo
+                    break;
+                case "number":
+                    //todo
+                    break;
+            }
+
+            return index;
+        }
+
+        private static int ExtractDateFilter(List<SqlParameter> sqlParams, List<string> whereParts, int index, string columnName, IDictionary<string, object> value)
+        {
+            if ((string)value["type"] == "equals")
+            {
+                sqlParams.Add(new SqlParameter($"{columnName}{index}", (object)value["dateFrom"]));
+                whereParts.Add($"[{columnName}] = @{columnName}{index}");
+                index++;
+            }
+
+            return index;
+        }
+
+        private static int ExtractSetFilters(List<SqlParameter> sqlParams, List<string> whereParts, int index, string columnName, IDictionary<string, object> value, List<string> filterModelWhereList)
+        {
+            List<object> values = (List<object>)value["values"];
+            foreach (var item in values)
+            {
+                sqlParams.Add(new SqlParameter($"{columnName}{index}", item));
+                filterModelWhereList.Add($"@{columnName}{index}");
+                index++;
+            }
+
+            if (filterModelWhereList.Count > 0)
+            {
+                string concat = string.Join(",", filterModelWhereList.Select(x => x));
+                whereParts.Add($"[{columnName}] IN ({concat})");
+            }
+
+            return index;
         }
 
         private static List<string> CreateExternalWhereSql(ServerRowModel obj, ref List<SqlParameter> sqlParams, int index = 0)

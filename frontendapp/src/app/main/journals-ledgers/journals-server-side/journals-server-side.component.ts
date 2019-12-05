@@ -230,8 +230,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       const disabledFilters = [
         'id',
         'source',
-        'accountDescription',
-        'debit',
+        // 'accountDescription',
+        // 'debit',
         'credit',
         'balance',
         'Quantity',
