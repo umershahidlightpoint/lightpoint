@@ -660,10 +660,30 @@ namespace LP.Finance.Common
             }
 
             var externalFilters = ExtractExternalFilters(obj, ref sqlParams, index);
+
+            //find the common filters and remove them from whereparts. external filters have precedence over in grid filters(stored in whereParts)
+            if(externalFilters.Count > 0 && whereParts.Count > 0)
+            {
+                var filterDictionary = (IDictionary<string, dynamic>)(obj.externalFilterModel);
+                foreach(var key in filterDictionary)
+                {
+                    string externalFilter = $"[{key.Key}]";
+                    int whereIndex = 0;
+                    foreach (string item in whereParts.ToList())
+                    {
+                        if (item.IndexOf(externalFilter, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                        {
+                            whereParts[whereIndex] = null;
+                        }
+
+                        whereIndex++;
+                    }
+                }
+            }
             if (whereParts.Count > 0)
             {
                 whereParts.AddRange(externalFilters);
-                query = query + " where " + string.Join(" and ", whereParts.Select(x => x));
+                query = query + " where " + string.Join(" and ", whereParts.Where(x=> !string.IsNullOrEmpty(x)).Select(x => x));
                 return query;
             }
 
