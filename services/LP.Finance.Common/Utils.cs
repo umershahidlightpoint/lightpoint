@@ -713,17 +713,53 @@ namespace LP.Finance.Common
         private static int ExtractDateFilter(List<SqlParameter> sqlParams, List<string> whereParts, int index,
             string columnName, IDictionary<string, object> value)
         {
-            if ((string)value["type"] == "equals" || (string)value["type"] == "lessThan" ||
-                (string)value["type"] == "greaterThan" || (string)value["type"] == "notEqual")
+
+
+            if (value.ContainsKey("condition1") && value.ContainsKey("condition2"))
+            {
+                var condition1 = (IDictionary<string, dynamic>)value["condition1"];
+                var condition2 = (IDictionary<string, dynamic>)value["condition2"];
+                whereParts.Add("(");
+                index = ExtractDateFilterSingle(sqlParams, whereParts, index, columnName, condition1, true);
+                whereParts[whereParts.Count - 1] += $" {(string)value["operator"]} ";
+                index = ExtractDateFilterSingle(sqlParams, whereParts, index, columnName, condition2, true);
+                whereParts[whereParts.Count - 1] += ")";
+            }
+            else
+            {
+                index = ExtractDateFilterSingle(sqlParams, whereParts, index, columnName, value, false);
+            }
+
+            return index;
+        }
+
+        private static int ExtractDateFilterSingle(List<SqlParameter> sqlParams, List<string> whereParts, int index, string columnName, IDictionary<string, object> value, bool multipleConditions)
+        {
+            if ((string)value["type"] == "equals" || (string)value["type"] == "lessThan" || (string)value["type"] == "greaterThan" || (string)value["type"] == "notEqual")
             {
                 sqlParams.Add(new SqlParameter($"{columnName}{index}", (object)value["dateFrom"]));
-                whereParts.Add($"[{columnName}] {GetOperator((string)value["type"])} @{columnName}{index}");
+                if (!multipleConditions)
+                {
+                    whereParts.Add($"[{columnName}] {GetOperator((string)value["type"])} @{columnName}{index}");
+                }
+                else
+                {
+                    whereParts[whereParts.Count - 1] += $"[{columnName}] {GetOperator((string)value["type"])} @{columnName}{index}";
+                }
                 index++;
             }
             else if ((string)value["type"] == "inRange")
             {
                 sqlParams.Add(new SqlParameter($"{columnName}{index}", (object)value["dateFrom"]));
-                whereParts.Add($"([{columnName}] >= @{columnName}{index} AND ");
+                if (!multipleConditions)
+                {
+                    whereParts.Add($"([{columnName}] >= @{columnName}{index} AND ");
+                }
+                else
+                {
+                    whereParts[whereParts.Count - 1] += $"([{columnName}] >= @{columnName}{index} AND ";
+                }
+                
                 index++;
                 sqlParams.Add(new SqlParameter($"{columnName}{index}", (object)value["dateTo"]));
                 whereParts[whereParts.Count - 1] += $"[{columnName}] <= @{columnName}{index})";
