@@ -24,6 +24,21 @@ body {
 }
 
 /******************************
+********  Date Picker  ********
+******************************/
+
+.md-drppicker .btn,
+.ranges ul li button.active,
+.md-drppicker td.active,
+.md-drppicker td.active:hover {
+  background-color: #17a2b8 !important;
+}
+
+.md-drppicker .clear svg {
+  margin-bottom: 0.6rem;
+}
+
+/******************************
 ********   Utilities   ********
 ******************************/
 
