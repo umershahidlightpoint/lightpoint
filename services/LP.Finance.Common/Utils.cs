@@ -14,8 +14,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using LP.Finance.Common.Model;
 using System.Linq;
-using System.Dynamic;
-using System.Reflection;
 using System.Globalization;
 
 namespace LP.Finance.Common
@@ -68,7 +66,7 @@ namespace LP.Finance.Common
                 {
                     filter = true,
                     headerName =
-                    col.ColumnName, // This will be driven by a data dictionary that will provide the write names in the System
+                        col.ColumnName, // This will be driven by a data dictionary that will provide the write names in the System
                     field = col.ColumnName,
                     Type = col.DataType.ToString()
                 });
@@ -202,7 +200,8 @@ namespace LP.Finance.Common
                 using (var content =
                     new MultipartFormDataContent("Upload-" + DateTime.Now.ToString(CultureInfo.InvariantCulture)))
                 {
-                    content.Add(new StreamContent(new MemoryStream(bytes)), Path.GetFileNameWithoutExtension(filePath), Path.GetFileName(filePath));
+                    content.Add(new StreamContent(new MemoryStream(bytes)), Path.GetFileNameWithoutExtension(filePath),
+                        Path.GetFileName(filePath));
 
                     using (var response = await client.PostAsync(url, content))
                     {
@@ -591,9 +590,9 @@ namespace LP.Finance.Common
                 var direction = obj.sortModel.Where(x => x.colId == rowGroupCol.field).FirstOrDefault();
 
                 //check if sorting is being performed on an aggreagte column
-                if(obj.sortModel.Count > 0)
+                if (obj.sortModel.Count > 0)
                 {
-                    foreach(var item in obj.sortModel)
+                    foreach (var item in obj.sortModel)
                     {
                         if (obj.valueCols.Any(x => x.field == item.colId))
                         {
@@ -654,43 +653,42 @@ namespace LP.Finance.Common
                 foreach (var col in filterDict)
                 {
                     string columnName = col.Key;
-                    var value = (IDictionary<string, object>)(col.Value);
+                    var value = (IDictionary<string, object>) (col.Value);
                     List<string> filterModelWhereList = new List<string>();
                     index = ExtractInGridFilters(sqlParams, whereParts, index, columnName, value, filterModelWhereList);
                 }
             }
 
-            var externalWhere = CreateExternalWhereSql(obj, ref sqlParams, index);
+            var externalFilters = ExtractExternalFilters(obj, ref sqlParams, index);
             if (whereParts.Count > 0)
             {
-                whereParts.AddRange(externalWhere);
+                whereParts.AddRange(externalFilters);
                 query = query + " where " + string.Join(" and ", whereParts.Select(x => x));
                 return query;
             }
 
-            if (externalWhere.Count > 0)
+            if (externalFilters.Count > 0)
             {
-                query = query + " where " + string.Join(" and ", externalWhere.Select(x => x));
+                query = query + " where " + string.Join(" and ", externalFilters.Select(x => x));
                 return query;
             }
 
             return " ";
         }
 
-        private static int ExtractInGridFilters(List<SqlParameter> sqlParams, List<string> whereParts, int index, string columnName, IDictionary<string, object> value, List<string> filterModelWhereList)
+        private static int ExtractInGridFilters(List<SqlParameter> sqlParams, List<string> whereParts, int index,
+            string columnName, IDictionary<string, object> value, List<string> filterModelWhereList)
         {
-            switch ((string)value["filterType"])
+            switch ((string) value["filterType"])
             {
                 case "set":
-                    
                     index = ExtractSetFilters(sqlParams, whereParts, index, columnName, value, filterModelWhereList);
                     break;
-
                 case "date":
                     index = ExtractDateFilter(sqlParams, whereParts, index, columnName, value);
                     break;
                 case "text":
-                    // todo
+                    index = ExtractTextFilter(sqlParams, whereParts, index, columnName, value);
                     break;
                 case "number":
                     //todo
@@ -700,7 +698,19 @@ namespace LP.Finance.Common
             return index;
         }
 
-        private static int ExtractDateFilter(List<SqlParameter> sqlParams, List<string> whereParts, int index, string columnName, IDictionary<string, object> value)
+        private static int ExtractTextFilter(List<SqlParameter> sqlParams, List<string> whereParts, int index,
+            string columnName, IDictionary<string, object> value)
+        {
+            sqlParams.Add(new SqlParameter($"{columnName}{index}", value["filter"]));
+            whereParts.Add(
+                $"[{columnName}] {GetOperator((string) value["type"])} {GetValue((string) value["type"], $"{columnName}{index}")}");
+            index++;
+
+            return index;
+        }
+
+        private static int ExtractDateFilter(List<SqlParameter> sqlParams, List<string> whereParts, int index,
+            string columnName, IDictionary<string, object> value)
         {
 
 
@@ -737,7 +747,7 @@ namespace LP.Finance.Common
                 }
                 index++;
             }
-            else if ((string)value["type"] == "inRange")
+            else if ((string) value["type"] == "inRange")
             {
                 sqlParams.Add(new SqlParameter($"{columnName}{index}", (object)value["dateFrom"]));
                 if (!multipleConditions)
@@ -750,7 +760,7 @@ namespace LP.Finance.Common
                 }
                 
                 index++;
-                sqlParams.Add(new SqlParameter($"{columnName}{index}", (object)value["dateTo"]));
+                sqlParams.Add(new SqlParameter($"{columnName}{index}", (object) value["dateTo"]));
                 whereParts[whereParts.Count - 1] += $"[{columnName}] <= @{columnName}{index})";
                 index++;
             }
@@ -775,13 +785,47 @@ namespace LP.Finance.Common
                 case "notEqual":
                     symbol = "!=";
                     break;
+                case "contains":
+                case "startsWith":
+                case "endsWith":
+                    symbol = "LIKE";
+                    break;
+                case "notContains":
+                    symbol = "NOT LIKE";
+                    break;
             }
+
             return symbol;
         }
 
-        private static int ExtractSetFilters(List<SqlParameter> sqlParams, List<string> whereParts, int index, string columnName, IDictionary<string, object> value, List<string> filterModelWhereList)
+        private static string GetValue(string type, string filter)
         {
-            List<object> values = (List<object>)value["values"];
+            string value = "";
+            switch (type)
+            {
+                case "contains":
+                case "notContains":
+                    value = $"'%'+@{filter}+'%'";
+                    break;
+                case "equals":
+                case "notEqual":
+                    value = $"@{filter}";
+                    break;
+                case "startsWith":
+                    value = $"@{filter}+'%'";
+                    break;
+                case "endsWith":
+                    value = $"'%'+@{filter}";
+                    break;
+            }
+
+            return value;
+        }
+
+        private static int ExtractSetFilters(List<SqlParameter> sqlParams, List<string> whereParts, int index,
+            string columnName, IDictionary<string, object> value, List<string> filterModelWhereList)
+        {
+            List<object> values = (List<object>) value["values"];
             foreach (var item in values)
             {
                 sqlParams.Add(new SqlParameter($"{columnName}{index}", item));
@@ -798,7 +842,8 @@ namespace LP.Finance.Common
             return index;
         }
 
-        private static List<string> CreateExternalWhereSql(ServerRowModel obj, ref List<SqlParameter> sqlParams, int index = 0)
+        private static List<string> ExtractExternalFilters(ServerRowModel obj, ref List<SqlParameter> sqlParams,
+            int index = 0)
         {
             List<string> whereParts = new List<string>();
 
@@ -808,33 +853,31 @@ namespace LP.Finance.Common
                 foreach (var col in filterDictionary)
                 {
                     var filterObject = (IDictionary<string, object>) (col.Value);
-                    if ((string) filterObject["filterType"] == "set")
-                    {
-                        string columnName = col.Key;
-                        var filterValue = (string) filterObject["values"];
-                        sqlParams.Add(new SqlParameter($"{columnName}{index}", filterValue));
-                        whereParts.Add($"[{columnName}] = @{columnName}{index}");
-                        index++;
-                    }
+                    var columnName = col.Key;
+                    string filterValue;
 
-                    if ((string) filterObject["filterType"] == "text")
+                    switch (filterObject["filterType"])
                     {
-                        string columnName = col.Key;
-                        var filterValue = (string) filterObject["values"];
-                        sqlParams.Add(new SqlParameter($"{columnName}{index}", filterValue));
-                        whereParts.Add($"[{columnName}] LIKE '%'+@{columnName}{index}+'%'");
-                        index++;
-                    }
-
-                    if ((string) filterObject["filterType"] == "date")
-                    {
-                        string columnName = col.Key;
-                        var dateFrom = (string) filterObject["dateFrom"];
-                        var dateTo = (string) filterObject["dateTo"];
-                        sqlParams.Add(new SqlParameter($"dateFrom{index}", dateFrom));
-                        sqlParams.Add(new SqlParameter($"dateTo{index}", dateTo));
-                        whereParts.Add($"[{columnName}] >= @dateFrom{index} and [{columnName}] <= @dateTo{index}");
-                        index++;
+                        case "set":
+                            filterValue = (string) filterObject["values"];
+                            sqlParams.Add(new SqlParameter($"{columnName}{index}", filterValue));
+                            whereParts.Add($"[{columnName}] = @{columnName}{index}");
+                            index++;
+                            break;
+                        case "text":
+                            filterValue = (string) filterObject["values"];
+                            sqlParams.Add(new SqlParameter($"{columnName}{index}", filterValue));
+                            whereParts.Add($"[{columnName}] LIKE '%'+@{columnName}{index}+'%'");
+                            index++;
+                            break;
+                        case "date":
+                            var dateFrom = (string) filterObject["dateFrom"];
+                            var dateTo = (string) filterObject["dateTo"];
+                            sqlParams.Add(new SqlParameter($"dateFrom{index}", dateFrom));
+                            sqlParams.Add(new SqlParameter($"dateTo{index}", dateTo));
+                            whereParts.Add($"[{columnName}] >= @dateFrom{index} and [{columnName}] <= @dateTo{index}");
+                            index++;
+                            break;
                     }
                 }
             }
@@ -857,7 +900,8 @@ namespace LP.Finance.Common
             }
             else
             {
-                if (obj.valueCols.Any(x => x.field == "debit") && obj.valueCols.Any(x => x.field == "credit") && obj.valueCols.Any(x => x.field == "balance"))
+                if (obj.valueCols.Any(x => x.field == "debit") && obj.valueCols.Any(x => x.field == "credit") &&
+                    obj.valueCols.Any(x => x.field == "balance"))
                 {
                     return "select (abs(debit)) - (abs(credit)) as balance, * ";
                 }
@@ -871,10 +915,10 @@ namespace LP.Finance.Common
         private static List<string> GetAggregateColumns(ServerRowModel obj)
         {
             List<string> aggregateCols = new List<string>();
-            if(obj.valueCols.Count > 0)
+            if (obj.valueCols.Count > 0)
             {
                 aggregateCols.Add("count(*) as groupCount");
-                foreach(var col in obj.valueCols)
+                foreach (var col in obj.valueCols)
                 {
                     if (col.field.Equals("balance"))
                     {
@@ -897,7 +941,7 @@ namespace LP.Finance.Common
         {
             if (results.Rows.Count == 0)
             {
-                return null;
+                return 0;
             }
 
             int currentLastRow = request.startRow + results.Rows.Count;
@@ -986,5 +1030,4 @@ namespace LP.Finance.Common
             return dataTable;
         }
     }
-
 }
