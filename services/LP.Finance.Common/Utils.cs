@@ -702,14 +702,44 @@ namespace LP.Finance.Common
 
         private static int ExtractDateFilter(List<SqlParameter> sqlParams, List<string> whereParts, int index, string columnName, IDictionary<string, object> value)
         {
-            if ((string)value["type"] == "equals")
+            if ((string)value["type"] == "equals" || (string)value["type"] == "lessThan" || (string)value["type"] == "greaterThan" || (string)value["type"] == "notEqual")
             {
                 sqlParams.Add(new SqlParameter($"{columnName}{index}", (object)value["dateFrom"]));
-                whereParts.Add($"[{columnName}] = @{columnName}{index}");
+                whereParts.Add($"[{columnName}] {GetOperator((string)value["type"])} @{columnName}{index}");
+                index++;
+            }
+            else if ((string)value["type"] == "inRange")
+            {
+                sqlParams.Add(new SqlParameter($"{columnName}{index}", (object)value["dateFrom"]));
+                whereParts.Add($"([{columnName}] >= @{columnName}{index} AND ");
+                index++;
+                sqlParams.Add(new SqlParameter($"{columnName}{index}", (object)value["dateTo"]));
+                whereParts[whereParts.Count - 1] += $"[{columnName}] <= @{columnName}{index})";
                 index++;
             }
 
             return index;
+        }
+
+        private static string GetOperator(string type)
+        {
+            string symbol = "";
+            switch (type)
+            {
+                case "equals":
+                    symbol = "=";
+                    break;
+                case "lessThan":
+                    symbol = "<=";
+                    break;
+                case "greaterThan":
+                    symbol = ">=";
+                    break;
+                case "notEqual":
+                    symbol = "!=";
+                    break;
+            }
+            return symbol;
         }
 
         private static int ExtractSetFilters(List<SqlParameter> sqlParams, List<string> whereParts, int index, string columnName, IDictionary<string, object> value, List<string> filterModelWhereList)
