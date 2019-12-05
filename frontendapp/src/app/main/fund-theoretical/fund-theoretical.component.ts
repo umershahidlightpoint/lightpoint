@@ -6,7 +6,7 @@ import {
   ElementRef
 } from '@angular/core';
 import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
-import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
+import { GridOptions } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { Account, AccountCategory } from '../../../shared/Models/account';
 import { DataService } from 'src/shared/common/data.service';
@@ -16,8 +16,7 @@ import {
   SideBar,
   AutoSizeAllColumns,
   HeightStyle,
-  Style,
-  PercentageFormatter
+  Style
 } from 'src/shared/utils/Shared';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import * as moment from 'moment';
@@ -25,10 +24,9 @@ import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { MonthlyPerformanceData } from 'src/shared/Models/funds-theoretical';
 import { DataGridModalComponent } from '../../../shared/Component/data-grid-modal/data-grid-modal.component';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
-import { DecimalPipe } from '@angular/common';
 import { AgGridCheckboxComponent } from '../../../shared/Component/ag-grid-checkbox/ag-grid-checkbox.component';
 import { DatePickerModalComponent } from 'src/shared/Component/date-picker-modal/date-picker-modal.component';
-import { ContextMenu } from 'src/shared/Models/common';
+import { ContextMenu, CustomColDef } from 'src/shared/Models/common';
 import { DataDictionary } from 'src/shared/utils/DataDictionary';
 
 @Component({
@@ -249,7 +247,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     this.fundTheoreticalGrid.api.sizeColumnsToFit();
   }
 
-  getColDefs(): Array<ColDef | any> {
+  getColDefs(): Array<CustomColDef> {
     return [
       {
         headerName: 'Is Modified',
