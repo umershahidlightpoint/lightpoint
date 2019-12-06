@@ -28,12 +28,42 @@ namespace UT.Finance
             groupKeys = new List<string>(),
             rowGroupCols = new List<RowGroupCols>(),
             valueCols = new List<ValueCols>()
+            {
+                new ValueCols
+                {
+                    id = "debit",
+                    aggFunc = "sum",
+                    displayName = "$Debit",
+                    field = "debit"
+                },
+                new ValueCols
+                {
+                    id = "credit",
+                    aggFunc = "sum",
+                    displayName = "$Credit",
+                    field = "credit"
+                },
+                new ValueCols
+                {
+                    id = "balance",
+                    aggFunc = "sum",
+                    displayName = "$Balance",
+                    field = "balance"
+                },
+                new ValueCols
+                {
+                    id = "Quantity",
+                    aggFunc = "sum",
+                    displayName = "Quantity",
+                    field = "Quantity"
+                }
+            }
         };
 
         [TestMethod]
         public void GetPaginatedJournals()
         {
-            var result = GetJournals<Journal>(_payload);
+            var result = GetPayloadList<Journal>(_payload);
 
             Assert.IsTrue(result.Item1.isSuccessful, "Request Call Successful");
             Assert.IsTrue(result.Item2.Count <= 100, "Expected Page Size is Correct");
@@ -42,14 +72,14 @@ namespace UT.Finance
         [TestMethod]
         public void GetInternalFilteredJournals()
         {
-            var payload = (IDictionary<string, dynamic>) _payload.filterModel;
+            var payload = (IDictionary<string, dynamic>)_payload.filterModel;
             payload.Add("fund", new
             {
-                values = new[] {"LP", "BOOTHBAY"},
+                values = new[] { "LP", "BOOTHBAY" },
                 filterType = "set"
             });
 
-            var result = GetJournals<Journal>(_payload);
+            var result = GetPayloadList<Journal>(_payload);
 
             var value = result.Item2.Find(item => item.Fund != "LP" && item.Fund != "BOOTHBAY");
 
@@ -62,7 +92,7 @@ namespace UT.Finance
         {
             var dateFrom = new DateTime(DateTime.Now.Year, 1, 1);
             var dateTo = DateTime.Now.Date;
-            var payload = (IDictionary<string, dynamic>) _payload.externalFilterModel;
+            var payload = (IDictionary<string, dynamic>)_payload.externalFilterModel;
             payload.Add("when", new
             {
                 dateFrom = dateFrom.ToString("yyyy-MM-dd"),
@@ -70,7 +100,7 @@ namespace UT.Finance
                 filterType = "date"
             });
 
-            var result = GetJournals<Journal>(_payload);
+            var result = GetPayloadList<Journal>(_payload);
 
             var value = result.Item2.Find(item => item.When < dateFrom && item.When > dateTo);
 
@@ -86,7 +116,7 @@ namespace UT.Finance
                 new SortModel {colId = "fund", sort = "asc"}
             };
 
-            var result = GetJournals<Journal>(_payload);
+            var result = GetPayloadList<Journal>(_payload);
 
             var orderedByAsc = result.Item2.OrderBy(item => item.Fund);
 
@@ -102,7 +132,7 @@ namespace UT.Finance
                 new SortModel {colId = "when", sort = "desc"}
             };
 
-            var result = GetJournals<Journal>(_payload);
+            var result = GetPayloadList<Journal>(_payload);
 
             var orderedByAsc = result.Item2.OrderByDescending(item => item.When);
 
@@ -110,7 +140,68 @@ namespace UT.Finance
             Assert.IsTrue(result.Item2.SequenceEqual(orderedByAsc), "Expected Result is Correct");
         }
 
-        private static Tuple<Response, List<T>> GetJournals<T>(ServerRowModel payload)
+        [TestMethod]
+        public void GetGroupedJournals()
+        {
+            _payload.rowGroupCols = new List<RowGroupCols>
+            {
+                new RowGroupCols
+                {
+                    id = "AccountCategory",
+                    displayField = null,
+                    field = "AccountCategory"
+                }
+            };
+
+            var result = GetPayloadList<Journal>(_payload);
+
+            var groupedByWhen = result.Item2.GroupBy(item => item.When).ToList();
+            foreach (var item in groupedByWhen)
+            {
+                if (!result.Item2.Any(x => x.When == item.Key))
+                {
+                    Assert.IsFalse(true);
+
+                }
+
+            }
+
+            Assert.IsTrue(result.Item1.isSuccessful, "Request Call Successfull");
+
+        }
+
+
+        [TestMethod]
+        public void NotGrouped()
+        {
+            _payload.rowGroupCols = new List<RowGroupCols>
+            {
+                new RowGroupCols
+                {
+                        id = "AccountCategory",
+                        displayField = "Category",
+                        field = "AccountCategory"
+
+                }
+            };
+
+            var result = GetPayloadList<Journal>(_payload);
+
+            var groupedByWhen = result.Item2.GroupBy(item => item.When).ToList();
+            foreach (var item in groupedByWhen)
+            {
+                if (result.Item2.Any(x => x.When == item.Key))
+                {
+                    Assert.IsFalse(true);
+                }
+
+            }
+
+            Assert.IsTrue(result.Item1.isSuccessful, "Request Call Successfull");
+
+        }
+
+        private static Tuple<Response, List<T>> GetPayloadList<T>(ServerRowModel payload)
         {
             var journals = Utils.PostWebApi("FinanceWebApi", JournalUrl, payload);
 
