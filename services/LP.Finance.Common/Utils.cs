@@ -268,17 +268,17 @@ namespace LP.Finance.Common
             };
         }
 
-        //public static object Wrap(bool status, string message = null, object statusCode = null)
-        //{
-        //    return new
-        //    {
-        //        when = DateTime.Now,
-        //        by = "",
-        //        isSuccessful = status,
-        //        status = statusCode,
-        //        message = message ?? (status ? "The Request was Successful" : "The Request Failed! Try Again"),
-        //    };
-        //}
+//        public static object Wrap(bool status, string message = null, object statusCode = null)
+//        {
+//            return new
+//            {
+//                when = DateTime.Now,
+//                by = "",
+//                isSuccessful = status,
+//                status = statusCode,
+//                message = message ?? (status ? "The Request was Successful" : "The Request Failed! Try Again"),
+//            };
+//        }
 
         public static object GridWrap(object payload, object metaData = null, object stats = null,
             object statusCode = null, object message = null)
@@ -909,22 +909,79 @@ namespace LP.Finance.Common
         private static int ExtractNumberFilter(List<SqlParameter> sqlParams, List<string> whereParts, int index,
             string columnName, IDictionary<string, object> value)
         {
-            if ((string) value["type"] == "inRange")
+            if (value.ContainsKey("condition1") && value.ContainsKey("condition2"))
             {
-                sqlParams.Add(new SqlParameter($"{columnName}{index}", (object) value["filter"]));
-                whereParts.Add($"[{columnName}] >= @{columnName}{index}");
-                index++;
-
-                sqlParams.Add(new SqlParameter($"{columnName}{index}", (object) value["filterTo"]));
-                whereParts.Add($"[{columnName}] <= @{columnName}{index}");
-                index++;
-
-                return index;
+                var condition1 = (IDictionary<string, dynamic>) value["condition1"];
+                var condition2 = (IDictionary<string, dynamic>) value["condition2"];
+                whereParts.Add("(");
+                index = ExtractNumberFilterSingle(sqlParams, whereParts, index, columnName, condition1, true);
+                whereParts[whereParts.Count - 1] += $" {(string) value["operator"]} ";
+                index = ExtractNumberFilterSingle(sqlParams, whereParts, index, columnName, condition2, true);
+                whereParts[whereParts.Count - 1] += ")";
+            }
+            else
+            {
+                index = ExtractNumberFilterSingle(sqlParams, whereParts, index, columnName, value, false);
             }
 
-            sqlParams.Add(new SqlParameter($"{columnName}{index}", (object) value["filter"]));
-            whereParts.Add($"[{columnName}] {GetOperator((string) value["type"])} @{columnName}{index}");
-            index++;
+//            if ((string) value["type"] == "inRange")
+//            {
+//                sqlParams.Add(new SqlParameter($"{columnName}{index}", (object) value["filter"]));
+//                whereParts.Add($"[{columnName}] >= @{columnName}{index}");
+//                index++;
+//
+//                sqlParams.Add(new SqlParameter($"{columnName}{index}", (object) value["filterTo"]));
+//                whereParts.Add($"[{columnName}] <= @{columnName}{index}");
+//                index++;
+//
+//                return index;
+//            }
+//
+//            sqlParams.Add(new SqlParameter($"{columnName}{index}", (object) value["filter"]));
+//            whereParts.Add($"[{columnName}] {GetOperator((string) value["type"])} @{columnName}{index}");
+//            index++;
+
+            return index;
+        }
+
+        private static int ExtractNumberFilterSingle(List<SqlParameter> sqlParams, List<string> whereParts, int index,
+            string columnName, IDictionary<string, object> value, bool multipleConditions)
+        {
+            if ((string) value["type"] == "equals" || (string) value["type"] == "notEqual" ||
+                (string) value["type"] == "lessThan" || (string) value["type"] == "greaterThan"
+                || (string) value["type"] == "lessThanOrEqual" || (string) value["type"] == "greaterThanOrEqual")
+            {
+                sqlParams.Add(new SqlParameter($"{columnName}{index}", (object) value["filter"]));
+                if (!multipleConditions)
+                {
+                    whereParts.Add($"[{columnName}] {GetOperator((string) value["type"])} @{columnName}{index}");
+                }
+                else
+                {
+                    whereParts[whereParts.Count - 1] +=
+                        $"[{columnName}] {GetOperator((string) value["type"])} @{columnName}{index}";
+                }
+
+                index++;
+            }
+            else if ((string) value["type"] == "inRange")
+            {
+                sqlParams.Add(new SqlParameter($"{columnName}{index}", (object) value["filter"]));
+                if (!multipleConditions)
+                {
+                    whereParts.Add($"([{columnName}] >= @{columnName}{index} AND ");
+                }
+                else
+                {
+                    whereParts[whereParts.Count - 1] += $"([{columnName}] >= @{columnName}{index} AND ";
+                }
+
+                index++;
+                sqlParams.Add(new SqlParameter($"{columnName}{index}", (object) value["filterTo"]));
+                whereParts[whereParts.Count - 1] += $"[{columnName}] <= @{columnName}{index})";
+                index++;
+            }
+
             return index;
         }
 
