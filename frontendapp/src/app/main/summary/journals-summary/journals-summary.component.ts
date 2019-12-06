@@ -96,20 +96,26 @@ export class JournalsSummaryComponent implements OnInit {
             }
 
             params.successCallback(this.rowData, result.meta.LastRow);
+            if (result.meta.LastRow === 0) {
+              this.gridOptions.api.showNoRowsOverlay();
+            }
             this.gridOptions.api.refreshCells();
 
-            const fieldsSum: Array<{ name: string; total: number }> = CalTotal(this.rowData, [
-              { name: 'debit', total: 0 },
-              { name: 'credit', total: 0 },
-              { name: 'Commission', total: 0 },
-              { name: 'Fees', total: 0 },
-              { name: 'TradePrice', total: 0 },
-              { name: 'NetPrice', total: 0 },
-              { name: 'SettleNetPrice', total: 0 },
-              { name: 'NetMoney', total: 0 },
-              { name: 'LocalNetNotional', total: 0 },
-              { name: 'value', total: 0 }
-            ]);
+            const fieldsSum: Array<{ name: string; total: number }> = CalTotal(
+              this.rowData,
+              [
+                { name: 'debit', total: 0 },
+                { name: 'credit', total: 0 },
+                { name: 'Commission', total: 0 },
+                { name: 'Fees', total: 0 },
+                { name: 'TradePrice', total: 0 },
+                { name: 'NetPrice', total: 0 },
+                { name: 'SettleNetPrice', total: 0 },
+                { name: 'NetMoney', total: 0 },
+                { name: 'LocalNetNotional', total: 0 },
+                { name: 'value', total: 0 }
+              ]
+            );
 
             console.log('FIELDS SUM :: ', fieldsSum);
 
@@ -122,7 +128,8 @@ export class JournalsSummaryComponent implements OnInit {
                 SecurityId: 0,
                 debit: Math.abs(fieldsSum[0].total),
                 credit: Math.abs(fieldsSum[1].total),
-                balance: Math.abs(fieldsSum[0].total) - Math.abs(fieldsSum[1].total),
+                balance:
+                  Math.abs(fieldsSum[0].total) - Math.abs(fieldsSum[1].total),
                 Commission: Math.abs(fieldsSum[2].total),
                 Fees: Math.abs(fieldsSum[3].total),
                 TradePrice: fieldsSum[4].total,
@@ -133,7 +140,9 @@ export class JournalsSummaryComponent implements OnInit {
                 value: Math.abs(fieldsSum[9].total)
               }
             ];
-            this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
+            this.gridOptions.api.setPinnedBottomRowData(
+              this.pinnedBottomRowData
+            );
             this.gridOptions.api.refreshCells();
 
             AutoSizeAllColumns(this.gridOptions);
@@ -193,10 +202,16 @@ export class JournalsSummaryComponent implements OnInit {
       this.externalFilters = this.getServerSideExternalFilter(
         JSON.parse(response.payload.ExternalFilterState)
       );
-      this.gridOptions.columnApi.setColumnState(JSON.parse(response.payload.ColumnState));
-      this.gridOptions.columnApi.setColumnGroupState(JSON.parse(response.payload.GroupState));
+      this.gridOptions.columnApi.setColumnState(
+        JSON.parse(response.payload.ColumnState)
+      );
+      this.gridOptions.columnApi.setColumnGroupState(
+        JSON.parse(response.payload.GroupState)
+      );
       this.gridOptions.api.setSortModel(JSON.parse(response.payload.SortState));
-      this.gridOptions.api.setFilterModel(JSON.parse(response.payload.FilterState));
+      this.gridOptions.api.setFilterModel(
+        JSON.parse(response.payload.FilterState)
+      );
     });
   }
 
@@ -240,7 +255,14 @@ export class JournalsSummaryComponent implements OnInit {
   initColDefs() {
     const payload = {
       tableName: 'vwJournal',
-      filters: ['fund', 'symbol', 'AccountCategory', 'AccountType', 'AccountName', 'fx_currency']
+      filters: [
+        'fund',
+        'symbol',
+        'AccountCategory',
+        'AccountType',
+        'AccountName',
+        'fx_currency'
+      ]
     };
     this.financeService.getServerSideJournalsMeta(payload).subscribe(result => {
       // let commonColDefs = result.payload.Columns;
@@ -360,26 +382,30 @@ export class JournalsSummaryComponent implements OnInit {
   }
 
   setGridState(response: any) {
-    const colDefs: Array<ColDef | ColGroupDef> = response.meta.Columns.map(element => {
-      if (element.aggFunc) {
-        element = {
-          ...element,
-          cellStyle: { 'text-align': 'right' },
-          valueFormatter: params => {
-            return element.field === 'balance' ? valueFormatter(params) : moneyFormatter(params);
+    const colDefs: Array<ColDef | ColGroupDef> = response.meta.Columns.map(
+      element => {
+        if (element.aggFunc) {
+          element = {
+            ...element,
+            cellStyle: { 'text-align': 'right' },
+            valueFormatter: params => {
+              return element.field === 'balance'
+                ? valueFormatter(params)
+                : moneyFormatter(params);
+            }
+          };
+          if (element.field === 'balance') {
+            cellClassRules(element);
+          } else if (element.field === 'debitSum') {
+            cellClassRulesDebit(element);
+          } else if (element.field === 'creditSum') {
+            cellClassRulesCredit(element);
           }
-        };
-        if (element.field === 'balance') {
-          cellClassRules(element);
-        } else if (element.field === 'debitSum') {
-          cellClassRulesDebit(element);
-        } else if (element.field === 'creditSum') {
-          cellClassRulesCredit(element);
         }
-      }
 
-      return element;
-    });
+        return element;
+      }
+    );
 
     const pinnedBottomRowData = this.getBottomRowData(response);
     this.gridOptions.api.setRowData(response.payload);
