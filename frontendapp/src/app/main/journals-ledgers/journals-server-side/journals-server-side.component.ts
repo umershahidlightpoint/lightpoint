@@ -256,22 +256,22 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       const commonColDefs = CommonCols(true, result.payload.Filters);
       const disabledFilters = [
         'id',
-        'source',
+        'source'
         // 'accountDescription',
         // 'debit',
-        'credit',
-        'balance',
-        'Quantity',
-        'TradeCurrency',
-        'SettleCurrency',
-        'Side',
-        'fxrate',
-        'event',
-        'security_id',
-        'fx_currency',
-        'value',
-        'start_price',
-        'end_price'
+        // 'credit',
+        // 'balance',
+        // 'Quantity',
+        // 'TradeCurrency',
+        // 'SettleCurrency',
+        // 'Side',
+        // 'fxrate',
+        // 'event',
+        // 'security_id',
+        // 'fx_currency',
+        // 'value',
+        // 'start_price',
+        // 'end_price'
       ];
       const colDefs = [
         ...commonColDefs,
