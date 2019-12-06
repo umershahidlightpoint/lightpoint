@@ -708,7 +708,6 @@ namespace LP.Finance.Common
                     index = ExtractTextFilter(sqlParams, whereParts, index, columnName, value);
                     break;
                 case "number":
-                    //todo
                     index = ExtractNumberFilter(sqlParams, whereParts, index, columnName, value);
                     break;
             }
@@ -829,13 +828,13 @@ namespace LP.Finance.Common
                     symbol = "=";
                     break;
                 case "lessThan":
-                    symbol = "<=";
+                    symbol = "<";
                     break;
                 case "lessThanOrEqual":
                     symbol = "<=";
                     break;
                 case "greaterThan":
-                    symbol = ">=";
+                    symbol = ">";
                     break;
                 case "greaterThanOrEqual":
                     symbol = ">=";
