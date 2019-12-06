@@ -924,23 +924,6 @@ namespace LP.Finance.Common
                 index = ExtractNumberFilterSingle(sqlParams, whereParts, index, columnName, value, false);
             }
 
-//            if ((string) value["type"] == "inRange")
-//            {
-//                sqlParams.Add(new SqlParameter($"{columnName}{index}", (object) value["filter"]));
-//                whereParts.Add($"[{columnName}] >= @{columnName}{index}");
-//                index++;
-//
-//                sqlParams.Add(new SqlParameter($"{columnName}{index}", (object) value["filterTo"]));
-//                whereParts.Add($"[{columnName}] <= @{columnName}{index}");
-//                index++;
-//
-//                return index;
-//            }
-//
-//            sqlParams.Add(new SqlParameter($"{columnName}{index}", (object) value["filter"]));
-//            whereParts.Add($"[{columnName}] {GetOperator((string) value["type"])} @{columnName}{index}");
-//            index++;
-
             return index;
         }
 
