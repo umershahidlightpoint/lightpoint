@@ -1041,16 +1041,19 @@ namespace LP.Finance.Common
                 aggregateCols.Add("count(*) as groupCount");
                 foreach (var col in obj.valueCols)
                 {
-                    if (col.field.Equals("balance"))
+                    if (!string.IsNullOrEmpty(col.aggFunc))
                     {
-                        if (obj.valueCols.Any(x => x.field == "debit") && obj.valueCols.Any(x => x.field == "credit"))
+                        if (col.field.Equals("balance"))
                         {
-                            aggregateCols.Add($"{col.aggFunc}(abs(debit)) - {col.aggFunc}(abs(credit)) as {col.field}");
+                            if (obj.valueCols.Any(x => x.field == "debit") && obj.valueCols.Any(x => x.field == "credit"))
+                            {
+                                aggregateCols.Add($"{col.aggFunc}(abs(debit)) - {col.aggFunc}(abs(credit)) as {col.field}");
+                            }
                         }
-                    }
-                    else
-                    {
-                        aggregateCols.Add($"{col.aggFunc}({col.field}) as {col.field}");
+                        else
+                        {
+                            aggregateCols.Add($"{col.aggFunc}({col.field}) as {col.field}");
+                        }
                     }
                 }
             }
