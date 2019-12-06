@@ -10,6 +10,7 @@ using LP.Finance.Common.Dtos;
 using System.Reflection;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using LP.Finance.Common.Models;
 
 namespace UT.Finance
 {
@@ -49,8 +50,8 @@ namespace UT.Finance
             var serializedPayload = JsonConvert.SerializeObject(responsePayload.payload);
             dynamic fResult = JsonConvert.DeserializeObject(serializedPayload);
 
-            Assert.IsTrue(fResult.isSuccessful, "Request Call Successful");
-            Assert.IsTrue(result.totalDebit == result.totalCredit, "Total debit and credit are knocking off");
+            Assert.IsTrue(response.isSuccessful, "Request Call Successful");
+        //    Assert.IsTrue(result.totalDebit == result.totalCredit, "Total debit and credit are knocking off");
             Assert.IsTrue(fResult.Count >= 0, "Expected Result");
         }
 
@@ -126,12 +127,20 @@ namespace UT.Finance
 
             var createJournal = Utils.PostWebApi("FinanceWebApi", $"{journalsURL}", payload);
             Task.WaitAll(createJournal);
-            dynamic resultJournal = JsonConvert.DeserializeObject<object>(createJournal.Result);
+
+            var resultJournal = JsonConvert.DeserializeObject<Response>(createJournal.Result);
+            var serializePayload = JsonConvert.SerializeObject(response.payload);
+            var fResult = JsonConvert.DeserializeObject<List<Journal>>(serializedPayload);
+
             Assert.IsTrue(resultJournal.isSuccessful == true, "Journal Added");
 
             var createJournalInvalid = Utils.PostWebApi("FinanceWebApi", $"{journalsURL}", Invalidpayload);
             Task.WaitAll(createJournalInvalid);
-            dynamic resultJournalInvalid = JsonConvert.DeserializeObject<object>(createJournalInvalid.Result);
+
+            var resultJournalInvalid = JsonConvert.DeserializeObject<Response>(createJournalInvalid.Result);
+            var serializPayload = JsonConvert.SerializeObject(response.payload);
+            var finalResult = JsonConvert.DeserializeObject<List<Journal>>(serializedPayload);
+
             Assert.IsTrue(resultJournalInvalid.isSuccessful == false, "The Request Failed! Try Again");
         }
 
