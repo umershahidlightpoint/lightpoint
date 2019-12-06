@@ -71,6 +71,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             var query = 
 $@"select 
     ParentOrderId,
+    ParentSymbol,
 	LpOrderId, AccrualId,  Action, coalesce(s.SecurityCode, Symbol) as Symbol, Side, Quantity, TimeInForce, OrderType, SecurityType,  BloombergCode,
 	CustodianCode, ExecutionBroker, TradeId, Fund, 
     trade.SecurityId,

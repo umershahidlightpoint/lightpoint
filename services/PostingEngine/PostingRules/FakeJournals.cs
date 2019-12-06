@@ -56,9 +56,15 @@ namespace PostingEngine.PostingRules
 
             if (element.LocalNetNotional != 0.0)
             {
+                var symbol = allocation != null ? allocation.Symbol : element.ParentSymbol;
+                var securityId = allocation != null ? allocation.SecurityId : element.SecurityId;
+
+                if (symbol == null)
+                    symbol = element.Symbol;
+
                 var debit = new Journal(accountToFrom.From, "journal", env.ValueDate)
                 {
-                    Symbol = allocation != null ? allocation.Symbol : element.Symbol,
+                    Symbol = symbol,
                     SecurityId = allocation != null ? allocation.SecurityId : element.SecurityId,
 
                     Source = element.LpOrderId,
@@ -72,7 +78,7 @@ namespace PostingEngine.PostingRules
 
                 var credit = new Journal(accountToFrom.To, "journal", env.ValueDate)
                 {
-                    Symbol = allocation != null ? allocation.Symbol : element.Symbol,
+                    Symbol = symbol,
                     SecurityId = allocation != null ? allocation.SecurityId : element.SecurityId,
 
                     Source = element.LpOrderId,
@@ -279,10 +285,16 @@ namespace PostingEngine.PostingRules
 
             if (element.LocalNetNotional != 0.0)
             {
+                var symbol = allocation != null ? allocation.Symbol : element.ParentSymbol;
+                var securityId = allocation != null ? allocation.SecurityId : element.SecurityId;
+
+                if (symbol == null)
+                    symbol = element.Symbol;
+
                 var debit = new Journal(element)
                 {
-                    Symbol = allocation != null ? allocation.Symbol : element.Symbol,
-                    SecurityId = allocation != null ? allocation.SecurityId : element.SecurityId,
+                    Symbol = symbol,
+                    SecurityId = securityId,
 
                     Account = accountToFrom.From,
                     When = env.ValueDate,
@@ -295,8 +307,8 @@ namespace PostingEngine.PostingRules
 
                 var credit = new Journal(element)
                 {
-                    Symbol = allocation != null ? allocation.Symbol : element.Symbol,
-                    SecurityId = allocation != null ? allocation.SecurityId : element.SecurityId,
+                    Symbol = symbol,
+                    SecurityId = securityId,
 
                     Account = accountToFrom.To,
                     When = env.ValueDate,

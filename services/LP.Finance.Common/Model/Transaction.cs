@@ -26,6 +26,7 @@ namespace LP.Finance.Common.Models
         //public double ContractSize { get; set; }
 
         public string Symbol { get; set; }
+        public string ParentSymbol { get; set; }
         public int SecurityId { get; set; }
         public string Side { get; set; }
         public double Quantity { get; set; }

@@ -598,7 +598,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
 
-                var query = $@"select * from tax_lot_status";
+                var query = $@"select * from tax_lot_status order by symbol asc";
 
                 List<SqlParameter> sqlParams = new List<SqlParameter>();
 
