@@ -28,7 +28,8 @@
                                     [source],
                                     [start_price],
                                     [end_price],
-									[fxrate]
+									[fxrate],
+									(CASE WHEN [journal].[generated_by] = 'user' THEN 'true' else 'false' END  ) modifiable
                                     FROM [journal] with(nolock) 
                         join account with(nolock)  on [journal]. [account_id] = account.id 
                         join [account_type] with(nolock) on  [account].account_type_id = [account_type].id

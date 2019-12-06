@@ -12,13 +12,15 @@ import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies'
 import { ContextMenu } from 'src/shared/Models/common';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId } from '../../../../shared/utils/AppEnums';
+import { AgGridUtils } from '../../../../shared/utils/AgGridUtils';
 import {
   HeightStyle,
   ExcelStyle,
   AutoSizeAllColumns,
   CalTotal,
   CommonCols,
-  SetDateRange
+  SetDateRange,
+  IgnoreFields
 } from 'src/shared/utils/Shared';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
 import {
@@ -50,6 +52,7 @@ export class JournalsSummaryComponent implements OnInit {
   pageNumber = 0;
   pageSize = 100;
   toggleGridBool = false;
+  ignoreFields = IgnoreFields;
 
   styleForHeight = HeightStyle(228);
 
@@ -148,7 +151,8 @@ export class JournalsSummaryComponent implements OnInit {
   constructor(
     private financeService: FinanceServiceProxy,
     private toastrService: ToastrService,
-    private dataDictionary: DataDictionary
+    private dataDictionary: DataDictionary,
+    private agGridUtls: AgGridUtils
   ) {
     this.getGridLayouts();
     this.initGird();
@@ -239,22 +243,39 @@ export class JournalsSummaryComponent implements OnInit {
       filters: ['fund', 'symbol', 'AccountCategory', 'AccountType', 'AccountName', 'fx_currency']
     };
     this.financeService.getServerSideJournalsMeta(payload).subscribe(result => {
-      let commonColDefs = result.payload.Columns;
-      commonColDefs = CommonCols(true, result.payload.Filters);
+      // let commonColDefs = result.payload.Columns;
+      // commonColDefs = CommonCols(true, result.payload.Filters);
 
-      this.colDefs = [
+      // this.colDefs = [
+      //   ...commonColDefs,
+      //   this.dataDictionary.column('TradePrice', true),
+      //   this.dataDictionary.column('NetPrice', true),
+      //   this.dataDictionary.column('SettleNetPrice', true),
+      //   this.dataDictionary.column('start_price', true),
+      //   this.dataDictionary.column('end_price', true),
+      //   this.dataDictionary.column('fxrate', true)
+      // ];
+
+      // this.gridOptions.api.setColumnDefs(this.colDefs);
+
+      const metaColumns = result.payload.Columns;
+      const commonColDefs = CommonCols(true, result.payload.Filters);
+      const colDefs = [
         ...commonColDefs,
-        this.dataDictionary.column('TradePrice', true),
-        this.dataDictionary.column('NetPrice', true),
-        this.dataDictionary.column('SettleNetPrice', true),
-        this.dataDictionary.column('start_price', true),
-        this.dataDictionary.column('end_price', true),
         this.dataDictionary.column('fxrate', true)
       ];
 
-      this.gridOptions.api.setColumnDefs(this.colDefs);
+      const cdefs = this.agGridUtls.customizeColumns(
+        colDefs,
+        metaColumns,
+        this.ignoreFields,
+        true,
+        false
+      );
 
-      console.log('COL DEFS :: ', this.colDefs);
+      this.gridOptions.api.setColumnDefs(cdefs);
+
+      console.log('COL DEFS :: ', cdefs);
     });
   }
 

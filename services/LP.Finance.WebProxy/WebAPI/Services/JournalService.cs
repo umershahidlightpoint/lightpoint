@@ -1018,9 +1018,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 journalStats journalStats = new journalStats();
                 var sql = Utils.BuildSql(obj, "vwjournal");
-                var dataTable = sqlHelper.GetDataTable(sql.Item1, CommandType.Text, sql.Item2.ToArray());
+                var dataTable = sqlHelper.GetDataTable(sql.Item1, CommandType.Text, sql.Item3.ToArray());
                 int? lastRow = Utils.GetRowCount(obj, dataTable);
-                var metaData = MetaData.ToMetaData(dataTable);
+                var metaData = new MetaData();
 
                 metaData.Total = dataTable.Rows.Count > 0 ? dataTable.Rows.Count : 0;
                 metaData.LastRow = lastRow;
@@ -1030,14 +1030,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
                 dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
-                var returnResult = Utils.Wrap(true, json, HttpStatusCode.OK, null, metaData, journalStats);
+                var returnResult = Utils.Wrap(true, json, HttpStatusCode.OK, sql.Item2, metaData, journalStats);
 
                 return returnResult;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                throw;
+                throw ex;
             }
         }
 

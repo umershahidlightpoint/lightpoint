@@ -44,6 +44,8 @@ import { UtilsConfig } from 'src/shared/Models/utils-config';
 import { ContextMenu } from 'src/shared/Models/common';
 import { timer, Subject } from 'rxjs';
 import { debounce } from 'rxjs/operators';
+import { ToastrService } from 'ngx-toastr';
+
 
 @Component({
   selector: 'app-journals-server-side',
@@ -138,6 +140,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
             });
             if (this.pageNumber === 1) {
               this.rowData = result.payload;
+              this.toastrService.clear();
+              this.toastrService.success(result.message);
             } else {
               // this.rowData = this.rowData.concat(result.payload);
               this.rowData = result.payload;
@@ -210,7 +214,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     private postingEngineService: PostingEngineService,
     private cdRef: ChangeDetectorRef,
     private agGridUtls: AgGridUtils,
-    private dataDictionary: DataDictionary
+    private dataDictionary: DataDictionary,
+    private toastrService: ToastrService
   ) {
     this.initColDefs();
     this.hideGrid = false;

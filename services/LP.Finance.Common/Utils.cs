@@ -504,18 +504,19 @@ namespace LP.Finance.Common
             return total;
         }
 
-        public static Tuple<string, List<SqlParameter>> BuildSql(ServerRowModel obj, string from)
+        public static Tuple<string,string, List<SqlParameter>> BuildSql(ServerRowModel obj, string from)
         {
             List<SqlParameter> sqlParams = new List<SqlParameter>();
             string selectSql = CreateSelectSql(obj, from);
             string fromSql = $" FROM [{from}] ";
-            string whereSql = CreateWhereSql(obj, ref sqlParams);
+            Tuple<string,string> whereSql = CreateWhereSql(obj, ref sqlParams);
             string limitSql = CreateLimitSql(obj, ref sqlParams);
             string orderBySql = CreateOrderBySql(obj);
             string groupBySql = CreateGroupBySql(obj);
+            string message = !string.IsNullOrWhiteSpace(whereSql.Item2) ? whereSql.Item2 : null ;
 
-            string query = selectSql + fromSql + whereSql + groupBySql + orderBySql + limitSql;
-            return new Tuple<string, List<SqlParameter>>(query, sqlParams);
+            string query = selectSql + fromSql + whereSql.Item1 + groupBySql + orderBySql + limitSql;
+            return new Tuple<string, string, List<SqlParameter>>(query, message, sqlParams);
         }
 
         private static bool IsDoingGrouping(List<RowGroupCols> rowGroupCols, List<string> groupKeys)
@@ -631,10 +632,12 @@ namespace LP.Finance.Common
             return " OFFSET(@pageNumber -1) * @pageSize ROWS FETCH NEXT @pageSize  ROWS ONLY";
         }
 
-        private static string CreateWhereSql(ServerRowModel obj, ref List<SqlParameter> sqlParams)
+        private static Tuple<string,string> CreateWhereSql(ServerRowModel obj, ref List<SqlParameter> sqlParams)
         {
             List<string> whereParts = new List<string>();
             int index = 0;
+            StringBuilder message = new StringBuilder();
+            List<string> duplicateFilterList = new List<string>();
             string query = "";
             if (obj.groupKeys.Count > 0)
             {
@@ -648,6 +651,8 @@ namespace LP.Finance.Common
             }
 
             var filterDict = (IDictionary<string, dynamic>)(obj.filterModel);
+            var externalFilterDict = (IDictionary<string, dynamic>)(obj.externalFilterModel);
+            var externalFilters = ExtractExternalFilters(obj, ref sqlParams, index);
             if (filterDict != null)
             {
                 foreach (var col in filterDict)
@@ -655,45 +660,36 @@ namespace LP.Finance.Common
                     string columnName = col.Key;
                     var value = (IDictionary<string, object>)(col.Value);
                     List<string> filterModelWhereList = new List<string>();
-                    index = ExtractInGridFilters(sqlParams, whereParts, index, columnName, value, filterModelWhereList);
+                    //only extract in grid filters which are not present in external filters. External filters have precedence over internal.
+                    if (!externalFilterDict.Keys.Contains(columnName, StringComparer.CurrentCultureIgnoreCase))
+                    {
+                        index = ExtractInGridFilters(sqlParams, whereParts, index, columnName, value, filterModelWhereList);
+                    }
+                    else
+                    {
+                        duplicateFilterList.Add(columnName);
+                    }
                 }
             }
 
-            var externalFilters = ExtractExternalFilters(obj, ref sqlParams, index);
-
-            //find the common filters and remove them from whereparts. external filters have precedence over in grid filters(stored in whereParts)
-            if(externalFilters.Count > 0 && whereParts.Count > 0)
+            if(duplicateFilterList.Count > 0 && obj.pageNumber == 1)
             {
-                var filterDictionary = (IDictionary<string, dynamic>)(obj.externalFilterModel);
-                foreach(var key in filterDictionary)
-                {
-                    string externalFilter = $"[{key.Key}]";
-                    int whereIndex = 0;
-                    foreach (string item in whereParts.ToList())
-                    {
-                        if (item.IndexOf(externalFilter, StringComparison.CurrentCultureIgnoreCase) >= 0)
-                        {
-                            whereParts[whereIndex] = null;
-                        }
-
-                        whereIndex++;
-                    }
-                }
+                message.Append($"External filter(s) already present for {string.Join(" and ", duplicateFilterList.Select(x=> x))}");
             }
             if (whereParts.Count > 0)
             {
                 whereParts.AddRange(externalFilters);
                 query = query + " where " + string.Join(" and ", whereParts.Where(x=> !string.IsNullOrEmpty(x)).Select(x => x));
-                return query;
+                return new Tuple<string, string>(query, message.ToString());
             }
 
             if (externalFilters.Count > 0)
             {
                 query = query + " where " + string.Join(" and ", externalFilters.Select(x => x));
-                return query;
+                return new Tuple<string, string>(query, message.ToString());
             }
 
-            return " ";
+            return new Tuple<string, string>(" ", message.ToString());
         }
 
         private static int ExtractInGridFilters(List<SqlParameter> sqlParams, List<string> whereParts, int index,
