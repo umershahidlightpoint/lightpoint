@@ -62,6 +62,7 @@
     <Compile Include="MarketData\TaxRates.cs" />
     <Compile Include="MarketData\TradeTaxRate.cs" />
     <Compile Include="Posting.cs" />
+    <Compile Include="PostingEngine.cs" />
     <Compile Include="PostingEngineEnvironment.cs" />
     <Compile Include="PostingRules\AccountingRules.cs" />
     <Compile Include="PostingRules\CashRule.cs" />

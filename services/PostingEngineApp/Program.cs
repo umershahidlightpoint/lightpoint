@@ -22,94 +22,11 @@ namespace PostingEngineCmd
             var date = System.DateTime.Now.Date;
             date = date.PrevBusinessDate();
 
-            // Pull data from the legacy system, market prices, fx rates, and daily Pnl data from BookMon
-            PullFromLegacySystem(date);
-
-            FxRates.CacheData();
-            MarketPrices.CacheData();
-
-            // Get all Activity
-            ITD(date);
-
-            // Then Cost Basis
-            CostBasis(date);
-
-            // Settled Cash
-            CalculateDailyPnl(date);
-
-            // Unofficial Daily Pnl
-            SettledCashBalances(date);
-
-            // Mark to Market Cash Fx
-            UnrealizedCashBalances(date);
+            new PostingEngineEx().Start(date);
         }
 
-        static void PullFromLegacySystem(DateTime valueDate)
-        {
-            var key = System.Guid.NewGuid();
-
-            // This runs thru everything, we need more or a scalpable
-            PostingEngine.PostingEngine.RunCalculation("PullFromBookmon", valueDate, key,  (message, totalRows, rowsDone) => {
-                if (message.StartsWith("Processing"))
-                {
-                    // Do nothing
-                    return;
-                }
-                if (message.StartsWith("Completed"))
-                {
-                    var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
-
-                    Console.WriteLine($"{message}, % Completed {completed}");
-                    return;
-                }
-
-                Console.WriteLine($"{message}");
-            });
-        }
-        static void UnrealizedCashBalances(DateTime valueDate)
-        {
-            var key = System.Guid.NewGuid();
-
-            // This runs thru everything, we need more or a scalpable
-            PostingEngine.PostingEngine.RunCalculation("UnrealizedCashBalances", valueDate, key,  (message, totalRows, rowsDone) => {
-                if (message.StartsWith("Processing"))
-                {
-                    // Do nothing
-                    return;
-                }
-                if (message.StartsWith("Completed"))
-                {
-                    var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
-
-                    Console.WriteLine($"{message}, % Completed {completed}");
-                    return;
-                }
-
-                Console.WriteLine($"{message}");
-            });
-        }
-        static void SettledCashBalances(DateTime valueDate)
-        {
-            var key = System.Guid.NewGuid();
-
-            // This runs thru everything, we need more or a scalpable
-            PostingEngine.PostingEngine.RunCalculation("SettledCashBalances", valueDate, key,  (message, totalRows, rowsDone) => {
-                if (message.StartsWith("Processing"))
-                {
-                    // Do nothing
-                    return;
-                }
-                if (message.StartsWith("Completed"))
-                {
-                    var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
-
-                    Console.WriteLine($"{message}, % Completed {completed}");
-                    return;
-                }
-
-                Console.WriteLine($"{message}");
-            });
-        }
+        
+     
         static void SingleTrade()
         {
             var key = System.Guid.NewGuid();
@@ -124,78 +41,6 @@ namespace PostingEngineCmd
                 if (message.StartsWith("Completed"))
                 {
                     var completed = (rowsDone * 1.0 / totalRows) * 100;
-
-                    Console.WriteLine($"{message}, % Completed {completed}");
-                    return;
-                }
-
-                Console.WriteLine($"{message}");
-            });
-
-        }
-
-        static void ITD(DateTime businesssdate)
-        {
-            var key = System.Guid.NewGuid();
-
-            // This runs thru everything, we need more or a scalpable
-            PostingEngine.PostingEngine.Start("ITD", key, businesssdate, (message, totalRows, rowsDone) => {
-                if (message.StartsWith("Processing"))
-                {
-                    // Do nothing
-                    return;
-                }
-                if (message.StartsWith("Completed"))
-                {
-                    var completed = (rowsDone * 1.0 / totalRows) * 100;
-
-                    Console.WriteLine($"{message}, % Completed {completed}");
-                    return;
-                }
-
-                Console.WriteLine($"{message}");
-            });
-
-        }
-
-        static void CostBasis(DateTime valueDate)
-        {
-            var key = System.Guid.NewGuid();
-
-            // This runs thru everything, we need more or a scalpable
-            PostingEngine.PostingEngine.RunCalculation("CostBasis", valueDate, key, (message, totalRows, rowsDone) => {
-                if (message.StartsWith("Processing"))
-                {
-                    // Do nothing
-                    return;
-                }
-                if (message.StartsWith("Completed"))
-                {
-                    var completed = (rowsDone * 1.0 / (totalRows != 0?totalRows: 1)) * 100;
-
-                    Console.WriteLine($"{message}, % Completed {completed}");
-                    return;
-                }
-
-                Console.WriteLine($"{message}");
-            });
-
-        }
-
-        static void CalculateDailyPnl(DateTime valueDate)
-        {
-            var key = System.Guid.NewGuid();
-
-            // This runs thru everything, we need more or a scalpable
-            PostingEngine.PostingEngine.RunCalculation("DailyPnl", valueDate, key, (message, totalRows, rowsDone) => {
-                if (message.StartsWith("Processing"))
-                {
-                    // Do nothing
-                    return;
-                }
-                if (message.StartsWith("Completed"))
-                {
-                    var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
 
                     Console.WriteLine($"{message}, % Completed {completed}");
                     return;

@@ -36,7 +36,7 @@ from tax_lot_status
 left outer join market_prices mp on mp.symbol = tax_lot_status.symbol and mp.business_date = @bDate
 where trade_date <= @bDate
 group by tax_lot_status.symbol, open_id, side
-order by symbol asc
+order by tax_lot_status.symbol asc
 
 select 
 	@bDate as busdate,
