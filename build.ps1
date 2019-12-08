@@ -23,9 +23,19 @@ Set-Location $psscriptRoot
     }
 }
 
-robocopy /MT /E "$psscriptRoot\services\LP.Finance.WebProxy\bin\Debug" "$psscriptRoot\distribution\services\LP.Finance.WebProxy"
-robocopy /MT /E "$psscriptRoot\services\LP.ReferenceData.WebProxy\bin\Debug" "$psscriptRoot\distribution\services\LP.ReferenceData.WebProxy"
-robocopy /MT /E "$psscriptRoot\services\PostingEngineApp\bin\Debug" "$psscriptRoot\distribution\services\PostingEngine"
+Function rCopy {
+    param(
+        $src,
+        $dst
+    )
+
+    robocopy /MT /E $src $dst
+    if($LASTEXITCODE -ge 8){throw ("An error occured while copying. [RoboCopyCode: $($LASTEXITCODE)]")}else{$global:LASTEXITCODE = 0}
+}
+
+rCopy -src "$psscriptRoot\services\LP.Finance.WebProxy\bin\Debug" -dst "$psscriptRoot\distribution\services\LP.Finance.WebProxy"
+rCopy -src "$psscriptRoot\services\LP.ReferenceData.WebProxy\bin\Debug" -dst "$psscriptRoot\distribution\services\LP.ReferenceData.WebProxy"
+rCopy -src "$psscriptRoot\services\PostingEngineApp\bin\Debug" -dst "$psscriptRoot\distribution\services\PostingEngine"
 
 Set-Location "$psscriptRoot\frontendapp"
 npm install 
