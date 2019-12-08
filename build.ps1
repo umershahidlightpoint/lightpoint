@@ -1,6 +1,9 @@
 Import-Module "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
 Enter-VsDevShell a0e1530e
 Set-Location $psscriptRoot
+$ErrorActionPreference = "SilentlyContinue"
+msbuild services\LP.FileProcessing /t:"restore;build"
+$ErrorActionPreference = "Stop"
 msbuild services\LP.FileProcessing /t:"restore;build"
 msbuild services\LP.Finance.WebProxy /t:"restore;build"
 msbuild services\LP.ReferenceData.WebProxy /t:"restore;build"
