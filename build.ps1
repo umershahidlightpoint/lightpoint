@@ -1,4 +1,3 @@
-
 Import-Module "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
 Enter-VsDevShell a0e1530e -StartInPath "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\"
 Set-Location $psscriptRoot
@@ -28,7 +27,6 @@ robocopy /MT /E "$psscriptRoot\services\LP.Finance.WebProxy\bin\Debug" "$psscrip
 robocopy /MT /E "$psscriptRoot\services\LP.ReferenceData.WebProxy\bin\Debug" "$psscriptRoot\distribution\services\LP.ReferenceData.WebProxy"
 robocopy /MT /E "$psscriptRoot\services\PostingEngineApp\bin\Debug" "$psscriptRoot\distribution\services\PostingEngine"
 
-<#
 Set-Location "$psscriptRoot\frontendapp"
 npm install 
 npm run build 
@@ -37,4 +35,3 @@ npm run deploy
 Set-Location "$psscriptRoot\node"
 npm install
 npm run deploy
-#>
