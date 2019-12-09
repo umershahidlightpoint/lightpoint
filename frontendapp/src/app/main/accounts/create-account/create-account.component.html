@@ -90,7 +90,7 @@
                   <!-- Account Tags Drop Down -->
                   <div class="col-sm-7 btn-group" dropdown>
                     <button id="button-basic" dropdownToggle type="button"
-                      class="btn btn-sm btn-primary dropdown-toggle" style="max-height: 100px"
+                      class="btn btn-sm btn-primary dropdown-toggle max-height-100"
                       aria-controls="dropdown-basic">
                       Add Tag <span class="caret"></span>
                     </button>
@@ -110,7 +110,7 @@
 
               <!-- Account Tag Div -->
               <div *ngIf="!editCase || editCase && canEditAccount">
-                <div style="overflow-y: auto; overflow-x: hidden; max-height: 180px" formArrayName="tagsList">
+                <div class="overflow-y-auto overflow-x-hidden max-height-180" formArrayName="tagsList">
                   <div *ngFor="let instance of tags.controls; let i = index;" [formGroupName]="i">
                     <div class="row mb-3">
                       <div class="col-sm-4">
