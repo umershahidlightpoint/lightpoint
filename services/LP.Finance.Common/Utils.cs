@@ -509,8 +509,8 @@ namespace LP.Finance.Common
             List<SqlParameter> sqlParams = new List<SqlParameter>();
             string selectSql = CreateSelectSql(obj, from);
             string fromSql = $" FROM [{from}] ";
-            Tuple<string,string> whereSql = CreateWhereSql(obj, ref sqlParams);
-            string limitSql = CreateLimitSql(obj, ref sqlParams);
+            Tuple<string,string> whereSql = CreateWhereSql(obj, sqlParams);
+            string limitSql = CreateLimitSql(obj, sqlParams);
             string orderBySql = CreateOrderBySql(obj);
             string groupBySql = CreateGroupBySql(obj);
             string message = !string.IsNullOrWhiteSpace(whereSql.Item2) ? whereSql.Item2 : null ;
@@ -536,9 +536,9 @@ namespace LP.Finance.Common
                 int count = obj.groupKeys.Count == 0 ? 0 : obj.groupKeys.Count;
                 var rowGroupCol = obj.rowGroupCols[count];
                 colsToGroupBy.Add($"[{rowGroupCol.field}]");
-                string query = " group by ";
-                query = query + string.Join(",", colsToGroupBy.Select(x => x)) + " ";
-                return query;
+                StringBuilder query = new StringBuilder(" group by ");
+                query.Append(string.Join(",", colsToGroupBy.Select(x => x)) + " ");
+                return query.ToString();
             }
             else
             {
@@ -625,20 +625,20 @@ namespace LP.Finance.Common
             }
         }
 
-        private static string CreateLimitSql(ServerRowModel obj, ref List<SqlParameter> sqlParams)
+        private static string CreateLimitSql(ServerRowModel obj, List<SqlParameter> sqlParams)
         {
             sqlParams.Add(new SqlParameter("pageNumber", obj.pageNumber));
             sqlParams.Add(new SqlParameter("pageSize", obj.pageSize));
             return " OFFSET(@pageNumber -1) * @pageSize ROWS FETCH NEXT @pageSize  ROWS ONLY";
         }
 
-        private static Tuple<string,string> CreateWhereSql(ServerRowModel obj, ref List<SqlParameter> sqlParams)
+        private static Tuple<string,string> CreateWhereSql(ServerRowModel obj, List<SqlParameter> sqlParams)
         {
             List<string> whereParts = new List<string>();
             int index = 0;
             StringBuilder message = new StringBuilder();
             List<string> duplicateFilterList = new List<string>();
-            string query = "";
+            StringBuilder query = new StringBuilder("");
             if (obj.groupKeys.Count > 0)
             {
                 foreach (var item in obj.groupKeys)
@@ -680,14 +680,14 @@ namespace LP.Finance.Common
             if (whereParts.Count > 0)
             {
                 whereParts.AddRange(externalFilters);
-                query = query + " where " + string.Join(" and ", whereParts.Where(x=> !string.IsNullOrEmpty(x)).Select(x => x));
-                return new Tuple<string, string>(query, message.ToString());
+                query.Append(" where " + string.Join(" and ", whereParts.Where(x=> !string.IsNullOrEmpty(x)).Select(x => x)));
+                return new Tuple<string, string>(query.ToString(), message.ToString());
             }
 
             if (externalFilters.Count > 0)
             {
-                query = query + " where " + string.Join(" and ", externalFilters.Select(x => x));
-                return new Tuple<string, string>(query, message.ToString());
+                query.Append(" where " + string.Join(" and ", externalFilters.Select(x => x)));
+                return new Tuple<string, string>(query.ToString(), message.ToString());
             }
 
             return new Tuple<string, string>(" ", message.ToString());
@@ -1008,15 +1008,15 @@ namespace LP.Finance.Common
         private static string CreateSelectSql(ServerRowModel obj, string from)
         {
             var grouping = IsDoingGrouping(obj.rowGroupCols, obj.groupKeys);
-            string query = "select ";
+            StringBuilder query = new StringBuilder("select ");
             if (grouping)
             {
                 int count = obj.groupKeys.Count == 0 ? 0 : obj.groupKeys.Count;
                 var rowGroupCol = obj.rowGroupCols[count];
-                query = query + $"[{rowGroupCol.field}],";
+                query.Append($"[{rowGroupCol.field}],");
                 var aggCols = GetAggregateColumns(obj);
-                query = query + string.Join(",", aggCols.Select(x => x));
-                return query;
+                query.Append(string.Join(",", aggCols.Select(x => x)));
+                return query.ToString();
             }
             else
             {
