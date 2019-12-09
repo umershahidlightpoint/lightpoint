@@ -3,13 +3,15 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import * as moment from 'moment';
+import { DataDictionary } from './DataDictionary';
+import { MoneyFormat } from './Shared';
 
 @Injectable()
 export class AgGridUtils {
-  baseUrl:string;
+  baseUrl: string;
   refDataUrl: string;
 
-  constructor() {
+  constructor(private dataDictionary: DataDictionary) {
     this.baseUrl = window['config'].remoteServerUrl;
     this.refDataUrl = window['config'].referenceDataUrl;
   }
@@ -97,7 +99,7 @@ export class AgGridUtils {
 
             clone.cellStyle = { 'text-align': 'right' };
             clone.cellClass = 'twoDecimalPlaces';
-            clone.valueFormatter = currencyFormatter;
+            clone.valueFormatter = moneyFormatter;
             clone.cellClassRules = {
               // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
               greenFont(params) {
@@ -137,23 +139,18 @@ export class AgGridUtils {
     return cdefs;
   }
 
-  disableColumnFilters(colDefs: any, disabledFilterList: any){
-    let filteredCols = colDefs.filter(x=> (disabledFilterList.includes(x.colId) || disabledFilterList.includes(x.field)));
-    filteredCols.map(x=> x.filter = false);
+  disableColumnFilters(colDefs: any, disabledFilterList: any) {
+    const filteredCols = colDefs.filter(
+      x => disabledFilterList.includes(x.colId) || disabledFilterList.includes(x.field)
+    );
+    filteredCols.map(x => (x.filter = false));
     return colDefs;
   }
 }
 
-
-
-function currencyFormatter(params) {
-  return formatNumber(params.value);
-}
-
-function formatNumber(numberToFormat) {
-  return numberToFormat === 0
-    ? ''
-    : Math.floor(numberToFormat)
-        .toString()
-        .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+export function moneyFormatter(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  return MoneyFormat(params.value);
 }

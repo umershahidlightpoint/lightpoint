@@ -11,15 +11,8 @@ import {
   OnDestroy
 } from '@angular/core';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
-import {
-  CommaSeparatedFormat,
-  AutoSizeAllColumns,
-  SideBar
-} from 'src/shared/utils/Shared';
-import {
-  TrialBalanceReport,
-  TrialBalanceReportStats
-} from 'src/shared/Models/trial-balance';
+import { CommaSeparatedFormat, AutoSizeAllColumns, SideBar } from 'src/shared/utils/Shared';
+import { TrialBalanceReport, TrialBalanceReportStats } from 'src/shared/Models/trial-balance';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
@@ -31,8 +24,7 @@ import { DataDictionary } from 'src/shared/utils/DataDictionary';
   templateUrl: './report-grid.component.html',
   styleUrls: ['./report-grid.component.css']
 })
-export class ReportGridComponent
-  implements OnInit, OnChanges, AfterViewInit, OnDestroy {
+export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   @Input() tableHeader: string;
   @Input() trialBalanceReport: Array<TrialBalanceReport>;
   @Input() trialBalanceReportStats: TrialBalanceReportStats;
@@ -58,17 +50,9 @@ export class ReportGridComponent
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    const {
-      tableHeader,
-      trialBalanceReport,
-      trialBalanceReportStats
-    } = changes;
+    const { tableHeader, trialBalanceReport, trialBalanceReportStats } = changes;
     if (this.isTrialBalance && this.isDataLoaded) {
-      this.initGridData(
-        tableHeader,
-        this.trialBalanceReport,
-        this.trialBalanceReportStats
-      );
+      this.initGridData(tableHeader, this.trialBalanceReport, this.trialBalanceReportStats);
     } else if (
       trialBalanceReport.currentValue !== undefined &&
       tableHeader.currentValue !== undefined
@@ -81,11 +65,7 @@ export class ReportGridComponent
     }
   }
 
-  initGridData(
-    tableHeader: any,
-    trialBalanceReport: any,
-    trialBalanceReportStats: any
-  ) {
+  initGridData(tableHeader: any, trialBalanceReport: any, trialBalanceReportStats: any) {
     this.gridOptions.api.setColumnDefs(this.initColDefs(tableHeader));
     this.gridOptions.api.setRowData(trialBalanceReport);
     const pinnedBottomRowData = [
@@ -159,9 +139,7 @@ export class ReportGridComponent
         cellStyle: params => {
           if (params.data.debitPercentage > 0) {
             return {
-              backgroundSize: !params.data.debitPercentage
-                ? 0
-                : params.data.debitPercentage + '%',
+              backgroundSize: !params.data.debitPercentage ? 0 : params.data.debitPercentage + '%',
               backgroundRepeat: 'no-repeat'
             };
           }
@@ -172,8 +150,7 @@ export class ReportGridComponent
             return 'debit';
           }
         },
-        valueFormatter: params =>
-          this.dataDictionary.numberFormatter(params.node.data.debit)
+        valueFormatter: currencyFormatter
       },
       {
         colId: 'credit',
@@ -188,18 +165,18 @@ export class ReportGridComponent
                 ? 0
                 : params.data.creditPercentage + '%',
               backgroundRepeat: 'no-repeat',
-              color: 'red'
+              color: 'red',
+              fontStyle: 'italic'
             };
           }
-          return { textAlign: 'end', color: 'red' };
+          return { textAlign: 'end' };
         },
         cellClass: params => {
           if (params.data.creditPercentage > 0) {
             return 'credit';
           }
         },
-        valueFormatter: params =>
-          this.dataDictionary.numberFormatter(params.node.data.credit)
+        valueFormatter: currencyFormatter
       },
       {
         colId: 'balance',
@@ -210,19 +187,13 @@ export class ReportGridComponent
         cellClass: 'rightAlign',
         sortable: true,
         cellStyle: params => {
-          if (
-            params.data.accountName === 'Total' &&
-            params.data.balance !== 0
-          ) {
+          if (params.data.accountName === 'Total' && params.data.balance !== 0) {
             return { backgroundColor: 'red' };
           }
           if (params.data.accountName !== 'Total' && params.data.balance > 0) {
-            return { textAlign: 'end', color: 'green' };
-          } else if (
-            params.data.accountName !== 'Total' &&
-            params.data.balance < 0
-          ) {
-            return { textAlign: 'end', color: 'red' };
+            return { textAlign: 'end', fontStyle: 'italic', color: 'green' };
+          } else if (params.data.accountName !== 'Total' && params.data.balance < 0) {
+            return { textAlign: 'end', fontStyle: 'italic', color: 'red' };
           }
         },
         valueFormatter: absCurrencyFormatter
@@ -254,12 +225,12 @@ export class ReportGridComponent
   }
 }
 
-// function currencyFormatter(params) {
-//   if (params.value === undefined) {
-//     return;
-//   }
-//   return CommaSeparatedFormat(params.value);
-// }
+function currencyFormatter(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  return CommaSeparatedFormat(params.value);
+}
 
 function absCurrencyFormatter(params) {
   if (params.value === undefined) {
