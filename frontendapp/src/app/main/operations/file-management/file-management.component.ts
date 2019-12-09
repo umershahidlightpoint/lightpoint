@@ -1,25 +1,15 @@
-import {
-  Component,
-  TemplateRef,
-  OnInit,
-  AfterViewInit,
-  ViewChild
-} from '@angular/core';
+import { Component, TemplateRef, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { TemplateRendererComponent } from '../../../template-renderer/template-renderer.component';
 import { File } from 'src/shared/models/files';
-import {
-  SideBar,
-  Style,
-  AutoSizeAllColumns,
-  HeightStyle
-} from 'src/shared/utils/Shared';
+import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { ToastrService } from 'ngx-toastr';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-file-management',
@@ -27,9 +17,7 @@ import { ContextMenu } from 'src/shared/Models/common';
   styleUrls: ['./file-management.component.css']
 })
 export class FileManagementComponent implements OnInit, AfterViewInit {
-  @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<
-    any
-  >;
+  @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<any>;
 
   filesGridOptions: GridOptions;
   files: File[];
@@ -52,10 +40,7 @@ export class FileManagementComponent implements OnInit, AfterViewInit {
 
   styleForLogsHeight = HeightStyle(220);
 
-  constructor(
-    private financeService: FinanceServiceProxy,
-    private toastrService: ToastrService
-  ) {
+  constructor(private financeService: FinanceServiceProxy, private toastrService: ToastrService) {
     this.initGrid();
   }
 
@@ -67,7 +52,7 @@ export class FileManagementComponent implements OnInit, AfterViewInit {
 
   initGrid() {
     this.filesGridOptions = {
-      rowData: [],
+      rowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       getExternalFilterState: () => {
         return {};
@@ -88,11 +73,7 @@ export class FileManagementComponent implements OnInit, AfterViewInit {
         return { backgroundColor: '#ffcfcf' };
       }
     };
-    this.filesGridOptions.sideBar = SideBar(
-      GridId.filesId,
-      GridName.files,
-      this.filesGridOptions
-    );
+    this.filesGridOptions.sideBar = SideBar(GridId.filesId, GridName.files, this.filesGridOptions);
   }
 
   setColDefs() {
@@ -183,9 +164,9 @@ export class FileManagementComponent implements OnInit, AfterViewInit {
         statistics: item.statistics,
         fileActionId: item.file_action_id,
         action: item.action,
-        actionStartDate: item.action_start_date,
-        actionEndDate: item.action_end_date,
-        businessDate: item.business_date,
+        actionStartDate: moment(item.action_start_date).format('MMM-DD-YYYY hh:mm:ss'),
+        actionEndDate: moment(item.action_end_date).format('MMM-DD-YYYY hh:mm:ss'),
+        businessDate: moment(item.business_date).format('MMM-DD-YYYY hh:mm:ss'),
         exceptions: item.exceptions
       }));
       this.filesGridOptions.api.setRowData(this.files);

@@ -1,19 +1,9 @@
-import {
-  Component,
-  OnInit,
-  AfterViewInit,
-  TemplateRef,
-  ViewChild
-} from '@angular/core';
+import { Component, OnInit, AfterViewInit, TemplateRef, ViewChild } from '@angular/core';
 import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies';
 import { take } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
-import {
-  SideBar,
-  HeightStyle,
-  AutoSizeAllColumns
-} from 'src/shared/utils/Shared';
+import { SideBar, HeightStyle, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
@@ -26,9 +16,7 @@ import * as moment from 'moment';
   styleUrls: ['./file-exception.component.css']
 })
 export class FileExceptionComponent implements OnInit, AfterViewInit {
-  @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<
-    any
-  >;
+  @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<any>;
 
   isEngineRunning = false;
   hideGrid = false;
@@ -62,7 +50,7 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
 
   initGrid() {
     this.gridOptions = {
-      rowData: [],
+      rowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       pinnedBottomRowData: null,
       rowGroupPanelShow: 'after',

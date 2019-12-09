@@ -1,10 +1,4 @@
-import {
-  Component,
-  TemplateRef,
-  OnInit,
-  AfterViewInit,
-  ViewChild
-} from '@angular/core';
+import { Component, TemplateRef, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { TemplateRendererComponent } from '../../../template-renderer/template-renderer.component';
@@ -14,6 +8,7 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-silver-file-management',
@@ -21,9 +16,7 @@ import { ContextMenu } from 'src/shared/Models/common';
   styleUrls: ['./silver-file-management.component.css']
 })
 export class SilverFileManagementComponent implements OnInit, AfterViewInit {
-  @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<
-    any
-  >;
+  @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<any>;
 
   filesGridOptions: GridOptions;
   files: SilverFile[];
@@ -55,7 +48,7 @@ export class SilverFileManagementComponent implements OnInit, AfterViewInit {
 
   initGrid() {
     this.filesGridOptions = {
-      rowData: [],
+      rowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       getExternalFilterState: () => {
         return {};
@@ -115,7 +108,7 @@ export class SilverFileManagementComponent implements OnInit, AfterViewInit {
     this.financeService.getSilverFiles().subscribe(result => {
       this.files = result.payload.map(item => ({
         name: item.Name,
-        uploadDate: item.UploadDate,
+        uploadDate: moment(item.UploadDate).format('MMM-DD-YYYY hh:mm:ss'),
         size: item.Size
       }));
       this.filesGridOptions.api.setRowData(this.files);
