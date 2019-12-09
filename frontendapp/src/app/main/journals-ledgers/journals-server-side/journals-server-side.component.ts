@@ -134,8 +134,9 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         pageSize: this.pageSize
       };
 
-      console.log('PARAMS :: ', JSON.stringify(params.request, null, 1));
-      console.log('PAYLOAD :: ', JSON.stringify(payload, null, 1));
+      // console.log('PARAMS :: ', JSON.stringify(params.request, null, 1));
+      // console.log('PAYLOAD :: ', JSON.stringify(payload, null, 1));
+      console.log('GET ROWS CALLED ::');
 
       this.financeService.getServerSideJournals(payload).subscribe(
         result => {
@@ -160,7 +161,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
             this.fieldsSum = CalTotal(this.rowData, this.fieldsSum);
 
-            console.log('FIELDS SUM :: ', this.fieldsSum);
+            // console.log('FIELDS SUM :: ', this.fieldsSum);
             this.pinnedBottomRowData = [
               {
                 // source: 'Total Records: ' + this.totalRecords,
@@ -268,7 +269,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
       const afterDisableFilters = this.agGridUtls.disableColumnFilters(cdefs, disabledFilters);
       this.gridOptions.api.setColumnDefs(afterDisableFilters);
-      console.log('COL DEFS :: ', afterDisableFilters);
+      // console.log('COL DEFS :: ', afterDisableFilters);
     });
   }
 
@@ -281,6 +282,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       clearExternalFilter: this.clearFilters.bind(this),
       onFilterChanged: this.onFilterChanged.bind(this),
+      onSortChanged: this.onSortChanged.bind(this),
+      onColumnRowGroupChanged: this.onColumnRowGroupChanged.bind(this),
       getExternalFilterState: this.getExternalFilterState.bind(this),
       onCellDoubleClicked: this.openDataModal.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),
@@ -342,7 +345,24 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.gridOptions.api.setColumnDefs(cdefs);
   }
 
-  onFilterChanged() {}
+  onFilterChanged() {
+    console.log('FILTER CHANGED ::');
+    this.resetBottomRowData();
+  }
+
+  onSortChanged() {
+    console.log('SORTING CHANGED ::');
+    this.resetBottomRowData();
+  }
+
+  onColumnRowGroupChanged() {
+    console.log('GROUPING CHANGED ::');
+    this.resetBottomRowData();
+  }
+
+  resetBottomRowData() {
+    this.pinnedBottomRowData = null;
+  }
 
   getRangeLabel() {
     this.DateRangeLabel = '';
