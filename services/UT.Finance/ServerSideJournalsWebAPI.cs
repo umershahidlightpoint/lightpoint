@@ -109,7 +109,7 @@ namespace UT.Finance
         }
 
         [TestMethod]
-        public void GetAscendingSortedJournals()
+        public void GetAscendingSortedJournalsByFund()
         {
             _payload.sortModel = new List<SortModel>
             {
@@ -121,11 +121,27 @@ namespace UT.Finance
             var orderedByAsc = result.Item2.OrderBy(item => item.Fund);
 
             Assert.IsTrue(result.Item1.isSuccessful, "Request Call Successful");
-            Assert.IsTrue(result.Item2.SequenceEqual(orderedByAsc), "Expected Result is Correct");
+            Assert.IsTrue(result.Item2.SequenceEqual(orderedByAsc), "Expected ascending order by fund");
         }
 
         [TestMethod]
-        public void GetDescendingSortedJournals()
+        public void GetAscendingSortedJournalsByWhen()
+        {
+            _payload.sortModel = new List<SortModel>
+            {
+                new SortModel {colId = "when", sort = "asc"}
+            };
+
+            var result = GetPayloadList<Journal>(_payload);
+
+            var orderedByAsc = result.Item2.OrderBy(item => item.When);
+
+            Assert.IsTrue(result.Item1.isSuccessful, "Request Call Successful");
+            Assert.IsTrue(result.Item2.SequenceEqual(orderedByAsc), "Expected ascending order by when");
+        }
+
+        [TestMethod]
+        public void GetDescendingSortedJournalsByWhen()
         {
             _payload.sortModel = new List<SortModel>
             {
@@ -137,7 +153,7 @@ namespace UT.Finance
             var orderedByAsc = result.Item2.OrderByDescending(item => item.When);
 
             Assert.IsTrue(result.Item1.isSuccessful, "Request Call Successful");
-            Assert.IsTrue(result.Item2.SequenceEqual(orderedByAsc), "Expected Result is Correct");
+            Assert.IsTrue(result.Item2.SequenceEqual(orderedByAsc), "Expected descending order by when");
         }
 
         [TestMethod]
@@ -162,37 +178,6 @@ namespace UT.Finance
                 {
                     Assert.IsFalse(true);
 
-                }
-
-            }
-
-            Assert.IsTrue(result.Item1.isSuccessful, "Request Call Successfull");
-
-        }
-
-
-        [TestMethod]
-        public void NotGrouped()
-        {
-            _payload.rowGroupCols = new List<RowGroupCols>
-            {
-                new RowGroupCols
-                {
-                        id = "AccountCategory",
-                        displayField = "Category",
-                        field = "AccountCategory"
-
-                }
-            };
-
-            var result = GetPayloadList<Journal>(_payload);
-
-            var groupedByWhen = result.Item2.GroupBy(item => item.When).ToList();
-            foreach (var item in groupedByWhen)
-            {
-                if (result.Item2.Any(x => x.When == item.Key))
-                {
-                    Assert.IsFalse(true);
                 }
 
             }
