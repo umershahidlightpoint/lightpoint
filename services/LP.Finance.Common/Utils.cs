@@ -48,7 +48,7 @@ namespace LP.Finance.Common
         public int TotalRecords { get; set; }
         public List<FilterValues> Filters { get; set; }
         public int? LastRow { get; set; }
-
+        public bool FooterSum { get; set; }
         public List<ColumnDef> Columns { get; set; }
 
         /// <summary>
@@ -525,6 +525,11 @@ namespace LP.Finance.Common
             // if we are grouping by more columns than we have keys for (that means the user
             // has not expanded a lowest level group, OR we are not grouping at all).
             return rowGroupCols.Count > groupKeys.Count;
+        }
+
+        public static bool isDoingGroupingByRootNodeOrNoGrouping(List<RowGroupCols> rowGroupCols, List<string> groupKeys)
+        {
+            return ((rowGroupCols.Count > 0 && groupKeys.Count == 0) || rowGroupCols.Count == 0);
         }
 
 
@@ -1060,7 +1065,7 @@ namespace LP.Finance.Common
             return aggregateCols;
         }
 
-        public static int? GetRowCount(ServerRowModel request, DataTable results)
+        public static int GetRowCount(ServerRowModel request, DataTable results)
         {
             if (results.Rows.Count == 0)
             {

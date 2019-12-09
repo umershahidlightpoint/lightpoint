@@ -1,5 +1,5 @@
 /* Core/Library Imports */
-import { Component, OnInit, AfterViewInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import 'ag-grid-enterprise';
 import {
   GridOptions,
@@ -52,7 +52,6 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   @ViewChild('reportModal', { static: false })
   reportModal: ReportModalComponent;
 
-  private columns: any;
   private filterSubject: Subject<string> = new Subject();
   rowData: any[] = [];
 
@@ -203,7 +202,6 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     private financeService: FinanceServiceProxy,
     private dataService: DataService,
     private postingEngineService: PostingEngineService,
-    private cdRef: ChangeDetectorRef,
     private agGridUtls: AgGridUtils,
     private dataDictionary: DataDictionary,
     private toastrService: ToastrService
@@ -266,7 +264,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         true,
         false
       );
-
+      console.log('COL DEFS :: ', cdefs);
       const afterDisableFilters = this.agGridUtls.disableColumnFilters(cdefs, disabledFilters);
       this.gridOptions.api.setColumnDefs(afterDisableFilters);
       // console.log('COL DEFS :: ', afterDisableFilters);
