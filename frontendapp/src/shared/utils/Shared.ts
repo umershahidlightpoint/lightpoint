@@ -535,6 +535,7 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       field: 'Quantity',
       aggFunc: 'sum',
       width: 100,
+      valueFormatter: moneyFormatter,
       colId: 'Quantity',
       headerName: 'Quantity',
       sortable: true,

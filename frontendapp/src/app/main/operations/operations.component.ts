@@ -41,11 +41,12 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
   postingEngineStatus = false;
   fileManagementActive = false;
   exportExceptionActive = false;
-  selectedPeriod: any;
+  periodPlaceholder: { name: 'Select a Period' };
+  selectedPeriod: { name: string };
   clearJournalForm: FormGroup;
   key: any;
-  messages: any;
-  progress: any;
+  messages: string;
+  progress: number;
   symbol: string;
   page: number;
   pageSize: number;

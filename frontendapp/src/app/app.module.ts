@@ -9,12 +9,10 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { MaterialModule } from './material.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AngularSplitModule } from 'angular-split';
-import { DragAndDropModule } from 'angular-draggable-droppable';
 import {
   BrowserAnimationsModule,
   NoopAnimationsModule
 } from '@angular/platform-browser/animations';
-import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import {
   AutoCompleteModule,
   EditorModule,
@@ -57,9 +55,6 @@ import { LeftMenuComponent } from './menu/left-menu/left-menu.component';
 import { TemplateRendererComponent } from './template-renderer/template-renderer.component';
 import { GridLayoutMenuComponent } from '../shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { AgGridCheckboxComponent } from '../shared/Component/ag-grid-checkbox/ag-grid-checkbox.component';
-
-// Renderer Buttons
-import { ButtonRendererComponent } from '../renderer/buttonRenderer';
 
 // Reports
 import { ReportsComponent } from './main/reports/reports.component';
@@ -116,8 +111,7 @@ import { SettingsComponent } from './main/settings/settings.component';
 // Grid Views/Layouts
 import { LayoutsComponent } from './main/layouts/layouts.component';
 
-// Logs/RunLogs
-import { RunLogsComponent } from './runlogs/runlogs.component';
+// Logs
 import { LogsComponent } from './main/logs/logs.component';
 
 /*
@@ -145,7 +139,6 @@ import { JournalsLedgersComponent } from './main/journals-ledgers/journals-clien
     TemplateRendererComponent,
     GridLayoutMenuComponent,
     AgGridCheckboxComponent,
-    ButtonRendererComponent,
     // Reports
     ReportsComponent,
     BalanceReportComponent,
@@ -194,7 +187,6 @@ import { JournalsLedgersComponent } from './main/journals-ledgers/journals-clien
     SettingsComponent,
     // Logs/RunLogs
     LogsComponent,
-    RunLogsComponent,
     // Shared Components
     DataModalComponent,
     ReportModalComponent,
@@ -228,7 +220,6 @@ import { JournalsLedgersComponent } from './main/journals-ledgers/journals-clien
     ToastModule,
     FormsModule,
     ReactiveFormsModule,
-    AngularFontAwesomeModule,
     ModalModule.forRoot(),
     AutoCompleteModule,
     EditorModule,
@@ -240,7 +231,6 @@ import { JournalsLedgersComponent } from './main/journals-ledgers/journals-clien
     TabViewModule,
     BrowserAnimationsModule,
     NoopAnimationsModule,
-    DragAndDropModule,
     SliderModule,
     AngularSplitModule.forRoot(),
     CalendarModule,

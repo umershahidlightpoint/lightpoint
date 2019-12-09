@@ -24,6 +24,7 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { ContextMenu } from 'src/shared/Models/common';
+import { DataDictionary } from 'src/shared/utils/DataDictionary';
 
 @Component({
   selector: 'app-report-grid',
@@ -45,7 +46,7 @@ export class ReportGridComponent
   gridOptions: GridOptions;
   utilsEvent: any;
 
-  constructor() {}
+  constructor(private dataDictionary: DataDictionary) {}
 
   ngOnInit() {
     this.initGrid();
@@ -171,7 +172,8 @@ export class ReportGridComponent
             return 'debit';
           }
         },
-        valueFormatter: currencyFormatter
+        valueFormatter: params =>
+          this.dataDictionary.numberFormatter(params.node.data.debit)
       },
       {
         colId: 'credit',
@@ -196,7 +198,8 @@ export class ReportGridComponent
             return 'credit';
           }
         },
-        valueFormatter: currencyFormatter
+        valueFormatter: params =>
+          this.dataDictionary.numberFormatter(params.node.data.credit)
       },
       {
         colId: 'balance',
@@ -251,12 +254,12 @@ export class ReportGridComponent
   }
 }
 
-function currencyFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  return CommaSeparatedFormat(params.value);
-}
+// function currencyFormatter(params) {
+//   if (params.value === undefined) {
+//     return;
+//   }
+//   return CommaSeparatedFormat(params.value);
+// }
 
 function absCurrencyFormatter(params) {
   if (params.value === undefined) {
