@@ -20,16 +20,28 @@ export class LeftMenuComponent implements OnInit {
 
   public userPages: Page[] = [
     { name: 'Reports', routerLink: '/reports', icon: 'fa-bar-chart' },
-    { name: 'Data Services', routerLink: '/fund-theoretical', icon: 'fa-calculator' },
+    {
+      name: 'Data Services',
+      routerLink: '/fund-theoretical',
+      icon: 'fa-calculator'
+    },
     { name: 'Analysis', routerLink: '/analysis', icon: 'fa-line-chart' },
-    { name: 'Research', routerLink: '/journals-ledgers', icon: 'fa-book' },
-    { name: 'Trial Balance', routerLink: 'trial-balance', icon: 'fa-balance-scale' }
+    { name: 'Research', routerLink: '/journals-ledgers', icon: 'fa-book' }
+    // { name: 'Trial Balance', routerLink: 'trial-balance', icon: 'fa-balance-scale' }
   ];
 
   public adminPages: Page[] = [
     { name: 'Accruals OMS', routerLink: '/accruals', icon: 'fa-files-o' },
-    { name: 'Trades OMS', routerLink: '/trade-allocation', icon: 'fa-exchange' },
-    { name: 'Journals OMS', routerLink: '/journal-allocation', icon: 'fa-list-alt' },
+    {
+      name: 'Trades OMS',
+      routerLink: '/trade-allocation',
+      icon: 'fa-exchange'
+    },
+    {
+      name: 'Journals OMS',
+      routerLink: '/journal-allocation',
+      icon: 'fa-list-alt'
+    },
     { name: 'Accounts', routerLink: '/accounts', icon: 'fa-bank' },
     { name: 'Operations', routerLink: 'operations', icon: 'fa-tasks' },
     { name: 'Grid Views', routerLink: '/grid-views', icon: 'fa-th' },
