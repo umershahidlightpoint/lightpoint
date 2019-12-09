@@ -69,27 +69,8 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             var enddate = period.Item2.ToString("MM-dd-yyyy") + " 23:59";
 
             var query = 
-$@"select 
-    ParentOrderId,
-	LpOrderId, AccrualId,  Action, coalesce(s.SecurityCode, Symbol) as Symbol, Side, Quantity, TimeInForce, OrderType, SecurityType,  BloombergCode,
-	CustodianCode, ExecutionBroker, TradeId, Fund, 
-    trade.SecurityId,
-	PMCode, PortfolioCode, Trader, 
-	TradeCurrency, TradePrice, TradeDate, 
-	SettleCurrency, SettlePrice, SettleDate, 
-	TradeType,
-    TransactionCategory,
-    TransactionType,
-	Status, 
-	NetMoney,Commission, Fees, 
-	SettleNetMoney, NetPrice, SettleNetPrice,
-	-- OrderedQuantity, FilledQuantity,RemainingQuantity,
-	OrderSource,
-	UpdatedOn, 
-	COALESCE(LocalNetNotional,0) as LocalNetNotional  from Trade with(nolock)
-left outer join SecurityMaster..Security s on s.SecurityId = trade.SecurityId
-where LastUpdateTime between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}') 
-order by UpdatedOn desc
+$@"select * from FundAccounting..vwCurrentStateTrades
+order by TradeDate asc
 ";
 
             using (var con = new SqlConnection(connectionString))

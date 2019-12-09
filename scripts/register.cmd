@@ -1,0 +1,2 @@
+sc create LP.Finance.WebProxy binPath="C:\Apps\DEMO02\Finance\Services\LP.Finance.WebProxy\LP.Finance.WebProxy.exe"
+sc create LP.ReferenceData.WebProxy binPath="C:\Apps\DEMO02\Finance\Services\LP.ReferenceData.WebProxy\LP.ReferenceData.WebProxy.exe"

@@ -864,6 +864,11 @@ namespace PostingEngine
                 var sellCover = tradeData.Where(i => i.TradeDate.Equals(valueDate) && (i.IsSell() || i.IsCover())).ToList();
                 foreach (var trade in sellCover)
                 {
+
+                    if ( trade.Symbol.Equals("ESZ9") || trade.Symbol.Equals("USD/JPY 02/12/20"))
+                    {
+
+                    }
                     // We only process trades that have not broken
                     if (ignoreTrades.Contains(trade.LpOrderId))
                         continue;

@@ -90,11 +90,9 @@ export class AgGridUtils {
             if (sumFields.filter(i => i == column.field).length > 0) {
               clone.aggFunc = 'sum';
             } else {
-              if(addAggFunc){
-                clone.aggFunc = values => {
-                  return 0;
-                };
-              }
+              clone.aggFunc = values => {
+                return 0;
+              };
             }
 
             clone.cellStyle = { 'text-align': 'right' };

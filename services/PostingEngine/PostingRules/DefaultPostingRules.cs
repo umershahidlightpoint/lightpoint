@@ -280,7 +280,8 @@ namespace PostingEngine.PostingRules
             }
             else if (element.IsSell() || element.IsCover())
             {
-                if ( element.Symbol.Equals("BWX"))
+
+                if ( element.Symbol.Equals("USD/JPY 02/12/20"))
                 {
 
                 }

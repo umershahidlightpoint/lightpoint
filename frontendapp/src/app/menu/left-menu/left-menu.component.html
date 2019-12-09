@@ -11,6 +11,7 @@
                     <span class="ml-1" [@animateText]="linkText ? 'show' : 'hide'">{{ page?.name }} </span>
                 </a>
             </mat-nav-list>
+            <hr class="divider">
             <mat-nav-list class="admin-pages">
                 <a mat-list-item *ngFor="let page of adminPages" [routerLink]="page.routerLink" title={{page?.name}}>
                     <!-- <mat-icon style="padding-right:5px;">{{page?.icon}}</mat-icon> -->

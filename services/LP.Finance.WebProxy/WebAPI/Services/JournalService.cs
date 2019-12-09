@@ -480,7 +480,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
 
-                var businessDate = System.DateTime.Now;
+                var businessDate = System.DateTime.Now.PrevBusinessDate();
                 if (date.HasValue)
                     businessDate = date.Value.Date;
 
@@ -598,7 +598,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
 
-                var query = $@"select * from tax_lot_status";
+                var query = $@"select * from tax_lot_status order by symbol, trade_date asc";
 
                 List<SqlParameter> sqlParams = new List<SqlParameter>();
 

@@ -175,6 +175,8 @@ namespace PostingEngine.PostingRules
                             if (Math.Abs(taxlotStatus.Quantity) >= Math.Abs(workingQuantity))
                             {
                                 var tl = new TaxLot {
+                                    TradeDate = element.TradeDate,
+                                    InvestmentAtCost = workingQuantity * lot.Trade.SettleNetPrice * fxrate,
                                     BusinessDate = env.ValueDate,
                                     OpeningLotId = lot.Trade.LpOrderId,
                                     ClosingLotId = element.LpOrderId,

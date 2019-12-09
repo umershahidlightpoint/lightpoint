@@ -105,22 +105,18 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             if (journals)
             {
                 query =
-    $@"select * from trade with(nolock)
-where UpdatedOn between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}') 
-and SecurityType = 'Journals' and action not in ( 'delete')
--- and accrualId in ( select distinct accrualId from allocation with(nolock))
-order by UpdatedOn desc
+   $@"select * from FundAccounting..vwCurrentStateTrades
+where SecurityType in ('Journals')
+order by TradeDate desc
 ";
 
             }
             else
             {
                 query =
-    $@"select * from trade with(nolock)
-where UpdatedOn between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}') 
-and SecurityType not in ('Journals') and action not in ( 'delete')
--- and accrualId in ( select distinct accrualId from allocation with(nolock))
-order by UpdatedOn desc
+    $@"select * from FundAccounting..vwCurrentStateTrades
+where SecurityType not in ('Journals')
+order by TradeDate desc
 ";
             }
             MetaData metaData = null;
