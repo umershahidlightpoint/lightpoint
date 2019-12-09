@@ -79,18 +79,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   pageSize = 100;
   tableHeader: string;
   isDataStreaming = false;
-  fieldsSum: Array<{ name: string; total: number }> = [
-    { name: 'debit', total: 0 },
-    { name: 'credit', total: 0 },
-    { name: 'Commission', total: 0 },
-    { name: 'Fees', total: 0 },
-    { name: 'TradePrice', total: 0 },
-    { name: 'NetPrice', total: 0 },
-    { name: 'SettleNetPrice', total: 0 },
-    { name: 'NetMoney', total: 0 },
-    { name: 'LocalNetNotional', total: 0 },
-    { name: 'value', total: 0 }
-  ];
+  fieldsSum: Array<{ name: string; total: number }>;
 
   ranges: any = Ranges;
 
@@ -158,7 +147,12 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
             }
             this.gridOptions.api.refreshCells();
 
-            this.fieldsSum = CalTotal(this.rowData, this.fieldsSum);
+            if (result.meta.FooterSum && this.pageNumber === 1) {
+              this.resetFieldsSum();
+              this.fieldsSum = CalTotal(this.rowData, this.fieldsSum);
+            } else if (result.meta.FooterSum) {
+              this.fieldsSum = CalTotal(this.rowData, this.fieldsSum);
+            }
 
             // console.log('FIELDS SUM :: ', this.fieldsSum);
             this.pinnedBottomRowData = [
@@ -206,6 +200,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     private dataDictionary: DataDictionary,
     private toastrService: ToastrService
   ) {
+    this.resetFieldsSum();
     this.initColDefs();
     this.hideGrid = false;
     this.DateRangeLabel = '';
@@ -226,6 +221,21 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         this.initColDefs();
       }
     });
+  }
+
+  resetFieldsSum() {
+    return (this.fieldsSum = [
+      { name: 'debit', total: 0 },
+      { name: 'credit', total: 0 },
+      { name: 'Commission', total: 0 },
+      { name: 'Fees', total: 0 },
+      { name: 'TradePrice', total: 0 },
+      { name: 'NetPrice', total: 0 },
+      { name: 'SettleNetPrice', total: 0 },
+      { name: 'NetMoney', total: 0 },
+      { name: 'LocalNetNotional', total: 0 },
+      { name: 'value', total: 0 }
+    ]);
   }
 
   initColDefs() {
