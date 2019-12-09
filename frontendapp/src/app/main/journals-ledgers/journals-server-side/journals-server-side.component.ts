@@ -290,7 +290,6 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       pivotPanelShow: 'after',
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
-      pagination: true,
       floatingFilter: true,
       suppressColumnVirtualisation: true,
       suppressHorizontalScroll: false,
