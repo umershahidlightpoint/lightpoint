@@ -1,5 +1,5 @@
 /* Core/Library Imports */
-import { Component, OnInit, AfterViewInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import 'ag-grid-enterprise';
 import {
   GridOptions,
@@ -52,7 +52,6 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   @ViewChild('reportModal', { static: false })
   reportModal: ReportModalComponent;
 
-  private columns: any;
   private filterSubject: Subject<string> = new Subject();
   rowData: any[] = [];
 
@@ -202,7 +201,6 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     private financeService: FinanceServiceProxy,
     private dataService: DataService,
     private postingEngineService: PostingEngineService,
-    private cdRef: ChangeDetectorRef,
     private agGridUtls: AgGridUtils,
     private dataDictionary: DataDictionary,
     private toastrService: ToastrService
@@ -265,10 +263,10 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         true,
         false
       );
-
+      console.log('COL DEFS :: ', cdefs);
       const afterDisableFilters = this.agGridUtls.disableColumnFilters(cdefs, disabledFilters);
       this.gridOptions.api.setColumnDefs(afterDisableFilters);
-      console.log('COL DEFS :: ', afterDisableFilters);
+      // console.log('COL DEFS :: ', afterDisableFilters);
     });
   }
 
@@ -292,6 +290,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       pivotPanelShow: 'after',
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
+      pagination: true,
       floatingFilter: true,
       suppressColumnVirtualisation: true,
       suppressHorizontalScroll: false,
@@ -323,23 +322,6 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       GridName.journalsLedgers,
       this.gridOptions
     );
-  }
-
-  /*
-  Drives the columns that will be defined on the UI, and what can be done with those fields
-  */
-  customizeColumns(columns: any) {
-    const colDefs = [
-      ...CommonCols(true),
-      this.dataDictionary.column('TradePrice', true),
-      this.dataDictionary.column('NetPrice', true),
-      this.dataDictionary.column('SettleNetPrice', true),
-      this.dataDictionary.column('start_price', true),
-      this.dataDictionary.column('end_price', true),
-      this.dataDictionary.column('fxrate', true)
-    ];
-    const cdefs = this.agGridUtls.customizeColumns(colDefs, columns, this.ignoreFields, true);
-    this.gridOptions.api.setColumnDefs(cdefs);
   }
 
   onFilterChanged() {}
