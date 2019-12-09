@@ -1,10 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  OnInit,
-  AfterViewChecked,
-  ViewChild
-} from '@angular/core';
+import { Component, ElementRef, OnInit, AfterViewChecked, ViewChild } from '@angular/core';
 import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import * as moment from 'moment';
@@ -13,12 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import {
-  SideBar,
-  Style,
-  AutoSizeAllColumns,
-  HeightStyle
-} from 'src/shared/utils/Shared';
+import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 import { ContextMenu } from 'src/shared/Models/common';
@@ -150,7 +139,7 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
 
   initGrid() {
     this.gridOptions = {
-      rowData: [],
+      rowData: null,
       columnDefs: this.columnDefs,
       sideBar: SideBar,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
@@ -172,11 +161,7 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
         resizable: true
       }
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(
-      GridId.logsId,
-      GridName.logs,
-      this.gridOptions
-    );
+    this.gridOptions.sideBar = SideBar(GridId.logsId, GridName.logs, this.gridOptions);
   }
 
   private getJournalLogs() {
@@ -214,10 +199,7 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
   }
 
   validateClearForm() {
-    return !this.clearJournalForm.value.system &&
-      !this.clearJournalForm.value.user
-      ? true
-      : false;
+    return !this.clearJournalForm.value.system && !this.clearJournalForm.value.user ? true : false;
   }
 
   /* This needs to call out to the Posting Engine and invoke the process,
@@ -225,24 +207,21 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
   */
   runEngine() {
     this.postingEngineStatus = true;
-    this.financeService
-      .startPostingEngine(this.selectedPeriod.name)
-      .subscribe(response => {
-        if (response.IsRunning) {
-          this.isLoading = true;
-          this.key = response.key;
-          this.postingEngineService.changeStatus(true);
-          this.postingEngineService.checkProgress();
-        }
+    this.financeService.startPostingEngine(this.selectedPeriod.name).subscribe(response => {
+      if (response.IsRunning) {
+        this.isLoading = true;
         this.key = response.key;
-        this.getLogs();
-      });
+        this.postingEngineService.changeStatus(true);
+        this.postingEngineService.checkProgress();
+      }
+      this.key = response.key;
+      this.getLogs();
+    });
   }
 
   generateFiles() {
     const obj = {
-      businessDate:
-        this.businessDate != null ? this.businessDate.startDate : null
+      businessDate: this.businessDate != null ? this.businessDate.startDate : null
     };
     this.generateFilesLoader = true;
     this.financeService.generateFiles(obj).subscribe(response => {
@@ -250,9 +229,7 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
       if (response.isSuccessful) {
         this.toastrService.success('Files are Generated for Processing');
       } else {
-        this.toastrService.error(
-          'Something went wrong, Please try again later.'
-        );
+        this.toastrService.error('Something went wrong, Please try again later.');
       }
     });
   }
@@ -262,8 +239,7 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
       this.financeService.runningEngineStatus(this.key).subscribe(response => {
         this.isLoading = response.Status;
         this.progress = response.progress;
-        this.messages =
-          response.message === '' ? this.messages : response.message;
+        this.messages = response.message === '' ? this.messages : response.message;
         if (response.Status) {
           this.getLogs();
         } else {
