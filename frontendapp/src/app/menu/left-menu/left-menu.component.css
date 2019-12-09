@@ -8,11 +8,16 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding-top: 6rem;
+  padding-top: 5rem;
+}
+
+.divider {
+  width: 92%;
+  margin: auto 0;
+  border: 1px solid #212529;
 }
 
 .admin-pages {
-  margin-top: auto;
   margin-bottom: 2rem;
 }
 
