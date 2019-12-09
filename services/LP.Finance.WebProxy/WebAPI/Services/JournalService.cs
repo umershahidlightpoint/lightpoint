@@ -1019,11 +1019,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 journalStats journalStats = new journalStats();
                 var sql = Utils.BuildSql(obj, "vwjournal");
                 var dataTable = sqlHelper.GetDataTable(sql.Item1, CommandType.Text, sql.Item3.ToArray());
-                int? lastRow = Utils.GetRowCount(obj, dataTable);
+                int lastRow = Utils.GetRowCount(obj, dataTable);
+                bool rootNodeGroupOrNoGrouping = Utils.isDoingGroupingByRootNodeOrNoGrouping(obj.rowGroupCols, obj.groupKeys);
+
                 var metaData = new MetaData();
 
                 metaData.Total = dataTable.Rows.Count > 0 ? dataTable.Rows.Count : 0;
                 metaData.LastRow = lastRow;
+                metaData.FooterSum = rootNodeGroupOrNoGrouping;
                 journalStats.totalCredit = 0;
                 journalStats.totalDebit = 0;
 
