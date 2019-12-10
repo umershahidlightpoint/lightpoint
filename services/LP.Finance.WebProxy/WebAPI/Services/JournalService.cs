@@ -464,7 +464,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 return returnResult;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
@@ -515,7 +515,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
                 return reportObject;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
@@ -553,7 +553,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
                 return reportObject;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
@@ -606,7 +606,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
                 return reportObject;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Utils.Wrap(true, null, HttpStatusCode.InternalServerError);
             }
@@ -631,7 +631,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
                 return reportObject;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
@@ -743,7 +743,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 return Utils.Wrap(true, trialBalanceReport, HttpStatusCode.OK, null, null, stats);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
@@ -753,10 +753,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             if (!absValue)
             {
-                return o == DBNull.Value ? (decimal?) null : Convert.ToDecimal(o);
+                return o == DBNull.Value ? (decimal?)null : Convert.ToDecimal(o);
             }
 
-            return o == DBNull.Value ? (decimal?) null : Math.Abs(Convert.ToDecimal(o));
+            return o == DBNull.Value ? (decimal?)null : Math.Abs(Convert.ToDecimal(o));
         }
 
 
@@ -830,8 +830,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 {
                     TrialBalanceTileOutputDto trialBalance = new TrialBalanceTileOutputDto();
                     AccountListTileOutputDto accountsList = new AccountListTileOutputDto();
-                    trialBalance.FundName = (row["fund"] != DBNull.Value && (string) row["fund"] != "")
-                        ? (string) row["fund"]
+                    trialBalance.FundName = (row["fund"] != DBNull.Value && (string)row["fund"] != "")
+                        ? (string)row["fund"]
                         : "N/A";
                     trialBalance.FundCredit = row["Credit"] == DBNull.Value ? 0 : Convert.ToDecimal(row["Credit"]);
                     ;
@@ -839,7 +839,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         row["Debit"] == DBNull.Value ? 0 : Math.Abs(Convert.ToDecimal(row["Debit"]));
                     trialBalance.FundBalance = trialBalance.FundCredit.Value - trialBalance.FundDebit.Value;
 
-                    accountsList.AccountName = (string) row["AccountName"];
+                    accountsList.AccountName = (string)row["AccountName"];
                     accountsList.AccountCredit = row["Credit"] == DBNull.Value ? 0 : Convert.ToDecimal(row["Credit"]);
                     accountsList.AccountDebit =
                         row["Debit"] == DBNull.Value ? 0 : Math.Abs(Convert.ToDecimal(row["Debit"]));
@@ -922,7 +922,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
                 return reportObject;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
@@ -1021,7 +1021,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var dataTable = sqlHelper.GetDataTable(sql.Item1, CommandType.Text, sql.Item3.ToArray());
                 int lastRow = Utils.GetRowCount(obj, dataTable);
                 bool rootNodeGroupOrNoGrouping = Utils.isDoingGroupingByRootNodeOrNoGrouping(obj.rowGroupCols, obj.groupKeys);
-
                 var metaData = new MetaData();
 
                 metaData.Total = dataTable.Rows.Count > 0 ? dataTable.Rows.Count : 0;
@@ -1042,6 +1041,32 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 Console.WriteLine(ex);
                 throw ex;
             }
+        }
+
+        public object GetTotalCount(ServerRowModel obj)
+        {
+            try
+            {
+                journalStats journalStats = new journalStats();
+                var sql = Utils.BuildSql(obj, "vwjournal", true);
+                var query = $@"select p.debit, p.credit, (abs(p.debit) - abs(p.credit)) as balance from (
+                                select sum(t.debit) as debit, sum(t.credit) as credit from (
+                                select [AccountCategory], sum(debit) as debit,
+                                sum(credit) as credit
+                                from vwJournal
+                                {sql.Item1}
+                                group by [AccountCategory]) t ) p";
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sql.Item3.ToArray());
+                var resp = JsonConvert.SerializeObject(dataTable);
+                var stats = JsonConvert.DeserializeObject(resp);
+                return Utils.Wrap(true, stats, HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw ex;
+            }
+
         }
 
         public object GetJournalsMetaData(JournalMetaInputDto obj)

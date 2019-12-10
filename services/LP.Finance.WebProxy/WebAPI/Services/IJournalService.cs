@@ -23,6 +23,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object GetAccountingTileData(DateTime? from, DateTime? to, string fund);
         object GetClosingTaxLots(string orderid);
         object serverSideJournals(ServerRowModel obj);
+        object GetTotalCount(ServerRowModel obj);
         object GetJournalsMetaData(JournalMetaInputDto obj);
     }
 }
