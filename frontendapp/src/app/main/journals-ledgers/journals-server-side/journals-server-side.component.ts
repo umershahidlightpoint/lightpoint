@@ -78,6 +78,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   pageSize = 100;
   tableHeader: string;
   isDataStreaming = false;
+  infiniteCount = null;
 
   ranges: any = Ranges;
 
@@ -143,6 +144,18 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
               this.gridOptions.api.showNoRowsOverlay();
             }
             this.gridOptions.api.refreshCells();
+
+            if(result.meta.FooterSum){
+              if(result.meta.LastRow < 0){
+                this.infiniteCount = 'Showing ' + payload.endRow + ' of more';
+              } else{
+                this.infiniteCount = 'Showing ' + result.meta.LastRow + ' of ' + result.meta.LastRow;
+              }
+              if(this.pinnedBottomRowData != null){
+                this.pinnedBottomRowData[0].source = this.infiniteCount;
+                this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
+              }
+            }
 
             // if (result.meta.FooterSum && this.pageNumber === 1) {
             //   console.log('FIELDS SUM :: ', this.fieldsSum);
@@ -239,7 +252,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         if (response.isSuccessful) {
           this.pinnedBottomRowData = [
             {
-              // source: 'Total Records: ' + this.totalRecords,
+              source: this.infiniteCount,
               AccountType: '',
               accountName: '',
               when: '',
