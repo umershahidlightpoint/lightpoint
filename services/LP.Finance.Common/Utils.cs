@@ -504,19 +504,25 @@ namespace LP.Finance.Common
             return total;
         }
 
-        public static Tuple<string,string, List<SqlParameter>> BuildSql(ServerRowModel obj, string from)
+        public static Tuple<string,string, List<SqlParameter>> BuildSql(ServerRowModel obj, string from, bool fetchWhere = false)
         {
             List<SqlParameter> sqlParams = new List<SqlParameter>();
-            string selectSql = CreateSelectSql(obj, from);
-            string fromSql = $" FROM [{from}] ";
-            Tuple<string,string> whereSql = CreateWhereSql(obj, sqlParams);
-            string limitSql = CreateLimitSql(obj, sqlParams);
-            string orderBySql = CreateOrderBySql(obj);
-            string groupBySql = CreateGroupBySql(obj);
-            string message = !string.IsNullOrWhiteSpace(whereSql.Item2) ? whereSql.Item2 : null ;
-
-            string query = selectSql + fromSql + whereSql.Item1 + groupBySql + orderBySql + limitSql;
-            return new Tuple<string, string, List<SqlParameter>>(query, message, sqlParams);
+            Tuple<string, string> whereSql = CreateWhereSql(obj, sqlParams);
+            if (fetchWhere)
+            {
+                return new Tuple<string, string, List<SqlParameter>>(whereSql.Item1, "", sqlParams);
+            }
+            else
+            {
+                string selectSql = CreateSelectSql(obj, from);
+                string fromSql = $" FROM [{from}] ";
+                string limitSql = CreateLimitSql(obj, sqlParams);
+                string orderBySql = CreateOrderBySql(obj);
+                string groupBySql = CreateGroupBySql(obj);
+                string message = !string.IsNullOrWhiteSpace(whereSql.Item2) ? whereSql.Item2 : null;
+                string query = selectSql + fromSql + whereSql.Item1 + groupBySql + orderBySql + limitSql;
+                return new Tuple<string, string, List<SqlParameter>>(query, message, sqlParams);
+            }
         }
 
         private static bool IsDoingGrouping(List<RowGroupCols> rowGroupCols, List<string> groupKeys)
