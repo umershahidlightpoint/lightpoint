@@ -143,7 +143,6 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
             if (result.meta.LastRow === 0) {
               this.gridOptions.api.showNoRowsOverlay();
             }
-            this.gridOptions.api.refreshCells();
 
             if(result.meta.FooterSum){
               if(result.meta.LastRow < 0){
@@ -232,6 +231,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.dataService.flag$.subscribe(obj => {
       this.hideGrid = obj;
       if (!this.hideGrid) {
+        this.getFunds();
         this.initColDefs();
       }
     });
@@ -244,6 +244,15 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       height,
       boxSizing: 'border-box'
     };
+  }
+
+  getFunds() {
+    this.financeService.getFunds().subscribe(result => {
+      const localfunds = result.payload.map(item => ({
+        FundCode: item.FundCode
+      }));
+      this.funds = localfunds;
+    });
   }
 
   getJournalsTotal(payload) {
