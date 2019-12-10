@@ -20,12 +20,12 @@ import {
   CalTotal,
   CommonCols,
   SetDateRange,
-  IgnoreFields
+  IgnoreFields,
+  moneyFormatter,
+  commaFormater
 } from 'src/shared/utils/Shared';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
 import {
-  valueFormatter,
-  moneyFormatter,
   cellClassRulesDebit,
   cellClassRulesCredit,
   cellClassRules,
@@ -375,7 +375,7 @@ export class JournalsSummaryComponent implements OnInit {
           ...element,
           cellStyle: { 'text-align': 'right' },
           valueFormatter: params => {
-            return element.field === 'balance' ? valueFormatter(params) : moneyFormatter(params);
+            return element.field === 'balance' ? commaFormater(params) : moneyFormatter(params);
           }
         };
         if (element.field === 'balance') {

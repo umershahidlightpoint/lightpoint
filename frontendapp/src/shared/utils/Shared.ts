@@ -166,10 +166,7 @@ export const CalTotalRecords = gridOptions => {
   return pinnedBottomRowData;
 };
 
-export const CalTotal = (
-  rows: Array<any>,
-  fields: Array<{ name: string; total: number }>
-) => {
+export const CalTotal = (rows: Array<any>, fields: Array<{ name: string; total: number }>) => {
   rows.forEach(row => {
     fields.map(field => {
       field.total += row[field.name];
@@ -201,10 +198,7 @@ export const GetDateRangeLabel = (startDate, endDate) => {
   ) {
     return 'MTD';
   }
-  if (
-    moment().diff(startDate, 'days') === 0 &&
-    moment().diff(endDate, 'days') === 0
-  ) {
+  if (moment().diff(startDate, 'days') === 0 && moment().diff(endDate, 'days') === 0) {
     return 'Today';
   }
   return '';
@@ -212,8 +206,7 @@ export const GetDateRangeLabel = (startDate, endDate) => {
 
 export const SetDateRange = (dateFilter, startDate, endDate) => {
   if (typeof dateFilter === 'object') {
-    startDate =
-      dateFilter.startDate !== '' ? moment(dateFilter.startDate) : null;
+    startDate = dateFilter.startDate !== '' ? moment(dateFilter.startDate) : null;
     endDate = dateFilter.endDate !== '' ? moment(dateFilter.endDate) : null;
   }
 
@@ -245,11 +238,7 @@ export const DoesExternalFilterPass = (node, fund, startDate, endDate) => {
     const cellFund = node.data.fund;
     const cellDate = new Date(node.data.when);
 
-    return (
-      cellFund === fund &&
-      startDate.toDate() <= cellDate &&
-      endDate.toDate() >= cellDate
-    );
+    return cellFund === fund && startDate.toDate() <= cellDate && endDate.toDate() >= cellDate;
   }
 
   if (fund !== 'All Funds') {
@@ -263,38 +252,6 @@ export const DoesExternalFilterPass = (node, fund, startDate, endDate) => {
 
     return startDate.toDate() <= cellDate && endDate.toDate() >= cellDate;
   }
-};
-
-export const FormatNumber = numberToFormat => {
-  if (numberToFormat !== null) {
-    return numberToFormat.toFixed(2);
-  }
-};
-
-export const MoneyFormat = numberToFormat => {
-  if (numberToFormat !== null) {
-    return numberToFormat.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
-  }
-};
-
-export const FormatNumber4 = numberToFormat => {
-  if (numberToFormat !== null) {
-    return numberToFormat.toFixed(4);
-  }
-};
-
-export const FormatNumber2 = numberToFormat => {
-  if (numberToFormat !== null) {
-    return numberToFormat.toFixed(2);
-  }
-};
-
-export const CommaSeparatedFormat = numberToFormat => {
-  return numberToFormat === 0
-    ? '0.00'
-    : Math.floor(numberToFormat)
-        .toString()
-        .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 };
 
 export const HeightStyle = height => {
@@ -365,8 +322,7 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       ...(filters !== null && {
         filterParams: {
           cellHeight: 20,
-          values: filters.find(item => item.ColumnName === 'AccountCategory')
-            .Values,
+          values: filters.find(item => item.ColumnName === 'AccountCategory').Values,
           debounceMs: 1000
         }
       })
@@ -382,8 +338,7 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       ...(filters !== null && {
         filterParams: {
           cellHeight: 20,
-          values: filters.find(item => item.ColumnName === 'AccountType')
-            .Values,
+          values: filters.find(item => item.ColumnName === 'AccountType').Values,
           debounceMs: 1000
         }
       })
@@ -399,8 +354,7 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       ...(filters !== null && {
         filterParams: {
           cellHeight: 20,
-          values: filters.find(item => item.ColumnName === 'AccountName')
-            .Values,
+          values: filters.find(item => item.ColumnName === 'AccountName').Values,
           debounceMs: 1000
         }
       })
@@ -589,32 +543,61 @@ export const CommonCols = (isJournalGrid, filters = null) => {
   ];
 };
 
-function currencyFormatter(params) {
+export const FormatNumber2 = numberToFormat => {
+  if (numberToFormat !== null) {
+    return numberToFormat.toFixed(2);
+  }
+};
+
+export const FormatNumber4 = numberToFormat => {
+  if (numberToFormat !== null) {
+    return numberToFormat.toFixed(4);
+  }
+};
+
+export function priceFormatter(params) {
   if (params.value === undefined) {
     return;
   }
-  return CommaSeparatedFormat(params.value);
+  return FormatNumber4(params.value);
 }
 
-function moneyFormatter(params) {
+export const MoneyFormat = numberToFormat => {
+  if (numberToFormat !== null) {
+    return numberToFormat.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+  }
+};
+
+export function moneyFormatter(params) {
   if (params.value === undefined) {
     return;
   }
   return MoneyFormat(params.value);
 }
 
+export const CommaSeparatedFormat = numberToFormat => {
+  return numberToFormat === 0
+    ? '0.00'
+    : Math.floor(numberToFormat)
+        .toString()
+        .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+};
+
+export function commaFormater(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  return CommaSeparatedFormat(params.value);
+}
+
 export const FormatDate = (date: any, format: string) => {
   return moment(date).format(format);
 };
 
-export const PercentageFormatter = (value: number) => {
-  return value * 100;
-};
-
-export const DateFormatterCol = (dateToFormat: Date) => {
-  return moment(dateToFormat).format('YYYY-MM-DD');
-};
-
 export const DateFormatter = dateToFormat => {
   return moment(dateToFormat).format('YYYY-MM-DD');
+};
+
+export const PercentageFormatter = (value: number) => {
+  return value * 100;
 };

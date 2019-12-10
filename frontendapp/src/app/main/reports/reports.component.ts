@@ -21,13 +21,11 @@ export class ReportsComponent {
   };
 
   tabChanged(e) {
-    debugger;
     if (e.index === 0) {
       this.costBasisReportActive = true;
     }
     if (e.index === 3) {
       this.trialBalanceReportActive = true;
     }
-
   }
 }

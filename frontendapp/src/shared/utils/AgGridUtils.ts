@@ -1,17 +1,15 @@
 // tslint:disable: forin
 // tslint:disable: triple-equals
 import { Injectable } from '@angular/core';
-import { environment } from '../../environments/environment';
 import * as moment from 'moment';
-import { DataDictionary } from './DataDictionary';
-import { MoneyFormat } from './Shared';
+import { moneyFormatter } from './Shared';
 
 @Injectable()
 export class AgGridUtils {
   baseUrl: string;
   refDataUrl: string;
 
-  constructor(private dataDictionary: DataDictionary) {
+  constructor() {
     this.baseUrl = window['config'].remoteServerUrl;
     this.refDataUrl = window['config'].referenceDataUrl;
   }
@@ -146,11 +144,4 @@ export class AgGridUtils {
     filteredCols.map(x => (x.filter = false));
     return colDefs;
   }
-}
-
-export function moneyFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  return MoneyFormat(params.value);
 }
