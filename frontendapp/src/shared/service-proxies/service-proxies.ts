@@ -1,6 +1,5 @@
 import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
@@ -15,8 +14,7 @@ export class FinanceServiceProxy {
   private baseUrl: string;
   private refDataUrl: string;
 
-  constructor(http: HttpClient, private injector: Injector) {
-    debugger
+  constructor(http: HttpClient) {
     this.http = http;
     this.baseUrl = window['config'].remoteServerUrl;
     this.refDataUrl = window['config'].referenceDataUrl;

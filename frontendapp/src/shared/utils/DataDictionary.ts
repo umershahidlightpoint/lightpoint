@@ -1,13 +1,7 @@
 // tslint:disable: forin
 // tslint:disable: triple-equals
 import { Injectable } from '@angular/core';
-import {
-  FormatNumber4,
-  CommaSeparatedFormat,
-  FormatNumber,
-  MoneyFormat,
-  PercentageFormatter
-} from 'src/shared/utils/Shared';
+import { priceFormatter, moneyFormatter, PercentageFormatter } from 'src/shared/utils/Shared';
 import { DecimalPipe } from '@angular/common';
 
 @Injectable()
@@ -300,13 +294,6 @@ export function cellClassRulesDebit(columnDefinition: any) {
   };
 }
 
-export function moneyFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  return MoneyFormat(params.value);
-}
-
 export function cellClassRules(columnDefinition: any) {
   columnDefinition['cellClassRules'] = {
     greenFont(params) {
@@ -331,24 +318,6 @@ export function cellClassRules(columnDefinition: any) {
       }
     }
   };
-}
-
-function priceFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  return FormatNumber4(params.value);
-}
-
-export function valueFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  if (params.value === 0.0) {
-    return;
-  }
-
-  return CommaSeparatedFormat(params.value);
 }
 
 function colorRules() {

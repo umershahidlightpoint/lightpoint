@@ -14,8 +14,6 @@ import { ContextMenu } from 'src/shared/Models/common';
 import { GridId } from '../../../../shared/utils/AppEnums';
 import { AgGridUtils } from '../../../../shared/utils/AgGridUtils';
 import {
-  valueFormatter,
-  moneyFormatter,
   cellClassRulesDebit,
   cellClassRulesCredit,
   cellClassRules,
@@ -29,7 +27,9 @@ import {
   CalTotal,
   CommonCols,
   SetDateRange,
-  IgnoreFields
+  IgnoreFields,
+  moneyFormatter,
+  commaFormater
 } from 'src/shared/utils/Shared';
 
 @Component({
@@ -427,7 +427,7 @@ export class JournalsSummaryComponent implements OnInit {
           ...element,
           cellStyle: { 'text-align': 'right' },
           valueFormatter: params => {
-            return element.field === 'balance' ? valueFormatter(params) : moneyFormatter(params);
+            return element.field === 'balance' ? commaFormater(params) : moneyFormatter(params);
           }
         };
         if (element.field === 'balance') {
