@@ -7,6 +7,8 @@ import { DecimalPipe } from '@angular/common';
 import { AppRoutingModule } from './app-routing.module';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { MaterialModule } from './material.module';
+import { MatCardModule } from '@angular/material';
+import { MatDividerModule } from '@angular/material/divider';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AngularSplitModule } from 'angular-split';
 import {
@@ -34,6 +36,7 @@ import { ToastModule } from 'primeng/toast';
 import { ModalModule, TooltipModule } from 'ngx-bootstrap';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+
 import { ToastrModule } from 'ngx-toastr';
 import { AgGridModule } from 'ag-grid-angular';
 import { NgcatalystModule } from 'ngcatalyst';
@@ -104,6 +107,7 @@ import { FileExceptionComponent } from './main/operations/file-exception/file-ex
 import { FileManagementComponent } from './main/operations/file-management/file-management.component';
 import { FileUploadComponent } from './main/operations/file-upload/file-upload.component';
 import { SilverFileManagementComponent } from 'src/app/main/operations/silver-file-management/silver-file-management.component';
+import { ServicesStatusComponent } from 'src/app/main/operations/services-status/services-status.component';
 
 // Settings
 import { SettingsComponent } from './main/settings/settings.component';
@@ -181,6 +185,7 @@ import { JournalsLedgersComponent } from './main/journals-ledgers/journals-clien
     FileManagementComponent,
     FileUploadComponent,
     SilverFileManagementComponent,
+    ServicesStatusComponent,
     // Grid Views/Layouts
     LayoutsComponent,
     // Settings
@@ -206,6 +211,8 @@ import { JournalsLedgersComponent } from './main/journals-ledgers/journals-clien
       AgGridCheckboxComponent
     ]),
     MaterialModule,
+    MatCardModule,
+    MatDividerModule,
     NgxDaterangepickerMd.forRoot({
       applyLabel: 'Okay',
       firstDay: 1
@@ -230,7 +237,7 @@ import { JournalsLedgersComponent } from './main/journals-ledgers/journals-clien
     ScheduleModule,
     TabViewModule,
     BrowserAnimationsModule,
-    NoopAnimationsModule,
+    // NoopAnimationsModule,
     SliderModule,
     AngularSplitModule.forRoot(),
     CalendarModule,
