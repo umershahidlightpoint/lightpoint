@@ -13,7 +13,7 @@ import {
   HeightStyle,
   GetDateRangeLabel,
   SetDateRange,
-  FormatNumber
+  FormatNumber2
 } from 'src/shared/utils/Shared';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import { ReportGridComponent } from '../report-grid/report-grid.component';
@@ -24,7 +24,7 @@ import { ReportGridComponent } from '../report-grid/report-grid.component';
   styleUrls: ['./trial-balance.component.css']
 })
 export class TrialBalanceComponent implements OnInit, AfterViewInit {
-  @ViewChild('trialBalanceReportGrid',{ static: false })
+  @ViewChild('trialBalanceReportGrid', { static: false })
   private trialBalanceReportGrid: ReportGridComponent;
 
   fund: any = 'All Funds';
@@ -93,11 +93,12 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
       this.trialBalanceReportStats = response.stats;
       this.trialBalanceReport = response.payload.map(data => ({
         accountName: data.AccountName,
-        credit: FormatNumber(data.Credit),
+        accountCategory: data.AccountCategory,
+        credit: FormatNumber2(data.Credit),
         creditPercentage: data.CreditPercentage,
-        debit: FormatNumber(data.Debit),
+        debit: FormatNumber2(data.Debit),
         debitPercentage: data.DebitPercentage,
-        balance: FormatNumber(data.Balance)
+        balance: FormatNumber2(data.Balance)
       }));
       this.isDataLoaded = true;
     });

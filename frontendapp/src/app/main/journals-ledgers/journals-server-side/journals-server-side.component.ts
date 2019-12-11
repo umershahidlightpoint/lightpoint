@@ -1,5 +1,7 @@
 /* Core/Library Imports */
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { timer, Subject } from 'rxjs';
+import { debounce } from 'rxjs/operators';
 import 'ag-grid-enterprise';
 import {
   GridOptions,
@@ -8,8 +10,22 @@ import {
   ColDef,
   ColGroupDef
 } from 'ag-grid-community';
+import { ToastrService } from 'ngx-toastr';
 import * as moment from 'moment';
 /* Services/Components Imports */
+import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
+import { PostingEngineService } from 'src/shared/common/posting-engine.service';
+import { DataService } from '../../../../shared/common/data.service';
+import { JournalModalComponent } from '../journals-client-side/journal-modal/journal-modal.component';
+import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
+import { DataModalComponent } from '../../../../shared/Component/data-modal/data-modal.component';
+import { GridLayoutMenuComponent } from '../../../../shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
+import { ContextMenu } from 'src/shared/Models/common';
+import { AgGridUtils } from '../../../../shared/utils/AgGridUtils';
+import { DataDictionary } from '../../../../shared/utils/DataDictionary';
+import { GridId, GridName } from '../../../../shared/utils/AppEnums';
+import { UtilsConfig } from 'src/shared/Models/utils-config';
 import {
   SideBar,
   Ranges,
@@ -23,22 +39,6 @@ import {
   CommonCols,
   CalTotal
 } from 'src/shared/utils/Shared';
-import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
-import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
-import { PostingEngineService } from 'src/shared/common/posting-engine.service';
-import { DataService } from '../../../../shared/common/data.service';
-import { AgGridUtils } from '../../../../shared/utils/AgGridUtils';
-import { JournalModalComponent } from '../journals-client-side/journal-modal/journal-modal.component';
-import { DataModalComponent } from '../../../../shared/Component/data-modal/data-modal.component';
-import { GridLayoutMenuComponent } from '../../../../shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { GridId, GridName } from '../../../../shared/utils/AppEnums';
-import { DataDictionary } from '../../../../shared/utils/DataDictionary';
-import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
-import { UtilsConfig } from 'src/shared/Models/utils-config';
-import { ContextMenu } from 'src/shared/Models/common';
-import { timer, Subject } from 'rxjs';
-import { debounce } from 'rxjs/operators';
-import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-journals-server-side',
@@ -46,11 +46,9 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./journals-server-side.component.css']
 })
 export class JournalsServerSideComponent implements OnInit, AfterViewInit {
-  @ViewChild('journalModal', { static: false })
-  journalModal: JournalModalComponent;
+  @ViewChild('journalModal', { static: false }) journalModal: JournalModalComponent;
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
-  @ViewChild('reportModal', { static: false })
-  reportModal: ReportModalComponent;
+  @ViewChild('reportModal', { static: false }) reportModal: ReportModalComponent;
 
   private filterSubject: Subject<string> = new Subject();
   rowData: any[] = [];
@@ -62,14 +60,15 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   colDefs: Array<ColDef | ColGroupDef>;
   pinnedBottomRowData: any;
   totalRecords = 0;
+  fieldsSum: Array<{ name: string; total: number }>;
   fund = 'All Funds';
+  funds: any;
   filterBySymbol = '';
   symbol = '';
   DateRangeLabel: string;
   selected: { startDate: moment.Moment; endDate: moment.Moment };
   startDate: moment.Moment;
   endDate: moment.Moment;
-  funds: any;
   accountSearch = { id: undefined };
   valueFilter = 0;
   sortColum = '';
@@ -78,8 +77,9 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   pageNumber = 0;
   pageSize = 100;
   tableHeader: string;
+  dataRequestCount = 0;
   isDataStreaming = false;
-  fieldsSum: Array<{ name: string; total: number }>;
+  infiniteCount = null;
 
   ranges: any = Ranges;
 
@@ -129,15 +129,13 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       this.financeService.getServerSideJournals(payload).subscribe(
         result => {
           if (result.isSuccessful) {
+            this.dataRequestCount++;
             result.payload.forEach(item => {
               item.when = moment(item.when).format('MM-DD-YYYY');
             });
             if (this.pageNumber === 1) {
               this.rowData = result.payload;
-              this.toastrService.clear();
-              this.toastrService.success(result.message);
             } else {
-              // this.rowData = this.rowData.concat(result.payload);
               this.rowData = result.payload;
             }
 
@@ -145,42 +143,57 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
             if (result.meta.LastRow === 0) {
               this.gridOptions.api.showNoRowsOverlay();
             }
-            this.gridOptions.api.refreshCells();
 
-            if (result.meta.FooterSum && this.pageNumber === 1) {
-              this.resetFieldsSum();
-              this.fieldsSum = CalTotal(this.rowData, this.fieldsSum);
-            } else if (result.meta.FooterSum) {
-              this.fieldsSum = CalTotal(this.rowData, this.fieldsSum);
+            if (result.meta.FooterSum) {
+              if (result.meta.LastRow < 0) {
+                this.infiniteCount = 'Showing ' + payload.endRow + ' of more';
+              } else {
+                this.infiniteCount =
+                  'Showing ' + result.meta.LastRow + ' of ' + result.meta.LastRow;
+              }
+              if (this.pinnedBottomRowData != null) {
+                this.pinnedBottomRowData[0].source = this.infiniteCount;
+                this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
+              }
             }
 
-            // console.log('FIELDS SUM :: ', this.fieldsSum);
-            this.pinnedBottomRowData = [
-              {
-                // source: 'Total Records: ' + this.totalRecords,
-                AccountType: '',
-                accountName: '',
-                when: '',
-                security_id: 0,
-                debit: Math.abs(this.fieldsSum[0].total),
-                credit: Math.abs(this.fieldsSum[1].total),
-                balance: Math.abs(this.fieldsSum[0].total) - Math.abs(this.fieldsSum[1].total),
-                Commission: Math.abs(this.fieldsSum[2].total),
-                Fees: Math.abs(this.fieldsSum[3].total),
-                TradePrice: this.fieldsSum[4].total,
-                NetPrice: Math.abs(this.fieldsSum[5].total),
-                SettleNetPrice: Math.abs(this.fieldsSum[6].total),
-                NetMoney: Math.abs(this.fieldsSum[7].total),
-                LocalNetNotional: Math.abs(this.fieldsSum[8].total),
-                value: Math.abs(this.fieldsSum[9].total),
-                start_price: 0,
-                end_price: 0
-              }
-            ];
-            this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
-            this.gridOptions.api.refreshCells();
+            // if (result.meta.FooterSum && this.pageNumber === 1) {
+            //   console.log('FIELDS SUM :: ', this.fieldsSum);
+            //   this.resetFieldsSum();
+            //   this.fieldsSum = CalTotal(this.rowData, this.fieldsSum);
+            // } else if (result.meta.FooterSum) {
+            //   console.log('FIELDS SUM :: ', this.fieldsSum);
+            //   this.fieldsSum = CalTotal(this.rowData, this.fieldsSum);
+            // }
 
-            AutoSizeAllColumns(this.gridOptions);
+            // this.pinnedBottomRowData = [
+            //   {
+            //     source: 'Total Records: ' + this.totalRecords,
+            //     AccountType: '',
+            //     accountName: '',
+            //     when: '',
+            //     security_id: 0,
+            //     debit: Math.abs(this.fieldsSum[0].total),
+            //     credit: Math.abs(this.fieldsSum[1].total),
+            //     balance: Math.abs(this.fieldsSum[0].total) - Math.abs(this.fieldsSum[1].total),
+            //     Commission: Math.abs(this.fieldsSum[2].total),
+            //     Fees: Math.abs(this.fieldsSum[3].total),
+            //     TradePrice: this.fieldsSum[4].total,
+            //     NetPrice: Math.abs(this.fieldsSum[5].total),
+            //     SettleNetPrice: Math.abs(this.fieldsSum[6].total),
+            //     NetMoney: Math.abs(this.fieldsSum[7].total),
+            //     LocalNetNotional: Math.abs(this.fieldsSum[8].total),
+            //     value: Math.abs(this.fieldsSum[9].total),
+            //     start_price: 0,
+            //     end_price: 0
+            //   }
+            // ];
+            // this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
+
+            if (this.dataRequestCount <= 2) {
+              AutoSizeAllColumns(this.gridOptions);
+            }
+            this.gridOptions.api.refreshCells();
           } else {
             params.failCallback();
           }
@@ -200,10 +213,11 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     private dataDictionary: DataDictionary,
     private toastrService: ToastrService
   ) {
-    this.resetFieldsSum();
-    this.initColDefs();
     this.hideGrid = false;
     this.DateRangeLabel = '';
+
+    this.resetFieldsSum();
+    this.initColDefs();
     this.initGird();
   }
 
@@ -212,30 +226,69 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.filterSubject.pipe(debounce(() => timer(500))).subscribe(() => {
       this.gridOptions.api.onFilterChanged();
     });
+
+    this.getJournalsTotal({ filterModel: {}, externalFilterModel: {} });
   }
 
   ngAfterViewInit() {
     this.dataService.flag$.subscribe(obj => {
       this.hideGrid = obj;
       if (!this.hideGrid) {
+        this.getFunds();
         this.initColDefs();
       }
     });
   }
 
-  resetFieldsSum() {
-    return (this.fieldsSum = [
-      { name: 'debit', total: 0 },
-      { name: 'credit', total: 0 },
-      { name: 'Commission', total: 0 },
-      { name: 'Fees', total: 0 },
-      { name: 'TradePrice', total: 0 },
-      { name: 'NetPrice', total: 0 },
-      { name: 'SettleNetPrice', total: 0 },
-      { name: 'NetMoney', total: 0 },
-      { name: 'LocalNetNotional', total: 0 },
-      { name: 'value', total: 0 }
-    ]);
+  setWidthAndHeight(width, height) {
+    this.style = {
+      marginTop: '20px',
+      width,
+      height,
+      boxSizing: 'border-box'
+    };
+  }
+
+  getFunds() {
+    this.financeService.getFunds().subscribe(result => {
+      const localfunds = result.payload.map(item => ({
+        FundCode: item.FundCode
+      }));
+      this.funds = localfunds;
+    });
+  }
+
+  getJournalsTotal(payload) {
+    this.financeService.getServerSideJournalsTotal(payload).subscribe(
+      response => {
+        if (response.isSuccessful) {
+          this.pinnedBottomRowData = [
+            {
+              source: this.infiniteCount,
+              AccountType: '',
+              accountName: '',
+              when: '',
+              security_id: 0,
+              debit: Math.abs(response.payload[0].debit),
+              credit: Math.abs(response.payload[0].credit),
+              balance: Math.abs(response.payload[0].balance),
+              Commission: Math.abs(this.fieldsSum[2].total),
+              Fees: Math.abs(this.fieldsSum[3].total),
+              TradePrice: this.fieldsSum[4].total,
+              NetPrice: Math.abs(this.fieldsSum[5].total),
+              SettleNetPrice: Math.abs(this.fieldsSum[6].total),
+              NetMoney: Math.abs(this.fieldsSum[7].total),
+              LocalNetNotional: Math.abs(this.fieldsSum[8].total),
+              value: Math.abs(this.fieldsSum[9].total),
+              start_price: 0,
+              end_price: 0
+            }
+          ];
+          this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
+        }
+      },
+      error => {}
+    );
   }
 
   initColDefs() {
@@ -274,11 +327,29 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         true,
         false
       );
-      console.log('COL DEFS :: ', cdefs);
       const afterDisableFilters = this.agGridUtls.disableColumnFilters(cdefs, disabledFilters);
+
       this.gridOptions.api.setColumnDefs(afterDisableFilters);
+      // console.log('COL DEFS :: ', cdefs);
       // console.log('COL DEFS :: ', afterDisableFilters);
     });
+  }
+
+  /*
+  Drives the Columns that will be Defined on the UI, and What can be Done with those Fields
+  */
+  customizeColumns(columns: any) {
+    const colDefs = [
+      ...CommonCols(true),
+      this.dataDictionary.column('TradePrice', true),
+      this.dataDictionary.column('NetPrice', true),
+      this.dataDictionary.column('SettleNetPrice', true),
+      this.dataDictionary.column('start_price', true),
+      this.dataDictionary.column('end_price', true),
+      this.dataDictionary.column('fxrate', true)
+    ];
+    const cdefs = this.agGridUtls.customizeColumns(colDefs, columns, this.ignoreFields, true);
+    this.gridOptions.api.setColumnDefs(cdefs);
   }
 
   initGird() {
@@ -317,7 +388,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         // params.api.onGroupExpandedOrCollapsed();
       },
       getChildCount: data => {
-        // data contains a group that is returned from the api
+        // Data Contains a Group that is returned from the API
         return data ? data.groupCount : 0;
       },
       enableFilter: true,
@@ -336,65 +407,55 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     );
   }
 
-  /*
-  Drives the columns that will be defined on the UI, and what can be done with those fields
-  */
-  customizeColumns(columns: any) {
-    const colDefs = [
-      ...CommonCols(true),
-      this.dataDictionary.column('TradePrice', true),
-      this.dataDictionary.column('NetPrice', true),
-      this.dataDictionary.column('SettleNetPrice', true),
-      this.dataDictionary.column('start_price', true),
-      this.dataDictionary.column('end_price', true),
-      this.dataDictionary.column('fxrate', true)
-    ];
-    const cdefs = this.agGridUtls.customizeColumns(colDefs, columns, this.ignoreFields, true);
-    this.gridOptions.api.setColumnDefs(cdefs);
-  }
-
-  onFilterChanged() {
-    console.log('FILTER CHANGED ::');
+  onFilterChanged(event) {
     this.resetBottomRowData();
+
+    const { filterModel } = event.api.serverSideRowModel.cacheParams;
+    const { fund, symbol, when } = this.getServerSideExternalFilter();
+    const payload = {
+      filterModel,
+      externalFilterModel: {
+        ...(fund && { fund }),
+        ...(symbol && { symbol }),
+        ...(when && { when })
+      }
+    };
+
+    // console.log('PAYLOAD OF FILTERS ::', payload);
+    this.getJournalsTotal(payload);
   }
 
   onSortChanged() {
-    console.log('SORTING CHANGED ::');
-    this.resetBottomRowData();
+    // console.log('SORTING CHANGED ::');
+    // this.resetBottomRowData();
   }
 
   onColumnRowGroupChanged() {
-    console.log('GROUPING CHANGED ::');
-    this.resetBottomRowData();
+    // console.log('GROUPING CHANGED ::');
+    // this.resetBottomRowData();
   }
 
-  resetBottomRowData() {
-    this.pinnedBottomRowData = null;
-  }
-
-  getRangeLabel() {
-    this.DateRangeLabel = '';
-    this.DateRangeLabel = GetDateRangeLabel(this.startDate, this.endDate);
-  }
-
-  setWidthAndHeight(width, height) {
-    this.style = {
-      marginTop: '20px',
-      width,
-      height,
-      boxSizing: 'border-box'
-    };
-  }
-
-  ngModelChange(e) {
-    this.startDate = e.startDate;
-    this.endDate = e.endDate;
-    this.getRangeLabel();
-    this.gridOptions.api.onFilterChanged();
-  }
-
-  ngModelChangeSymbol(e) {
-    this.filterBySymbol = e;
+  getContextMenuItems(params): Array<ContextMenu> {
+    const addDefaultItems = [
+      {
+        name: 'Edit',
+        action: () => {
+          this.openEditModal(params.node.data);
+        }
+      }
+    ];
+    const addCustomItems = [
+      {
+        name: 'View Chart',
+        action: () => {
+          const record = ViewChart(params);
+          this.tableHeader = record[0];
+          this.openChartModal(record[1]);
+        }
+      }
+    ];
+    //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
+    return GetContextMenu(false, addDefaultItems, false, addCustomItems, params);
   }
 
   ngModelChangeFund(e) {
@@ -402,20 +463,34 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.gridOptions.api.onFilterChanged();
   }
 
+  ngModelChangeSymbol(e) {
+    this.filterBySymbol = e;
+  }
+
   onSymbolKey(e) {
     this.filterSubject.next(e.srcElement.value);
 
-    // For the moment we react to each key stroke
+    // For the Moment we React to Each Key Stroke
     if (e.code === 'Enter' || e.code === 'Tab') {
     }
+  }
+
+  ngModelChange(e) {
+    this.startDate = e.startDate;
+    this.endDate = e.endDate;
+
+    this.getRangeLabel();
+    this.gridOptions.api.onFilterChanged();
   }
 
   isExternalFilterPassed(object) {
     const { fundFilter } = object;
     const { symbolFilter } = object;
     const { dateFilter } = object;
+
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
     this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
+
     this.setDateRange(dateFilter);
     this.gridOptions.api.onFilterChanged();
   }
@@ -475,6 +550,11 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     }
   }
 
+  getRangeLabel() {
+    this.DateRangeLabel = '';
+    this.DateRangeLabel = GetDateRangeLabel(this.startDate, this.endDate);
+  }
+
   setDateRange(dateFilter: any) {
     const dates = SetDateRange(dateFilter, this.startDate, this.endDate);
     this.startDate = dates[0];
@@ -482,41 +562,6 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
     this.selected =
       dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
-  }
-
-  getContextMenuItems(params): Array<ContextMenu> {
-    const addDefaultItems = [
-      {
-        name: 'Edit',
-        action: () => {
-          this.openEditModal(params.node.data);
-        }
-      }
-    ];
-    const addCustomItems = [
-      {
-        name: 'View Chart',
-        action: () => {
-          const record = ViewChart(params);
-          this.tableHeader = record[0];
-          this.openChartModal(record[1]);
-        }
-      }
-    ];
-    //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
-    return GetContextMenu(false, addDefaultItems, false, addCustomItems, params);
-  }
-
-  clearFilters() {
-    this.gridOptions.api.redrawRows();
-    this.fund = 'All Funds';
-    this.filterBySymbol = '';
-    this.DateRangeLabel = '';
-    this.selected = null;
-    this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
-    this.endDate = moment();
-    this.gridOptions.api.setFilterModel(null);
-    this.gridOptions.api.onFilterChanged();
   }
 
   getExternalFilterState() {
@@ -551,29 +596,35 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     };
   }
 
-  openJournalModal() {
-    this.journalModal.openModal({});
+  clearFilters() {
+    this.gridOptions.api.redrawRows();
+    this.fund = 'All Funds';
+    this.filterBySymbol = '';
+    this.DateRangeLabel = '';
+    this.selected = null;
+    this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
+    this.endDate = moment();
+    this.gridOptions.api.setFilterModel(null);
+    this.gridOptions.api.onFilterChanged();
   }
 
-  closeJournalModal() {}
-
-  closeOrderModal() {}
-
-  openDataModal(row) {
-    // We can drive the screen that we wish to display from here
-    if (row.colDef.headerName === 'Group') {
-      return;
-    }
-    const cols = this.gridOptions.columnApi.getColumnState();
-    this.dataModal.openModal(row, cols);
+  resetFieldsSum() {
+    return (this.fieldsSum = [
+      { name: 'debit', total: 0 },
+      { name: 'credit', total: 0 },
+      { name: 'Commission', total: 0 },
+      { name: 'Fees', total: 0 },
+      { name: 'TradePrice', total: 0 },
+      { name: 'NetPrice', total: 0 },
+      { name: 'SettleNetPrice', total: 0 },
+      { name: 'NetMoney', total: 0 },
+      { name: 'LocalNetNotional', total: 0 },
+      { name: 'value', total: 0 }
+    ]);
   }
 
-  openEditModal(data) {
-    this.journalModal.openModal(data);
-  }
-
-  openChartModal(data) {
-    this.reportModal.openModal(data);
+  resetBottomRowData() {
+    this.pinnedBottomRowData = null;
   }
 
   refreshGrid() {
@@ -581,5 +632,30 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.rowData = [];
     this.gridOptions.api.showLoadingOverlay();
     this.gridOptions.api.setServerSideDatasource(this.datasource);
+  }
+
+  openJournalModal() {
+    this.journalModal.openModal({});
+  }
+
+  openEditModal(data) {
+    this.journalModal.openModal(data);
+  }
+
+  closeJournalModal() {}
+
+  closeOrderModal() {}
+
+  openDataModal(row) {
+    // We can Drive the Screen that we Wish to Display from here
+    if (row.colDef.headerName === 'Group') {
+      return;
+    }
+    const cols = this.gridOptions.columnApi.getColumnState();
+    this.dataModal.openModal(row, cols);
+  }
+
+  openChartModal(data) {
+    this.reportModal.openModal(data);
   }
 }

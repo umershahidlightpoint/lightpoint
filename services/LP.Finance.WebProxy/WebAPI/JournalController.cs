@@ -86,7 +86,7 @@ namespace LP.Finance.WebProxy.WebAPI
         }
 
 
-        
+
         [Route("trialBalanceTile")]
         [HttpGet]
         public object TrialBalanceTile(DateTime? from = null, DateTime? to = null, string fund = "ALL")
@@ -130,6 +130,13 @@ namespace LP.Finance.WebProxy.WebAPI
         public object GetServerSideJournals(ServerRowModel obj)
         {
             return controller.serverSideJournals(obj);
+        }
+
+        [Route("totalCount")]
+        [HttpPost]
+        public object GetTotalCount(ServerRowModel obj)
+        {
+            return controller.GetTotalCount(obj);
         }
 
         [Route("metaData")]

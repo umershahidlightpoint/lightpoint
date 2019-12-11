@@ -133,5 +133,13 @@
   </p-tabPanel>
   <!-- File Exception Tab Ends -->
 
+    <!-- File Exception Tab -->
+  <p-tabPanel header="Sevices Status" [ngStyle]="style">
+    <div class="col-12">
+      <app-services-status *ngIf="servicesStatus"></app-services-status>
+    </div>
+  </p-tabPanel>
+  <!-- File Exception Tab Ends -->
+
 </p-tabView>
 <!-- Main Tab View Ends -->

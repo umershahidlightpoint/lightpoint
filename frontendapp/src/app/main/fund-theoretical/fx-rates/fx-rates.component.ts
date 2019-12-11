@@ -255,7 +255,7 @@ export class FxRatesComponent implements OnInit {
         sortable: true,
         type: 'numericColumn',
         valueFormatter: params =>
-          this.dataDictionary.numberFormatter(params.node.data.price, false)
+          this.dataDictionary.numberFormatter(params.node.data.price, false, '1.8-8')
       },
       {
         headerName: 'Is Modified',

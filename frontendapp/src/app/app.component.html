@@ -5,8 +5,8 @@
         <mat-sidenav #leftSidenav mode="side" opened>
             <app-left-menu></app-left-menu>
         </mat-sidenav>
-        <mat-sidenav-content [@onMainContentChange]="onSideNavChange ? 'open': 'close'">
-            <div class="main_content">
+        <mat-sidenav-content class="sidenav-content" [@onMainContentChange]="onSideNavChange ? 'open': 'close'">
+            <div class="main-content">
                 <router-outlet></router-outlet>
             </div>
         </mat-sidenav-content>

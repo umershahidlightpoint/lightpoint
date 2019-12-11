@@ -360,7 +360,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
   }
 
   rowSelected(row) {
-    debugger;
+    // debugger;
     const { symbol } = row.data;
 
     let mySymbol = row.data.Symbol;

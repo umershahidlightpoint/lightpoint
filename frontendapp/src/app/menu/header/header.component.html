@@ -22,5 +22,11 @@
         <div class="date-style">
             <span>{{ effectiveDate }} / {{ date }}</span>
         </div>
+        <!-- Signal Indication -->
+        <div *ngIf="!servicesStatus">
+            <i  [ngClass]="{'color-white': servicesStatus, 'color-red': !servicesStatus}"
+                matTooltip="Please go to operations"
+                class="material-tooltip-main material-icons">warning</i>
+        </div>
     </div>
 </div>
