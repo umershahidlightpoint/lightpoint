@@ -27,9 +27,12 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
   private bottomOptions: any = { alignedGrids: [] };
 
   isLoading = false;
+
   postingEngineStatus = false;
   fileManagementActive = false;
   exportExceptionActive = false;
+  servicesStatus = false;
+
   periodPlaceholder: { name: 'Select a Period' };
   selectedPeriod: { name: string };
   clearJournalForm: FormGroup;
@@ -161,7 +164,11 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
         resizable: true
       }
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(GridId.logsId, GridName.logs, this.gridOptions);
+    this.gridOptions.sideBar = SideBar(
+      GridId.logsId,
+      GridName.logs,
+      this.gridOptions
+    );
   }
 
   private getJournalLogs() {
@@ -199,7 +206,10 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
   }
 
   validateClearForm() {
-    return !this.clearJournalForm.value.system && !this.clearJournalForm.value.user ? true : false;
+    return !this.clearJournalForm.value.system &&
+      !this.clearJournalForm.value.user
+      ? true
+      : false;
   }
 
   /* This needs to call out to the Posting Engine and invoke the process,
@@ -207,21 +217,24 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
   */
   runEngine() {
     this.postingEngineStatus = true;
-    this.financeService.startPostingEngine(this.selectedPeriod.name).subscribe(response => {
-      if (response.IsRunning) {
-        this.isLoading = true;
+    this.financeService
+      .startPostingEngine(this.selectedPeriod.name)
+      .subscribe(response => {
+        if (response.IsRunning) {
+          this.isLoading = true;
+          this.key = response.key;
+          this.postingEngineService.changeStatus(true);
+          this.postingEngineService.checkProgress();
+        }
         this.key = response.key;
-        this.postingEngineService.changeStatus(true);
-        this.postingEngineService.checkProgress();
-      }
-      this.key = response.key;
-      this.getLogs();
-    });
+        this.getLogs();
+      });
   }
 
   generateFiles() {
     const obj = {
-      businessDate: this.businessDate != null ? this.businessDate.startDate : null
+      businessDate:
+        this.businessDate != null ? this.businessDate.startDate : null
     };
     this.generateFilesLoader = true;
     this.financeService.generateFiles(obj).subscribe(response => {
@@ -229,7 +242,9 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
       if (response.isSuccessful) {
         this.toastrService.success('Files are Generated for Processing');
       } else {
-        this.toastrService.error('Something went wrong, Please try again later.');
+        this.toastrService.error(
+          'Something went wrong, Please try again later.'
+        );
       }
     });
   }
@@ -239,7 +254,8 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
       this.financeService.runningEngineStatus(this.key).subscribe(response => {
         this.isLoading = response.Status;
         this.progress = response.progress;
-        this.messages = response.message === '' ? this.messages : response.message;
+        this.messages =
+          response.message === '' ? this.messages : response.message;
         if (response.Status) {
           this.getLogs();
         } else {
@@ -264,6 +280,9 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
     }
     if (e.index === 4) {
       this.exportExceptionActive = true;
+    }
+    if (e.index === 5) {
+      this.servicesStatus = true;
     }
   }
 

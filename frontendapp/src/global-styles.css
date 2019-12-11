@@ -137,3 +137,7 @@ body {
 .overflow-x-hidden {
   overflow-x: hidden;
 }
+
+.bg-size-100{
+  background-size: 100%;
+}
