@@ -61,6 +61,7 @@ import { ReportsComponent } from './main/reports/reports.component';
 import { BalanceReportComponent } from './main/reports/balance-report/balance-report.component';
 import { CostBasisComponent } from './main/reports/costbasis/costbasis.component';
 import { DayPnlComponent } from './main/reports/daypnl-reconcile/daypnl-reconcile.component';
+import { BookmonReconcileComponent } from './main/reports/bookmon-reconcile/bookmon-reconcile.component';
 import { ReportGridComponent } from './main/reports/report-grid/report-grid.component';
 import { TaxLotsComponent } from './main/reports/taxlots/taxlots.component';
 import { TaxLotStatusComponent } from './main/reports/taxlotstatus/taxlotstatus.component';
@@ -144,6 +145,7 @@ import { JournalsLedgersComponent } from './main/journals-ledgers/journals-clien
     BalanceReportComponent,
     CostBasisComponent,
     DayPnlComponent,
+    BookmonReconcileComponent,
     ReportGridComponent,
     TaxLotsComponent,
     TaxLotStatusComponent,

@@ -1,0 +1,108 @@
+<!-- Hide Grid Div -->
+<div *ngIf="hideGrid" #logScroll [ngStyle]="processingMsgDiv">
+  <div class="d-flex align-items-center justify-content-center">
+    <h1> Posting Engine is Running. Please Wait. </h1>
+  </div>
+</div>
+<!-- Hide Grid Div Ends -->
+
+<!-- Reports Main Div Starts -->
+<div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
+  <!-- Filters Div Starts -->
+  <div class="row ">
+    <!-- Funds Dropdown Div Starts -->
+    <div class="col-2">
+      <select class="form-control" [(ngModel)]="fund" (ngModelChange)="changeFund($event)">
+        <option selected>All Funds</option>
+        <option *ngFor="let fund of funds" [ngValue]="fund.fundCode">
+          {{ fund.fundCode }}
+        </option>
+      </select>
+    </div>
+    <!-- Funds Dropdown Div Ends -->
+
+    <!-- DateRange Label Div Starts -->
+    <div>
+      <label class="text-right"> {{ DateRangeLabel }} </label>
+    </div>
+    <!-- DateRange Label Div Ends -->
+
+    <!-- Date Picker Div Starts -->
+    <div class="col-2">
+      <form>
+        <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
+          [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" y name=" selectedDate"
+          [singleDatePicker]="true" [autoApply]="true" />
+      </form>
+    </div>
+    <!-- Date Picker Div Ends -->
+
+    <!-- Clear Button Div Starts -->
+    <div class="col-1">
+      <button (click)="clearFilters()" class="btn btn-info" tooltip="Clear" placement="top">
+        <i class="fa fa-remove"></i>
+      </button>
+    </div>
+    <!-- Clear Button Div Ends -->
+
+    <!----- Buttons Div Starts ----->
+    <div class="col-3">
+      <!-- Refresh Button Div Starts -->
+      <div class="mr-2 d-inline-block">
+        <button (click)="refreshReport()" class="btn btn-info" tooltip="Refresh" placement="top">
+          <i class="fa fa-refresh"></i></button>
+      </div>
+      <!-- Refresh Button Div Ends -->
+      <!-- Export to Excel Button -->
+      <div class="mr-2 d-inline-block">
+        <button (click)="onBtExport()" class="btn btn-info" tooltip="Export to Excel" placement="top">
+          <i class="fa fa-arrow-circle-o-down"></i>
+        </button>
+      </div>
+    </div>
+    <!----- Buttons Div Ends ----->
+    <!----- Chart DropDown Div Starts ----->
+    <div class="ml-auto">
+      <!----- Chart Data DropDown Starts ----->
+      <!-- <div class="mr-2 d-inline-block">
+        <select class="form-control" [(ngModel)]="selectedChartOption" (ngModelChange)="changeChart($event)">
+          <option *ngFor="let option of chartOptions" [ngValue]="option.key">
+            {{option.value}}
+          </option>
+        </select>
+      </div> -->
+      <!----- Chart Data DropDown Ends  ----->
+    </div>
+    <!----- Chart DropDown Div Ends ----->
+  </div>
+  <!-- Filters Div Ends -->
+
+  <!-- Report Grid Starts -->
+  <div>
+    <!-- Report AG Grid Column Starts -->
+    <div [ngStyle]="styleForHeight" class="d-flex">
+      <div class="w-50 h-100">
+        <div>Reconciled Details</div>
+
+        <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions">
+        </ag-grid-angular>
+      </div>
+
+      <div class="w-25 h-100">
+        <div>Accounting Details</div>
+
+        <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="portfolioOptions">
+        </ag-grid-angular>
+      </div>
+
+      <div class="w-25 h-100">
+        <div>BookMon Details</div>
+        <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="bookmonOptions">
+        </ag-grid-angular>
+      </div>
+    </div>
+
+    <!-- Report AG Grid Column Ends -->
+
+  </div>
+  <!-- Reports Main Div Ends-->

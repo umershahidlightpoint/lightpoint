@@ -426,10 +426,15 @@ export class FinanceServiceProxy {
   }
 
   getReconReport(date, fund) {
-    const url = this.baseUrl + '/journal/recon?date=' + date + '&fund=' + fund;
+    const url = this.baseUrl + '/journal/recon?source=daypnl&date=' + date + '&fund=' + fund;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
+  getBookmonReconReport(date, fund) {
+    const url = this.baseUrl + '/journal/recon?source=exposure&date=' + date + '&fund=' + fund;
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
+  
   /*
   Get Cost Basis Report
   */
