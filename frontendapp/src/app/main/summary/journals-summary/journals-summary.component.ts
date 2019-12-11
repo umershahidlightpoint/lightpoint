@@ -54,6 +54,7 @@ export class JournalsSummaryComponent implements OnInit {
   pageSize = 100;
   toggleGridBool = false;
   ignoreFields = IgnoreFields;
+  dataRequestCount = 0;
   infiniteCount = null;
 
   styleForHeight = HeightStyle(228);
@@ -88,6 +89,7 @@ export class JournalsSummaryComponent implements OnInit {
       this.financeService.getServerSideJournals(payload).subscribe(
         result => {
           if (result.isSuccessful) {
+            this.dataRequestCount++;
             result.payload.forEach(item => {
               item.when = moment(item.when).format('MM-DD-YYYY');
             });
@@ -102,13 +104,14 @@ export class JournalsSummaryComponent implements OnInit {
               this.gridOptions.api.showNoRowsOverlay();
             }
 
-            if(result.meta.FooterSum){
-              if(result.meta.LastRow < 0){
+            if (result.meta.FooterSum) {
+              if (result.meta.LastRow < 0) {
                 this.infiniteCount = 'Showing ' + payload.endRow + ' of more';
-              } else{
-                this.infiniteCount = 'Showing ' + result.meta.LastRow + ' of ' + result.meta.LastRow;
+              } else {
+                this.infiniteCount =
+                  'Showing ' + result.meta.LastRow + ' of ' + result.meta.LastRow;
               }
-              if(this.pinnedBottomRowData != null){
+              if (this.pinnedBottomRowData != null) {
                 this.pinnedBottomRowData[0].source = this.infiniteCount;
                 this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
               }
@@ -145,8 +148,10 @@ export class JournalsSummaryComponent implements OnInit {
             // ];
             // this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
 
+            if (this.dataRequestCount <= 4) {
+              AutoSizeAllColumns(this.gridOptions);
+            }
             this.gridOptions.api.refreshCells();
-            AutoSizeAllColumns(this.gridOptions);
           } else {
             params.failCallback();
           }
@@ -317,6 +322,7 @@ export class JournalsSummaryComponent implements OnInit {
     // this.gridOptions.api.showLoadingOverlay();
     // this.getJournalsSummary(selectedLayout);
 
+    this.dataRequestCount = 0;
     this.currentLayout = selectedLayout;
     this.restoreLayout(selectedLayout);
     this.gridOptions.api.setServerSideDatasource(this.datasource);

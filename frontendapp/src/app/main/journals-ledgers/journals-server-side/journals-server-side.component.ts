@@ -77,6 +77,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   pageNumber = 0;
   pageSize = 100;
   tableHeader: string;
+  dataRequestCount = 0;
   isDataStreaming = false;
   infiniteCount = null;
 
@@ -128,6 +129,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       this.financeService.getServerSideJournals(payload).subscribe(
         result => {
           if (result.isSuccessful) {
+            this.dataRequestCount++;
             result.payload.forEach(item => {
               item.when = moment(item.when).format('MM-DD-YYYY');
             });
@@ -144,13 +146,14 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
               this.gridOptions.api.showNoRowsOverlay();
             }
 
-            if(result.meta.FooterSum){
-              if(result.meta.LastRow < 0){
+            if (result.meta.FooterSum) {
+              if (result.meta.LastRow < 0) {
                 this.infiniteCount = 'Showing ' + payload.endRow + ' of more';
-              } else{
-                this.infiniteCount = 'Showing ' + result.meta.LastRow + ' of ' + result.meta.LastRow;
+              } else {
+                this.infiniteCount =
+                  'Showing ' + result.meta.LastRow + ' of ' + result.meta.LastRow;
               }
-              if(this.pinnedBottomRowData != null){
+              if (this.pinnedBottomRowData != null) {
                 this.pinnedBottomRowData[0].source = this.infiniteCount;
                 this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
               }
@@ -189,8 +192,10 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
             // ];
             // this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
 
+            if (this.dataRequestCount <= 2) {
+              AutoSizeAllColumns(this.gridOptions);
+            }
             this.gridOptions.api.refreshCells();
-            AutoSizeAllColumns(this.gridOptions);
           } else {
             params.failCallback();
           }
