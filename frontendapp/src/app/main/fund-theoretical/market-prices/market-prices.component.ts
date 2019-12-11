@@ -104,18 +104,15 @@ export class MarketPricesComponent implements OnInit {
     this.financeService.getMarketPriceData().subscribe(response => {
       if (response.isSuccessful) {
         const data = response.payload.sort((x, y) => {
-          return (
-            new Date(y.BusinessDate).getTime() -
-            new Date(x.BusinessDate).getTime()
-          );
+          return new Date(y.BusinessDate).getTime() - new Date(x.BusinessDate).getTime();
         });
-        this.gridData = data.map(data => ({
-          id: data.Id,
-          securityId: data.SecurityId,
-          businessDate: DateFormatter(data.BusinessDate),
-          symbol: data.Symbol,
-          event: data.Event,
-          price: data.Price,
+        this.gridData = data.map(element => ({
+          id: element.Id,
+          securityId: element.SecurityId,
+          businessDate: DateFormatter(element.BusinessDate),
+          symbol: element.Symbol,
+          event: element.Event,
+          price: element.Price,
           modified: false
         }));
         this.marketPriceGrid.api.setRowData(this.gridData);
@@ -146,7 +143,7 @@ export class MarketPricesComponent implements OnInit {
       pivotRowTotals: 'after',
       animateRows: true,
       onGridReady: params => {
-        //this.marketPriceGrid.api = params.api;
+        // this.marketPriceGrid.api = params.api;
         AutoSizeAllColumns(params);
       },
       onFirstDataRendered: params => {},
@@ -183,25 +180,18 @@ export class MarketPricesComponent implements OnInit {
 
     if ((this.filterBySymbol !== '' && this.startDate) || this.endDate) {
       return (
-        node.data.symbol
-          .toLowerCase()
-          .includes(this.filterBySymbol.toLowerCase()) &&
+        node.data.symbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) &&
         businessDate >= this.startDate.toDate() &&
         businessDate <= this.endDate.toDate()
       );
     }
 
     if (this.filterBySymbol !== '') {
-      return node.data.symbol
-        .toLowerCase()
-        .includes(this.filterBySymbol.toLowerCase());
+      return node.data.symbol.toLowerCase().includes(this.filterBySymbol.toLowerCase());
     }
 
     if (this.startDate || this.endDate) {
-      return (
-        businessDate >= this.startDate.toDate() &&
-        businessDate <= this.endDate.toDate()
-      );
+      return businessDate >= this.startDate.toDate() && businessDate <= this.endDate.toDate();
     }
   }
 
@@ -252,7 +242,7 @@ export class MarketPricesComponent implements OnInit {
         sortable: true,
         type: 'numericColumn',
         valueFormatter: params =>
-          this.dataDictionary.numberFormatter(params.node.data.price, false)
+          this.dataDictionary.numberFormatter(params.node.data.price, false, '1.8-8')
       },
       {
         headerName: 'Is Modified',
@@ -390,9 +380,7 @@ export class MarketPricesComponent implements OnInit {
     let toDate;
     let fromDate;
     const focusedCell = this.marketPriceGrid.api.getFocusedCell();
-    const selectedRow = this.marketPriceGrid.api.getDisplayedRowAtIndex(
-      focusedCell.rowIndex
-    ).data;
+    const selectedRow = this.marketPriceGrid.api.getDisplayedRowAtIndex(focusedCell.rowIndex).data;
     const column = 'price';
     const selectedSymbol = selectedRow.symbol;
     data[selectedSymbol] = [];
@@ -453,35 +441,31 @@ export class MarketPricesComponent implements OnInit {
       }
     });
     this.commitLoader = true;
-    this.financeService
-      .editMarketPriceData(recordsToCommit)
-      .subscribe(response => {
-        this.commitLoader = false;
-        this.disableCommit = true;
-        if (response.isSuccessful) {
-          this.toastrService.success('Sucessfully Commited.');
-          this.getData();
-        } else {
-          this.toastrService.error('Something went wrong! Try Again.');
-        }
-      });
+    this.financeService.editMarketPriceData(recordsToCommit).subscribe(response => {
+      this.commitLoader = false;
+      this.disableCommit = true;
+      if (response.isSuccessful) {
+        this.toastrService.success('Sucessfully Commited.');
+        this.getData();
+      } else {
+        this.toastrService.error('Something went wrong! Try Again.');
+      }
+    });
   }
 
   uploadData() {
     this.uploadLoader = true;
-    this.financeService
-      .uploadMarketPriceData(this.fileToUpload)
-      .subscribe(response => {
-        this.uploadLoader = false;
-        if (response.isSuccessful) {
-          this.fileInput.nativeElement.value = '';
-          this.disableFileUpload = true;
-          this.gridData = response.payload;
-          this.marketPriceGrid.api.setRowData(this.gridData);
-        } else {
-          this.toastrService.error('Something went wrong! Try Again.');
-        }
-      });
+    this.financeService.uploadMarketPriceData(this.fileToUpload).subscribe(response => {
+      this.uploadLoader = false;
+      if (response.isSuccessful) {
+        this.fileInput.nativeElement.value = '';
+        this.disableFileUpload = true;
+        this.gridData = response.payload;
+        this.marketPriceGrid.api.setRowData(this.gridData);
+      } else {
+        this.toastrService.error('Something went wrong! Try Again.');
+      }
+    });
   }
 
   ngModelChange(date) {

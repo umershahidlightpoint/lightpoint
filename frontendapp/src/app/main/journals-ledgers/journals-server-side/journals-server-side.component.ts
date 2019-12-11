@@ -135,8 +135,6 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
             });
             if (this.pageNumber === 1) {
               this.rowData = result.payload;
-              this.toastrService.clear();
-              this.toastrService.success(result.message);
             } else {
               this.rowData = result.payload;
             }
