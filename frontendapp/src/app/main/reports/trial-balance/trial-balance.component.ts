@@ -93,6 +93,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
       this.trialBalanceReportStats = response.stats;
       this.trialBalanceReport = response.payload.map(data => ({
         accountName: data.AccountName,
+        accountCategory: data.AccountCategory,
         credit: FormatNumber2(data.Credit),
         creditPercentage: data.CreditPercentage,
         debit: FormatNumber2(data.Debit),

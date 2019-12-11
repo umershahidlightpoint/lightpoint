@@ -1,6 +1,7 @@
 import * as moment from 'moment';
+import { GridOptions } from 'ag-grid-community';
 
-export const SideBar = (id, name, gridInstance) => {
+export const SideBar = (id: number, name: string, gridInstance: GridOptions) => {
   return {
     toolPanels: [
       {
@@ -47,7 +48,7 @@ export const Ranges: any = {
   ]
 };
 
-export const IgnoreFields = [
+export const IgnoreFields: Array<string> = [
   'totalDebit',
   'totalCredit',
   'overall_count',
@@ -132,7 +133,7 @@ export const ExcelStyle = [
   }
 ];
 
-export const CalTotalRecords = gridOptions => {
+export const CalTotalRecords = (gridOptions: GridOptions) => {
   let tTotal = 0;
   let tCredit = 0;
   let tDebit = 0;
@@ -166,7 +167,10 @@ export const CalTotalRecords = gridOptions => {
   return pinnedBottomRowData;
 };
 
-export const CalTotal = (rows: Array<any>, fields: Array<{ name: string; total: number }>) => {
+export const CalTotal = (
+  rows: Array<any>,
+  fields: Array<{ name: string; total: number }>
+): Array<{ name: string; total: number }> => {
   rows.forEach(row => {
     fields.map(field => {
       field.total += row[field.name];
@@ -175,7 +179,7 @@ export const CalTotal = (rows: Array<any>, fields: Array<{ name: string; total: 
   return fields;
 };
 
-export const GetDateRangeLabel = (startDate, endDate) => {
+export const GetDateRangeLabel = (startDate, endDate): string => {
   if (
     moment('01-01-1901', 'MM-DD-YYYY').diff(startDate, 'days') === 0 &&
     moment().diff(endDate, 'days') === 0
@@ -233,7 +237,7 @@ export const SetDateRange = (dateFilter, startDate, endDate) => {
   return [startDate, endDate];
 };
 
-export const DoesExternalFilterPass = (node, fund, startDate, endDate) => {
+export const DoesExternalFilterPass = (node, fund, startDate, endDate): boolean => {
   if (fund !== 'All Funds' && startDate) {
     const cellFund = node.data.fund;
     const cellDate = new Date(node.data.when);
@@ -254,7 +258,7 @@ export const DoesExternalFilterPass = (node, fund, startDate, endDate) => {
   }
 };
 
-export const HeightStyle = height => {
+export const HeightStyle = (height: number) => {
   return {
     marginTop: '20px',
     width: '100%',
@@ -543,13 +547,13 @@ export const CommonCols = (isJournalGrid, filters = null) => {
   ];
 };
 
-export const FormatNumber2 = numberToFormat => {
+export const FormatNumber2 = (numberToFormat: number) => {
   if (numberToFormat !== null) {
     return numberToFormat.toFixed(2);
   }
 };
 
-export const FormatNumber4 = numberToFormat => {
+export const FormatNumber4 = (numberToFormat: number) => {
   if (numberToFormat !== null) {
     return numberToFormat.toFixed(4);
   }
@@ -562,7 +566,7 @@ export function priceFormatter(params) {
   return FormatNumber4(params.value);
 }
 
-export const MoneyFormat = numberToFormat => {
+export const MoneyFormat = (numberToFormat: number) => {
   if (numberToFormat !== null) {
     return numberToFormat.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
   }
@@ -575,7 +579,7 @@ export function moneyFormatter(params) {
   return MoneyFormat(params.value);
 }
 
-export const CommaSeparatedFormat = numberToFormat => {
+export const CommaSeparatedFormat = (numberToFormat: number) => {
   return numberToFormat === 0
     ? '0.00'
     : Math.floor(numberToFormat)

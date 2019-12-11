@@ -1,4 +1,5 @@
 export interface TrialBalanceReport {
+  accountCategory?: string;
   accountName: string;
   debit: number;
   credit: number;
