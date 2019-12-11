@@ -22,5 +22,9 @@
         <div class="date-style">
             <span>{{ effectiveDate }} / {{ date }}</span>
         </div>
+        <!-- Signal Indication -->
+        <div>
+            <i [ngClass]="{'color-white': servicesStatus, 'color-red': !servicesStatus}" class="material-icons">signal_cellular_alt</i>
+        </div>
     </div>
 </div>

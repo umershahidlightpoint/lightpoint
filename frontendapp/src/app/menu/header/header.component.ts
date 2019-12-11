@@ -3,6 +3,7 @@ import { MatSidenav } from '@angular/material';
 import * as moment from 'moment';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { ServicesStatusApiService } from '../../../services/services-status-api.service';
 
 @Component({
   selector: 'app-header',
@@ -18,15 +19,26 @@ export class HeaderComponent implements OnInit, DoCheck, AfterViewInit {
   date: string = moment().format('MM-DD-YYYY');
   effectiveDate: string;
 
+  servicesStatus: Boolean;
+
   constructor(
+    private servicesStatusApiService: ServicesStatusApiService,
     private postingEngineService: PostingEngineService,
     private financeService: FinanceServiceProxy
   ) {}
 
   ngOnInit() {
+    this.getServicesStatus(); // Return T/F if finance/BookMon service is running or not
     this.date = moment().format('MM-DD-YYYY');
     this.effectiveDate = this.getPreviousWorkday(moment()).format('MM-DD-YYYY');
     this.isPostingEngineRunning();
+
+  }
+
+  getServicesStatus(): void {
+    this.servicesStatusApiService.servicesStatusBool$.subscribe(status => {
+      this.servicesStatus = status;
+    });
   }
 
   getPreviousWorkday(day: any) {

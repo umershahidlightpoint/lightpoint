@@ -114,6 +114,22 @@ body {
   color: #fff;
 }
 
+.color-red {
+  color: red;
+}
+
+.color-green{
+  color: green;
+}
+
+.bc-red {
+  background: rgb(198, 40, 40);
+}
+
+.bc-green {
+  background: rgb(76, 175, 80);
+}
+
 /******************************
 ********    Commons    ********
 ******************************/

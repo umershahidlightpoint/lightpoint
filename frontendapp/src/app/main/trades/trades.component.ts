@@ -221,7 +221,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
 
   onRowSelected(event) {
     if (event.node.selected) {
-      debugger
+      // debugger
       this.dataService.onRowSelectionTrade(event.node.data.LPOrderId);
     }
   }
