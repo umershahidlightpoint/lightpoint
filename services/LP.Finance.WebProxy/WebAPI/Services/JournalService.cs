@@ -559,8 +559,17 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        public object GetReconReport(DateTime? date, string fund)
+        public object GetReconReport(String source, DateTime? date, string fund)
         {
+            var query = "DayPnlReconcile";
+            if ( !String.IsNullOrEmpty(source))
+            {
+                if ( source.Equals("exposure"))
+                {
+                    query = "BookmonReconcile";
+                }
+            }
+
             try
             {
                 dynamic postingEngine = new PostingEngineService().GetProgress();
@@ -572,8 +581,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var businessDate = System.DateTime.Now.PrevBusinessDate();
                 if (date.HasValue)
                     businessDate = date.Value.Date;
-
-                var query = $@"DayPnlReconcile";
 
                 List<SqlParameter> sqlParams = new List<SqlParameter>();
                 sqlParams.Add(new SqlParameter("@businessDate", businessDate));
@@ -1014,10 +1021,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object serverSideJournals(ServerRowModel obj)
         {
+            var viewName = "vwFullJournal";
+
             try
             {
                 journalStats journalStats = new journalStats();
-                var sql = Utils.BuildSql(obj, "vwjournal");
+                var sql = Utils.BuildSql(obj, viewName);
                 var dataTable = sqlHelper.GetDataTable(sql.Item1, CommandType.Text, sql.Item3.ToArray());
                 int lastRow = Utils.GetRowCount(obj, dataTable);
                 bool rootNodeGroupOrNoGrouping = Utils.isDoingGroupingByRootNodeOrNoGrouping(obj.rowGroupCols, obj.groupKeys);

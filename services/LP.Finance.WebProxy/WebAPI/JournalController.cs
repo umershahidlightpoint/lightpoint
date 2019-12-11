@@ -59,9 +59,9 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [Route("recon")]
         [HttpGet]
-        public object GetReconReport(DateTime? date = null, string fund = "ALL")
+        public object GetReconReport(String source = "day", DateTime? date = null, string fund = "ALL")
         {
-            return controller.GetReconReport(date, fund);
+            return controller.GetReconReport(source, date, fund);
         }
 
         [Route("taxLotReport")]
@@ -136,6 +136,8 @@ namespace LP.Finance.WebProxy.WebAPI
         [HttpPost]
         public object GetJournalsMetaData(JournalMetaInputDto obj)
         {
+            obj.TableName = "vwFullJournal";
+
             return controller.GetJournalsMetaData(obj);
         }
     }

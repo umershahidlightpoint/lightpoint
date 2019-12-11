@@ -1,4 +1,4 @@
-﻿CREATE VIEW [dbo].vwJournal
+﻿CREATE VIEW [dbo].[vwJournal]
 	AS 
                             SELECT 
                                     [when],
@@ -13,9 +13,9 @@
                                         WHEN [account_category].[name] not in ('Asset','Expenses') and value < 0  THEN ABS(value) 
 										Else 0
 										END  ) debit,
-									[journal].[symbol] as Symbol,
+									[journal].[symbol],
 									[journal].[security_id],
-									[journal].[quantity] as Quantity,
+									[journal].[quantity],
                                     [journal].[id],
                                     [account_id],
                                     [fx_currency],
@@ -28,8 +28,7 @@
                                     [source],
                                     [start_price],
                                     [end_price],
-									[fxrate],
-									(CASE WHEN [journal].[generated_by] = 'user' THEN 'true' else 'false' END  ) modifiable
+									[fxrate]
                                     FROM [journal] with(nolock) 
                         join account with(nolock)  on [journal]. [account_id] = account.id 
                         join [account_type] with(nolock) on  [account].account_type_id = [account_type].id
