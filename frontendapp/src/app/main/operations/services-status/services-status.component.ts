@@ -15,11 +15,17 @@ export class ServicesStatusComponent implements OnInit {
   listOfServices: any[];
 
   ngOnInit() {
-    this.servicesStatusApiService.loadServices();
+    this.loadService();
     this.servicesStatusApiService.servicesStatusArr$.subscribe(data => {
       this.show = true;
       this.listOfServices = data;
     });
+  }
+
+  loadService(){
+    this.show = false;
+    this.servicesStatusApiService.loadServices();
+    this.show = true;
   }
 
 }
