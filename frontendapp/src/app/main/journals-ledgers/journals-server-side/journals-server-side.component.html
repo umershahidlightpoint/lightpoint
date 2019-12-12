@@ -21,12 +21,17 @@
         <!-- Funds Dropdown Div Ends -->
 
         <!-- Symbol filter -->
-        <div class="col-md-2">
+        <div class="col-md-2" >
             <form>
                 <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol"
                     [(ngModel)]="filterBySymbol" (ngModelChange)="ngModelChangeSymbol($event)"
                     (keyup)="onSymbolKey($event)" class="form-control" />
             </form>
+        </div>
+        <div class="col-md-2">
+                <input type="checkbox" id="zeroBalanceCheckBox" name="Zero Balance"
+                    [(ngModel)]="filterByZeroBalance" (ngModelChange)="ngModelChangeZeroBalance($event)"/>
+                <label for="zeroBalanceCheckBox">Exclude zero balance</label>
         </div>
         <!-- Funds Dropdown Div Ends -->
 

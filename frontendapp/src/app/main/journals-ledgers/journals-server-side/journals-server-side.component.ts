@@ -80,6 +80,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   dataRequestCount = 0;
   isDataStreaming = false;
   infiniteCount = null;
+  filterByZeroBalance : number = 0;
+  havingColumns = ['balance'];
 
   ranges: any = Ranges;
 
@@ -114,10 +116,12 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   datasource: IServerSideDatasource = {
     getRows: (params: IServerSideGetRowsParams) => {
       this.pageNumber = params.request.endRow / this.pageSize;
-      const { fund, symbol, when } = this.getServerSideExternalFilter();
+      const havingColumns = this.havingColumns;
+      const { fund, symbol, when, balance } = this.getServerSideExternalFilter();
       const payload = {
         ...params.request,
-        externalFilterModel: { fund, symbol, when },
+        havingColumns,
+        externalFilterModel: { fund, symbol, when, balance },
         pageNumber: this.pageNumber,
         pageSize: this.pageSize
       };
@@ -410,16 +414,21 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   }
 
   onFilterChanged(event) {
+    console.log("filter changed")
     this.resetBottomRowData();
-
-    const { filterModel } = event.api.serverSideRowModel.cacheParams;
-    const { fund, symbol, when } = this.getServerSideExternalFilter();
+    const havingColumns = this.havingColumns;
+    const { filterModel, valueCols } = event.api.serverSideRowModel.cacheParams;
+    console.log(valueCols, "these are value cols");
+    const { fund, symbol, when, balance } = this.getServerSideExternalFilter();
     const payload = {
       filterModel,
+      valueCols,
+      havingColumns,
       externalFilterModel: {
         ...(fund && { fund }),
         ...(symbol && { symbol }),
-        ...(when && { when })
+        ...(when && { when }),
+        ...(balance && { balance })
       }
     };
 
@@ -469,6 +478,11 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.filterBySymbol = e;
   }
 
+  ngModelChangeZeroBalance(e){
+    this.filterByZeroBalance = e;
+    this.gridOptions.api.onFilterChanged();
+  }
+
   onSymbolKey(e) {
     this.filterSubject.next(e.srcElement.value);
 
@@ -489,7 +503,9 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     const { fundFilter } = object;
     const { symbolFilter } = object;
     const { dateFilter } = object;
+    const { zeroBalanceFilter } = object;
 
+    this.filterByZeroBalance = zeroBalanceFilter;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
     this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
 
@@ -570,6 +586,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     return {
       fundFilter: this.fund,
       symbolFilter: this.filterBySymbol,
+      zeroBalanceFilter: this.filterByZeroBalance,
       dateFilter:
         this.DateRangeLabel !== ''
           ? this.DateRangeLabel
@@ -588,6 +605,9 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       ...(this.filterBySymbol !== '' && {
         symbol: { values: this.filterBySymbol, filterType: 'text' }
       }),
+      ...(this.filterByZeroBalance == 1 && {
+        balance: { values: 0, filterType: 'number', type: 'notEqual'}
+      }),
       ...(this.startDate !== null && {
         when: {
           dateFrom: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
@@ -602,6 +622,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.gridOptions.api.redrawRows();
     this.fund = 'All Funds';
     this.filterBySymbol = '';
+    this.filterByZeroBalance = 0;
     this.DateRangeLabel = '';
     this.selected = null;
     this.startDate = moment('01-01-1901', 'MM-DD-YYYY');

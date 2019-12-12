@@ -507,7 +507,7 @@ namespace LP.Finance.Common
         public static Tuple<string,string, List<SqlParameter>> BuildSql(ServerRowModel obj, string from, bool fetchWhere = false)
         {
             List<SqlParameter> sqlParams = new List<SqlParameter>();
-            Tuple<string, string> whereSql = CreateWhereSql(obj, sqlParams);
+            Tuple<string, string, int> whereSql = CreateWhereSql(obj, sqlParams);
             if (fetchWhere)
             {
                 return new Tuple<string, string, List<SqlParameter>>(whereSql.Item1, "", sqlParams);
@@ -519,10 +519,35 @@ namespace LP.Finance.Common
                 string limitSql = CreateLimitSql(obj, sqlParams);
                 string orderBySql = CreateOrderBySql(obj);
                 string groupBySql = CreateGroupBySql(obj);
+                string havingSql = CreateHavingSql(obj, sqlParams, whereSql.Item3);
                 string message = !string.IsNullOrWhiteSpace(whereSql.Item2) ? whereSql.Item2 : null;
-                string query = selectSql + fromSql + whereSql.Item1 + groupBySql + orderBySql + limitSql;
+                string query = selectSql + fromSql + whereSql.Item1 + groupBySql + havingSql + orderBySql + limitSql;
                 return new Tuple<string, string, List<SqlParameter>>(query, message, sqlParams);
             }
+        }
+
+        private static string CreateHavingSql(ServerRowModel obj, List<SqlParameter> sqlParams, int index)
+        {
+            StringBuilder query = new StringBuilder("");
+            bool isGrouping = IsDoingGrouping(obj.rowGroupCols, obj.groupKeys);
+            if (isGrouping)
+            {
+                var externalFiltersHavingClause = ExtractExternalFilters(obj, ref sqlParams, index, true);
+                if (externalFiltersHavingClause.Count > 0)
+                {
+                    query.Append(" having ");
+                    return query.Append($"{string.Join(" and ", externalFiltersHavingClause.Select(x => x))}").ToString();
+                }
+                else
+                {
+                    return "";
+                }
+            }
+            else
+            {
+                return "";
+            }
+
         }
 
         private static bool IsDoingGrouping(List<RowGroupCols> rowGroupCols, List<string> groupKeys)
@@ -643,7 +668,7 @@ namespace LP.Finance.Common
             return " OFFSET(@pageNumber -1) * @pageSize ROWS FETCH NEXT @pageSize  ROWS ONLY";
         }
 
-        private static Tuple<string,string> CreateWhereSql(ServerRowModel obj, List<SqlParameter> sqlParams)
+        private static Tuple<string,string, int> CreateWhereSql(ServerRowModel obj, List<SqlParameter> sqlParams)
         {
             List<string> whereParts = new List<string>();
             int index = 0;
@@ -692,16 +717,16 @@ namespace LP.Finance.Common
             {
                 whereParts.AddRange(externalFilters);
                 query.Append(" where " + string.Join(" and ", whereParts.Where(x=> !string.IsNullOrEmpty(x)).Select(x => x)));
-                return new Tuple<string, string>(query.ToString(), message.ToString());
+                return new Tuple<string, string, int>(query.ToString(), message.ToString(), index);
             }
 
             if (externalFilters.Count > 0)
             {
                 query.Append(" where " + string.Join(" and ", externalFilters.Select(x => x)));
-                return new Tuple<string, string>(query.ToString(), message.ToString());
+                return new Tuple<string, string, int>(query.ToString(), message.ToString(), index);
             }
 
-            return new Tuple<string, string>(" ", message.ToString());
+            return new Tuple<string, string, int>(" ", message.ToString(), index);
         }
 
         private static int ExtractInGridFilters(List<SqlParameter> sqlParams, List<string> whereParts, int index,
@@ -974,7 +999,7 @@ namespace LP.Finance.Common
         }
 
         private static List<string> ExtractExternalFilters(ServerRowModel obj, ref List<SqlParameter> sqlParams,
-            int index = 0)
+            int index = 0, bool havingClause = false)
         {
             List<string> whereParts = new List<string>();
 
@@ -985,32 +1010,60 @@ namespace LP.Finance.Common
                 {
                     var filterObject = (IDictionary<string, object>) (col.Value);
                     var columnName = col.Key;
-                    string filterValue;
-
-                    switch (filterObject["filterType"])
+                    if (!havingClause && !obj.havingColumns.Any(x => x == columnName))
                     {
-                        case "set":
-                            filterValue = (string) filterObject["values"];
-                            sqlParams.Add(new SqlParameter($"{columnName}{index}", filterValue));
-                            whereParts.Add($"[{columnName}] = @{columnName}{index}");
-                            index++;
-                            break;
-                        case "text":
-                            filterValue = (string) filterObject["values"];
-                            sqlParams.Add(new SqlParameter($"{columnName}{index}", filterValue));
-                            whereParts.Add($"[{columnName}] LIKE '%'+@{columnName}{index}+'%'");
-                            index++;
-                            break;
-                        case "date":
-                            var dateFrom = (string) filterObject["dateFrom"];
-                            var dateTo = (string) filterObject["dateTo"];
-                            sqlParams.Add(new SqlParameter($"dateFrom{index}", dateFrom));
-                            sqlParams.Add(new SqlParameter($"dateTo{index}", dateTo));
-                            whereParts.Add($"[{columnName}] >= @dateFrom{index} and [{columnName}] <= @dateTo{index}");
-                            index++;
-                            break;
+                        whereParts = ExtractExternalFiltersForWhereOrHaving(sqlParams, ref index, whereParts, filterObject, columnName);
+                    }
+                    else if(havingClause && obj.havingColumns.Any(x => x == columnName))
+                    {
+                        whereParts = ExtractExternalFiltersForWhereOrHaving(sqlParams, ref index, whereParts, filterObject, columnName);
+
                     }
                 }
+            }
+
+            return whereParts;
+        }
+
+        private static List<string> ExtractExternalFiltersForWhereOrHaving(List<SqlParameter> sqlParams, ref int index, List<string> whereParts, IDictionary<string, object> filterObject, string columnName)
+        {
+            string filterValue;
+            switch (filterObject["filterType"])
+            {
+                case "set":
+                    filterValue = (string)filterObject["values"];
+                    sqlParams.Add(new SqlParameter($"{columnName}{index}", filterValue));
+                    whereParts.Add($"[{columnName}] = @{columnName}{index}");
+                    index++;
+                    break;
+                case "text":
+                    filterValue = (string)filterObject["values"];
+                    sqlParams.Add(new SqlParameter($"{columnName}{index}", filterValue));
+                    whereParts.Add($"[{columnName}] LIKE '%'+@{columnName}{index}+'%'");
+                    index++;
+                    break;
+                case "date":
+                    var dateFrom = (string)filterObject["dateFrom"];
+                    var dateTo = (string)filterObject["dateTo"];
+                    sqlParams.Add(new SqlParameter($"dateFrom{index}", dateFrom));
+                    sqlParams.Add(new SqlParameter($"dateTo{index}", dateTo));
+                    whereParts.Add($"[{columnName}] >= @dateFrom{index} and [{columnName}] <= @dateTo{index}");
+                    index++;
+                    break;
+                case "number":
+                    sqlParams.Add(new SqlParameter($"{columnName}{index}", (object)filterObject["values"]));
+                    if (columnName.Equals("balance"))
+                    {
+                        whereParts.Add($" sum(abs(debit)) - sum(abs(credit)) {GetOperator((string)filterObject["type"])} @{columnName}{index}");
+
+                    }
+                    else
+                    {
+                        whereParts.Add($"[{columnName}] {GetOperator((string)filterObject["type"])} @{columnName}{index}");
+
+                    }
+                    index++;
+                    break;
             }
 
             return whereParts;
