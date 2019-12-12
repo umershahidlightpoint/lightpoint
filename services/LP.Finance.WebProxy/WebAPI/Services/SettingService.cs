@@ -18,7 +18,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 {
     class SettingService : ISettingService
     {
-        private readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+        private static readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+        public SqlHelper sqlHelper = new SqlHelper(connectionString);
+
         private static readonly string tradesURL = "/api/trade?period=ITD";
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -99,7 +101,15 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             try
             {
-                return null;
+                var query = $@"select id, created_by, created_date, last_updated_by, last_updated_date,
+                               currency_code, tax_methodology, fiscal_month, fiscal_day
+                               from settings";
+
+                List<SqlParameter> sqlParams = new List<SqlParameter>();
+
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+                var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                return reportObject;
             }
             catch (Exception ex)
             {
