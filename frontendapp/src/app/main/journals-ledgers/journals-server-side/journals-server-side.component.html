@@ -8,7 +8,7 @@
 
 <!----- Div Starts ----->
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
-    <div class="row ">
+    <div class="row">
         <!-- Funds Dropdown Div Starts -->
         <div class="col-md-2">
             <select class="form-control" [(ngModel)]="fund" (ngModelChange)="ngModelChangeFund($event)">
@@ -21,17 +21,14 @@
         <!-- Funds Dropdown Div Ends -->
 
         <!-- Symbol filter -->
-        <div class="col-md-2" >
-            <form>
-                <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol"
-                    [(ngModel)]="filterBySymbol" (ngModelChange)="ngModelChangeSymbol($event)"
-                    (keyup)="onSymbolKey($event)" class="form-control" />
-            </form>
+        <div>
+            <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol"
+                [(ngModel)]="filterBySymbol" (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)"
+                class="form-control" />
         </div>
-        <div class="col-md-2">
-                <input type="checkbox" id="zeroBalanceCheckBox" name="Zero Balance"
-                    [(ngModel)]="filterByZeroBalance" (ngModelChange)="ngModelChangeZeroBalance($event)"/>
-                <label for="zeroBalanceCheckBox">Exclude zero balance</label>
+        <div class="ml-3 mt-1">
+            <mat-checkbox id="zeroBalanceCheckBox" [(ngModel)]="filterByZeroBalance"
+                (ngModelChange)="ngModelChangeZeroBalance($event)">Exclude zero balance</mat-checkbox>
         </div>
         <!-- Funds Dropdown Div Ends -->
 
@@ -43,12 +40,10 @@
 
         <!-- Date Picker Div Starts -->
         <div class="col-md-5">
-            <form>
-                <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off"
-                    placeholder="Choose date" [(ngModel)]="selected" name="selectedDaterange" [ranges]="ranges"
-                    [showClearButton]="true" [alwaysShowCalendars]="true" (ngModelChange)="ngModelChange($event)"
-                    [keepCalendarOpeningWithRange]="true" />
-            </form>
+            <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off" placeholder="Choose date"
+                [(ngModel)]="selected" name="selectedDaterange" [ranges]="ranges" [showClearButton]="true"
+                [alwaysShowCalendars]="true" (ngModelChange)="ngModelChange($event)"
+                [keepCalendarOpeningWithRange]="true" />
         </div>
         <!-- Date Picker Div Ends -->
 
@@ -73,8 +68,8 @@
 
             <div *ngIf="!isDataStreaming">
                 <!-- Grid Util Actions -->
-                <app-grid-utils class="mr-4" [utilsConfig]="utilsConfig" [gridOptions]="gridOptions" (refresh)="refreshGrid()"
-                    [excelParams]="excelParams">
+                <app-grid-utils class="mr-4" [utilsConfig]="utilsConfig" [gridOptions]="gridOptions"
+                    (refresh)="refreshGrid()" [excelParams]="excelParams">
                 </app-grid-utils>
                 <!-- Grid Util Actions Ends -->
 
