@@ -432,7 +432,7 @@ export class FinanceServiceProxy {
     const url = this.baseUrl + '/journal/recon?source=exposure&date=' + date + '&fund=' + fund;
     return this.http.get(url).pipe(map((response: any) => response));
   }
-  
+
   /*
   Get Cost Basis Report
   */
@@ -612,5 +612,20 @@ export class FinanceServiceProxy {
   getServerSideJournalsMeta(obj) {
     const url = this.baseUrl + '/journal/metaData';
     return this.http.post(url, obj).pipe(map((response: any) => response));
+  }
+
+  getReportingCurrencies(): Observable<any> {
+    const url = this.baseUrl + '/setting/currency';
+    return this.http.get(url);
+  }
+
+  getSettings(): Observable<any> {
+    const url = this.baseUrl + '/setting';
+    return this.http.get(url);
+  }
+
+  saveSettings(obj): Observable<any> {
+    const url = this.baseUrl + '/setting';
+    return this.http.put(url, obj).pipe(map((response: any) => response));
   }
 }

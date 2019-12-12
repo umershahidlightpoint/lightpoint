@@ -1,34 +1,35 @@
 <div class="d-flex justify-content-center m-top-10" *ngIf="!show">
-<mat-progress-spinner mode="indeterminate"> </mat-progress-spinner>
+    <mat-progress-spinner mode="indeterminate"> </mat-progress-spinner>
 </div>
 
 <div class="form_wrapper" *ngIf="show">
 
-    <div class="d-flex justify-content-between title-bg-color" >
+    <div class="d-flex justify-content-between title-bg-color">
         <div>
             <h3>List of Services</h3>
         </div>
 
-    <div class ="icon-wrap">
-        <h2><i class="fa fa-refresh" aria-hidden="true" (click)="loadService()"></i></h2>
-    </div>
+        <div class="icon-wrap">
+            <h2><i class="fa fa-refresh" aria-hidden="true" (click)="loadService()"></i></h2>
+        </div>
 
     </div>
 
-<mat-card class="card-wrapper" *ngFor="let service of listOfServices">
-	<mat-card-header >
-        <div class="w-100 d-flex flex-row justify-content-between">
+    <mat-card class="card-wrapper" *ngFor="let service of listOfServices">
+        <mat-card-header>
+            <div class="w-100 d-flex flex-row justify-content-between">
 
-            <div>
-                <mat-card-title>{{service.serviceName}}</mat-card-title>
+                <div>
+                    <mat-card-title>{{service.serviceName}}</mat-card-title>
+                </div>
+
+                <div class="status"
+                    [ngClass]="{'bc-green': service.status == 'Running', 'bc-red': service.status == 'Stopped'}">
+                    <span>{{service.status}}</span>
+                </div>
+
             </div>
-
-        <div class="status" [ngClass]="{'bc-green': service.status == 'Running', 'bc-red': service.status == 'Stopped'}">
-        <span>{{service.status}}</span>
-        </div>
-
-        </div>
-	</mat-card-header>
-</mat-card>
+        </mat-card-header>
+    </mat-card>
 
 </div>
