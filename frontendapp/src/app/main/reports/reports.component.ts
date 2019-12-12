@@ -8,7 +8,11 @@ import { Style } from 'src/shared/utils/Shared';
 })
 export class ReportsComponent {
   costBasisReportActive = true;
+  taxLotReportActive = false;
+  dayPnLReportActive = false;
+  bookmonReportActive = false;
   trialBalanceReportActive = false;
+
   style = Style;
 
   processingMsgDiv = {
@@ -24,7 +28,16 @@ export class ReportsComponent {
     if (e.index === 0) {
       this.costBasisReportActive = true;
     }
+    if (e.index === 1) {
+      this.taxLotReportActive = true;
+    }
+    if (e.index === 2) {
+      this.dayPnLReportActive = true;
+    }
     if (e.index === 3) {
+      this.bookmonReportActive = true;
+    }
+    if (e.index === 4) {
       this.trialBalanceReportActive = true;
     }
   }
