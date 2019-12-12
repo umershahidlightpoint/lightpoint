@@ -28,6 +28,8 @@ namespace LP.Finance.WebProxy.WebAPI
         object GetPrices();
         object SetPrices(List<MarketPriceInputDto> obj);
         object AuditTrail(int id);
+        object GetSymbolPrice(string symbol);
+
     }
 
     internal class MarketDataService : IMarketDataService
@@ -247,6 +249,42 @@ namespace LP.Finance.WebProxy.WebAPI
                     "An error occured while fetching Market Prices Audit Trail");
             }
         }
+
+        public object GetSymbolPrice(string symbol)
+        {
+            try
+            {
+                List<List<SqlParameter>> listOfParameters = new List<List<SqlParameter>>();
+
+                List<SqlParameter> symbolPriceParamter = new List<SqlParameter>
+                {
+                    new SqlParameter("symbol",symbol)
+                };
+
+                listOfParameters.Add(symbolPriceParamter);
+
+                var query = $@"SELECT id as Id,
+                                business_date as BusinessDate,
+                                security_id as SecurityId, 
+                                symbol as Symbol, 
+                                event as Event,
+                                price as Price,
+                                last_updated_by as LastUpdatedBy,
+                                last_updated_on as LastUpdatedOn FROM [dbo].[market_prices_history] history where [symbol] = @symbol";
+
+                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text, symbolPriceParamter.ToArray());
+
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+
+                var json = JsonConvert.DeserializeObject<List<MarketDataPrice>>(jsonResult);
+
+                return Utils.Wrap(true, json, HttpStatusCode.OK, "Market Price for Particular Symbol fetched successfully");
+            }
+            catch (Exception ex)
+            {
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError, "An error occured while fetching Market Prices of Particular Symbol");
+            }
+        }
     }
 
 
@@ -278,6 +316,12 @@ namespace LP.Finance.WebProxy.WebAPI
         public async Task<object> Upload()
         {
             return await controller.Upload(Request);
+        }
+
+        [HttpGet, Route("getSymbolPrices")]
+        public object GetSymbolPrice(string symbol)
+        {
+            return controller.GetSymbolPrice(symbol);
         }
 
     }
