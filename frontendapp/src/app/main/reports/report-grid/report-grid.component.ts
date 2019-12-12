@@ -8,16 +8,21 @@ import {
   Output,
   AfterViewInit,
   EventEmitter,
-  OnDestroy
+  OnDestroy,
+  SimpleChange
 } from '@angular/core';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
-import { CommaSeparatedFormat, AutoSizeAllColumns, SideBar } from 'src/shared/utils/Shared';
+import {
+  AutoSizeAllColumns,
+  SideBar,
+  commaFormater,
+  CommaSeparatedFormat
+} from 'src/shared/utils/Shared';
 import { TrialBalanceReport, TrialBalanceReportStats } from 'src/shared/Models/trial-balance';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { ContextMenu } from 'src/shared/Models/common';
-import { DataDictionary } from 'src/shared/utils/DataDictionary';
 
 @Component({
   selector: 'app-report-grid',
@@ -38,7 +43,7 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
   gridOptions: GridOptions;
   utilsEvent: any;
 
-  constructor(private dataDictionary: DataDictionary) {}
+  constructor() {}
 
   ngOnInit() {
     this.initGrid();
@@ -65,8 +70,22 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
     }
   }
 
-  initGridData(tableHeader: any, trialBalanceReport: any, trialBalanceReportStats: any) {
-    this.gridOptions.api.setColumnDefs(this.initColDefs(tableHeader));
+  initGridData(
+    tableHeader: SimpleChange,
+    trialBalanceReport: Array<TrialBalanceReport>,
+    trialBalanceReportStats: TrialBalanceReportStats
+  ) {
+    const colDefs = [];
+    if (tableHeader === undefined) {
+      colDefs.push({
+        colId: 'accountCategory',
+        field: 'accountCategory',
+        width: 120
+      });
+    }
+    colDefs.push(...this.initColDefs(tableHeader));
+
+    this.gridOptions.api.setColumnDefs(colDefs);
     this.gridOptions.api.setRowData(trialBalanceReport);
     const pinnedBottomRowData = [
       {
@@ -150,7 +169,7 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
             return 'debit';
           }
         },
-        valueFormatter: currencyFormatter
+        valueFormatter: commaFormater
       },
       {
         colId: 'credit',
@@ -176,7 +195,7 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
             return 'credit';
           }
         },
-        valueFormatter: currencyFormatter
+        valueFormatter: commaFormater
       },
       {
         colId: 'balance',
@@ -196,7 +215,7 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
             return { textAlign: 'end', fontStyle: 'italic', color: 'red' };
           }
         },
-        valueFormatter: absCurrencyFormatter
+        valueFormatter: params => CommaSeparatedFormat(Math.abs(params.value))
       }
     ];
   }
@@ -223,18 +242,4 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
       this.componentRef = null;
     }
   }
-}
-
-function currencyFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  return CommaSeparatedFormat(params.value);
-}
-
-function absCurrencyFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  return CommaSeparatedFormat(Math.abs(params.value));
 }

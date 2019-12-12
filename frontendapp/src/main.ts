@@ -21,7 +21,7 @@ function loadConfig() {
 
 loadConfig().then(() => {
 
-  debugger;
+  // debugger;
   
   environment.remoteServerUrl = window['config'].remoteServerUrl;
   environment.referenceDataUrl = window['config'].referenceDataUrl;

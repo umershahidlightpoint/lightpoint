@@ -253,12 +253,12 @@ export class DataDictionary {
     return columnDefinition;
   }
 
-  numberFormatter(numberToFormat, isInPercentage?: boolean): string {
+  numberFormatter(numberToFormat, isInPercentage?: boolean, digitsInfo: string = '1.2-2'): string {
     let per = numberToFormat;
     if (isInPercentage) {
       per = PercentageFormatter(numberToFormat);
     }
-    const formattedValue = this.decimalPipe.transform(per, '1.2-2');
+    const formattedValue = this.decimalPipe.transform(per, digitsInfo);
     return formattedValue.toString();
   }
 }

@@ -104,6 +104,5 @@
     <Build Include="Triggers\fx_rate_insert_trigger.sql" />
     <Build Include="Triggers\fx_rate_update_trigger.sql" />
     <Build Include="StoredProcs\PullDailyFxPrices.sql" />
-    <Build Include="Views\vwCurrentStateTrades.sql" />
   </ItemGroup>
 </Project>

@@ -84,14 +84,14 @@ export const ViewChart = params => {
       tableHeader = node.columnApi.columnController.rowGroupColumns[0].colDef.headerName;
       data.push({
         accountName: node.key,
-        debit: node.aggData.debit,
-        credit: node.aggData.credit,
+        debit: node.data.debit,
+        credit: node.data.credit,
         debitPercentage: 0,
         creditPercentage: 0,
-        balance: node.aggData.balance
+        balance: node.data.balance
       });
-      totalDebit += node.aggData.debit;
-      totalCredit += node.aggData.debit;
+      totalDebit += node.data.debit;
+      totalCredit += node.data.debit;
     }
   });
   stats = {

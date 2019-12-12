@@ -559,8 +559,17 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        public object GetReconReport(DateTime? date, string fund)
+        public object GetReconReport(String source, DateTime? date, string fund)
         {
+            var query = "DayPnlReconcile";
+            if ( !String.IsNullOrEmpty(source))
+            {
+                if ( source.Equals("exposure"))
+                {
+                    query = "BookmonReconcile";
+                }
+            }
+
             try
             {
                 dynamic postingEngine = new PostingEngineService().GetProgress();
@@ -572,8 +581,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var businessDate = System.DateTime.Now.PrevBusinessDate();
                 if (date.HasValue)
                     businessDate = date.Value.Date;
-
-                var query = $@"DayPnlReconcile";
 
                 List<SqlParameter> sqlParams = new List<SqlParameter>();
                 sqlParams.Add(new SqlParameter("@businessDate", businessDate));
@@ -650,7 +657,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 bool whereAdded = false;
 
-                var query = $@"select account.name as AccountName,  
+                var query = $@"select account.name as AccountName, account_category.name as AccountCategory,
                         summary.Debit, summary.Credit,
                         abs(summary.Debit) - abs(summary.Credit) as Balance,
                         (SUM(summary.Debit) over()) as DebitSum, 
@@ -702,7 +709,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
 
                 query = query +
-                        "  group by vwJournal.account_id ) summary right join  account on summary.account_id= account.id ";
+                        "  group by vwJournal.account_id ) summary right join account on summary.account_id = account.id left join account_type on account_type.id = account.account_type_id right join account_category on account_category.id = account_type.account_category_id ";
 
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
 
@@ -719,7 +726,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 foreach (DataRow row in dataTable.Rows)
                 {
                     TrialBalanceReportOutPutDto trialBalance = new TrialBalanceReportOutPutDto();
-                    trialBalance.AccountName = (string)row["AccountName"];
+                    trialBalance.AccountName = row["AccountName"] != DBNull.Value ? (string)row["AccountName"] : "";
+                    trialBalance.AccountCategory = row["AccountCategory"] != DBNull.Value ? (string)row["AccountCategory"] : "";
                     trialBalance.Credit = GetDecimal(row["Credit"]);
                     trialBalance.Debit = GetDecimal(row["Debit"]);
                     trialBalance.Balance = GetDecimal(row["Balance"], false);
@@ -753,10 +761,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             if (!absValue)
             {
-                return o == DBNull.Value ? (decimal?)null : Convert.ToDecimal(o);
+                return o == DBNull.Value ? 0 : Convert.ToDecimal(o);
             }
 
-            return o == DBNull.Value ? (decimal?)null : Math.Abs(Convert.ToDecimal(o));
+            return o == DBNull.Value ? 0 : Math.Abs(Convert.ToDecimal(o));
         }
 
 
@@ -1014,10 +1022,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object serverSideJournals(ServerRowModel obj)
         {
+            var viewName = "vwFullJournal";
+
             try
             {
                 journalStats journalStats = new journalStats();
-                var sql = Utils.BuildSql(obj, "vwjournal");
+                var sql = Utils.BuildSql(obj, viewName);
                 var dataTable = sqlHelper.GetDataTable(sql.Item1, CommandType.Text, sql.Item3.ToArray());
                 int lastRow = Utils.GetRowCount(obj, dataTable);
                 bool rootNodeGroupOrNoGrouping = Utils.isDoingGroupingByRootNodeOrNoGrouping(obj.rowGroupCols, obj.groupKeys);

@@ -31,4 +31,3 @@ left outer join SecurityMaster..Security s on s.SecurityId = trade.SecurityId
    WHERE (LinkedTradeId is null or ( LinkedTradeId is not null and coalesce(Action, '') not in ( 'delete')))
    and TradeType not in ( 'Kickout' )
 -- order by Trade.TradeDate asc
-

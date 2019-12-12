@@ -26,11 +26,11 @@ import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
-  selector: 'rep-daypnl-reconcile',
-  templateUrl: './daypnl-reconcile.component.html',
-  styleUrls: ['./daypnl-reconcile.component.css']
+  selector: 'rep-bookmon-reconcile',
+  templateUrl: './bookmon-reconcile.component.html',
+  styleUrls: ['./bookmon-reconcile.component.css']
 })
-export class DayPnlComponent implements OnInit, AfterViewInit {
+export class BookmonReconcileComponent implements OnInit, AfterViewInit {
   gridOptions: GridOptions;
   portfolioOptions: GridOptions;
   bookmonOptions: GridOptions;
@@ -145,6 +145,13 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
           filter: true
         },
         {
+          field: 'SecurityType',
+          width: 120,
+          headerName: 'Security Type',
+          sortable: true,
+          filter: true
+        },
+        {
           field: 'Fund',
           width: 120,
           headerName: 'Fund',
@@ -152,8 +159,17 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
           filter: true
         },
         {
-          field: 'Diff_DayPnl',
-          headerName: 'Difference',
+          field: 'Diff_Quantity',
+          headerName: 'Quantity Diff',
+          cellClass: 'rightAlign',
+          sortable: true,
+          filter: true,
+          width: 120,
+          valueFormatter: currencyFormatter
+        },
+        {
+          field: 'Diff_Exposure',
+          headerName: 'Exposure Diff',
           cellClass: 'rightAlign',
           sortable: true,
           filter: true,
@@ -226,8 +242,17 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
           filter: true
         },
         {
-          field: 'DayPnl',
-          headerName: 'Day Pnl',
+          field: 'Quantity',
+          headerName: 'Quantity',
+          cellClass: 'rightAlign',
+          sortable: true,
+          filter: true,
+          width: 120,
+          valueFormatter: currencyFormatter
+        },
+        {
+          field: 'Exposure',
+          headerName: 'Exposure',
           cellClass: 'rightAlign',
           sortable: true,
           filter: true,
@@ -295,8 +320,17 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
           filter: true
         },
         {
-          field: 'DayPnl',
-          headerName: 'Day Pnl',
+          field: 'Quantity',
+          headerName: 'Quantity',
+          cellClass: 'rightAlign',
+          sortable: true,
+          filter: true,
+          width: 120,
+          valueFormatter: currencyFormatter
+        },
+        {
+          field: 'Exposure',
+          headerName: 'Exposure',
           cellClass: 'rightAlign',
           sortable: true,
           filter: true,
@@ -341,7 +375,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
   // Being called twice
   getReport(date, fund) {
     this.isLoading = true;
-    this.financeService.getReconReport(date, fund).subscribe(response => {
+    this.financeService.getBookmonReconReport(date, fund).subscribe(response => {
       this.reconciledData = response.payload[0];
       this.portfolioData = response.payload[1];
       this.bookmonData = response.payload[2];
@@ -360,7 +394,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
   }
 
   rowSelected(row) {
-    // debugger;
+    debugger;
     const { symbol } = row.data;
 
     let mySymbol = row.data.Symbol;
