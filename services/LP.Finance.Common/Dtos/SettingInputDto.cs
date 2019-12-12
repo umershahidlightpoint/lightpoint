@@ -6,8 +6,9 @@ namespace LP.Finance.Common.Dtos
 {
     public class SettingInputDto
     {
-        [Required] public string Description { get; set; }
-        [Required] public int? Type { get; set; }
-        [MinimumElements(0)] public List<SettingTagInputDto> Tags { get; set; }
+        [Required] public string CurrencyCode { get; set; }
+        [Required] public string TaxMethodology { get; set; }
+        [Required] public string FiscalMonth { get; set; }
+        [Required] public int FiscalDay { get; set; }
     }
 }
