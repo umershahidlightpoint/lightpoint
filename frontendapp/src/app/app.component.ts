@@ -1,5 +1,5 @@
 import { Component, OnInit, Injector } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { onMainContentChange } from './menu/animations/animations';
 import { SidenavService } from '../shared/common/sidenav.service';
 import { ServicesStatusApiService } from '../services/services-status-api.service';
@@ -23,7 +23,9 @@ export class AppComponent implements OnInit {
     });
 
     this.router.events.subscribe(val => {
-      this.servicesStatusApiService.loadServices();
+      if (event instanceof NavigationEnd){
+        this.servicesStatusApiService.loadServices();
+      }
     });
   }
 
