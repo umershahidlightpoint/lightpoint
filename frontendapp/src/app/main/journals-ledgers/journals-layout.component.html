@@ -10,7 +10,7 @@
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
     <tabset class="tab-color">
         <!-- Server Side Journal Tab Starts -->
-        <tab heading="Journals" (selectTab)="onSelect($event)">
+        <tab heading="Journals" (selectTab)="activeJournal()">
             <div [ngStyle]="style">
                 <app-journals-server-side></app-journals-server-side>
             </div>

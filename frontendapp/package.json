@@ -35,7 +35,6 @@
     "ngx-bootstrap": "^5.2.0",
     "ngx-daterangepicker-material": "^2.1.5",
     "ngx-toastr": "^11.2.1",
-    "primeng": "^7.1.2",
     "request": "^2.88.0",
     "run": "^1.4.0",
     "rxjs": "~6.5.3",

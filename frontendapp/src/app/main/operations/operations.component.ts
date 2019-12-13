@@ -252,27 +252,6 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
     }, 3000);
   }
 
-  isPostingEngineRunning(e) {
-    if (e.index === 1) {
-      this.financeService.isPostingEngineRunning().subscribe(response => {
-        if (response.IsRunning) {
-          this.isLoading = true;
-          this.key = response.key;
-          this.getLogs();
-        }
-      });
-    }
-    if (e.index === 3) {
-      this.fileManagementActive = true;
-    }
-    if (e.index === 4) {
-      this.exportExceptionActive = true;
-    }
-    if (e.index === 5) {
-      this.servicesStatus = true;
-    }
-  }
-
   activeLogs() {
     this.financeService.isPostingEngineRunning().subscribe(response => {
       if (response.IsRunning) {

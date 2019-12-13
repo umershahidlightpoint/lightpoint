@@ -124,21 +124,6 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     this.initGrid();
   }
 
-  onTabChange(e) {
-    if (e.index === 1) {
-      this.isDailyPnLActive = true;
-    }
-    if (e.index === 2) {
-      this.isTaxRateActive = true;
-    }
-    if (e.index === 3) {
-      this.isMarketPricesActive = true;
-    }
-    if (e.index === 4) {
-      this.isFxRateActive = true;
-    }
-  }
-
   activeDailyPnL() {
     this.isDailyPnLActive = true;
   }
