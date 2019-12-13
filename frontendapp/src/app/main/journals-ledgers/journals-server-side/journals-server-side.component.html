@@ -26,9 +26,10 @@
                 [(ngModel)]="filterBySymbol" (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)"
                 class="form-control" />
         </div>
-        <div class="ml-3 mt-1">
-            <mat-checkbox id="zeroBalanceCheckBox" [(ngModel)]="filterByZeroBalance"
-                (ngModelChange)="ngModelChangeZeroBalance($event)">Exclude zero balance</mat-checkbox>
+        <div class="ml-3 mt-6">
+            <label><input type="checkbox" id="zeroBalanceCheckBox" [(ngModel)]="filterByZeroBalance"
+                    (ngModelChange)="ngModelChangeZeroBalance($event)">
+                Exclude zero balance</label>
         </div>
         <!-- Funds Dropdown Div Ends -->
 

@@ -70,6 +70,10 @@ html {
   font-weight: 500;
 }
 
-::ng-deep .mat-checkbox-checked .mat-checkbox-background {
-  background-color: rgb(2, 117, 216) !important; /* Red background for example */
+input[type='checkbox'] {
+  transform: scale(1.5);
+}
+
+.mt-6 {
+  margin-top: 6px;
 }
