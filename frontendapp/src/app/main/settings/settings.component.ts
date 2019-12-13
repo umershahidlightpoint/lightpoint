@@ -106,6 +106,7 @@ export class SettingsComponent implements OnInit {
           this.taxMethodology = response.payload[0].tax_methodology;
           this.reportingMonth = response.payload[0].fiscal_month;
           this.reportingDay = response.payload[0].fiscal_day;
+          this.days = this.dates.find(date => date.month === this.reportingMonth).days;
         } else if (response.isSuccessful && response.statusCode === 404) {
           this.requestType = 'POST';
         }
