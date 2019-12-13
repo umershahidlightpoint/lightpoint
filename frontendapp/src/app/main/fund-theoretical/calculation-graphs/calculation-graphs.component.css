@@ -38,3 +38,12 @@
 .axis line {
   stroke: #32a0f3;
 }
+
+.container{
+  display: flex;
+  flex-direction: row;
+}
+
+.child{
+  width: 50%;
+}

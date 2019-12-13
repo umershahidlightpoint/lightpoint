@@ -452,9 +452,10 @@ export class DailyPnlComponent implements OnInit {
     this.dailyPnlGrid.api.forEachNodeAfterFilter((rowNode, index) => {
       const currentDate = moment(rowNode.data.businessDate);
       if (
-        rowNode.data.portFolio === selectedPortfolio &&
-        currentDate.isSameOrAfter(fromDate) &&
-        currentDate.isSameOrBefore(toDate)
+        rowNode.data.portFolio === selectedPortfolio 
+        // &&
+        // currentDate.isSameOrAfter(fromDate) &&
+        // currentDate.isSameOrBefore(toDate)
       ) {
         data[columnLabel].push({
           date: rowNode.data.businessDate,
@@ -472,7 +473,8 @@ export class DailyPnlComponent implements OnInit {
       chartTitle: selectedPortfolio,
       propId: 'lineDailyPnL',
       graphData: data,
-      dateTimeFormat: 'YYYY-MM-DD'
+      dateTimeFormat: 'YYYY-MM-DD',
+      referenceDate: toDate
     };
     this.isExpanded = true;
     this.disableCharts = false;
