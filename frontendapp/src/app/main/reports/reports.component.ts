@@ -41,4 +41,23 @@ export class ReportsComponent {
       this.trialBalanceReportActive = true;
     }
   }
+
+  activeCostBasisReport() {
+    this.costBasisReportActive = true;
+  }
+
+  activeTaxLotReport() {
+    this.taxLotReportActive = true;
+  }
+
+  activeDayPnLReport() {
+    this.dayPnLReportActive = true;
+  }
+  activeBookmonReport() {
+    this.bookmonReportActive = true;
+  }
+
+  activeTrialBalanceReport() {
+    this.trialBalanceReportActive = true;
+  }
 }

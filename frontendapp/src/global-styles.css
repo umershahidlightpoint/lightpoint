@@ -161,3 +161,12 @@ body {
 .bg-size-100 {
   background-size: 100%;
 }
+
+.nav-link.active {
+  background-color: rgb(2, 117, 216) !important;
+  color: white !important;
+}
+
+.nav-link {
+  color: black !important;
+}

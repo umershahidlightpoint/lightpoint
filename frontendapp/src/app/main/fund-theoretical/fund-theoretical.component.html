@@ -10,109 +10,118 @@
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
 
   <!-- Tab View Tag Starts -->
-  <p-tabView [ngStyle]="style" (onChange)="onTabChange($event)">
+  <tabset class="tab-color">
 
     <!-- Fund Theoretical Tab Starts -->
-    <p-tabPanel header="Fund Theoretical" [ngStyle]="style">
+    <tab heading="Fund Theoretical" (selectTab)="activeFundTheretical()">
+      <div [ngStyle]="style">
+        <!-- Action Buttons Form Tag Starts -->
+        <form>
+          <!-- Form Row Div Starts -->
+          <div class="form-row">
 
-      <!-- Action Buttons Form Tag Starts -->
-      <form>
-        <!-- Form Row Div Starts -->
-        <div class="form-row">
-
-          <!-- Date Picker Div Starts -->
-          <div class="col-2">
-            <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
-              [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate"
-              [singleDatePicker]="true" [autoApply]="true" autocomplete="off" [showDropdowns]="true" />
-          </div>
-          <!-- Date Picker Div Ends -->
-
-          <!-- Generate Rows Div Starts -->
-          <div class="col-6">
-            <button class="btn btn-info" type="button" (click)="generateRows()" [disabled]="!generateFundsDate">
-              Generate Rows
-            </button>
-          </div>
-          <!-- Generate Rows Div Ends -->
-
-          <!-- Action Buttons Div Starts -->
-          <div class="ml-auto mr-2">
-            <button class="btn btn-info ml-2" type="button" [disabled]="disableCommit || commitLoader"
-              (click)="commitPerformanceData()">
-              Commit
-              <span *ngIf="commitLoader" class="spinner-border spinner-border-sm" role="status"
-                aria-hidden="true"></span>
-            </button>
-            <ng-template #tooltipTemplate>{{isExpanded ? 'Hide Graph' : 'View Graph'}}</ng-template>
-            <button class="btn btn-info ml-2" type="button" [tooltip]="tooltipTemplate" [disabled]="disableCharts"
-              (click)="expandedClicked()">
-              <i class="fa fa-line-chart"></i>
-            </button>
-          </div>
-          <!-- Action Buttons Div Ends -->
-
-        </div>
-        <!-- Form Row Div Ends -->
-      </form>
-      <!-- Action Buttons Form Tag Ends -->
-
-      <!----- Div To Measure Identifier starts ----->
-      <div #divToMeasure>
-        <!----- Style For Height Div Starts----->
-        <div [ngStyle]="styleForHeight">
-          <!----- Row Div Starts ----->
-          <div class="row h-100">
-
-            <!-- App Grid Div Starts -->
-            <div [ngClass]="{'col-6': isExpanded, 'col-12': !isExpanded}">
-              <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="fundTheoreticalGrid">
-              </ag-grid-angular>
+            <!-- Date Picker Div Starts -->
+            <div class="col-2">
+              <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
+                [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate"
+                [singleDatePicker]="true" [autoApply]="true" autocomplete="off" [showDropdowns]="true" />
             </div>
-            <!-- App Grid Div Ends -->
+            <!-- Date Picker Div Ends -->
 
-            <!-- App Calculation Graphs Div Starts -->
-            <div *ngIf="isExpanded" class="col-6">
-              <app-calculation-graphs class="w-50 h-50" [chartObject]="graphObject" [mode]="'many'">
-              </app-calculation-graphs>
+            <!-- Generate Rows Div Starts -->
+            <div class="col-6">
+              <button class="btn btn-info" type="button" (click)="generateRows()" [disabled]="!generateFundsDate">
+                Generate Rows
+              </button>
             </div>
-            <!-- App Calculation Graphs Div Ends -->
+            <!-- Generate Rows Div Ends -->
+
+            <!-- Action Buttons Div Starts -->
+            <div class="ml-auto mr-2">
+              <button class="btn btn-info ml-2" type="button" [disabled]="disableCommit || commitLoader"
+                (click)="commitPerformanceData()">
+                Commit
+                <span *ngIf="commitLoader" class="spinner-border spinner-border-sm" role="status"
+                  aria-hidden="true"></span>
+              </button>
+              <ng-template #tooltipTemplate>{{isExpanded ? 'Hide Graph' : 'View Graph'}}</ng-template>
+              <button class="btn btn-info ml-2" type="button" [tooltip]="tooltipTemplate" [disabled]="disableCharts"
+                (click)="expandedClicked()">
+                <i class="fa fa-line-chart"></i>
+              </button>
+            </div>
+            <!-- Action Buttons Div Ends -->
 
           </div>
-          <!----- Row Div Ends ----->
+          <!-- Form Row Div Ends -->
+        </form>
+        <!-- Action Buttons Form Tag Ends -->
 
+        <!----- Div To Measure Identifier starts ----->
+        <div #divToMeasure>
+          <!----- Style For Height Div Starts----->
+          <div [ngStyle]="styleForHeight">
+            <!----- Row Div Starts ----->
+            <div class="row h-100">
+
+              <!-- App Grid Div Starts -->
+              <div [ngClass]="{'col-6': isExpanded, 'col-12': !isExpanded}">
+                <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="fundTheoreticalGrid">
+                </ag-grid-angular>
+              </div>
+              <!-- App Grid Div Ends -->
+
+              <!-- App Calculation Graphs Div Starts -->
+              <div *ngIf="isExpanded" class="col-6">
+                <app-calculation-graphs class="w-50 h-50" [chartObject]="graphObject" [mode]="'many'">
+                </app-calculation-graphs>
+              </div>
+              <!-- App Calculation Graphs Div Ends -->
+
+            </div>
+            <!----- Row Div Ends ----->
+
+          </div>
+          <!----- Style For Height Div Ends----->
         </div>
-        <!----- Style For Height Div Ends----->
+        <!----- Div To Measure Identifier Ends ----->
       </div>
-      <!----- Div To Measure Identifier Ends ----->
-    </p-tabPanel>
+    </tab>
     <!-- Fund Theoretical Tab Ends -->
 
     <!-- Daily PNL Tab Starts -->
-    <p-tabPanel header="Daily PnL" [ngStyle]="style">
-      <app-daily-pnl *ngIf="isDailyPnLActive"></app-daily-pnl>
-    </p-tabPanel>
+    <tab heading="Daily PnL" (selectTab)="activeDailyPnL()">
+      <div [ngStyle]="style">
+        <app-daily-pnl *ngIf="isDailyPnLActive"></app-daily-pnl>
+      </div>
+    </tab>
     <!-- Daily PNL Tab Ends -->
 
     <!-- Tax Rate Tab Starts -->
-    <p-tabPanel header="Tax Rate" [ngStyle]="style">
-      <app-tax-rates *ngIf="isTaxRateActive"></app-tax-rates>
-    </p-tabPanel>
+    <tab heading="Tax Rate" (selectTab)="activeTaxRate()">
+      <div [ngStyle]="style">
+        <app-tax-rates *ngIf="isTaxRateActive"></app-tax-rates>
+      </div>
+    </tab>
     <!-- Tax Rate Tab Ends -->
 
     <!-- Tax Rate Tab Starts -->
-    <p-tabPanel header="Market Prices" [ngStyle]="style">
-      <app-market-prices *ngIf="isMarketPricesActive"></app-market-prices>
+    <tab heading="Market Prices" (selectTab)="activeMarketPrices()">
+      <div [ngStyle]="style">
+        <app-market-prices *ngIf="isMarketPricesActive"></app-market-prices>
+      </div>
       <!-- Tax Rate Tab Ends -->
-    </p-tabPanel>
+    </tab>
 
     <!-- Fx Rate Tab -->
-    <p-tabPanel header="Fx Rates" [ngStyle]="style">
-      <app-fx-rates *ngIf="isFxRateActive"></app-fx-rates>
+    <tab heading="Fx Rate" (selectTab)="activeFxRate()">
+      <div [ngStyle]="style">
+        <app-fx-rates *ngIf="isFxRateActive"></app-fx-rates>
+      </div>
       <!-- Fx Rate Tab -->
-    </p-tabPanel>
+    </tab>
 
-  </p-tabView>
+  </tabset>
   <!-- Tab View Tag Ends -->
 
 </div>

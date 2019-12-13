@@ -40,4 +40,10 @@ export class JournalsLayoutComponent implements OnInit, AfterViewInit {
       this.isClientJournalActive = true;
     }
   }
+
+  onSelect(event) {}
+
+  activeClientJournal() {
+    this.isClientJournalActive = true;
+  }
 }

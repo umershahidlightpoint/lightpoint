@@ -1,97 +1,97 @@
 <!-- General Settings Tab View -->
-<p-tabView [ngStyle]="style">
+<tabset>
 
   <!-- General Settings Tab Panel -->
-  <p-tabPanel header="General Settings" [ngStyle]="style">
-
-    <!-- Loading Spinner -->
-    <div class="d-flex justify-content-center">
-      <div class="spinner-grow m-top-10" role="status" *ngIf="isLoading">
-        <span class="sr-only">Loading...</span>
+  <tab heading="General Settings">
+    <div [ngStyle]="style">
+      <!-- Loading Spinner -->
+      <div class="d-flex justify-content-center">
+        <div class="spinner-grow m-top-10" role="status" *ngIf="isLoading">
+          <span class="sr-only">Loading...</span>
+        </div>
       </div>
+      <!-- Loading Spinner Ends -->
+
+      <!-- Content Div -->
+      <div [ngStyle]="styleForHeight" *ngIf="!isLoading">
+
+        <!-- Settings Form -->
+        <!-- <form> -->
+
+        <!-- Reporting Currency Dropdown -->
+        <h4 class="mt-3">Reporting Currency</h4>
+        <select class="form-control" [(ngModel)]="reportingCurrency" (ngModelChange)="changeCurrency($event)">
+          <option disabled>{{ reportingCurrency }}</option>
+          <option *ngFor="let currency of currencies">
+            {{ currency }}
+          </option>
+        </select>
+        <!-- Reporting Currency Dropdown Ends -->
+
+        <!-- Tax Methodology Dropdown -->
+        <h4 class="mt-3">Tax Methodology</h4>
+        <select class="form-control" [(ngModel)]="taxMethodology" (ngModelChange)="changeMethodology($event)">
+          <option disabled>{{ taxMethodology }}</option>
+          <option *ngFor="let method of methods" [ngValue]="method.code">
+            {{ method.code }}
+          </option>
+        </select>
+        <!-- Tax Methodology Dropdown Ends -->
+
+        <!-- Fiscal Year End Label -->
+        <div class="row">
+          <div class="col-12">
+            <h4 class="mt-3">Fiscal Year End</h4>
+          </div>
+        </div>
+        <!-- Fiscal Year End Label Ends -->
+
+        <!-- Fiscal Year End Fields -->
+        <div class="row">
+
+          <!-- Fiscal Year End Month -->
+          <div class="col-5">
+            <select class="form-control" [(ngModel)]="reportingMonth" (ngModelChange)="changeReportingMonth($event)">
+              <option disabled>{{ reportingMonth }}</option>
+              <option *ngFor="let month of months">
+                {{ month }}
+              </option>
+            </select>
+          </div>
+          <!-- Fiscal Year End Month Ends -->
+
+          <!-- Fiscal Year End Day -->
+          <div class="col-5">
+            <select [disabled]="reportingMonth === 'Select a Month'" class="form-control" [(ngModel)]="reportingDay">
+              <option disabled>{{ reportingDay }}</option>
+              <option *ngFor="let day of days">
+                {{ day }}
+              </option>
+            </select>
+          </div>
+          <!-- Fiscal Year End Day Ends -->
+
+          <!-- Save Button -->
+          <div class="col-2">
+            <button [disabled]="reportingDay === 'Select a Day'" type="button" class="btn btn-info w-100"
+              (click)="saveSettings()">
+              <i class="fa fa-save"></i>
+              Save
+            </button>
+          </div>
+          <!-- Save Button Ends -->
+
+        </div>
+        <!-- Fiscal Year End Fields Ends -->
+
+        <!-- </form> -->
+        <!-- Settings Form Ends -->
+
+      </div>
+      <!-- Content Div Ends -->
     </div>
-    <!-- Loading Spinner Ends -->
-
-    <!-- Content Div -->
-    <div [ngStyle]="styleForHeight" *ngIf="!isLoading">
-
-      <!-- Settings Form -->
-      <!-- <form> -->
-
-      <!-- Reporting Currency Dropdown -->
-      <h4 class="mt-3">Reporting Currency</h4>
-      <select class="form-control" [(ngModel)]="reportingCurrency" (ngModelChange)="changeCurrency($event)">
-        <option disabled>{{ reportingCurrency }}</option>
-        <option *ngFor="let currency of currencies">
-          {{ currency }}
-        </option>
-      </select>
-      <!-- Reporting Currency Dropdown Ends -->
-
-      <!-- Tax Methodology Dropdown -->
-      <h4 class="mt-3">Tax Methodology</h4>
-      <select class="form-control" [(ngModel)]="taxMethodology" (ngModelChange)="changeMethodology($event)">
-        <option disabled>{{ taxMethodology }}</option>
-        <option *ngFor="let method of methods" [ngValue]="method.code">
-          {{ method.code }}
-        </option>
-      </select>
-      <!-- Tax Methodology Dropdown Ends -->
-
-      <!-- Fiscal Year End Label -->
-      <div class="row">
-        <div class="col-12">
-          <h4 class="mt-3">Fiscal Year End</h4>
-        </div>
-      </div>
-      <!-- Fiscal Year End Label Ends -->
-
-      <!-- Fiscal Year End Fields -->
-      <div class="row">
-
-        <!-- Fiscal Year End Month -->
-        <div class="col-5">
-          <select class="form-control" [(ngModel)]="reportingMonth" (ngModelChange)="changeReportingMonth($event)">
-            <option disabled>{{ reportingMonth }}</option>
-            <option *ngFor="let month of months">
-              {{ month }}
-            </option>
-          </select>
-        </div>
-        <!-- Fiscal Year End Month Ends -->
-
-        <!-- Fiscal Year End Day -->
-        <div class="col-5">
-          <select [disabled]="reportingMonth === 'Select a Month'" class="form-control" [(ngModel)]="reportingDay">
-            <option disabled>{{ reportingDay }}</option>
-            <option *ngFor="let day of days">
-              {{ day }}
-            </option>
-          </select>
-        </div>
-        <!-- Fiscal Year End Day Ends -->
-
-        <!-- Save Button -->
-        <div class="col-2">
-          <button [disabled]="reportingDay === 'Select a Day'" type="button" class="btn btn-info w-100"
-            (click)="saveSettings()">
-            <i class="fa fa-save"></i>
-            Save
-          </button>
-        </div>
-        <!-- Save Button Ends -->
-
-      </div>
-      <!-- Fiscal Year End Fields Ends -->
-
-      <!-- </form> -->
-      <!-- Settings Form Ends -->
-
-    </div>
-    <!-- Content Div Ends -->
-
-  </p-tabPanel>
+  </tab>
   <!-- General Settings Tab Panel Ends -->
 
-</p-tabView>
+</tabset>
 <!-- General Settings TabView Ends -->

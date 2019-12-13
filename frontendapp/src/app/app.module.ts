@@ -2,38 +2,15 @@
 Core/Libraries Imports
 */
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule, ErrorHandler } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { AppRoutingModule } from './app-routing.module';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { MaterialModule } from './material.module';
-import { MatCardModule } from '@angular/material';
-import { MatDividerModule } from '@angular/material/divider';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AngularSplitModule } from 'angular-split';
-import {
-  BrowserAnimationsModule,
-  NoopAnimationsModule
-} from '@angular/platform-browser/animations';
-import {
-  AutoCompleteModule,
-  EditorModule,
-  InputMaskModule,
-  PaginatorModule,
-  MultiSelectModule,
-  ListboxModule,
-  ScheduleModule,
-  TabViewModule,
-  CalendarModule
-} from 'primeng/primeng';
-import { MessageService } from 'primeng/api';
-import { TableModule } from 'primeng/table';
-import { PanelModule } from 'primeng/panel';
-import { SliderModule } from 'primeng/slider';
-import { MessagesModule } from 'primeng/messages';
-import { MessageModule } from 'primeng/message';
-import { ToastModule } from 'primeng/toast';
-import { ModalModule, TooltipModule } from 'ngx-bootstrap';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ModalModule, TooltipModule, TabsModule } from 'ngx-bootstrap';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 
@@ -213,36 +190,18 @@ import { JournalsLedgersComponent } from './main/journals-ledgers/journals-clien
       AgGridCheckboxComponent
     ]),
     MaterialModule,
-    MatCardModule,
-    MatDividerModule,
     NgxDaterangepickerMd.forRoot({
       applyLabel: 'Okay',
       firstDay: 1
     }),
     AppRoutingModule,
-    TableModule,
-    PaginatorModule,
-    MessagesModule,
-    MessageModule,
-    PanelModule,
     HttpClientModule,
-    ToastModule,
     FormsModule,
     ReactiveFormsModule,
     ModalModule.forRoot(),
-    AutoCompleteModule,
-    EditorModule,
-    InputMaskModule,
-    PaginatorModule,
-    MultiSelectModule,
-    ListboxModule,
-    ScheduleModule,
-    TabViewModule,
+    TabsModule.forRoot(),
     BrowserAnimationsModule,
-    // NoopAnimationsModule,
-    SliderModule,
     AngularSplitModule.forRoot(),
-    CalendarModule,
     ToastrModule.forRoot(),
     BsDropdownModule.forRoot(),
     TooltipModule.forRoot(),
@@ -250,7 +209,7 @@ import { JournalsLedgersComponent } from './main/journals-ledgers/journals-clien
   ],
   providers: [
     FinanceServiceProxy,
-    MessageService,
+    // MessageService,
     DataService,
     SidenavService,
     PostingEngineService,

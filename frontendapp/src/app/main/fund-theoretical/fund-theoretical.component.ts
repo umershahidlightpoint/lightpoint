@@ -139,6 +139,22 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     }
   }
 
+  activeDailyPnL() {
+    this.isDailyPnLActive = true;
+  }
+
+  activeTaxRate() {
+    this.isTaxRateActive = true;
+  }
+
+  activeMarketPrices() {
+    this.isMarketPricesActive = true;
+  }
+
+  activeFxRate() {
+    this.isFxRateActive = true;
+  }
+
   getFunds() {
     this.financeService.getFunds().subscribe(response => {
       this.funds = response.payload.map(item => item.FundCode);

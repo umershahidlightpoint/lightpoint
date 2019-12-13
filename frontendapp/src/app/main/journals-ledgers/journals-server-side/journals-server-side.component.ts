@@ -36,7 +36,8 @@ import {
   SetDateRange,
   HeightStyle,
   AutoSizeAllColumns,
-  CommonCols
+  CommonCols,
+  CalTotal
 } from 'src/shared/utils/Shared';
 
 @Component({
@@ -78,7 +79,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   dataRequestCount = 0;
   isDataStreaming = false;
   infiniteCount = null;
-  filterByZeroBalance: number = 0;
+  filterByZeroBalance = 0;
   havingColumns = ['balance'];
 
   ranges: any = Ranges;

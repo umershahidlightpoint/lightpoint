@@ -72,7 +72,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
 
   style = Style;
 
-  styleForHeight = HeightStyle(220);
+  styleForHeight = HeightStyle(244);
 
   propIDCostBasis = 'CostBasisLineChart';
   propIDBalance = 'BalanceLineChart';
@@ -190,11 +190,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(
-      GridId.costBasisId,
-      GridName.costBasis,
-      this.gridOptions
-    );
+    this.gridOptions.sideBar = SideBar(GridId.costBasisId, GridName.costBasis, this.gridOptions);
 
     this.bookmonOptions = {
       rowData: [],
@@ -505,9 +501,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
     this.endDate = dates[1];
 
     this.selectedDate =
-      dateFilter.startDate !== ''
-        ? { startDate: this.startDate, endDate: this.endDate }
-        : null;
+      dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
   }
 
   getRangeLabel() {
@@ -541,26 +535,18 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
       return;
     }
     this.startDate = selectedDate.startDate.format('YYYY-MM-DD');
-    this.getReport(
-      this.startDate,
-      this.fund === 'All Funds' ? 'ALL' : this.fund
-    );
+    this.getReport(this.startDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
     this.getRangeLabel();
   }
 
   changeFund(selectedFund) {
     this.fund = selectedFund;
-    this.getReport(
-      this.startDate,
-      this.fund === 'All Funds' ? 'ALL' : this.fund
-    );
+    this.getReport(this.startDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
   }
 
   changeChart(selectedChart) {
     this.selectedChartOption = selectedChart;
-    this.selectedChartTitle = this.chartOptions.find(
-      ({ key }) => selectedChart === key
-    ).value;
+    this.selectedChartTitle = this.chartOptions.find(({ key }) => selectedChart === key).value;
     if (this.chartData) {
       this.mapCostBasisData(this.chartData, this.selectedChartOption);
     }
