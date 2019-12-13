@@ -152,7 +152,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 List<SqlParameter> sqlParams = new List<SqlParameter>();
 
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
-                var status = dataTable.Rows.Count > 0 ? HttpStatusCode.OK : HttpStatusCode.LengthRequired;
+                var status = dataTable.Rows.Count > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
 
                 var reportObject = Utils.Wrap(true, dataTable, status);
                 return reportObject;
