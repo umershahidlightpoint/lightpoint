@@ -49,6 +49,50 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
+        public object AddSetting(SettingInputDto setting)
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+
+            try
+            {
+                sqlHelper.VerifyConnection();
+                sqlHelper.SqlBeginTransaction();
+
+                var createdDate = DateTime.Now.ToString("MM-dd-yyyy");
+                var createdBy = "John Doe";
+
+                List<SqlParameter> settingParameters = new List<SqlParameter>
+                {
+                    new SqlParameter("createdBy", createdBy),
+                    new SqlParameter("createdDate", createdDate),
+                    new SqlParameter("lastUpdatedDate", createdDate),
+                    new SqlParameter("currencyCode", setting.CurrencyCode),
+                    new SqlParameter("taxMethodology", setting.TaxMethodology),
+                    new SqlParameter("fiscalMonth", setting.FiscalMonth),
+                    new SqlParameter("fiscalDay", setting.FiscalDay),
+                };
+
+                var query = $@"INSERT INTO [settings]
+                                    ([created_by], [created_date], [last_updated_date], [currency_code], [tax_methodology], [fiscal_month]
+                                    ,[fiscal_day])
+                                    VALUES
+                                    (@createdBy, @createdDate, @lastUpdatedDate, @currencyCode, @taxMethodology, @fiscalMonth
+                                    ,@fiscalDay)";
+
+                sqlHelper.Insert(query, CommandType.Text, settingParameters.ToArray());
+
+                sqlHelper.SqlCommitTransaction();
+                sqlHelper.CloseConnection();
+
+
+                return Utils.Wrap(true, null, HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Utils.Wrap(false);
+            }
+        }
+
         public object UpdateSetting(SettingInputDto setting)
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);
@@ -108,7 +152,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 List<SqlParameter> sqlParams = new List<SqlParameter>();
 
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
-                var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                var status = dataTable.Rows.Count > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
+
+                var reportObject = Utils.Wrap(true, dataTable, status);
                 return reportObject;
             }
             catch (Exception ex)

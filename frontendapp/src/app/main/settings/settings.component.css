@@ -1,4 +1,15 @@
-body, html{
-    margin: 0; padding: 0; height: 100%;
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
 }
- 
+
+.m-top-10 {
+  margin-top: 10%;
+}
+
+::ng-deep .mat-progress-spinner circle {
+  stroke: rgb(2, 117, 216) !important;
+  stroke-width: 4% !important;
+}

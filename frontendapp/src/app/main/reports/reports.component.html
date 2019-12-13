@@ -18,22 +18,22 @@
 
     <!-- -->
     <p-tabPanel #taxlot header="Tax Lots Open/Closed" [ngStyle]="style">
-      <rep-taxlotstatus></rep-taxlotstatus>
+      <rep-taxlotstatus *ngIf="taxLotReportActive"></rep-taxlotstatus>
     </p-tabPanel>
     <!-- -->
 
     <!-- -->
     <p-tabPanel #daypnl header="DayPnl Reconcile" [ngStyle]="style">
-      <rep-daypnl-reconcile></rep-daypnl-reconcile>
+      <rep-daypnl-reconcile *ngIf="dayPnLReportActive"></rep-daypnl-reconcile>
     </p-tabPanel>
     <!-- -->
 
-        <!-- -->
-        <p-tabPanel #daypnl header="Bookmon Reconcile" [ngStyle]="style">
-          <rep-bookmon-reconcile></rep-bookmon-reconcile>
-        </p-tabPanel>
-        <!-- -->
-    
+    <!-- -->
+    <p-tabPanel #daypnl header="Bookmon Reconcile" [ngStyle]="style">
+      <rep-bookmon-reconcile *ngIf="bookmonReportActive"></rep-bookmon-reconcile>
+    </p-tabPanel>
+    <!-- -->
+
     <!-- Trial Balance Report Tab Starts -->
     <p-tabPanel #trialBalance header="Trial Balance" [ngStyle]="style">
       <rep-trial-balance *ngIf="trialBalanceReportActive"></rep-trial-balance>
@@ -45,7 +45,7 @@
       <rep-taxlots></rep-taxlots>
     </p-tabPanel>
     -->
-    
+
     <!-- -->
 
   </p-tabView>

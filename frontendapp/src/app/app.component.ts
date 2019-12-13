@@ -23,7 +23,6 @@ export class AppComponent implements OnInit {
     });
 
     this.router.events.subscribe(val => {
-      console.log(val,"++++++++++++++++++++++++++++**********************+++++++++++++++++++++++++++++++++");
       this.servicesStatusApiService.loadServices();
     });
   }

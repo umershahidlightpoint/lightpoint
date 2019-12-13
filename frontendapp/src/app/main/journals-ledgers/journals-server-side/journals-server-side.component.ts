@@ -36,8 +36,7 @@ import {
   SetDateRange,
   HeightStyle,
   AutoSizeAllColumns,
-  CommonCols,
-  CalTotal
+  CommonCols
 } from 'src/shared/utils/Shared';
 
 @Component({
@@ -52,7 +51,6 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
   private filterSubject: Subject<string> = new Subject();
   rowData: any[] = [];
-
   isEngineRunning = false;
   hideGrid = false;
   gridOptions: GridOptions;
@@ -80,7 +78,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   dataRequestCount = 0;
   isDataStreaming = false;
   infiniteCount = null;
-  filterByZeroBalance : number = 0;
+  filterByZeroBalance: number = 0;
   havingColumns = ['balance'];
 
   ranges: any = Ranges;
@@ -412,11 +410,11 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   }
 
   onFilterChanged(event) {
-    console.log("filter changed")
+    console.log('filter changed');
     this.resetBottomRowData();
     const havingColumns = this.havingColumns;
     const { filterModel, valueCols } = event.api.serverSideRowModel.cacheParams;
-    console.log(valueCols, "these are value cols");
+    console.log(valueCols, 'these are value cols');
     const { fund, symbol, when, balance } = this.getServerSideExternalFilter();
     const payload = {
       filterModel,
@@ -476,7 +474,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.filterBySymbol = e;
   }
 
-  ngModelChangeZeroBalance(e){
+  ngModelChangeZeroBalance(e) {
     this.filterByZeroBalance = e;
     this.gridOptions.api.onFilterChanged();
   }
@@ -604,7 +602,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         symbol: { values: this.filterBySymbol, filterType: 'text' }
       }),
       ...(this.filterByZeroBalance == 1 && {
-        balance: { values: 0, filterType: 'number', type: 'notEqual'}
+        balance: { values: 0, filterType: 'number', type: 'notEqual' }
       }),
       ...(this.startDate !== null && {
         when: {

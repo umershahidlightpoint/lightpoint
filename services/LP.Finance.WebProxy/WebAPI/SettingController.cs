@@ -25,6 +25,13 @@ namespace LP.Finance.WebProxy.WebAPI
         }
 
         [Route("")]
+        [HttpPost]
+        public object AddSetting([FromBody] SettingInputDto setting)
+        {
+            return controller.AddSetting(setting);
+        }
+
+        [Route("")]
         [HttpPut]
         public object UpdateSetting([FromBody] SettingInputDto setting)
         {

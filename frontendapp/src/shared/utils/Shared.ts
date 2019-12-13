@@ -412,7 +412,6 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       valueFormatter: moneyFormatter,
       width: 100,
       colId: 'debit',
-      type: 'numericColumn',
       cellStyle: { 'text-align': 'right' },
       cellClass: 'twoDecimalPlaces',
       cellClassRules: {
