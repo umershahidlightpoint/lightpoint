@@ -1,5 +1,5 @@
 import { Component, OnInit, Injector } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
+import { Event, Router, NavigationEnd } from '@angular/router';
 import { onMainContentChange } from './menu/animations/animations';
 import { SidenavService } from '../shared/common/sidenav.service';
 import { ServicesStatusApiService } from '../services/services-status-api.service';
@@ -22,8 +22,9 @@ export class AppComponent implements OnInit {
       this.onSideNavChange = res;
     });
 
-    this.router.events.subscribe(val => {
-      if (event instanceof NavigationEnd){
+    this.router.events.subscribe((event: Event) => {
+      // Only Hit API, Once Navigation Finish
+      if (event instanceof NavigationEnd) {
         this.servicesStatusApiService.loadServices();
       }
     });
