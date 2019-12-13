@@ -624,6 +624,11 @@ export class FinanceServiceProxy {
     return this.http.get(url);
   }
 
+  createSettings(obj): Observable<any> {
+    const url = this.baseUrl + '/setting';
+    return this.http.post(url, obj).pipe(map((response: any) => response));
+  }
+
   saveSettings(obj): Observable<any> {
     const url = this.baseUrl + '/setting';
     return this.http.put(url, obj).pipe(map((response: any) => response));

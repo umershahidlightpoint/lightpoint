@@ -103,13 +103,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.SqlBeginTransaction();
 
                 var lastUpdatedDate = DateTime.Now.ToString("MM-dd-yyyy");
-                int id = 1;
                 var createdBy = "John Doe";
 
                 List<SqlParameter> settingParameters = new List<SqlParameter>
                 {
-                    new SqlParameter("id", id),
+                    new SqlParameter("id", setting.Id),
                     new SqlParameter("createdBy", createdBy),
+                    new SqlParameter("lastUpdatedBy", createdBy),
                     new SqlParameter("lastUpdatedDate", lastUpdatedDate),
                     new SqlParameter("currencyCode", setting.CurrencyCode),
                     new SqlParameter("taxMethodology", setting.TaxMethodology),
@@ -120,6 +120,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var settingQuery = $@"UPDATE [settings]
                             SET
                             [created_by] = @createdBy
+                            ,[last_updated_by] = @createdBy
                             ,[last_updated_date] = @lastUpdatedDate
                             ,[currency_code] = @currencyCode
                             ,[tax_methodology] = @taxMethodology
