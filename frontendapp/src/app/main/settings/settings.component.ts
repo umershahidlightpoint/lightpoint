@@ -22,7 +22,7 @@ export class SettingsComponent implements OnInit {
   months = moment.months();
   days = [];
   dates: Array<{ month: string; days: Array<number> }> = [];
-  settingId = 0;
+  settingsId = 0;
   reportingCurrency = 'Select a Currency';
   taxMethodology = 'Select a Methodology';
   reportingMonth = 'Select a Month';
@@ -101,7 +101,7 @@ export class SettingsComponent implements OnInit {
       response => {
         if (response.isSuccessful && response.statusCode === 200) {
           this.requestType = 'PUT';
-          this.settingId = response.payload[0].id;
+          this.settingsId = response.payload[0].id;
           this.reportingCurrency = response.payload[0].currency_code;
           this.taxMethodology = response.payload[0].tax_methodology;
           this.reportingMonth = response.payload[0].fiscal_month;
@@ -120,7 +120,7 @@ export class SettingsComponent implements OnInit {
 
   saveSettings() {
     const payload = {
-      id: this.settingId,
+      id: this.settingsId,
       currencyCode: this.reportingCurrency,
       taxMethodology: this.taxMethodology,
       fiscalMonth: this.reportingMonth,
