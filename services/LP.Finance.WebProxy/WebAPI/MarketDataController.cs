@@ -270,7 +270,7 @@ namespace LP.Finance.WebProxy.WebAPI
                                 event as Event,
                                 price as Price,
                                 last_updated_by as LastUpdatedBy,
-                                last_updated_on as LastUpdatedOn FROM [dbo].[market_prices_history] history where [symbol] = @symbol";
+                                last_updated_on as LastUpdatedOn FROM [dbo].[market_prices_history] history where [symbol] = @symbol order by business_date desc";
 
                 var dataTable = SqlHelper.GetDataTable(query, CommandType.Text, symbolPriceParamter.ToArray());
 

@@ -28,6 +28,10 @@ import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import { ContextMenu } from 'src/shared/Models/common';
+import * as moment from 'moment';
+import { GraphObject } from 'src/shared/Models/graph-object';
+
+
 
 @Component({
   selector: 'rep-costbasis',
@@ -89,6 +93,8 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     height: 'calc(100vh - 125px)',
     boxSizing: 'border-box'
   };
+  graphObject: GraphObject = null;
+  marketPriceChart = false;
 
   constructor(
     private financeService: FinanceServiceProxy,
@@ -348,18 +354,57 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   rowSelected(row) {
     const { symbol } = row.data;
+    this.getMarketPriceData(symbol);
+    this.getDataForCostBasisChart(symbol);
+  }
+
+  getDataForCostBasisChart(symbol: any) {
     this.financeService.getCostBasisChart(symbol).subscribe(response => {
       this.chartData = response.payload;
       this.chartData = this.chartData.sort((x, y) => {
         return new Date(y.Date).getTime() - new Date(x.Date).getTime();
       });
-
       this.mapCostBasisData(response.payload, this.selectedChartOption);
       this.mapChartsData(response.payload);
       this.timeseriesOptions.api.setRowData(this.chartData);
       this.timeseriesOptions.api.sizeColumnsToFit();
       this.displayChart = true;
     });
+  }
+
+  getMarketPriceData(symbol){
+    this.financeService.getMarketPriceForSymbol(symbol).subscribe(response => {
+      console.log(response.payload);
+      this.mapMarketPriceChartData(response.payload, symbol);
+    })
+  }
+
+  mapMarketPriceChartData(chartData, symbol){
+    const data = {};
+    const toDate = chartData != null ? moment(chartData[0].BusinessDate).format("YYYY-MM-DD") : null;
+    data[symbol] = [];
+    
+    for(var item in chartData){
+      data[symbol].push({
+        date: moment(chartData[item].BusinessDate).format("YYYY-MM-DD"),
+        value: chartData[item].Price
+      });
+    }
+    console.log(data);
+    this.graphObject = {
+      xAxisLabel: 'Date',
+      yAxisLabel: 'Symbol',
+      lineColors: ['#ff6960', '#00bd9a'],
+      height: 410,
+      width: '95%',
+      chartTitle: symbol,
+      propId: 'marketPriceCostBasis',
+      graphData: data,
+      dateTimeFormat: 'YYYY-MM-DD',
+      referenceDate: toDate
+    };
+
+    this.marketPriceChart = true;
   }
 
   mapCostBasisData(data: any, chartType: string) {

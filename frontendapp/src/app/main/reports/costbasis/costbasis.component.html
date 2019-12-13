@@ -150,6 +150,10 @@
           </eikos-line-plot>
         </div>
       </div>
+      <div *ngIf="marketPriceChart">
+        <app-calculation-graphs class="w-50 h-75" [chartObject]="graphObject" [mode]="'single'">
+        </app-calculation-graphs>
+      </div>
     </div>
     <!-- Chart Column Ends -->
   </div>
