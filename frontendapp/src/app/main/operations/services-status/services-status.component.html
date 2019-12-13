@@ -1,35 +1,37 @@
-<div class="d-flex justify-content-center m-top-10" *ngIf="!show">
-    <mat-progress-spinner mode="indeterminate"> </mat-progress-spinner>
+<div class="d-flex justify-content-center">
+  <div class="spinner-grow m-top-10" role="status" *ngIf="!show">
+    <span class="sr-only">Loading...</span>
+  </div>
 </div>
 
 <div class="form_wrapper" *ngIf="show">
-
-    <div class="d-flex justify-content-between title-bg-color">
-        <div>
-            <h3>List of Services</h3>
-        </div>
-
-        <div class="icon-wrap">
-            <h2><i class="fa fa-refresh" aria-hidden="true" (click)="loadService()"></i></h2>
-        </div>
-
+  <div class="d-flex justify-content-between title-bg-color">
+    <div>
+      <h3>List of Services</h3>
     </div>
 
-    <mat-card class="card-wrapper" *ngFor="let service of listOfServices">
-        <mat-card-header>
-            <div class="w-100 d-flex flex-row justify-content-between">
+    <div class="icon-wrap">
+      <h2><i class="fa fa-refresh" aria-hidden="true" (click)="loadService()"></i></h2>
+    </div>
+  </div>
 
-                <div>
-                    <mat-card-title>{{service.serviceName}}</mat-card-title>
-                </div>
+  <div class="card-wrapper" *ngFor="let service of listOfServices">
+    <div>
+      <div class="w-100 d-flex flex-row justify-content-between">
+        <div class="fz-20 label-p">
+          <p>{{ service.serviceName }}</p>
+        </div>
 
-                <div class="status"
-                    [ngClass]="{'bc-green': service.status == 'Running', 'bc-red': service.status == 'Stopped'}">
-                    <span>{{service.status}}</span>
-                </div>
-
-            </div>
-        </mat-card-header>
-    </mat-card>
-
+        <div
+          class="status"
+          [ngClass]="{
+            'bc-green': service.status == 'Running',
+            'bc-red': service.status == 'Stopped'
+          }"
+        >
+          <span>{{ service.status }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

@@ -9,7 +9,9 @@ html {
   margin-top: 10%;
 }
 
-::ng-deep .mat-progress-spinner circle {
-  stroke: rgb(2, 117, 216) !important;
-  stroke-width: 4% !important;
+/* Spinner Style */
+::ng-deep .spinner-grow {
+  width: 4rem !important;
+  height: 4rem !important;
+  color: rgb(2, 117, 216);
 }

@@ -1,12 +1,14 @@
 <p-tabView [ngStyle]="style">
   <p-tabPanel header="General Settings" [ngStyle]="style">
     <div class="clearfix"></div>
-    <div class="d-flex justify-content-center m-top-10" *ngIf="isLoading">
-      <mat-progress-spinner mode="indeterminate"> </mat-progress-spinner>
+    <div class="d-flex justify-content-center">
+      <div class="spinner-grow m-top-10" role="status" *ngIf="isLoading">
+        <span class="sr-only">Loading...</span>
+      </div>
     </div>
 
     <div [ngStyle]="styleForHeight" *ngIf="!isLoading">
-      <h4 class="mt-3">Reporting Currency </h4>
+      <h4 class="mt-3">Reporting Currency</h4>
       <select
         class="form-control"
         [(ngModel)]="reportingCurrency"
@@ -18,7 +20,7 @@
         </option>
       </select>
 
-      <h4 class="mt-3">Tax Methodology </h4>
+      <h4 class="mt-3">Tax Methodology</h4>
       <select
         class="form-control"
         [(ngModel)]="taxMethodology"

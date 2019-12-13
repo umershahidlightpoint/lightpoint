@@ -130,7 +130,9 @@ export class SettingsComponent implements OnInit {
     const requestMethod = this.requestType === 'POST' ? 'createSettings' : 'saveSettings';
     this.financeService[requestMethod](payload).subscribe(
       response => {
+        this.isLoading = true;
         if (response.isSuccessful) {
+          this.isLoading = false;
           this.toastrService.success('Settings Saved Successfully');
         }
 
