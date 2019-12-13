@@ -61,6 +61,7 @@
     <Folder Include="Triggers" />
     <Folder Include="StoredProcs" />
     <Folder Include="Views" />
+    <Folder Include="Snapshots" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\file.sql" />
@@ -105,5 +106,26 @@
     <Build Include="Triggers\fx_rate_update_trigger.sql" />
     <Build Include="StoredProcs\PullDailyFxPrices.sql" />
     <Build Include="Tables\settings.sql" />
+    <Build Include="Views\vwTaxLots.sql" />
+    <Build Include="Views\vwCurrentStateTrades.sql" />
+    <Build Include="Views\vwNormalizedEodFxRates.sql" />
+    <Build Include="Views\vwPositions.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <ArtifactReference Include="Snapshots\TradeMaster.dacpac">
+      <HintPath>Snapshots\TradeMaster.dacpac</HintPath>
+      <SuppressMissingDependenciesErrors>True</SuppressMissingDependenciesErrors>
+      <DatabaseVariableLiteralValue>TradeMaster</DatabaseVariableLiteralValue>
+    </ArtifactReference>
+    <ArtifactReference Include="Snapshots\SecurityMaster.dacpac">
+      <HintPath>Snapshots\SecurityMaster.dacpac</HintPath>
+      <SuppressMissingDependenciesErrors>True</SuppressMissingDependenciesErrors>
+      <DatabaseVariableLiteralValue>SecurityMaster</DatabaseVariableLiteralValue>
+    </ArtifactReference>
+    <ArtifactReference Include="Snapshots\PriceMaster.dacpac">
+      <HintPath>Snapshots\PriceMaster.dacpac</HintPath>
+      <SuppressMissingDependenciesErrors>True</SuppressMissingDependenciesErrors>
+      <DatabaseVariableLiteralValue>PriceMaster</DatabaseVariableLiteralValue>
+    </ArtifactReference>
   </ItemGroup>
 </Project>
