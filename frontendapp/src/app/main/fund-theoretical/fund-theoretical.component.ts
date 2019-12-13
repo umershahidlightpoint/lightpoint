@@ -124,6 +124,10 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     this.initGrid();
   }
 
+  activeFundTheretical(){
+    this.getMonthlyPerformance();
+  }
+
   activeDailyPnL() {
     this.isDailyPnLActive = true;
   }
