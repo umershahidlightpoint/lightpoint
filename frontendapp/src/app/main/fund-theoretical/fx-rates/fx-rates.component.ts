@@ -329,55 +329,6 @@ export class FxRatesComponent implements OnInit {
   }
 
   vChange($event) {
-    if (this.selectedXAxis != null && this.selectedYAxis != null) {
-      this.refreshGraph();
-    }
-  }
-
-  private refreshGraph() {
-    const data = {};
-    let toDate;
-    let fromDate;
-    const column = 'price';
-    data[this.selectedYAxis] = [];
-    if (this.vRange != 0) {
-      toDate = moment(this.selectedXAxis);
-      fromDate = moment(this.selectedXAxis).subtract(this.vRange, 'days');
-    }
-    this.fxRate.api.forEachNodeAfterFilter((rowNode, index) => {
-      const currentDate = moment(rowNode.data.businessDate);
-      if (this.vRange != 0) {
-        if (
-          rowNode.data.currency === this.selectedYAxis &&
-          currentDate.isSameOrAfter(fromDate) &&
-          currentDate.isSameOrBefore(toDate)
-        ) {
-          data[this.selectedYAxis].push({
-            date: rowNode.data.businessDate,
-            value: rowNode.data[column]
-          });
-        }
-      } else {
-        if (rowNode.data.currency === this.selectedYAxis) {
-          data[this.selectedYAxis].push({
-            date: rowNode.data.businessDate,
-            value: rowNode.data[column]
-          });
-        }
-      }
-    });
-
-    this.graphObject = {
-      xAxisLabel: 'Date',
-      yAxisLabel: 'currency',
-      lineColors: ['#ff6960', '#00bd9a'],
-      height: 410,
-      width: '95%',
-      chartTitle: this.selectedYAxis,
-      propId: 'lineFxPrice',
-      graphData: data,
-      dateTimeFormat: 'YYYY-MM-DD'
-    };
   }
 
   visualizeData() {
@@ -430,7 +381,8 @@ export class FxRatesComponent implements OnInit {
       chartTitle: selectedCurrency,
       propId: 'lineFxPrice',
       graphData: data,
-      dateTimeFormat: 'YYYY-MM-DD'
+      dateTimeFormat: 'YYYY-MM-DD',
+      referenceDate: toDate
     };
 
     this.isExpanded = true;
@@ -483,7 +435,6 @@ export class FxRatesComponent implements OnInit {
     this.startDate = date.startDate;
     this.endDate = date.endDate;
     this.fxRate.api.onFilterChanged();
-    this.refreshGraph();
   }
 
   onSymbolKey(e) {

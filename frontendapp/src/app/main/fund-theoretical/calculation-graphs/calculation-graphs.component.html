@@ -1,10 +1,18 @@
 <!-- Charts Div Starts  -->
+<div class="container">
+  <select class="form-control child" [(ngModel)]="vRange" [selectedIndex]="0" (ngModelChange)="vChange($event)">
+    <option *ngFor="let a of vRanges" [ngValue]="a.Days">
+      {{ a.Description }}
+    </option>
+  </select>
+</div>
+
 <div class="line-chart-wrapper" *ngIf="showChart">
   <div class="chart-title">{{chartObject.chartTitle}}</div>
   <eikos-line-plot class="d-block chart" [propID]="chartObject.propId" 
   [lineColors]="chartObject.lineColors"
   [threshold] = 0
-    [data]="chartObject.graphData" [xAxisLabel]="chartObject.xAxisLabel" [dateTimeFormat]="chartObject.dateTimeFormat"
+    [data]="filteredChartData" [xAxisLabel]="chartObject.xAxisLabel" [dateTimeFormat]="chartObject.dateTimeFormat"
     [yAxisLabel]="chartObject.yAxisLabel" [divHeight]="chartObject.height" [divWidth]="chartObject.width">
   </eikos-line-plot>
 </div>

@@ -8,4 +8,5 @@ export interface GraphObject {
     width: any;
     propId: string;
     dateTimeFormat: string;
+    referenceDate: any;
 }
