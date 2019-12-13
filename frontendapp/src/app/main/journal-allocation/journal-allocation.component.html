@@ -1,21 +1,23 @@
-<p-tabView [ngStyle]="style">
-  <p-tabPanel header="Ops Blotter Journal / Allocation" [ngStyle]="style">
-    <div class="clearfix"></div>
-    <div #divToMeasure>
-      <div [ngStyle]="styleForHeight">
-        <app-trades [tradeType]="'opsblotter'"></app-trades>
-        <div class="w-100 height-45 d-flex">
-          <div class="col-6 p-0" >
-            <app-allocations></app-allocations>
+<tabset>
+  <tab heading="Ops Blotter Journal / Allocation">
+    <div [ngStyle]="style">
+      <div class="clearfix"></div>
+      <div #divToMeasure>
+        <div [ngStyle]="styleForHeight">
+          <app-trades [tradeType]="'opsblotter'"></app-trades>
+          <div class="w-100 height-45 d-flex">
+            <div class="col-6 p-0">
+              <app-allocations></app-allocations>
+            </div>
+            <div class="col-6 p-0">
+              <app-journals></app-journals>
+            </div>
           </div>
-          <div class="col-6 p-0">
-            <app-journals></app-journals>
-          </div>
-        </div>
 
+        </div>
       </div>
     </div>
-  </p-tabPanel>
-</p-tabView>
+  </tab>
+</tabset>
 
 <!-- style="padding: 0px" -->

@@ -9,55 +9,57 @@
 <!-- Div Starts -->
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' }">
   <!-- Tab View Tag Starts -->
-  <p-tabView [ngStyle]="style">
+  <tabset [ngStyle]="style">
     <!-- Header Tab Starts -->
-    <p-tabPanel header="Trial Balance">
-      <!-- Row Div Starts -->
-      <div class="row ">
-        <!-- Fund Dropdown Div Starts -->
-        <div class="col-md-2">
-          <select class="form-control" [(ngModel)]="fund" (ngModelChange)="ngModelChangeFund($event)">
-            <option>All Funds</option>
-            <option *ngFor="let f of funds" [ngValue]="f.FundCode">
-              {{ f.FundCode }}
-            </option>
-          </select>
-        </div>
-        <!-- Fund Dropdown Div Ends -->
+    <tab heading="Trial Balance">
+      <div [ngStyle]="style">
+        <!-- Row Div Starts -->
+        <div class="row ">
+          <!-- Fund Dropdown Div Starts -->
+          <div class="col-md-2">
+            <select class="form-control" [(ngModel)]="fund" (ngModelChange)="ngModelChangeFund($event)">
+              <option>All Funds</option>
+              <option *ngFor="let f of funds" [ngValue]="f.FundCode">
+                {{ f.FundCode }}
+              </option>
+            </select>
+          </div>
+          <!-- Fund Dropdown Div Ends -->
 
-        <!-- DateRange Lable Div Starts -->
-        <div>
-          <label class="text-right"> {{DateRangeLabel}} </label>
-        </div>
-        <!-- DateRange Lable Div Ends -->
+          <!-- DateRange Lable Div Starts -->
+          <div>
+            <label class="text-right"> {{DateRangeLabel}} </label>
+          </div>
+          <!-- DateRange Lable Div Ends -->
 
-        <!-- Date Picker Div Starts -->
-        <div class="col-md-5">
-          <form>
-            <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off" placeholder="Choose date"
-              [(ngModel)]="selected" name="selectedDaterange" [ranges]="ranges" [showClearButton]="true"
-              [alwaysShowCalendars]="true" (ngModelChange)="ngModelChange($event)"
-              [keepCalendarOpeningWithRange]="true" />
-          </form>
-        </div>
-        <!-- Date Picker Div Ends -->
+          <!-- Date Picker Div Starts -->
+          <div class="col-md-5">
+            <form>
+              <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off" placeholder="Choose date"
+                [(ngModel)]="selected" name="selectedDaterange" [ranges]="ranges" [showClearButton]="true"
+                [alwaysShowCalendars]="true" (ngModelChange)="ngModelChange($event)"
+                [keepCalendarOpeningWithRange]="true" />
+            </form>
+          </div>
+          <!-- Date Picker Div Ends -->
 
-        <!-- Clear Button Div Starts -->
-        <div class="mr-auto">
-          <button (click)="clearFilters()" class="btn btn-info" tooltip="Clear" placement="top">
-            <i class="fa fa-remove"></i>
-          </button>
-        </div>
-        <!-- Clear Button Div Ends -->
+          <!-- Clear Button Div Starts -->
+          <div class="mr-auto">
+            <button (click)="clearFilters()" class="btn btn-info" tooltip="Clear" placement="top">
+              <i class="fa fa-remove"></i>
+            </button>
+          </div>
+          <!-- Clear Button Div Ends -->
 
-        <!-- Action Buttons Div Starts -->
-        <div class="ml-auto mr-3">
-          <app-grid-utils [gridOptions]="gridOptions" (refresh)="refreshGrid()" [excelParams]="excelParams">
-          </app-grid-utils>
+          <!-- Action Buttons Div Starts -->
+          <div class="ml-auto mr-3">
+            <app-grid-utils [gridOptions]="gridOptions" (refresh)="refreshGrid()" [excelParams]="excelParams">
+            </app-grid-utils>
+          </div>
+          <!-- Action Buttons Div Ends -->
         </div>
-        <!-- Action Buttons Div Ends -->
+        <!-- Row Div Ends -->
       </div>
-      <!-- Row Div Ends -->
 
       <div class="clearfix"></div>
       <!-- Trial Balance Grid Div Starts -->
@@ -66,9 +68,9 @@
         </ag-grid-angular>
       </div>
       <!-- Trial Balance Grid Div Ends -->
-    </p-tabPanel>
+    </tab>
     <!-- Header Tab Starts -->
-  </p-tabView>
+  </tabset>
   <!-- Tab View Tag Ends -->
 </div>
 <!-- Div Ends -->

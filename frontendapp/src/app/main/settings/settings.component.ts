@@ -22,10 +22,12 @@ export class SettingsComponent implements OnInit {
   months = moment.months();
   days = [];
   dates: Array<{ month: string; days: Array<number> }> = [];
-  reportingCurrency: any;
-  taxMethodology: any;
+  settingsId = 0;
+  reportingCurrency = 'Select a Currency';
+  taxMethodology = 'Select a Methodology';
   reportingMonth = 'Select a Month';
   reportingDay = 'Select a Day';
+  requestType = 'PUT';
   isLoading = true;
 
   private gridOptions: GridOptions;
@@ -97,11 +99,15 @@ export class SettingsComponent implements OnInit {
   getSettings() {
     this.financeService.getSettings().subscribe(
       response => {
-        if (response.isSuccessful) {
+        if (response.isSuccessful && response.statusCode === 200) {
+          this.requestType = 'PUT';
+          this.settingsId = response.payload[0].id;
           this.reportingCurrency = response.payload[0].currency_code;
           this.taxMethodology = response.payload[0].tax_methodology;
           this.reportingMonth = response.payload[0].fiscal_month;
           this.reportingDay = response.payload[0].fiscal_day;
+        } else if (response.isSuccessful && response.statusCode === 404) {
+          this.requestType = 'POST';
         }
 
         this.isLoading = false;
@@ -114,17 +120,23 @@ export class SettingsComponent implements OnInit {
 
   saveSettings() {
     const payload = {
+      id: this.settingsId,
       currencyCode: this.reportingCurrency,
       taxMethodology: this.taxMethodology,
       fiscalMonth: this.reportingMonth,
       fiscalDay: this.reportingDay
     };
 
-    this.financeService.saveSettings(payload).subscribe(
+    const requestMethod = this.requestType === 'POST' ? 'createSettings' : 'saveSettings';
+    this.financeService[requestMethod](payload).subscribe(
       response => {
+        this.isLoading = true;
         if (response.isSuccessful) {
+          this.isLoading = false;
           this.toastrService.success('Settings Saved Successfully');
         }
+
+        this.getSettings();
       },
       error => {
         this.toastrService.error('Something went wrong. Try again later!');

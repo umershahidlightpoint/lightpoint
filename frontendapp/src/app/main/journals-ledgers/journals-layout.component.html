@@ -8,18 +8,20 @@
 
 <!-- Container Div Starts -->
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
-    <p-tabView [ngStyle]="style" (onChange)="onTabChange($event)">
+    <tabset class="tab-color">
         <!-- Server Side Journal Tab Starts -->
-        <p-tabPanel header="Journals">
-            <app-journals-server-side></app-journals-server-side>
-        </p-tabPanel>
+        <tab heading="Journals" (selectTab)="activeJournal()">
+            <div [ngStyle]="style">
+                <app-journals-server-side></app-journals-server-side>
+            </div>
+        </tab>
         <!-- Server Side Journal Tab Ends -->
 
-        <!-- Journal Tab Starts -->
-        <!-- <p-tabPanel header="Client Side Journals">
+        <!-- Client Side Journal Tab Starts -->
+        <!-- <tab heading="Client Side Journals" (selectTab)="activeClientJournal()">
             <app-journals-ledgers *ngIf="isClientJournalActive"></app-journals-ledgers>
-        </p-tabPanel> -->
-        <!-- Journal Tab Ends -->
-    </p-tabView>
+        </tab> -->
+        <!-- Client Side Journal Tab Ends -->
+    </tabset>
 </div>
 <!-- Container Div Ends -->

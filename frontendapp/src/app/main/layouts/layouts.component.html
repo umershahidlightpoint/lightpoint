@@ -1,7 +1,7 @@
 <!----- Tab View Starts ----->
-<p-tabView>
+<tabset>
   <!----- Journal Tab Starts ----->
-  <p-tabPanel header="Grid Views">
+  <tab heading="Grid Views">
     <!----- Grid View Div Starts ----->
     <div class="d-flex" [ngStyle]="styleForHeight">
       <!----- AG Grid Starts ----->
@@ -10,12 +10,12 @@
       <!----- AG Grid Ends ----->
       <!----- Action buttons Template Starts ----->
       <ng-template #actionButtons let-row>
-        <button class="btn edit-btn-props width-15 height-30px" (click)="viewLayout(row)" tooltip="View" placement="auto"
-          container="body">
+        <button class="btn edit-btn-props width-15 height-30px" (click)="viewLayout(row)" tooltip="View"
+          placement="auto" container="body">
           <i class="fa fa-lg fa-eye" aria-hidden="true"></i>
         </button>
-        <button class="btn edit-btn-props width-15 height-30px" (click)="showConfirmation(row)" tooltip="Delete" placement="auto"
-          container="body">
+        <button class="btn edit-btn-props width-15 height-30px" (click)="showConfirmation(row)" tooltip="Delete"
+          placement="auto" container="body">
           <i class="fa fa-lg fa-trash-o" aria-hidden="true"></i>
         </button>
       </ng-template>
@@ -29,8 +29,8 @@
 
     </div>
     <!----- Grid View Div Ends ----->
-  </p-tabPanel>
-</p-tabView>
+  </tab>
+</tabset>
 <!----- Tab Views Ends ----->
 
 <app-confirmation-modal #confirmationModal (confirmDeletion)="deleteLayout()" [modalTitle]="'Delete Layout'">

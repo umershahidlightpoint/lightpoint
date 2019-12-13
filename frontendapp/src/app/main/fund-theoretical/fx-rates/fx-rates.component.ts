@@ -109,10 +109,7 @@ export class FxRatesComponent implements OnInit {
     this.fxratesApiService.getFxRatesData().subscribe(response => {
       if (response.isSuccessful) {
         const data = response.payload.sort((x, y) => {
-          return (
-            new Date(y.BusinessDate).getTime() -
-            new Date(x.BusinessDate).getTime()
-          );
+          return new Date(y.BusinessDate).getTime() - new Date(x.BusinessDate).getTime();
         });
         this.gridData = data.map(data => ({
           id: data.Id,
@@ -169,11 +166,7 @@ export class FxRatesComponent implements OnInit {
         resizable: true
       }
     } as GridOptions;
-    this.fxRate.sideBar = SideBar(
-      GridId.fxRateId,
-      GridName.fxRate,
-      this.fxRate
-    );
+    this.fxRate.sideBar = SideBar(GridId.fxRateId, GridName.fxRate, this.fxRate);
   }
 
   initCols() {
@@ -186,25 +179,18 @@ export class FxRatesComponent implements OnInit {
 
     if ((this.filterByCurrency !== '' && this.startDate) || this.endDate) {
       return (
-        node.data.currency
-          .toLowerCase()
-          .includes(this.filterByCurrency.toLowerCase()) &&
+        node.data.currency.toLowerCase().includes(this.filterByCurrency.toLowerCase()) &&
         businessDate >= this.startDate.toDate() &&
         businessDate <= this.endDate.toDate()
       );
     }
 
     if (this.filterByCurrency !== '') {
-      return node.data.currency
-        .toLowerCase()
-        .includes(this.filterByCurrency.toLowerCase());
+      return node.data.currency.toLowerCase().includes(this.filterByCurrency.toLowerCase());
     }
 
     if (this.startDate || this.endDate) {
-      return (
-        businessDate >= this.startDate.toDate() &&
-        businessDate <= this.endDate.toDate()
-      );
+      return businessDate >= this.startDate.toDate() && businessDate <= this.endDate.toDate();
     }
   }
 
@@ -336,9 +322,7 @@ export class FxRatesComponent implements OnInit {
     let toDate;
     let fromDate;
     const focusedCell = this.fxRate.api.getFocusedCell();
-    const selectedRow = this.fxRate.api.getDisplayedRowAtIndex(
-      focusedCell.rowIndex
-    ).data;
+    const selectedRow = this.fxRate.api.getDisplayedRowAtIndex(focusedCell.rowIndex).data;
     const column = 'price';
     const selectedCurrency = selectedRow.currency;
     data[selectedCurrency] = [];
@@ -400,40 +384,37 @@ export class FxRatesComponent implements OnInit {
       }
     });
     this.commitLoader = true;
-    this.fxratesApiService
-      .editFxRatePriceData(recordsToCommit)
-      .subscribe(response => {
-        this.commitLoader = false;
-        this.disableCommit = true;
-        if (response.isSuccessful) {
-          this.toastrService.success('Sucessfully Commited.');
-          this.getData();
-        } else {
-          this.toastrService.error('Something went wrong! Try Again.');
-        }
-      });
+    this.fxratesApiService.editFxRatePriceData(recordsToCommit).subscribe(response => {
+      this.commitLoader = false;
+      this.disableCommit = true;
+      if (response.isSuccessful) {
+        this.toastrService.success('Sucessfully Commited.');
+        this.getData();
+      } else {
+        this.toastrService.error('Something went wrong! Try Again.');
+      }
+    });
   }
 
   uploadData() {
     this.uploadLoader = true;
-    this.fxratesApiService
-      .uploadFxData(this.fileToUpload)
-      .subscribe(response => {
-        this.uploadLoader = false;
-        if (response.isSuccessful) {
-          this.fileInput.nativeElement.value = '';
-          this.disableFileUpload = true;
-          this.gridData = response.payload;
-          this.fxRate.api.setRowData(this.gridData);
-        } else {
-          this.toastrService.error('Something went wrong! Try Again.');
-        }
-      });
+    this.fxratesApiService.uploadFxData(this.fileToUpload).subscribe(response => {
+      this.uploadLoader = false;
+      if (response.isSuccessful) {
+        this.fileInput.nativeElement.value = '';
+        this.disableFileUpload = true;
+        this.gridData = response.payload;
+        this.fxRate.api.setRowData(this.gridData);
+      } else {
+        this.toastrService.error('Something went wrong! Try Again.');
+      }
+    });
   }
 
   ngModelChange(date) {
     this.startDate = date.startDate;
     this.endDate = date.endDate;
+    console.log(this.startDate, '========', this.endDate);
     this.fxRate.api.onFilterChanged();
   }
 

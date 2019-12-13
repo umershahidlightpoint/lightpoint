@@ -1,7 +1,7 @@
 <!-- Main Tab View -->
-<p-tabView [ngStyle]="style" (onChange)="isPostingEngineRunning($event)">
+<tabset>
   <!-- Logs Tab -->
-  <p-tabPanel header="Logs" [ngStyle]="style">
+  <tab heading="Logs" (selectTab)="activeLogs()">
     <!-- Action Buttons Div -->
     <div class="row">
       <div class="ml-auto mr-3">
@@ -15,11 +15,11 @@
         [getContextMenuItems]="getContextMenuItems">
       </ag-grid-angular>
     </div>
-  </p-tabPanel>
+  </tab>
   <!-- Logs Tab Ends -->
 
   <!-- Tasks Tab -->
-  <p-tabPanel #task header="Tasks" [ngStyle]="style">
+  <tab #task heading="Tasks">
     <div [ngStyle]="styleForTasksHeight">
       <!-- Tasks Div -->
       <div class="row">
@@ -96,50 +96,57 @@
     </app-confirmation-modal>
     <!-- Confirmation Modal Selector Ends -->
 
-  </p-tabPanel>
+  </tab>
   <!-- Tasks Tab Ends -->
 
   <!-- File Uploads Tab -->
-  <p-tabPanel header="Uploads" [ngStyle]="style">
-    <app-file-upload></app-file-upload>
-  </p-tabPanel>
+  <tab heading="Uploads">
+    <div [ngStyle]="style">
+      <app-file-upload></app-file-upload>
+    </div>
+  </tab>
   <!-- File Uploads Tab Ends -->
 
   <!-- Files Tab -->
-  <p-tabPanel header="Import / Export" [ngStyle]="style">
-    <div class="row">
+  <tab heading="Import / Export" (selectTab)="activeFileManagement()">
+    <div [ngStyle]="style">
+      <div class="row">
+        <!-- File Management Div -->
+        <div class="col-6">
+          <app-file-management *ngIf="fileManagementActive"></app-file-management>
+        </div>
+        <!-- File Management Div Ends -->
 
-      <!-- File Management Div -->
-      <div class="col-6">
-        <app-file-management *ngIf="fileManagementActive"></app-file-management>
+        <!-- Silver File Management -->
+        <div class="col-6">
+          <app-silver-file-management *ngIf="fileManagementActive"></app-silver-file-management>
+        </div>
+        <!-- Silver File Management Ends -->
+
       </div>
-      <!-- File Management Div Ends -->
-
-      <!-- Silver File Management -->
-      <div class="col-6">
-        <app-silver-file-management *ngIf="fileManagementActive"></app-silver-file-management>
-      </div>
-      <!-- Silver File Management Ends -->
-
     </div>
-  </p-tabPanel>
+  </tab>
   <!-- Files Tab Ends -->
 
   <!-- File Exception Tab -->
-  <p-tabPanel header="Export Exceptions" [ngStyle]="style">
+  <tab heading="Export Exceptions" (selectTab)="activeExportException()">
     <div class="col-12">
-      <app-file-exception *ngIf="exportExceptionActive"></app-file-exception>
+      <div [ngStyle]="style">
+        <app-file-exception *ngIf="exportExceptionActive"></app-file-exception>
+      </div>
     </div>
-  </p-tabPanel>
+  </tab>
   <!-- File Exception Tab Ends -->
 
-    <!-- File Exception Tab -->
-  <p-tabPanel header="Sevices Status" [ngStyle]="style">
+  <!-- File Exception Tab -->
+  <tab heading="Sevices Status" (selectTab)="activeServicesStatus()">
     <div class="col-12">
-      <app-services-status *ngIf="servicesStatus"></app-services-status>
+      <div [ngStyle]="style">
+        <app-services-status *ngIf="servicesStatus"></app-services-status>
+      </div>
     </div>
-  </p-tabPanel>
+  </tab>
   <!-- File Exception Tab Ends -->
 
-</p-tabView>
+</tabset>
 <!-- Main Tab View Ends -->

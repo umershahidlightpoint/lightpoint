@@ -9,46 +9,39 @@
 <!-- Reports Main Div Starts -->
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
   <!-- Tab View Starts -->
-  <p-tabView [ngStyle]="style" (onChange)="tabChanged($event)">
-    <!-- -->
-    <p-tabPanel #costBasis header="Cost Basis" [ngStyle]="style">
-      <rep-costbasis *ngIf="costBasisReportActive"></rep-costbasis>
-    </p-tabPanel>
-    <!-- -->
+  <tabset class="tab-color">
 
-    <!-- -->
-    <p-tabPanel #taxlot header="Tax Lots Open/Closed" [ngStyle]="style">
-      <rep-taxlotstatus *ngIf="taxLotReportActive"></rep-taxlotstatus>
-    </p-tabPanel>
-    <!-- -->
+    <tab heading="Cost Basis" (selectTab)="activeCostBasisReport()">
+      <div [ngStyle]="style">
+        <rep-costbasis *ngIf="costBasisReportActive"></rep-costbasis>
+      </div>
+    </tab>
 
-    <!-- -->
-    <p-tabPanel #daypnl header="DayPnl Reconcile" [ngStyle]="style">
-      <rep-daypnl-reconcile *ngIf="dayPnLReportActive"></rep-daypnl-reconcile>
-    </p-tabPanel>
-    <!-- -->
+    <tab heading="Tax Lots Open/Closed" (selectTab)="activeTaxLotReport()">
+      <div [ngStyle]="style">
+        <rep-taxlotstatus *ngIf="taxLotReportActive"></rep-taxlotstatus>
+      </div>
+    </tab>
 
-    <!-- -->
-    <p-tabPanel #daypnl header="Bookmon Reconcile" [ngStyle]="style">
-      <rep-bookmon-reconcile *ngIf="bookmonReportActive"></rep-bookmon-reconcile>
-    </p-tabPanel>
-    <!-- -->
+    <tab heading="DayPnl Reconcile" (selectTab)="activeDayPnLReport()">
+      <div [ngStyle]="style">
+        <rep-daypnl-reconcile *ngIf="dayPnLReportActive"></rep-daypnl-reconcile>
+      </div>
+    </tab>
 
-    <!-- Trial Balance Report Tab Starts -->
-    <p-tabPanel #trialBalance header="Trial Balance" [ngStyle]="style">
-      <rep-trial-balance *ngIf="trialBalanceReportActive"></rep-trial-balance>
-    </p-tabPanel>
-    <!-- Trial Balance Report Tab Ends-->
+    <tab heading="Bookmon Reconcile" (selectTab)="activeBookmonReport()">
+      <div [ngStyle]="style">
+        <rep-bookmon-reconcile *ngIf="bookmonReportActive"></rep-bookmon-reconcile>
+      </div>
+    </tab>
 
-    <!-- 
-    <p-tabPanel #taxlot header="Tax Lots Open/Closed" [ngStyle]="style">
-      <rep-taxlots></rep-taxlots>
-    </p-tabPanel>
-    -->
+    <tab heading="Trial Balance" (selectTab)="activeTrialBalanceReport()">
+      <div [ngStyle]="style">
+        <rep-trial-balance *ngIf="trialBalanceReportActive"></rep-trial-balance>
+      </div>
+    </tab>
 
-    <!-- -->
-
-  </p-tabView>
+  </tabset>
   <!-- Tab View Ends -->
 </div>
 <!-- Reports Main Div Ends-->

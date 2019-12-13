@@ -35,9 +35,9 @@ export class JournalsLayoutComponent implements OnInit, AfterViewInit {
     });
   }
 
-  onTabChange(e) {
-    if (e.index === 1) {
-      this.isClientJournalActive = true;
-    }
+  activeJournal() {}
+
+  activeClientJournal() {
+    this.isClientJournalActive = true;
   }
 }
