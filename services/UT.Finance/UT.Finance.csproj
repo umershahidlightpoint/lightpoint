@@ -66,6 +66,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReportsWebApi.cs" />
     <Compile Include="ServerSideJournalsWebApi.cs" />
+    <Compile Include="SettingsWebApi.cs" />
     <Compile Include="TestTaxes.cs" />
   </ItemGroup>
   <ItemGroup>

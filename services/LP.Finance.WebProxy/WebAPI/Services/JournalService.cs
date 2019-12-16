@@ -1027,10 +1027,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             try
             {
                 journalStats journalStats = new journalStats();
-                var sql = Utils.BuildSql(obj, viewName);
+                var sql = ServerSideRowModelHelper.BuildSql(obj, viewName);
                 var dataTable = sqlHelper.GetDataTable(sql.Item1, CommandType.Text, sql.Item3.ToArray());
-                int lastRow = Utils.GetRowCount(obj, dataTable);
-                bool rootNodeGroupOrNoGrouping = Utils.isDoingGroupingByRootNodeOrNoGrouping(obj.rowGroupCols, obj.groupKeys);
+                int lastRow = ServerSideRowModelHelper.GetRowCount(obj, dataTable);
+                bool rootNodeGroupOrNoGrouping = ServerSideRowModelHelper.isDoingGroupingByRootNodeOrNoGrouping(obj.rowGroupCols, obj.groupKeys);
                 var metaData = new MetaData();
 
                 metaData.Total = dataTable.Rows.Count > 0 ? dataTable.Rows.Count : 0;
@@ -1058,7 +1058,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             try
             {
                 journalStats journalStats = new journalStats();
-                var sql = Utils.BuildSql(obj, "vwjournal", true);
+                var sql = ServerSideRowModelHelper.BuildSql(obj, "vwjournal", true);
                 var query = $@"select p.debit, p.credit, (abs(p.debit) - abs(p.credit)) as balance from (
                                 select sum(t.debit) as debit, sum(t.credit) as credit from (
                                 select [AccountCategory], sum(debit) as debit,
