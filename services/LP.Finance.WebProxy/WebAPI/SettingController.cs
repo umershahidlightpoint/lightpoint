@@ -28,7 +28,7 @@ namespace LP.Finance.WebProxy.WebAPI
         [HttpPost]
         public object AddSetting([FromBody] SettingInputDto setting)
         {
-            return controller.AddSetting(setting);
+            return !ModelState.IsValid || setting == null ? BadRequest(ModelState) : controller.AddSetting(setting);
         }
 
         [Route("")]

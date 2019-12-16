@@ -31,8 +31,6 @@ import { ContextMenu } from 'src/shared/Models/common';
 import * as moment from 'moment';
 import { GraphObject } from 'src/shared/Models/graph-object';
 
-
-
 @Component({
   selector: 'rep-costbasis',
   templateUrl: './costbasis.component.html',
@@ -185,21 +183,21 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           filter: true
         },
         {
-          field: "unrealized_pnl",
-          cellClass: "rightAlign",
-          headerName: "Unrealized P&L",
+          field: 'unrealized_pnl',
+          cellClass: 'rightAlign',
+          headerName: 'Unrealized P&L',
           valueFormatter: moneyFormatter
         },
         {
-          field: "realized_pnl",
-          cellClass: "rightAlign",
-          headerName: "Realized P&L",
+          field: 'realized_pnl',
+          cellClass: 'rightAlign',
+          headerName: 'Realized P&L',
           valueFormatter: moneyFormatter
         },
         {
-          field: "Pnl",
-          cellClass: "rightAlign",
-          headerName: "Net P&L",
+          field: 'Pnl',
+          cellClass: 'rightAlign',
+          headerName: 'Net P&L',
           valueFormatter: moneyFormatter
         }
       ],
@@ -209,11 +207,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(
-      GridId.costBasisId,
-      GridName.costBasis,
-      this.gridOptions
-    );
+    this.gridOptions.sideBar = SideBar(GridId.costBasisId, GridName.costBasis, this.gridOptions);
 
     this.timeseriesOptions = {
       rowData: [],
@@ -372,21 +366,22 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     });
   }
 
-  getMarketPriceData(symbol){
+  getMarketPriceData(symbol) {
     this.financeService.getMarketPriceForSymbol(symbol).subscribe(response => {
       console.log(response.payload);
       this.mapMarketPriceChartData(response.payload, symbol);
-    })
+    });
   }
 
-  mapMarketPriceChartData(chartData, symbol){
+  mapMarketPriceChartData(chartData, symbol) {
     const data = {};
-    const toDate = chartData != null ? moment(chartData[0].BusinessDate).format("YYYY-MM-DD") : null;
+    const toDate =
+      chartData != null ? moment(chartData[0].BusinessDate).format('YYYY-MM-DD') : null;
     data[symbol] = [];
-    
-    for(var item in chartData){
+
+    for (var item in chartData) {
       data[symbol].push({
-        date: moment(chartData[item].BusinessDate).format("YYYY-MM-DD"),
+        date: moment(chartData[item].BusinessDate).format('YYYY-MM-DD'),
         value: chartData[item].Price
       });
     }
@@ -395,7 +390,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       xAxisLabel: 'Date',
       yAxisLabel: 'Symbol',
       lineColors: ['#ff6960', '#00bd9a'],
-      height: 410,
+      height: 220,
       width: '95%',
       chartTitle: symbol,
       propId: 'marketPriceCostBasis',
@@ -484,9 +479,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.endDate = dates[1];
 
     this.selectedDate =
-      dateFilter.startDate !== ''
-        ? { startDate: this.startDate, endDate: this.endDate }
-        : null;
+      dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
   }
 
   getRangeLabel() {
@@ -520,26 +513,18 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       return;
     }
     this.startDate = selectedDate.startDate.format('YYYY-MM-DD');
-    this.getReport(
-      this.startDate,
-      this.fund === 'All Funds' ? 'ALL' : this.fund
-    );
+    this.getReport(this.startDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
     this.getRangeLabel();
   }
 
   changeFund(selectedFund) {
     this.fund = selectedFund;
-    this.getReport(
-      this.startDate,
-      this.fund === 'All Funds' ? 'ALL' : this.fund
-    );
+    this.getReport(this.startDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
   }
 
   changeChart(selectedChart) {
     this.selectedChartOption = selectedChart;
-    this.selectedChartTitle = this.chartOptions.find(
-      ({ key }) => selectedChart === key
-    ).value;
+    this.selectedChartTitle = this.chartOptions.find(({ key }) => selectedChart === key).value;
     if (this.chartData) {
       this.mapCostBasisData(this.chartData, this.selectedChartOption);
     }

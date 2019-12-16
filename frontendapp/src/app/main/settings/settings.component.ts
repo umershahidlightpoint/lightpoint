@@ -2,10 +2,9 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import * as moment from 'moment';
-import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { SettingApiService } from '../../../services/setting-api.service';
 import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
 import { Style, HeightStyle } from '../../../shared/utils/Shared';
-import { Observable, forkJoin } from 'rxjs';
 import { NgForm } from '@angular/forms';
 
 @Component({
@@ -59,7 +58,7 @@ export class SettingsComponent implements OnInit {
   }
 
   constructor(
-    private financeService: FinanceServiceProxy,
+    private settingApiService: SettingApiService,
     private toastrService: ToastrService,
     private agGridUtils: AgGridUtils
   ) {
@@ -79,7 +78,7 @@ export class SettingsComponent implements OnInit {
   }
 
   getCurrencies() {
-    this.financeService.getReportingCurrencies().subscribe(
+    this.settingApiService.getReportingCurrencies().subscribe(
       response => {
         if (response.isSuccessful) {
           this.currencies = response.payload;
@@ -94,7 +93,7 @@ export class SettingsComponent implements OnInit {
   }
 
   getSettings() {
-    this.financeService.getSettings().subscribe(
+    this.settingApiService.getSettings().subscribe(
       response => {
         if (response.isSuccessful && response.statusCode === 200) {
           this.requestType = 'PUT';
@@ -130,7 +129,7 @@ export class SettingsComponent implements OnInit {
     };
 
     const requestMethod = this.requestType === 'POST' ? 'createSettings' : 'saveSettings';
-    this.financeService[requestMethod](payload).subscribe(
+    this.settingApiService[requestMethod](payload).subscribe(
       response => {
         if (response.isSuccessful) {
           this.toastrService.success('Settings Saved Successfully');
