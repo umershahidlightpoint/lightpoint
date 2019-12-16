@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import * as moment from 'moment';
@@ -6,6 +6,7 @@ import { FinanceServiceProxy } from '../../../shared/service-proxies/service-pro
 import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
 import { Style, HeightStyle } from '../../../shared/utils/Shared';
 import { Observable, forkJoin } from 'rxjs';
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-settings',
@@ -13,6 +14,8 @@ import { Observable, forkJoin } from 'rxjs';
   styleUrls: ['./settings.component.css']
 })
 export class SettingsComponent implements OnInit {
+  @ViewChild('settingsForm', { static: true }) settingsForm: NgForm;
+
   currencies = [];
   methods = [
     { code: 'FIFO', description: 'First In First Out' },
@@ -22,13 +25,11 @@ export class SettingsComponent implements OnInit {
   months = moment.months();
   days = [];
   dates: Array<{ month: string; days: Array<number> }> = [];
-  settingsId = 0;
-  reportingCurrency = 'Select a Currency';
-  taxMethodology = 'Select a Methodology';
-  reportingMonth = 'Select a Month';
-  reportingDay = 'Select a Day';
+  settingId = 0;
+  day = '';
   requestType = 'PUT';
   isLoading = true;
+  isSaving = false;
 
   private gridOptions: GridOptions;
   private allocationsGridOptions: GridOptions;
@@ -73,11 +74,7 @@ export class SettingsComponent implements OnInit {
     // this.alignGrids();
   }
 
-  changeCurrency(selectedCurrency) {}
-
-  changeMethodology(selectedMethodology) {}
-
-  changeReportingMonth(selectedMonth) {
+  onChangeReportingMonth(selectedMonth) {
     this.days = this.dates.find(date => date.month === selectedMonth).days;
   }
 
@@ -101,12 +98,15 @@ export class SettingsComponent implements OnInit {
       response => {
         if (response.isSuccessful && response.statusCode === 200) {
           this.requestType = 'PUT';
-          this.settingsId = response.payload[0].id;
-          this.reportingCurrency = response.payload[0].currency_code;
-          this.taxMethodology = response.payload[0].tax_methodology;
-          this.reportingMonth = response.payload[0].fiscal_month;
-          this.reportingDay = response.payload[0].fiscal_day;
-          this.days = this.dates.find(date => date.month === this.reportingMonth).days;
+          this.onChangeReportingMonth(response.payload[0].fiscal_month);
+
+          this.settingId = response.payload[0].id;
+          this.settingsForm.form.patchValue({
+            currency: response.payload[0].currency_code,
+            methodology: response.payload[0].tax_methodology,
+            month: response.payload[0].fiscal_month
+          });
+          this.day = response.payload[0].fiscal_day;
         } else if (response.isSuccessful && response.statusCode === 404) {
           this.requestType = 'POST';
         }
@@ -119,27 +119,28 @@ export class SettingsComponent implements OnInit {
     );
   }
 
-  saveSettings() {
+  onSaveSettings() {
+    this.isSaving = true;
     const payload = {
-      id: this.settingsId,
-      currencyCode: this.reportingCurrency,
-      taxMethodology: this.taxMethodology,
-      fiscalMonth: this.reportingMonth,
-      fiscalDay: this.reportingDay
+      id: this.settingId,
+      currencyCode: this.settingsForm.value.currency,
+      taxMethodology: this.settingsForm.value.methodology,
+      fiscalMonth: this.settingsForm.value.month,
+      fiscalDay: this.settingsForm.value.day
     };
 
     const requestMethod = this.requestType === 'POST' ? 'createSettings' : 'saveSettings';
     this.financeService[requestMethod](payload).subscribe(
       response => {
-        this.isLoading = true;
         if (response.isSuccessful) {
-          this.isLoading = false;
           this.toastrService.success('Settings Saved Successfully');
         }
 
+        this.isSaving = false;
         this.getSettings();
       },
       error => {
+        this.isSaving = false;
         this.toastrService.error('Something went wrong. Try again later!');
       }
     );
