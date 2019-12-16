@@ -183,21 +183,20 @@ import { JournalsLedgersComponent } from './main/journals-ledgers/journals-clien
     JournalsLayoutComponent
   ],
   imports: [
+    AppRoutingModule,
     BrowserModule,
+    HttpClientModule,
+    FormsModule,
+    ReactiveFormsModule,
     AgGridModule.withComponents([
       TemplateRendererComponent,
       GridLayoutMenuComponent,
       AgGridCheckboxComponent
     ]),
-    MaterialModule,
     NgxDaterangepickerMd.forRoot({
       applyLabel: 'Okay',
       firstDay: 1
     }),
-    AppRoutingModule,
-    HttpClientModule,
-    FormsModule,
-    ReactiveFormsModule,
     ModalModule.forRoot(),
     TabsModule.forRoot(),
     BrowserAnimationsModule,
@@ -205,11 +204,11 @@ import { JournalsLedgersComponent } from './main/journals-ledgers/journals-clien
     ToastrModule.forRoot(),
     BsDropdownModule.forRoot(),
     TooltipModule.forRoot(),
+    MaterialModule,
     NgcatalystModule
   ],
   providers: [
     FinanceServiceProxy,
-    // MessageService,
     DataService,
     SidenavService,
     PostingEngineService,

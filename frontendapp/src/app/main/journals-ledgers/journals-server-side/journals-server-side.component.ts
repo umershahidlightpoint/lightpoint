@@ -82,6 +82,9 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   infiniteCount = null;
   filterByZeroBalance = 0;
   havingColumns = ['balance'];
+  absoluteSorting : string[] = [];
+  absoluteSortingAsc = false;
+  absoluteSortingDesc = false;
 
   ranges: any = Ranges;
 
@@ -121,6 +124,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       const payload = {
         ...params.request,
         havingColumns,
+        absoluteSorting: this.absoluteSorting,
         externalFilterModel: { fund, symbol, when, balance },
         pageNumber: this.pageNumber,
         pageSize: this.pageSize
@@ -295,6 +299,48 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     );
   }
 
+  getMainMenuItems(params) {
+    switch (params.column.getId()) {
+      case "balance":
+        var menuItems = params.defaultItems.slice(0);
+        menuItems.push({
+          name: "Sort by absolute value",
+          action: () => {
+            this.sortByAbsoluteValue('asc', params.column.getId());
+          },
+          checked: this.absoluteSortingAsc
+        });
+        // menuItems.push({
+        //   name: "Sort by absolute value DESC",
+        //   action: () => {
+        //     this.sortByAbsoluteValue('desc', params.column.getId());
+        //   },
+        //   checked: this.absoluteSortingDesc
+        // });
+        return menuItems;
+      default:
+        return params.defaultItems;
+      }
+    }
+
+sortByAbsoluteValue(sortDirection, colId) {
+  this.absoluteSortingAsc = !this.absoluteSortingAsc;
+  if(this.absoluteSortingAsc){
+    this.absoluteSorting = [];
+    this.absoluteSorting.push(colId);
+  } else{
+    this.absoluteSorting = [];
+  }
+    var sort = [
+      {
+        colId: colId,
+        sort: sortDirection
+      }
+    ];
+    //this.gridOptions.api.setSortModel(sort);
+    console.log("Ascending sort abs by " + sortDirection);
+  }
+
   initColDefs() {
     const payload = {
       tableName: 'vwJournal',
@@ -389,6 +435,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         resizable: true,
         filter: true
       },
+      getMainMenuItems: this.getMainMenuItems.bind(this),
       onGridReady: params => {
         params.api.setServerSideDatasource(this.datasource);
         this.gridOptions.excelStyles = ExcelStyle;
@@ -503,8 +550,11 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     const { symbolFilter } = object;
     const { dateFilter } = object;
     const { zeroBalanceFilter } = object;
+    const { absoluteSortingModel } = object;
 
     this.filterByZeroBalance = zeroBalanceFilter;
+    this.absoluteSorting = absoluteSortingModel.sortingOn;
+    this.absoluteSortingAsc = absoluteSortingModel.sortingApplied;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
     this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
 
@@ -586,6 +636,10 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       fundFilter: this.fund,
       symbolFilter: this.filterBySymbol,
       zeroBalanceFilter: this.filterByZeroBalance,
+      absoluteSortingModel: {
+        sortingApplied : this.absoluteSortingAsc,
+        sortingOn: this.absoluteSorting
+      },
       dateFilter:
         this.DateRangeLabel !== ''
           ? this.DateRangeLabel
@@ -626,6 +680,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.selected = null;
     this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
     this.endDate = moment();
+    this.absoluteSortingAsc = false;
+    this.absoluteSorting = [];
     this.gridOptions.api.setFilterModel(null);
     this.gridOptions.api.onFilterChanged();
   }

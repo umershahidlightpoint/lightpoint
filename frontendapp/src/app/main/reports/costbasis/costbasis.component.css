@@ -125,3 +125,7 @@ html {
 .axis line {
   stroke: #32a0f3;
 }
+
+::ng-deep .line-chart-wrapper {
+  padding-top: 0px !important;
+}
