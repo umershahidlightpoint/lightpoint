@@ -28,7 +28,7 @@ namespace LP.Finance.Common
                 string groupBySql = CreateGroupBySql(obj);
                 string havingSql = CreateHavingSql(obj, sqlParams, whereSql.Item3);
                 string message = !string.IsNullOrWhiteSpace(whereSql.Item2) ? whereSql.Item2 : null;
-                string query = selectSql + fromSql + whereSql.Item1 + groupBySql + havingSql + orderBySql + limitSql;
+                string query = "select * from (" + selectSql + fromSql + whereSql.Item1 + groupBySql + havingSql + ") t " + orderBySql + limitSql;
                 return new Tuple<string, string, List<SqlParameter>>(query, message, sqlParams);
             }
         }
@@ -122,7 +122,14 @@ namespace LP.Finance.Common
                     }
                     else
                     {
-                        sortParts.Add($"[{item.colId}] {item.sort}");
+                        if (!SortByAbsoluteValue(obj.absoluteSorting, item.colId))
+                        {
+                            sortParts.Add($"[{item.colId}] {item.sort}");
+                        }
+                        else
+                        {
+                            sortParts.Add($"ABS([{item.colId}]) {item.sort}");
+                        }
                         groupSortsPresent = true;
                     }
                 }
@@ -140,7 +147,14 @@ namespace LP.Finance.Common
                     {
                         if (obj.valueCols.Any(x => x.field == item.colId))
                         {
-                            sortParts.Add($"[{item.colId}] {item.sort}");
+                            if (!SortByAbsoluteValue(obj.absoluteSorting, item.colId))
+                            {
+                                sortParts.Add($"[{item.colId}] {item.sort}");
+                            }
+                            else
+                            {
+                                sortParts.Add($"ABS([{item.colId}]) {item.sort}");
+                            }
                         }
                     }
                 }
@@ -647,6 +661,11 @@ namespace LP.Finance.Common
             {
                 return -1;
             }
+        }
+
+        private static bool SortByAbsoluteValue(List<string> absoluteCols, string colId)
+        {
+            return absoluteCols.Any(x => x.Equals(colId));
         }
     }
 }
