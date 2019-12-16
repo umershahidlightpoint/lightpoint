@@ -19,7 +19,7 @@ export class HeaderComponent implements OnInit, DoCheck, AfterViewInit {
   date: string = moment().format('MM-DD-YYYY');
   effectiveDate: string;
 
-  servicesStatus: Boolean;
+  servicesStatus: boolean = true;
 
   constructor(
     private servicesStatusApiService: ServicesStatusApiService,
@@ -32,7 +32,6 @@ export class HeaderComponent implements OnInit, DoCheck, AfterViewInit {
     this.date = moment().format('MM-DD-YYYY');
     this.effectiveDate = this.getPreviousWorkday(moment()).format('MM-DD-YYYY');
     this.isPostingEngineRunning();
-
   }
 
   getServicesStatus(): void {
