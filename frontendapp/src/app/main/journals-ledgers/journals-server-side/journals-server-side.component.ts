@@ -32,6 +32,7 @@ import {
   Style,
   IgnoreFields,
   ExcelStyle,
+  ApplyRowStyles,
   GetDateRangeLabel,
   SetDateRange,
   HeightStyle,
@@ -380,6 +381,14 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       floatingFilter: true,
       suppressColumnVirtualisation: true,
       suppressHorizontalScroll: false,
+      enableFilter: true,
+      animateRows: true,
+      alignedGrids: [],
+      defaultColDef: {
+        sortable: true,
+        resizable: true,
+        filter: true
+      },
       onGridReady: params => {
         params.api.setServerSideDatasource(this.datasource);
         this.gridOptions.excelStyles = ExcelStyle;
@@ -390,17 +399,10 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         // });
         // params.api.onGroupExpandedOrCollapsed();
       },
+      getRowStyle: params => ApplyRowStyles(params),
       getChildCount: data => {
         // Data Contains a Group that is returned from the API
         return data ? data.groupCount : 0;
-      },
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      defaultColDef: {
-        sortable: true,
-        resizable: true,
-        filter: true
       }
     } as GridOptions;
     this.gridOptions.sideBar = SideBar(

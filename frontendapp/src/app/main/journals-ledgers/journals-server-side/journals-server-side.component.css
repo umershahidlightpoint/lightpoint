@@ -5,28 +5,29 @@ html {
   height: 100%;
 }
 
-.md-datepicker-input-container {
-  width: 150px;
+.font-weight-500 {
+  font-weight: 500;
 }
 
-.mat-datepicker-content .mat-calendar {
-  zoom: 0.5;
+.mt-6 {
+  margin-top: 6px;
 }
 
-@media (min-width: 320px) {
-  ::ng-deep.md-drppicker.shown.drops-down-right {
-    width: 320px;
-  }
-}
-@media (min-width: 768px) {
-  ::ng-deep.md-drppicker.shown.drops-down-right {
-    width: auto;
-  }
+.add-journal-btn {
+  margin-left: -0.9rem;
 }
 
-::ng-deep.greenBackground {
+input[type='checkbox'] {
+  transform: scale(1.5);
+}
+
+::ng-deep .greenBackground {
   background-color: #b5e6b5;
 }
+
+/****************************** 
+********    AG Grid    ******** 
+******************************/
 
 ::ng-deep .redFont {
   color: red;
@@ -42,9 +43,6 @@ html {
   font-weight: bold;
 }
 
-/*
-  Want to Make Sure the Scrollbar is Shown
-  */
 .ag-body-viewport-wrapper.ag-layout-normal {
   overflow-x: scroll;
   overflow-y: scroll;
@@ -62,18 +60,26 @@ html {
   box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
 }
 
-.add-journal-btn {
-  margin-left: -0.9rem;
+/****************************** 
+********  Date Picker  ******** 
+******************************/
+
+.md-datepicker-input-container {
+  width: 150px;
 }
 
-.font-weight-500 {
-  font-weight: 500;
+.mat-datepicker-content .mat-calendar {
+  zoom: 0.5;
 }
 
-input[type='checkbox'] {
-  transform: scale(1.5);
+@media (min-width: 320px) {
+  ::ng-deep.md-drppicker.shown.drops-down-right {
+    width: 320px;
+  }
 }
 
-.mt-6 {
-  margin-top: 6px;
+@media (min-width: 768px) {
+  ::ng-deep.md-drppicker.shown.drops-down-right {
+    width: auto;
+  }
 }
