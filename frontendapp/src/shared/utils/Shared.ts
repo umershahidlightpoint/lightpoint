@@ -135,12 +135,11 @@ export const ExcelStyle = [
 
 export const ApplyRowStyles = params => {
   const rowColors = [
-    { backgroundColor: '#039BE5', TextColor: '#FFFFFF' },
-    { backgroundColor: '#03A9F4', TextColor: '#FFFFFF' },
-    { backgroundColor: '#29B6F6', TextColor: '#FFFFFF' },
-    { backgroundColor: '#4FC3F7', TextColor: '#FFFFFF' },
-    { backgroundColor: '#81D4FA', TextColor: '#000000' },
-    { backgroundColor: '#B3E5FC', TextColor: '#000000' }
+    { backgroundColor: '#B8B8B8', TextColor: '#000000' },
+    { backgroundColor: '#C2C2C2', TextColor: '#000000' },
+    { backgroundColor: '#D2D2D2', TextColor: '#000000' },
+    { backgroundColor: '#E2E2E2', TextColor: '#000000' },
+    { backgroundColor: '#F2F2F2', TextColor: '#000000' }
   ];
   if (params.node.group) {
     return {
