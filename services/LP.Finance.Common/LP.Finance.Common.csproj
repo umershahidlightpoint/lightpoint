@@ -124,6 +124,7 @@
     <Compile Include="Model\Tag.cs" />
     <Compile Include="Model\Transaction.cs" />
     <Compile Include="GraphQLTypes\PerformanceType.cs" />
+    <Compile Include="ServerSideRowModelHelper.cs" />
     <Compile Include="SqlHelper.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
