@@ -96,32 +96,34 @@ export class AgGridUtils {
             }
 
             clone.cellStyle = { 'text-align': 'right' };
-            clone.cellClass = 'twoDecimalPlaces';
-            clone.valueFormatter = moneyFormatter;
-            clone.cellClassRules = {
-              // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
-              greenFont(params) {
-                if (params.node.rowPinned) {
-                  return false;
-                } else {
-                  return params.value > 0;
+            if (!column.field.toLowerCase().includes('id')) {
+              clone.cellClass = 'twoDecimalPlaces';
+              clone.valueFormatter = moneyFormatter;
+              clone.cellClassRules = {
+                // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
+                greenFont(params) {
+                  if (params.node.rowPinned) {
+                    return false;
+                  } else {
+                    return params.value > 0;
+                  }
+                },
+                redFont(params) {
+                  if (params.node.rowPinned) {
+                    return false;
+                  } else {
+                    return params.value < 0;
+                  }
+                },
+                footerRow(params) {
+                  if (params.node.rowPinned) {
+                    return true;
+                  } else {
+                    return false;
+                  }
                 }
-              },
-              redFont(params) {
-                if (params.node.rowPinned) {
-                  return false;
-                } else {
-                  return params.value < 0;
-                }
-              },
-              footerRow(params) {
-                if (params.node.rowPinned) {
-                  return true;
-                } else {
-                  return false;
-                }
-              }
-            };
+              };
+            }
           } else if (column.Type == 'System.DateTime') {
             clone.enableRowGroup = true;
             clone.cellStyle = { 'text-align': 'right' };
