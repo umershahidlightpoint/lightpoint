@@ -110,6 +110,9 @@
     <Build Include="Views\vwCurrentStateTrades.sql" />
     <Build Include="Views\vwNormalizedEodFxRates.sql" />
     <Build Include="Views\vwPositions.sql" />
+    <Build Include="Tables\third_party_account.sql" />
+    <Build Include="Tables\third_party_organization.sql" />
+    <Build Include="Tables\account_to_third_party_account_mapping.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">
