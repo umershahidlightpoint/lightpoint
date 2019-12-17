@@ -96,7 +96,7 @@ export class AgGridUtils {
             }
 
             clone.cellStyle = { 'text-align': 'right' };
-            if (!column.field.toLowerCase().includes('id')) {
+            if (!column.field.toLowerCase().endsWith('id')) {
               clone.cellClass = 'twoDecimalPlaces';
               clone.valueFormatter = moneyFormatter;
               clone.cellClassRules = {
