@@ -324,7 +324,6 @@ export class MarketPricesComponent implements OnInit {
   }
 
   vChange($event) {
-    console.log($event);
   }
 
   visualizeData() {

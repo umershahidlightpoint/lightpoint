@@ -84,7 +84,7 @@ export class JournalsSummaryComponent implements OnInit {
 
       // console.log('PARAMS :: ', JSON.stringify(params.request, null, 1));
       // console.log('PAYLOAD :: ', JSON.stringify(payload, null, 1));
-      console.log('GET ROWS :: ');
+      // console.log('GET ROWS :: ');
 
       this.financeService.getServerSideJournals(payload).subscribe(
         result => {
@@ -280,7 +280,6 @@ export class JournalsSummaryComponent implements OnInit {
   }
 
   onFilterChanged(event) {
-    console.log('FILTERS ARE CHANGED ::');
     this.internalFilters = event.api.serverSideRowModel.cacheParams.filterModel;
     const payload = {
       filterModel: this.internalFilters,
