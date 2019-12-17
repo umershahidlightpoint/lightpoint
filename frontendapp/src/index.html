@@ -12,11 +12,26 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="stylesheet" type="text/html" href="styles.css">
+  <style>
+    .preloader-content {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
 </head>
 
 <body>
   <div class="margin-top-50">
     <app-root></app-root>
+  </div>
+  <div id="preloader">
+    <div class="preloader-content">
+      <img class="preloader-image" width="182" height="57" src="./assets/images/logo.png" alt="logo" />
+      <div class="spinner-grow" role="status">
+      </div>
+    </div>
   </div>
 </body>
 
