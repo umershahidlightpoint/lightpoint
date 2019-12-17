@@ -73,7 +73,6 @@ export class AccountComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.dataService.flag$.subscribe(obj => {
-      console.log(':: IS POSTING ENGINE RUNNING ::');
       this.hideGrid = obj;
       if (!this.hideGrid) {
         this.getAccountsRecord();

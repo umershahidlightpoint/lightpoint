@@ -414,7 +414,6 @@ export class FxRatesComponent implements OnInit {
   ngModelChange(date) {
     this.startDate = date.startDate;
     this.endDate = date.endDate;
-    console.log(this.startDate, '========', this.endDate);
     this.fxRate.api.onFilterChanged();
   }
 

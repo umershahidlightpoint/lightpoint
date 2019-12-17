@@ -236,7 +236,6 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
       .subscribe(
         result => {
           if (result.meta.Total > 0) {
-            console.log('RESULT :: ', result);
             pageNumber += 1;
             this.getJournalData(pageNumber, 10000, false);
 

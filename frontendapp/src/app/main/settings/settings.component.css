@@ -8,10 +8,3 @@ body {
 .m-top-10 {
   margin-top: 10%;
 }
-
-/* Spinner Style */
-::ng-deep .spinner-grow {
-  width: 4rem !important;
-  height: 4rem !important;
-  color: rgb(2, 117, 216);
-}

@@ -5,11 +5,8 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
-using LP.Finance.Common.Mappers;
 using LP.Finance.Common.Models;
 using Newtonsoft.Json;
 using SqlDAL.Core;
@@ -18,7 +15,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 {
     class SettingService : ISettingService
     {
-        private static readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+        private static readonly string
+            connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+
         public SqlHelper sqlHelper = new SqlHelper(connectionString);
 
         private static readonly string tradesURL = "/api/trade?period=ITD";
@@ -29,19 +28,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             try
             {
                 var tradesResult = Utils.GetWebApiData(tradesURL);
+
                 tradesResult.Wait();
+                var result = tradesResult.Result;
 
-                var res = tradesResult.Result;
-                var elements = JsonConvert.DeserializeObject<Transaction[]>(res);
-                var filterTradeCurrency = elements.GroupBy(x => x.TradeCurrency).Select(group => group.First()).ToList();
-                List<string> MapResponse = new List<string>();
+                var elements = JsonConvert.DeserializeObject<List<Transaction>>(result);
+                var currencyList = elements.Select(item => item.TradeCurrency).Distinct().ToList();
 
-                for (var i = 0; i < filterTradeCurrency.Count; i++)
-                {
-                    MapResponse.Add(filterTradeCurrency[i].TradeCurrency);
-                }
-
-                return Utils.Wrap(true, MapResponse, HttpStatusCode.OK);
+                return Utils.Wrap(true, currencyList, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
@@ -56,7 +50,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             try
             {
                 sqlHelper.VerifyConnection();
-                sqlHelper.SqlBeginTransaction();
 
                 var createdDate = DateTime.Now.ToString("MM-dd-yyyy");
                 var createdBy = "John Doe";
@@ -80,15 +73,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                     ,@fiscalDay)";
 
                 sqlHelper.Insert(query, CommandType.Text, settingParameters.ToArray());
-
-                sqlHelper.SqlCommitTransaction();
                 sqlHelper.CloseConnection();
-
 
                 return Utils.Wrap(true, null, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
+                sqlHelper.CloseConnection();
+
                 return Utils.Wrap(false);
             }
         }
@@ -100,7 +92,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             try
             {
                 sqlHelper.VerifyConnection();
-                sqlHelper.SqlBeginTransaction();
 
                 var lastUpdatedDate = DateTime.Now.ToString("MM-dd-yyyy");
                 var createdBy = "John Doe";
@@ -129,8 +120,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                             WHERE [settings].[id] = @id";
 
                 sqlHelper.Update(settingQuery, CommandType.Text, settingParameters.ToArray());
-
-                sqlHelper.SqlCommitTransaction();
                 sqlHelper.CloseConnection();
 
 
@@ -138,6 +127,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
             catch (Exception ex)
             {
+                sqlHelper.CloseConnection();
+
                 return Utils.Wrap(false);
             }
         }
@@ -146,17 +137,23 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             try
             {
-                var query = $@"select id, created_by, created_date, last_updated_by, last_updated_date,
-                               currency_code, tax_methodology, fiscal_month, fiscal_day
-                               from settings";
+                var query = $@"SELECT id, 
+                                created_by, 
+                                created_date, 
+                                last_updated_by, 
+                                last_updated_date,                               
+                                currency_code, 
+                                tax_methodology, 
+                                fiscal_month, 
+                                fiscal_day
+                               FROM settings";
 
-                List<SqlParameter> sqlParams = new List<SqlParameter>();
 
-                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, null);
+
                 var status = dataTable.Rows.Count > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
 
-                var reportObject = Utils.Wrap(true, dataTable, status);
-                return reportObject;
+                return Utils.Wrap(true, dataTable, status);
             }
             catch (Exception ex)
             {

@@ -82,7 +82,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   infiniteCount = null;
   filterByZeroBalance = 0;
   havingColumns = ['balance'];
-  absoluteSorting : string[] = [];
+  absoluteSorting: string[] = [];
   absoluteSortingAsc = false;
   absoluteSortingDesc = false;
 
@@ -132,7 +132,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
       // console.log('PARAMS :: ', JSON.stringify(params.request, null, 1));
       // console.log('PAYLOAD :: ', JSON.stringify(payload, null, 1));
-      console.log('GET ROWS CALLED ::');
+      // console.log('GET ROWS CALLED ::');
 
       this.financeService.getServerSideJournals(payload).subscribe(
         result => {
@@ -301,10 +301,10 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
   getMainMenuItems(params) {
     switch (params.column.getId()) {
-      case "balance":
+      case 'balance':
         var menuItems = params.defaultItems.slice(0);
         menuItems.push({
-          name: "Sort by absolute value",
+          name: 'Sort by absolute value',
           action: () => {
             this.sortByAbsoluteValue('asc', params.column.getId());
           },
@@ -320,25 +320,24 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         return menuItems;
       default:
         return params.defaultItems;
-      }
     }
-
-sortByAbsoluteValue(sortDirection, colId) {
-  this.absoluteSortingAsc = !this.absoluteSortingAsc;
-  if(this.absoluteSortingAsc){
-    this.absoluteSorting = [];
-    this.absoluteSorting.push(colId);
-  } else{
-    this.absoluteSorting = [];
   }
-    var sort = [
+
+  sortByAbsoluteValue(sortDirection, colId) {
+    this.absoluteSortingAsc = !this.absoluteSortingAsc;
+    if (this.absoluteSortingAsc) {
+      this.absoluteSorting = [];
+      this.absoluteSorting.push(colId);
+    } else {
+      this.absoluteSorting = [];
+    }
+    let sort = [
       {
-        colId: colId,
+        colId,
         sort: sortDirection
       }
     ];
-    //this.gridOptions.api.setSortModel(sort);
-    console.log("Ascending sort abs by " + sortDirection);
+    // this.gridOptions.api.setSortModel(sort);
   }
 
   initColDefs() {
@@ -460,11 +459,9 @@ sortByAbsoluteValue(sortDirection, colId) {
   }
 
   onFilterChanged(event) {
-    console.log('filter changed');
     this.resetBottomRowData();
     const havingColumns = this.havingColumns;
     const { filterModel, valueCols } = event.api.serverSideRowModel.cacheParams;
-    console.log(valueCols, 'these are value cols');
     const { fund, symbol, when, balance } = this.getServerSideExternalFilter();
     const payload = {
       filterModel,
@@ -637,7 +634,7 @@ sortByAbsoluteValue(sortDirection, colId) {
       symbolFilter: this.filterBySymbol,
       zeroBalanceFilter: this.filterByZeroBalance,
       absoluteSortingModel: {
-        sortingApplied : this.absoluteSortingAsc,
+        sortingApplied: this.absoluteSortingAsc,
         sortingOn: this.absoluteSorting
       },
       dateFilter:

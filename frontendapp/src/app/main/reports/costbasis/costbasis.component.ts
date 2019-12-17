@@ -368,7 +368,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   getMarketPriceData(symbol) {
     this.financeService.getMarketPriceForSymbol(symbol).subscribe(response => {
-      console.log(response.payload);
       this.mapMarketPriceChartData(response.payload, symbol);
     });
   }
@@ -385,7 +384,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
         value: chartData[item].Price
       });
     }
-    console.log(data);
     this.graphObject = {
       xAxisLabel: 'Date',
       yAxisLabel: 'Symbol',
