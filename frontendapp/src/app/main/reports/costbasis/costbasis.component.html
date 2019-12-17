@@ -8,12 +8,16 @@
 
 <!-- Reports Main Div Starts -->
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
+
   <div class="row">
+
     <div class="col-6">
+
       <!-- Filters Div Starts -->
       <div class="row">
+
         <!-- Funds Dropdown Div Starts -->
-        <div class="col-3">
+        <div class="col-auto">
           <select class="form-control" [(ngModel)]="fund" (ngModelChange)="changeFund($event)">
             <option selected>All Funds</option>
             <option *ngFor="let fund of funds" [ngValue]="fund.fundCode">
@@ -24,13 +28,13 @@
         <!-- Funds Dropdown Div Ends -->
 
         <!-- DateRange Label Div Starts -->
-        <div class="col-1">
+        <!-- <div class="col-1">
           <label class="text-right"> {{ DateRangeLabel }} </label>
-        </div>
+        </div> -->
         <!-- DateRange Label Div Ends -->
 
         <!-- Date Picker Div Starts -->
-        <div class="col-4">
+        <div class="col-auto">
           <form>
             <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
               [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" y name=" selectedDate"
@@ -40,21 +44,23 @@
         <!-- Date Picker Div Ends -->
 
         <!-- Clear Button Div Starts -->
-        <div class="col-2">
+        <div class="col-auto">
           <button (click)="clearFilters()" class="btn btn-info" tooltip="Clear" placement="top">
             <i class="fa fa-remove"></i>
           </button>
         </div>
         <!-- Clear Button Div Ends -->
 
-        <!----- Buttons Div Starts ----->
-        <div class="col-2">
+        <!-- Buttons Div Starts -->
+        <div class="col-auto ml-auto">
+
           <!-- Refresh Button Div Starts -->
           <div class="mr-2 d-inline-block">
             <button (click)="refreshReport()" class="btn btn-info" tooltip="Refresh" placement="top">
               <i class="fa fa-refresh"></i></button>
           </div>
           <!-- Refresh Button Div Ends -->
+
           <!-- Export to Excel Button -->
           <div class="mr-2 d-inline-block">
             <button (click)="onBtExport()" class="btn btn-info" tooltip="Export to Excel" placement="top">
@@ -62,20 +68,24 @@
             </button>
           </div>
         </div>
-        <!----- Buttons Div Ends ----->
-        <!----- Chart DropDown Div Starts ----->
-        <div class="ml-auto">
-          <!----- Chart Data DropDown Starts ----->
-          <!-- <div class="mr-2 d-inline-block">
-        <select class="form-control" [(ngModel)]="selectedChartOption" (ngModelChange)="changeChart($event)">
-          <option *ngFor="let option of chartOptions" [ngValue]="option.key">
-            {{option.value}}
-          </option>
-        </select>
-      </div> -->
-          <!----- Chart Data DropDown Ends  ----->
-        </div>
+        <!-- Buttons Div Ends -->
+
+        <!-- Chart DropDown Div Starts -->
+        <!-- <div class="ml-auto"> -->
+
+        <!-- Chart Data DropDown Starts -->
+        <!-- <div class="mr-2 d-inline-block">
+            <select class="form-control" [(ngModel)]="selectedChartOption" (ngModelChange)="changeChart($event)">
+              <option *ngFor="let option of chartOptions" [ngValue]="option.key">
+                {{option.value}}
+              </option>
+            </select>
+          </div> -->
+        <!----- Chart Data DropDown Ends  ----->
+
+        <!-- </div> -->
         <!----- Chart DropDown Div Ends ----->
+
       </div>
       <!-- Filters Div Ends -->
 
@@ -95,78 +105,78 @@
       <!-- Report Grid Ends -->
     </div>
 
-    <div class="col-6">
-      <!-- Chart Column Starts -->
-      <div class="col-12 row-3 mt-0" [ngStyle]="styleForHeight">
-        <div *ngIf="displayChart" class="line-chart-wrapper d-flex flex-wrap">
+    <!-- Chart Column Starts -->
+    <div class="col-6 row-3 mt-0" [ngStyle]="styleForHeight">
 
-          <tabset class="w-100">
-            <tab heading="Realized/Unrealized P&L">
-              <div class="row">
-                <div class="w-100 col-6 pt-10">
-                  <div class="chart-title">Unrealized P&L</div>
-                  <eikos-line-plot class="d-block chart" [propID]="'unrealizedData'" [lineColors]="lineColors"
-                    [dateTimeFormat]="'YYYY-MM-DD'" [data]="unrealizedData" [xAxisLabel]="'Date'" [yAxisLabel]="''"
-                    [divHeight]="divHeight" [threshold]=0 [divWidth]="divWidth">
-                  </eikos-line-plot>
-                </div>
+      <div *ngIf="displayChart" class="line-chart-wrapper d-flex flex-wrap">
 
-                <div class="w-100 col-6 pt-10">
-                  <div class="chart-title">Realized P&L</div>
-                  <eikos-line-plot class="d-block chart" [propID]="'realalizedData'" [lineColors]="lineColors"
-                    [dateTimeFormat]="'YYYY-MM-DD'" [threshold]=0 [data]="realizedData" [xAxisLabel]="'Date'"
-                    [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
-                  </eikos-line-plot>
-                </div>
+        <tabset class="w-100">
+          <tab heading="Realized/Unrealized P&L">
+            <div class="row">
+              <div class="w-100 col-6 pt-10">
+                <div class="chart-title">Unrealized P&L</div>
+                <eikos-line-plot class="d-block chart" [propID]="'unrealizedData'" [lineColors]="lineColors"
+                  [dateTimeFormat]="'YYYY-MM-DD'" [data]="unrealizedData" [xAxisLabel]="'Date'" [yAxisLabel]="''"
+                  [divHeight]="divHeight" [threshold]=0 [divWidth]="divWidth">
+                </eikos-line-plot>
               </div>
-            </tab>
 
-            <tab heading="Measure">
-              <div class="row">
-                <div class="w-100 col-6 pt-10">
-                  <div class=" chart-title">Investment at Cost</div>
-                  <eikos-line-plot class="d-block chart" [propID]="propIDBalance" [lineColors]="lineColors"
-                    [data]="bData" [dateTimeFormat]="'YYYY-MM-DD'" [threshold]=0 [xAxisLabel]="'Date'" [yAxisLabel]="''"
-                    [divHeight]="divHeight" [divWidth]="divWidth">
-                  </eikos-line-plot>
-                </div>
-
-                <div class="w-100 col-6 pt-10">
-                  <div class="chart-title">Quantity</div>
-                  <eikos-line-plot class="d-block chart" [propID]="propIDQuantity" [lineColors]="lineColors"
-                    [data]="qData" [dateTimeFormat]="'YYYY-MM-DD'" [threshold]=0 [xAxisLabel]="'Date'" [yAxisLabel]="''"
-                    [divHeight]="divHeight" [divWidth]="divWidth">
-                  </eikos-line-plot>
-                </div>
-
-                <div class="w-100 col-6 pt-10">
-                  <div class="chart-title">Exposure (at Cost)</div>
-                  <eikos-line-plot class="d-block chart" [propID]="propIDCostBasis" [lineColors]="lineColors"
-                    [data]="cbData" [dateTimeFormat]="'YYYY-MM-DD'" [threshold]=0 [xAxisLabel]="'Date'"
-                    [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
-                  </eikos-line-plot>
-                </div>
-
-                <div class="w-100 col-6 pt-10">
-                  <div class="chart-title">Net P&L</div>
-                  <eikos-line-plot class="d-block chart" [propID]="'netpnlData'" [lineColors]="lineColors"
-                    [data]="netpnlData" [dateTimeFormat]="'YYYY-MM-DD'" [threshold]=0 [xAxisLabel]="'Date'"
-                    [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
-                  </eikos-line-plot>
-                </div>
-
-                <div *ngIf="marketPriceChart" class="w-100">
-                  <app-calculation-graphs class="w-50 h-75" [chartObject]="graphObject" [mode]="'single'">
-                  </app-calculation-graphs>
-                </div>
+              <div class="w-100 col-6 pt-10">
+                <div class="chart-title">Realized P&L</div>
+                <eikos-line-plot class="d-block chart" [propID]="'realalizedData'" [lineColors]="lineColors"
+                  [dateTimeFormat]="'YYYY-MM-DD'" [threshold]=0 [data]="realizedData" [xAxisLabel]="'Date'"
+                  [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
+                </eikos-line-plot>
               </div>
-            </tab>
-          </tabset>
-        </div>
+            </div>
+          </tab>
 
+          <tab heading="Measure">
+            <div class="row">
+              <div class="w-100 col-6 pt-10">
+                <div class=" chart-title">Investment at Cost</div>
+                <eikos-line-plot class="d-block chart" [propID]="propIDBalance" [lineColors]="lineColors" [data]="bData"
+                  [dateTimeFormat]="'YYYY-MM-DD'" [threshold]=0 [xAxisLabel]="'Date'" [yAxisLabel]="''"
+                  [divHeight]="divHeight" [divWidth]="divWidth">
+                </eikos-line-plot>
+              </div>
+
+              <div class="w-100 col-6 pt-10">
+                <div class="chart-title">Quantity</div>
+                <eikos-line-plot class="d-block chart" [propID]="propIDQuantity" [lineColors]="lineColors"
+                  [data]="qData" [dateTimeFormat]="'YYYY-MM-DD'" [threshold]=0 [xAxisLabel]="'Date'" [yAxisLabel]="''"
+                  [divHeight]="divHeight" [divWidth]="divWidth">
+                </eikos-line-plot>
+              </div>
+
+              <div class="w-100 col-6 pt-10">
+                <div class="chart-title">Exposure (at Cost)</div>
+                <eikos-line-plot class="d-block chart" [propID]="propIDCostBasis" [lineColors]="lineColors"
+                  [data]="cbData" [dateTimeFormat]="'YYYY-MM-DD'" [threshold]=0 [xAxisLabel]="'Date'" [yAxisLabel]="''"
+                  [divHeight]="divHeight" [divWidth]="divWidth">
+                </eikos-line-plot>
+              </div>
+
+              <div class="w-100 col-6 pt-10">
+                <div class="chart-title">Net P&L</div>
+                <eikos-line-plot class="d-block chart" [propID]="'netpnlData'" [lineColors]="lineColors"
+                  [data]="netpnlData" [dateTimeFormat]="'YYYY-MM-DD'" [threshold]=0 [xAxisLabel]="'Date'"
+                  [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
+                </eikos-line-plot>
+              </div>
+
+              <div *ngIf="marketPriceChart" class="w-100">
+                <app-calculation-graphs class="w-50 h-75" [chartObject]="graphObject" [mode]="'single'">
+                </app-calculation-graphs>
+              </div>
+            </div>
+          </tab>
+        </tabset>
       </div>
-      <!-- Chart Column Ends -->
+
     </div>
+    <!-- Chart Column Ends -->
+
   </div>
 
 </div>
