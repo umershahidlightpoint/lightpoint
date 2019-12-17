@@ -18,6 +18,9 @@ namespace LP.Finance.Common.Model
         // this is a work around and an alternative to value cols.
         //Sometimes the grid returns empty value cols.
         public List<string> havingColumns { get; set; } = new List<string>();
+        //those columns which are to be sorted on their absolute value.
+       public List<string> absoluteSorting { get; set; } = new List<string>();
+
 
     }
 }

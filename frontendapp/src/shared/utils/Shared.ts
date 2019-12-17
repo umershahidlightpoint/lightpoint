@@ -133,6 +133,22 @@ export const ExcelStyle = [
   }
 ];
 
+export const ApplyRowStyles = params => {
+  const rowColors = [
+    { backgroundColor: '#B8B8B8', TextColor: '#000000' },
+    { backgroundColor: '#C2C2C2', TextColor: '#000000' },
+    { backgroundColor: '#D2D2D2', TextColor: '#000000' },
+    { backgroundColor: '#E2E2E2', TextColor: '#000000' },
+    { backgroundColor: '#F2F2F2', TextColor: '#000000' }
+  ];
+  if (params.node.group) {
+    return {
+      background: rowColors[params.node.level].backgroundColor,
+      color: rowColors[params.node.level].TextColor
+    };
+  }
+};
+
 export const CalTotalRecords = (gridOptions: GridOptions) => {
   let tTotal = 0;
   let tCredit = 0;
