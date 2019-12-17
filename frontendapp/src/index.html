@@ -17,12 +17,23 @@
   <link rel="stylesheet" type="text/html" href="styles.css">
 
   <style>
+    .preloader-container {
+      display: flex;
+    }
+
     .preloader-content {
       height: 100vh;
-      display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       background-color: #0275D8;
+    }
+
+    .preloader-title {
+      color: #9BBDDB;
+      font-family: inherit;
+      font-weight: 400;
+      font-size: 1.5em;
     }
 
     #spinner {
@@ -40,10 +51,13 @@
   </div>
 
   <div id="preloader">
-    <div class="preloader-content">
-      <img class="preloader-image" width="182" height="58" src="./assets/images/logo.png" alt="logo" />
-      <div id="spinner" class="spinner-grow" role="status">
+    <div class="preloader-container preloader-content">
+      <div class="preloader-container">
+        <img class="preloader-image" width="182" height="58" src="./assets/images/logo.png" alt="logo" />
+        <div id="spinner" class="spinner-grow" role="status">
+        </div>
       </div>
+      <div class="preloader-title">Portfolio Accounting</div>
     </div>
   </div>
 
