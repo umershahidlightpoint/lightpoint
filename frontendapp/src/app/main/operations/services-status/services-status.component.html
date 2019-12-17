@@ -1,8 +1,8 @@
-<div class="d-flex justify-content-center">
-  <div class="spinner-grow m-top-10" role="status" *ngIf="!show">
-    <span class="sr-only">Loading...</span>
-  </div>
+<!-- Loading Spinner -->
+<div *ngIf="!show" class="d-flex justify-content-center align-items-center height-50vh">
+  <app-loader></app-loader>
 </div>
+<!-- Loading Spinner Ends -->
 
 <div class="form_wrapper" *ngIf="show">
   <div class="d-flex justify-content-between title-bg-color">
@@ -22,13 +22,10 @@
           <p>{{ service.serviceName }}</p>
         </div>
 
-        <div
-          class="status"
-          [ngClass]="{
+        <div class="status" [ngClass]="{
             'bc-green': service.status == 'Running',
             'bc-red': service.status == 'Stopped'
-          }"
-        >
+          }">
           <span>{{ service.status }}</span>
         </div>
       </div>
