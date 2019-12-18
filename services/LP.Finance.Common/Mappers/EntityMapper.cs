@@ -26,6 +26,34 @@ namespace LP.Finance.Common.Mappers
             return accountsOutputDto;
         }
 
+        public AccountsOutputDto MapThirdPartyMappedAccounts(IDataReader reader)
+        {
+            var accountsOutputDto = new AccountsOutputDto
+            {
+                AccountId = Convert.ToInt32(reader["account_id"]),
+                AccountName = reader["name"].ToString(),
+                Description = reader["description"].ToString(),
+                TypeId = Convert.ToInt32(reader["type_id"]),
+                Type = reader["type"].ToString(),
+                CategoryId = Convert.ToInt32(reader["category_id"]),
+                Category = reader["category"].ToString(),
+                HasMapping = reader["map_id"] != DBNull.Value,
+                ThirdPartyMappedAccounts = reader["map_id"] == DBNull.Value
+                    ? new List<MappedAccountsOutputDto>()
+                    : new List<MappedAccountsOutputDto>
+                    {
+                        new MappedAccountsOutputDto
+                        {
+                            MapId = Convert.ToInt32(reader["map_id"]),
+                            OrganizationName = reader["organization_name"].ToString(),
+                            ThirdPartyAccountName = reader["third_party_account_name"].ToString()
+                        }
+                    }
+            };
+
+            return accountsOutputDto;
+        }
+
         public AccountOutputDto MapAccount(IDataReader reader)
         {
             var accountOutputDto = new AccountOutputDto

@@ -8,6 +8,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object Data(string symbol, string search = "");
 
         object GetAccounts(int pageNumber, int pageSize, string accountName, string accountCategory);
+        object GetMappedAccounts();
 
         object GetAccount(int id);
 
@@ -18,7 +19,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object PatchAccount(int id, AccountInputPatchDto account);
 
         object DeleteAccount(int id);
-        
+
         object GetThirdPartyOrganizationAccounts();
 
         object CreateOrUpdateChartOfAccountMapping(List<ChartOfAccountMappingDto> obj);

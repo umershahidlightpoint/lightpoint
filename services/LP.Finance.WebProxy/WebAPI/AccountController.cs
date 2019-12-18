@@ -32,6 +32,13 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.GetAccounts(pageNumber, pageSize, accountName, accountCategory);
         }
 
+        [Route("mappedAccount")]
+        [HttpGet]
+        public object GetMappedAccounts()
+        {
+            return controller.GetMappedAccounts();
+        }
+
         [Route("{id:int}")]
         [HttpGet]
         public object GetAccount(int id)
@@ -79,7 +86,7 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return controller.GetThirdPartyOrganizationAccounts();
         }
-        
+
         [Route("chartOfAccountMapping")]
         [HttpPut]
         public object CreateChartOfAccountMapping(List<ChartOfAccountMappingDto> obj)

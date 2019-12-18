@@ -100,6 +100,75 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return Utils.Wrap(true, accounts, HttpStatusCode.OK, null, meta);
         }
 
+        public object GetMappedAccounts()
+        {
+            dynamic postingEngine = new PostingEngineService().GetProgress();
+
+            if (postingEngine.IsRunning)
+            {
+                return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+            }
+
+            try
+            {
+                SqlHelper sqlHelper = new SqlHelper(connectionString);
+
+                var query = new StringBuilder($@"SELECT [account].[id] AS 'account_id'
+                                                ,[account].[name]
+	                                            ,[account].[description]
+						                        ,[account_type].[id] AS 'type_id'
+	                                            ,[account_type].[name] AS 'type'
+                                                ,[account_category].[id] AS 'category_id'
+	                                            ,[account_category].[name] AS 'category'
+						                        ,[m].[id] AS 'map_id'
+						                        ,[t].[third_party_account_name] AS 'third_party_account_name'
+						                        ,[org].[organization_name] AS 'organization_name'
+                                                FROM [account]
+						                        LEFT JOIN [account_type] ON [account].[account_type_id] = [account_type].[id]
+						                        LEFT JOIN [account_category] ON [account_type].[account_category_id] = [account_category].[id]
+						                        LEFT JOIN [account_to_third_party_account_mapping] [m] ON [account].[id] = [m].[account_id]
+						                        LEFT JOIN [third_party_account] [t] ON [m].[third_party_account_id] = [t].[id]
+						                        LEFT JOIN [third_party_organization] [org] ON [t].[third_party_organization_id] = [org].[id]");
+
+                List<AccountsOutputDto> accounts = new List<AccountsOutputDto>();
+                using (var reader =
+                    sqlHelper.GetDataReader(query.ToString(), CommandType.Text, null,
+                        out var sqlConnection))
+                {
+                    while (reader.Read())
+                    {
+                        accounts.Add(mapper.MapThirdPartyMappedAccounts(reader));
+                    }
+
+                    reader.Close();
+                    sqlConnection.Close();
+                }
+
+                var result = accounts.GroupBy(account => account.AccountId)
+                    .Select(group => new AccountsOutputDto
+                    {
+                        AccountId = group.Key,
+                        AccountName = group.FirstOrDefault()?.AccountName,
+                        Description = group.FirstOrDefault()?.Description,
+                        TypeId = group.FirstOrDefault()?.TypeId,
+                        Type = group.FirstOrDefault()?.Type,
+                        CategoryId = group.FirstOrDefault()?.CategoryId,
+                        Category = group.FirstOrDefault()?.Category,
+                        HasMapping = group.FirstOrDefault()?.HasMapping,
+                        ThirdPartyMappedAccounts = group.SelectMany(mapped => mapped.ThirdPartyMappedAccounts).ToList()
+                    })
+                    .ToList();
+
+                Logger.Info($"GetMappedAccounts Executed at {DateTime.Now}");
+                return Utils.Wrap(true, result, HttpStatusCode.OK, null, null);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
         public object GetAccount(int id)
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);
@@ -502,7 +571,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             SqlHelper sqlHelper = new SqlHelper(connectionString);
             try
             {
-                List<AccountToThirdPartyAccountMapping> accountToThirdPartyAccountMappings = new List<AccountToThirdPartyAccountMapping>();
+                List<AccountToThirdPartyAccountMapping> accountToThirdPartyAccountMappings =
+                    new List<AccountToThirdPartyAccountMapping>();
                 sqlHelper.VerifyConnection();
                 sqlHelper.SqlBeginTransaction();
                 foreach (var account in obj)
@@ -511,7 +581,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     {
                         if (mapping.MapId == 0)
                         {
-                            accountToThirdPartyAccountMappings.Add(CreateThirdPartyAccountMapping(account.AccountId, mapping));
+                            accountToThirdPartyAccountMappings.Add(
+                                CreateThirdPartyAccountMapping(account.AccountId, mapping));
                         }
                         else
                         {
@@ -519,11 +590,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         }
                     }
                 }
-                if(accountToThirdPartyAccountMappings.Count > 0)
+
+                if (accountToThirdPartyAccountMappings.Count > 0)
                 {
-                    new SQLBulkHelper().Insert("account_to_third_party_account_mapping", accountToThirdPartyAccountMappings.ToArray(),
-                       sqlHelper.GetConnection(), sqlHelper.GetTransaction(), false,true);
+                    new SQLBulkHelper().Insert("account_to_third_party_account_mapping",
+                        accountToThirdPartyAccountMappings.ToArray(),
+                        sqlHelper.GetConnection(), sqlHelper.GetTransaction(), false, true);
                 }
+
                 sqlHelper.SqlCommitTransaction();
                 sqlHelper.CloseConnection();
                 return Utils.Wrap(true, null, HttpStatusCode.OK);
@@ -534,10 +608,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.CloseConnection();
                 throw ex;
             }
-            
         }
 
-        public AccountToThirdPartyAccountMapping CreateThirdPartyAccountMapping(int accountId, ThirdPartyAccount thirdPartyAccount)
+        public AccountToThirdPartyAccountMapping CreateThirdPartyAccountMapping(int accountId,
+            ThirdPartyAccount thirdPartyAccount)
         {
             AccountToThirdPartyAccountMapping obj = new AccountToThirdPartyAccountMapping();
             obj.AccountId = accountId;
@@ -547,7 +621,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return obj;
         }
 
-        public void UpdateThirdPartyAccountMapping(int accountId, ThirdPartyAccount thirdPartyAccount, SqlHelper sqlHelper)
+        public void UpdateThirdPartyAccountMapping(int accountId, ThirdPartyAccount thirdPartyAccount,
+            SqlHelper sqlHelper)
         {
             List<SqlParameter> mappingParams = new List<SqlParameter>
             {
@@ -556,6 +631,5 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var query = $@"DELETE FROM [dbo].[account_to_third_party_account_mapping] where [id] = @id";
             sqlHelper.Update(query, CommandType.Text, mappingParams.ToArray());
         }
-
     }
 }

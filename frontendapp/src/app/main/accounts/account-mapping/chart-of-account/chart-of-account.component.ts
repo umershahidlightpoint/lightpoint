@@ -95,26 +95,34 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      getExternalFilterState: () => {
-        return {};
-      },
-      pinnedBottomRowData: null,
-      clearExternalFilter: () => {},
       rowSelection: 'multiple',
       rowGroupPanelShow: 'after',
       pivotPanelShow: 'after',
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
-      onFirstDataRendered: params => {
-        AutoSizeAllColumns(params);
-        params.api.sizeColumnsToFit();
-      },
       defaultColDef: {
         sortable: true,
         resizable: true,
         filter: true
       },
-      groupSelectsChildren: true
+      groupSelectsChildren: true,
+      pinnedBottomRowData: null,
+      onFirstDataRendered: params => {
+        AutoSizeAllColumns(params);
+        params.api.sizeColumnsToFit();
+      },
+      getExternalFilterState: () => {
+        return {};
+      },
+      clearExternalFilter: () => {},
+      isRowSelectable: rowNode => {
+        return !rowNode.data.hasMapping;
+      },
+      getRowStyle: params => {
+        if (params.data.hasMapping) {
+          return { background: '#eeeeee' };
+        }
+      }
     } as GridOptions;
   }
 
@@ -136,9 +144,9 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
 
   getAccountsRecord() {
     setTimeout(() => {
-      this.financePocServiceProxy.getAllAccounts().subscribe(result => {
-        if (result.payload) {
-          this.rowData = result.payload.map(result => ({
+      this.accountmappingApiService.getMappedAccounts().subscribe(response => {
+        if (response.payload) {
+          this.rowData = response.payload.map(result => ({
             accountId: result.AccountId,
             accountName: result.AccountName,
             description: result.Description,
@@ -146,10 +154,12 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
             category: result.Category,
             typeId: result.TypeId,
             type: result.Type,
+            hasMapping: result.HasMapping,
             hasJournal: result.HasJournal,
             canDeleted: result.CanDeleted,
             canEdited: result.CanEdited
           }));
+
           this.gridOptions.api.setRowData(this.rowData);
         }
       });

@@ -63,6 +63,7 @@
     <Compile Include="Dtos\JournalGridFilters.cs" />
     <Compile Include="Dtos\JournalGridMain.cs" />
     <Compile Include="Dtos\JournalMetaInputDto.cs" />
+    <Compile Include="Dtos\MappedAccountsOutputDto.cs" />
     <Compile Include="Dtos\MarketPriceInputDto.cs" />
     <Compile Include="Dtos\SettingInputDto.cs" />
     <Compile Include="Dtos\SettingInputPatchDto.cs" />
