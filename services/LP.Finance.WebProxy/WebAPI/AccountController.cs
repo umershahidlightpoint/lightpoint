@@ -43,7 +43,7 @@ namespace LP.Finance.WebProxy.WebAPI
         public object CreateAccount(AccountInputDto account)
         {
             return !ModelState.IsValid || account == null
-                ? BadRequest(ModelState)    
+                ? BadRequest(ModelState)
                 : controller.CreateAccount(account);
         }
 
@@ -70,6 +70,13 @@ namespace LP.Finance.WebProxy.WebAPI
         public object DeleteAccount(int id)
         {
             return controller.DeleteAccount(id);
+        }
+
+        [Route("thirdParty")]
+        [HttpGet]
+        public object GetThirdPartyOrganizationAccounts()
+        {
+            return controller.GetThirdPartyOrganizationAccounts();
         }
     }
 }

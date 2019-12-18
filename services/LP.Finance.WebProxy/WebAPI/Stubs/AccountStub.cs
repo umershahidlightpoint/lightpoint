@@ -40,5 +40,10 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
         {
             throw new System.NotImplementedException();
         }
+
+        public object GetThirdPartyOrganizationAccounts()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

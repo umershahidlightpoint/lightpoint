@@ -377,6 +377,65 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return Utils.Wrap(true);
         }
 
+        public object GetThirdPartyOrganizationAccounts()
+        {
+            try
+            {
+                SqlHelper sqlHelper = new SqlHelper(connectionString);
+
+                var query = $@"SELECT [third_party_organization].[id] AS 'organization_id', 
+		                        [third_party_organization].[organization_name],
+		                        [third_party_account].[id] AS 'account_id',
+		                        [third_party_account].[third_party_account_code],
+		                        [third_party_account].[third_party_account_name]
+		                        FROM [third_party_organization] JOIN [third_party_account] 
+		                        ON [third_party_organization].[id] = [third_party_account].[third_party_organization_id]";
+
+                List<ThirdPartyOrganizationAccountsOutputDto> thirdPartyOrganizationAccounts =
+                    new List<ThirdPartyOrganizationAccountsOutputDto>();
+                using (var reader =
+                    sqlHelper.GetDataReader(query, CommandType.Text, null, out var sqlConnection))
+                {
+                    while (reader.Read())
+                    {
+                        thirdPartyOrganizationAccounts.Add(new ThirdPartyOrganizationAccountsOutputDto
+                        {
+                            OrganizationId = (int) reader["organization_id"],
+                            OrganizationName = reader["organization_name"].ToString(),
+                            Accounts = new List<ThirdPartyAccountsOutputDto>
+                            {
+                                new ThirdPartyAccountsOutputDto
+                                {
+                                    AccountId = (int) reader["account_id"],
+                                    AccountCode = reader["third_party_account_code"].ToString(),
+                                    AccountName = reader["third_party_account_name"].ToString()
+                                }
+                            }
+                        });
+                    }
+
+                    reader.Close();
+                    sqlConnection.Close();
+                }
+
+                var result = thirdPartyOrganizationAccounts.GroupBy(account => account.OrganizationId)
+                    .Select(group => new ThirdPartyOrganizationAccountsOutputDto
+                    {
+                        OrganizationId = group.Key,
+                        OrganizationName = group.FirstOrDefault()?.OrganizationName,
+                        Accounts = group.SelectMany(element => element.Accounts).ToList()
+                    })
+                    .ToList();
+
+                return Utils.Wrap(true, result, HttpStatusCode.OK, null, null);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
         private bool AccountHasJournal(int id)
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);

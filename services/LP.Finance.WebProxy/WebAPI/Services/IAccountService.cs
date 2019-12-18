@@ -17,5 +17,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object PatchAccount(int id, AccountInputPatchDto account);
 
         object DeleteAccount(int id);
+        object GetThirdPartyOrganizationAccounts();
     }
 }

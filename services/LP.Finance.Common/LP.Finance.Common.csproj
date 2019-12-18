@@ -88,6 +88,8 @@
     <Compile Include="Dtos\AccountInputDto.cs" />
     <Compile Include="Dtos\AccountDefTagOutputDto.cs" />
     <Compile Include="Dtos\AccountTagInputDto.cs" />
+    <Compile Include="Dtos\ThirdPartyAccountsOutputDto.cs" />
+    <Compile Include="Dtos\ThirdPartyOrganizationAccountsOutputDto.cs" />
     <Compile Include="Dtos\TrialBalanceReportOutPutDto.cs" />
     <Compile Include="Dtos\TrialBalanceTileOutputDto.cs" />
     <Compile Include="Model\FilterValues.cs" />
