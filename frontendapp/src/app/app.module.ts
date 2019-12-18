@@ -11,6 +11,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AngularSplitModule } from 'angular-split';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ModalModule, TooltipModule, TabsModule } from 'ngx-bootstrap';
+import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { ToastrModule } from 'ngx-toastr';
@@ -85,6 +86,9 @@ import { JournalAllocationComponent } from './main/journal-allocation/journal-al
 // Account
 import { AccountComponent } from './main/accounts/account.component';
 import { CreateAccountComponent } from './main/accounts/create-account/create-account.component';
+import { AccountMappingComponent } from './main/accounts/account-mapping/account-mapping.component';
+import { ChartOfAccountComponent } from './main/accounts/account-mapping/chart-of-account/chart-of-account.component';
+import { ChartOfAccountDetailComponent } from './main/accounts/account-mapping/chart-of-account-detail/chart-of-account-detail.component';
 
 // Operations
 import { OperationsComponent } from './main/operations/operations.component';
@@ -149,6 +153,11 @@ import { GridUtilsComponent } from '../shared/Component/grid-utils/grid-utils.co
     JournalsServerSideComponent,
     JournalsLedgersComponent,
     JournalModalComponent,
+    AccountComponent,
+    CreateAccountComponent,
+    AccountMappingComponent,
+    ChartOfAccountComponent,
+    ChartOfAccountDetailComponent,
     // Trial Balence
     TrialBalanceComponent,
     TrialGridExampleComponent,
@@ -207,6 +216,7 @@ import { GridUtilsComponent } from '../shared/Component/grid-utils/grid-utils.co
     BrowserAnimationsModule,
     AngularSplitModule.forRoot(),
     ToastrModule.forRoot(),
+    TypeaheadModule.forRoot(),
     BsDropdownModule.forRoot(),
     TooltipModule.forRoot(),
     MaterialModule,
