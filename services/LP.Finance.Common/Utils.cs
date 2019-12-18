@@ -508,7 +508,7 @@ namespace LP.Finance.Common
     public class SQLBulkHelper
     {
         public void Insert(string tablename, IDbModel[] models, SqlConnection connection, SqlTransaction transaction,
-            bool fireTriggers = false)
+            bool fireTriggers = false, bool checkConstraints = false)
         {
             if (models.Length == 0)
                 return;
@@ -522,8 +522,27 @@ namespace LP.Finance.Common
                 table.Rows.Add(row);
             }
 
+
+            SqlBulkCopyOptions options;
+            if(fireTriggers && checkConstraints)
+            {
+                options = SqlBulkCopyOptions.FireTriggers | SqlBulkCopyOptions.CheckConstraints;
+            } 
+            else if (fireTriggers)
+            {
+                options = SqlBulkCopyOptions.FireTriggers;
+            }
+            else if (checkConstraints)
+            {
+                options = SqlBulkCopyOptions.CheckConstraints;
+            }
+            else
+            {
+                options = SqlBulkCopyOptions.Default;
+            }
+
             using (var bulk = new SqlBulkCopy(connection,
-                fireTriggers ? SqlBulkCopyOptions.FireTriggers : SqlBulkCopyOptions.Default, transaction))
+                options, transaction))
             {
                 bulk.BatchSize = 1000;
                 bulk.DestinationTableName = tablename;

@@ -57,6 +57,7 @@
     <Compile Include="Calculators\DailyPnlCalculator.cs" />
     <Compile Include="CustomValidators\MinimumElementsAttribute.cs" />
     <Compile Include="DateFunctions.cs" />
+    <Compile Include="Dtos\ChartOfAccountMappingDto.cs" />
     <Compile Include="Dtos\FxRateInputDto.cs" />
     <Compile Include="Dtos\GridLayoutDto.cs" />
     <Compile Include="Dtos\JournalGridFilters.cs" />
@@ -90,8 +91,10 @@
     <Compile Include="Dtos\AccountTagInputDto.cs" />
     <Compile Include="Dtos\ThirdPartyAccountsOutputDto.cs" />
     <Compile Include="Dtos\ThirdPartyOrganizationAccountsOutputDto.cs" />
+    <Compile Include="Dtos\ThirdPartyAccount.cs" />
     <Compile Include="Dtos\TrialBalanceReportOutPutDto.cs" />
     <Compile Include="Dtos\TrialBalanceTileOutputDto.cs" />
+    <Compile Include="Model\AccountToThirdPartyAccountMapping.cs" />
     <Compile Include="Model\FilterValues.cs" />
     <Compile Include="Model\FxRate.cs" />
     <Compile Include="Model\GraphQLQuery.cs" />

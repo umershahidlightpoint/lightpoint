@@ -9,6 +9,7 @@ using System.Text;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Mappers;
+using LP.Finance.Common.Model;
 using Newtonsoft.Json;
 using SqlDAL.Core;
 
@@ -495,5 +496,66 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             return Utils.GetTable(connectionString, "account");
         }
+
+        public object CreateOrUpdateChartOfAccountMapping(List<ChartOfAccountMappingDto> obj)
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+            try
+            {
+                List<AccountToThirdPartyAccountMapping> accountToThirdPartyAccountMappings = new List<AccountToThirdPartyAccountMapping>();
+                sqlHelper.VerifyConnection();
+                sqlHelper.SqlBeginTransaction();
+                foreach (var account in obj)
+                {
+                    foreach (var mapping in account.ThirdPartyAccountMapping)
+                    {
+                        if (mapping.MapId == 0)
+                        {
+                            accountToThirdPartyAccountMappings.Add(CreateThirdPartyAccountMapping(account.AccountId, mapping));
+                        }
+                        else
+                        {
+                            UpdateThirdPartyAccountMapping(account.AccountId, mapping, sqlHelper);
+                        }
+                    }
+                }
+                if(accountToThirdPartyAccountMappings.Count > 0)
+                {
+                    new SQLBulkHelper().Insert("account_to_third_party_account_mapping", accountToThirdPartyAccountMappings.ToArray(),
+                       sqlHelper.GetConnection(), sqlHelper.GetTransaction(), false,true);
+                }
+                sqlHelper.SqlCommitTransaction();
+                sqlHelper.CloseConnection();
+                return Utils.Wrap(true, null, HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                sqlHelper.SqlRollbackTransaction();
+                sqlHelper.CloseConnection();
+                throw ex;
+            }
+            
+        }
+
+        public AccountToThirdPartyAccountMapping CreateThirdPartyAccountMapping(int accountId, ThirdPartyAccount thirdPartyAccount)
+        {
+            AccountToThirdPartyAccountMapping obj = new AccountToThirdPartyAccountMapping();
+            obj.AccountId = accountId;
+            obj.CreatedBy = "John Smith";
+            obj.CreatedDate = DateTime.UtcNow;
+            obj.ThirdPartyAccountId = thirdPartyAccount.ThirdPartyAccountId;
+            return obj;
+        }
+
+        public void UpdateThirdPartyAccountMapping(int accountId, ThirdPartyAccount thirdPartyAccount, SqlHelper sqlHelper)
+        {
+            List<SqlParameter> mappingParams = new List<SqlParameter>
+            {
+                new SqlParameter("id", thirdPartyAccount.MapId)
+            };
+            var query = $@"DELETE FROM [dbo].[account_to_third_party_account_mapping] where [id] = @id";
+            sqlHelper.Update(query, CommandType.Text, mappingParams.ToArray());
+        }
+
     }
 }
