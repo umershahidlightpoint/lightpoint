@@ -6,10 +6,8 @@
     <div class="mt-0" [ngStyle]="style">
 
       <!-- Loading Spinner -->
-      <div class="d-flex justify-content-center">
-        <div class="spinner-grow m-top-10" role="status" *ngIf="isLoading">
-          <span class="sr-only">Loading...</span>
-        </div>
+      <div *ngIf="isLoading" class="d-flex justify-content-center align-items-center height-50vh">
+        <app-loader></app-loader>
       </div>
       <!-- Loading Spinner Ends -->
 

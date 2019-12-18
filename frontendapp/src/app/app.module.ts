@@ -13,10 +13,10 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ModalModule, TooltipModule, TabsModule } from 'ngx-bootstrap';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
-
 import { ToastrModule } from 'ngx-toastr';
 import { AgGridModule } from 'ag-grid-angular';
 import { NgcatalystModule } from 'ngcatalyst';
+
 /*
 Services
 */
@@ -26,14 +26,16 @@ import { PostingEngineService } from '../shared/common/posting-engine.service';
 import { DataService } from '../shared/common/data.service';
 import { AgGridUtils } from '../shared/utils/AgGridUtils';
 import { DataDictionary } from '../shared/utils/DataDictionary';
+import { PerformanceCanDeactivateGuard } from '../shared/guards/performance-can-deactivate-guard.service';
+
 /*
 Components
 */
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './menu/header/header.component';
 import { LeftMenuComponent } from './menu/left-menu/left-menu.component';
-import { TemplateRendererComponent } from './template-renderer/template-renderer.component';
 import { GridLayoutMenuComponent } from '../shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { TemplateRendererComponent } from './template-renderer/template-renderer.component';
 import { AgGridCheckboxComponent } from '../shared/Component/ag-grid-checkbox/ag-grid-checkbox.component';
 
 // Reports
@@ -60,8 +62,9 @@ import { JournalsSummaryComponent } from './main/summary/journals-summary/journa
 import { JournalsSummayDetailComponent } from './main/summary/journals-summay-detail/journals-summay-detail.component';
 
 // Journals Ledger
-import { AccountComponent } from './main/accounts/account.component';
-import { CreateAccountComponent } from './main/accounts/create-account/create-account.component';
+import { JournalsLayoutComponent } from './main/journals-ledgers/journals-layout.component';
+import { JournalsLedgersComponent } from './main/journals-ledgers/journals-client-side/journals-ledgers.component';
+import { JournalsServerSideComponent } from './main/journals-ledgers/journals-server-side/journals-server-side.component';
 
 // Trail Balence
 import { TrialBalanceComponent } from './main/reports/trial-balance/trial-balance.component';
@@ -78,6 +81,10 @@ import { JournalsComponent } from './main/journals/journals.component';
 
 // Journal Allocation (Same as Trade Allocation)
 import { JournalAllocationComponent } from './main/journal-allocation/journal-allocation.component';
+
+// Account
+import { AccountComponent } from './main/accounts/account.component';
+import { CreateAccountComponent } from './main/accounts/create-account/create-account.component';
 
 // Operations
 import { OperationsComponent } from './main/operations/operations.component';
@@ -99,27 +106,23 @@ import { LogsComponent } from './main/logs/logs.component';
 /*
 SharedComponents
 */
-
-import { DataModalComponent } from '../shared/Component/data-modal/data-modal.component';
-import { ReportModalComponent } from '../shared/Component/report-modal/report-modal.component';
+import { LoaderComponent } from '../shared/Component/loader/loader.component';
 import { ConfirmationModalComponent } from '../shared/Component/confirmation-modal/confirmation-modal.component';
-import { GridUtilsComponent } from '../shared/Component/grid-utils/grid-utils.component';
-import { PerformanceCanDeactivateGuard } from '../shared/guards/performance-can-deactivate-guard.service';
+import { DataModalComponent } from '../shared/Component/data-modal/data-modal.component';
 import { DataGridModalComponent } from '../shared/Component/data-grid-modal/data-grid-modal.component';
+import { ReportModalComponent } from '../shared/Component/report-modal/report-modal.component';
+import { JournalModalComponent } from './main/journals-ledgers/journals-client-side/journal-modal/journal-modal.component';
 import { TaxRateModalComponent } from './main/fund-theoretical/tax-rates/tax-rate-modal/tax-rate-modal.component';
 import { DatePickerModalComponent } from '../shared/Component/date-picker-modal/date-picker-modal.component';
-import { JournalsServerSideComponent } from './main/journals-ledgers/journals-server-side/journals-server-side.component';
-import { JournalModalComponent } from './main/journals-ledgers/journals-client-side/journal-modal/journal-modal.component';
-import { JournalsLayoutComponent } from './main/journals-ledgers/journals-layout.component';
-import { JournalsLedgersComponent } from './main/journals-ledgers/journals-client-side/journals-ledgers.component';
+import { GridUtilsComponent } from '../shared/Component/grid-utils/grid-utils.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HeaderComponent,
     LeftMenuComponent,
-    TemplateRendererComponent,
     GridLayoutMenuComponent,
+    TemplateRendererComponent,
     AgGridCheckboxComponent,
     // Reports
     ReportsComponent,
@@ -142,10 +145,10 @@ import { JournalsLedgersComponent } from './main/journals-ledgers/journals-clien
     JournalsSummaryComponent,
     JournalsSummayDetailComponent,
     // Journals Ledger
+    JournalsLayoutComponent,
+    JournalsServerSideComponent,
     JournalsLedgersComponent,
     JournalModalComponent,
-    AccountComponent,
-    CreateAccountComponent,
     // Trial Balence
     TrialBalanceComponent,
     TrialGridExampleComponent,
@@ -158,6 +161,9 @@ import { JournalsLedgersComponent } from './main/journals-ledgers/journals-clien
     JournalsComponent,
     // Journal Allocation
     JournalAllocationComponent,
+    // Account
+    AccountComponent,
+    CreateAccountComponent,
     // Operations
     OperationsComponent,
     FileExceptionComponent,
@@ -172,15 +178,14 @@ import { JournalsLedgersComponent } from './main/journals-ledgers/journals-clien
     // Logs/RunLogs
     LogsComponent,
     // Shared Components
-    DataModalComponent,
-    ReportModalComponent,
+    LoaderComponent,
     ConfirmationModalComponent,
-    GridUtilsComponent,
+    DataModalComponent,
     DataGridModalComponent,
+    ReportModalComponent,
     TaxRateModalComponent,
     DatePickerModalComponent,
-    JournalsServerSideComponent,
-    JournalsLayoutComponent
+    GridUtilsComponent
   ],
   imports: [
     AppRoutingModule,
@@ -208,9 +213,9 @@ import { JournalsLedgersComponent } from './main/journals-ledgers/journals-clien
     NgcatalystModule
   ],
   providers: [
+    SidenavService,
     FinanceServiceProxy,
     DataService,
-    SidenavService,
     PostingEngineService,
     AgGridUtils,
     DataDictionary,

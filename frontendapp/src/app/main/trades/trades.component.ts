@@ -124,10 +124,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
       this.financeService.getTrades().subscribe(result => {
         this.tradesData = result;
         this.rowData = [];
-        const someArray = this.agGridUtils.columizeData(
-          result.data,
-          this.tradesData.meta.Columns
-        );
+        const someArray = this.agGridUtils.columizeData(result.data, this.tradesData.meta.Columns);
         const cdefs = this.agGridUtils.customizeColumns(
           [],
           this.tradesData.meta.Columns,
@@ -141,10 +138,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
       this.financeService.getOpsBlotterJournals().subscribe(result => {
         this.tradesData = result;
         this.rowData = [];
-        const someArray = this.agGridUtils.columizeData(
-          result.data,
-          this.tradesData.meta.Columns
-        );
+        const someArray = this.agGridUtils.columizeData(result.data, this.tradesData.meta.Columns);
         const cdefs = this.agGridUtils.customizeColumns(
           [],
           this.tradesData.meta.Columns,
@@ -158,18 +152,16 @@ export class TradesComponent implements OnInit, AfterViewInit {
   }
 
   processOrder(orderId: string, row: any) {
-    this.financeService
-      .startPostingEngineSingleOrder(orderId)
-      .subscribe(response => {
-        if (response.IsRunning) {
-          // this.isLoading = true;
-          this.key = response.key;
-          this.postingEngineService.changeStatus(true);
-          this.postingEngineService.checkProgress();
-        }
-        // this.key = response.key;
-        // this.getLogs();
-      });
+    this.financeService.startPostingEngineSingleOrder(orderId).subscribe(response => {
+      if (response.IsRunning) {
+        // this.isLoading = true;
+        this.key = response.key;
+        this.postingEngineService.changeStatus(true);
+        this.postingEngineService.checkProgress();
+      }
+      // this.key = response.key;
+      // this.getLogs();
+    });
   }
   getContextMenuItems(params): Array<ContextMenu> {
     const addDefaultItems = [
@@ -186,7 +178,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
 
   initGrid() {
     this.gridOptions = {
-      rowData: [],
+      rowData: null,
       columnDefs: this.columnDefs,
       onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
@@ -212,11 +204,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
       alignedGrids: [],
       suppressHorizontalScroll: false
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(
-      GridId.tradeId,
-      GridName.trade,
-      this.gridOptions
-    );
+    this.gridOptions.sideBar = SideBar(GridId.tradeId, GridName.trade, this.gridOptions);
   }
 
   onRowSelected(event) {

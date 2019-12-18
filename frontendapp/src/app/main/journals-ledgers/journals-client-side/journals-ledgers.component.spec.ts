@@ -41,7 +41,6 @@ fdescribe('JournalsLedgersComponent', () => {
   it('should get 3 layout buttons', () => {
     const elm = fixture.nativeElement;
     const sideButtons = elm.querySelectorAll('.ag-side-buttons');
-    //console.log(sideButtons[0].childNodes, "these are side buttons");
     expect(sideButtons[0].childNodes.length === 3).toBeTruthy();
   });
 

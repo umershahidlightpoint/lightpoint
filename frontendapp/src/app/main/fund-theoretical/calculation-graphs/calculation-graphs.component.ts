@@ -75,7 +75,6 @@ export class CalculationGraphsComponent implements OnInit, OnChanges {
   }
 
   vChange($event) {
-    console.log($event);
     this.filteredChartData = {};
     this.filterChartData(this.chartObject.graphData, this.chartObject.referenceDate)
   }
