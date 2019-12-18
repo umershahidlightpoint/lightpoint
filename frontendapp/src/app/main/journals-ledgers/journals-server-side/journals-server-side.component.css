@@ -29,20 +29,6 @@ input[type='checkbox'] {
 ********    AG Grid    ******** 
 ******************************/
 
-::ng-deep .redFont {
-  color: red;
-  font-style: italic;
-}
-
-::ng-deep .greenFont {
-  color: green;
-  font-style: italic;
-}
-
-::ng-deep .footerRow {
-  font-weight: bold;
-}
-
 .ag-body-viewport-wrapper.ag-layout-normal {
   overflow-x: scroll;
   overflow-y: scroll;

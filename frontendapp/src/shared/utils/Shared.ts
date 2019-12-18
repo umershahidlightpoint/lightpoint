@@ -425,7 +425,7 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       aggFunc: 'sum',
       headerName: '$Debit',
       filter: isJournalGrid ? 'agNumberColumnFilter' : true,
-      valueFormatter: moneyFormatter,
+      valueFormatter: BracketFormatter,
       width: 100,
       colId: 'debit',
       cellStyle: { 'text-align': 'right' },
@@ -445,7 +445,7 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       field: 'credit',
       aggFunc: 'sum',
       headerName: '$Credit',
-      valueFormatter: moneyFormatter,
+      valueFormatter: BracketFormatter,
       width: 100,
       colId: 'credit',
       filter: isJournalGrid ? 'agNumberColumnFilter' : true,
@@ -454,7 +454,7 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       cellClassRules: {
         // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
         redFont(params) {
-          if (params.node.rowPinned) {
+          if (noColorCategories(params) || params.node.rowPinned) {
             return false;
           } else {
             return params.value != 0;
@@ -473,7 +473,7 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       field: 'balance',
       aggFunc: 'sum',
       headerName: '$Balance',
-      valueFormatter: moneyFormatter,
+      valueFormatter: BracketFormatter,
       width: 100,
       colId: 'balance',
       filter: isJournalGrid ? 'agNumberColumnFilter' : true,
@@ -482,15 +482,26 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       cellClassRules: {
         // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
         greenFont(params) {
-          if (params.node.rowPinned) {
+          if (
+            noColorCategories(params) ||
+            params.data.AccountCategory === 'Asset' ||
+            params.data.AccountCategory === 'Liability' ||
+            params.node.rowPinned
+          ) {
             return false;
           } else {
             return params.value > 0;
           }
         },
         redFont(params) {
-          if (params.node.rowPinned) {
+          if (
+            noColorCategories(params) ||
+            params.data.AccountCategory === 'Asset' ||
+            params.node.rowPinned
+          ) {
             return false;
+          } else if (params.data.AccountCategory === 'Liability') {
+            return true;
           } else {
             return params.value < 0;
           }
@@ -562,6 +573,17 @@ export const CommonCols = (isJournalGrid, filters = null) => {
   ];
 };
 
+export function noColorCategories(params) {
+  if (
+    params.data.AccountCategory === 'Equity' ||
+    params.data.AccountCategory === 'Revenues' ||
+    params.data.AccountCategory === 'Expenses'
+  ) {
+    return true;
+  }
+  return false;
+}
+
 export const FormatNumber2 = (numberToFormat: number) => {
   if (numberToFormat !== null) {
     return numberToFormat.toFixed(2);
@@ -586,6 +608,20 @@ export const MoneyFormat = (numberToFormat: number) => {
     return numberToFormat.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
   }
 };
+
+export function BracketFormatter(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  if (
+    (params.data.AccountCategory === 'Equity' ||
+      params.data.AccountCategory === 'Revenues' ||
+      params.data.AccountCategory === 'Expenses') &&
+    params.value < 0
+  ) {
+    return '( ' + MoneyFormat(Math.abs(params.value)) + ' )';
+  }
+}
 
 export function moneyFormatter(params) {
   if (params.value === undefined) {

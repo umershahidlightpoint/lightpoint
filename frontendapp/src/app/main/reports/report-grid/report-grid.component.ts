@@ -16,7 +16,9 @@ import {
   AutoSizeAllColumns,
   SideBar,
   commaFormater,
-  CommaSeparatedFormat
+  CommaSeparatedFormat,
+  noColorCategories,
+  BracketFormatter
 } from 'src/shared/utils/Shared';
 import { TrialBalanceReport, TrialBalanceReportStats } from 'src/shared/Models/trial-balance';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
@@ -78,8 +80,8 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
     const colDefs = [];
     if (tableHeader === undefined) {
       colDefs.push({
-        colId: 'accountCategory',
-        field: 'accountCategory',
+        colId: 'AccountCategory',
+        field: 'AccountCategory',
         width: 120
       });
     }
@@ -169,7 +171,17 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
             return 'debit';
           }
         },
-        valueFormatter: commaFormater
+        valueFormatter: BracketFormatter,
+        cellClassRules: {
+          // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value < -300; },
+          footerRow(params) {
+            if (params.node.rowPinned) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        }
       },
       {
         colId: 'credit',
@@ -184,7 +196,7 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
                 ? 0
                 : params.data.creditPercentage + '%',
               backgroundRepeat: 'no-repeat',
-              color: 'red',
+              // color: 'red',
               fontStyle: 'italic'
             };
           }
@@ -195,7 +207,24 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
             return 'credit';
           }
         },
-        valueFormatter: commaFormater
+        valueFormatter: BracketFormatter,
+        cellClassRules: {
+          // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
+          redFont(params) {
+            if (noColorCategories(params) || params.node.rowPinned) {
+              return false;
+            } else {
+              return params.value !== 0;
+            }
+          },
+          footerRow(params) {
+            if (params.node.rowPinned) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        }
       },
       {
         colId: 'balance',
@@ -207,15 +236,49 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
         sortable: true,
         cellStyle: params => {
           if (params.data.accountName === 'Total' && params.data.balance !== 0) {
-            return { backgroundColor: 'red' };
+            return {}; // { backgroundColor: 'red' };
           }
           if (params.data.accountName !== 'Total' && params.data.balance > 0) {
-            return { textAlign: 'end', fontStyle: 'italic', color: 'green' };
+            return { textAlign: 'end', fontStyle: 'italic' };
           } else if (params.data.accountName !== 'Total' && params.data.balance < 0) {
-            return { textAlign: 'end', fontStyle: 'italic', color: 'red' };
+            return { textAlign: 'end', fontStyle: 'italic' };
           }
         },
-        valueFormatter: params => CommaSeparatedFormat(Math.abs(params.value))
+        valueFormatter: BracketFormatter,
+        cellClassRules: {
+          greenFont(params) {
+            if (
+              noColorCategories(params) ||
+              params.data.AccountCategory === 'Asset' ||
+              params.data.AccountCategory === 'Liability' ||
+              params.node.rowPinned
+            ) {
+              return false;
+            } else {
+              return params.value > 0;
+            }
+          },
+          redFont(params) {
+            if (
+              noColorCategories(params) ||
+              params.data.AccountCategory === 'Asset' ||
+              params.node.rowPinned
+            ) {
+              return false;
+            } else if (params.data.AccountCategory === 'Liability') {
+              return true;
+            } else {
+              return params.value < 0;
+            }
+          },
+          footerRow(params) {
+            if (params.node.rowPinned) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        }
       }
     ];
   }

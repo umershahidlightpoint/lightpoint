@@ -28,20 +28,6 @@ html {
   background-color: #b5e6b5;
 }
 
-::ng-deep .redFont {
-  color: red;
-  font-style: italic;
-}
-
-::ng-deep .greenFont {
-  color: green;
-  font-style: italic;
-}
-
-::ng-deep .footerRow {
-  font-weight: bold;
-}
-
 /*
   Want to make sure the scrollbar is shown
   */

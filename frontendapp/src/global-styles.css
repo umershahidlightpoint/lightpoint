@@ -175,6 +175,23 @@ body {
 }
 
 /******************************
+********    AG GRID Font Colors    ********
+******************************/
+.redFont {
+  color: red;
+  font-style: italic;
+}
+
+.greenFont {
+  color: green;
+  font-style: italic;
+}
+
+.footerRow {
+  font-weight: bold;
+}
+
+/******************************
 ********    Commons    ********
 ******************************/
 .opacity-1 {
