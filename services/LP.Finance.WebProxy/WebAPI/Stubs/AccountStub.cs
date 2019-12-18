@@ -1,4 +1,5 @@
-﻿using LP.Finance.Common;
+﻿using System.Collections.Generic;
+using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
 using LP.Finance.WebProxy.WebAPI.Services;
 
@@ -37,6 +38,11 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
         }
 
         public object DeleteAccount(int id)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public object CreateOrUpdateChartOfAccountMapping(List<ChartOfAccountMappingDto> obj)
         {
             throw new System.NotImplementedException();
         }

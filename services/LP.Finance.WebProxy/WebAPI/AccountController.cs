@@ -1,4 +1,5 @@
-﻿using System.Web.Http;
+﻿using System.Collections.Generic;
+using System.Web.Http;
 using LP.Finance.Common.Dtos;
 using LP.Finance.WebProxy.WebAPI.Services;
 
@@ -8,7 +9,7 @@ namespace LP.Finance.WebProxy.WebAPI
     /// Deliver the Tiles / Links Resources to the Logged In User
     /// </summary>
     [RoutePrefix("api/account")]
-    public class AccountController : ApiController, IAccountService
+    public class AccountController : ApiController
     {
         private readonly IAccountService controller = new AccountService();
 
@@ -70,6 +71,20 @@ namespace LP.Finance.WebProxy.WebAPI
         public object DeleteAccount(int id)
         {
             return controller.DeleteAccount(id);
+        }
+
+        [Route("chartOfAccountMapping")]
+        [HttpPut]
+        public object CreateChartOfAccountMapping(List<ChartOfAccountMappingDto> obj)
+        {
+            return controller.CreateOrUpdateChartOfAccountMapping(obj);
+        }
+
+        [Route("chartOfAccountMapping")]
+        [HttpPost]
+        public object UpdateChartOfAccountMapping(List<ChartOfAccountMappingDto> obj)
+        {
+            return controller.CreateOrUpdateChartOfAccountMapping(obj);
         }
     }
 }

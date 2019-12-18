@@ -1,4 +1,5 @@
 ﻿using LP.Finance.Common.Dtos;
+using System.Collections.Generic;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
@@ -17,5 +18,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object PatchAccount(int id, AccountInputPatchDto account);
 
         object DeleteAccount(int id);
+
+        object CreateOrUpdateChartOfAccountMapping(List<ChartOfAccountMappingDto> obj);
     }
 }
