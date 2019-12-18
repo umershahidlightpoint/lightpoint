@@ -605,7 +605,8 @@ export function priceFormatter(params) {
 
 export const MoneyFormat = (numberToFormat: number) => {
   if (numberToFormat !== null) {
-    return numberToFormat.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+    const n = +numberToFormat;
+    return n.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
   }
 };
 
