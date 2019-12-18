@@ -1,10 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  OnInit,
-  ViewChild,
-  AfterViewInit
-} from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
@@ -12,12 +6,7 @@ import { DataModalComponent } from '../../../shared/Component/data-modal/data-mo
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import {
-  SideBar,
-  Style,
-  AutoSizeAllColumns,
-  HeightStyle
-} from 'src/shared/utils/Shared';
+import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';
 
 @Component({
   selector: 'app-accruals',
@@ -127,10 +116,7 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
     this.financeService.getAccruals().subscribe(result => {
       this.accrualsData = result;
       this.rowData = [];
-      const someArray = this.agGridUtils.columizeData(
-        result.data,
-        this.accrualsData.meta.Columns
-      );
+      const someArray = this.agGridUtils.columizeData(result.data, this.accrualsData.meta.Columns);
       const cdefs = this.agGridUtils.customizeColumns(
         [],
         this.accrualsData.meta.Columns,
@@ -146,7 +132,7 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
 
   initGrid() {
     this.gridOptions = {
-      rowData: [],
+      rowData: null,
       columnDefs: this.columnDefs,
       onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
@@ -170,11 +156,7 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
       suppressColumnVirtualisation: true,
       defaultColDef: this.defaultColDef
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(
-      GridId.accrualsId,
-      GridName.accruals,
-      this.gridOptions
-    );
+    this.gridOptions.sideBar = SideBar(GridId.accrualsId, GridName.accruals, this.gridOptions);
 
     this.allocationsGridOptions = {
       rowData: [],
@@ -209,23 +191,21 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
 
   onRowSelected(event) {
     if (event.node.selected) {
-      this.financeService
-        .getAccrualAllocations(event.node.data.AccrualId)
-        .subscribe(result => {
-          this.allocationAccrualsData = result;
-          const someArray = this.agGridUtils.columizeData(
-            result.data,
-            this.allocationAccrualsData.meta.Columns
-          );
-          const cdefs = this.agGridUtils.customizeColumns(
-            [],
-            this.allocationAccrualsData.meta.Columns,
-            ['Id', 'AllocationId', 'EMSOrderId'],
-            false
-          );
-          this.allocationsGridOptions.api.setColumnDefs(cdefs);
-          this.allocationsData = someArray as [];
-        });
+      this.financeService.getAccrualAllocations(event.node.data.AccrualId).subscribe(result => {
+        this.allocationAccrualsData = result;
+        const someArray = this.agGridUtils.columizeData(
+          result.data,
+          this.allocationAccrualsData.meta.Columns
+        );
+        const cdefs = this.agGridUtils.customizeColumns(
+          [],
+          this.allocationAccrualsData.meta.Columns,
+          ['Id', 'AllocationId', 'EMSOrderId'],
+          false
+        );
+        this.allocationsGridOptions.api.setColumnDefs(cdefs);
+        this.allocationsData = someArray as [];
+      });
     }
   }
 

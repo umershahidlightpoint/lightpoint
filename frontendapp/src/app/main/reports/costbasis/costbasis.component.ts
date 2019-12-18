@@ -337,6 +337,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   // Being called twice
   getReport(date, fund) {
     this.isLoading = true;
+    this.gridOptions.api.showLoadingOverlay();
     this.financeService.getCostBasisReport(date, fund).subscribe(response => {
       this.trialBalanceReportStats = response.stats;
       this.trialBalanceReport = response.payload;

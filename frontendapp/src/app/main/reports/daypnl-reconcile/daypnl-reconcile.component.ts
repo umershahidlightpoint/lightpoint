@@ -337,6 +337,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
   // Being called twice
   getReport(date, fund) {
     this.isLoading = true;
+    this.gridOptions.api.showLoadingOverlay();
     this.financeService.getReconReport(date, fund).subscribe(response => {
       this.reconciledData = response.payload[0];
       this.portfolioData = response.payload[1];
