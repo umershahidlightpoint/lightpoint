@@ -24,6 +24,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object GetClosingTaxLots(string orderid);
         object serverSideJournals(ServerRowModel obj);
         object GetTotalCount(ServerRowModel obj);
+
+        object DoHaveJournals(DateTime to, DateTime from);
         object GetJournalsMetaData(JournalMetaInputDto obj);
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Dynamic;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -562,9 +563,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         public object GetReconReport(String source, DateTime? date, string fund)
         {
             var query = "DayPnlReconcile";
-            if ( !String.IsNullOrEmpty(source))
+            if (!String.IsNullOrEmpty(source))
             {
-                if ( source.Equals("exposure"))
+                if (source.Equals("exposure"))
                 {
                     query = "BookmonReconcile";
                 }
@@ -1077,6 +1078,30 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 throw ex;
             }
 
+        }
+
+        public object DoHaveJournals(DateTime previousDay, DateTime currentDay)
+        {
+            try
+            {
+                List<SqlParameter> toParams = new List<SqlParameter>
+                {
+                    new SqlParameter("previousDay", previousDay),
+                    new SqlParameter("currentDay", currentDay)
+                };
+
+                var query = $@"SELECT TOP 1(CASE WHEN[journal].[when] = @previousDay THEN 1 ELSE 0 END) AS 'previous' FROM[journal]
+                UNION ALL SELECT TOP 1(CASE WHEN[journal].[when] = @currentDay THEN 1 ELSE 0 END) AS 'current' FROM[journal]";
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, toParams.ToArray());
+                var res = JsonConvert.SerializeObject(dataTable);
+                var response = JsonConvert.DeserializeObject(res);
+                return Utils.Wrap(true, response, HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex);
+                throw ex;
+            }
         }
 
         public object GetJournalsMetaData(JournalMetaInputDto obj)

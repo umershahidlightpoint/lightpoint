@@ -10,14 +10,8 @@
   <div class="right-corner">
     <p *ngIf="postingEngineStatus" class="mx-2 my-0">Please wait Posting Engine is Processing</p>
     <div *ngIf="postingEngineStatus" class="progress progressContainer mr-2 mt-1">
-      <div
-        class="progress-bar bg-success progress-bar-striped progress-bar-animated"
-        role="progressbar"
-        [style.width.%]="progressBar"
-        aria-valuenow="100"
-        aria-valuemin="0"
-        aria-valuemax="100"
-      ></div>
+      <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar"
+        [style.width.%]="progressBar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
       <span class="my-centered">{{ progressBar }}% Complete</span>
     </div>
     <!-- Base Currency -->
@@ -26,13 +20,13 @@
     </div>
     <!-- Date -->
     <div class="date-style">
-      <span>{{ effectiveDate }} / {{ date }}</span>
+      <span [ngStyle]="{'color': toDateHasJournals ? 'white' : 'red'}"> {{ effectiveDate }}</span>
+      <span>/</span>
+      <span [ngStyle]="{'color': toDateHasJournals ? 'white' : 'red'}"> {{ date }}</span>
     </div>
     <!-- Signal Indication -->
     <div *ngIf="!servicesStatus">
-      <i matTooltip="Please go to operations" class="color-red material-tooltip-main material-icons"
-        >warning</i
-      >
+      <i matTooltip="Please go to operations" class="color-red material-tooltip-main material-icons">warning</i>
     </div>
   </div>
 </div>

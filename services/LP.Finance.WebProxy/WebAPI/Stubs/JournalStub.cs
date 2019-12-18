@@ -94,5 +94,10 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
         {
             throw new NotImplementedException();
         }
+
+        public object DoHaveJournals(DateTime to, DateTime from)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
