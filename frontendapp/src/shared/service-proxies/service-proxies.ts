@@ -614,6 +614,11 @@ export class FinanceServiceProxy {
     return this.http.post(url, obj).pipe(map((response: any) => response));
   }
 
+  checkForJournals(toDate, fromDate) {
+    const url = this.baseUrl + '/journal/doHaveJournals?to=' + toDate + '&from=' + fromDate;
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
+
   getMarketPriceForSymbol(symbol) {
     const url = this.baseUrl + '/marketdata/getSymbolPrices?symbol=' + symbol;
     return this.http.get(url).pipe(map((response: any) => response));

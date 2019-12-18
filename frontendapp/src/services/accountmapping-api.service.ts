@@ -21,6 +21,11 @@ export class AccountmappingApiService {
     this.selectedAccounList.next(obj);
   }
 
+  getMappedAccounts(): Observable<any> {
+    const url = this.baseUrl + '/account/mappedAccount';
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
+
   postAccountMapping(obj): Observable<any> {
     const url = this.baseUrl + '/account/chartOfAccountMapping';
     return this.http.post(url, obj).pipe(map((response: any) => response));

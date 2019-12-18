@@ -83,7 +83,7 @@ export const ViewChart = params => {
     if (node.group && node.level === 0) {
       tableHeader = node.columnApi.columnController.rowGroupColumns[0].colDef.headerName;
       data.push({
-        accountName: node.key,
+        AccountCategory: node.key,
         debit: node.data.debit,
         credit: node.data.credit,
         debitPercentage: 0,

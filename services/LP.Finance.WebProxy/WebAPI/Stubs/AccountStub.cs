@@ -17,6 +17,11 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
             return Utils.GetFile("accounts");
         }
 
+        public object GetMappedAccounts()
+        {
+            throw new System.NotImplementedException();
+        }
+
         public object GetAccount(int id)
         {
             throw new System.NotImplementedException();
@@ -46,7 +51,7 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
         {
             throw new System.NotImplementedException();
         }
-        
+
         public object CreateOrUpdateChartOfAccountMapping(List<ChartOfAccountMappingDto> obj)
         {
             throw new System.NotImplementedException();
