@@ -1,32 +1,20 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  ElementRef,
-  TemplateRef,
-  AfterViewInit
-} from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { CreateAccountComponent } from './create-account/create-account.component';
-import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { CreateAccountComponent } from '../.././create-account/create-account.component';
+import { FinanceServiceProxy } from '../../../../../shared/service-proxies/service-proxies';
+import { AccountmappingApiService } from '../../../../../services/accountmapping-api.service';
 import { GridOptions } from 'ag-grid-community';
-import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
 import { ToastrService } from 'ngx-toastr';
-import { Account, AccountCategory } from '../../../shared/Models/account';
-import { takeWhile } from 'rxjs/operators';
+import { Account, AccountCategory } from '../../../../../shared/Models/account';
 import { DataService } from 'src/shared/common/data.service';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { SideBar, AutoSizeAllColumns, HeightStyle, Style } from 'src/shared/utils/Shared';
-import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
-import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 
 @Component({
-  selector: 'app-ledger-form',
-  templateUrl: './account.component.html',
-  styleUrls: ['./account.component.css']
+  selector: 'app-chart-of-account',
+  templateUrl: './chart-of-account.component.html',
+  styleUrls: ['./chart-of-account.component.css']
 })
-export class AccountComponent implements OnInit, AfterViewInit {
+export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   rowData: Array<Account>;
   gridOptions: GridOptions;
   accountCategories: AccountCategory;
@@ -34,12 +22,8 @@ export class AccountComponent implements OnInit, AfterViewInit {
   account: Account;
   hideGrid: boolean;
 
-  @ViewChild('createModal', { static: false })
   createAccount: CreateAccountComponent;
-  @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<any>;
-  @ViewChild('divToMeasure', { static: false }) divToMeasureElement: ElementRef;
-  @ViewChild('confirmationModal', { static: false })
-  confirmationModal: ConfirmationModalComponent;
+  public selectAccounts: any = [];
 
   style = Style;
 
@@ -54,14 +38,12 @@ export class AccountComponent implements OnInit, AfterViewInit {
     boxSizing: 'border-box'
   };
 
-  activeAccountMap: boolean = false;
-
   constructor(
     private router: Router,
     private financePocServiceProxy: FinanceServiceProxy,
     private toastrService: ToastrService,
     private dataService: DataService,
-    private downloadExcelUtils: DownloadExcelUtils
+    private accountmappingApiService: AccountmappingApiService
   ) {
     this.hideGrid = false;
   }
@@ -82,7 +64,8 @@ export class AccountComponent implements OnInit, AfterViewInit {
       {
         headerName: 'Name',
         field: 'accountName',
-        filter: true
+        filter: true,
+        checkboxSelection: true
       },
       {
         headerName: 'Description',
@@ -96,24 +79,9 @@ export class AccountComponent implements OnInit, AfterViewInit {
         filter: true
       },
       {
-        headerName: 'Has Journal',
-        field: 'hasJournal',
-        filter: true
-      },
-      {
         headerName: 'Account Type',
         field: 'type',
         filter: true
-      },
-      { headerName: 'CanDeleted', field: 'canDeleted', hide: true },
-      { headerName: 'CanEdited', field: 'canEdited', hide: true },
-      {
-        headerName: 'Actions',
-        cellRendererFramework: TemplateRendererComponent,
-        cellRendererParams: {
-          ngTemplate: this.actionButtons
-        },
-        filter: false
       }
     ]);
   }
@@ -127,13 +95,12 @@ export class AccountComponent implements OnInit, AfterViewInit {
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       getExternalFilterState: () => {
         return {};
       },
       pinnedBottomRowData: null,
       clearExternalFilter: () => {},
-      rowSelection: 'single',
+      rowSelection: 'multiple',
       rowGroupPanelShow: 'after',
       pivotPanelShow: 'after',
       pivotColumnGroupTotals: 'after',
@@ -146,13 +113,9 @@ export class AccountComponent implements OnInit, AfterViewInit {
         sortable: true,
         resizable: true,
         filter: true
-      }
+      },
+      groupSelectsChildren: true
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(GridId.accountId, GridName.account, this.gridOptions);
-  }
-
-  activeAccountMapping() {
-    this.activeAccountMap = true;
   }
 
   getAccountCategories() {
@@ -163,6 +126,12 @@ export class AccountComponent implements OnInit, AfterViewInit {
         this.toastrService.error('Failed to fetch account categories!');
       }
     });
+  }
+
+  onSelectionChanged(event: any) {
+    let getSelectedAccounts = [{}];
+    getSelectedAccounts = event.api.getSelectedRows();
+    this.accountmappingApiService.storeAccountList(getSelectedAccounts);
   }
 
   getAccountsRecord() {
@@ -187,48 +156,6 @@ export class AccountComponent implements OnInit, AfterViewInit {
     }, 100);
   }
 
-  editRow(row) {
-    this.router.navigateByUrl('/accounts/create-account');
-    this.createAccount.show(row);
-  }
-
-  openConfirmationModal(row) {
-    this.account = row;
-    this.confirmationModal.showModal();
-  }
-
-  deleteAccount() {
-    const selectedAccount = this.account;
-    this.financePocServiceProxy.deleteAccount(selectedAccount.accountId).subscribe(
-      response => {
-        if (response.isSuccessful) {
-          this.toastrService.success('Account deleted successfully!');
-          this.getAccountsRecord();
-        } else {
-          this.toastrService.error('Account deleted failed!');
-        }
-      },
-      error => {
-        this.toastrService.error('Something went wrong. Try again later!');
-      }
-    );
-  }
-
-  addAccount() {
-    this.router.navigateByUrl('/accounts/create-account');
-    this.createAccount.show({});
-  }
-
-  onBtExport() {
-    const params = {
-      fileName: 'Accounts',
-      sheetName: 'First Sheet',
-      columnKeys: ['accountName', 'description', 'category', 'hasJournal', 'type']
-    };
-    this.gridOptions.api.exportDataAsExcel(params);
-    this.downloadExcelUtils.ToastrMessage();
-  }
-
   refreshGrid() {
     this.gridOptions.api.showLoadingOverlay();
     this.getAccountsRecord();
@@ -239,7 +166,5 @@ export class AccountComponent implements OnInit, AfterViewInit {
       id: category.Id,
       name: category.Name
     };
-    this.router.navigateByUrl('/accounts/create-account');
-    this.createAccount.show({});
   }
 }

@@ -1,0 +1,51 @@
+.account-detail-wrap {
+  box-sizing: border-box;
+  margin: 20px 1px auto;
+  width: 100%;
+  padding-bottom: 2px;
+  border-radius: 2px;
+  border: 2px solid #dee2e6;
+  height: 97%;
+}
+
+.account-detail-wrap h3 {
+  padding: 5px;
+  background: #eee;
+}
+
+.select-detail-wrap {
+  box-sizing: border-box;
+  margin: 20px 1px auto;
+  padding: 0 5px 0 5px;
+  width: 74.2%;
+  border-radius: 2px;
+  border: 2px solid #dee2e6;
+  background: #eee;
+}
+
+.main-wrapper {
+  padding: 5% 5% 10% 18%;
+}
+
+.title-bg-color {
+  background: #eee;
+}
+
+.icon-plus {
+  font-size: 25px;
+  color: blue;
+}
+
+.icon-red {
+  font-size: 25px;
+  color: #dc3545;
+}
+
+.div-pad {
+  padding: 0px 10px 20px 0px;
+}
+
+.cust-alert {
+  padding: 0px 4px;
+  font-size: 12px;
+}
