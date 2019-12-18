@@ -9,7 +9,12 @@
         <button type="submit" class="btn btn-info">
           <i class="fa fa-save"></i>
           Commit
-          <span *ngIf="isSaving" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          <span
+            *ngIf="isSaving"
+            class="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+          ></span>
         </button>
       </div>
     </div>
@@ -30,12 +35,11 @@
           class="custom-select"
           [(ngModel)]="organisation"
           (change)="selectOrganisation($event)"
-          formControlName="type"
           required
         >
-          <option hidden [value]="0">Choose your account type</option>
-          <option *ngFor="let org of dropdownArr; let i = index">
-            {{ org.Name }}
+          <option hidden [value]="0">Choose Organisation</option>
+          <option *ngFor="let list of organisationList; let i = index">
+            {{ list.OrganizationName }}
           </option>
         </select>
       </div>
@@ -52,7 +56,7 @@
         <div>
           <input
             [(ngModel)]="selected"
-            typeaheadOptionField="name"
+            typeaheadOptionField="AccountName"
             [isAnimated]="true"
             [typeahead]="states"
             typeaheadWaitMs="400"
