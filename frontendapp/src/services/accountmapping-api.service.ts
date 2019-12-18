@@ -30,4 +30,9 @@ export class AccountmappingApiService {
     const url = this.baseUrl + '/account/chartOfAccountMapping';
     return this.http.post(url, obj).pipe(map((response: any) => response));
   }
+
+  getOrganisation() {
+    const url = this.baseUrl + '/account/thirdParty';
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
 }
