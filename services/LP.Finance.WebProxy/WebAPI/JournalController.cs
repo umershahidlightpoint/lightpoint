@@ -139,11 +139,18 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.GetTotalCount(obj);
         }
 
+        [Route("doHaveJournals")]
+        [HttpGet]
+        public object DoHaveJounals(DateTime to, DateTime from)
+        {
+            return controller.DoHaveJournals(to, from);
+        }
+
         [Route("metaData")]
         [HttpPost]
         public object GetJournalsMetaData(JournalMetaInputDto obj)
         {
-            obj.TableName = "vwFullJournal";
+            obj.TableName = "vwJournal";
 
             return controller.GetJournalsMetaData(obj);
         }

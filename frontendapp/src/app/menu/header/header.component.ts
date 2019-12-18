@@ -18,8 +18,9 @@ export class HeaderComponent implements OnInit, DoCheck, AfterViewInit {
   progressBar: any;
   date: string = moment().format('MM-DD-YYYY');
   effectiveDate: string;
-
-  servicesStatus: boolean = true;
+  toDateHasJournals: boolean;
+  fromDateHasJournals: boolean;
+  servicesStatus = true;
 
   constructor(
     private servicesStatusApiService: ServicesStatusApiService,
@@ -32,6 +33,7 @@ export class HeaderComponent implements OnInit, DoCheck, AfterViewInit {
     this.date = moment().format('MM-DD-YYYY');
     this.effectiveDate = this.getPreviousWorkday(moment()).format('MM-DD-YYYY');
     this.isPostingEngineRunning();
+    this.doDatesHaveJournals();
   }
 
   getServicesStatus(): void {
@@ -82,6 +84,15 @@ export class HeaderComponent implements OnInit, DoCheck, AfterViewInit {
         this.postingEngineService.checkProgress();
         this.postingEngineStatus = this.postingEngineService.getStatus();
       }
+    });
+  }
+
+  doDatesHaveJournals() {
+    this.financeService.checkForJournals(this.effectiveDate, this.date).subscribe(response => {
+      console.log('response', response);
+      const { payload } = response;
+      this.toDateHasJournals = payload[0].previous === 0 ? false : true;
+      this.fromDateHasJournals = payload[1].previous === 0 ? false : true;
     });
   }
 }
