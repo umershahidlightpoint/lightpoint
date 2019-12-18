@@ -621,6 +621,7 @@ export function BracketFormatter(params) {
   ) {
     return '( ' + MoneyFormat(Math.abs(params.value)) + ' )';
   }
+  return MoneyFormat(params.value);
 }
 
 export function moneyFormatter(params) {
