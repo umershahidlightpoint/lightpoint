@@ -1,19 +1,14 @@
 /* Core/Libraries */
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  Output,
-  EventEmitter
-} from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
 import { ModalDirective } from 'ngx-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 /* Services/Components */
-import { FinanceServiceProxy } from '../../../../../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../../../../../services/service-proxies';
 import { Account, Fund } from '../../../../../shared/Models/account';
 import { Journal } from '../../../../../shared/Models/journal';
+import { AccountApiService } from 'src/services/account-api.service';
 
 @Component({
   selector: 'app-journal-modal',
@@ -39,7 +34,8 @@ export class JournalModalComponent implements OnInit {
   constructor(
     private toastrService: ToastrService,
     private formBuilder: FormBuilder,
-    private financePocServiceProxy: FinanceServiceProxy
+    private financePocServiceProxy: FinanceServiceProxy,
+    private accountApiService: AccountApiService
   ) {}
 
   ngOnInit() {
@@ -50,7 +46,7 @@ export class JournalModalComponent implements OnInit {
   }
 
   getAccounts() {
-    this.financePocServiceProxy.getAllAccounts().subscribe(response => {
+    this.accountApiService.getAllAccounts().subscribe(response => {
       if (response.isSuccessful) {
         this.allAccounts = response.payload;
       }
@@ -83,31 +79,27 @@ export class JournalModalComponent implements OnInit {
     };
     if (this.editJournal) {
       const { source } = this.selectedRow;
-      this.financePocServiceProxy
-        .updateJournal(source, journalObject)
-        .subscribe(response => {
-          if (response.isSuccessful) {
-            this.toastrService.success('Journal is updated successfully !');
-            this.modal.hide();
-            this.modalClose.emit(true);
-            setTimeout(() => this.clearForm(), 500);
-          } else {
-            this.toastrService.error('Failed to update Journal !');
-          }
-        });
+      this.financePocServiceProxy.updateJournal(source, journalObject).subscribe(response => {
+        if (response.isSuccessful) {
+          this.toastrService.success('Journal is updated successfully !');
+          this.modal.hide();
+          this.modalClose.emit(true);
+          setTimeout(() => this.clearForm(), 500);
+        } else {
+          this.toastrService.error('Failed to update Journal !');
+        }
+      });
     } else {
-      this.financePocServiceProxy
-        .createJounal(journalObject)
-        .subscribe(response => {
-          if (response.isSuccessful) {
-            this.toastrService.success('Journal is created successfully !');
-            this.modal.hide();
-            this.modalClose.emit(true);
-            setTimeout(() => this.clearForm(), 500);
-          } else {
-            this.toastrService.error('Failed to create Journal !');
-          }
-        });
+      this.financePocServiceProxy.createJounal(journalObject).subscribe(response => {
+        if (response.isSuccessful) {
+          this.toastrService.success('Journal is created successfully !');
+          this.modal.hide();
+          this.modalClose.emit(true);
+          setTimeout(() => this.clearForm(), 500);
+        } else {
+          this.toastrService.error('Failed to create Journal !');
+        }
+      });
     }
   }
 
@@ -141,9 +133,7 @@ export class JournalModalComponent implements OnInit {
       const { source } = rowData;
       const { modifiable } = rowData;
       if (modifiable === 'false') {
-        this.toastrService.error(
-          'System Generated Journals are not Editable !'
-        );
+        this.toastrService.error('System Generated Journals are not Editable !');
         this.closeModal();
         return;
       }
