@@ -1,7 +1,7 @@
 import { Component, OnInit, Injector } from '@angular/core';
 import { Event, Router, NavigationEnd } from '@angular/router';
 import { onMainContentChange } from './menu/animations/animations';
-import { SidenavService } from '../shared/common/sidenav.service';
+import { SidenavService } from '../services/common/sidenav.service';
 import { ServicesStatusApiService } from '../services/services-status-api.service';
 
 @Component({

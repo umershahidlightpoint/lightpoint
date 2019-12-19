@@ -3,7 +3,7 @@ import { FinanceServiceProxy } from '../../../services/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { Account, AccountCategory } from '../../../shared/Models/account';
-import { DataService } from 'src/shared/common/data.service';
+import { DataService } from 'src/services/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { SideBar, AutoSizeAllColumns, HeightStyle, Style } from 'src/shared/utils/Shared';

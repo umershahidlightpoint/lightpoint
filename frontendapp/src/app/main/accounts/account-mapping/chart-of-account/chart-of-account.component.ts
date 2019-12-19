@@ -7,7 +7,7 @@ import { AccountmappingApiService } from '../../../../../services/accountmapping
 import { GridOptions } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { Account, AccountCategory } from '../../../../../shared/Models/account';
-import { DataService } from 'src/shared/common/data.service';
+import { DataService } from 'src/services/common/data.service';
 import { SideBar, AutoSizeAllColumns, HeightStyle, Style } from 'src/shared/utils/Shared';
 import { ContextMenu } from 'src/shared/Models/common';
 

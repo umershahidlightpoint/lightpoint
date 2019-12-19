@@ -20,8 +20,8 @@ import {
 } from 'src/shared/utils/Shared';
 import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
-import { PostingEngineService } from 'src/shared/common/posting-engine.service';
-import { DataService } from '../../../../shared/common/data.service';
+import { PostingEngineService } from 'src/services/common/posting-engine.service';
+import { DataService } from '../../../../services/common/data.service';
 import { AgGridUtils } from '../../../../shared/utils/AgGridUtils';
 import { JournalModalComponent } from './journal-modal/journal-modal.component';
 import { DataModalComponent } from '../../../../shared/Component/data-modal/data-modal.component';

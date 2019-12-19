@@ -5,7 +5,7 @@ import {
   TrialBalanceReport,
   TrialBalanceReportStats
 } from '../../../../shared/Models/trial-balance';
-import { DataService } from '../../../../shared/common/data.service';
+import { DataService } from '../../../../services/common/data.service';
 import {
   Ranges,
   Style,

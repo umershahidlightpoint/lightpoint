@@ -4,7 +4,7 @@ import { GridOptions } from 'ag-grid-community';
 import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
 import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { DataService } from 'src/shared/common/data.service';
+import { DataService } from 'src/services/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';
 

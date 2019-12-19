@@ -11,9 +11,9 @@ import { CreateAccountComponent } from './main/accounts/create-account/create-ac
 import { TrialGridExampleComponent } from './main/trial-balance/trial-balance.component';
 import { LayoutsComponent } from './main/layouts/layouts.component';
 import { FundTheoreticalComponent } from './main/fund-theoretical/fund-theoretical.component';
-import { PerformanceCanDeactivateGuard } from 'src/shared/guards/performance-can-deactivate-guard.service';
 import { SummaryComponent } from './main/summary/summary.component';
 import { JournalsLayoutComponent } from './main/journals-ledgers/journals-layout.component';
+import { PerformanceCanDeactivateGuard } from '../../src/services/guards/performance-can-deactivate-guard.service';
 
 const routes: Routes = [
   { path: '', component: ReportsComponent }, // Default

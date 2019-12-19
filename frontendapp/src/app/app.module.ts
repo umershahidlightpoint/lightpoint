@@ -21,13 +21,13 @@ import { NgcatalystModule } from 'ngcatalyst';
 /*
 Services
 */
-import { SidenavService } from '../shared/common/sidenav.service';
+import { SidenavService } from '../services/common/sidenav.service';
 import { FinanceServiceProxy } from '../services/service-proxies';
-import { PostingEngineService } from '../shared/common/posting-engine.service';
-import { DataService } from '../shared/common/data.service';
+import { PostingEngineService } from '../services/common/posting-engine.service';
+import { DataService } from '../services/common/data.service';
 import { AgGridUtils } from '../shared/utils/AgGridUtils';
 import { DataDictionary } from '../shared/utils/DataDictionary';
-import { PerformanceCanDeactivateGuard } from '../shared/guards/performance-can-deactivate-guard.service';
+import { PerformanceCanDeactivateGuard } from '../../src/services/guards/performance-can-deactivate-guard.service';
 
 /*
 Components

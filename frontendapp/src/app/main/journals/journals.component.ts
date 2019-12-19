@@ -8,7 +8,7 @@ import {
 import { FinanceServiceProxy } from '../../../services/service-proxies';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
-import { DataService } from 'src/shared/common/data.service';
+import { DataService } from 'src/services/common/data.service';
 import { SideBar, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';

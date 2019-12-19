@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { Fund } from '../../../../shared/Models/account';
-import { DataService } from '../../../../shared/common/data.service';
+import { DataService } from '../../../../services/common/data.service';
 import {
   Ranges,
   Style,

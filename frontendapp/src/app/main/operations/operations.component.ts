@@ -4,7 +4,7 @@ import { GridOptions } from 'ag-grid-community';
 import * as moment from 'moment';
 import { FormGroup, FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-import { PostingEngineService } from 'src/shared/common/posting-engine.service';
+import { PostingEngineService } from 'src/services/common/posting-engine.service';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';
