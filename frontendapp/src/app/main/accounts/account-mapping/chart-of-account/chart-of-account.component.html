@@ -1,7 +1,5 @@
 <div [ngStyle]="styleForHeight">
   <ag-grid-angular
-    (rowClicked)="onRowClicked($event)"
-    (cellClicked)="onCellClicked($event)"
     (selectionChanged)="onSelectionChanged($event)"
     class="ag-theme-balham w-100 h-100"
     [gridOptions]="gridOptions"

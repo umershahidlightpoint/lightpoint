@@ -99,7 +99,7 @@ export class ChartOfAccountDetailComponent implements OnInit {
       if (!list) {
         return;
       } else {
-        // console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^', list);
+        console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^', list);
       }
     });
   }

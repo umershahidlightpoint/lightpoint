@@ -33,7 +33,7 @@
 
 .icon-plus {
   font-size: 25px;
-  color: rgb(2, 117, 216);;
+  color: rgb(2, 117, 216);
 }
 
 .icon-red {
@@ -50,8 +50,18 @@
   font-size: 12px;
 }
 
-.guide-placeholder{
+.guide-placeholder {
   background-color: #eee;
   color: black;
   text-align: center;
+}
+
+.ac-name {
+  width: 40%;
+  padding: 7px 0px 0px 0;
+}
+
+.list-wrapper {
+  overflow-y: auto;
+  max-height: 365px;
 }
