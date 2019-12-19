@@ -1,6 +1,7 @@
 /******************************
 ********  Global HTML  ********
 ******************************/
+
 body {
   overflow: hidden;
 }
@@ -8,6 +9,7 @@ body {
 /******************************
 ********  Components   ********
 ******************************/
+
 .json-container {
   margin-left: 2rem;
   padding: 0.375rem;
@@ -23,183 +25,14 @@ body {
 /******************************
 ********    AG Grid    ********
 ******************************/
+
 .edit-btn-props {
   margin: 0 8px;
   padding: 2px;
 }
 
 /******************************
-********  Date Picker  ********
-******************************/
-
-.md-drppicker .btn,
-.ranges ul li button.active,
-.md-drppicker td.active,
-.md-drppicker td.active:hover {
-  background-color: #17a2b8 !important;
-}
-
-.md-drppicker .clear svg {
-  margin-bottom: 0.6rem;
-}
-
-/******************************
-******* Bootstrap Tabs ********
-******************************/
-
-.nav-link {
-  color: black !important;
-}
-
-.nav-link.active {
-  background-color: rgb(2, 117, 216) !important;
-  color: white !important;
-}
-
-/******************************
-*******    Spinner     ********
-******************************/
-
-.spinner-grow {
-  width: 4rem !important;
-  height: 4rem !important;
-  color: rgb(2, 117, 216);
-}
-
-/******************************
-********   Utilities   ********
-******************************/
-
-/******************************
-********     Width     ********
-******************************/
-.width-55 {
-  width: 55%;
-}
-
-.width-49 {
-  width: 49.6%;
-}
-
-.width-45 {
-  width: 45%;
-}
-
-.width-40 {
-  width: 40%;
-}
-
-.width-38 {
-  width: 38%;
-}
-
-.width-25 {
-  width: 25%;
-}
-
-.width-24 {
-  width: 24.7%;
-}
-
-.width-20 {
-  width: 20%;
-}
-
-.width-15 {
-  width: 15%;
-}
-
-.width-38px {
-  width: 38px;
-}
-
-/******************************
-********    Height     ********
-******************************/
-.height-45 {
-  height: 45%;
-}
-
-.height-50vh {
-  height: 50vh;
-}
-
-.height-38rem {
-  height: 38rem;
-}
-
-.height-30rem {
-  height: 30rem;
-}
-
-.height-38px {
-  height: 38px;
-}
-
-.height-30px {
-  height: 30px;
-}
-
-.max-height-100 {
-  max-height: 100px;
-}
-
-.max-height-180 {
-  max-height: 180px;
-}
-
-/******************************
-********   Padding   ********
-******************************/
-
-.pt-10 {
-  padding-top: 10px;
-}
-
-.pl-5 {
-  padding-left: 5px;
-}
-
-/******************************
-********   Font Size   ********
-******************************/
-.fz-1 {
-  font-size: 1em;
-}
-
-.fz-1_5 {
-  font-size: 1.5em;
-}
-
-.fz-20 {
-  font-size: 20px;
-}
-
-/******************************
-********     Colors    ********
-******************************/
-.color-white {
-  color: #fff;
-}
-
-.color-red {
-  color: red;
-}
-
-.color-green {
-  color: green;
-}
-
-.bc-red {
-  background: rgb(198, 40, 40);
-}
-
-.bc-green {
-  background: rgb(76, 175, 80);
-}
-
-/******************************
-********    AG GRID Font Colors    ********
+***   AG GRID Font Colors   ***
 ******************************/
 .redFont {
   color: red;
@@ -216,33 +49,327 @@ body {
 }
 
 /******************************
+********  Date Picker  ********
+******************************/
+
+.md-drppicker .btn,
+.ranges ul li button.active,
+.md-drppicker td.active,
+.md-drppicker td.active:hover {
+  background-color: #17a2b8 !important;
+}
+
+.md-drppicker .clear svg {
+  margin-bottom: 0.6rem !important;
+}
+
+/******************************
+******* Bootstrap Tabs ********
+******************************/
+
+.nav-link {
+  color: black !important;
+}
+
+.nav-link.active {
+  background-color: #0275d8 !important;
+  color: white !important;
+}
+
+/******************************
+*******    Spinner     ********
+******************************/
+
+.spinner-grow {
+  width: 4rem !important;
+  height: 4rem !important;
+  color: #0275d8 !important;
+}
+
+/******************************
+********   Utilities   ********
+******************************/
+
+/******************************
+********   Width %     ********
+******************************/
+
+.width-5 {
+  width: 5% !important;
+}
+
+.width-10 {
+  width: 10% !important;
+}
+
+.width-15 {
+  width: 15% !important;
+}
+
+.width-20 {
+  width: 20% !important;
+}
+
+.width-30 {
+  width: 30% !important;
+}
+
+.width-35 {
+  width: 35% !important;
+}
+
+.width-40 {
+  width: 40% !important;
+}
+
+.width-45 {
+  width: 45% !important;
+}
+
+.width-55 {
+  width: 55% !important;
+}
+
+.width-60 {
+  width: 60% !important;
+}
+
+.width-65 {
+  width: 65% !important;
+}
+
+.width-70 {
+  width: 70% !important;
+}
+
+.width-80 {
+  width: 80% !important;
+}
+
+.width-85 {
+  width: 85% !important;
+}
+
+.width-90 {
+  width: 90% !important;
+}
+
+.width-95 {
+  width: 95% !important;
+}
+
+/******************************
+********   Width PX    ********
+******************************/
+
+.width-40px {
+  width: 40px !important;
+}
+
+/******************************
+********   Height %    ********
+******************************/
+
+.height-10 {
+  height: 10% !important;
+}
+
+.height-20 {
+  height: 20% !important;
+}
+
+.height-30 {
+  height: 30% !important;
+}
+
+.height-40 {
+  height: 40% !important;
+}
+
+.height-45 {
+  height: 45% !important;
+}
+
+.height-60 {
+  height: 60% !important;
+}
+
+.height-70 {
+  height: 70% !important;
+}
+
+.height-80 {
+  height: 80% !important;
+}
+
+.height-90 {
+  height: 90% !important;
+}
+
+/******************************
+********   Height VH   ********
+******************************/
+
+.height-50vh {
+  height: 50vh !important;
+}
+
+/******************************
+********  Height REM   ********
+******************************/
+
+.height-30rem {
+  height: 30rem !important;
+}
+
+.height-38rem {
+  height: 38rem !important;
+}
+
+/******************************
+********   Height PX   ********
+******************************/
+
+.height-30px {
+  height: 30px !important;
+}
+
+.height-38px {
+  height: 38px !important;
+}
+
+.max-height-100 {
+  max-height: 100px !important;
+}
+
+.max-height-180 {
+  max-height: 180px !important;
+}
+
+/******************************
+********   Padding   ********
+******************************/
+
+.pt-10 {
+  padding-top: 10px !important;
+}
+
+.pr-10 {
+  padding-right: 10px !important;
+}
+
+.pb-10 {
+  padding-bottom: 10px !important;
+}
+
+.pl-10 {
+  padding-left: 10px !important;
+}
+
+.pt-5 {
+  padding-top: 5px !important;
+}
+
+.pr-5 {
+  padding-right: 5px !important;
+}
+
+.pb-5 {
+  padding-bottom: 5px !important;
+}
+
+.pl-5 {
+  padding-left: 5px !important;
+}
+
+/******************************
+********   Font Size   ********
+******************************/
+
+.fz-1 {
+  font-size: 1em !important;
+}
+
+.fz-1_5 {
+  font-size: 1.5em !important;
+}
+
+.fz-20 {
+  font-size: 20px !important;
+}
+
+/******************************
+********     Colors    ********
+******************************/
+
+.color-white {
+  color: #fff !important;
+}
+
+.color-red {
+  color: #f24949 !important;
+}
+
+.color-green {
+  color: #4caf4f !important;
+}
+
+.color-red-light {
+  color: #fd6677 !important;
+}
+
+.color-green-light {
+  color: #76f996 !important;
+}
+
+.bc-red {
+  background: #f24949 !important;
+}
+
+.bc-green {
+  background: #4caf4f !important;
+}
+
+.bc-red-light {
+  background: #fd6677 !important;
+}
+
+.bc-green-light {
+  background: #76f996 !important;
+}
+
+/******************************
 ********    Commons    ********
 ******************************/
+
+.overflow-y-auto {
+  overflow-y: auto !important;
+}
+
+.overflow-x-hidden {
+  overflow-x: hidden !important;
+}
+
 .opacity-1 {
   opacity: 1 !important;
 }
 
 .cursor-not-allowed {
-  cursor: not-allowed;
-}
-
-.overflow-y-auto {
-  overflow-y: auto;
-}
-
-.overflow-x-hidden {
-  overflow-x: hidden;
+  cursor: not-allowed !important;
 }
 
 .bg-size-100 {
   background-size: 100%;
 }
 
-.white-blue-button-theme{
+/******************************
+********    PA Theme   ********
+******************************/
+
+.white-blue-button-theme {
   color: #fff;
-  background-color: rgb(2, 117, 216);
-  border-color: rgb(2, 117, 216);
-  
+  background-color: #0275d8;
+  border-color: #0275d8;
 }
 
 .white-blue-button-theme:hover {
@@ -251,24 +378,28 @@ body {
   border-color: rgb(81, 157, 223);
 }
 
-.white-blue-button-theme:focus, .white-blue-button-theme.focus {
+.white-blue-button-theme:focus,
+.white-blue-button-theme.focus {
   box-shadow: 0 0 0 0.2rem rgb(99, 170, 231);
 }
 
-.white-blue-button-theme.disabled, .white-blue-button-theme:disabled {
+.white-blue-button-theme.disabled,
+.white-blue-button-theme:disabled {
   color: #fff;
   background-color: rgb(81, 157, 223);
   border-color: rgb(81, 157, 223);
 }
 
-.white-blue-button-theme:not(:disabled):not(.disabled):active, .white-blue-button-theme:not(:disabled):not(.disabled).active,
+.white-blue-button-theme:not(:disabled):not(.disabled):active,
+.white-blue-button-theme:not(:disabled):not(.disabled).active,
 .show > .white-blue-button-theme.dropdown-toggle {
   color: #fff;
-  background-color: rgb(2, 117, 216);
-  border-color: rgb(2, 117, 216);
+  background-color: #0275d8;
+  border-color: #0275d8;
 }
 
-.white-blue-button-theme:not(:disabled):not(.disabled):active:focus, .white-blue-button-theme:not(:disabled):not(.disabled).active:focus,
+.white-blue-button-theme:not(:disabled):not(.disabled):active:focus,
+.white-blue-button-theme:not(:disabled):not(.disabled).active:focus,
 .show > .white-blue-button-theme.dropdown-toggle:focus {
-  box-shadow: 0 0 0 0.2rem rgb(2, 117, 216);
+  box-shadow: 0 0 0 0.2rem #0275d8;
 }

@@ -121,6 +121,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                                 ,[account_category].[id] AS 'category_id'
 	                                            ,[account_category].[name] AS 'category'
 						                        ,[m].[id] AS 'map_id'
+                                                ,[m].[third_party_account_id]
 						                        ,[t].[third_party_account_name] AS 'third_party_account_name'
 						                        ,[org].[organization_name] AS 'organization_name'
                                                 FROM [account]
