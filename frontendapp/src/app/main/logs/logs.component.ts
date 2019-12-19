@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../../../services/service-proxies';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { Style, HeightStyle } from 'src/shared/utils/Shared';
 import * as moment from 'moment';

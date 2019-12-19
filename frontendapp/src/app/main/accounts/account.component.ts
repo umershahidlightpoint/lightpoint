@@ -8,12 +8,11 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { CreateAccountComponent } from './create-account/create-account.component';
-import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { AccountApiService } from '../../../services/account-api.service';
 import { GridOptions } from 'ag-grid-community';
 import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
 import { ToastrService } from 'ngx-toastr';
 import { Account, AccountCategory } from '../../../shared/Models/account';
-import { takeWhile } from 'rxjs/operators';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
@@ -58,7 +57,7 @@ export class AccountComponent implements OnInit, AfterViewInit {
 
   constructor(
     private router: Router,
-    private financePocServiceProxy: FinanceServiceProxy,
+    private accountApiService: AccountApiService,
     private toastrService: ToastrService,
     private dataService: DataService,
     private downloadExcelUtils: DownloadExcelUtils
@@ -156,7 +155,7 @@ export class AccountComponent implements OnInit, AfterViewInit {
   }
 
   getAccountCategories() {
-    this.financePocServiceProxy.accountCategories().subscribe(response => {
+    this.accountApiService.accountCategories().subscribe(response => {
       if (response.isSuccessful) {
         this.accountCategories = response.payload;
       } else {
@@ -167,7 +166,7 @@ export class AccountComponent implements OnInit, AfterViewInit {
 
   getAccountsRecord() {
     setTimeout(() => {
-      this.financePocServiceProxy.getAllAccounts().subscribe(result => {
+      this.accountApiService.getAllAccounts().subscribe(result => {
         if (result.payload) {
           this.rowData = result.payload.map(result => ({
             accountId: result.AccountId,
@@ -199,7 +198,7 @@ export class AccountComponent implements OnInit, AfterViewInit {
 
   deleteAccount() {
     const selectedAccount = this.account;
-    this.financePocServiceProxy.deleteAccount(selectedAccount.accountId).subscribe(
+    this.accountApiService.deleteAccount(selectedAccount.accountId).subscribe(
       response => {
         if (response.isSuccessful) {
           this.toastrService.success('Account deleted successfully!');

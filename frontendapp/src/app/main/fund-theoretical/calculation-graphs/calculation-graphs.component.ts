@@ -1,17 +1,9 @@
-import {
-  Component,
-  OnInit,
-  Input,
-  ChangeDetectorRef,
-  OnChanges,
-  SimpleChanges
-} from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { GraphObject } from 'src/shared/Models/graph-object';
 import * as moment from 'moment';
-
 
 @Component({
   selector: 'app-calculation-graphs',
@@ -22,7 +14,7 @@ export class CalculationGraphsComponent implements OnInit, OnChanges {
   @Input() chartObject: GraphObject;
   @Input() mode: string;
   showChart = false;
-  filteredChartData : any = {};
+  filteredChartData: any = {};
   vRanges = [
     {
       Description: 'Last 30 days',
@@ -57,7 +49,7 @@ export class CalculationGraphsComponent implements OnInit, OnChanges {
     if (currentValue !== undefined) {
       if (currentValue.graphData) {
         this.reset();
-        this.filterChartData(currentValue.graphData, currentValue.referenceDate)
+        this.filterChartData(currentValue.graphData, currentValue.referenceDate);
         this.showChart = true;
       } else {
         of()
@@ -76,19 +68,21 @@ export class CalculationGraphsComponent implements OnInit, OnChanges {
 
   vChange($event) {
     this.filteredChartData = {};
-    this.filterChartData(this.chartObject.graphData, this.chartObject.referenceDate)
+    this.filterChartData(this.chartObject.graphData, this.chartObject.referenceDate);
   }
 
-  filterChartData(allData, toDate){
-    if(toDate && this.vRange !== 0){
+  filterChartData(allData, toDate) {
+    if (toDate && this.vRange !== 0) {
       const fromDate = moment(toDate).subtract(this.vRange, 'days');
-      Object.keys(allData).forEach(key=>{
-        const filteredList = allData[key].filter(x=> (moment(x.date).isSameOrAfter(fromDate) && moment(x.date).isSameOrBefore(toDate)));
+      Object.keys(allData).forEach(key => {
+        const filteredList = allData[key].filter(
+          x => moment(x.date).isSameOrAfter(fromDate) && moment(x.date).isSameOrBefore(toDate)
+        );
         this.filteredChartData[key] = filteredList;
-     });
+      });
     } else {
       this.filteredChartData = allData;
-      this.vRange = this.vRanges.find(x=> x.Days === 0).Days;
+      this.vRange = this.vRanges.find(x => x.Days === 0).Days;
     }
   }
 }

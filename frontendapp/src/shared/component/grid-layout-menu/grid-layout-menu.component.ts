@@ -1,6 +1,6 @@
 import { Component, ChangeDetectorRef, ViewChild } from "@angular/core";
 import { IToolPanel, IToolPanelParams } from "ag-grid-community";
-import { FinanceServiceProxy } from "../../service-proxies/service-proxies";
+import { FinanceServiceProxy } from "../../../services/service-proxies";
 import { ToastrService } from "ngx-toastr";
 import { ConfirmationModalComponent } from "src/shared/Component/confirmation-modal/confirmation-modal.component";
 import { GridLayout } from "src/shared/Models/funds-theoretical";

@@ -1,23 +1,11 @@
-import {
-  Component,
-  OnInit,
-  AfterViewInit,
-  ViewChild,
-  TemplateRef
-} from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, TemplateRef } from '@angular/core';
 import { TaxRateModalComponent } from './tax-rate-modal/tax-rate-modal.component';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import {
-  HeightStyle,
-  SideBar,
-  AutoSizeAllColumns,
-  DateFormatter
-} from 'src/shared/utils/Shared';
+import { HeightStyle, SideBar, AutoSizeAllColumns, DateFormatter } from 'src/shared/utils/Shared';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { Moment } from 'moment';
-import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 import { TemplateRendererComponent } from 'src/app/template-renderer/template-renderer.component';
 import { ToastrService } from 'ngx-toastr';
@@ -25,6 +13,7 @@ import { TaxRateData } from 'src/shared/Models/funds-theoretical';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
 import { ContextMenu } from 'src/shared/Models/common';
 import { DataDictionary } from 'src/shared/utils/DataDictionary';
+import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.service';
 
 @Component({
   selector: 'app-tax-rates',
@@ -34,9 +23,7 @@ import { DataDictionary } from 'src/shared/utils/DataDictionary';
 export class TaxRatesComponent implements OnInit, AfterViewInit {
   @ViewChild('taxRateModal', { static: false })
   taxRateModal: TaxRateModalComponent;
-  @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<
-    any
-  >;
+  @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<any>;
   @ViewChild('confirmationModal', { static: false })
   confirmationModal: ConfirmationModalComponent;
 
@@ -61,7 +48,7 @@ export class TaxRatesComponent implements OnInit, AfterViewInit {
   overlappingStyle = { backgroundColor: '#f9a89f' };
 
   constructor(
-    private financeService: FinanceServiceProxy,
+    private fundTheoreticalApiService: FundTheoreticalApiService,
     private toastrService: ToastrService,
     private dataDictionary: DataDictionary
   ) {
@@ -77,7 +64,7 @@ export class TaxRatesComponent implements OnInit, AfterViewInit {
   getTaxRates() {
     this.showGapBtn = false;
     this.showOverlappingBtn = false;
-    this.financeService.getTaxRates().subscribe(result => {
+    this.fundTheoreticalApiService.getTaxRates().subscribe(result => {
       if (result.payload) {
         this.taxRatesData = result.payload.map(item => ({
           id: item.Id,
@@ -146,11 +133,7 @@ export class TaxRatesComponent implements OnInit, AfterViewInit {
         }
       }
     } as GridOptions;
-    this.taxRatesGrid.sideBar = SideBar(
-      GridId.taxRatesId,
-      GridName.taxRates,
-      this.taxRatesGrid
-    );
+    this.taxRatesGrid.sideBar = SideBar(GridId.taxRatesId, GridName.taxRates, this.taxRatesGrid);
   }
 
   setColDefs() {
@@ -179,10 +162,7 @@ export class TaxRatesComponent implements OnInit, AfterViewInit {
         filter: true,
         type: 'numericColumn',
         valueFormatter: params =>
-          this.dataDictionary.numberFormatter(
-            params.node.data.longTermTaxRate,
-            true
-          )
+          this.dataDictionary.numberFormatter(params.node.data.longTermTaxRate, true)
       },
       {
         headerName: 'Short Term Tax Rate %',
@@ -191,10 +171,7 @@ export class TaxRatesComponent implements OnInit, AfterViewInit {
         editable: true,
         type: 'numericColumn',
         valueFormatter: params =>
-          this.dataDictionary.numberFormatter(
-            params.node.data.shortTermTaxRate,
-            true
-          )
+          this.dataDictionary.numberFormatter(params.node.data.shortTermTaxRate, true)
       },
       {
         headerName: 'Short Term Period',
@@ -265,9 +242,7 @@ export class TaxRatesComponent implements OnInit, AfterViewInit {
   }
 
   editTaxRate(row) {
-    const lastIndex = this.taxRatesData.findIndex(
-      taxRate => taxRate.id === row.id
-    );
+    const lastIndex = this.taxRatesData.findIndex(taxRate => taxRate.id === row.id);
     const lastTaxRateData = this.taxRatesData[lastIndex];
     this.taxRateModal.openModal(row, lastTaxRateData);
   }
@@ -278,7 +253,7 @@ export class TaxRatesComponent implements OnInit, AfterViewInit {
   }
 
   deleteTaxRate() {
-    this.financeService.deleteTaxRate(this.taxRateRow.id).subscribe(
+    this.fundTheoreticalApiService.deleteTaxRate(this.taxRateRow.id).subscribe(
       response => {
         if (response.isSuccessful) {
           this.toastrService.success('Tax Rate deleted successfully!');

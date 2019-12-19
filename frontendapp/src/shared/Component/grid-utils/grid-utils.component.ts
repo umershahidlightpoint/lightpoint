@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
-import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from 'src/services/service-proxies';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
 import { AutoSizeAllColumns } from 'src/shared/utils/Shared';
 

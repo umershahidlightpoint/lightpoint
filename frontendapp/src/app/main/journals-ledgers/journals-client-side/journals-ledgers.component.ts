@@ -25,7 +25,7 @@ import {
   CalTotal
 } from 'src/shared/utils/Shared';
 import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
-import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { DataService } from '../../../../shared/common/data.service';
 import { AgGridUtils } from '../../../../shared/utils/AgGridUtils';

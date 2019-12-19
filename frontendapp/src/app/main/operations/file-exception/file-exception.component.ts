@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, TemplateRef, ViewChild } from '@angular/core';
-import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from 'src/services/service-proxies';
 import { take } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';

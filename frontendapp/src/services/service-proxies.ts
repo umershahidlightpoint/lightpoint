@@ -1,4 +1,4 @@
-import { Injectable, Injector } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -6,7 +6,7 @@ import {
   PostingEngine,
   PostingEngineStatus,
   IsPostingEngineRunning
-} from '../Models/posting-engine';
+} from '../shared/Models/posting-engine';
 
 @Injectable()
 export class FinanceServiceProxy {
@@ -204,117 +204,6 @@ export class FinanceServiceProxy {
   }
 
   /*
-  Get a Searched Account
-  */
-  getAccount(keyword: string | null | undefined) {
-    const url = this.baseUrl + '/account/data/Search/?search=' + keyword;
-    const params: any = {};
-    if (keyword !== undefined) {
-      params.keyword = keyword;
-    }
-
-    return this.http.get(url).pipe(map((response: any) => response));
-  }
-
-  /*
-  Get the Accounts
-  */
-  getAccounts(keyword: string | null | undefined) {
-    const url = this.baseUrl + '/accounts';
-    const params: any = {};
-    if (keyword !== undefined) {
-      params.keyword = keyword;
-    }
-
-    return this.http.get(url, { params }).pipe(map((response: any) => response));
-  }
-
-  /*
-  Get All Accounts
-  */
-  getAllAccounts() {
-    const url = this.baseUrl + '/account';
-    return this.http.get(url).pipe(map((response: any) => response));
-  }
-
-  /*
-  Get the Account Types
-  */
-  getAccountTypes(keyword: string) {
-    const url = this.baseUrl + '/account_types';
-    const params: any = {};
-    if (keyword !== undefined) {
-      params.keyword = keyword;
-    }
-
-    return this.http.get(url, { params }).pipe(map((response: any) => response));
-  }
-
-  /*
-  Get the Account Tags
-  */
-  getAccountTags(id) {
-    const url = this.baseUrl + '/account/' + id;
-    return this.http.get(url).pipe(map((response: any) => response));
-  }
-
-  /*
-  Create an Account
-  */
-  createAccount(data) {
-    const url = this.baseUrl + '/account';
-    return this.http.post(url, data).pipe(map((response: any) => response));
-  }
-
-  /*
-  Edit an Account
-  */
-  editAccount(params) {
-    const url = this.baseUrl + '/account/' + params.id;
-    return this.http.put(url, params).pipe(map((response: any) => response));
-  }
-
-  /*
-  Patch an Account
-  */
-  patchAccount(id, params) {
-    const url = this.baseUrl + '/account/' + id;
-    return this.http.patch(url, params).pipe(map((response: any) => response));
-  }
-
-  /*
-  Delete an Account
-  */
-  deleteAccount(id) {
-    const url = this.baseUrl + '/account/' + id;
-    return this.http.delete(url).pipe(map((response: any) => response));
-  }
-
-  /*
-  Get the Account Categories
-  */
-  accountCategories() {
-    const url = this.baseUrl + '/account_category/';
-    return this.http.get(url).pipe(map((response: any) => response));
-  }
-
-  /*
-  Get All Account Tags
-  */
-  accountTags() {
-    const url = this.baseUrl + '/account_tag';
-    return this.http.get(url).pipe(map((response: any) => response));
-  }
-
-  /*
-  Get an Account Type
-  */
-  accountTypes(id) {
-    const url = this.baseUrl + '/account_type?accountCategoryId=' + id;
-    return this.http.get(url).pipe(map((response: any) => response));
-  }
-
-  /*
   Save Grid Layout State
   */
   saveDataGridState(data) {
@@ -500,93 +389,11 @@ export class FinanceServiceProxy {
     return this.http.get(url);
   }
 
-  /*
-  Monthly Performance
-  */
-  getMonthlyPerformance(): Observable<any> {
-    const url = this.baseUrl + '/calculation/monthlyPerformance';
-    return this.http.get(url);
-  }
-
-  calMonthlyPerformance(data): Observable<any> {
-    const url = this.baseUrl + '/calculation/monthlyPerformance';
-    return this.http.post(url, data);
-  }
-
-  commitMonthlyPerformance(data): Observable<any> {
-    const url = this.baseUrl + '/calculation/monthlyPerformance';
-    return this.http.put(url, data);
-  }
-
-  monthlyPerformanceAudit(id): Observable<any> {
-    const url = this.baseUrl + '/calculation/monthlyPerformanceAudit?id=' + id;
-    return this.http.get(url);
-  }
-
-  getMonthlyPerformanceStatus(): Observable<any> {
-    const url = this.baseUrl + '/calculation/monthlyPerformance/status';
-    return this.http.get(url);
-  }
-
-  getMarketPriceData(): Observable<any> {
-    const url = this.baseUrl + '/marketdata/prices';
-    return this.http.get(url);
-  }
-
-  editMarketPriceData(data): Observable<any> {
-    const url = this.baseUrl + '/marketdata/prices';
-    return this.http.put(url, data);
-  }
-
-  getMarketPriceAudit(id): Observable<any> {
-    const url = this.baseUrl + '/marketdata/audit?id=' + id;
-    return this.http.get(url);
-  }
-
-  uploadMarketPriceData(file: File): Observable<any> {
-    const url = this.baseUrl + '/marketdata/prices/upload';
-    const formData: FormData = new FormData();
-    formData.append('fileKey', file, file.name);
-    return this.http.post(url, formData);
-  }
-
   uploadMonthlyPerformance(file: File): Observable<any> {
     const url = this.baseUrl + '/calculation/monthlyPerformance/upload';
     const formData: FormData = new FormData();
     formData.append('fileKey', file, file.name);
     return this.http.post(url, formData);
-  }
-
-  getDailyUnofficialPnL(): Observable<any> {
-    const url = this.baseUrl + '/calculation/dailyUnofficialPnl';
-    return this.http.get(url);
-  }
-
-  uploadDailyUnofficialPnl(file: File): Observable<any> {
-    const url = this.baseUrl + '/calculation/dailyUnofficialPnlAudit/upload';
-    const formData: FormData = new FormData();
-    formData.append('fileKey', file, file.name);
-    return this.http.post(url, formData);
-  }
-
-  getTaxRates(): Observable<any> {
-    const url = this.baseUrl + '/taxRate';
-    return this.http.get(url);
-  }
-
-  createTaxRate(data) {
-    const url = this.baseUrl + '/taxRate';
-    return this.http.post(url, data).pipe(map((response: any) => response));
-  }
-
-  editTaxRate(id, data) {
-    const url = this.baseUrl + '/taxRate/' + id;
-    return this.http.put(url, data).pipe(map((response: any) => response));
-  }
-
-  deleteTaxRate(id) {
-    const url = this.baseUrl + '/taxRate/' + id;
-    return this.http.delete(url).pipe(map((response: any) => response));
   }
 
   getJournalSummary(payload: any): Observable<any> {
