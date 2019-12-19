@@ -45,7 +45,8 @@
                   <tr *ngFor="let report of tableData">
                     <td class="first-cell cell-style"> {{ report.name }}</td>
                     <td class="other-cells balance cell-style">
-                      {{ report.value  }}</td>
+                      {{(report.name === '$Debit' || report.name === '$Credit'  || report.name === '$Balance') ?  (report.value | number: '1.2-2')  :  report.value }}
+                    </td>
                   </tr>
                 </tbody>
               </table>
