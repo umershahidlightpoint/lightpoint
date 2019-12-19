@@ -483,10 +483,11 @@ export const CommonCols = (isJournalGrid, filters = null) => {
         // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
         greenFont(params) {
           if (
-            noColorCategories(params) ||
-            params.data.AccountCategory === 'Asset' ||
-            params.data.AccountCategory === 'Liability' ||
-            params.node.rowPinned
+            params.data !== undefined &&
+            (noColorCategories(params) ||
+              params.data.AccountCategory === 'Asset' ||
+              params.data.AccountCategory === 'Liability' ||
+              params.node.rowPinned)
           ) {
             return false;
           } else {
@@ -495,12 +496,13 @@ export const CommonCols = (isJournalGrid, filters = null) => {
         },
         redFont(params) {
           if (
-            noColorCategories(params) ||
-            params.data.AccountCategory === 'Asset' ||
-            params.node.rowPinned
+            params.data !== undefined &&
+            (noColorCategories(params) ||
+              params.data.AccountCategory === 'Asset' ||
+              params.node.rowPinned)
           ) {
             return false;
-          } else if (params.data.AccountCategory === 'Liability') {
+          } else if (params.data !== undefined && params.data.AccountCategory === 'Liability') {
             return true;
           } else {
             return params.value < 0;
@@ -575,9 +577,10 @@ export const CommonCols = (isJournalGrid, filters = null) => {
 
 export function noColorCategories(params) {
   if (
-    params.data.AccountCategory === 'Equity' ||
-    params.data.AccountCategory === 'Revenues' ||
-    params.data.AccountCategory === 'Expenses'
+    params.data !== undefined &&
+    (params.data.AccountCategory === 'Equity' ||
+      params.data.AccountCategory === 'Revenues' ||
+      params.data.AccountCategory === 'Expenses')
   ) {
     return true;
   }
