@@ -246,10 +246,11 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
         cellClassRules: {
           greenFont(params) {
             if (
-              noColorCategories(params) ||
-              params.data.AccountCategory === 'Asset' ||
-              params.data.AccountCategory === 'Liability' ||
-              params.node.rowPinned
+              params.data !== undefined &&
+              (noColorCategories(params) ||
+                params.data.AccountCategory === 'Asset' ||
+                params.data.AccountCategory === 'Liability' ||
+                params.node.rowPinned)
             ) {
               return false;
             } else {
@@ -258,12 +259,13 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
           },
           redFont(params) {
             if (
-              noColorCategories(params) ||
-              params.data.AccountCategory === 'Asset' ||
-              params.node.rowPinned
+              params.data !== undefined &&
+              (noColorCategories(params) ||
+                params.data.AccountCategory === 'Asset' ||
+                params.node.rowPinned)
             ) {
               return false;
-            } else if (params.data.AccountCategory === 'Liability') {
+            } else if (params.data !== undefined && params.data.AccountCategory === 'Liability') {
               return true;
             } else {
               return params.value < 0;
