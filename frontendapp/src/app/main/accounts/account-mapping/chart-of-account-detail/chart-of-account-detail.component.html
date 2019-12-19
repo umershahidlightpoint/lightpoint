@@ -6,7 +6,7 @@
     <!-- Save Button -->
     <div class="row justify-content-end" style="padding: 7px;">
       <div class="col-auto">
-        <button type="submit" class="btn btn-pa">
+        <button type="submit" class="btn btn-pa" (click)="onSaveSettings()">
           <i class="fa fa-save"></i>
           Commit
           <span *ngIf="isSaving" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -65,14 +65,14 @@
         <div class="select-detail-wrap">
           <div class="d-flex justify-content-between title-bg-color">
             <div class="align-items-center width-40" style="padding: 7px 0px 0px 0;">
-              <h6>{{ list.organisation }}</h6>
+              <h6>{{ list.ThirdPartyAccountName }}</h6>
             </div>
 
             <div class="fz-20 width-20">|</div>
 
             <div class="align-items-center ac-name">
               <h6 class="text-right">
-                {{ list.accountName }}
+                {{ list.OrganizationName }}
               </h6>
             </div>
           </div>

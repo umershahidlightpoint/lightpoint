@@ -1,14 +1,15 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CreateAccountComponent } from '../.././create-account/create-account.component';
-import { FinanceServiceProxy } from '../../../../../services/service-proxies';
+// import { FinanceServiceProxy } from '../../../../../services/service-proxies';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { AccountmappingApiService } from '../../../../../services/accountmapping-api.service';
 import { GridOptions } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { Account, AccountCategory } from '../../../../../shared/Models/account';
 import { DataService } from 'src/shared/common/data.service';
 import { SideBar, AutoSizeAllColumns, HeightStyle, Style } from 'src/shared/utils/Shared';
-import { AccountApiService } from 'src/services/account-api.service';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'app-chart-of-account',
@@ -40,12 +41,9 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   };
 
   constructor(
-    private router: Router,
-    private financePocServiceProxy: FinanceServiceProxy,
     private toastrService: ToastrService,
     private dataService: DataService,
     private accountmappingApiService: AccountmappingApiService,
-    private accountApiService: AccountApiService
   ) {
     this.hideGrid = false;
   }
@@ -98,6 +96,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
     this.gridOptions = {
       rowData: null,
       rowSelection: 'multiple',
+      getContextMenuItems: this.getContextMenuItems.bind(this),
       rowGroupPanelShow: 'after',
       pivotPanelShow: 'after',
       pivotColumnGroupTotals: 'after',
@@ -128,8 +127,35 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
     } as GridOptions;
   }
 
+  getContextMenuItems(params): Array<ContextMenu> {
+    if (params.node.data.hasMapping) {
+      const addDefaultItems = [
+        {
+          name: 'Edit',
+          action: () => {
+            this.mappedAccountId(params.node.data);
+          }
+        }
+      ];
+      return GetContextMenu(false, addDefaultItems, false, [], params);
+    }
+  }
+
+  mappedAccountId(params) {
+    if (params.hasMapping === true) {
+      this.accountmappingApiService.storeAccountList(false);
+      const obj = {
+        params : [params],
+        action: 'edit'
+      };
+      this.accountmappingApiService.storeAccountList(obj);
+    } else {
+      return false;
+    }
+  }
+
   getAccountCategories() {
-    this.accountApiService.accountCategories().subscribe(response => {
+    this.accountmappingApiService.getOrganisation().subscribe(response => {
       if (response.isSuccessful) {
         this.accountCategories = response.payload;
       } else {
@@ -139,9 +165,13 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   }
 
   onSelectionChanged(event: any) {
-    let getSelectedAccounts = [{}];
-    getSelectedAccounts = event.api.getSelectedRows();
-    this.accountmappingApiService.storeAccountList(getSelectedAccounts);
+    const getSelectedAccounts = event.api.getSelectedRows();
+    const obj = {
+      params : getSelectedAccounts,
+      action: 'post'
+    };
+
+    this.accountmappingApiService.storeAccountList(obj);
   }
 
   getAccountsRecord() {
@@ -159,7 +189,8 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
             hasMapping: result.HasMapping,
             hasJournal: result.HasJournal,
             canDeleted: result.CanDeleted,
-            canEdited: result.CanEdited
+            canEdited: result.CanEdited,
+            thirdPartyMappedAccounts: result.ThirdPartyMappedAccounts
           }));
 
           this.gridOptions.api.setRowData(this.rowData);
