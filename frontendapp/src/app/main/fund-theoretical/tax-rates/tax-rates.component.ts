@@ -168,7 +168,6 @@ export class TaxRatesComponent implements OnInit, AfterViewInit {
         headerName: 'Short Term Tax Rate %',
         field: 'shortTermTaxRate',
         sortable: true,
-        editable: true,
         type: 'numericColumn',
         valueFormatter: params =>
           this.dataDictionary.numberFormatter(params.node.data.shortTermTaxRate, true)
@@ -177,7 +176,6 @@ export class TaxRatesComponent implements OnInit, AfterViewInit {
         headerName: 'Short Term Period',
         field: 'shortTermPeriod',
         sortable: true,
-        editable: true,
         type: 'numericColumn'
       },
       {

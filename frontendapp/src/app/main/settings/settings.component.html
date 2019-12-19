@@ -1,112 +1,128 @@
-<!-- General Settings Tab Set -->
-<tabset>
+<!-- Hide Grid Div -->
+<div *ngIf="hideGrid" #logScroll [ngStyle]="processingMsgDiv">
+  <div class="d-flex align-items-center justify-content-center">
+    <h1> Posting Engine is Running. Please Wait. </h1>
+  </div>
+</div>
+<!-- Hide Grid Div Ends -->
 
-  <!-- General Settings Tab -->
-  <tab heading="General Settings">
-    <div class="mt-0" [ngStyle]="style">
+<!-- Settings Main Div Starts -->
+<div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
 
-      <!-- Loading Spinner -->
-      <div *ngIf="isLoading" class="d-flex justify-content-center align-items-center height-50vh">
-        <app-loader></app-loader>
+  <!-- General Settings Tab Set -->
+  <tabset>
+
+    <!-- General Settings Tab -->
+    <tab heading="General Settings">
+      <div class="mt-0" [ngStyle]="style">
+
+        <!-- Loading Spinner -->
+        <div *ngIf="isLoading" class="d-flex justify-content-center align-items-center height-50vh">
+          <app-loader></app-loader>
+        </div>
+        <!-- Loading Spinner Ends -->
+
+        <!-- Content Div -->
+        <div [ngStyle]="styleForHeight" [hidden]="isLoading">
+
+          <!-- Settings Form -->
+          <form #settingsForm="ngForm" (ngSubmit)="onSaveSettings()">
+
+            <!-- Save Button -->
+            <div class="row justify-content-end">
+              <div class="col-auto">
+                <button [disabled]="settingsForm.invalid || isSaving" type="submit" class="btn btn-pa">
+                  <i class="fa fa-save"></i>
+                  Save
+                  <span *ngIf="isSaving" class="spinner-border spinner-border-sm" role="status"
+                    aria-hidden="true"></span>
+                </button>
+              </div>
+            </div>
+            <!-- Save Button Ends -->
+
+            <!-- Reporting Currency Dropdown -->
+            <h4 class="mt-2">Reporting Currency</h4>
+            <select class="form-control" #currencySelect="ngModel" ngModel name="currency" required>
+              <option selected disabled value="">Select a Currency</option>
+              <option *ngFor="let currency of currencies">
+                {{ currency }}
+              </option>
+            </select>
+
+            <p class="help-block text-danger" *ngIf="currencySelect.invalid && currencySelect.touched">*Please select a
+              currency</p>
+            <!-- Reporting Currency Dropdown Ends -->
+
+            <!-- Tax Methodology Dropdown -->
+            <h4 class="mt-3">Tax Methodology</h4>
+            <select class="form-control" #methodologySelect="ngModel" ngModel name="methodology" required>
+              <option selected disabled value="">Select a Methodology</option>
+              <option *ngFor="let method of methods" [value]="method.code">
+                {{ method.code }}
+              </option>
+            </select>
+
+            <p class="help-block text-danger" *ngIf="methodologySelect.invalid && methodologySelect.touched">*Please
+              select
+              a methodology</p>
+            <!-- Tax Methodology Dropdown Ends -->
+
+            <!-- Fiscal Year End Label -->
+            <div class="row">
+              <div class="col-12">
+                <h4 class="mt-3">Fiscal Year End</h4>
+              </div>
+            </div>
+            <!-- Fiscal Year End Label Ends -->
+
+            <!-- Fiscal Year End Fields -->
+            <div class="row">
+
+              <!-- Fiscal Year End Month -->
+              <div class="col-6">
+                <select class="form-control" #monthSelect="ngModel" ngModel name="month" required
+                  (change)="onChangeReportingMonth($event.target.value)">
+                  <option selected disabled value="">Select a Month</option>
+                  <option *ngFor="let month of months">
+                    {{ month }}
+                  </option>
+                </select>
+
+                <p class="help-block text-danger" *ngIf="monthSelect.invalid && monthSelect.touched">*Please select a
+                  month
+                </p>
+              </div>
+              <!-- Fiscal Year End Month Ends -->
+
+              <!-- Fiscal Year End Day -->
+              <div class="col-6">
+                <select class="form-control" #daySelect="ngModel" [ngModel]="day" name="day" required>
+                  <option selected disabled value="">Select a Day</option>
+                  <option *ngFor="let day of days">
+                    {{ day }}
+                  </option>
+                </select>
+
+                <p class="help-block text-danger" *ngIf="daySelect.invalid && daySelect.touched">*Please select a day
+                </p>
+              </div>
+              <!-- Fiscal Year End Day Ends -->
+
+            </div>
+            <!-- Fiscal Year End Fields Ends -->
+
+          </form>
+          <!-- Settings Form Ends -->
+
+        </div>
+        <!-- Content Div Ends -->
       </div>
-      <!-- Loading Spinner Ends -->
+    </tab>
+    <!-- General Settings Tab Ends -->
 
-      <!-- Content Div -->
-      <div [ngStyle]="styleForHeight" [hidden]="isLoading">
+  </tabset>
+  <!-- General Settings Tab Set Ends -->
 
-        <!-- Settings Form -->
-        <form #settingsForm="ngForm" (ngSubmit)="onSaveSettings()">
-
-          <!-- Save Button -->
-          <div class="row justify-content-end">
-            <div class="col-auto">
-              <button [disabled]="settingsForm.invalid || isSaving" type="submit" class="btn btn-pa">
-                <i class="fa fa-save"></i>
-                Save
-                <span *ngIf="isSaving" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-              </button>
-            </div>
-          </div>
-          <!-- Save Button Ends -->
-
-          <!-- Reporting Currency Dropdown -->
-          <h4 class="mt-2">Reporting Currency</h4>
-          <select class="form-control" #currencySelect="ngModel" ngModel name="currency" required>
-            <option selected disabled value="">Select a Currency</option>
-            <option *ngFor="let currency of currencies">
-              {{ currency }}
-            </option>
-          </select>
-
-          <p class="help-block text-danger" *ngIf="currencySelect.invalid && currencySelect.touched">*Please select a
-            currency</p>
-          <!-- Reporting Currency Dropdown Ends -->
-
-          <!-- Tax Methodology Dropdown -->
-          <h4 class="mt-3">Tax Methodology</h4>
-          <select class="form-control" #methodologySelect="ngModel" ngModel name="methodology" required>
-            <option selected disabled value="">Select a Methodology</option>
-            <option *ngFor="let method of methods" [value]="method.code">
-              {{ method.code }}
-            </option>
-          </select>
-
-          <p class="help-block text-danger" *ngIf="methodologySelect.invalid && methodologySelect.touched">*Please
-            select
-            a methodology</p>
-          <!-- Tax Methodology Dropdown Ends -->
-
-          <!-- Fiscal Year End Label -->
-          <div class="row">
-            <div class="col-12">
-              <h4 class="mt-3">Fiscal Year End</h4>
-            </div>
-          </div>
-          <!-- Fiscal Year End Label Ends -->
-
-          <!-- Fiscal Year End Fields -->
-          <div class="row">
-
-            <!-- Fiscal Year End Month -->
-            <div class="col-6">
-              <select class="form-control" #monthSelect="ngModel" ngModel name="month" required
-                (change)="onChangeReportingMonth($event.target.value)">
-                <option selected disabled value="">Select a Month</option>
-                <option *ngFor="let month of months">
-                  {{ month }}
-                </option>
-              </select>
-
-              <p class="help-block text-danger" *ngIf="monthSelect.invalid && monthSelect.touched">*Please select a
-                month
-              </p>
-            </div>
-            <!-- Fiscal Year End Month Ends -->
-
-            <!-- Fiscal Year End Day -->
-            <div class="col-6">
-              <select class="form-control" #daySelect="ngModel" [ngModel]="day" name="day" required>
-                <option selected disabled value="">Select a Day</option>
-                <option *ngFor="let day of days">
-                  {{ day }}
-                </option>
-              </select>
-
-              <p class="help-block text-danger" *ngIf="daySelect.invalid && daySelect.touched">*Please select a day</p>
-            </div>
-            <!-- Fiscal Year End Day Ends -->
-
-          </div>
-          <!-- Fiscal Year End Fields Ends -->
-
-        </form>
-        <!-- Settings Form Ends -->
-
-      </div>
-      <!-- Content Div Ends -->
-    </div>
-  </tab>
-  <!-- General Settings Tab Ends -->
-
-</tabset>
-<!-- General Settings Tab Set Ends -->
+</div>
+<!-- Settings Main Div Ends -->

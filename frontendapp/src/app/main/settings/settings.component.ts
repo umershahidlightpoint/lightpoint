@@ -6,6 +6,7 @@ import { SettingApiService } from '../../../services/setting-api.service';
 import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
 import { Style, HeightStyle } from '../../../shared/utils/Shared';
 import { NgForm } from '@angular/forms';
+import { DataService } from 'src/shared/common/data.service';
 
 @Component({
   selector: 'app-settings',
@@ -29,6 +30,7 @@ export class SettingsComponent implements OnInit {
   requestType = 'PUT';
   isLoading = true;
   isSaving = false;
+  hideGrid: boolean;
 
   private gridOptions: GridOptions;
   private allocationsGridOptions: GridOptions;
@@ -48,6 +50,15 @@ export class SettingsComponent implements OnInit {
 
   styleForHeight = HeightStyle(180);
 
+  processingMsgDiv = {
+    border: '1px solid #eee',
+    padding: '4px',
+    marginTop: '20px',
+    width: '100%',
+    height: 'calc(100vh - 125px)',
+    boxSizing: 'border-box'
+  };
+
   setWidthAndHeight(width, height) {
     this.style = {
       marginTop: '20px',
@@ -59,16 +70,23 @@ export class SettingsComponent implements OnInit {
 
   constructor(
     private settingApiService: SettingApiService,
+    private dataService: DataService,
     private toastrService: ToastrService,
     private agGridUtils: AgGridUtils
   ) {
+    this.hideGrid = false;
     this.createDates();
 
     // this.initGrids();
   }
 
   ngOnInit() {
-    this.getCurrencies();
+    this.dataService.flag$.subscribe(obj => {
+      this.hideGrid = obj;
+      if (!this.hideGrid) {
+        this.getCurrencies();
+      }
+    });
 
     // this.alignGrids();
   }

@@ -1,17 +1,19 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Style } from 'src/shared/utils/Shared';
+import { DataService } from 'src/shared/common/data.service';
 
 @Component({
   selector: 'app-reports',
   templateUrl: './reports.component.html',
   styleUrls: ['./reports.component.css']
 })
-export class ReportsComponent {
+export class ReportsComponent implements OnInit {
   costBasisReportActive = true;
   taxLotReportActive = false;
   dayPnLReportActive = false;
   bookmonReportActive = false;
   trialBalanceReportActive = false;
+  hideGrid: boolean;
 
   style = Style;
 
@@ -24,22 +26,14 @@ export class ReportsComponent {
     boxSizing: 'border-box'
   };
 
-  tabChanged(e) {
-    if (e.index === 0) {
-      this.costBasisReportActive = true;
-    }
-    if (e.index === 1) {
-      this.taxLotReportActive = true;
-    }
-    if (e.index === 2) {
-      this.dayPnLReportActive = true;
-    }
-    if (e.index === 3) {
-      this.bookmonReportActive = true;
-    }
-    if (e.index === 4) {
-      this.trialBalanceReportActive = true;
-    }
+  constructor(private dataService: DataService) {
+    this.hideGrid = false;
+  }
+
+  ngOnInit() {
+    this.dataService.flag$.subscribe(obj => {
+      this.hideGrid = obj;
+    });
   }
 
   activeCostBasisReport() {

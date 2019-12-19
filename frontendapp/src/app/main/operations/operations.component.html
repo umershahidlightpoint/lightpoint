@@ -76,19 +76,19 @@
         </div>
         <!-- Clear Journal Div Ends -->
 
-        <!-- Posting Engine Messages Div -->
-        <div *ngIf="isLoading">
-          <h3 class="mt-4">Progress</h3>
-          <div #logScroll [ngStyle]="containerDiv">
-            <div *ngFor="let message of messages">
-              {{ message }}
-            </div>
-          </div>
-        </div>
-        <!-- Posting Engine Messages Div Ends -->
-
       </div>
       <!-- Tasks Div Ends -->
+
+      <!-- Posting Engine Messages Div -->
+      <div *ngIf="isLoading">
+        <h3 class="mt-4">Progress</h3>
+        <div #logScroll [ngStyle]="containerDiv">
+          <div *ngFor="let message of messages">
+            {{ message }}
+          </div>
+        </div>
+      </div>
+      <!-- Posting Engine Messages Div Ends -->
 
     </div>
     <!-- Confirmation Modal Selector -->
