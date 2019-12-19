@@ -1,5 +1,5 @@
 import { Injectable, Output, EventEmitter } from '@angular/core';
-import { FinanceServiceProxy } from '../../services/service-proxies';
+import { FinanceServiceProxy } from '../service-proxies';
 import { takeWhile } from 'rxjs/operators';
 import { DataService } from './data.service';
 

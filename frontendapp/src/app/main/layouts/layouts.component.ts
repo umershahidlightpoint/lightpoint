@@ -3,7 +3,7 @@ import { ToastrService } from 'ngx-toastr';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { SideBar, HeightStyle, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { DataService } from 'src/shared/common/data.service';
+import { DataService } from 'src/services/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { TemplateRendererComponent } from 'src/app/template-renderer/template-renderer.component';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';

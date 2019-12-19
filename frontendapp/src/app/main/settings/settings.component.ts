@@ -6,7 +6,7 @@ import { SettingApiService } from '../../../services/setting-api.service';
 import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
 import { Style, HeightStyle } from '../../../shared/utils/Shared';
 import { NgForm } from '@angular/forms';
-import { DataService } from 'src/shared/common/data.service';
+import { DataService } from 'src/services/common/data.service';
 
 @Component({
   selector: 'app-settings',

@@ -14,8 +14,8 @@ import { ToastrService } from 'ngx-toastr';
 import * as moment from 'moment';
 /* Services/Components Imports */
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
-import { PostingEngineService } from 'src/shared/common/posting-engine.service';
-import { DataService } from '../../../../shared/common/data.service';
+import { PostingEngineService } from 'src/services/common/posting-engine.service';
+import { DataService } from '../../../../services/common/data.service';
 import { JournalModalComponent } from '../journals-client-side/journal-modal/journal-modal.component';
 import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
 import { DataModalComponent } from '../../../../shared/Component/data-modal/data-modal.component';

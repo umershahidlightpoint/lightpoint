@@ -20,7 +20,7 @@ import {
   CalTotal
 } from 'src/shared/utils/Shared';
 import { FinanceServiceProxy } from '../../../services/service-proxies';
-import { DataService } from 'src/shared/common/data.service';
+import { DataService } from 'src/services/common/data.service';
 import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
 import { GridLayoutMenuComponent } from '../../../shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';

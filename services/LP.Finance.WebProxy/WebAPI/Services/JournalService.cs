@@ -1023,7 +1023,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object serverSideJournals(ServerRowModel obj)
         {
-            var viewName = "vwFullJournal";
+            var viewName = "vwJournal";
 
             try
             {
@@ -1087,11 +1087,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 List<SqlParameter> toParams = new List<SqlParameter>
                 {
                     new SqlParameter("previousDay", previousDay),
-                    new SqlParameter("currentDay", currentDay)
                 };
 
-                var query = $@"SELECT TOP 1(CASE WHEN[journal].[when] = @previousDay THEN 1 ELSE 0 END) AS 'previous' FROM[journal]
-                UNION ALL SELECT TOP 1(CASE WHEN[journal].[when] = @currentDay THEN 1 ELSE 0 END) AS 'current' FROM[journal]";
+                var query = $@"SELECT TOP 1 (CASE WHEN[journal].[when] = @previousDay THEN 1 ELSE 0 END) AS 'hasJournalsForPreviousDay' FROM[journal]";
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, toParams.ToArray());
                 var res = JsonConvert.SerializeObject(dataTable);
                 var response = JsonConvert.DeserializeObject(res);

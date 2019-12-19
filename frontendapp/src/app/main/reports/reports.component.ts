@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Style } from 'src/shared/utils/Shared';
-import { DataService } from 'src/shared/common/data.service';
+import { DataService } from 'src/services/common/data.service';
 
 @Component({
   selector: 'app-reports',

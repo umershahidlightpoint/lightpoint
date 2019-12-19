@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, DoCheck, AfterViewInit } from '@angular/core';
 import { MatSidenav } from '@angular/material';
 import * as moment from 'moment';
-import { PostingEngineService } from 'src/shared/common/posting-engine.service';
+import { PostingEngineService } from 'src/services/common/posting-engine.service';
 import { FinanceServiceProxy } from '../../../services/service-proxies';
 import { ServicesStatusApiService } from '../../../services/services-status-api.service';
 import { JournalApiService } from 'src/services/journal-api.service';
@@ -20,7 +20,6 @@ export class HeaderComponent implements OnInit, DoCheck, AfterViewInit {
   date: string = moment().format('MM-DD-YYYY');
   effectiveDate: string;
   toDateHasJournals: boolean;
-  fromDateHasJournals: boolean;
   servicesStatus = true;
 
   constructor(
@@ -92,8 +91,7 @@ export class HeaderComponent implements OnInit, DoCheck, AfterViewInit {
   doDatesHaveJournals() {
     this.journalApiService.checkForJournals(this.effectiveDate, this.date).subscribe(response => {
       const { payload } = response;
-      this.toDateHasJournals = payload[0].previous === 0 ? false : true;
-      this.fromDateHasJournals = payload[1].previous === 0 ? false : true;
+      this.toDateHasJournals = payload[0].hasJournalsForPreviousDay === 0 ? false : true;
     });
   }
 }

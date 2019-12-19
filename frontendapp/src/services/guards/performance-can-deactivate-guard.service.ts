@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CanDeactivate } from '@angular/router';
-import { FundTheoreticalComponent } from 'src/app/main/fund-theoretical/fund-theoretical.component';
+import { FundTheoreticalComponent } from '../../app/main/fund-theoretical/fund-theoretical.component';
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { Observable } from 'rxjs';
 
@@ -12,7 +12,7 @@ export class PerformanceCanDeactivateGuard implements CanDeactivate<FundTheoreti
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Observable<boolean> | boolean {
-    let url: string = state.url;
+    const url: string = state.url;
 
     if (!component.disableCommit) {
       return window.confirm(

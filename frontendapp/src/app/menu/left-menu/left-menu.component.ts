@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { onSideNavChange, animateText } from '../animations/animations';
-import { SidenavService } from '../../../shared/common/sidenav.service';
+import { SidenavService } from '../../../services/common/sidenav.service';
 
 interface Page {
   routerLink: string;

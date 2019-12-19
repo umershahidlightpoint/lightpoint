@@ -23,7 +23,7 @@
       <span [ngClass]="{'color-red-light': !toDateHasJournals, 'color-white': toDateHasJournals}">
         {{ effectiveDate }}</span>
       <span>/</span>
-      <span [ngClass]="{'color-red-light': !toDateHasJournals, 'color-white': toDateHasJournals}"> {{ date }}</span>
+      <span> {{ date }}</span>
     </div>
     <!-- Signal Indication -->
     <div *ngIf="!servicesStatus">

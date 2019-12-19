@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { PostingEngineService } from 'src/shared/common/posting-engine.service';
-import { DataService } from 'src/shared/common/data.service';
+import { PostingEngineService } from 'src/services/common/posting-engine.service';
+import { DataService } from 'src/services/common/data.service';
 import { Style } from 'src/shared/utils/Shared';
 
 @Component({
