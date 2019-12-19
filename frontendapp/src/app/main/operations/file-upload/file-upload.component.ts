@@ -7,7 +7,6 @@ import { ToastrService } from 'ngx-toastr';
 import { GridOptions, ColGroupDef, ColDef } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { IgnoreFields, HeightStyle } from 'src/shared/utils/Shared';
-import { AgGridUtils } from '../../../../shared/utils/AgGridUtils';
 import { DataDictionary } from '../../../../shared/utils/DataDictionary';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 

@@ -1,23 +1,13 @@
-import {
-  Component,
-  OnInit,
-  AfterViewInit,
-  TemplateRef,
-  ViewChild
-} from '@angular/core';
-import { FinanceServiceProxy } from 'src/services/service-proxies';
+import { Component, OnInit, AfterViewInit, TemplateRef, ViewChild } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
-import {
-  SideBar,
-  HeightStyle,
-  AutoSizeAllColumns
-} from 'src/shared/utils/Shared';
+import { SideBar, HeightStyle, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { DataService } from 'src/shared/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { TemplateRendererComponent } from 'src/app/template-renderer/template-renderer.component';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
+import { GridLayoutApiService } from 'src/services/grid-layout-api.service';
 
 @Component({
   selector: 'app-layouts',
@@ -27,9 +17,7 @@ import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-mo
 export class LayoutsComponent implements OnInit, AfterViewInit {
   @ViewChild('confirmationModal', { static: false })
   confirmModal: ConfirmationModalComponent;
-  @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<
-    any
-  >;
+  @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<any>;
 
   isEngineRunning = false;
   hideGrid = false;
@@ -42,7 +30,7 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
   styleForHeight = HeightStyle(180);
 
   constructor(
-    private financeService: FinanceServiceProxy,
+    private gridLayoutApiService: GridLayoutApiService,
     private toastrService: ToastrService,
     private dataService: DataService
   ) {
@@ -92,11 +80,7 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(
-      GridId.gridViewsId,
-      GridName.gridViews,
-      this.gridOptions
-    );
+    this.gridOptions.sideBar = SideBar(GridId.gridViewsId, GridName.gridViews, this.gridOptions);
   }
 
   customizeColumns() {
@@ -139,7 +123,7 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
   }
 
   getGridLayouts() {
-    this.financeService.getAllGridLayouts().subscribe(
+    this.gridLayoutApiService.getAllGridLayouts().subscribe(
       response => {
         if (response.isSuccessful) {
           this.gridLayouts = response.payload;
@@ -182,7 +166,7 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
   }
 
   deleteLayout() {
-    this.financeService.deleteGridLayout(this.selectedLayout.gridId).subscribe(
+    this.gridLayoutApiService.deleteGridLayout(this.selectedLayout.gridId).subscribe(
       response => {
         if (response.isSuccessful) {
           this.toastrService.success('Grid layout is successfully deleted!');

@@ -1,10 +1,6 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { Fund } from '../../../../shared/Models/account';
-import {
-  TrialBalanceReport,
-  TrialBalanceReportStats
-} from '../../../../shared/Models/trial-balance';
 import { DataService } from '../../../../shared/common/data.service';
 import {
   Ranges,
@@ -24,6 +20,7 @@ import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import { ContextMenu } from 'src/shared/Models/common';
+import { ReportsApiService } from 'src/services/reports-api.service';
 
 @Component({
   selector: 'rep-bookmon-reconcile',
@@ -92,6 +89,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
 
   constructor(
     private financeService: FinanceServiceProxy,
+    private reportsApiService: ReportsApiService,
     private dataService: DataService,
     private downloadExcelUtils: DownloadExcelUtils
   ) {
@@ -372,7 +370,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
   getReport(date, fund) {
     this.isLoading = true;
     this.gridOptions.api.showLoadingOverlay();
-    this.financeService.getBookmonReconReport(date, fund).subscribe(response => {
+    this.reportsApiService.getBookmonReconReport(date, fund).subscribe(response => {
       this.reconciledData = response.payload[0];
       this.portfolioData = response.payload[1];
       this.bookmonData = response.payload[2];
@@ -391,9 +389,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
   }
 
   rowSelected(row) {
-    debugger;
     const { symbol } = row.data;
-
     let mySymbol = row.data.Symbol;
 
     this.bookmonOptions.api.forEachNodeAfterFilter((rowNode, index) => {

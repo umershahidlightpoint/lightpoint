@@ -1,10 +1,6 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { Fund } from '../../../../shared/Models/account';
-import {
-  TrialBalanceReport,
-  TrialBalanceReportStats
-} from '../../../../shared/Models/trial-balance';
 import { DataService } from '../../../../shared/common/data.service';
 import {
   Ranges,
@@ -24,6 +20,7 @@ import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import { ContextMenu } from 'src/shared/Models/common';
+import { ReportsApiService } from 'src/services/reports-api.service';
 
 @Component({
   selector: 'rep-daypnl-reconcile',
@@ -92,6 +89,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
 
   constructor(
     private financeService: FinanceServiceProxy,
+    private reportsApiService: ReportsApiService,
     private dataService: DataService,
     private downloadExcelUtils: DownloadExcelUtils
   ) {
@@ -338,7 +336,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
   getReport(date, fund) {
     this.isLoading = true;
     this.gridOptions.api.showLoadingOverlay();
-    this.financeService.getReconReport(date, fund).subscribe(response => {
+    this.reportsApiService.getReconReport(date, fund).subscribe(response => {
       this.reconciledData = response.payload[0];
       this.portfolioData = response.payload[1];
       this.bookmonData = response.payload[2];
@@ -379,7 +377,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     });
 
     /*
-    this.financeService.getCostBasisChart(symbol).subscribe(response => {
+    this.reportsApiService.getCostBasisChart(symbol).subscribe(response => {
       debugger
       this.chartData = response.payload;
       this.chartData = this.chartData.sort((x,y) => {return new Date(y.Date).getTime() - new Date(x.Date).getTime()});

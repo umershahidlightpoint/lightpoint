@@ -30,6 +30,7 @@ import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import { ContextMenu } from 'src/shared/Models/common';
 import * as moment from 'moment';
 import { GraphObject } from 'src/shared/Models/graph-object';
+import { ReportsApiService } from 'src/services/reports-api.service';
 
 @Component({
   selector: 'rep-costbasis',
@@ -96,6 +97,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   constructor(
     private financeService: FinanceServiceProxy,
+    private reportsApiService: ReportsApiService,
     private dataService: DataService,
     private downloadExcelUtils: DownloadExcelUtils
   ) {
@@ -338,7 +340,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   getReport(date, fund) {
     this.isLoading = true;
     this.gridOptions.api.showLoadingOverlay();
-    this.financeService.getCostBasisReport(date, fund).subscribe(response => {
+    this.reportsApiService.getCostBasisReport(date, fund).subscribe(response => {
       this.trialBalanceReportStats = response.stats;
       this.trialBalanceReport = response.payload;
       this.gridOptions.api.setRowData(this.trialBalanceReport);
@@ -354,7 +356,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   }
 
   getDataForCostBasisChart(symbol: any) {
-    this.financeService.getCostBasisChart(symbol).subscribe(response => {
+    this.reportsApiService.getCostBasisChart(symbol).subscribe(response => {
       this.chartData = response.payload;
       this.chartData = this.chartData.sort((x, y) => {
         return new Date(y.Date).getTime() - new Date(x.Date).getTime();

@@ -37,9 +37,9 @@ import {
   SetDateRange,
   HeightStyle,
   AutoSizeAllColumns,
-  CommonCols,
-  CalTotal
+  CommonCols
 } from 'src/shared/utils/Shared';
+import { JournalApiService } from 'src/services/journal-api.service';
 
 @Component({
   selector: 'app-journals-server-side',
@@ -134,7 +134,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       // console.log('PAYLOAD :: ', JSON.stringify(payload, null, 1));
       // console.log('GET ROWS CALLED ::');
 
-      this.financeService.getServerSideJournals(payload).subscribe(
+      this.journalApiService.getServerSideJournals(payload).subscribe(
         result => {
           if (result.isSuccessful) {
             this.dataRequestCount++;
@@ -219,6 +219,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     private postingEngineService: PostingEngineService,
     private agGridUtls: AgGridUtils,
     private dataDictionary: DataDictionary,
+    private journalApiService: JournalApiService,
     private toastrService: ToastrService
   ) {
     this.hideGrid = false;
@@ -267,7 +268,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   }
 
   getJournalsTotal(payload) {
-    this.financeService.getServerSideJournalsTotal(payload).subscribe(
+    this.journalApiService.getServerSideJournalsTotal(payload).subscribe(
       response => {
         if (response.isSuccessful) {
           this.pinnedBottomRowData = [
@@ -345,7 +346,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       tableName: 'vwJournal',
       filters: ['fund', 'symbol', 'AccountCategory', 'AccountType', 'AccountName', 'fx_currency']
     };
-    this.financeService.getServerSideJournalsMeta(payload).subscribe(result => {
+    this.journalApiService.getServerSideJournalsMeta(payload).subscribe(result => {
       const metaColumns = result.payload.Columns;
       const commonColDefs = CommonCols(true, result.payload.Filters);
       const disabledFilters = [

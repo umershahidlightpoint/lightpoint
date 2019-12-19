@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { FinanceServiceProxy } from '../../../services/service-proxies';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { Style, HeightStyle } from 'src/shared/utils/Shared';
 import * as moment from 'moment';
+import { JournalApiService } from 'src/services/journal-api.service';
 
 @Component({
   selector: 'app-logs',
@@ -60,7 +60,7 @@ export class LogsComponent implements OnInit {
     };
   }
 
-  constructor(private financeService: FinanceServiceProxy) {
+  constructor(private journalApiService: JournalApiService) {
     this.gridOptions = {
       rowData: [],
       columnDefs: this.columnDefs,
@@ -93,7 +93,7 @@ export class LogsComponent implements OnInit {
     this.sortColum = '';
     this.sortDirection = '';
 
-    this.financeService
+    this.journalApiService
       .getJournalLogs(
         this.symbol,
         this.page,

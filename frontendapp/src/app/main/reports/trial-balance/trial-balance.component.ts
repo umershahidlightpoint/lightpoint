@@ -17,6 +17,7 @@ import {
 } from 'src/shared/utils/Shared';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import { ReportGridComponent } from '../report-grid/report-grid.component';
+import { ReportsApiService } from 'src/services/reports-api.service';
 
 @Component({
   selector: 'rep-trial-balance',
@@ -57,6 +58,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
 
   constructor(
     private financeService: FinanceServiceProxy,
+    private reportsApiService: ReportsApiService,
     private dataService: DataService,
     private downloadExcelUtils: DownloadExcelUtils
   ) {
@@ -89,7 +91,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
 
   getReport(toDate, fromDate, fund) {
     this.isDataLoaded = false;
-    this.financeService.getTrialBalanceReport(toDate, fromDate, fund).subscribe(response => {
+    this.reportsApiService.getTrialBalanceReport(toDate, fromDate, fund).subscribe(response => {
       this.trialBalanceReportStats = response.stats;
       this.trialBalanceReport = response.payload.map(data => ({
         accountName: data.AccountName,

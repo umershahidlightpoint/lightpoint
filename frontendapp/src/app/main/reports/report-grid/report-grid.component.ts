@@ -15,8 +15,6 @@ import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import {
   AutoSizeAllColumns,
   SideBar,
-  commaFormater,
-  CommaSeparatedFormat,
   noColorCategories,
   BracketFormatter
 } from 'src/shared/utils/Shared';

@@ -24,6 +24,7 @@ import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import { ContextMenu } from 'src/shared/Models/common';
+import { ReportsApiService } from 'src/services/reports-api.service';
 
 @Component({
   selector: 'rep-taxlots',
@@ -64,6 +65,7 @@ export class TaxLotsComponent implements OnInit, AfterViewInit {
 
   constructor(
     private financeService: FinanceServiceProxy,
+    private reportsApiService: ReportsApiService,
     private dataService: DataService,
     private downloadExcelUtils: DownloadExcelUtils
   ) {
@@ -172,11 +174,7 @@ export class TaxLotsComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(
-      GridId.taxlotId,
-      GridName.taxlot,
-      this.gridOptions
-    );
+    this.gridOptions.sideBar = SideBar(GridId.taxlotId, GridName.taxlot, this.gridOptions);
   }
 
   ngAfterViewInit(): void {
@@ -201,15 +199,13 @@ export class TaxLotsComponent implements OnInit, AfterViewInit {
   // Being called twice
   getReport(toDate, fromDate, fund) {
     this.isLoading = true;
-    this.financeService
-      .getTaxLotsReport(toDate, fromDate, fund)
-      .subscribe(response => {
-        this.stats = response.stats;
-        this.data = response.payload;
-        this.isLoading = false;
-        this.gridOptions.api.sizeColumnsToFit();
-        this.gridOptions.api.setRowData(this.data);
-      });
+    this.reportsApiService.getTaxLotsReport(toDate, fromDate, fund).subscribe(response => {
+      this.stats = response.stats;
+      this.data = response.payload;
+      this.isLoading = false;
+      this.gridOptions.api.sizeColumnsToFit();
+      this.gridOptions.api.setRowData(this.data);
+    });
   }
 
   onFilterChanged() {
@@ -240,9 +236,7 @@ export class TaxLotsComponent implements OnInit, AfterViewInit {
     this.endDate = dates[1];
 
     this.selected =
-      dateFilter.startDate !== ''
-        ? { startDate: this.startDate, endDate: this.endDate }
-        : null;
+      dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
   }
 
   getRangeLabel() {
@@ -272,21 +266,13 @@ export class TaxLotsComponent implements OnInit, AfterViewInit {
     }
     this.startDate = selectedDate.startDate.format('YYYY-MM-DD');
     this.endDate = selectedDate.endDate.format('YYYY-MM-DD');
-    this.getReport(
-      this.startDate,
-      this.endDate,
-      this.fund === 'All Funds' ? 'ALL' : this.fund
-    );
+    this.getReport(this.startDate, this.endDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
     this.getRangeLabel();
   }
 
   changeFund(selectedFund) {
     this.fund = selectedFund;
-    this.getReport(
-      this.startDate,
-      this.endDate,
-      this.fund === 'All Funds' ? 'ALL' : this.fund
-    );
+    this.getReport(this.startDate, this.endDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
   }
 
   onBtExport() {

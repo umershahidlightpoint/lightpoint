@@ -4,6 +4,7 @@ import * as moment from 'moment';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
 import { FinanceServiceProxy } from '../../../services/service-proxies';
 import { ServicesStatusApiService } from '../../../services/services-status-api.service';
+import { JournalApiService } from 'src/services/journal-api.service';
 
 @Component({
   selector: 'app-header',
@@ -25,7 +26,8 @@ export class HeaderComponent implements OnInit, DoCheck, AfterViewInit {
   constructor(
     private servicesStatusApiService: ServicesStatusApiService,
     private postingEngineService: PostingEngineService,
-    private financeService: FinanceServiceProxy
+    private financeService: FinanceServiceProxy,
+    private journalApiService: JournalApiService
   ) {}
 
   ngOnInit() {
@@ -88,7 +90,7 @@ export class HeaderComponent implements OnInit, DoCheck, AfterViewInit {
   }
 
   doDatesHaveJournals() {
-    this.financeService.checkForJournals(this.effectiveDate, this.date).subscribe(response => {
+    this.journalApiService.checkForJournals(this.effectiveDate, this.date).subscribe(response => {
       const { payload } = response;
       this.toDateHasJournals = payload[0].previous === 0 ? false : true;
       this.fromDateHasJournals = payload[1].previous === 0 ? false : true;

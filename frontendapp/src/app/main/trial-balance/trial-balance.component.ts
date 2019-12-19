@@ -1,11 +1,5 @@
 /* Core/Libraries Imports */
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  ChangeDetectorRef,
-  AfterContentInit
-} from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterContentInit } from '@angular/core';
 import 'ag-grid-enterprise';
 import { GridOptions } from 'ag-grid-community';
 import * as moment from 'moment';
@@ -34,6 +28,7 @@ import { ReportModalComponent } from 'src/shared/Component/report-modal/report-m
 import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
 import { AgGridUtils } from 'src/shared/utils/AgGridUtils';
 import { ContextMenu } from 'src/shared/Models/common';
+import { JournalApiService } from 'src/services/journal-api.service';
 
 @Component({
   selector: 'app-trial-balance',
@@ -94,6 +89,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     private cdRef: ChangeDetectorRef,
     private dataService: DataService,
     private financeService: FinanceServiceProxy,
+    private journalApiService: JournalApiService,
     private agGridUtls: AgGridUtils
   ) {
     this.hideGrid = false;
@@ -178,12 +174,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       }
     });
 
-    const cdefs = this.agGridUtls.customizeColumns(
-      colDefs,
-      columns,
-      this.ignoreFields,
-      false
-    );
+    const cdefs = this.agGridUtls.customizeColumns(colDefs, columns, this.ignoreFields, false);
     this.gridOptions.api.setColumnDefs(cdefs);
   }
 
@@ -217,7 +208,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       this.funds = localfunds;
       this.cdRef.detectChanges();
     });
-    this.financeService
+    this.journalApiService
       .getJournals(
         this.symbol,
         this.page,
@@ -241,9 +232,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
           for (const i in this.columns) {
             const field = this.columns[i].field;
             if (this.columns[i].Type == 'System.DateTime') {
-              someObject[field] = moment(result.payload[item][field]).format(
-                'MM-DD-YYYY'
-              );
+              someObject[field] = moment(result.payload[item][field]).format('MM-DD-YYYY');
             } else {
               someObject[field] = result.payload[item][field];
             }
@@ -253,22 +242,19 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
         this.customizeColumns(this.columns);
         this.rowData = someArray as [];
         this.gridOptions.api.setRowData(this.rowData);
-        const fieldsSum: Array<{ name: string; total: number }> = CalTotal(
-          this.rowData,
-          [
-            { name: 'Commission', total: 0 },
-            { name: 'Fees', total: 0 },
-            { name: 'TradePrice', total: 0 },
-            { name: 'NetPrice', total: 0 },
-            { name: 'SettleNetPrice', total: 0 },
-            { name: 'NetMoney', total: 0 },
-            { name: 'LocalNetNotional', total: 0 },
-            { name: 'value', total: 0 },
-            { name: 'start_price', total: 0 },
-            { name: 'end_price', total: 0 },
-            { name: 'fxrate', total: 0 }
-          ]
-        );
+        const fieldsSum: Array<{ name: string; total: number }> = CalTotal(this.rowData, [
+          { name: 'Commission', total: 0 },
+          { name: 'Fees', total: 0 },
+          { name: 'TradePrice', total: 0 },
+          { name: 'NetPrice', total: 0 },
+          { name: 'SettleNetPrice', total: 0 },
+          { name: 'NetMoney', total: 0 },
+          { name: 'LocalNetNotional', total: 0 },
+          { name: 'value', total: 0 },
+          { name: 'start_price', total: 0 },
+          { name: 'end_price', total: 0 },
+          { name: 'fxrate', total: 0 }
+        ]);
 
         this.pinnedBottomRowData = [
           {
@@ -316,12 +302,8 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
         this.DateRangeLabel !== ''
           ? this.DateRangeLabel
           : {
-              startDate:
-                this.startDate !== null
-                  ? this.startDate.format('YYYY-MM-DD')
-                  : '',
-              endDate:
-                this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
+              startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
+              endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
             }
     };
   }
@@ -362,12 +344,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   }
 
   doesExternalFilterPass(node: any): boolean {
-    return DoesExternalFilterPass(
-      node,
-      this.fund,
-      moment(this.startDate),
-      moment(this.endDate)
-    );
+    return DoesExternalFilterPass(node, this.fund, moment(this.startDate), moment(this.endDate));
   }
 
   setDateRange(dateFilter: any) {
@@ -376,9 +353,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
     this.endDate = dates[1];
 
     this.selected =
-      dateFilter.startDate !== ''
-        ? { startDate: this.startDate, endDate: this.endDate }
-        : null;
+      dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
   }
 
   clearFilters() {

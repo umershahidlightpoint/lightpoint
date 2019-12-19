@@ -31,6 +31,8 @@ import {
   moneyFormatter,
   commaFormater
 } from 'src/shared/utils/Shared';
+import { JournalApiService } from 'src/services/journal-api.service';
+import { GridLayoutApiService } from 'src/services/grid-layout-api.service';
 
 @Component({
   selector: 'app-journals-summary',
@@ -86,7 +88,7 @@ export class JournalsSummaryComponent implements OnInit {
       // console.log('PAYLOAD :: ', JSON.stringify(payload, null, 1));
       // console.log('GET ROWS :: ');
 
-      this.financeService.getServerSideJournals(payload).subscribe(
+      this.journalApiService.getServerSideJournals(payload).subscribe(
         result => {
           if (result.isSuccessful) {
             this.dataRequestCount++;
@@ -165,6 +167,8 @@ export class JournalsSummaryComponent implements OnInit {
 
   constructor(
     private financeService: FinanceServiceProxy,
+    private journalApiService: JournalApiService,
+    private gridLayoutApiService: GridLayoutApiService,
     private toastrService: ToastrService,
     private dataDictionary: DataDictionary,
     private agGridUtls: AgGridUtils
@@ -177,7 +181,7 @@ export class JournalsSummaryComponent implements OnInit {
   ngOnInit(): void {}
 
   getJournalsTotal(payload) {
-    this.financeService.getServerSideJournalsTotal(payload).subscribe(
+    this.journalApiService.getServerSideJournalsTotal(payload).subscribe(
       response => {
         if (response.isSuccessful) {
           this.pinnedBottomRowData = [
@@ -214,7 +218,7 @@ export class JournalsSummaryComponent implements OnInit {
       tableName: 'vwJournal',
       filters: ['fund', 'symbol', 'AccountCategory', 'AccountType', 'AccountName', 'fx_currency']
     };
-    this.financeService.getServerSideJournalsMeta(payload).subscribe(result => {
+    this.journalApiService.getServerSideJournalsMeta(payload).subscribe(result => {
       // let commonColDefs = result.payload.Columns;
       // commonColDefs = CommonCols(true, result.payload.Filters);
 
@@ -305,7 +309,7 @@ export class JournalsSummaryComponent implements OnInit {
   }
 
   getGridLayouts(): void {
-    this.financeService.getGridLayouts(GridId.journalsLedgersId, 1).subscribe(
+    this.gridLayoutApiService.getGridLayouts(GridId.journalsLedgersId, 1).subscribe(
       response => {
         if (response.isSuccessful) {
           this.gridLayouts = response.payload;
@@ -333,7 +337,7 @@ export class JournalsSummaryComponent implements OnInit {
     //   return;
     // }
 
-    this.financeService.GetAGridLayout(layout.Id).subscribe(response => {
+    this.gridLayoutApiService.GetAGridLayout(layout.Id).subscribe(response => {
       this.externalFilters = this.getServerSideExternalFilter(
         JSON.parse(response.payload.ExternalFilterState)
       );
@@ -405,7 +409,7 @@ export class JournalsSummaryComponent implements OnInit {
   }
 
   getJournalsSummary(gridLayout: any) {
-    this.financeService.getJournalSummary(gridLayout.ColumnState).subscribe(
+    this.journalApiService.getJournalSummary(gridLayout.ColumnState).subscribe(
       response => {
         if (response.isSuccessful) {
           this.setGridState(response);

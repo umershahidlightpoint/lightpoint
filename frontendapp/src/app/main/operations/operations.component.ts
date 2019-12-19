@@ -11,6 +11,7 @@ import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/util
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 import { ContextMenu } from 'src/shared/Models/common';
+import { JournalApiService } from 'src/services/journal-api.service';
 
 @Component({
   selector: 'app-operations',
@@ -103,6 +104,7 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
 
   constructor(
     private financeService: FinanceServiceProxy,
+    private journalApiService: JournalApiService,
     private toastrService: ToastrService,
     private postingEngineService: PostingEngineService
   ) {
@@ -168,7 +170,7 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
   }
 
   private getJournalLogs() {
-    this.financeService
+    this.journalApiService
       .getJournalLogs(
         this.symbol,
         this.page,

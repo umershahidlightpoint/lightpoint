@@ -9,6 +9,7 @@ import { FinanceServiceProxy } from '../../../../../services/service-proxies';
 import { Account, Fund } from '../../../../../shared/Models/account';
 import { Journal } from '../../../../../shared/Models/journal';
 import { AccountApiService } from 'src/services/account-api.service';
+import { JournalApiService } from 'src/services/journal-api.service';
 
 @Component({
   selector: 'app-journal-modal',
@@ -34,6 +35,7 @@ export class JournalModalComponent implements OnInit {
   constructor(
     private toastrService: ToastrService,
     private formBuilder: FormBuilder,
+    private journalApiService: JournalApiService,
     private financePocServiceProxy: FinanceServiceProxy,
     private accountApiService: AccountApiService
   ) {}
@@ -79,7 +81,7 @@ export class JournalModalComponent implements OnInit {
     };
     if (this.editJournal) {
       const { source } = this.selectedRow;
-      this.financePocServiceProxy.updateJournal(source, journalObject).subscribe(response => {
+      this.journalApiService.updateJournal(source, journalObject).subscribe(response => {
         if (response.isSuccessful) {
           this.toastrService.success('Journal is updated successfully !');
           this.modal.hide();
@@ -90,7 +92,7 @@ export class JournalModalComponent implements OnInit {
         }
       });
     } else {
-      this.financePocServiceProxy.createJounal(journalObject).subscribe(response => {
+      this.journalApiService.createJounal(journalObject).subscribe(response => {
         if (response.isSuccessful) {
           this.toastrService.success('Journal is created successfully !');
           this.modal.hide();
@@ -105,7 +107,7 @@ export class JournalModalComponent implements OnInit {
 
   deleteJournal() {
     const { source } = this.selectedRow;
-    this.financePocServiceProxy.deleteJournal(source).subscribe(response => {
+    this.journalApiService.deleteJournal(source).subscribe(response => {
       if (response.isSuccessful) {
         this.toastrService.success('Journal is deleted successfully!');
         this.modal.hide();
@@ -137,7 +139,7 @@ export class JournalModalComponent implements OnInit {
         this.closeModal();
         return;
       }
-      this.financePocServiceProxy.getJournal(source).subscribe(response => {
+      this.journalApiService.getJournal(source).subscribe(response => {
         if (response.isSuccessful) {
           const { JournalAccounts } = response.payload[0];
           const fromAccount = JournalAccounts[0];
