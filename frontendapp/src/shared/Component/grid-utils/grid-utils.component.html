@@ -1,26 +1,26 @@
 <!-- Expand Button Div -->
 <div *ngIf="utilsConfig.expandGrid" class="mr-2 d-inline-block">
-  <button (click)="setGroupingStateForFiles(true)" class="btn white-blue-button-theme" tooltip="Expand" placement="top">
+  <button (click)="setGroupingStateForFiles(true)" class="btn btn-pa" tooltip="Expand" placement="top">
     <i class="fa fa-expand"></i></button>
 </div>
 <!-- Collapse Button Div -->
 <div *ngIf="utilsConfig.collapseGrid" class="mr-2 d-inline-block">
-  <button (click)="setGroupingStateForFiles(false)" class="btn white-blue-button-theme" tooltip="Collapse" placement="top">
+  <button (click)="setGroupingStateForFiles(false)" class="btn btn-pa" tooltip="Collapse" placement="top">
     <i class="fa fa-compress"></i></button>
 </div>
 <!-- Refresh Button Div -->
 <div *ngIf="utilsConfig.refreshGrid" class="mr-2 d-inline-block">
-  <button (click)="refreshGrid()" class="btn white-blue-button-theme" tooltip="Refresh" placement="top">
+  <button (click)="refreshGrid()" class="btn btn-pa" tooltip="Refresh" placement="top">
     <i class="fa fa-refresh"></i></button>
 </div>
 <!-- Reset Button Div -->
 <div *ngIf="utilsConfig.resetGrid" class="mr-2 d-inline-block">
-  <button (click)="resetGrid()" class="btn white-blue-button-theme" tooltip="Reset" placement="top">
+  <button (click)="resetGrid()" class="btn btn-pa" tooltip="Reset" placement="top">
     <i class="fa fa-undo"></i></button>
 </div>
 <!-- Export Excel Div -->
 <div *ngIf="utilsConfig.exportExcel" class="d-inline-block">
-  <button (click)="onBtExportFiles()" class="btn white-blue-button-theme" tooltip="Export to Excel" placement="top">
+  <button (click)="onBtExportFiles()" class="btn btn-pa" tooltip="Export to Excel" placement="top">
     <i class="fa fa-arrow-circle-o-down"></i>
   </button>
 </div>

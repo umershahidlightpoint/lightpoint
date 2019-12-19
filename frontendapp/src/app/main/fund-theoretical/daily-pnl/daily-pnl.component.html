@@ -11,7 +11,7 @@
 
       <!-- Show Calculation Graphs Button -->
       <ng-template #tooltipTemplate>{{isExpanded ? 'Hide Graph' : 'View Graph'}}</ng-template>
-      <button class="btn white-blue-button-theme" type="button" [tooltip]="tooltipTemplate" [disabled]="disableCharts"
+      <button class="btn btn-pa" type="button" [tooltip]="tooltipTemplate" [disabled]="disableCharts"
         (click)="expandedClicked()">
         <i class="fa fa-line-chart"></i>
       </button>

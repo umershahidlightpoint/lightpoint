@@ -30,7 +30,7 @@
 
             <!-- Generate Rows Div Starts -->
             <div class="col-6">
-              <button class="btn white-blue-button-theme" type="button" (click)="generateRows()" [disabled]="!generateFundsDate">
+              <button class="btn btn-pa" type="button" (click)="generateRows()" [disabled]="!generateFundsDate">
                 Generate Rows
               </button>
             </div>
@@ -38,14 +38,14 @@
 
             <!-- Action Buttons Div Starts -->
             <div class="ml-auto mr-2">
-              <button class="btn white-blue-button-theme ml-2" type="button" [disabled]="disableCommit || commitLoader"
+              <button class="btn btn-pa ml-2" type="button" [disabled]="disableCommit || commitLoader"
                 (click)="commitPerformanceData()">
                 Commit
                 <span *ngIf="commitLoader" class="spinner-border spinner-border-sm" role="status"
                   aria-hidden="true"></span>
               </button>
               <ng-template #tooltipTemplate>{{isExpanded ? 'Hide Graph' : 'View Graph'}}</ng-template>
-              <button class="btn white-blue-button-theme ml-2" type="button" [tooltip]="tooltipTemplate" [disabled]="disableCharts"
+              <button class="btn btn-pa ml-2" type="button" [tooltip]="tooltipTemplate" [disabled]="disableCharts"
                 (click)="expandedClicked()">
                 <i class="fa fa-line-chart"></i>
               </button>

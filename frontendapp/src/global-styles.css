@@ -366,40 +366,40 @@ body {
 ********    PA Theme   ********
 ******************************/
 
-.white-blue-button-theme {
+.btn-pa {
   color: #fff;
   background-color: #0275d8;
   border-color: #0275d8;
 }
 
-.white-blue-button-theme:hover {
+.btn-pa:hover {
   color: #fff;
-  background-color: rgb(11, 101, 180);
-  border-color: rgb(81, 157, 223);
+  background-color: #0b65b4;
+  border-color: #0275d8;
 }
 
-.white-blue-button-theme:focus,
-.white-blue-button-theme.focus {
-  box-shadow: 0 0 0 0.2rem rgb(99, 170, 231);
+.btn-pa:focus,
+.btn-pa.focus {
+  box-shadow: 0 0 0 0.2rem rgba(11, 101, 180, 0.5);
 }
 
-.white-blue-button-theme.disabled,
-.white-blue-button-theme:disabled {
+.btn-pa.disabled,
+.btn-pa:disabled {
   color: #fff;
-  background-color: rgb(81, 157, 223);
-  border-color: rgb(81, 157, 223);
+  background-color: #519ddf;
+  border-color: #519ddf;
 }
 
-.white-blue-button-theme:not(:disabled):not(.disabled):active,
-.white-blue-button-theme:not(:disabled):not(.disabled).active,
-.show > .white-blue-button-theme.dropdown-toggle {
+.btn-pa:not(:disabled):not(.disabled):active,
+.btn-pa:not(:disabled):not(.disabled).active,
+.show > .btn-pa.dropdown-toggle {
   color: #fff;
   background-color: #0275d8;
   border-color: #0275d8;
 }
 
-.white-blue-button-theme:not(:disabled):not(.disabled):active:focus,
-.white-blue-button-theme:not(:disabled):not(.disabled).active:focus,
-.show > .white-blue-button-theme.dropdown-toggle:focus {
-  box-shadow: 0 0 0 0.2rem #0275d8;
+.btn-pa:not(:disabled):not(.disabled):active:focus,
+.btn-pa:not(:disabled):not(.disabled).active:focus,
+.show > .btn-pa.dropdown-toggle:focus {
+  box-shadow: 0 0 0 0.2rem rgba(11, 101, 180, 0.5);
 }

@@ -26,7 +26,7 @@
 
   <!----- Clear Button  Div Starts ----->
   <div class="mr-auto">
-    <button (click)="clearFilters()" class="btn white-blue-button-theme" tooltip="Clear" placement="top">
+    <button (click)="clearFilters()" class="btn btn-pa" tooltip="Clear" placement="top">
       <i class="fa fa-remove"></i>
     </button>
     <!----- Clear Button  Div Ends ----->
@@ -34,7 +34,7 @@
 
   <!-- Action Buttons Div Starts -->
   <div class="ml-auto mr-2">
-    <button class="btn white-blue-button-theme mr-2" type="button" [disabled]="disableCommit" (click)="commitMarketPriceData()">
+    <button class="btn btn-pa mr-2" type="button" [disabled]="disableCommit" (click)="commitMarketPriceData()">
       Commit
     </button>
 
@@ -45,7 +45,7 @@
 
 
     <!-- Show Calculation Graphs Button -->
-    <button class="btn white-blue-button-theme" type="button" tooltip="View Graph" [disabled]="disableCharts"
+    <button class="btn btn-pa" type="button" tooltip="View Graph" [disabled]="disableCharts"
       (click)="expandedClicked()">
       <i class="fa fa-line-chart"></i>
       <!-- Show Calculation Graphs Button -->
