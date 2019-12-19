@@ -114,7 +114,7 @@ export class ChartOfAccountDetailComponent implements OnInit {
         this.selectedAccountList = list;
         // Deep Copy Organisation List
         let cloneLists = JSON.parse(JSON.stringify(this.selectedAccountList));
-        this.accountDetailList = cloneLists.action = 'edit' ? cloneLists.params[0].thirdPartyMappedAccounts : [];
+        this.accountDetailList = cloneLists.action === 'edit' ? cloneLists.params[0].thirdPartyMappedAccounts : [];
       }
     });
   }

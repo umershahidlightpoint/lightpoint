@@ -13,9 +13,6 @@ export class AccountmappingApiService {
   private selectedAccounList = new BehaviorSubject(false);
   selectedAccounList$ = this.selectedAccounList.asObservable();
 
-  // private selectMappedAccount = new BehaviorSubject(false);
-  // selectMappedAccount$ = this.selectedAccounList.asObservable();
-
   constructor(private http: HttpClient) {
     this.baseUrl = window['config'].remoteServerUrl;
   }
@@ -23,10 +20,6 @@ export class AccountmappingApiService {
   storeAccountList(obj: any) {
     this.selectedAccounList.next(obj);
   }
-
-  // storeMappedAccount(obj: any) {
-  //   this.selectMappedAccount.next(obj);
-  // }
 
   getMappedAccounts(): Observable<any> {
     const url = this.baseUrl + '/account/mappedAccount';
