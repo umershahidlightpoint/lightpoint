@@ -14,8 +14,8 @@
 
   <!-- File Upload Input Div -->
   <div class="col-9">
-    <input #fileInput class="btn btn-info mr-2 file-input" type="file" (change)="onFileInput($event.target.files)">
-    <button class="btn btn-info" type="button" [disabled]="disableFileUpload || uploadLoader" (click)="uploadRows()">
+    <input #fileInput class="btn white-blue-button-theme mr-2 file-input" type="file" (change)="onFileInput($event.target.files)">
+    <button class="btn white-blue-button-theme" type="button" [disabled]="disableFileUpload || uploadLoader" (click)="uploadRows()">
       Upload
       <span *ngIf="uploadLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
     </button>

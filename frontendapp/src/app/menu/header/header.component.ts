@@ -89,7 +89,6 @@ export class HeaderComponent implements OnInit, DoCheck, AfterViewInit {
 
   doDatesHaveJournals() {
     this.financeService.checkForJournals(this.effectiveDate, this.date).subscribe(response => {
-      console.log('response', response);
       const { payload } = response;
       this.toDateHasJournals = payload[0].previous === 0 ? false : true;
       this.fromDateHasJournals = payload[1].previous === 0 ? false : true;

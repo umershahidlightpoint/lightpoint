@@ -18,10 +18,10 @@
 <div *ngIf="isNewLayout" class="form-group m-2">
   <div class="row">
     <div class="ml-auto mt-2 mr-3">
-      <button class="btn btn-info new-layout-action" (click)="onCreateNew()">
+      <button class="btn white-blue-button-theme new-layout-action" (click)="onCreateNew()">
         Cancel
       </button>
-      <button class="btn btn-info new-layout-action" id="saveNewGrid_grid" (click)="onNewSave()">
+      <button class="btn white-blue-button-theme new-layout-action" id="saveNewGrid_grid" (click)="onNewSave()">
         Save
       </button>
     </div>
@@ -29,16 +29,16 @@
 </div>
 
 <div *ngIf="!isNewLayout" class="row ml-auto pl-2 layout-action-container">
-  <button class="btn btn-info layout-action" id="newCustomLayout_grid" (click)="onCreateNew()">
+  <button class="btn white-blue-button-theme layout-action" id="newCustomLayout_grid" (click)="onCreateNew()">
     New
   </button>
-  <button class="btn btn-info layout-action" id="updateCustomLayout" [disabled]="isPublicSelected" (click)="onEditSave()">
+  <button class="btn white-blue-button-theme layout-action" id="updateCustomLayout" [disabled]="isPublicSelected" (click)="onEditSave()">
     Update
   </button>
-  <button class="btn btn-info layout-action" id="deleteCustomLayout" (click)="openModal()">
+  <button class="btn white-blue-button-theme layout-action" id="deleteCustomLayout" (click)="openModal()">
     Delete
   </button>
-  <button class="btn btn-info layout-action-reset" id="resetCustomLayout" (click)="resetState()">
+  <button class="btn white-blue-button-theme layout-action-reset" id="resetCustomLayout" (click)="resetState()">
     Reset
   </button>
 </div>
