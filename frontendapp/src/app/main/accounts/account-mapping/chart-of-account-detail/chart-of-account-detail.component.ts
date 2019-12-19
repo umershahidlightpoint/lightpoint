@@ -13,15 +13,15 @@ export class ChartOfAccountDetailComponent implements OnInit {
   @Input() accountSelect;
 
   accountDetailForm: FormGroup;
-  // Form Aray attributes
+  // Form Array Attributes
   accountSelectedList: FormArray;
 
-  selectedAccount: Boolean = false;
+  selectedAccount = false;
   isSaving = false;
 
-  uniqueId: number = 0;
+  uniqueId = 0;
 
-  organisation: string = '';
+  organisation = '';
   selected: string;
   noResult = false;
 
@@ -45,16 +45,17 @@ export class ChartOfAccountDetailComponent implements OnInit {
 
   onSelect(event: TypeaheadMatch): void {
     this.selectedOption = event.item;
-    let accountDetail = {
+
+    const accountDetail = {
       id: this.selectedOption.AccountId,
       organisation: this.organisation,
       accountName: this.selectedOption.AccountName
     };
 
-    var checkDuplication = this.accountDetailList.some(function(elem) {
+    const checkDuplication = this.accountDetailList.some(element => {
       return (
-        elem.organisation === accountDetail.organisation &&
-        elem.accountName == accountDetail.accountName
+        element.organisation === accountDetail.organisation &&
+        element.accountName === accountDetail.accountName
       );
     });
 
@@ -64,42 +65,41 @@ export class ChartOfAccountDetailComponent implements OnInit {
   }
 
   selectOrganisation(event: any): void {
-    let org = event.target.value;
     this.organisation = event.target.value;
+    // Deep Copy Organisation List
     let cloneList = JSON.parse(JSON.stringify(this.organisationList));
 
-    cloneList = cloneList
-      .filter(function(el) {
-        return el.OrganizationName == org;
-      })
-      .map(items => {
-        return items.Accounts;
-      });
+    cloneList = cloneList.find(element => {
+      return element.OrganizationName === this.organisation;
+    });
 
-    this.states = cloneList[0];
+    this.states = cloneList.Accounts;
   }
 
   onSaveSettings() {
     this.isSaving = true;
-    this.accountmappingApiService.postAccountMapping(this.accountDetailList).subscribe(response => {
-      if (response.isSuccessful) {
-        this.isSaving = false;
-        this.toastrService.success('Saved Successfully');
-      }
-    }),
+    this.accountmappingApiService.postAccountMapping(this.accountDetailList).subscribe(
+      response => {
+        if (response.isSuccessful) {
+          this.isSaving = false;
+          this.toastrService.success('Accounts mapped Successfully');
+        }
+      },
       error => {
         this.isSaving = false;
         this.toastrService.error('Something went wrong. Try again later!');
-      };
+      }
+    );
   }
 
   ngOnInit() {
     this.getOrganisations();
+
     this.accountmappingApiService.selectedAccounList$.subscribe(list => {
       if (!list) {
         return;
       } else {
-        // console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^', list);
+        console.log('ACCOUNTS LIST ::', list);
       }
     });
   }
@@ -115,9 +115,9 @@ export class ChartOfAccountDetailComponent implements OnInit {
   }
 
   deleteAccount(obj) {
-    let id = obj.id;
-    this.accountDetailList = this.accountDetailList.filter(function(el) {
-      return el.id !== id;
+    const id = obj.id;
+    this.accountDetailList = this.accountDetailList.filter(element => {
+      return element.id !== id;
     });
   }
 }
