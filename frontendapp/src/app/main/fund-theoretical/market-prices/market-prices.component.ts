@@ -3,7 +3,6 @@ import {
   HeightStyle,
   SideBar,
   AutoSizeAllColumns,
-  PercentageFormatter,
   DateFormatter,
   Ranges
 } from 'src/shared/utils/Shared';
@@ -11,8 +10,6 @@ import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { DecimalPipe } from '@angular/common';
-import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies';
 import { ToastrService } from 'ngx-toastr';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
 import * as moment from 'moment';
@@ -20,6 +17,7 @@ import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/dat
 import { GraphObject } from 'src/shared/Models/graph-object';
 import { ContextMenu } from 'src/shared/Models/common';
 import { DataDictionary } from 'src/shared/utils/DataDictionary';
+import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.service';
 
 @Component({
   selector: 'app-market-prices',
@@ -89,7 +87,7 @@ export class MarketPricesComponent implements OnInit {
   commitLoader = false;
 
   constructor(
-    private financeService: FinanceServiceProxy,
+    private fundTheoreticalApiService: FundTheoreticalApiService,
     private toastrService: ToastrService,
     public dataDictionary: DataDictionary
   ) {}
@@ -101,7 +99,7 @@ export class MarketPricesComponent implements OnInit {
 
   getData() {
     this.disableCommit = true;
-    this.financeService.getMarketPriceData().subscribe(response => {
+    this.fundTheoreticalApiService.getMarketPriceData().subscribe(response => {
       if (response.isSuccessful) {
         const data = response.payload.sort((x, y) => {
           return new Date(y.BusinessDate).getTime() - new Date(x.BusinessDate).getTime();
@@ -274,7 +272,7 @@ export class MarketPricesComponent implements OnInit {
 
   openDataGridModal(rowNode) {
     const { id } = rowNode.node.data;
-    this.financeService.getMarketPriceAudit(id).subscribe(response => {
+    this.fundTheoreticalApiService.getMarketPriceAudit(id).subscribe(response => {
       const { payload } = response;
       const columns = this.getAuditColDefs();
       const modifiedCols = columns.map(col => {
@@ -323,8 +321,7 @@ export class MarketPricesComponent implements OnInit {
     this.isExpanded = !this.isExpanded;
   }
 
-  vChange($event) {
-  }
+  vChange($event) {}
 
   visualizeData() {
     const data = {};
@@ -394,7 +391,7 @@ export class MarketPricesComponent implements OnInit {
       }
     });
     this.commitLoader = true;
-    this.financeService.editMarketPriceData(recordsToCommit).subscribe(response => {
+    this.fundTheoreticalApiService.editMarketPriceData(recordsToCommit).subscribe(response => {
       this.commitLoader = false;
       this.disableCommit = true;
       if (response.isSuccessful) {
@@ -408,7 +405,7 @@ export class MarketPricesComponent implements OnInit {
 
   uploadData() {
     this.uploadLoader = true;
-    this.financeService.uploadMarketPriceData(this.fileToUpload).subscribe(response => {
+    this.fundTheoreticalApiService.uploadMarketPriceData(this.fileToUpload).subscribe(response => {
       this.uploadLoader = false;
       if (response.isSuccessful) {
         this.fileInput.nativeElement.value = '';

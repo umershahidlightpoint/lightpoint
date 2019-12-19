@@ -23,7 +23,7 @@ import {
   CommonCols,
   CalTotal
 } from 'src/shared/utils/Shared';
-import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { DataService } from '../../../../shared/common/data.service';
 import { AgGridUtils } from '../../../../shared/utils/AgGridUtils';
 import { DataDictionary } from '../../../../shared/utils/DataDictionary';

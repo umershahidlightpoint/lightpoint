@@ -45,6 +45,7 @@ namespace LP.Finance.Common.Mappers
                         new MappedAccountsOutputDto
                         {
                             MapId = Convert.ToInt32(reader["map_id"]),
+                            ThirdPartyAccountId = Convert.ToInt32(reader["third_party_account_id"]),
                             OrganizationName = reader["organization_name"].ToString(),
                             ThirdPartyAccountName = reader["third_party_account_name"].ToString()
                         }

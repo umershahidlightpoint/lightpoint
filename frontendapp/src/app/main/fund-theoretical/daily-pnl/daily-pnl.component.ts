@@ -11,13 +11,13 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { DecimalPipe } from '@angular/common';
-import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from 'src/services/service-proxies';
 import { ToastrService } from 'ngx-toastr';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
 import { DailyUnofficialPnLData } from 'src/shared/Models/funds-theoretical';
 import * as moment from 'moment';
 import { GraphObject } from 'src/shared/Models/graph-object';
-import { AgGridColumn } from 'ag-grid-angular';
+import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.service';
 
 @Component({
   selector: 'app-daily-pnl',
@@ -53,6 +53,7 @@ export class DailyPnlComponent implements OnInit {
 
   constructor(
     private financeService: FinanceServiceProxy,
+    private fundTheoreticalApiService: FundTheoreticalApiService,
     private toastrService: ToastrService,
     public decimalPipe: DecimalPipe
   ) {}
@@ -78,8 +79,7 @@ export class DailyPnlComponent implements OnInit {
   }
 
   sortDailyPnl(x, y) {
-    const dateDiff =
-      new Date(y.BusinessDate).getTime() - new Date(x.BusinessDate).getTime();
+    const dateDiff = new Date(y.BusinessDate).getTime() - new Date(x.BusinessDate).getTime();
     if (dateDiff != 0) {
       return dateDiff;
     } else {
@@ -88,10 +88,8 @@ export class DailyPnlComponent implements OnInit {
   }
 
   getDailyPnL() {
-    this.financeService.getDailyUnofficialPnL().subscribe(response => {
-      const sortedData = response.payload.sort((x, y) =>
-        this.sortDailyPnl(x, y)
-      );
+    this.fundTheoreticalApiService.getDailyUnofficialPnL().subscribe(response => {
+      const sortedData = response.payload.sort((x, y) => this.sortDailyPnl(x, y));
 
       this.dailyPnLData = sortedData.map(data => ({
         businessDate: DateFormatter(data.BusinessDate),
@@ -167,11 +165,7 @@ export class DailyPnlComponent implements OnInit {
         resizable: true
       }
     } as GridOptions;
-    this.dailyPnlGrid.sideBar = SideBar(
-      GridId.dailyPnlId,
-      GridName.dailyPnl,
-      this.dailyPnlGrid
-    );
+    this.dailyPnlGrid.sideBar = SideBar(GridId.dailyPnlId, GridName.dailyPnl, this.dailyPnlGrid);
   }
 
   initCols() {
@@ -213,38 +207,32 @@ export class DailyPnlComponent implements OnInit {
       {
         headerName: 'Trade P/L',
         field: 'tradePnL',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.tradePnL, false)
+        valueFormatter: params => this.numberFormatter(params.node.data.tradePnL, false)
       },
       {
         headerName: 'Day',
         field: 'day',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.day, false)
+        valueFormatter: params => this.numberFormatter(params.node.data.day, false)
       },
       {
         headerName: 'Daily % Return',
         field: 'dailyPercentageReturn',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.dailyPercentageReturn, true)
+        valueFormatter: params => this.numberFormatter(params.node.data.dailyPercentageReturn, true)
       },
       {
         headerName: 'Long P/L',
         field: 'longPnL',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.longPnL, false)
+        valueFormatter: params => this.numberFormatter(params.node.data.longPnL, false)
       },
       {
         headerName: 'Long % Change',
         field: 'longPercentageChange',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.longPercentageChange, false)
+        valueFormatter: params => this.numberFormatter(params.node.data.longPercentageChange, false)
       },
       {
         headerName: 'Short P/L',
         field: 'shortPnL',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.shortPnL, false)
+        valueFormatter: params => this.numberFormatter(params.node.data.shortPnL, false)
       },
       {
         headerName: 'Short % Change',
@@ -255,38 +243,32 @@ export class DailyPnlComponent implements OnInit {
       {
         headerName: 'Long Exposure',
         field: 'longExposure',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.longExposure, false)
+        valueFormatter: params => this.numberFormatter(params.node.data.longExposure, false)
       },
       {
         headerName: 'Short Exposure',
         field: 'shortExposure',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.shortExposure, false)
+        valueFormatter: params => this.numberFormatter(params.node.data.shortExposure, false)
       },
       {
         headerName: 'Gross Exposure',
         field: 'grossExposure',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.grossExposure, false)
+        valueFormatter: params => this.numberFormatter(params.node.data.grossExposure, false)
       },
       {
         headerName: 'Net Exposure',
         field: 'netExposure',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.netExposure, false)
+        valueFormatter: params => this.numberFormatter(params.node.data.netExposure, false)
       },
       {
         headerName: '6md Beta Net Exposure',
         field: 'sixMdBetaNetExposure',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.sixMdBetaNetExposure, false)
+        valueFormatter: params => this.numberFormatter(params.node.data.sixMdBetaNetExposure, false)
       },
       {
         headerName: '2Yw Beta Net Exposure',
         field: 'twoYwBetaNetExposure',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.twoYwBetaNetExposure, false)
+        valueFormatter: params => this.numberFormatter(params.node.data.twoYwBetaNetExposure, false)
       },
       {
         headerName: '6md Beta Short Exposure',
@@ -297,92 +279,77 @@ export class DailyPnlComponent implements OnInit {
       {
         headerName: 'Nav Market',
         field: 'navMarket',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.navMarket, false)
+        valueFormatter: params => this.numberFormatter(params.node.data.navMarket, false)
       },
       {
         headerName: 'Dividend USD',
         field: 'dividendUSD',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.dividendUSD, false)
+        valueFormatter: params => this.numberFormatter(params.node.data.dividendUSD, false)
       },
       {
         headerName: 'Comm USD',
         field: 'commUSD',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.commUSD, false)
+        valueFormatter: params => this.numberFormatter(params.node.data.commUSD, false)
       },
       {
         headerName: 'Fee/Taxes USD',
         field: 'feeTaxesUSD',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.feeTaxesUSD, false)
+        valueFormatter: params => this.numberFormatter(params.node.data.feeTaxesUSD, false)
       },
       {
         headerName: 'Financing USD',
         field: 'financingUSD',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.financingUSD, false)
+        valueFormatter: params => this.numberFormatter(params.node.data.financingUSD, false)
       },
       {
         headerName: 'Other USD',
         field: 'otherUSD',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.otherUSD, false)
+        valueFormatter: params => this.numberFormatter(params.node.data.otherUSD, false)
       },
       {
         headerName: 'P/L %',
         field: 'pnLPercentage',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.pnLPercentage, true)
+        valueFormatter: params => this.numberFormatter(params.node.data.pnLPercentage, true)
       },
       {
         headerName: 'MTD % Return',
         field: 'mtdPercentageReturn',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.mtdPercentageReturn, true)
+        valueFormatter: params => this.numberFormatter(params.node.data.mtdPercentageReturn, true)
       },
       {
         headerName: 'QTD % Return',
         field: 'qtdPercentageReturn',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.qtdPercentageReturn, true)
+        valueFormatter: params => this.numberFormatter(params.node.data.qtdPercentageReturn, true)
       },
       {
         headerName: 'YTD % Return',
         field: 'ytdPercentageReturn',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.ytdPercentageReturn, true)
+        valueFormatter: params => this.numberFormatter(params.node.data.ytdPercentageReturn, true)
       },
       {
         headerName: 'ITD % Return',
         field: 'itdPercentageReturn',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.itdPercentageReturn, true)
+        valueFormatter: params => this.numberFormatter(params.node.data.itdPercentageReturn, true)
       },
       {
         headerName: 'MTD PnL',
         field: 'mtdPnL',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.mtdPnL, false)
+        valueFormatter: params => this.numberFormatter(params.node.data.mtdPnL, false)
       },
       {
         headerName: 'QTD PnL',
         field: 'qtdPnL',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.qtdPnL, false)
+        valueFormatter: params => this.numberFormatter(params.node.data.qtdPnL, false)
       },
       {
         headerName: 'YTD PnL',
         field: 'ytdPnL',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.ytdPnL, false)
+        valueFormatter: params => this.numberFormatter(params.node.data.ytdPnL, false)
       },
       {
         headerName: 'ITD PnL',
         field: 'itdPnL',
-        valueFormatter: params =>
-          this.numberFormatter(params.node.data.itdPnL, false)
+        valueFormatter: params => this.numberFormatter(params.node.data.itdPnL, false)
       },
       {
         headerName: 'Created By',
@@ -440,9 +407,7 @@ export class DailyPnlComponent implements OnInit {
   visualizeData() {
     const data = {};
     const focusedCell = this.dailyPnlGrid.api.getFocusedCell();
-    const selectedRow = this.dailyPnlGrid.api.getDisplayedRowAtIndex(
-      focusedCell.rowIndex
-    ).data;
+    const selectedRow = this.dailyPnlGrid.api.getDisplayedRowAtIndex(focusedCell.rowIndex).data;
     const column = focusedCell.column.getColDef().field;
     const columnLabel = focusedCell.column.getUserProvidedColDef().headerName;
     data[columnLabel] = [];
@@ -452,7 +417,7 @@ export class DailyPnlComponent implements OnInit {
     this.dailyPnlGrid.api.forEachNodeAfterFilter((rowNode, index) => {
       const currentDate = moment(rowNode.data.businessDate);
       if (
-        rowNode.data.portFolio === selectedPortfolio 
+        rowNode.data.portFolio === selectedPortfolio
         // &&
         // currentDate.isSameOrAfter(fromDate) &&
         // currentDate.isSameOrBefore(toDate)
@@ -482,7 +447,7 @@ export class DailyPnlComponent implements OnInit {
 
   uploadDailyUnofficialPnl() {
     this.uploadLoader = true;
-    this.financeService
+    this.fundTheoreticalApiService
       .uploadDailyUnofficialPnl(this.fileToUpload)
       .subscribe(response => {
         this.uploadLoader = false;

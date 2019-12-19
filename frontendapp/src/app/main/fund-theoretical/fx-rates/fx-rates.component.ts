@@ -1,21 +1,13 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
 import * as moment from 'moment';
 import { GridOptions, ColGroupDef, ColDef } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import {
-  HeightStyle,
-  SideBar,
-  AutoSizeAllColumns,
-  PercentageFormatter,
-  DateFormatter,
-  Ranges
-} from 'src/shared/utils/Shared';
+import { HeightStyle, SideBar, DateFormatter, Ranges } from 'src/shared/utils/Shared';
 
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { FxratesApiService } from '../../../../services/fxrates-api.service';
+import { FundTheoreticalApiService } from '../../../../services/fund-theoretical-api.service';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 import { GraphObject } from 'src/shared/Models/graph-object';
@@ -94,7 +86,7 @@ export class FxRatesComponent implements OnInit {
   commitLoader = false;
 
   constructor(
-    private fxratesApiService: FxratesApiService,
+    private fundTheoreticalApiService: FundTheoreticalApiService,
     private toastrService: ToastrService,
     public dataDictionary: DataDictionary
   ) {}
@@ -106,7 +98,7 @@ export class FxRatesComponent implements OnInit {
 
   getData() {
     this.disableCommit = true;
-    this.fxratesApiService.getFxRatesData().subscribe(response => {
+    this.fundTheoreticalApiService.getFxRatesData().subscribe(response => {
       if (response.isSuccessful) {
         const data = response.payload.sort((x, y) => {
           return new Date(y.BusinessDate).getTime() - new Date(x.BusinessDate).getTime();
@@ -273,7 +265,7 @@ export class FxRatesComponent implements OnInit {
 
   openDataGridModal(rowNode) {
     const { id } = rowNode.node.data;
-    this.fxratesApiService.GetAuditTrail(id).subscribe(response => {
+    this.fundTheoreticalApiService.GetAuditTrail(id).subscribe(response => {
       const { payload } = response;
       const columns = this.getAuditColDefs();
       const modifiedCols = columns.map(col => {
@@ -314,8 +306,7 @@ export class FxRatesComponent implements OnInit {
     this.isExpanded = !this.isExpanded;
   }
 
-  vChange($event) {
-  }
+  vChange($event) {}
 
   visualizeData() {
     const data = {};
@@ -384,7 +375,7 @@ export class FxRatesComponent implements OnInit {
       }
     });
     this.commitLoader = true;
-    this.fxratesApiService.editFxRatePriceData(recordsToCommit).subscribe(response => {
+    this.fundTheoreticalApiService.editFxRatePriceData(recordsToCommit).subscribe(response => {
       this.commitLoader = false;
       this.disableCommit = true;
       if (response.isSuccessful) {
@@ -398,7 +389,7 @@ export class FxRatesComponent implements OnInit {
 
   uploadData() {
     this.uploadLoader = true;
-    this.fxratesApiService.uploadFxData(this.fileToUpload).subscribe(response => {
+    this.fundTheoreticalApiService.uploadFxData(this.fileToUpload).subscribe(response => {
       this.uploadLoader = false;
       if (response.isSuccessful) {
         this.fileInput.nativeElement.value = '';

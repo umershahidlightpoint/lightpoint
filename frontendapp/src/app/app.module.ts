@@ -22,7 +22,7 @@ import { NgcatalystModule } from 'ngcatalyst';
 Services
 */
 import { SidenavService } from '../shared/common/sidenav.service';
-import { FinanceServiceProxy } from '../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../services/service-proxies';
 import { PostingEngineService } from '../shared/common/posting-engine.service';
 import { DataService } from '../shared/common/data.service';
 import { AgGridUtils } from '../shared/utils/AgGridUtils';

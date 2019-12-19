@@ -1,13 +1,14 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CreateAccountComponent } from '../.././create-account/create-account.component';
-import { FinanceServiceProxy } from '../../../../../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../../../../../services/service-proxies';
 import { AccountmappingApiService } from '../../../../../services/accountmapping-api.service';
 import { GridOptions } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { Account, AccountCategory } from '../../../../../shared/Models/account';
 import { DataService } from 'src/shared/common/data.service';
 import { SideBar, AutoSizeAllColumns, HeightStyle, Style } from 'src/shared/utils/Shared';
+import { AccountApiService } from 'src/services/account-api.service';
 
 @Component({
   selector: 'app-chart-of-account',
@@ -43,7 +44,8 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
     private financePocServiceProxy: FinanceServiceProxy,
     private toastrService: ToastrService,
     private dataService: DataService,
-    private accountmappingApiService: AccountmappingApiService
+    private accountmappingApiService: AccountmappingApiService,
+    private accountApiService: AccountApiService
   ) {
     this.hideGrid = false;
   }
@@ -127,7 +129,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   }
 
   getAccountCategories() {
-    this.financePocServiceProxy.accountCategories().subscribe(response => {
+    this.accountApiService.accountCategories().subscribe(response => {
       if (response.isSuccessful) {
         this.accountCategories = response.payload;
       } else {

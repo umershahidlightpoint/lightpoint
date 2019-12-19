@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
-import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../../../services/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { Account, AccountCategory } from '../../../shared/Models/account';
@@ -17,6 +17,7 @@ import { AgGridCheckboxComponent } from '../../../shared/Component/ag-grid-check
 import { DatePickerModalComponent } from 'src/shared/Component/date-picker-modal/date-picker-modal.component';
 import { ContextMenu, CustomColDef } from 'src/shared/Models/common';
 import { DataDictionary } from 'src/shared/utils/DataDictionary';
+import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.service';
 
 @Component({
   selector: 'app-fund-theoretical',
@@ -97,6 +98,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
   constructor(
     private financeService: FinanceServiceProxy,
+    private fundTheoreticalApiService: FundTheoreticalApiService,
     private toastrService: ToastrService,
     private dataService: DataService,
     public dataDictionary: DataDictionary,
@@ -124,7 +126,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     this.initGrid();
   }
 
-  activeFundTheretical(){
+  activeFundTheretical() {
     this.getMonthlyPerformance();
   }
 
@@ -164,7 +166,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
   getMonthlyPerformance() {
     let rowNodeId = 1;
-    this.financeService.getMonthlyPerformance().subscribe(response => {
+    this.fundTheoreticalApiService.getMonthlyPerformance().subscribe(response => {
       const modifiedData = response.payload.map(data => {
         return { ...data, RowId: rowNodeId++ };
       });
@@ -507,7 +509,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
   viewRow(rowNode) {
     const { id } = rowNode.node.data;
-    this.financeService.monthlyPerformanceAudit(id).subscribe(response => {
+    this.fundTheoreticalApiService.monthlyPerformanceAudit(id).subscribe(response => {
       const { payload } = response;
       const modifiedData = this.formatPerformanceData(payload);
       const columns = this.getColDefs();
@@ -642,7 +644,7 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       performanceDate: data.year + '-' + this.getMomentMonth(data.month) + '-' + '01'
     }));
 
-    this.financeService.calMonthlyPerformance(formattedRecords).subscribe(response => {
+    this.fundTheoreticalApiService.calMonthlyPerformance(formattedRecords).subscribe(response => {
       const rows = this.formatPerformanceData(response.payload);
       this.fundTheoreticalGrid.api.setRowData(rows);
       this.generateData();
@@ -667,15 +669,17 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
       }));
 
       this.commitLoader = true;
-      this.financeService.commitMonthlyPerformance(formattedRecords).subscribe(response => {
-        this.commitLoader = false;
-        if (response.isSuccessful) {
-          this.toastrService.success('Sucessfully Commited.');
-          this.getMonthlyPerformance();
-        } else {
-          this.toastrService.error('Something went wrong! Try Again.');
-        }
-      });
+      this.fundTheoreticalApiService
+        .commitMonthlyPerformance(formattedRecords)
+        .subscribe(response => {
+          this.commitLoader = false;
+          if (response.isSuccessful) {
+            this.toastrService.success('Sucessfully Commited.');
+            this.getMonthlyPerformance();
+          } else {
+            this.toastrService.error('Something went wrong! Try Again.');
+          }
+        });
     } else {
       this.toastrService.error('No changes to commit.');
     }

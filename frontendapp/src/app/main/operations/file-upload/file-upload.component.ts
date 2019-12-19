@@ -1,6 +1,6 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
-import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies';
-import { FxratesApiService } from 'src/services/fxrates-api.service';
+import { FinanceServiceProxy } from 'src/services/service-proxies';
+import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.service';
 import { ToastrService } from 'ngx-toastr';
 
 /* Services/Components Imports */
@@ -38,7 +38,7 @@ export class FileUploadComponent implements OnInit {
 
   constructor(
     private financeService: FinanceServiceProxy,
-    private fxratesApiService: FxratesApiService,
+    private fundTheoreticalApiService: FundTheoreticalApiService,
     private toastrService: ToastrService,
     private dataDictionary: DataDictionary
   ) {}
@@ -78,22 +78,19 @@ export class FileUploadComponent implements OnInit {
 
   changeFileType(selectedFileType) {
     this.disableFileUpload =
-      this.fileToUpload === null || this.fileType === 'Select a File Type'
-        ? true
-        : false;
+      this.fileToUpload === null || this.fileType === 'Select a File Type' ? true : false;
     this.fileType = selectedFileType;
   }
 
   onFileInput(files: FileList) {
-    this.disableFileUpload =
-      this.fileType === 'Select a File Type' ? true : false;
+    this.disableFileUpload = this.fileType === 'Select a File Type' ? true : false;
     this.fileToUpload = files.item(0);
   }
 
   uploadRows() {
     if (this.fileType === 'Monthly Performance') {
       this.uploadLoader = true;
-      this.financeService.getMonthlyPerformanceStatus().subscribe(response => {
+      this.fundTheoreticalApiService.getMonthlyPerformanceStatus().subscribe(response => {
         this.uploadLoader = false;
         if (response.isSuccessful) {
           if (response.payload) {
@@ -123,24 +120,22 @@ export class FileUploadComponent implements OnInit {
 
   uploadMonthlyPerformance() {
     this.uploadLoader = true;
-    this.financeService
-      .uploadMonthlyPerformance(this.fileToUpload)
-      .subscribe(response => {
-        this.uploadLoader = false;
-        this.confirmStatus = false;
-        if (response.isSuccessful) {
-          this.displayGrid = false;
-          this.clearForm();
-          this.toastrService.success('File uploaded successfully!');
-        } else {
-          this.toastrService.error('Something went wrong! Try Again.');
-        }
-      });
+    this.financeService.uploadMonthlyPerformance(this.fileToUpload).subscribe(response => {
+      this.uploadLoader = false;
+      this.confirmStatus = false;
+      if (response.isSuccessful) {
+        this.displayGrid = false;
+        this.clearForm();
+        this.toastrService.success('File uploaded successfully!');
+      } else {
+        this.toastrService.error('Something went wrong! Try Again.');
+      }
+    });
   }
 
   uploadDailyUnofficialPnl() {
     this.uploadLoader = true;
-    this.financeService
+    this.fundTheoreticalApiService
       .uploadDailyUnofficialPnl(this.fileToUpload)
       .subscribe(response => {
         this.uploadLoader = false;
@@ -156,56 +151,52 @@ export class FileUploadComponent implements OnInit {
 
   uploadMarketData() {
     this.uploadLoader = true;
-    this.financeService
-      .uploadMarketPriceData(this.fileToUpload)
-      .subscribe(response => {
-        this.uploadLoader = false;
-        if (response.isSuccessful && response.statusCode == 200) {
-          this.displayGrid = false;
-          this.clearForm();
-          this.toastrService.success('File uploaded successfully!');
-        } else if (response.isSuccessful && response.statusCode == 403) {
-          this.displayGrid = true;
+    this.fundTheoreticalApiService.uploadMarketPriceData(this.fileToUpload).subscribe(response => {
+      this.uploadLoader = false;
+      if (response.isSuccessful && response.statusCode == 200) {
+        this.displayGrid = false;
+        this.clearForm();
+        this.toastrService.success('File uploaded successfully!');
+      } else if (response.isSuccessful && response.statusCode == 403) {
+        this.displayGrid = true;
 
-          this.columns = response.meta;
-          this.rowData = response.payload;
+        this.columns = response.meta;
+        this.rowData = response.payload;
 
-          this.customizeColumns(this.columns);
-          this.uploadGrid.api.setRowData(this.rowData);
+        this.customizeColumns(this.columns);
+        this.uploadGrid.api.setRowData(this.rowData);
 
-          this.clearForm();
-          this.toastrService.error('Error: Duplication Detected!');
-        } else {
-          this.toastrService.error('Something went wrong! Try Again.');
-        }
-      });
+        this.clearForm();
+        this.toastrService.error('Error: Duplication Detected!');
+      } else {
+        this.toastrService.error('Something went wrong! Try Again.');
+      }
+    });
   }
 
   uploadFxRatesData() {
     this.uploadLoader = true;
-    this.fxratesApiService
-      .uploadFxData(this.fileToUpload)
-      .subscribe(response => {
-        this.uploadLoader = false;
-        this.displayGrid = false;
-        if (response.isSuccessful && response.statusCode == 200) {
-          this.clearForm();
-          this.toastrService.success('File uploaded successfully!');
-        } else if (response.isSuccessful && response.statusCode == 403) {
-          this.displayGrid = true;
+    this.fundTheoreticalApiService.uploadFxData(this.fileToUpload).subscribe(response => {
+      this.uploadLoader = false;
+      this.displayGrid = false;
+      if (response.isSuccessful && response.statusCode == 200) {
+        this.clearForm();
+        this.toastrService.success('File uploaded successfully!');
+      } else if (response.isSuccessful && response.statusCode == 403) {
+        this.displayGrid = true;
 
-          this.columns = response.meta;
-          this.rowData = response.payload;
+        this.columns = response.meta;
+        this.rowData = response.payload;
 
-          this.customizeColumns(this.columns);
-          this.uploadGrid.api.setRowData(this.rowData);
+        this.customizeColumns(this.columns);
+        this.uploadGrid.api.setRowData(this.rowData);
 
-          this.clearForm();
-          this.toastrService.error('Error: Duplication Detected!');
-        } else {
-          this.toastrService.error('Something went wrong! Try Again.');
-        }
-      });
+        this.clearForm();
+        this.toastrService.error('Error: Duplication Detected!');
+      } else {
+        this.toastrService.error('Something went wrong! Try Again.');
+      }
+    });
   }
 
   /*

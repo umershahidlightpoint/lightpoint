@@ -2,7 +2,7 @@ import { Component, OnInit, Input, DoCheck, AfterViewInit } from '@angular/core'
 import { MatSidenav } from '@angular/material';
 import * as moment from 'moment';
 import { PostingEngineService } from 'src/shared/common/posting-engine.service';
-import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../../../services/service-proxies';
 import { ServicesStatusApiService } from '../../../services/services-status-api.service';
 
 @Component({
