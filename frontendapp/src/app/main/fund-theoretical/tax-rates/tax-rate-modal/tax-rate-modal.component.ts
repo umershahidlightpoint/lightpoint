@@ -1,14 +1,8 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  Output,
-  EventEmitter,
-} from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
 import { ModalDirective } from 'ngx-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import * as moment from 'moment';
-import { FinanceServiceProxy } from '../../../../../shared/service-proxies/service-proxies';
+import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.service';
 
 @Component({
   selector: 'app-tax-rate-modal',
@@ -30,7 +24,7 @@ export class TaxRateModalComponent implements OnInit {
 
   constructor(
     private toastrService: ToastrService,
-    private financeService: FinanceServiceProxy
+    private fundTheoreticalApiService: FundTheoreticalApiService
   ) {}
 
   ngOnInit() {
@@ -51,7 +45,7 @@ export class TaxRateModalComponent implements OnInit {
     };
     if (this.editTaxRate) {
       const { id } = this.taxRate;
-      this.financeService.editTaxRate(id, taxRatePayload).subscribe(
+      this.fundTheoreticalApiService.editTaxRate(id, taxRatePayload).subscribe(
         response => {
           if (response.isSuccessful) {
             this.toastrService.success('Tax Rate is edited successfully !');
@@ -69,7 +63,7 @@ export class TaxRateModalComponent implements OnInit {
         }
       );
     } else {
-      this.financeService.createTaxRate(taxRatePayload).subscribe(response => {
+      this.fundTheoreticalApiService.createTaxRate(taxRatePayload).subscribe(response => {
         if (response.isSuccessful) {
           this.toastrService.success('Tax Rate is created successfully !');
           this.modal.hide();

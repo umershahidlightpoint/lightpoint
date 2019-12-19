@@ -1,10 +1,4 @@
-import {
-  FormControl,
-  FormGroup,
-  Validators,
-  FormArray,
-  FormBuilder
-} from '@angular/forms';
+import { FormControl, FormGroup, Validators, FormArray, FormBuilder } from '@angular/forms';
 import {
   Component,
   OnInit,
@@ -24,9 +18,8 @@ import {
   Account,
   AccountTag
 } from '../../../../shared/Models/account';
-import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
 import { ToastrService } from 'ngx-toastr';
-import { takeWhile } from 'rxjs/operators';
+import { AccountApiService } from 'src/services/account-api.service';
 
 @Component({
   selector: 'app-create-account',
@@ -61,7 +54,7 @@ export class CreateAccountComponent implements OnInit, OnChanges {
   constructor(
     private router: Router,
     private formBuilder: FormBuilder,
-    private financePocServiceProxy: FinanceServiceProxy,
+    private accountApiService: AccountApiService,
     private toastrService: ToastrService
   ) {}
 
@@ -79,15 +72,13 @@ export class CreateAccountComponent implements OnInit, OnChanges {
   }
 
   getAccountTypes(selectedAccountCategoryId) {
-    this.financePocServiceProxy
-      .accountTypes(selectedAccountCategoryId)
-      .subscribe(response => {
-        if (response.isSuccessful) {
-          this.accountTypes = response.payload;
-        } else {
-          this.toastrService.error('Failed to fetch account categories!');
-        }
-      });
+    this.accountApiService.accountTypes(selectedAccountCategoryId).subscribe(response => {
+      if (response.isSuccessful) {
+        this.accountTypes = response.payload;
+      } else {
+        this.toastrService.error('Failed to fetch account categories!');
+      }
+    });
   }
 
   createTag(tag): FormGroup {
@@ -123,7 +114,7 @@ export class CreateAccountComponent implements OnInit, OnChanges {
   getAccountTags(typeId) {
     const accTypeId = typeId;
     if (this.editCase) {
-      this.financePocServiceProxy.accountTags().subscribe(
+      this.accountApiService.accountTags().subscribe(
         response => {
           if (response.payload.length < 1) {
             this.noAccountDef = true;
@@ -141,7 +132,7 @@ export class CreateAccountComponent implements OnInit, OnChanges {
         }
       );
     } else {
-      this.financePocServiceProxy.accountTags().subscribe(
+      this.accountApiService.accountTags().subscribe(
         response => {
           if (response.payload.length < 1) {
             this.noAccountDef = true;
@@ -157,32 +148,30 @@ export class CreateAccountComponent implements OnInit, OnChanges {
   }
 
   hasExistingAccount(accountData) {
-    this.financePocServiceProxy
-      .getAccountTags(accountData.accountId)
-      .subscribe(response => {
-        const { payload } = response;
-        const { Tags } = payload[0];
-        if (Tags.length > 0) {
-          let temp = this.accountTags;
-          temp.map(accountTags => {
-            Tags.forEach(tag => {
-              if (tag.Id === accountTags.Id) {
-                accountTags['isChecked'] = true;
-                accountTags['description'] = tag['Value'];
-                return accountTags;
-              }
-            });
-          });
-          temp = temp.filter(tag => {
-            if (tag.hasOwnProperty('isChecked')) {
-              return tag;
+    this.accountApiService.getAccountTags(accountData.accountId).subscribe(response => {
+      const { payload } = response;
+      const { Tags } = payload[0];
+      if (Tags.length > 0) {
+        let temp = this.accountTags;
+        temp.map(accountTags => {
+          Tags.forEach(tag => {
+            if (tag.Id === accountTags.Id) {
+              accountTags['isChecked'] = true;
+              accountTags['description'] = tag['Value'];
+              return accountTags;
             }
           });
-          temp.forEach(tag => {
-            this.tags.push(this.createTag(tag));
-          });
-        }
-      });
+        });
+        temp = temp.filter(tag => {
+          if (tag.hasOwnProperty('isChecked')) {
+            return tag;
+          }
+        });
+        temp.forEach(tag => {
+          this.tags.push(this.createTag(tag));
+        });
+      }
+    });
   }
 
   show(rowSelected) {
@@ -232,7 +221,7 @@ export class CreateAccountComponent implements OnInit, OnChanges {
         const patchAccountObj = {
           description: this.accountForm.value.description
         };
-        this.financePocServiceProxy
+        this.accountApiService
           .patchAccount(this.rowDataSelected.accountId, patchAccountObj)
           .subscribe(
             response => {
@@ -243,9 +232,7 @@ export class CreateAccountComponent implements OnInit, OnChanges {
               }
             },
             error => {
-              this.toastrService.error(
-                'Something went wrong. Try again later!'
-              );
+              this.toastrService.error('Something went wrong. Try again later!');
             }
           );
       } else {
@@ -255,22 +242,18 @@ export class CreateAccountComponent implements OnInit, OnChanges {
           type: this.accountForm.value.type || this.rowDataSelected.typeId,
           tags: tagObjectToSend
         };
-        this.financePocServiceProxy
-          .editAccount(this.editAccountInstance)
-          .subscribe(
-            response => {
-              if (response.isSuccessful) {
-                this.toastrService.success('Account edited successfully!');
-              } else {
-                this.toastrService.error('Account edition failed!');
-              }
-            },
-            error => {
-              this.toastrService.error(
-                'Something went wrong. Try again later!'
-              );
+        this.accountApiService.editAccount(this.editAccountInstance).subscribe(
+          response => {
+            if (response.isSuccessful) {
+              this.toastrService.success('Account edited successfully!');
+            } else {
+              this.toastrService.error('Account edition failed!');
             }
-          );
+          },
+          error => {
+            this.toastrService.error('Something went wrong. Try again later!');
+          }
+        );
       }
     } else {
       this.accountInstance = {
@@ -278,7 +261,7 @@ export class CreateAccountComponent implements OnInit, OnChanges {
         type: this.accountForm.value.type,
         tags: tagObjectToSend
       };
-      this.financePocServiceProxy.createAccount(this.accountInstance).subscribe(
+      this.accountApiService.createAccount(this.accountInstance).subscribe(
         response => {
           if (response.isSuccessful) {
             this.toastrService.success('Account created successfully!');

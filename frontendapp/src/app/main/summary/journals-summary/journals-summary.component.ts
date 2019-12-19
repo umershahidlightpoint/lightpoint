@@ -8,7 +8,7 @@ import {
 } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import * as moment from 'moment';
-import { FinanceServiceProxy } from 'src/shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from 'src/services/service-proxies';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
 import { GridId } from '../../../../shared/utils/AppEnums';

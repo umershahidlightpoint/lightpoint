@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
-import { FinanceServiceProxy } from '../../../../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { Fund } from '../../../../shared/Models/account';
 import {
   TrialBalanceReport,

@@ -5,7 +5,7 @@ import {
   Input,
   SimpleChanges
 } from '@angular/core';
-import { FinanceServiceProxy } from '../../../shared/service-proxies/service-proxies';
+import { FinanceServiceProxy } from '../../../services/service-proxies';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
 import { DataService } from 'src/shared/common/data.service';
