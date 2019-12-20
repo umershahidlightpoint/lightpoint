@@ -5,11 +5,31 @@ namespace LP.Finance.Common.Models
 {
     public static class DBActions
     {
-        public static int Save(this IDbAction action, SqlConnection connection, SqlTransaction transaction)
+        public static int Save(this IDbAction action, string connectionString)
+        {
+            int result = 0;
+
+            var D = action.Insert;
+            using ( var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                var command = new SqlCommand(D.Key, connection);
+
+                command.Parameters.AddRange(D.Value);
+                result =  command.ExecuteNonQuery();
+                connection.Close();
+            }
+            return result;
+        }
+
+        public static int Save(this IDbAction action, SqlConnection connection, SqlTransaction transaction = null)
         {
             var D = action.Insert;
             var command = new SqlCommand(D.Key, connection);
-            command.Transaction = transaction;
+
+            if ( transaction != null)
+                command.Transaction = transaction;
+
             command.Parameters.AddRange(D.Value);
             return command.ExecuteNonQuery();
         }

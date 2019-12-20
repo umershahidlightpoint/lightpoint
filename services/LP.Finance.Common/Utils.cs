@@ -111,6 +111,8 @@ namespace LP.Finance.Common
 
     public class Utils
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public static async Task<string> GetWebApiData(string webURI)
         {
             Task<string> result = null;
@@ -359,7 +361,7 @@ namespace LP.Finance.Common
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Logger.Debug("", ex);
             }
         }
 

@@ -80,15 +80,23 @@ namespace PostingEngine
         // type, keep the commits to the database towards the end
         public readonly Dictionary<string, IPostingRule> TradingRules = new Dictionary<string, IPostingRule>
         {
+            // Common
+            {"REIT", new CommonStock() },
             {"Common Stock", new CommonStock() },
-            {"Equity Option", new EquityOption() },
-            {"Cash", new CashRule() },
-            // -- {"Cross", new Cross() },
 
-            // Default for the moment
-            {"Equity Swap", new DefaultRule() },
+            // Equity Option
+            {"Equity Option", new EquityOption() },
+
+            // Cash
+            {"Cash", new CashRule() },
+
+            // Forward Rule
             {"FORWARD", new ForwardRule() },
+            {"Cross", new ForwardRule() },
+
+            // Default Rule
             {"Physical index future.", new DefaultRule() },
+            {"Equity Swap", new DefaultRule() },
         };
 
         public readonly Dictionary<string, IPostingRule> JournalRules = new Dictionary<string, IPostingRule>
@@ -204,6 +212,9 @@ namespace PostingEngine
                 return value * -1;
 
             if (debitAccount.Type.Category.Id == AccountCategory.AC_ASSET && creditAccount.Type.Category.Id == AccountCategory.AC_REVENUES)
+                return value;
+
+            if (debitAccount.Type.Category.Id == AccountCategory.AC_REVENUES && creditAccount.Type.Category.Id == AccountCategory.AC_ASSET)
                 return value;
 
             return value;

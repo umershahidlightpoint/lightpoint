@@ -10,6 +10,8 @@ namespace LP.Finance.Common.Models
 {
     public class CostBasisDto : IDbAction, IDbModel
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public DateTime BusinessDate { get; set; }
         public double CostBasis { get; set; }
         public string Symbol { get; set; }
@@ -114,7 +116,7 @@ namespace LP.Finance.Common.Models
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Stored Procedure CostBasisCalculation Exception: {ex}");
+                    Logger.DebugException("CostBasisCalculation", ex);
                     throw;
                 }
             }

@@ -3,22 +3,19 @@ using LP.Finance.WebProxy.WebAPI.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
-using GraphQL;
-using GraphQL.Types;
-using LP.Finance.WebProxy.GraphQLEntities;
 using System.Net.Http;
 using LP.Finance.Common;
 using System;
 using System.Configuration;
 using SqlDAL.Core;
-using LP.FileProcessing;
 using Newtonsoft.Json;
-using LP.FileProcessing.MetaData;
 using LP.Finance.Common.Dtos;
 using System.Data;
 using System.Net;
 using System.Data.SqlClient;
 using System.Linq;
+using LP.FileProcessing;
+using LP.FileProcessing.MetaData;
 
 namespace LP.Finance.WebProxy.WebAPI
 {

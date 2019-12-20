@@ -28,6 +28,18 @@ namespace LP.Finance.Common.Models
             throw new ApplicationException($"AccountType [{key}] does not exist");
         }
 
+        public static AccountType Find(int id, string key, bool raiseError = true)
+        {
+            var accountType = All.Where(i => i.Name.Equals(key) && i.Category.Id == id).FirstOrDefault();
+            if (accountType != null)
+                return accountType;
+
+            if ( raiseError)
+                throw new ApplicationException($"AccountType [{key}] does not exist");
+
+            return null;
+        }
+
         public static AccountType[] Load(SqlConnection connection)
         {
             var list = new List<AccountType>();
@@ -55,11 +67,11 @@ namespace LP.Finance.Common.Models
         {
             get
             {
-                var sql = "insert into account_category (id, name) values (@id, @name)";
+                var sql = "insert into account_type (account_category_id, name) values (@account_category_id, @name)";
                 var sqlParams = new SqlParameter[]
                 {
                     new SqlParameter("name", Name),
-                    new SqlParameter("id", Id),
+                    new SqlParameter("account_category_id", Category.Id),
             };
 
                 return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);
@@ -69,5 +81,18 @@ namespace LP.Finance.Common.Models
         public KeyValuePair<string, SqlParameter[]> Update => throw new NotImplementedException();
 
         public KeyValuePair<string, SqlParameter[]> Delete => throw new NotImplementedException();
+
+        public static AccountType FindOrCreate(int category, string AccountTypeName)
+        {
+            var accountType = new AccountType
+            {
+                Category = AccountCategory.Find(category),
+                Name = AccountTypeName
+            };
+
+            All.Add(accountType);
+
+            return accountType;
+        }
     }
 }

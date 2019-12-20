@@ -20,6 +20,7 @@ namespace LP.Finance.Common.Models
             Symbol = element.Symbol;
             SecurityId = element.SecurityId;
             Quantity = element.Quantity;
+            Fund = element.Fund;
         }
 
         public Journal(Journal source)
