@@ -1,8 +1,8 @@
 <div>
   <div class="w-50">
-    <select class="custom-select" [(ngModel)]="organisation" (change)="selectOrganisation($event)" required>
-      <option hidden [value]="0">Choose Organisation</option>
-      <option *ngFor="let list of organisationList; let i = index">
+    <select class="custom-select" [(ngModel)]="organization" (change)="selectOrganization($event)" required>
+      <option hidden [value]="0">Choose Organization</option>
+      <option *ngFor="let list of organizationList; let i = index">
         {{ list.OrganizationName }}
       </option>
     </select>
