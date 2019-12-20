@@ -107,12 +107,16 @@
     <Build Include="StoredProcs\PullDailyFxPrices.sql" />
     <Build Include="Tables\settings.sql" />
     <Build Include="Views\vwTaxLots.sql" />
-    <Build Include="Views\vwCurrentStateTrades.sql" />
+    <Build Include="Views\vwCurrentStateTrades_old.sql" />
     <Build Include="Views\vwNormalizedEodFxRates.sql" />
     <Build Include="Views\vwPositions.sql" />
     <Build Include="Tables\third_party_account.sql" />
     <Build Include="Tables\third_party_organization.sql" />
     <Build Include="Tables\account_to_third_party_account_mapping.sql" />
+    <Build Include="Views\vwCurrentStateTrades.sql" />
+    <Build Include="StoredProcs\DayOverDayIncome.sql" />
+    <Build Include="StoredProcs\SeedDatabase.sql" />
+    <Build Include="Views\vwJournalFull.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">
