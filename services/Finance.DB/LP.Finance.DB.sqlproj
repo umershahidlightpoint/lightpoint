@@ -117,6 +117,7 @@
     <Build Include="StoredProcs\DayOverDayIncome.sql" />
     <Build Include="StoredProcs\SeedDatabase.sql" />
     <Build Include="Views\vwJournalFull.sql" />
+    <Build Include="Views\vwFullJournal.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">
