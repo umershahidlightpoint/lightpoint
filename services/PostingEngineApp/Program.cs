@@ -15,12 +15,16 @@ namespace PostingEngineCmd
 {
     class Program
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         static void Main(string[] args)
         {
             // Generate Journals First
             // Doing this for the previous Business Date
             var date = System.DateTime.Now.Date;
             date = date.PrevBusinessDate();
+
+            Logger.Info($"Running Posting Engine for date {date}");
 
             new PostingEngineEx().Start(date);
         }

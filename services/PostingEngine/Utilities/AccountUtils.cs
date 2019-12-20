@@ -7,6 +7,14 @@ namespace PostingEngine.PostingRules.Utilities
 {
     class AccountUtils
     {
+        public Account GetAccount(PostingEngineEnvironment env, string accountType, List<string> tags)
+        {
+            var account = CreateAccount(AccountType.Find(accountType), tags);
+            SaveAccountDetails(env, account);
+
+            return account;
+        }
+
         public AccountToFrom GetAccounts(PostingEngineEnvironment env, string fromType, string toType, List<Tag> tags, Transaction element)
         {
             var fromAccount = CreateAccount(AccountType.Find(fromType), tags, element);
@@ -93,6 +101,24 @@ namespace PostingEngine.PostingRules.Utilities
             account.Tags = tags;
 
             accounts.Add(name, account);
+
+            return account;
+        }
+
+        internal Account DeriveMTMCorrectAccount(Account from, Transaction element, List<Tag> tags, double unrealizedPnl)
+        {
+            Account account = from;
+
+            var accountCategoryId = unrealizedPnl > 0 ? AccountCategory.AC_ASSET : AccountCategory.AC_LIABILITY;
+
+            switch (element.SecurityType)
+            {
+                case "FORWARD":
+                case "Physical index future.":
+                case "Equity Swap":
+                    account = CreateAccount(AccountType.Find(accountCategoryId, "Derivative contracts, at fair value"), tags, element);
+                    break;
+            }
 
             return account;
         }

@@ -17,16 +17,15 @@ export class ChartOfAccountDetailComponent implements OnInit {
   selectedAccountList: any = [];
   selectedMappedAccount: any = [];
   accountDetailList: any = [];
-  organisationList: any = [];
+  organizationList: any = [];
 
   rowNodes: any[] = [];
   payload: any[] = [];
 
-
   selectedAccount = false;
   isSaving = false;
 
-  organisation = '';
+  organization = '';
   selected: string;
   noResult = false;
 
@@ -46,7 +45,7 @@ export class ChartOfAccountDetailComponent implements OnInit {
 
   onSelect(event: TypeaheadMatch): void {
     this.selectedOption = event.item;
-    if(this.accountDetailList.length === 1){
+    if (this.accountDetailList.length === 1) {
       return;
     }
 
@@ -60,11 +59,11 @@ export class ChartOfAccountDetailComponent implements OnInit {
         let thirdPartyAccountMapping = [];
         thirdPartyAccountMapping.push({
           ThirdPartyAccountId: this.selectedOption.AccountId
-        })
+        });
         const payLoadItem = {
-          AccountId : element.accountId,
+          AccountId: element.accountId,
           ThirdPartyAccountMapping: thirdPartyAccountMapping
-        }
+        };
         this.payload.push(payLoadItem);
       }
       //TODO modify third party mapping in row node
@@ -72,13 +71,13 @@ export class ChartOfAccountDetailComponent implements OnInit {
       //TODO iterate over row nodes and modify hasmapping and account name property
   }
 
-  selectOrganisation(event: any): void {
-    this.organisation = event.target.value;
-    // Deep Copy Organisation List
-    let cloneList = JSON.parse(JSON.stringify(this.organisationList));
+  selectOrganization(event: any): void {
+    this.organization = event.target.value;
+    // Deep Copy Organization List
+    let cloneList = JSON.parse(JSON.stringify(this.organizationList));
 
     cloneList = cloneList.find(element => {
-      return element.OrganizationName === this.organisation;
+      return element.OrganizationName === this.organization;
     });
 
     this.states = cloneList.Accounts;
@@ -113,23 +112,28 @@ export class ChartOfAccountDetailComponent implements OnInit {
     this.storeThirdPartyAccounts = [];
     this.selectedAccountList = [];
     this.accountDetailList = [];
-    this.organisationList = [];
+    this.organizationList = [];
+    this.organization = '';
+    this.states = [];
+    this.selected = '';
   }
 
   ngOnInit() {
-    this.getOrganisations();
+    this.getOrganizations();
     this.accountmappingApiService.selectedAccounList$.subscribe(list => {
       if(list){
         this.rowNodes = list.rowNodes;
         this.payload = list.payload;
-        console.log(list, "in oberver");
+        this.organization = list.organization;
+        this.states = list.accounts;
+        console.log(list, 'in oberver');
       }
     });
   }
 
-  getOrganisations() {
+  getOrganizations() {
     this.accountmappingApiService.getOrganisation().subscribe(data => {
-      this.organisationList = data.payload;
+      this.organizationList = data.payload;
     });
   }
 
@@ -173,6 +177,7 @@ export class ChartOfAccountDetailComponent implements OnInit {
   }
 
   onClose() {
+    this.clearForm();
     this.modal.hide();
   }
 }

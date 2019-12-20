@@ -4,8 +4,16 @@ if %ERRORLEVEL% NEQ 0 GOTO Failed
 
 cd services
 
-msbuild LP.Finance.WebProxy
-msbuild LP.ReferenceData.WebProxy
+msbuild -t:clean Finance.sln
+msbuild -t:clean ReferenceData.sln
+msbuild -t:clean PostingEngine.sln
+
+msbuild -t:restore Finance.sln
+msbuild -t:restore ReferenceData.sln
+msbuild -t:restore PostingEngine.sln
+
+msbuild Finance.sln
+msbuild ReferenceData.sln
 msbuild PostingEngine.sln
 
 cd ..\
