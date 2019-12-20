@@ -19,6 +19,10 @@ export class ChartOfAccountDetailComponent implements OnInit {
   accountDetailList: any = [];
   organisationList: any = [];
 
+  rowNodes: any[] = [];
+  payload: any[] = [];
+
+
   selectedAccount = false;
   isSaving = false;
 
@@ -42,25 +46,45 @@ export class ChartOfAccountDetailComponent implements OnInit {
 
   onSelect(event: TypeaheadMatch): void {
     this.selectedOption = event.item;
-
-    this.storeThirdPartyAccounts.push({ ThirdPartyAccountId: this.selectedOption.AccountId });
-
-    const accountDetail = {
-      id: this.selectedOption.AccountId,
-      ThirdPartyAccountName: this.selectedOption.AccountName,
-      OrganizationName: this.organisation
-    };
-
-    const checkDuplication = this.accountDetailList.some(element => {
-      return (
-        element.ThirdPartyAccountName === accountDetail.ThirdPartyAccountName &&
-        element.OrganizationName === accountDetail.OrganizationName
-      );
-    });
-
-    if (!checkDuplication) {
-      this.accountDetailList.push(accountDetail);
+    if(this.accountDetailList.length === 1){
+      return;
     }
+
+    this.rowNodes.forEach(element => {
+      let account = this.payload.find(x=> x.AccountId == element.accountId);
+      if(account) {
+
+      } else {
+        let thirdPartyAccountMapping = [];
+        thirdPartyAccountMapping.push({
+          ThirdPartyAccountId: this.selectedOption.AccountId
+        })
+        const payLoadItem = {
+          AccountId : element.accountId,
+          ThirdPartyAccountMapping: thirdPartyAccountMapping
+        }
+        this.payload.push(payLoadItem);
+      }
+    });
+    // this.storeThirdPartyAccounts.push({ThirdPartyAccountId : this.selectedOption.AccountId});
+
+    // const accountDetail = {
+    //   id: this.selectedOption.AccountId,
+    //   ThirdPartyAccountName: this.selectedOption.AccountName,
+    //   OrganizationName: this.organisation
+    // };
+
+    // const checkDuplication = this.accountDetailList.some(element => {
+
+    //   return (
+    //     element.ThirdPartyAccountName === accountDetail.ThirdPartyAccountName &&
+    //     element.OrganizationName === accountDetail.OrganizationName
+    //   );
+    // });
+
+    // if (!checkDuplication) {
+    //   this.accountDetailList.push(accountDetail);
+    // }
   }
 
   selectOrganisation(event: any): void {
@@ -110,14 +134,18 @@ export class ChartOfAccountDetailComponent implements OnInit {
   ngOnInit() {
     this.getOrganisations();
     this.accountmappingApiService.selectedAccounList$.subscribe(list => {
-      if (!list) {
-        return;
-      } else {
-        this.selectedAccountList = list;
-        // Deep Copy Organisation List
-        let cloneLists = JSON.parse(JSON.stringify(this.selectedAccountList));
-        this.accountDetailList =
-          cloneLists.action === 'edit' ? cloneLists.params[0].thirdPartyMappedAccounts : [];
+      // if (!list) {
+      //   return;
+      // } else {
+      //   this.selectedAccountList = list;
+      //   // Deep Copy Organisation List
+      //   let cloneLists = JSON.parse(JSON.stringify(this.selectedAccountList));
+      //   this.accountDetailList = cloneLists.action === 'edit' ? cloneLists.params[0].thirdPartyMappedAccounts : [];
+      // }
+      if(list){
+        this.rowNodes = list.rowNodes;
+        this.payload = list.payload;
+        console.log(list, "in oberver");
       }
     });
   }

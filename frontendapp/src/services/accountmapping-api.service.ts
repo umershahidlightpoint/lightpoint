@@ -10,7 +10,7 @@ import { map } from 'rxjs/operators';
 export class AccountmappingApiService {
   private baseUrl: string;
 
-  private selectedAccounList = new BehaviorSubject(false);
+  private selectedAccounList = new BehaviorSubject(null);
   selectedAccounList$ = this.selectedAccounList.asObservable();
 
   constructor(private http: HttpClient) {
