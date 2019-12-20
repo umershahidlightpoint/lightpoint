@@ -41,6 +41,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   };
 
   organisationList: any = [];
+  accountRecords: any = [];
   organisation = '';
 
   constructor(
@@ -132,17 +133,18 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   }
 
   getContextMenuItems(params): Array<ContextMenu> {
-    if (params.node.data.hasMapping) {
+    console.log(params,"***************************************");
+    // if (params.node.data.hasMapping) {
       const addDefaultItems = [
         {
-          name: 'Edit',
+          name: 'Map',
           action: () => {
             this.mappedAccountId(params.node.data);
           }
         }
       ];
       return GetContextMenu(false, addDefaultItems, false, [], params);
-    }
+    // }
   }
   getOrganisations() {
     this.accountmappingApiService.getOrganisation().subscribe(data => {
@@ -152,14 +154,16 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
 
   selectOrganisation(event: any): void {
     this.organisation = event.target.value;
-    // Deep Copy Organisation List
-    let cloneList = JSON.parse(JSON.stringify(this.organisationList));
 
-    cloneList = cloneList.find(element => {
-      return element.OrganizationName === this.organisation;
+    let cloneList = JSON.parse(JSON.stringify(this.accountRecords));
+
+    cloneList = cloneList.filter(element => {
+      console.log(!element.thirdPartyOrgName,"((((((((((((((");
+      return (element.thirdPartyOrganisationName  === this.organisation || element.thirdPartyOrganisationName  === null );
     });
 
-    // this.states = cloneList.Accounts;
+    console.log(cloneList);
+    this.gridOptions.api.setRowData(cloneList);
   }
 
   mappedAccountId(params) {
@@ -198,8 +202,9 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   getAccountsRecord() {
     setTimeout(() => {
       this.accountmappingApiService.getMappedAccounts().subscribe(response => {
+        this.accountRecords = response.payload;
         if (response.payload) {
-          this.rowData = response.payload.map(result => ({
+          this.accountRecords = response.payload.map(result => ({
             accountId: result.AccountId,
             accountName: result.AccountName,
             description: result.Description,
@@ -212,10 +217,12 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
             canDeleted: result.CanDeleted,
             canEdited: result.CanEdited,
             thirdPartyMappedAccounts: result.ThirdPartyMappedAccounts,
-            thirdPartyOrgName: result.ThirdPartyMappedAccounts[0] ? result.ThirdPartyMappedAccounts[0].OrganizationName : [],
-          }));
-
-          this.gridOptions.api.setRowData(this.rowData);
+            thirdPartyOrganisationName: result.ThirdPartyMappedAccounts[0] ? result.ThirdPartyMappedAccounts[0].OrganizationName : null,
+            thirdPartyAccountName: result.ThirdPartyMappedAccounts[0] ? result.ThirdPartyMappedAccounts[0].ThirdPartyAccountName : null,
+          })
+          );
+          console.log(this.accountRecords);
+          // this.gridOptions.api.setRowData(this.rowData);
         }
       });
     }, 100);
