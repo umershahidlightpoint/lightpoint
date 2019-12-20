@@ -120,7 +120,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
       getExternalFilterState: () => {
         return {};
       },
-      clearExternalFilter: () => {},
+      clearExternalFilter: () => {}
     } as GridOptions;
   }
 
@@ -151,8 +151,10 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
       let accountName = '';
       let organizationName = '';
       if (item.thirdPartyMappedAccounts.length !== 0) {
-        const { ThirdPartyAccountName = '', OrganizationName = '' } = item.thirdPartyMappedAccounts
-        .find(element => element.OrganizationName === this.organization) || {};
+        const { ThirdPartyAccountName = '', OrganizationName = '' } =
+          item.thirdPartyMappedAccounts.find(
+            element => element.OrganizationName === this.organization
+          ) || {};
         accountName = ThirdPartyAccountName;
         organizationName = OrganizationName;
       }
@@ -163,10 +165,14 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
       };
     });
 
+    this.accountsList = this.organizationList.find(
+      element => element.OrganizationName === this.organization
+    ).Accounts;
+
     this.gridOptions.getRowStyle = params => {
-      if(params.data.thirdPartyOrganizationName === this.organization) {
+      if (params.data.thirdPartyOrganizationName === this.organization) {
         return { background: '#eeeeee' };
-       }
+      }
     };
 
     this.gridOptions.api.setRowData(cloneList);
@@ -196,9 +202,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
     });
   }
 
-  onSelectionChanged(event: any) {
-
-  }
+  onSelectionChanged(event: any) {}
 
   getAccountsRecord() {
     setTimeout(() => {
@@ -218,8 +222,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
             canDeleted: result.CanDeleted,
             canEdited: result.CanEdited,
             thirdPartyMappedAccounts: result.ThirdPartyMappedAccounts
-          })
-          );
+          }));
         }
       });
     }, 100);
