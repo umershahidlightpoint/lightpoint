@@ -40,6 +40,9 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
     boxSizing: 'border-box'
   };
 
+  organisationList: any = [];
+  organisation = '';
+
   constructor(
     private toastrService: ToastrService,
     private dataService: DataService,
@@ -90,6 +93,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
     this.initGrid();
     this.getAccountsRecord();
     this.getAccountCategories();
+    this.getOrganisations();
   }
 
   initGrid() {
@@ -139,6 +143,23 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
       ];
       return GetContextMenu(false, addDefaultItems, false, [], params);
     }
+  }
+  getOrganisations() {
+    this.accountmappingApiService.getOrganisation().subscribe(data => {
+      this.organisationList = data.payload;
+    });
+  }
+
+  selectOrganisation(event: any): void {
+    this.organisation = event.target.value;
+    // Deep Copy Organisation List
+    let cloneList = JSON.parse(JSON.stringify(this.organisationList));
+
+    cloneList = cloneList.find(element => {
+      return element.OrganizationName === this.organisation;
+    });
+
+    // this.states = cloneList.Accounts;
   }
 
   mappedAccountId(params) {
@@ -190,7 +211,8 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
             hasJournal: result.HasJournal,
             canDeleted: result.CanDeleted,
             canEdited: result.CanEdited,
-            thirdPartyMappedAccounts: result.ThirdPartyMappedAccounts
+            thirdPartyMappedAccounts: result.ThirdPartyMappedAccounts,
+            thirdPartyOrgName: result.ThirdPartyMappedAccounts[0] ? result.ThirdPartyMappedAccounts[0].OrganizationName : [],
           }));
 
           this.gridOptions.api.setRowData(this.rowData);
