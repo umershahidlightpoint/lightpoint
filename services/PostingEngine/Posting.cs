@@ -262,7 +262,10 @@ namespace PostingEngine
                             Balance = Convert.ToDecimal(row[offset++]),
                         };
 
-                        var year = valueDate.Year;
+                        var year = valueDate.Year.ToString();
+                        if (valueDate.Year == DateTime.Now.Year)
+                            year = "Current Year";
+
                         var accountType = $"Net Income {year}";
                         if ( AccountType.Find(AccountCategory.AC_EQUITY, accountType, false) == null)
                         {
