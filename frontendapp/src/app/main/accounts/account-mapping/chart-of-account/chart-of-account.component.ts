@@ -1,14 +1,11 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { CreateAccountComponent } from '../.././create-account/create-account.component';
-// import { FinanceServiceProxy } from '../../../../../services/service-proxies';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { AccountmappingApiService } from '../../../../../services/accountmapping-api.service';
 import { GridOptions } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { Account, AccountCategory } from '../../../../../shared/Models/account';
 import { DataService } from 'src/services/common/data.service';
-import { SideBar, AutoSizeAllColumns, HeightStyle, Style } from 'src/shared/utils/Shared';
+import { AutoSizeAllColumns, HeightStyle, Style } from 'src/shared/utils/Shared';
 import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
@@ -24,21 +21,9 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   account: Account;
   hideGrid: boolean;
 
-  createAccount: CreateAccountComponent;
-  public selectAccounts: any = [];
-
   style = Style;
 
   styleForHeight = HeightStyle(224);
-
-  containerDiv = {
-    border: '1px solid #eee',
-    padding: '4px',
-    marginTop: '20px',
-    width: '100%',
-    height: 'calc(100vh - 125px)',
-    boxSizing: 'border-box'
-  };
 
   organisationList: any = [];
   accountRecords: any = [];
@@ -86,7 +71,17 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
         headerName: 'Account Type',
         field: 'type',
         filter: true
-      }
+      },
+      {
+        headerName: 'Has Mapping',
+        field: 'hasMapping',
+        hide: true,
+      },
+      {
+        headerName: 'Third Party Account Name',
+        field: 'thirdPartyAccountName',
+        filter: true
+      },
     ]);
   }
 
@@ -133,7 +128,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   }
 
   getContextMenuItems(params): Array<ContextMenu> {
-    console.log(params,"***************************************");
+    console.log(params, "***************************************");
     // if (params.node.data.hasMapping) {
       const addDefaultItems = [
         {
@@ -158,7 +153,6 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
     let cloneList = JSON.parse(JSON.stringify(this.accountRecords));
 
     cloneList = cloneList.filter(element => {
-      console.log(!element.thirdPartyOrgName,"((((((((((((((");
       return (element.thirdPartyOrganisationName  === this.organisation || element.thirdPartyOrganisationName  === null );
     });
 
