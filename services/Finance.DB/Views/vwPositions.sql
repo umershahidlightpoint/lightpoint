@@ -1,8 +1,9 @@
 ﻿CREATE VIEW [dbo].[vwPositions]
 AS
-SELECT cb.business_date, t.Fund, t.ParentPortfolioCode, t.PortfolioCode, t.Strategy, t.SubStrategy AS sub_strategy, t.CustodianCode AS custodian_code, t.SecurityId, tls.symbol, tls.side,   
+SELECT cb.business_date, t.Fund, t.ParentPortfolioCode, t.PortfolioCode, t.Strategy, t.SubStrategy AS sub_strategy, t.CustodianCode AS custodian_code, t.SecurityId, tls.symbol, tls.side,t.SettleCurrency currency,   
 SUM(tls.investment_at_cost + COALESCE (tl.investment_at_cost, 0)) * - 1 AS Balance, 
 SUM(tls.original_quantity + COALESCE (tl.quantity, 0)) AS Quantity, 
+MAX(COALESCE (mp.price, 0))*MAX(COALESCE (tls.fx_rate, 0))*SUM(nullif(s.isEquity | s.isSwap,0) * tls.original_quantity + COALESCE (tl.quantity, 0))  AS market_value,
 SUM(cb.realized_pnl) AS realized_pnl,   
 SUM(cb.unrealized_pnl) AS unrealized_pnl, 
 SUM(cb.realized_pnl_fx) AS realized_pnl_fx, 
@@ -36,4 +37,6 @@ GROUP BY
 	t.SubStrategy, 
 	t.CustodianCode, 
 	t.SecurityId, 
-	tls.side
+	tls.side ,
+	t.SettleCurrency
+GO

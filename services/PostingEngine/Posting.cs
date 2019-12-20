@@ -34,6 +34,8 @@ namespace PostingEngine
         private static readonly string tradesURL = urlRoot + ":9091/api/trade/data?period=";
         private static readonly string allocationsURL = urlRoot + ":9091/api/allocation/data?period=";
 
+        private static string taxLotMethodology = ConfigurationManager.AppSettings["TaxMethod"].ToString();
+
         private static string Period;
         private static Guid Key;
         private static PostingEngineCallBack PostingEngineCallBack;
@@ -132,7 +134,7 @@ namespace PostingEngine
 
         public static void UnrealizedCashBalances(DateTime valueDate)
         {
-            DeleteJournals("unrealized-cash-fx");
+            //DeleteJournals("unrealized-cash-fx");
 
             PostingEngineCallBack?.Invoke("UnrealizedCashBalances Calculation Started");
 
@@ -202,17 +204,155 @@ namespace PostingEngine
             }
 
         }
+        public static void ExpencesAndRevenues()
+        {
+            var dates = "select minDate = min([when]), maxDate = max([when]) from vwJournal";
+
+            PostingEngineCallBack?.Invoke("ExpencesAndRevenues Calculation Started");
+
+            var table = new DataTable();
+
+            // read the table structure from the database
+            using (var adapter = new SqlDataAdapter(dates, new SqlConnection(connectionString)))
+            {
+                adapter.Fill(table);
+            };
+
+            var valueDate = Convert.ToDateTime(table.Rows[0]["minDate"]);
+            var endDate = Convert.ToDateTime(table.Rows[0]["maxDate"]);
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                Setup(connection);
+
+                connection.Close();
+            }
+
+            var rowsCompleted = 1;
+            var numberOfDays = (endDate - valueDate).Days;
+            while (valueDate <= endDate)
+            {
+                if (!valueDate.IsBusinessDate())
+                {
+                    valueDate = valueDate.AddDays(1);
+                    continue;
+                }
+
+                try
+                {
+                    var sqlParams = new SqlParameter[]
+                    {
+                        new SqlParameter("@startDate", new DateTime(valueDate.Year, 1, 1)),
+                        new SqlParameter("@businessDate", valueDate),
+                        new SqlParameter("@prevbusinessDate", valueDate.PrevBusinessDate()),
+                    };
+
+                    var dataTable = new SqlHelper(connectionString).GetDataTables("DayOverDayIncome", CommandType.StoredProcedure, sqlParams.ToArray());
+
+                    foreach( DataRow row in dataTable[0].Rows)
+                    {
+                        int offset = 0;
+                        var expencesAndRevenues = new
+                        {
+                            Fund = Convert.ToString(row[offset++]),
+                            Credit = Convert.ToDecimal(row[offset++]),
+                            Debit = Convert.ToDecimal(row[offset++]),
+                            Balance = Convert.ToDecimal(row[offset++]),
+                        };
+
+                        var year = valueDate.Year;
+                        var accountType = $"Net Income {year}";
+                        if ( AccountType.Find(AccountCategory.AC_EQUITY, accountType, false) == null)
+                        {
+                            // Need to create the Account Type
+                            var createdAccountType = AccountType.FindOrCreate(AccountCategory.AC_EQUITY, accountType);
+                            createdAccountType.Save(connectionString);
+                        }
+
+                        var balance = Convert.ToDouble(expencesAndRevenues.Balance);
+
+                        var connection = new SqlConnection(connectionString);
+                        connection.Open();
+                        var transaction = connection.BeginTransaction();
+
+                        var env = new PostingEngineEnvironment(connection, transaction)
+                        {
+                            BaseCurrency = "USD",
+                            SecurityDetails = new SecurityDetails().Get(),
+                            Categories = AccountCategory.Categories,
+                            Types = AccountType.All,
+                            RunDate = DateTime.Now.Date,
+                        };
+
+                        var account = new AccountUtils().GetAccount(env, accountType, new string[] { env.BaseCurrency}.ToList());
+
+                        var debit = new Journal(account, "expences-revenues", valueDate)
+                        {
+                            Source = "",
+                            Fund = expencesAndRevenues.Fund,
+                            Quantity = balance,
+
+                            FxCurrency = env.BaseCurrency,
+                            Symbol = env.BaseCurrency,
+                            SecurityId = -1,
+                            FxRate = 0,
+                            StartPrice = 0,
+                            EndPrice = 0,
+
+                            Value = balance,
+                            CreditDebit = env.DebitOrCredit(account, balance),
+                        };
+
+                        env.Journals.AddRange(new List<Journal>(new[] { debit }));
+
+                        if (env.Journals.Count() > 0)
+                        {
+                            new SQLBulkHelper().Insert("journal", env.Journals.ToArray(), connection, transaction);
+                        }
+
+                        transaction.Commit();
+                        connection.Close();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    PostingEngineCallBack?.Invoke($"Exception on {valueDate.ToString("MM-dd-yyyy")}, {ex.Message}");
+                }
+
+                PostingEngineCallBack?.Invoke($"Complete ExpencesAndRevenues for {valueDate.ToString("MM-dd-yyyy")}", numberOfDays, rowsCompleted++);
+                valueDate = valueDate.AddDays(1);
+            }
+        }
 
         public static void SettledCashBalances()
         {
-            DeleteJournals("settled-cash-fx");
+            //DeleteJournals("settled-cash-fx");
 
             var dates = "select minDate = min([when]), maxDate = max([when]) from Journal";
 
-            var sql = $@"select Symbol, fx_currency, source, fund, sum(credit-debit) as balance, security_id from vwJournal 
-                        where AccountType = 'Settled Cash'
+            /* var sql = $@"WITH          
+someData (Symbol, fx_currency, source, fund, balance, security_id) AS (          
+
+select Symbol, fx_currency, source, fund, sum((credit- debit)/coalesce(fxrate,1)) as balance, security_id from vwJournal 
+                        where AccountType = 'Settled Cash' and event = 'settlement'
                         and [when] < @busDate
                         and [event] not in ('journal')
+						and fx_currency not in ('USD')
+                        group by Symbol, fx_currency, source, fund, security_id 
+
+)
+select s.*, p.Quantity from vwPositions p
+inner join someData s on s.security_id = p.SecurityId
+where business_date = @busDate";
+*/
+
+            var sql = $@"select Symbol, fx_currency, source, fund, sum((credit- debit)/coalesce(fxrate,1)) as balance, security_id from vwJournal 
+                        where AccountType = 'Settled Cash' and event = 'settlement'
+                        and [when] < @busDate
+                        and [event] not in ('journal')
+						and fx_currency not in ('USD')
                         group by Symbol, fx_currency, source, fund, security_id";
 
             PostingEngineCallBack?.Invoke("SettledCash Calculation Started");
@@ -231,7 +371,7 @@ namespace PostingEngine
                     SecurityDetails = new SecurityDetails().Get(),
                     Categories = AccountCategory.Categories,
                     Types = AccountType.All,
-                    RunDate = System.DateTime.Now.Date,
+                    RunDate = DateTime.Now.Date,
                 };
 
                 var table = new DataTable();
@@ -280,7 +420,8 @@ namespace PostingEngine
                                 Source = reader.GetFieldValue<string>(2),
                                 Fund = reader.GetFieldValue<string>(3),
                                 Balance = reader.GetFieldValue<decimal>(4),
-                                SecurityId = reader.GetFieldValue<int>(5)
+                                SecurityId = reader.GetFieldValue<int>(5),
+                                //Quantity = reader.GetFieldValue <decimal>(6)
                             };
 
                             if (settledCash.Currency.Equals(env.BaseCurrency))
@@ -288,12 +429,20 @@ namespace PostingEngine
 
                             // Now Generate the correct set of entries
 
-                            var prev = Convert.ToDouble(FxRates.Find(env.PreviousValueDate, settledCash.Currency).Rate);
-                            var eod = Convert.ToDouble(FxRates.Find(env.ValueDate, settledCash.Currency).Rate);
+                            if ( settledCash.Symbol.Equals("RBD"))
+                            {
 
-                            var local = Convert.ToDouble(Convert.ToDouble(settledCash.Balance) / prev);
+                            }
 
-                            var changeDelta = eod - prev;
+                            //if (settledCash.Quantity == 0)
+                            //    continue;
+
+                            var prevFx = Convert.ToDouble(FxRates.Find(env.PreviousValueDate, settledCash.Currency).Rate);
+                            var eodFx = Convert.ToDouble(FxRates.Find(env.ValueDate, settledCash.Currency).Rate);
+
+                            var local = Convert.ToDouble(settledCash.Balance);
+
+                            var changeDelta = eodFx - prevFx;
                             var change = changeDelta * local * -1;
 
                             var fromTo = new AccountUtils().GetAccounts(env, "Settled Cash", "fx gain or loss on settled balance", new string[] { settledCash.Currency }.ToList());
@@ -308,8 +457,8 @@ namespace PostingEngine
                                 Symbol = settledCash.Symbol,
                                 SecurityId = settledCash.SecurityId,
                                 FxRate = changeDelta,
-                                StartPrice = prev,
-                                EndPrice = eod,
+                                StartPrice = prevFx,
+                                EndPrice = eodFx,
 
                                 Value = env.SignedValue(fromTo.From, fromTo.To, true, change),
                                 CreditDebit = env.DebitOrCredit(fromTo.From, change),
@@ -325,13 +474,12 @@ namespace PostingEngine
                                 Symbol = settledCash.Symbol,
                                 SecurityId = settledCash.SecurityId,
                                 FxRate = changeDelta,
-                                StartPrice = prev,
-                                EndPrice = eod,
+                                StartPrice = prevFx,
+                                EndPrice = eodFx,
 
                                 Value = env.SignedValue(fromTo.From, fromTo.To, false, change),
                                 CreditDebit = env.DebitOrCredit(fromTo.To, change),
                             };
-
 
                             env.Journals.AddRange(new List<Journal>(new[] { debit, credit }));
                         }
@@ -418,6 +566,7 @@ namespace PostingEngine
 
             if (calculation.Equals("CostBasis"))
             {
+                Console.WriteLine("Running the Cost Basis Process");
                 CalculateCostBasis();
             }
             else if (calculation.Equals("DailyPnl"))
@@ -426,6 +575,7 @@ namespace PostingEngine
             }
             else if (calculation.Equals("PullFromBookmon"))
             {
+                Console.WriteLine("Pulling Data from Legacy System");
                 try
                 {
                     PullFromBookmon();
@@ -440,7 +590,11 @@ namespace PostingEngine
             }
             else if (calculation.Equals("UnrealizedCashBalances"))
             {
-                UnrealizedCashBalances(valueDate);
+                // Skip as this should be done in the Daily Event
+                //UnrealizedCashBalances(valueDate);
+            } else if ( calculation.Equals("ExpencesAndRevenues"))
+            {
+                ExpencesAndRevenues();
             }
         }
 
@@ -585,9 +739,16 @@ namespace PostingEngine
                 var allocationList = JsonConvert.DeserializeObject<Transaction[]>(allocationsResult.payload);
                 var tradeList = JsonConvert.DeserializeObject<Transaction[]>(trades.Result);
                 var accrualList = JsonConvert.DeserializeObject<Wrap<Accrual>>(accruals.Result).Data;
+                PostingEngineCallBack?.Invoke("Retrieved All Data");
+
+                if (String.IsNullOrEmpty(taxLotMethodology))
+                    taxLotMethodology = "FIFO";
+
+                PostingEngineCallBack?.Invoke($"Using {taxLotMethodology} Tax Methodology");
 
                 var postingEnv = new PostingEngineEnvironment(connection, transaction)
                 {
+                    ConnectionString = connectionString,
                     BaseCurrency = "USD",
                     SecurityDetails = new SecurityDetails().Get(),
                     Categories = AccountCategory.Categories,
@@ -598,7 +759,7 @@ namespace PostingEngine
                     Trades = tradeList,
                     Accruals = accrualList.ToDictionary(i => i.AccrualId, i => i),
                     Period = period,
-                    Methodology = BaseTaxLotMethodology.GetTaxLotMethodology("FIFO") // Needs to be driven by the system setup
+                    Methodology = BaseTaxLotMethodology.GetTaxLotMethodology(taxLotMethodology) // Needs to be driven by the system setup
                 };
 
                 PostingEngineCallBack?.Invoke($"Starting Batch Posting Engine -- Trades on {DateTime.Now}");
@@ -818,24 +979,20 @@ namespace PostingEngine
 
                 postingEnv.ValueDate = valueDate;
                 postingEnv.PreviousValueDate = valueDate.PrevBusinessDate();
+                postingEnv.TaxRate = new TaxRates().Get(valueDate);
 
-                // FX Rates
-                // FxRates.Find()
-
-                // Get todays Market Prices
-                //postingEnv.EODMarketPrices = new MarketPrices().Get(valueDate);
-                //postingEnv.PrevMarketPrices = new MarketPrices().Get(valueDate.PrevBusinessDate());
-
-                //PostingEngineCallBack?.Invoke($"Pulled FxRates {valueDate} in {sw.ElapsedMilliseconds} ms");
 
                 var tradeData = postingEnv.Trades.Where(i => i.TradeDate <= valueDate).OrderBy(i => i.TradeDate.Date).ToList();
+
+                PostingEngineCallBack?.Invoke($"Processing {tradeData.Count()} Trades");
 
                 //PostingEngineCallBack?.Invoke($"Sorted / Filtered Trades in {sw.ElapsedMilliseconds} ms");
 
                 // BUY || SHORT trades
                 // creates tax lots
                 var buyShort = tradeData.Where(i => i.TradeDate.Equals(valueDate) && (i.IsBuy() || i.IsShort())).ToList();
-                foreach(var trade in buyShort)
+                PostingEngineCallBack?.Invoke($"Processing BUY|SHORT {buyShort.Count()} Trades");
+                foreach (var trade in buyShort)
                 {
                     // We only process trades that have not broken
                     if (ignoreTrades.Contains(trade.LpOrderId))
@@ -862,6 +1019,7 @@ namespace PostingEngine
                 //alleviates tax lots
                 // generates realized pnl.
                 var sellCover = tradeData.Where(i => i.TradeDate.Equals(valueDate) && (i.IsSell() || i.IsCover())).ToList();
+                PostingEngineCallBack?.Invoke($"Processing SELL|COVER {sellCover.Count()} Trades");
                 foreach (var trade in sellCover)
                 {
 
@@ -893,6 +1051,7 @@ namespace PostingEngine
                 // Credit || DEBIT Entries
                 //interest payments, dividends etc
                 var debitCover = tradeData.Where(i => i.TradeDate.Equals(valueDate) && (i.IsDebit() || i.IsCredit())).ToList();
+                PostingEngineCallBack?.Invoke($"Processing DEBIT|CREDIT {debitCover.Count()} Trades");
                 foreach (var trade in debitCover)
                 {
                     // We only process trades that have not broken
@@ -918,6 +1077,8 @@ namespace PostingEngine
                 // Do Settlement and Daily Events here
                 // daily event for generating unrealized pnl.
                 // settlement date reverses trade date entries.
+                PostingEngineCallBack?.Invoke($"Processing For Daily {tradeData.Count()} Trades");
+
                 foreach (var element in tradeData)
                 {
                     // We only process trades that have not broken
@@ -926,10 +1087,6 @@ namespace PostingEngine
 
                     try
                     {
-                        if (element.Symbol.Equals("BWX") && element.SettleDate.Equals(postingEnv.ValueDate))
-                        {
-                        }
-
                         var processed = new Posting().Process(postingEnv, element);
                         if ( !processed )
                         {
@@ -945,14 +1102,18 @@ namespace PostingEngine
                     }
                 }
 
+                PostingEngineCallBack?.Invoke($"Finsihed Processing {tradeData.Count()}");
+
                 // Cash Settlement amounts
                 if (postingEnv.Journals.Count() > 0)
                 {
+                    PostingEngineCallBack?.Invoke($"Committing all Journal Entries {postingEnv.Journals.Count()} Entries");
+
                     new SQLBulkHelper().Insert("journal", postingEnv.Journals.ToArray(), connection, transaction);
 
-                    // Do not want them to be double posted
                     postingEnv.Journals.Clear();
                 }
+
                 sw.Stop();
 
                 PostingEngineCallBack?.Invoke($"Completed {valueDate.ToString("MM-dd-yyyy")} in {sw.ElapsedMilliseconds} ms", totalDays, daysProcessed++);

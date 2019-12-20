@@ -1,14 +1,12 @@
 ﻿using PostingEngine.MarketData;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PostingEngine
 {
     public class PostingEngineEx
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public void Start(DateTime valueDate)
         {
             var key = System.Guid.NewGuid();
@@ -32,6 +30,9 @@ namespace PostingEngine
 
             // Mark to Market Cash Fx
             UnrealizedCashBalances(key, valueDate);
+
+            // Expences / Revenue
+            ExpencesAndRevenues(key, valueDate);
         }
 
         internal static void PullFromLegacySystem(Guid key, DateTime valueDate)
@@ -48,11 +49,32 @@ namespace PostingEngine
                 {
                     var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
 
-                    Console.WriteLine($"{message}, % Completed {completed}");
+                    Logger.Info($"{message}, % Completed {completed}");
                     return;
                 }
 
-                Console.WriteLine($"{message}");
+                Logger.Info($"{message}");
+            });
+        }
+
+        static void ExpencesAndRevenues(Guid key, DateTime valueDate)
+        {
+            // This runs thru everything, we need more or a scalpable
+            PostingEngine.RunCalculation("ExpencesAndRevenues", valueDate, key, (message, totalRows, rowsDone) => {
+                if (message.StartsWith("Processing"))
+                {
+                    // Do nothing
+                    return;
+                }
+                if (message.StartsWith("Completed"))
+                {
+                    var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
+
+                    Logger.Info($"{message}, % Completed {completed}");
+                    return;
+                }
+
+                Logger.Info($"{message}");
             });
         }
 
@@ -69,11 +91,11 @@ namespace PostingEngine
                 {
                     var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
 
-                    Console.WriteLine($"{message}, % Completed {completed}");
+                    Logger.Info($"{message}, % Completed {completed}");
                     return;
                 }
 
-                Console.WriteLine($"{message}");
+                Logger.Info($"{message}");
             });
         }
         static void SettledCashBalances(Guid key, DateTime valueDate)
@@ -89,11 +111,11 @@ namespace PostingEngine
                 {
                     var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
 
-                    Console.WriteLine($"{message}, % Completed {completed}");
+                    Logger.Info($"{message}, % Completed {completed}");
                     return;
                 }
 
-                Console.WriteLine($"{message}");
+                Logger.Info($"{message}");
             });
         }
         static void ITD(Guid key, DateTime businesssdate)
@@ -102,18 +124,18 @@ namespace PostingEngine
             PostingEngine.Start("ITD", key, businesssdate, (message, totalRows, rowsDone) => {
                 if (message.StartsWith("Processing"))
                 {
-                    // Do nothing
+                    Logger.Info($"{message}");
                     return;
                 }
                 if (message.StartsWith("Completed"))
                 {
                     var completed = (rowsDone * 1.0 / totalRows) * 100;
 
-                    Console.WriteLine($"{message}, % Completed {completed}");
+                    Logger.Info($"{message}, % Completed {completed}");
                     return;
                 }
 
-                Console.WriteLine($"{message}");
+                Logger.Info($"{message}");
             });
 
         }
@@ -131,11 +153,11 @@ namespace PostingEngine
                 {
                     var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
 
-                    Console.WriteLine($"{message}, % Completed {completed}");
+                    Logger.Info($"{message}, % Completed {completed}");
                     return;
                 }
 
-                Console.WriteLine($"{message}");
+                Logger.Info($"{message}");
             });
 
         }
@@ -153,11 +175,11 @@ namespace PostingEngine
                 {
                     var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
 
-                    Console.WriteLine($"{message}, % Completed {completed}");
+                    Logger.Info($"{message}, % Completed {completed}");
                     return;
                 }
 
-                Console.WriteLine($"{message}");
+                Logger.Info($"{message}");
             });
 
         }

@@ -51,7 +51,7 @@ namespace PostingEngine.MarketData
 
             var taxrate = list.FirstOrDefault();
 
-            Utils.Save(taxrate, "taxrates");
+            //Utils.Save(taxrate, "taxrates");
 
             return taxrate;
         }

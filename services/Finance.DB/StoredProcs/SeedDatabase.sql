@@ -1,15 +1,20 @@
-use FundAccounting
-go
+﻿/*
+Used to populate the database on initial startup of the system.
+*/
+CREATE PROCEDURE [dbo].[SeedDatabase]
+AS
 
+/*
+Categories
+*/
 insert into account_category (id, name) values (1, 'Asset')
 insert into account_category (id, name) values (2, 'Liability')
 insert into account_category (id, name) values (3, 'Equity')
 insert into account_category (id, name) values (4, 'Revenues')
 insert into account_category (id, name) values (5, 'Expenses')
 
-delete from account_type
 /* 
-Assets
+Types
 */
 insert into account_type (account_category_id, name) values (1, 'ACCCUMULATED DEPRECIATION')
 insert into account_type (account_category_id, name) values (1, 'ACCUMULATED AMORTIZATION')
@@ -20,6 +25,8 @@ insert into account_type (account_category_id, name) values (1, 'DUE FROM/(TO) P
 insert into account_type (account_category_id, name) values (1, 'FIXED ASSETS')
 insert into account_type (account_category_id, name) values (1, 'FUTURES COLLATERAL ACCOUNTS')
 insert into account_type (account_category_id, name) values (1, 'FX MARKET TO MARKET ON STOCK COST')
+insert into account_type (account_category_id, name) values (1, 'FX Mark to Market on Derivative Contracts')
+
 insert into account_type (account_category_id, name) values (1, 'INTERCOMPANY RECEIVABLE/(PAYABLE)')
 insert into account_type (account_category_id, name) values (1, 'INTEREST RECEIVABLE ( Coupon Payments )')
 insert into account_type (account_category_id, name) values (1, 'Interest Receivable on  PB Balances ')
@@ -53,6 +60,7 @@ insert into account_type (account_category_id, name) values (3, 'RETAINED EARNIN
 
 insert into account_type (account_category_id, name) values (4, 'change in unrealized do to fx translation')
 insert into account_type (account_category_id, name) values (4, 'Change in unrealized due to fx on original Cost')
+insert into account_type (account_category_id, name) values (4, 'Change in unrealized due to fx on derivates contracts')
 insert into account_type (account_category_id, name) values (4, 'CHANGE IN UNREALIZED GAIN/(LOSS)')
 insert into account_type (account_category_id, name) values (4, 'DIVIDEND INCOME')
 insert into account_type (account_category_id, name) values (4, 'FOREIGN WITHHOLDING TAX')
@@ -73,6 +81,4 @@ insert into account_type (account_category_id, name) values (5, 'Interest Expens
 insert into account_type (account_category_id, name) values (5, 'STOCK BORROW FEES')
 -- DONE
 
-
-
-
+RETURN 0
