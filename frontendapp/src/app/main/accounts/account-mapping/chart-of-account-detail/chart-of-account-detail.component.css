@@ -24,7 +24,7 @@
 }
 
 .main-wrapper {
-  padding: 5% 5% 10% 18%;
+  padding-bottom: 6%;
 }
 
 .title-bg-color {
@@ -33,7 +33,7 @@
 
 .icon-plus {
   font-size: 25px;
-  color: #0275D8;
+  color: #0275d8;
 }
 
 .icon-red {
@@ -64,4 +64,43 @@
 .list-wrapper {
   overflow-y: auto;
   max-height: 365px;
+}
+
+.modal-dialog {
+  position: relative;
+  width: auto;
+  max-width: 600px;
+  margin: 10px;
+}
+
+.modal-sm {
+  max-width: 300px;
+}
+
+.modal-lg {
+  max-width: 900px;
+}
+
+@media (min-width: 768px) {
+  .modal-dialog {
+    margin: 30px auto;
+  }
+}
+
+@media (min-width: 320px) {
+  .modal-sm {
+    margin-right: auto;
+    margin-left: auto;
+  }
+}
+
+@media (min-width: 620px) {
+  .modal-dialog {
+    margin-right: auto;
+    margin-left: auto;
+  }
+  .modal-lg {
+    margin-right: 10px;
+    margin-left: 10px;
+  }
 }

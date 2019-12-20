@@ -1,6 +1,7 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { CreateAccountComponent } from '../.././create-account/create-account.component';
+import { ChartOfAccountDetailComponent } from '../chart-of-account-detail/chart-of-account-detail.component';
 // import { FinanceServiceProxy } from '../../../../../services/service-proxies';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { AccountmappingApiService } from '../../../../../services/accountmapping-api.service';
@@ -17,6 +18,8 @@ import { ContextMenu } from 'src/shared/Models/common';
   styleUrls: ['./chart-of-account.component.css']
 })
 export class ChartOfAccountComponent implements OnInit, AfterViewInit {
+  @ViewChild('mapAccountModal', { static: false }) mapAccountModal: ChartOfAccountDetailComponent;
+
   rowData: Array<Account>;
   gridOptions: GridOptions;
   accountCategories: AccountCategory;
@@ -46,7 +49,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   constructor(
     private toastrService: ToastrService,
     private dataService: DataService,
-    private accountmappingApiService: AccountmappingApiService,
+    private accountmappingApiService: AccountmappingApiService
   ) {
     this.hideGrid = false;
   }
@@ -87,6 +90,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
         filter: true
       }
     ]);
+    this.mapAccountModal.show();
   }
 
   ngOnInit() {
@@ -166,7 +170,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
     if (params.hasMapping === true) {
       this.accountmappingApiService.storeAccountList(false);
       const obj = {
-        params : [params],
+        params: [params],
         action: 'edit'
       };
       this.accountmappingApiService.storeAccountList(obj);
@@ -188,7 +192,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   onSelectionChanged(event: any) {
     const getSelectedAccounts = event.api.getSelectedRows();
     const obj = {
-      params : getSelectedAccounts,
+      params: getSelectedAccounts,
       action: 'post'
     };
 
@@ -212,7 +216,9 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
             canDeleted: result.CanDeleted,
             canEdited: result.CanEdited,
             thirdPartyMappedAccounts: result.ThirdPartyMappedAccounts,
-            thirdPartyOrgName: result.ThirdPartyMappedAccounts[0] ? result.ThirdPartyMappedAccounts[0].OrganizationName : [],
+            thirdPartyOrgName: result.ThirdPartyMappedAccounts[0]
+              ? result.ThirdPartyMappedAccounts[0].OrganizationName
+              : []
           }));
 
           this.gridOptions.api.setRowData(this.rowData);

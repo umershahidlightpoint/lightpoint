@@ -1,7 +1,8 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, Output, EventEmitter } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead/typeahead-match.class';
 import { AccountmappingApiService } from '../../../../../services/accountmapping-api.service';
+import { ModalDirective } from 'ngx-bootstrap';
 
 @Component({
   selector: 'app-chart-of-account-detail',
@@ -9,13 +10,14 @@ import { AccountmappingApiService } from '../../../../../services/accountmapping
   styleUrls: ['./chart-of-account-detail.component.css']
 })
 export class ChartOfAccountDetailComponent implements OnInit {
+  @ViewChild('modal', { static: false }) modal: ModalDirective;
+  @Output() modalClosed = new EventEmitter<any>();
 
   storeThirdPartyAccounts: any = [];
   selectedAccountList: any = [];
   selectedMappedAccount: any = [];
   accountDetailList: any = [];
   organisationList: any = [];
-
 
   selectedAccount = false;
   isSaving = false;
@@ -31,7 +33,7 @@ export class ChartOfAccountDetailComponent implements OnInit {
 
   constructor(
     private accountmappingApiService: AccountmappingApiService,
-    private toastrService: ToastrService,
+    private toastrService: ToastrService
   ) {}
 
   typeaheadNoResults(event: boolean): void {
@@ -41,7 +43,7 @@ export class ChartOfAccountDetailComponent implements OnInit {
   onSelect(event: TypeaheadMatch): void {
     this.selectedOption = event.item;
 
-    this.storeThirdPartyAccounts.push({ThirdPartyAccountId : this.selectedOption.AccountId});
+    this.storeThirdPartyAccounts.push({ ThirdPartyAccountId: this.selectedOption.AccountId });
 
     const accountDetail = {
       id: this.selectedOption.AccountId,
@@ -50,7 +52,6 @@ export class ChartOfAccountDetailComponent implements OnInit {
     };
 
     const checkDuplication = this.accountDetailList.some(element => {
-
       return (
         element.ThirdPartyAccountName === accountDetail.ThirdPartyAccountName &&
         element.OrganizationName === accountDetail.OrganizationName
@@ -84,18 +85,19 @@ export class ChartOfAccountDetailComponent implements OnInit {
       });
     });
 
-    this.accountmappingApiService.postAccountMapping(payload).subscribe(response => {
-      if (response.isSuccessful) {
+    this.accountmappingApiService.postAccountMapping(payload).subscribe(
+      response => {
+        if (response.isSuccessful) {
+          this.isSaving = false;
+          this.clearForm();
+          this.toastrService.success('Saved Successfully');
+        }
+      },
+      error => {
         this.isSaving = false;
-        this.clearForm();
-        this.toastrService.success('Saved Successfully');
+        this.toastrService.error('Something went wrong. Try again later!');
       }
-    },
-    error => {
-      this.isSaving = false;
-      this.toastrService.error('Something went wrong. Try again later!');
-    });
-
+    );
   }
 
   clearForm() {
@@ -114,7 +116,8 @@ export class ChartOfAccountDetailComponent implements OnInit {
         this.selectedAccountList = list;
         // Deep Copy Organisation List
         let cloneLists = JSON.parse(JSON.stringify(this.selectedAccountList));
-        this.accountDetailList = cloneLists.action === 'edit' ? cloneLists.params[0].thirdPartyMappedAccounts : [];
+        this.accountDetailList =
+          cloneLists.action === 'edit' ? cloneLists.params[0].thirdPartyMappedAccounts : [];
       }
     });
   }
@@ -134,5 +137,17 @@ export class ChartOfAccountDetailComponent implements OnInit {
     this.accountDetailList = this.accountDetailList.filter(element => {
       return element.ThirdPartyAccountId !== id;
     });
+  }
+
+  onSave() {
+    this.onClose();
+  }
+
+  show() {
+    this.modal.show();
+  }
+
+  onClose() {
+    this.modal.hide();
   }
 }

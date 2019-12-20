@@ -1,4 +1,4 @@
-<div >
+<div>
   <div class="w-50">
     <select class="custom-select" [(ngModel)]="organisation" (change)="selectOrganisation($event)" required>
       <option hidden [value]="0">Choose Organisation</option>
@@ -8,11 +8,12 @@
     </select>
   </div>
   <div [ngStyle]="styleForHeight">
-  <ag-grid-angular
-    (selectionChanged)="onSelectionChanged($event)"
-    class="ag-theme-balham w-100 h-100"
-    [gridOptions]="gridOptions"
-  >
-  </ag-grid-angular>
+    <ag-grid-angular (selectionChanged)="onSelectionChanged($event)" class="ag-theme-balham w-100 h-100"
+      [gridOptions]="gridOptions">
+    </ag-grid-angular>
   </div>
+
+  <!-- Map Account Modal -->
+  <app-chart-of-account-detail #mapAccountModal>
+  </app-chart-of-account-detail>
 </div>
