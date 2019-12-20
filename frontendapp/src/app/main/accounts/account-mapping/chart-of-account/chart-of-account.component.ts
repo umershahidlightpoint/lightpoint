@@ -125,7 +125,6 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   }
 
   getContextMenuItems(params): Array<ContextMenu> {
-    // if (params.node.data.hasMapping) {
     const addDefaultItems = [
       {
         name: 'Map',
@@ -135,8 +134,8 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
       }
     ];
     return GetContextMenu(false, addDefaultItems, false, [], params);
-    // }
   }
+
   getOrganizations() {
     this.accountmappingApiService.getOrganisation().subscribe(data => {
       this.organizationList = data.payload;
@@ -149,40 +148,31 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
     let cloneList = JSON.parse(JSON.stringify(this.accountRecords));
 
     cloneList = cloneList.map(item => {
-      let accountName;
+      let accountName = '';
+      let organizationName = '';
       if (item.thirdPartyMappedAccounts.length !== 0) {
-        accountName = item.thirdPartyMappedAccounts.find(element => element.OrganizationName === this.organization);
+        const { ThirdPartyAccountName = '', OrganizationName = '' } = item.thirdPartyMappedAccounts
+        .find(element => element.OrganizationName === this.organization) || {};
+        accountName = ThirdPartyAccountName;
+        organizationName = OrganizationName;
       }
-      accountName = accountName === undefined ? '' : accountName.ThirdPartyAccountName;
       return {
         ...item,
-        thirdPartyAccountName: accountName
+        thirdPartyAccountName: accountName,
+        thirdPartyOrganizationName: organizationName
       };
     });
 
     this.gridOptions.getRowStyle = params => {
-      return params.data.thirdPartyMappedAccounts.forEach(element => {
-       if(element.OrganizationName === this.organization) {
+      if(params.data.thirdPartyOrganizationName === this.organization) {
         return { background: '#eeeeee' };
        }
-       return null;
-      });
     };
 
     this.gridOptions.api.setRowData(cloneList);
   }
 
   mappedAccountId(params) {
-    // if (params.hasMapping === true) {
-    //   this.accountmappingApiService.storeAccountList(false);
-    //   const obj = {
-    //     params : [params],
-    //     action: 'edit'
-    //   };
-    //   this.accountmappingApiService.storeAccountList(obj);
-    // } else {
-    //   return false;
-    // }
     const getSelectedAccounts = this.gridOptions.api.getSelectedRows();
     const dispatchObject = {
       payload: this.payload,
@@ -207,12 +197,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   }
 
   onSelectionChanged(event: any) {
-    // const getSelectedAccounts = event.api.getSelectedRows();
-    // const obj = {
-    //   params : getSelectedAccounts,
-    //   action: 'post'
-    // };
-    // this.accountmappingApiService.storeAccountList(obj);
+
   }
 
   getAccountsRecord() {
@@ -232,11 +217,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
             hasJournal: result.HasJournal,
             canDeleted: result.CanDeleted,
             canEdited: result.CanEdited,
-            thirdPartyMappedAccounts: result.ThirdPartyMappedAccounts,
-            // thirdPartyOrganisationName: result.ThirdPartyMappedAccounts[0] ? result.ThirdPartyMappedAccounts[0].OrganizationName : null,
-            // thirdPartyAccountName: result.ThirdPartyMappedAccounts[0] ? result.ThirdPartyMappedAccounts[0].ThirdPartyAccountName : null,
-            // thirdPartyOrganisationName: result.ThirdPartyMappedAccounts.map(items => items.OrganizationName),
-            // thirdPartyAccountName: result.ThirdPartyMappedAccounts.map(items => items.ThirdPartyAccountName)
+            thirdPartyMappedAccounts: result.ThirdPartyMappedAccounts
           })
           );
         }
