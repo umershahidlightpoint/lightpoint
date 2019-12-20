@@ -17,16 +17,15 @@ export class ChartOfAccountDetailComponent implements OnInit {
   selectedAccountList: any = [];
   selectedMappedAccount: any = [];
   accountDetailList: any = [];
-  organisationList: any = [];
+  organizationList: any = [];
 
   rowNodes: any[] = [];
   payload: any[] = [];
 
-
   selectedAccount = false;
   isSaving = false;
 
-  organisation = '';
+  organization = '';
   selected: string;
   noResult = false;
 
@@ -46,23 +45,22 @@ export class ChartOfAccountDetailComponent implements OnInit {
 
   onSelect(event: TypeaheadMatch): void {
     this.selectedOption = event.item;
-    if(this.accountDetailList.length === 1){
+    if (this.accountDetailList.length === 1) {
       return;
     }
 
     this.rowNodes.forEach(element => {
-      let account = this.payload.find(x=> x.AccountId == element.accountId);
-      if(account) {
-
+      let account = this.payload.find(x => x.AccountId == element.accountId);
+      if (account) {
       } else {
         let thirdPartyAccountMapping = [];
         thirdPartyAccountMapping.push({
           ThirdPartyAccountId: this.selectedOption.AccountId
-        })
+        });
         const payLoadItem = {
-          AccountId : element.accountId,
+          AccountId: element.accountId,
           ThirdPartyAccountMapping: thirdPartyAccountMapping
-        }
+        };
         this.payload.push(payLoadItem);
       }
     });
@@ -71,7 +69,7 @@ export class ChartOfAccountDetailComponent implements OnInit {
     // const accountDetail = {
     //   id: this.selectedOption.AccountId,
     //   ThirdPartyAccountName: this.selectedOption.AccountName,
-    //   OrganizationName: this.organisation
+    //   OrganizationName: this.organization
     // };
 
     // const checkDuplication = this.accountDetailList.some(element => {
@@ -87,13 +85,13 @@ export class ChartOfAccountDetailComponent implements OnInit {
     // }
   }
 
-  selectOrganisation(event: any): void {
-    this.organisation = event.target.value;
-    // Deep Copy Organisation List
-    let cloneList = JSON.parse(JSON.stringify(this.organisationList));
+  selectOrganization(event: any): void {
+    this.organization = event.target.value;
+    // Deep Copy Organization List
+    let cloneList = JSON.parse(JSON.stringify(this.organizationList));
 
     cloneList = cloneList.find(element => {
-      return element.OrganizationName === this.organisation;
+      return element.OrganizationName === this.organization;
     });
 
     this.states = cloneList.Accounts;
@@ -128,31 +126,36 @@ export class ChartOfAccountDetailComponent implements OnInit {
     this.storeThirdPartyAccounts = [];
     this.selectedAccountList = [];
     this.accountDetailList = [];
-    this.organisationList = [];
+    this.organizationList = [];
+    this.organization = '';
+    this.states = [];
+    this.selected = '';
   }
 
   ngOnInit() {
-    this.getOrganisations();
+    this.getOrganizations();
     this.accountmappingApiService.selectedAccounList$.subscribe(list => {
       // if (!list) {
       //   return;
       // } else {
       //   this.selectedAccountList = list;
-      //   // Deep Copy Organisation List
+      //   // Deep Copy Organization List
       //   let cloneLists = JSON.parse(JSON.stringify(this.selectedAccountList));
       //   this.accountDetailList = cloneLists.action === 'edit' ? cloneLists.params[0].thirdPartyMappedAccounts : [];
       // }
-      if(list){
+      if (list) {
         this.rowNodes = list.rowNodes;
         this.payload = list.payload;
-        console.log(list, "in oberver");
+        this.organization = list.organization;
+        this.states = list.accounts;
+        console.log(list, 'in oberver');
       }
     });
   }
 
-  getOrganisations() {
+  getOrganizations() {
     this.accountmappingApiService.getOrganisation().subscribe(data => {
-      this.organisationList = data.payload;
+      this.organizationList = data.payload;
     });
   }
 
@@ -176,6 +179,7 @@ export class ChartOfAccountDetailComponent implements OnInit {
   }
 
   onClose() {
+    this.clearForm();
     this.modal.hide();
   }
 }

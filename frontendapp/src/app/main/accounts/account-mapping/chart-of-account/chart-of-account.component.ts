@@ -31,10 +31,11 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
 
   styleForHeight = HeightStyle(224);
 
-  organisationList: any = [];
+  organizationList: any = [];
   accountRecords: any = [];
-  organisation = '';
-  payload : any = [];
+  organization = '';
+  accountsList: any = [];
+  payload: any = [];
 
   constructor(
     private toastrService: ToastrService,
@@ -96,7 +97,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
     this.initGrid();
     this.getAccountsRecord();
     this.getAccountCategories();
-    this.getOrganisations();
+    this.getOrganizations();
   }
 
   initGrid() {
@@ -148,25 +149,28 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
     return GetContextMenu(false, addDefaultItems, false, [], params);
     // }
   }
-  getOrganisations() {
+  getOrganizations() {
     this.accountmappingApiService.getOrganisation().subscribe(data => {
-      this.organisationList = data.payload;
+      this.organizationList = data.payload;
     });
   }
 
-  selectOrganisation(event: any): void {
-    this.organisation = event.target.value;
+  selectOrganization(event: any): void {
+    this.organization = event.target.value;
 
     let cloneList = JSON.parse(JSON.stringify(this.accountRecords));
 
     cloneList = cloneList.filter(element => {
       return (
-        element.thirdPartyOrganisationName === this.organisation ||
-        element.thirdPartyOrganisationName === null
+        element.thirdPartyOrganizationName === this.organization ||
+        element.thirdPartyOrganizationName === null
       );
     });
 
-    console.log(cloneList);
+    this.accountsList = this.organizationList.find(
+      element => element.OrganizationName === this.organization
+    ).Accounts;
+
     this.gridOptions.api.setRowData(cloneList);
   }
 
@@ -184,11 +188,14 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
     const getSelectedAccounts = this.gridOptions.api.getSelectedRows();
     const dispatchObject = {
       payload: this.payload,
-      rowNodes: getSelectedAccounts
-    }
+      rowNodes: getSelectedAccounts,
+      organization: this.organization,
+      accounts: this.accountsList
+    };
+
     this.accountmappingApiService.storeAccountList(dispatchObject);
+
     this.mapAccountModal.show();
-    console.log(getSelectedAccounts);
   }
 
   getAccountCategories() {
@@ -207,7 +214,6 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
     //   params : getSelectedAccounts,
     //   action: 'post'
     // };
-
     // this.accountmappingApiService.storeAccountList(obj);
   }
 
@@ -229,7 +235,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
             canDeleted: result.CanDeleted,
             canEdited: result.CanEdited,
             thirdPartyMappedAccounts: result.ThirdPartyMappedAccounts,
-            thirdPartyOrganisationName: result.ThirdPartyMappedAccounts[0]
+            thirdPartyOrganizationName: result.ThirdPartyMappedAccounts[0]
               ? result.ThirdPartyMappedAccounts[0].OrganizationName
               : null,
             thirdPartyAccountName: result.ThirdPartyMappedAccounts[0]
