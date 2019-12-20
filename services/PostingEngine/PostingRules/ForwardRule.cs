@@ -2,6 +2,7 @@
 using PostingEngine.Contracts;
 using PostingEngine.MarketData;
 using PostingEngine.PostingRules.Utilities;
+using PostingEngine.TaxLotMethods;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,8 @@ namespace PostingEngine.PostingRules
 {
     public class ForwardRule : DefaultPostingRules, IPostingRule
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public bool IsValid(PostingEngineEnvironment env, Transaction element)
         {
             return true;
@@ -101,20 +104,12 @@ namespace PostingEngine.PostingRules
         /// <param name="element"></param>
         public new void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
-            double tradefxrate = 1.0;
-            double settlefxrate = 1.0;
             double fxrate = 1.0;
 
             // Lets get fx rate if needed
             if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                tradefxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
-            }
-
-            if (!element.SettleCurrency.Equals(env.BaseCurrency))
-            {
-                settlefxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
-                fxrate = settlefxrate;
+                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
             }
 
             var tradeAllocations = env.Allocations.Where(i => i.LpOrderId == element.LpOrderId).ToList();
@@ -123,8 +118,8 @@ namespace PostingEngine.PostingRules
             {
                 var tl = new TaxLotStatus {
                     TradeDate = element.TradeDate,
-                    InvestmentAtCost = element.NetMoney * tradefxrate,
-                    FxRate = tradefxrate,
+                    InvestmentAtCost = element.NetMoney * fxrate,
+                    FxRate = fxrate,
                     BusinessDate = element.TradeDate,
                     Symbol = element.Symbol,
                     Side = element.Side,
@@ -151,7 +146,7 @@ namespace PostingEngine.PostingRules
                 {
                     // Whats going on here?
                     // We are skipping anything that does not get an OpenLot
-                    Console.WriteLine("Should for a sell have at least one open lot");
+                    Logger.Warn($"There should be for a sell {element.Symbol} have at least one open lot, non found");
                 }
                 else
                 {
@@ -174,16 +169,7 @@ namespace PostingEngine.PostingRules
                             // Does the open Lot fully fullfill the quantity ?
                             if (Math.Abs(taxlotStatus.Quantity) >= Math.Abs(workingQuantity))
                             {
-                                var tl = new TaxLot {
-                                    TradeDate = element.TradeDate,
-                                    InvestmentAtCost = workingQuantity * lot.Trade.SettleNetPrice * fxrate,
-                                    BusinessDate = env.ValueDate,
-                                    OpeningLotId = lot.Trade.LpOrderId,
-                                    ClosingLotId = element.LpOrderId,
-                                    TradePrice = lot.Trade.SettleNetPrice, // Opening Trade Price
-                                    CostBasis = element.SettleNetPrice, // Closing Trade Price
-                                    Quantity = workingQuantity };
-                                tl.Save(env.Connection, env.Transaction);
+                                var taxlot = CommonRules.RelieveTaxLot(env, lot, element, workingQuantity, true);
 
                                 taxlotStatus.Quantity += workingQuantity;
                                 if (taxlotStatus.Quantity == 0)
@@ -201,13 +187,13 @@ namespace PostingEngine.PostingRules
                                     MarketPrices.Find(env.PreviousValueDate, lot.Trade.BloombergCode).Price,
                                     element.SettleNetPrice, fxrate);
 
-                                var PnL = Math.Abs(tl.Quantity) * (tl.CostBasis - tl.TradePrice) * fxrate;
+                                var PnL = Math.Abs(taxlot.Quantity) * (taxlot.CostBasis - taxlot.TradePrice) * fxrate;
                                 PostRealizedPnl(
                                     env, 
                                     element, 
-                                    PnL, 
-                                    tl.TradePrice, 
-                                    tl.CostBasis, fxrate);
+                                    PnL,
+                                    taxlot.TradePrice,
+                                    taxlot.CostBasis, fxrate);
 
                                 var listOfFromTags = new List<Tag>
                                     {
@@ -228,8 +214,8 @@ namespace PostingEngine.PostingRules
                                     Account = fromAccount,
                                     CreditDebit = env.DebitOrCredit(fromAccount, PnL),
                                     When = env.ValueDate,
-                                    StartPrice = tl.TradePrice,
-                                    EndPrice = tl.CostBasis,
+                                    StartPrice = taxlot.TradePrice,
+                                    EndPrice = taxlot.CostBasis,
                                     Value = PnL,
                                     FxRate = 1,
                                     Event = "realizedpnl",
@@ -240,8 +226,8 @@ namespace PostingEngine.PostingRules
                                 {
                                     Account = toAccount,
                                     When = env.ValueDate,
-                                    StartPrice = tl.TradePrice,
-                                    EndPrice = tl.CostBasis,
+                                    StartPrice = taxlot.TradePrice,
+                                    EndPrice = taxlot.CostBasis,
                                     FxRate = 1,
                                     CreditDebit = env.DebitOrCredit(toAccount, PnL * -1),
                                     Value = PnL * -1,
@@ -255,19 +241,13 @@ namespace PostingEngine.PostingRules
                             }
                             else
                             {
-                                var tl = new TaxLot {
-                                    BusinessDate = env.ValueDate,
-                                    OpeningLotId = lot.Trade.LpOrderId,
-                                    ClosingLotId = element.LpOrderId,
-                                    TradePrice = lot.Trade.SettleNetPrice,
-                                    CostBasis = element.SettleNetPrice,
-                                    Quantity = taxlotStatus.Quantity };
-                                tl.Save(env.Connection, env.Transaction);
+                                var taxlot = CommonRules.RelieveTaxLot(env, lot, element, taxlotStatus.Quantity);
+
                                 workingQuantity -= Math.Abs(taxlotStatus.Quantity);
 
-                                var PnL = tl.Quantity * (tl.CostBasis - tl.TradePrice) * fxrate;
+                                var PnL = taxlot.Quantity * (taxlot.CostBasis - taxlot.TradePrice) * fxrate;
 
-                                PostRealizedPnl(env, element, PnL, tl.TradePrice, tl.CostBasis,fxrate);
+                                PostRealizedPnl(env, element, PnL, taxlot.TradePrice, taxlot.CostBasis,fxrate);
 
                                 taxlotStatus.Quantity = 0;
                                 taxlotStatus.Status = "Closed";
