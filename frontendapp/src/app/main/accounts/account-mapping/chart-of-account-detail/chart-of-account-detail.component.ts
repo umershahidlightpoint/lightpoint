@@ -53,7 +53,9 @@ export class ChartOfAccountDetailComponent implements OnInit {
     this.rowNodes.forEach(element => {
       let account = this.payload.find(x=> x.AccountId == element.accountId);
       if(account) {
-
+        account.ThirdPartyAccountMapping.push({
+          ThirdPartyAccountId: this.selectedOption.AccountId
+        })
       } else {
         let thirdPartyAccountMapping = [];
         thirdPartyAccountMapping.push({
@@ -65,26 +67,9 @@ export class ChartOfAccountDetailComponent implements OnInit {
         }
         this.payload.push(payLoadItem);
       }
+      //TODO modify third party mapping in row node
     });
-    // this.storeThirdPartyAccounts.push({ThirdPartyAccountId : this.selectedOption.AccountId});
-
-    // const accountDetail = {
-    //   id: this.selectedOption.AccountId,
-    //   ThirdPartyAccountName: this.selectedOption.AccountName,
-    //   OrganizationName: this.organisation
-    // };
-
-    // const checkDuplication = this.accountDetailList.some(element => {
-
-    //   return (
-    //     element.ThirdPartyAccountName === accountDetail.ThirdPartyAccountName &&
-    //     element.OrganizationName === accountDetail.OrganizationName
-    //   );
-    // });
-
-    // if (!checkDuplication) {
-    //   this.accountDetailList.push(accountDetail);
-    // }
+      //TODO iterate over row nodes and modify hasmapping and account name property
   }
 
   selectOrganisation(event: any): void {
@@ -134,14 +119,6 @@ export class ChartOfAccountDetailComponent implements OnInit {
   ngOnInit() {
     this.getOrganisations();
     this.accountmappingApiService.selectedAccounList$.subscribe(list => {
-      // if (!list) {
-      //   return;
-      // } else {
-      //   this.selectedAccountList = list;
-      //   // Deep Copy Organisation List
-      //   let cloneLists = JSON.parse(JSON.stringify(this.selectedAccountList));
-      //   this.accountDetailList = cloneLists.action === 'edit' ? cloneLists.params[0].thirdPartyMappedAccounts : [];
-      // }
       if(list){
         this.rowNodes = list.rowNodes;
         this.payload = list.payload;
@@ -161,10 +138,30 @@ export class ChartOfAccountDetailComponent implements OnInit {
   }
 
   deleteAccount(obj) {
-    const id = obj.ThirdPartyAccountId;
-    this.accountDetailList = this.accountDetailList.filter(element => {
-      return element.ThirdPartyAccountId !== id;
+    this.rowNodes.forEach(element => {
+      let account = this.payload.find(x=> x.AccountId == element.accountId);
+      // modifying the payload
+      if(account){
+        if(obj.MapId){
+          account.ThirdPartyAccountMapping.push({
+            MapId: obj.MapId,
+            ThirdPartyAccountId: obj.AccountId
+          })
+        } else{
+          const filteredThirdPartAccounts = account.ThirdPartyAccountMapping.filter((item) => {
+            return item.ThirdPartyAccountId !== obj.ThirdPartyAccountId
+          });
+          account.ThirdPartyAccountMapping = filteredThirdPartAccounts;
+        }
+      }
+      //modifying row nodes
+      const thirdPartyMappedAccounts = element.thirdPartyMappedAccounts.filter((item) => {
+        return item.ThirdPartyAccountId !== obj.AccountId
+      })
+      element.thirdPartyMappedAccounts = thirdPartyMappedAccounts;
     });
+
+    //TODO iterate over row nodes and modify hasmapping and account name property
   }
 
   onSave() {
