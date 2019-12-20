@@ -21,6 +21,7 @@ export class ChartOfAccountDetailComponent implements OnInit {
 
   rowNodes: any[] = [];
   payload: any[] = [];
+  thirdPartyAccountList : any[] = [];
 
   selectedAccount = false;
   isSaving = false;
@@ -126,6 +127,16 @@ export class ChartOfAccountDetailComponent implements OnInit {
         this.payload = list.payload;
         this.organization = list.organization;
         this.states = list.accounts;
+        this.rowNodes.forEach(element => {
+          element.thirdPartyMappedAccounts.forEach(object => {
+            if(object.OrganizationName == this.organization){
+              this.thirdPartyAccountList.push({
+                LPAccountId : element.accountId,
+                ...object
+              })
+            }
+          });
+        });
         console.log(list, 'in oberver');
       }
     });
@@ -143,24 +154,25 @@ export class ChartOfAccountDetailComponent implements OnInit {
 
   deleteAccount(obj) {
     this.rowNodes.forEach(element => {
+      const referenceThirdParty = this.thirdPartyAccountList.find(x=> x.LPAccountId === element.accountId);
       let account = this.payload.find(x=> x.AccountId == element.accountId);
       // modifying the payload
       if(account){
         if(obj.MapId){
           account.ThirdPartyAccountMapping.push({
-            MapId: obj.MapId,
-            ThirdPartyAccountId: obj.AccountId
+            MapId: referenceThirdParty.MapId,
+            ThirdPartyAccountId: referenceThirdParty.ThirdPartyAccountId
           })
         } else{
           const filteredThirdPartAccounts = account.ThirdPartyAccountMapping.filter((item) => {
-            return item.ThirdPartyAccountId !== obj.ThirdPartyAccountId
+            return item.ThirdPartyAccountId !== referenceThirdParty.ThirdPartyAccountId
           });
           account.ThirdPartyAccountMapping = filteredThirdPartAccounts;
         }
       }
       //modifying row nodes
       const thirdPartyMappedAccounts = element.thirdPartyMappedAccounts.filter((item) => {
-        return item.ThirdPartyAccountId !== obj.AccountId
+        return item.ThirdPartyAccountId !== referenceThirdParty.ThirdPartyAccountId
       })
       element.thirdPartyMappedAccounts = thirdPartyMappedAccounts;
     });
