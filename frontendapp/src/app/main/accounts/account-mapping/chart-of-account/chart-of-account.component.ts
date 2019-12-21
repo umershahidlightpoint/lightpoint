@@ -24,6 +24,8 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   accountCategories: AccountCategory;
   hideGrid: boolean;
   isLoading = true;
+  commitLoader = false;
+  disableCommit = true;
 
   style = Style;
 
@@ -54,8 +56,8 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
     this.accountmappingApiService.dispatchModifications$.subscribe(obj => {
       if (obj) {
         const rowNodes = this.setOrganizationAccounts(obj.rowNodes);
-
-        console.log('MAPPER ::', rowNodes);
+        this.payload = obj.payload;
+        this.disableCommit = false;
 
         rowNodes.forEach(element => {
           this.accountRecords[
@@ -259,6 +261,22 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
           }));
         }
       });
+  }
+
+  commitAccountMapping(){
+    this.commitLoader = true;
+    this.accountmappingApiService
+      .postAccountMapping(this.payload)
+      .subscribe(response => {
+        this.commitLoader = false;
+        if (response.isSuccessful) {
+          this.toastrService.success('Sucessfully Commited.');
+        } else {
+          this.toastrService.error('Something went wrong! Try Again.');
+        }
+      });
+
+    this.disableCommit = true;
   }
 
   refreshGrid() {
