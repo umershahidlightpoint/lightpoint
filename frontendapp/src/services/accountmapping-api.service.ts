@@ -13,12 +13,19 @@ export class AccountmappingApiService {
   private selectedAccounList = new BehaviorSubject(null);
   selectedAccounList$ = this.selectedAccounList.asObservable();
 
+  private dispatchModifications = new BehaviorSubject(null);
+  dispatchModifications$ = this.dispatchModifications.asObservable();
+
   constructor(private http: HttpClient) {
     this.baseUrl = window['config'].remoteServerUrl;
   }
 
   storeAccountList(obj: any) {
     this.selectedAccounList.next(obj);
+  }
+
+  dispatchChanges(obj: any){
+    this.dispatchModifications.next(obj);
   }
 
   getMappedAccounts(): Observable<any> {
