@@ -26,7 +26,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
 
   style = Style;
 
-  styleForHeight = HeightStyle(224);
+  styleForHeight = HeightStyle(221);
 
   organizationList: any = [];
   accountRecords: any = [];
@@ -212,7 +212,6 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   onSelectionChanged(event: any) {}
 
   getAccountsRecord() {
-    setTimeout(() => {
       this.accountmappingApiService.getMappedAccounts().subscribe(response => {
         this.accountRecords = response.payload;
         if (response.payload) {
@@ -232,7 +231,6 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
           }));
         }
       });
-    }, 100);
   }
 
   refreshGrid() {
