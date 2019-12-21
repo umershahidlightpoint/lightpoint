@@ -10,8 +10,19 @@
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
   <!-- Tab View Starts -->
   <tabset class="tab-color">
+    <!-- <div *ngFor="let tab of tabs; let i = index"> -->
+    <tab *ngFor="let tab of tabs; let i = index" heading="{{tab.heading}}" (selectTab)="tabIndex(i)">
+      <div [ngStyle]="style">
+        {{tab.selectTab}}
+        <!-- <rep-costbasis *ngIf="costBasisReportActive"></rep-costbasis> -->
+      </div>
+    </tab>
+    <router-outlet></router-outlet>
 
-    <tab heading="Cost Basis" (selectTab)="activeCostBasisReport()">
+    <!-- </div> -->
+
+
+    <!-- <tab heading="Cost Basis" (selectTab)="activeCostBasisReport()">
       <div [ngStyle]="style">
         <rep-costbasis *ngIf="costBasisReportActive"></rep-costbasis>
       </div>
@@ -19,27 +30,31 @@
 
     <tab heading="Tax Lots Open/Closed" (selectTab)="activeTaxLotReport()">
       <div [ngStyle]="style">
+        <router-outlet></router-outlet>
         <rep-taxlotstatus *ngIf="taxLotReportActive"></rep-taxlotstatus>
       </div>
     </tab>
 
     <tab heading="DayPnl Reconcile" (selectTab)="activeDayPnLReport()">
       <div [ngStyle]="style">
+        <router-outlet></router-outlet>
         <rep-daypnl-reconcile *ngIf="dayPnLReportActive"></rep-daypnl-reconcile>
       </div>
     </tab>
 
     <tab heading="Bookmon Reconcile" (selectTab)="activeBookmonReport()">
       <div [ngStyle]="style">
+        <router-outlet></router-outlet>
         <rep-bookmon-reconcile *ngIf="bookmonReportActive"></rep-bookmon-reconcile>
       </div>
     </tab>
 
     <tab heading="Trial Balance" (selectTab)="activeTrialBalanceReport()">
       <div [ngStyle]="style">
+        <router-outlet></router-outlet>
         <rep-trial-balance *ngIf="trialBalanceReportActive"></rep-trial-balance>
       </div>
-    </tab>
+    </tab> -->
 
   </tabset>
   <!-- Tab View Ends -->

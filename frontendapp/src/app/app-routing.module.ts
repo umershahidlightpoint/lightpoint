@@ -14,6 +14,11 @@ import { FundTheoreticalComponent } from './main/fund-theoretical/fund-theoretic
 import { SummaryComponent } from './main/summary/summary.component';
 import { JournalsLayoutComponent } from './main/journals-ledgers/journals-layout.component';
 import { PerformanceCanDeactivateGuard } from '../../src/services/guards/performance-can-deactivate-guard.service';
+import { TaxLotStatusComponent } from './main/reports/taxlotstatus/taxlotstatus.component';
+import { DayPnlComponent } from './main/reports/daypnl-reconcile/daypnl-reconcile.component';
+import { BookmonReconcileComponent } from './main/reports/bookmon-reconcile/bookmon-reconcile.component';
+import { TrialBalanceComponent } from './main/reports/trial-balance/trial-balance.component';
+import { CostBasisComponent } from './main/reports/costbasis/costbasis.component';
 
 const routes: Routes = [
   { path: '', component: ReportsComponent }, // Default
@@ -30,7 +35,32 @@ const routes: Routes = [
     component: FundTheoreticalComponent,
     canDeactivate: [PerformanceCanDeactivateGuard]
   },
-  { path: 'reports', component: ReportsComponent },
+  {
+    path: 'reports',
+    component: ReportsComponent,
+    children: [
+      {
+        path: 'cost-basis',
+        component: CostBasisComponent
+      },
+      {
+        path: 'taxlot',
+        component: TaxLotStatusComponent
+      },
+      {
+        path: 'daily-pnl',
+        component: DayPnlComponent
+      },
+      {
+        path: 'bookmon-reconcile',
+        component: BookmonReconcileComponent
+      },
+      {
+        path: 'trial-balance',
+        component: TrialBalanceComponent
+      }
+    ]
+  },
   {
     path: 'accounts',
     component: AccountComponent,
