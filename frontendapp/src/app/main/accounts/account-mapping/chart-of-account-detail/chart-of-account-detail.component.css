@@ -73,6 +73,14 @@
   margin: 10px;
 }
 
+.modal {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-backdrop {
+  position: relative;
+}
+
 .modal-sm {
   max-width: 300px;
 }
