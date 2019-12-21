@@ -1,11 +1,15 @@
 <div>
-  <div class="w-50">
-    <select class="custom-select" [(ngModel)]="organization" (change)="selectOrganization($event)" required>
+  <div class="d-flex w-50">
+    <select [disabled]="isLoading" class="custom-select" [(ngModel)]="organization"
+      (change)="selectOrganization($event)" required>
       <option hidden [value]="0">Choose Organization</option>
       <option *ngFor="let list of organizationList; let i = index">
         {{ list.OrganizationName }}
       </option>
     </select>
+    <div *ngIf="isLoading" class="loader-wrapper">
+      <app-loader [loadingText]="false"></app-loader>
+    </div>
   </div>
   <div [ngStyle]="styleForHeight">
     <ag-grid-angular (selectionChanged)="onSelectionChanged($event)" class="ag-theme-balham w-100 h-100"

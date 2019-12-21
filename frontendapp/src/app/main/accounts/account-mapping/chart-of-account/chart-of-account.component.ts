@@ -17,20 +17,21 @@ import { ContextMenu } from 'src/shared/Models/common';
 export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   @ViewChild('mapAccountModal', { static: false }) mapAccountModal: ChartOfAccountDetailComponent;
 
-  rowData: Array<Account>;
   gridOptions: GridOptions;
-  accountCategories: AccountCategory;
-  selectedAccountCategory: AccountCategory;
+  rowData: Array<Account>;
   account: Account;
+  selectedAccountCategory: AccountCategory;
+  accountCategories: AccountCategory;
   hideGrid: boolean;
+  isLoading = true;
 
   style = Style;
 
   styleForHeight = HeightStyle(224);
 
+  organization = '';
   organizationList: any = [];
   accountRecords: any = [];
-  organization = '';
   accountsList: any = [];
   payload: any = [];
 
@@ -51,11 +52,20 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
     });
 
     this.accountmappingApiService.dispatchModifications$.subscribe(obj => {
-      if(obj){
-        console.log(obj.payload, "modified payload from modal");
-        console.log(obj.rowNodes, "modified row nodes from modal");
+      if (obj) {
+        const rowNodes = this.setOrganizationAccounts(obj.rowNodes);
+
+        console.log('MAPPER ::', rowNodes);
+
+        rowNodes.forEach(element => {
+          this.accountRecords[
+            this.accountRecords.findIndex(item => item.accountId === element.accountId)
+          ] = element;
+
+          const row = this.gridOptions.api.getRowNode(element.accountId).setData(element);
+        });
       }
-    })
+    });
     this.gridOptions.api.setColumnDefs([
       {
         headerName: 'Account Id',
@@ -127,6 +137,16 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
       getExternalFilterState: () => {
         return {};
       },
+      getRowNodeId: data => {
+        return data.accountId;
+      },
+      getRowStyle: params => {
+        if (params.data.thirdPartyOrganizationName === this.organization) {
+          return { background: '#eeeeee' };
+        }
+
+        return { background: '#ffffff' };
+      },
       clearExternalFilter: () => {}
     } as GridOptions;
   }
@@ -152,11 +172,20 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   selectOrganization(event: any): void {
     this.organization = event.target.value;
 
-    let cloneList = JSON.parse(JSON.stringify(this.accountRecords));
+    this.accountsList = this.organizationList.find(
+      element => element.OrganizationName === this.organization
+    ).Accounts;
 
-    cloneList = cloneList.map(item => {
+    const cloneList = JSON.parse(JSON.stringify(this.accountRecords));
+
+    this.gridOptions.api.setRowData(this.setOrganizationAccounts(cloneList));
+  }
+
+  setOrganizationAccounts(list: any) {
+    list = list.map(item => {
       let accountName = '';
       let organizationName = '';
+
       if (item.thirdPartyMappedAccounts.length !== 0) {
         const { ThirdPartyAccountName = '', OrganizationName = '' } =
           item.thirdPartyMappedAccounts.find(
@@ -165,6 +194,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
         accountName = ThirdPartyAccountName;
         organizationName = OrganizationName;
       }
+
       return {
         ...item,
         thirdPartyAccountName: accountName,
@@ -172,17 +202,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
       };
     });
 
-    this.accountsList = this.organizationList.find(
-      element => element.OrganizationName === this.organization
-    ).Accounts;
-
-    this.gridOptions.getRowStyle = params => {
-      if (params.data.thirdPartyOrganizationName === this.organization) {
-        return { background: '#eeeeee' };
-      }
-    };
-
-    this.gridOptions.api.setRowData(cloneList);
+    return list;
   }
 
   mappedAccountId(params) {
@@ -200,13 +220,21 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   }
 
   getAccountCategories() {
-    this.accountmappingApiService.getOrganisation().subscribe(response => {
-      if (response.isSuccessful) {
-        this.accountCategories = response.payload;
-      } else {
-        this.toastrService.error('Failed to fetch account categories!');
+    this.accountmappingApiService.getOrganisation().subscribe(
+      response => {
+        if (response.isSuccessful) {
+          this.accountCategories = response.payload;
+        } else {
+          this.toastrService.error('Failed to fetch account Organizations!');
+        }
+
+        this.isLoading = false;
+      },
+      error => {
+        this.isLoading = false;
+        this.toastrService.error('Failed to fetch account Organizations!');
       }
-    });
+    );
   }
 
   onSelectionChanged(event: any) {}

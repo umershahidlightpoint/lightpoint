@@ -1,6 +1,17 @@
+/******************************
+*******    Spinner     ********
+******************************/
+
+.spinner-grow {
+  width: 4rem;
+  height: 4rem;
+  color: #0275d8 !important;
+}
+
 /********************
 *** Spinner Text  ***
 ********************/
+
 .spinner-text {
   color: #0275d8;
   font-weight: 300;
