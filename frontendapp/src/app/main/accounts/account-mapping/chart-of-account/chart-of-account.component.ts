@@ -49,6 +49,13 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
         this.getAccountsRecord();
       }
     });
+
+    this.accountmappingApiService.dispatchModifications$.subscribe(obj => {
+      if(obj){
+        console.log(obj.payload, "modified payload from modal");
+        console.log(obj.rowNodes, "modified row nodes from modal");
+      }
+    })
     this.gridOptions.api.setColumnDefs([
       {
         headerName: 'Account Id',

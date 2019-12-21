@@ -67,9 +67,24 @@ export class ChartOfAccountDetailComponent implements OnInit {
         };
         this.payload.push(payLoadItem);
       }
+      this.thirdPartyAccountList.push({
+        LPAccountId: element.accountId,
+        ThirdPartyAccountId: this.selectedOption.AccountId
+      })
       //TODO modify third party mapping in row node
+      element.thirdPartyMappedAccounts.push({
+        ThirdPartyAccountId: this.selectedOption.AccountId,
+        ThirdPartyAccountName: this.selectedOption.AccountName,
+        OrganizationName: this.organization
+      })
     });
       //TODO iterate over row nodes and modify hasmapping and account name property
+      this.accountDetailList.push({
+        ThirdPartyAccountName: this.selectedOption.AccountName,
+        OrganizationName: this.organization
+      })
+      console.log(this.payload,"modified payload after insertion");
+    console.log(this.rowNodes, "modified row nodes after insertion");
   }
 
   selectOrganization(event: any): void {
@@ -117,14 +132,17 @@ export class ChartOfAccountDetailComponent implements OnInit {
     this.organization = '';
     this.states = [];
     this.selected = '';
+    this.rowNodes = [];
+    this.payload = [];
+    this.thirdPartyAccountList = [];
   }
 
   ngOnInit() {
     this.getOrganizations();
     this.accountmappingApiService.selectedAccounList$.subscribe(list => {
       if(list){
-        this.rowNodes = list.rowNodes;
-        this.payload = list.payload;
+        this.rowNodes = JSON.parse(JSON.stringify(list.rowNodes));
+        this.payload = JSON.parse(JSON.stringify(list.payload));
         this.organization = list.organization;
         this.states = list.accounts;
         this.rowNodes.forEach(element => {
@@ -137,6 +155,14 @@ export class ChartOfAccountDetailComponent implements OnInit {
             }
           });
         });
+        if(this.thirdPartyAccountList.length > 0){
+          this.accountDetailList.push({
+            ThirdPartyAccountName: this.thirdPartyAccountList[0].ThirdPartyAccountName,
+            OrganizationName: this.thirdPartyAccountList[0].OrganizationName,
+            MapId: this.thirdPartyAccountList[0].MapId
+
+          })
+        }
         console.log(list, 'in oberver');
       }
     });
@@ -164,10 +190,27 @@ export class ChartOfAccountDetailComponent implements OnInit {
             ThirdPartyAccountId: referenceThirdParty.ThirdPartyAccountId
           })
         } else{
+          //if map id is not present, we need to remove it from the payload instead of adding it.
           const filteredThirdPartAccounts = account.ThirdPartyAccountMapping.filter((item) => {
             return item.ThirdPartyAccountId !== referenceThirdParty.ThirdPartyAccountId
           });
           account.ThirdPartyAccountMapping = filteredThirdPartAccounts;
+        }
+      }
+      // adding element for the first time 
+      else{
+        if(obj.MapId) {
+          const thirdPartyMapping = [];
+          thirdPartyMapping.push({
+            MapId: referenceThirdParty.MapId,
+            ThirdPartyAccountId: referenceThirdParty.ThirdPartyAccountId
+          });
+          this.payload.push({
+            AccountId: element.accountId,
+            ThirdPartyAccountMapping: thirdPartyMapping
+          })
+        } else{
+          //if map id is not present, we need to remove it from the payload instead of adding it.
         }
       }
       //modifying row nodes
@@ -175,12 +218,26 @@ export class ChartOfAccountDetailComponent implements OnInit {
         return item.ThirdPartyAccountId !== referenceThirdParty.ThirdPartyAccountId
       })
       element.thirdPartyMappedAccounts = thirdPartyMappedAccounts;
+
+      //modifying third party account list.
+      const thirdPartyAccountList = this.thirdPartyAccountList.filter((item) => {
+        return item.LPAccountId !== referenceThirdParty.LPAccountId;
+      });
+      this.thirdPartyAccountList = thirdPartyAccountList;
     });
 
-    //TODO iterate over row nodes and modify hasmapping and account name property
+    this.accountDetailList = [];
+    //TODO iterate over row nodes and modify third party accounts
+    console.log(this.payload,"modified payload after deletion");
+    console.log(this.rowNodes, "modified row nodes after deletion");
   }
 
   onSave() {
+    const changes = {
+      payload : this.payload,
+      rowNodes: this.rowNodes
+    }
+    this.accountmappingApiService.dispatchChanges(changes);
     this.onClose();
   }
 
