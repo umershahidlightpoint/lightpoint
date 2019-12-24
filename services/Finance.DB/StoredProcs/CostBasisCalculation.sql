@@ -12,28 +12,42 @@ left join SecurityMaster..SecDerivatives sd on sd.SecurityId = s.SecurityId
 left join SecurityMaster..SecFutures sf on sf.SecurityId = s.SecurityId
 where coalesce(sd.Multiplier, sf.ContractSize) is not null
 
+select @bDate as business_date, open_id, symbol, side, SUM(original_quantity) as quantity, Sum(investment_at_cost) as investment_at_cost
+into #tax_lot_status
+from tax_lot_status where trade_date <= @bDate
+group by open_id, symbol, side
+
+select @bDate as business_date, open_lot_id, sum(quantity) as quantity, sum(investment_at_cost) as Investment_at_cost
+into #tax_lot
+from tax_lot 
+where trade_date <= @bDate
+group by open_lot_id
+
+select tls.business_date, symbol, side, coalesce(tls.quantity,0) + coalesce(tl.quantity,0) as quantity, coalesce(tls.investment_at_cost,0) + coalesce(tl.Investment_at_cost,0) as investment_at_cost 
+into #tax_lots_final
+from #tax_lot_status tls
+left outer join #tax_lot tl on tl.open_lot_id = tls.open_id
+order by symbol
+
 select 
 @bDate as busdate,
 tls.symbol, 
-SUM(tls.investment_at_cost + Coalesce(tl.investment_at_cost, 0)) * -1 as Balance, 
-SUM(tls.original_quantity +Coalesce(tl.quantity, 0)) as Quantity, 
--- ABS(SUM(tls.investment_at_cost + Coalesce(tl.investment_at_cost, 0)) / SUM(tls.original_quantity +Coalesce(tl.quantity, 0))) / Max(Coalesce(sd.Multiplier, 1)) as CostBasis, 
+SUM(tls.investment_at_cost) * -1 as Balance, 
+SUM(tls.quantity) as Quantity, 
 CASE
 	WHEN tls.side = 'BUY' then 'LONG'
 	ELSE 'SHORT'
 End as Side,
 Max(coalesce(mp.price,0)) as eod_price
 into #costbasis_all
-from tax_lot_status tls
-left outer join tax_lot tl on tl.Open_lot_id = tls.open_id and tl.trade_date <= @bDate
+from #tax_lots_final tls
+-- left outer join tax_lot tl on tl.Open_lot_id = tls.open_id and tl.trade_date <= @bDate
 left outer join #security_details sd on sd.SecurityCode = tls.symbol
 left outer join market_prices mp on mp.symbol = tls.symbol and mp.business_date = @bDate
 where tls.business_date <= @bDate
 group by tls.symbol, side
 -- This condition needs to be removed
 -- having SUM(tls.original_quantity +Coalesce(tl.quantity, 0)) != 0
-
-
 
 
 /*

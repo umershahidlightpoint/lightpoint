@@ -98,14 +98,13 @@ namespace PostingEngine.PostingRules
             return new List<Journal>(new[] { debit, credit });
         }
 
+        private static SqlConnection _connection;
+
         internal void CreateFxUnsettled(PostingEngineEnvironment env, Transaction element)
         {
             var journals = new List<Journal>();
 
-            if (element.Symbol.Equals("RBD"))
-            {
-
-            }
+            //env.CallBack?.Invoke($"Create Fx Unsettled {element.SettleCurrency} -- {element.LpOrderId}");
 
             var sql = $@"select credit, debit, symbol, quantity, fx_currency, fund, source, fxrate, security_id from vwJournal 
                          where [event] = 'unrealizedpnl' 
@@ -114,9 +113,14 @@ namespace PostingEngine.PostingRules
                          and [when] < '{env.ValueDate.ToString("MM-dd-yyyy")}'
                          and [source] = '{element.LpOrderId}'";
 
-            var connection = new SqlConnection(env.ConnectionString);
-            connection.Open();
-            var command = new SqlCommand(sql, connection);
+            //Console.WriteLine(sql);
+
+            if ( _connection == null )
+            {
+                _connection = new SqlConnection(env.ConnectionString);
+                _connection.Open();
+            }
+            var command = new SqlCommand(sql, _connection);
             //command.Transaction = env.Transaction;
             var reader = command.ExecuteReader(System.Data.CommandBehavior.SingleResult);
 
@@ -134,9 +138,6 @@ namespace PostingEngine.PostingRules
                     FxRate = Convert.ToDouble(reader.GetFieldValue<decimal>(7)),
                     SecurityId = reader.GetFieldValue<int>(8),
                 };
-
-                if (unsettledPnl.Currency.Equals(env.BaseCurrency))
-                    continue;
 
                 var prevRate = FxRates.Find(env.PreviousValueDate, unsettledPnl.Currency).Rate;
                 var eodRate = FxRates.Find(env.ValueDate, unsettledPnl.Currency).Rate;
@@ -185,10 +186,10 @@ namespace PostingEngine.PostingRules
 
                 journals.AddRange(new List<Journal>(new[] { debit, credit }));
             }
-            connection.Close();
+            reader.Close();
 
-            new SQLBulkHelper().Insert("journal", journals.ToArray(), env.Connection, env.Transaction);
-
+            //connection.Close();
+            env.Journals.AddRange(journals);
         }
 
         /// <summary>

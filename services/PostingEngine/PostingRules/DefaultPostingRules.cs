@@ -337,6 +337,11 @@ namespace PostingEngine.PostingRules
         }
         internal void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
+            if ( element.Symbol.Equals("CDAY"))
+            {
+
+            }
+
             double multiplier = 1.0;
 
             if (env.SecurityDetails.ContainsKey(element.BloombergCode))
@@ -389,7 +394,7 @@ namespace PostingEngine.PostingRules
             else if (element.IsSell() || element.IsCover())
             {
 
-                if ( element.Symbol.Equals("USD/JPY 02/12/20"))
+                if ( element.Symbol.Equals("CDAY"))
                 {
 
                 }
@@ -400,7 +405,7 @@ namespace PostingEngine.PostingRules
                 {
                     // Whats going on here?
                     // We are skipping anything that does not get an OpenLot
-                    Logger.Warn($"There should be for a sell {element.Symbol} have at least one open lot, non found");
+                    Logger.Warn($"No Open Tax Lot for {element.Symbol}::{element.Side}");
                 }
                 else
                 {
@@ -414,6 +419,8 @@ namespace PostingEngine.PostingRules
                         if (!env.TaxLotStatus.ContainsKey(lot.Trade.LpOrderId))
                         {
                             // TODO: For this open lot there should be a corresponding open to 
+                            Logger.Warn($"Unable to Find Tax Lot for {lot.Trade.Symbol}::{lot.Trade.Side}::{lot.Trade.Status}");
+                            //Logger.Warn($"Unable to Find Tax Lot for {element.Symbol}::{element.Side}::{element.Status}");
                             continue;
                         }
 
@@ -469,7 +476,7 @@ namespace PostingEngine.PostingRules
                                 var changeDueToFx = fxrate - taxlotStatus.FxRate;
                                 // Original Trade Price
                                 var changeInRealizedPnlDueToFx = changeDueToFx * (taxlot.TradePrice) * Math.Abs(taxlot.Quantity);
-                                var changeInUnRealizedPnlDueToFx = changeDueToFx * (taxlot.CostBasis - taxlot.TradePrice) * Math.Abs(taxlot.Quantity); ;
+                                var changeInUnRealizedPnlDueToFx = changeDueToFx * (taxlot.CostBasis - taxlot.TradePrice) * Math.Abs(taxlot.Quantity);
 
                                 CommonRules.PostRealizedPnl(
                                     env,

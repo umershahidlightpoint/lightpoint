@@ -1,7 +1,12 @@
-﻿CREATE View [dbo].[vwFullJournal]
-as
+﻿CREATE VIEW [dbo].[vwFullJournal]
+	AS 
+
 select vw.*, 
-t.TradeId, t.Action, t.Status, t.CustodianCode, t.SecurityType 
+	t.TradeId, 
+	t.Action, 
+	t.Status, 
+	t.CustodianCode, 
+	t.SecurityType 
 from vwJournal vw
-left outer join TradeMaster..Trade t on t.LpOrderId = vw.source
+left outer join vwCurrentStateTrades t on t.LpOrderId = vw.source
 GO

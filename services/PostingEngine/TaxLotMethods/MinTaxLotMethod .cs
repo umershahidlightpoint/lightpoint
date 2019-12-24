@@ -41,7 +41,7 @@ namespace PostingEngine.TaxLotMethods
             var eodPrice = MarketPrices.Find(env.ValueDate, i.Trade.BloombergCode).Price;
             var fxrate = FxRates.Find(env.ValueDate, i.Trade.SettleCurrency).Rate;
 
-            var taxImplication = (eodPrice * i.Trade.SettleNetPrice) * i.Trade.Quantity * fxrate * taxrate;
+            var taxImplication = (eodPrice - i.Trade.SettleNetPrice) * i.Trade.Quantity * fxrate * taxrate;
 
             return taxImplication;
         }

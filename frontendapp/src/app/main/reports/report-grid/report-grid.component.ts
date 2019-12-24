@@ -145,10 +145,16 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
   initColDefs(headerName): Array<ColDef | ColGroupDef> {
     return [
       {
-        colId: 'AccountCategory',
-        field: 'AccountCategory',
+        colId: 'AccountTyoe',
+        field: 'AccountType',
         width: 120,
         headerName
+      },
+      {
+        colId: 'AccountName',
+        field: 'AccountName',
+        width: 120,
+        headerName: 'Account Namne',
       },
       {
         colId: 'debit',

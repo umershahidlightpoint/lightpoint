@@ -546,7 +546,7 @@ namespace LP.Finance.Common
             using (var bulk = new SqlBulkCopy(connection,
                 options, transaction))
             {
-                bulk.BatchSize = 1000;
+                bulk.BatchSize = 100000;
                 bulk.DestinationTableName = tablename;
 
                 foreach (DataColumn c in table.Columns)

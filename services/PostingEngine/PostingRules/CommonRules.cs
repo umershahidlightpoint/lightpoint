@@ -204,20 +204,22 @@ namespace PostingEngine.PostingRules
             var prevPrice = MarketPrices.Find(env.PreviousValueDate, lot.Trade.Symbol).Price;
             var unrealizedPnl = taxlotStatus.Quantity * (element.SettleNetPrice - prevPrice) * multiplier;
 
+            var buyTrade = env.FindTrade(lot.Trade.LpOrderId);
+
             PostUnRealizedPnl(
                 env,
-                env.FindTrade(lot.Trade.LpOrderId),
+                buyTrade,
                 unrealizedPnl,
                 MarketPrices.Find(env.PreviousValueDate, lot.Trade.BloombergCode).Price,
-                element.SettleNetPrice, 1);
+                element.SettleNetPrice, fxrate);
 
-            var PnL = Math.Abs(taxlot.Quantity) * (taxlot.CostBasis - taxlot.TradePrice) * multiplier;
+            var PnL = Math.Abs(taxlot.Quantity) * (taxlot.CostBasis - taxlot.TradePrice) * multiplier * fxrate;
             PostRealizedPnl(
                 env,
-                element,
+                buyTrade,
                 PnL,
                 taxlot.TradePrice,
-                taxlot.CostBasis);
+                taxlot.CostBasis, fxrate);
 
             var listOfFromTags = new List<Tag>
             {

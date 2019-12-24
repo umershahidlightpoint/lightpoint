@@ -115,6 +115,9 @@ namespace PostingEngine.PostingRules
 
         public void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
+            if (element.AccrualId == null)
+                return;
+
             var accrual = env.Accruals.ContainsKey(element.AccrualId) ? env.Accruals[element.AccrualId] : null;
 
             if ( accrual != null )

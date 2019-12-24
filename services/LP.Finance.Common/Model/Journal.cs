@@ -158,7 +158,13 @@ namespace LP.Finance.Common.Models
 
             row["source"] = this.Source;
             row["account_id"] = this.Account.Id;
-            row["value"] = this.Value;
+            try
+            {
+                row["value"] = this.Value;
+            } catch ( Exception ex )
+            {
+                row["value"] = 0;
+            }
             row["when"] = this.When;
             row["generated_by"] = this.GeneratedBy;
             row["fund"] = this.Fund;

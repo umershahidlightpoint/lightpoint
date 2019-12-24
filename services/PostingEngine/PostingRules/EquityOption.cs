@@ -26,6 +26,10 @@ namespace PostingEngine.PostingRules
 
         public new void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
+            if ( element.Symbol.StartsWith("COST"))
+            {
+
+            }
             base.TradeDateEvent(env, element);
         }
     }

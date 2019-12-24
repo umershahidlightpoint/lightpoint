@@ -118,6 +118,7 @@
     <Build Include="StoredProcs\SeedDatabase.sql" />
     <Build Include="Views\vwJournalFull.sql" />
     <Build Include="Views\vwFullJournal.sql" />
+    <Build Include="StoredProcs\ClosingTaxLot.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">

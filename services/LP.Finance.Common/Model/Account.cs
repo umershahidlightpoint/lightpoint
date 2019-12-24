@@ -29,7 +29,7 @@ namespace LP.Finance.Common.Models
 
             var list = new List<Account>();
 
-            var query = new SqlCommand("select id, name, account_type_id from account", connection);
+            var query = new SqlCommand("select id, name, account_type_id from account with(nolock)", connection);
             var reader = query.ExecuteReader(System.Data.CommandBehavior.SingleResult);
 
             while (reader.Read())

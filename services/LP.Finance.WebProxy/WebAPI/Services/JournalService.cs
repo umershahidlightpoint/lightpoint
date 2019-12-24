@@ -658,7 +658,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 bool whereAdded = false;
 
-                var query = $@"select account.name as AccountName, account_category.name as AccountCategory,
+                var query = $@"select account.name as AccountName, account_category.name as AccountCategory, account_type.name as AccountType,
                         summary.Debit, summary.Credit,
                         abs(summary.Debit) - abs(summary.Credit) as Balance,
                         (SUM(summary.Debit) over()) as DebitSum, 
@@ -710,7 +710,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
 
                 query = query +
-                        "  group by vwJournal.account_id ) summary right join account on summary.account_id = account.id left join account_type on account_type.id = account.account_type_id right join account_category on account_category.id = account_type.account_category_id ";
+                        "  group by vwJournal.account_id ) summary " +
+                        "right join account on summary.account_id = account.id " +
+                        "left join account_type on account_type.id = account.account_type_id " +
+                        "right join account_category on account_category.id = account_type.account_category_id ";
 
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
 
@@ -727,8 +730,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 foreach (DataRow row in dataTable.Rows)
                 {
                     TrialBalanceReportOutPutDto trialBalance = new TrialBalanceReportOutPutDto();
-                    trialBalance.AccountName = row["AccountName"] != DBNull.Value ? (string)row["AccountName"] : "";
                     trialBalance.AccountCategory = row["AccountCategory"] != DBNull.Value ? (string)row["AccountCategory"] : "";
+                    trialBalance.AccountType = row["AccountType"] != DBNull.Value ? (string)row["AccountType"] : "";
+                    trialBalance.AccountName = row["AccountName"] != DBNull.Value ? (string)row["AccountName"] : "";
                     trialBalance.Credit = GetDecimal(row["Credit"]);
                     trialBalance.Debit = GetDecimal(row["Debit"]);
                     trialBalance.Balance = GetDecimal(row["Balance"], false);

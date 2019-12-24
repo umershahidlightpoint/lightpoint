@@ -19,7 +19,7 @@ namespace PostingEngine.MarketData
                 return Utils.GetFile<Dictionary<string, SecurityDetail>>("securitydetails");
             }
 
-            var sql = $@"select SecurityCode, BbergCode, coalesce(sd.Multiplier, sf.ContractSize) as Multiplier from Security s
+            var sql = $@"select SecurityCode, BbergCode, EzeTicker, coalesce(sd.Multiplier, sf.ContractSize) as Multiplier from Security s
 left join SecDerivatives sd on sd.SecurityId = s.SecurityId
 left join SecFutures sf on sf.SecurityId = s.SecurityId
 where coalesce(sd.Multiplier, sf.ContractSize) is not null";
@@ -36,12 +36,14 @@ where coalesce(sd.Multiplier, sf.ContractSize) is not null";
                 {
                     var securityCode = reader.GetFieldValue<string>(0);
                     var bloombergCode = reader.GetFieldValue<string>(1);
-                    var multiplier = Convert.ToDouble(reader.GetFieldValue<decimal>(2));
+                    var ezeTicker = reader.GetFieldValue<string>(2);
+                    var multiplier = Convert.ToDouble(reader.GetFieldValue<decimal>(3));
 
-                    list.Add(bloombergCode, new SecurityDetail
+                    list.Add(ezeTicker, new SecurityDetail
                     {
                         BloombergCode = bloombergCode,
                         SecurityCode = securityCode,
+                        EzeTicker = ezeTicker,
                         Multiplier = multiplier,
                     });
                 }

@@ -12,6 +12,7 @@ namespace PostingEngine
 {
     public class PostingEngineEnvironment
     {
+        public bool Completed { get; set; }
         public PostingEngineEnvironment(SqlConnection connection, SqlTransaction transaction = null)
         {
             Connection = connection;
@@ -48,9 +49,12 @@ namespace PostingEngine
 
         internal TradeTaxRate TradeTaxRate(Transaction i)
         {
-            var timeToLongTerm = (ValueDate - i.TradeDate).Days;
-            var isShortTerm = timeToLongTerm <= (TaxRate != null ? TaxRate.ShortTermPeriod : 0);
-            var daysToLongTerm = timeToLongTerm - (TaxRate != null ? TaxRate.ShortTermPeriod : 0) > 0 ? timeToLongTerm - (TaxRate != null ? TaxRate.ShortTermPeriod : 0) : 0;
+            var daysToValueDate = (ValueDate - i.TradeDate).Days;
+            var isShortTerm = daysToValueDate <= (TaxRate != null ? TaxRate.ShortTermPeriod : 0);
+
+            var shortTermPeriod = (TaxRate != null ? TaxRate.ShortTermPeriod : 0);
+
+            var daysToLongTerm = (shortTermPeriod - daysToValueDate) > 0 ? (shortTermPeriod - daysToValueDate) : 0;
 
             return new TradeTaxRate
             {
@@ -82,6 +86,8 @@ namespace PostingEngine
         {
             // Common
             {"REIT", new CommonStock() },
+            {"ADR", new CommonStock() },
+            {"Bond", new CommonStock() },
             {"Common Stock", new CommonStock() },
 
             // Equity Option

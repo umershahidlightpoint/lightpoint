@@ -160,6 +160,7 @@ namespace PostingEngine.PostingRules
                         if ( !env.TaxLotStatus.ContainsKey(lot.Trade.LpOrderId))
                         {
                             // TODO: For this open lot there should be a corresponding open to 
+                            //Logger.Warn($"Unable to Find Tax Lot for {lot.Trade.Symbol}::{lot.Trade.Side}::{lot.Trade.Status}");
                             continue;
                         }
 

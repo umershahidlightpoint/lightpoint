@@ -15,26 +15,40 @@ CREATE PROCEDURE [dbo].[DayOverDayIncome]
 	@prevbusinessDate Date
 AS
 select Fund, sum(credit) as credit, sum(debit) as debit, sum(debit-credit) as balance 
-into #current
-from vwJournal where AccountCategory in ( 'Revenues', 'Expenses' )
-and [when] >= @startDate and [when] < @businessDate
+into #current_revenues
+from vwJournal where AccountCategory in ( 'Revenues' )
+and [when] >= @startDate and [when] <= @businessDate
+group by Fund
+
+select Fund, sum(credit) as credit, sum(debit) as debit, sum(debit-credit) as balance 
+into #current_expences
+from vwJournal where AccountCategory in ( 'Expenses' )
+and [when] >= @startDate and [when] <= @businessDate
 group by Fund
 
 -- select * from #current
 
 select Fund, sum(credit) as credit, sum(debit) as debit, sum(debit-credit) as balance 
-into #prev
-from vwJournal where AccountCategory in ( 'Revenues', 'Expenses' )
-and [when] >= @startDate and [when] < @prevbusinessDate
+into #prev_revenues
+from vwJournal where AccountCategory in ( 'Revenues' )
+and [when] >= @startDate and [when] <= @prevbusinessDate
+group by Fund
+
+select Fund, sum(credit) as credit, sum(debit) as debit, sum(debit-credit) as balance 
+into #prev_expences
+from vwJournal where AccountCategory in ( 'Expenses' )
+and [when] >= @startDate and [when] <= @prevbusinessDate
 group by Fund
 
 -- select * from #prev
 
-select c.Fund, 
-c.Debit - p.debit as Debit,
-c.Credit - p.Credit as Credit,
-c.Balance - p.balance as Balance
-from #current as c
-inner join #prev as p on p.Fund = c.Fund
+select ce.Fund, 
+0 as Debit,
+0 as Credit,
+(coalesce(ce.Balance,0) + coalesce(cr.balance,0)) - (coalesce(pe.balance,0) + coalesce(pr.balance,0)) as Balance
+from #current_expences as ce
+left outer join #current_revenues as cr on cr.Fund = ce.Fund
+left outer join #prev_expences as pe on pe.Fund = ce.Fund
+left outer join #prev_revenues as pr on pr.Fund = ce.Fund
+
 RETURN 0
-GO

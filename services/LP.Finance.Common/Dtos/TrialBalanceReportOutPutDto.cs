@@ -2,6 +2,7 @@
 {
     public class TrialBalanceReportOutPutDto
     {
+        public string AccountType { get; set; }
         public string AccountName { get; set; }
         public string AccountCategory { get; set; }
 

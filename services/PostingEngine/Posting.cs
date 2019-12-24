@@ -10,13 +10,16 @@ using PostingEngine.PostingRules.Utilities;
 using PostingEngine.TaxLotMethods;
 using SqlDAL.Core;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PostingEngine
@@ -25,6 +28,8 @@ namespace PostingEngine
 
     public static class PostingEngine
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         private static readonly string
             connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
@@ -196,7 +201,7 @@ namespace PostingEngine
 
                 if (env.Journals.Count() > 0)
                 {
-                    new SQLBulkHelper().Insert("journal", env.Journals.ToArray(), connection, transaction);
+                    Journals.Add(env.Journals);
                 }
 
                 transaction.Commit();
@@ -287,6 +292,7 @@ namespace PostingEngine
                             Categories = AccountCategory.Categories,
                             Types = AccountType.All,
                             RunDate = DateTime.Now.Date,
+                            ConnectionString = connectionString,
                         };
 
                         var account = new AccountUtils().GetAccount(env, accountType, new string[] { env.BaseCurrency}.ToList());
@@ -304,15 +310,17 @@ namespace PostingEngine
                             StartPrice = 0,
                             EndPrice = 0,
 
-                            Value = balance,
-                            CreditDebit = env.DebitOrCredit(account, balance),
+                            // If this number is +ve then its actually a Debit and this is going into a Equity account which needs to be -ve and not +ve
+                            Value = balance * -1,
+                            CreditDebit = env.DebitOrCredit(account, balance * -1),
                         };
 
                         env.Journals.AddRange(new List<Journal>(new[] { debit }));
 
                         if (env.Journals.Count() > 0)
                         {
-                            new SQLBulkHelper().Insert("journal", env.Journals.ToArray(), connection, transaction);
+                            CollectData(env, env.Journals);
+                            env.Journals.Clear();
                         }
 
                         transaction.Commit();
@@ -501,7 +509,7 @@ where business_date = @busDate";
                 // Now lets save the journals
                 if (env.Journals.Count() > 0)
                 {
-                    new SQLBulkHelper().Insert("journal", env.Journals.ToArray(), connection, transaction);
+                    Journals.Add(env.Journals);
                 }
 
                 transaction.Commit();
@@ -669,7 +677,7 @@ where business_date = @busDate";
 
                 if (postingEnv.Journals.Count() > 0)
                 {
-                    new SQLBulkHelper().Insert("journal", postingEnv.Journals.ToArray(), connection, transaction);
+                    Journals.Add(postingEnv.Journals);
                 }
 
                 var journalLogs = new List<JournalLog>();
@@ -722,14 +730,21 @@ where business_date = @busDate";
 
                 // Cleanout all data
                 PostingEngineCallBack?.Invoke("Cleanup");
-                Cleanup(connection, period);
+                try
+                {
+                    Cleanup(connection, period);
+                }
+                catch ( Exception ex )
+                {
+                    Logger.Debug(ex, "");
+                    throw ex;
+                }
 
                 // Setup key data tables
                 PostingEngineCallBack?.Invoke("Preload Data");
                 Setup(connection);
 
                 PostingEngineCallBack?.Invoke("Getting Trade / Allocation / Accruals");
-                var transaction = connection.BeginTransaction();
                 var sw = new Stopwatch();
 
                 var allocations = GetTransactions(allocationsURL + Period);
@@ -748,6 +763,8 @@ where business_date = @busDate";
                     taxLotMethodology = "FIFO";
 
                 PostingEngineCallBack?.Invoke($"Using {taxLotMethodology} Tax Methodology");
+
+                var transaction = connection.BeginTransaction();
 
                 var postingEnv = new PostingEngineEnvironment(connection, transaction)
                 {
@@ -778,19 +795,29 @@ where business_date = @busDate";
                 // Lets do Trading Activity, so no Journals
                 sw.Reset();
                 sw.Start();
-                postingEnv.Rules = postingEnv.TradingRules;
-                postingEnv.SkipWeekends = true;
+
+                postingEnv.Completed = false;
+
+
+                PostingEngineCallBack?.Invoke($"Processing Trades on {DateTime.Now}");
+
+                // Lets process the saving of the journals in the background
+                HandleJournals(postingEnv);
+
                 // differentiating between trades and journals. Moving forward we can create journal entries per symbol in a parallel fashion.
+                postingEnv.SkipWeekends = true;
+                postingEnv.Rules = postingEnv.TradingRules;
                 postingEnv.Trades = tradeList.Where(i => !i.SecurityType.Equals("Journals")).ToArray();
                 postingEnv.CallBack = postingEngineCallBack;
                 int count = RunAsync(connection, transaction, postingEnv).GetAwaiter().GetResult();
                 sw.Stop();
 
                 // Lets do the Journal Activity and only Journals
-                sw.Start();
-                postingEnv.Rules = postingEnv.JournalRules;
-                postingEnv.SkipWeekends = false;
                 // zz_ journal entries from legacy system. just create double entry in portfolio accounting for each journal entry in the legacy system.
+                PostingEngineCallBack?.Invoke($"Processing Journals on {DateTime.Now}");
+                sw.Start();
+                postingEnv.SkipWeekends = false;
+                postingEnv.Rules = postingEnv.JournalRules;
                 postingEnv.Trades = tradeList.Where(i => i.SecurityType.Equals("Journals")).ToArray();
                 postingEnv.CallBack = postingEngineCallBack;
                 count = count + RunAsync(connection, transaction, postingEnv).GetAwaiter().GetResult();
@@ -798,7 +825,8 @@ where business_date = @busDate";
 
                 if (postingEnv.Journals.Count() > 0)
                 {
-                    new SQLBulkHelper().Insert("journal", postingEnv.Journals.ToArray(), connection, transaction);
+                    // DLG
+                    Journals.Add(postingEnv.Journals);
                 }
 
                 var journalLogs = new List<JournalLog>();
@@ -825,6 +853,8 @@ where business_date = @busDate";
 
                 transaction.Commit();
                 postingEngineCallBack?.Invoke("Posting Engine Processing Completed");
+
+                postingEnv.Completed = true;
             }
         }
 
@@ -921,7 +951,7 @@ where business_date = @busDate";
 
                 if (postingEnv.Journals.Count() > 0)
                 {
-                    new SQLBulkHelper().Insert("journal", postingEnv.Journals.ToArray(), connection, transaction);
+                    Journals.Add(postingEnv.Journals);
 
                     // Do not want them to be double posted
                     postingEnv.Journals.Clear();
@@ -941,6 +971,131 @@ where business_date = @busDate";
             }.Save(connection, transaction);
 
             return postingEnv.Trades.Count();
+        }
+
+        static ObservableCollection<List<Journal>> Journals = new ObservableCollection<List<Journal>>();
+
+        static PostingEngineEnvironment _postingEnv = null;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="env"></param>
+        static void HandleJournals(PostingEngineEnvironment env)
+        {
+            _postingEnv = env;
+            Journals.CollectionChanged += CollectionChanged;
+        }
+
+        private static int CollectData(PostingEngineEnvironment env, List<Journal> journals)
+        {
+            var connection = new SqlConnection(env.ConnectionString);
+            connection.Open();
+            var transaction = connection.BeginTransaction();
+
+            Logger.Info($"Commiting Journals to the database {journals.Count()}");
+
+            new SQLBulkHelper().Insert("journal", journals.ToArray(), connection, transaction);
+
+            Logger.Info($"Completed :: Commiting Journals to the database {journals.Count()}");
+
+            transaction.Commit();
+            connection.Close();
+
+            return journals.Count();
+        }
+
+        private static int CollectData(PostingEngineEnvironment env)
+        {
+            var connection = new SqlConnection(env.ConnectionString);
+            connection.Open();
+            var transaction = connection.BeginTransaction();
+
+            while (true)
+            {
+                if (env.Completed)
+                {
+                    break;
+                }
+
+                if ( _journalQueue.Count() > 0)
+                {
+                    var journals = new List<Journal>();
+
+                    while (_journalQueue.Count() > 0 )
+                    {
+                        var j = new List<Journal>();
+                        var result = _journalQueue.TryDequeue(out j);
+
+                        if ( result == false )
+                        {
+                            // What do we do ?
+                        } else {
+                            journals.AddRange(j.ToArray());
+                        }
+                    }
+                    Logger.Info($"Commiting Journals to the database {journals.Count()}");
+
+                    new SQLBulkHelper().Insert("journal", journals.ToArray(), connection, transaction);
+
+                    Logger.Info($"Completed :: Commiting Journals to the database {journals.Count()}");
+                }
+
+                Thread.Sleep(1000);
+            }
+
+            if (_journalQueue.Count() > 0)
+            {
+                var journals = new List<Journal>();
+
+                while (_journalQueue.Count() > 0)
+                {
+                    var j = new List<Journal>();
+                    var result = _journalQueue.TryDequeue(out j);
+
+                    if (result == false)
+                    {
+                        // What do we do ?
+                    }
+                    else
+                    {
+                        journals.AddRange(j.ToArray());
+                    }
+                }
+                Logger.Info($"Final Commit Journals to the database {journals.Count()}");
+
+                new SQLBulkHelper().Insert("journal", journals.ToArray(), connection, transaction);
+
+                Logger.Info($"Completed :: Final Commit Journals to the database {journals.Count()}");
+            }
+
+            transaction.Commit();
+            connection.Close();
+
+            return 1;
+        }
+
+        static ConcurrentQueue<List<Journal>> _journalQueue = new ConcurrentQueue<List<Journal>>();
+
+        private static void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if ( e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+            {
+                return;
+            }
+
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            {
+                var items = e.NewItems.Cast<List<Journal>>();
+
+                foreach( var i in items)
+                {
+                    Journals.Remove(i);
+
+                    var data = i.ToList();
+
+                    Task.Run(() => CollectData(_postingEnv, data));
+                }
+            }
         }
 
         /// <summary>
@@ -1019,17 +1174,12 @@ where business_date = @busDate";
                 }
 
                 // SELL || COVER trades
-                //alleviates tax lots
+                // alleviates tax lots
                 // generates realized pnl.
                 var sellCover = tradeData.Where(i => i.TradeDate.Equals(valueDate) && (i.IsSell() || i.IsCover())).ToList();
                 PostingEngineCallBack?.Invoke($"Processing SELL|COVER {sellCover.Count()} Trades");
                 foreach (var trade in sellCover)
                 {
-
-                    if ( trade.Symbol.Equals("ESZ9") || trade.Symbol.Equals("USD/JPY 02/12/20"))
-                    {
-
-                    }
                     // We only process trades that have not broken
                     if (ignoreTrades.Contains(trade.LpOrderId))
                         continue;
@@ -1081,7 +1231,6 @@ where business_date = @busDate";
                 // daily event for generating unrealized pnl.
                 // settlement date reverses trade date entries.
                 PostingEngineCallBack?.Invoke($"Processing For Daily {tradeData.Count()} Trades");
-
                 foreach (var element in tradeData)
                 {
                     // We only process trades that have not broken
@@ -1112,7 +1261,7 @@ where business_date = @busDate";
                 {
                     PostingEngineCallBack?.Invoke($"Committing all Journal Entries {postingEnv.Journals.Count()} Entries");
 
-                    new SQLBulkHelper().Insert("journal", postingEnv.Journals.ToArray(), connection, transaction);
+                    Journals.Add(postingEnv.Journals);
 
                     postingEnv.Journals.Clear();
                 }
@@ -1120,7 +1269,21 @@ where business_date = @busDate";
                 sw.Stop();
 
                 PostingEngineCallBack?.Invoke($"Completed {valueDate.ToString("MM-dd-yyyy")} in {sw.ElapsedMilliseconds} ms", totalDays, daysProcessed++);
+
+
                 valueDate = valueDate.AddDays(1);
+            }
+
+            if (postingEnv.TaxLotStatus.Count() > 0)
+            {
+                PostingEngineCallBack?.Invoke($"Commiting Tax Lots for {valueDate.ToString("MM-dd-yyyy")}");
+
+                new SQLBulkHelper().Insert("tax_lot_status", postingEnv.TaxLotStatus.Values.ToArray(), connection, transaction);
+
+                PostingEngineCallBack?.Invoke($"Committed Tax Lots for {valueDate.ToString("MM-dd-yyyy")}");
+
+                // Do not want them to be double posted
+                postingEnv.TaxLotStatus.Clear();
             }
 
             PostingEngineCallBack?.Invoke($"Processed # {postingEnv.Trades.Count()} transactions on " + DateTime.Now);
@@ -1130,14 +1293,6 @@ where business_date = @busDate";
                 Action = $"Processed # {postingEnv.Trades.Count()} transactions", ActionOn = DateTime.Now
             }.Save(connection, transaction);
 
-            if (postingEnv.TaxLotStatus.Count() > 0)
-            {
-                // TO DO
-                new SQLBulkHelper().Insert("tax_lot_status", postingEnv.TaxLotStatus.Values.ToArray(), connection, transaction);
-
-                // Do not want them to be double posted
-                postingEnv.TaxLotStatus.Clear();
-            }
 
             return postingEnv.Trades.Count();
         }
@@ -1182,19 +1337,26 @@ where business_date = @busDate";
             var whereClause =
                 $"where [when] between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}')";
 
-            // new SqlCommand("delete from ledger " + whereClause, connection).ExecuteNonQuery();
-            new SqlCommand("delete from journal " + whereClause, connection).ExecuteNonQuery();
-
-            if (period.Equals("ITD"))
+            try
             {
-                // We need to preserve the Accounts, so once created we are good to go
-                //new SqlCommand("delete from account_tag", connection).ExecuteNonQuery();
-                //new SqlCommand("delete from account", connection).ExecuteNonQuery();
+                // new SqlCommand("delete from ledger " + whereClause, connection).ExecuteNonQuery();
+                new SqlCommand("delete from journal " + whereClause, connection).ExecuteNonQuery();
 
-                new SqlCommand("delete from journal_log", connection).ExecuteNonQuery();
-                new SqlCommand("delete from tax_lot", connection).ExecuteNonQuery();
-                new SqlCommand("delete from tax_lot_status", connection).ExecuteNonQuery();
-                new SqlCommand("delete from cost_basis", connection).ExecuteNonQuery();
+                if (period.Equals("ITD"))
+                {
+                    // We need to preserve the Accounts, so once created we are good to go
+                    //new SqlCommand("delete from account_tag", connection).ExecuteNonQuery();
+                    //new SqlCommand("delete from account", connection).ExecuteNonQuery();
+
+                    new SqlCommand("delete from journal_log", connection).ExecuteNonQuery();
+                    new SqlCommand("delete from tax_lot", connection).ExecuteNonQuery();
+                    new SqlCommand("delete from tax_lot_status", connection).ExecuteNonQuery();
+                    new SqlCommand("delete from cost_basis", connection).ExecuteNonQuery();
+                }
+            }
+            catch ( Exception ex )
+            {
+                
             }
         }
 
@@ -1220,6 +1382,8 @@ where business_date = @busDate";
 
     public class Posting
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public IPostingRule GetRule(PostingEngineEnvironment env, Transaction element)
         {
             return env.Rules.Where(i => i.Key.Equals(element.SecurityType)).FirstOrDefault().Value;
@@ -1258,6 +1422,7 @@ where business_date = @busDate";
                 }
                 catch (Exception ex)
                 {
+                    Logger.Error(ex, $"Unable to process the Event for Trade Date {ex.Message}");
                     env.AddMessage($"Unable to process the Event for Trade Date {ex.Message}");
                 }
             }
