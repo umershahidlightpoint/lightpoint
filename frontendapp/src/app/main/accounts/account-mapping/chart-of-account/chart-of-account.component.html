@@ -26,9 +26,8 @@
   <!-- Action Buttons Div Starts -->
   <div class="ml-auto">
     <!-- Refresh Button -->
-    <button class="btn btn-pa ml-2" type="button" [disabled]="!organization" (click)="refreshAccounts()">
-      Refresh
-    </button>
+    <button class="btn btn-pa" tooltip="Reset" placement="top" [disabled]="!organization" (click)="refreshAccounts()">
+      <i class="fa fa-undo"></i></button>
 
     <!-- Commit Button -->
     <button class="btn btn-pa ml-2" type="button" [disabled]="disableCommit || commitLoader"

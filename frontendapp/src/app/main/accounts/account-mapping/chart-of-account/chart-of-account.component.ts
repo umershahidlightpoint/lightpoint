@@ -232,9 +232,9 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
       element => element.OrganizationName === this.organization
     ).Accounts;
 
-    this.cloneList = JSON.parse(JSON.stringify(this.accountRecords));
+    const cloneList = JSON.parse(JSON.stringify(this.accountRecords));
 
-    this.gridOptions.api.setRowData(this.setOrganizationAccounts(this.cloneList));
+    this.gridOptions.api.setRowData(this.setOrganizationAccounts(cloneList));
   }
 
   setOrganizationAccounts(list: any) {
@@ -314,6 +314,8 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
           thirdPartyMappedAccounts: result.ThirdPartyMappedAccounts
         }));
       }
+
+      this.cloneList = JSON.parse(JSON.stringify(this.accountRecords));
     });
   }
 
@@ -338,6 +340,8 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
 
   refreshAccounts() {
     this.gridOptions.api.showLoadingOverlay();
+
+    this.selectedAccounts = [];
     this.gridOptions.api.setRowData(this.setOrganizationAccounts(this.cloneList));
   }
 
