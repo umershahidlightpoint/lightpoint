@@ -61,9 +61,11 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
 
     this.accountmappingApiService.dispatchModifications$.subscribe(obj => {
       if (obj) {
+        this.disableCommit = false;
+        this.gridOptions.api.deselectAll();
+
         const rowNodes = this.setOrganizationAccounts(obj.rowNodes);
         this.payload = obj.payload;
-        this.disableCommit = false;
 
         rowNodes.forEach(element => {
           this.accountRecords[
