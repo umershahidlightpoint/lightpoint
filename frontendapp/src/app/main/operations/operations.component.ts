@@ -1,5 +1,4 @@
 import { Component, ElementRef, OnInit, AfterViewChecked, ViewChild } from '@angular/core';
-import { FinanceServiceProxy } from '../../../services/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import * as moment from 'moment';
 import { FormGroup, FormControl } from '@angular/forms';
@@ -12,6 +11,8 @@ import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 import { ContextMenu } from 'src/shared/Models/common';
 import { JournalApiService } from 'src/services/journal-api.service';
+import { PostingEngineApiService } from 'src/services/posting-engine-api.service';
+import { FileManagementApiService } from 'src/services/file-management-api.service';
 
 @Component({
   selector: 'app-operations',
@@ -103,7 +104,8 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
   ];
 
   constructor(
-    private financeService: FinanceServiceProxy,
+    private fileManagementApiService: FileManagementApiService,
+    private postingEngineApiService: PostingEngineApiService,
     private journalApiService: JournalApiService,
     private toastrService: ToastrService,
     private postingEngineService: PostingEngineService
@@ -212,16 +214,18 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
   */
   runEngine() {
     this.postingEngineStatus = true;
-    this.financeService.startPostingEngine(this.selectedPeriod.name).subscribe(response => {
-      if (response.IsRunning) {
-        this.isLoading = true;
+    this.postingEngineApiService
+      .startPostingEngine(this.selectedPeriod.name)
+      .subscribe(response => {
+        if (response.IsRunning) {
+          this.isLoading = true;
+          this.key = response.key;
+          this.postingEngineService.changeStatus(true);
+          this.postingEngineService.checkProgress();
+        }
         this.key = response.key;
-        this.postingEngineService.changeStatus(true);
-        this.postingEngineService.checkProgress();
-      }
-      this.key = response.key;
-      this.getLogs();
-    });
+        this.getLogs();
+      });
   }
 
   generateFiles() {
@@ -229,7 +233,7 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
       businessDate: this.businessDate != null ? this.businessDate.startDate : null
     };
     this.generateFilesLoader = true;
-    this.financeService.generateFiles(obj).subscribe(response => {
+    this.fileManagementApiService.generateFiles(obj).subscribe(response => {
       this.generateFilesLoader = false;
       if (response.isSuccessful) {
         this.toastrService.success('Files are Generated for Processing');
@@ -241,7 +245,7 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
 
   getLogs() {
     setTimeout(() => {
-      this.financeService.runningEngineStatus(this.key).subscribe(response => {
+      this.postingEngineApiService.runningEngineStatus(this.key).subscribe(response => {
         this.isLoading = response.Status;
         this.progress = response.progress;
         this.messages = response.message === '' ? this.messages : response.message;
@@ -255,7 +259,7 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
   }
 
   activeLogs() {
-    this.financeService.isPostingEngineRunning().subscribe(response => {
+    this.postingEngineApiService.isPostingEngineRunning().subscribe(response => {
       if (response.IsRunning) {
         this.isLoading = true;
         this.key = response.key;
@@ -287,7 +291,7 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
         : this.clearJournalForm.value.system
         ? 'system'
         : 'user';
-    this.financeService.clearJournals(type).subscribe(response => {
+    this.postingEngineApiService.clearJournals(type).subscribe(response => {
       if (response.isSuccessful) {
         this.toastrService.success('Journals are cleared successfully!');
       } else {

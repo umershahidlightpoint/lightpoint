@@ -54,3 +54,17 @@ export interface Fund {
   fundId: number;
   fundCode: string;
 }
+
+export interface OrganizationAccount {
+  accountId: number;
+  accountName: string;
+  description: string;
+  categoryId: number;
+  category: string;
+  typeId: number;
+  type: string;
+  hasMapping: boolean;
+  hasJournal: boolean;
+  canDeleted: boolean;
+  canEdited: boolean;
+}

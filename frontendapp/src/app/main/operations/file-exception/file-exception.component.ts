@@ -1,5 +1,4 @@
 import { Component, OnInit, AfterViewInit, TemplateRef, ViewChild } from '@angular/core';
-import { FinanceServiceProxy } from 'src/services/service-proxies';
 import { take } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
@@ -9,6 +8,7 @@ import { DataService } from 'src/services/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { TemplateRendererComponent } from 'src/app/template-renderer/template-renderer.component';
 import * as moment from 'moment';
+import { FileManagementApiService } from 'src/services/file-management-api.service';
 
 @Component({
   selector: 'app-file-exception',
@@ -29,7 +29,7 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
   styleForHeight = HeightStyle(180);
 
   constructor(
-    private financeService: FinanceServiceProxy,
+    private fileManagementApiService: FileManagementApiService,
     private toastrService: ToastrService,
     private dataService: DataService
   ) {}
@@ -136,7 +136,7 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
   }
 
   getFileExceptionData() {
-    this.financeService
+    this.fileManagementApiService
       .getInvalidExportRecords()
       .pipe(take(1))
       .subscribe(

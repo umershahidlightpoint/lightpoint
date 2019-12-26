@@ -4,7 +4,11 @@ import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { AccountmappingApiService } from '../../../../../services/accountmapping-api.service';
 import { GridOptions } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { Account, AccountCategory } from '../../../../../shared/Models/account';
+import {
+  Account,
+  AccountCategory,
+  OrganizationAccount
+} from '../../../../../shared/Models/account';
 import { DataService } from 'src/services/common/data.service';
 import { AutoSizeAllColumns, HeightStyle, Style } from 'src/shared/utils/Shared';
 import { ContextMenu } from 'src/shared/Models/common';
@@ -22,6 +26,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   account: Account;
   selectedAccountCategory: AccountCategory;
   accountCategories: AccountCategory;
+  cloneList: Array<OrganizationAccount>;
   hideGrid: boolean;
   isLoading = true;
   commitLoader = false;
@@ -227,9 +232,9 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
       element => element.OrganizationName === this.organization
     ).Accounts;
 
-    const cloneList = JSON.parse(JSON.stringify(this.accountRecords));
+    this.cloneList = JSON.parse(JSON.stringify(this.accountRecords));
 
-    this.gridOptions.api.setRowData(this.setOrganizationAccounts(cloneList));
+    this.gridOptions.api.setRowData(this.setOrganizationAccounts(this.cloneList));
   }
 
   setOrganizationAccounts(list: any) {
@@ -329,6 +334,11 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   refreshGrid() {
     this.gridOptions.api.showLoadingOverlay();
     this.getAccountsRecord();
+  }
+
+  refreshAccounts() {
+    this.gridOptions.api.showLoadingOverlay();
+    this.gridOptions.api.setRowData(this.setOrganizationAccounts(this.cloneList));
   }
 
   accountCategorySelected(category) {
