@@ -29,13 +29,14 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
 
   style = Style;
 
-  styleForHeight = HeightStyle(221);
+  styleForHeight = HeightStyle(220);
 
   organization = '';
   organizationList: any = [];
   accountRecords: any = [];
   accountsList: any = [];
   payload: any = [];
+  selectedAccounts = [];
 
   constructor(
     private toastrService: ToastrService,
@@ -120,6 +121,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
     this.gridOptions = {
       rowData: [],
       rowSelection: 'multiple',
+      onRowSelected: this.onRowSelected.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),
       rowGroupPanelShow: 'after',
       pivotPanelShow: 'after',
@@ -153,6 +155,51 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
     } as GridOptions;
   }
 
+  onRowSelected(params) {
+    let status = false;
+
+    if (params.node.selected) {
+      status = this.addSelectedAccount(params.data);
+    } else {
+      status = this.removeUnselectedAccount(params.data);
+    }
+
+    params.node.setSelected(status);
+  }
+
+  addSelectedAccount(rowData: any) {
+    let selectionStatus = false;
+    const accountIndex = this.selectedAccounts.length - 1;
+    const account = {
+      accountId: rowData.accountId,
+      thirdPartyAccountName: rowData.thirdPartyAccountName
+    };
+
+    if (this.selectedAccounts.length === 0) {
+      this.selectedAccounts.push(account);
+      selectionStatus = true;
+    } else if (
+      this.selectedAccounts[accountIndex].thirdPartyAccountName === account.thirdPartyAccountName
+    ) {
+      this.selectedAccounts.push(account);
+      selectionStatus = true;
+    } else {
+      this.toastrService.error(
+        'Please Select a Homogeneous Collection, Either rows which are not Mapped or rows with the same Mapping'
+      );
+    }
+
+    return selectionStatus;
+  }
+
+  removeUnselectedAccount(rowData: any) {
+    this.selectedAccounts = this.selectedAccounts.filter(
+      element => element.accountId !== rowData.accountId
+    );
+
+    return false;
+  }
+
   getContextMenuItems(params): Array<ContextMenu> {
     const addDefaultItems = [
       {
@@ -172,6 +219,8 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   }
 
   selectOrganization(event: any): void {
+    this.selectedAccounts = [];
+
     this.organization = event.target.value;
 
     this.accountsList = this.organizationList.find(
@@ -242,39 +291,37 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   onSelectionChanged(event: any) {}
 
   getAccountsRecord() {
-      this.accountmappingApiService.getMappedAccounts().subscribe(response => {
-        this.accountRecords = response.payload;
-        if (response.payload) {
-          this.accountRecords = response.payload.map(result => ({
-            accountId: result.AccountId,
-            accountName: result.AccountName,
-            description: result.Description,
-            categoryId: result.CategoryId,
-            category: result.Category,
-            typeId: result.TypeId,
-            type: result.Type,
-            hasMapping: result.HasMapping,
-            hasJournal: result.HasJournal,
-            canDeleted: result.CanDeleted,
-            canEdited: result.CanEdited,
-            thirdPartyMappedAccounts: result.ThirdPartyMappedAccounts
-          }));
-        }
-      });
+    this.accountmappingApiService.getMappedAccounts().subscribe(response => {
+      this.accountRecords = response.payload;
+      if (response.payload) {
+        this.accountRecords = response.payload.map(result => ({
+          accountId: result.AccountId,
+          accountName: result.AccountName,
+          description: result.Description,
+          categoryId: result.CategoryId,
+          category: result.Category,
+          typeId: result.TypeId,
+          type: result.Type,
+          hasMapping: result.HasMapping,
+          hasJournal: result.HasJournal,
+          canDeleted: result.CanDeleted,
+          canEdited: result.CanEdited,
+          thirdPartyMappedAccounts: result.ThirdPartyMappedAccounts
+        }));
+      }
+    });
   }
 
-  commitAccountMapping(){
+  commitAccountMapping() {
     this.commitLoader = true;
-    this.accountmappingApiService
-      .postAccountMapping(this.payload)
-      .subscribe(response => {
-        this.commitLoader = false;
-        if (response.isSuccessful) {
-          this.toastrService.success('Sucessfully Commited.');
-        } else {
-          this.toastrService.error('Something went wrong! Try Again.');
-        }
-      });
+    this.accountmappingApiService.postAccountMapping(this.payload).subscribe(response => {
+      this.commitLoader = false;
+      if (response.isSuccessful) {
+        this.toastrService.success('Sucessfully Commited.');
+      } else {
+        this.toastrService.error('Something went wrong! Try Again.');
+      }
+    });
 
     this.disableCommit = true;
   }
