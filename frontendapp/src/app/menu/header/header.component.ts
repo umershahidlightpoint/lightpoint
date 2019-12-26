@@ -2,9 +2,9 @@ import { Component, OnInit, Input, DoCheck, AfterViewInit } from '@angular/core'
 import { MatSidenav } from '@angular/material';
 import * as moment from 'moment';
 import { PostingEngineService } from 'src/services/common/posting-engine.service';
-import { FinanceServiceProxy } from '../../../services/service-proxies';
 import { ServicesStatusApiService } from '../../../services/services-status-api.service';
 import { JournalApiService } from 'src/services/journal-api.service';
+import { PostingEngineApiService } from 'src/services/posting-engine-api.service';
 
 @Component({
   selector: 'app-header',
@@ -25,7 +25,7 @@ export class HeaderComponent implements OnInit, DoCheck, AfterViewInit {
   constructor(
     private servicesStatusApiService: ServicesStatusApiService,
     private postingEngineService: PostingEngineService,
-    private financeService: FinanceServiceProxy,
+    private postingEngineApiService: PostingEngineApiService,
     private journalApiService: JournalApiService
   ) {}
 
@@ -79,7 +79,7 @@ export class HeaderComponent implements OnInit, DoCheck, AfterViewInit {
   }
 
   isPostingEngineRunning() {
-    this.financeService.isPostingEngineRunning().subscribe(response => {
+    this.postingEngineApiService.isPostingEngineRunning().subscribe(response => {
       if (response.IsRunning) {
         this.postingEngineService.changeStatus(true);
         this.postingEngineService.checkProgress();

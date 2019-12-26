@@ -4,7 +4,11 @@ import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { AccountmappingApiService } from '../../../../../services/accountmapping-api.service';
 import { GridOptions } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { Account, AccountCategory } from '../../../../../shared/Models/account';
+import {
+  Account,
+  AccountCategory,
+  OrganizationAccount
+} from '../../../../../shared/Models/account';
 import { DataService } from 'src/services/common/data.service';
 import { AutoSizeAllColumns, HeightStyle, Style } from 'src/shared/utils/Shared';
 import { ContextMenu } from 'src/shared/Models/common';
@@ -22,6 +26,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   account: Account;
   selectedAccountCategory: AccountCategory;
   accountCategories: AccountCategory;
+  cloneList: Array<OrganizationAccount>;
   hideGrid: boolean;
   isLoading = true;
   commitLoader = false;
@@ -178,9 +183,9 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
       element => element.OrganizationName === this.organization
     ).Accounts;
 
-    const cloneList = JSON.parse(JSON.stringify(this.accountRecords));
+    this.cloneList = JSON.parse(JSON.stringify(this.accountRecords));
 
-    this.gridOptions.api.setRowData(this.setOrganizationAccounts(cloneList));
+    this.gridOptions.api.setRowData(this.setOrganizationAccounts(this.cloneList));
   }
 
   setOrganizationAccounts(list: any) {
@@ -242,39 +247,37 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   onSelectionChanged(event: any) {}
 
   getAccountsRecord() {
-      this.accountmappingApiService.getMappedAccounts().subscribe(response => {
-        this.accountRecords = response.payload;
-        if (response.payload) {
-          this.accountRecords = response.payload.map(result => ({
-            accountId: result.AccountId,
-            accountName: result.AccountName,
-            description: result.Description,
-            categoryId: result.CategoryId,
-            category: result.Category,
-            typeId: result.TypeId,
-            type: result.Type,
-            hasMapping: result.HasMapping,
-            hasJournal: result.HasJournal,
-            canDeleted: result.CanDeleted,
-            canEdited: result.CanEdited,
-            thirdPartyMappedAccounts: result.ThirdPartyMappedAccounts
-          }));
-        }
-      });
+    this.accountmappingApiService.getMappedAccounts().subscribe(response => {
+      this.accountRecords = response.payload;
+      if (response.payload) {
+        this.accountRecords = response.payload.map(result => ({
+          accountId: result.AccountId,
+          accountName: result.AccountName,
+          description: result.Description,
+          categoryId: result.CategoryId,
+          category: result.Category,
+          typeId: result.TypeId,
+          type: result.Type,
+          hasMapping: result.HasMapping,
+          hasJournal: result.HasJournal,
+          canDeleted: result.CanDeleted,
+          canEdited: result.CanEdited,
+          thirdPartyMappedAccounts: result.ThirdPartyMappedAccounts
+        }));
+      }
+    });
   }
 
-  commitAccountMapping(){
+  commitAccountMapping() {
     this.commitLoader = true;
-    this.accountmappingApiService
-      .postAccountMapping(this.payload)
-      .subscribe(response => {
-        this.commitLoader = false;
-        if (response.isSuccessful) {
-          this.toastrService.success('Sucessfully Commited.');
-        } else {
-          this.toastrService.error('Something went wrong! Try Again.');
-        }
-      });
+    this.accountmappingApiService.postAccountMapping(this.payload).subscribe(response => {
+      this.commitLoader = false;
+      if (response.isSuccessful) {
+        this.toastrService.success('Sucessfully Commited.');
+      } else {
+        this.toastrService.error('Something went wrong! Try Again.');
+      }
+    });
 
     this.disableCommit = true;
   }
@@ -282,6 +285,11 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   refreshGrid() {
     this.gridOptions.api.showLoadingOverlay();
     this.getAccountsRecord();
+  }
+
+  refreshAccounts() {
+    this.gridOptions.api.showLoadingOverlay();
+    this.gridOptions.api.setRowData(this.setOrganizationAccounts(this.cloneList));
   }
 
   accountCategorySelected(category) {

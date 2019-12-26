@@ -53,7 +53,7 @@ export class AccountComponent implements OnInit, AfterViewInit {
     boxSizing: 'border-box'
   };
 
-  activeAccountMap: boolean = false;
+  activeAccountMap = false;
 
   constructor(
     private router: Router,

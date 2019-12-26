@@ -23,15 +23,21 @@
   </div>
   <!-- Loader Ends -->
 
-  <!-- Commit Button -->
+  <!-- Action Buttons Div Starts -->
   <div class="ml-auto">
+    <!-- Refresh Button -->
+    <button class="btn btn-pa ml-2" type="button" [disabled]="!organization" (click)="refreshAccounts()">
+      Refresh
+    </button>
+
+    <!-- Commit Button -->
     <button class="btn btn-pa ml-2" type="button" [disabled]="disableCommit || commitLoader"
       (click)="commitAccountMapping()">
       Commit
       <span *ngIf="commitLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
     </button>
   </div>
-  <!-- Commit Button Ends -->
+  <!-- Action Buttons Div Ends -->
 
 </div>
 <!-- Actions Container Ends -->
