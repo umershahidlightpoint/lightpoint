@@ -1,5 +1,4 @@
 import { Component, ElementRef, OnInit, AfterViewChecked, ViewChild } from '@angular/core';
-import { FinanceServiceProxy } from '../../../services/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import * as moment from 'moment';
 import { FormGroup, FormControl } from '@angular/forms';
@@ -13,6 +12,7 @@ import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-mo
 import { ContextMenu } from 'src/shared/Models/common';
 import { JournalApiService } from 'src/services/journal-api.service';
 import { PostingEngineApiService } from 'src/services/posting-engine-api.service';
+import { FileManagementApiService } from 'src/services/file-management-api.service';
 
 @Component({
   selector: 'app-operations',
@@ -104,7 +104,7 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
   ];
 
   constructor(
-    private financeService: FinanceServiceProxy,
+    private fileManagementApiService: FileManagementApiService,
     private postingEngineApiService: PostingEngineApiService,
     private journalApiService: JournalApiService,
     private toastrService: ToastrService,
@@ -233,7 +233,7 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
       businessDate: this.businessDate != null ? this.businessDate.startDate : null
     };
     this.generateFilesLoader = true;
-    this.financeService.generateFiles(obj).subscribe(response => {
+    this.fileManagementApiService.generateFiles(obj).subscribe(response => {
       this.generateFilesLoader = false;
       if (response.isSuccessful) {
         this.toastrService.success('Files are Generated for Processing');
