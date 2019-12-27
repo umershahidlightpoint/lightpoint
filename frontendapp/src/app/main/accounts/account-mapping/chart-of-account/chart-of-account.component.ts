@@ -2,13 +2,14 @@ import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { ChartOfAccountDetailComponent } from '../chart-of-account-detail/chart-of-account-detail.component';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { AccountmappingApiService } from '../../../../../services/accountmapping-api.service';
-import { GridOptions } from 'ag-grid-community';
-import { ToastrService } from 'ngx-toastr';
 import {
-  Account,
-  AccountCategory,
-  OrganizationAccount
-} from '../../../../../shared/Models/account';
+  GridOptions,
+  ColumnRowGroupChangedEvent,
+  ColDef,
+  RowSelectedEvent
+} from 'ag-grid-community';
+import { ToastrService } from 'ngx-toastr';
+import { OrganizationAccount } from '../../../../../shared/Models/account';
 import { DataService } from 'src/services/common/data.service';
 import { AutoSizeAllColumns, HeightStyle, Style } from 'src/shared/utils/Shared';
 import { ContextMenu } from 'src/shared/Models/common';
@@ -22,26 +23,23 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   @ViewChild('mapAccountModal', { static: false }) mapAccountModal: ChartOfAccountDetailComponent;
 
   gridOptions: GridOptions;
-  rowData: Array<Account>;
-  account: Account;
-  selectedAccountCategory: AccountCategory;
-  accountCategories: AccountCategory;
-  cloneList: Array<OrganizationAccount>;
-  hideGrid: boolean;
+  colDefs: ColDef[];
+  autoGroupColumnDef: ColDef;
+  accountRecords: any = [];
+  cloneList: OrganizationAccount[];
+  organizationList: any = [];
+  organization = '';
+  accountsList: any = [];
+  payload: any = [];
+  selectedAccounts = [];
   isLoading = true;
   commitLoader = false;
   disableCommit = true;
+  hideGrid: boolean;
 
   style = Style;
 
   styleForHeight = HeightStyle(220);
-
-  organization = '';
-  organizationList: any = [];
-  accountRecords: any = [];
-  accountsList: any = [];
-  payload: any = [];
-  selectedAccounts = [];
 
   constructor(
     private toastrService: ToastrService,
@@ -49,6 +47,12 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
     private accountmappingApiService: AccountmappingApiService
   ) {
     this.hideGrid = false;
+  }
+
+  ngOnInit() {
+    this.initColDefs();
+    this.initGrid();
+    this.getOrganizations();
   }
 
   ngAfterViewInit(): void {
@@ -74,9 +78,16 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
 
           const row = this.gridOptions.api.getRowNode(element.accountId).setData(element);
         });
+
+        const columnGroupState = this.gridOptions.columnApi.getColumnState();
+        this.gridOptions.columnApi.resetColumnState();
+        this.gridOptions.columnApi.setColumnState(columnGroupState);
       }
     });
-    this.gridOptions.api.setColumnDefs([
+  }
+
+  initColDefs() {
+    this.colDefs = [
       {
         headerName: 'Account Id',
         field: 'accountId',
@@ -112,23 +123,28 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
       {
         headerName: 'Third Party Account Name',
         field: 'thirdPartyAccountName',
-        filter: true
+        filter: true,
+        enableRowGroup: true
       }
-    ]);
-  }
-
-  ngOnInit() {
-    this.initGrid();
-    this.getAccountsRecord();
-    this.getAccountCategories();
-    this.getOrganizations();
+    ];
+    this.autoGroupColumnDef = {
+      headerName: 'Third Party Account',
+      field: 'thirdPartyAccount',
+      width: 200,
+      cellRenderer: 'agGroupCellRenderer',
+      cellRendererParams: { checkbox: true }
+    };
   }
 
   initGrid() {
     this.gridOptions = {
       rowData: [],
+      columnDefs: this.colDefs,
+      pinnedBottomRowData: null,
       rowSelection: 'multiple',
+      groupSelectsChildren: true,
       onRowSelected: this.onRowSelected.bind(this),
+      autoGroupColumnDef: this.autoGroupColumnDef,
       getContextMenuItems: this.getContextMenuItems.bind(this),
       rowGroupPanelShow: 'after',
       pivotPanelShow: 'after',
@@ -139,31 +155,99 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
         resizable: true,
         filter: true
       },
-      groupSelectsChildren: true,
-      pinnedBottomRowData: null,
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
         params.api.sizeColumnsToFit();
-      },
-      getExternalFilterState: () => {
-        return {};
       },
       getRowNodeId: data => {
         return data.accountId;
       },
       getRowStyle: params => {
-        if (params.data.thirdPartyOrganizationName === this.organization) {
+        if (!params.node.group && params.data.thirdPartyOrganizationName === this.organization) {
           return { background: '#eeeeee' };
         }
 
         return { background: '#ffffff' };
       },
+      getExternalFilterState: () => {
+        return {};
+      },
       clearExternalFilter: () => {}
     } as GridOptions;
   }
 
-  onRowSelected(params) {
+  selectOrganization(event: any): void {
+    this.selectedAccounts = [];
+
+    this.organization = event.target.value;
+
+    this.setGridData();
+  }
+
+  setGridData() {
+    this.accountsList = this.organizationList.find(
+      element => element.OrganizationName === this.organization
+    ).Accounts;
+
+    const cloneList = JSON.parse(JSON.stringify(this.accountRecords));
+
+    this.gridOptions.api.setRowData(this.setOrganizationAccounts(cloneList));
+  }
+
+  setOrganizationAccounts(list: any) {
+    list = list.map(item => {
+      let accountName = '';
+      let organizationName = '';
+
+      if (item.thirdPartyMappedAccounts.length !== 0) {
+        const { ThirdPartyAccountName = '', OrganizationName = '' } =
+          item.thirdPartyMappedAccounts.find(
+            element => element.OrganizationName === this.organization
+          ) || {};
+        accountName = ThirdPartyAccountName;
+        organizationName = OrganizationName;
+      }
+
+      return {
+        ...item,
+        thirdPartyAccountName: accountName,
+        thirdPartyOrganizationName: organizationName
+      };
+    });
+
+    return list;
+  }
+
+  getContextMenuItems(params): Array<ContextMenu> {
+    const addDefaultItems = [
+      {
+        name: 'Map',
+        action: () => {
+          this.mappedAccountId(params.node.data);
+        }
+      }
+    ];
+    return GetContextMenu(false, addDefaultItems, false, [], params);
+  }
+
+  mappedAccountId(params) {
+    const getSelectedAccounts = this.gridOptions.api.getSelectedRows();
+    const dispatchObject = {
+      payload: this.payload,
+      rowNodes: getSelectedAccounts,
+      organization: this.organization,
+      accounts: this.accountsList
+    };
+
+    this.accountmappingApiService.storeAccountList(dispatchObject);
+
+    this.mapAccountModal.show();
+  }
+
+  onRowSelected(params: any) {
+    console.log('PARAMS :: ', params);
     let status = false;
+    const groupState = params.node.group;
 
     if (params.node.selected) {
       status = this.addSelectedAccount(params.data);
@@ -207,81 +291,15 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
     return false;
   }
 
-  getContextMenuItems(params): Array<ContextMenu> {
-    const addDefaultItems = [
-      {
-        name: 'Map',
-        action: () => {
-          this.mappedAccountId(params.node.data);
-        }
-      }
-    ];
-    return GetContextMenu(false, addDefaultItems, false, [], params);
-  }
-
   getOrganizations() {
-    this.accountmappingApiService.getOrganisation().subscribe(data => {
-      this.organizationList = data.payload;
-    });
-  }
-
-  selectOrganization(event: any): void {
-    this.selectedAccounts = [];
-
-    this.organization = event.target.value;
-
-    this.accountsList = this.organizationList.find(
-      element => element.OrganizationName === this.organization
-    ).Accounts;
-
-    const cloneList = JSON.parse(JSON.stringify(this.accountRecords));
-
-    this.gridOptions.api.setRowData(this.setOrganizationAccounts(cloneList));
-  }
-
-  setOrganizationAccounts(list: any) {
-    list = list.map(item => {
-      let accountName = '';
-      let organizationName = '';
-
-      if (item.thirdPartyMappedAccounts.length !== 0) {
-        const { ThirdPartyAccountName = '', OrganizationName = '' } =
-          item.thirdPartyMappedAccounts.find(
-            element => element.OrganizationName === this.organization
-          ) || {};
-        accountName = ThirdPartyAccountName;
-        organizationName = OrganizationName;
-      }
-
-      return {
-        ...item,
-        thirdPartyAccountName: accountName,
-        thirdPartyOrganizationName: organizationName
-      };
-    });
-
-    return list;
-  }
-
-  mappedAccountId(params) {
-    const getSelectedAccounts = this.gridOptions.api.getSelectedRows();
-    const dispatchObject = {
-      payload: this.payload,
-      rowNodes: getSelectedAccounts,
-      organization: this.organization,
-      accounts: this.accountsList
-    };
-
-    this.accountmappingApiService.storeAccountList(dispatchObject);
-
-    this.mapAccountModal.show();
-  }
-
-  getAccountCategories() {
     this.accountmappingApiService.getOrganisation().subscribe(
       response => {
         if (response.isSuccessful) {
-          this.accountCategories = response.payload;
+          this.organizationList = response.payload;
+
+          this.organization = response.payload[0].OrganizationName;
+
+          this.getAccountsRecord();
         } else {
           this.toastrService.error('Failed to fetch account Organizations!');
         }
@@ -294,8 +312,6 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
       }
     );
   }
-
-  onSelectionChanged(event: any) {}
 
   getAccountsRecord() {
     this.accountmappingApiService.getMappedAccounts().subscribe(response => {
@@ -317,40 +333,33 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
         }));
       }
 
+      this.setGridData();
       this.cloneList = JSON.parse(JSON.stringify(this.accountRecords));
     });
   }
 
-  commitAccountMapping() {
-    this.commitLoader = true;
-    this.accountmappingApiService.postAccountMapping(this.payload).subscribe(response => {
-      this.commitLoader = false;
-      if (response.isSuccessful) {
-        this.toastrService.success('Sucessfully Commited.');
-      } else {
-        this.toastrService.error('Something went wrong! Try Again.');
-      }
-    });
-
-    this.disableCommit = true;
-  }
-
-  refreshGrid() {
-    this.gridOptions.api.showLoadingOverlay();
-    this.getAccountsRecord();
-  }
-
-  refreshAccounts() {
+  resetGrid() {
     this.gridOptions.api.showLoadingOverlay();
 
     this.selectedAccounts = [];
     this.gridOptions.api.setRowData(this.setOrganizationAccounts(this.cloneList));
   }
 
-  accountCategorySelected(category) {
-    this.selectedAccountCategory = {
-      id: category.Id,
-      name: category.Name
-    };
+  commitAccountMapping() {
+    this.commitLoader = true;
+
+    this.accountmappingApiService.postAccountMapping(this.payload).subscribe(response => {
+      this.commitLoader = false;
+
+      if (response.isSuccessful) {
+        this.toastrService.success('Sucessfully Commited.');
+
+        this.getAccountsRecord();
+      } else {
+        this.toastrService.error('Something went wrong! Try Again.');
+      }
+    });
+
+    this.disableCommit = true;
   }
 }

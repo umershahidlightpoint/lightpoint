@@ -26,7 +26,7 @@
   <!-- Action Buttons Div Starts -->
   <div class="ml-auto">
     <!-- Refresh Button -->
-    <button class="btn btn-pa" tooltip="Reset" placement="top" [disabled]="!organization" (click)="refreshAccounts()">
+    <button class="btn btn-pa" tooltip="Reset" placement="top" [disabled]="!organization" (click)="resetGrid()">
       <i class="fa fa-undo"></i></button>
 
     <!-- Commit Button -->
@@ -43,8 +43,7 @@
 
 <!-- AG Grid Container -->
 <div [ngStyle]="styleForHeight">
-  <ag-grid-angular (selectionChanged)="onSelectionChanged($event)" class="ag-theme-balham w-100 h-100"
-    [gridOptions]="gridOptions">
+  <ag-grid-angular class="ag-theme-balham w-100 h-100" [gridOptions]="gridOptions">
   </ag-grid-angular>
 </div>
 <!-- AG Grid Container Ends -->
