@@ -159,7 +159,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
       },
       getRowStyle: params => {
         console.log('Params Data', params.data);
-        if (params.data.thirdPartyOrganizationName === this.organization) {
+        if (!params.node.group && params.data.thirdPartyOrganizationName === this.organization) {
           const acc = params.data.thirdPartyMappedAccounts.find(
             account => account.OrganizationName === params.data.thirdPartyOrganizationName
           );
@@ -200,7 +200,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
 
   setOrganizationAccounts(list: any) {
     list = list.map(item => {
-      console.log('LIST ==>', list);
+      // console.log('LIST ==>', list);
       let accountName = '';
       let organizationName = '';
 
