@@ -51,13 +51,13 @@ export class ChartOfAccountDetailComponent implements OnInit {
     }
 
     this.rowNodes.forEach(element => {
-      let account = this.payload.find(x => x.AccountId == element.accountId);
+      const account = this.payload.find(x => x.AccountId == element.accountId);
       if (account) {
         account.ThirdPartyAccountMapping.push({
           ThirdPartyAccountId: this.selectedOption.AccountId
         });
       } else {
-        let thirdPartyAccountMapping = [];
+        const thirdPartyAccountMapping = [];
         thirdPartyAccountMapping.push({
           ThirdPartyAccountId: this.selectedOption.AccountId
         });
@@ -71,14 +71,16 @@ export class ChartOfAccountDetailComponent implements OnInit {
         LPAccountId: element.accountId,
         ThirdPartyAccountId: this.selectedOption.AccountId
       });
-      //TODO modify third party mapping in row node
+      // TODO modify third party mapping in row node
       element.thirdPartyMappedAccounts.push({
         ThirdPartyAccountId: this.selectedOption.AccountId,
         ThirdPartyAccountName: this.selectedOption.AccountName,
-        OrganizationName: this.organization
+        OrganizationName: this.organization,
+        isCommitted: false,
+        isModified: true
       });
     });
-    //TODO iterate over row nodes and modify hasmapping and account name property
+    // TODO iterate over row nodes and modify hasmapping and account name property
     this.accountDetailList.push({
       ThirdPartyAccountName: this.selectedOption.AccountName,
       OrganizationName: this.organization
@@ -182,8 +184,9 @@ export class ChartOfAccountDetailComponent implements OnInit {
       const referenceThirdParty = this.thirdPartyAccountList.find(
         x => x.LPAccountId === element.accountId
       );
-      let account = this.payload.find(x => x.AccountId == element.accountId);
-      // modifying the payload
+      const account = this.payload.find(x => x.AccountId == element.accountId);
+
+      // Modifying the payload
       if (account) {
         if (obj.MapId) {
           account.ThirdPartyAccountMapping.push({
@@ -191,7 +194,7 @@ export class ChartOfAccountDetailComponent implements OnInit {
             ThirdPartyAccountId: referenceThirdParty.ThirdPartyAccountId
           });
         } else {
-          //if map id is not present, we need to remove it from the payload instead of adding it.
+          // If map id is not present, we need to remove it from the payload instead of adding it.
           const filteredThirdPartAccounts = account.ThirdPartyAccountMapping.filter(item => {
             return item.ThirdPartyAccountId !== referenceThirdParty.ThirdPartyAccountId;
           });
@@ -211,16 +214,16 @@ export class ChartOfAccountDetailComponent implements OnInit {
             ThirdPartyAccountMapping: thirdPartyMapping
           });
         } else {
-          //if map id is not present, we need to remove it from the payload instead of adding it.
+          // if map id is not present, we need to remove it from the payload instead of adding it.
         }
       }
-      //modifying row nodes
+      // Modifying row nodes
       const thirdPartyMappedAccounts = element.thirdPartyMappedAccounts.filter(item => {
         return item.ThirdPartyAccountId !== referenceThirdParty.ThirdPartyAccountId;
       });
       element.thirdPartyMappedAccounts = thirdPartyMappedAccounts;
 
-      //modifying third party account list.
+      // Modifying third party account list.
       const thirdPartyAccountList = this.thirdPartyAccountList.filter(item => {
         return item.LPAccountId !== referenceThirdParty.LPAccountId;
       });
@@ -228,7 +231,7 @@ export class ChartOfAccountDetailComponent implements OnInit {
     });
 
     this.accountDetailList = [];
-    //TODO iterate over row nodes and modify third party accounts
+    // TODO iterate over row nodes and modify third party accounts
     console.log(this.payload, 'modified payload after deletion');
     console.log(this.rowNodes, 'modified row nodes after deletion');
   }

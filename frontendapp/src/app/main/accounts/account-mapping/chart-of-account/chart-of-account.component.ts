@@ -163,8 +163,17 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
         return data.accountId;
       },
       getRowStyle: params => {
-        if (!params.node.group && params.data.thirdPartyOrganizationName === this.organization) {
-          return { background: '#eeeeee' };
+        console.log('Params Data', params.data);
+        if (params.data.thirdPartyOrganizationName === this.organization) {
+          const acc = params.data.thirdPartyMappedAccounts.find(
+            account => account.OrganizationName === params.data.thirdPartyOrganizationName
+          );
+          console.log('ACC ', acc);
+          if (acc.isCommitted && !acc.isModifed) {
+            return { background: '#eeeeee' };
+          } else {
+            return { background: '#f9a89f' };
+          }
         }
 
         return { background: '#ffffff' };
@@ -196,6 +205,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
 
   setOrganizationAccounts(list: any) {
     list = list.map(item => {
+      console.log('LIST ==>', list);
       let accountName = '';
       let organizationName = '';
 
@@ -329,7 +339,18 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
           hasJournal: result.HasJournal,
           canDeleted: result.CanDeleted,
           canEdited: result.CanEdited,
-          thirdPartyMappedAccounts: result.ThirdPartyMappedAccounts
+          thirdPartyMappedAccounts:
+            result.ThirdPartyMappedAccounts.length > 0
+              ? result.ThirdPartyMappedAccounts.map(account => ({
+                  ...account,
+                  isCommitted: true,
+                  isModified: false
+                }))
+              : result.ThirdPartyMappedAccounts.map(account => ({
+                  ...account,
+                  isCommitted: false,
+                  isModified: false
+                }))
         }));
       }
 
