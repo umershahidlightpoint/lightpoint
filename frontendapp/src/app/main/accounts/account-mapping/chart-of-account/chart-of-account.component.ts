@@ -2,12 +2,7 @@ import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { ChartOfAccountDetailComponent } from '../chart-of-account-detail/chart-of-account-detail.component';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { AccountmappingApiService } from '../../../../../services/accountmapping-api.service';
-import {
-  GridOptions,
-  ColumnRowGroupChangedEvent,
-  ColDef,
-  RowSelectedEvent
-} from 'ag-grid-community';
+import { GridOptions, ColDef } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { OrganizationAccount } from '../../../../../shared/Models/account';
 import { DataService } from 'src/services/common/data.service';
@@ -257,7 +252,10 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   onRowSelected(params: any) {
     console.log('PARAMS :: ', params);
     let status = false;
-    const groupState = params.node.group;
+
+    if (params.data === undefined) {
+      return;
+    }
 
     if (params.node.selected) {
       status = this.addSelectedAccount(params.data);
@@ -285,6 +283,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
       this.selectedAccounts.push(account);
       selectionStatus = true;
     } else {
+      this.toastrService.clear();
       this.toastrService.error(
         'Please Select a Homogeneous Collection, Either rows which are not Mapped or rows with the same Mapping'
       );
