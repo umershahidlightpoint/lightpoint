@@ -47,6 +47,10 @@ namespace PostingEngine.PostingRules
             if (element.SecurityType.Equals("FORWARD"))
                 return new List<Journal>();
 
+            // Check to see if the BaseCurrency == SettleCurrency because if it is then no need to do the FX translation
+            if ( env.BaseCurrency.Equals(element.SettleCurrency))
+                return new List<Journal>();
+
             var currency = element.SettleCurrency;
 
             var prevEodFxRate = Convert.ToDouble(FxRates.Find(env.PreviousValueDate, currency).Rate);
@@ -54,11 +58,6 @@ namespace PostingEngine.PostingRules
             var effectiveRate = eodFxRate - prevEodFxRate;
 
             var usdEquivalent = Math.Abs(notional) * effectiveRate;
-
-            if (element.Symbol.Equals("RBD"))
-            {
-
-            }
 
             if ( element.IsBuy() || element.IsShort())
             {
@@ -78,7 +77,7 @@ namespace PostingEngine.PostingRules
                 FxRate = effectiveRate,
                 StartPrice = prevEodFxRate,
                 EndPrice = eodFxRate,
-
+                Fund = env.GetFund(element),
                 Value = env.SignedValue(toFrom.From, toFrom.To, true, usdEquivalent),
                 CreditDebit = env.DebitOrCredit(toFrom.From, usdEquivalent),
             };
@@ -89,6 +88,7 @@ namespace PostingEngine.PostingRules
                 FxRate = effectiveRate,
                 StartPrice = prevEodFxRate,
                 EndPrice = eodFxRate,
+                Fund = env.GetFund(element),
 
                 Value = env.SignedValue(toFrom.From, toFrom.To, false, usdEquivalent),
                 CreditDebit = env.DebitOrCredit(toFrom.To, usdEquivalent),
@@ -104,6 +104,69 @@ namespace PostingEngine.PostingRules
         {
             var journals = new List<Journal>();
 
+            // TBD: Needs to be optimized, get all data upfront for a ValueDate and drop into the env
+            //env.CallBack?.Invoke($"Create Fx Unsettled {element.SettleCurrency} -- {element.LpOrderId}");
+
+            var unsettledPnls = env.UnsettledPnl.Where(i => i.Source.Equals(element.LpOrderId)).ToList();
+
+            unsettledPnls.ForEach(unsettledPnl => {
+                var prevRate = FxRates.Find(env.PreviousValueDate, unsettledPnl.Currency).Rate;
+                var eodRate = FxRates.Find(env.ValueDate, unsettledPnl.Currency).Rate;
+
+                var change = eodRate - prevRate;
+                var fxCashCredit = change * (unsettledPnl.Credit / unsettledPnl.FxRate);
+                var fxCashDebit = change * (unsettledPnl.Debit / unsettledPnl.FxRate);
+                var fxCash = fxCashCredit - fxCashDebit;
+
+                // Get accounts
+                var fromTo = new AccountUtils().GetAccounts(env, "Mark to Market longs fx translation gain or loss", "change in unrealized do to fx translation", new string[] { unsettledPnl.Currency }.ToList());
+
+                var debit = new Journal(fromTo.From, "unrealized-cash-fx", env.ValueDate)
+                {
+                    Source = unsettledPnl.Source,
+                    Fund = unsettledPnl.Fund,
+                    FxCurrency = unsettledPnl.Currency,
+                    Symbol = unsettledPnl.Symbol,
+                    SecurityId = unsettledPnl.SecurityId,
+                    Quantity = Convert.ToDouble(unsettledPnl.Quantity),
+
+                    FxRate = change,
+                    StartPrice = prevRate,
+                    EndPrice = eodRate,
+
+                    Value = env.SignedValue(fromTo.From, fromTo.To, true, fxCash),
+                    CreditDebit = env.DebitOrCredit(fromTo.From, fxCash),
+                };
+
+                var credit = new Journal(fromTo.To, "unrealized-cash-fx", env.ValueDate)
+                {
+                    Source = unsettledPnl.Source,
+                    Fund = unsettledPnl.Fund,
+                    FxCurrency = unsettledPnl.Currency,
+                    Symbol = unsettledPnl.Symbol,
+                    SecurityId = unsettledPnl.SecurityId,
+                    Quantity = Convert.ToDouble(unsettledPnl.Quantity),
+
+                    FxRate = change,
+                    StartPrice = prevRate,
+                    EndPrice = eodRate,
+
+                    Value = env.SignedValue(fromTo.From, fromTo.To, false, fxCash),
+                    CreditDebit = env.DebitOrCredit(fromTo.To, fxCash),
+                };
+
+                journals.AddRange(new List<Journal>(new[] { debit, credit }));
+            });
+
+            //connection.Close();
+            env.Journals.AddRange(journals);
+        }
+
+        internal void CreateFxUnsettledEx(PostingEngineEnvironment env, Transaction element)
+        {
+            var journals = new List<Journal>();
+
+            // TBD: Needs to be optimized, get all data upfront for a ValueDate and drop into the env
             //env.CallBack?.Invoke($"Create Fx Unsettled {element.SettleCurrency} -- {element.LpOrderId}");
 
             var sql = $@"select credit, debit, symbol, quantity, fx_currency, fund, source, fxrate, security_id from vwJournal 
@@ -113,9 +176,7 @@ namespace PostingEngine.PostingRules
                          and [when] < '{env.ValueDate.ToString("MM-dd-yyyy")}'
                          and [source] = '{element.LpOrderId}'";
 
-            //Console.WriteLine(sql);
-
-            if ( _connection == null )
+            if (_connection == null)
             {
                 _connection = new SqlConnection(env.ConnectionString);
                 _connection.Open();

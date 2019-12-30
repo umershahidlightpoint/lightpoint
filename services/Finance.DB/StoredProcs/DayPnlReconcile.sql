@@ -1,25 +1,32 @@
-﻿CREATE PROCEDURE [dbo].[DayPnlReconcile]
+﻿/*
+Examples:
+
+exec [DayPnlReconcile] '2019-12-18'
+*/
+CREATE PROCEDURE [dbo].[DayPnlReconcile]
 	@businessDate Date
 AS
 declare @busdate as date
 set @busdate = @businessDate
 
-select p.BusDate, s.BbergCode as SecurityCode, Fund, p.Currency,  Sum(DayPnL) as DayPnl 
+select p.BusDate, s.BbergCode as SecurityCode, Fund, st.SecurityTypeCode as SecurityType, p.Currency,  Sum(DayPnL) as DayPnl 
 into #bookmon_pnl
 from PositionMaster..intradayPositionSplit p
 inner join SecurityMaster..Security s on s.EzeTicker = p.SecurityCode
+inner join SecurityMaster..SecurityType st on st.SecurityTypeId = s.SecurityTypeId
 inner join ( select BusDate, Max(LastModifiedOn) as lmo  from PositionMaster..intradayPositionSplit group by BusDate) as lmo on lmo.BusDate = p.BusDate and lmo.lmo = p.LastModifiedOn
 where p.BusDate = @busDate and p.SecurityCode not like '@CASH%' and p.SecurityCode not like 'ZZ_%'
-group by p.BusDate, s.BbergCode, Fund, p.Currency
+group by p.BusDate, s.BbergCode, Fund, p.Currency, st.SecurityTypeCode
 order by p.BusDate, BbergCode, Fund, p.Currency
 
 
-select [when] as BusDate, s.BbergCode as SecurityCode, Fund, fx_currency as Currency, sum(credit - debit) as DayPnl 
+select [when] as BusDate, s.BbergCode as SecurityCode, Fund, st.SecurityTypeCode as SecurityType, fx_currency as Currency, sum(credit - debit) as DayPnl 
 into #pa_pnl
 from vwJournal 
 inner join SecurityMaster..Security s on s.SecurityId = vwJournal.Security_id
+inner join SecurityMaster..SecurityType st on st.SecurityTypeId = s.SecurityTypeId
 where [when] = @busDate and AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'fx gain or loss on unsettled balance', 'change in unrealized do to fx translation')
-group by [when], s.BbergCode, Fund, fx_currency
+group by [when], s.BbergCode, Fund, fx_currency, st.SecurityTypeCode
 order by [when], s.BbergCode, Fund, fx_currency
 
 
@@ -27,7 +34,8 @@ order by [when], s.BbergCode, Fund, fx_currency
 select 
 coalesce(p.BusDate, b.BusDate) as BusDate, 
 coalesce(p.SecurityCode, b.SecurityCode) as Symbol, 
-coalesce(p.Fund, b.Fund), 
+coalesce(p.Fund, b.Fund) as Fund, 
+coalesce(p.SecurityType, b.SecurityType) as SecurityType, 
 coalesce(p.Currency, b.Currency) as Currency,
 coalesce(b.DayPnl,0) - coalesce(p.DayPnl,0) as Diff_DayPnl, 
 'BookMon -->' as BookMon, 
@@ -42,7 +50,5 @@ order by Symbol, p.fund
 select * from #pa_pnl
 
 select * from #bookmon_pnl
-
-
 
 RETURN 0

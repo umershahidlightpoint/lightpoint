@@ -11,6 +11,8 @@ namespace PostingEngine.MarketData
 {
     public class FxRates
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         private static readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
         private static readonly bool Mock = false;
@@ -26,6 +28,20 @@ namespace PostingEngine.MarketData
 
             if (_all.ContainsKey(key))
                 return _all[key];
+
+            if ( currency.Equals("GBp"))
+            {
+                key = $"GBP@{bDate}";
+                if (_all.ContainsKey(key))
+                {
+                    return new FxRate
+                    {
+                        Rate = _all[key].Rate / 100
+                    };
+                }
+            }
+
+            Logger.Warn($"Unable to find FxRate for {key}");
 
             // We need to manufactor a rate
             var priorDate = busDate.PrevBusinessDate();

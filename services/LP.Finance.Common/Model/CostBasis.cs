@@ -108,6 +108,7 @@ namespace LP.Finance.Common.Models
 
             using (var command = new SqlCommand(sp, connection, trans))
             {
+                command.CommandTimeout = 120; // 2 Mins
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.Add("@businessDate", SqlDbType.VarChar).Value = busDate;
                 try
@@ -116,7 +117,7 @@ namespace LP.Finance.Common.Models
                 }
                 catch (Exception ex)
                 {
-                    Logger.DebugException("CostBasisCalculation", ex);
+                    Logger.Debug(ex, "CostBasisCalculation");
                     throw;
                 }
             }

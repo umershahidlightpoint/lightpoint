@@ -1,6 +1,7 @@
 ﻿using LP.Finance.Common.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 
 namespace PostingEngine.PostingRules.Utilities
@@ -43,19 +44,31 @@ namespace PostingEngine.PostingRules.Utilities
         {
 
         }
+        private static SqlConnection _connection;
+        
         public void SaveAccountDetails(PostingEngineEnvironment env, Account account)
         {
             if (!account.Exists)
             {
-                account.SaveUpdate(env.Connection, env.Transaction);
-                account.Id = account.Identity(env.Connection, env.Transaction);
+                if ( _connection == null )
+                {
+                    _connection = new SqlConnection(env.ConnectionString);
+                    _connection.Open();
+                }
+
+                var transaction = _connection.BeginTransaction();
+
+                account.SaveUpdate(_connection, transaction);
+                account.Id = account.Identity(_connection, transaction);
                 foreach (var tag in account.Tags)
                 {
                     tag.Account = account;
                     //tag.Tag.Save(_connection, _transaction);
-                    tag.Save(env.Connection, env.Transaction);
+                    tag.Save(_connection, transaction);
                 }
                 account.Exists = true;
+
+                transaction.Commit();
             }
         }
 

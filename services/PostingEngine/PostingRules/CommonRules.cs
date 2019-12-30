@@ -32,7 +32,7 @@ namespace PostingEngine.PostingRules
             var tl = new TaxLot
             {
                 TradeDate = trade.TradeDate,
-                InvestmentAtCost = investmentAtCost,
+                InvestmentAtCost = investmentAtCost, // Needs to be the Investment Cost that we are relieving from the Tax
                 BusinessDate = env.ValueDate,
                 OpeningLotId = lot.Trade.LpOrderId,
                 ClosingLotId = trade.LpOrderId,
@@ -63,8 +63,10 @@ namespace PostingEngine.PostingRules
             Account fromAccount = null; // Debiting Account
             Account toAccount = null; // Crediting Account
 
+            var accountType = (element.IsShort() || element.IsCover()) ? "SHORT POSITIONS AT COST" : "LONG POSITIONS AT COST";
+
             //fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CHANGE IN UNREALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfFromTags, element);
-            fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("LONG POSITIONS AT COST")).FirstOrDefault(), listOfFromTags, element);
+            fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals(accountType)).FirstOrDefault(), listOfFromTags, element);
             toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("REALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfToTags, element);
 
             return new AccountToFrom
@@ -76,17 +78,11 @@ namespace PostingEngine.PostingRules
 
         internal static void PostRealizedPnl(PostingEngineEnvironment env, Transaction element, double pnL, double start, double end, double fxrate = 1.0)
         {
-            var tradeAllocations = env.Allocations.Where(i => i.ParentOrderId == element.ParentOrderId).ToList();
-            if (tradeAllocations.Count == 0)
-            {
-
-            }
             var accountToFrom = RealizedPnlPostingAccounts(element);
 
             new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
             new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
 
-            var fund = tradeAllocations[0].Fund;
             if (element.IsSell() || element.IsCover())
             {
                 pnL = pnL * -1;
@@ -102,7 +98,7 @@ namespace PostingEngine.PostingRules
                 Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, pnL),
                 FxRate = fxrate,
                 Event = "realizedpnl",
-                Fund = fund,
+                Fund = env.GetFund(element),
             };
 
             var creditJournal = new Journal(element, accountToFrom.To, "realizedpnl", env.ValueDate)
@@ -112,7 +108,7 @@ namespace PostingEngine.PostingRules
                 FxRate = fxrate,
                 CreditDebit = env.DebitOrCredit(accountToFrom.To, pnL * -1),
                 Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, pnL),
-                Fund = fund,
+                Fund = env.GetFund(element),
             };
 
             env.Journals.AddRange(new[] { debitJournal, creditJournal });
@@ -134,13 +130,9 @@ namespace PostingEngine.PostingRules
                 Tag.Find("CustodianCode")
             };
 
-            var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Mark to Market Longs")).FirstOrDefault(), listOfFromTags, element);
+            var markToMarketAccount = element.IsShort() ? "Mark to Market Shorts" : "Mark to Market Longs";
 
-            if (element.Side == "SHORT")
-            {
-                fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Mark to Market Shorts")).FirstOrDefault(), listOfFromTags, element);
-            }
-
+            var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals(markToMarketAccount)).FirstOrDefault(), listOfFromTags, element);
             var toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CHANGE IN UNREALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfToTags, element);
 
             return new AccountToFrom
@@ -152,11 +144,6 @@ namespace PostingEngine.PostingRules
 
         internal static void PostUnRealizedPnl(PostingEngineEnvironment env, Transaction element, double unrealizedPnl, double start, double end, double fxrate)
         {
-            var tradeAllocations = env.Allocations.Where(i => i.ParentOrderId == element.ParentOrderId).ToList();
-            if (tradeAllocations.Count == 0)
-            {
-            }
-
             var accountToFrom = UnRealizedPnlPostingAccounts(element);
 
             new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
@@ -167,7 +154,7 @@ namespace PostingEngine.PostingRules
                 When = env.ValueDate,
                 Event = "unrealizedpnl",
                 FxRate = fxrate,
-                Fund = tradeAllocations[0].Fund,
+                Fund = env.GetFund(element),
                 StartPrice = start,
                 EndPrice = end,
 
@@ -201,7 +188,7 @@ namespace PostingEngine.PostingRules
                 fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
             }
 
-            var prevPrice = MarketPrices.Find(env.PreviousValueDate, lot.Trade.Symbol).Price;
+            var prevPrice = MarketPrices.Find(env.PreviousValueDate, lot.Trade).Price;
             var unrealizedPnl = taxlotStatus.Quantity * (element.SettleNetPrice - prevPrice) * multiplier;
 
             var buyTrade = env.FindTrade(lot.Trade.LpOrderId);
@@ -210,7 +197,7 @@ namespace PostingEngine.PostingRules
                 env,
                 buyTrade,
                 unrealizedPnl,
-                MarketPrices.Find(env.PreviousValueDate, lot.Trade.BloombergCode).Price,
+                MarketPrices.Find(env.PreviousValueDate, lot.Trade).Price,
                 element.SettleNetPrice, fxrate);
 
             var PnL = Math.Abs(taxlot.Quantity) * (taxlot.CostBasis - taxlot.TradePrice) * multiplier * fxrate;
@@ -227,8 +214,11 @@ namespace PostingEngine.PostingRules
                 Tag.Find("CustodianCode")
             };
 
-            var fromAccount = new AccountUtils().CreateAccount(AccountType.All.Where(i => i.Name.Equals("LONG POSITIONS AT COST")).FirstOrDefault(), listOfFromTags, element);
-            var toAccount = new AccountUtils().CreateAccount(AccountType.All.Where(i => i.Name.Equals("Mark to Market Longs")).FirstOrDefault(), listOfFromTags, element);
+            var markToMarketAccount = (buyTrade.IsShort() || buyTrade.IsCover()) ? "Mark to Market Shorts" : "Mark to Market Longs";
+            var accountType = (buyTrade.IsShort() || buyTrade.IsCover()) ? "SHORT POSITIONS AT COST" : "LONG POSITIONS AT COST";
+
+            var fromAccount = new AccountUtils().CreateAccount(AccountType.All.Where(i => i.Name.Equals(accountType)).FirstOrDefault(), listOfFromTags, element);
+            var toAccount = new AccountUtils().CreateAccount(AccountType.All.Where(i => i.Name.Equals(markToMarketAccount)).FirstOrDefault(), listOfFromTags, element);
 
             new AccountUtils().SaveAccountDetails(env, fromAccount);
             new AccountUtils().SaveAccountDetails(env, toAccount);
@@ -244,7 +234,7 @@ namespace PostingEngine.PostingRules
                 Value = PnL,
                 FxRate = 1,
                 Event = "realizedpnl",
-                Fund = fund,
+                Fund = env.GetFund(element),
             };
 
             var toJournal = new Journal(element)
@@ -257,7 +247,7 @@ namespace PostingEngine.PostingRules
                 CreditDebit = env.DebitOrCredit(toAccount, PnL * -1),
                 Value = PnL * -1,
                 Event = "realizedpnl",
-                Fund = fund,
+                Fund = env.GetFund(element),
             };
 
             env.Journals.AddRange(new[] { fromJournal, toJournal });

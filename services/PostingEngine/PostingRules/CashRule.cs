@@ -24,7 +24,7 @@ namespace PostingEngine.PostingRules
                 return;
             }
 
-            throw new NotImplementedException();
+            return;
         }
 
         private AccountToFrom GetFromToAccount(Transaction element)
@@ -36,7 +36,7 @@ namespace PostingEngine.PostingRules
             symbol = FakeJournals._codeMap.ContainsKey(symbol) ? FakeJournals._codeMap[symbol] : symbol;
 
 
-            var fromAccountType = AccountType.Find("ACCRUED EXPENSES");
+            var fromAccountType = AccountType.Find("PREPAID EXPENSES");
 
             var toTags = new List<Tag>
                 {
@@ -46,8 +46,8 @@ namespace PostingEngine.PostingRules
             switch (element.Side.ToLowerInvariant())
             {
                 case "debit":
-                    fromAccount = new AccountUtils().CreateAccount(fromAccountType, symbol + " Payable", element);
-                    toAccount = new AccountUtils().CreateAccount(AccountType.Find("Settled Cash"), toTags, element);
+                    fromAccount = new AccountUtils().CreateAccount(AccountType.Find("Settled Cash"), toTags, element);
+                    toAccount = new AccountUtils().CreateAccount(fromAccountType, symbol + " Paid", element);
                     break;
                 case "credit":
                     break;
@@ -92,9 +92,9 @@ namespace PostingEngine.PostingRules
                 When = env.ValueDate,
                 FxRate = fxrate,
                 CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
-                Value = moneyUSD * -1,
-                Event = "journal",
-                Fund = element.Fund,
+                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
+                Event = "prepaid-expense",
+                Fund = env.GetFund(element),
             };
 
             var credit = new Journal(element)
@@ -103,9 +103,9 @@ namespace PostingEngine.PostingRules
                 When = env.ValueDate,
                 FxRate = fxrate,
                 CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD),
-                Value = moneyUSD * -1,
-                Event = "journal",
-                Fund = element.Fund,
+                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
+                Event = "prepaid-expense",
+                Fund = env.GetFund(element),
             };
 
             env.Journals.Add(debit);

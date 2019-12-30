@@ -73,7 +73,7 @@ namespace PostingEngine.PostingRules
                     FxRate = fxrate,
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
                     Value = moneyUSD,
-                    Fund = element.Fund,
+                    Fund = env.GetFund(element),
                 };
 
                 var credit = new Journal(accountToFrom.To, "journal", env.ValueDate)
@@ -87,7 +87,7 @@ namespace PostingEngine.PostingRules
                     FxRate = fxrate,
                     CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
                     Value = moneyUSD * -1,
-                    Fund = element.Fund,
+                    Fund = env.GetFund(element),
                 };
 
                 env.Journals.Add(debit);
@@ -302,7 +302,7 @@ namespace PostingEngine.PostingRules
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
                     Value = moneyUSD,
                     Event = "journal",
-                    Fund = element.Fund,
+                    Fund = env.GetFund(element),
                 };
 
                 var credit = new Journal(element)
@@ -316,7 +316,7 @@ namespace PostingEngine.PostingRules
                     CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD),
                     Value = moneyUSD,
                     Event = "journal",
-                    Fund = element.Fund,
+                    Fund = env.GetFund(element),
                 };
 
                 env.Journals.Add(debit);

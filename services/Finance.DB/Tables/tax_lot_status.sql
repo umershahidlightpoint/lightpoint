@@ -4,13 +4,15 @@
 	[symbol] [varchar](127) NOT NULL,
 	[side] [varchar](10) NULL,
 	[status] [varchar](20) NOT NULL,
-	[original_quantity] [decimal](18, 6) NOT NULL DEFAULT 0,
-	[quantity] [decimal](18, 6) NOT NULL,
+	[original_quantity] [decimal](22, 9) NOT NULL DEFAULT 0,
+	[quantity] [decimal](22, 9) NOT NULL,
 	[business_date] [date] NOT NULL,
 	[generated_on] [datetime] NOT NULL,
 	[trade_date] DATETIME NOT NULL DEFAULT getdate(), 
-    [investment_at_cost] DECIMAL(18, 6) NOT NULL DEFAULT 0, 
-    [fx_rate] DECIMAL(18, 6) NOT NULL DEFAULT 0, 
+    [investment_at_cost] DECIMAL(22, 9) NOT NULL DEFAULT 0, 
+    [fx_rate] DECIMAL(22, 9) NOT NULL DEFAULT 0, 
+    [fund] VARCHAR(50) NOT NULL DEFAULT '', 
+    [trade_price] DECIMAL(22, 9) NOT NULL DEFAULT 0, 
     CONSTRAINT [PK_tax_lot_status] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC

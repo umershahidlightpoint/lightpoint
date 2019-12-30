@@ -9,11 +9,14 @@ namespace PostingEngine
 
         public void Start(DateTime valueDate)
         {
-            var key = System.Guid.NewGuid();
+            var key = Guid.NewGuid();
 
             PullFromLegacySystem(key, valueDate);
 
+            Logger.Info("Caching FxRates");
             FxRates.CacheData();
+
+            Logger.Info("Caching MarketPrices");
             MarketPrices.CacheData();
 
             // Get all Activity

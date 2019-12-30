@@ -36,6 +36,8 @@ namespace PostingEngine.TaxLotMethods
         /// <returns></returns>
         public List<TaxLotDetail> OpenTaxLots(PostingEngineEnvironment env, Transaction element)
         {
+            var fund = env.GetFund(element);
+
             if (element.IsBuy() || element.IsShort())
             {
                 return new List<TaxLotDetail>();
@@ -46,6 +48,8 @@ namespace PostingEngine.TaxLotMethods
             var lots = env.Trades.Where(i =>
                     i.TradeDate.Date <= element.TradeDate.Date
                     && i.Symbol == element.Symbol
+                    && env.GetFund(i) == fund
+                    && !i.Status.Equals("Cancelled")
                     && i.LpOrderId != element.LpOrderId);
 
             if (element.IsSell())
