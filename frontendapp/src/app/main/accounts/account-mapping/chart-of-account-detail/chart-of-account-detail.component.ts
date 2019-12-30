@@ -51,15 +51,19 @@ export class ChartOfAccountDetailComponent implements OnInit {
     }
 
     this.rowNodes.forEach(element => {
+      console.log('PAYLOAD IN ON SELECT', this.payload);
       const account = this.payload.find(x => x.AccountId == element.accountId);
+      console.log('ACCOUNT ON SELECT', account);
       if (account) {
         account.ThirdPartyAccountMapping.push({
-          ThirdPartyAccountId: this.selectedOption.AccountId
+          ThirdPartyAccountId: this.selectedOption.AccountId,
+          OrganizationName: this.organization
         });
       } else {
         const thirdPartyAccountMapping = [];
         thirdPartyAccountMapping.push({
-          ThirdPartyAccountId: this.selectedOption.AccountId
+          ThirdPartyAccountId: this.selectedOption.AccountId,
+          OrganizationName: this.organization
         });
         const payLoadItem = {
           AccountId: element.accountId,
@@ -145,6 +149,7 @@ export class ChartOfAccountDetailComponent implements OnInit {
       if (list) {
         this.rowNodes = JSON.parse(JSON.stringify(list.rowNodes));
         this.payload = JSON.parse(JSON.stringify(list.payload));
+        console.log('PAYLOAD ngOnInit', this.payload);
         this.organization = list.organization;
         this.states = list.accounts;
         this.rowNodes.forEach(element => {
@@ -187,8 +192,22 @@ export class ChartOfAccountDetailComponent implements OnInit {
       const account = this.payload.find(x => x.AccountId == element.accountId);
 
       // Modifying the payload
+      console.log('Elemet ', element);
+
+      element.thirdPartyMappedAccounts.forEach((mappedAccount, index, object) => {
+        if (
+          mappedAccount.ThirdPartyAccountId === referenceThirdParty.ThirdPartyAccountId &&
+          mappedAccount.OrganizationName === this.organization
+        ) {
+          console.log('IN ELEMENT IF');
+          object.splice(index, 1);
+        }
+      });
+
       if (account) {
+        console.log('IN IF');
         if (obj.MapId) {
+          // WHY?
           account.ThirdPartyAccountMapping.push({
             MapId: referenceThirdParty.MapId,
             ThirdPartyAccountId: referenceThirdParty.ThirdPartyAccountId
@@ -198,17 +217,20 @@ export class ChartOfAccountDetailComponent implements OnInit {
           const filteredThirdPartAccounts = account.ThirdPartyAccountMapping.filter(item => {
             return item.ThirdPartyAccountId !== referenceThirdParty.ThirdPartyAccountId;
           });
+
           account.ThirdPartyAccountMapping = filteredThirdPartAccounts;
         }
       }
       // adding element for the first time
       else {
+        console.log('ELSE');
         if (obj.MapId) {
           const thirdPartyMapping = [];
           thirdPartyMapping.push({
             MapId: referenceThirdParty.MapId,
             ThirdPartyAccountId: referenceThirdParty.ThirdPartyAccountId
           });
+
           this.payload.push({
             AccountId: element.accountId,
             ThirdPartyAccountMapping: thirdPartyMapping
@@ -221,6 +243,7 @@ export class ChartOfAccountDetailComponent implements OnInit {
       const thirdPartyMappedAccounts = element.thirdPartyMappedAccounts.filter(item => {
         return item.ThirdPartyAccountId !== referenceThirdParty.ThirdPartyAccountId;
       });
+
       element.thirdPartyMappedAccounts = thirdPartyMappedAccounts;
 
       // Modifying third party account list.
