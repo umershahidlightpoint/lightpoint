@@ -1,15 +1,16 @@
-import { Component, OnInit, Input, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnDestroy, Output, EventEmitter, ComponentRef, ComponentFactoryResolver, ElementRef } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead/typeahead-match.class';
 import { AccountmappingApiService } from '../../../../../services/accountmapping-api.service';
 import { ModalDirective } from 'ngx-bootstrap';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-chart-of-account-detail',
   templateUrl: './chart-of-account-detail.component.html',
   styleUrls: ['./chart-of-account-detail.component.css']
 })
-export class ChartOfAccountDetailComponent implements OnInit {
+export class ChartOfAccountDetailComponent implements OnInit, OnDestroy {
   @ViewChild('modal', { static: false }) modal: ModalDirective;
   @Output() modalClosed = new EventEmitter<any>();
 
@@ -35,9 +36,12 @@ export class ChartOfAccountDetailComponent implements OnInit {
 
   states: any[] = [];
 
+  modificationSubscription: Subscription;
+
   constructor(
     private accountmappingApiService: AccountmappingApiService,
-    private toastrService: ToastrService
+    private toastrService: ToastrService,
+    private elementRef: ElementRef
   ) {}
 
   typeaheadNoResults(event: boolean): void {
@@ -93,18 +97,6 @@ export class ChartOfAccountDetailComponent implements OnInit {
     console.log(this.rowNodes, 'modified row nodes after insertion');
   }
 
-  selectOrganization(event: any): void {
-    this.organization = event.target.value;
-    // Deep Copy Organization List
-    let cloneList = JSON.parse(JSON.stringify(this.organizationList));
-
-    cloneList = cloneList.find(element => {
-      return element.OrganizationName === this.organization;
-    });
-
-    this.states = cloneList.Accounts;
-  }
-
   onSaveSettings() {
     this.isSaving = true;
     const payload = [];
@@ -121,6 +113,7 @@ export class ChartOfAccountDetailComponent implements OnInit {
           this.isSaving = false;
           this.clearForm();
           this.toastrService.success('Saved Successfully');
+          this.payload = [];
         }
       },
       error => {
@@ -145,7 +138,7 @@ export class ChartOfAccountDetailComponent implements OnInit {
 
   ngOnInit() {
     this.getOrganizations();
-    this.accountmappingApiService.selectedAccounList$.subscribe(list => {
+    this.modificationSubscription = this.accountmappingApiService.selectedAccounList$.subscribe(list => {
       if (list) {
         this.rowNodes = JSON.parse(JSON.stringify(list.rowNodes));
         this.payload = JSON.parse(JSON.stringify(list.payload));
@@ -172,6 +165,12 @@ export class ChartOfAccountDetailComponent implements OnInit {
         console.log(list, 'in oberver');
       }
     });
+
+  }
+
+  ngOnDestroy() {
+    this.modificationSubscription.unsubscribe();
+    this.elementRef.nativeElement.remove();
   }
 
   getOrganizations() {

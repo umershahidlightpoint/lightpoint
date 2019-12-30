@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, OnDestroy, ElementRef } from '@angular/core';
 import { ChartOfAccountDetailComponent } from '../chart-of-account-detail/chart-of-account-detail.component';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { AccountmappingApiService } from '../../../../../services/accountmapping-api.service';
@@ -8,13 +8,14 @@ import { OrganizationAccount } from '../../../../../shared/Models/account';
 import { DataService } from 'src/services/common/data.service';
 import { AutoSizeAllColumns, HeightStyle, Style } from 'src/shared/utils/Shared';
 import { ContextMenu } from 'src/shared/Models/common';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-chart-of-account',
   templateUrl: './chart-of-account.component.html',
   styleUrls: ['./chart-of-account.component.css']
 })
-export class ChartOfAccountComponent implements OnInit, AfterViewInit {
+export class ChartOfAccountComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('mapAccountModal', { static: false }) mapAccountModal: ChartOfAccountDetailComponent;
 
   gridOptions: GridOptions;
@@ -31,6 +32,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   commitLoader = false;
   disableCommit = true;
   hideGrid: boolean;
+  modificationsSubscription: Subscription;
 
   style = Style;
 
@@ -39,7 +41,8 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
   constructor(
     private toastrService: ToastrService,
     private dataService: DataService,
-    private accountmappingApiService: AccountmappingApiService
+    private accountmappingApiService: AccountmappingApiService,
+    private elementRef: ElementRef
   ) {
     this.hideGrid = false;
   }
@@ -50,6 +53,11 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
     this.getOrganizations();
   }
 
+  ngOnDestroy() {
+    this.modificationsSubscription.unsubscribe();
+    this.elementRef.nativeElement.remove();
+  }
+
   ngAfterViewInit(): void {
     this.dataService.flag$.subscribe(obj => {
       this.hideGrid = obj;
@@ -58,7 +66,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
       }
     });
 
-    this.accountmappingApiService.dispatchModifications$.subscribe(obj => {
+    this.modificationsSubscription = this.accountmappingApiService.dispatchModifications$.subscribe(obj => {
       if (obj) {
         this.disableCommit = false;
         this.gridOptions.api.deselectAll();
@@ -200,7 +208,7 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
 
   setOrganizationAccounts(list: any) {
     list = list.map(item => {
-      // console.log('LIST ==>', list);
+      console.log('LIST ==>', list);
       let accountName = '';
       let organizationName = '';
 
@@ -367,11 +375,11 @@ export class ChartOfAccountComponent implements OnInit, AfterViewInit {
 
   commitAccountMapping() {
     this.commitLoader = true;
-
     this.accountmappingApiService.postAccountMapping(this.payload).subscribe(response => {
       this.commitLoader = false;
 
       if (response.isSuccessful) {
+        this.payload = [];
         this.toastrService.success('Sucessfully Commited.');
 
         this.getAccountsRecord();
