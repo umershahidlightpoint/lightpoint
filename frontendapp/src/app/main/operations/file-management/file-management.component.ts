@@ -1,5 +1,4 @@
 import { Component, TemplateRef, OnInit, AfterViewInit, ViewChild } from '@angular/core';
-import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { TemplateRendererComponent } from '../../../template-renderer/template-renderer.component';
 import { File } from 'src/shared/models/files';
@@ -10,6 +9,7 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
 import * as moment from 'moment';
+import { FileManagementApiService } from 'src/services/file-management-api.service';
 
 @Component({
   selector: 'app-file-management',
@@ -40,7 +40,10 @@ export class FileManagementComponent implements OnInit, AfterViewInit {
 
   styleForLogsHeight = HeightStyle(220);
 
-  constructor(private financeService: FinanceServiceProxy, private toastrService: ToastrService) {
+  constructor(
+    private fileManagementApiService: FileManagementApiService,
+    private toastrService: ToastrService
+  ) {
     this.initGrid();
   }
 
@@ -155,7 +158,7 @@ export class FileManagementComponent implements OnInit, AfterViewInit {
   }
 
   getFiles() {
-    this.financeService.getFiles().subscribe(result => {
+    this.fileManagementApiService.getFiles().subscribe(result => {
       this.files = result.payload.map(item => ({
         id: item.id,
         name: item.name,
@@ -206,7 +209,7 @@ export class FileManagementComponent implements OnInit, AfterViewInit {
       fileId: params.node.data.id,
       action: 'Processing'
     };
-    this.financeService.updateAction(obj).subscribe(resp => {
+    this.fileManagementApiService.updateAction(obj).subscribe(resp => {
       if (resp.isSuccessful) {
         local.getFiles();
       }

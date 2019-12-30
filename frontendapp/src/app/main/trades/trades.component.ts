@@ -18,6 +18,7 @@ import { SideBar, Style, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { PostingEngineService } from 'src/services/common/posting-engine.service';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
+import { PostingEngineApiService } from 'src/services/posting-engine-api.service';
 @Component({
   selector: 'app-trades',
   templateUrl: './trades.component.html',
@@ -61,6 +62,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
   constructor(
     private financeService: FinanceServiceProxy,
     private postingEngineService: PostingEngineService,
+    private postingEngineApiService: PostingEngineApiService,
     private dataService: DataService,
     private agGridUtils: AgGridUtils
   ) {
@@ -152,7 +154,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
   }
 
   processOrder(orderId: string, row: any) {
-    this.financeService.startPostingEngineSingleOrder(orderId).subscribe(response => {
+    this.postingEngineApiService.startPostingEngineSingleOrder(orderId).subscribe(response => {
       if (response.IsRunning) {
         // this.isLoading = true;
         this.key = response.key;

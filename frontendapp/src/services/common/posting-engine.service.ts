@@ -1,7 +1,7 @@
 import { Injectable, Output, EventEmitter } from '@angular/core';
-import { FinanceServiceProxy } from '../service-proxies';
 import { takeWhile } from 'rxjs/operators';
 import { DataService } from './data.service';
+import { PostingEngineApiService } from '../posting-engine-api.service';
 
 @Injectable()
 export class PostingEngineService {
@@ -11,7 +11,10 @@ export class PostingEngineService {
   progress = 0;
   isSubscriptionAlive: boolean;
 
-  constructor(private financeService: FinanceServiceProxy, private dataService: DataService) {
+  constructor(
+    private postingEngineApiService: PostingEngineApiService,
+    private dataService: DataService
+  ) {
     this.isSubscriptionAlive = true;
   }
 
@@ -32,7 +35,7 @@ export class PostingEngineService {
 
   checkProgress() {
     setTimeout(() => {
-      this.financeService
+      this.postingEngineApiService
         .isPostingEngineRunning()
         .pipe(takeWhile(() => this.isSubscriptionAlive))
         .subscribe(response => {

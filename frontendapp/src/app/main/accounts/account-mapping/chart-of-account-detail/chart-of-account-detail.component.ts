@@ -1,15 +1,16 @@
-import { Component, OnInit, Input, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnDestroy, Output, EventEmitter, ComponentRef, ComponentFactoryResolver, ElementRef } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead/typeahead-match.class';
 import { AccountmappingApiService } from '../../../../../services/accountmapping-api.service';
 import { ModalDirective } from 'ngx-bootstrap';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-chart-of-account-detail',
   templateUrl: './chart-of-account-detail.component.html',
   styleUrls: ['./chart-of-account-detail.component.css']
 })
-export class ChartOfAccountDetailComponent implements OnInit {
+export class ChartOfAccountDetailComponent implements OnInit, OnDestroy {
   @ViewChild('modal', { static: false }) modal: ModalDirective;
   @Output() modalClosed = new EventEmitter<any>();
 
@@ -35,9 +36,12 @@ export class ChartOfAccountDetailComponent implements OnInit {
 
   states: any[] = [];
 
+  modificationSubscription: Subscription;
+
   constructor(
     private accountmappingApiService: AccountmappingApiService,
-    private toastrService: ToastrService
+    private toastrService: ToastrService,
+    private elementRef: ElementRef
   ) {}
 
   typeaheadNoResults(event: boolean): void {
@@ -51,15 +55,19 @@ export class ChartOfAccountDetailComponent implements OnInit {
     }
 
     this.rowNodes.forEach(element => {
-      let account = this.payload.find(x => x.AccountId == element.accountId);
+      console.log('PAYLOAD IN ON SELECT', this.payload);
+      const account = this.payload.find(x => x.AccountId == element.accountId);
+      console.log('ACCOUNT ON SELECT', account);
       if (account) {
         account.ThirdPartyAccountMapping.push({
-          ThirdPartyAccountId: this.selectedOption.AccountId
+          ThirdPartyAccountId: this.selectedOption.AccountId,
+          OrganizationName: this.organization
         });
       } else {
-        let thirdPartyAccountMapping = [];
+        const thirdPartyAccountMapping = [];
         thirdPartyAccountMapping.push({
-          ThirdPartyAccountId: this.selectedOption.AccountId
+          ThirdPartyAccountId: this.selectedOption.AccountId,
+          OrganizationName: this.organization
         });
         const payLoadItem = {
           AccountId: element.accountId,
@@ -71,32 +79,22 @@ export class ChartOfAccountDetailComponent implements OnInit {
         LPAccountId: element.accountId,
         ThirdPartyAccountId: this.selectedOption.AccountId
       });
-      //TODO modify third party mapping in row node
+      // TODO modify third party mapping in row node
       element.thirdPartyMappedAccounts.push({
         ThirdPartyAccountId: this.selectedOption.AccountId,
         ThirdPartyAccountName: this.selectedOption.AccountName,
-        OrganizationName: this.organization
+        OrganizationName: this.organization,
+        isCommitted: false,
+        isModified: true
       });
     });
-    //TODO iterate over row nodes and modify hasmapping and account name property
+    // TODO iterate over row nodes and modify hasmapping and account name property
     this.accountDetailList.push({
       ThirdPartyAccountName: this.selectedOption.AccountName,
       OrganizationName: this.organization
     });
     console.log(this.payload, 'modified payload after insertion');
     console.log(this.rowNodes, 'modified row nodes after insertion');
-  }
-
-  selectOrganization(event: any): void {
-    this.organization = event.target.value;
-    // Deep Copy Organization List
-    let cloneList = JSON.parse(JSON.stringify(this.organizationList));
-
-    cloneList = cloneList.find(element => {
-      return element.OrganizationName === this.organization;
-    });
-
-    this.states = cloneList.Accounts;
   }
 
   onSaveSettings() {
@@ -115,6 +113,7 @@ export class ChartOfAccountDetailComponent implements OnInit {
           this.isSaving = false;
           this.clearForm();
           this.toastrService.success('Saved Successfully');
+          this.payload = [];
         }
       },
       error => {
@@ -139,10 +138,11 @@ export class ChartOfAccountDetailComponent implements OnInit {
 
   ngOnInit() {
     this.getOrganizations();
-    this.accountmappingApiService.selectedAccounList$.subscribe(list => {
+    this.modificationSubscription = this.accountmappingApiService.selectedAccounList$.subscribe(list => {
       if (list) {
         this.rowNodes = JSON.parse(JSON.stringify(list.rowNodes));
         this.payload = JSON.parse(JSON.stringify(list.payload));
+        console.log('PAYLOAD ngOnInit', this.payload);
         this.organization = list.organization;
         this.states = list.accounts;
         this.rowNodes.forEach(element => {
@@ -165,6 +165,12 @@ export class ChartOfAccountDetailComponent implements OnInit {
         console.log(list, 'in oberver');
       }
     });
+
+  }
+
+  ngOnDestroy() {
+    this.modificationSubscription.unsubscribe();
+    this.elementRef.nativeElement.remove();
   }
 
   getOrganizations() {
@@ -182,45 +188,64 @@ export class ChartOfAccountDetailComponent implements OnInit {
       const referenceThirdParty = this.thirdPartyAccountList.find(
         x => x.LPAccountId === element.accountId
       );
-      let account = this.payload.find(x => x.AccountId == element.accountId);
-      // modifying the payload
+      const account = this.payload.find(x => x.AccountId == element.accountId);
+
+      // Modifying the payload
+      console.log('Elemet ', element);
+
+      element.thirdPartyMappedAccounts.forEach((mappedAccount, index, object) => {
+        if (
+          mappedAccount.ThirdPartyAccountId === referenceThirdParty.ThirdPartyAccountId &&
+          mappedAccount.OrganizationName === this.organization
+        ) {
+          console.log('IN ELEMENT IF');
+          object.splice(index, 1);
+        }
+      });
+
       if (account) {
+        console.log('IN IF');
         if (obj.MapId) {
+          // WHY?
           account.ThirdPartyAccountMapping.push({
             MapId: referenceThirdParty.MapId,
             ThirdPartyAccountId: referenceThirdParty.ThirdPartyAccountId
           });
         } else {
-          //if map id is not present, we need to remove it from the payload instead of adding it.
+          // If map id is not present, we need to remove it from the payload instead of adding it.
           const filteredThirdPartAccounts = account.ThirdPartyAccountMapping.filter(item => {
             return item.ThirdPartyAccountId !== referenceThirdParty.ThirdPartyAccountId;
           });
+
           account.ThirdPartyAccountMapping = filteredThirdPartAccounts;
         }
       }
       // adding element for the first time
       else {
+        console.log('ELSE');
         if (obj.MapId) {
           const thirdPartyMapping = [];
           thirdPartyMapping.push({
             MapId: referenceThirdParty.MapId,
             ThirdPartyAccountId: referenceThirdParty.ThirdPartyAccountId
           });
+
           this.payload.push({
             AccountId: element.accountId,
             ThirdPartyAccountMapping: thirdPartyMapping
           });
         } else {
-          //if map id is not present, we need to remove it from the payload instead of adding it.
+          // if map id is not present, we need to remove it from the payload instead of adding it.
         }
       }
-      //modifying row nodes
+      // Modifying row nodes
       const thirdPartyMappedAccounts = element.thirdPartyMappedAccounts.filter(item => {
         return item.ThirdPartyAccountId !== referenceThirdParty.ThirdPartyAccountId;
       });
+
       element.thirdPartyMappedAccounts = thirdPartyMappedAccounts;
 
-      //modifying third party account list.
+      // Modifying third party account list.
       const thirdPartyAccountList = this.thirdPartyAccountList.filter(item => {
         return item.LPAccountId !== referenceThirdParty.LPAccountId;
       });
@@ -228,7 +253,7 @@ export class ChartOfAccountDetailComponent implements OnInit {
     });
 
     this.accountDetailList = [];
-    //TODO iterate over row nodes and modify third party accounts
+    // TODO iterate over row nodes and modify third party accounts
     console.log(this.payload, 'modified payload after deletion');
     console.log(this.rowNodes, 'modified row nodes after deletion');
   }

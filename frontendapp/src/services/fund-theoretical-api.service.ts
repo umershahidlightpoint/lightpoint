@@ -8,11 +8,9 @@ import { map } from 'rxjs/operators';
 })
 export class FundTheoreticalApiService {
   private baseUrl: string;
-  private refDataUrl: string;
 
   constructor(private http: HttpClient) {
     this.baseUrl = window['config'].remoteServerUrl;
-    this.refDataUrl = window['config'].referenceDataUrl;
   }
   /*
   Monthly Performance

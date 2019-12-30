@@ -145,7 +145,7 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
   initColDefs(headerName): Array<ColDef | ColGroupDef> {
     return [
       {
-        colId: 'AccountTyoe',
+        colId: 'AccountType',
         field: 'AccountType',
         width: 120,
         headerName
@@ -154,7 +154,7 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
         colId: 'AccountName',
         field: 'AccountName',
         width: 120,
-        headerName: 'Account Namne',
+        headerName: 'Account Name'
       },
       {
         colId: 'debit',

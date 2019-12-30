@@ -7,8 +7,7 @@ import { ServicesStatusApiService } from '../../../../services/services-status-a
   styleUrls: ['./services-status.component.css']
 })
 export class ServicesStatusComponent implements OnInit {
-
-  show: Boolean = false;
+  show = false;
 
   constructor(public servicesStatusApiService: ServicesStatusApiService) {}
 
@@ -22,9 +21,8 @@ export class ServicesStatusComponent implements OnInit {
     });
   }
 
-  loadService(){
+  loadService() {
     this.show = false;
     this.servicesStatusApiService.loadServices();
   }
-
 }

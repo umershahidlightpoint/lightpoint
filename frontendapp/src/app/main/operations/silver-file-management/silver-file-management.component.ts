@@ -1,5 +1,4 @@
 import { Component, TemplateRef, OnInit, AfterViewInit, ViewChild } from '@angular/core';
-import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { TemplateRendererComponent } from '../../../template-renderer/template-renderer.component';
 import { SilverFile } from 'src/shared/Models/silver-file';
@@ -9,6 +8,7 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
 import * as moment from 'moment';
+import { FileManagementApiService } from 'src/services/file-management-api.service';
 
 @Component({
   selector: 'app-silver-file-management',
@@ -36,7 +36,7 @@ export class SilverFileManagementComponent implements OnInit, AfterViewInit {
     boxSizing: 'border-box'
   };
 
-  constructor(private financeService: FinanceServiceProxy) {
+  constructor(private fileManagementApiService: FileManagementApiService) {
     this.initGrid();
   }
 
@@ -105,7 +105,7 @@ export class SilverFileManagementComponent implements OnInit, AfterViewInit {
   }
 
   getSilverFiles() {
-    this.financeService.getSilverFiles().subscribe(result => {
+    this.fileManagementApiService.getSilverFiles().subscribe(result => {
       this.files = result.payload.map(item => ({
         name: item.Name,
         uploadDate: moment(item.UploadDate).format('MMM-DD-YYYY hh:mm:ss'),

@@ -1,7 +1,10 @@
-<div>
-  <div class="d-flex ">
+<!-- Actions Container -->
+<div class="d-flex">
 
-    <div class="w-50">
+  <!-- Organization Dropdown -->
+  <div class="width-20">
+
+    <!-- Dropdown -->
     <select [disabled]="isLoading" class="custom-select" [(ngModel)]="organization"
       (change)="selectOrganization($event)" required>
       <option hidden [value]="0">Choose Organization</option>
@@ -9,28 +12,42 @@
         {{ list.OrganizationName }}
       </option>
     </select>
-    <div *ngIf="isLoading" class="loader-wrapper">
-      <app-loader [loadingText]="false"></app-loader>
-    </div>
-    </div>
+    <!-- Dropdown Ends -->
 
-    <div class="w-50" style="text-align: right;">
-      <button class="btn btn-pa ml-2" type="button" [disabled]="disableCommit || commitLoader"
-    (click)="commitAccountMapping()">
+  </div>
+  <!-- Organization Dropdown Ends -->
+
+  <!-- Loader -->
+  <div *ngIf="isLoading" class="loader-wrapper">
+    <app-loader [loadingText]="false"></app-loader>
+  </div>
+  <!-- Loader Ends -->
+
+  <!-- Action Buttons Div Starts -->
+  <div class="ml-auto">
+    <!-- Refresh Button -->
+    <button class="btn btn-pa" tooltip="Reset" placement="top" [disabled]="!organization" (click)="resetGrid()">
+      <i class="fa fa-undo"></i></button>
+
+    <!-- Commit Button -->
+    <button class="btn btn-pa ml-2" type="button" [disabled]="disableCommit || commitLoader"
+      (click)="commitAccountMapping()">
       Commit
-      <span *ngIf="commitLoader" class="spinner-border spinner-border-sm" role="status"
-        aria-hidden="true"></span>
+      <span *ngIf="commitLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
     </button>
-    </div>
   </div>
+  <!-- Action Buttons Div Ends -->
 
-  <div [ngStyle]="styleForHeight">
-    <ag-grid-angular (selectionChanged)="onSelectionChanged($event)" class="ag-theme-balham w-100 h-100"
-      [gridOptions]="gridOptions">
-    </ag-grid-angular>
-  </div>
-
-  <!-- Map Account Modal -->
-  <app-chart-of-account-detail #mapAccountModal>
-  </app-chart-of-account-detail>
 </div>
+<!-- Actions Container Ends -->
+
+<!-- AG Grid Container -->
+<div [ngStyle]="styleForHeight">
+  <ag-grid-angular class="ag-theme-balham w-100 h-100" [gridOptions]="gridOptions">
+  </ag-grid-angular>
+</div>
+<!-- AG Grid Container Ends -->
+
+<!-- Map Account Modal -->
+<app-chart-of-account-detail #mapAccountModal>
+</app-chart-of-account-detail>
