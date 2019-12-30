@@ -56,7 +56,7 @@
           <!-- Account Name Row Ends-->
 
           <div class="list-wrapper" *ngIf="accountDetailList.length > 0">
-            <div class="d-flex flex-direction-row" *ngFor="let list of accountDetailList">
+            <div class="d-flex flex-direction-row" *ngFor="let list of accountDetailList| slice:0:1">
               <div class="select-detail-wrap">
                 <div class="d-flex justify-content-between title-bg-color">
                   <div class="align-items-center width-40" style="padding: 7px 0px 0px 0;">
