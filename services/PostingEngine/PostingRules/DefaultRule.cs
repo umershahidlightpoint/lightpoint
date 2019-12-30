@@ -50,18 +50,7 @@ namespace PostingEngine.PostingRules
 
             if ( element.IsBuy() || element.IsShort())
             {
-                var tl = new TaxLotStatus {
-                    TradeDate = element.TradeDate,
-                    InvestmentAtCost = element.NetMoney * fxrate,
-                    FxRate = fxrate,
-                    BusinessDate = element.TradeDate,
-                    Symbol = element.Symbol,
-                    Side = element.Side,
-                    OpenId = element.LpOrderId,
-                    Status = "Open",
-                    OriginalQuantity = element.Quantity,
-                    Quantity = element.Quantity };
-                env.TaxLotStatus.Add(element.LpOrderId, tl);
+                var t1 = env.GenerateOpenTaxLot(element, fxrate);
 
                 if ( element.Quantity == 0 )
                 {
@@ -117,7 +106,7 @@ namespace PostingEngine.PostingRules
                             }
                             else
                             {
-                                var taxlot = CommonRules.RelieveTaxLot(env, lot, element, taxlotStatus.Quantity);
+                                var taxlot = CommonRules.RelieveTaxLot(env, lot, element, taxlotStatus.Quantity * -1);
 
                                 workingQuantity -= Math.Abs(taxlotStatus.Quantity);
 

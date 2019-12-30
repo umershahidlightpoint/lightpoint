@@ -67,7 +67,7 @@ namespace PostingEngine.PostingRules
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
                     Value = moneyUSD,
                     Event = "settlementdate",
-                    Fund = debitEntry.Fund,
+                    Fund = env.GetFund(element),
                 };
 
                 var credit = new Journal
@@ -79,7 +79,7 @@ namespace PostingEngine.PostingRules
                     FxRate = fxrate,
                     CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD* -1),
                     Value = moneyUSD * -1,
-                    Fund = creditEntry.Fund,
+                    Fund = env.GetFund(element),
                 };
 
                 env.Journals.AddRange( new [] { debit, credit } );

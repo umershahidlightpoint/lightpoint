@@ -361,7 +361,7 @@ namespace LP.Finance.Common
             }
             catch (Exception ex)
             {
-                Logger.Debug("", ex);
+                Logger.Debug(ex, "");
             }
         }
 

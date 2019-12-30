@@ -89,6 +89,8 @@ namespace PostingEngine
             {"ADR", new CommonStock() },
             {"Bond", new CommonStock() },
             {"Common Stock", new CommonStock() },
+            {"Open-End Fund", new CommonStock() },
+            {"Unit", new CommonStock() },
 
             // Equity Option
             {"Equity Option", new EquityOption() },
@@ -187,6 +189,19 @@ namespace PostingEngine
             return list;
         }
 
+        internal string GetFund(Transaction trade)
+        {
+            // Where(i => i.ParentOrderId == element.ParentOrderId).ToList();
+
+            var tradeAllocations = Allocations.Where(i => i.LpOrderId == trade.LpOrderId).ToList();
+            if ( tradeAllocations.Count() > 0 )
+            {
+                return tradeAllocations[0].Fund;
+            }
+
+            return "Unknown";
+        }
+
         /// <summary>
         /// Determine how to set the Value of the Journal, this will be based on the 
         /// </summary>
@@ -259,6 +274,85 @@ namespace PostingEngine
             }
 
             return creditordebit;
+        }
+
+        public class PnlData
+        {
+            public double Credit { get; set; }
+            public double Debit { get; set; }
+            public string Symbol { get; set; }
+            public double Quantity { get; set; }
+            public string Currency { get; set; }
+            public string Fund { get; set; }
+            public string Source { get; set; }
+            public double FxRate { get; set; }
+            public int SecurityId { get; set; }
+        }
+
+        public List<PnlData> UnsettledPnl { get; set; }
+
+        public void GetUnsettledPnl()
+        {
+            this.UnsettledPnl = new List<PnlData>();
+
+            var sql = $@"select credit, debit, symbol, quantity, fx_currency, fund, source, fxrate, security_id from vwJournal 
+                         where [event] = 'unrealizedpnl' 
+                         and AccountType = 'CHANGE IN UNREALIZED GAIN/(LOSS)' 
+                         and fx_currency != '{BaseCurrency}'
+                         and [when] < '{ValueDate.ToString("MM-dd-yyyy")}'";
+
+            var _connection = new SqlConnection(ConnectionString);
+            _connection.Open();
+            var command = new SqlCommand(sql, _connection);
+            //command.Transaction = env.Transaction;
+            var reader = command.ExecuteReader(System.Data.CommandBehavior.SingleResult);
+
+            while (reader.Read())
+            {
+                var unsettledPnl = new PnlData
+                {
+                    Credit = Convert.ToDouble(reader.GetFieldValue<decimal>(0)),
+                    Debit = Convert.ToDouble(reader.GetFieldValue<decimal>(1)),
+                    Symbol = reader.GetFieldValue<string>(2),
+                    Quantity = Convert.ToDouble(reader.GetFieldValue<decimal>(3)),
+                    Currency = reader.GetFieldValue<string>(4),
+                    Fund = reader.GetFieldValue<string>(5),
+                    Source = reader.GetFieldValue<string>(6),
+                    FxRate = Convert.ToDouble(reader.GetFieldValue<decimal>(7)),
+                    SecurityId = reader.GetFieldValue<int>(8),
+                };
+
+                this.UnsettledPnl.Add(unsettledPnl);
+            }
+        }
+
+        /// <summary>
+        /// Creates an open tax lot and also adds it to the TaxLotStatus collection
+        /// </summary>
+        /// <param name="element">Trade to create the tax lot</param>
+        /// <param name="fxrate">FxRate for this trade</param>
+        /// <returns>Generated TaxLot</returns>
+        public TaxLotStatus GenerateOpenTaxLot(Transaction element, double fxrate)
+        {
+            var taxlotStatus = new TaxLotStatus
+            {
+                InvestmentAtCost = element.NetMoney * fxrate,
+                FxRate = fxrate,
+                TradeDate = element.TradeDate,
+                BusinessDate = element.TradeDate,
+                Symbol = element.Symbol,
+                Side = element.Side,
+                OpenId = element.LpOrderId,
+                Status = "Open",
+                OriginalQuantity = element.Quantity,
+                Quantity = element.Quantity,
+                Fund = GetFund(element),
+                TradePrice = element.SettleNetPrice,
+            };
+
+            TaxLotStatus.Add(element.LpOrderId, taxlotStatus);
+
+            return taxlotStatus;
         }
     }
 }

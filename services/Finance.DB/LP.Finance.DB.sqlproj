@@ -62,6 +62,7 @@
     <Folder Include="StoredProcs" />
     <Folder Include="Views" />
     <Folder Include="Snapshots" />
+    <Folder Include="Functions" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\file.sql" />
@@ -119,6 +120,8 @@
     <Build Include="Views\vwJournalFull.sql" />
     <Build Include="Views\vwFullJournal.sql" />
     <Build Include="StoredProcs\ClosingTaxLot.sql" />
+    <Build Include="Functions\Function1.sql" />
+    <Build Include="StoredProcs\BookmonReconcile.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">
@@ -136,5 +139,8 @@
       <SuppressMissingDependenciesErrors>True</SuppressMissingDependenciesErrors>
       <DatabaseVariableLiteralValue>PriceMaster</DatabaseVariableLiteralValue>
     </ArtifactReference>
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="LP.Finance.DB.refactorlog" />
   </ItemGroup>
 </Project>

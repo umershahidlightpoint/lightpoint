@@ -14,8 +14,12 @@ namespace PostingEngine.TaxLotMethods
     /// <returns>List of matched open Lots / ordered by Min Tax effect</returns>
     public class MinTaxLotMethod : ITaxLotMethodology
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public List<TaxLotDetail> GetOpenLots(PostingEngineEnvironment env, Transaction element)
         {
+            //Logger.Info($"Getting Open Tax Lots for {element.Symbol}::{element.Side}::{env.GetFund(element)}");
+
             var minTaxLots = new List<TaxLotDetail>();
 
             var openlots = new BaseTaxLotMethodology().OpenTaxLots(env, element).OrderByDescending(i => i.Trade.TradeDate).ToList();
@@ -38,7 +42,7 @@ namespace PostingEngine.TaxLotMethods
         {
             var taxrate = Convert.ToDouble(i.TaxRate.Rate);
 
-            var eodPrice = MarketPrices.Find(env.ValueDate, i.Trade.BloombergCode).Price;
+            var eodPrice = MarketPrices.Find(env.ValueDate, i.Trade).Price;
             var fxrate = FxRates.Find(env.ValueDate, i.Trade.SettleCurrency).Rate;
 
             var taxImplication = (eodPrice - i.Trade.SettleNetPrice) * i.Trade.Quantity * fxrate * taxrate;

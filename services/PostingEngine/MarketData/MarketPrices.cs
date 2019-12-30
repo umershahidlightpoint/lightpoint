@@ -1,4 +1,5 @@
 ﻿using LP.Finance.Common;
+using LP.Finance.Common.Models;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -14,12 +15,16 @@ namespace PostingEngine.MarketData
 
         private static Dictionary<string, MarketPrice> _all;
 
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public static void CacheData()
         {
             if (Mock)
             {
                 _all = Utils.GetFile<Dictionary<string, MarketPrice>>("all_marketprices");
             }
+
+            Logger.Info("Caching Market Prices");
 
             var sql = $@"select business_date, symbol, MAX(price) from FundAccounting..market_prices group by business_date, symbol";
 
@@ -55,7 +60,24 @@ namespace PostingEngine.MarketData
             _all = list;
         }
 
-        public static MarketPrice Find(DateTime busDate, string symbol)
+        public static MarketPrice Find(DateTime busDate, Transaction element)
+        {
+            var price = Find(busDate, element.Symbol);
+
+            var mp = new MarketPrice
+            {
+                Price = price.Price
+            };
+
+            if ( element.TradeCurrency.ToLowerInvariant().Equals("gbx") || element.TradeCurrency.Equals("GBp"))
+            {
+                mp.Price = mp.Price / 100.0;
+            }
+
+            return mp;
+        }
+
+        private static MarketPrice Find(DateTime busDate, string symbol)
         {
             var bDate = busDate.ToString("MM-dd-yyyy");
 
@@ -64,7 +86,7 @@ namespace PostingEngine.MarketData
             if (_all.ContainsKey(key))
                 return _all[key];
 
-            //Console.WriteLine($"Unable to find Market Price for {key}");
+            Logger.Warn($"Unable to find Primary MarketPrice for {key}");
 
             // We need to manufactor a rate
             var priorDate = busDate.PrevBusinessDate();
@@ -77,6 +99,8 @@ namespace PostingEngine.MarketData
             {
                 priorRate = _all[key].Price;
             }
+
+            Logger.Warn($"Unable to find Secondary MarketPrice for {key}");
 
             return new MarketPrice
             {
