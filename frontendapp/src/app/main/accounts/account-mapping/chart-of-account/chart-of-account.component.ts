@@ -66,27 +66,29 @@ export class ChartOfAccountComponent implements OnInit, OnDestroy, AfterViewInit
       }
     });
 
-    this.modificationsSubscription = this.accountmappingApiService.dispatchModifications$.subscribe(obj => {
-      if (obj) {
-        this.disableCommit = false;
-        this.gridOptions.api.deselectAll();
+    this.modificationsSubscription = this.accountmappingApiService.dispatchModifications$.subscribe(
+      obj => {
+        if (obj) {
+          this.disableCommit = false;
+          this.gridOptions.api.deselectAll();
 
-        const rowNodes = this.setOrganizationAccounts(obj.rowNodes);
-        this.payload = obj.payload;
+          const rowNodes = this.setOrganizationAccounts(obj.rowNodes);
+          this.payload = obj.payload;
 
-        rowNodes.forEach(element => {
-          this.accountRecords[
-            this.accountRecords.findIndex(item => item.accountId === element.accountId)
-          ] = element;
+          rowNodes.forEach(element => {
+            this.accountRecords[
+              this.accountRecords.findIndex(item => item.accountId === element.accountId)
+            ] = element;
 
-          const row = this.gridOptions.api.getRowNode(element.accountId).setData(element);
-        });
+            const row = this.gridOptions.api.getRowNode(element.accountId).setData(element);
+          });
 
-        const columnGroupState = this.gridOptions.columnApi.getColumnState();
-        this.gridOptions.columnApi.resetColumnState();
-        this.gridOptions.columnApi.setColumnState(columnGroupState);
+          const columnGroupState = this.gridOptions.columnApi.getColumnState();
+          this.gridOptions.columnApi.resetColumnState();
+          this.gridOptions.columnApi.setColumnState(columnGroupState);
+        }
       }
-    });
+    );
   }
 
   initColDefs() {
@@ -166,17 +168,27 @@ export class ChartOfAccountComponent implements OnInit, OnDestroy, AfterViewInit
         return data.accountId;
       },
       getRowStyle: params => {
-        console.log('Params Data', params.data);
         if (!params.node.group && params.data.thirdPartyOrganizationName === this.organization) {
-          const acc = params.data.thirdPartyMappedAccounts.find(
+          const accountWithOrgName = params.data.thirdPartyMappedAccounts.find(
             account => account.OrganizationName === params.data.thirdPartyOrganizationName
           );
-          console.log('ACC ', acc);
-          if (acc.isCommitted && !acc.isModifed) {
+
+          if (accountWithOrgName.isCommitted && !accountWithOrgName.isModifed) {
             return { background: '#eeeeee' };
           } else {
             return { background: '#f9a89f' };
           }
+        }
+
+        const specialCase = params.data.thirdPartyMappedAccounts.find(
+          account =>
+            'isModified' &&
+            'isCommitted' in account &&
+            !account.hasOwnProperty('thirdPartyOrganizationName')
+        );
+
+        if (specialCase !== undefined && specialCase.isModified) {
+          return { background: '#f9a89f' };
         }
 
         return { background: '#ffffff' };
@@ -208,7 +220,6 @@ export class ChartOfAccountComponent implements OnInit, OnDestroy, AfterViewInit
 
   setOrganizationAccounts(list: any) {
     list = list.map(item => {
-      console.log('LIST ==>', list);
       let accountName = '';
       let organizationName = '';
 
@@ -227,7 +238,6 @@ export class ChartOfAccountComponent implements OnInit, OnDestroy, AfterViewInit
         thirdPartyOrganizationName: organizationName
       };
     });
-
     return list;
   }
 
@@ -377,7 +387,6 @@ export class ChartOfAccountComponent implements OnInit, OnDestroy, AfterViewInit
     this.commitLoader = true;
     this.accountmappingApiService.postAccountMapping(this.payload).subscribe(response => {
       this.commitLoader = false;
-
       if (response.isSuccessful) {
         this.payload = [];
         this.toastrService.success('Sucessfully Commited.');

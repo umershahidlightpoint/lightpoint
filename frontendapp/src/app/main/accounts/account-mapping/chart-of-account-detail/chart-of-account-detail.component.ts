@@ -1,4 +1,15 @@
-import { Component, OnInit, Input, ViewChild, OnDestroy, Output, EventEmitter, ComponentRef, ComponentFactoryResolver, ElementRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input,
+  ViewChild,
+  OnDestroy,
+  Output,
+  EventEmitter,
+  ComponentRef,
+  ComponentFactoryResolver,
+  ElementRef
+} from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead/typeahead-match.class';
 import { AccountmappingApiService } from '../../../../../services/accountmapping-api.service';
@@ -138,34 +149,35 @@ export class ChartOfAccountDetailComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.getOrganizations();
-    this.modificationSubscription = this.accountmappingApiService.selectedAccounList$.subscribe(list => {
-      if (list) {
-        this.rowNodes = JSON.parse(JSON.stringify(list.rowNodes));
-        this.payload = JSON.parse(JSON.stringify(list.payload));
-        console.log('PAYLOAD ngOnInit', this.payload);
-        this.organization = list.organization;
-        this.states = list.accounts;
-        this.rowNodes.forEach(element => {
-          element.thirdPartyMappedAccounts.forEach(object => {
-            if (object.OrganizationName == this.organization) {
-              this.thirdPartyAccountList.push({
-                LPAccountId: element.accountId,
-                ...object
-              });
-            }
+    this.modificationSubscription = this.accountmappingApiService.selectedAccounList$.subscribe(
+      list => {
+        if (list) {
+          this.rowNodes = JSON.parse(JSON.stringify(list.rowNodes));
+          this.payload = JSON.parse(JSON.stringify(list.payload));
+          console.log('PAYLOAD ngOnInit', this.payload);
+          this.organization = list.organization;
+          this.states = list.accounts;
+          this.rowNodes.forEach(element => {
+            element.thirdPartyMappedAccounts.forEach(object => {
+              if (object.OrganizationName == this.organization) {
+                this.thirdPartyAccountList.push({
+                  LPAccountId: element.accountId,
+                  ...object
+                });
+              }
+            });
           });
-        });
-        if (this.thirdPartyAccountList.length > 0) {
-          this.accountDetailList.push({
-            ThirdPartyAccountName: this.thirdPartyAccountList[0].ThirdPartyAccountName,
-            OrganizationName: this.thirdPartyAccountList[0].OrganizationName,
-            MapId: this.thirdPartyAccountList[0].MapId
-          });
+          if (this.thirdPartyAccountList.length > 0) {
+            this.accountDetailList.push({
+              ThirdPartyAccountName: this.thirdPartyAccountList[0].ThirdPartyAccountName,
+              OrganizationName: this.thirdPartyAccountList[0].OrganizationName,
+              MapId: this.thirdPartyAccountList[0].MapId
+            });
+          }
+          console.log(list, 'in oberver');
         }
-        console.log(list, 'in oberver');
       }
-    });
-
+    );
   }
 
   ngOnDestroy() {
@@ -191,22 +203,25 @@ export class ChartOfAccountDetailComponent implements OnInit, OnDestroy {
       const account = this.payload.find(x => x.AccountId == element.accountId);
 
       // Modifying the payload
-      console.log('Elemet ', element);
 
-      element.thirdPartyMappedAccounts.forEach((mappedAccount, index, object) => {
+      element.thirdPartyMappedAccounts.forEach((mappedAccount, index) => {
         if (
           mappedAccount.ThirdPartyAccountId === referenceThirdParty.ThirdPartyAccountId &&
           mappedAccount.OrganizationName === this.organization
         ) {
-          console.log('IN ELEMENT IF');
-          object.splice(index, 1);
+          delete mappedAccount.MapId;
+          delete mappedAccount.ThirdPartyAccountId;
+          delete mappedAccount.ThirdPartyAccountName;
+          delete mappedAccount.OrganizationName;
+          mappedAccount.isCommitted = false;
+          mappedAccount.isModified = true;
+
+          console.log('AFTER DELECTION', mappedAccount);
         }
       });
 
       if (account) {
-        console.log('IN IF');
         if (obj.MapId) {
-          // WHY?
           account.ThirdPartyAccountMapping.push({
             MapId: referenceThirdParty.MapId,
             ThirdPartyAccountId: referenceThirdParty.ThirdPartyAccountId
@@ -222,7 +237,6 @@ export class ChartOfAccountDetailComponent implements OnInit, OnDestroy {
       }
       // adding element for the first time
       else {
-        console.log('ELSE');
         if (obj.MapId) {
           const thirdPartyMapping = [];
           thirdPartyMapping.push({
