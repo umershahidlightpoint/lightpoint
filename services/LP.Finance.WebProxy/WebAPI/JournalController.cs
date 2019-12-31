@@ -154,5 +154,12 @@ namespace LP.Finance.WebProxy.WebAPI
 
             return controller.GetJournalsMetaData(obj);
         }
+
+        [Route("lastPostedDate")]
+        [HttpGet]
+        public object GetLastPostedDate()
+        {
+            return controller.GetLastJournalPostedDate();
+        }
     }
 }

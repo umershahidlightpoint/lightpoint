@@ -99,5 +99,10 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
         {
             throw new NotImplementedException();
         }
+
+        public object GetLastJournalPostedDate()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
