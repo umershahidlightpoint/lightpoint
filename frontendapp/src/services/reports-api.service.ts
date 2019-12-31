@@ -70,4 +70,9 @@ export class ReportsApiService {
       this.baseUrl + '/journal/taxlotsReport?from=' + fromDate + '&to=' + toDate + '&fund=' + fund;
     return this.http.get(url).pipe(map((response: any) => response));
   }
+
+  getLatestJournalDate() {
+    const url = this.baseUrl + '/journal/lastPostedDate';
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
 }
