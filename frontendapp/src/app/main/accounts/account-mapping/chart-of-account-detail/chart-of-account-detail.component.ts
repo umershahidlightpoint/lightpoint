@@ -180,7 +180,10 @@ export class ChartOfAccountDetailComponent implements OnInit, OnDestroy {
             });
           });
 
-          if (this.thirdPartyAccountList.length > 0) {
+          if (
+            this.thirdPartyAccountList.length > 0 &&
+            this.thirdPartyAccountList[0].ThirdPartyAccountName !== undefined
+          ) {
             this.accountDetailList.push({
               ThirdPartyAccountName: this.thirdPartyAccountList[0].ThirdPartyAccountName,
               OrganizationName: this.thirdPartyAccountList[0].OrganizationName,

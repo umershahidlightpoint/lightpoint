@@ -49,6 +49,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   stats: TrialBalanceReportStats;
   isLoading = false;
   hideGrid: boolean;
+  journalDate: any;
 
   ranges: any = Ranges;
 
@@ -79,8 +80,25 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.initGrid();
+    this.getLatestJournalDate();
     this.getFunds();
-    //this.getReport(null, null, 'ALL');
+  }
+
+  getLatestJournalDate(){
+    this.reportsApiService.getLatestJournalDate().subscribe(date => {
+      if(date.isSuccessful && date.statusCode === 200){
+        this.journalDate = date.payload[0].when;
+        this.startDate = this.journalDate;
+        this.selected = { startDate: moment(this.startDate, 'YYYY-MM-DD'), endDate: moment(this.startDate, 'YYYY-MM-DD') };
+        this.getReport(this.startDate, this.startDate, 'ALL');
+      } else {
+        const currentDate  = new Date();
+        const formattedDate = currentDate.getDate() + "-" + (currentDate.getMonth() + 1) + "-" + currentDate.getFullYear();
+        this.getReport(formattedDate, formattedDate, 'ALL');
+      }
+    },
+    error => {
+    });
   }
 
   initGrid() {
@@ -324,7 +342,6 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       this.hideGrid = obj;
       if (!this.hideGrid) {
         this.getFunds();
-        this.getReport(null, null, 'ALL');
       }
     });
   }
@@ -356,8 +373,6 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       //this.data = response.data;
       this.closingTaxLots.api.sizeColumnsToFit();
       this.closingTaxLots.api.setRowData(response.payload);
-
-      debugger;
 
       if (response.payload.length == 0) {
         this.tradeSelectionSubject.next('');
@@ -409,13 +424,17 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     this.DateRangeLabel = GetDateRangeLabel(this.startDate, this.endDate);
   }
 
+  refreshReport() {
+    this.gridOptions.api.showLoadingOverlay();
+    this.clearFilters();
+  }
+
   clearFilters() {
     this.fund = 'All Funds';
-    this.selected = null;
     this.DateRangeLabel = '';
-    this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
-    this.endDate = moment();
-    this.getReport(null, null, 'ALL');
+    const startDate = moment(this.selected.startDate).format('YYYY-MM-DD');
+    const endDate = moment(this.selected.endDate).format('YYYY-MM-DD');
+    this.getReport(startDate, endDate, 'ALL');
   }
 
   getExternalFilterState() {
@@ -447,12 +466,6 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     };
     this.gridOptions.api.exportDataAsExcel(params);
     this.downloadExcelUtils.ToastrMessage();
-  }
-
-  refreshReport() {
-    this.gridOptions.api.showLoadingOverlay();
-    this.clearFilters();
-    this.getReport(null, null, 'ALL');
   }
 
   onTradeRowSelected(event) {

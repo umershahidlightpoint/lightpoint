@@ -114,10 +114,16 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   getLatestJournalDate(){
     this.reportsApiService.getLatestJournalDate().subscribe(date => {
-      this.journalDate = date.payload[0].when;
-      this.startDate = this.journalDate;
-      this.selectedDate = { startDate: moment(this.startDate, 'YYYY-MM-DD'), endDate: moment(this.endDate, 'YYYY-MM-DD') };
-      this.getReport(this.startDate, 'ALL');
+      if(date.isSuccessful && date.statusCode === 200){
+        this.journalDate = date.payload[0].when;
+        this.startDate = this.journalDate;
+        this.selectedDate = { startDate: moment(this.startDate, 'YYYY-MM-DD'), endDate: moment(this.endDate, 'YYYY-MM-DD') };
+        this.getReport(this.startDate, 'ALL');
+      } else {
+        const currentDate  = new Date();
+        const formattedDate = currentDate.getDate() + "-" + (currentDate.getMonth() + 1) + "-" + currentDate.getFullYear();
+        this.getReport(formattedDate, 'ALL');
+      }
     },
     error => {
     });
@@ -334,7 +340,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       this.hideGrid = obj;
       if (!this.hideGrid) {
         this.getFunds();
-        //this.getReport(this.startDate, 'ALL');
       }
     });
   }
