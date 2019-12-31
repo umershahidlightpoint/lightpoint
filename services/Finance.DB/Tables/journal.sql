@@ -16,6 +16,7 @@
     [end_price] DECIMAL(22, 9) NOT NULL DEFAULT 0.0, 
     [credit_debit] NCHAR(10) NOT NULL DEFAULT '', 
 	[security_id] [int] NULL DEFAULT -1,
+	[comment_id] [int] NULL,
     CONSTRAINT [PK_journal] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -43,6 +44,10 @@ GO
 
 ALTER TABLE [dbo].[journal]  WITH NOCHECK ADD  CONSTRAINT [FK_journal_account] FOREIGN KEY([account_id])
 REFERENCES [dbo].[account] ([id])
+GO
+
+ALTER TABLE [dbo].[journal]  WITH NOCHECK ADD  CONSTRAINT [FK_journal_journal_comments] FOREIGN KEY([comment_id])
+REFERENCES [dbo].[journal_comments] ([id])
 GO
 
 ALTER TABLE [dbo].[journal] CHECK CONSTRAINT [FK_journal_account]
