@@ -13,7 +13,8 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-chart-of-account',
   templateUrl: './chart-of-account.component.html',
-  styleUrls: ['./chart-of-account.component.css']
+  styleUrls: ['./chart-of-account.component.css'],
+  providers: [AccountmappingApiService]
 })
 export class ChartOfAccountComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('mapAccountModal', { static: false }) mapAccountModal: ChartOfAccountDetailComponent;
