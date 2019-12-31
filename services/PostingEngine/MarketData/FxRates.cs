@@ -41,11 +41,10 @@ namespace PostingEngine.MarketData
                 }
             }
 
-            Logger.Warn($"Unable to find FxRate for {key}");
+            Logger.Warn($"Unable to find Primary FxRate for {key}");
 
             // We need to manufactor a rate
             var priorDate = busDate.PrevBusinessDate();
-            var nextDate = busDate.NextBusinessDate();
 
             var priorRate = 0.0;
 
@@ -60,9 +59,8 @@ namespace PostingEngine.MarketData
             {
                 Rate = priorRate
             };
-
-            //return _dummyFx;
         }
+
         public static void CacheData()
         {
             if (Mock)

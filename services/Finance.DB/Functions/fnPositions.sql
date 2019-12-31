@@ -25,7 +25,9 @@ BEGIN
 WITH taxlotstatus (business_date, open_id, symbol, side, security_id, fund, currency, quantity, investment_at_cost)
 AS
 (
-select @bDate as business_date, open_id, tax_lot_status.symbol, tax_lot_status.side, t.SecurityId, tax_lot_status.Fund, t.SettleCurrency,SUM(original_quantity) as quantity, Sum(investment_at_cost) as investment_at_cost
+select @bDate as business_date, open_id, tax_lot_status.symbol, tax_lot_status.side, t.SecurityId, tax_lot_status.Fund, t.SettleCurrency,
+SUM(original_quantity) as quantity, 
+Sum(investment_at_cost * -1) as investment_at_cost
 from tax_lot_status 
 inner join TradeMaster..trade t on t.LpOrderId = tax_lot_status.open_id
 where tax_lot_status.trade_date <= @bDate
@@ -35,7 +37,7 @@ group by open_id, tax_lot_status.symbol, tax_lot_status.side, t.SecurityId, tax_
 taxlot (business_date, open_lot_id, quantity, investment_at_cost)
 AS
 (
-select @bDate as business_date, open_lot_id, sum(quantity) as quantity, sum(investment_at_cost) as investment_at_cost
+select @bDate as business_date, open_lot_id, sum(quantity) as quantity, sum(Abs(investment_at_cost)) as investment_at_cost
 from tax_lot 
 where trade_date <= @bDate
 group by open_lot_id
@@ -43,7 +45,15 @@ group by open_lot_id
 
 
 	INSERT @returntable
-		select tls.business_date, symbol, side, security_id, fund, currency, SUM(coalesce(tls.quantity,0) + coalesce(tl.quantity,0)) as quantity, SUM(coalesce(tls.investment_at_cost,0) + coalesce(tl.Investment_at_cost,0)) as investment_at_cost 
+		select tls.business_date, symbol, side, security_id, fund, currency, 
+		case 
+			When Side = 'BUY' then SUM(coalesce(tls.quantity,0) + coalesce(tl.quantity,0))
+			else SUM(coalesce(tls.quantity,0) + coalesce(tl.quantity,0))
+		end as quantity,
+		case
+			When SUM(coalesce(tls.quantity,0) + coalesce(tl.quantity,0)) = 0 then 0
+			else SUM(coalesce(tls.investment_at_cost,0) + coalesce(tl.Investment_at_cost,0))
+		end as investment_at_cost
 		from taxlotstatus tls
 		left outer join taxlot tl on tl.open_lot_id = tls.open_id
 		group by tls.business_date, symbol, side, security_id, fund, currency

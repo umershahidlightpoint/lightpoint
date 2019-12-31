@@ -304,11 +304,6 @@ namespace PostingEngine.PostingRules
         }
         private void PostUnRealizedPnl(PostingEngineEnvironment env, Transaction element, double unrealizedPnl, double start, double end, double fxrate)
         {
-            var tradeAllocations = env.Allocations.Where(i => i.ParentOrderId == element.ParentOrderId).ToList();
-            if (tradeAllocations.Count == 0)
-            {
-
-            }
             var accountToFrom = UnRealizedPnlPostingAccounts(element);
 
             new AccountUtils().SaveAccountDetails(env, accountToFrom.From);

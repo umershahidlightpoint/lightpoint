@@ -66,9 +66,7 @@ export class ChartOfAccountDetailComponent implements OnInit, OnDestroy {
     }
 
     this.rowNodes.forEach(element => {
-      console.log('PAYLOAD IN ON SELECT', this.payload);
       const account = this.payload.find(x => x.AccountId == element.accountId);
-      console.log('ACCOUNT ON SELECT', account);
       if (account) {
         account.ThirdPartyAccountMapping.push({
           ThirdPartyAccountId: this.selectedOption.AccountId,
@@ -86,10 +84,23 @@ export class ChartOfAccountDetailComponent implements OnInit, OnDestroy {
         };
         this.payload.push(payLoadItem);
       }
+
       this.thirdPartyAccountList.push({
         LPAccountId: element.accountId,
         ThirdPartyAccountId: this.selectedOption.AccountId
       });
+
+      // Removing duplicate object with same organization name
+      element.thirdPartyMappedAccounts.forEach((mappedAccount, index, object) => {
+        if (
+          mappedAccount.OrganizationName === this.organization &&
+          !mappedAccount.hasOwnProperty('ThirdPartyAccountId') &&
+          !mappedAccount.hasOwnProperty('ThirdPartyAccountName')
+        ) {
+          object.splice(index, 1);
+        }
+      });
+
       // TODO modify third party mapping in row node
       element.thirdPartyMappedAccounts.push({
         ThirdPartyAccountId: this.selectedOption.AccountId,
@@ -104,6 +115,8 @@ export class ChartOfAccountDetailComponent implements OnInit, OnDestroy {
       ThirdPartyAccountName: this.selectedOption.AccountName,
       OrganizationName: this.organization
     });
+
+    // console.log('ACCOUNT WITH SAME ORG', accountWithSameOrg);
     console.log(this.payload, 'modified payload after insertion');
     console.log(this.rowNodes, 'modified row nodes after insertion');
   }
@@ -154,7 +167,6 @@ export class ChartOfAccountDetailComponent implements OnInit, OnDestroy {
         if (list) {
           this.rowNodes = JSON.parse(JSON.stringify(list.rowNodes));
           this.payload = JSON.parse(JSON.stringify(list.payload));
-          console.log('PAYLOAD ngOnInit', this.payload);
           this.organization = list.organization;
           this.states = list.accounts;
           this.rowNodes.forEach(element => {
@@ -167,6 +179,7 @@ export class ChartOfAccountDetailComponent implements OnInit, OnDestroy {
               }
             });
           });
+
           if (this.thirdPartyAccountList.length > 0) {
             this.accountDetailList.push({
               ThirdPartyAccountName: this.thirdPartyAccountList[0].ThirdPartyAccountName,
@@ -209,14 +222,12 @@ export class ChartOfAccountDetailComponent implements OnInit, OnDestroy {
           mappedAccount.ThirdPartyAccountId === referenceThirdParty.ThirdPartyAccountId &&
           mappedAccount.OrganizationName === this.organization
         ) {
+          // Deleting all properties except organization name and flags(is committed and is modified)
           delete mappedAccount.MapId;
           delete mappedAccount.ThirdPartyAccountId;
           delete mappedAccount.ThirdPartyAccountName;
-          delete mappedAccount.OrganizationName;
           mappedAccount.isCommitted = false;
           mappedAccount.isModified = true;
-
-          console.log('AFTER DELECTION', mappedAccount);
         }
       });
 

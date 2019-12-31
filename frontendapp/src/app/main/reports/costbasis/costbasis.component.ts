@@ -46,8 +46,8 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   funds: Fund;
   DateRangeLabel: string;
   selectedDate: any;
-  startDate: Date;
-  endDate: Date;
+  startDate: any;
+  endDate: any;
   trialBalanceReport: Array<TrialBalanceReport>;
   trialBalanceReportStats: TrialBalanceReportStats;
   isLoading = false;
@@ -59,6 +59,8 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   cbData: any;
   bData: any;
   qData: any;
+
+  journalDate: Date;
 
   labels: string[] = [];
   displayChart = false;
@@ -105,13 +107,23 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.initGrid();
-    this.getFunds();
+      this.initGrid();
+      this.getLatestJournalDate();
+      this.getFunds();
+  }
+
+  getLatestJournalDate(){
+    this.reportsApiService.getLatestJournalDate().subscribe(date => {
+      this.journalDate = date.payload[0].when;
+      this.startDate = this.journalDate;
+      this.selectedDate = { startDate: moment(this.startDate, 'YYYY-MM-DD'), endDate: moment(this.endDate, 'YYYY-MM-DD') };
+      this.getReport(this.startDate, 'ALL');
+    },
+    error => {
+    });
   }
 
   initGrid() {
-    this.startDate = new Date();
-    this.startDate.setDate(this.startDate.getDate() - 1);
     this.gridOptions = {
       rowData: null,
       pinnedBottomRowData: null,
@@ -322,7 +334,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       this.hideGrid = obj;
       if (!this.hideGrid) {
         this.getFunds();
-        this.getReport(this.startDate, 'ALL');
+        //this.getReport(this.startDate, 'ALL');
       }
     });
   }
@@ -343,6 +355,10 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.reportsApiService.getCostBasisReport(date, fund).subscribe(response => {
       this.trialBalanceReportStats = response.stats;
       this.trialBalanceReport = response.payload;
+      if(this.trialBalanceReport.length === 0) {
+        this.timeseriesOptions.api.setRowData([]);
+        this.displayChart = false;
+      };
       this.gridOptions.api.setRowData(this.trialBalanceReport);
       this.gridOptions.api.sizeColumnsToFit();
       this.isLoading = false;
@@ -470,7 +486,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   doesExternalFilterPass(node: any) {}
 
   getContextMenuItems(params): Array<ContextMenu> {
-    // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(true, null, true, null, params);
   }
 
@@ -490,11 +505,8 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   clearFilters() {
     this.fund = 'All Funds';
-    this.selectedDate = null;
+    this.selectedDate = this.startDate;
     this.DateRangeLabel = '';
-    this.startDate = new Date();
-    this.startDate.setDate(this.startDate.getDate() - 1);
-
     this.endDate = undefined;
     this.getReport(this.startDate, 'ALL');
   }
@@ -534,6 +546,9 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
     this.clearFilters();
+    this.timeseriesOptions.api.setRowData([]);
+    this.displayChart = false;
+    this.selectedDate = { startDate: moment(this.startDate, 'YYYY-MM-DD'), endDate: moment(this.endDate, 'YYYY-MM-DD') };
     this.getReport(this.startDate, 'ALL');
   }
 

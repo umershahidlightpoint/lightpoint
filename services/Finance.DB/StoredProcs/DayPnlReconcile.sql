@@ -1,5 +1,5 @@
 ﻿/*
-Examples:
+Examples 
 
 exec [DayPnlReconcile] '2019-12-18'
 */
@@ -37,7 +37,7 @@ coalesce(p.SecurityCode, b.SecurityCode) as Symbol,
 coalesce(p.Fund, b.Fund) as Fund, 
 coalesce(p.SecurityType, b.SecurityType) as SecurityType, 
 coalesce(p.Currency, b.Currency) as Currency,
-coalesce(b.DayPnl,0) - coalesce(p.DayPnl,0) as Diff_DayPnl, 
+ROUND(coalesce(b.DayPnl,0) - coalesce(p.DayPnl,0),2) as Diff_DayPnl, 
 'BookMon -->' as BookMon, 
 b.*, 
 'PA -->' as PortfolioA, 
@@ -48,7 +48,9 @@ full outer join #bookmon_pnl b on b.Busdate = p.BusDate and b.SecurityCode = p.S
 order by Symbol, p.fund
 
 select * from #pa_pnl
+order by SecurityCode, fund
 
 select * from #bookmon_pnl
+order by SecurityCode, fund
 
 RETURN 0
