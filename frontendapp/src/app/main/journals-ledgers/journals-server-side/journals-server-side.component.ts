@@ -343,7 +343,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
   initColDefs() {
     const payload = {
-      tableName: 'vwJournal',
+      tableName: 'vwFullJournal',
       filters: ['fund', 'symbol', 'AccountCategory', 'AccountType', 'AccountName', 'fx_currency']
     };
     this.journalApiService.getServerSideJournalsMeta(payload).subscribe(result => {
