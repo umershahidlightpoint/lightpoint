@@ -62,9 +62,21 @@ namespace PostingEngine.MarketData
 
         public static MarketPrice Find(DateTime busDate, Transaction element)
         {
+            var mp = new MarketPrice
+            {
+                Price = 1
+            };
+
+            if ( element.Symbol.Equals("MSUXX"))
+            {
+                //Logger.Warn($"Using Price = 1 for {element.Symbol}");
+
+                return mp; 
+            }
+
             var price = Find(busDate, element.Symbol);
 
-            var mp = new MarketPrice
+            mp = new MarketPrice
             {
                 Price = price.Price
             };

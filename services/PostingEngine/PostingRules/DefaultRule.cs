@@ -67,6 +67,7 @@ namespace PostingEngine.PostingRules
 
                 if ( openLots.Count() == 0)
                 {
+
                     // Whats going on here?
                     // We are skipping anything that does not get an OpenLot
                     Logger.Warn($"There should be for a sell {element.Symbol} have at least one open lot, non found");

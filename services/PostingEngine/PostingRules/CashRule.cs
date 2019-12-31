@@ -64,8 +64,6 @@ namespace PostingEngine.PostingRules
 
         private void AccrualPayment(PostingEngineEnvironment env, Transaction element, Accrual accrual)
         {
-            var tradeAllocations = env.Allocations.Where(i => i.LpOrderId == element.LpOrderId).ToList();
-
             var accountToFrom = GetFromToAccount(element);
 
             if (accountToFrom.To == null || accountToFrom.From == null)

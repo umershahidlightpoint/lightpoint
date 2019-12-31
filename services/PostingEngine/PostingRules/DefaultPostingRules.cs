@@ -30,8 +30,6 @@ namespace PostingEngine.PostingRules
             // Calculate the unrealized PNL
             if (env.TaxLotStatus.ContainsKey(element.LpOrderId))
             {
-                var tradeAllocations = env.Allocations.Where(i => i.ParentOrderId == element.ParentOrderId).ToList();
-
                 // Determine if we need to accumulate unrealized PNL
                 var taxlot = env.TaxLotStatus[element.LpOrderId];
 
@@ -102,7 +100,7 @@ namespace PostingEngine.PostingRules
                         StartPrice = prevEodPrice,
                         EndPrice = eodPrice,
                         Event = "unrealizedpnl",
-                        Fund = env.GetFund(element),
+                        Fund = fund,
                     };
 
                     var credit = new Journal(element)
@@ -116,7 +114,7 @@ namespace PostingEngine.PostingRules
                         Event = "unrealizedpnl",
                         StartPrice = prevEodPrice,
                         EndPrice = eodPrice,
-                        Fund = env.GetFund(element),
+                        Fund = fund,
                     };
 
                     env.Journals.AddRange(new[] { debit, credit });
@@ -247,14 +245,7 @@ namespace PostingEngine.PostingRules
                 fxrate = settlefxrate;
             }
 
-            // Retrieve Allocation Objects for this trade
-            var tradeAllocations = env.Allocations.Where(i => i.ParentOrderId == element.ParentOrderId).ToList();
-
-            // Reversing the trade date activity
-            var debitEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[1] : tradeAllocations[0];
-            var creditEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[0] : tradeAllocations[1];
-
-            var accountToFrom = new AccountingRules().GetFromToAccountOnSettlement(element, debitEntry, creditEntry);
+            var accountToFrom = new AccountingRules().GetFromToAccountOnSettlement(element);
 
             if (accountToFrom.To == null || accountToFrom.From == null)
             {
@@ -294,7 +285,7 @@ namespace PostingEngine.PostingRules
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
                     Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
                     Event = "settlement",
-                    Fund = debitEntry.Fund,
+                    Fund = env.GetFund(element)
                 };
 
                 var credit = new Journal
@@ -312,7 +303,7 @@ namespace PostingEngine.PostingRules
                     CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
                     Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
                     Event = "settlement",
-                    Fund = creditEntry.Fund,
+                    Fund = env.GetFund(element)
                 };
 
                 env.Journals.AddRange(new[] { debit, credit });
@@ -333,7 +324,6 @@ namespace PostingEngine.PostingRules
                 fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
             }
 
-            var tradeAllocations = env.Allocations.Where(i => i.LpOrderId == element.LpOrderId).ToList();
 
             if ( element.IsCredit() || element.IsDebit())
             {
@@ -363,9 +353,12 @@ namespace PostingEngine.PostingRules
 
                 if (openLots.Count() == 0)
                 {
+                    // If no open Tax Lot, need to create a new one
+                    var tl = env.GenerateOpenTaxLot(element, fxrate);
+
                     // Whats going on here?
                     // We are skipping anything that does not get an OpenLot
-                    Logger.Warn($"No Open Tax Lot for {element.Symbol}::{element.Side}");
+                    Logger.Warn($"Created an Open Tax Lot for {element.Symbol}::{element.Side}");
                 }
                 else
                 {
@@ -487,6 +480,11 @@ namespace PostingEngine.PostingRules
 
                                 var fromTo = new AccountUtils().GetAccounts(env, "CHANGE IN UNREALIZED GAIN/(LOSS)", markToMarketAccount, listOfFromTags, element);
 
+                                if ( fxrate == 1.0 )
+                                {
+                                    changeInUnRealized = Convert.ToDouble(PnL);
+                                }
+
                                 // Now Generate Entries for the trade that is drawing down on the taxLot
                                 var fromJournal = new Journal(buyTrade)
                                 {
@@ -495,7 +493,7 @@ namespace PostingEngine.PostingRules
 
                                     CreditDebit = env.DebitOrCredit(fromTo.From, changeInUnRealized),
                                     Value = env.SignedValue(fromTo.From, fromTo.To, true, changeInUnRealized),
-                                    Event = "realizedpnl",
+                                    Event = "unrealizedpnl",
                                     Fund = env.GetFund(element),
 
                                     StartPrice = taxlot.TradePrice,
@@ -510,7 +508,7 @@ namespace PostingEngine.PostingRules
 
                                     CreditDebit = env.DebitOrCredit(fromTo.To, changeInUnRealized * -1),
                                     Value = env.SignedValue(fromTo.From, fromTo.To, false, changeInUnRealized),
-                                    Event = "realizedpnl",
+                                    Event = "unrealizedpnl",
                                     Fund = env.GetFund(element),
 
                                     StartPrice = taxlot.TradePrice,
@@ -557,6 +555,8 @@ namespace PostingEngine.PostingRules
                 // We have a Debit / Credit Dividends
             }
 
+            var tradeAllocations = env.Allocations.Where(i => i.LpOrderId == element.LpOrderId).ToList();
+
             // Retrieve Allocation Objects for this trade
             if (tradeAllocations.Count() > 2)
             {
@@ -564,17 +564,17 @@ namespace PostingEngine.PostingRules
                 return;
             }
 
-            var debitEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[0] : tradeAllocations[1];
-            var creditEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[1] : tradeAllocations[0];
-
-            var accountToFrom = GetFromToAccount(element, debitEntry, creditEntry);
-
-            if (debitEntry.Symbol.Equals("@CASHUSD"))
+            if (tradeAllocations.Count() == 2)
             {
-                env.AddMessage($"Unexpected Cash allocation please investigate {element.LpOrderId}");
-                return;
+                var debitEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[0] : tradeAllocations[1];
+                if (debitEntry.Symbol.Equals("@CASHUSD"))
+                {
+                    env.AddMessage($"Unexpected Cash allocation please investigate {element.LpOrderId}");
+                    return;
+                }
             }
 
+            var accountToFrom = GetFromToAccount(element);
             if (accountToFrom.To == null || accountToFrom.From == null)
             {
                 env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
@@ -608,7 +608,7 @@ namespace PostingEngine.PostingRules
                     FxRate = fxrate,
                     StartPrice = element.SettleNetPrice,
                     EndPrice = eodPrice,
-                    Fund = debitEntry.Fund,
+                    Fund = env.GetFund(element),
                 };
 
                 var toJournal = new Journal(element, accountToFrom.To, "tradedate", env.ValueDate)
@@ -618,7 +618,7 @@ namespace PostingEngine.PostingRules
                     Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
                     StartPrice = element.SettleNetPrice,
                     EndPrice = eodPrice,
-                    Fund = creditEntry.Fund,
+                    Fund = env.GetFund(element),
                 };
 
                 env.Journals.AddRange(new[] { fromJournal, toJournal });
@@ -784,7 +784,7 @@ namespace PostingEngine.PostingRules
             env.Journals.AddRange(new List<Journal>(new[] { debit, credit }));
         }
 
-        private AccountToFrom GetFromToAccount(Transaction element, Transaction debit, Transaction credit)
+        private AccountToFrom GetFromToAccount(Transaction element)
         {
             var type = element.GetType();
             var accountTypes = AccountType.All;

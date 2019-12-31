@@ -120,7 +120,7 @@
     <Build Include="Views\vwJournalFull.sql" />
     <Build Include="Views\vwFullJournal.sql" />
     <Build Include="StoredProcs\ClosingTaxLot.sql" />
-    <Build Include="Functions\Function1.sql" />
+    <Build Include="Functions\fnPositions.sql" />
     <Build Include="StoredProcs\BookmonReconcile.sql" />
   </ItemGroup>
   <ItemGroup>

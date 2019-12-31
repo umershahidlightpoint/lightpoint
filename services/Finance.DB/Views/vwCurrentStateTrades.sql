@@ -7,8 +7,8 @@ select * from vwCurrentStateTrades where Symbol = 'AAPL'
 CREATE VIEW [dbo].[vwCurrentStateTrades]
 	AS 
 select
-	t1.LPOrderId, t1.AccrualId,  t1.Action, coalesce(s.SecurityCode, t1.Symbol) as Symbol, t1.Side, t1.Quantity, t1.TimeInForce, 
-	t1.OrderType, t1.SecurityType,  t1.BloombergCode,
+	t1.LPOrderId, t1.AccrualId,  t1.Action, coalesce(s.EzeTicker, t1.Symbol) as Symbol, t1.Side, t1.Quantity, t1.TimeInForce, 
+	t1.OrderType, t1.SecurityType,  t1.BloombergCode, s.EzeTicker, s.SecurityCode,
 	t1.CustodianCode, t1.ExecutionBroker, t1.TradeId,  
     t1.SecurityId,
 	t1.Fund, t1.PMCode, t1.PortfolioCode, t1.Trader, 
@@ -34,7 +34,7 @@ and t1. IsBrokerLegTrade = 0
 and t1.IsBrokerTrade = 0
 union all
 select
-LPOrderId, AccrualId,  Action, coalesce(s.SecurityCode, Symbol) as Symbol, Side, Quantity, TimeInForce, OrderType, SecurityType,  BloombergCode,
+LPOrderId, AccrualId,  Action, coalesce(s.EzeTicker, Symbol) as Symbol, Side, Quantity, TimeInForce, OrderType, SecurityType,  BloombergCode, s.EzeTicker, s.SecurityCode,
 	CustodianCode, ExecutionBroker, trade.TradeId,  
     trade.SecurityId,
 	Fund, PMCode, PortfolioCode, Trader, 
@@ -58,4 +58,4 @@ where OriginalTradeId  is null and LinkedTradeId is null
 -- and CONVERT(date, TradeDate, 101) BETWEEN CONVERT(date, @StartDate, 101) AND CONVERT(date, @EndDate, 101) 
 and IsBrokerLegTrade = 0
 and IsBrokerTrade = 0
-
+GO
