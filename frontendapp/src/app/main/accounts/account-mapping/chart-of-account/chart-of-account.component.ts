@@ -180,10 +180,12 @@ export class ChartOfAccountComponent implements OnInit, OnDestroy, AfterViewInit
           }
         }
 
+        // For deleted third party mapped account ( Only modified and committed properties present )
         const specialCase = params.data.thirdPartyMappedAccounts.find(
           account =>
             'isModified' &&
             'isCommitted' in account &&
+            account.OrganizationName === this.organization &&
             !account.hasOwnProperty('thirdPartyOrganizationName')
         );
 
@@ -323,7 +325,6 @@ export class ChartOfAccountComponent implements OnInit, OnDestroy, AfterViewInit
       response => {
         if (response.isSuccessful) {
           this.organizationList = response.payload;
-
           this.organization = response.payload[0].OrganizationName;
 
           this.getAccountsRecord();

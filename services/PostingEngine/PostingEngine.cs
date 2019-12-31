@@ -143,6 +143,28 @@ namespace PostingEngine
 
         }
 
+        static void NonDesructive(Guid key, DateTime businesssdate)
+        {
+            // This runs thru everything, we need more or a scalpable
+            PostingEngine.NonDesructive("ITD", key, businesssdate, (message, totalRows, rowsDone) => {
+                if (message.StartsWith("Processing"))
+                {
+                    Logger.Info($"{message}");
+                    return;
+                }
+                if (message.StartsWith("Completed"))
+                {
+                    var completed = (rowsDone * 1.0 / totalRows) * 100;
+
+                    Logger.Info($"{message}, % Completed {completed}");
+                    return;
+                }
+
+                Logger.Info($"{message}");
+            });
+
+        }
+
         static void CostBasis(Guid key, DateTime valueDate)
         {
             // This runs thru everything, we need more or a scalpable
