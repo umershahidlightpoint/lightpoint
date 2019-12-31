@@ -27,5 +27,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         object DoHaveJournals(DateTime to, DateTime from);
         object GetJournalsMetaData(JournalMetaInputDto obj);
+        object GetLastJournalPostedDate();
     }
 }
