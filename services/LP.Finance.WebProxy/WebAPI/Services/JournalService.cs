@@ -1160,7 +1160,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object GetLastJournalPostedDate()
         {
-            var query = "select top 0 [when] from journal order by [when] desc";
+            var query = "select top 1 [when] from journal order by [when] desc";
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
             var serialized = JsonConvert.SerializeObject(dataTable);
             var resp = JsonConvert.DeserializeObject(serialized);
