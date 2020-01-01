@@ -541,8 +541,15 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     this.gridOptions.api.showLoadingOverlay();
     this.portfolioOptions.api.showLoadingOverlay();
     this.bookmonOptions.api.showLoadingOverlay();
-    this.selectedDate = { startDate: moment(this.journalDate, 'YYYY-MM-DD'), endDate: moment(this.endDate, 'YYYY-MM-DD') };
-    this.getReport(this.journalDate, 'ALL');
+
+    if (this.selectedDate.startDate == null) {
+      this.selectedDate = { startDate: moment(this.journalDate, 'YYYY-MM-DD'), endDate: moment(this.endDate, 'YYYY-MM-DD') };
+      this.getReport(this.journalDate, 'ALL');
+    } else {
+      const startDate = this.selectedDate.startDate.format('YYYY-MM-DD');
+      this.getReport(startDate, 'ALL');
+    }
+
   }
 
   onBtExport() {

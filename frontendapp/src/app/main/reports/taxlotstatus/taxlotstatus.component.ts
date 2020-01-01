@@ -426,8 +426,16 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
 
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
-    this.selected = { startDate: moment(this.journalDate, 'YYYY-MM-DD'), endDate: moment(this.journalDate, 'YYYY-MM-DD') };
-    this.getReport(this.journalDate, this.journalDate, 'ALL');
+
+    if (this.selected.startDate == null) {
+      this.selected = { startDate: moment(this.journalDate, 'YYYY-MM-DD'), endDate: moment(this.journalDate, 'YYYY-MM-DD') };
+      this.getReport(this.journalDate, this.journalDate, 'ALL');
+    } else {
+      const startDate = this.selected.startDate.format('YYYY-MM-DD');
+      const endDate = this.selected.endDate.format('YYYY-MM-DD');
+      this.getReport(startDate, endDate, 'ALL');
+    }
+
   }
 
   clearFilters() {
