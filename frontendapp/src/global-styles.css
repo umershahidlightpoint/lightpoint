@@ -56,7 +56,7 @@ body {
 .ranges ul li button.active,
 .md-drppicker td.active,
 .md-drppicker td.active:hover {
-  background-color: #17a2b8 !important;
+  background-color: #0275d8 !important;
 }
 
 .md-drppicker .clear svg {

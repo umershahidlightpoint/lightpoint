@@ -34,7 +34,7 @@ export class AgGridUtils {
   }
 
   /*
-  Take the original Defs and append to them and then return the result
+  Take the Original Defs and Append to them and then Return the Result
   */
   customizeColumns(
     colDefs: any,
@@ -48,40 +48,53 @@ export class AgGridUtils {
 
     for (const i in columns) {
       const column = columns[i];
-      // Check to see if it's an ignored field
+      // Check to See If it's an Ignored Field
       if (ignoreFields.filter(i => i == column.field).length == 0) {
-        // Check to see if we have not already defined it
+        // Check to See If we have Not Already Defined it
         if (cdefs.filter(i => i.field == column.field).length == 0) {
           const clone = { ...colDefs[0] };
+
+          clone.colId = column.field;
           clone.field = column.field;
           clone.headerName = column.headerName;
+          // Assume all Columns are Sortable
+          clone.sortable = true;
+          clone.valueFormatter = null;
+          clone.cellStyle = null;
+
+          // Set Filter Type based on Filters from Server
+          const indexOfFilter = filterData.findIndex(filter => filter.ColumnName === column.field);
           clone.filter = (() => {
-            if (
-              isJournalGrid &&
-              (column.Type == 'System.Int32' ||
-                column.Type == 'System.Decimal' ||
-                column.Type == 'System.Double')
-            ) {
-              return 'agNumberColumnFilter';
-            }
+            if (indexOfFilter !== -1) {
+              return 'agSetColumnFilter';
+            } else {
+              if (
+                isJournalGrid &&
+                (column.Type == 'System.Int32' ||
+                  column.Type == 'System.Decimal' ||
+                  column.Type == 'System.Double')
+              ) {
+                return 'agNumberColumnFilter';
+              }
 
-            if (isJournalGrid && column.Type == 'System.String') {
-              return 'agTextColumnFilter';
-            }
+              if (isJournalGrid && column.Type == 'System.String') {
+                return 'agTextColumnFilter';
+              }
 
-            if (isJournalGrid && column.Type == 'System.DateTime') {
-              return 'agDateColumnFilter';
+              if (isJournalGrid && column.Type == 'System.DateTime') {
+                return 'agDateColumnFilter';
+              }
             }
 
             return column.filter;
           })();
 
-          clone.colId = column.field;
-          clone.valueFormatter = null;
-          clone.cellStyle = null;
+          clone.filterParams = {
+            cellHeight: 20,
+            values: indexOfFilter !== -1 && filterData[indexOfFilter].Values,
+            debounceMs: 1000
+          };
 
-          // Assume all columns are sortable
-          clone.sortable = true;
           if (
             column.Type == 'System.Int32' ||
             column.Type == 'System.Decimal' ||
@@ -132,10 +145,12 @@ export class AgGridUtils {
           } else {
             clone.enableRowGroup = true;
           }
+
           cdefs.push(clone);
         }
       }
     }
+
     return cdefs;
   }
 
@@ -143,6 +158,7 @@ export class AgGridUtils {
     const filteredCols = colDefs.filter(
       x => disabledFilterList.includes(x.colId) || disabledFilterList.includes(x.field)
     );
+
     filteredCols.map(x => (x.filter = false));
     return colDefs;
   }
