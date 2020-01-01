@@ -343,8 +343,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
   initColDefs() {
     const payload = {
-      tableName: 'vwFullJournal',
-      filters: ['fund', 'symbol', 'AccountCategory', 'AccountType', 'AccountName', 'fx_currency']
+      GridName: GridName.journalsLedgers
     };
     this.journalApiService.getServerSideJournalsMeta(payload).subscribe(result => {
       const metaColumns = result.payload.Columns;
@@ -375,7 +374,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         metaColumns,
         this.ignoreFields,
         true,
-        false
+        result.payload.Filters
       );
       const afterDisableFilters = this.agGridUtls.disableColumnFilters(cdefs, disabledFilters);
 

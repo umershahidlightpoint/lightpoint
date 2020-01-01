@@ -6,5 +6,7 @@
     [last_updated_by] VARCHAR(100) NULL, 
     [last_updated_date] DATETIME NULL,
 	[col_name] VARCHAR(100) NOT NULL,
-	[source] VARCHAR(100) NOT NULL
+	[source] VARCHAR(100) NOT NULL,
+	[meta_info] VARCHAR(100) NOT NULL DEFAULT '',
+	[grid_name] VARCHAR(100) NOT NULL DEFAULT ''
 )

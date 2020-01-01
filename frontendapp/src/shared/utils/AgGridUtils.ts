@@ -41,7 +41,7 @@ export class AgGridUtils {
     columns: any,
     ignoreFields: any,
     isJournalGrid,
-    addAggFunc: boolean = true,
+    filterData: any = [],
     sumFields: any = ['debit', 'credit', 'balance']
   ) {
     const cdefs = Object.assign([], colDefs);

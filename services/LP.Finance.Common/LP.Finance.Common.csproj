@@ -111,6 +111,7 @@
     <Compile Include="Model\Position.cs" />
     <Compile Include="Model\RowGroupCols.cs" />
     <Compile Include="Model\ServerRowModel.cs" />
+    <Compile Include="Model\ServerSideFilterConfig.cs" />
     <Compile Include="Model\SortModel.cs" />
     <Compile Include="Model\TaxLot.cs" />
     <Compile Include="Model\TaxLotStatus.cs" />
