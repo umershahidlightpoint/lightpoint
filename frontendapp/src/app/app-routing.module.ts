@@ -13,10 +13,11 @@ import { LayoutsComponent } from './main/layouts/layouts.component';
 import { FundTheoreticalComponent } from './main/fund-theoretical/fund-theoretical.component';
 import { SummaryComponent } from './main/summary/summary.component';
 import { JournalsLayoutComponent } from './main/journals-ledgers/journals-layout.component';
+import { NotfoundComponent } from './main/not-found/notfound/notfound.component';
 import { PerformanceCanDeactivateGuard } from '../../src/services/guards/performance-can-deactivate-guard.service';
 
+
 const routes: Routes = [
-  { path: '', component: ReportsComponent }, // Default
   { path: 'journals-ledgers', component: JournalsLayoutComponent },
   { path: 'analysis', component: SummaryComponent },
   { path: 'trial-balance', component: TrialGridExampleComponent },
@@ -42,7 +43,9 @@ const routes: Routes = [
     ]
   },
   { path: 'operations', component: OperationsComponent },
-  { path: 'grid-views', component: LayoutsComponent }
+  { path: 'grid-views', component: LayoutsComponent },
+  { path: '', redirectTo: '/reports', pathMatch: 'full' },
+  { path: '**', component: NotfoundComponent }
 ];
 
 @NgModule({
