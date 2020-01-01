@@ -508,14 +508,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.DateRangeLabel = GetDateRangeLabel(this.startDate, this.endDate);
   }
 
-  clearFilters() {
-    this.fund = 'All Funds';
-    this.selectedDate = this.startDate;
-    this.DateRangeLabel = '';
-    this.endDate = undefined;
-    this.getReport(this.startDate, 'ALL');
-  }
-
   getExternalFilterState() {
     return {
       fundFilter: this.fund,
@@ -548,13 +540,22 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     }
   }
 
-  refreshReport() {
-    this.gridOptions.api.showLoadingOverlay();
-    this.clearFilters();
+  clearFilters() {
+    this.fund = 'All Funds';
+    this.selectedDate = null;
+    this.DateRangeLabel = '';
+    this.endDate = undefined;
+    this.gridOptions.api.setRowData([]);
     this.timeseriesOptions.api.setRowData([]);
     this.displayChart = false;
-    this.selectedDate = { startDate: moment(this.startDate, 'YYYY-MM-DD'), endDate: moment(this.endDate, 'YYYY-MM-DD') };
-    this.getReport(this.startDate, 'ALL');
+  }
+
+  refreshReport() {
+    this.gridOptions.api.showLoadingOverlay();
+    this.timeseriesOptions.api.setRowData([]);
+    this.displayChart = false;
+    this.selectedDate = { startDate: moment(this.journalDate, 'YYYY-MM-DD'), endDate: moment(this.endDate, 'YYYY-MM-DD') };
+    this.getReport(this.journalDate, 'ALL');
   }
 
   onBtExport() {
