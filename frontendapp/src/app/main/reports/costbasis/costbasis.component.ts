@@ -1,4 +1,6 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { timer, Subject } from 'rxjs';
+import { debounce } from 'rxjs/operators';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { Fund } from '../../../../shared/Models/account';
 import {
@@ -48,6 +50,10 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   selectedDate: any;
   startDate: any;
   endDate: any;
+
+  private filterSubject: Subject<string> = new Subject();
+  filterBySymbol = '';
+
   trialBalanceReport: Array<TrialBalanceReport>;
   trialBalanceReportStats: TrialBalanceReportStats;
   isLoading = false;
@@ -110,19 +116,22 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       this.initGrid();
       this.getLatestJournalDate();
       this.getFunds();
+      this.filterSubject.pipe(debounce(() => timer(1000))).subscribe(() => {
+        this.getReport(this.startDate, this.filterBySymbol, this.fund === 'All Funds' ? 'ALL' : this.fund);
+      });
   }
 
   getLatestJournalDate(){
     this.reportsApiService.getLatestJournalDate().subscribe(date => {
-      if(date.isSuccessful && date.statusCode === 200){
+      if (date.isSuccessful && date.statusCode === 200) {
         this.journalDate = date.payload[0].when;
         this.startDate = this.journalDate;
         this.selectedDate = { startDate: moment(this.startDate, 'YYYY-MM-DD'), endDate: moment(this.endDate, 'YYYY-MM-DD') };
-        this.getReport(this.startDate, 'ALL');
+        this.getReport(this.startDate, this.filterBySymbol, 'ALL');
       } else {
         const currentDate  = new Date();
         const formattedDate = currentDate.getDate() + "-" + (currentDate.getMonth() + 1) + "-" + currentDate.getFullYear();
-        this.getReport(formattedDate, 'ALL');
+        this.getReport(formattedDate, this.filterBySymbol, 'ALL');
       }
     },
     error => {
@@ -354,16 +363,16 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   }
 
   // Being called twice
-  getReport(date, fund) {
+  getReport(date, symbol, fund) {
     this.isLoading = true;
     this.gridOptions.api.showLoadingOverlay();
-    this.reportsApiService.getCostBasisReport(date, fund).subscribe(response => {
+    this.reportsApiService.getCostBasisReport(date, symbol, fund).subscribe(response => {
       this.trialBalanceReportStats = response.stats;
       this.trialBalanceReport = response.payload;
-      if(this.trialBalanceReport.length === 0) {
+      if (this.trialBalanceReport.length === 0) {
         this.timeseriesOptions.api.setRowData([]);
         this.displayChart = false;
-      };
+      }
       this.gridOptions.api.setRowData(this.trialBalanceReport);
       this.gridOptions.api.sizeColumnsToFit();
       this.isLoading = false;
@@ -473,6 +482,22 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     };
   }
 
+  ngModelChangeSymbol(e) {
+    this.filterBySymbol = e;
+  }
+
+  onSymbolKey(e) {
+    this.filterBySymbol = e.srcElement.value;
+    this.filterSubject.next(e.srcElement.value);
+
+    if (!this.selectedDate.startDate) {
+      return;
+    }
+
+    if (e.code === 'Enter' || e.code === 'Tab') {
+    }
+  }
+
   onFilterChanged() {
     this.pinnedBottomRowData = CalTotalRecords(this.gridOptions);
     this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
@@ -480,10 +505,12 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   isExternalFilterPassed(object) {
     const { fundFilter } = object;
+    const { symbolFilter } = object;
     const { dateFilter } = object;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
+    this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
     this.setDateRange(dateFilter);
-    this.getReport(this.startDate, this.fund);
+    this.getReport(this.startDate, this.filterBySymbol, this.fund);
   }
 
   isExternalFilterPresent() {}
@@ -523,13 +550,13 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       return;
     }
     this.startDate = selectedDate.startDate.format('YYYY-MM-DD');
-    this.getReport(this.startDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
+    this.getReport(this.startDate, this.filterBySymbol, this.fund === 'All Funds' ? 'ALL' : this.fund);
     this.getRangeLabel();
   }
 
   changeFund(selectedFund) {
     this.fund = selectedFund;
-    this.getReport(this.startDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
+    this.getReport(this.startDate, this.filterBySymbol, this.fund === 'All Funds' ? 'ALL' : this.fund);
   }
 
   changeChart(selectedChart) {
@@ -545,6 +572,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.selectedDate = null;
     this.DateRangeLabel = '';
     this.endDate = undefined;
+    this.filterBySymbol = '';
     this.gridOptions.api.setRowData([]);
     this.timeseriesOptions.api.setRowData([]);
     this.displayChart = false;
@@ -556,10 +584,10 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.displayChart = false;
     if (this.selectedDate.startDate == null) {
       this.selectedDate = { startDate: moment(this.journalDate, 'YYYY-MM-DD'), endDate: moment(this.endDate, 'YYYY-MM-DD') };
-      this.getReport(this.journalDate, 'ALL');
+      this.getReport(this.journalDate, this.filterBySymbol, 'ALL');
     } else {
       const startDate = this.selectedDate.startDate.format('YYYY-MM-DD');
-      this.getReport(startDate, 'ALL');
+      this.getReport(startDate, this.filterBySymbol, 'ALL');
     }
   }
 

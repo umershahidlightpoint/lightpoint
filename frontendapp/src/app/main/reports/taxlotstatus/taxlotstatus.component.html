@@ -11,15 +11,22 @@
   <!-- Filters Div Starts -->
   <div class="row ">
     <!-- Funds Dropdown Div Starts -->
-    <div class="col-md-2">
+    <div class="col-auto">
       <select class="form-control" [(ngModel)]="fund" (ngModelChange)="changeFund($event)">
         <option selected>All Funds</option>
         <option *ngFor="let fund of funds" [ngValue]="fund.fundCode">
           {{ fund.fundCode }}
         </option>
       </select>
+      <!-- Funds Dropdown Div Ends -->
     </div>
-    <!-- Funds Dropdown Div Ends -->
+
+    <!-- Symbol filter -->
+    <div>
+      <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol"
+      [(ngModel)]="filterBySymbol" (ngModelChange)="ngModelChangeSymbol($event)"
+      (keyup)="onSymbolKey($event)" class="form-control" />
+    </div>
 
     <!-- DateRange Label Div Starts -->
     <div>

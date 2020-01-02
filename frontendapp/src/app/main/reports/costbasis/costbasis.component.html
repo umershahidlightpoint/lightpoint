@@ -27,6 +27,13 @@
         </div>
         <!-- Funds Dropdown Div Ends -->
 
+        <!-- Symbol filter -->
+        <div>
+          <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol"
+          [(ngModel)]="filterBySymbol" (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)"
+              class="form-control" />
+      </div>
+
         <!-- DateRange Label Div Starts -->
         <!-- <div class="col-1">
           <label class="text-right"> {{ DateRangeLabel }} </label>

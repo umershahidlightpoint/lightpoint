@@ -471,11 +471,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        public object GetCostBasisReport(DateTime? date, string fund)
+        public object GetCostBasisReport(DateTime? date, string symbol, string fund)
         {
             try
             {
                 dynamic postingEngine = new PostingEngineService().GetProgress();
+                bool whereAdded = false;
                 if (postingEngine.IsRunning)
                 {
                     return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
@@ -484,33 +485,50 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var businessDate = System.DateTime.Now.PrevBusinessDate();
                 if (date.HasValue)
                     businessDate = date.Value.Date;
-
+                List<SqlParameter> sqlParams = new List<SqlParameter>();
                 var query = $@"select business_date, symbol, Balance, Quantity, cost_basis as CostBasis, Side,
                         realized_pnl,
                         unrealized_pnl,
                         unrealized_pnl + realized_pnl as Pnl
-                       from cost_basis
-                        where business_date = '{businessDate.ToString("MM-dd-yyyy")}'";
+                       from cost_basis";
 
-                List<SqlParameter> sqlParams = new List<SqlParameter>();
 
-                /*
                 if (date.HasValue)
                 {
                     sqlParams.Add(new SqlParameter("date", date));
-                    query = query + " AND journal.[when] <= @date";
+                    query = query + " where cost_basis.[business_date] = @date";
+                    whereAdded = true;
                 }
 
-                if (fund != "ALL")
+                //if (fund != "ALL")
+                //{
+                //    sqlParams.Add(new SqlParameter("fund", fund));
+                //    if (whereAdded == true)
+                //    {
+                //        query = query + " AND journal.[fund] = @fund";
+                //    }
+                //    else
+                //    {
+                //        query = query + "where journal.[fund] = @fund";
+                //    }
+                    
+                //}
+
+                if (!string.IsNullOrEmpty(symbol))
                 {
-                    sqlParams.Add(new SqlParameter("fund", fund));
-                    query = query + " AND journal.[fund] = @fund";
+                    sqlParams.Add(new SqlParameter("symbol", symbol));
+                    if (whereAdded == true)
+                    {
+                        query = query + " AND cost_basis.[symbol] LIKE '%' +@symbol+'%'";
+                    }
+                    else
+                    {
+                        query = query + "where cost_basis.[symbol] LIKE '%' +@symbol+'%'";
+                    }
                 }
 
-                query = query +
-                        "  GROUP BY a.name, journal.symbol";
-                */
-
+                //query = query +
+                //        "  GROUP BY a.name, journal.symbol";
 
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
                 var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
@@ -596,21 +614,70 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        public object GetTaxLotReport(DateTime? from = null, DateTime? to = null, string fund = "")
+        public object GetTaxLotReport(DateTime? from, DateTime? to, string fund, string symbol)
         {
             try
             {
                 dynamic postingEngine = new PostingEngineService().GetProgress();
+                bool whereAdded = false;
                 if (postingEngine.IsRunning)
                 {
                     return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
-
-                var query = $@"select * from tax_lot_status order by symbol, trade_date asc";
-
                 List<SqlParameter> sqlParams = new List<SqlParameter>();
+                var query = $@"select * from tax_lot_status";
 
-                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+                //if (from.HasValue)
+                //{
+                //    sqlParams.Add(new SqlParameter("from", from));
+                //    query = query + " where tax_lot_status.[business_date] >= @from";
+                //    whereAdded = true;
+                //}
+
+                //if (to.HasValue)
+                //{
+                //    sqlParams.Add(new SqlParameter("to", to));
+
+                //      if (whereAdded == true)
+                //      {
+                //            query = query + " AND tax_lot_status.[business_date] <= @to";
+                //      }
+                //      else
+                //      {
+                //            query = query + " where tax_lot_status.[business_date] <= @to";
+                //      }
+                //}
+
+                //if (fund != "ALL")
+                //{
+                //    sqlParams.Add(new SqlParameter("fund", fund));
+                //    if (whereAdded == true)
+                //    {
+                //        query = query + " AND journal.[fund] = @fund";
+                //    }
+                //    else
+                //    {
+                //        query = query + "where journal.[fund] = @fund";
+                //    }
+
+                //}
+
+                if (!string.IsNullOrEmpty(symbol))
+                {
+                    sqlParams.Add(new SqlParameter("symbol", symbol));
+                    if (whereAdded == true)
+                    {
+                        query = query + " AND tax_lot_status.[symbol] LIKE '%' +@symbol+'%'";
+                    }
+                    else
+                    {
+                        query = query + " where tax_lot_status.[symbol] LIKE '%' +@symbol+'%'";
+                    }
+                }
+
+                query += " order by symbol, trade_date asc";
+
+               var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
                 var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
                 return reportObject;
             }
@@ -1027,7 +1094,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object serverSideJournals(ServerRowModel obj)
         {
-            var viewName = "vwFullJournal";
+            var viewName = "vwJournal";
 
             try
             {

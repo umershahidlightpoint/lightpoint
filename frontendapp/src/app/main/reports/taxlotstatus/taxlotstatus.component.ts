@@ -1,5 +1,7 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
+import { debounce } from 'rxjs/operators';
+import { timer, Subject } from 'rxjs';
 import { Fund } from '../../../../shared/Models/account';
 import {
   TrialBalanceReport,
@@ -57,6 +59,9 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
 
   styleForHeight = HeightStyle(220);
 
+  private filterSubject: Subject<string> = new Subject();
+  filterBySymbol = '';
+
   public tradeSelectionSubject = new BehaviorSubject(null);
   public tradeSelectionChanged = this.tradeSelectionSubject.asObservable();
 
@@ -82,6 +87,10 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     this.initGrid();
     this.getLatestJournalDate();
     this.getFunds();
+    this.filterSubject.pipe(debounce(() => timer(1000))).subscribe(() => {
+      this.getReport(this.startDate, this.endDate, this.filterBySymbol, this.fund === 'All Funds' ? 'ALL' : this.fund);
+    });
+
   }
 
   getLatestJournalDate(){
@@ -90,11 +99,11 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         this.journalDate = date.payload[0].when;
         this.startDate = this.journalDate;
         this.selected = { startDate: moment(this.startDate, 'YYYY-MM-DD'), endDate: moment(this.startDate, 'YYYY-MM-DD') };
-        this.getReport(this.startDate, this.startDate, 'ALL');
+        this.getReport(this.startDate, this.startDate, this.filterBySymbol, 'ALL');
       } else {
         const currentDate  = new Date();
         const formattedDate = currentDate.getDate() + "-" + (currentDate.getMonth() + 1) + "-" + currentDate.getFullYear();
-        this.getReport(formattedDate, formattedDate, 'ALL');
+        this.getReport(formattedDate, formattedDate, this.filterBySymbol, 'ALL');
       }
     },
     error => {
@@ -356,9 +365,9 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   }
 
   // Being called twice
-  getReport(toDate, fromDate, fund) {
+  getReport(toDate, fromDate, symbol, fund) {
     this.isLoading = true;
-    this.reportsApiService.getTaxLotReport(toDate, fromDate, fund).subscribe(response => {
+    this.reportsApiService.getTaxLotReport(toDate, fromDate, symbol, fund).subscribe(response => {
       this.stats = response.stats;
       this.data = response.payload;
       this.isLoading = false;
@@ -398,7 +407,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     const { dateFilter } = object;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
     this.setDateRange(dateFilter);
-    this.getReport(this.startDate, this.endDate, this.fund);
+    this.getReport(this.startDate, this.endDate, this.filterBySymbol, this.fund);
   }
 
   isExternalFilterPresent() {}
@@ -429,11 +438,11 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
 
     if (this.selected.startDate == null) {
       this.selected = { startDate: moment(this.journalDate, 'YYYY-MM-DD'), endDate: moment(this.journalDate, 'YYYY-MM-DD') };
-      this.getReport(this.journalDate, this.journalDate, 'ALL');
+      this.getReport(this.journalDate, this.journalDate, this.filterBySymbol, 'ALL');
     } else {
       const startDate = this.selected.startDate.format('YYYY-MM-DD');
       const endDate = this.selected.endDate.format('YYYY-MM-DD');
-      this.getReport(startDate, endDate, 'ALL');
+      this.getReport(startDate, endDate,this.filterBySymbol, 'ALL');
     }
 
   }
@@ -443,6 +452,22 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     this.DateRangeLabel = '';
     this.selected = null;
     this.gridOptions.api.setRowData([]);
+  }
+
+  ngModelChangeSymbol(e) {
+    this.filterBySymbol = e;
+  }
+
+  onSymbolKey(e) {
+    this.filterBySymbol = e.srcElement.value;
+    this.filterSubject.next(e.srcElement.value);
+
+    if (!this.selected.startDate) {
+      return;
+    }
+
+    if (e.code === 'Enter' || e.code === 'Tab') {
+    }
   }
 
   getExternalFilterState() {
@@ -458,13 +483,13 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     }
     this.startDate = selectedDate.startDate.format('YYYY-MM-DD');
     this.endDate = selectedDate.endDate.format('YYYY-MM-DD');
-    this.getReport(this.startDate, this.endDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
+    this.getReport(this.startDate, this.endDate, this.filterBySymbol, this.fund === 'All Funds' ? 'ALL' : this.fund);
     this.getRangeLabel();
   }
 
   changeFund(selectedFund) {
     this.fund = selectedFund;
-    this.getReport(this.startDate, this.endDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
+    this.getReport(this.startDate, this.endDate, this.filterBySymbol, this.fund === 'All Funds' ? 'ALL' : this.fund);
   }
 
   onBtExport() {
