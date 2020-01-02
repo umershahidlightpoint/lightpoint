@@ -22,6 +22,22 @@ body {
   padding: 0.2rem;
 }
 
+.nonZero {
+  background-color: #fbe9e7 !important;
+}
+
+.notInAccounting {
+  background-color: #e8eaf6 !important;
+}
+
+.notInBookMon {
+  background-color: #e1f5fe !important;
+}
+
+.legend-height {
+  height: 30px !important;
+}
+
 /******************************
 ********    AG Grid    ********
 ******************************/
