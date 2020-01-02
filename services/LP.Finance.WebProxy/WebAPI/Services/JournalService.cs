@@ -1117,15 +1117,18 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var filterConfigDataTable = sqlHelper.GetDataTable(filterConfigQuery, CommandType.Text);
                 var serializedConfig = JsonConvert.SerializeObject(filterConfigDataTable);
                 var filters = JsonConvert.DeserializeObject<List<ServerSideFilterConfig>>(serializedConfig);
+                var metaInfo = filters.Select(x => x.MetaInfo).FirstOrDefault();
+                //default value. just to ensure that column meta data is returned even if filters are not present.
+                if (string.IsNullOrEmpty(metaInfo))
+                {
+                    metaInfo = "vwFullJournal";
+                }
+                var columnsQuery = $@"SELECT TOP 0 * FROM {metaInfo}";
+                var dataTable = sqlHelper.GetDataTable(columnsQuery, CommandType.Text);
+                var meta = MetaData.ToMetaData(dataTable);
 
                 if (filters.Count > 0)
                 {
-                    var columnsQuery = $@"SELECT TOP 0 * FROM {filters.Select(x=> x.MetaInfo).FirstOrDefault()}";
-
-                    var dataTable = sqlHelper.GetDataTable(columnsQuery, CommandType.Text);
-
-                    var meta = MetaData.ToMetaData(dataTable);
-
                     for (var i = 0; i < filters.Count; i++)
                     {
                         filtersQueries.Insert(i, $@"SELECT DISTINCT t.{filters[i].ColumnName} FROM {filters[i].Source} t");
@@ -1156,7 +1159,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
                 else
                 {
-                    return Utils.Wrap(true, null, HttpStatusCode.NotFound);
+                    return Utils.Wrap(true, meta, HttpStatusCode.NotFound);
                 }
             }
             catch (Exception e)
