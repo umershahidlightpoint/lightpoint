@@ -149,6 +149,12 @@ export const ApplyRowStyles = params => {
   }
 };
 
+export const LegendColors = {
+  nonZeroStyle: { backgroundColor: '#fbe9e7' },
+  notInBookMonStyle: { backgroundColor: '#e1f5fe' },
+  notInAccountingStyle: { backgroundColor: '#e8eaf6' }
+};
+
 export const CalTotalRecords = (gridOptions: GridOptions) => {
   let tTotal = 0;
   let tCredit = 0;

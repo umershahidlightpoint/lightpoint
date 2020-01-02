@@ -13,7 +13,8 @@ import {
   SetDateRange,
   CommaSeparatedFormat,
   HeightStyle,
-  FormatDate
+  FormatDate,
+  LegendColors
 } from 'src/shared/utils/Shared';
 import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
@@ -54,6 +55,9 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
   reconciledData: any;
   bookmonData: any;
   portfolioData: any;
+  showNonZeroBtn = false;
+  showNotInAccountingBtn = false;
+  showNotInBookMonBtn = false;
 
   labels: string[] = [];
   displayChart = false;
@@ -90,13 +94,6 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     boxSizing: 'border-box'
   };
 
-  nonZeroStyle = { backgroundColor: '#fbe9e7' };
-  notInBookMonStyle = { backgroundColor: '#e1f5fe' };
-  notInAccountingStyle = { backgroundColor: '#e8eaf6' };
-
-
-
-
   constructor(
     private financeService: FinanceServiceProxy,
     private reportsApiService: ReportsApiService,
@@ -112,21 +109,30 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     this.getFunds();
   }
 
-  getLatestJournalDate(){
-    this.reportsApiService.getLatestJournalDate().subscribe(date => {
-      if(date.isSuccessful && date.statusCode === 200){
-        this.journalDate = date.payload[0].when;
-        this.startDate = this.journalDate;
-        this.selectedDate = { startDate: moment(this.startDate, 'YYYY-MM-DD'), endDate: moment(this.startDate, 'YYYY-MM-DD') };
-        this.getReport(this.startDate, 'ALL');
-      } else {
-        const currentDate  = new Date();
-        const formattedDate = currentDate.getDate() + "-" + (currentDate.getMonth() + 1) + "-" + currentDate.getFullYear();
-        this.getReport(formattedDate, 'ALL');
-      }
-    },
-    error => {
-    });
+  getLatestJournalDate() {
+    this.reportsApiService.getLatestJournalDate().subscribe(
+      date => {
+        if (date.isSuccessful && date.statusCode === 200) {
+          this.journalDate = date.payload[0].when;
+          this.startDate = this.journalDate;
+          this.selectedDate = {
+            startDate: moment(this.startDate, 'YYYY-MM-DD'),
+            endDate: moment(this.startDate, 'YYYY-MM-DD')
+          };
+          this.getReport(this.startDate, 'ALL');
+        } else {
+          const currentDate = new Date();
+          const formattedDate =
+            currentDate.getDate() +
+            '-' +
+            (currentDate.getMonth() + 1) +
+            '-' +
+            currentDate.getFullYear();
+          this.getReport(formattedDate, 'ALL');
+        }
+      },
+      error => {}
+    );
   }
 
   initGrid() {
@@ -155,13 +161,13 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
       getRowStyle: params => {
         let style = {};
         if (params.data.nonZero) {
-          style = this.nonZeroStyle;
+          style = LegendColors.nonZeroStyle;
         }
-        if(params.data.notInBookMon){
-          style = this.notInBookMonStyle;
+        if (params.data.notInBookMon) {
+          style = LegendColors.notInBookMonStyle;
         }
-        if(params.data.notInAccounting){
-          style = this.notInAccountingStyle;
+        if (params.data.notInAccounting) {
+          style = LegendColors.notInAccountingStyle;
         }
 
         return style;
@@ -399,7 +405,11 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     this.isLoading = true;
     this.gridOptions.api.showLoadingOverlay();
     this.reportsApiService.getReconReport(date, fund).subscribe(response => {
-      this.reconciledData = this.setIdentifierForReconDataAndCheckMissingRows(response.payload[0], response.payload[1], response.payload[2]);
+      this.reconciledData = this.setIdentifierForReconDataAndCheckMissingRows(
+        response.payload[0],
+        response.payload[1],
+        response.payload[2]
+      );
       this.portfolioData = response.payload[1];
       this.bookmonData = response.payload[2];
 
@@ -416,16 +426,30 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     });
   }
 
-  setIdentifierForReconDataAndCheckMissingRows(reconData, accountingData, bookMonData){
+  setIdentifierForReconDataAndCheckMissingRows(reconData, accountingData, bookMonData) {
     let i = 0;
-    return reconData.map(x=>
-      ({...x,
-       id: i++,
-       ...(x.Diff_DayPnl !== 0) ? {nonZero : true} : {nonZero : false},
-       ...(accountingData.find(y=> y.SecurityCode === x.Symbol) == undefined) ? {notInAccounting : true} : {notInAccounting : false},
-       ...(bookMonData.find(y=> y.SecurityCode === x.Symbol) == undefined) ? {notInBookMon : true} : {notInBookMon : false}, 
-      })
-      );
+
+    const modifiedReconData = reconData.map(x => ({
+      ...x,
+      id: i++,
+      ...(x.Diff_DayPnl !== 0 ? { nonZero: true } : { nonZero: false }),
+      ...(accountingData.find(y => y.SecurityCode === x.Symbol) === undefined
+        ? { notInAccounting: true }
+        : { notInAccounting: false }),
+      ...(bookMonData.find(y => y.SecurityCode === x.Symbol) === undefined
+        ? { notInBookMon: true }
+        : { notInBookMon: false })
+    }));
+
+    this.showNonZeroBtn =
+      (modifiedReconData.find(data => data.nonZero === true) || {}).nonZero || false;
+    this.showNotInAccountingBtn =
+      (modifiedReconData.find(data => data.notInAccounting === true) || {}).notInAccounting ||
+      false;
+    this.showNotInBookMonBtn =
+      (modifiedReconData.find(data => data.notInBookMon === true) || {}).notInBookMon || false;
+
+    return modifiedReconData;
   }
 
   rowSelected(row) {
@@ -596,13 +620,15 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     this.bookmonOptions.api.showLoadingOverlay();
 
     if (this.selectedDate.startDate == null) {
-      this.selectedDate = { startDate: moment(this.journalDate, 'YYYY-MM-DD'), endDate: moment(this.endDate, 'YYYY-MM-DD') };
+      this.selectedDate = {
+        startDate: moment(this.journalDate, 'YYYY-MM-DD'),
+        endDate: moment(this.endDate, 'YYYY-MM-DD')
+      };
       this.getReport(this.journalDate, 'ALL');
     } else {
       const startDate = this.selectedDate.startDate.format('YYYY-MM-DD');
       this.getReport(startDate, 'ALL');
     }
-
   }
 
   onBtExport() {
