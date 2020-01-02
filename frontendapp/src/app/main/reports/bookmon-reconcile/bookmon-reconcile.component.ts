@@ -52,6 +52,8 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
   bData: any;
   qData: any;
 
+  filterBySymbol = '';
+
   reconciledData: any;
   bookmonData: any;
   portfolioData: any;
@@ -262,13 +264,6 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
       rowData: [],
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      onFilterChanged: this.onFilterChanged.bind(this),
-      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
-      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
-      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
-      clearExternalFilter: this.clearFilters.bind(this),
-      getExternalFilterState: this.getExternalFilterState.bind(this),
       rowSelection: 'single',
       onCellClicked: this.rowSelected.bind(this),
       rowGroupPanelShow: 'after',
@@ -340,13 +335,6 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
       rowData: [],
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      onFilterChanged: this.onFilterChanged.bind(this),
-      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
-      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
-      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
-      clearExternalFilter: this.clearFilters.bind(this),
-      getExternalFilterState: this.getExternalFilterState.bind(this),
       rowSelection: 'single',
       onCellClicked: this.rowSelected.bind(this),
       rowGroupPanelShow: 'after',
@@ -580,9 +568,33 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
     this.getReport(this.startDate, this.fund);
   }
 
-  isExternalFilterPresent() {}
+  isExternalFilterPresent() {
+    if (this.fund !== 'All Funds' || this.startDate || this.filterBySymbol !== '') {
+      return true;
+    }
+  }
 
-  doesExternalFilterPass(node: any) {}
+  doesExternalFilterPass(node: any) {
+    if (this.filterBySymbol !== '') {
+      const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
+      return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase());
+    }
+    return true;
+  }
+
+  ngModelChangeSymbol(e) {
+    this.filterBySymbol = e;
+    this.gridOptions.api.onFilterChanged();
+  }
+
+  onSymbolKey(e) {
+    this.filterBySymbol = e.srcElement.value;
+    this.gridOptions.api.onFilterChanged();
+
+    // For the moment we react to each key stroke
+    if (e.code === 'Enter' || e.code === 'Tab') {
+    }
+  }
 
   getContextMenuItems(params): Array<ContextMenu> {
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
@@ -643,6 +655,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
     this.gridOptions.api.setRowData([]);
     this.portfolioOptions.api.setRowData([]);
     this.bookmonOptions.api.setRowData([]);
+    this.filterBySymbol = '';
   }
 
   refreshReport() {

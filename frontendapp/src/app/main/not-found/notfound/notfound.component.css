@@ -1,7 +1,3 @@
-.preloader-container {
-    display: flex;
-  }
-
   .preloader-content {
     height: 91vh;
     flex-direction: column;
@@ -15,12 +11,6 @@
     font-family: inherit;
     font-weight: 400;
     font-size: 1.5em;
-  }
-
-  #spinner {
-    width: 4rem !important;
-    height: 4rem !important;
-    color: #FFFFFF !important;
   }
 
   .notFound-btn{

@@ -1,5 +1,7 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import * as moment from 'moment';
+import { timer, Subject } from 'rxjs';
+import { debounce } from 'rxjs/operators';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { Fund } from '../../../../shared/Models/account';
 import { DataService } from '../../../../services/common/data.service';
@@ -51,6 +53,8 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
   cbData: any;
   bData: any;
   qData: any;
+
+  filterBySymbol = '';
 
   reconciledData: any;
   bookmonData: any;
@@ -246,13 +250,6 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
       rowData: [],
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      onFilterChanged: this.onFilterChanged.bind(this),
-      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
-      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
-      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
-      clearExternalFilter: this.clearFilters.bind(this),
-      getExternalFilterState: this.getExternalFilterState.bind(this),
       rowSelection: 'single',
       onCellClicked: this.rowSelected.bind(this),
       rowGroupPanelShow: 'after',
@@ -315,13 +312,6 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
       rowData: [],
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      onFilterChanged: this.onFilterChanged.bind(this),
-      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
-      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
-      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
-      clearExternalFilter: this.clearFilters.bind(this),
-      getExternalFilterState: this.getExternalFilterState.bind(this),
       rowSelection: 'single',
       onCellClicked: this.rowSelected.bind(this),
       rowGroupPanelShow: 'after',
@@ -487,6 +477,20 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     */
   }
 
+  ngModelChangeSymbol(e) {
+    this.filterBySymbol = e;
+    this.gridOptions.api.onFilterChanged();
+  }
+
+  onSymbolKey(e) {
+    this.filterBySymbol = e.srcElement.value;
+    this.gridOptions.api.onFilterChanged();
+
+    // For the moment we react to each key stroke
+    if (e.code === 'Enter' || e.code === 'Tab') {
+    }
+  }
+
   mapCostBasisData(data: any, chartType: string) {
     this.labels = data.map(item => item.Date);
     this.cbData = {
@@ -543,15 +547,29 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
 
   isExternalFilterPassed(object) {
     const { fundFilter } = object;
+    const { symbolFilter } = object;
     const { dateFilter } = object;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
+    this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
     this.setDateRange(dateFilter);
     this.getReport(this.startDate, this.fund);
+    this.gridOptions.api.onFilterChanged();
+
   }
 
-  isExternalFilterPresent() {}
+  isExternalFilterPresent() {
+    if (this.fund !== 'All Funds' || this.startDate || this.filterBySymbol !== '') {
+      return true;
+    }
+  }
 
-  doesExternalFilterPass(node: any) {}
+  doesExternalFilterPass(node: any) {
+    if (this.filterBySymbol !== '') {
+      const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
+      return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase());
+    }
+    return true;
+  }
 
   getContextMenuItems(params): Array<ContextMenu> {
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
@@ -609,6 +627,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     this.DateRangeLabel = '';
     this.endDate = undefined;
     this.selectedDate = null;
+    this.filterBySymbol = '';
     this.gridOptions.api.setRowData([]);
     this.portfolioOptions.api.setRowData([]);
     this.bookmonOptions.api.setRowData([]);
