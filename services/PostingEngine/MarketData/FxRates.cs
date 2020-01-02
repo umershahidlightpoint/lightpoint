@@ -20,7 +20,21 @@ namespace PostingEngine.MarketData
         private static readonly FxRate _dummyFx = new FxRate { Rate = 1 };
 
         private static Dictionary<string, FxRate> _all { get; set; }
+
         public static FxRate Find(DateTime busDate, string currency)
+        {
+            var ccy = $"@CASH{currency}";
+            var f = MarketPrices.Find(busDate, ccy);
+            if (f.Price != 0)
+                return new FxRate
+                {
+                    Rate = f.Price
+                };
+
+            return FindEx(busDate, currency);
+        }
+
+        public static FxRate FindEx(DateTime busDate, string currency)
         {
             var bDate = busDate.ToString("MM-dd-yyyy");
 

@@ -128,9 +128,11 @@ namespace PostingEngine.PostingRules
 
                 if ( openLots.Count() == 0)
                 {
+                    var t1 = env.GenerateOpenTaxLot(element, fxrate);
+
                     // Whats going on here?
                     // We are skipping anything that does not get an OpenLot
-                    Logger.Warn($"There should be for a sell {element.Symbol} have at least one open lot, non found");
+                    Logger.Warn($"Created an Open Tax Lot for {element.Symbol}::{element.Side}");
                 }
                 else
                 {

@@ -89,7 +89,7 @@ namespace PostingEngine.MarketData
             return mp;
         }
 
-        private static MarketPrice Find(DateTime busDate, string symbol)
+        internal static MarketPrice Find(DateTime busDate, string symbol)
         {
             var bDate = busDate.ToString("MM-dd-yyyy");
 
