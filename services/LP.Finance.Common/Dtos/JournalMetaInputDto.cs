@@ -6,7 +6,6 @@ namespace LP.Finance.Common.Dtos
 {
     public class JournalMetaInputDto
     {
-        [Required] public string TableName { get; set; }
-        [MinimumElements(1)] public List<string> Filters { get; set; }
+        [Required] public string GridName { get; set; }
     }
 }

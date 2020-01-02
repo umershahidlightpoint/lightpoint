@@ -1113,43 +1113,51 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 SqlHelper sqlHelper = new SqlHelper(connectionString);
                 var filtersQueries = new List<string>();
 
-                var columnsQuery = $@"SELECT TOP 0 * FROM {obj.TableName}";
+                var filterConfigQuery = $@"SELECT col_name as ColumnName, source as Source, meta_info as MetaInfo from server_side_filter_config where grid_name = '{obj.GridName}'";
+                var filterConfigDataTable = sqlHelper.GetDataTable(filterConfigQuery, CommandType.Text);
+                var serializedConfig = JsonConvert.SerializeObject(filterConfigDataTable);
+                var filters = JsonConvert.DeserializeObject<List<ServerSideFilterConfig>>(serializedConfig);
 
-                var dataTable = sqlHelper.GetDataTable(columnsQuery, CommandType.Text);
-
-                var meta = MetaData.ToMetaData(dataTable);
-
-                if (obj.Filters.Count > 1)
+                if (filters.Count > 0)
                 {
-                    for (var i = 0; i < obj.Filters.Count; i++)
+                    var columnsQuery = $@"SELECT TOP 0 * FROM {filters.Select(x=> x.MetaInfo).FirstOrDefault()}";
+
+                    var dataTable = sqlHelper.GetDataTable(columnsQuery, CommandType.Text);
+
+                    var meta = MetaData.ToMetaData(dataTable);
+
+                    for (var i = 0; i < filters.Count; i++)
                     {
-                        filtersQueries.Insert(i, $@"SELECT DISTINCT t.{obj.Filters[i]} FROM {obj.TableName} t");
+                        filtersQueries.Insert(i, $@"SELECT DISTINCT t.{filters[i].ColumnName} FROM {filters[i].Source} t");
                     }
-                }
-                filtersQueries.Add($@"SELECT DISTINCT {obj.Filters.FirstOrDefault()} FROM {obj.TableName}");
 
-                meta.Filters = new List<FilterValues>();
-                for (var i = 0; i < obj.Filters.Count; i++)
-                {
-                    List<object> filterValues;
-                    using (var reader =
-                        sqlHelper.GetDataReader(filtersQueries[i], CommandType.Text, null,
-                            out var sqlConnection))
+                    meta.Filters = new List<FilterValues>();
+                    for (var i = 0; i < filters.Count; i++)
                     {
-                        filterValues = new List<object>();
-                        while (reader.Read())
+                        List<object> filterValues;
+                        using (var reader =
+                            sqlHelper.GetDataReader(filtersQueries[i], CommandType.Text, null,
+                                out var sqlConnection))
                         {
-                            filterValues.Add(reader[obj.Filters[i]]);
+                            filterValues = new List<object>();
+                            while (reader.Read())
+                            {
+                                filterValues.Add(reader[filters[i].ColumnName]);
+                            }
+
+                            reader.Close();
+                            sqlConnection.Close();
                         }
 
-                        reader.Close();
-                        sqlConnection.Close();
+                        meta.Filters.Insert(i, new FilterValues() { ColumnName = filters[i].ColumnName, Values = filterValues });
                     }
 
-                    meta.Filters.Insert(i, new FilterValues() { ColumnName = obj.Filters[i], Values = filterValues });
+                    return Utils.Wrap(true, meta, HttpStatusCode.OK);
                 }
-
-                return Utils.Wrap(true, meta, HttpStatusCode.OK);
+                else
+                {
+                    return Utils.Wrap(true, null, HttpStatusCode.NotFound);
+                }
             }
             catch (Exception e)
             {

@@ -119,6 +119,7 @@ import { JournalModalComponent } from './main/journals-ledgers/journals-client-s
 import { TaxRateModalComponent } from './main/fund-theoretical/tax-rates/tax-rate-modal/tax-rate-modal.component';
 import { DatePickerModalComponent } from '../shared/Component/date-picker-modal/date-picker-modal.component';
 import { GridUtilsComponent } from '../shared/Component/grid-utils/grid-utils.component';
+import { NotfoundComponent } from './main/not-found/notfound/notfound.component';
 
 @NgModule({
   declarations: [
@@ -194,7 +195,8 @@ import { GridUtilsComponent } from '../shared/Component/grid-utils/grid-utils.co
     ReportModalComponent,
     TaxRateModalComponent,
     DatePickerModalComponent,
-    GridUtilsComponent
+    GridUtilsComponent,
+    NotfoundComponent
   ],
   imports: [
     AppRoutingModule,

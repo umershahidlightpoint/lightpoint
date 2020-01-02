@@ -549,12 +549,12 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       colId: 'SettleCurrency'
     },
     {
-      field: 'Symbol',
+      field: 'symbol',
       headerName: 'Symbol',
       sortable: true,
       enableRowGroup: true,
       filter: filters !== null ? 'agSetColumnFilter' : true,
-      colId: 'Symbol',
+      colId: 'symbol',
       ...(filters !== null && {
         filterParams: {
           cellHeight: 20,

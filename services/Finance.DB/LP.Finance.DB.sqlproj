@@ -124,6 +124,7 @@
     <Build Include="StoredProcs\BookmonReconcile.sql" />
     <Build Include="Functions\fnPositions.sql" />
     <Build Include="Tables\journal_comments.sql" />
+    <Build Include="Tables\server_side_filter_config.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">

@@ -79,6 +79,16 @@ insert into account_type (account_category_id, name) values (5, 'Expenses Paid')
 insert into account_type (account_category_id, name) values (5, 'INTEREST EXPENSE ( Fixed Income Coupons )')
 insert into account_type (account_category_id, name) values (5, 'Interest Expense of PB Balances')
 insert into account_type (account_category_id, name) values (5, 'STOCK BORROW FEES')
+
+INSERT INTO [server_side_filter_config]([created_by],[created_date],[last_updated_by],[last_updated_date],[col_name],[source],[meta_info],[grid_name]) VALUES('sa',GETDATE(),NULL,NULL,'fund','vwFullJournal','vwFullJournal','Journals Ledgers')
+INSERT INTO [server_side_filter_config]([created_by],[created_date],[last_updated_by],[last_updated_date],[col_name],[source],[meta_info],[grid_name]) VALUES('sa',GETDATE(),NULL,NULL,'symbol','vwFullJournal','vwFullJournal','Journals Ledgers')
+INSERT INTO [server_side_filter_config]([created_by],[created_date],[last_updated_by],[last_updated_date],[col_name],[source],[meta_info],[grid_name]) VALUES('sa',GETDATE(),NULL,NULL,'AccountCategory','vwFullJournal','vwFullJournal','Journals Ledgers')
+INSERT INTO [server_side_filter_config]([created_by],[created_date],[last_updated_by],[last_updated_date],[col_name],[source],[meta_info],[grid_name]) VALUES('sa',GETDATE(),NULL,NULL,'AccountType','vwFullJournal','vwFullJournal','Journals Ledgers')
+INSERT INTO [server_side_filter_config]([created_by],[created_date],[last_updated_by],[last_updated_date],[col_name],[source],[meta_info],[grid_name]) VALUES('sa',GETDATE(),NULL,NULL,'AccountName','vwFullJournal','vwFullJournal','Journals Ledgers')
+INSERT INTO [server_side_filter_config]([created_by],[created_date],[last_updated_by],[last_updated_date],[col_name],[source],[meta_info],[grid_name]) VALUES('sa',GETDATE(),NULL,NULL,'fx_currency','vwFullJournal','vwFullJournal','Journals Ledgers')
+
+
+
 -- DONE
 
 RETURN 0

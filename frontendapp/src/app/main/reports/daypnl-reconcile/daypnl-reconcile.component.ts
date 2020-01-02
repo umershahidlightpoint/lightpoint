@@ -1,4 +1,5 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
+import * as moment from 'moment';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { Fund } from '../../../../shared/Models/account';
 import { DataService } from '../../../../services/common/data.service';
@@ -57,6 +58,8 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
   labels: string[] = [];
   displayChart = false;
 
+  journalDate: any;
+
   selectedChartOption: any = 'CostBasis';
   selectedChartTitle: any = 'Cost Basis';
   chartOptions: any = [
@@ -98,7 +101,25 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.initGrid();
+    this.getLatestJournalDate();
     this.getFunds();
+  }
+
+  getLatestJournalDate(){
+    this.reportsApiService.getLatestJournalDate().subscribe(date => {
+      if(date.isSuccessful && date.statusCode === 200){
+        this.journalDate = date.payload[0].when;
+        this.startDate = this.journalDate;
+        this.selectedDate = { startDate: moment(this.startDate, 'YYYY-MM-DD'), endDate: moment(this.startDate, 'YYYY-MM-DD') };
+        this.getReport(this.startDate, 'ALL');
+      } else {
+        const currentDate  = new Date();
+        const formattedDate = currentDate.getDate() + "-" + (currentDate.getMonth() + 1) + "-" + currentDate.getFullYear();
+        this.getReport(formattedDate, 'ALL');
+      }
+    },
+    error => {
+    });
   }
 
   initGrid() {
@@ -474,17 +495,6 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     this.DateRangeLabel = GetDateRangeLabel(this.startDate, this.endDate);
   }
 
-  clearFilters() {
-    this.fund = 'All Funds';
-    this.selectedDate = null;
-    this.DateRangeLabel = '';
-    this.startDate = new Date();
-    this.startDate.setDate(this.startDate.getDate() - 1);
-
-    this.endDate = undefined;
-    this.getReport(this.startDate, 'ALL');
-  }
-
   getExternalFilterState() {
     return {
       fundFilter: this.fund,
@@ -517,12 +527,29 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     }
   }
 
+  clearFilters() {
+    this.fund = 'All Funds';
+    this.DateRangeLabel = '';
+    this.endDate = undefined;
+    this.selectedDate = null;
+    this.gridOptions.api.setRowData([]);
+    this.portfolioOptions.api.setRowData([]);
+    this.bookmonOptions.api.setRowData([]);
+  }
+
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
     this.portfolioOptions.api.showLoadingOverlay();
     this.bookmonOptions.api.showLoadingOverlay();
 
-    this.clearFilters();
+    if (this.selectedDate.startDate == null) {
+      this.selectedDate = { startDate: moment(this.journalDate, 'YYYY-MM-DD'), endDate: moment(this.endDate, 'YYYY-MM-DD') };
+      this.getReport(this.journalDate, 'ALL');
+    } else {
+      const startDate = this.selectedDate.startDate.format('YYYY-MM-DD');
+      this.getReport(startDate, 'ALL');
+    }
+
   }
 
   onBtExport() {
