@@ -1036,7 +1036,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var dataTable = sqlHelper.GetDataTable(sql.Item1, CommandType.Text, sql.Item3.ToArray());
                 int lastRow = ServerSideRowModelHelper.GetRowCount(obj, dataTable);
                 bool rootNodeGroupOrNoGrouping = ServerSideRowModelHelper.isDoingGroupingByRootNodeOrNoGrouping(obj.rowGroupCols, obj.groupKeys);
-                var metaData = new MetaData();
+                var metaData = MetaData.ToMetaData(dataTable);
 
                 metaData.Total = dataTable.Rows.Count > 0 ? dataTable.Rows.Count : 0;
                 metaData.LastRow = lastRow;

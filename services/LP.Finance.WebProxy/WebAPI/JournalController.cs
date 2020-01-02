@@ -150,7 +150,7 @@ namespace LP.Finance.WebProxy.WebAPI
         [HttpPost]
         public object GetJournalsMetaData(JournalMetaInputDto obj)
         {
-            obj.TableName = "vwJournal";
+            obj.TableName = "vwFullJournal";
 
             return controller.GetJournalsMetaData(obj);
         }
