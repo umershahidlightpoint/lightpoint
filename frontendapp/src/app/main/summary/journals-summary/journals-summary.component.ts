@@ -215,7 +215,7 @@ export class JournalsSummaryComponent implements OnInit {
 
   initColDefs() {
     const payload = {
-      tableName: 'vwJournal',
+      tableName: 'vwFullJournal',
       filters: ['fund', 'symbol', 'AccountCategory', 'AccountType', 'AccountName', 'fx_currency']
     };
     this.journalApiService.getServerSideJournalsMeta(payload).subscribe(result => {
@@ -233,6 +233,8 @@ export class JournalsSummaryComponent implements OnInit {
       // ];
 
       // this.gridOptions.api.setColumnDefs(this.colDefs);
+
+      debugger;
 
       const metaColumns = result.payload.Columns;
       const commonColDefs = CommonCols(true, result.payload.Filters);
