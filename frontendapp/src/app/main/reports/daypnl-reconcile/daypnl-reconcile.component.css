@@ -125,3 +125,19 @@ html {
 .axis line {
   stroke: #32a0f3;
 }
+
+.nonZero {
+  background-color: #fbe9e7;
+}
+
+.notInAccounting {
+  background-color: #e8eaf6;
+}
+
+.notInBookMon {
+  background-color: #e1f5fe;
+}
+
+.legend-height{
+  height: 29px !important;
+}

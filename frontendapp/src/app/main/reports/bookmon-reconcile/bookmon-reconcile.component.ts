@@ -90,6 +90,10 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
     boxSizing: 'border-box'
   };
 
+  nonZeroStyle = { backgroundColor: '#fbe9e7' };
+  notInBookMonStyle = { backgroundColor: '#e1f5fe' };
+  notInAccountingStyle = { backgroundColor: '#e8eaf6' };
+
   constructor(
     private financeService: FinanceServiceProxy,
     private reportsApiService: ReportsApiService,
@@ -151,6 +155,20 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
         });
         params.api.onGroupExpandedOrCollapsed();
       },
+      getRowStyle: params => {
+        let style = {};
+        if (params.data.nonZero) {
+          style = this.nonZeroStyle;
+        }
+        if(params.data.notInBookMon){
+          style = this.notInBookMonStyle;
+        }
+        if(params.data.notInAccounting){
+          style = this.notInAccountingStyle;
+        }
+
+        return style;
+      },
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
@@ -201,6 +219,26 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
           headerName: 'Currency',
           sortable: true,
           filter: true
+        },
+        {
+          headerName: 'Id',
+          field: 'id',
+          hide: true
+        },
+        {
+          headerName: 'Non-zero',
+          field: 'nonZero',
+          hide: true
+        },
+        {
+          headerName: 'Not in BookMon',
+          field: 'notInBookMon',
+          hide: true
+        },
+        {
+          headerName: 'Not in Accounting',
+          field: 'notInAccounting',
+          hide: true
         }
       ],
       defaultColDef: {
@@ -392,7 +430,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
     this.isLoading = true;
     this.gridOptions.api.showLoadingOverlay();
     this.reportsApiService.getBookmonReconReport(date, fund).subscribe(response => {
-      this.reconciledData = response.payload[0];
+      this.reconciledData = this.setIdentifierForReconDataAndCheckMissingRows(response.payload[0], response.payload[1], response.payload[2]);
       this.portfolioData = response.payload[1];
       this.bookmonData = response.payload[2];
 
@@ -407,6 +445,18 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
 
       this.isLoading = false;
     });
+  }
+
+  setIdentifierForReconDataAndCheckMissingRows(reconData, accountingData, bookMonData){
+    let i = 0;
+    return reconData.map(x=>
+      ({...x,
+       id: i++,
+       ...(x.Diff_Quantity !== 0 || x.Diff_Exposure !== 0) ? {nonZero : true} : {nonZero : false},
+       ...(accountingData.find(y=> y.SecurityCode === x.Symbol) == undefined) ? {notInAccounting : true} : {notInAccounting : false},
+       ...(bookMonData.find(y=> y.SecurityCode === x.Symbol) == undefined) ? {notInBookMon : true} : {notInBookMon : false}, 
+      })
+      );
   }
 
   rowSelected(row) {

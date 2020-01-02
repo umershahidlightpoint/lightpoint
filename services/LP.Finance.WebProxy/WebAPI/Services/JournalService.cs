@@ -1063,12 +1063,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             try
             {
                 journalStats journalStats = new journalStats();
-                var sql = ServerSideRowModelHelper.BuildSql(obj, "vwjournal", true);
+                var sql = ServerSideRowModelHelper.BuildSql(obj, "vwFulljournal", true);
                 var query = $@"select p.debit, p.credit, (abs(p.debit) - abs(p.credit)) as balance from (
                                 select sum(t.debit) as debit, sum(t.credit) as credit from (
                                 select [AccountCategory], sum(debit) as debit,
                                 sum(credit) as credit
-                                from vwJournal
+                                from vwFullJournal
                                 {sql.Item1}
                                 group by [AccountCategory]) t ) p";
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sql.Item3.ToArray());
