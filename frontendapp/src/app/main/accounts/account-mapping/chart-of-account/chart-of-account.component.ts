@@ -271,7 +271,6 @@ export class ChartOfAccountComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   onRowSelected(params: any) {
-    console.log('PARAMS :: ', params);
     let status = false;
 
     if (params.data === undefined) {

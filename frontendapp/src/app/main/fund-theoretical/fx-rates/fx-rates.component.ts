@@ -4,7 +4,6 @@ import { GridOptions, ColGroupDef, ColDef } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { HeightStyle, SideBar, DateFormatter, Ranges } from 'src/shared/utils/Shared';
-
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { FundTheoreticalApiService } from '../../../../services/fund-theoretical-api.service';
@@ -147,7 +146,7 @@ export class FxRatesComponent implements OnInit {
         this.onCellValueChanged(params);
       },
       getRowStyle: params => {
-        if (params.data.modified) {
+        if (params.data !== undefined && params.data.modified) {
           return this.overlappingStyle;
         }
       },
@@ -155,7 +154,9 @@ export class FxRatesComponent implements OnInit {
         return data.id;
       },
       defaultColDef: {
-        resizable: true
+        resizable: true,
+        sortable: true,
+        filter: true
       }
     } as GridOptions;
     this.fxRate.sideBar = SideBar(GridId.fxRateId, GridName.fxRate, this.fxRate);
@@ -209,31 +210,33 @@ export class FxRatesComponent implements OnInit {
     }
   }
 
-  getColDefs() {
-    const colDefs = [
+  getColDefs(): Array<ColDef | ColGroupDef> {
+    const colDefs: Array<ColDef | ColGroupDef> = [
       {
         headerName: 'Business Date',
         field: 'businessDate',
-        sortable: true,
-        filter: true,
+        enableRowGroup: true,
         suppressCellFlash: true
       },
       {
         headerName: 'Currency',
-        field: 'currency'
+        field: 'currency',
+        enableRowGroup: true
       },
       {
         headerName: 'Event',
-        field: 'event'
+        field: 'event',
+        enableRowGroup: true
       },
       {
         headerName: 'Fx Rate',
         field: 'price',
         editable: true,
-        sortable: true,
         type: 'numericColumn',
         valueFormatter: params =>
-          this.dataDictionary.numberFormatter(params.node.data.price, false, '1.8-8')
+          params.data !== undefined
+            ? this.dataDictionary.numberFormatter(params.node.data.price, false, '1.8-8')
+            : ''
       },
       {
         headerName: 'Is Modified',
@@ -325,12 +328,17 @@ export class FxRatesComponent implements OnInit {
     this.selectedXAxis = toDate;
     this.selectedYAxis = selectedCurrency;
     this.fxRate.api.forEachNodeAfterFilter((rowNode, index) => {
+      if (rowNode.group) {
+        return;
+      }
+
       const currentDate = moment(rowNode.data.businessDate);
       if (this.vRange != 0) {
         if (
-          rowNode.data.currency === selectedCurrency &&
-          currentDate.isSameOrAfter(fromDate) &&
-          currentDate.isSameOrBefore(toDate)
+          rowNode.data.currency === selectedCurrency
+          // &&
+          // currentDate.isSameOrAfter(fromDate) &&
+          // currentDate.isSameOrBefore(toDate)
         ) {
           data[selectedCurrency].push({
             date: rowNode.data.businessDate,

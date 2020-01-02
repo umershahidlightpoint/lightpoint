@@ -1,11 +1,5 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
-import {
-  HeightStyle,
-  SideBar,
-  AutoSizeAllColumns,
-  DateFormatter,
-  Ranges
-} from 'src/shared/utils/Shared';
+import { HeightStyle, SideBar, DateFormatter, Ranges } from 'src/shared/utils/Shared';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
@@ -141,15 +135,14 @@ export class MarketPricesComponent implements OnInit {
       pivotRowTotals: 'after',
       animateRows: true,
       onGridReady: params => {
-        // this.marketPriceGrid.api = params.api;
-        AutoSizeAllColumns(params);
+        this.marketPriceGrid.api.sizeColumnsToFit();
       },
       onFirstDataRendered: params => {},
       onCellValueChanged: params => {
         this.onCellValueChanged(params);
       },
       getRowStyle: params => {
-        if (params.data.modified) {
+        if (params.data !== undefined && params.data.modified) {
           return this.overlappingStyle;
         }
       },
@@ -157,7 +150,9 @@ export class MarketPricesComponent implements OnInit {
         return data.id;
       },
       defaultColDef: {
-        resizable: true
+        resizable: true,
+        sortable: true,
+        filter: true
       }
     } as GridOptions;
     this.marketPriceGrid.sideBar = SideBar(
@@ -170,7 +165,6 @@ export class MarketPricesComponent implements OnInit {
   initCols() {
     const colDefs = this.getColDefs();
     this.marketPriceGrid.api.setColumnDefs(colDefs);
-    // this.marketPriceGrid.api.sizeColumnsToFit();
   }
 
   doesExternalFilterPass(node): boolean {
@@ -217,30 +211,32 @@ export class MarketPricesComponent implements OnInit {
   }
 
   getColDefs(): Array<ColDef | ColGroupDef> {
-    const colDefs = [
+    const colDefs: Array<ColDef | ColGroupDef> = [
       {
         headerName: 'Business Date',
         field: 'businessDate',
-        sortable: true,
-        filter: true,
+        enableRowGroup: true,
         suppressCellFlash: true
       },
       {
         headerName: 'Symbol',
-        field: 'symbol'
+        field: 'symbol',
+        enableRowGroup: true
       },
       {
         headerName: 'Event',
-        field: 'event'
+        field: 'event',
+        enableRowGroup: true
       },
       {
         headerName: 'Price',
         field: 'price',
         editable: true,
-        sortable: true,
         type: 'numericColumn',
         valueFormatter: params =>
-          this.dataDictionary.numberFormatter(params.node.data.price, false, '1.8-8')
+          params.data !== undefined
+            ? this.dataDictionary.numberFormatter(params.node.data.price, false, '1.8-8')
+            : ''
       },
       {
         headerName: 'Is Modified',
@@ -340,11 +336,15 @@ export class MarketPricesComponent implements OnInit {
     this.selectedXAxis = toDate;
     this.selectedYAxis = selectedSymbol;
     this.marketPriceGrid.api.forEachNodeAfterFilter((rowNode, index) => {
+      if (rowNode.group) {
+        return;
+      }
+
       const currentDate = moment(rowNode.data.businessDate);
       if (this.vRange != 0) {
         if (
           rowNode.data.symbol === selectedSymbol
-          //  &&
+          // &&
           // currentDate.isSameOrAfter(fromDate) &&
           // currentDate.isSameOrBefore(toDate)
         ) {

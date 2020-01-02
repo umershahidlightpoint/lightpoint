@@ -10,7 +10,7 @@ import { MaterialModule } from './material.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AngularSplitModule } from 'angular-split';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ModalModule, TooltipModule, TabsModule } from 'ngx-bootstrap';
+import { TabsModule, ModalModule, TooltipModule } from 'ngx-bootstrap';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
@@ -199,11 +199,13 @@ import { NotfoundComponent } from './main/not-found/notfound/notfound.component'
     NotfoundComponent
   ],
   imports: [
-    AppRoutingModule,
     BrowserModule,
+    BrowserAnimationsModule,
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
+    AppRoutingModule,
+    MaterialModule,
     AgGridModule.withComponents([
       TemplateRendererComponent,
       GridLayoutMenuComponent,
@@ -213,15 +215,13 @@ import { NotfoundComponent } from './main/not-found/notfound/notfound.component'
       applyLabel: 'Okay',
       firstDay: 1
     }),
-    ModalModule.forRoot(),
     TabsModule.forRoot(),
-    BrowserAnimationsModule,
-    AngularSplitModule.forRoot(),
-    ToastrModule.forRoot(),
+    ModalModule.forRoot(),
     TypeaheadModule.forRoot(),
     BsDropdownModule.forRoot(),
     TooltipModule.forRoot(),
-    MaterialModule,
+    ToastrModule.forRoot(),
+    AngularSplitModule.forRoot(),
     NgcatalystModule
   ],
   providers: [
