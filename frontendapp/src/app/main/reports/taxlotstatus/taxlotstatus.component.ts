@@ -398,10 +398,13 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
 
   isExternalFilterPassed(object) {
     const { fundFilter } = object;
+    const { symbolFilter } = object;
     const { dateFilter } = object;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
+    this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
     this.setDateRange(dateFilter);
     this.getReport(this.startDate, this.endDate, this.filterBySymbol, this.fund);
+    this.gridOptions.api.onFilterChanged();
   }
 
   isExternalFilterPresent() {
@@ -476,6 +479,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   getExternalFilterState() {
     return {
       fundFilter: this.fund,
+      symbolFilter: this.filterBySymbol,
       dateFilter: { startDate: this.startDate, endDate: this.endDate }
     };
   }
