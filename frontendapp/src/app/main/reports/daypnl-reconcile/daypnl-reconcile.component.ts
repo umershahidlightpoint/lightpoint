@@ -40,8 +40,9 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
   pinnedBottomRowData;
   fund: any = 'All Funds';
   funds: Fund;
+  filterBySymbol = '';
   DateRangeLabel: string;
-  selectedDate: any;
+  selectedDate: { startDate: moment.Moment; endDate: moment.Moment };
   startDate: Date;
   endDate: Date;
   isLoading = false;
@@ -53,8 +54,6 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
   cbData: any;
   bData: any;
   qData: any;
-
-  filterBySymbol = '';
 
   reconciledData: any;
   bookmonData: any;
@@ -80,7 +79,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
 
   style = Style;
 
-  styleForHeight = HeightStyle(244);
+  styleForHeight = HeightStyle(248);
 
   propIDCostBasis = 'CostBasisLineChart';
   propIDBalance = 'BalanceLineChart';
@@ -113,35 +112,40 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     this.getFunds();
   }
 
+  ngAfterViewInit(): void {
+    this.dataService.flag$.subscribe(obj => {
+      this.hideGrid = obj;
+      if (!this.hideGrid) {
+      }
+    });
+  }
+
   getLatestJournalDate() {
     this.reportsApiService.getLatestJournalDate().subscribe(
-      date => {
-        if (date.isSuccessful && date.statusCode === 200) {
-          this.journalDate = date.payload[0].when;
+      response => {
+        if (response.isSuccessful && response.statusCode === 200) {
+          this.journalDate = response.payload[0].when;
           this.startDate = this.journalDate;
           this.selectedDate = {
             startDate: moment(this.startDate, 'YYYY-MM-DD'),
             endDate: moment(this.startDate, 'YYYY-MM-DD')
           };
-          this.getReport(this.startDate, 'ALL');
-        } else {
-          const currentDate = new Date();
-          const formattedDate =
-            currentDate.getDate() +
-            '-' +
-            (currentDate.getMonth() + 1) +
-            '-' +
-            currentDate.getFullYear();
-          this.getReport(formattedDate, 'ALL');
         }
       },
       error => {}
     );
   }
 
+  getFunds() {
+    this.financeService.getFunds().subscribe(result => {
+      this.funds = result.payload.map(item => ({
+        fundId: item.FundId,
+        fundCode: item.FundCode
+      }));
+    });
+  }
+
   initGrid() {
-    this.startDate = new Date();
-    this.startDate.setDate(this.startDate.getDate() - 1);
     this.gridOptions = {
       rowData: [],
       pinnedBottomRowData: [],
@@ -244,7 +248,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(GridId.costBasisId, GridName.costBasis, this.gridOptions);
+    this.gridOptions.sideBar = SideBar(GridId.dayPnlReconcileId, GridName.dayPnlReconcile, this.gridOptions);
 
     this.bookmonOptions = {
       rowData: [],
@@ -371,49 +375,33 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     } as GridOptions;
   }
 
-  ngAfterViewInit(): void {
-    this.dataService.flag$.subscribe(obj => {
-      this.hideGrid = obj;
-      if (!this.hideGrid) {
-        this.getFunds();
-        this.getReport(this.startDate, 'ALL');
-      }
-    });
-  }
-
-  getFunds() {
-    this.financeService.getFunds().subscribe(result => {
-      this.funds = result.payload.map(item => ({
-        fundId: item.FundId,
-        fundCode: item.FundCode
-      }));
-    });
-  }
-
-  // Being called twice
+  // Being Called Twice (Fixed)
   getReport(date, fund) {
+    console.log('PARAMS ::', moment(date).format('YYYY-MM-DD'), fund);
     this.isLoading = true;
     this.gridOptions.api.showLoadingOverlay();
-    this.reportsApiService.getReconReport(date, fund).subscribe(response => {
-      this.reconciledData = this.setIdentifierForReconDataAndCheckMissingRows(
-        response.payload[0],
-        response.payload[1],
-        response.payload[2]
-      );
-      this.portfolioData = response.payload[1];
-      this.bookmonData = response.payload[2];
+    this.reportsApiService
+      .getReconReport(moment(date).format('YYYY-MM-DD'), fund)
+      .subscribe(response => {
+        this.reconciledData = this.setIdentifierForReconDataAndCheckMissingRows(
+          response.payload[0],
+          response.payload[1],
+          response.payload[2]
+        );
+        this.portfolioData = response.payload[1];
+        this.bookmonData = response.payload[2];
 
-      this.gridOptions.api.setRowData(this.reconciledData);
-      this.gridOptions.api.sizeColumnsToFit();
+        this.gridOptions.api.setRowData(this.reconciledData);
+        this.gridOptions.api.sizeColumnsToFit();
 
-      this.portfolioOptions.api.setRowData(this.portfolioData);
-      this.portfolioOptions.api.sizeColumnsToFit();
+        this.portfolioOptions.api.setRowData(this.portfolioData);
+        this.portfolioOptions.api.sizeColumnsToFit();
 
-      this.bookmonOptions.api.setRowData(this.bookmonData);
-      this.bookmonOptions.api.sizeColumnsToFit();
+        this.bookmonOptions.api.setRowData(this.bookmonData);
+        this.bookmonOptions.api.sizeColumnsToFit();
 
-      this.isLoading = false;
-    });
+        this.isLoading = false;
+      });
   }
 
   setIdentifierForReconDataAndCheckMissingRows(reconData, accountingData, bookMonData) {
@@ -443,10 +431,9 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
   }
 
   rowSelected(row) {
-    // debugger;
     const { symbol } = row.data;
 
-    let mySymbol = row.data.Symbol;
+    const mySymbol = row.data.Symbol;
 
     this.bookmonOptions.api.forEachNodeAfterFilter((rowNode, index) => {
       if (rowNode.data.SecurityCode === mySymbol) {
@@ -554,7 +541,6 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     this.setDateRange(dateFilter);
     this.getReport(this.startDate, this.fund);
     this.gridOptions.api.onFilterChanged();
-
   }
 
   isExternalFilterPresent() {
@@ -582,7 +568,9 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     this.endDate = dates[1];
 
     this.selectedDate =
-      dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
+      dateFilter.startDate !== ''
+        ? { startDate: moment(this.startDate), endDate: moment(this.endDate) }
+        : null;
   }
 
   getRangeLabel() {
@@ -593,6 +581,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
   getExternalFilterState() {
     return {
       fundFilter: this.fund,
+      symbolFilter: this.filterBySymbol,
       dateFilter: {
         startDate: this.startDate !== undefined ? this.startDate : '',
         endDate: this.endDate !== undefined ? this.endDate : ''
@@ -604,7 +593,8 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     if (!selectedDate.startDate) {
       return;
     }
-    this.startDate = selectedDate.startDate.format('YYYY-MM-DD');
+
+    this.startDate = selectedDate.startDate;
     this.getReport(this.startDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
     this.getRangeLabel();
   }
@@ -624,10 +614,13 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
 
   clearFilters() {
     this.fund = 'All Funds';
-    this.DateRangeLabel = '';
-    this.endDate = undefined;
-    this.selectedDate = null;
     this.filterBySymbol = '';
+    this.DateRangeLabel = '';
+    this.selectedDate = null;
+    this.endDate = undefined;
+    this.showNonZeroBtn = false;
+    this.showNotInAccountingBtn = false;
+    this.showNotInBookMonBtn = false;
     this.gridOptions.api.setRowData([]);
     this.portfolioOptions.api.setRowData([]);
     this.bookmonOptions.api.setRowData([]);
