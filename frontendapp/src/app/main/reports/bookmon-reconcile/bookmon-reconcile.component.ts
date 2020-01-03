@@ -258,7 +258,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(GridId.costBasisId, GridName.costBasis, this.gridOptions);
+    this.gridOptions.sideBar = SideBar(GridId.bookMonReconcileId, GridName.bookmonReconcile, this.gridOptions);
 
     this.bookmonOptions = {
       rowData: [],
@@ -562,10 +562,13 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
 
   isExternalFilterPassed(object) {
     const { fundFilter } = object;
+    const { symbolFilter } = object;
     const { dateFilter } = object;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
+    this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
     this.setDateRange(dateFilter);
     this.getReport(this.startDate, this.fund);
+    this.gridOptions.api.onFilterChanged();
   }
 
   isExternalFilterPresent() {
@@ -618,6 +621,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
   getExternalFilterState() {
     return {
       fundFilter: this.fund,
+      symbolFilter: this.filterBySymbol,
       dateFilter: {
         startDate: this.startDate !== undefined ? this.startDate : '',
         endDate: this.endDate !== undefined ? this.endDate : ''
