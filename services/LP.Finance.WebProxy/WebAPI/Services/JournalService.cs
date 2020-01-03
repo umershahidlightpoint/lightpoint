@@ -514,18 +514,18 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     
                 //}
 
-                if (!string.IsNullOrEmpty(symbol))
-                {
-                    sqlParams.Add(new SqlParameter("symbol", symbol));
-                    if (whereAdded == true)
-                    {
-                        query = query + " AND cost_basis.[symbol] LIKE '%' +@symbol+'%'";
-                    }
-                    else
-                    {
-                        query = query + "where cost_basis.[symbol] LIKE '%' +@symbol+'%'";
-                    }
-                }
+                //if (!string.IsNullOrEmpty(symbol))
+                //{
+                //    sqlParams.Add(new SqlParameter("symbol", symbol));
+                //    if (whereAdded == true)
+                //    {
+                //        query = query + " AND cost_basis.[symbol] LIKE '%' +@symbol+'%'";
+                //    }
+                //    else
+                //    {
+                //        query = query + "where cost_basis.[symbol] LIKE '%' +@symbol+'%'";
+                //    }
+                //}
 
                 //query = query +
                 //        "  GROUP BY a.name, journal.symbol";
@@ -638,14 +638,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 //{
                 //    sqlParams.Add(new SqlParameter("to", to));
 
-                //      if (whereAdded == true)
-                //      {
-                //            query = query + " AND tax_lot_status.[business_date] <= @to";
-                //      }
-                //      else
-                //      {
-                //            query = query + " where tax_lot_status.[business_date] <= @to";
-                //      }
+                //    if (whereAdded == true)
+                //    {
+                //        query = query + " AND tax_lot_status.[business_date] <= @to";
+                //    }
+                //    else
+                //    {
+                //        query = query + " where tax_lot_status.[business_date] <= @to";
+                //    }
                 //}
 
                 //if (fund != "ALL")
@@ -662,18 +662,18 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 //}
 
-                if (!string.IsNullOrEmpty(symbol))
-                {
-                    sqlParams.Add(new SqlParameter("symbol", symbol));
-                    if (whereAdded == true)
-                    {
-                        query = query + " AND tax_lot_status.[symbol] LIKE '%' +@symbol+'%'";
-                    }
-                    else
-                    {
-                        query = query + " where tax_lot_status.[symbol] LIKE '%' +@symbol+'%'";
-                    }
-                }
+                //if (!string.IsNullOrEmpty(symbol))
+                //{
+                //    sqlParams.Add(new SqlParameter("symbol", symbol));
+                //    if (whereAdded == true)
+                //    {
+                //        query = query + " AND tax_lot_status.[symbol] LIKE '%' +@symbol+'%'";
+                //    }
+                //    else
+                //    {
+                //        query = query + " where tax_lot_status.[symbol] LIKE '%' +@symbol+'%'";
+                //    }
+                //}
 
                 query += " order by symbol, trade_date asc";
 
