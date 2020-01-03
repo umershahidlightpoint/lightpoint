@@ -377,7 +377,6 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
 
   // Being Called Twice (Fixed)
   getReport(date, fund) {
-    console.log('PARAMS ::', moment(date).format('YYYY-MM-DD'), fund);
     this.isLoading = true;
     this.gridOptions.api.showLoadingOverlay();
     this.reportsApiService

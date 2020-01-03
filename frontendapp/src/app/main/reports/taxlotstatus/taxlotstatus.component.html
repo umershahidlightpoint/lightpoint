@@ -23,9 +23,8 @@
 
     <!-- Symbol filter -->
     <div>
-      <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol"
-      [(ngModel)]="filterBySymbol" (ngModelChange)="ngModelChangeSymbol($event)"
-      (keyup)="onSymbolKey($event)" class="form-control" />
+      <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol" [(ngModel)]="filterBySymbol"
+        (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" />
     </div>
 
     <!-- DateRange Label Div Starts -->
@@ -92,3 +91,7 @@
   <!-- Report Grid Ends -->
 </div>
 <!-- Reports Main Div Ends-->
+
+<!-- Data Modal -->
+<app-data-modal #dataModal title="Trade Detail" [isCustomData]="true">
+</app-data-modal>

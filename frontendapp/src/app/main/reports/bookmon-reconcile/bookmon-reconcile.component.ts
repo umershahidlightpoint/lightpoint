@@ -76,7 +76,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
 
   style = Style;
 
-  styleForHeight = HeightStyle(244);
+  styleForHeight = HeightStyle(248);
 
   journalDate: any;
 
@@ -121,25 +121,13 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
             startDate: moment(this.startDate, 'YYYY-MM-DD'),
             endDate: moment(this.startDate, 'YYYY-MM-DD')
           };
-          this.getReport(this.startDate, 'ALL');
-        } else {
-          const currentDate = new Date();
-          const formattedDate =
-            currentDate.getDate() +
-            '-' +
-            (currentDate.getMonth() + 1) +
-            '-' +
-            currentDate.getFullYear();
-          this.getReport(formattedDate, 'ALL');
-        }
+        } else {}
       },
       error => {}
     );
   }
 
   initGrid() {
-    this.startDate = new Date();
-    this.startDate.setDate(this.startDate.getDate() - 1);
     this.gridOptions = {
       rowData: [],
       pinnedBottomRowData: [],
@@ -407,8 +395,6 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
     this.dataService.flag$.subscribe(obj => {
       this.hideGrid = obj;
       if (!this.hideGrid) {
-        this.getFunds();
-        this.getReport(this.startDate, 'ALL');
       }
     });
   }
@@ -426,7 +412,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
   getReport(date, fund) {
     this.isLoading = true;
     this.gridOptions.api.showLoadingOverlay();
-    this.reportsApiService.getBookmonReconReport(date, fund).subscribe(response => {
+    this.reportsApiService.getBookmonReconReport(moment(date).format('YYYY-MM-DD'), fund).subscribe(response => {
       this.reconciledData = this.setIdentifierForReconDataAndCheckMissingRows(
         response.payload[0],
         response.payload[1],
