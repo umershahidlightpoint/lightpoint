@@ -18,14 +18,13 @@
           {{ fund.fundCode }}
         </option>
       </select>
-    <!-- Funds Dropdown Div Ends -->
+      <!-- Funds Dropdown Div Ends -->
     </div>
 
     <!-- Symbol filter -->
     <div>
-      <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol"
-      [(ngModel)]="filterBySymbol" (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)"
-          class="form-control" />
+      <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol" [(ngModel)]="filterBySymbol"
+        (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" />
     </div>
 
     <!-- DateRange Label Div Starts -->
@@ -38,7 +37,7 @@
     <div class="col-2">
       <form>
         <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
-          [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name=" selectedDate" [singleDatePicker]="true"
+          [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate" [singleDatePicker]="true"
           [autoApply]="true" />
       </form>
     </div>
