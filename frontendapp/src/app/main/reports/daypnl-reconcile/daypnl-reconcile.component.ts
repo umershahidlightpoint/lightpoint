@@ -79,7 +79,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
 
   style = Style;
 
-  styleForHeight = HeightStyle(244);
+  styleForHeight = HeightStyle(248);
 
   propIDCostBasis = 'CostBasisLineChart';
   propIDBalance = 'BalanceLineChart';

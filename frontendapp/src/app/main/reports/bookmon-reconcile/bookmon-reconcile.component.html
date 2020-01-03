@@ -22,14 +22,13 @@
     </div>
 
     <!-- Symbol filter -->
-    <div class ="col-auto">
-      <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol"
-      [(ngModel)]="filterBySymbol" (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)"
-          class="form-control" />
+    <div class="col-auto">
+      <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol" [(ngModel)]="filterBySymbol"
+        (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" />
     </div>
 
     <!-- Date Picker Div Starts -->
-    <div class="col-md-2">
+    <div class="col-auto">
       <form>
         <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
           [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name=" selectedDate" [singleDatePicker]="true"
@@ -39,15 +38,15 @@
     </div>
 
     <!-- Clear Button Div Starts -->
-    <div class="col-md-3">
+    <div class="col-auto">
       <button (click)="clearFilters()" class="btn btn-pa" tooltip="Clear" placement="top">
         <i class="fa fa-remove"></i>
       </button>
     </div>
     <!-- Clear Button Div Ends -->
 
-    <!----- Buttons Div Starts ----->
-    <div class="ml-auto mr-2">
+    <!-- Buttons Div Starts -->
+    <div class="col-auto ml-auto mr-2">
       <!-- Refresh Button Div Starts -->
       <div class="mr-2 d-inline-block">
         <button (click)="refreshReport()" class="btn btn-pa" tooltip="Refresh" placement="top">
@@ -60,7 +59,7 @@
           <i class="fa fa-arrow-circle-o-down"></i>
         </button>
       </div>
-       <!----- Buttons Div Ends ----->
+      <!-- Buttons Div Ends -->
     </div>
 
   </div>
@@ -113,5 +112,5 @@
 
   </div>
 
-  </div>
-  <!-- Reports Main Div Ends-->
+</div>
+<!-- Reports Main Div Ends-->
