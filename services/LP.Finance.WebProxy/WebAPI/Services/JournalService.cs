@@ -1094,7 +1094,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object serverSideJournals(ServerRowModel obj)
         {
-            var viewName = "vwJournal";
+            var viewName = "vwFullJournal";
 
             try
             {
