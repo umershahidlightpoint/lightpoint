@@ -11,7 +11,7 @@
   <!-- Filters Div Starts -->
   <div class="row ">
     <!-- Funds Dropdown Div Starts -->
-    <div class="col-md-2">
+    <div class="col-auto">
       <select class="form-control" [(ngModel)]="fund" (ngModelChange)="changeFund($event)">
         <option selected>All Funds</option>
         <option *ngFor="let fund of funds" [ngValue]="fund.fundCode">

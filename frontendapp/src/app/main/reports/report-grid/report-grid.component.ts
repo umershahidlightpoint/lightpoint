@@ -16,7 +16,8 @@ import {
   AutoSizeAllColumns,
   SideBar,
   noColorCategories,
-  BracketFormatter
+  BracketFormatter,
+  moneyFormatter
 } from 'src/shared/utils/Shared';
 import { TrialBalanceReport, TrialBalanceReportStats } from 'src/shared/Models/trial-balance';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
@@ -175,7 +176,7 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
             return 'debit';
           }
         },
-        valueFormatter: BracketFormatter,
+        valueFormatter: moneyFormatter,
         cellClassRules: {
           // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value < -300; },
           footerRow(params) {
@@ -211,7 +212,7 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
             return 'credit';
           }
         },
-        valueFormatter: BracketFormatter,
+        valueFormatter: moneyFormatter,
         cellClassRules: {
           // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
           redFont(params) {

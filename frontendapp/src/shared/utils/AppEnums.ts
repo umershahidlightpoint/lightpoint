@@ -24,7 +24,9 @@ export enum GridId {
   taxRatesId,
   timeseriesId,
   marketPriceId,
-  fxRateId
+  fxRateId,
+  dayPnlReconcileId,
+  bookMonReconcileId
 }
 
 export enum GridName {
@@ -53,5 +55,7 @@ export enum GridName {
   taxRates = 'Tax Rates',
   timeseries = 'Cost Basis Time Series',
   marketPrice = 'Market Price',
-  fxRate = 'Fx Rate'
+  fxRate = 'Fx Rate',
+  dayPnlReconcile = 'DayPnl Reconcile',
+  bookmonReconcile = 'Bookmon Reconcile'
 }

@@ -431,7 +431,7 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       aggFunc: 'sum',
       headerName: '$Debit',
       filter: isJournalGrid ? 'agNumberColumnFilter' : true,
-      valueFormatter: BracketFormatter,
+      valueFormatter: moneyFormatter,
       width: 100,
       colId: 'debit',
       cellStyle: { 'text-align': 'right' },
@@ -451,7 +451,7 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       field: 'credit',
       aggFunc: 'sum',
       headerName: '$Credit',
-      valueFormatter: BracketFormatter,
+      valueFormatter: moneyFormatter,
       width: 100,
       colId: 'credit',
       filter: isJournalGrid ? 'agNumberColumnFilter' : true,
@@ -627,7 +627,7 @@ export function BracketFormatter(params) {
     (params.data.AccountCategory === 'Equity' ||
       params.data.AccountCategory === 'Revenues' ||
       params.data.AccountCategory === 'Expenses') &&
-    params.value < 0
+    params.value > 0
   ) {
     return '( ' + MoneyFormat(Math.abs(params.value)) + ' )';
   }

@@ -1,5 +1,7 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
+import { debounce } from 'rxjs/operators';
+import { timer, Subject } from 'rxjs';
 import { Fund } from '../../../../shared/Models/account';
 import {
   TrialBalanceReport,
@@ -29,6 +31,7 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import { ContextMenu } from 'src/shared/Models/common';
 import { ReportsApiService } from 'src/services/reports-api.service';
+import { DataModalComponent } from 'src/shared/Component/data-modal/data-modal.component';
 
 @Component({
   selector: 'rep-taxlotstatus',
@@ -36,6 +39,8 @@ import { ReportsApiService } from 'src/services/reports-api.service';
   styleUrls: ['./taxlotstatus.component.css']
 })
 export class TaxLotStatusComponent implements OnInit, AfterViewInit {
+  @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
+
   pinnedBottomRowData;
   gridOptions: GridOptions;
   closingTaxLots: GridOptions;
@@ -56,6 +61,9 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   style = Style;
 
   styleForHeight = HeightStyle(220);
+
+  // private filterSubject: Subject<string> = new Subject();
+  filterBySymbol = '';
 
   public tradeSelectionSubject = new BehaviorSubject(null);
   public tradeSelectionChanged = this.tradeSelectionSubject.asObservable();
@@ -82,23 +90,26 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     this.initGrid();
     this.getLatestJournalDate();
     this.getFunds();
+    // In case we need to enable filter by symbol from server side
+    // this.filterSubject.pipe(debounce(() => timer(1000))).subscribe(() => {
+    //   this.getReport(this.startDate, this.endDate, this.filterBySymbol, this.fund === 'All Funds' ? 'ALL' : this.fund);
+    // });
   }
 
-  getLatestJournalDate(){
-    this.reportsApiService.getLatestJournalDate().subscribe(date => {
-      if(date.isSuccessful && date.statusCode === 200){
-        this.journalDate = date.payload[0].when;
-        this.startDate = this.journalDate;
-        this.selected = { startDate: moment(this.startDate, 'YYYY-MM-DD'), endDate: moment(this.startDate, 'YYYY-MM-DD') };
-        this.getReport(this.startDate, this.startDate, 'ALL');
-      } else {
-        const currentDate  = new Date();
-        const formattedDate = currentDate.getDate() + "-" + (currentDate.getMonth() + 1) + "-" + currentDate.getFullYear();
-        this.getReport(formattedDate, formattedDate, 'ALL');
-      }
-    },
-    error => {
-    });
+  getLatestJournalDate() {
+    this.reportsApiService.getLatestJournalDate().subscribe(
+      date => {
+        if (date.isSuccessful && date.statusCode === 200) {
+          this.journalDate = date.payload[0].when;
+          this.startDate = this.journalDate;
+          this.selected = {
+            startDate: moment(this.startDate, 'YYYY-MM-DD'),
+            endDate: moment(this.startDate, 'YYYY-MM-DD')
+          };
+        }
+      },
+      error => {}
+    );
   }
 
   initGrid() {
@@ -106,6 +117,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       rowData: null,
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      onRowDoubleClicked: this.onRowDoubleClicked.bind(this),
       onFilterChanged: this.onFilterChanged.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       /* Custom Method Binding to Clear External Filters from Grid Layout Component */
@@ -126,7 +138,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         });
         params.api.onGroupExpandedOrCollapsed();
 
-        //AutoSizeAllColumns(params);
+        // AutoSizeAllColumns(params);
         params.api.sizeColumnsToFit();
       },
       enableFilter: true,
@@ -228,13 +240,6 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       rowData: [],
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      onFilterChanged: this.onFilterChanged.bind(this),
-      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
-      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
-      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
-      clearExternalFilter: this.clearFilters.bind(this),
-      getExternalFilterState: this.getExternalFilterState.bind(this),
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
@@ -247,7 +252,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           node.expanded = true;
         });
         params.api.onGroupExpandedOrCollapsed();
-        //AutoSizeAllColumns(params);
+        // AutoSizeAllColumns(params);
         params.api.sizeColumnsToFit();
       },
       enableFilter: true,
@@ -356,21 +361,28 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   }
 
   // Being called twice
-  getReport(toDate, fromDate, fund) {
+  getReport(toDate, fromDate, symbol, fund) {
     this.isLoading = true;
-    this.reportsApiService.getTaxLotReport(toDate, fromDate, fund).subscribe(response => {
-      this.stats = response.stats;
-      this.data = response.payload;
-      this.isLoading = false;
-      this.gridOptions.api.sizeColumnsToFit();
-      this.gridOptions.api.setRowData(this.data);
-    });
+    this.reportsApiService
+      .getTaxLotReport(
+        moment(toDate).format('YYYY-MM-DD'),
+        moment(fromDate).format('YYYY-MM-DD'),
+        symbol,
+        fund
+      )
+      .subscribe(response => {
+        this.stats = response.stats;
+        this.data = response.payload;
+        this.isLoading = false;
+        this.gridOptions.api.sizeColumnsToFit();
+        this.gridOptions.api.setRowData(this.data);
+      });
   }
 
   onTaxLotSelection(lporderid) {
     this.reportsApiService.getClosingTaxLots(lporderid).subscribe(response => {
-      //this.stats = response.stats;
-      //this.data = response.data;
+      // this.stats = response.stats;
+      // this.data = response.data;
       this.closingTaxLots.api.sizeColumnsToFit();
       this.closingTaxLots.api.setRowData(response.payload);
 
@@ -380,6 +392,17 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         this.tradeSelectionSubject.next(response.payload[0].closing_lot_id);
       }
     });
+  }
+
+  onRowDoubleClicked(params) {
+    const { open_id } = params.data;
+
+    this.financeService.getTrade(open_id).subscribe(
+      response => {
+        this.dataModal.openModal(response[0], null, true);
+      },
+      error => {}
+    );
   }
 
   onRowSelected(event) {
@@ -395,18 +418,31 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
 
   isExternalFilterPassed(object) {
     const { fundFilter } = object;
+    const { symbolFilter } = object;
     const { dateFilter } = object;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
+    this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
     this.setDateRange(dateFilter);
-    this.getReport(this.startDate, this.endDate, this.fund);
+    this.getReport(this.startDate, this.endDate, this.filterBySymbol, this.fund);
+    this.gridOptions.api.onFilterChanged();
   }
 
-  isExternalFilterPresent() {}
+  isExternalFilterPresent() {
+    if (this.fund !== 'All Funds' || this.startDate || this.filterBySymbol !== '') {
+      return true;
+    }
+  }
 
-  doesExternalFilterPass(node: any) {}
+  doesExternalFilterPass(node: any) {
+    if (this.filterBySymbol !== '') {
+      const cellSymbol = node.data.symbol === null ? '' : node.data.symbol;
+      return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase());
+    }
+    return true;
+  }
 
   getContextMenuItems(params): Array<ContextMenu> {
-    //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
+    // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(true, null, true, null, params);
   }
 
@@ -428,26 +464,44 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     this.gridOptions.api.showLoadingOverlay();
 
     if (this.selected.startDate == null) {
-      this.selected = { startDate: moment(this.journalDate, 'YYYY-MM-DD'), endDate: moment(this.journalDate, 'YYYY-MM-DD') };
-      this.getReport(this.journalDate, this.journalDate, 'ALL');
+      this.selected = {
+        startDate: moment(this.journalDate, 'YYYY-MM-DD'),
+        endDate: moment(this.journalDate, 'YYYY-MM-DD')
+      };
+      this.getReport(this.journalDate, this.journalDate, this.filterBySymbol, 'ALL');
     } else {
       const startDate = this.selected.startDate.format('YYYY-MM-DD');
       const endDate = this.selected.endDate.format('YYYY-MM-DD');
-      this.getReport(startDate, endDate, 'ALL');
+      this.getReport(startDate, endDate, this.filterBySymbol, 'ALL');
     }
-
   }
 
   clearFilters() {
     this.fund = 'All Funds';
     this.DateRangeLabel = '';
     this.selected = null;
+    this.filterBySymbol = '';
     this.gridOptions.api.setRowData([]);
+  }
+
+  ngModelChangeSymbol(e) {
+    this.filterBySymbol = e;
+    this.gridOptions.api.onFilterChanged();
+  }
+
+  onSymbolKey(e) {
+    this.filterBySymbol = e.srcElement.value;
+    this.gridOptions.api.onFilterChanged();
+
+    // For the moment we react to each key stroke
+    if (e.code === 'Enter' || e.code === 'Tab') {
+    }
   }
 
   getExternalFilterState() {
     return {
       fundFilter: this.fund,
+      symbolFilter: this.filterBySymbol,
       dateFilter: { startDate: this.startDate, endDate: this.endDate }
     };
   }
@@ -458,13 +512,23 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     }
     this.startDate = selectedDate.startDate.format('YYYY-MM-DD');
     this.endDate = selectedDate.endDate.format('YYYY-MM-DD');
-    this.getReport(this.startDate, this.endDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
+    this.getReport(
+      this.startDate,
+      this.endDate,
+      this.filterBySymbol,
+      this.fund === 'All Funds' ? 'ALL' : this.fund
+    );
     this.getRangeLabel();
   }
 
   changeFund(selectedFund) {
     this.fund = selectedFund;
-    this.getReport(this.startDate, this.endDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
+    this.getReport(
+      this.startDate,
+      this.endDate,
+      this.filterBySymbol,
+      this.fund === 'All Funds' ? 'ALL' : this.fund
+    );
   }
 
   onBtExport() {

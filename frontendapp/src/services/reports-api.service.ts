@@ -41,8 +41,8 @@ export class ReportsApiService {
   /*
   Get Cost Basis Report
   */
-  getCostBasisReport(date, fund) {
-    const url = this.baseUrl + '/journal/costbasisReport?date=' + date + '&fund=' + fund;
+  getCostBasisReport(date, symbol, fund) {
+    const url = this.baseUrl + '/journal/costbasisReport?date=' + date + '&symbol=' + symbol + '&fund=' + fund;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
@@ -54,9 +54,9 @@ export class ReportsApiService {
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
-  getTaxLotReport(fromDate, toDate, fund) {
+  getTaxLotReport(fromDate, toDate, symbol, fund) {
     const url =
-      this.baseUrl + '/journal/taxlotReport?from=' + fromDate + '&to=' + toDate + '&fund=' + fund;
+      this.baseUrl + '/journal/taxlotReport?from=' + fromDate + '&to=' + toDate + '&symbol=' + symbol + '&fund=' + fund;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 

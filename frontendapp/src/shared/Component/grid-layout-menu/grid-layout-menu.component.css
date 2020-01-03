@@ -13,8 +13,8 @@
 
 .layout-action {
   width: 30%;
-  margin-left: 2px;
   font-size: 0.7rem;
+  margin-left: 2px;
 }
 
 .new-layout-action {
@@ -25,6 +25,7 @@
 
 .layout-action-reset {
   width: 90%;
+  font-size: 0.7rem;
   margin-top: 5px;
   margin-left: 12px;
 }

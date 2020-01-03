@@ -40,7 +40,7 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
             throw new NotImplementedException();
         }
 
-        public object GetCostBasisReport(DateTime? date, string fund)
+        public object GetCostBasisReport(DateTime? date, string fund, string symbol)
         {
             throw new NotImplementedException();
         }
@@ -50,7 +50,7 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
             throw new NotImplementedException();
         }
 
-        public object GetTaxLotReport(DateTime? from, DateTime? to, string fund)
+        public object GetTaxLotReport(DateTime? from, DateTime? to, string fund, string symbol)
         {
             throw new NotImplementedException();
         }

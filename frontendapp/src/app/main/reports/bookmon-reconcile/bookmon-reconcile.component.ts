@@ -52,6 +52,8 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
   bData: any;
   qData: any;
 
+  filterBySymbol = '';
+
   reconciledData: any;
   bookmonData: any;
   portfolioData: any;
@@ -74,7 +76,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
 
   style = Style;
 
-  styleForHeight = HeightStyle(244);
+  styleForHeight = HeightStyle(248);
 
   journalDate: any;
 
@@ -119,25 +121,13 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
             startDate: moment(this.startDate, 'YYYY-MM-DD'),
             endDate: moment(this.startDate, 'YYYY-MM-DD')
           };
-          this.getReport(this.startDate, 'ALL');
-        } else {
-          const currentDate = new Date();
-          const formattedDate =
-            currentDate.getDate() +
-            '-' +
-            (currentDate.getMonth() + 1) +
-            '-' +
-            currentDate.getFullYear();
-          this.getReport(formattedDate, 'ALL');
-        }
+        } else {}
       },
       error => {}
     );
   }
 
   initGrid() {
-    this.startDate = new Date();
-    this.startDate.setDate(this.startDate.getDate() - 1);
     this.gridOptions = {
       rowData: [],
       pinnedBottomRowData: [],
@@ -265,19 +255,12 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(GridId.costBasisId, GridName.costBasis, this.gridOptions);
+    this.gridOptions.sideBar = SideBar(GridId.bookMonReconcileId, GridName.bookmonReconcile, this.gridOptions);
 
     this.bookmonOptions = {
       rowData: [],
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      onFilterChanged: this.onFilterChanged.bind(this),
-      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
-      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
-      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
-      clearExternalFilter: this.clearFilters.bind(this),
-      getExternalFilterState: this.getExternalFilterState.bind(this),
       rowSelection: 'single',
       onCellClicked: this.rowSelected.bind(this),
       rowGroupPanelShow: 'after',
@@ -358,13 +341,6 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
       rowData: [],
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      onFilterChanged: this.onFilterChanged.bind(this),
-      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
-      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
-      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
-      clearExternalFilter: this.clearFilters.bind(this),
-      getExternalFilterState: this.getExternalFilterState.bind(this),
       rowSelection: 'single',
       onCellClicked: this.rowSelected.bind(this),
       rowGroupPanelShow: 'after',
@@ -446,8 +422,6 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
     this.dataService.flag$.subscribe(obj => {
       this.hideGrid = obj;
       if (!this.hideGrid) {
-        this.getFunds();
-        this.getReport(this.startDate, 'ALL');
       }
     });
   }
@@ -465,7 +439,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
   getReport(date, fund) {
     this.isLoading = true;
     this.gridOptions.api.showLoadingOverlay();
-    this.reportsApiService.getBookmonReconReport(date, fund).subscribe(response => {
+    this.reportsApiService.getBookmonReconReport(moment(date).format('YYYY-MM-DD'), fund).subscribe(response => {
       this.reconciledData = this.setIdentifierForReconDataAndCheckMissingRows(
         response.payload[0],
         response.payload[1],
@@ -601,15 +575,42 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
 
   isExternalFilterPassed(object) {
     const { fundFilter } = object;
+    const { symbolFilter } = object;
     const { dateFilter } = object;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
+    this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
     this.setDateRange(dateFilter);
     this.getReport(this.startDate, this.fund);
+    this.gridOptions.api.onFilterChanged();
   }
 
-  isExternalFilterPresent() {}
+  isExternalFilterPresent() {
+    if (this.fund !== 'All Funds' || this.startDate || this.filterBySymbol !== '') {
+      return true;
+    }
+  }
 
-  doesExternalFilterPass(node: any) {}
+  doesExternalFilterPass(node: any) {
+    if (this.filterBySymbol !== '') {
+      const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
+      return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase());
+    }
+    return true;
+  }
+
+  ngModelChangeSymbol(e) {
+    this.filterBySymbol = e;
+    this.gridOptions.api.onFilterChanged();
+  }
+
+  onSymbolKey(e) {
+    this.filterBySymbol = e.srcElement.value;
+    this.gridOptions.api.onFilterChanged();
+
+    // For the moment we react to each key stroke
+    if (e.code === 'Enter' || e.code === 'Tab') {
+    }
+  }
 
   getContextMenuItems(params): Array<ContextMenu> {
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
@@ -633,6 +634,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
   getExternalFilterState() {
     return {
       fundFilter: this.fund,
+      symbolFilter: this.filterBySymbol,
       dateFilter: {
         startDate: this.startDate !== undefined ? this.startDate : '',
         endDate: this.endDate !== undefined ? this.endDate : ''
@@ -670,6 +672,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
     this.gridOptions.api.setRowData([]);
     this.portfolioOptions.api.setRowData([]);
     this.bookmonOptions.api.setRowData([]);
+    this.filterBySymbol = '';
   }
 
   refreshReport() {
