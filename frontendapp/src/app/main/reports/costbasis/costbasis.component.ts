@@ -128,13 +128,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
         this.journalDate = date.payload[0].when;
         this.startDate = this.journalDate;
         this.selectedDate = { startDate: moment(this.startDate, 'YYYY-MM-DD'), endDate: moment(this.endDate, 'YYYY-MM-DD') };
-        this.getReport(this.startDate, this.filterBySymbol, 'ALL');
-      } else {
-        const currentDate  = new Date();
-        const formattedDate = currentDate.getDate() + "-" + (currentDate.getMonth() + 1) + "-" + currentDate.getFullYear();
-        this.getReport(formattedDate, this.filterBySymbol, 'ALL');
-      }
-    },
+      }},
     error => {
     });
   }
@@ -360,7 +354,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   getReport(date, symbol, fund) {
     this.isLoading = true;
     this.gridOptions.api.showLoadingOverlay();
-    this.reportsApiService.getCostBasisReport(date, symbol, fund).subscribe(response => {
+    this.reportsApiService.getCostBasisReport(moment(date).format('YYYY-MM-DD'), symbol, fund).subscribe(response => {
       this.trialBalanceReportStats = response.stats;
       this.trialBalanceReport = response.payload;
       if (this.trialBalanceReport.length === 0) {

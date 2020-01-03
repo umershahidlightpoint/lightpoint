@@ -100,15 +100,10 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         this.journalDate = date.payload[0].when;
         this.startDate = this.journalDate;
         this.selected = { startDate: moment(this.startDate, 'YYYY-MM-DD'), endDate: moment(this.startDate, 'YYYY-MM-DD') };
-        this.getReport(this.startDate, this.startDate, this.filterBySymbol, 'ALL');
-      } else {
-        const currentDate  = new Date();
-        const formattedDate = currentDate.getDate() + "-" + (currentDate.getMonth() + 1) + "-" + currentDate.getFullYear();
-        this.getReport(formattedDate, formattedDate, this.filterBySymbol, 'ALL');
       }
     },
-    error => {
-    });
+    error => {}
+    );
   }
 
   initGrid() {
@@ -361,7 +356,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   // Being called twice
   getReport(toDate, fromDate, symbol, fund) {
     this.isLoading = true;
-    this.reportsApiService.getTaxLotReport(toDate, fromDate, symbol, fund).subscribe(response => {
+    this.reportsApiService.getTaxLotReport(moment(toDate).format('YYYY-MM-DD'), moment(fromDate).format('YYYY-MM-DD'), symbol, fund).subscribe(response => {
       this.stats = response.stats;
       this.data = response.payload;
       this.isLoading = false;
