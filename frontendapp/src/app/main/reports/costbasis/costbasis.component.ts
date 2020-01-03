@@ -399,12 +399,13 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       chartData != null ? moment(chartData[0].BusinessDate).format('YYYY-MM-DD') : null;
     data[symbol] = [];
 
-    for (var item in chartData) {
+    for (let item in chartData) {
       data[symbol].push({
         date: moment(chartData[item].BusinessDate).format('YYYY-MM-DD'),
         value: chartData[item].Price
       });
     }
+
     this.graphObject = {
       xAxisLabel: 'Date',
       yAxisLabel: 'Symbol',
@@ -548,13 +549,21 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       return;
     }
     this.startDate = selectedDate.startDate.format('YYYY-MM-DD');
-    this.getReport(this.startDate, this.filterBySymbol, this.fund === 'All Funds' ? 'ALL' : this.fund);
+    this.getReport(
+      this.startDate,
+      this.filterBySymbol,
+      this.fund === 'All Funds' ? 'ALL' : this.fund
+    );
     this.getRangeLabel();
   }
 
   changeFund(selectedFund) {
     this.fund = selectedFund;
-    this.getReport(this.startDate, this.filterBySymbol, this.fund === 'All Funds' ? 'ALL' : this.fund);
+    this.getReport(
+      this.startDate,
+      this.filterBySymbol,
+      this.fund === 'All Funds' ? 'ALL' : this.fund
+    );
   }
 
   changeChart(selectedChart) {
@@ -581,7 +590,10 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.timeseriesOptions.api.setRowData([]);
     this.displayChart = false;
     if (this.selectedDate.startDate == null) {
-      this.selectedDate = { startDate: moment(this.journalDate, 'YYYY-MM-DD'), endDate: moment(this.endDate, 'YYYY-MM-DD') };
+      this.selectedDate = {
+        startDate: moment(this.journalDate, 'YYYY-MM-DD'),
+        endDate: moment(this.endDate, 'YYYY-MM-DD')
+      };
       this.getReport(this.journalDate, this.filterBySymbol, 'ALL');
     } else {
       const startDate = this.selectedDate.startDate.format('YYYY-MM-DD');
