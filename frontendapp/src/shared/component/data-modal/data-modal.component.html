@@ -1,69 +1,67 @@
-<!------ Modal Div Starts------>
-<div class="modal fade" bsModal #modal="bs-modal" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true"
+<!-- Modal Div Starts -->
+<div bsModal #modal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true"
   [config]="{backdrop: modal-backdrop}">
-  <!------ Modal Dialog Div Starts------>
+
+  <!-- Modal Dialog Div Starts -->
   <div class="modal-dialog modal-lg modal-dialog-centered" id="modal-lg">
-    <!------ Modal Content Div Starts------>
+
+    <!-- Modal Content Div Starts -->
     <div class="modal-content">
+
       <!-- Modal Header Starts-->
       <div class="modal-header">
         <h3>{{ title }}</h3>
         <button type="button" class="close" data-dismiss="modal" (click)="closeModal()">&times;</button>
       </div>
+      <!-- Modal Header Ends-->
 
       <!-- Include the Title row -->
-      <div class="">
-        <table class="table table-sm table-striped table-bordered table-secondary table-header">
-          <thead>
-            <tr>
-              <th scope="col" class="first-cell">Field</th>
-              <th scope="col" class="other-cells center-position">Value</th>
-            </tr>
-          </thead>
-        </table>
-      </div>
-
-
-      <!-- Modal Header Ends-->
+      <table class="table table-sm table-header table-striped table-secondary table-bordered">
+        <thead>
+          <tr>
+            <th scope="col" class="first-cell">Field</th>
+            <th scope="col" class="other-cells center-position">Value</th>
+          </tr>
+        </thead>
+      </table>
 
       <!-- Modal Body Starts-->
       <div class="modal-body">
-        <!-- Grid Div Starts -->
-        <div>
-          <!-- Style For Height Div Starts -->
-          <div [ngStyle]="styleForHeight">
 
-            <!-- Table for Headings Starts -->
-            <!-- Check the header -->
-            <!-- Table for Headings Ends -->
+        <!-- Table for Data Starts -->
+        <table class="table table-sm table-striped table-bordered">
+          <tbody>
 
-            <!-- Trial Report Div Starts -->
-            <div #trialReport [ngStyle]="containerDiv">
-              <!-- Table for Data Starts -->
-              <table class="table table-sm table-striped table-bordered">
-                <tbody>
-                  <tr *ngFor="let report of tableData">
-                    <td class="first-cell cell-style"> {{ report.name }}</td>
-                    <td class="other-cells balance cell-style">
-                      {{(report.name === '$Debit' || report.name === '$Credit'  || report.name === '$Balance') ?  (report.value | number: '1.2-2')  :  report.value }}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <!-- Table for Data Ends -->
-            </div>
-            <!-- Trial Report Div Ends -->
-          </div>
-          <!-- Style For Height Div Ends-->
-        </div>
-        <!-- Grid Div Ends-->
+            <ng-container *ngIf="!isCustomData">
+              <tr *ngFor="let report of tableData">
+                <td class="first-cell cell-style"> {{ report.name }}</td>
+                <td class="other-cells balance cell-style">
+                  {{(report.name === '$Debit' || report.name === '$Credit'  || report.name === '$Balance') ?  (report.value | number: '1.2-2')  :  report.value }}
+                </td>
+              </tr>
+            </ng-container>
+
+            <ng-container *ngIf="isCustomData">
+              <tr *ngFor="let report of customTableData">
+                <td class="first-cell cell-style"> {{ report.name }}</td>
+                <td class="other-cells balance cell-style">
+                  {{(report.name === '$Debit' || report.name === '$Credit'  || report.name === '$Balance') ?  (report.value | number: '1.2-2')  :  report.value }}
+                </td>
+              </tr>
+            </ng-container>
+
+          </tbody>
+        </table>
+        <!-- Table for Data Ends -->
 
       </div>
       <!-- Modal Body Ends-->
 
     </div>
-    <!------ Modal Content Div Ends------>
+    <!-- Modal Content Div Ends -->
+
   </div>
-  <!------ Modal Dialog Div Ends------>
+  <!-- Modal Dialog Div Ends -->
+
 </div>
-<!------ Modal Div Ends------>
+<!-- Modal Div Ends -->

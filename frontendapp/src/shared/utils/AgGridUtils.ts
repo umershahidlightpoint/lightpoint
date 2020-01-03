@@ -66,6 +66,12 @@ export class AgGridUtils {
           const indexOfFilter = filterData.findIndex(filter => filter.ColumnName === column.field);
           clone.filter = (() => {
             if (indexOfFilter !== -1) {
+              clone.filterParams = {
+                cellHeight: 20,
+                values: indexOfFilter !== -1 && filterData[indexOfFilter].Values,
+                debounceMs: 1000
+              };
+
               return 'agSetColumnFilter';
             } else {
               if (
@@ -88,12 +94,6 @@ export class AgGridUtils {
 
             return column.filter;
           })();
-
-          clone.filterParams = {
-            cellHeight: 20,
-            values: indexOfFilter !== -1 && filterData[indexOfFilter].Values,
-            debounceMs: 1000
-          };
 
           if (
             column.Type == 'System.Int32' ||

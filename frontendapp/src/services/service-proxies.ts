@@ -83,6 +83,11 @@ export class FinanceServiceProxy {
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
+  getTrade(lpOrderId: any) {
+    const url = encodeURI(this.refDataUrl + '/trades?period=' + lpOrderId);
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
+
   getOpsBlotterJournals() {
     const url = encodeURI(this.refDataUrl + '/trades?period=ITD&journal=true');
     return this.http.get(url).pipe(map((response: any) => response));
