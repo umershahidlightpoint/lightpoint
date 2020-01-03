@@ -223,6 +223,15 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
           valueFormatter: currencyFormatter
         },
         {
+          field: 'Diff_Price',
+          headerName: 'Price Diff',
+          cellClass: 'rightAlign',
+          sortable: true,
+          filter: true,
+          width: 120,
+          valueFormatter: currencyFormatter
+        },
+        {
           field: 'Currency',
           width: 50,
           headerName: 'Currency',
@@ -322,6 +331,15 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
           valueFormatter: currencyFormatter
         },
         {
+          field: 'Price',
+          headerName: 'Price',
+          cellClass: 'rightAlign',
+          sortable: true,
+          filter: true,
+          width: 120,
+          valueFormatter: currencyFormatter
+        },
+    {
           field: 'Currency',
           width: 50,
           headerName: 'Currency',
@@ -393,6 +411,15 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
         {
           field: 'Exposure',
           headerName: 'Exposure',
+          cellClass: 'rightAlign',
+          sortable: true,
+          filter: true,
+          width: 120,
+          valueFormatter: currencyFormatter
+        },
+        {
+          field: 'Price',
+          headerName: 'Price',
           cellClass: 'rightAlign',
           sortable: true,
           filter: true,

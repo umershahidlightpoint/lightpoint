@@ -23,6 +23,14 @@ namespace PostingEngine.MarketData
 
         public static FxRate Find(DateTime busDate, string currency)
         {
+            if ( currency.Equals("USD"))
+            {
+                return new FxRate
+                {
+                    Rate = 1
+                };
+            }
+
             var ccy = $"@CASH{currency}";
             var f = MarketPrices.Find(busDate, ccy);
             if (f.Price != 0)
