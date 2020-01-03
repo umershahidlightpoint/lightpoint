@@ -22,30 +22,24 @@
     </div>
 
     <!-- Symbol filter -->
-    <div>
+    <div class ="col-auto">
       <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol"
       [(ngModel)]="filterBySymbol" (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)"
           class="form-control" />
     </div>
 
-    <!-- DateRange Label Div Starts -->
-    <div>
-      <label class="text-right"> {{ DateRangeLabel }} </label>
-    </div>
-    <!-- DateRange Label Div Ends -->
-
     <!-- Date Picker Div Starts -->
-    <div class="col-2">
+    <div class="col-md-2">
       <form>
         <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
           [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name=" selectedDate" [singleDatePicker]="true"
           [autoApply]="true" />
       </form>
+      <!-- Date Picker Div Ends -->
     </div>
-    <!-- Date Picker Div Ends -->
 
     <!-- Clear Button Div Starts -->
-    <div class="col-1">
+    <div class="col-md-3">
       <button (click)="clearFilters()" class="btn btn-pa" tooltip="Clear" placement="top">
         <i class="fa fa-remove"></i>
       </button>
@@ -53,7 +47,7 @@
     <!-- Clear Button Div Ends -->
 
     <!----- Buttons Div Starts ----->
-    <div class="col-3">
+    <div class="ml-auto mr-2">
       <!-- Refresh Button Div Starts -->
       <div class="mr-2 d-inline-block">
         <button (click)="refreshReport()" class="btn btn-pa" tooltip="Refresh" placement="top">
@@ -66,21 +60,9 @@
           <i class="fa fa-arrow-circle-o-down"></i>
         </button>
       </div>
+       <!----- Buttons Div Ends ----->
     </div>
-    <!----- Buttons Div Ends ----->
-    <!----- Chart DropDown Div Starts ----->
-    <div class="ml-auto">
-      <!----- Chart Data DropDown Starts ----->
-      <!-- <div class="mr-2 d-inline-block">
-        <select class="form-control" [(ngModel)]="selectedChartOption" (ngModelChange)="changeChart($event)">
-          <option *ngFor="let option of chartOptions" [ngValue]="option.key">
-            {{option.value}}
-          </option>
-        </select>
-      </div> -->
-      <!----- Chart Data DropDown Ends  ----->
-    </div>
-    <!----- Chart DropDown Div Ends ----->
+
   </div>
   <!-- Filters Div Ends -->
 
@@ -128,6 +110,8 @@
     </div>
 
     <!-- Report AG Grid Column Ends -->
+
+  </div>
 
   </div>
   <!-- Reports Main Div Ends-->
