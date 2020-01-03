@@ -51,7 +51,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   startDate: any;
   endDate: any;
 
-  private filterSubject: Subject<string> = new Subject();
+  // private filterSubject: Subject<string> = new Subject();
   filterBySymbol = '';
 
   trialBalanceReport: Array<TrialBalanceReport>;
@@ -116,9 +116,10 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       this.initGrid();
       this.getLatestJournalDate();
       this.getFunds();
-      this.filterSubject.pipe(debounce(() => timer(1000))).subscribe(() => {
-        this.getReport(this.startDate, this.filterBySymbol, this.fund === 'All Funds' ? 'ALL' : this.fund);
-      });
+      //In case we need to enable filter by symbol from server side
+      // this.filterSubject.pipe(debounce(() => timer(1000))).subscribe(() => {
+      //   this.getReport(this.startDate, this.filterBySymbol, this.fund === 'All Funds' ? 'ALL' : this.fund);
+      // });
   }
 
   getLatestJournalDate(){
@@ -242,13 +243,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       rowData: [],
       pinnedBottomRowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      onFilterChanged: this.onFilterChanged.bind(this),
-      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
-      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
-      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
-      clearExternalFilter: this.clearFilters.bind(this),
-      getExternalFilterState: this.getExternalFilterState.bind(this),
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
@@ -484,16 +478,14 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   ngModelChangeSymbol(e) {
     this.filterBySymbol = e;
+    this.gridOptions.api.onFilterChanged();
   }
 
   onSymbolKey(e) {
     this.filterBySymbol = e.srcElement.value;
-    this.filterSubject.next(e.srcElement.value);
+    this.gridOptions.api.onFilterChanged();
 
-    if (!this.selectedDate.startDate) {
-      return;
-    }
-
+    // For the moment we react to each key stroke
     if (e.code === 'Enter' || e.code === 'Tab') {
     }
   }
@@ -511,11 +503,22 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
     this.setDateRange(dateFilter);
     this.getReport(this.startDate, this.filterBySymbol, this.fund);
+    this.gridOptions.api.onFilterChanged();
   }
 
-  isExternalFilterPresent() {}
+  isExternalFilterPresent() {
+    if (this.fund !== 'All Funds' || this.startDate || this.filterBySymbol !== '') {
+      return true;
+    }
+  }
 
-  doesExternalFilterPass(node: any) {}
+  doesExternalFilterPass(node: any) {
+    if (this.filterBySymbol !== '') {
+      const cellSymbol = node.data.symbol === null ? '' : node.data.symbol;
+      return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase());
+    }
+    return true;
+  }
 
   getContextMenuItems(params): Array<ContextMenu> {
     return GetContextMenu(true, null, true, null, params);
