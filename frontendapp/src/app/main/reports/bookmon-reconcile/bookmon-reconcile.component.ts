@@ -76,7 +76,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
 
   style = Style;
 
-  styleForHeight = HeightStyle(244);
+  styleForHeight = HeightStyle(248);
 
   journalDate: any;
 

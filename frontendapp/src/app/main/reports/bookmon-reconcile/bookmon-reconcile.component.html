@@ -8,8 +8,10 @@
 
 <!-- Reports Main Div Starts -->
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
+
   <!-- Filters Div Starts -->
   <div class="row ">
+
     <!-- Funds Dropdown Div Starts -->
     <div class="col-auto">
       <select class="form-control" [(ngModel)]="fund" (ngModelChange)="changeFund($event)">
@@ -18,14 +20,15 @@
           {{ fund.fundCode }}
         </option>
       </select>
-      <!-- Funds Dropdown Div Ends -->
     </div>
+    <!-- Funds Dropdown Div Ends -->
 
-    <!-- Symbol filter -->
+    <!-- Symbol Filter -->
     <div class="col-auto">
       <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol" [(ngModel)]="filterBySymbol"
         (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" />
     </div>
+    <!-- Symbol Filter Ends -->
 
     <!-- Date Picker Div Starts -->
     <div class="col-auto">
@@ -34,8 +37,8 @@
           [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name=" selectedDate" [singleDatePicker]="true"
           [autoApply]="true" />
       </form>
-      <!-- Date Picker Div Ends -->
     </div>
+    <!-- Date Picker Div Ends -->
 
     <!-- Clear Button Div Starts -->
     <div class="col-auto">
@@ -45,72 +48,96 @@
     </div>
     <!-- Clear Button Div Ends -->
 
-    <!-- Buttons Div Starts -->
+    <!-- Util Buttons Div Starts -->
     <div class="col-auto ml-auto mr-2">
+
       <!-- Refresh Button Div Starts -->
       <div class="mr-2 d-inline-block">
         <button (click)="refreshReport()" class="btn btn-pa" tooltip="Refresh" placement="top">
           <i class="fa fa-refresh"></i></button>
       </div>
       <!-- Refresh Button Div Ends -->
+
       <!-- Export to Excel Button -->
       <div class="mr-2 d-inline-block">
         <button (click)="onBtExport()" class="btn btn-pa" tooltip="Export to Excel" placement="top">
           <i class="fa fa-arrow-circle-o-down"></i>
         </button>
       </div>
-      <!-- Buttons Div Ends -->
+      <!-- Export to Excel Button Ends -->
+
     </div>
+    <!-- Util Buttons Div Ends -->
 
   </div>
   <!-- Filters Div Ends -->
 
-  <!-- Report Grid Starts -->
-  <div>
-    <!-- Report AG Grid Column Starts -->
-    <div [ngStyle]="styleForHeight" class="d-flex">
-      <div class="w-50 h-100">
-        <div class="d-flex flex-direction-row">
-          <div>Reconciled Details</div>
-          <div class="d-flex flex-direction-row ml-2">
-            <ng-container *ngIf="showNonZeroBtn">
-              <p class="legend-label">Non-Zero</p>
-              <button class="btn nonZero opacity-1 legend-height width-40px ml-2" [disabled]="true">
-              </button>
-            </ng-container>
-            <ng-container *ngIf="showNotInAccountingBtn">
-              <p class="legend-label ml-2">Not in Accounting</p>
-              <button class="btn notInAccounting legend-height opacity-1 width-40px ml-2" [disabled]="true">
-              </button>
-            </ng-container>
-            <ng-container *ngIf="showNotInBookMonBtn">
-              <p class="legend-label ml-2">Not in BookMon</p>
-              <button class="btn notInBookMon legend-height opacity-1 width-40px ml-2" [disabled]="true">
-              </button>
-            </ng-container>
-          </div>
-        </div>
-        <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions">
-        </ag-grid-angular>
-      </div>
+  <!-- Legends Row Starts -->
+  <div class="row mx-0 mt-2">
 
-      <div class="w-25 h-100">
-        <div>Accounting Details</div>
+    <!-- Reconciled Details Legend Starts -->
+    <div class="col-6 p-0">
 
-        <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="portfolioOptions">
-        </ag-grid-angular>
-      </div>
+      <!-- Legend Tag Starts -->
+      <div class="row mx-0">
 
-      <div class="w-25 h-100">
-        <div>BookMon Details</div>
-        <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="bookmonOptions">
-        </ag-grid-angular>
+        <div class="font-weight-bold">Reconciled Details</div>
+
+        <ng-container *ngIf="showNonZeroBtn">
+          <p class="legend-label">Non-Zero</p>
+          <button class="btn nonZero opacity-1 legend-height width-40px ml-2" [disabled]="true">
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="showNotInAccountingBtn">
+          <p class="legend-label ml-2">Not in Accounting</p>
+          <button class="btn notInAccounting legend-height opacity-1 width-40px ml-2" [disabled]="true">
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="showNotInBookMonBtn">
+          <p class="legend-label ml-2">Not in BookMon</p>
+          <button class="btn notInBookMon legend-height opacity-1 width-40px ml-2" [disabled]="true">
+          </button>
+        </ng-container>
+
       </div>
+      <!-- Legend Tag Ends -->
+
+    </div>
+    <!-- Reconciled Details Legend Ends -->
+
+    <div class="col-3 p-0">
+      <div class="font-weight-bold">Accounting Details</div>
     </div>
 
-    <!-- Report AG Grid Column Ends -->
+    <div class="col-3 p-0">
+      <div class="font-weight-bold">BookMon Details</div>
+    </div>
 
   </div>
+  <!-- Legends Row Ends -->
+
+  <!-- Reports Grid Div Starts -->
+  <div [ngStyle]="styleForHeight" class="row m-0">
+
+    <div class="col-6 p-0">
+      <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions">
+      </ag-grid-angular>
+    </div>
+
+    <div class="col-3 p-0">
+      <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="portfolioOptions">
+      </ag-grid-angular>
+    </div>
+
+    <div class="col-3 p-0">
+      <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="bookmonOptions">
+      </ag-grid-angular>
+    </div>
+
+  </div>
+  <!-- Reports Grid Div Ends -->
 
 </div>
-<!-- Reports Main Div Ends-->
+<!-- Reports Main Div Ends -->
