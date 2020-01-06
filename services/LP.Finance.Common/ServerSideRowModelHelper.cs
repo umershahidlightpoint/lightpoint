@@ -111,7 +111,8 @@ namespace LP.Finance.Common
                 }
                 else
                 {
-                    modifiedRowGroupCols.RemoveRange(0, count);
+                    //modifiedRowGroupCols.RemoveRange(0, count);
+                    modifiedRowGroupCols = modifiedRowGroupCols.Skip(count).Take(1).ToList();
                 }
 
                 foreach (var item in obj.sortModel)
