@@ -14,6 +14,7 @@ import {
   CommaSeparatedFormat,
   HeightStyle,
   FormatDate,
+  FormatNumber8,
   LegendColors
 } from 'src/shared/utils/Shared';
 import { GridOptions } from 'ag-grid-community';
@@ -23,6 +24,7 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import { ContextMenu } from 'src/shared/Models/common';
 import { ReportsApiService } from 'src/services/reports-api.service';
+import { DataDictionary } from 'src/shared/utils/DataDictionary';
 
 @Component({
   selector: 'rep-bookmon-reconcile',
@@ -100,7 +102,8 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
     private financeService: FinanceServiceProxy,
     private reportsApiService: ReportsApiService,
     private dataService: DataService,
-    private downloadExcelUtils: DownloadExcelUtils
+    private downloadExcelUtils: DownloadExcelUtils,
+    public dataDictionary: DataDictionary
   ) {
     this.hideGrid = false;
   }
@@ -219,7 +222,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
           sortable: true,
           filter: true,
           width: 120,
-          valueFormatter: currencyFormatter
+          valueFormatter: priceFormatter
         },
         {
           field: 'Currency',
@@ -320,7 +323,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
           sortable: true,
           filter: true,
           width: 120,
-          valueFormatter: currencyFormatter
+          valueFormatter: priceFormatter
         },
     {
           field: 'Currency',
@@ -400,7 +403,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
           sortable: true,
           filter: true,
           width: 120,
-          valueFormatter: currencyFormatter
+          valueFormatter: priceFormatter
         },
         {
           field: 'Currency',
@@ -707,4 +710,11 @@ function currencyFormatter(params) {
     return;
   }
   return CommaSeparatedFormat(params.value);
+}
+
+function priceFormatter(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  return FormatNumber8(params.value);
 }

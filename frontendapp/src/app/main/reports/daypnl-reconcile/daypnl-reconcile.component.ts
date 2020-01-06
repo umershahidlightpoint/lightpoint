@@ -14,9 +14,12 @@ import {
   GetDateRangeLabel,
   SetDateRange,
   CommaSeparatedFormat,
+  FormatNumber2,
+  MoneyFormat,
   HeightStyle,
   FormatDate,
-  LegendColors
+  LegendColors,
+  FormatNumber8
 } from 'src/shared/utils/Shared';
 import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
@@ -199,6 +202,13 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
           filter: true
         },
         {
+          field: 'SecurityType',
+          width: 120,
+          headerName: 'SecurityType',
+          sortable: true,
+          filter: true
+        },
+        {
           field: 'Fund',
           width: 120,
           headerName: 'Fund',
@@ -360,7 +370,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
           valueFormatter: currencyFormatter
         },
         {
-          field: 'Currency',
+          field: 'currency',
           width: 50,
           headerName: 'Currency',
           sortable: true,
@@ -656,5 +666,5 @@ function currencyFormatter(params) {
   if (params.value === undefined) {
     return;
   }
-  return CommaSeparatedFormat(params.value);
+  return MoneyFormat(params.value);
 }
