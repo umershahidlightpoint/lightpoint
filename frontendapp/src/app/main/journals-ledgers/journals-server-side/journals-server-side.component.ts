@@ -141,13 +141,12 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
             result.payload.forEach(item => {
               item.when = moment(item.when).format('MM-DD-YYYY');
             });
-            if (this.pageNumber === 1) {
+
+            if (this.gridOptions.columnApi.getAllColumns() !== null) {
               this.rowData = result.payload;
-            } else {
-              this.rowData = result.payload;
+              params.successCallback(this.rowData, result.meta.LastRow);
             }
 
-            params.successCallback(this.rowData, result.meta.LastRow);
             if (result.meta.LastRow === 0) {
               this.gridOptions.api.showNoRowsOverlay();
             }
@@ -201,6 +200,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
             if (this.dataRequestCount <= 2) {
               AutoSizeAllColumns(this.gridOptions);
             }
+
             this.gridOptions.api.refreshCells();
           } else {
             params.failCallback();
@@ -302,7 +302,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   getMainMenuItems(params) {
     switch (params.column.getId()) {
       case 'balance':
-        var menuItems = params.defaultItems.slice(0);
+        const menuItems = params.defaultItems.slice(0);
         menuItems.push({
           name: 'Sort by absolute value',
           action: () => {
@@ -331,7 +331,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     } else {
       this.absoluteSorting = [];
     }
-    let sort = [
+    const sort = [
       {
         colId,
         sort: sortDirection
