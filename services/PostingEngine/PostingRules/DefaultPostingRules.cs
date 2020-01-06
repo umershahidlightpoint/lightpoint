@@ -36,23 +36,14 @@ namespace PostingEngine.PostingRules
                 // Check to see if the TaxLot is still open and it has a non zero Quantity
                 if (!taxlot.Status.ToLowerInvariant().Equals("closed") && Math.Abs(taxlot.Quantity) > 0)
                 {
-                    var type = element.GetType();
-                    var accountTypes = AccountType.All;
-
-                    var listOfFromTags = new List<Tag>
+                    var listOfTags = new List<Tag>
                     {
                         Tag.Find("SecurityType"),
                         Tag.Find("CustodianCode")
                     };
 
-                    var listOfToTags = new List<Tag> {
-                        Tag.Find("SecurityType"),
-                        Tag.Find("CustodianCode")
-                     };
-
                     // We have an open / partially closed tax lot so now need to calculate unrealized Pnl
                     var quantity = taxlot.Quantity;
-                    var symbol = element.Symbol;
 
                     var prevEodPrice = 0.0;
                     var eodPrice = 0.0;
@@ -68,22 +59,14 @@ namespace PostingEngine.PostingRules
                         eodPrice = MarketPrices.Find(env.ValueDate, element).Price;
                     }
 
-                    var multiplier = 1.0;
-
-                    if (env.SecurityDetails.ContainsKey(element.BloombergCode))
-                        multiplier = env.SecurityDetails[element.BloombergCode].Multiplier;
-
-                    var localunrealizedPnl = quantity * (eodPrice - prevEodPrice) * multiplier;
-
-                    var unrealizedPnl = quantity * (eodPrice - prevEodPrice) * fxrate * multiplier;
+                    var unrealizedPnl = CommonRules.CalculateUnrealizedPnl(env, taxlot);
 
                     var originalAccount = taxlot.Side == "SHORT" ? "Mark to Market Shorts" : "Mark to Market Longs";
-                    unrealizedPnl = taxlot.Side == "SHORT" ? unrealizedPnl * -1 : unrealizedPnl;
 
                     // Need to work out based on the Security Type and the direction of the MTM
-                    var fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "CHANGE IN UNREALIZED GAIN/(LOSS)", listOfFromTags, element);
+                    var fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "CHANGE IN UNREALIZED GAIN/(LOSS)", listOfTags, taxlot.Trade);
 
-                    fromToAccounts.From = new AccountUtils().DeriveMTMCorrectAccount(fromToAccounts.From, element, listOfFromTags, unrealizedPnl);
+                    fromToAccounts.From = new AccountUtils().DeriveMTMCorrectAccount(fromToAccounts.From, taxlot.Trade, listOfTags, unrealizedPnl);
                     new AccountUtils().SaveAccountDetails(env, fromToAccounts.From);
 
                     var fund = env.GetFund(element);
@@ -92,11 +75,11 @@ namespace PostingEngine.PostingRules
                     {
                         Account = fromToAccounts.From,
                         When = env.ValueDate,
-                        Symbol = symbol,
+                        Symbol = taxlot.Symbol,
                         Quantity = quantity,
                         FxRate = fxrate,
                         Value = env.SignedValue(fromToAccounts.From, fromToAccounts.To, true, unrealizedPnl),
-                        CreditDebit = env.DebitOrCredit(fromToAccounts.From, taxlot.IsShort() ? unrealizedPnl * -1 : unrealizedPnl),
+                        CreditDebit = env.DebitOrCredit(fromToAccounts.From, unrealizedPnl),
                         StartPrice = prevEodPrice,
                         EndPrice = eodPrice,
                         Event = "unrealizedpnl",
@@ -153,10 +136,6 @@ namespace PostingEngine.PostingRules
             }
             else
             {
-                if (element.Symbol.Equals("RBD"))
-                {
-                }
-
                 if (fxrate != 1.0)
                 {
                     if (element.TradeDate != env.ValueDate && element.SettleDate >= env.ValueDate)
@@ -228,21 +207,12 @@ namespace PostingEngine.PostingRules
         }
         internal void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
-            double tradefxrate = 1.0;
-            double settlefxrate = 1.0;
             double fxrate = 1.0;
 
             // Lets get fx rate if needed
             if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                tradefxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
-                fxrate = tradefxrate;
-            }
-
-            if (!element.SettleCurrency.Equals(env.BaseCurrency))
-            {
-                settlefxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
-                fxrate = settlefxrate;
+                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
             }
 
             var accountToFrom = new AccountingRules().GetFromToAccountOnSettlement(element);
@@ -268,10 +238,6 @@ namespace PostingEngine.PostingRules
                 if (element.IsShort() || element.IsSell())
                     moneyUSD = moneyUSD * -1;
 
-                if (element.Symbol.Equals("FB"))
-                {
-
-                }
                 var debit = new Journal
                 {
                     Source = element.LpOrderId,
@@ -406,7 +372,7 @@ namespace PostingEngine.PostingRules
                                 // Calculate the unrealized PNL for the created Tax Lot
                                 var unrealizedPnl = Math.Abs(taxlot.Quantity) * (element.SettleNetPrice - prevPrice) * multiplier;
 
-                                
+                                unrealizedPnl *= CommonRules.DetermineSign(element);
 
                                 CommonRules.PostUnRealizedPnl(
                                     env,
@@ -416,9 +382,6 @@ namespace PostingEngine.PostingRules
                                     element.SettleNetPrice, 
                                     fxrate);
 
-                                // Calculate the Realized PNL from closing tax lot
-                                var PnL = Math.Abs(taxlot.Quantity) * (taxlot.CostBasis - taxlot.TradePrice) * fxrate * multiplier;
-                                
                                 // Original FxRate
                                 var changeDueToFx = fxrate - taxlotStatus.FxRate;
                                 // Original Trade Price
@@ -428,7 +391,7 @@ namespace PostingEngine.PostingRules
                                 CommonRules.PostRealizedPnl(
                                     env,
                                     buyTrade,
-                                    PnL,
+                                    taxlot.RealizedPnl,
                                     taxlot.TradePrice,
                                     taxlot.CostBasis, 
                                     fxrate);
@@ -481,7 +444,7 @@ namespace PostingEngine.PostingRules
 
                                 if ( fxrate == 1.0 )
                                 {
-                                    changeInUnRealized = Convert.ToDouble(PnL);
+                                    changeInUnRealized = Convert.ToDouble(taxlot.RealizedPnl);
                                 }
 
                                 // Now Generate Entries for the trade that is drawing down on the taxLot
@@ -526,13 +489,7 @@ namespace PostingEngine.PostingRules
 
                                 workingQuantity += taxlotStatus.Quantity;
 
-                                var PnL = Math.Abs(taxlot.Quantity) * (taxlot.CostBasis - taxlot.TradePrice) * fxrate * multiplier;
-
-                                CommonRules.PostRealizedPnl(env, element, PnL, taxlot.TradePrice, taxlot.CostBasis, fxrate);
-
-                                if (element.Symbol.Equals("RBD"))
-                                {
-                                }
+                                CommonRules.PostRealizedPnl(env, element, taxlot.RealizedPnl, taxlot.TradePrice, taxlot.CostBasis, fxrate);
 
                                 // Has to happen for every day
                                 var fxJournalsForInvestmentAtCost = FxPosting.CreateFx(

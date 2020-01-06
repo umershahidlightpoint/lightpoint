@@ -43,14 +43,13 @@ namespace LP.Finance.Common.Models
         public string PortfolioCode { get; set; }
 
         public DateTime TradeDate { get; set; }
+        public DateTime TradeTime { get; set; }
         public DateTime SettleDate { get; set; }
-
         public double Commission { get; set; }
         public double Fees { get; set; }
         public string Status { get; set; }
         public string TransactionType { get; set; }
         public string TransactionCategory { get; set; }
-
         public string BloombergCode { get; set; }
 
         public string Long

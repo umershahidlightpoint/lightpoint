@@ -765,21 +765,29 @@ where business_date = @busDate";
                 var localTradeList = JsonConvert.DeserializeObject<Transaction[]>(trades.Result);
 
                 var finalTradeList = localTradeList.Where(t => t.TradeDate >= new DateTime(2019, 4, 1)).ToArray();
-                const bool DEBUG = false;
+                const bool DEBUG = true;
                 if (DEBUG)
                 { 
-                    var tags = new List<string> {
-                    //"EURUSD", // CROSS
-                    //"GBPUSD", // CROSS
-                    //"GBP/USD 12/18/2019", // FPRWARD
-                    //"HOME", "CHD", "STNG" // Test the latest for position
+                    var securityTypeTags = new List<string> {
                     "FORWARD", "CROSS"
                     };
 
-                    //finalTradeList = finalTradeList.Where(t => tags.Contains(t.Symbol)).ToArray();
-                    finalTradeList = finalTradeList.Where(t => tags.Contains(t.SecurityType)).ToArray();
+                    var symbolTags = new List<string> {
+                    "IMKTA",
+                    };
+
+                    //finalTradeList = finalTradeList.Where(t => securityTypeTags.Contains(t.SecurityType)).ToArray();
+                    finalTradeList = finalTradeList.Where(t => symbolTags.Contains(t.Symbol)).ToArray();
                 }
 
+                var excludeTrade = new List<string>
+                {
+                    "aa17610f-5403-4bd4-99c5-4100126aa655",
+                    "a213f4f3-2e5f-4529-8f7c-a2e7d4b4368a",
+                    "ca94fcfeb4e04863bf670e50dcca5150"
+                };
+
+                finalTradeList = finalTradeList.Where(t => !excludeTrade.Contains(t.LpOrderId)).ToArray();
 
                 var accrualList = JsonConvert.DeserializeObject<Wrap<Accrual>>(accruals.Result).Data;
                 PostingEngineCallBack?.Invoke("Retrieved All Data");
@@ -933,11 +941,16 @@ where business_date = @busDate";
                 var localTradeList = JsonConvert.DeserializeObject<Transaction[]>(trades.Result);
 
                 var finalTradeList = localTradeList.Where(t => t.TradeDate >= new DateTime(2019, 4, 1)).ToArray();
-                const bool DEBUG = false;
+                const bool DEBUG = true;
                 if (DEBUG)
                 {
                     var symbols = new List<string> {
-                    "BYG LN",
+                    "IMKTA",
+                    };
+
+
+                    var types = new List<string> {
+                    "Common Stock",
                     };
 
                     finalTradeList = finalTradeList.Where(t => symbols.Contains(t.Symbol)).ToArray();
@@ -1361,7 +1374,7 @@ where business_date = @busDate";
                 postingEnv.TaxRate = new TaxRates().Get(valueDate);
                 postingEnv.GetUnsettledPnl();
 
-                var tradeData = postingEnv.Trades.Where(i => i.TradeDate <= valueDate).OrderBy(i => i.TradeDate.Date).ToList();
+                var tradeData = postingEnv.Trades.Where(i => i.TradeDate <= valueDate).OrderBy(i => i.TradeTime).ToList();
 
                 PostingEngineCallBack?.Invoke($"Processing {tradeData.Count()} Trades");
 
@@ -1594,6 +1607,12 @@ where business_date = @busDate";
 
         private static void Error(Exception ex, Transaction element)
         {
+        }
+
+        private static async Task<List<Transaction>> GetFromView(PostingEngineEnvironment env)
+        {
+            var dataTable  = new SqlHelper(env.ConnectionString).GetDataTable("vwCurrentStateTrades", CommandType.Text);
+            return null;
         }
 
         private static async Task<string> GetTransactions(string webURI)

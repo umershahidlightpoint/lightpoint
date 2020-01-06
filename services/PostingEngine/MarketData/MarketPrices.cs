@@ -98,7 +98,7 @@ namespace PostingEngine.MarketData
             if (_all.ContainsKey(key))
                 return _all[key];
 
-            Logger.Warn($"Unable to find Primary MarketPrice for {key}");
+            //Logger.Warn($"Unable to find Primary MarketPrice for {key}");
 
             // We need to manufactor a rate
             var priorDate = busDate.PrevBusinessDate();
@@ -112,7 +112,7 @@ namespace PostingEngine.MarketData
                 priorRate = _all[key].Price;
             }
 
-            Logger.Warn($"Unable to find Secondary MarketPrice for {key}");
+            //Logger.Warn($"Unable to find Secondary MarketPrice for {key}");
 
             return new MarketPrice
             {

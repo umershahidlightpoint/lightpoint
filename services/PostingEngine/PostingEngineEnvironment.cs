@@ -232,6 +232,9 @@ namespace PostingEngine
             if (debitAccount.Type.Category.Id == AccountCategory.AC_LIABILITY && creditAccount.Type.Category.Id == AccountCategory.AC_REVENUES)
                 return value * -1;
 
+            if (debitAccount.Type.Category.Id == AccountCategory.AC_REVENUES && creditAccount.Type.Category.Id == AccountCategory.AC_LIABILITY)
+                return value * -1;
+
             if (debitAccount.Type.Category.Id == AccountCategory.AC_ASSET && creditAccount.Type.Category.Id == AccountCategory.AC_REVENUES)
                 return value;
 
@@ -336,6 +339,7 @@ namespace PostingEngine
         {
             var taxlotStatus = new TaxLotStatus
             {
+                Trade = element,
                 InvestmentAtCost = element.NetMoney * fxrate,
                 FxRate = fxrate,
                 TradeDate = element.TradeDate,

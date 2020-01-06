@@ -31,6 +31,7 @@ namespace PostingEngine.PostingRules
 
             var tl = new TaxLot
             {
+                Trade = trade,
                 TradeDate = trade.TradeDate,
                 InvestmentAtCost = investmentAtCost, // Needs to be the Investment Cost that we are relieving from the Tax
                 BusinessDate = env.ValueDate,
@@ -40,9 +41,139 @@ namespace PostingEngine.PostingRules
                 CostBasis = trade.SettleNetPrice,
                 Quantity = quantity
             };
+
+            CalculateRealizedPnl(env, tl);
+
             tl.Save(env.Connection, env.Transaction);
 
             return tl;
+        }
+
+        public static int DetermineSign(Transaction trade)
+        {
+            if (trade.IsBuy())
+            {
+                return 1;
+            }
+            else if (trade.IsSell())
+            {
+                return 1;
+            }
+            else if (trade.IsShort())
+            {
+                return 1;
+            }
+            else if (trade.IsCover())
+            {
+                return -1;
+            }
+
+            return 1;
+        }
+        /// <summary>
+        /// Calcualte the Unrealized Pnl for this Tax lot
+        /// </summary>
+        /// <param name="env"></param>
+        /// <returns></returns>
+        public static double CalculateUnrealizedPnl(PostingEngineEnvironment env, TaxLotStatus taxLot)
+        {
+            double multiplier = 1.0;
+
+            if (env.SecurityDetails.ContainsKey(taxLot.Trade.BloombergCode))
+                multiplier = env.SecurityDetails[taxLot.Trade.BloombergCode].Multiplier;
+
+            double fxrate = 1.0;
+
+            // Lets get fx rate if needed
+            if (!taxLot.Trade.SettleCurrency.Equals(env.BaseCurrency))
+            {
+                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, taxLot.Trade.SettleCurrency).Rate);
+            }
+
+            var eodPrice = 0.0;
+            var prevEodPrice = 0.0;
+            if (env.ValueDate == taxLot.Trade.TradeDate)
+            {
+                eodPrice = MarketPrices.Find(env.ValueDate, taxLot.Trade).Price;
+                prevEodPrice = taxLot.Trade.SettleNetPrice;
+            }
+            else
+            {
+                prevEodPrice = MarketPrices.Find(env.PreviousValueDate, taxLot.Trade).Price;
+                eodPrice = MarketPrices.Find(env.ValueDate, taxLot.Trade).Price;
+            }
+
+            var unrealizedPnl = 0.0;
+            var quantity = Math.Abs(taxLot.Trade.Quantity);
+            var priceDiff = (eodPrice - prevEodPrice);
+
+            if (taxLot.Trade.IsBuy())
+            {
+                unrealizedPnl = priceDiff * quantity;
+            }
+            else if (taxLot.Trade.IsSell())
+            {
+                unrealizedPnl = priceDiff * quantity * -1;
+            }
+            else if (taxLot.Trade.IsShort())
+            {
+                unrealizedPnl = priceDiff * quantity;
+            }
+            else if (taxLot.Trade.IsCover())
+            {
+                unrealizedPnl = priceDiff * quantity * -1;
+            }
+
+            return unrealizedPnl * fxrate * multiplier;
+        }
+
+        /// <summary>
+        /// Calculate the Realized Pnl based on the relieved Tax Lot
+        /// </summary>
+        /// <param name="createdTaxLot">The Relief</param>
+        /// <param name="taxLotToRelieve">The target taxlot</param>
+        public static double CalculateRealizedPnl(PostingEngineEnvironment env, TaxLot createdTaxLot)
+        {
+            var priceDiff = (createdTaxLot.CostBasis - createdTaxLot.TradePrice);
+            var realizedPnl = 0.0;
+
+            double multiplier = 1.0;
+
+            if (env.SecurityDetails.ContainsKey(createdTaxLot.Trade.BloombergCode))
+                multiplier = env.SecurityDetails[createdTaxLot.Trade.BloombergCode].Multiplier;
+
+            double fxrate = 1.0;
+
+            // Lets get fx rate if needed
+            if (!createdTaxLot.Trade.SettleCurrency.Equals(env.BaseCurrency))
+            {
+                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, createdTaxLot.Trade.SettleCurrency).Rate);
+            }
+
+            if (createdTaxLot.Trade.IsBuy())
+            {
+                realizedPnl = priceDiff * Math.Abs(createdTaxLot.Quantity);
+            }
+            else if (createdTaxLot.Trade.IsSell())
+            {
+                realizedPnl = priceDiff * Math.Abs(createdTaxLot.Quantity);
+            }
+            else if (createdTaxLot.Trade.IsShort())
+            {
+                realizedPnl = priceDiff * Math.Abs(createdTaxLot.Quantity);
+            }
+            else if (createdTaxLot.Trade.IsCover())
+            {
+                realizedPnl = priceDiff * Math.Abs(createdTaxLot.Quantity) * -1;
+            }
+
+            if (realizedPnl != 0.0)
+            {
+            }
+
+            createdTaxLot.RealizedPnl = realizedPnl * fxrate * multiplier;
+
+            return createdTaxLot.RealizedPnl;
         }
 
         /// <summary>
@@ -63,6 +194,7 @@ namespace PostingEngine.PostingRules
 
             var tl = new TaxLot
             {
+                Trade = trade,
                 TradeDate = trade.TradeDate,
                 InvestmentAtCost = investmentAtCost, // Needs to be the Investment Cost that we are relieving from the Tax
                 BusinessDate = env.ValueDate,
@@ -72,6 +204,11 @@ namespace PostingEngine.PostingRules
                 CostBasis = trade.SettleNetPrice,
                 Quantity = quantity
             };
+
+            
+            //CalculateRealizedPnl(env, tl, taxLotToRelieve);
+            CalculateRealizedPnl(env, tl);
+
             tl.Save(env.Connection, env.Transaction);
 
             return tl;
@@ -222,7 +359,8 @@ namespace PostingEngine.PostingRules
             }
 
             var prevPrice = MarketPrices.Find(env.PreviousValueDate, lot.Trade).Price;
-            var unrealizedPnl = taxlotStatus.Quantity * (element.SettleNetPrice - prevPrice) * multiplier;
+            var unrealizedPnl = Math.Abs(taxlotStatus.Quantity) * (element.SettleNetPrice - prevPrice) * multiplier;
+            unrealizedPnl = Math.Abs(unrealizedPnl) * CommonRules.DetermineSign(taxlotStatus.Trade);
 
             var buyTrade = env.FindTrade(lot.Trade.LpOrderId);
 
@@ -234,6 +372,8 @@ namespace PostingEngine.PostingRules
                 element.SettleNetPrice, fxrate);
 
             var PnL = Math.Abs(taxlot.Quantity) * (taxlot.CostBasis - taxlot.TradePrice) * multiplier * fxrate;
+            PnL = taxlot.RealizedPnl;
+
             PostRealizedPnl(
                 env,
                 buyTrade,

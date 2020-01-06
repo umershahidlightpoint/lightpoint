@@ -1,6 +1,6 @@
 ﻿/* Examples
 
-exec CostBasisCalculation '2019-12-18'
+exec CostBasisCalculation '2019-11-19'
 */
 CREATE PROCEDURE [dbo].[CostBasisCalculation]
 	@businessDate Date
@@ -103,10 +103,10 @@ and j.[when] <= @bDate
 group by j.symbol
 
 -- realized
-SELECT @bDate as busdate, j.symbol, sum(debit - credit) as realized_pnl, 'SHORT' as Side
+SELECT @bDate as busdate, j.symbol, sum(credit - debit) as realized_pnl, 'SHORT' as Side
 into #realized_short
 FROM vwJournal j
-where AccountType = 'Mark to Market Shorts'
+where AccountType = 'SHORT POSITIONS AT COST'
 and event = 'realizedpnl'
 and j.[when] <= @bDate
 group by j.symbol
@@ -115,12 +115,14 @@ begin tran
 delete from cost_basis where business_date = @bDate and Side = 'LONG'
 delete from cost_basis where business_date = @bDate and Side = 'SHORT'
 
+print 'Updating cost_basis::LONGS'
+
 insert into cost_basis ( business_date, symbol, balance, quantity, cost_basis, side, realized_pnl, unrealized_pnl, eod_price )
 select cb.busdate, cb.symbol, 
 cb.Balance, 
 cb.Quantity, 
 case
-	When cb.Quantity != 0 then ABS((cb.Balance + coalesce(rl.realized_pnl,0)) / cb.Quantity) / coalesce(sd.Multiplier,1)
+	When ROUND(cb.Quantity,2) != 0 then ABS((cb.Balance + coalesce(rl.realized_pnl,0)) / cb.Quantity) / coalesce(sd.Multiplier,1)
 	else 0
 end,
 cb.Side, 
@@ -134,6 +136,8 @@ left outer join #unrealized_long ul on ul.busdate = cb.busdate and ul.symbol = c
 left outer join #realized_long rl on rl.busdate = cb.busdate and rl.symbol = cb.symbol and rl.Side = cb.Side
 left outer join #security_details sd on sd.SecurityCode = cb.symbol
 where cb.Side = 'LONG'
+
+print 'Updating cost_basis::SHORTS'
 
 insert into cost_basis ( business_date, symbol, balance, quantity, cost_basis, side, realized_pnl, unrealized_pnl, eod_price )
 select cb.busdate, cb.symbol, 

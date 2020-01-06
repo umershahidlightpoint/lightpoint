@@ -1,7 +1,7 @@
 ﻿/*
 Examples:
 
-select * from fnPositions('2019-12-18')
+select * from fnPositions('2019-12-18') where Symbol = 'BGG'
 */
 
 CREATE FUNCTION [dbo].[fnPositions]
@@ -61,7 +61,7 @@ group by open_lot_id
 		max(mp.price)
 		from taxlotstatus tls
 		left outer join taxlot tl on tl.open_lot_id = tls.open_id
-		inner join market_prices mp on mp.security_id = tls.security_id
+		inner join market_prices mp on mp.security_id = tls.security_id and mp.business_date = @bDate
 		group by tls.business_date, tls.symbol, side, tls.security_id, fund, currency
 		order by tls.symbol
 	RETURN

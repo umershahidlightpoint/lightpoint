@@ -10,6 +10,10 @@ namespace LP.Finance.Common.Models
 {
     public class TaxLot : IDbAction, IDbModel
     {
+        // Non Persisted
+        public Transaction Trade { get; set; }
+
+        // Persisted
         public string OpeningLotId { get; set; }
         public string ClosingLotId { get; set; }
         public double InvestmentAtCost { get; set; }
@@ -40,9 +44,9 @@ namespace LP.Finance.Common.Models
             get
             {
                 var sql = @"insert into tax_lot
-                            (closing_lot_id, open_lot_id, quantity, business_date, cost_basis, trade_price, trade_date, investment_at_cost) 
+                            (closing_lot_id, open_lot_id, quantity, business_date, cost_basis, trade_price, trade_date, investment_at_cost, realized_pnl) 
                             values 
-                            (@closing_lot_id, @open_lot_id, @quantity, @business_date, @cost_basis, @trade_price, @trade_date, @investment_at_cost)";
+                            (@closing_lot_id, @open_lot_id, @quantity, @business_date, @cost_basis, @trade_price, @trade_date, @investment_at_cost, @realized_pnl)";
                 var sqlParams = new SqlParameter[]
                 {
                     new SqlParameter("closing_lot_id", ClosingLotId),
@@ -53,6 +57,7 @@ namespace LP.Finance.Common.Models
                     new SqlParameter("cost_basis", CostBasis),
                     new SqlParameter("trade_price", TradePrice),
                     new SqlParameter("investment_at_cost", InvestmentAtCost),
+                    new SqlParameter("realized_pnl", RealizedPnl),
                 };
 
                 return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);

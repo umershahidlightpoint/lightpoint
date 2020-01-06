@@ -134,7 +134,7 @@ namespace PostingEngine
                 {
                     var completed = (rowsDone * 1.0 / totalRows) * 100;
 
-                    Logger.Info($"{message}, % Completed {completed}");
+                    Logger.Info($"{message}, %{completed}");
                     return;
                 }
 

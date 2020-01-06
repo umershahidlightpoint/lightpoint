@@ -10,6 +10,10 @@ namespace LP.Finance.Common.Models
 {
     public class TaxLotStatus : IDbAction, IDbModel
     {
+        // Non Persisted
+        public Transaction Trade { get; set; }
+
+        // Persisted
         public int Id { get; set; }
         public string OpenId { get; set; }
         public string Fund { get; set; }

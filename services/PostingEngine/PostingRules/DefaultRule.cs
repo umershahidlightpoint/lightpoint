@@ -111,9 +111,7 @@ namespace PostingEngine.PostingRules
 
                                 workingQuantity -= Math.Abs(taxlotStatus.Quantity);
 
-                                var PnL = taxlot.Quantity * (taxlot.CostBasis - taxlot.TradePrice) * multiplier;
-
-                                CommonRules.PostRealizedPnl(env, element, PnL, taxlot.TradePrice, taxlot.CostBasis);
+                                CommonRules.PostRealizedPnl(env, element, taxlot.RealizedPnl, taxlot.TradePrice, taxlot.CostBasis);
 
                                 taxlotStatus.Quantity = 0;
                                 taxlotStatus.Status = "Closed";

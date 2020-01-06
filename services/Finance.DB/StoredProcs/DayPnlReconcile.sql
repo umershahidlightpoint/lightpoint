@@ -20,6 +20,35 @@ group by p.BusDate, s.BbergCode, Fund, p.Currency, st.SecurityTypeCode
 order by p.BusDate, BbergCode, Fund, p.Currency
 
 
+select business_date as BusDate, SecurityCode as SecurityCode, Fund, st.SecurityTypeCode as SecurityType, pos.currency, 0 as realizedPnl, 0 as unrealizedPnl, 0 as DayPnl
+into #temp
+from fnPositions(@busDate) pos
+inner join SecurityMaster..Security s on s.SecurityId = pos.security_id
+inner join SecurityMaster..SecurityType st on st.SecurityTypeId = s.SecurityTypeId
+
+update #temp
+set realizedPnl = GG
+from #temp t
+inner join (
+select [When], Symbol, Fund, SUM(credit-debit) as GG from vwJournal
+where AccountType in ('REALIZED GAIN/(LOSS)') and [event] in ('realizedpnl')
+group by [When], Symbol, Fund
+) as v on v.[when] = t.BusDate and v.fund = t.fund and v.symbol = t.SecurityCode
+
+update #temp
+set unrealizedPnl = GG
+from #temp t
+inner join (
+select [When], Symbol, Fund, SUM(credit-debit) as GG from vwJournal
+where AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)') and [event] in ('unrealizedpnl')
+group by [When], Symbol, Fund
+) as v on v.[when] = t.BusDate and v.fund = t.fund and v.symbol = t.SecurityCode
+
+update #temp
+set DayPnl = Round(unrealizedPnl + realizedPnl,2)
+from #temp
+
+/*
 select [when] as BusDate, s.BbergCode as SecurityCode, Fund, st.SecurityTypeCode as SecurityType, fx_currency as Currency, sum(credit - debit) as DayPnl 
 into #pa_pnl
 from vwJournal 
@@ -28,7 +57,7 @@ inner join SecurityMaster..SecurityType st on st.SecurityTypeId = s.SecurityType
 where [when] = @busDate and AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'fx gain or loss on unsettled balance', 'change in unrealized do to fx translation')
 group by [when], s.BbergCode, Fund, fx_currency, st.SecurityTypeCode
 order by [when], s.BbergCode, Fund, fx_currency
-
+*/
 
 -- Recon
 select 
@@ -42,12 +71,12 @@ ROUND(coalesce(b.DayPnl,0) - coalesce(p.DayPnl,0),2) as Diff_DayPnl,
 b.*, 
 'PA -->' as PortfolioA, 
 p.* 
-from #pa_pnl p
+from #temp p
 full outer join #bookmon_pnl b on b.Busdate = p.BusDate and b.SecurityCode = p.SecurityCode and b.Fund = p.fund 
 -- and b.Currency = p.Currency
 order by Symbol, p.fund
 
-select * from #pa_pnl
+select * from #temp
 order by SecurityCode, fund
 
 select * from #bookmon_pnl
