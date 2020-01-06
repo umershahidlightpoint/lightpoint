@@ -524,36 +524,35 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       }
     },
     {
-      field: 'Quantity',
+      field: 'quantity',
       aggFunc: 'sum',
       width: 100,
       valueFormatter: moneyFormatter,
-      colId: 'Quantity',
+      colId: 'quantity',
       headerName: 'Quantity',
       sortable: true,
       enableRowGroup: true,
       filter: isJournalGrid ? 'agNumberColumnFilter' : true,
       type: 'numericColumn'
     },
-
-    {
-      field: 'TradeCurrency',
-      width: 100,
-      headerName: 'Trade Ccy',
-      sortable: true,
-      enableRowGroup: true,
-      filter: isJournalGrid ? 'agTextColumnFilter' : true,
-      colId: 'TradeCurrency'
-    },
-    {
-      field: 'SettleCurrency',
-      headerName: 'Settle Ccy',
-      sortable: true,
-      enableRowGroup: true,
-      filter: isJournalGrid ? 'agTextColumnFilter' : true,
-      width: 100,
-      colId: 'SettleCurrency'
-    },
+    // {
+    //   field: 'TradeCurrency',
+    //   width: 100,
+    //   headerName: 'Trade Ccy',
+    //   sortable: true,
+    //   enableRowGroup: true,
+    //   filter: isJournalGrid ? 'agTextColumnFilter' : true,
+    //   colId: 'TradeCurrency'
+    // },
+    // {
+    //   field: 'SettleCurrency',
+    //   headerName: 'Settle Ccy',
+    //   sortable: true,
+    //   enableRowGroup: true,
+    //   filter: isJournalGrid ? 'agTextColumnFilter' : true,
+    //   width: 100,
+    //   colId: 'SettleCurrency'
+    // },
     {
       field: 'symbol',
       headerName: 'Symbol',
@@ -568,16 +567,16 @@ export const CommonCols = (isJournalGrid, filters = null) => {
           debounceMs: 1000
         }
       })
-    },
-    {
-      field: 'Side',
-      headerName: 'Side',
-      sortable: true,
-      enableRowGroup: true,
-      filter: isJournalGrid ? 'agTextColumnFilter' : true,
-      width: 100,
-      colId: 'Side'
     }
+    // {
+    //   field: 'Side',
+    //   headerName: 'Side',
+    //   sortable: true,
+    //   enableRowGroup: true,
+    //   filter: isJournalGrid ? 'agTextColumnFilter' : true,
+    //   width: 100,
+    //   colId: 'Side'
+    // }
   ];
 };
 

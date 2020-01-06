@@ -226,7 +226,6 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.DateRangeLabel = '';
 
     this.resetFieldsSum();
-    this.initColDefs();
     this.initGird();
   }
 
