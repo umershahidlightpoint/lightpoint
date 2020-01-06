@@ -139,7 +139,12 @@ export const ApplyRowStyles = params => {
     { backgroundColor: '#C2C2C2', TextColor: '#000000' },
     { backgroundColor: '#D2D2D2', TextColor: '#000000' },
     { backgroundColor: '#E2E2E2', TextColor: '#000000' },
-    { backgroundColor: '#F2F2F2', TextColor: '#000000' }
+    { backgroundColor: '#F2F2F2', TextColor: '#000000' },
+    { backgroundColor: '#F2F2FF', TextColor: '#000000' },
+    { backgroundColor: '#F2FFFF', TextColor: '#000000' },
+    { backgroundColor: '#F2FFFF', TextColor: '#000000' },
+    { backgroundColor: '#F2FFFF', TextColor: '#000000' },
+    { backgroundColor: '#F2FFFF', TextColor: '#000000' }
   ];
   if (params.node.group) {
     return {
