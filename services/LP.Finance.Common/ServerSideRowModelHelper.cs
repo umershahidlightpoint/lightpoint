@@ -179,7 +179,7 @@ namespace LP.Finance.Common
             }
             else
             {
-                return " order by id desc";
+                return " order by [when] desc";
             }
         }
 
