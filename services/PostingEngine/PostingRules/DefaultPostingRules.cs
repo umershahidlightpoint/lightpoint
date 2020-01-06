@@ -383,11 +383,6 @@ namespace PostingEngine.PostingRules
                             // Does the open Lot fully fullfill the quantity ?
                             if (Math.Abs(taxlotStatus.Quantity) >= Math.Abs(workingQuantity))
                             {
-                                if (element.Symbol.Equals("RBD"))
-                                {
-
-                                }
-
                                 var buyTrade = env.FindTrade(lot.Trade.LpOrderId);
 
                                 var taxlot = CommonRules.RelieveTaxLot(env, lot, element, workingQuantity, true);
@@ -441,7 +436,7 @@ namespace PostingEngine.PostingRules
                                 if (fxrate != 1.0)
                                     PostRealizedFxGain(env, buyTrade, changeInRealizedPnlDueToFx, taxlot.TradePrice, taxlot.CostBasis, changeDueToFx);
 
-                                new FxPosting().CreateFxUnsettled(env, buyTrade);
+                                var fxChange = new FxPosting().CreateFxUnsettled(env, buyTrade);
 
                                 List<SqlParameter> sqlParams = new List<SqlParameter>();
                                 sqlParams.Add(new SqlParameter("@busDate", env.ValueDate));
@@ -458,7 +453,11 @@ namespace PostingEngine.PostingRules
                                     changeInUnRealizedFx = Convert.ToDouble(dataTable[1].Rows[0][2]);
 
                                 if (changeInUnRealizedFx != 0.0)
-                                    PostUnrealizedFxGain(env, buyTrade, changeInUnRealizedFx, taxlot.TradePrice, taxlot.CostBasis, changeDueToFx);
+                                {
+                                    var closeOut = changeInUnRealizedFx + fxChange;
+
+                                    PostUnrealizedFxGain(env, buyTrade, closeOut, taxlot.TradePrice, taxlot.CostBasis, changeDueToFx);
+                                }
 
                                 var sumFxMarkToMarket = 0.0;
                                 if (dataTable[2].Rows.Count > 0)
@@ -741,10 +740,6 @@ namespace PostingEngine.PostingRules
 
         private void PostUnrealizedFxGain(PostingEngineEnvironment env, Transaction element, double realizedFxPnl, double start, double end, double fxrate)
         {
-            if ( element.Symbol.Equals("RBD"))
-            {
-
-            }
             var fromTo = new AccountUtils().GetAccounts(env, "Mark to Market longs fx translation gain or loss", "change in unrealized do to fx translation", new string[] { element.SettleCurrency }.ToList());
 
             var debit = new Journal(fromTo.From, "unrealized-cash-fx", env.ValueDate)

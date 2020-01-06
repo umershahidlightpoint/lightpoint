@@ -1,7 +1,7 @@
 ﻿/*
 Examples:
 
-select * from fnPositions('2019-12-20')
+select * from fnPositions('2019-12-18')
 */
 
 CREATE FUNCTION [dbo].[fnPositions]
@@ -17,17 +17,20 @@ RETURNS @returntable TABLE
 	fund varchar(100),
 	currency varchar(5),
 	quantity numeric(22,9),
-	investment_at_cost numeric(22,9)
+	investment_at_cost numeric(22,9),
+	exposure numeric(22,9),
+	price numeric(22,9)
 )
 AS
 BEGIN
 
-WITH taxlotstatus (business_date, open_id, symbol, side, security_id, fund, currency, quantity, investment_at_cost)
+WITH taxlotstatus (business_date, open_id, symbol, side, security_id, fund, currency, quantity, investment_at_cost, price)
 AS
 (
 select @bDate as business_date, open_id, tax_lot_status.symbol, tax_lot_status.side, t.SecurityId, tax_lot_status.Fund, t.SettleCurrency,
 SUM(original_quantity) as quantity, 
-Sum(investment_at_cost * -1) as investment_at_cost
+Sum(investment_at_cost * -1) as investment_at_cost,
+Max(trade_price) as price
 from tax_lot_status 
 inner join TradeMaster..trade t on t.LpOrderId = tax_lot_status.open_id
 where tax_lot_status.trade_date <= @bDate
@@ -45,7 +48,7 @@ group by open_lot_id
 
 
 	INSERT @returntable
-		select tls.business_date, symbol, side, security_id, fund, currency, 
+		select tls.business_date, tls.symbol, side, tls.security_id, fund, currency, 
 		case 
 			When Side = 'BUY' then SUM(coalesce(tls.quantity,0) + coalesce(tl.quantity,0))
 			else SUM(coalesce(tls.quantity,0) + coalesce(tl.quantity,0))
@@ -53,10 +56,13 @@ group by open_lot_id
 		case
 			When SUM(coalesce(tls.quantity,0) + coalesce(tl.quantity,0)) = 0 then 0
 			else SUM(coalesce(tls.investment_at_cost,0) + coalesce(tl.Investment_at_cost,0))
-		end as investment_at_cost
+		end as investment_at_cost,
+		SUM(coalesce(tls.quantity,0) + coalesce(tl.quantity,0)) * Max(mp.price),
+		max(mp.price)
 		from taxlotstatus tls
 		left outer join taxlot tl on tl.open_lot_id = tls.open_id
-		group by tls.business_date, symbol, side, security_id, fund, currency
-		order by symbol
+		inner join market_prices mp on mp.security_id = tls.security_id
+		group by tls.business_date, tls.symbol, side, tls.security_id, fund, currency
+		order by tls.symbol
 	RETURN
 END

@@ -100,7 +100,7 @@ namespace PostingEngine.PostingRules
 
         private static SqlConnection _connection;
 
-        internal void CreateFxUnsettled(PostingEngineEnvironment env, Transaction element)
+        internal double CreateFxUnsettled(PostingEngineEnvironment env, Transaction element)
         {
             var journals = new List<Journal>();
 
@@ -108,6 +108,8 @@ namespace PostingEngine.PostingRules
             //env.CallBack?.Invoke($"Create Fx Unsettled {element.SettleCurrency} -- {element.LpOrderId}");
 
             var unsettledPnls = env.UnsettledPnl.Where(i => i.Source.Equals(element.LpOrderId)).ToList();
+
+            var fxChange = 0.0;
 
             unsettledPnls.ForEach(unsettledPnl => {
                 var prevRate = FxRates.Find(env.PreviousValueDate, unsettledPnl.Currency).Rate;
@@ -138,6 +140,8 @@ namespace PostingEngine.PostingRules
                     CreditDebit = env.DebitOrCredit(fromTo.From, fxCash),
                 };
 
+                fxChange += debit.Value;
+
                 var credit = new Journal(fromTo.To, "unrealized-cash-fx", env.ValueDate)
                 {
                     Source = unsettledPnl.Source,
@@ -160,6 +164,8 @@ namespace PostingEngine.PostingRules
 
             //connection.Close();
             env.Journals.AddRange(journals);
+
+            return fxChange;
         }
 
         internal void CreateFxUnsettledEx(PostingEngineEnvironment env, Transaction element)

@@ -44,6 +44,39 @@ namespace PostingEngine.PostingRules
 
             return tl;
         }
+
+        /// <summary>
+        /// Relieves the passed TaxLostStatus, this should only be used for FORWARDS etc that expire
+        /// </summary>
+        /// <param name="env">Environment</param>
+        /// <param name="lot">The Tax Lot to relieve</param>
+        /// <param name="trade">The current trade</param>
+        /// <param name="quantity">Quantity to relieve</param>
+        /// <param name="fxrate">Appropriate fxrate</param>
+        internal static TaxLot RelieveTaxLot(PostingEngineEnvironment env, Transaction taxLotToRelieve, Transaction trade, double quantity, bool reverse = false)
+        {
+            var prevFxRate = FxRates.Find(taxLotToRelieve.TradeDate, taxLotToRelieve.SettleCurrency).Rate;
+
+            var investmentAtCost = quantity * taxLotToRelieve.SettleNetPrice * prevFxRate;
+            if (reverse)
+                investmentAtCost = investmentAtCost * -1;
+
+            var tl = new TaxLot
+            {
+                TradeDate = trade.TradeDate,
+                InvestmentAtCost = investmentAtCost, // Needs to be the Investment Cost that we are relieving from the Tax
+                BusinessDate = env.ValueDate,
+                OpeningLotId = taxLotToRelieve.LpOrderId,
+                ClosingLotId = trade.LpOrderId,
+                TradePrice = taxLotToRelieve.SettleNetPrice,
+                CostBasis = trade.SettleNetPrice,
+                Quantity = quantity
+            };
+            tl.Save(env.Connection, env.Transaction);
+
+            return tl;
+        }
+
         private static AccountToFrom RealizedPnlPostingAccounts(Transaction element)
         {
             var type = element.GetType();

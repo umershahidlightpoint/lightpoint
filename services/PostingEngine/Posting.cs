@@ -335,7 +335,7 @@ namespace PostingEngine
                     PostingEngineCallBack?.Invoke($"Exception on {valueDate.ToString("MM-dd-yyyy")}, {ex.Message}");
                 }
 
-                PostingEngineCallBack?.Invoke($"Complete ExpencesAndRevenues for {valueDate.ToString("MM-dd-yyyy")}", numberOfDays, rowsCompleted++);
+                PostingEngineCallBack?.Invoke($"Completed ExpencesAndRevenues for {valueDate.ToString("MM-dd-yyyy")}", numberOfDays, rowsCompleted++);
                 valueDate = valueDate.AddDays(1);
             }
         }
@@ -768,11 +768,16 @@ where business_date = @busDate";
                 const bool DEBUG = false;
                 if (DEBUG)
                 { 
-                    var symbols = new List<string> {
-                    "CONN",
+                    var tags = new List<string> {
+                    //"EURUSD", // CROSS
+                    //"GBPUSD", // CROSS
+                    //"GBP/USD 12/18/2019", // FPRWARD
+                    //"HOME", "CHD", "STNG" // Test the latest for position
+                    "FORWARD", "CROSS"
                     };
 
-                    finalTradeList = finalTradeList.Where(t => symbols.Contains(t.Symbol)).ToArray();
+                    //finalTradeList = finalTradeList.Where(t => tags.Contains(t.Symbol)).ToArray();
+                    finalTradeList = finalTradeList.Where(t => tags.Contains(t.SecurityType)).ToArray();
                 }
 
 

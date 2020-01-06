@@ -19,6 +19,8 @@ namespace LP.Finance.Common.Models
         public double TradePrice { get; set; }
         public double CostBasis { get; set; }
 
+        public double RealizedPnl { get; set; }
+
 
         // Get a list of Journal Entries for this trade
         public static KeyValuePair<string, SqlParameter[]> List(string orderId)
@@ -81,7 +83,7 @@ namespace LP.Finance.Common.Models
             // read the table structure from the database
             var localconnection = new SqlConnection(connection.ConnectionString + ";Password=ggtuser");
             localconnection.Open();
-            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 cost_basis, trade_price, open_lot_id, closing_lot_id, quantity, buisness_date, trade_date, investment_at_cost FROM tax_lot", localconnection))
+            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 cost_basis, trade_price, open_lot_id, closing_lot_id, quantity, buisness_date, trade_date, investment_at_cost, realized_pnl FROM tax_lot", localconnection))
             {
                 adapter.Fill(table);
             };
@@ -100,6 +102,7 @@ namespace LP.Finance.Common.Models
             row["business_date"] = this.BusinessDate;
             row["trade_date"] = this.TradeDate;
             row["investment_at_cost"] = this.InvestmentAtCost;
+            row["realized_pnl"] = this.RealizedPnl;
         }
     }
 

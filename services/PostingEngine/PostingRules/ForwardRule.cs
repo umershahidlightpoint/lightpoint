@@ -31,66 +31,91 @@ namespace PostingEngine.PostingRules
         public new void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
             // NO Need for Swaps and Futures / Forwards as we don't own the stock
-        }
 
-        private AccountToFrom RealizedPnlPostingAccounts(Transaction element)
-        {
-            var type = element.GetType();
-            var accountTypes = AccountType.All;
-
-            var listOfFromTags = new List<Tag> {
-                Tag.Find("SecurityType"),
-                Tag.Find("CustodianCode")
-             };
-
-            var listOfToTags = new List<Tag>
+            // On Settlement Date we backout the Tax Lot for FORWARDS
+            if (env.TaxLotStatus.ContainsKey(element.LpOrderId))
             {
-                Tag.Find("SecurityType"),
-                Tag.Find("CustodianCode")
-            };
+                var taxlot = env.TaxLotStatus[element.LpOrderId];
 
-            Account fromAccount = null; // Debiting Account
-            Account toAccount = null; // Crediting Account
+                if ( element.SecurityType.Equals("CROSS"))
+                {
+                    var listOfTradeTags = new List<Tag> {
+                        Tag.Find("SecurityType"),
+                        Tag.Find("CustodianCode"),
+                        Tag.Find("TradeCurrency")
+                    };
 
-            fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CHANGE IN UNREALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfFromTags, element);
-            toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("REALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfToTags, element);
+                    var listOfSettleTags = new List<Tag> {
+                        Tag.Find("SecurityType"),
+                        Tag.Find("CustodianCode"),
+                        Tag.Find("SettleCurrency")
+                    };
 
-            return new AccountToFrom
-            {
-                From = fromAccount,
-                To = toAccount
-            };
-        }
+                    var accountTradeCurrency = new AccountUtils()
+                        .CreateAccount(AccountType.All.Where(i => i.Name.Equals("Settled Cash")).FirstOrDefault(), listOfTradeTags, element);
 
-        // UnrelaizedPnlPostingAccount(Transaction element, "", "")
+                    var accountSettleCurrency = new AccountUtils()
+                        .CreateAccount(AccountType.All.Where(i => i.Name.Equals("Settled Cash")).FirstOrDefault(), listOfSettleTags, element);
 
-        private AccountToFrom UnRealizedPnlPostingAccounts(Transaction element)
-        {
-            var type = element.GetType();
-            var accountTypes = AccountType.All;
+                    new AccountUtils().SaveAccountDetails(env, accountTradeCurrency);
+                    new AccountUtils().SaveAccountDetails(env, accountSettleCurrency);
 
-            var listOfFromTags = new List<Tag> {
-                Tag.Find("SecurityType"),
-                Tag.Find("CustodianCode")
-             };
+                    // Now Generate the Flows
+                    var debit = new Journal(accountTradeCurrency, "settled-cash", env.ValueDate)
+                    {
+                        Source = element.LpOrderId,
+                        Fund = env.GetFund(element),
+                        FxCurrency = element.TradeCurrency,
+                        Symbol = element.Symbol,
+                        SecurityId = element.SecurityId,
+                        Quantity = Convert.ToDouble(element.Quantity),
 
-            var listOfToTags = new List<Tag>
-            {
-                Tag.Find("SecurityType"),
-                Tag.Find("CustodianCode")
-            };
+                        FxRate = 1,
+                        StartPrice = 0,
+                        EndPrice = 0,
 
+                        Value = env.SignedValue(accountTradeCurrency, accountSettleCurrency, true, element.NetMoney),
+                        CreditDebit = env.DebitOrCredit(accountTradeCurrency, element.NetMoney),
+                    };
 
-            var markToMarketAccount = element.IsShort() ? "Mark to Market Shorts" : "Mark to Market Longs";
+                    var credit = new Journal(accountSettleCurrency, "settled-cash", env.ValueDate)
+                    {
+                        Source = element.LpOrderId,
+                        Fund = env.GetFund(element),
+                        FxCurrency = element.SettleCurrency,
+                        Symbol = element.Symbol,
+                        SecurityId = element.SecurityId,
+                        Quantity = Convert.ToDouble(element.Quantity),
 
-            var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals(markToMarketAccount)).FirstOrDefault(), listOfFromTags, element);
-            var toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CHANGE IN UNREALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfToTags, element);
+                        FxRate = 1,
+                        StartPrice = 0,
+                        EndPrice = 0,
 
-            return new AccountToFrom
-            {
-                From = fromAccount,
-                To = toAccount
-            };
+                        Value = env.SignedValue(accountTradeCurrency, accountSettleCurrency, false, element.NetMoney),
+                        CreditDebit = env.DebitOrCredit(accountSettleCurrency, element.NetMoney),
+                    };
+
+                    env.Journals.AddRange(new[] { credit, debit });
+
+                    if (taxlot.Quantity != 0)
+                    {
+                        var buyTrade = env.FindTrade(taxlot.OpenId);
+                        CommonRules.RelieveTaxLot(env, buyTrade, element, taxlot.Quantity * -1, true);
+                        taxlot.Quantity = 0;
+                        taxlot.Status = "Closed";
+                    }
+                }
+                else
+                {
+                    var buyTrade = env.FindTrade(taxlot.OpenId);
+                    if (taxlot.Quantity != 0)
+                    {
+                        CommonRules.RelieveTaxLot(env, buyTrade, element, taxlot.Quantity * -1, true);
+                        taxlot.Quantity = 0;
+                        taxlot.Status = "Closed";
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -145,6 +170,7 @@ namespace PostingEngine.PostingRules
 
                         if ( !env.TaxLotStatus.ContainsKey(lot.Trade.LpOrderId))
                         {
+                            Logger.Warn($"Unable to Find Tax Lot for {lot.Trade.Symbol}::{lot.Trade.Side}::{lot.Trade.Status}");
                             // TODO: For this open lot there should be a corresponding open to 
                             //Logger.Warn($"Unable to Find Tax Lot for {lot.Trade.Symbol}::{lot.Trade.Side}::{lot.Trade.Status}");
                             continue;
@@ -156,6 +182,8 @@ namespace PostingEngine.PostingRules
                             // Does the open Lot fully fullfill the quantity ?
                             if (Math.Abs(taxlotStatus.Quantity) >= Math.Abs(workingQuantity))
                             {
+                                var buyTrade = env.FindTrade(lot.Trade.LpOrderId);
+
                                 var taxlot = CommonRules.RelieveTaxLot(env, lot, element, workingQuantity, true);
 
                                 taxlotStatus.Quantity += workingQuantity;
@@ -167,17 +195,17 @@ namespace PostingEngine.PostingRules
                                 var prevPrice = MarketPrices.Find(env.PreviousValueDate, lot.Trade).Price;
                                 var unrealizedPnl = taxlotStatus.Quantity * (element.SettleNetPrice - prevPrice) * fxrate;
 
-                                PostUnRealizedPnl(
-                                    env, 
-                                    env.FindTrade(lot.Trade.LpOrderId), 
+                                CommonRules.PostUnRealizedPnl(
+                                    env,
+                                    buyTrade, 
                                     unrealizedPnl,
                                     MarketPrices.Find(env.PreviousValueDate, lot.Trade).Price,
                                     element.SettleNetPrice, fxrate);
 
                                 var PnL = Math.Abs(taxlot.Quantity) * (taxlot.CostBasis - taxlot.TradePrice) * fxrate;
-                                PostRealizedPnl(
-                                    env, 
-                                    element, 
+                                CommonRules.PostRealizedPnl(
+                                    env,
+                                    buyTrade, 
                                     PnL,
                                     taxlot.TradePrice,
                                     taxlot.CostBasis, fxrate);
@@ -233,11 +261,11 @@ namespace PostingEngine.PostingRules
                             {
                                 var taxlot = CommonRules.RelieveTaxLot(env, lot, element, taxlotStatus.Quantity);
 
-                                workingQuantity -= Math.Abs(taxlotStatus.Quantity);
+                                workingQuantity += taxlotStatus.Quantity;
 
-                                var PnL = taxlot.Quantity * (taxlot.CostBasis - taxlot.TradePrice) * fxrate;
+                                var PnL = Math.Abs(taxlot.Quantity) * (taxlot.CostBasis - taxlot.TradePrice) * fxrate;
 
-                                PostRealizedPnl(env, element, PnL, taxlot.TradePrice, taxlot.CostBasis,fxrate);
+                                CommonRules.PostRealizedPnl(env, element, PnL, taxlot.TradePrice, taxlot.CostBasis,fxrate);
 
                                 taxlotStatus.Quantity = 0;
                                 taxlotStatus.Status = "Closed";
@@ -253,99 +281,6 @@ namespace PostingEngine.PostingRules
             {
                 // We have a Debit / Credit Dividends
             }
-        }
-
-        private void PostRealizedPnl(PostingEngineEnvironment env, Transaction element, double pnL, double start, double end, double fxrate)
-        {
-            var tradeAllocations = env.Allocations.Where(i => i.ParentOrderId == element.ParentOrderId).ToList();
-            if( tradeAllocations.Count == 0)
-            {
-
-            }
-            var accountToFrom = RealizedPnlPostingAccounts(element);
-
-            new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
-            new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
-
-            var fund = tradeAllocations[0].Fund;
-            if (String.IsNullOrEmpty(fund))
-            {
-
-            }
-
-            var debitJournal = new Journal(element)
-            {
-                Account = accountToFrom.From,
-                When = env.ValueDate,
-                StartPrice = start,
-                EndPrice = end,
-                CreditDebit = env.DebitOrCredit(accountToFrom.From, pnL),
-                Value = pnL,
-                FxRate = fxrate,
-                Event = "realizedpnl",
-                Fund = env.GetFund(element),
-            };
-
-            var creditJournal = new Journal(accountToFrom.To, "realizedpnl", env.ValueDate)
-            {
-                Source = element.LpOrderId,
-                Account = accountToFrom.To,
-                FxCurrency = element.SettleCurrency,
-                StartPrice = start,
-                EndPrice = end,
-                Symbol = element.Symbol,
-                SecurityId = element.SecurityId,
-                Quantity = element.Quantity,
-                FxRate = fxrate,
-                CreditDebit = env.DebitOrCredit(accountToFrom.To, pnL * -1),
-                Value = pnL * -1,
-                Fund = env.GetFund(element),
-            };
-
-            env.Journals.AddRange(new[] { debitJournal, creditJournal });
-        }
-        private void PostUnRealizedPnl(PostingEngineEnvironment env, Transaction element, double unrealizedPnl, double start, double end, double fxrate)
-        {
-            var accountToFrom = UnRealizedPnlPostingAccounts(element);
-
-            new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
-            new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
-
-            var fromJournal = new Journal(element)
-            {
-                When = env.ValueDate,
-                Event = "unrealizedpnl",
-                FxRate = fxrate,
-                Fund = env.GetFund(element),
-                StartPrice = start,
-                EndPrice = end,
-
-                Account = accountToFrom.From,
-                CreditDebit = env.DebitOrCredit(accountToFrom.From, unrealizedPnl),
-                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, unrealizedPnl),
-            };
-
-            var toJournal = new Journal(fromJournal)
-            {
-                /*
-                Source = element.LpOrderId,
-                When = env.ValueDate,
-                FxCurrency = element.TradeCurrency,
-                Symbol = element.Symbol,
-                Quantity = element.Quantity,
-                Event = "unrealizedpnl",
-                FxRate = fxrate,
-                Fund = tradeAllocations[0].Fund,
-                StartPrice = start,
-                EndPrice = end,
-                */
-
-                Account = accountToFrom.To,
-                CreditDebit = env.DebitOrCredit(accountToFrom.To, unrealizedPnl),
-                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, unrealizedPnl),
-            };
-
-            env.Journals.AddRange(new[] { fromJournal, toJournal });
         }
     }
 }

@@ -100,7 +100,7 @@ namespace PostingEngine
 
             // Forward Rule
             {"FORWARD", new ForwardRule() },
-            {"Cross", new ForwardRule() },
+            {"CROSS", new ForwardRule() },
 
             // Default Rule
             {"Physical index future.", new DefaultRule() },
