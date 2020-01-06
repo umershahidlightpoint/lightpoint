@@ -55,3 +55,6 @@ GO
 
 EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'This should be either ''system'' or ''manual''  ( system can not be modified, ''manual'' can be deleted/modified )' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'journal', @level2type=N'COLUMN',@level2name=N'generated_by'
 GO
+
+create index ix_journal_when on journal([when] desc)
+GO
