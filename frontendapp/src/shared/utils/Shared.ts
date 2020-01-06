@@ -605,6 +605,12 @@ export const FormatNumber4 = (numberToFormat: number) => {
   }
 };
 
+export const FormatNumber8 = (numberToFormat: number) => {
+  if (numberToFormat !== null) {
+    return numberToFormat.toFixed(8);
+  }
+};
+
 export function priceFormatter(params) {
   if (params.value === undefined) {
     return;
