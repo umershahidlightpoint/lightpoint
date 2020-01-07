@@ -13,6 +13,7 @@ using LP.Finance.Common.Mappers;
 using LP.Finance.Common.Model;
 using LP.Finance.Common.Models;
 using Newtonsoft.Json;
+using PostingEngine;
 using SqlDAL.Core;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
@@ -61,7 +62,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 new SqlParameter("source", source.ToString())
             };
 
-            var query = $@"SELECT [id]
+            var query = $@"SELECT [journal].[id]
                         ,[account_id] 
                         ,[value]
                         ,[source]
@@ -69,8 +70,21 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         ,[fx_currency]
                         ,[fxrate]
                         ,[fund]
-                        ,[generated_by] 
+                        ,[generated_by]
+						,[quantity]
+						,[last_modified_on]
+						,[symbol]
+						,[event]
+						,[start_price]
+						,[end_price]
+						,[credit_debit]
+						,[security_id]
+						,[comment_id]
+						,[is_account_to],
+						[comment]
                         FROM [journal]
+						LEFT JOIN [journal_comments]
+						ON [journal].[comment_id] = [journal_comments].[id]
                         WHERE [journal].[source] = @source";
 
             List<JournalOutputDto> journal = new List<JournalOutputDto>();
@@ -109,64 +123,95 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.VerifyConnection();
                 sqlHelper.SqlBeginTransaction();
 
+                var fxCurrency = GetBaseCurrency();
                 var commentsId = InsertJournalComment(journal, sqlHelper);
 
+                Account accountFrom = new Account
+                {
+                    Type = new AccountType
+                    {
+                        Category = new AccountCategory
+                        {
+                            Id = journal.AccountFrom.AccountCategoryId
+                        }
+                    }
+                };
+
+                Account accountTo = new Account
+                {
+                    Type = new AccountType
+                    {
+                        Category = new AccountCategory
+                        {
+                            Id = journal.AccountTo.AccountCategoryId
+                        }
+                    }
+                };
+                double accountFromValue;
+                double accountToValue;
+
+                PostingEngineEnvironment engineEnvironment = new PostingEngineEnvironment(null);
+
+                if (journal.AccountTo.EntryType.Equals("debit"))
+                {
+                    accountToValue = engineEnvironment.SignedValue(accountTo, accountFrom, true, journal.Value);
+                    accountFromValue = engineEnvironment.SignedValue(accountTo, accountFrom, false, journal.Value);
+                }
+                else
+                {
+                    accountFromValue = engineEnvironment.SignedValue(accountFrom, accountTo, true, journal.Value);
+                    accountToValue = engineEnvironment.SignedValue(accountFrom, accountTo, false, journal.Value);
+                }
+
                 var source = Guid.NewGuid().ToString().ToLower();
-                var fxCurrency = "USD";
                 var fxRate = "1.000000000";
                 var generatedBy = "user";
-                var quantity = 1;
+                var quantity = 0;
                 var lastModifiedOn = DateTime.Now.ToString("yyyy-MM-dd");
                 var symbol = "";
                 var eventType = "manual";
-                var startPrice = 1;
+                var startPrice = 0;
                 var endPrice = 0;
-                var securityId = 1;
+                var securityId = -1;
 
                 var query = $@"INSERT INTO [journal]
                                     ([account_id], [value], [source], [when], [fx_currency], [fxrate]
                                     ,[fund], [generated_by], [quantity], [last_modified_on]
                                     ,[symbol], [event], [start_price], [end_price], [credit_debit]
-                                    ,[security_id], [comment_id])
+                                    ,[security_id], [comment_id], [is_account_to])
                                     VALUES
                                     (@accountId, @value, @source, @when, @fxCurrency, @fxRate
                                     ,@fund, @generatedBy, @quantity, @lastModifiedOn
                                     ,@symbol, @eventType, @startPrice, @endPrice, @entryType
-                                    ,@securityId, @commentsId)";
+                                    ,@securityId, @commentsId, @isAccountTo)";
 
-                if (journal.AccountFrom != null)
+                List<SqlParameter> accountFromParameters = new List<SqlParameter>
                 {
-                    List<SqlParameter> accountFromParameters = new List<SqlParameter>
-                    {
-                        new SqlParameter("accountId", journal.AccountFrom.AccountId),
-                        new SqlParameter("value",
-                            journal.AccountFrom.EntryType == "Credit" ? (journal.Value * -1) : journal.Value),
-                        new SqlParameter("source", source),
-                        new SqlParameter("when", journal.AsOf),
-                        new SqlParameter("fxCurrency", fxCurrency),
-                        new SqlParameter("fxRate", fxRate),
-                        new SqlParameter("fund", journal.Fund),
-                        new SqlParameter("generatedBy", generatedBy),
-                        new SqlParameter("quantity", quantity),
-                        new SqlParameter("lastModifiedOn", lastModifiedOn),
-                        new SqlParameter("symbol", symbol),
-                        new SqlParameter("eventType", eventType),
-                        new SqlParameter("startPrice", startPrice),
-                        new SqlParameter("endPrice", endPrice),
-                        new SqlParameter("entryType", journal.AccountFrom.EntryType),
-                        new SqlParameter("securityId", securityId),
-                        new SqlParameter("commentsId", commentsId)
-                    };
-
-                    sqlHelper.Insert(query, CommandType.Text, accountFromParameters.ToArray());
-                }
+                    new SqlParameter("accountId", journal.AccountFrom.AccountId),
+                    new SqlParameter("value", accountFromValue),
+                    new SqlParameter("source", source),
+                    new SqlParameter("when", journal.AsOf),
+                    new SqlParameter("fxCurrency", fxCurrency),
+                    new SqlParameter("fxRate", fxRate),
+                    new SqlParameter("fund", journal.Fund),
+                    new SqlParameter("generatedBy", generatedBy),
+                    new SqlParameter("quantity", quantity),
+                    new SqlParameter("lastModifiedOn", lastModifiedOn),
+                    new SqlParameter("symbol", symbol),
+                    new SqlParameter("eventType", eventType),
+                    new SqlParameter("startPrice", startPrice),
+                    new SqlParameter("endPrice", endPrice),
+                    new SqlParameter("entryType", journal.AccountFrom.EntryType),
+                    new SqlParameter("securityId", securityId),
+                    new SqlParameter("commentsId", commentsId),
+                    new SqlParameter("isAccountTo", Convert.ToInt32(0))
+                };
 
 
                 List<SqlParameter> accountToParameters = new List<SqlParameter>
                 {
                     new SqlParameter("accountId", journal.AccountTo.AccountId),
-                    new SqlParameter("value",
-                        journal.AccountTo.EntryType == "Credit" ? (journal.Value * -1) : journal.Value),
+                    new SqlParameter("value", accountToValue),
                     new SqlParameter("source", source),
                     new SqlParameter("when", journal.AsOf),
                     new SqlParameter("fxCurrency", fxCurrency),
@@ -181,9 +226,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("endPrice", endPrice),
                     new SqlParameter("entryType", journal.AccountTo.EntryType),
                     new SqlParameter("securityId", securityId),
-                    new SqlParameter("commentsId", commentsId)
+                    new SqlParameter("commentsId", commentsId),
+                    new SqlParameter("isAccountTo", 1)
                 };
 
+                sqlHelper.Insert(query, CommandType.Text, accountFromParameters.ToArray());
                 sqlHelper.Insert(query, CommandType.Text, accountToParameters.ToArray());
 
                 sqlHelper.SqlCommitTransaction();
@@ -198,6 +245,16 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
 
             return Utils.Wrap(true);
+        }
+
+        private string GetBaseCurrency()
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+
+            var query = $@"SELECT TOP (1) [currency_code]
+                        FROM [settings]";
+
+            return sqlHelper.GetScalarValue(query, CommandType.Text, null).ToString();
         }
 
         private int InsertJournalComment(JournalInputDto journal, SqlHelper sqlHelper)

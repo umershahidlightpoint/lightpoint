@@ -489,14 +489,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   }
 
   getContextMenuItems(params): Array<ContextMenu> {
-    const addDefaultItems = [
-      {
-        name: 'Edit',
-        action: () => {
-          this.openEditModal(params.node.data);
-        }
-      }
-    ];
+    const addDefaultItems = [];
     const addCustomItems = [
       {
         name: 'View Chart',
@@ -507,6 +500,15 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         }
       }
     ];
+
+    if (params.node.data.event === 'manual') {
+      addDefaultItems.push({
+        name: 'Edit',
+        action: () => {
+          this.openEditModal(params.node.data);
+        }
+      });
+    }
     //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(false, addDefaultItems, false, addCustomItems, params);
   }
@@ -716,7 +718,9 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.journalModal.openModal(data);
   }
 
-  closeJournalModal() {}
+  closeJournalModal() {
+    this.refreshGrid();
+  }
 
   closeOrderModal() {}
 

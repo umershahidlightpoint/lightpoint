@@ -1,6 +1,6 @@
 /* Core/Libraries */
 import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
-import { FormGroup, FormBuilder, Validators, NgForm } from '@angular/forms';
+import { NgForm } from '@angular/forms';
 import { ModalDirective } from 'ngx-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import * as moment from 'moment';
@@ -22,13 +22,16 @@ export class JournalModalComponent implements OnInit {
   @Output() modalClose = new EventEmitter<any>();
 
   funds: Fund;
-  allAccounts: Account;
+  allAccounts: Array<Account>;
+  dummyAccount: Account;
   fromAccountCheck: number;
-  fromAccountEntryType: string;
   toAccountCheck: number;
   selectedAsOfDate: { startDate: moment.Moment; endDate: moment.Moment };
   isAsOfDateValid = false;
-  valueTypes = ['Debit', 'Credit'];
+  valueTypes: { name: string; value: string }[] = [
+    { name: 'Debit', value: 'debit' },
+    { name: 'Credit', value: 'credit' }
+  ];
   selectedRow: Journal;
   editJournal: boolean;
   backdrop: any;
@@ -37,7 +40,6 @@ export class JournalModalComponent implements OnInit {
 
   constructor(
     private toastrService: ToastrService,
-    private formBuilder: FormBuilder,
     private journalApiService: JournalApiService,
     private financePocServiceProxy: FinanceServiceProxy,
     private accountApiService: AccountApiService
@@ -52,7 +54,19 @@ export class JournalModalComponent implements OnInit {
   getAccounts() {
     this.accountApiService.getAllAccounts().subscribe(response => {
       if (response.isSuccessful) {
-        this.allAccounts = response.payload;
+        this.allAccounts = response.payload.map(element => ({
+          accountId: element.AccountId,
+          name: element.AccountName,
+          description: element.Description,
+          typeId: element.TypeId,
+          type: element.Type,
+          categoryId: element.CategoryId,
+          category: element.Category,
+          hasJournal: element.HasJournal,
+          canDeleted: element.CanDeleted,
+          canEdited: element.CanEdited
+        }));
+        this.dummyAccount = this.allAccounts.find(item => item.categoryId === 0);
       }
     });
   }
@@ -73,18 +87,27 @@ export class JournalModalComponent implements OnInit {
 
   saveJournal() {
     this.isSaving = true;
-    console.log(this.journalForm, ':: FORM');
     const journalObject = {
       fund: this.journalForm.value.fund,
-      ...(this.journalForm.value.fromAccount !== '' && {
-        accountFrom: {
-          accountId: this.journalForm.value.fromAccount,
-          entryType: this.journalForm.value.fromAccountValueType
-        }
-      }),
+      accountFrom:
+        this.journalForm.value.fromAccount !== ''
+          ? {
+              accountId: this.journalForm.value.fromAccount.accountId,
+              entryType: this.journalForm.value.toAccountValueType === 'debit' ? 'credit' : 'debit',
+              accountCategoryId: this.journalForm.value.fromAccount.categoryId,
+              accountTypeId: this.journalForm.value.fromAccount.typeId
+            }
+          : {
+              accountId: this.dummyAccount.accountId,
+              entryType: this.journalForm.value.toAccountValueType === 'debit' ? 'credit' : 'debit',
+              accountCategoryId: 0,
+              accountTypeId: this.dummyAccount.typeId
+            },
       accountTo: {
-        accountId: this.journalForm.value.toAccount,
-        entryType: this.journalForm.value.toAccountValueType
+        accountId: this.journalForm.value.toAccount.accountId,
+        entryType: this.journalForm.value.toAccountValueType,
+        accountCategoryId: this.journalForm.value.toAccount.categoryId,
+        accountTypeId: this.journalForm.value.toAccount.typeId
       },
       asOf: moment(this.journalForm.value.selectedAsOfDate.startDate).format('YYYY-MM-DD'),
       value: this.journalForm.value.value,
@@ -158,16 +181,19 @@ export class JournalModalComponent implements OnInit {
   }
 
   onAccountSelect() {
-    this.toAccountCheck = this.journalForm.value.toAccount;
-    this.fromAccountCheck = this.journalForm.value.fromAccount;
+    this.toAccountCheck = this.journalForm.value.toAccount.accountId;
+    this.fromAccountCheck = this.journalForm.value.fromAccount.accountId;
   }
 
-  onToEntrySelect(event) {
-    this.fromAccountEntryType = event.target.value;
+  onToEntrySelect(event: Event) {
+    this.journalForm.form.patchValue({
+      fromAccountValueType:
+        (event.target as HTMLSelectElement).value === 'debit' ? 'credit' : 'debit'
+    });
   }
 
   trackByFn(index, item) {
-    return item.AccountId;
+    return item.accountId;
   }
 
   openModal(rowData) {
@@ -175,10 +201,9 @@ export class JournalModalComponent implements OnInit {
       console.log('ROW DATA ::', rowData);
       this.editJournal = true;
       this.selectedRow = rowData;
-      const { source } = rowData;
-      const { modifiable } = rowData;
-      if (modifiable === 'false') {
-        this.toastrService.error('System Generated Journals are not Editable !');
+      const { source, event } = rowData;
+      if (event !== 'manual') {
+        this.toastrService.error('Only User Generated Journals are Editable !');
         this.closeModal();
         return;
       }

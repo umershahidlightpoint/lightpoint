@@ -210,7 +210,7 @@ namespace PostingEngine
         /// <param name="debit">Is this from the perspective of the debit account</param>
         /// <param name="value">The value to be posted</param>
         /// <returns>The correct signed value</returns>
-        internal double SignedValue(Account debitAccount, Account creditAccount, bool debit, double value)
+        public double SignedValue(Account debitAccount, Account creditAccount, bool debit, double value)
         {
             if (debit)
                 return value;
