@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Model;
@@ -35,11 +34,6 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
             throw new NotImplementedException();
         }
 
-        public object GetTrialBalanceReport(DateTime? from, DateTime? to, string fund)
-        {
-            throw new NotImplementedException();
-        }
-
         public object GetCostBasisReport(DateTime? date, string fund, string symbol)
         {
             throw new NotImplementedException();
@@ -55,7 +49,7 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
             throw new NotImplementedException();
         }
 
-        public object GetAccountingTileData(DateTime? from, DateTime? to, string fund)
+        public object GetClosingTaxLots(string orderid)
         {
             throw new NotImplementedException();
         }
@@ -65,7 +59,17 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
             throw new NotImplementedException();
         }
 
-        public object GetClosingTaxLots(string orderid)
+        public object GetReconReport(string source, DateTime? date, string fund)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object GetTrialBalanceReport(DateTime? from, DateTime? to, string fund)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object GetAccountingTileData(DateTime? from, DateTime? to, string fund)
         {
             throw new NotImplementedException();
         }
@@ -75,22 +79,12 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
             throw new NotImplementedException();
         }
 
-        public object GetJournalsMetaData(JournalMetaInputDto obj)
-        {
-            throw new NotImplementedException();
-        }
-
-        public object GetReconReport(string source, DateTime? date, string fund)
-        {
-            throw new NotImplementedException();
-        }
-
-        public object GetSummarizedJournal(List<GridLayoutDto> layout)
-        {
-            throw new NotImplementedException();
-        }
-
         public object GetTotalCount(ServerRowModel obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object GetJournalsMetaData(JournalMetaInputDto obj)
         {
             throw new NotImplementedException();
         }

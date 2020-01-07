@@ -3,7 +3,6 @@ using System.Web.Http;
 using LP.Finance.Common.Dtos;
 using LP.Finance.WebProxy.WebAPI.Services;
 using LP.Finance.Common.Cache;
-using System.Collections.Generic;
 using LP.Finance.Common.Model;
 
 namespace LP.Finance.WebProxy.WebAPI
@@ -36,13 +35,6 @@ namespace LP.Finance.WebProxy.WebAPI
                 });
         }
 
-        [Route("trialBalanceReport")]
-        [HttpGet]
-        public object TrialBalanceReport(DateTime? from = null, DateTime? to = null, string fund = "ALL")
-        {
-            return controller.GetTrialBalanceReport(from, to, fund);
-        }
-
         [Route("costBasisReport")]
         [HttpGet]
         public object GetCostBasisReport(DateTime? date = null, string symbol = "", string fund = "ALL")
@@ -57,16 +49,10 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.GetCostBasisChart(symbol);
         }
 
-        [Route("recon")]
-        [HttpGet]
-        public object GetReconReport(String source = "day", DateTime? date = null, string fund = "ALL")
-        {
-            return controller.GetReconReport(source, date, fund);
-        }
-
         [Route("taxLotReport")]
         [HttpGet]
-        public object GetTaxLotReport(DateTime? from = null, DateTime? to = null, string symbol = "", string fund = "ALL")
+        public object GetTaxLotReport(DateTime? from = null, DateTime? to = null, string symbol = "",
+            string fund = "ALL")
         {
             return controller.GetTaxLotReport(from, to, fund, symbol);
         }
@@ -85,7 +71,19 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.GetTaxLotsReport(from, to, fund);
         }
 
+        [Route("recon")]
+        [HttpGet]
+        public object GetReconReport(String source = "day", DateTime? date = null, string fund = "ALL")
+        {
+            return controller.GetReconReport(source, date, fund);
+        }
 
+        [Route("trialBalanceReport")]
+        [HttpGet]
+        public object TrialBalanceReport(DateTime? from = null, DateTime? to = null, string fund = "ALL")
+        {
+            return controller.GetTrialBalanceReport(from, to, fund);
+        }
 
         [Route("trialBalanceTile")]
         [HttpGet]
@@ -96,7 +94,7 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [Route("{source:guid}")]
         [HttpGet]
-        public object GetAccount(Guid source)
+        public object GetJournal(Guid source)
         {
             return controller.GetJournal(source);
         }
@@ -139,18 +137,18 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.GetTotalCount(obj);
         }
 
-        [Route("doHaveJournals")]
-        [HttpGet]
-        public object DoHaveJounals(DateTime to, DateTime from)
-        {
-            return controller.DoHaveJournals(to, from);
-        }
-
         [Route("metaData")]
         [HttpPost]
         public object GetJournalsMetaData(JournalMetaInputDto obj)
         {
             return controller.GetJournalsMetaData(obj);
+        }
+
+        [Route("doHaveJournals")]
+        [HttpGet]
+        public object DoHaveJournals(DateTime to, DateTime from)
+        {
+            return controller.DoHaveJournals(to, from);
         }
 
         [Route("lastPostedDate")]

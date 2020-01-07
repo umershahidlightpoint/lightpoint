@@ -1,12 +1,16 @@
-<!------ Modal Div Starts------>
+<!-- Modal Div Starts -->
 <div bsModal #modal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true"
   [config]="{backdrop: modal-backdrop}">
-  <!------ Modal Dialog Div Starts------>
-  <div class="modal-dialog modal-dialog-centered" id="modal-lg">
-    <!------ Modal Content Div Starts------>
+
+  <!-- Modal Dialog Div Starts -->
+  <div class="modal-dialog modal-lg modal-dialog-centered" id="modal-lg">
+
+    <!-- Modal Content Div Starts -->
     <div class="modal-content">
-      <!------ Form Div Starts------>
-      <form #form="ngForm" (ngSubmit)="saveJournal()" [formGroup]="journalForm">
+
+      <!-- Form Div Starts -->
+      <form #journalForm="ngForm" (ngSubmit)="saveJournal()">
+
         <!-- Modal Header Starts-->
         <div class="modal-header">
           <h3 *ngIf="!editJournal"> Create Journal </h3>
@@ -27,8 +31,8 @@
               <!-- Fund Drop Down -->
               <div class="col-sm-9">
                 <!-- <select [(ngModel)]="accTypeId"  -->
-                <select class="custom-select" formControlName="fund" [(ngModel)]="accountFund">
-                  <option hidden>Select fund type</option>
+                <select class="custom-select" name="fund" ngModel required>
+                  <option selected disabled value="">Select fund type</option>
                   <option *ngFor="let fund of funds" [ngValue]="fund.FundCode">
                     {{ fund.FundCode }}
                   </option>
@@ -38,29 +42,6 @@
           </div>
           <!-- Fund Div Ends -->
 
-          <!-- From Account Div Starts -->
-          <div class="form-group">
-            <div class="row">
-              <!-- From Account Label -->
-              <div class="col-sm-3">
-                <label> Account From </label>
-              </div>
-              <!-- From Account Drop Down -->
-              <div class="col-sm-9">
-                <select class="custom-select" formControlName="fromAccount" [(ngModel)]="fromAccountId"
-                  (change)=onAccountSelect()>
-                  <option hidden [value]="0">Choose your from account type</option>
-                  <ng-container *ngFor="let account of allAccounts; trackBy: trackByFn">
-                    <option *ngIf="account.AccountId !== toAccountCheck" [ngValue]="account.AccountId">
-                      {{ account.AccountName }}
-                    </option>
-                  </ng-container>
-                </select>
-              </div>
-            </div>
-          </div>
-          <!-- From Account Div Ends -->
-
           <!-- To Account Div Starts -->
           <div class="form-group">
             <!-- To Account Label -->
@@ -69,10 +50,9 @@
                 <label> Account To </label>
               </div>
               <!-- TO Account Drop Down -->
-              <div class="col-sm-9">
-                <select class="custom-select" formControlName="toAccount" (change)=onAccountSelect()
-                  [(ngModel)]="toAccountId">
-                  <option hidden [value]="0">Choose your to account type</option>
+              <div class="col-sm-6">
+                <select class="custom-select" name="toAccount" (change)=onAccountSelect() ngModel required>
+                  <option selected disabled value="">Choose your to account</option>
                   <ng-container *ngFor="let account of allAccounts; trackBy: trackByFn">
                     <option *ngIf="account.AccountId !== fromAccountCheck" [ngValue]="account.AccountId">
                       {{ account.AccountName }}
@@ -80,9 +60,67 @@
                   </ng-container>
                 </select>
               </div>
+              <!-- To Account Value Type Drop Down -->
+              <div class="col-sm-3">
+                <select class="custom-select" name="toAccountValueType" (change)=onToEntrySelect($event) ngModel
+                  required>
+                  <option selected disabled value="">Entry type</option>
+                  <option *ngFor="let valueType of valueTypes">
+                    {{ valueType }}
+                  </option>
+                </select>
+              </div>
             </div>
           </div>
           <!-- To Account Div Ends -->
+
+          <!-- From Account Div Starts -->
+          <div class="form-group">
+            <div class="row">
+              <!-- From Account Label -->
+              <div class="col-sm-3">
+                <label> Account From </label>
+              </div>
+              <!-- From Account Drop Down -->
+              <div class="col-sm-6">
+                <select class="custom-select" name="fromAccount" (change)=onAccountSelect() ngModel>
+                  <option selected disabled value="">Choose your from account</option>
+                  <ng-container *ngFor="let account of allAccounts; trackBy: trackByFn">
+                    <option *ngIf="account.AccountId !== toAccountCheck" [ngValue]="account.AccountId">
+                      {{ account.AccountName }}
+                    </option>
+                  </ng-container>
+                </select>
+              </div>
+              <!-- From Account Value Type Radio Buttons -->
+              <div class="col-sm-3">
+                <select disabled class="custom-select" name="fromAccountValueType" [ngModel]="fromAccountEntryType">
+                  <option selected disabled value="">Entry type</option>
+                  <option *ngFor="let valueType of valueTypes" [ngValue]="valueType">
+                    {{ valueType }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <!-- From Account Div Ends -->
+
+          <!-- As Of Date Div Starts -->
+          <div class="form-group">
+            <!-- As Of Date Label -->
+            <div class="row">
+              <div class="col-sm-3">
+                <label> As Of </label>
+              </div>
+              <!-- As Of DatePicker -->
+              <div class="col-sm-9">
+                <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off"
+                  placeholder="Choose a date" name="selectedAsOfDate" [(ngModel)]="selectedAsOfDate" required
+                  [singleDatePicker]="true" [autoApply]="true" (ngModelChange)="onDatesChanged($event)" />
+              </div>
+            </div>
+          </div>
+          <!-- As Of Date Div Ends -->
 
           <!-- Value Div Starts-->
           <div class="form-group">
@@ -93,32 +131,56 @@
               </div>
               <!-- Value Input -->
               <div class="col-sm-9">
-                <input class="form-control" formControlName="value" type="number" step=".07">
+                <input class="form-control" type="number" step=".05" name="value" ngModel required>
               </div>
             </div>
           </div>
           <!-- Value Div Ends-->
+
+          <!-- Value Type Div Starts -->
+          <div class="form-group">
+            <!-- Value Type Label -->
+            <div class="row">
+              <div class="col-sm-3">
+                <label> Comments </label>
+              </div>
+              <!-- Value Type Drop Down -->
+              <div class="col-sm-9">
+                <textarea class="form-control" rows="3" name="comments" ngModel required></textarea>
+              </div>
+            </div>
+          </div>
+          <!-- Value Type Div Ends -->
 
         </div>
         <!-- Modal Body Ends-->
 
         <!-- Modal Footer Starts -->
         <div class="modal-footer">
-          <button *ngIf="editJournal" type="button" class="btn btn-danger mr-auto" (click)="deleteJournal()"><i
-              class="fa fa-trash"></i> Delete</button>
+          <button *ngIf="editJournal" type="button" class="btn btn-danger mr-auto" [disabled]="isDeleting"
+            (click)="deleteJournal()"><i class="fa fa-trash"></i>
+            Delete
+            <span *ngIf="isDeleting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          </button>
           <button type="button" class="btn btn-secondary" (click)="closeModal()"><i class="fa fa-times"
               aria-hidden="true"></i> Cancel</button>
-          <button type="submit" class="btn btn-pa" [disabled]="!form.valid">
+          <button type="submit" class="btn btn-pa" [ngClass]="{'cursor-not-allowed': !journalForm.valid}"
+            [disabled]="!journalForm.valid || !isAsOfDateValid || isSaving">
             <i class="fa" [ngClass]=" {'fa-edit':editJournal, 'fa-save':!editJournal}"></i>
             {{editJournal ? "Update" : "Save"}}
+            <span *ngIf="isSaving" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
           </button>
         </div>
         <!-- Modal Footer Ends -->
+
       </form>
-      <!------ Form Div Ends------>
+      <!-- Form Div Ends -->
+
     </div>
-    <!------ Modal Content Div Ends------>
+    <!-- Modal Content Div Ends -->
+
   </div>
-  <!------ Modal Dialog Div Ends------>
+  <!-- Modal Dialog Div Ends -->
+
 </div>
-<!------ Modal Div Ends------>
+<!-- Modal Div Ends -->

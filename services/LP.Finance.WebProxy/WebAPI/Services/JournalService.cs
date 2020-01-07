@@ -86,20 +86,19 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlConnection.Close();
             }
 
-            var result = journal.GroupBy(journals => journals.Source)
-                .Select(group => new JournalOutputDto
-                {
-                    Source = group.Key,
-                    When = group.FirstOrDefault()?.When,
-                    FxCurrency = group.FirstOrDefault()?.FxCurrency,
-                    FxRate = group.FirstOrDefault()?.FxRate,
-                    Fund = group.FirstOrDefault()?.Fund,
-                    GeneratedBy = group.FirstOrDefault()?.GeneratedBy,
-                    JournalAccounts = group.SelectMany(journalAccount => journalAccount.JournalAccounts).ToList()
-                })
-                .ToList();
+            var payload = new
+            {
+                journal[0].Source,
+                journal[0].When,
+                journal[0].FxCurrency,
+                journal[0].FxRate,
+                journal[0].Fund,
+                journal[0].GeneratedBy,
+                AccountFrom = journal[0]?.AccountFrom ?? (journal.Count > 1 ? journal[1]?.AccountFrom : null),
+                AccountTo = journal[0]?.AccountTo ?? (journal.Count > 1 ? journal[1]?.AccountTo : null)
+            };
 
-            return Utils.Wrap(true, result, null);
+            return Utils.Wrap(true, payload, HttpStatusCode.OK);
         }
 
         public object AddJournal(JournalInputDto journal)
@@ -110,44 +109,81 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.VerifyConnection();
                 sqlHelper.SqlBeginTransaction();
 
+                var commentsId = InsertJournalComment(journal, sqlHelper);
+
                 var source = Guid.NewGuid().ToString().ToLower();
-                var when = DateTime.Now.ToString("MM-dd-yyyy");
                 var fxCurrency = "USD";
                 var fxRate = "1.000000000";
                 var generatedBy = "user";
+                var quantity = 1;
+                var lastModifiedOn = DateTime.Now.ToString("yyyy-MM-dd");
+                var symbol = "";
+                var eventType = "manual";
+                var startPrice = 1;
+                var endPrice = 0;
+                var securityId = 1;
 
-                List<SqlParameter> accountFromParameters = new List<SqlParameter>
+                var query = $@"INSERT INTO [journal]
+                                    ([account_id], [value], [source], [when], [fx_currency], [fxrate]
+                                    ,[fund], [generated_by], [quantity], [last_modified_on]
+                                    ,[symbol], [event], [start_price], [end_price], [credit_debit]
+                                    ,[security_id], [comment_id])
+                                    VALUES
+                                    (@accountId, @value, @source, @when, @fxCurrency, @fxRate
+                                    ,@fund, @generatedBy, @quantity, @lastModifiedOn
+                                    ,@symbol, @eventType, @startPrice, @endPrice, @entryType
+                                    ,@securityId, @commentsId)";
+
+                if (journal.AccountFrom != null)
                 {
-                    new SqlParameter("accountId", journal.AccountFrom),
-                    new SqlParameter("value", (journal.Value * -1)),
-                    new SqlParameter("source", source),
-                    new SqlParameter("when", when),
-                    new SqlParameter("fxCurrency", fxCurrency),
-                    new SqlParameter("fxRate", fxRate),
-                    new SqlParameter("fund", journal.Fund),
-                    new SqlParameter("generatedBy", generatedBy)
-                };
+                    List<SqlParameter> accountFromParameters = new List<SqlParameter>
+                    {
+                        new SqlParameter("accountId", journal.AccountFrom.AccountId),
+                        new SqlParameter("value",
+                            journal.AccountFrom.EntryType == "Credit" ? (journal.Value * -1) : journal.Value),
+                        new SqlParameter("source", source),
+                        new SqlParameter("when", journal.AsOf),
+                        new SqlParameter("fxCurrency", fxCurrency),
+                        new SqlParameter("fxRate", fxRate),
+                        new SqlParameter("fund", journal.Fund),
+                        new SqlParameter("generatedBy", generatedBy),
+                        new SqlParameter("quantity", quantity),
+                        new SqlParameter("lastModifiedOn", lastModifiedOn),
+                        new SqlParameter("symbol", symbol),
+                        new SqlParameter("eventType", eventType),
+                        new SqlParameter("startPrice", startPrice),
+                        new SqlParameter("endPrice", endPrice),
+                        new SqlParameter("entryType", journal.AccountFrom.EntryType),
+                        new SqlParameter("securityId", securityId),
+                        new SqlParameter("commentsId", commentsId)
+                    };
+
+                    sqlHelper.Insert(query, CommandType.Text, accountFromParameters.ToArray());
+                }
+
 
                 List<SqlParameter> accountToParameters = new List<SqlParameter>
                 {
-                    new SqlParameter("accountId", journal.AccountTo),
-                    new SqlParameter("value", journal.Value),
+                    new SqlParameter("accountId", journal.AccountTo.AccountId),
+                    new SqlParameter("value",
+                        journal.AccountTo.EntryType == "Credit" ? (journal.Value * -1) : journal.Value),
                     new SqlParameter("source", source),
-                    new SqlParameter("when", when),
+                    new SqlParameter("when", journal.AsOf),
                     new SqlParameter("fxCurrency", fxCurrency),
                     new SqlParameter("fxRate", fxRate),
                     new SqlParameter("fund", journal.Fund),
-                    new SqlParameter("generatedBy", generatedBy)
+                    new SqlParameter("generatedBy", generatedBy),
+                    new SqlParameter("quantity", quantity),
+                    new SqlParameter("lastModifiedOn", lastModifiedOn),
+                    new SqlParameter("symbol", symbol),
+                    new SqlParameter("eventType", eventType),
+                    new SqlParameter("startPrice", startPrice),
+                    new SqlParameter("endPrice", endPrice),
+                    new SqlParameter("entryType", journal.AccountTo.EntryType),
+                    new SqlParameter("securityId", securityId),
+                    new SqlParameter("commentsId", commentsId)
                 };
 
-                var query = $@"INSERT INTO [journal]
-                                    ([account_id], [value], [source], [when], [fx_currency]
-                                    ,[fxrate], [fund], [generated_by])
-                                    VALUES
-                                    (@accountId, @value, @source, @when, @fxCurrency
-                                    ,@fxRate, @fund, @generatedBy)";
-
-                sqlHelper.Insert(query, CommandType.Text, accountFromParameters.ToArray());
                 sqlHelper.Insert(query, CommandType.Text, accountToParameters.ToArray());
 
                 sqlHelper.SqlCommitTransaction();
@@ -162,6 +198,27 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
 
             return Utils.Wrap(true);
+        }
+
+        private int InsertJournalComment(JournalInputDto journal, SqlHelper sqlHelper)
+        {
+            List<SqlParameter> journalCommentsParameters = new List<SqlParameter>
+            {
+                new SqlParameter("createdBy", "John Smith"),
+                new SqlParameter("createdDate", DateTime.Now.ToString("MM-dd-yyyy")),
+                new SqlParameter("comment", journal.Comments)
+            };
+
+            var commentsQuery = $@"INSERT INTO [journal_comments]
+                            ([created_by], [created_date], [comment])
+                            VALUES
+                            (@createdBy, @createdDate, @comment)
+                            SELECT SCOPE_IDENTITY() AS 'Identity'";
+
+            sqlHelper.Insert(commentsQuery, CommandType.Text, journalCommentsParameters.ToArray(),
+                out int commentsId);
+
+            return commentsId;
         }
 
         public object UpdateJournal(Guid source, JournalInputDto journal)
@@ -241,6 +298,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             try
             {
                 sqlHelper.VerifyConnection();
+                sqlHelper.SqlBeginTransaction();
+
+                var commentId = GetJournalCommentId(source);
 
                 List<SqlParameter> journalParameters = new List<SqlParameter>
                 {
@@ -250,18 +310,46 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var journalQuery = $@"DELETE FROM [journal]
                                     WHERE [journal].[source] = @source";
 
-                sqlHelper.Delete(journalQuery, CommandType.Text, journalParameters.ToArray());
+                List<SqlParameter> commentParameters = new List<SqlParameter>
+                {
+                    new SqlParameter("commentId", commentId)
+                };
 
+                var commentQuery = $@"DELETE FROM [journal_comments] 
+                                    WHERE [journal_comments].[id] = @commentId";
+
+                sqlHelper.Delete(journalQuery, CommandType.Text, journalParameters.ToArray());
+                sqlHelper.Delete(commentQuery, CommandType.Text, commentParameters.ToArray());
+
+                sqlHelper.SqlCommitTransaction();
                 sqlHelper.CloseConnection();
             }
             catch (Exception ex)
             {
+                sqlHelper.SqlRollbackTransaction();
                 sqlHelper.CloseConnection();
                 Console.WriteLine($"SQL Exception: {ex}");
                 return Utils.Wrap(false);
             }
 
             return Utils.Wrap(true);
+        }
+
+        private int GetJournalCommentId(Guid source)
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+            {
+                new SqlParameter("source", source.ToString())
+            };
+
+            var query = $@"SELECT TOP (1) 
+                        [comment_id]
+                        FROM [journal] 
+                        WHERE [journal].[source] = @source";
+
+            return Convert.ToInt32(sqlHelper.GetScalarValue(query, CommandType.Text, sqlParameters.ToArray()));
         }
 
         private bool IsModifiable(Guid source)
@@ -511,7 +599,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 //    {
                 //        query = query + "where journal.[fund] = @fund";
                 //    }
-                    
+
                 //}
 
                 //if (!string.IsNullOrEmpty(symbol))
@@ -552,9 +640,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
 
                 List<SqlParameter> sqlParams = new List<SqlParameter>
-            {
-                new SqlParameter("symbol", symbol)
-            };
+                {
+                    new SqlParameter("symbol", symbol)
+                };
 
                 var query = $@"SELECT business_date AS Date, 
                         Balance, 
@@ -624,6 +712,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 {
                     return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
+
                 List<SqlParameter> sqlParams = new List<SqlParameter>();
                 var query = $@"select * from tax_lot_status";
 
@@ -677,7 +766,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 query += " order by symbol, trade_date asc";
 
-               var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
                 var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
                 return reportObject;
             }
@@ -725,7 +814,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 bool whereAdded = false;
 
-                var query = $@"select account.name as AccountName, account_category.name as AccountCategory, account_type.name as AccountType,
+                var query =
+                    $@"select account.name as AccountName, account_category.name as AccountCategory, account_type.name as AccountType,
                         summary.Debit, summary.Credit,
                         abs(summary.Debit) - abs(summary.Credit) as Balance,
                         (SUM(summary.Debit) over()) as DebitSum, 
@@ -797,9 +887,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 foreach (DataRow row in dataTable.Rows)
                 {
                     TrialBalanceReportOutPutDto trialBalance = new TrialBalanceReportOutPutDto();
-                    trialBalance.AccountCategory = row["AccountCategory"] != DBNull.Value ? (string)row["AccountCategory"] : "";
-                    trialBalance.AccountType = row["AccountType"] != DBNull.Value ? (string)row["AccountType"] : "";
-                    trialBalance.AccountName = row["AccountName"] != DBNull.Value ? (string)row["AccountName"] : "";
+                    trialBalance.AccountCategory =
+                        row["AccountCategory"] != DBNull.Value ? (string) row["AccountCategory"] : "";
+                    trialBalance.AccountType = row["AccountType"] != DBNull.Value ? (string) row["AccountType"] : "";
+                    trialBalance.AccountName = row["AccountName"] != DBNull.Value ? (string) row["AccountName"] : "";
                     trialBalance.Credit = GetDecimal(row["Credit"]);
                     trialBalance.Debit = GetDecimal(row["Debit"]);
                     trialBalance.Balance = GetDecimal(row["Balance"], false);
@@ -910,8 +1001,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 {
                     TrialBalanceTileOutputDto trialBalance = new TrialBalanceTileOutputDto();
                     AccountListTileOutputDto accountsList = new AccountListTileOutputDto();
-                    trialBalance.FundName = (row["fund"] != DBNull.Value && (string)row["fund"] != "")
-                        ? (string)row["fund"]
+                    trialBalance.FundName = (row["fund"] != DBNull.Value && (string) row["fund"] != "")
+                        ? (string) row["fund"]
                         : "N/A";
                     trialBalance.FundCredit = row["Credit"] == DBNull.Value ? 0 : Convert.ToDecimal(row["Credit"]);
                     ;
@@ -919,7 +1010,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         row["Debit"] == DBNull.Value ? 0 : Math.Abs(Convert.ToDecimal(row["Debit"]));
                     trialBalance.FundBalance = trialBalance.FundCredit.Value - trialBalance.FundDebit.Value;
 
-                    accountsList.AccountName = (string)row["AccountName"];
+                    accountsList.AccountName = (string) row["AccountName"];
                     accountsList.AccountCredit = row["Credit"] == DBNull.Value ? 0 : Convert.ToDecimal(row["Credit"]);
                     accountsList.AccountDebit =
                         row["Debit"] == DBNull.Value ? 0 : Math.Abs(Convert.ToDecimal(row["Debit"]));
@@ -994,7 +1085,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
 
-                var query = $@"select *, (cost_basis - trade_price)*quantity as realized_pnl from tax_lot where open_lot_id='{orderid}'";
+                var query =
+                    $@"select *, (cost_basis - trade_price)*quantity as realized_pnl from tax_lot where open_lot_id='{orderid}'";
 
                 List<SqlParameter> sqlParams = new List<SqlParameter>();
 
@@ -1102,7 +1194,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var sql = ServerSideRowModelHelper.BuildSql(obj, viewName);
                 var dataTable = sqlHelper.GetDataTable(sql.Item1, CommandType.Text, sql.Item3.ToArray());
                 int lastRow = ServerSideRowModelHelper.GetRowCount(obj, dataTable);
-                bool rootNodeGroupOrNoGrouping = ServerSideRowModelHelper.isDoingGroupingByRootNodeOrNoGrouping(obj.rowGroupCols, obj.groupKeys);
+                bool rootNodeGroupOrNoGrouping =
+                    ServerSideRowModelHelper.isDoingGroupingByRootNodeOrNoGrouping(obj.rowGroupCols, obj.groupKeys);
                 var metaData = MetaData.ToMetaData(dataTable);
 
                 metaData.Total = dataTable.Rows.Count > 0 ? dataTable.Rows.Count : 0;
@@ -1148,7 +1241,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 Console.WriteLine(ex);
                 throw ex;
             }
-
         }
 
         public object DoHaveJournals(DateTime previousDay, DateTime currentDay)
@@ -1160,7 +1252,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("previousDay", previousDay),
                 };
 
-                var query = $@"SELECT TOP 1 (CASE WHEN[journal].[when] = @previousDay THEN 1 ELSE 0 END) AS 'hasJournalsForPreviousDay' FROM[journal]";
+                var query =
+                    $@"SELECT TOP 1 (CASE WHEN[journal].[when] = @previousDay THEN 1 ELSE 0 END) AS 'hasJournalsForPreviousDay' FROM[journal]";
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, toParams.ToArray());
                 var res = JsonConvert.SerializeObject(dataTable);
                 var response = JsonConvert.DeserializeObject(res);
@@ -1178,18 +1271,25 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             try
             {
                 SqlHelper sqlHelper = new SqlHelper(connectionString);
-                var filtersQueries = new List<string>();
 
-                var filterConfigQuery = $@"SELECT col_name as ColumnName, source as Source, meta_info as MetaInfo from server_side_filter_config where grid_name = '{obj.GridName}'";
+                var filtersQueries = new List<string>();
+                var filterConfigQuery =
+                    $@"SELECT col_name as ColumnName, 
+                    source as Source, 
+                    meta_info as MetaInfo 
+                    from server_side_filter_config where grid_name = '{obj.GridName}'";
+
                 var filterConfigDataTable = sqlHelper.GetDataTable(filterConfigQuery, CommandType.Text);
                 var serializedConfig = JsonConvert.SerializeObject(filterConfigDataTable);
                 var filters = JsonConvert.DeserializeObject<List<ServerSideFilterConfig>>(serializedConfig);
                 var metaInfo = filters.Select(x => x.MetaInfo).FirstOrDefault();
-                //default value. just to ensure that column meta data is returned even if filters are not present.
+
+                // Default Value, Just to Ensure that Column Meta Data is returned even if Filters are not Present.
                 if (string.IsNullOrEmpty(metaInfo))
                 {
                     metaInfo = "vwFullJournal";
                 }
+
                 var columnsQuery = $@"SELECT TOP 0 * FROM {metaInfo}";
                 var dataTable = sqlHelper.GetDataTable(columnsQuery, CommandType.Text);
                 var meta = MetaData.ToMetaData(dataTable);
@@ -1198,7 +1298,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 {
                     for (var i = 0; i < filters.Count; i++)
                     {
-                        filtersQueries.Insert(i, $@"SELECT DISTINCT t.{filters[i].ColumnName} FROM {filters[i].Source} t");
+                        filtersQueries.Insert(i,
+                            $@"SELECT DISTINCT t.{filters[i].ColumnName} FROM {filters[i].Source} t");
                     }
 
                     meta.Filters = new List<FilterValues>();
@@ -1219,7 +1320,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                             sqlConnection.Close();
                         }
 
-                        meta.Filters.Insert(i, new FilterValues() { ColumnName = filters[i].ColumnName, Values = filterValues });
+                        meta.Filters.Insert(i,
+                            new FilterValues() {ColumnName = filters[i].ColumnName, Values = filterValues});
                     }
 
                     return Utils.Wrap(true, meta, HttpStatusCode.OK);
@@ -1239,9 +1341,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         public object GetLastJournalPostedDate()
         {
             var query = "select top 1 [when] from journal order by [when] desc";
+
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
             var serialized = JsonConvert.SerializeObject(dataTable);
             var resp = JsonConvert.DeserializeObject(serialized);
+
             return Utils.Wrap(true, resp, HttpStatusCode.OK);
         }
     }
