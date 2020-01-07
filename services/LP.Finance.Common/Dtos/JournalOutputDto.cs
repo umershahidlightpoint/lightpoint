@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace LP.Finance.Common.Dtos
+﻿namespace LP.Finance.Common.Dtos
 {
     public class JournalOutputDto
     {
@@ -10,14 +8,14 @@ namespace LP.Finance.Common.Dtos
         public decimal? FxRate { get; set; }
         public string Fund { get; set; }
         public string GeneratedBy { get; set; }
-        public List<JournalAccountOutputDto> JournalAccounts { get; set; }
+        public JournalAccountOutputDto AccountFrom { get; set; }
+        public JournalAccountOutputDto AccountTo { get; set; }
     }
 
     public class JournalAccountOutputDto
     {
         public int? JournalId { get; set; }
-        public int? AccountFromId { get; set; }
-        public int? AccountToId { get; set; }
+        public int? AccountId { get; set; }
         public decimal? Value { get; set; }
     }
 }

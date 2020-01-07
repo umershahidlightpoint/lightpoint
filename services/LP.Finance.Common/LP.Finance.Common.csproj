@@ -51,6 +51,7 @@
     <Compile Include="Dtos\ChartOfAccountMappingDto.cs" />
     <Compile Include="Dtos\FxRateInputDto.cs" />
     <Compile Include="Dtos\GridLayoutDto.cs" />
+    <Compile Include="Dtos\JournalAccountInputDto.cs" />
     <Compile Include="Dtos\JournalGridFilters.cs" />
     <Compile Include="Dtos\JournalGridMain.cs" />
     <Compile Include="Dtos\JournalMetaInputDto.cs" />

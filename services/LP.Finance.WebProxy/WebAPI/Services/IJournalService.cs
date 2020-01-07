@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Model;
 
@@ -14,19 +13,18 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object AddJournal(JournalInputDto journal);
         object UpdateJournal(Guid source, JournalInputDto journal);
         object DeleteJournal(Guid source);
-        object GetTrialBalanceReport(DateTime? from, DateTime? to, string fund);
-        object GetReconReport(String source, DateTime? date, string fund);
         object GetCostBasisReport(DateTime? date, string fund, string symbol);
         object GetCostBasisChart(string symbol);
         object GetTaxLotReport(DateTime? from, DateTime? to, string fund, string symbol);
-        object GetTaxLotsReport(DateTime? from, DateTime? to, string fund);
-        object GetAccountingTileData(DateTime? from, DateTime? to, string fund);
         object GetClosingTaxLots(string orderid);
+        object GetTaxLotsReport(DateTime? from, DateTime? to, string fund);
+        object GetReconReport(String source, DateTime? date, string fund);
+        object GetTrialBalanceReport(DateTime? from, DateTime? to, string fund);
+        object GetAccountingTileData(DateTime? from, DateTime? to, string fund);
         object serverSideJournals(ServerRowModel obj);
         object GetTotalCount(ServerRowModel obj);
-
-        object DoHaveJournals(DateTime to, DateTime from);
         object GetJournalsMetaData(JournalMetaInputDto obj);
+        object DoHaveJournals(DateTime to, DateTime from);
         object GetLastJournalPostedDate();
     }
 }
