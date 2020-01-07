@@ -7,15 +7,19 @@ AS
 /*
 Categories
 */
+insert into account_category (id, name) values (0, 'Dummy')
 insert into account_category (id, name) values (1, 'Asset')
 insert into account_category (id, name) values (2, 'Liability')
 insert into account_category (id, name) values (3, 'Equity')
 insert into account_category (id, name) values (4, 'Revenues')
 insert into account_category (id, name) values (5, 'Expenses')
 
+
 /* 
 Types
 */
+
+insert into account_type (account_category_id, name) values (0, 'Dummy Type')
 insert into account_type (account_category_id, name) values (1, 'ACCCUMULATED DEPRECIATION')
 insert into account_type (account_category_id, name) values (1, 'ACCUMULATED AMORTIZATION')
 insert into account_type (account_category_id, name) values (1, 'CAPITAL RECEIVABLE/ PAYABLE FROM SHAREHOLDERS')
