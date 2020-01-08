@@ -210,16 +210,27 @@ export class JournalModalComponent implements OnInit {
       this.journalApiService.getJournal(source).subscribe(response => {
         if (response.isSuccessful) {
           console.log('RESPONSE :: ', response);
-          const { Fund, AccountFrom, AccountTo, When } = response.payload;
+          const { Fund, AccountFrom, AccountTo, When, Comment } = response.payload;
+          const journalAccountFrom: Account =
+            AccountFrom !== null
+              ? this.allAccounts.find(item => item.accountId === AccountFrom.AccountId)
+              : null;
+          const journalAccountTo: Account =
+            AccountTo !== null
+              ? this.allAccounts.find(item => item.accountId === AccountTo.AccountId)
+              : null;
           this.journalForm.form.patchValue({
             fund: Fund,
-            fromAccount: AccountFrom !== null && AccountFrom.AccountId,
-            toAccount: AccountTo !== null && AccountTo.AccountId,
+            fromAccount: journalAccountFrom,
+            fromAccountValueType: AccountFrom !== null && AccountFrom.CreditDebit,
+            toAccount: journalAccountTo,
+            toAccountValueType: AccountTo !== null && AccountTo.CreditDebit,
             selectedAsOfDate: {
               startDate: moment(When, 'MM/DD/YYYY'),
               endDate: moment(When, 'MM/DD/YYYY')
             },
-            value: AccountFrom !== null ? AccountFrom.Value : AccountTo.Value
+            value: AccountFrom !== null ? AccountFrom.Value : AccountTo.Value,
+            comments: Comment
           });
         } else {
           this.toastrService.error('Something went wrong!');

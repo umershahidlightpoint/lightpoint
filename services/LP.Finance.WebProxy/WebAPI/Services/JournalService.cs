@@ -108,6 +108,15 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 journal[0].FxRate,
                 journal[0].Fund,
                 journal[0].GeneratedBy,
+                journal[0].Quantity,
+                journal[0].LastModifiedOn,
+                journal[0].Symbol,
+                journal[0].Event,
+                journal[0].StartPrice,
+                journal[0].EndPrice,
+                journal[0].SecurityId,
+                journal[0].CommentId,
+                journal[0].Comment,
                 AccountFrom = journal[0]?.AccountFrom ?? (journal.Count > 1 ? journal[1]?.AccountFrom : null),
                 AccountTo = journal[0]?.AccountTo ?? (journal.Count > 1 ? journal[1]?.AccountTo : null)
             };
@@ -123,46 +132,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.VerifyConnection();
                 sqlHelper.SqlBeginTransaction();
 
-                var fxCurrency = GetBaseCurrency();
                 var commentsId = InsertJournalComment(journal, sqlHelper);
+                var fxCurrency = GetBaseCurrency();
 
-                Account accountFrom = new Account
-                {
-                    Type = new AccountType
-                    {
-                        Category = new AccountCategory
-                        {
-                            Id = journal.AccountFrom.AccountCategoryId
-                        }
-                    }
-                };
-
-                Account accountTo = new Account
-                {
-                    Type = new AccountType
-                    {
-                        Category = new AccountCategory
-                        {
-                            Id = journal.AccountTo.AccountCategoryId
-                        }
-                    }
-                };
-                double accountFromValue;
-                double accountToValue;
-
-                PostingEngineEnvironment engineEnvironment = new PostingEngineEnvironment(null);
-
-                if (journal.AccountTo.EntryType.Equals("debit"))
-                {
-                    accountToValue = engineEnvironment.SignedValue(accountTo, accountFrom, true, journal.Value);
-                    accountFromValue = engineEnvironment.SignedValue(accountTo, accountFrom, false, journal.Value);
-                }
-                else
-                {
-                    accountFromValue = engineEnvironment.SignedValue(accountFrom, accountTo, true, journal.Value);
-                    accountToValue = engineEnvironment.SignedValue(accountFrom, accountTo, false, journal.Value);
-                }
-
+                var journalsValue = GetJournalsValue(journal);
+                var accountToValue = journalsValue.Item1;
+                var accountFromValue = journalsValue.Item2;
                 var source = Guid.NewGuid().ToString().ToLower();
                 var fxRate = "1.000000000";
                 var generatedBy = "user";
@@ -245,6 +220,47 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
 
             return Utils.Wrap(true);
+        }
+
+        private Tuple<double, double> GetJournalsValue(JournalInputDto journal)
+        {
+            var accountTo = new Account
+            {
+                Type = new AccountType
+                {
+                    Category = new AccountCategory
+                    {
+                        Id = journal.AccountTo.AccountCategoryId
+                    }
+                }
+            };
+            var accountFrom = new Account
+            {
+                Type = new AccountType
+                {
+                    Category = new AccountCategory
+                    {
+                        Id = journal.AccountFrom.AccountCategoryId
+                    }
+                }
+            };
+            double accountToValue;
+            double accountFromValue;
+
+            var engineEnvironment = new PostingEngineEnvironment(null);
+
+            if (journal.AccountTo.EntryType.Equals("debit"))
+            {
+                accountToValue = engineEnvironment.SignedValue(accountTo, accountFrom, true, journal.Value);
+                accountFromValue = engineEnvironment.SignedValue(accountTo, accountFrom, false, journal.Value);
+            }
+            else
+            {
+                accountFromValue = engineEnvironment.SignedValue(accountFrom, accountTo, true, journal.Value);
+                accountToValue = engineEnvironment.SignedValue(accountFrom, accountTo, false, journal.Value);
+            }
+
+            return new Tuple<double, double>(accountToValue, accountFromValue);
         }
 
         private string GetBaseCurrency()

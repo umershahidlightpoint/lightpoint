@@ -91,20 +91,31 @@ namespace LP.Finance.Common.Mappers
                 FxRate = Convert.ToDecimal(reader["fxrate"]),
                 Fund = reader["fund"].ToString(),
                 GeneratedBy = reader["generated_by"].ToString(),
-                AccountFrom = Convert.ToDecimal(reader["value"]) < 0
+                Quantity = Convert.ToDouble(reader["quantity"]),
+                LastModifiedOn = reader["last_modified_on"].ToString(),
+                Symbol = reader["symbol"].ToString(),
+                Event = reader["event"].ToString(),
+                StartPrice = Convert.ToDouble(reader["start_price"]),
+                EndPrice = Convert.ToDouble(reader["end_price"]),
+                SecurityId = Convert.ToInt32(reader["security_id"]),
+                CommentId = Convert.ToInt32(reader["comment_id"]),
+                Comment = reader["comment"].ToString(),
+                AccountFrom = !Convert.ToBoolean(reader["is_account_to"])
                     ? new JournalAccountOutputDto
                     {
                         JournalId = Convert.ToInt32(reader["id"]),
                         AccountId = Convert.ToInt32(reader["account_id"]),
-                        Value = Convert.ToDecimal(reader["value"])
+                        Value = Convert.ToDecimal(reader["value"]),
+                        CreditDebit = reader["credit_debit"].ToString()
                     }
                     : null,
-                AccountTo = Convert.ToDecimal(reader["value"]) > 0
+                AccountTo = Convert.ToBoolean(reader["is_account_to"])
                     ? new JournalAccountOutputDto
                     {
                         JournalId = Convert.ToInt32(reader["id"]),
                         AccountId = Convert.ToInt32(reader["account_id"]),
-                        Value = Convert.ToDecimal(reader["value"])
+                        Value = Convert.ToDecimal(reader["value"]),
+                        CreditDebit = reader["credit_debit"].ToString()
                     }
                     : null
             };
