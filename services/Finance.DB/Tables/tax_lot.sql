@@ -10,7 +10,8 @@
 	[trade_date] [date] NOT NULL,
 	[investment_at_cost] [numeric](22, 9) NOT NULL,
 	[realized_pnl] [numeric](22, 9) NOT NULL,
- CONSTRAINT [PK_tax_lots] PRIMARY KEY CLUSTERED 
+ [active_flag] BIT NOT NULL DEFAULT 1, 
+    CONSTRAINT [PK_tax_lots] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]

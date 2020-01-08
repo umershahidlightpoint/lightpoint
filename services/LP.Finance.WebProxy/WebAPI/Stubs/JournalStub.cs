@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Model;
@@ -95,6 +96,16 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
         }
 
         public object GetLastJournalPostedDate()
+        {
+            throw new NotImplementedException();
+        }
+
+        public object AlleviateTaxLot()
+        {
+            throw new NotImplementedException();
+        }
+
+        public object ReverseTaxLotAlleviation(TaxLotReversalDto obj)
         {
             throw new NotImplementedException();
         }
