@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Model;
 
@@ -16,7 +17,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object GetCostBasisReport(DateTime? date, string fund, string symbol);
         object GetCostBasisChart(string symbol);
         object GetTaxLotReport(DateTime? from, DateTime? to, string fund, string symbol);
-        object GetClosingTaxLots(string orderid);
+        object GetClosingTaxLots(string orderid = null);
         object GetTaxLotsReport(DateTime? from, DateTime? to, string fund);
         object GetReconReport(String source, DateTime? date, string fund);
         object GetTrialBalanceReport(DateTime? from, DateTime? to, string fund);

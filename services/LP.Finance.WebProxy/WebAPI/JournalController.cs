@@ -4,6 +4,7 @@ using LP.Finance.Common.Dtos;
 using LP.Finance.WebProxy.WebAPI.Services;
 using LP.Finance.Common.Cache;
 using LP.Finance.Common.Model;
+using System.Collections.Generic;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -156,6 +157,13 @@ namespace LP.Finance.WebProxy.WebAPI
         public object GetLastPostedDate()
         {
             return controller.GetLastJournalPostedDate();
+        }
+
+        [Route("allClosingTaxLots")]
+        [HttpGet]
+        public object GetAllClosingTaxLots()
+        {
+            return controller.GetClosingTaxLots();
         }
     }
 }

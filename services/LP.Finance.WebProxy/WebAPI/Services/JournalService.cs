@@ -1184,7 +1184,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return json;
         }
 
-        public object GetClosingTaxLots(string orderid)
+        public object GetClosingTaxLots(string orderid = null)
         {
             try
             {
@@ -1194,18 +1194,26 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
 
-                var query =
-                    $@"select *, (cost_basis - trade_price)*quantity as realized_pnl from tax_lot where open_lot_id='{orderid}'";
-
-                List<SqlParameter> sqlParams = new List<SqlParameter>();
-
-                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
-                var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
-                return reportObject;
+                if (!string.IsNullOrEmpty(orderid))
+                {
+                    var query = $@"select *, (cost_basis - trade_price)*quantity as realized_pnl from tax_lot where open_lot_id='{orderid}'";
+                    List<SqlParameter> sqlParams = new List<SqlParameter>();
+                    var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+                    var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                    return reportObject;
+                }
+                else
+                {
+                    var query = $@"select *, (cost_basis - trade_price)*quantity as realized_pnl from tax_lot";
+                    var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
+                    var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                    return reportObject;
+                }
+                
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+                throw ex;
             }
         }
 
@@ -1456,6 +1464,89 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var resp = JsonConvert.DeserializeObject(serialized);
 
             return Utils.Wrap(true, resp, HttpStatusCode.OK);
+        }
+
+        public object ReverseTaxLotAlleviation(TaxLotReversalDto obj)
+        {
+            try
+            {
+                var openLot = obj.openLots.ElementAtOrDefault(0);
+                string newTaxLotStatus;
+                int newRemainingQuantity;
+                int totalSumOfClosingQuantity = obj.closingLots.Sum(x => Math.Abs(x.Quantity));
+                int remainingAfterReversal = totalSumOfClosingQuantity + Math.Abs(openLot.RemainingQuantity);
+                if (Math.Abs(openLot.OriginalQuantity) == remainingAfterReversal)
+                {
+                    newTaxLotStatus = "Open";
+                }
+                else
+                {
+                    newTaxLotStatus = "Partially Closed";
+                }
+
+                if(openLot.Side == "SHORT")
+                {
+                    newRemainingQuantity = remainingAfterReversal * -1;
+                }
+                else
+                {
+                    newRemainingQuantity = remainingAfterReversal;
+                }
+
+
+                List<SqlParameter> listOfOpenLotParameters = new List<SqlParameter>()
+                { 
+                    new SqlParameter("open_id", openLot.OpenLotId),
+                    new SqlParameter("status", newTaxLotStatus),
+                    new SqlParameter("quantity", newRemainingQuantity)
+                };
+
+                SqlHelper sqlHelper = new SqlHelper(connectionString);
+                sqlHelper.VerifyConnection();
+                sqlHelper.SqlBeginTransaction();
+
+                var openLotQuery = $@"UPDATE [dbo].[tax_lot_status]
+                                                SET [status] = @status,
+                                                [quantity] = @quantity,
+                                                where [open_id] = @open_id";
+
+                sqlHelper.Update(openLotQuery, CommandType.Text, listOfOpenLotParameters.ToArray());
+
+                List<List<SqlParameter>> listOfClosingLotParameters = new List<List<SqlParameter>>();
+                foreach (var item in obj.closingLots)
+                {
+                    List<SqlParameter> closingLotParams = new List<SqlParameter>
+                    {
+                        new SqlParameter("closing_lot_id", item.ClosingLotId)
+                  
+                    };
+
+                    listOfClosingLotParameters.Add(closingLotParams);
+                }
+
+                var taxLotQuery = $@"UPDATE [dbo].[tax_lot]
+                                                SET [active_flag] = 0,
+                                                where [closing_lot_id] = @closing_lot_id";
+
+                foreach(var item in listOfClosingLotParameters)
+                {
+                    sqlHelper.Update(taxLotQuery, CommandType.Text, item.ToArray());
+
+                }
+
+                sqlHelper.SqlCommitTransaction();
+                sqlHelper.CloseConnection();
+                return Utils.Wrap(true, null, HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public object AlleviateTaxLot()
+        {
+            throw new NotImplementedException();
         }
     }
 }

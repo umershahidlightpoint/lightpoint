@@ -92,10 +92,13 @@
     <Compile Include="WebAPI\Services\IAnalysisService.cs" />
     <Compile Include="WebAPI\Services\IFxRateService.cs" />
     <Compile Include="WebAPI\Services\ISettingService.cs" />
+    <Compile Include="WebAPI\Services\ITaxLotMaintainanceService.cs" />
     <Compile Include="WebAPI\Services\SettingService.cs" />
+    <Compile Include="WebAPI\Services\TaxLotMaintainanceService.cs" />
     <Compile Include="WebAPI\Services\TaxRateService.cs" />
     <Compile Include="WebAPI\Services\ITaxRateService.cs" />
     <Compile Include="WebAPI\SettingController.cs" />
+    <Compile Include="WebAPI\TaxLotMaintainanceController.cs" />
     <Compile Include="WebAPI\TaxRateController.cs" />
     <Compile Include="WebAPI\AccountTagController.cs" />
     <Compile Include="WebAPI\AccountTypeController.cs" />

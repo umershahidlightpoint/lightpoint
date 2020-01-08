@@ -14,7 +14,7 @@
 	[event] VARCHAR(100) NULL DEFAULT (''), 
     [start_price] DECIMAL(22, 9) NOT NULL DEFAULT 0.0, 
     [end_price] DECIMAL(22, 9) NOT NULL DEFAULT 0.0, 
-    [credit_debit] NCHAR(10) NOT NULL DEFAULT '', 
+    [credit_debit] VARCHAR(10) NOT NULL DEFAULT '', 
 	[security_id] [int] NULL DEFAULT -1,
 	[comment_id] [int] NULL,
     [is_account_to] BIT NOT NULL DEFAULT 1, 
