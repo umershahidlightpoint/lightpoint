@@ -32,6 +32,7 @@ export class JournalModalComponent implements OnInit {
     { name: 'Debit', value: 'debit' },
     { name: 'Credit', value: 'credit' }
   ];
+  commentId = 0;
   selectedRow: Journal;
   editJournal: boolean;
   backdrop: any;
@@ -111,6 +112,7 @@ export class JournalModalComponent implements OnInit {
       },
       asOf: moment(this.journalForm.value.selectedAsOfDate.startDate).format('YYYY-MM-DD'),
       value: this.journalForm.value.value,
+      commentId: this.commentId,
       comments: this.journalForm.value.comments
     };
     console.log('PAYLOAD ::', journalObject);
@@ -210,7 +212,8 @@ export class JournalModalComponent implements OnInit {
       this.journalApiService.getJournal(source).subscribe(response => {
         if (response.isSuccessful) {
           console.log('RESPONSE :: ', response);
-          const { Fund, AccountFrom, AccountTo, When, Comment } = response.payload;
+          const { Fund, AccountFrom, AccountTo, When, CommentId, Comment } = response.payload;
+          this.commentId = CommentId;
           const journalAccountFrom: Account =
             AccountFrom !== null
               ? this.allAccounts.find(item => item.accountId === AccountFrom.AccountId)
@@ -229,7 +232,7 @@ export class JournalModalComponent implements OnInit {
               startDate: moment(When, 'MM/DD/YYYY'),
               endDate: moment(When, 'MM/DD/YYYY')
             },
-            value: AccountFrom !== null ? AccountFrom.Value : AccountTo.Value,
+            value: Math.abs(AccountTo.Value),
             comments: Comment
           });
         } else {
