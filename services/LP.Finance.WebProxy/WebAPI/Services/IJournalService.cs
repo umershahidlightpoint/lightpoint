@@ -27,7 +27,5 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object GetJournalsMetaData(JournalMetaInputDto obj);
         object DoHaveJournals(DateTime to, DateTime from);
         object GetLastJournalPostedDate();
-        object ReverseTaxLotAlleviation(TaxLotReversalDto obj);
-        object AlleviateTaxLot();
     }
 }

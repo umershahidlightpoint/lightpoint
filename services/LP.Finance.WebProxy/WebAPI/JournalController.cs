@@ -165,19 +165,5 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return controller.GetClosingTaxLots();
         }
-
-        [Route("reverseTaxLotAlleviation")]
-        [HttpPut]
-        public object ReverseTaxLot(TaxLotReversalDto obj)
-        {
-            return controller.ReverseTaxLotAlleviation(obj);
-        }
-
-        [Route("alleviateTaxLot")]
-        [HttpPut]
-        public object AlleviateTaxLot()
-        {
-            return controller.AlleviateTaxLot();
-        }
     }
 }
