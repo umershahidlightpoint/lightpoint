@@ -10,6 +10,7 @@ namespace LP.Finance.Common.Dtos
         [Required] public JournalAccountInputDto AccountTo { get; set; }
         [Required] public double Value { get; set; }
         [Required] public DateTime AsOf { get; set; }
+        public int CommentId { get; set; }
         [Required] public string Comments { get; set; }
     }
 }

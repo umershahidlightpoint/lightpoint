@@ -22,19 +22,19 @@
     </div>
 
     <!-- Symbol filter -->
-    <div>
+    <div class="col-auto">
       <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol" [(ngModel)]="filterBySymbol"
         (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" />
     </div>
 
     <!-- DateRange Label Div Starts -->
-    <div>
+    <div class="col-auto">
       <label class="text-right"> {{ DateRangeLabel }} </label>
     </div>
     <!-- DateRange Label Div Ends -->
 
     <!-- Date Picker Div Starts -->
-    <div class="col-md-5">
+    <div class="col-auto">
       <form>
         <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off" placeholder="Choose date"
           [(ngModel)]="selected" name="selectedDaterange" [ranges]="ranges" [showClearButton]="true"
@@ -44,7 +44,7 @@
     <!-- Date Picker Div Ends -->
 
     <!-- Clear Button Div Starts -->
-    <div class="col-md-3">
+    <div class="col-auto">
       <button (click)="clearFilters()" class="btn btn-pa" tooltip="Clear" placement="top">
         <i class="fa fa-remove"></i>
       </button>
@@ -82,7 +82,7 @@
           [gridOptions]="closingTaxLots">
         </ag-grid-angular>
 
-        <div class="w-100 height-45" style="padding: 0px">
+        <div class="w-100 height-45 p-0">
           <app-journals [subscription]="tradeSelectionChanged" [title]="'Journals'"></app-journals>
         </div>
       </div>

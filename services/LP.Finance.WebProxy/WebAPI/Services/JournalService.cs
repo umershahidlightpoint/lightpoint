@@ -108,6 +108,15 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 journal[0].FxRate,
                 journal[0].Fund,
                 journal[0].GeneratedBy,
+                journal[0].Quantity,
+                journal[0].LastModifiedOn,
+                journal[0].Symbol,
+                journal[0].Event,
+                journal[0].StartPrice,
+                journal[0].EndPrice,
+                journal[0].SecurityId,
+                journal[0].CommentId,
+                journal[0].Comment,
                 AccountFrom = journal[0]?.AccountFrom ?? (journal.Count > 1 ? journal[1]?.AccountFrom : null),
                 AccountTo = journal[0]?.AccountTo ?? (journal.Count > 1 ? journal[1]?.AccountTo : null)
             };
@@ -123,46 +132,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.VerifyConnection();
                 sqlHelper.SqlBeginTransaction();
 
-                var fxCurrency = GetBaseCurrency();
                 var commentsId = InsertJournalComment(journal, sqlHelper);
+                var fxCurrency = GetBaseCurrency();
 
-                Account accountFrom = new Account
-                {
-                    Type = new AccountType
-                    {
-                        Category = new AccountCategory
-                        {
-                            Id = journal.AccountFrom.AccountCategoryId
-                        }
-                    }
-                };
-
-                Account accountTo = new Account
-                {
-                    Type = new AccountType
-                    {
-                        Category = new AccountCategory
-                        {
-                            Id = journal.AccountTo.AccountCategoryId
-                        }
-                    }
-                };
-                double accountFromValue;
-                double accountToValue;
-
-                PostingEngineEnvironment engineEnvironment = new PostingEngineEnvironment(null);
-
-                if (journal.AccountTo.EntryType.Equals("debit"))
-                {
-                    accountToValue = engineEnvironment.SignedValue(accountTo, accountFrom, true, journal.Value);
-                    accountFromValue = engineEnvironment.SignedValue(accountTo, accountFrom, false, journal.Value);
-                }
-                else
-                {
-                    accountFromValue = engineEnvironment.SignedValue(accountFrom, accountTo, true, journal.Value);
-                    accountToValue = engineEnvironment.SignedValue(accountFrom, accountTo, false, journal.Value);
-                }
-
+                var journalsValue = GetJournalsValue(journal);
+                var accountToValue = journalsValue.Item1;
+                var accountFromValue = journalsValue.Item2;
                 var source = Guid.NewGuid().ToString().ToLower();
                 var fxRate = "1.000000000";
                 var generatedBy = "user";
@@ -207,7 +182,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("isAccountTo", Convert.ToInt32(0))
                 };
 
-
                 List<SqlParameter> accountToParameters = new List<SqlParameter>
                 {
                     new SqlParameter("accountId", journal.AccountTo.AccountId),
@@ -245,6 +219,47 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
 
             return Utils.Wrap(true);
+        }
+
+        private Tuple<double, double> GetJournalsValue(JournalInputDto journal)
+        {
+            var accountTo = new Account
+            {
+                Type = new AccountType
+                {
+                    Category = new AccountCategory
+                    {
+                        Id = journal.AccountTo.AccountCategoryId
+                    }
+                }
+            };
+            var accountFrom = new Account
+            {
+                Type = new AccountType
+                {
+                    Category = new AccountCategory
+                    {
+                        Id = journal.AccountFrom.AccountCategoryId
+                    }
+                }
+            };
+            double accountToValue;
+            double accountFromValue;
+
+            var engineEnvironment = new PostingEngineEnvironment(null);
+
+            if (journal.AccountTo.EntryType.Equals("debit"))
+            {
+                accountToValue = engineEnvironment.SignedValue(accountTo, accountFrom, true, journal.Value);
+                accountFromValue = engineEnvironment.SignedValue(accountTo, accountFrom, false, journal.Value);
+            }
+            else
+            {
+                accountFromValue = engineEnvironment.SignedValue(accountFrom, accountTo, true, journal.Value);
+                accountToValue = engineEnvironment.SignedValue(accountFrom, accountTo, false, journal.Value);
+            }
+
+            return new Tuple<double, double>(accountToValue, accountFromValue);
         }
 
         private string GetBaseCurrency()
@@ -292,42 +307,60 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.VerifyConnection();
                 sqlHelper.SqlBeginTransaction();
 
-                var when = DateTime.Now.ToString("MM-dd-yyyy");
+                UpdateJournalComment(journal, sqlHelper);
 
-                List<SqlParameter> accountFromParameters = new List<SqlParameter>
-                {
-                    new SqlParameter("accountId", journal.AccountFrom),
-                    new SqlParameter("value", (journal.Value * -1)),
-                    new SqlParameter("when", when),
-                    new SqlParameter("fund", journal.Fund),
-                    new SqlParameter("source", source.ToString()),
-                };
+                var fxCurrency = GetBaseCurrency();
+                var journalsValue = GetJournalsValue(journal);
+                var accountToValue = journalsValue.Item1;
+                var accountFromValue = journalsValue.Item2;
+                var lastModifiedOn = DateTime.Now.ToString("yyyy-MM-dd");
 
                 List<SqlParameter> accountToParameters = new List<SqlParameter>
                 {
-                    new SqlParameter("accountId", journal.AccountTo),
-                    new SqlParameter("value", journal.Value),
-                    new SqlParameter("when", when),
+                    new SqlParameter("accountId", journal.AccountTo.AccountId),
+                    new SqlParameter("value", accountToValue),
+                    new SqlParameter("when", journal.AsOf),
+                    new SqlParameter("fxCurrency", fxCurrency),
                     new SqlParameter("fund", journal.Fund),
+                    new SqlParameter("lastModifiedOn", lastModifiedOn),
+                    new SqlParameter("entryType", journal.AccountTo.EntryType),
                     new SqlParameter("source", source.ToString()),
                 };
 
-                var accountFromQuery = $@"UPDATE [journal]
-                            SET [account_id] = @accountId
-                            ,[value] = @value
-                            ,[when] = @when
-                            ,[fund] = @fund
-                            WHERE [journal].[source] = @source AND [journal].[value] < 0";
+                List<SqlParameter> accountFromParameters = new List<SqlParameter>
+                {
+                    new SqlParameter("accountId", journal.AccountFrom.AccountId),
+                    new SqlParameter("value", accountFromValue),
+                    new SqlParameter("when", journal.AsOf),
+                    new SqlParameter("fxCurrency", fxCurrency),
+                    new SqlParameter("fund", journal.Fund),
+                    new SqlParameter("lastModifiedOn", lastModifiedOn),
+                    new SqlParameter("entryType", journal.AccountFrom.EntryType),
+                    new SqlParameter("source", source.ToString()),
+                };
 
                 var accountToQuery = $@"UPDATE [journal]
                             SET [account_id] = @accountId
                             ,[value] = @value
                             ,[when] = @when
+                            ,[fx_currency] = @fxCurrency
                             ,[fund] = @fund
-                            WHERE [journal].[source] = @source AND [journal].[value] > 0";
+                            ,[last_modified_on] = @lastModifiedOn
+                            ,[credit_debit] = @entryType
+                            WHERE [journal].[source] = @source AND [journal].[is_account_to] = 1";
 
-                sqlHelper.Update(accountFromQuery, CommandType.Text, accountFromParameters.ToArray());
+                var accountFromQuery = $@"UPDATE [journal]
+                            SET [account_id] = @accountId
+                            ,[value] = @value
+                            ,[when] = @when
+                            ,[fx_currency] = @fxCurrency
+                            ,[fund] = @fund
+                            ,[last_modified_on] = @lastModifiedOn
+                            ,[credit_debit] = @entryType
+                            WHERE [journal].[source] = @source AND [journal].[is_account_to] = 0";
+
                 sqlHelper.Update(accountToQuery, CommandType.Text, accountToParameters.ToArray());
+                sqlHelper.Update(accountFromQuery, CommandType.Text, accountFromParameters.ToArray());
 
                 sqlHelper.SqlCommitTransaction();
                 sqlHelper.CloseConnection();
@@ -341,6 +374,25 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
 
             return Utils.Wrap(true);
+        }
+
+        private void UpdateJournalComment(JournalInputDto journal, SqlHelper sqlHelper)
+        {
+            List<SqlParameter> journalCommentsParameters = new List<SqlParameter>
+            {
+                new SqlParameter("commentId", journal.CommentId),
+                new SqlParameter("lastUpdatedBy", "John Smith"),
+                new SqlParameter("lastUpdatedDate", DateTime.Now.ToString("MM-dd-yyyy")),
+                new SqlParameter("comment", journal.Comments)
+            };
+
+            var commentsQuery = $@"UPDATE [dbo].[journal_comments]
+                                SET [last_updated_by] = @lastUpdatedBy
+                                ,[last_updated_date] = @lastUpdatedDate
+                                ,[comment] = @comment
+                                WHERE [journal_comments].[id] = @commentId";
+
+            sqlHelper.Update(commentsQuery, CommandType.Text, journalCommentsParameters.ToArray());
         }
 
         public object DeleteJournal(Guid source)
