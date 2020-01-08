@@ -4,6 +4,7 @@ import { NgForm } from '@angular/forms';
 import { ModalDirective } from 'ngx-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import * as moment from 'moment';
+import { TypeaheadMatch } from 'ngx-bootstrap/typeahead/typeahead-match.class';
 /* Services/Components */
 import { FinanceServiceProxy } from '../../../../../services/service-proxies';
 import { JournalApiService } from 'src/services/journal-api.service';
@@ -22,7 +23,7 @@ export class JournalModalComponent implements OnInit {
   @Output() modalClose = new EventEmitter<any>();
 
   funds: Fund;
-  allAccounts: Array<Account>;
+  allAccounts: Account[];
   dummyAccount: Account;
   fromAccountCheck: number;
   toAccountCheck: number;
@@ -32,12 +33,24 @@ export class JournalModalComponent implements OnInit {
     { name: 'Debit', value: 'debit' },
     { name: 'Credit', value: 'credit' }
   ];
-  commentId = 0;
   selectedRow: Journal;
   editJournal: boolean;
+  commentId = 0;
   backdrop: any;
   isSaving = false;
   isDeleting = false;
+
+  selectedAccountTo: string;
+  accountTo: Account[] = [];
+  selectedAccountToObj: Account;
+  copyAccountToList: Account[] = [];
+
+  selectedAccountFrom: string;
+  accountFrom: Account[] = [];
+  selectedAccountFromObj: Account;
+  copyAccountFromList: Account[] = [];
+
+  noResult = false;
 
   constructor(
     private toastrService: ToastrService,
@@ -67,6 +80,10 @@ export class JournalModalComponent implements OnInit {
           canDeleted: element.CanDeleted,
           canEdited: element.CanEdited
         }));
+        this.accountTo = this.allAccounts.filter(element => element.categoryId !== 0);
+        this.accountFrom = this.allAccounts.filter(element => element.categoryId !== 0);
+        this.copyAccountFromList = JSON.parse(JSON.stringify(this.accountFrom));
+        this.copyAccountToList = JSON.parse(JSON.stringify(this.accountTo));
         this.dummyAccount = this.allAccounts.find(item => item.categoryId === 0);
       }
     });
@@ -91,12 +108,12 @@ export class JournalModalComponent implements OnInit {
     const journalObject = {
       fund: this.journalForm.value.fund,
       accountFrom:
-        this.journalForm.value.fromAccount !== ''
+        this.selectedAccountFromObj !== undefined
           ? {
-              accountId: this.journalForm.value.fromAccount.accountId,
+              accountId: this.selectedAccountFromObj.accountId,
               entryType: this.journalForm.value.toAccountValueType === 'debit' ? 'credit' : 'debit',
-              accountCategoryId: this.journalForm.value.fromAccount.categoryId,
-              accountTypeId: this.journalForm.value.fromAccount.typeId
+              accountCategoryId: this.selectedAccountFromObj.categoryId,
+              accountTypeId: this.selectedAccountFromObj.typeId
             }
           : {
               accountId: this.dummyAccount.accountId,
@@ -105,17 +122,16 @@ export class JournalModalComponent implements OnInit {
               accountTypeId: this.dummyAccount.typeId
             },
       accountTo: {
-        accountId: this.journalForm.value.toAccount.accountId,
+        accountId: this.selectedAccountToObj.accountId,
         entryType: this.journalForm.value.toAccountValueType,
-        accountCategoryId: this.journalForm.value.toAccount.categoryId,
-        accountTypeId: this.journalForm.value.toAccount.typeId
+        accountCategoryId: this.selectedAccountToObj.categoryId,
+        accountTypeId: this.selectedAccountToObj.typeId
       },
       asOf: moment(this.journalForm.value.selectedAsOfDate.startDate).format('YYYY-MM-DD'),
       value: this.journalForm.value.value,
       commentId: this.commentId,
       comments: this.journalForm.value.comments
     };
-    console.log('PAYLOAD ::', journalObject);
     if (this.editJournal) {
       const { source } = this.selectedRow;
       this.journalApiService.updateJournal(source, journalObject).subscribe(
@@ -182,9 +198,39 @@ export class JournalModalComponent implements OnInit {
     );
   }
 
-  onAccountSelect() {
-    this.toAccountCheck = this.journalForm.value.toAccount.accountId;
-    this.fromAccountCheck = this.journalForm.value.fromAccount.accountId;
+  // onAccountSelect() {
+  //   this.toAccountCheck = this.journalForm.value.toAccount.accountId;
+  //   this.fromAccountCheck = this.journalForm.value.fromAccount.accountId;
+  // }
+
+  typeaheadNoResults(event: boolean): void {
+    this.noResult = event;
+  }
+
+  onSelectAccountTo(event: TypeaheadMatch): void {
+    this.selectedAccountToObj = event.item;
+    this.accountFrom = this.accountFrom.filter(accountName => {
+        return accountName.name !== event.value;
+    });
+  }
+
+  accountToChange(event) {
+    if(event == null || event === '') {
+      this.accountFrom = this.copyAccountFromList;
+    }
+  }
+
+  accountFromChange(event) {
+    if(event == null || event === '') {
+      this.accountTo = this.copyAccountToList;
+    }
+  }
+
+  onSelectAccountFrom(event: TypeaheadMatch): void {
+    this.selectedAccountFromObj = event.item;
+    this.accountTo =  this.accountFrom.filter(accountName => {
+      return accountName.name !== event.value;
+  });
   }
 
   onToEntrySelect(event: Event) {
@@ -200,7 +246,6 @@ export class JournalModalComponent implements OnInit {
 
   openModal(rowData) {
     if (Object.keys(rowData).length > 1) {
-      console.log('ROW DATA ::', rowData);
       this.editJournal = true;
       this.selectedRow = rowData;
       const { source, event } = rowData;
@@ -211,7 +256,6 @@ export class JournalModalComponent implements OnInit {
       }
       this.journalApiService.getJournal(source).subscribe(response => {
         if (response.isSuccessful) {
-          console.log('RESPONSE :: ', response);
           const { Fund, AccountFrom, AccountTo, When, CommentId, Comment } = response.payload;
           this.commentId = CommentId;
           const journalAccountFrom: Account =
@@ -222,6 +266,20 @@ export class JournalModalComponent implements OnInit {
             AccountTo !== null
               ? this.allAccounts.find(item => item.accountId === AccountTo.AccountId)
               : null;
+
+          this.selectedAccountTo = journalAccountTo.name;
+          this.selectedAccountToObj = journalAccountTo;
+          this.selectedAccountFrom = journalAccountFrom.name === "Dummy Type"? '' : journalAccountFrom.name;
+          this.selectedAccountFromObj = journalAccountFrom;
+
+          this.accountTo =  this.accountFrom.filter(accountName => {
+            return accountName.name !== this.selectedAccountFrom;
+          });
+
+          this.accountFrom =  this.accountFrom.filter(accountName => {
+          return accountName.name !== this.selectedAccountTo;
+          });
+
           this.journalForm.form.patchValue({
             fund: Fund,
             fromAccount: journalAccountFrom,
