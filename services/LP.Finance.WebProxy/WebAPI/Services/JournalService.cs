@@ -343,7 +343,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                             SET [account_id] = @accountId
                             ,[value] = @value
                             ,[when] = @when
+                            ,[fx_currency] = @fxCurrency
                             ,[fund] = @fund
+                            ,[last_modified_on] = @lastModifiedOn
+                            ,[credit_debit] = @entryType
                             WHERE [journal].[source] = @source AND [journal].[is_account_to] = 1";
 
                 var accountFromQuery = $@"UPDATE [journal]
