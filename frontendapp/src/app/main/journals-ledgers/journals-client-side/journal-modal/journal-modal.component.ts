@@ -108,7 +108,7 @@ export class JournalModalComponent implements OnInit {
     const journalObject = {
       fund: this.journalForm.value.fund,
       accountFrom:
-        this.selectedAccountFromObj !== undefined
+        this.selectedAccountFromObj !== null
           ? {
               accountId: this.selectedAccountFromObj.accountId,
               entryType: this.journalForm.value.toAccountValueType === 'debit' ? 'credit' : 'debit',
@@ -198,11 +198,6 @@ export class JournalModalComponent implements OnInit {
     );
   }
 
-  // onAccountSelect() {
-  //   this.toAccountCheck = this.journalForm.value.toAccount.accountId;
-  //   this.fromAccountCheck = this.journalForm.value.fromAccount.accountId;
-  // }
-
   typeaheadNoResults(event: boolean): void {
     this.noResult = event;
   }
@@ -215,14 +210,18 @@ export class JournalModalComponent implements OnInit {
   }
 
   accountToChange(event) {
-    if(event == null || event === '') {
+    if (event == null || event === '') {
+      this.selectedAccountTo = '';
       this.accountFrom = this.copyAccountFromList;
+      this.selectedAccountToObj = null;
     }
   }
 
   accountFromChange(event) {
-    if(event == null || event === '') {
+    if (event == null || event === '') {
+      this.selectedAccountFrom = '';
       this.accountTo = this.copyAccountToList;
+      this.selectedAccountFromObj = null;
     }
   }
 
@@ -311,6 +310,11 @@ export class JournalModalComponent implements OnInit {
     this.editJournal = false;
     this.toAccountCheck = null;
     this.fromAccountCheck = null;
+    this.selectedAccountTo =  '';
+    this.selectedAccountToObj = null;
+    this.selectedAccountFrom = '';
+    this.selectedAccountFromObj = null;
+
     this.journalForm.resetForm({
       fund: '',
       fromAccount: '',
