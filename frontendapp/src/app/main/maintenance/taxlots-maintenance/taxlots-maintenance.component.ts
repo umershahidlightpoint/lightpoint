@@ -482,6 +482,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
     this.selected = null;
     this.filterBySymbol = '';
     this.gridOptions.api.setRowData([]);
+    this.closingTaxLots.api.setRowData([]);
   }
 
   ngModelChangeSymbol(e) {

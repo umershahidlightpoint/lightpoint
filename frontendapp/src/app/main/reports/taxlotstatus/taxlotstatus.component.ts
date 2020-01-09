@@ -482,6 +482,8 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     this.selected = null;
     this.filterBySymbol = '';
     this.gridOptions.api.setRowData([]);
+    this.closingTaxLots.api.setRowData([]);
+    this.tradeSelectionSubject.next('');
   }
 
   ngModelChangeSymbol(e) {
