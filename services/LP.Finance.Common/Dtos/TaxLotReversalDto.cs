@@ -8,7 +8,7 @@ namespace LP.Finance.Common.Dtos
 {
     public class TaxLotReversalDto
     {
-        public List<ClosedTaxLot> closingLots { get; set; }
-        public List<OpenTaxLot> openLots { get; set; }
+        public List<ClosedTaxLot> ClosingLots { get; set; }
+        public List<OpenTaxLot> OpenLots { get; set; }
     }
 }

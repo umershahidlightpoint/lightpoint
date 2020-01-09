@@ -33,12 +33,12 @@ export class MaintenanceApiService {
   }
 
   taxLotReversal(obj) {
-    const url = this.baseUrl + 'api/taxLotMaintenance/reverseTaxLotAlleviation';
+    const url = this.baseUrl + '/taxLotMaintenance/reverseTaxLotAlleviation';
     return this.http.put(url,obj).pipe(map((response: any) => response));
   }
 
   getProspectiveTradesToAlleviateTaxLot(symbol: string, side: string) {
-    const url = this.baseUrl + 'api/taxLotMaintenance/taxlotsReport?symbol=' + symbol + '&side=' + side;
+    const url = this.baseUrl + '/taxLotMaintenance/taxlotsReport?symbol=' + symbol + '&side=' + side;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 }

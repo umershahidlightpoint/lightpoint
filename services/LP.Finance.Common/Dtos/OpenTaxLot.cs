@@ -8,6 +8,7 @@ namespace LP.Finance.Common.Dtos
 {
     public class OpenTaxLot
     {
+        public int Id { get; set; }
         public string OpenLotId { get; set; }
         public string Symbol { get; set; }
         public string Status { get; set; }
