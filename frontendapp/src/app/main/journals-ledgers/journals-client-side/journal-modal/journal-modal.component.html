@@ -49,19 +49,6 @@
               <div class="col-sm-3">
                 <label> Account To </label>
               </div>
-              <!-- TO Account Drop Down -->
-              <!-- <div class="col-sm-6">
-                <select class="custom-select" name="toAccount" (change)=onAccountSelect() ngModel required>
-                  <option selected disabled value="">Choose your to account</option>
-                  <ng-container *ngFor="let account of allAccounts; trackBy: trackByFn">
-                    <option
-                      *ngIf="account.accountId !== fromAccountCheck && account.accountId !== dummyAccount.accountId"
-                      [ngValue]="account">
-                      {{ account.name }}
-                    </option>
-                  </ng-container>
-                </select>
-              </div> -->
 
             <!-- TO Account Searchable Dropdown-->
             <div class="col-sm-6">
@@ -106,17 +93,9 @@
               <div class="col-sm-3">
                 <label> Account From </label>
               </div>
+
               <!-- From Account Drop Down -->
               <div class="col-sm-6">
-                <!-- <select class="custom-select" name="fromAccount" (change)=onAccountSelect() ngModel>
-                  <option selected disabled value="">Choose your from account</option>
-                  <ng-container *ngFor="let account of allAccounts; trackBy: trackByFn">
-                    <option *ngIf="account.accountId !== toAccountCheck && account.accountId !== dummyAccount.accountId"
-                      [ngValue]="account">
-                      {{ account.name }}
-                    </option>
-                  </ng-container>
-                </select> -->
                 <input
                 [(ngModel)]="selectedAccountFrom"
                 (ngModelChange)="accountFromChange($event)"
@@ -159,7 +138,7 @@
               <div class="col-sm-9">
                 <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off"
                   placeholder="Choose a date" name="selectedAsOfDate" [(ngModel)]="selectedAsOfDate" required
-                  [singleDatePicker]="true" [autoApply]="true" (ngModelChange)="onDatesChanged($event)" />
+                  [singleDatePicker]="true" [maxDate] ="maxDate" [autoApply]="true" (ngModelChange)="onDatesChanged($event)" />
               </div>
             </div>
           </div>
