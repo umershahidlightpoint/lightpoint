@@ -1,4 +1,7 @@
-﻿CREATE VIEW [dbo].[vwFullJournal]
+﻿/*
+Requires that the CacheResults sp is run first to populate the two tables, current_XXXXX
+*/
+CREATE VIEW [dbo].[vwFullJournal]
 	AS 
 
 select vw.*, 
@@ -6,7 +9,8 @@ select vw.*,
 	t.Action, 
 	t.Status, 
 	t.CustodianCode, 
-	t.SecurityType 
-from vwJournal vw
-left outer join vwCurrentStateTrades t on t.LpOrderId = vw.source
+	t.SecurityType,
+	t.Side
+from current_journal vw
+left outer join current_trade_state t on t.LpOrderId = vw.source
 GO

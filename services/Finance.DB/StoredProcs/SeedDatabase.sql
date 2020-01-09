@@ -7,19 +7,15 @@ AS
 /*
 Categories
 */
-insert into account_category (id, name) values (0, 'Dummy')
 insert into account_category (id, name) values (1, 'Asset')
 insert into account_category (id, name) values (2, 'Liability')
 insert into account_category (id, name) values (3, 'Equity')
 insert into account_category (id, name) values (4, 'Revenues')
 insert into account_category (id, name) values (5, 'Expenses')
 
-
 /* 
 Types
 */
-
-insert into account_type (account_category_id, name) values (0, 'Dummy Type')
 insert into account_type (account_category_id, name) values (1, 'ACCCUMULATED DEPRECIATION')
 insert into account_type (account_category_id, name) values (1, 'ACCUMULATED AMORTIZATION')
 insert into account_type (account_category_id, name) values (1, 'CAPITAL RECEIVABLE/ PAYABLE FROM SHAREHOLDERS')
@@ -55,6 +51,11 @@ insert into account_type (account_category_id, name) values (2, 'Interest Expens
 insert into account_type (account_category_id, name) values (2, 'Interest Expense of PB Balances  Payable')
 insert into account_type (account_category_id, name) values (2, 'INTEREST PAYABLE ( Fixed Income Coupons )')
 insert into account_type (account_category_id, name) values (2, 'Mark to Market Shorts')
+
+-- Added 
+insert into account_type (account_category_id, name) values (2, 'Mark to Market shorts fx translation gain or loss')
+insert into account_type (account_category_id, name) values (2, 'FX MARK TO MARKET ON STOCK COST (SHORTS)')
+
 insert into account_type (account_category_id, name) values (2, 'SHORT POSITIONS AT COST')
 insert into account_type (account_category_id, name) values (2, 'Derivative contracts, at fair value')
 
