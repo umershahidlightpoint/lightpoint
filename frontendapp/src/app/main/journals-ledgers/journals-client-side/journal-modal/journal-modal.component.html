@@ -62,11 +62,12 @@
                   </ng-container>
                 </select> -->
 
-                <input class="form-control" placeholder="Choose your to account" [(ngModel)]="selectedAccountTo" (ngModelChange)="accountToChange($event)" required 
-                name="AccountTo" typeaheadOptionField="name" [isAnimated]="true" [typeahead]="accountTo" typeaheadWaitMs="500" 
-                (typeaheadNoResults)="typeaheadNoResults($event)" [typeaheadScrollable]="true" 
-                [typeaheadOptionsInScrollableView]="15" [typeaheadMinLength]="0" [typeaheadIsFirstItemActive]="true" 
-                (typeaheadOnSelect)="onSelectAccountTo($event)" autocomplete="off" />
+                <input class="form-control" placeholder="Choose your to account" [(ngModel)]="selectedAccountTo"
+                  (ngModelChange)="accountToChange($event)" required name="AccountTo" typeaheadOptionField="name"
+                  [isAnimated]="true" [typeahead]="accountTo" typeaheadWaitMs="500"
+                  (typeaheadNoResults)="typeaheadNoResults($event)" [typeaheadScrollable]="true"
+                  [typeaheadOptionsInScrollableView]="15" [typeaheadMinLength]="0" [typeaheadIsFirstItemActive]="true"
+                  (typeaheadOnSelect)="onSelectAccountTo($event)" autocomplete="off" />
               </div>
 
               <!-- To Account Value Type Drop Down -->
@@ -90,6 +91,7 @@
               <div class="col-sm-3">
                 <label> Account From </label>
               </div>
+
               <!-- From Account Drop Down -->
               <div class="col-sm-6">
                 <!-- <select class="custom-select" name="fromAccount" (change)=onAccountSelect() ngModel>
@@ -102,11 +104,12 @@
                   </ng-container>
                 </select> -->
 
-                <input [disabled]="contraEntryMode" class="form-control" placeholder="Choose your from account" [(ngModel)]="selectedAccountFrom" (ngModelChange)="accountFromChange($event)" 
-                name="AccountFrom" typeaheadOptionField="name" [isAnimated]="true" [typeahead]="accountFrom" typeaheadWaitMs="500" 
-                (typeaheadNoResults)="typeaheadNoResults($event)" [typeaheadScrollable]="true" 
-                [typeaheadOptionsInScrollableView]="15" [typeaheadMinLength]="0" [typeaheadIsFirstItemActive]="true" 
-                (typeaheadOnSelect)="onSelectAccountFrom($event)" autocomplete="off" />
+                <input [disabled]="contraEntryMode" class="form-control" placeholder="Choose your from account"
+                  [(ngModel)]="selectedAccountFrom" (ngModelChange)="accountFromChange($event)" name="AccountFrom"
+                  typeaheadOptionField="name" [isAnimated]="true" [typeahead]="accountFrom" typeaheadWaitMs="500"
+                  (typeaheadNoResults)="typeaheadNoResults($event)" [typeaheadScrollable]="true"
+                  [typeaheadOptionsInScrollableView]="15" [typeaheadMinLength]="0" [typeaheadIsFirstItemActive]="true"
+                  (typeaheadOnSelect)="onSelectAccountFrom($event)" autocomplete="off" />
               </div>
 
               <!-- From Account Value Type Radio Buttons -->
@@ -133,7 +136,8 @@
               <div class="col-sm-9">
                 <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off"
                   placeholder="Choose a date" name="selectedAsOfDate" [(ngModel)]="selectedAsOfDate" required
-                  [singleDatePicker]="true" [autoApply]="true" (ngModelChange)="onDatesChanged($event)" />
+                  [singleDatePicker]="true" [maxDate]="maxDate" [autoApply]="true"
+                  (ngModelChange)="onDatesChanged($event)" />
               </div>
             </div>
           </div>

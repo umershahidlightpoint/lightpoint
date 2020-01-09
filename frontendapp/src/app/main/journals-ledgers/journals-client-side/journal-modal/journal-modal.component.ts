@@ -28,6 +28,8 @@ export class JournalModalComponent implements OnInit {
   fromAccountCheck: number;
   toAccountCheck: number;
   selectedAsOfDate: { startDate: moment.Moment; endDate: moment.Moment };
+  maxDate: any;
+
   isAsOfDateValid = false;
   valueTypes: { name: string; value: string }[] = [
     { name: 'Debit', value: 'debit' },
@@ -58,7 +60,9 @@ export class JournalModalComponent implements OnInit {
     private journalApiService: JournalApiService,
     private financePocServiceProxy: FinanceServiceProxy,
     private accountApiService: AccountApiService
-  ) {}
+  ) {
+    this.maxDate = moment();
+  }
 
   ngOnInit() {
     this.getAccounts();
