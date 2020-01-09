@@ -240,6 +240,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       rowData: [],
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      onRowDoubleClicked: this.onClosingTaxLotsRowDoubleClicked.bind(this),
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
@@ -397,7 +398,17 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   onRowDoubleClicked(params) {
     const { open_id } = params.data;
 
-    this.financeService.getTrade(open_id).subscribe(
+    this.getTrade(open_id);
+  }
+
+  onClosingTaxLotsRowDoubleClicked(params) {
+    const { closing_lot_id } = params.data;
+
+    this.getTrade(closing_lot_id);
+  }
+
+  getTrade(tradeId) {
+    this.financeService.getTrade(tradeId).subscribe(
       response => {
         this.dataModal.openModal(response[0], null, true);
       },

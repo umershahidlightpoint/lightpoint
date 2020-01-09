@@ -12,5 +12,6 @@ namespace LP.Finance.Common.Dtos
         [Required] public DateTime AsOf { get; set; }
         public int CommentId { get; set; }
         [Required] public string Comments { get; set; }
+        public bool ContraEntryMode { get; set; } = false;
     }
 }
