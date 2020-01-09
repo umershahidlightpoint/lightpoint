@@ -7,9 +7,11 @@ import { map } from 'rxjs/operators';
 })
 export class MaintenanceApiService {
   private baseUrl: string;
+  private refDataUrl: string;
 
   constructor(private http: HttpClient) {
     this.baseUrl = window['config'].remoteServerUrl;
+    this.refDataUrl = window['config'].referenceDataUrl;
   }
 
   // /*
@@ -38,7 +40,7 @@ export class MaintenanceApiService {
   }
 
   getProspectiveTradesToAlleviateTaxLot(symbol: string, side: string) {
-    const url = this.baseUrl + '/taxLotMaintenance/taxlotsReport?symbol=' + symbol + '&side=' + side;
+    const url = this.refDataUrl + '/trades/prospectiveTradesToAlleviateTaxLot?symbol=' + symbol + '&side=' + side;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 }

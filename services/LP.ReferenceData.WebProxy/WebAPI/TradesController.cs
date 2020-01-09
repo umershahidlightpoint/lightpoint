@@ -6,6 +6,9 @@ using System.Configuration;
 using System.Data;
 using LP.Finance.Common;
 using LP.Core;
+using SqlDAL.Core;
+using System.Collections.Generic;
+using System.Net;
 
 namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 {
@@ -28,6 +31,8 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
         object Allocations(string orderId);
 
         object Journals(string orderId);
+
+        object ProspectiveTradesForTaxLotAlleviation(string symbol, string side);
     }
 
     public class TradesControllerStub : ITradesController
@@ -47,6 +52,10 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             return Utils.GetFile("trades_journals_" + orderId);
         }
 
+        public object ProspectiveTradesForTaxLotAlleviation(string symbol, string side)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class TradesControllerService : ITradesController
@@ -256,6 +265,40 @@ order by TradeDate desc
             return Utils.GridWrap(json, metaData);
         }
 
+        public object ProspectiveTradesForTaxLotAlleviation(string symbol, string side)
+        {
+            string correspondingSide = "";
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+            switch (side)
+            {
+                case "BUY":
+                    correspondingSide = "SELL";
+                    break;
+                case "SHORT":
+                    correspondingSide = "COVER";
+                    break;
+                default:
+                    break;
+            }
+
+            List<SqlParameter> sqlParams = new List<SqlParameter>()
+            {
+                new SqlParameter("side", correspondingSide),
+                new SqlParameter("symbol", symbol)
+            };
+
+            var query = $@"select 
+            * from Trade nolock
+                where side= @side
+                and symbol = @symbol
+                order by UpdatedOn desc";
+
+            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+            var serialized = JsonConvert.SerializeObject(dataTable);
+            var resp = JsonConvert.DeserializeObject(serialized);
+            return Utils.Wrap(true, resp, HttpStatusCode.OK);
+
+        }
     }
 
 
@@ -290,6 +333,13 @@ order by TradeDate desc
         public object Journals(string orderId)
         {
             return controller.Journals(orderId);
+        }
+
+        [HttpGet]
+        [Route("prospectiveTradesToAlleviateTaxLot")]
+        public object ProspectiveTradesForTaxLotAlleviation(string symbol, string side)
+        {
+            return controller.ProspectiveTradesForTaxLotAlleviation(symbol, side);
         }
 
     }

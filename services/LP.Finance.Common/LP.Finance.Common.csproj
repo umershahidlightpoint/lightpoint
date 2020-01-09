@@ -48,6 +48,7 @@
     <Compile Include="Calculators\DailyPnlCalculator.cs" />
     <Compile Include="CustomValidators\MinimumElementsAttribute.cs" />
     <Compile Include="DateFunctions.cs" />
+    <Compile Include="Dtos\AlleviateTaxLotDto.cs" />
     <Compile Include="Dtos\ChartOfAccountMappingDto.cs" />
     <Compile Include="Dtos\FxRateInputDto.cs" />
     <Compile Include="Dtos\GridLayoutDto.cs" />
