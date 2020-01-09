@@ -26,12 +26,12 @@ export class LeftMenuComponent implements OnInit {
       icon: 'fa-calculator'
     },
     // { name: 'Analysis', routerLink: '/analysis', icon: 'fa-line-chart' },
-    { name: 'Research', routerLink: '/journals-ledgers', icon: 'fa-book' },
-    { name: 'Maintenance', routerLink: '/maintenance', icon: 'fa-wrench' }
+    { name: 'Research', routerLink: '/journals-ledgers', icon: 'fa-book' }
     // { name: 'Trial Balance', routerLink: 'trial-balance', icon: 'fa-balance-scale' }
   ];
 
   public adminPages: Page[] = [
+    { name: 'Maintenance', routerLink: '/maintenance', icon: 'fa-wrench' },
     { name: 'Accruals OMS', routerLink: '/accruals', icon: 'fa-files-o' },
     {
       name: 'Trades OMS',
