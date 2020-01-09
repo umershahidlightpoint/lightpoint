@@ -15,6 +15,7 @@ import { SummaryComponent } from './main/summary/summary.component';
 import { JournalsLayoutComponent } from './main/journals-ledgers/journals-layout.component';
 import { NotfoundComponent } from './main/not-found/notfound/notfound.component';
 import { PerformanceCanDeactivateGuard } from '../../src/services/guards/performance-can-deactivate-guard.service';
+import { MaintenanceComponent } from './main/maintenance/maintenance.component';
 
 
 const routes: Routes = [
@@ -26,6 +27,8 @@ const routes: Routes = [
   { path: 'trade-allocation', component: TradeAllocationComponent },
   { path: 'journal-allocation', component: JournalAllocationComponent },
   { path: 'settings', component: SettingsComponent },
+  { path: 'maintenance', component: MaintenanceComponent },
+
   {
     path: 'fund-theoretical',
     component: FundTheoreticalComponent,

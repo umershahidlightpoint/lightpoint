@@ -26,7 +26,8 @@ export class LeftMenuComponent implements OnInit {
       icon: 'fa-calculator'
     },
     // { name: 'Analysis', routerLink: '/analysis', icon: 'fa-line-chart' },
-    { name: 'Research', routerLink: '/journals-ledgers', icon: 'fa-book' }
+    { name: 'Research', routerLink: '/journals-ledgers', icon: 'fa-book' },
+    { name: 'Maintenance', routerLink: '/maintenance', icon: 'fa-wrench' }
     // { name: 'Trial Balance', routerLink: 'trial-balance', icon: 'fa-balance-scale' }
   ];
 

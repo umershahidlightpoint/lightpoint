@@ -67,6 +67,10 @@ import { JournalsLayoutComponent } from './main/journals-ledgers/journals-layout
 import { JournalsLedgersComponent } from './main/journals-ledgers/journals-client-side/journals-ledgers.component';
 import { JournalsServerSideComponent } from './main/journals-ledgers/journals-server-side/journals-server-side.component';
 
+// Maintenance
+import { MaintenanceComponent } from './main/maintenance/maintenance.component';
+import { TaxlotsMaintenanceComponent } from './main/maintenance/taxlots-maintenance/taxlots-maintenance.component';
+
 // Trail Balence
 import { TrialBalanceComponent } from './main/reports/trial-balance/trial-balance.component';
 import { TrialGridExampleComponent } from './main/trial-balance/trial-balance.component';
@@ -159,6 +163,9 @@ import { NotfoundComponent } from './main/not-found/notfound/notfound.component'
     AccountMappingComponent,
     ChartOfAccountComponent,
     ChartOfAccountDetailComponent,
+    // Maintenance
+    MaintenanceComponent,
+    TaxlotsMaintenanceComponent,
     // Trial Balence
     TrialBalanceComponent,
     TrialGridExampleComponent,
