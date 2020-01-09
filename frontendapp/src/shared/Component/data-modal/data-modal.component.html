@@ -15,21 +15,29 @@
       </div>
       <!-- Modal Header Ends-->
 
-      <!-- Include the Title row -->
-      <table class="table table-sm table-header table-striped table-secondary table-bordered">
-        <thead>
-          <tr>
-            <th scope="col" class="first-cell">Field</th>
-            <th scope="col" class="other-cells center-position">Value</th>
-          </tr>
-        </thead>
-      </table>
-
       <!-- Modal Body Starts-->
       <div class="modal-body">
 
-        <!-- Table for Data Starts -->
-        <table class="table table-sm table-striped table-bordered">
+        <!-- No Rows Container -->
+        <div *ngIf="tableData.length === 0 && customTableData.length === 0" class="no-data-wrapper">
+          <h4>No Data Available</h4>
+        </div>
+        <!-- No Rows Container Ends -->
+
+        <!-- Table for Data -->
+        <table *ngIf="tableData.length !== 0 || customTableData.length !== 0"
+          class="table table-sm table-striped table-bordered">
+
+          <!-- Title Row -->
+          <thead class="table-header table-secondary">
+            <tr>
+              <th scope="col" class="first-cell">Field</th>
+              <th scope="col" class="other-cells center-position">Value</th>
+            </tr>
+          </thead>
+          <!-- Title Row Ends -->
+
+          <!-- Table Body Starts -->
           <tbody>
 
             <ng-container *ngIf="!isCustomData">
@@ -51,6 +59,8 @@
             </ng-container>
 
           </tbody>
+          <!-- Table Body Ends -->
+
         </table>
         <!-- Table for Data Ends -->
 
