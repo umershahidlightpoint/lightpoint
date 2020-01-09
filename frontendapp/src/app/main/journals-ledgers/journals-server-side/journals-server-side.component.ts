@@ -490,6 +490,15 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
   getContextMenuItems(params): Array<ContextMenu> {
     const addDefaultItems = [];
+
+    if (params.node.data.event === 'manual') {
+      addDefaultItems.push({
+        name: 'Edit',
+        action: () => {
+          this.openEditModal(params.node.data);
+        }
+      });
+    }
     const addCustomItems = [
       {
         name: 'View Chart',
@@ -500,15 +509,15 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         }
       }
     ];
-
-    if (params.node.data.event === 'manual') {
-      addDefaultItems.push({
-        name: 'Edit',
+    if (params.node.field === 'AccountType') {
+      addCustomItems.push({
+        name: 'Contra Entry',
         action: () => {
-          this.openEditModal(params.node.data);
+          this.openEditModal(params.node.data, true);
         }
       });
     }
+
     //  (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(false, addDefaultItems, false, addCustomItems, params);
   }
@@ -714,24 +723,25 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.journalModal.openModal({});
   }
 
-  openEditModal(data) {
-    this.journalModal.openModal(data);
+  openEditModal(data, contraEntryMode = false) {
+    this.journalModal.openModal(data, contraEntryMode);
   }
 
   closeJournalModal() {
     this.refreshGrid();
   }
 
-  closeOrderModal() {}
-
   openDataModal(row) {
     // We can Drive the Screen that we Wish to Display from here
     if (row.colDef.headerName === 'Group') {
       return;
     }
+
     const cols = this.gridOptions.columnApi.getColumnState();
     this.dataModal.openModal(row, cols);
   }
+
+  closeDataModal() {}
 
   openChartModal(data) {
     this.reportModal.openModal(data);

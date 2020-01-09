@@ -1,0 +1,21 @@
+<!-- Hide Grid Div -->
+<div *ngIf="hideGrid" #logScroll [ngStyle]="processingMsgDiv">
+    <div class="d-flex align-items-center justify-content-center">
+      <h1> Posting Engine is Running. Please Wait. </h1>
+    </div>
+    <!-- Hide Grid Div Ends -->
+  </div>
+
+  <!-- Reports Main Div Starts -->
+  <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
+    <!-- Tab View Starts -->
+    <tabset class="tab-color">
+      <tab heading="Tax Lots Maintenance" (selectTab)="activeTaxLotReport()">
+        <div [ngStyle]="style">
+          <app-taxlots-maintenance *ngIf="taxLotReportActive"></app-taxlots-maintenance>
+        </div>
+      </tab>
+      <!-- Tab View Ends -->
+    </tabset>
+    <!-- Reports Main Div Ends-->
+  </div>

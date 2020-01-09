@@ -31,6 +31,7 @@ export class LeftMenuComponent implements OnInit {
   ];
 
   public adminPages: Page[] = [
+    { name: 'Maintenance', routerLink: '/maintenance', icon: 'fa-wrench' },
     { name: 'Accruals OMS', routerLink: '/accruals', icon: 'fa-files-o' },
     {
       name: 'Trades OMS',

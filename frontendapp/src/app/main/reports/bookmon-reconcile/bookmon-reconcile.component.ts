@@ -523,6 +523,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
     this.bookmonOptions.api.forEachNodeAfterFilter((rowNode, index) => {
       if (rowNode.data.SecurityCode === mySymbol) {
         rowNode.setSelected(true);
+        this.bookmonOptions.api.ensureIndexVisible(rowNode.rowIndex);
       } else {
         rowNode.setSelected(false);
       }
@@ -531,6 +532,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
     this.portfolioOptions.api.forEachNodeAfterFilter((rowNode, index) => {
       if (rowNode.data.SecurityCode === mySymbol) {
         rowNode.setSelected(true);
+        this.portfolioOptions.api.ensureIndexVisible(rowNode.rowIndex);
       } else {
         rowNode.setSelected(false);
       }

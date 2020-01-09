@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace LP.Finance.Common.Dtos
 {
-    public class TaxLotReversalDto
+    public class AlleviateTaxLotDto
     {
-        public List<ClosedTaxLot> ClosingLots { get; set; }
-        public List<OpenTaxLot> OpenLots { get; set; }
+
     }
 }

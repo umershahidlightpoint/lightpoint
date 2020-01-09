@@ -1,14 +1,17 @@
-<!----- Hide Grid Div Starts ----->
+<!-- Hide Grid Div Starts -->
 <div *ngIf="hideGrid" [ngStyle]="containerDiv">
     <div class="d-flex align-items-center justify-content-center">
         <h1> Posting Engine is Running. Please Wait. </h1>
     </div>
 </div>
-<!----- Hide Grid Div Ends ----->
+<!-- Hide Grid Div Ends -->
 
-<!----- Div Starts ----->
+<!-- Main Div Starts -->
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
+
+    <!-- Filters Row -->
     <div class="row">
+
         <!-- Funds Dropdown Div Starts -->
         <div class="col-md-2">
             <select class="form-control" [(ngModel)]="fund" (ngModelChange)="ngModelChangeFund($event)">
@@ -20,18 +23,21 @@
         </div>
         <!-- Funds Dropdown Div Ends -->
 
-        <!-- Symbol filter -->
+        <!-- Symbol Filter -->
         <div>
             <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol"
                 [(ngModel)]="filterBySymbol" (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)"
                 class="form-control" />
         </div>
+        <!-- Symbol Filter Ends -->
+
+        <!-- Zero Balance Filter -->
         <div class="ml-3 mt-6">
             <label><input type="checkbox" id="zeroBalanceCheckBox" [(ngModel)]="filterByZeroBalance"
                     (ngModelChange)="ngModelChangeZeroBalance($event)">
                 Exclude zero balance</label>
         </div>
-        <!-- Funds Dropdown Div Ends -->
+        <!-- Zero Balance Filter Ends -->
 
         <!-- Date Range Label Div Starts -->
         <div>
@@ -58,6 +64,7 @@
 
         <!-- Buttons Div Starts -->
         <div class="ml-auto mr-3">
+
             <!-- Loading Spinner -->
             <div *ngIf="isDataStreaming" class="d-flex">
                 <div class="pt-1 pr-2 font-weight-500">Streaming Data</div>
@@ -67,7 +74,8 @@
             </div>
             <!-- Loading Spinner Ends -->
 
-            <div *ngIf="!isDataStreaming">
+            <ng-container *ngIf="!isDataStreaming">
+
                 <!-- Grid Util Actions -->
                 <app-grid-utils class="mr-4" [utilsConfig]="utilsConfig" [gridOptions]="gridOptions"
                     (refresh)="refreshGrid()" [excelParams]="excelParams">
@@ -81,12 +89,18 @@
                         <i class="fa fa-plus" aria-hidden="true"></i>
                     </button>
                 </div>
-            </div>
+                <!-- Create Journal Button Ends -->
+
+            </ng-container>
+
         </div>
         <!-- Buttons Div Ends -->
+
     </div>
+    <!-- Filters Row Ends -->
 
     <div class="clearfix"></div>
+
     <!-- Journals Div Starts -->
     <div #divToMeasureJournal>
         <div [ngStyle]="styleForHeight">
@@ -97,12 +111,12 @@
     <!-- Journals Div Endss -->
 
 </div>
-<!-- Div Ends -->
+<!-- Main Div Ends -->
 
 <app-journal-modal #journalModal (modalClose)="closeJournalModal()">
 </app-journal-modal>
 
-<app-data-modal #dataModal (modalClose)="closeOrderModal()" [orderId]="orderId" [title]="'Order Detail'">
+<app-data-modal #dataModal (modalClose)="closeDataModal()" [orderId]="orderId" [title]="'Order Detail'">
 </app-data-modal>
 
 <app-report-modal #reportModal [title]="'Report'" [tableHeader]="tableHeader">

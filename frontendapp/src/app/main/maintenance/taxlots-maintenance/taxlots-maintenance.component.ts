@@ -24,21 +24,22 @@ import {
   HeightStyle,
   DateFormatter
 } from 'src/shared/utils/Shared';
-import { GridOptions } from 'ag-grid-community';
+import { GridOptions, RowNode } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import { ContextMenu } from 'src/shared/Models/common';
-import { ReportsApiService } from 'src/services/reports-api.service';
+import { MaintenanceApiService } from 'src/services/maintenance-api.service';
 import { DataModalComponent } from 'src/shared/Component/data-modal/data-modal.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
-  selector: 'rep-taxlotstatus',
-  templateUrl: './taxlotstatus.component.html',
-  styleUrls: ['./taxlotstatus.component.css']
+  selector: 'app-taxlots-maintenance',
+  templateUrl: './taxlots-maintenance.component.html',
+  styleUrls: ['./taxlots-maintenance.component.css']
 })
-export class TaxLotStatusComponent implements OnInit, AfterViewInit {
+export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
 
   pinnedBottomRowData;
@@ -53,6 +54,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   data: Array<TrialBalanceReport>;
   stats: TrialBalanceReportStats;
   isLoading = false;
+  show = true;
   hideGrid: boolean;
   journalDate: any;
 
@@ -64,6 +66,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
 
   // private filterSubject: Subject<string> = new Subject();
   filterBySymbol = '';
+  tradeGridOptions: GridOptions;
 
   public tradeSelectionSubject = new BehaviorSubject(null);
   public tradeSelectionChanged = this.tradeSelectionSubject.asObservable();
@@ -79,9 +82,10 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
 
   constructor(
     private financeService: FinanceServiceProxy,
-    private reportsApiService: ReportsApiService,
+    private maintenanceApiService: MaintenanceApiService,
     private dataService: DataService,
-    private downloadExcelUtils: DownloadExcelUtils
+    private downloadExcelUtils: DownloadExcelUtils,
+    private toasterService: ToastrService
   ) {
     this.hideGrid = false;
   }
@@ -90,6 +94,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     this.initGrid();
     this.getLatestJournalDate();
     this.getFunds();
+    this.onTaxLotSelection();
     // In case we need to enable filter by symbol from server side
     // this.filterSubject.pipe(debounce(() => timer(1000))).subscribe(() => {
     //   this.getReport(this.startDate, this.endDate, this.filterBySymbol, this.fund === 'All Funds' ? 'ALL' : this.fund);
@@ -97,7 +102,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   }
 
   getLatestJournalDate() {
-    this.reportsApiService.getLatestJournalDate().subscribe(
+    this.maintenanceApiService.getLatestJournalDate().subscribe(
       date => {
         if (date.isSuccessful && date.statusCode === 200) {
           this.journalDate = date.payload[0].when;
@@ -125,7 +130,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       clearExternalFilter: this.clearFilters.bind(this),
       getExternalFilterState: this.getExternalFilterState.bind(this),
-      rowSelection: 'single',
+      rowSelection: 'multiple',
       rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
       getContextMenuItems: params => this.getContextMenuItems(params),
@@ -231,8 +236,8 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       }
     } as GridOptions;
     this.gridOptions.sideBar = SideBar(
-      GridId.taxlotStatusId,
-      GridName.taxlotStatus,
+      GridId.taxlotsMaintenanceId,
+      GridName.taxlotsMaintenance,
       this.gridOptions
     );
 
@@ -241,10 +246,10 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onRowDoubleClicked: this.onClosingTaxLotsRowDoubleClicked.bind(this),
-      rowSelection: 'single',
+      rowSelection: 'multiple',
       rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
-      getContextMenuItems: params => this.getContextMenuItems(params),
+      getContextMenuItems: params => this.getContextMenuItemsForClosingLots(params),
       onGridReady: params => {
         this.closingTaxLots.excelStyles = ExcelStyle;
       },
@@ -341,6 +346,64 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       GridName.closingTaxLots,
       this.gridOptions
     );
+
+    this.tradeGridOptions = {
+      rowData: [],
+      pinnedBottomRowData: [],
+      alignedGrids: [],
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      rowSelection: 'single',
+      rowGroupPanelShow: 'after',
+      enableFilter: true,
+      animateRows: true,
+      suppressHorizontalScroll: false,
+      suppressColumnVirtualisation: true,
+      getContextMenuItems: params => this.getContextMenuItems(params),
+      onGridReady: params => {
+        this.closingTaxLots.excelStyles = ExcelStyle;
+      },
+      onFirstDataRendered: params => {
+        params.api.forEachNode(node => {
+          node.expanded = true;
+        });
+        params.api.onGroupExpandedOrCollapsed();
+        params.api.sizeColumnsToFit();
+      },
+
+      columnDefs: [
+        {
+          field: 'lpOrderId',
+          width: 120,
+          headerName: 'LPOrderId',
+          sortable: true,
+          filter: true
+        },
+        {
+          field: 'symbol',
+          width: 120,
+          headerName: 'Symbol',
+          sortable: true,
+          filter: true
+        },
+        {
+          field: 'side',
+          width: 120,
+          headerName: 'Side',
+          sortable: true,
+          filter: true
+        }
+      ],
+      defaultColDef: {
+        sortable: true,
+        resizable: true,
+        filter: true
+      }
+    } as GridOptions;
+    this.closingTaxLots.sideBar = SideBar(
+      GridId.closingTaxLotId,
+      GridName.closingTaxLots,
+      this.gridOptions
+    );
   }
 
   ngAfterViewInit(): void {
@@ -363,8 +426,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
 
   // Being called twice
   getReport(toDate, fromDate, symbol, fund) {
-    this.isLoading = true;
-    this.reportsApiService
+    this.maintenanceApiService
       .getTaxLotReport(
         moment(toDate).format('YYYY-MM-DD'),
         moment(fromDate).format('YYYY-MM-DD'),
@@ -374,16 +436,17 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       .subscribe(response => {
         this.stats = response.stats;
         this.data = response.payload;
-        this.isLoading = false;
         this.gridOptions.api.sizeColumnsToFit();
         this.gridOptions.api.setRowData(this.data);
+        this.gridOptions.api.forEachNodeAfterFilter((rowNode: RowNode) => {
+          rowNode.expanded = true;
+        });
+        this.gridOptions.api.onGroupExpandedOrCollapsed();
       });
   }
 
-  onTaxLotSelection(lporderid) {
-    this.reportsApiService.getClosingTaxLots(lporderid).subscribe(response => {
-      // this.stats = response.stats;
-      // this.data = response.data;
+  onTaxLotSelection() {
+    this.maintenanceApiService.getAllClosingTaxLots().subscribe(response => {
       this.closingTaxLots.api.sizeColumnsToFit();
       this.closingTaxLots.api.setRowData(response.payload);
 
@@ -417,8 +480,15 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   }
 
   onRowSelected(event) {
-    if (event.node.selected) {
-      this.onTaxLotSelection(event.node.data.open_id);
+    const { open_id } = event.data;
+    if (this.closingTaxLots.api) {
+      this.closingTaxLots.api.forEachNodeAfterFilter((rowNode, index) => {
+        if (rowNode.data.open_lot_id === open_id) {
+          rowNode.setSelected(true);
+        } else {
+          rowNode.setSelected(false);
+        }
+      });
     }
   }
 
@@ -457,6 +527,75 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     return GetContextMenu(true, null, true, null, params);
   }
 
+  getContextMenuItemsForClosingLots(params) {
+    const addDefaultItems = [
+      {
+        name: 'Reverse Tax Lot Alleviation',
+        action: () => {
+          this.reverseTaxLotAlleviation();
+        }
+      }
+    ];
+    return GetContextMenu(false, addDefaultItems, true, null, params);
+  }
+
+  reverseTaxLotAlleviation() {
+    this.isLoading = true;
+    this.show = false;
+    const taxLotStatus = this.gridOptions.api.getSelectedRows();
+    const closingTaxLots = this.closingTaxLots.api.getSelectedRows();
+
+    if (closingTaxLots.length == 0) {
+      this.toasterService.info('Closing lot not selected');
+      this.isLoading = false;
+      this.show = true;
+      return;
+    }
+
+    const taxLotStatusPayload = taxLotStatus.map(x => ({
+      Id: x.id,
+      OpenLotId: x.open_id,
+      Symbol: x.symbol,
+      Status: x.status,
+      Side: x.side,
+      OriginalQuantity: x.original_quantity,
+      RemainingQuantity: x.quantity
+    }));
+
+    const closingTaxLotPayload = closingTaxLots.map(x => ({
+      Id: x.id,
+      OpenLotId: x.open_lot_id,
+      ClosingLotId: x.closing_lot_id,
+      Quantity: x.quantity
+    }));
+
+    const payload = {
+      ClosingLots: closingTaxLotPayload,
+      OpenLots: taxLotStatusPayload
+    };
+
+    this.maintenanceApiService.taxLotReversal(payload).subscribe(
+      resp => {
+        if (resp.isSuccessful) {
+          this.toasterService.info('Tax lot(s) reversed successfully');
+          this.isLoading = false;
+          this.show = true;
+          this.refreshTaxLots();
+        } else {
+          this.toasterService.error('An error occured while reversing tax lots');
+          this.isLoading = false;
+          this.show = true;
+        }
+      },
+      error => {}
+    );
+  }
+
+  refreshTaxLots() {
+    this.onTaxLotSelection();
+    this.refreshReport();
+  }
+
   setDateRange(dateFilter: any) {
     const dates = SetDateRange(dateFilter, this.startDate, this.endDate);
     this.startDate = dates[0];
@@ -473,7 +612,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
 
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
-
+    this.onTaxLotSelection();
     if (this.selected.startDate == null) {
       this.selected = {
         startDate: moment(this.journalDate, 'YYYY-MM-DD'),
@@ -494,7 +633,6 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     this.filterBySymbol = '';
     this.gridOptions.api.setRowData([]);
     this.closingTaxLots.api.setRowData([]);
-    this.tradeSelectionSubject.next('');
   }
 
   ngModelChangeSymbol(e) {
@@ -554,9 +692,30 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   }
 
   onTradeRowSelected(event) {
-    if (event.node.selected) {
-      this.tradeSelectionSubject.next(event.node.data.closing_lot_id);
+    const { open_lot_id } = event.data;
+    const { closing_lot_id } = event.data;
+    if (this.gridOptions.api) {
+      this.gridOptions.api.forEachLeafNode(rowNode => {
+        if (rowNode.data.open_id === open_lot_id) {
+          rowNode.setSelected(true);
+        } else {
+          rowNode.setSelected(false);
+        }
+      });
     }
+
+    this.closingTaxLots.api.forEachNodeAfterFilter((rowNode, index) => {
+      if (rowNode.data.closing_lot_id === closing_lot_id) {
+        rowNode.setSelected(true);
+        this.gridOptions.api.forEachLeafNode(rowNodeInternal => {
+          if (rowNodeInternal.data.open_id === rowNode.data.open_lot_id) {
+            rowNodeInternal.setSelected(true);
+          }
+        });
+      } else {
+        rowNode.setSelected(false);
+      }
+    });
   }
 }
 
