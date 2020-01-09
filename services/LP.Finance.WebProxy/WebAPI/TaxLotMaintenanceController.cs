@@ -9,10 +9,10 @@ using System.Web.Http;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
-    [RoutePrefix("api/taxLotMaintainance")]
-    public class TaxLotMaintainanceController : ApiController
+    [RoutePrefix("api/taxLotMaintenance")]
+    public class TaxLotMaintenanceController : ApiController
     {
-        private ITaxLotMaintainanceService controller = new TaxLotMaintainanceService();
+        private ITaxLotMaintenanceService controller = new TaxLotMaintenanceService();
 
         [Route("reverseTaxLotAlleviation")]
         [HttpPut]

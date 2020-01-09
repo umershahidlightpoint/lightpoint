@@ -64,6 +64,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
 
   // private filterSubject: Subject<string> = new Subject();
   filterBySymbol = '';
+  tradeGridOptions: GridOptions;
 
   public tradeSelectionSubject = new BehaviorSubject(null);
   public tradeSelectionChanged = this.tradeSelectionSubject.asObservable();
@@ -90,6 +91,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
     this.initGrid();
     this.getLatestJournalDate();
     this.getFunds();
+    this.onTaxLotSelection();
     // In case we need to enable filter by symbol from server side
     // this.filterSubject.pipe(debounce(() => timer(1000))).subscribe(() => {
     //   this.getReport(this.startDate, this.endDate, this.filterBySymbol, this.fund === 'All Funds' ? 'ALL' : this.fund);
@@ -125,7 +127,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       clearExternalFilter: this.clearFilters.bind(this),
       getExternalFilterState: this.getExternalFilterState.bind(this),
-      rowSelection: 'single',
+      rowSelection: 'multiple',
       rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
       getContextMenuItems: params => this.getContextMenuItems(params),
@@ -240,7 +242,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
       rowData: [],
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      rowSelection: 'single',
+      rowSelection: 'multiple',
       rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
       getContextMenuItems: params => this.getContextMenuItems(params),
@@ -340,6 +342,64 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
       GridName.closingTaxLots,
       this.gridOptions
     );
+
+  this.tradeGridOptions = {
+      rowData: [],
+      pinnedBottomRowData: [],
+      alignedGrids: [],
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      rowSelection: 'single',
+      rowGroupPanelShow: 'after',
+      enableFilter: true,
+      animateRows: true,
+      suppressHorizontalScroll: false,
+      suppressColumnVirtualisation: true,
+      getContextMenuItems: params => this.getContextMenuItems(params),
+      onGridReady: params => {
+        this.closingTaxLots.excelStyles = ExcelStyle;
+      },
+      onFirstDataRendered: params => {
+        params.api.forEachNode(node => {
+          node.expanded = true;
+        });
+        params.api.onGroupExpandedOrCollapsed();
+        params.api.sizeColumnsToFit();
+      },
+
+      columnDefs: [
+        {
+          field: 'lpOrderId',
+          width: 120,
+          headerName: 'LPOrderId',
+          sortable: true,
+          filter: true
+        },
+        {
+          field: 'symbol',
+          width: 120,
+          headerName: 'Symbol',
+          sortable: true,
+          filter: true
+        },
+        {
+          field: 'side',
+          width: 120,
+          headerName: 'Side',
+          sortable: true,
+          filter: true
+        }
+      ],
+      defaultColDef: {
+        sortable: true,
+        resizable: true,
+        filter: true
+      }
+    } as GridOptions;
+    this.closingTaxLots.sideBar = SideBar(
+      GridId.closingTaxLotId,
+      GridName.closingTaxLots,
+      this.gridOptions
+    );
   }
 
   ngAfterViewInit(): void {
@@ -379,8 +439,8 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
       });
   }
 
-  onTaxLotSelection(lporderid) {
-    this.maintenanceApiService.getClosingTaxLots(lporderid).subscribe(response => {
+  onTaxLotSelection() {
+    this.maintenanceApiService.getAllClosingTaxLots().subscribe(response => {
       // this.stats = response.stats;
       // this.data = response.data;
       this.closingTaxLots.api.sizeColumnsToFit();
@@ -391,6 +451,11 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
       } else {
         this.tradeSelectionSubject.next(response.payload[0].closing_lot_id);
       }
+      // if (response.payload.length == 0) {
+      //   this.tradeSelectionSubject.next('');
+      // } else {
+      //   this.tradeSelectionSubject.next(response.payload[0].closing_lot_id);
+      // }
     });
   }
 
@@ -406,10 +471,18 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
   }
 
   onRowSelected(event) {
-    if (event.node.selected) {
-      this.onTaxLotSelection(event.node.data.open_id);
+    const { open_id } = event.data;
+    if(this.closingTaxLots.api) {
+      this.closingTaxLots.api.forEachNodeAfterFilter((rowNode, index) => {
+        if (rowNode.data.open_lot_id === open_id) {
+          rowNode.setSelected(true);
+        } else {
+          rowNode.setSelected(false);
+        }
+      });
     }
   }
+
 
   onFilterChanged() {
     this.pinnedBottomRowData = CalTotalRecords(this.gridOptions);
@@ -542,8 +615,15 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
   }
 
   onTradeRowSelected(event) {
-    if (event.node.selected) {
-      this.tradeSelectionSubject.next(event.node.data.closing_lot_id);
+    const { open_lot_id } = event.data;
+    if(this.gridOptions.api) {
+      this.gridOptions.api.forEachLeafNode((rowNode) => {
+        if (rowNode.data.open_id === open_lot_id) {
+          rowNode.setSelected(true);
+        } else {
+          rowNode.setSelected(false);
+        }
+      });
     }
   }
 }

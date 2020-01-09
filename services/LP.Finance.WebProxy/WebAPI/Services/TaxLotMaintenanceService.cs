@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
-    public class TaxLotMaintainanceService : ITaxLotMaintainanceService
+    public class TaxLotMaintenanceService : ITaxLotMaintenanceService
     {
         private static readonly string
            connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();

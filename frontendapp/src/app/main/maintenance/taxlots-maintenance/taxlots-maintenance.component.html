@@ -73,18 +73,18 @@
     <!-- Report Grid Starts -->
     <div #divToMeasureJournal>
       <div [ngStyle]="styleForHeight" class="d-flex">
-        <ag-grid-angular class="w-50 h-100 ag-theme-balham" (rowSelected)="onRowSelected($event)"
-          [gridOptions]="gridOptions">
+        <ag-grid-angular class="w-50 h-100 ag-theme-balham" (cellClicked)="onRowSelected($event)"
+        [gridOptions]="gridOptions">
         </ag-grid-angular>
   
         <div class="w-50 h-100">
-          <ag-grid-angular class="w-100 h-50 ag-theme-balham" (rowSelected)="onTradeRowSelected($event)"
-            [gridOptions]="closingTaxLots">
+          <ag-grid-angular class="w-100 h-50 ag-theme-balham" (cellClicked)="onTradeRowSelected($event)"            [gridOptions]="closingTaxLots">
           </ag-grid-angular>
 
-          <div class="w-100 height-45 p-0">
-              Space for new feature
-            <!--  <app-journals [subscription]="tradeSelectionChanged" [title]="'Journals'"></app-journals> -->
+          <div class="w-100 h-50 p-0">
+            <!-- <app-journals [subscription]="tradeSelectionChanged" [title]="'Journals'"></app-journals> -->
+            <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="tradeGridOptions">
+            </ag-grid-angular>
           </div>
         </div>
       </div>
