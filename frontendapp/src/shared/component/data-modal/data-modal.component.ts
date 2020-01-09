@@ -15,7 +15,7 @@ export class DataModalComponent implements OnInit {
   @Input() title = 'Data Details';
   @Input() isCustomData = false;
 
-  tableData: any;
+  tableData: any[] = [];
   customTableData: any[] = [];
   backdrop: any;
 
