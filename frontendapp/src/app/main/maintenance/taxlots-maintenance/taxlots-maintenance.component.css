@@ -1,0 +1,8 @@
+::ng-deep .loader-wrapper .spinner-grow {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+
+.mtop-15{
+    margin-top: 15%;
+  }
