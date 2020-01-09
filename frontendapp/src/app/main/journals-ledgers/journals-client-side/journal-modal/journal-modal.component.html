@@ -50,8 +50,8 @@
                 <label> Account To </label>
               </div>
               <!-- TO Account Drop Down -->
-              <!-- <div class="col-sm-6">
-                <select class="custom-select" name="toAccount" (change)=onAccountSelect() ngModel required>
+              <div class="col-sm-6">
+                <!-- <select class="custom-select" name="toAccount" (change)=onAccountSelect() ngModel required>
                   <option selected disabled value="">Choose your to account</option>
                   <ng-container *ngFor="let account of allAccounts; trackBy: trackByFn">
                     <option
@@ -60,29 +60,13 @@
                       {{ account.name }}
                     </option>
                   </ng-container>
-                </select>
-              </div> -->
+                </select> -->
 
-            <!-- TO Account Searchable Dropdown-->
-            <div class="col-sm-6">
-              <input
-              [(ngModel)]="selectedAccountTo"
-              (ngModelChange)="accountToChange($event)"
-              name="AccountTo"
-              typeaheadOptionField="name"
-              [isAnimated]="true"
-              [typeahead]="accountTo"
-              typeaheadWaitMs="500"
-              (typeaheadNoResults)="typeaheadNoResults($event)"
-              [typeaheadScrollable]="true"
-              [typeaheadOptionsInScrollableView]="15"
-              [typeaheadMinLength]="0"
-              [typeaheadIsFirstItemActive]="true"
-              placeholder="Choose your to account"
-              (typeaheadOnSelect)="onSelectAccountTo($event)"
-              required
-              autocomplete="off"
-              class="form-control" />
+                <input class="form-control" placeholder="Choose your to account" [(ngModel)]="selectedAccountTo" (ngModelChange)="accountToChange($event)" required 
+                name="AccountTo" typeaheadOptionField="name" [isAnimated]="true" [typeahead]="accountTo" typeaheadWaitMs="500" 
+                (typeaheadNoResults)="typeaheadNoResults($event)" [typeaheadScrollable]="true" 
+                [typeaheadOptionsInScrollableView]="15" [typeaheadMinLength]="0" [typeaheadIsFirstItemActive]="true" 
+                (typeaheadOnSelect)="onSelectAccountTo($event)" autocomplete="off" />
               </div>
 
               <!-- To Account Value Type Drop Down -->
@@ -117,24 +101,14 @@
                     </option>
                   </ng-container>
                 </select> -->
-                <input
-                [(ngModel)]="selectedAccountFrom"
-                (ngModelChange)="accountFromChange($event)"
-                name="AccountFrom"
-                typeaheadOptionField="name"
-                [isAnimated]="true"
-                [typeahead]="accountFrom"
-                typeaheadWaitMs="500"
-                (typeaheadNoResults)="typeaheadNoResults($event)"
-                [typeaheadScrollable]="true"
-                [typeaheadOptionsInScrollableView]="15"
-                [typeaheadMinLength]="0"
-                [typeaheadIsFirstItemActive]="true"
-                placeholder="Choose your from account"
-                (typeaheadOnSelect)="onSelectAccountFrom($event)"
-                autocomplete="off"
-                class="form-control" />
+
+                <input [disabled]="contraEntryMode" class="form-control" placeholder="Choose your from account" [(ngModel)]="selectedAccountFrom" (ngModelChange)="accountFromChange($event)" 
+                name="AccountFrom" typeaheadOptionField="name" [isAnimated]="true" [typeahead]="accountFrom" typeaheadWaitMs="500" 
+                (typeaheadNoResults)="typeaheadNoResults($event)" [typeaheadScrollable]="true" 
+                [typeaheadOptionsInScrollableView]="15" [typeaheadMinLength]="0" [typeaheadIsFirstItemActive]="true" 
+                (typeaheadOnSelect)="onSelectAccountFrom($event)" autocomplete="off" />
               </div>
+
               <!-- From Account Value Type Radio Buttons -->
               <div class="col-sm-3">
                 <select disabled class="custom-select" name="fromAccountValueType" ngModel>

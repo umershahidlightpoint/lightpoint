@@ -321,9 +321,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var commentsId = InsertJournalComment(journal, sqlHelper);
                 var fxCurrency = GetBaseCurrency();
 
-                var journalsValue = GetJournalsValue(journal);
-                var accountToValue = journalsValue.Item1;
-                var accountFromValue = journal.AccountFrom.AccountCategoryId == 0 ? accountToValue * -1 : journalsValue.Item2;
+                var accountToValue = journal.Value;
                 var source = Guid.NewGuid().ToString().ToLower();
                 var fxRate = "1.000000000";
                 var generatedBy = "user";
@@ -346,27 +344,39 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                     ,@symbol, @eventType, @startPrice, @endPrice, @entryType
                                     ,@securityId, @commentsId, @isAccountTo)";
 
-                List<SqlParameter> accountFromParameters = new List<SqlParameter>
+                if (!journal.ContraEntryMode)
                 {
-                    new SqlParameter("accountId", journal.AccountFrom.AccountId),
-                    new SqlParameter("value", accountFromValue),
-                    new SqlParameter("source", source),
-                    new SqlParameter("when", journal.AsOf),
-                    new SqlParameter("fxCurrency", fxCurrency),
-                    new SqlParameter("fxRate", fxRate),
-                    new SqlParameter("fund", journal.Fund),
-                    new SqlParameter("generatedBy", generatedBy),
-                    new SqlParameter("quantity", quantity),
-                    new SqlParameter("lastModifiedOn", lastModifiedOn),
-                    new SqlParameter("symbol", symbol),
-                    new SqlParameter("eventType", eventType),
-                    new SqlParameter("startPrice", startPrice),
-                    new SqlParameter("endPrice", endPrice),
-                    new SqlParameter("entryType", journal.AccountFrom.EntryType),
-                    new SqlParameter("securityId", securityId),
-                    new SqlParameter("commentsId", commentsId),
-                    new SqlParameter("isAccountTo", Convert.ToInt32(0))
-                };
+                    var journalsValue = GetJournalsValue(journal);
+
+                    accountToValue = journalsValue.Item1;
+                    var accountFromValue = journal.AccountFrom.AccountCategoryId == 0
+                        ? accountToValue * -1
+                        : journalsValue.Item2;
+
+                    List<SqlParameter> accountFromParameters = new List<SqlParameter>
+                    {
+                        new SqlParameter("accountId", journal.AccountFrom.AccountId),
+                        new SqlParameter("value", accountFromValue),
+                        new SqlParameter("source", source),
+                        new SqlParameter("when", journal.AsOf),
+                        new SqlParameter("fxCurrency", fxCurrency),
+                        new SqlParameter("fxRate", fxRate),
+                        new SqlParameter("fund", journal.Fund),
+                        new SqlParameter("generatedBy", generatedBy),
+                        new SqlParameter("quantity", quantity),
+                        new SqlParameter("lastModifiedOn", lastModifiedOn),
+                        new SqlParameter("symbol", symbol),
+                        new SqlParameter("eventType", eventType),
+                        new SqlParameter("startPrice", startPrice),
+                        new SqlParameter("endPrice", endPrice),
+                        new SqlParameter("entryType", journal.AccountFrom.EntryType),
+                        new SqlParameter("securityId", securityId),
+                        new SqlParameter("commentsId", commentsId),
+                        new SqlParameter("isAccountTo", Convert.ToInt32(0))
+                    };
+
+                    sqlHelper.Insert(query, CommandType.Text, accountFromParameters.ToArray());
+                }
 
                 List<SqlParameter> accountToParameters = new List<SqlParameter>
                 {
@@ -390,7 +400,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("isAccountTo", 1)
                 };
 
-                sqlHelper.Insert(query, CommandType.Text, accountFromParameters.ToArray());
                 sqlHelper.Insert(query, CommandType.Text, accountToParameters.ToArray());
 
                 sqlHelper.SqlCommitTransaction();
