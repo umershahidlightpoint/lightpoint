@@ -20,10 +20,6 @@ html {
   z-index: 1000;
 }
 
-::ng-deep .md-drppicker.shown {
-  width: 35.4rem !important;
-}
-
 .md-datepicker-input-container {
   width: 150px;
 }

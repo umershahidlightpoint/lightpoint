@@ -79,6 +79,10 @@ body {
   margin-bottom: 0.6rem !important;
 }
 
+.md-drppicker.show-ranges {
+  width: 35.4rem !important;
+}
+
 /******************************
 ******* Bootstrap Tabs ********
 ******************************/
