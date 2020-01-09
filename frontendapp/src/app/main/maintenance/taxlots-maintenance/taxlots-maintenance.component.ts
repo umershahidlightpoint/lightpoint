@@ -54,6 +54,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
   data: Array<TrialBalanceReport>;
   stats: TrialBalanceReportStats;
   isLoading = false;
+  show = true;
   hideGrid: boolean;
   journalDate: any;
 
@@ -424,7 +425,6 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
 
   // Being called twice
   getReport(toDate, fromDate, symbol, fund) {
-    this.isLoading = true;
     this.maintenanceApiService
       .getTaxLotReport(
         moment(toDate).format('YYYY-MM-DD'),
@@ -435,7 +435,6 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
       .subscribe(response => {
         this.stats = response.stats;
         this.data = response.payload;
-        this.isLoading = false;
         this.gridOptions.api.sizeColumnsToFit();
         this.gridOptions.api.setRowData(this.data);
         this.gridOptions.api.forEachNodeAfterFilter((rowNode: RowNode) => {
@@ -530,12 +529,16 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
     return GetContextMenu(false, addDefaultItems, true, null, params);
   }
 
-  reverseTaxLotAlleviation(){
+  reverseTaxLotAlleviation() {
+    this.isLoading = true;
+    this.show = false;
     const taxLotStatus = this.gridOptions.api.getSelectedRows();
     const closingTaxLots = this.closingTaxLots.api.getSelectedRows();
 
     if(closingTaxLots.length == 0){
       this.toasterService.info('Closing lot not selected');
+      this.isLoading = false;
+      this.show = true;
       return;
     }
 
@@ -562,16 +565,20 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
     }
 
     this.maintenanceApiService.taxLotReversal(payload).subscribe(resp => {
-      if(resp.isSuccessful){
+      if (resp.isSuccessful) {
         this.toasterService.info('Tax lot(s) reversed successfully');
+        this.isLoading = false;
+        this.show = true;
         this.refreshTaxLots();
-      } else{
+      } else {
         this.toasterService.error('An error occured while reversing tax lots');
+        this.isLoading = false;
+        this.show = true;
       }
     },
-    error=> {
+    error => {
 
-    })
+    });
   }
 
   refreshTaxLots(){
@@ -595,7 +602,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
 
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
-
+    this.onTaxLotSelection();
     if (this.selected.startDate == null) {
       this.selected = {
         startDate: moment(this.journalDate, 'YYYY-MM-DD'),
