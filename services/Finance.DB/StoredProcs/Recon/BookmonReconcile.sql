@@ -1,4 +1,5 @@
 ﻿/*
+select * from fnPositions('2019-12-18')
 Exec [BookmonReconcile] '2019-12-18'
 */
 
@@ -8,7 +9,7 @@ AS
 declare @busdate as date
 set @busdate = @businessDate
 
-select p.BusDate, s.BbergCode as SecurityCode, Fund, st.SecurityTypeCode as SecurityType, p.Currency,  SUM(p.Quantity) as Quantity, SUM(p.Exposure) as Exposure
+select p.BusDate, s.BbergCode as SecurityCode, Fund, st.SecurityTypeCode as SecurityType, p.Currency,  SUM(p.Quantity) as Quantity, SUM(p.Exposure) as Exposure, MAX(p.Price) as Price, MAX(p.EndFx) as Fx
 into #bookmon_pnl
 from PositionMaster..intradayPositionSplit p
 inner join SecurityMaster..Security s on s.EzeTicker = p.SecurityCode
@@ -23,15 +24,13 @@ select p.business_date as BusDate, s.BbergCode as SecurityCode, p.Fund, p.curren
 ROUND(Sum(p.Quantity),2) as Quantity,
 CASE 
 	WHEN ROUND(Sum(p.Quantity),2) = 0 then 0
-	ELSE ROUND(Sum(p.investment_at_cost),2)
-END as Exposure
+	ELSE ROUND(Sum(p.exposure),2)
+END as Exposure,
+AVG(p.price) as Price,
+AVG(p.fx) as Fx
 into #pa_pnl
 from fnPositions(@busdate) p 
 inner join SecurityMaster..Security s on s.SecurityId = p.security_id
--- inner join cost_basis cb on cb.symbol = s.EzeTicker and cb.business_date = vwPositions.business_date
--- where vwPositions.business_date = @busDate 
--- and AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'fx gain or loss on unsettled balance', 'change in unrealized do to fx translation')
--- and AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)')
 group by p.business_date, s.BbergCode, p.Fund, p.currency
 order by p.business_date, s.BbergCode, p.Fund, p.currency
 
@@ -45,6 +44,8 @@ coalesce(p.Fund, b.Fund) as Fund,
 coalesce(p.Currency, b.Currency) as Currency,
 ROUND(coalesce(b.Quantity,0) - coalesce(p.Quantity,0),2) as Diff_Quantity,
 ROUND(coalesce(b.Exposure,0) - coalesce(p.Exposure,0),2) as Diff_Exposure,
+ROUND(coalesce(b.Price,0) - coalesce(p.Price,0),2) as Diff_Price,
+ROUND(coalesce(b.Fx,0) - coalesce(p.Fx,0),2) as Diff_Fx,
 'BookMon -->' as BookMon, 
 b.*, 
 'PA -->' as PortfolioA, 

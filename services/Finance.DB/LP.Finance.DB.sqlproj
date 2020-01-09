@@ -63,6 +63,7 @@
     <Folder Include="Views" />
     <Folder Include="Snapshots" />
     <Folder Include="Functions" />
+    <Folder Include="StoredProcs\Recon" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\file.sql" />
@@ -92,7 +93,6 @@
     <Build Include="Tables\tax_rate.sql" />
     <Build Include="StoredProcs\TaxRates.sql" />
     <Build Include="Views\vwJournal.sql" />
-    <Build Include="StoredProcs\DayPnlReconcile.sql" />
     <Build Include="StoredProcs\FundTheoretical.sql" />
     <Build Include="StoredProcs\DailyPnl.sql" />
     <Build Include="StoredProcs\PullDailyActivity.sql" />
@@ -121,10 +121,17 @@
     <Build Include="Views\vwFullJournal.sql" />
     <Build Include="StoredProcs\ClosingTaxLot.sql" />
     <Build Include="Functions\fnPositions.sql" />
-    <Build Include="StoredProcs\BookmonReconcile.sql" />
     <Build Include="Functions\fnPositions.sql" />
     <Build Include="Tables\journal_comments.sql" />
     <Build Include="Tables\server_side_filter_config.sql" />
+    <Build Include="Tables\trade_exclusion.sql" />
+    <Build Include="StoredProcs\Recon\BookmonReconcile.sql" />
+    <Build Include="StoredProcs\Recon\DayPnlReconcile.sql" />
+    <Build Include="StoredProcs\Recon\FundAdminRecon.sql" />
+    <Build Include="StoredProcs\Recon\PeriodPnl.sql" />
+    <Build Include="Tables\current_journals.sql" />
+    <Build Include="Tables\current_trade_state.sql" />
+    <Build Include="StoredProcs\CacheResults.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">

@@ -31,6 +31,7 @@ namespace PostingEngine.MarketData
                 };
             }
 
+            /*
             var ccy = $"@CASH{currency}";
             var f = MarketPrices.Find(busDate, ccy);
             if (f.Price != 0)
@@ -38,6 +39,7 @@ namespace PostingEngine.MarketData
                 {
                     Rate = f.Price
                 };
+                */
 
             return FindEx(busDate, currency);
         }

@@ -1,11 +1,5 @@
 ﻿/*
-select top 100 * from PositionMaster..[IntraDayPositionSplit]
-
 exec [PullDailyMarketPrices] '2019-04-01', '2019-12-18'
-
-select count(*), SecurityCode,  from SecurityMaster..Security
-group by SecurityCode
-having count(*) > 1
 */
 
 CREATE PROCEDURE [dbo].[PullDailyMarketPrices]
@@ -22,19 +16,22 @@ group by BusDate
 
 select business_date, symbol, price 
 into #marketdata
+
 from FundAccounting..market_prices
 where last_updated_by = 'webservice'
 
 select p.SecurityCode, PriceSymbol, s.SecurityId, count(*) as [count] 
 into #securityId
 from PositionMaster..IntraDayPositionSplit p
-inner join SecurityMaster..Security s on s.EzeTicker = p.SecurityCode and s.PricingSymbol = p.PriceSymbol
+inner join SecurityMaster..Security s on s.EzeTicker = p.SecurityCode and (s.PricingSymbol = p.PriceSymbol or s.PricingSymbol is null)
 group by p.SecurityCode, PriceSymbol, s.SecurityId
-
 
 delete from FundAccounting..market_prices_history where business_date >= @startDate and business_date <= @enddate and [event]='eod'
 delete from FundAccounting..market_prices where business_date >= @startDate and business_date <= @enddate and [event]='eod'
 
+/*
+Grabbing the Price from intradyPositionSplit as this is the Local Price, SettlePrice is the USD Price, i.e. Price * EndFx
+*/
 insert into market_prices (business_date, security_id, symbol, [event], price, last_updated_by, last_updated_on)
 SELECT 
 	intraDay.BusDate, sid.SecurityId, intraDay.SecurityCode as Symbol, 'eod', intraday.Price, 'script', GetDate()

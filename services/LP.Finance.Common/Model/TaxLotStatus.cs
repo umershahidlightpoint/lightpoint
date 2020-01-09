@@ -19,7 +19,6 @@ namespace LP.Finance.Common.Models
         public string Fund { get; set; }
         public string Symbol { get; set; }
         public string Side { get; set; }
-
         public double InvestmentAtCost { get; set; }
         public DateTime TradeDate { get; set; }
         public DateTime BusinessDate { get; set; }
@@ -28,6 +27,9 @@ namespace LP.Finance.Common.Models
         public double OriginalQuantity { get; set; }
         public double FxRate { get; set; }
         public double TradePrice { get; set; }
+
+        // Keeps track of the order of the Tax Lot's being relieved
+        public int Order { get; set; }
 
         // Get a list of Journal Entries for this trade
         public static KeyValuePair<string, SqlParameter[]> List(string orderId)

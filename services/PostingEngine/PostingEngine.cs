@@ -36,6 +36,8 @@ namespace PostingEngine
 
             // Expences / Revenue
             ExpencesAndRevenues(key, valueDate);
+
+            Complete(key, valueDate);
         }
 
         internal static void PullFromLegacySystem(Guid key, DateTime valueDate)
@@ -64,6 +66,27 @@ namespace PostingEngine
         {
             // This runs thru everything, we need more or a scalpable
             PostingEngine.RunCalculation("ExpencesAndRevenues", valueDate, key, (message, totalRows, rowsDone) => {
+                if (message.StartsWith("Processing"))
+                {
+                    // Do nothing
+                    return;
+                }
+                if (message.StartsWith("Completed"))
+                {
+                    var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
+
+                    Logger.Info($"{message}, % Completed {completed}");
+                    return;
+                }
+
+                Logger.Info($"{message}");
+            });
+        }
+
+        static void Complete(Guid key, DateTime valueDate)
+        {
+            // This runs thru everything, we need more or a scalpable
+            PostingEngine.RunCalculation("Complete", valueDate, key, (message, totalRows, rowsDone) => {
                 if (message.StartsWith("Processing"))
                 {
                     // Do nothing

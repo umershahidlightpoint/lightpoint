@@ -104,7 +104,7 @@ namespace PostingEngine.PostingRules
             }
 
             var unrealizedPnl = 0.0;
-            var quantity = Math.Abs(taxLot.Trade.Quantity);
+            var quantity = Math.Abs(taxLot.Quantity);
             var priceDiff = (eodPrice - prevEodPrice);
 
             if (taxLot.Trade.IsBuy())
@@ -252,11 +252,6 @@ namespace PostingEngine.PostingRules
 
             new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
             new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
-
-            if (element.IsSell() || element.IsCover())
-            {
-                pnL = pnL * -1;
-            }
 
             var debitJournal = new Journal(element)
             {

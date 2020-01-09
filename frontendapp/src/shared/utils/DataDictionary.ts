@@ -105,7 +105,7 @@ export class DataDictionary {
           sortable: true,
           cellStyle: { 'text-align': 'right' },
           filter: isJournalGrid ? 'agNumberColumnFilter' : true,
-          valueFormatter: priceFormatter
+          valueFormatter: this.priceFormatterEx
         };
         break;
       }
@@ -186,7 +186,7 @@ export class DataDictionary {
           sortable: true,
           cellStyle: { 'text-align': 'right' },
           filter: isJournalGrid ? 'agNumberColumnFilter' : true,
-          valueFormatter: priceFormatter
+          valueFormatter: this.priceFormatterEx
         };
         break;
       }
@@ -251,6 +251,16 @@ export class DataDictionary {
     }
 
     return columnDefinition;
+  }
+
+  priceFormatterEx(params) {
+    debugger;
+    
+    if (params.value === undefined) {
+      return;
+    }
+
+    return this.numberFormatter(params.value, false, '1.8-8');
   }
 
   numberFormatter(numberToFormat, isInPercentage?: boolean, digitsInfo: string = '1.2-2'): string {

@@ -64,6 +64,14 @@ namespace PostingEngine
             };
         }
 
+        internal TaxLotStatus FindTaxLotStatus(Transaction i)
+        {
+            if (TaxLotStatus.ContainsKey(i.LpOrderId))
+                return TaxLotStatus[i.LpOrderId];
+
+            return null;
+        }
+
         public bool IsValidAccrual(string accrualId)
         {
             return Accruals.ContainsKey(accrualId);

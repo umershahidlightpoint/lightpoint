@@ -340,6 +340,15 @@ namespace PostingEngine
             }
         }
 
+        public static void Complete()
+        {
+            PostingEngineCallBack?.Invoke("Completing Started");
+
+            var dataTable = new SqlHelper(connectionString).GetDataTables("CacheResults", CommandType.StoredProcedure);
+
+            PostingEngineCallBack?.Invoke("Finished");
+        }
+
         public static void SettledCashBalances()
         {
             //DeleteJournals("settled-cash-fx");
@@ -612,6 +621,11 @@ where business_date = @busDate";
                 Logger.Info("Running ExpencesAndRevenues");
                 ExpencesAndRevenues();
             }
+            else if (calculation.Equals("Complete"))
+            {
+                Logger.Info("Completing PostingEngine");
+                Complete();
+            }
         }
 
         /// <summary>
@@ -765,7 +779,7 @@ where business_date = @busDate";
                 var localTradeList = JsonConvert.DeserializeObject<Transaction[]>(trades.Result);
 
                 var finalTradeList = localTradeList.Where(t => t.TradeDate >= new DateTime(2019, 4, 1)).ToArray();
-                const bool DEBUG = true;
+                const bool DEBUG = false;
                 if (DEBUG)
                 { 
                     var securityTypeTags = new List<string> {
@@ -773,11 +787,12 @@ where business_date = @busDate";
                     };
 
                     var symbolTags = new List<string> {
-                    "IMKTA",
+                        "ALD FP"
                     };
 
                     //finalTradeList = finalTradeList.Where(t => securityTypeTags.Contains(t.SecurityType)).ToArray();
                     finalTradeList = finalTradeList.Where(t => symbolTags.Contains(t.Symbol)).ToArray();
+                    //finalTradeList = finalTradeList.Where(t => t.SettleCurrency.ToLowerInvariant().Equals("gbp")).ToArray();
                 }
 
                 var excludeTrade = new List<string>
@@ -799,27 +814,16 @@ where business_date = @busDate";
 
                 var transaction = connection.BeginTransaction();
 
-                var postingEnv = new PostingEngineEnvironment(connection, transaction)
-                {
-                    ConnectionString = connectionString,
-                    BaseCurrency = "USD",
-                    SecurityDetails = new SecurityDetails().Get(),
-                    Categories = AccountCategory.Categories,
-                    Types = AccountType.All,
-                    BusinessDate = businessDate,
-                    RunDate = System.DateTime.Now.Date,
-                    Allocations = allocationList,
-                    Trades = finalTradeList,
-                    Accruals = accrualList.ToDictionary(i => i.AccrualId, i => i),
-                    Period = period,
-                    Methodology = BaseTaxLotMethodology.GetTaxLotMethodology(taxLotMethodology) // Needs to be driven by the system setup
-                };
+                var tradingPostingEnv = CreateTradingEnvironment(businessDate, period, connection, transaction);
+                tradingPostingEnv.Allocations = allocationList;
+                tradingPostingEnv.Trades = finalTradeList;
+                tradingPostingEnv.Accruals = accrualList.ToDictionary(i => i.AccrualId, i => i);
 
                 PostingEngineCallBack?.Invoke($"Starting Batch Posting Engine -- Trades on {DateTime.Now}");
 
                 new JournalLog()
                 {
-                    Key = Key, RunDate = postingEnv.RunDate, Action = "Starting Batch Posting Engine -- Trades",
+                    Key = Key, RunDate = tradingPostingEnv.RunDate, Action = "Starting Batch Posting Engine -- Trades",
                     ActionOn = DateTime.Now
                 }.Save(connection, transaction);
 
@@ -827,53 +831,67 @@ where business_date = @busDate";
                 // Run the trades pass next
                 // Lets do Trading Activity, so no Journals
                 sw.Reset();
-                sw.Start();
 
-                postingEnv.Completed = false;
+                tradingPostingEnv.Completed = false;
 
 
-                PostingEngineCallBack?.Invoke($"Processing Trades on {DateTime.Now}");
+                
 
                 // Lets process the saving of the journals in the background
-                HandleJournals(postingEnv);
+                HandleJournals(tradingPostingEnv);
 
                 // differentiating between trades and journals. Moving forward we can create journal entries per symbol in a parallel fashion.
-                postingEnv.SkipWeekends = true;
-                postingEnv.Rules = postingEnv.TradingRules;
-                postingEnv.Trades = finalTradeList.Where(i => !i.SecurityType.Equals("Journals")).ToArray();
-                postingEnv.CallBack = postingEngineCallBack;
-                int count = RunAsync(connection, transaction, postingEnv).GetAwaiter().GetResult();
+                PostingEngineCallBack?.Invoke($"Processing Trades on {DateTime.Now}");
+                tradingPostingEnv.SkipWeekends = true;
+                tradingPostingEnv.Rules = tradingPostingEnv.TradingRules;
+                tradingPostingEnv.Trades = finalTradeList.Where(i => !i.SecurityType.Equals("Journals")).ToArray();
+                tradingPostingEnv.CallBack = postingEngineCallBack;
+                sw.Start();
+                int count = RunAsync(connection, transaction, tradingPostingEnv).GetAwaiter().GetResult();
                 sw.Stop();
+                new JournalLog()
+                {
+                    Key = Key,
+                    RunDate = tradingPostingEnv.RunDate,
+                    Action = $"Completed Trade Processing {sw.ElapsedMilliseconds} ms / {sw.ElapsedMilliseconds / 1000} s",
+                    ActionOn = DateTime.Now
+                }.Save(connection, transaction);
 
                 // Lets do the Journal Activity and only Journals
                 // zz_ journal entries from legacy system. just create double entry in portfolio accounting for each journal entry in the legacy system.
                 PostingEngineCallBack?.Invoke($"Processing Journals on {DateTime.Now}");
+                tradingPostingEnv.SkipWeekends = false;
+                tradingPostingEnv.Rules = tradingPostingEnv.JournalRules;
+                tradingPostingEnv.Trades = finalTradeList.Where(i => i.SecurityType.Equals("Journals")).ToArray();
+                tradingPostingEnv.CallBack = postingEngineCallBack;
+
                 sw.Start();
-                postingEnv.SkipWeekends = false;
-                postingEnv.Rules = postingEnv.JournalRules;
-                postingEnv.Trades = finalTradeList.Where(i => i.SecurityType.Equals("Journals")).ToArray();
-                postingEnv.CallBack = postingEngineCallBack;
-                count = count + RunAsync(connection, transaction, postingEnv).GetAwaiter().GetResult();
+                count = count + RunAsync(connection, transaction, tradingPostingEnv).GetAwaiter().GetResult();
                 sw.Stop();
+
+                new JournalLog()
+                {
+                    Key = Key,
+                    RunDate = tradingPostingEnv.RunDate,
+                    Action = $"Completed Journal Processing {sw.ElapsedMilliseconds} ms / {sw.ElapsedMilliseconds / 1000} s",
+                    ActionOn = DateTime.Now
+                }.Save(connection, transaction);
 
                 Task<int> asyncResults = null;
 
-                if (postingEnv.Journals.Count() > 0)
+                if (tradingPostingEnv.Journals.Count() > 0)
                 {
-                    asyncResults = Task.Run(() => CollectData(postingEnv, postingEnv.Journals.ToArray()));
-
-                    //CollectData(postingEnv, postingEnv.Journals);
-                    //Journals.Add(postingEnv.Journals);
+                    asyncResults = Task.Run(() => CollectData(tradingPostingEnv, tradingPostingEnv.Journals.ToArray()));
                 }
 
                 var journalLogs = new List<JournalLog>();
 
                 // Save the messages accumulated during the Run
-                foreach (var message in postingEnv.Messages)
+                foreach (var message in tradingPostingEnv.Messages)
                 {
                     journalLogs.Add(new JournalLog()
                     {
-                        Key = Key, RunDate = postingEnv.RunDate,
+                        Key = Key, RunDate = tradingPostingEnv.RunDate,
                         Action = $" Error : {message.Key}, Count : {message.Value}", ActionOn = DateTime.Now
                     });
                 }
@@ -882,7 +900,7 @@ where business_date = @busDate";
 
                 new JournalLog()
                 {
-                    Key = Key, RunDate = postingEnv.RunDate,
+                    Key = Key, RunDate = tradingPostingEnv.RunDate,
                     Action =
                         $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms / {sw.ElapsedMilliseconds / 1000} s",
                     ActionOn = DateTime.Now
@@ -894,8 +912,26 @@ where business_date = @busDate";
                 transaction.Commit();
                 postingEngineCallBack?.Invoke("Posting Engine Processing Completed");
 
-                postingEnv.Completed = true;
+                tradingPostingEnv.Completed = true;
             }
+        }
+
+        private static PostingEngineEnvironment CreateTradingEnvironment(DateTime businessDate, String period, SqlConnection connection, SqlTransaction transaction)
+        {
+            var postingEnv = new PostingEngineEnvironment(connection, transaction)
+            {
+                ConnectionString = connectionString,
+                BaseCurrency = "USD",
+                SecurityDetails = new SecurityDetails().Get(),
+                Categories = AccountCategory.Categories,
+                Types = AccountType.All,
+                BusinessDate = businessDate,
+                RunDate = System.DateTime.Now.Date,
+                Period = period,
+                Methodology = BaseTaxLotMethodology.GetTaxLotMethodology(taxLotMethodology) // Needs to be driven by the system setup
+            };
+
+            return postingEnv;
         }
 
         public static void NonDesructive(string period, Guid key, DateTime businessDate, PostingEngineCallBack postingEngineCallBack)
@@ -941,7 +977,7 @@ where business_date = @busDate";
                 var localTradeList = JsonConvert.DeserializeObject<Transaction[]>(trades.Result);
 
                 var finalTradeList = localTradeList.Where(t => t.TradeDate >= new DateTime(2019, 4, 1)).ToArray();
-                const bool DEBUG = true;
+                const bool DEBUG = false;
                 if (DEBUG)
                 {
                     var symbols = new List<string> {
@@ -955,7 +991,6 @@ where business_date = @busDate";
 
                     finalTradeList = finalTradeList.Where(t => symbols.Contains(t.Symbol)).ToArray();
                 }
-
 
                 var accrualList = JsonConvert.DeserializeObject<Wrap<Accrual>>(accruals.Result).Data;
                 PostingEngineCallBack?.Invoke("Retrieved All Data");
@@ -1343,7 +1378,9 @@ where business_date = @busDate";
             if (maxSettleDate < DateTime.Now)
                 endDate = maxSettleDate;
 
-            //var endDate = postingEnv.BusinessDate;
+            endDate = new DateTime(2019, 12, 17);
+
+            //endDate = postingEnv.BusinessDate;
 
             int totalDays = (int) (endDate - valueDate).TotalDays;
             int daysProcessed = 0;

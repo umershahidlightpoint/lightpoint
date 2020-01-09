@@ -9,7 +9,10 @@ namespace PostingEngine.TaxLotMethods
     public class TaxLotDetail
     {
         public Transaction Trade { get; set; }
+        public TaxLotStatus TaxLotStatus { get; set; }
         public TradeTaxRate TaxRate { get; set; }
+        public double PotentialPnl { get; set; }
+        public double TaxLiability { get; set; }
     }
 
     class BaseTaxLotMethodology
@@ -57,14 +60,21 @@ namespace PostingEngine.TaxLotMethods
                 var local = lots.Where(i => i.IsBuy())
                     .ToList();
 
-                openLots.AddRange(local.Select(i=> new TaxLotDetail { Trade = i, TaxRate = env.TradeTaxRate(i) }));
+                openLots.AddRange(local.Select(i=> new TaxLotDetail {
+                    Trade = i,
+                    TaxLotStatus = env.FindTaxLotStatus(i),
+                    TaxRate = env.TradeTaxRate(i)
+                }));
             }
             else if (element.IsCover())
             {
                 var local = lots.Where(i => i.IsShort())
                     .ToList();
 
-                openLots.AddRange(local.Select(i => new TaxLotDetail { Trade = i, TaxRate = env.TradeTaxRate(i) }));
+                openLots.AddRange(local.Select(i => new TaxLotDetail {
+                    Trade = i,
+                    TaxLotStatus = env.FindTaxLotStatus(i),
+                    TaxRate = env.TradeTaxRate(i) }));
             }
 
             return openLots;

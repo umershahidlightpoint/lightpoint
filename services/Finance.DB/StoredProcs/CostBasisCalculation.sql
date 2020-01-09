@@ -1,6 +1,7 @@
-﻿/* Examples
+﻿/* 
+Examples
 
-exec CostBasisCalculation '2019-11-19'
+exec CostBasisCalculation '2019-12-17'
 */
 CREATE PROCEDURE [dbo].[CostBasisCalculation]
 	@businessDate Date
@@ -9,9 +10,6 @@ AS
 DECLARE @bDate as Date
 SET @bDate = @businessDate
 
-DECLARE @symbol Varchar(10)
-SET @symbol = 'CONN'
-
 select SecurityCode, BbergCode, coalesce(sd.Multiplier, sf.ContractSize) as Multiplier 
 into #security_details
 from SecurityMaster..Security s
@@ -19,12 +17,12 @@ left join SecurityMaster..SecDerivatives sd on sd.SecurityId = s.SecurityId
 left join SecurityMaster..SecFutures sf on sf.SecurityId = s.SecurityId
 where coalesce(sd.Multiplier, sf.ContractSize) is not null
 
-select @bDate as business_date, open_id, symbol, side, SUM(original_quantity) as quantity, MAX(trade_price) as trade_price
+select @bDate as business_date, open_id, tls.symbol, tls.side, t.TradeCurrency, SUM(original_quantity) as quantity, MAX(trade_price) as trade_price
 into #tax_lot_status
-from tax_lot_status where trade_date <= @bDate
-group by open_id, symbol, side
-
-select * from #tax_lot_status where symbol = @symbol
+from tax_lot_status tls
+inner join current_trade_state t on t.lpOrderId = open_id
+where trade_date <= @bDate
+group by open_id, tls.symbol, tls.side, t.TradeCurrency
 
 select @bDate as business_date, open_lot_id, sum(abs(quantity)) as quantity
 into #tax_lot
@@ -36,16 +34,20 @@ select tls.business_date, tls.symbol, side,
 Abs(coalesce(tls.quantity,0)) as totalQuantity, 
 Abs(coalesce(tl.quantity,0)) as consumedQuantity, 
 Abs(coalesce(tls.quantity,0)) - Abs(coalesce(tl.quantity,0)) as quantity,
-(Abs(coalesce(tls.quantity,0)) - Abs(coalesce(tl.quantity,0))) * coalesce(mp.price,1) as investment_at_cost,
-coalesce(mp.price,1) as market_price
+case
+	when TradeCurrency = 'GBX' or TradeCurrency = 'GBp' then (Abs(coalesce(tls.quantity,0)) - Abs(coalesce(tl.quantity,0))) * coalesce(mp.price,1) / 100.0 
+	else (Abs(coalesce(tls.quantity,0)) - Abs(coalesce(tl.quantity,0))) * coalesce(mp.price,1) 
+end as investment_at_cost,
+case
+	when TradeCurrency = 'GBX' or TradeCurrency = 'GBp' then coalesce(mp.price,1) / 100.0 
+	else coalesce(mp.price,1) 
+end as market_price
 -- coalesce(tls.investment_at_cost,0) + coalesce(tl.Investment_at_cost,0) as investment_at_cost 
 into #tax_lots_final
 from #tax_lot_status tls
 inner join market_prices mp on mp.business_date = @bDate and mp.symbol = tls.symbol
 left outer join #tax_lot tl on tl.open_lot_id = tls.open_id
 order by tls.symbol
-
-select * from #tax_lots_final where symbol = @symbol
 
 select 
 @bDate as busdate,
@@ -66,8 +68,6 @@ left outer join #security_details sd on sd.SecurityCode = tls.symbol
 where tls.business_date <= @bDate
 group by tls.symbol, side
 
-select * from #costbasis_all where symbol = @symbol
-
 /*
 LONG
 */
@@ -82,7 +82,7 @@ and j.[when] <= @bDate
 group by j.symbol
 
 -- realized
-SELECT @bDate as busdate, j.symbol, sum(credit - debit) as realized_pnl, 'LONG' as Side
+SELECT @bDate as busdate, j.symbol, sum(debit - credit) as realized_pnl, 'LONG' as Side
 into #realized_long
 FROM vwJournal j
 where AccountType = 'LONG POSITIONS AT COST'
@@ -103,7 +103,7 @@ and j.[when] <= @bDate
 group by j.symbol
 
 -- realized
-SELECT @bDate as busdate, j.symbol, sum(credit - debit) as realized_pnl, 'SHORT' as Side
+SELECT @bDate as busdate, j.symbol, sum(debit - credit) as realized_pnl, 'SHORT' as Side
 into #realized_short
 FROM vwJournal j
 where AccountType = 'SHORT POSITIONS AT COST'
@@ -161,8 +161,5 @@ left outer join #security_details sd on sd.SecurityCode = cb.symbol
 where cb.Side = 'SHORT'
 
 commit tran
-
-select * from cost_basis where business_date = @bDate and Side in ('LONG', 'SHORT')
-and Symbol = @symbol
 
 RETURN

@@ -206,7 +206,7 @@ namespace PostingEngine.PostingRules
                                 CommonRules.PostRealizedPnl(
                                     env,
                                     buyTrade, 
-                                    PnL,
+                                    taxlot.RealizedPnl,
                                     taxlot.TradePrice,
                                     taxlot.CostBasis, fxrate);
 
@@ -230,7 +230,7 @@ namespace PostingEngine.PostingRules
                                 var fromJournal = new Journal(element)
                                 {
                                     Account = fromAccount,
-                                    CreditDebit = env.DebitOrCredit(fromAccount, PnL),
+                                    CreditDebit = env.DebitOrCredit(fromAccount, taxlot.RealizedPnl),
                                     When = env.ValueDate,
                                     StartPrice = taxlot.TradePrice,
                                     EndPrice = taxlot.CostBasis,
@@ -247,7 +247,7 @@ namespace PostingEngine.PostingRules
                                     StartPrice = taxlot.TradePrice,
                                     EndPrice = taxlot.CostBasis,
                                     FxRate = 1,
-                                    CreditDebit = env.DebitOrCredit(toAccount, PnL * -1),
+                                    CreditDebit = env.DebitOrCredit(toAccount, taxlot.RealizedPnl),
                                     Value = PnL * -1,
                                     Event = "realizedpnl",
                                     Fund = env.GetFund(element),
@@ -263,9 +263,7 @@ namespace PostingEngine.PostingRules
 
                                 workingQuantity += taxlotStatus.Quantity;
 
-                                var PnL = Math.Abs(taxlot.Quantity) * (taxlot.CostBasis - taxlot.TradePrice) * fxrate;
-
-                                CommonRules.PostRealizedPnl(env, element, PnL, taxlot.TradePrice, taxlot.CostBasis,fxrate);
+                                CommonRules.PostRealizedPnl(env, element, taxlot.RealizedPnl, taxlot.TradePrice, taxlot.CostBasis,fxrate);
 
                                 taxlotStatus.Quantity = 0;
                                 taxlotStatus.Status = "Closed";
