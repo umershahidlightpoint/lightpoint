@@ -22,13 +22,23 @@ export class MaintenanceApiService {
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
-  getClosingTaxLots(lporderid) {
-    const url = this.baseUrl + '/journal/closingTaxLots?orderid=' + lporderid;
+  getLatestJournalDate() {
+    const url = this.baseUrl + '/journal/lastPostedDate';
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
-  getLatestJournalDate() {
-    const url = this.baseUrl + '/journal/lastPostedDate';
+  getAllClosingTaxLots() {
+    const url = this.baseUrl + '/journal/allClosingTaxLots';
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
+
+  taxLotReversal(obj) {
+    const url = this.baseUrl + 'api/taxLotMaintenance/reverseTaxLotAlleviation';
+    return this.http.put(url,obj).pipe(map((response: any) => response));
+  }
+
+  getProspectiveTradesToAlleviateTaxLot(symbol: string, side: string) {
+    const url = this.baseUrl + 'api/taxLotMaintenance/taxlotsReport?symbol=' + symbol + '&side=' + side;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 }
