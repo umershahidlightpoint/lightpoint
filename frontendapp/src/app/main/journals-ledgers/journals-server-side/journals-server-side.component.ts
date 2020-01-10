@@ -509,7 +509,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         }
       }
     ];
-    if (params.node.field === 'AccountType') {
+    if (params.node.field === 'AccountType' && params.node.data.balance !== 0) {
       addCustomItems.push({
         name: 'Contra Entry',
         action: () => {
