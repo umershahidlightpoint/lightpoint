@@ -88,7 +88,7 @@ namespace LP.Finance.Common.Models
             // read the table structure from the database
             var localconnection = new SqlConnection(connection.ConnectionString + ";Password=ggtuser");
             localconnection.Open();
-            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 cost_basis, trade_price, open_lot_id, closing_lot_id, quantity, buisness_date, trade_date, investment_at_cost, realized_pnl FROM tax_lot", localconnection))
+            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 cost_basis, trade_price, open_lot_id, closing_lot_id, quantity, business_date, trade_date, investment_at_cost, realized_pnl FROM tax_lot", localconnection))
             {
                 adapter.Fill(table);
             };

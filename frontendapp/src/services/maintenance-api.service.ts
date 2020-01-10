@@ -43,4 +43,9 @@ export class MaintenanceApiService {
     const url = this.refDataUrl + '/trades/prospectiveTradesToAlleviateTaxLot?symbol=' + symbol + '&side=' + side;
     return this.http.get(url).pipe(map((response: any) => response));
   }
+
+  alleviateTaxLot(obj){
+    const url = this.baseUrl + '/taxLotMaintenance/alleviateTaxLot';
+    return this.http.put(url,obj).pipe(map((response: any) => response));
+  }
 }

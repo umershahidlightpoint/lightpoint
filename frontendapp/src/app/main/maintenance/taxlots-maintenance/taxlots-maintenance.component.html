@@ -13,7 +13,7 @@
   </div>
 
   <!-- Reports Main Div Starts -->
-  <div *ngIf="show" [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
+  <div [hidden]="!show" [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
     <!-- Filters Div Starts -->
     <div class="row ">
       <!-- Funds Dropdown Div Starts -->

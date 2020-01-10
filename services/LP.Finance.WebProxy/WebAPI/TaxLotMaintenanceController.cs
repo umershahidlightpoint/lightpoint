@@ -23,9 +23,9 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [Route("alleviateTaxLot")]
         [HttpPut]
-        public object AlleviateTaxLot()
+        public object AlleviateTaxLot(AlleviateTaxLotDto obj)
         {
-            return controller.AlleviateTaxLot();
+            return controller.AlleviateTaxLot(obj);
         }
 
     }

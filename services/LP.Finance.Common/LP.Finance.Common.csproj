@@ -60,6 +60,7 @@
     <Compile Include="Dtos\MarketPriceInputDto.cs" />
     <Compile Include="Dtos\ClosedTaxLot.cs" />
     <Compile Include="Dtos\OpenTaxLot.cs" />
+    <Compile Include="Dtos\ProspectiveTradeDto.cs" />
     <Compile Include="Dtos\SettingInputDto.cs" />
     <Compile Include="Dtos\SettingInputPatchDto.cs" />
     <Compile Include="Dtos\SettingTagInputDto.cs" />

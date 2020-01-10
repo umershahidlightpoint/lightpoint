@@ -1,5 +1,6 @@
 ﻿using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
+using LP.Finance.Common.Models;
 using SqlDAL.Core;
 using System;
 using System.Collections.Generic;
@@ -52,7 +53,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.VerifyConnection();
                 sqlHelper.SqlBeginTransaction();
                 UpdateTaxLot(obj, sqlHelper);
-                UpdateTaxLotStatus(obj, sqlHelper);
+                UpdateTaxLotStatus(obj.OpenLots, sqlHelper);
                 sqlHelper.SqlCommitTransaction();
                 sqlHelper.CloseConnection();
 
@@ -64,10 +65,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        private static void UpdateTaxLotStatus(TaxLotReversalDto obj, SqlHelper sqlHelper)
+        private static void UpdateTaxLotStatus(List<OpenTaxLot> obj, SqlHelper sqlHelper)
         {
             List<List<SqlParameter>> listOfTaxLotStatusParameters = new List<List<SqlParameter>>();
-            foreach (var item in obj.OpenLots)
+            foreach (var item in obj)
             {
                 List<SqlParameter> taxLotStatusParams = new List<SqlParameter>
                     {
@@ -116,9 +117,107 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        public object AlleviateTaxLot()
+        private static void InsertTaxLot(List<TaxLot> obj, SqlHelper sqlHelper)
         {
-            throw new NotImplementedException();
+            new SQLBulkHelper().Insert("tax_lot",obj.ToArray(),
+                        sqlHelper.GetConnection(), sqlHelper.GetTransaction());
+        }
+
+        public object AlleviateTaxLot(AlleviateTaxLotDto obj)
+        {
+            try
+            {
+                string symbol = obj.ProspectiveTrade.Symbol;
+                string side = obj.ProspectiveTrade.Side;
+                string message = "Tax Lot(s) Alleviated Successfully";
+                if (side.Equals("COVER"))
+                {
+                    if (!obj.OpenTaxLots.All(x => x.Side.Equals("SHORT")))
+                    {
+                        message = "All selected lots are not SHORT";
+                    }
+                }
+                else if (side.Equals("SELL"))
+                {
+                    if (!obj.OpenTaxLots.All(x => x.Side.Equals("BUY")))
+                    {
+                        message = "All selected lots are not BUY";
+                    }
+                }
+                else
+                {
+                    message = "Incorrect side for this transaction";
+                }
+
+                int lotSum = obj.OpenTaxLots.Sum(x => Math.Abs(x.RemainingQuantity));
+                int prospectiveTradeQuantity = Math.Abs(obj.ProspectiveTrade.Quantity);
+                if (lotSum < prospectiveTradeQuantity)
+                {
+                    message = "Quantity Mismatch";
+                }
+
+                List<TaxLot> taxLotList = new List<TaxLot>();
+                TaxLot t = new TaxLot();
+                foreach (var item in obj.OpenTaxLots)
+                {
+                    if(Math.Abs(item.RemainingQuantity) <= prospectiveTradeQuantity)
+                    {
+                        item.Status = "Closed";
+                        if(Math.Abs(item.RemainingQuantity) < prospectiveTradeQuantity)
+                        {
+                            t.Quantity = Math.Abs(item.RemainingQuantity);
+                        }
+                        else
+                        {
+                           t.Quantity = prospectiveTradeQuantity;
+                        }
+
+                        prospectiveTradeQuantity -= Math.Abs(item.RemainingQuantity);
+                        item.RemainingQuantity = 0;
+
+                    }
+                    else if (Math.Abs(item.RemainingQuantity) > prospectiveTradeQuantity)
+                    {
+                        item.Status = "Partially Closed";
+                        int absRemainingQuantity = Math.Abs(item.RemainingQuantity) - prospectiveTradeQuantity;
+                        t.Quantity = prospectiveTradeQuantity;
+                        prospectiveTradeQuantity = 0;
+                        if (item.RemainingQuantity < 0)
+                        {
+                            item.RemainingQuantity = absRemainingQuantity * -1;
+                        }
+                        else
+                        {
+                            item.RemainingQuantity = absRemainingQuantity;
+                        }
+                    }
+
+                    t.OpeningLotId = item.OpenLotId;
+                    t.ClosingLotId = obj.ProspectiveTrade.LpOrderId;
+
+                    //TODO. temporary assignment for now
+                    t.BusinessDate = DateTime.UtcNow;
+                    t.CostBasis = 0;
+                    t.InvestmentAtCost = 0;
+                    t.TradeDate = DateTime.UtcNow;
+                    t.TradePrice = 0;
+                    taxLotList.Add(t);
+                }
+
+                SqlHelper sqlHelper = new SqlHelper(connectionString);
+                sqlHelper.VerifyConnection();
+                sqlHelper.SqlBeginTransaction();
+                InsertTaxLot(taxLotList, sqlHelper);
+                UpdateTaxLotStatus(obj.OpenTaxLots, sqlHelper);
+                sqlHelper.SqlCommitTransaction();
+                sqlHelper.CloseConnection();
+                return Utils.Wrap(true, null, HttpStatusCode.OK, message);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+
         }
     }
 }

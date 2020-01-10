@@ -10,7 +10,7 @@
   <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
     <!-- Tab View Starts -->
     <tabset class="tab-color">
-      <tab heading="Tax Lots Maintenance" (selectTab)="activeTaxLotReport()">
+      <tab heading="Tax Lot Maintenance" (selectTab)="activeTaxLotReport()">
         <div [ngStyle]="style">
           <app-taxlots-maintenance *ngIf="taxLotReportActive"></app-taxlots-maintenance>
         </div>

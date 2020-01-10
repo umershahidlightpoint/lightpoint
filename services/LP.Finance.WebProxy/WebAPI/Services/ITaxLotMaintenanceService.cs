@@ -10,6 +10,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
     public interface ITaxLotMaintenanceService
     {
         object ReverseTaxLotAlleviation(TaxLotReversalDto obj);
-        object AlleviateTaxLot();
+        object AlleviateTaxLot(AlleviateTaxLotDto obj);
     }
 }

@@ -63,6 +63,8 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
   style = Style;
 
   styleForHeight = HeightStyle(220);
+  activeTradeSymbol: string;
+  activeTradeSide: string;
 
   // private filterSubject: Subject<string> = new Subject();
   filterBySymbol = '';
@@ -358,7 +360,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
       animateRows: true,
       suppressHorizontalScroll: false,
       suppressColumnVirtualisation: true,
-      getContextMenuItems: params => this.getContextMenuItems(params),
+      getContextMenuItems: params => this.getContextMenuItemsForProspectiveTrades(params),
       onGridReady: params => {
         this.closingTaxLots.excelStyles = ExcelStyle;
       },
@@ -372,9 +374,22 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
 
       columnDefs: [
         {
+          field: 'id',
+          width: 120,
+          headerName: 'id',
+          hide: true
+        },
+        {
           field: 'lpOrderId',
           width: 120,
           headerName: 'LPOrderId',
+          sortable: true,
+          filter: true
+        },
+        {
+          field: 'quantity',
+          width: 120,
+          headerName: 'Quantity',
           sortable: true,
           filter: true
         },
@@ -481,15 +496,41 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
 
   onRowSelected(event) {
     const { open_id } = event.data;
+    if((event.data.side === "BUY" || event.data.side === "SHORT") && (event.data.status === "Open" || event.data.status === "Partially Closed")){
+      if(event.data.symbol !== this.activeTradeSymbol || event.data.side !== this.activeTradeSide){
+        this.getProspectiveTrades(event.data.symbol, event.data.side);
+      }
+    }
     if (this.closingTaxLots.api) {
       this.closingTaxLots.api.forEachNodeAfterFilter((rowNode, index) => {
         if (rowNode.data.open_lot_id === open_id) {
           rowNode.setSelected(true);
+          this.closingTaxLots.api.ensureIndexVisible(rowNode.rowIndex);
         } else {
           rowNode.setSelected(false);
         }
       });
     }
+  }
+
+  getProspectiveTrades(symbol, side){
+    this.maintenanceApiService.getProspectiveTradesToAlleviateTaxLot(symbol, side).subscribe(resp => {
+      if(resp.isSuccessful){
+        const trades = resp.payload.map(x => ({
+          id: x.id,
+          quantity: x.Quantity,
+          lpOrderId : x.LPOrderId,
+          symbol : x.Symbol,
+          side: x.Side
+        }))
+
+        this.activeTradeSide = side;
+        this.activeTradeSymbol = symbol;
+        this.tradeGridOptions.api.setRowData(trades);
+      }
+    }, error => {
+
+    })
   }
 
   onFilterChanged() {
@@ -537,6 +578,80 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
       }
     ];
     return GetContextMenu(false, addDefaultItems, true, null, params);
+  }
+
+  getContextMenuItemsForProspectiveTrades(params) {
+    const addDefaultItems = [
+      {
+        name: 'Alleviate Tax Lot',
+        action: () => {
+          this.alleviateTaxLot();
+        }
+      }
+    ];
+    return GetContextMenu(false, addDefaultItems, true, null, params);
+  }
+
+  alleviateTaxLot(){
+    this.isLoading = true;
+    this.show = false;
+    const taxLotStatus = this.gridOptions.api.getSelectedRows();
+    const trades = this.tradeGridOptions.api.getSelectedRows();
+
+    if (taxLotStatus.length == 0) {
+      this.toasterService.info('Tax lot(s) not selected');
+      this.isLoading = false;
+      this.show = true;
+      return;
+    }
+    if (trades.length == 0) {
+      this.toasterService.info('Trade not selected');
+      this.isLoading = false;
+      this.show = true;
+      return;
+    }
+
+    const taxLotStatusPayload = taxLotStatus.map(x => ({
+      Id: x.id,
+      OpenLotId: x.open_id,
+      Symbol: x.symbol,
+      Status: x.status,
+      Side: x.side,
+      OriginalQuantity: x.original_quantity,
+      RemainingQuantity: x.quantity
+    }));
+
+    const tradesPayload = trades.map(x => ({
+      Id: x.id,
+      LpOrderId: x.lpOrderId,
+      Symbol: x.symbol,
+      Side: x.side,
+      Quantity: x.quantity
+    }));
+
+    const payload = {
+      OpenTaxLots: taxLotStatusPayload,
+      ProspectiveTrade: tradesPayload[0]
+    }
+
+    this.maintenanceApiService.alleviateTaxLot(payload).subscribe(
+      resp => {
+        if (resp.isSuccessful) {
+          this.toasterService.info('Tax lot(s) alleviated successfully');
+          this.isLoading = false;
+          this.show = true;
+          this.refreshTaxLots();
+        } else {
+          this.toasterService.error('An error occured while alleviating tax lots');
+          this.isLoading = false;
+          this.show = true;
+        }
+      },
+      error => {
+        this.toasterService.error('An error occured while alleviating tax lots');
+      }
+    );
+
   }
 
   reverseTaxLotAlleviation() {
@@ -587,7 +702,9 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
           this.show = true;
         }
       },
-      error => {}
+      error => {
+        this.toasterService.error('An error occured while reversing tax lots');
+      }
     );
   }
 
@@ -698,6 +815,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
       this.gridOptions.api.forEachLeafNode(rowNode => {
         if (rowNode.data.open_id === open_lot_id) {
           rowNode.setSelected(true);
+          this.gridOptions.api.ensureIndexVisible(rowNode.rowIndex);
         } else {
           rowNode.setSelected(false);
         }

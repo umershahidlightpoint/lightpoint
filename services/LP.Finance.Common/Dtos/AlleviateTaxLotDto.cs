@@ -8,6 +8,7 @@ namespace LP.Finance.Common.Dtos
 {
     public class AlleviateTaxLotDto
     {
-
+        public List<OpenTaxLot> OpenTaxLots { get; set; }
+        public ProspectiveTradeDto ProspectiveTrade { get; set; }
     }
 }
