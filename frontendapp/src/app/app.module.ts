@@ -3,6 +3,7 @@ Core/Libraries Imports
 */
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { DecimalPipe } from '@angular/common';
 import { AppRoutingModule } from './app-routing.module';
 import { HttpClientModule } from '@angular/common/http';
@@ -63,9 +64,9 @@ import { JournalsSummaryComponent } from './main/summary/journals-summary/journa
 import { JournalsSummayDetailComponent } from './main/summary/journals-summay-detail/journals-summay-detail.component';
 
 // Journals Ledger
-import { JournalsLayoutComponent } from './main/journals-ledgers/journals-layout.component';
-import { JournalsLedgersComponent } from './main/journals-ledgers/journals-client-side/journals-ledgers.component';
-import { JournalsServerSideComponent } from './main/journals-ledgers/journals-server-side/journals-server-side.component';
+// import { JournalsLayoutComponent } from './main/journals-ledgers/journals-layout.component';
+// import { JournalsLedgersComponent } from './main/journals-ledgers/journals-client-side/journals-ledgers.component';
+// import { JournalsServerSideComponent } from './main/journals-ledgers/journals-server-side/journals-server-side.component';
 
 // Maintenance
 import { MaintenanceComponent } from './main/maintenance/maintenance.component';
@@ -119,118 +120,122 @@ import { ConfirmationModalComponent } from '../shared/Component/confirmation-mod
 import { DataModalComponent } from '../shared/Component/data-modal/data-modal.component';
 import { DataGridModalComponent } from '../shared/Component/data-grid-modal/data-grid-modal.component';
 import { ReportModalComponent } from '../shared/Component/report-modal/report-modal.component';
-import { JournalModalComponent } from './main/journals-ledgers/journals-client-side/journal-modal/journal-modal.component';
+// import { JournalModalComponent } from './main/journals-ledgers/journals-client-side/journal-modal/journal-modal.component';
 import { TaxRateModalComponent } from './main/fund-theoretical/tax-rates/tax-rate-modal/tax-rate-modal.component';
 import { DatePickerModalComponent } from '../shared/Component/date-picker-modal/date-picker-modal.component';
 import { GridUtilsComponent } from '../shared/Component/grid-utils/grid-utils.component';
 import { NotfoundComponent } from './main/not-found/notfound/notfound.component';
+import { SharedModule } from './shared.module';
 
 @NgModule({
   declarations: [
     AppComponent,
     HeaderComponent,
     LeftMenuComponent,
-    GridLayoutMenuComponent,
-    TemplateRendererComponent,
-    AgGridCheckboxComponent,
+    // GridLayoutMenuComponent,
+    // TemplateRendererComponent,
+    // AgGridCheckboxComponent,
     // Reports
-    ReportsComponent,
-    BalanceReportComponent,
-    CostBasisComponent,
-    DayPnlComponent,
-    BookmonReconcileComponent,
-    ReportGridComponent,
-    TaxLotsComponent,
-    TaxLotStatusComponent,
+    // ReportsComponent,
+    // BalanceReportComponent,
+    // CostBasisComponent,
+    // DayPnlComponent,
+    // BookmonReconcileComponent,
+    // ReportGridComponent,
+    // TaxLotsComponent,
+    // TaxLotStatusComponent,
     // Fund Theorietical
-    FundTheoreticalComponent,
-    CalculationGraphsComponent,
-    DailyPnlComponent,
-    FxRatesComponent,
-    MarketPricesComponent,
-    TaxRatesComponent,
+    // FundTheoreticalComponent,
+    // CalculationGraphsComponent,
+    // DailyPnlComponent,
+    // FxRatesComponent,
+    // MarketPricesComponent,
+    // TaxRatesComponent,
     // Summary
-    SummaryComponent,
-    JournalsSummaryComponent,
-    JournalsSummayDetailComponent,
+    // SummaryComponent,
+    // JournalsSummaryComponent,
+    // JournalsSummayDetailComponent,
     // Journals Ledger
-    JournalsLayoutComponent,
-    JournalsServerSideComponent,
-    JournalsLedgersComponent,
-    JournalModalComponent,
-    AccountComponent,
-    CreateAccountComponent,
-    AccountMappingComponent,
-    ChartOfAccountComponent,
-    ChartOfAccountDetailComponent,
+    // JournalsLayoutComponent,
+    // JournalsServerSideComponent,
+    // JournalsLedgersComponent,
+    // JournalModalComponent,
+    // AccountComponent,
+    // CreateAccountComponent,
+    // AccountMappingComponent,
+    // ChartOfAccountComponent,
+    // ChartOfAccountDetailComponent,
     // Maintenance
-    MaintenanceComponent,
-    TaxlotsMaintenanceComponent,
+    // MaintenanceComponent,
+    // TaxlotsMaintenanceComponent,
     // Trial Balence
-    TrialBalanceComponent,
-    TrialGridExampleComponent,
+    // TrialBalanceComponent,
+    // TrialGridExampleComponent,
     // Accruals
-    AccrualsComponent,
+    // AccrualsComponent,
     // Trade Allocation
-    TradeAllocationComponent,
-    TradesComponent,
-    AllocationsComponent,
-    JournalsComponent,
+    // TradeAllocationComponent,
+    // TradesComponent,
+    // AllocationsComponent,
+    // JournalsComponent,
     // Journal Allocation
-    JournalAllocationComponent,
+    // JournalAllocationComponent,
     // Account
-    AccountComponent,
-    CreateAccountComponent,
+    // AccountComponent,
+    // CreateAccountComponent,
     // Operations
-    OperationsComponent,
-    FileExceptionComponent,
-    FileManagementComponent,
-    FileUploadComponent,
-    SilverFileManagementComponent,
-    ServicesStatusComponent,
+    // OperationsComponent,
+    // FileExceptionComponent,
+    // FileManagementComponent,
+    // FileUploadComponent,
+    // SilverFileManagementComponent,
+    // ServicesStatusComponent,
     // Grid Views/Layouts
-    LayoutsComponent,
+    // LayoutsComponent,
     // Settings
-    SettingsComponent,
+    // SettingsComponent,
     // Logs/RunLogs
-    LogsComponent,
+    // LogsComponent,
     // Shared Components
-    LoaderComponent,
-    ConfirmationModalComponent,
-    DataModalComponent,
-    DataGridModalComponent,
-    ReportModalComponent,
-    TaxRateModalComponent,
-    DatePickerModalComponent,
-    GridUtilsComponent,
+    // LoaderComponent,
+    // ConfirmationModalComponent,
+    // DataModalComponent,
+    // DataGridModalComponent,
+    // ReportModalComponent,
+    // TaxRateModalComponent,
+    // DatePickerModalComponent,
+    // GridUtilsComponent,
     NotfoundComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    CommonModule,
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
     AppRoutingModule,
     MaterialModule,
-    AgGridModule.withComponents([
-      TemplateRendererComponent,
-      GridLayoutMenuComponent,
-      AgGridCheckboxComponent
-    ]),
+    // AgGridModule.withComponents([
+    //   TemplateRendererComponent,
+    //   GridLayoutMenuComponent,
+    //   AgGridCheckboxComponent
+    // ]),
     NgxDaterangepickerMd.forRoot({
       applyLabel: 'Okay',
       firstDay: 1
     }),
     TabsModule.forRoot(),
     ModalModule.forRoot(),
-    TypeaheadModule.forRoot(),
+    // TypeaheadModule.forRoot(),
     BsDropdownModule.forRoot(),
     TooltipModule.forRoot(),
     ToastrModule.forRoot(),
     AngularSplitModule.forRoot(),
-    NgcatalystModule
+    NgcatalystModule,
+    // SharedModule.forRoot()
   ],
+  exports: [],
   providers: [
     SidenavService,
     FinanceServiceProxy,
