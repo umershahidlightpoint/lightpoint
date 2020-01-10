@@ -27,14 +27,15 @@ export class JournalModalComponent implements OnInit {
   dummyAccount: Account;
   fromAccountCheck: number;
   toAccountCheck: number;
-  selectedAsOfDate: { startDate: moment.Moment; endDate: moment.Moment };
   maxDate: any;
-
+  selectedAsOfDate: { startDate: moment.Moment; endDate: moment.Moment };
   isAsOfDateValid = false;
   valueTypes: { name: string; value: string }[] = [
     { name: 'Debit', value: 'debit' },
     { name: 'Credit', value: 'credit' }
   ];
+  fromJournalId = 0;
+  toJournalId = 0;
   commentId = 0;
   contraEntryValue = 0;
   selectedRow: Journal;
@@ -110,25 +111,27 @@ export class JournalModalComponent implements OnInit {
 
   saveJournal() {
     this.isSaving = true;
-    debugger;
 
     const journalObject = {
       fund: this.journalForm.value.fund,
       accountFrom:
         this.selectedAccountFromObj !== null
           ? {
+              ...(this.fromJournalId !== 0 && { journalId: this.fromJournalId }),
               accountId: this.selectedAccountFromObj.accountId,
               entryType: this.journalForm.value.toAccountValueType === 'debit' ? 'credit' : 'debit',
               accountCategoryId: this.selectedAccountFromObj.categoryId,
               accountTypeId: this.selectedAccountFromObj.typeId
             }
           : {
+              ...(this.fromJournalId !== 0 && { journalId: this.fromJournalId }),
               accountId: this.dummyAccount.accountId,
               entryType: this.journalForm.value.toAccountValueType === 'debit' ? 'credit' : 'debit',
               accountCategoryId: 0,
               accountTypeId: this.dummyAccount.typeId
             },
       accountTo: {
+        ...(this.toJournalId !== 0 && { journalId: this.toJournalId }),
         accountId: this.selectedAccountToObj.accountId,
         entryType: this.journalForm.value.toAccountValueType,
         accountCategoryId: this.selectedAccountToObj.categoryId,
@@ -264,7 +267,11 @@ export class JournalModalComponent implements OnInit {
       this.journalApiService.getJournal(source).subscribe(response => {
         if (response.isSuccessful) {
           const { Fund, AccountFrom, AccountTo, When, CommentId, Comment } = response.payload;
+          this.contraEntryValue = AccountTo.Value;
+          this.fromJournalId = AccountFrom !== null ? AccountFrom.JournalId : 0;
+          this.toJournalId = AccountTo !== null ? AccountTo.JournalId : 0;
           this.commentId = CommentId;
+          this.contraEntryMode = this.fromJournalId === 0 ? true : false;
 
           const journalAccountFrom: Account =
             AccountFrom !== null
@@ -294,9 +301,9 @@ export class JournalModalComponent implements OnInit {
           this.setFormValues(
             Fund,
             journalAccountFrom,
-            AccountFrom,
+            AccountFrom !== null && AccountFrom.CreditDebit,
             journalAccountTo,
-            AccountTo,
+            AccountTo !== null && AccountTo.CreditDebit,
             When,
             AccountTo.Value,
             Comment
@@ -320,7 +327,7 @@ export class JournalModalComponent implements OnInit {
         null,
         null,
         accountTo,
-        null,
+        'debit',
         when,
         balance,
         'A Contra Journal Entry!'
@@ -333,9 +340,9 @@ export class JournalModalComponent implements OnInit {
   setFormValues(
     fund: any,
     journalAccountFrom: Account,
-    accountFrom: any,
+    fromAccountValueType: any,
     journalAccountTo: Account,
-    accountTo: any,
+    toAccountValueType: any,
     when: any,
     value: number,
     comment: string
@@ -343,13 +350,9 @@ export class JournalModalComponent implements OnInit {
     this.journalForm.form.patchValue({
       ...(fund !== null && { fund }),
       ...(journalAccountFrom !== null && { fromAccount: journalAccountFrom }),
-      ...(accountFrom !== null && {
-        fromAccountValueType: accountFrom.CreditDebit
-      }),
+      ...(fromAccountValueType !== null && { fromAccountValueType }),
       ...(journalAccountTo !== null && { toAccount: journalAccountTo }),
-      ...(accountTo !== null && {
-        toAccountValueType: accountTo.CreditDebit
-      }),
+      ...(toAccountValueType !== null && { toAccountValueType }),
       ...(when !== null && {
         selectedAsOfDate: {
           startDate: moment(when, 'MM/DD/YYYY'),
@@ -375,6 +378,10 @@ export class JournalModalComponent implements OnInit {
     this.selectedAccountToObj = null;
     this.selectedAccountFrom = '';
     this.selectedAccountFromObj = null;
+    this.contraEntryValue = 0;
+    this.commentId = 0;
+    this.fromJournalId = 0;
+    this.toJournalId = 0;
 
     this.journalForm.resetForm({
       fund: '',

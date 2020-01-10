@@ -132,6 +132,8 @@
     <Build Include="Tables\current_journals.sql" />
     <Build Include="Tables\current_trade_state.sql" />
     <Build Include="StoredProcs\CacheResults.sql" />
+    <Build Include="StoredProcs\SyncManualJournal.sql" />
+    <Build Include="StoredProcs\UpdateManualJournal.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">
@@ -152,5 +154,8 @@
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="LP.Finance.DB.refactorlog" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LP.Finance.DB.publish.xml" />
   </ItemGroup>
 </Project>
