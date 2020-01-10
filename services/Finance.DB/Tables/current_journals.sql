@@ -18,5 +18,6 @@ value numeric(22,9),
 source [varchar](50),
 start_price numeric(22,9),
 end_price numeric(22,9),
-fxrate numeric(22,9)
+fxrate numeric(22,9),
+is_account_to BIT NOT NULL DEFAULT 1,
 )
