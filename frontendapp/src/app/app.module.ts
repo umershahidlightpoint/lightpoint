@@ -17,7 +17,7 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { ToastrModule } from 'ngx-toastr';
 import { AgGridModule } from 'ag-grid-angular';
-import { NgcatalystModule } from 'ngcatalyst';
+// import { NgcatalystModule } from 'ngcatalyst';
 
 /*
 Services
@@ -232,7 +232,7 @@ import { SharedModule } from './shared.module';
     TooltipModule.forRoot(),
     ToastrModule.forRoot(),
     AngularSplitModule.forRoot(),
-    NgcatalystModule,
+    // NgcatalystModule,
     // SharedModule.forRoot()
   ],
   exports: [],

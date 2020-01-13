@@ -8,7 +8,7 @@ import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 
 
 import { AgGridModule } from 'ag-grid-angular';
-import { NgcatalystModule } from 'ngcatalyst';
+// import { NgcatalystModule } from 'ngcatalyst';
 import { ReportsComponent } from './reports.component';
 import { BalanceReportComponent } from './balance-report/balance-report.component';
 import { BookmonReconcileComponent } from './bookmon-reconcile/bookmon-reconcile.component';
@@ -18,7 +18,7 @@ import { DayPnlComponent } from './daypnl-reconcile/daypnl-reconcile.component';
 import { TaxLotsComponent } from './taxlots/taxlots.component';
 import { TaxLotStatusComponent } from './taxlotstatus/taxlotstatus.component';
 import { TrialBalanceComponent } from './trial-balance/trial-balance.component';
-import { CalculationGraphsComponent } from '../fund-theoretical/calculation-graphs/calculation-graphs.component';
+// import { CalculationGraphsComponent } from '../fund-theoretical/calculation-graphs/calculation-graphs.component';
 import { JournalsComponent } from '../journals/journals.component';
 import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
 
@@ -41,7 +41,7 @@ const reportComponents = [
     TaxLotsComponent,
     TaxLotStatusComponent,
     TrialBalanceComponent,
-    CalculationGraphsComponent,
+    // CalculationGraphsComponent,
     JournalsComponent,
     // DataModalComponent
     // GridLayoutMenuComponent,
@@ -63,7 +63,7 @@ const reportComponents = [
         applyLabel: 'Okay',
         firstDay: 1
       }),
-    NgcatalystModule,
+    // NgcatalystModule,
     SharedModule,
     //   AgGridModule.withComponents([
     //     GridLayoutMenuComponent,
