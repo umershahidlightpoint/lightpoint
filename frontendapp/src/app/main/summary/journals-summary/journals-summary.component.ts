@@ -33,6 +33,7 @@ import {
 } from 'src/shared/utils/Shared';
 import { JournalApiService } from 'src/services/journal-api.service';
 import { GridLayoutApiService } from 'src/services/grid-layout-api.service';
+import { CacheService } from 'src/services/common/cache.service';
 
 @Component({
   selector: 'app-journals-summary',
@@ -168,6 +169,7 @@ export class JournalsSummaryComponent implements OnInit {
   constructor(
     private financeService: FinanceServiceProxy,
     private journalApiService: JournalApiService,
+    private cacheService: CacheService,
     private gridLayoutApiService: GridLayoutApiService,
     private toastrService: ToastrService,
     private dataDictionary: DataDictionary,
@@ -218,7 +220,7 @@ export class JournalsSummaryComponent implements OnInit {
       tableName: 'vwFullJournal',
       filters: ['fund', 'symbol', 'AccountCategory', 'AccountType', 'AccountName', 'fx_currency']
     };
-    this.journalApiService.getServerSideJournalsMeta(payload).subscribe(result => {
+    this.cacheService.getServerSideJournalsMeta(payload).subscribe(result => {
       // let commonColDefs = result.payload.Columns;
       // commonColDefs = CommonCols(true, result.payload.Filters);
 

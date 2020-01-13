@@ -26,4 +26,8 @@ export class CacheService {
       tap(data => (this.metaData = data))
     );
   }
+
+  purgeServerSideJournalsMeta(): void {
+    this.metaData = null;
+  }
 }
