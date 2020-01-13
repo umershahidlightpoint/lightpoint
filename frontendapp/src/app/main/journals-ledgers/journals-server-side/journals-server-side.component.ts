@@ -40,6 +40,7 @@ import {
   CommonCols
 } from 'src/shared/utils/Shared';
 import { JournalApiService } from 'src/services/journal-api.service';
+import { CacheService } from 'src/services/common/cache.service';
 
 @Component({
   selector: 'app-journals-server-side',
@@ -220,6 +221,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     private agGridUtls: AgGridUtils,
     private dataDictionary: DataDictionary,
     private journalApiService: JournalApiService,
+    private cacheService: CacheService,
     private toastrService: ToastrService
   ) {
     this.hideGrid = false;
@@ -344,7 +346,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     const payload = {
       GridName: GridName.journalsLedgers
     };
-    this.journalApiService.getServerSideJournalsMeta(payload).subscribe(result => {
+    this.cacheService.getServerSideJournalsMeta(payload).subscribe(result => {
       const metaColumns = result.payload.Columns;
       const commonColDefs = CommonCols(true, result.payload.Filters);
       const disabledFilters = [
@@ -495,7 +497,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       addDefaultItems.push({
         name: 'Edit',
         action: () => {
-          this.openEditModal(params.node.data);
+          this.openEditModal(params.node.data, false);
         }
       });
     }
@@ -720,10 +722,10 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   }
 
   openJournalModal() {
-    this.journalModal.openModal({});
+    this.journalModal.openModal();
   }
 
-  openEditModal(data, contraEntryMode = false) {
+  openEditModal(data, contraEntryMode) {
     this.journalModal.openModal(data, contraEntryMode);
   }
 
