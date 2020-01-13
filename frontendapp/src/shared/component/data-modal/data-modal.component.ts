@@ -1,5 +1,5 @@
 /* Core/Libraries */
-import { Component, OnInit, ViewChild, Output, Input, EventEmitter } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, Output, Input, EventEmitter } from '@angular/core';
 import { ModalDirective } from 'ngx-bootstrap';
 import { HeightStyle } from 'src/shared/utils/Shared';
 
@@ -8,7 +8,7 @@ import { HeightStyle } from 'src/shared/utils/Shared';
   templateUrl: './data-modal.component.html',
   styleUrls: ['./data-modal.component.css']
 })
-export class DataModalComponent implements OnInit {
+export class DataModalComponent implements OnInit, AfterViewInit {
   @ViewChild('modal', { static: false }) modal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
   @Input() orderId: string;
@@ -33,6 +33,12 @@ export class DataModalComponent implements OnInit {
 
   ngOnInit() {}
 
+  ngAfterViewInit(){
+    this.modal.onHidden.subscribe(e => {
+      this.customTableData = [];
+    })
+  }
+
   /*
   Open the Modal Passing in the Row Details / Custom Data
   */
@@ -48,6 +54,7 @@ export class DataModalComponent implements OnInit {
 
   closeModal() {
     this.modal.hide();
+    this.customTableData = [];
   }
 
   mapGridData(row: any, cols: any) {
