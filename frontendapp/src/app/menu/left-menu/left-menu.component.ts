@@ -31,21 +31,27 @@ export class LeftMenuComponent implements OnInit {
   ];
 
   public adminPages: Page[] = [
-    { name: 'Maintenance', routerLink: '/maintenance', icon: 'fa-wrench' },
-    { name: 'Accruals OMS', routerLink: '/accruals', icon: 'fa-files-o' },
+    { name: 'Maintenance',
+      routerLink: '/maintenance',
+      icon: 'fa-wrench'
+    },
+    {
+      name: 'Accruals OMS',
+      routerLink: 'oms/accruals',
+      icon: 'fa-files-o' },
     {
       name: 'Trades OMS',
-      routerLink: '/trade-allocation',
+      routerLink: 'oms/trade-allocation',
       icon: 'fa-exchange'
     },
     {
       name: 'Journals OMS',
-      routerLink: '/journal-allocation',
+      routerLink: 'oms/journal-allocation',
       icon: 'fa-list-alt'
     },
     { name: 'Accounts', routerLink: '/accounts', icon: 'fa-bank' },
     { name: 'Operations', routerLink: 'operations', icon: 'fa-tasks' },
-    { name: 'Grid Views', routerLink: '/grid-views', icon: 'fa-th' },
+    { name: 'Grid Views', routerLink: 'settings/grid-views', icon: 'fa-th' },
     { name: 'Settings', routerLink: '/settings', icon: 'fa-cog' }
   ];
 
