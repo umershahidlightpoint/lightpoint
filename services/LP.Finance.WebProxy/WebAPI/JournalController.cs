@@ -142,7 +142,15 @@ namespace LP.Finance.WebProxy.WebAPI
         [HttpPost]
         public object GetJournalsMetaData(JournalMetaInputDto obj)
         {
-            return controller.GetJournalsMetaData(obj);
+            var cachedData = AppStartCache.GetCachedData(obj.GridName);
+            if (cachedData.Item1)
+            {
+                return cachedData.Item2;
+            }
+            else
+            {
+                return controller.GetJournalsMetaData(obj);
+            }
         }
 
         [Route("doHaveJournals")]

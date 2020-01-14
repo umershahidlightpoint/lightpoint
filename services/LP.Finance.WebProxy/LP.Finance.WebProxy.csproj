@@ -68,6 +68,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppStartCacheHelper.cs" />
     <Compile Include="GraphQLEntities\PerformanceQuery.cs" />
     <Compile Include="GraphQLEntities\PerformanceQuerySchema.cs" />
     <Compile Include="ProjectInstaller.cs">

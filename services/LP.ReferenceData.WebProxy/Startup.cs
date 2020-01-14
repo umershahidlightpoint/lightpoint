@@ -69,8 +69,8 @@ namespace LP.ReferenceData.WebProxy
             );
 
             app.UseCors(corsOptions);
-
             app.UseWebApi(config);
+            AppStartCacheHelper.CacheReferenceData();
         }
     }
 }

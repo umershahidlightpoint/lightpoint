@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cache\AppStartCache.cs" />
     <Compile Include="Cache\DataCache.cs" />
     <Compile Include="Cache\DataCacheElement.cs" />
     <Compile Include="Calculators\DailyPnlCalculator.cs" />
