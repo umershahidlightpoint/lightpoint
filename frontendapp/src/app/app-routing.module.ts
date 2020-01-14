@@ -10,7 +10,7 @@ const routes: Routes = [
   // { path: 'analysis', component: SummaryComponent },
   // { path: 'trial-balance', component: TrialGridExampleComponent },
   {
-    path: 'oms', // will contains trade-allocation OMS, journal-allocation OMS, accruals OMS
+    path: 'oms', // contains trade-allocation OMS, journal-allocation OMS, accruals OMS
     loadChildren: './main/oms/oms.module#OmsModule'
   },
   {
