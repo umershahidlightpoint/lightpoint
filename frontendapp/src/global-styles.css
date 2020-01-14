@@ -312,6 +312,10 @@ body {
 ********     Colors    ********
 ******************************/
 
+.color-primary {
+  background: #0275d8 !important;
+}
+
 .color-white {
   color: #fff !important;
 }
