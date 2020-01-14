@@ -1,8 +1,8 @@
 import { Component, ElementRef, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { FinanceServiceProxy } from '../../../services/service-proxies';
+import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { GridOptions } from 'ag-grid-community';
-import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
-import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
+import { AgGridUtils } from '../../../../shared/utils/AgGridUtils';
+import { DataModalComponent } from '../../../../shared/Component/data-modal/data-modal.component';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { DataService } from 'src/services/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';

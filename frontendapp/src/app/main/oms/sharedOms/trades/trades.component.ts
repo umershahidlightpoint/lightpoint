@@ -7,10 +7,10 @@ import {
   EventEmitter,
   Input
 } from '@angular/core';
-import { FinanceServiceProxy } from '../../../services/service-proxies';
+import { FinanceServiceProxy } from '../../../../../services/service-proxies';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
-import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
-import { DataModalComponent } from '../../../shared/Component/data-modal/data-modal.component';
+import { AgGridUtils } from '../../../../../shared/utils/AgGridUtils';
+import { DataModalComponent } from '../../../../../shared/Component/data-modal/data-modal.component';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { DataService } from 'src/services/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
@@ -19,6 +19,7 @@ import { PostingEngineService } from 'src/services/common/posting-engine.service
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
 import { PostingEngineApiService } from 'src/services/posting-engine-api.service';
+
 @Component({
   selector: 'app-trades',
   templateUrl: './trades.component.html',

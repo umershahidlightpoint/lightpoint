@@ -7,7 +7,6 @@ import { NgcatalystModule } from 'ngcatalyst';
 import { RouterModule } from '@angular/router';
 
 import { FundTheoreticalComponent } from './fund-theoretical.component';
-import { CalculationGraphsComponent } from '../fund-theoretical/calculation-graphs/calculation-graphs.component';
 import { DailyPnlComponent } from '../fund-theoretical/daily-pnl/daily-pnl.component';
 import { FxRatesComponent } from '../fund-theoretical/fx-rates/fx-rates.component';
 import { MarketPricesComponent } from '../fund-theoretical/market-prices/market-prices.component';
@@ -19,7 +18,6 @@ import { SharedModule } from '../../shared.module';
 
 const fundtheoreticalComponents = [
     FundTheoreticalComponent,
-    CalculationGraphsComponent,
     DailyPnlComponent,
     FxRatesComponent,
     MarketPricesComponent,
@@ -29,7 +27,7 @@ const fundtheoreticalComponents = [
 
 @NgModule({
   declarations: [...fundtheoreticalComponents],
-  exports: [...fundtheoreticalComponents],
+  exports: [],
   imports: [
     CommonModule,
     TabsModule,

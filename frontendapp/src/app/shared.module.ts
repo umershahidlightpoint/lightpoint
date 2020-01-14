@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { AgGridModule } from 'ag-grid-angular';
 import { TabsModule, ModalModule, TooltipModule } from 'ngx-bootstrap';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import { NgcatalystModule } from 'ngcatalyst';
+import { ToastrModule } from 'ngx-toastr';
 
 import { GridLayoutMenuComponent } from '../shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { TemplateRendererComponent } from './template-renderer/template-renderer.component';
@@ -17,10 +19,8 @@ import { GridUtilsComponent } from '../shared/Component/grid-utils/grid-utils.co
 import { DataGridModalComponent } from '../shared/Component/data-grid-modal/data-grid-modal.component';
 import { DatePickerModalComponent } from '../shared/Component/date-picker-modal/date-picker-modal.component';
 import { LoaderComponent } from '../shared/Component/loader/loader.component';
-
-// import { HeaderComponent } from './menu/header/header.component';
-// import { LeftMenuComponent } from './menu/left-menu/left-menu.component';
-
+import { CalculationGraphsComponent } from './main/fund-theoretical/calculation-graphs/calculation-graphs.component';
+import { JournalsComponent } from './main/oms/sharedOms/journals/journals.component';
 
 @NgModule({
   imports: [
@@ -38,27 +38,28 @@ import { LoaderComponent } from '../shared/Component/loader/loader.component';
     applyLabel: 'Okay',
     firstDay: 1
   }),
+  NgcatalystModule,
+  ToastrModule.forRoot()
 ],
   declarations: [ GridLayoutMenuComponent, TemplateRendererComponent, AgGridCheckboxComponent,
                   ConfirmationModalComponent, DataModalComponent, ReportGridComponent,
                   GridUtilsComponent, DataGridModalComponent, DatePickerModalComponent,
-                  LoaderComponent
+                  LoaderComponent, CalculationGraphsComponent, JournalsComponent
                  ],
 
   exports:      [ GridLayoutMenuComponent, TemplateRendererComponent, AgGridCheckboxComponent,
                   ConfirmationModalComponent, DataModalComponent, ReportGridComponent,
                   GridUtilsComponent, DataGridModalComponent, DatePickerModalComponent,
-                  LoaderComponent,
+                  LoaderComponent, CalculationGraphsComponent, JournalsComponent,
                   CommonModule, FormsModule, AgGridModule],
-  providers: [AgGridUtils]
+ providers: [AgGridUtils]
 })
 
-// export class SharedModule {}
 export class SharedModule {
     static forRoot(): ModuleWithProviders {
       return {
         ngModule: SharedModule,
-        // providers: [CounterService]
+        // providers: []
       };
     }
   }
