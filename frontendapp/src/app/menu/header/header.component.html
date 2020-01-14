@@ -5,9 +5,11 @@
   </button>
   <!-- App Title -->
   <span>Portfolio Accounting</span>
-  <span class="spacer"></span>
-  <!-- Posting Engine Status/Progress Bar -->
-  <div class="right-corner">
+
+  <!-- Menu Items Container -->
+  <div class="d-flex ml-auto py-2">
+
+    <!-- Posting Engine Status -->
     <p *ngIf="postingEngineStatus" class="mx-2 my-0">Please wait Posting Engine is Processing</p>
     <div *ngIf="postingEngineStatus" class="progress progressContainer mr-2 mt-1">
       <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar"
@@ -30,4 +32,7 @@
       <i matTooltip="Please, Go to Operations" class="color-red-light material-tooltip-main material-icons">warning</i>
     </div>
   </div>
+  <!-- Menu Items Container Ends -->
+
 </div>
+<!-- Header Container Ends -->
