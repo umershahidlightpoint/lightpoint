@@ -377,9 +377,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     };
 
                     sqlHelper.Insert(query, CommandType.Text, accountFromParameters.ToArray(),
-                        out int accountFromJournalId);
+                        out int fromJournalId);
 
-                    SqlParameter[] fromJournalParameters = {new SqlParameter("journalId", accountFromJournalId)};
+                    SqlParameter[] fromJournalParameters = {new SqlParameter("journalId", fromJournalId)};
                     sqlHelper.Insert("SyncManualJournal", CommandType.StoredProcedure, fromJournalParameters);
                 }
 
@@ -405,9 +405,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("isAccountTo", 1)
                 };
 
-                sqlHelper.Insert(query, CommandType.Text, accountToParameters.ToArray(), out int accountToJournalId);
+                sqlHelper.Insert(query, CommandType.Text, accountToParameters.ToArray(), out int toJournalId);
 
-                SqlParameter[] toJournalParameters = {new SqlParameter("journalId", accountToJournalId)};
+                SqlParameter[] toJournalParameters = {new SqlParameter("journalId", toJournalId)};
                 sqlHelper.Insert("SyncManualJournal", CommandType.StoredProcedure, toJournalParameters);
 
                 sqlHelper.SqlCommitTransaction();
@@ -417,7 +417,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 sqlHelper.SqlRollbackTransaction();
                 sqlHelper.CloseConnection();
+
                 Console.WriteLine($"SQL Rollback Transaction Exception: {ex}");
+
                 return Utils.Wrap(false);
             }
 
@@ -559,9 +561,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                     sqlHelper.Update(accountFromQuery, CommandType.Text, accountFromParameters.ToArray());
 
-                    SqlParameter[] currentJournalFromParams =
+                    SqlParameter[] fromJournalParameters =
                         {new SqlParameter("journalId", journal.AccountFrom.JournalId)};
-                    sqlHelper.Update("UpdateManualJournal", CommandType.StoredProcedure, currentJournalFromParams);
+                    sqlHelper.Update("UpdateManualJournal", CommandType.StoredProcedure, fromJournalParameters);
                 }
 
                 List<SqlParameter> accountToParameters = new List<SqlParameter>
@@ -578,8 +580,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 sqlHelper.Update(accountToQuery, CommandType.Text, accountToParameters.ToArray());
 
-                SqlParameter[] currentJournalToParams = {new SqlParameter("journalId", journal.AccountTo.JournalId)};
-                sqlHelper.Update("UpdateManualJournal", CommandType.StoredProcedure, currentJournalToParams);
+                SqlParameter[] toJournalParameters = {new SqlParameter("journalId", journal.AccountTo.JournalId)};
+                sqlHelper.Update("UpdateManualJournal", CommandType.StoredProcedure, toJournalParameters);
 
                 sqlHelper.SqlCommitTransaction();
                 sqlHelper.CloseConnection();
@@ -588,7 +590,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 sqlHelper.SqlRollbackTransaction();
                 sqlHelper.CloseConnection();
+
                 Console.WriteLine($"SQL Rollback Transaction Exception: {ex}");
+
                 return Utils.Wrap(false);
             }
 

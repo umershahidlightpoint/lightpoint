@@ -1,49 +1,32 @@
-.header {
-  display: flex;
-  align-items: center;
-  padding: 10px 20px 10px 7px;
-  background: #0275D8;
-  color: white;
-  position: fixed;
+.header-container {
   top: 0;
   left: 0;
   right: 0;
   z-index: 100;
+  padding: 10px 20px 10px 8px;
 }
 
-.header-btn {
-  background-color: #0275D8;
-  color: white;
+.menu-btn {
   outline: none;
 }
 
-.right-corner {
-  display: flex;
-  margin-left: auto;
-  padding: 10px;
-}
-
-.progressContainer {
+.progress-container {
   width: 140px;
   background-color: #2f4f4f;
 }
 
 .progress {
   position: relative;
-  height: 1.2rem;
-}
-
-.date-style {
-  font-weight: bold;
+  height: 20px;
 }
 
 .currency {
   margin-right: 10px;
 }
 
-.my-centered {
-  position: absolute;
-  display: block;
+.progress-text {
   width: 100%;
+  display: block;
+  position: absolute;
   text-align: center;
 }

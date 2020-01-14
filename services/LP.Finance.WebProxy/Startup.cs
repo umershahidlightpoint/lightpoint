@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Cors;
 using System.Web.Http;
+using LP.Finance.WebProxy;
 using Microsoft.AspNet.SignalR;
 using Microsoft.Owin.Cors;
 using Owin;
@@ -103,6 +104,7 @@ namespace LP.ReferenceData.WebProxy
 
             app.UseCors(corsOptions);
             app.UseWebApi(config);
+            AppStartCacheHelper.CacheServerSideMetaInfo();
         }
     }
 }

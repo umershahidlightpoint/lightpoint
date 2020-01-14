@@ -105,7 +105,7 @@ export class DataDictionary {
           sortable: true,
           cellStyle: { 'text-align': 'right' },
           filter: isJournalGrid ? 'agNumberColumnFilter' : true,
-          valueFormatter: this.priceFormatterEx
+          valueFormatter: this.priceFormatterEx.bind(this)
         };
         break;
       }
@@ -186,7 +186,7 @@ export class DataDictionary {
           sortable: true,
           cellStyle: { 'text-align': 'right' },
           filter: isJournalGrid ? 'agNumberColumnFilter' : true,
-          valueFormatter: this.priceFormatterEx
+          valueFormatter: this.priceFormatterEx.bind(this)
         };
         break;
       }

@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppStartCacheHelper.cs" />
     <Compile Include="Core\MathFnc.cs" />
     <Compile Include="ProjectInstaller.cs">
       <SubType>Component</SubType>

@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { Response } from '../shared/Models/response';
+import { Journal } from 'src/shared/Models/journal';
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +28,7 @@ Get a Single Journal
 */
   getJournal(source) {
     const url = this.baseUrl + '/journal/' + source;
-    return this.http.get(url).pipe(map((response: any) => response));
+    return this.http.get(url).pipe(map((response: Response<Journal>) => response));
   }
 
   /*
@@ -130,11 +132,6 @@ Get the Journal Logs
 
   getServerSideJournalsTotal(obj) {
     const url = this.baseUrl + '/journal/totalCount';
-    return this.http.post(url, obj).pipe(map((response: any) => response));
-  }
-
-  getServerSideJournalsMeta(obj) {
-    const url = this.baseUrl + '/journal/metaData';
     return this.http.post(url, obj).pipe(map((response: any) => response));
   }
 

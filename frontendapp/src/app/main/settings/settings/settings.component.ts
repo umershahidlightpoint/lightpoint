@@ -2,9 +2,9 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import * as moment from 'moment';
-import { SettingApiService } from '../../../services/setting-api.service';
-import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
-import { Style, HeightStyle } from '../../../shared/utils/Shared';
+import { SettingApiService } from '../../../../services/setting-api.service';
+import { AgGridUtils } from '../../../../shared/utils/AgGridUtils';
+import { Style, HeightStyle } from '../../../../shared/utils/Shared';
 import { NgForm } from '@angular/forms';
 import { DataService } from 'src/services/common/data.service';
 

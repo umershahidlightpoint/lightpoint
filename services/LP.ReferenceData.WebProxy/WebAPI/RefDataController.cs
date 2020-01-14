@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System.Configuration;
 using LP.Finance.Common;
 using LP.Core;
+using LP.Finance.Common.Cache;
 
 namespace LP.ReferenceData.WebProxy.WebAPI
 {
@@ -19,7 +20,15 @@ namespace LP.ReferenceData.WebProxy.WebAPI
         [ActionName("data")]
         public object Data(string refdata)
         {
-            return controller.Data(refdata);
+            var cachedData = AppStartCache.GetCachedData(refdata);
+            if (cachedData.Item1)
+            {
+                return cachedData.Item2;
+            }
+            else
+            {
+                return controller.Data(refdata);
+            }
         }
     }
 

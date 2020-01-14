@@ -1,14 +1,12 @@
 <div>
-    <app-header [sidenav]="leftSidenav"></app-header>
+    <app-header [sidenav]="leftMenu"></app-header>
 
     <mat-sidenav-container class="sidenav-container">
-        <mat-sidenav #leftSidenav mode="side" opened>
+        <mat-sidenav #leftMenu mode="side" opened>
             <app-left-menu></app-left-menu>
         </mat-sidenav>
         <mat-sidenav-content class="sidenav-content" [@onMainContentChange]="onSideNavChange ? 'open': 'close'">
-            <div class="main-content">
-                <router-outlet></router-outlet>
-            </div>
+            <router-outlet></router-outlet>
         </mat-sidenav-content>
     </mat-sidenav-container>
 </div>
