@@ -2,15 +2,14 @@
 Core/Libraries Imports
 */
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { DecimalPipe } from '@angular/common';
 import { AppRoutingModule } from './app-routing.module';
 import { HttpClientModule } from '@angular/common/http';
 import { MaterialModule } from './material.module';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
+import { TooltipModule } from 'ngx-bootstrap';
 
 /*
 Services
@@ -41,13 +40,11 @@ import { NotfoundComponent } from './main/not-found/notfound/notfound.component'
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    CommonModule,
     HttpClientModule,
-    FormsModule,
-    ReactiveFormsModule,
     AppRoutingModule,
     MaterialModule,
-    ToastrModule.forRoot()
+    ToastrModule.forRoot(),
+    TooltipModule
   ],
   exports: [],
   providers: [

@@ -19,8 +19,23 @@ import { GridUtilsComponent } from '../shared/Component/grid-utils/grid-utils.co
 import { DataGridModalComponent } from '../shared/Component/data-grid-modal/data-grid-modal.component';
 import { DatePickerModalComponent } from '../shared/Component/date-picker-modal/date-picker-modal.component';
 import { LoaderComponent } from '../shared/Component/loader/loader.component';
-import { CalculationGraphsComponent } from './main/fund-theoretical/calculation-graphs/calculation-graphs.component';
-import { JournalsComponent } from './main/oms/sharedOms/journals/journals.component';
+import { CalculationGraphsComponent } from '../shared/Component/calculation-graphs/calculation-graphs.component';
+import { JournalsComponent } from '../shared/Component/journals/journals.component';
+
+const sharedComponents = [
+  GridLayoutMenuComponent,
+  TemplateRendererComponent,
+  AgGridCheckboxComponent,
+  ConfirmationModalComponent,
+  DataModalComponent,
+  ReportGridComponent,
+  GridUtilsComponent,
+  DataGridModalComponent,
+  DatePickerModalComponent,
+  LoaderComponent,
+  CalculationGraphsComponent,
+  JournalsComponent
+];
 
 @NgModule({
   imports: [
@@ -41,18 +56,10 @@ import { JournalsComponent } from './main/oms/sharedOms/journals/journals.compon
   NgcatalystModule,
   ToastrModule.forRoot()
 ],
-  declarations: [ GridLayoutMenuComponent, TemplateRendererComponent, AgGridCheckboxComponent,
-                  ConfirmationModalComponent, DataModalComponent, ReportGridComponent,
-                  GridUtilsComponent, DataGridModalComponent, DatePickerModalComponent,
-                  LoaderComponent, CalculationGraphsComponent, JournalsComponent
-                 ],
+  declarations: [ ...sharedComponents],
 
-  exports:      [ GridLayoutMenuComponent, TemplateRendererComponent, AgGridCheckboxComponent,
-                  ConfirmationModalComponent, DataModalComponent, ReportGridComponent,
-                  GridUtilsComponent, DataGridModalComponent, DatePickerModalComponent,
-                  LoaderComponent, CalculationGraphsComponent, JournalsComponent,
-                  CommonModule, FormsModule, AgGridModule],
- providers: [AgGridUtils]
+  exports:      [ ...sharedComponents, CommonModule, FormsModule, AgGridModule],
+  providers: [AgGridUtils]
 })
 
 export class SharedModule {
