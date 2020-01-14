@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { PerformanceCanDeactivateGuard } from '../../src/services/guards/performance-can-deactivate-guard.service';
 import { NotfoundComponent } from './main/not-found/notfound/notfound.component';
 
 const routes: Routes = [
@@ -25,7 +24,7 @@ const routes: Routes = [
   {
     path: 'fund-theoretical',
     loadChildren: './main/fund-theoretical/fund-theoretical.module#FundTheoreticalModule',
-    // canDeactivate: [PerformanceCanDeactivateGuard]
+
   },
   {
     path: 'reports',

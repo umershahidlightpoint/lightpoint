@@ -7,7 +7,6 @@ import { FormsModule } from '@angular/forms';
 import { JournalAllocationComponent } from './journal-allocation/journal-allocation.component';
 import { TradesComponent } from './sharedOms/trades/trades.component';
 import { AllocationsComponent } from './sharedOms/allocations/allocations.component';
-// import { JournalsComponent } from './sharedOms/journals/journals.component';
 
 // Trade Allocations
 import { TradeAllocationComponent } from './trade-allocation/trade-allocation.component';
@@ -23,7 +22,6 @@ const omsComponents = [
      JournalAllocationComponent,
      TradesComponent,
      AllocationsComponent,
-    //  JournalsComponent,
      TradeAllocationComponent,
      AccrualsComponent
   ];
