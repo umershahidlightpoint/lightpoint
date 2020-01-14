@@ -937,7 +937,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 if (!string.IsNullOrEmpty(orderid))
                 {
                     var query =
-                        $@"select *, (cost_basis - trade_price)*quantity as realized_pnl from tax_lot where open_lot_id='{orderid}' and active_flag = 1";
+                        $@"select * from tax_lot where open_lot_id='{orderid}' and active_flag = 1";
                     List<SqlParameter> sqlParams = new List<SqlParameter>();
                     var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
                     var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
@@ -946,7 +946,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 else
                 {
                     var query =
-                        $@"select *, (cost_basis - trade_price)*quantity as realized_pnl from tax_lot where active_flag = 1";
+                        $@"select * from tax_lot where active_flag = 1";
                     var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
                     var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
                     return reportObject;

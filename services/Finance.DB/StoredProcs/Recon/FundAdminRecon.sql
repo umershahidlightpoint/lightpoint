@@ -1,5 +1,8 @@
 ﻿/*
 Compare FundAdmin Numbers to PA Numbers
+
+exec FundAdminRecon '2019-12-17'
+Exec PeriodPnl '2019-12-17'
 */
 CREATE PROCEDURE [dbo].[FundAdminRecon]
 	@businessDate Date
@@ -36,6 +39,11 @@ Grab Data from PA first
 	)
 	Exec PeriodPnl @Busdate
 
-	select * from @PnlData
+	
+	select * from PositionMaster..CITCOPnl 
+	where BusDate = @busdate and symbol = 'REAL'
+	order by BusDate desc
+
+	select * from @PnlData where SecurityCode = 'REAL'
 
 RETURN 0

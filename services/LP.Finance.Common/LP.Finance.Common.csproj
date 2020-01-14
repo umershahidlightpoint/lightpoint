@@ -93,6 +93,7 @@
     <Compile Include="Dtos\TrialBalanceReportOutPutDto.cs" />
     <Compile Include="Dtos\TrialBalanceTileOutputDto.cs" />
     <Compile Include="Model\AccountToThirdPartyAccountMapping.cs" />
+    <Compile Include="Model\Event.cs" />
     <Compile Include="Model\FilterValues.cs" />
     <Compile Include="Model\FxRate.cs" />
     <Compile Include="Model\GraphQLQuery.cs" />

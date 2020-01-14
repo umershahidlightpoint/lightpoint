@@ -126,6 +126,7 @@ namespace PostingEngine.PostingRules.Utilities
 
             switch (element.SecurityType)
             {
+                case "CROSS":
                 case "FORWARD":
                 case "Physical index future.":
                 case "Equity Swap":

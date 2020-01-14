@@ -159,8 +159,12 @@ namespace PostingEngine
         public SqlConnection Connection { get; private set; }
         public SqlTransaction Transaction { get; private set; }
 
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public void AddMessage(string message)
         {
+            Logger.Warn(message);
+
             if ( Messages.ContainsKey(message))
             {
                 Messages[message] = Messages[message] + 1;
@@ -194,6 +198,12 @@ namespace PostingEngine
         internal List<Transaction> FindAllocations(string lpAccrualId)
         {
             var list = Allocations.Where(i => i.AccrualId != null).Where(i => i.AccrualId.Equals(lpAccrualId)).ToList();
+            return list;
+        }
+
+        internal List<Transaction> FindTradeAllocations(Transaction element)
+        {
+            var list = Allocations.Where(i => i.LpOrderId.Equals(element.LpOrderId)).ToList();
             return list;
         }
 

@@ -1,4 +1,5 @@
 ﻿using LP.Finance.Common;
+using LP.Finance.Common.Model;
 using LP.Finance.Common.Models;
 using PostingEngine.Contracts;
 using PostingEngine.MarketData;
@@ -38,7 +39,7 @@ namespace PostingEngine.PostingRules
             TaxLotStatus taxlotStatus,
             Transaction element)
         {
-            if (tradeEvent.Equals("tradedate"))
+            if (tradeEvent.Equals(Event.TRADE_DATE))
                 return new List<Journal>();
 
             // TBD: THIS IS FOR BOBBY
@@ -95,8 +96,6 @@ namespace PostingEngine.PostingRules
 
             return new List<Journal>(new[] { debit, credit });
         }
-
-        private static SqlConnection _connection;
 
         internal double CreateFxUnsettled(PostingEngineEnvironment env, Transaction element)
         {

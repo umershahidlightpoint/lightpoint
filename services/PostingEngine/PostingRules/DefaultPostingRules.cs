@@ -134,8 +134,8 @@ namespace PostingEngine.PostingRules
                                 // Has to happen for every day
                                 var fxJournalsForInvestmentAtCost = FxPosting.CreateFx(
                                     env,
-                                    GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"),
-                                    GetChangeInUnrealizedDueToFx(element, "Change in unrealized due to fx on original Cost"),
+                                    CommonRules.GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"),
+                                    CommonRules.GetChangeInUnrealizedDueToFx(element, "Change in unrealized due to fx on original Cost"),
                                     "daily", quantity, taxlot, element);
                                 env.Journals.AddRange(fxJournalsForInvestmentAtCost);
 
@@ -219,73 +219,7 @@ namespace PostingEngine.PostingRules
         }
         internal void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
-            double fxrate = 1.0;
-
-            // Lets get fx rate if needed
-            if (!element.SettleCurrency.Equals(env.BaseCurrency))
-            {
-                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
-            }
-
-            var accountToFrom = new AccountingRules().GetFromToAccountOnSettlement(element);
-
-            if (accountToFrom.To == null || accountToFrom.From == null)
-            {
-                env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
-                return;
-            }
-
-            new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
-            new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
-
-            // This is the fully loaded value to tbe posting
-
-            if (element.NetMoney != 0.0)
-            {
-                var moneyUSD = Math.Abs(element.NetMoney) * fxrate;
-
-                // BUY -- Debit
-                // SELL -- Credit
-
-                if (element.IsShort() || element.IsSell())
-                    moneyUSD = moneyUSD * -1;
-
-                var debit = new Journal
-                {
-                    Source = element.LpOrderId,
-                    Account = accountToFrom.From,
-                    When = env.ValueDate,
-                    FxCurrency = element.SettleCurrency,
-                    Symbol = element.Symbol,
-                    SecurityId = element.SecurityId,
-                    Quantity = element.Quantity,
-                    FxRate = fxrate,
-                    CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
-                    Event = "settlement",
-                    Fund = env.GetFund(element)
-                };
-
-                var credit = new Journal
-                {
-                    Source = element.LpOrderId,
-                    FxCurrency = element.SettleCurrency,
-                    Symbol = element.Symbol,
-                    SecurityId = element.SecurityId,
-                    Quantity = element.Quantity,
-
-                    FxRate = fxrate,
-                    When = env.ValueDate,
-                    Account = accountToFrom.To,
-
-                    CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
-                    Event = "settlement",
-                    Fund = env.GetFund(element)
-                };
-
-                env.Journals.AddRange(new[] { debit, credit });
-            }
+            CommonRules.GenerateSettlementDateJournals(env, element);
         }
         internal void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
@@ -331,12 +265,14 @@ namespace PostingEngine.PostingRules
 
                 if (openLots.Count() == 0)
                 {
+                    // We are unable to find the coresponding Tax Lots for this trade
+
                     // If no open Tax Lot, need to create a new one
                     var tl = env.GenerateOpenTaxLot(element, fxrate);
 
                     // Whats going on here?
                     // We are skipping anything that does not get an OpenLot
-                    Logger.Warn($"Created an Open Tax Lot for {element.Symbol}::{element.Side}");
+                    env.AddMessage($"Created an Open Tax Lot for {element.Symbol}::{element.Side}");
                 }
                 else
                 {
@@ -350,7 +286,7 @@ namespace PostingEngine.PostingRules
                         if (!env.TaxLotStatus.ContainsKey(lot.Trade.LpOrderId))
                         {
                             // TODO: For this open lot there should be a corresponding open to 
-                            Logger.Warn($"Unable to Find Tax Lot for {lot.Trade.Symbol}::{lot.Trade.Side}::{lot.Trade.Status}");
+                            env.AddMessage($"Unable to Find Tax Lot for {lot.Trade.Symbol}::{lot.Trade.Side}::{lot.Trade.Status}");
                             //Logger.Warn($"Unable to Find Tax Lot for {element.Symbol}::{element.Side}::{element.Status}");
                             continue;
                         }
@@ -383,70 +319,8 @@ namespace PostingEngine.PostingRules
                 // We have a Debit / Credit Dividends
             }
 
-            var tradeAllocations = env.Allocations.Where(i => i.LpOrderId == element.LpOrderId).ToList();
+            CommonRules.GenerateTradeDateJournals(env, element);
 
-            // Retrieve Allocation Objects for this trade
-            if (tradeAllocations.Count() > 2)
-            {
-                env.AddMessage($"#of allocations > 2 please investigate {element.LpOrderId}");
-                return;
-            }
-
-            if (tradeAllocations.Count() == 2)
-            {
-                var debitEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[0] : tradeAllocations[1];
-                if (debitEntry.Symbol.Equals("@CASHUSD"))
-                {
-                    env.AddMessage($"Unexpected Cash allocation please investigate {element.LpOrderId}");
-                    return;
-                }
-            }
-
-            var accountToFrom = GetFromToAccount(element);
-            if (accountToFrom.To == null || accountToFrom.From == null)
-            {
-                env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
-                return;
-            }
-
-            new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
-            new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
-
-
-            if (element.NetMoney != 0.0)
-            {
-                var moneyUSD = Math.Abs(element.NetMoney) * fxrate;
-
-                // BUY -- Debit
-                // SELL -- Credit
-
-                if (element.IsSell() || element.IsCover())
-                    moneyUSD = moneyUSD * -1;
-
-                var eodPrice = MarketPrices.Find(env.ValueDate, element).Price;             
-
-                var fromJournal = new Journal(element, accountToFrom.From, "tradedate", env.ValueDate)
-                {
-                    CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
-                    FxRate = fxrate,
-                    StartPrice = element.SettleNetPrice,
-                    EndPrice = eodPrice,
-                    Fund = env.GetFund(element),
-                };
-
-                var toJournal = new Journal(element, accountToFrom.To, "tradedate", env.ValueDate)
-                {
-                    FxRate = fxrate,
-                    CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
-                    StartPrice = element.SettleNetPrice,
-                    EndPrice = eodPrice,
-                    Fund = env.GetFund(element),
-                };
-
-                env.Journals.AddRange(new[] { fromJournal, toJournal });
-            }
         }
 
         private void GenerateJournals(PostingEngineEnvironment env, TaxLotDetail lot, TaxLotStatus taxlotStatus, Transaction element, double workingQuantity, double fxrate, double multiplier)
@@ -458,8 +332,8 @@ namespace PostingEngine.PostingRules
             // Has to happen for every day
             var fxJournalsForInvestmentAtCost = FxPosting.CreateFx(
                 env,
-                GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"),
-                GetChangeInUnrealizedDueToFx(element, "Change in unrealized due to fx on original Cost"),
+                CommonRules.GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"),
+                CommonRules.GetChangeInUnrealizedDueToFx(element, "Change in unrealized due to fx on original Cost"),
                 "daily", workingQuantity, taxlotStatus, buyTrade);
             env.Journals.AddRange(fxJournalsForInvestmentAtCost);
 
@@ -530,7 +404,7 @@ namespace PostingEngine.PostingRules
                 sumFxMarkToMarket = Convert.ToDouble(dataTable[2].Rows[0][2]);
                 sumFxMarkToMarket += fxJournalsForInvestmentAtCost[0].Value;
 
-                ReversePosting(env, GetChangeInUnrealizedDueToFx(element, "Change in unrealized due to fx on original Cost"), GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"), buyTrade, sumFxMarkToMarket);
+                ReversePosting(env, CommonRules.GetChangeInUnrealizedDueToFx(element, "Change in unrealized due to fx on original Cost"), CommonRules.GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"), buyTrade, sumFxMarkToMarket);
             }
 
 
@@ -583,42 +457,7 @@ namespace PostingEngine.PostingRules
             env.Journals.AddRange(new[] { fromJournal, toJournal });
         }
 
-        private string GetFXMarkToMarketAccountType(Transaction element, string v)
-        {
-            var accounttype = v;
-
-            switch (element.SecurityType)
-            {
-                case "FORWARD":
-                case "Physical index future.":
-                case "Equity Swap":
-                    accounttype = "FX Mark to Market on Derivative Contracts";
-                    break;
-            }
-
-            if ( element.IsShort() || element.IsCover())
-            {
-                accounttype = "FX MARK TO MARKET ON STOCK COST (SHORTS)";
-            }
-
-            return accounttype;
-        }
-        private string GetChangeInUnrealizedDueToFx(Transaction element, string v)
-        {
-            var accounttype = v;
-
-            switch (element.SecurityType)
-            {
-                case "FORWARD":
-                case "Physical index future.":
-                case "Equity Swap":
-                    accounttype = "Change in unrealized due to fx on derivates contracts";
-                    break;
-            }
-
-            return accounttype;
-        }
-
+       
         private void PostRealizedFxGain(PostingEngineEnvironment env, Transaction element, double realizedFxPnl, double start, double end, double fxrate)
         {
             var accountType = (element.IsShort() || element.IsCover()) ? "SHORT POSITIONS AT COST" : "LONG POSITIONS AT COST";
@@ -746,37 +585,5 @@ namespace PostingEngine.PostingRules
 
             env.Journals.AddRange(new List<Journal>(new[] { debit, credit }));
         }
-
-        private AccountToFrom GetFromToAccount(Transaction element)
-        {
-            var type = element.GetType();
-            var accountTypes = AccountType.All;
-
-            var listOfFromTags = new List<Tag> {
-                Tag.Find("SecurityType"),
-                Tag.Find("CustodianCode")
-             };
-
-            var listOfToTags = new List<Tag>
-            {
-                Tag.Find("SecurityType"),
-                Tag.Find("CustodianCode")
-            };
-
-            Account fromAccount = null; // Debiting Account
-            Account toAccount = null; // Crediting Account
-
-            var accountType = (element.IsShort() || element.IsCover()) ? "SHORT POSITIONS AT COST" : "LONG POSITIONS AT COST";
-
-            fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals(accountType)).FirstOrDefault(), listOfFromTags, element);
-            toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfToTags, element);
-
-            return new AccountToFrom
-            {
-                From = fromAccount,
-                To = toAccount
-            };
-        }
-
     }
 }

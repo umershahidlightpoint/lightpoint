@@ -10,6 +10,9 @@ namespace PostingEngine.PostingRules
     /// </summary>
     internal class AccountingRules
     {
+        private static AccountType _settledCash;
+        private static AccountType _pbUnsettledActivity;
+
         /// <summary>
         /// Dealing with the settlement event
         /// </summary>
@@ -17,51 +20,55 @@ namespace PostingEngine.PostingRules
         /// <param name="debit"></param>
         /// <param name="credit"></param>
         /// <returns></returns>
-        internal AccountToFrom GetFromToAccountOnSettlement(Transaction element)
+        internal AccountToFrom GetFromToAccountOnSettlement(PostingEngineEnvironment env, Transaction element)
         {
-            var type = element.GetType();
             var accountTypes = AccountType.All;
 
-            var listOfFromTags = new List<Tag>
+            var listOfTags = new List<Tag>
             {
                 Tag.Find("SecurityType"),
                 Tag.Find("CustodianCode")
             };
 
-            var listOfToTags = new List<Tag> {
-                Tag.Find("SecurityType"),
-                Tag.Find("CustodianCode")
-             };
+            if ( _settledCash == null )
+            {
+                _settledCash = accountTypes.Where(i => i.Name.Equals("Settled Cash")).FirstOrDefault();
+                _pbUnsettledActivity = accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault();
+            }
 
             Account fromAccount = null; // Debiting Account
             Account toAccount = null; // Crediting Account
+
             switch (element.Side.ToLowerInvariant())
             {
                 case "buy":
                     fromAccount = new AccountUtils()
-                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfFromTags, element);
+                        .CreateAccount(_pbUnsettledActivity, listOfTags, element);
                     toAccount = new AccountUtils()
-                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("Settled Cash")).FirstOrDefault(), listOfToTags, element);
+                        .CreateAccount(_settledCash, listOfTags, element);
                     break;
                 case "sell":
                     fromAccount = new AccountUtils()
-                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfFromTags, element);
+                        .CreateAccount(_pbUnsettledActivity, listOfTags, element);
                     toAccount = new AccountUtils()
-                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("Settled Cash")).FirstOrDefault(), listOfToTags, element);
+                        .CreateAccount(_settledCash, listOfTags, element);
                     break;
                 case "short":
                     fromAccount = new AccountUtils()
-                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfFromTags, element);
+                        .CreateAccount(_pbUnsettledActivity, listOfTags, element);
                     toAccount = new AccountUtils()
-                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("Settled Cash")).FirstOrDefault(), listOfToTags, element);
+                        .CreateAccount(_settledCash, listOfTags, element);
                     break;
                 case "cover":
                     fromAccount = new AccountUtils()
-                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfFromTags, element);
+                        .CreateAccount(_pbUnsettledActivity, listOfTags, element);
                     toAccount = new AccountUtils()
-                        .CreateAccount(accountTypes.Where(i => i.Name.Equals("Settled Cash")).FirstOrDefault(), listOfToTags, element);
+                        .CreateAccount(_settledCash, listOfTags, element);
                     break;
             }
+
+            new AccountUtils().SaveAccountDetails(env, fromAccount);
+            new AccountUtils().SaveAccountDetails(env, toAccount);
 
             return new AccountToFrom
             {

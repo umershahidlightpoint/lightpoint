@@ -1,35 +1,5 @@
 ﻿/*
 exec PeriodPnl '2019-12-18'
-
--- TABLE VARIABLE so that the system can use the data as a table for recon
-
-DECLARE @PnlData TABLE (
-	BusDate DATE,
-	SecurityCode VARCHAR(50),
-	SecurityType VARCHAR(50),
-	Currency VARCHAR(10),
-	DayPnl numeric(22,9), 
-	MTDPnl numeric(22,9), 
-	QTDPnl numeric(22,9), 
-	YTDPnl numeric(22,9), 
-	ITDPnl numeric(22,9)
-)
-
-INSERT INTO @PnlData(
-	BusDate,
-	SecurityCode,
-	SecurityType,
-	Currency,
-	DayPnl, 
-	MTDPnl, 
-	QTDPnl, 
-	YTDPnl, 
-	ITDPnl
-)
-Exec PeriodPnl '2019-12-17'
-
-select * from @PnlData
-
 */
 CREATE PROCEDURE [dbo].[PeriodPnl]
 	@Now Date

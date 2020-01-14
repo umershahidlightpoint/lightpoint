@@ -8,5 +8,3 @@ WHERE (1=(CASE WHEN @dateTo IS NULL THEN 1 ELSE 0 END) or m.business_date <= @da
 AND (1=(CASE WHEN @dateFrom IS NULL THEN 1 ELSE 0 END) or m.business_date >= @dateFrom)
 AND (1= (CASE WHEN @portfolio IS NULL THEN 1 ELSE 0 END) or m.portfolio = @portfolio)
 order by m.business_date asc
-GO
-

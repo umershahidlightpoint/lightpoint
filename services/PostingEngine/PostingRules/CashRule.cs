@@ -19,8 +19,9 @@ namespace PostingEngine.PostingRules
         public void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
             // Entry has already been processed
-            if ( element.TradeDate.Date.Equals(element.SettleDate.Date))
+            if ( element.TradeDate.Date.Equals(element.SettleDate.Date) && element.SecurityType.ToLowerInvariant().Equals("cash"))
             {
+                CommonRules.GenerateSettlementDateJournals(env, element);
                 return;
             }
 
@@ -114,7 +115,11 @@ namespace PostingEngine.PostingRules
         public void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
             if (element.AccrualId == null)
+            {
+                // We have just cash here so what do we do ?
+                CommonRules.GenerateTradeDateJournals(env, element);
                 return;
+            }
 
             var accrual = env.Accruals.ContainsKey(element.AccrualId) ? env.Accruals[element.AccrualId] : null;
 

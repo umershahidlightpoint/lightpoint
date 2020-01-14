@@ -250,6 +250,13 @@ namespace PostingEngine.PostingRules
             var allocations = env.FindAllocations(element.AccrualId);
             var allocation = allocations.Where(i => !i.Symbol.Equals(element.Symbol)).FirstOrDefault();
 
+            Console.WriteLine(element.Symbol);
+
+            if (element.Symbol.Equals("ZZ_INVESTOR_CONTRIBUTIONS"))
+            {
+
+            }
+
             if ( element.Status.Equals("Cancelled"))
             {
                 env.AddMessage($"Entry has been cancelled {element.LpOrderId} :: {element.Side}");

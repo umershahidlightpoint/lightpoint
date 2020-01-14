@@ -778,16 +778,20 @@ where business_date = @busDate";
                 var allocationList = JsonConvert.DeserializeObject<Transaction[]>(allocationsResult.payload);
                 var localTradeList = JsonConvert.DeserializeObject<Transaction[]>(trades.Result);
 
+                // This is specific to BayBerry
                 var finalTradeList = localTradeList.Where(t => t.TradeDate >= new DateTime(2019, 4, 1)).ToArray();
-                const bool DEBUG = false;
-                if (DEBUG)
+                var update = finalTradeList.Where(t => t.Symbol.Equals("MSUXX")).ToArray();
+                foreach(var t in update) { t.SecurityType = "Open-End Fund"; }
+
+                const bool DEBUG_TRADE_LIST = false;
+                if (DEBUG_TRADE_LIST)
                 { 
                     var securityTypeTags = new List<string> {
-                    "FORWARD", "CROSS"
+                    "CROSS"
                     };
 
                     var symbolTags = new List<string> {
-                        "ALD FP"
+                        "USDCAD", "GBPUSD"
                     };
 
                     //finalTradeList = finalTradeList.Where(t => securityTypeTags.Contains(t.SecurityType)).ToArray();
@@ -797,6 +801,7 @@ where business_date = @busDate";
 
                 var excludeTrade = new List<string>
                 {
+                    "ae551383-1c97-42e9-8650-0785ed20044f",
                     "aa17610f-5403-4bd4-99c5-4100126aa655",
                     "a213f4f3-2e5f-4529-8f7c-a2e7d4b4368a",
                     "ca94fcfeb4e04863bf670e50dcca5150"
@@ -1699,7 +1704,7 @@ where business_date = @busDate";
             {
                 // Defer message to the rule
                 //env.AddMessage($"trade not valid to process {element.LpOrderId} -- {element.SecurityType}");
-                return false;
+                //return false;
             }
 
             if (env.ValueDate == element.TradeDate.Date)
@@ -1771,13 +1776,14 @@ where business_date = @busDate";
             {
                 try
                 {
-                    rule.SettlementDateEvent(env, element);
                     rule.DailyEvent(env, element);
+                    rule.SettlementDateEvent(env, element);
                 }
                 catch (Exception ex)
                 {
-                    Logger.Debug(ex, $"Settlement Event Failed for {element.Symbol}::{element.Side}::{ex.Message}");
-                    env.AddMessage($"Unable to process the Event for Settlement Date {ex.Message}");
+                    var message = $"Daily/Settlement Event Failed for {element.Symbol}::{element.SecurityType}::{element.Side}::{ex.Message}";
+                    Logger.Debug(ex, message);
+                    env.AddMessage(message);
                 }
             }
             else if (env.ValueDate >= element.TradeDate.Date)

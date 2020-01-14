@@ -1,4 +1,5 @@
-﻿using LP.Finance.Common.Models;
+﻿using LP.Finance.Common.Model;
+using LP.Finance.Common.Models;
 using PostingEngine.Contracts;
 using PostingEngine.MarketData;
 using PostingEngine.PostingRules.Utilities;
@@ -92,6 +93,7 @@ namespace PostingEngine.PostingRules
 
             var eodPrice = 0.0;
             var prevEodPrice = 0.0;
+
             if (env.ValueDate == taxLot.Trade.TradeDate)
             {
                 eodPrice = MarketPrices.Find(env.ValueDate, taxLot.Trade).Price;
@@ -216,7 +218,6 @@ namespace PostingEngine.PostingRules
 
         private static AccountToFrom RealizedPnlPostingAccounts(Transaction element)
         {
-            var type = element.GetType();
             var accountTypes = AccountType.All;
 
             var listOfFromTags = new List<Tag> {
@@ -244,6 +245,46 @@ namespace PostingEngine.PostingRules
                 From = fromAccount,
                 To = toAccount
             };
+        }
+
+        internal static void PostRealizedPnl(PostingEngineEnvironment env, Transaction element, double realizedPnl, string from, string to)
+        {
+            var listOfTags = new List<Tag> {
+                Tag.Find("SecurityType"),
+                Tag.Find("CustodianCode")
+            };
+
+            var fromAccount = new AccountUtils().CreateAccount(AccountType.All.Where(i => i.Name.Equals(from)).FirstOrDefault(), listOfTags, element);
+            var toAccount = new AccountUtils().CreateAccount(AccountType.All.Where(i => i.Name.Equals(to)).FirstOrDefault(), listOfTags, element);
+
+            new AccountUtils().SaveAccountDetails(env, fromAccount);
+            new AccountUtils().SaveAccountDetails(env, toAccount);
+
+            var debitJournal = new Journal(element)
+            {
+                Account = fromAccount,
+                When = env.ValueDate,
+                StartPrice = 0,
+                EndPrice = 0,
+                CreditDebit = env.DebitOrCredit(fromAccount, realizedPnl),
+                Value = env.SignedValue(fromAccount, toAccount, true, realizedPnl * -1),
+                FxRate = element.TradePrice,
+                Event = "realizedpnl",
+                Fund = env.GetFund(element),
+            };
+
+            var creditJournal = new Journal(element, toAccount, "realizedpnl", env.ValueDate)
+            {
+                StartPrice = 0,
+                EndPrice = 0,
+                FxRate = element.TradePrice,
+                CreditDebit = env.DebitOrCredit(toAccount, realizedPnl),
+                Value = env.SignedValue(fromAccount, toAccount, true, realizedPnl),
+                Fund = env.GetFund(element),
+            };
+
+            env.Journals.AddRange(new[] { debitJournal, creditJournal });
+
         }
 
         internal static void PostRealizedPnl(PostingEngineEnvironment env, Transaction element, double pnL, double start, double end, double fxrate = 1.0)
@@ -419,6 +460,213 @@ namespace PostingEngine.PostingRules
             };
 
             env.Journals.AddRange(new[] { fromJournal, toJournal });
+        }
+
+        private static AccountToFrom GetFromToAccount(PostingEngineEnvironment env,  Transaction element)
+        {
+            var type = element.GetType();
+            var accountTypes = AccountType.All;
+
+            var listOfTags = new List<Tag> {
+                Tag.Find("SecurityType"),
+                Tag.Find("CustodianCode")
+             };
+
+            var accountType = (element.IsShort() || element.IsCover()) ? "SHORT POSITIONS AT COST" : "LONG POSITIONS AT COST";
+
+            var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals(accountType)).FirstOrDefault(), listOfTags, element);
+            var toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault(), listOfTags, element);
+
+            new AccountUtils().SaveAccountDetails(env, fromAccount);
+            new AccountUtils().SaveAccountDetails(env, toAccount);
+
+            return new AccountToFrom
+            {
+                From = fromAccount,
+                To = toAccount
+            };
+        }
+
+        internal static void GenerateTradeDateJournals(PostingEngineEnvironment env, Transaction element)
+        {
+            double multiplier = 1.0;
+
+            if (env.SecurityDetails.ContainsKey(element.BloombergCode))
+                multiplier = env.SecurityDetails[element.BloombergCode].Multiplier;
+
+            double fxrate = 1.0;
+
+            // Lets get fx rate if needed
+            if (!element.SettleCurrency.Equals(env.BaseCurrency))
+            {
+                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
+            }
+
+            var tradeAllocations = env.Allocations.Where(i => i.LpOrderId == element.LpOrderId).ToList();
+
+            // Retrieve Allocation Objects for this trade
+            if (tradeAllocations.Count() > 2)
+            {
+                env.AddMessage($"#of allocations > 2 please investigate {element.LpOrderId}");
+                return;
+            }
+
+            if (tradeAllocations.Count() == 2)
+            {
+                var debitEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[0] : tradeAllocations[1];
+                if (debitEntry.Symbol.Equals("@CASHUSD"))
+                {
+                    env.AddMessage($"Unexpected Cash allocation please investigate {element.LpOrderId}");
+                    return;
+                }
+            }
+
+            var accountToFrom = GetFromToAccount(env, element);
+            if (accountToFrom.To == null || accountToFrom.From == null)
+            {
+                env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
+                return;
+            }
+
+            if (element.NetMoney != 0.0)
+            {
+                var moneyUSD = Math.Abs(element.NetMoney) * fxrate;
+
+                // BUY -- Debit
+                // SELL -- Credit
+
+                if (element.IsSell() || element.IsCover())
+                    moneyUSD = moneyUSD * -1;
+
+                var eodPrice = MarketPrices.Find(env.ValueDate, element).Price;
+
+                var fromJournal = new Journal(element, accountToFrom.From, Event.TRADE_DATE, env.ValueDate)
+                {
+                    CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
+                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
+                    FxRate = fxrate,
+                    StartPrice = element.SettleNetPrice,
+                    EndPrice = eodPrice,
+                    Fund = env.GetFund(element),
+                };
+
+                var toJournal = new Journal(element, accountToFrom.To, Event.TRADE_DATE, env.ValueDate)
+                {
+                    FxRate = fxrate,
+                    CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
+                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
+                    StartPrice = element.SettleNetPrice,
+                    EndPrice = eodPrice,
+                    Fund = env.GetFund(element),
+                };
+
+                env.Journals.AddRange(new[] { fromJournal, toJournal });
+            }
+        }
+
+        public static string GetFXMarkToMarketAccountType(Transaction element, string v)
+        {
+            var accounttype = v;
+
+            switch (element.SecurityType)
+            {
+                case "FORWARD":
+                case "Physical index future.":
+                case "Equity Swap":
+                    accounttype = "FX Mark to Market on Derivative Contracts";
+                    break;
+            }
+
+            if (element.IsShort() || element.IsCover())
+            {
+                accounttype = "FX MARK TO MARKET ON STOCK COST (SHORTS)";
+            }
+
+            return accounttype;
+        }
+        public static string GetChangeInUnrealizedDueToFx(Transaction element, string v)
+        {
+            var accounttype = v;
+
+            switch (element.SecurityType)
+            {
+                case "FORWARD":
+                case "Physical index future.":
+                case "Equity Swap":
+                    accounttype = "Change in unrealized due to fx on derivates contracts";
+                    break;
+            }
+
+            return accounttype;
+        }
+
+        internal static void GenerateSettlementDateJournals(PostingEngineEnvironment env, Transaction element)
+        {
+            double fxrate = 1.0;
+
+            // Lets get fx rate if needed
+            if (!element.SettleCurrency.Equals(env.BaseCurrency))
+            {
+                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
+            }
+
+            var accountToFrom = new AccountingRules().GetFromToAccountOnSettlement(env, element);
+
+            if (accountToFrom.To == null || accountToFrom.From == null)
+            {
+                env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
+                return;
+            }
+
+            // This is the fully loaded value to tbe posting
+
+            if (element.NetMoney != 0.0)
+            {
+                var moneyUSD = Math.Abs(element.NetMoney) * fxrate;
+
+                // BUY -- Debit
+                // SELL -- Credit
+
+                if (element.IsShort() || element.IsSell())
+                    moneyUSD = moneyUSD * -1;
+
+                var debit = new Journal
+                {
+                    Source = element.LpOrderId,
+                    Account = accountToFrom.From,
+                    When = env.ValueDate,
+                    FxCurrency = element.SettleCurrency,
+                    Symbol = element.Symbol,
+                    SecurityId = element.SecurityId,
+                    Quantity = element.Quantity,
+                    FxRate = fxrate,
+                    CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
+                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
+                    Event = "settlement",
+                    Fund = env.GetFund(element)
+                };
+
+                var credit = new Journal
+                {
+                    Source = element.LpOrderId,
+                    FxCurrency = element.SettleCurrency,
+                    Symbol = element.Symbol,
+                    SecurityId = element.SecurityId,
+                    Quantity = element.Quantity,
+
+                    FxRate = fxrate,
+                    When = env.ValueDate,
+                    Account = accountToFrom.To,
+
+                    CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
+                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
+                    Event = "settlement",
+                    Fund = env.GetFund(element)
+                };
+
+                env.Journals.AddRange(new[] { debit, credit });
+            }
+
         }
     }
 }

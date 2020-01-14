@@ -40,9 +40,10 @@ namespace PostingEngine.TaxLotMethods
                 TaxLiability = i.taxAmount
             }).ToList();
 
+            // Display all of the retrieved Tax Lots so that we can double check
             foreach(var i in minTaxLots)
             {
-                Logger.Info($"Retrieved Open Tax Lots {i.Trade.TradeDate}::{i.TaxRate.Rate}::{i.PotentialPnl}::{i.TaxLiability}");
+                Logger.Info($"Retrieved Open Tax Lots {i.Trade.TradeDate}::{i.TaxRate.Rate}::{i.PotentialPnl}::{i.TaxLiability}::{i.TaxLotStatus.Quantity}");
             }
 
             return minTaxLots;
@@ -75,9 +76,9 @@ namespace PostingEngine.TaxLotMethods
             {
                 var lot = i.TaxLotStatus;
 
-                var lot2 = env.TaxLotStatus[i.Trade.LpOrderId];
+                var quantity = Math.Abs(lot.Quantity) > Math.Abs(trade.Quantity) ? trade.Quantity : lot.Quantity;
 
-                var unrealizedPnl = (trade.SettleNetPrice - i.Trade.SettleNetPrice) * Math.Abs(lot.Quantity) * fxrate;
+                var unrealizedPnl = (trade.SettleNetPrice - i.Trade.SettleNetPrice) * Math.Abs(quantity) * fxrate;
 
                 if ( trade.IsCover() )
                 {

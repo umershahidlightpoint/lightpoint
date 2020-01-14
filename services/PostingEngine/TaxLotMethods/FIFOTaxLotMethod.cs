@@ -15,7 +15,7 @@ namespace PostingEngine.TaxLotMethods
     {
         public List<TaxLotDetail> GetOpenLots(PostingEngineEnvironment env, Transaction element)
         {
-            var openlots = new BaseTaxLotMethodology().OpenTaxLots(env, element).OrderBy(i => i.Trade.TradeDate).ToList();
+            var openlots = new BaseTaxLotMethodology().OpenTaxLots(env, element).OrderBy(i => i.Trade.TradeTime).ToList();
 
             return openlots;
         }
