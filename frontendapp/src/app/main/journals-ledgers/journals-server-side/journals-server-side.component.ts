@@ -717,7 +717,9 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   refreshGrid() {
     this.totalRecords = 0;
     this.rowData = [];
+    this.cacheService.purgeServerSideJournalsMeta();
     this.gridOptions.api.showLoadingOverlay();
+    this.initColDefs();
     this.gridOptions.api.setServerSideDatasource(this.datasource);
   }
 

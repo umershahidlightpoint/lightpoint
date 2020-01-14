@@ -1,40 +1,39 @@
-<!-- Main Container -->
+<!-- SideNav Main Container -->
 <div class="sidenav-container" [@onSideNavChange]="sideNavState ? 'open' : 'close'">
-    <!-- Links Div -->
-    <div fxLayout="column" fxLayoutGap="10px" style="height: 90vh;">
-        <!-- Nav List -->
-        <div class="nav-list">
-            <mat-nav-list>
-                <a mat-list-item *ngFor="let page of userPages" [routerLink]="page.routerLink" title={{page?.name}}>
-                    <!-- <mat-icon style="padding-right:5px;">{{page?.icon}}</mat-icon> -->
-                    <i class="fa fa-lg {{page?.icon}}"></i>
-                    <span class="ml-1" [@animateText]="linkText ? 'show' : 'hide'">{{ page?.name }} </span>
-                </a>
-            </mat-nav-list>
-            <hr class="divider">
-            <mat-nav-list class="admin-pages">
-                <a mat-list-item *ngFor="let page of adminPages" [routerLink]="page.routerLink" title={{page?.name}}>
-                    <!-- <mat-icon style="padding-right:5px;">{{page?.icon}}</mat-icon> -->
-                    <i class="fa fa-lg {{page?.icon}}"></i>
-                    <span class="ml-1" [@animateText]="linkText ? 'show' : 'hide'">{{ page?.name }} </span>
-                </a>
-            </mat-nav-list>
+
+    <!-- Nav Items Container -->
+    <div class="nav-items-container">
+
+        <!-- User Nav List -->
+        <mat-nav-list class="user-nav-list">
+            <a mat-list-item *ngFor="let page of userPages" [routerLink]="page.routerLink" title={{page?.name}}>
+                <i class="fa fa-lg {{page?.icon}}"></i>
+                <span class="ml-1" [@animateText]="linkText ? 'show' : 'hide'">{{ page?.name }} </span>
+            </a>
+        </mat-nav-list>
+        <!-- User Nav List Ends -->
+
+        <hr class="divider">
+
+        <!-- Admin Nav List -->
+        <mat-nav-list class="admin-nav-list">
+            <a mat-list-item *ngFor="let page of adminPages" [routerLink]="page.routerLink" title={{page?.name}}>
+                <i class="fa fa-lg {{page?.icon}}"></i>
+                <span class="ml-1" [@animateText]="linkText ? 'show' : 'hide'">{{ page?.name }} </span>
+            </a>
+        </mat-nav-list>
+        <!-- Admin Nav List Ends -->
+
+        <!-- Toggle Menu Button -->
+        <div class="toggle-menu-button">
+            <i class="fa fa-lg mx-1"
+                [ngClass]="{'fa-arrow-circle-left': sideNavState, 'fa-arrow-circle-right': !sideNavState}"
+                aria-hidden="true" (click)="onSinenavToggle()"></i>
         </div>
-        <!-- Nav List Ends -->
+        <!-- Expand/Collapse Button Div Ends -->
+
     </div>
-    <!-- Links Div Ends -->
-    <!-- Spacer -->
-    <span class="spacer"></span>
-    <!-- Spacer Ends -->
-    <!-- Expand/Collapse Div -->
-    <div class="expand-menu-container" fxLayout="row" fxLayoutAlign="end center" style="padding: 0px 10px;">
-        <!-- Expand/Collapse Button -->
-        <button class="expand-menu-btn" mat-icon-button (click)="onSinenavToggle()">
-            <mat-icon *ngIf="sideNavState">arrow_left</mat-icon>
-            <mat-icon *ngIf="!sideNavState">arrow_right</mat-icon>
-        </button>
-        <!-- Expand/Collapse Button Ends -->
-    </div>
-    <!-- Expand/Collapse Button Div Ends -->
+    <!-- Nav Items Container Ends -->
+
 </div>
-<!-- Main Container Ends -->
+<!-- SideNav Main Container Ends -->

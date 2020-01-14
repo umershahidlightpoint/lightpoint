@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, DoCheck, AfterViewInit } from '@angular/core';
+import { Component, OnInit, DoCheck, AfterViewInit, Input } from '@angular/core';
 import { MatSidenav } from '@angular/material';
 import * as moment from 'moment';
 import { PostingEngineService } from 'src/services/common/posting-engine.service';
@@ -11,58 +11,30 @@ import { PostingEngineApiService } from 'src/services/posting-engine-api.service
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
-export class HeaderComponent implements OnInit, DoCheck, AfterViewInit {
+export class HeaderComponent implements OnInit, AfterViewInit, DoCheck {
   @Input() sidenav: MatSidenav;
 
   postingEngineStatus: boolean;
-  baseCurrency = 'USD'; // Driven by a System Setting
   progressBar: any;
+  baseCurrency = 'USD'; // Driven by a System Setting
   date: string = moment().format('MM-DD-YYYY');
   effectiveDate: string;
   toDateHasJournals: boolean;
   servicesStatus = true;
 
   constructor(
-    private servicesStatusApiService: ServicesStatusApiService,
-    private postingEngineService: PostingEngineService,
     private postingEngineApiService: PostingEngineApiService,
+    private postingEngineService: PostingEngineService,
+    private servicesStatusApiService: ServicesStatusApiService,
     private journalApiService: JournalApiService
   ) {}
 
   ngOnInit() {
-    this.getServicesStatus(); // Return T/F if finance/BookMon service is running or not
     this.date = moment().format('MM-DD-YYYY');
     this.effectiveDate = this.getPreviousWorkday(moment()).format('MM-DD-YYYY');
     this.isPostingEngineRunning();
+    this.getServicesStatus(); // Return T/F If Finance/RefData Service is Running
     this.doDatesHaveJournals();
-  }
-
-  getServicesStatus(): void {
-    this.servicesStatusApiService.servicesStatusBool$.subscribe(status => {
-      this.servicesStatus = status;
-    });
-  }
-
-  getPreviousWorkday(day: any) {
-    // const prevDay = moment(day).add('days', -1);
-
-    // return [1, 2, 3, 4, 5].indexOf(prevDay.day()) > -1
-    //   ? prevDay
-    //   : prevDay.add('days', -1);
-
-    switch (moment().day()) {
-      // If it is Monday (1), Saturday(6), or Sunday (0), Get the Previous Friday (5)
-      // and Ensure We are on the Previous Week
-      case 0:
-      case 1:
-      case 6:
-        return moment()
-          .subtract(6, 'days')
-          .day(5);
-      // If any other Day, Just return the Previous Day
-      default:
-        return moment().subtract(1, 'days');
-    }
   }
 
   ngAfterViewInit() {}
@@ -78,6 +50,22 @@ export class HeaderComponent implements OnInit, DoCheck, AfterViewInit {
     }
   }
 
+  getPreviousWorkday(day: any) {
+    switch (moment().day()) {
+      // If it is Monday (1), Saturday(6), or Sunday (0), Get the Previous Friday (5)
+      // and Ensure We are on the Previous Week
+      case 0:
+      case 1:
+      case 6:
+        return moment()
+          .subtract(6, 'days')
+          .day(5);
+      // If any other Day, Just return the Previous Day
+      default:
+        return moment().subtract(1, 'days');
+    }
+  }
+
   isPostingEngineRunning() {
     this.postingEngineApiService.isPostingEngineRunning().subscribe(response => {
       if (response.IsRunning) {
@@ -85,6 +73,12 @@ export class HeaderComponent implements OnInit, DoCheck, AfterViewInit {
         this.postingEngineService.checkProgress();
         this.postingEngineStatus = this.postingEngineService.getStatus();
       }
+    });
+  }
+
+  getServicesStatus(): void {
+    this.servicesStatusApiService.servicesStatusBool$.subscribe(status => {
+      this.servicesStatus = status;
     });
   }
 
