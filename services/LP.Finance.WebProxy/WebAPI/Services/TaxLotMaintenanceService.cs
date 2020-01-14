@@ -157,10 +157,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
 
                 List<TaxLot> taxLotList = new List<TaxLot>();
-                TaxLot t = new TaxLot();
                 foreach (var item in obj.OpenTaxLots)
                 {
-                    if(Math.Abs(item.RemainingQuantity) <= prospectiveTradeQuantity)
+                    TaxLot t = new TaxLot();
+                    if (Math.Abs(item.RemainingQuantity) <= prospectiveTradeQuantity)
                     {
                         item.Status = "Closed";
                         if(Math.Abs(item.RemainingQuantity) < prospectiveTradeQuantity)
