@@ -1,3 +1,5 @@
+import { Symbol } from './../../../../../services/service-proxies';
+import { map } from 'rxjs/operators';
 /* Core/Libraries */
 import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
 import { NgForm } from '@angular/forms';
@@ -23,7 +25,7 @@ export class JournalModalComponent implements OnInit {
   @Output() modalClose = new EventEmitter<any>();
 
   funds: Fund;
-  symbols: any = ['ACBI', 'AROW', 'ASRV', 'BWFG', 'CNBKA'];
+  symbols: any = [];
   allAccounts: Account[];
   dummyAccount: Account;
   fromAccountCheck: number;
@@ -73,6 +75,7 @@ export class JournalModalComponent implements OnInit {
 
   ngOnInit() {
     this.getFunds();
+    this.getSymbols();
     this.getAccounts();
     this.editJournal = false;
     this.maxDate = moment();
@@ -83,6 +86,12 @@ export class JournalModalComponent implements OnInit {
       if (response.payload) {
         this.funds = response.payload;
       }
+    });
+  }
+
+  getSymbols() {
+    this.financePocServiceProxy.getSymbol().subscribe(data => {
+      this.symbols = data.payload.map(item => item.symbol);
     });
   }
 

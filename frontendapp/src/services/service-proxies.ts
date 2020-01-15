@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { Response } from '../shared/Models/response';
 
 @Injectable()
 export class FinanceServiceProxy {
@@ -54,6 +55,13 @@ export class FinanceServiceProxy {
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
+  /*
+  Get the Symbol
+  */
+ getSymbol() {
+  const url = encodeURI(this.refDataUrl + '/refdata/data?refdata=symbol');
+  return this.http.get<Response<Symbols>>(url).pipe(map((response: any) => response));
+}
   /*
   Get the Portfolios
   */
@@ -114,4 +122,8 @@ export class FinanceServiceProxy {
     const url = this.baseUrl + '/marketdata/getSymbolPrices?symbol=' + symbol;
     return this.http.get(url).pipe(map((response: any) => response));
   }
+}
+
+interface Symbols {
+  symbol: string;
 }
