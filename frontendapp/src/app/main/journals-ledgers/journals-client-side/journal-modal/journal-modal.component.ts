@@ -23,6 +23,7 @@ export class JournalModalComponent implements OnInit {
   @Output() modalClose = new EventEmitter<any>();
 
   funds: Fund;
+  symbols: any = ['ACBI', 'AROW', 'ASRV', 'BWFG', 'CNBKA'];
   allAccounts: Account[];
   dummyAccount: Account;
   fromAccountCheck: number;
@@ -166,10 +167,18 @@ export class JournalModalComponent implements OnInit {
   }
 
   getPayload() {
-    const { fund, toAccountValueType, selectedAsOfDate, value, comments } = this.journalForm.value;
+    const {
+      fund,
+      symbol,
+      toAccountValueType,
+      selectedAsOfDate,
+      value,
+      comments
+    } = this.journalForm.value;
 
     return {
       fund,
+      ...(symbol && { symbol }),
       accountFrom:
         this.selectedAccountFromObj != null
           ? {
@@ -309,7 +318,7 @@ export class JournalModalComponent implements OnInit {
       this.journalApiService.getJournal(source).subscribe(response => {
         if (response.isSuccessful) {
           this.selectedJournal = response.payload;
-          const { Fund, AccountFrom, AccountTo, When, Comment } = this.selectedJournal;
+          const { Fund, Symbol, AccountFrom, AccountTo, When, Comment } = this.selectedJournal;
           this.selectedRow.balance = AccountTo.Value;
 
           this.setContraEntryMode(AccountFrom);
@@ -325,6 +334,7 @@ export class JournalModalComponent implements OnInit {
 
           this.setFormValues(
             Fund,
+            Symbol,
             fromAccount,
             AccountFrom != null ? AccountFrom.CreditDebit : null,
             toAccount,
@@ -351,6 +361,7 @@ export class JournalModalComponent implements OnInit {
 
       this.setFormValues(
         this.funds[0].FundCode,
+        null,
         null,
         null,
         accountTo,
@@ -395,6 +406,7 @@ export class JournalModalComponent implements OnInit {
 
   setFormValues(
     fund: string,
+    symbol: string,
     fromAccount: Account,
     fromAccountValueType: string,
     toAccount: Account,
@@ -405,6 +417,7 @@ export class JournalModalComponent implements OnInit {
   ) {
     this.journalForm.form.patchValue({
       ...(fund != null && { fund }),
+      ...(symbol != null && { symbol }),
       ...(fromAccount != null && { fromAccount }),
       ...(fromAccountValueType != null && { fromAccountValueType }),
       ...(toAccount != null && { toAccount }),
@@ -439,6 +452,7 @@ export class JournalModalComponent implements OnInit {
 
     this.journalForm.resetForm({
       fund: '',
+      symbol: '',
       fromAccount: '',
       fromAccountValueType: '',
       toAccount: '',

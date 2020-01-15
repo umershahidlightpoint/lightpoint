@@ -327,7 +327,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var generatedBy = "user";
                 var quantity = 0;
                 var lastModifiedOn = DateTime.Now.ToString("yyyy-MM-dd");
-                var symbol = "";
+                var symbol = string.IsNullOrWhiteSpace(journal.Symbol) ? "" : journal.Symbol;
                 var eventType = "manual";
                 var startPrice = 0;
                 var endPrice = 0;
@@ -517,26 +517,18 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var accountToValue = journal.Value;
                 var lastModifiedOn = DateTime.Now.ToString("yyyy-MM-dd");
+                var symbol = string.IsNullOrWhiteSpace(journal.Symbol) ? "" : journal.Symbol;
 
-                var accountFromQuery = $@"UPDATE [journal]
+                var journalQuery = $@"UPDATE [journal]
                             SET [account_id] = @accountId
                             ,[value] = @value
                             ,[when] = @when
                             ,[fx_currency] = @fxCurrency
                             ,[fund] = @fund
                             ,[last_modified_on] = @lastModifiedOn
+                            ,[symbol] = @symbol
                             ,[credit_debit] = @entryType
-                            WHERE [journal].[source] = @source AND [journal].[is_account_to] = 0";
-
-                var accountToQuery = $@"UPDATE [journal]
-                            SET [account_id] = @accountId
-                            ,[value] = @value
-                            ,[when] = @when
-                            ,[fx_currency] = @fxCurrency
-                            ,[fund] = @fund
-                            ,[last_modified_on] = @lastModifiedOn
-                            ,[credit_debit] = @entryType
-                            WHERE [journal].[source] = @source AND [journal].[is_account_to] = 1";
+                            WHERE [journal].[source] = @source AND [journal].[is_account_to] = @isAccountTo";
 
                 if (!journal.ContraEntryMode)
                 {
@@ -555,11 +547,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         new SqlParameter("fxCurrency", fxCurrency),
                         new SqlParameter("fund", journal.Fund),
                         new SqlParameter("lastModifiedOn", lastModifiedOn),
+                        new SqlParameter("symbol", symbol),
                         new SqlParameter("entryType", journal.AccountFrom.EntryType),
                         new SqlParameter("source", source.ToString()),
+                        new SqlParameter("isAccountTo", Convert.ToInt32(0))
                     };
 
-                    sqlHelper.Update(accountFromQuery, CommandType.Text, accountFromParameters.ToArray());
+                    sqlHelper.Update(journalQuery, CommandType.Text, accountFromParameters.ToArray());
 
                     SqlParameter[] fromJournalParameters =
                         {new SqlParameter("journalId", journal.AccountFrom.JournalId)};
@@ -574,11 +568,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("fxCurrency", fxCurrency),
                     new SqlParameter("fund", journal.Fund),
                     new SqlParameter("lastModifiedOn", lastModifiedOn),
+                    new SqlParameter("symbol", symbol),
                     new SqlParameter("entryType", journal.AccountTo.EntryType),
                     new SqlParameter("source", source.ToString()),
+                    new SqlParameter("isAccountTo", 1)
                 };
 
-                sqlHelper.Update(accountToQuery, CommandType.Text, accountToParameters.ToArray());
+                sqlHelper.Update(journalQuery, CommandType.Text, accountToParameters.ToArray());
 
                 SqlParameter[] toJournalParameters = {new SqlParameter("journalId", journal.AccountTo.JournalId)};
                 sqlHelper.Update("UpdateManualJournal", CommandType.StoredProcedure, toJournalParameters);

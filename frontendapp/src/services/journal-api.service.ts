@@ -28,7 +28,7 @@ Get a Single Journal
 */
   getJournal(source) {
     const url = this.baseUrl + '/journal/' + source;
-    return this.http.get(url).pipe(map((response: Response<Journal>) => response));
+    return this.http.get<Response<Journal>>(url).pipe(map(response => response));
   }
 
   /*

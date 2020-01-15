@@ -31,7 +31,6 @@
               </div>
               <!-- Fund Drop Down -->
               <div class="col-sm-9">
-                <!-- <select [(ngModel)]="accTypeId"  -->
                 <select class="custom-select" name="fund" ngModel required>
                   <option selected disabled value="">Select fund type</option>
                   <option *ngFor="let fund of funds" [ngValue]="fund.FundCode">
@@ -42,6 +41,26 @@
             </div>
           </div>
           <!-- Fund Div Ends -->
+
+          <!-- Symbol Div Starts -->
+          <div class="form-group">
+            <div class="row">
+              <!-- Symbol Label -->
+              <div class="col-sm-3">
+                <label> Symbol </label>
+              </div>
+              <!-- Symbol Drop Down -->
+              <div class="col-sm-9">
+                <select class="custom-select" name="symbol" ngModel>
+                  <option selected disabled value="">Select a Symbol</option>
+                  <option *ngFor="let symbol of symbols" [ngValue]="symbol">
+                    {{ symbol }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <!-- Symbol Div Ends -->
 
           <!-- To Account Div Starts -->
           <div class="form-group">
