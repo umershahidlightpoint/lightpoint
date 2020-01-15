@@ -1,5 +1,3 @@
-import { Symbol } from './../../../../../services/service-proxies';
-import { map } from 'rxjs/operators';
 /* Core/Libraries */
 import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
 import { NgForm } from '@angular/forms';
