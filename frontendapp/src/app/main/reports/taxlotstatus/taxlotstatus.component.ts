@@ -369,7 +369,8 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         moment(toDate).format('YYYY-MM-DD'),
         moment(fromDate).format('YYYY-MM-DD'),
         symbol,
-        fund
+        fund,
+        false
       )
       .subscribe(response => {
         this.stats = response.stats;

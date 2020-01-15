@@ -822,7 +822,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        public object GetTaxLotReport(DateTime? from, DateTime? to, string fund, string symbol)
+        public object GetTaxLotReport(DateTime? from, DateTime? to, string fund, string symbol, Boolean side = true)
         {
             try
             {
@@ -838,52 +838,59 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var query = $@"select * from tax_lot_status";
 
-//                if (from.HasValue)
-//                {
-//                    sqlParams.Add(new SqlParameter("from", from));
-//                    query = query + " where tax_lot_status.[business_date] >= @from";
-//                    whereAdded = true;
-//                }
-//
-//                if (to.HasValue)
-//                {
-//                    sqlParams.Add(new SqlParameter("to", to));
-//
-//                    if (whereAdded == true)
-//                    {
-//                        query = query + " AND tax_lot_status.[business_date] <= @to";
-//                    }
-//                    else
-//                    {
-//                        query = query + " where tax_lot_status.[business_date] <= @to";
-//                    }
-//                }
-//
-//                if (fund != "ALL")
-//                {
-//                    sqlParams.Add(new SqlParameter("fund", fund));
-//                    if (whereAdded == true)
-//                    {
-//                        query = query + " AND journal.[fund] = @fund";
-//                    }
-//                    else
-//                    {
-//                        query = query + "where journal.[fund] = @fund";
-//                    }
-//                }
-//
-//                if (!string.IsNullOrEmpty(symbol))
-//                {
-//                    sqlParams.Add(new SqlParameter("symbol", symbol));
-//                    if (whereAdded == true)
-//                    {
-//                        query = query + " AND tax_lot_status.[symbol] LIKE '%' +@symbol+'%'";
-//                    }
-//                    else
-//                    {
-//                        query = query + " where tax_lot_status.[symbol] LIKE '%' +@symbol+'%'";
-//                    }
-//                }
+                //                if (from.HasValue)
+                //                {
+                //                    sqlParams.Add(new SqlParameter("from", from));
+                //                    query = query + " where tax_lot_status.[business_date] >= @from";
+                //                    whereAdded = true;
+                //                }
+                //
+                //                if (to.HasValue)
+                //                {
+                //                    sqlParams.Add(new SqlParameter("to", to));
+                //
+                //                    if (whereAdded == true)
+                //                    {
+                //                        query = query + " AND tax_lot_status.[business_date] <= @to";
+                //                    }
+                //                    else
+                //                    {
+                //                        query = query + " where tax_lot_status.[business_date] <= @to";
+                //                    }
+                //                }
+                //
+                //                if (fund != "ALL")
+                //                {
+                //                    sqlParams.Add(new SqlParameter("fund", fund));
+                //                    if (whereAdded == true)
+                //                    {
+                //                        query = query + " AND journal.[fund] = @fund";
+                //                    }
+                //                    else
+                //                    {
+                //                        query = query + "where journal.[fund] = @fund";
+                //                    }
+                //                }
+                //
+                //                if (!string.IsNullOrEmpty(symbol))
+                //                {
+                //                    sqlParams.Add(new SqlParameter("symbol", symbol));
+                //                    if (whereAdded == true)
+                //                    {
+                //                        query = query + " AND tax_lot_status.[symbol] LIKE '%' +@symbol+'%'";
+                //                    }
+                //                    else
+                //                    {
+                //                        query = query + " where tax_lot_status.[symbol] LIKE '%' +@symbol+'%'";
+                //                    }
+                //                }
+
+                if (side)
+                {
+                    query = query + " where tax_lot_status.[side] = 'BUY' OR tax_lot_status.[side] = 'SHORT'";
+                    whereAdded = true;
+                    sqlParams.Add(new SqlParameter("side", side));
+                }
 
                 query += " order by symbol, trade_date asc";
 

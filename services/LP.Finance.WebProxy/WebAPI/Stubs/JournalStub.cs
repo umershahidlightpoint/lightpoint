@@ -45,7 +45,7 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
             throw new NotImplementedException();
         }
 
-        public object GetTaxLotReport(DateTime? from, DateTime? to, string fund, string symbol)
+        public object GetTaxLotReport(DateTime? from, DateTime? to, string fund, string symbol, Boolean side)
         {
             throw new NotImplementedException();
         }

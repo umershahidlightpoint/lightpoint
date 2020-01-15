@@ -53,9 +53,9 @@ namespace LP.Finance.WebProxy.WebAPI
         [Route("taxLotReport")]
         [HttpGet]
         public object GetTaxLotReport(DateTime? from = null, DateTime? to = null, string symbol = "",
-            string fund = "ALL")
+            string fund = "ALL", Boolean side = false)
         {
-            return controller.GetTaxLotReport(from, to, fund, symbol);
+            return controller.GetTaxLotReport(from, to, fund, symbol, side);
         }
 
         [Route("closingTaxLots")]

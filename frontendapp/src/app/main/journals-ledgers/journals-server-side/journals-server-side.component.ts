@@ -37,7 +37,8 @@ import {
   SetDateRange,
   HeightStyle,
   AutoSizeAllColumns,
-  CommonCols
+  CommonCols,
+  LegendColors
 } from 'src/shared/utils/Shared';
 import { JournalApiService } from 'src/services/journal-api.service';
 import { CacheService } from 'src/services/common/cache.service';
@@ -446,7 +447,14 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         // });
         // params.api.onGroupExpandedOrCollapsed();
       },
-      getRowStyle: params => ApplyRowStyles(params),
+      // getRowStyle: params => ApplyRowStyles(params),
+      getRowStyle: params => {
+        let style = {};
+        if (params.data !== undefined && params.data.event === 'manual') {
+          style = LegendColors.nonZeroStyle;
+        }
+        return style;
+      },
       getChildCount: data => {
         // Data Contains a Group that is returned from the API
         return data ? data.groupCount : 0;

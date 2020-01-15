@@ -46,10 +46,12 @@ namespace LP.ReferenceData.WebProxy.WebAPI
     public class RefDataService : IRefData
     {
         private readonly string connectionString;
+        private readonly string connectionStringTradeMaster;
 
         public RefDataService()
         {
             connectionString = ConfigurationManager.ConnectionStrings["PositionMasterDb"].ToString();
+            connectionStringTradeMaster = ConfigurationManager.ConnectionStrings["TradeMasterDB"].ToString();
         }
 
         public object Data(string refdata)
@@ -82,6 +84,10 @@ namespace LP.ReferenceData.WebProxy.WebAPI
                 case "broker":
                     result = Utils.GetTable(connectionString, "broker");
                     Utils.Save(result, "broker");
+                    break;
+                case "symbol":
+                    result = Utils.RunQuery(connectionStringTradeMaster, "select distinct symbol from trade");
+                    Utils.Save(result, "symbol");
                     break;
             }
 

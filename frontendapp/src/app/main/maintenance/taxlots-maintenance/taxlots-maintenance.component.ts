@@ -446,7 +446,8 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
         moment(toDate).format('YYYY-MM-DD'),
         moment(fromDate).format('YYYY-MM-DD'),
         symbol,
-        fund
+        fund,
+        true
       )
       .subscribe(response => {
         this.stats = response.stats;
@@ -583,7 +584,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
   getContextMenuItemsForProspectiveTrades(params) {
     const addDefaultItems = [
       {
-        name: 'Alleviate Tax Lot',
+        name: 'Manually Alleviate Tax Lot',
         action: () => {
           this.alleviateTaxLot();
         }
