@@ -54,9 +54,9 @@ export class ReportsApiService {
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
-  getTaxLotReport(fromDate, toDate, symbol, fund) {
+  getTaxLotReport(fromDate, toDate, symbol, fund, side) {
     const url =
-      this.baseUrl + '/journal/taxlotReport?from=' + fromDate + '&to=' + toDate + '&symbol=' + symbol + '&fund=' + fund;
+      this.baseUrl + '/journal/taxlotReport?from=' + fromDate + '&to=' + toDate + '&symbol=' + symbol + '&fund=' + fund + '&side=' + side;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 

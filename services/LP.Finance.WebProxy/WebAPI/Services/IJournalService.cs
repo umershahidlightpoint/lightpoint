@@ -16,7 +16,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object DeleteJournal(Guid source);
         object GetCostBasisReport(DateTime? date, string fund, string symbol);
         object GetCostBasisChart(string symbol);
-        object GetTaxLotReport(DateTime? from, DateTime? to, string fund, string symbol);
+        object GetTaxLotReport(DateTime? from, DateTime? to, string fund, string symbol, Boolean side);
         object GetClosingTaxLots(string orderid = null);
         object GetTaxLotsReport(DateTime? from, DateTime? to, string fund);
         object GetReconReport(String source, DateTime? date, string fund);
