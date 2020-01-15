@@ -8,6 +8,7 @@ export interface GridLayout {
   GroupState: Array<any>;
   Id: number;
   IsPublic: boolean;
+  IsDefault: boolean;
   PivotMode: Array<any>;
   SortState: Array<any>;
   UserId: number;

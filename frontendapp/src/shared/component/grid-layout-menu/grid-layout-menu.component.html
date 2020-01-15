@@ -1,14 +1,17 @@
 <div *ngIf="!isNewLayout" class="row mx-auto form-group pl-2 pt-2">
-  <select class="form-control layout-dropdown" id="gridLayoutList_id" [(ngModel)]="gridLayout" (ngModelChange)="restoreLayout($event)">
+  <select class="form-control layout-dropdown" id="gridLayoutList_id" [(ngModel)]="gridLayout"
+    (ngModelChange)="restoreLayout($event)">
     <option [ngValue]="initialLayout" selected>Select Layout</option>
-    <option *ngFor="let layout of gridLayouts" [ngValue]="layout" [ngClass]="layout.IsPublic ? 'class-IsPublic' : ''">
-      {{ layout.GridLayoutName }}
-    </option>
+    <ng-container *ngFor="let layout of gridLayouts; trackBy: trackByFn">
+      <option *ngIf="!layout.IsDefault" [ngValue]="layout" [ngClass]="layout.IsPublic ? 'class-IsPublic' : ''">
+        {{ layout.GridLayoutName }}
+      </option>
+    </ng-container>
   </select>
 </div>
 
 <div *ngIf="isNewLayout" class="row mx-auto form-group layout-input">
-  <input class="form-control" placeholder="Layout Name" type="text" [(ngModel)]="layoutName" id="layOutName_grid" step=".07" />
+  <input class="form-control" placeholder="Layout Name" type="text" [(ngModel)]="layoutName" id="layOutName_grid" />
   <div class="ml-auto mt-2 mr-4">
     <input type="checkbox" [(ngModel)]="isPublic" name="Public" value="1" />
     Public

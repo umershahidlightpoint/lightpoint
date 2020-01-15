@@ -8,20 +8,61 @@
 
 <!-- Container Div Starts -->
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
+
+    <!-- Tabs Container -->
     <tabset class="tab-color">
-        <!-- Server Side Journal Tab Starts -->
-        <tab heading="Journals" (selectTab)="activeJournal()">
+
+        <!-- Nav Tab Starts -->
+        <tab heading="NAV">
             <div [ngStyle]="style">
-                <app-journals-server-side></app-journals-server-side>
+                <app-journals-server-side defaultView='Nav'></app-journals-server-side>
+            </div>
+        </tab>
+        <!-- Nav Tab Ends -->
+
+        <!-- Balance Sheet Tab Starts -->
+        <tab heading="Balance Sheet" (selectTab)="activateTab('BalanceSheet')">
+            <div [ngStyle]="style">
+                <app-journals-server-side *ngIf="isBalanceSheetActive" defaultView='Balance Sheet'>
+                </app-journals-server-side>
+            </div>
+        </tab>
+        <!-- Balance Sheet Tab Ends -->
+
+        <!-- Income Statement Tab Starts -->
+        <tab heading="Income Statement" (selectTab)="activateTab('IncomeStatement')">
+            <div [ngStyle]="style">
+                <app-journals-server-side *ngIf="isIncomeStatementActive" defaultView='Income Statement'>
+                </app-journals-server-side>
+            </div>
+        </tab>
+        <!-- Income Statement Tab Ends -->
+
+        <!-- Trial Balance Tab Starts -->
+        <tab heading="Trial Balance" (selectTab)="activateTab('TrialBalance')">
+            <div [ngStyle]="style">
+                <app-journals-server-side *ngIf="isTrialBalanceActive" defaultView='Trial Balance'>
+                </app-journals-server-side>
+            </div>
+        </tab>
+        <!-- Trial Balance Tab Ends -->
+
+        <!-- Server Side Journal Tab Starts -->
+        <tab heading="Journals" (selectTab)="activateTab('ServerSideJournal')">
+            <div [ngStyle]="style">
+                <app-journals-server-side *ngIf="isServerSideJournalActive"></app-journals-server-side>
             </div>
         </tab>
         <!-- Server Side Journal Tab Ends -->
 
         <!-- Client Side Journal Tab Starts -->
-        <!-- <tab heading="Client Side Journals" (selectTab)="activeClientJournal()">
+        <!-- <tab heading="Client Side Journals" (selectTab)="activateTab('ClientSideJournal')">
             <app-journals-ledgers *ngIf="isClientJournalActive"></app-journals-ledgers>
         </tab> -->
         <!-- Client Side Journal Tab Ends -->
+
     </tabset>
+    <!-- Tabs Container Ends -->
+
 </div>
 <!-- Container Div Ends -->

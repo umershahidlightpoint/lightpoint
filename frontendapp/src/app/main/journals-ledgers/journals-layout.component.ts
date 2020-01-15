@@ -9,7 +9,11 @@ import { DataService } from 'src/services/common/data.service';
 })
 export class JournalsLayoutComponent implements OnInit, AfterViewInit {
   hideGrid = false;
-  isClientJournalActive: boolean;
+  isBalanceSheetActive = false;
+  isIncomeStatementActive = false;
+  isTrialBalanceActive = false;
+  isServerSideJournalActive = false;
+  isClientSideJournalActive = false;
 
   style = Style;
 
@@ -22,10 +26,7 @@ export class JournalsLayoutComponent implements OnInit, AfterViewInit {
     boxSizing: 'border-box'
   };
 
-  constructor(private dataService: DataService) {
-    this.hideGrid = false;
-    this.isClientJournalActive = false;
-  }
+  constructor(private dataService: DataService) {}
 
   ngOnInit() {}
 
@@ -35,9 +36,26 @@ export class JournalsLayoutComponent implements OnInit, AfterViewInit {
     });
   }
 
-  activeJournal() {}
-
-  activeClientJournal() {
-    this.isClientJournalActive = true;
+  activateTab(tab: string) {
+    console.log('EVENT ::', tab);
+    switch (tab) {
+      case 'BalanceSheet':
+        this.isBalanceSheetActive = true;
+        break;
+      case 'IncomeStatement':
+        this.isIncomeStatementActive = true;
+        break;
+      case 'TrialBalance':
+        this.isTrialBalanceActive = true;
+        break;
+      case 'ServerSideJournal':
+        this.isServerSideJournalActive = true;
+        break;
+      case 'ClientSideJournal':
+        this.isClientSideJournalActive = true;
+        break;
+      default:
+        break;
+    }
   }
 }

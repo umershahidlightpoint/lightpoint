@@ -151,8 +151,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 new SqlParameter("userId", userId)
             };
 
-            var query =
-                $@"SELECT [id], [grid_name], [grid_layout_name],[column_state], [grid_id], isnull([is_public],0) as [is_public] 
+            var query = $@"SELECT [id], 
+                        [grid_name], 
+                        [grid_layout_name], 
+                        [column_state], 
+                        [grid_id], 
+                        isnull([is_public], 0) as [is_public], 
+                        [is_default]
                 FROM [data_grid_layouts] where grid_id = @gridId and userid = @userId";
 
             MetaData meta = new MetaData();
@@ -169,6 +174,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     oDataGridStatusDto.GridId = Convert.ToInt32(reader["grid_id"]);
                     oDataGridStatusDto.GridLayoutName = reader["grid_layout_name"].ToString();
                     oDataGridStatusDto.IsPublic = Convert.ToBoolean(reader["is_public"]);
+                    oDataGridStatusDto.IsDefault = Convert.ToBoolean(reader["is_default"]);
                     oDataGridStatusDto.ColumnState = Convert.ToString(reader["column_state"]);
                     lDataGridStatusDto.Add(oDataGridStatusDto);
                 }
@@ -198,7 +204,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                           ,[filter_state]
                           ,[external_filter_state]
                         FROM [data_grid_layouts] where id = @id";
-
 
             DataGridStatusDto oDataGridStatusDto = new DataGridStatusDto();
             MetaData meta = new MetaData();

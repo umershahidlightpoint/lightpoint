@@ -1,10 +1,10 @@
-import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { IToolPanel, IToolPanelParams } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
-import { GridLayout } from 'src/shared/Models/funds-theoretical';
-import { AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { GridLayoutApiService } from 'src/services/grid-layout-api.service';
+import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
+import { AutoSizeAllColumns } from 'src/shared/utils/Shared';
+import { GridLayout } from 'src/shared/Models/funds-theoretical';
 
 @Component({
   selector: 'app-grid-layout-menu',
@@ -15,10 +15,10 @@ export class GridLayoutMenuComponent implements IToolPanel {
   @ViewChild('confirmModal', { static: false })
   confirmationModal: ConfirmationModalComponent;
 
-  gridOptions: any;
-  gridObject: { gridId: number; gridName: string };
-  setGridFilterObject: any;
   params: IToolPanelParams;
+  gridOptions: any;
+  gridObject: { gridId: number; gridName: string; defaultView: string };
+  setGridFilterObject: any;
 
   initialLayout: GridLayout = {
     ColumnState: null,
@@ -30,23 +30,23 @@ export class GridLayoutMenuComponent implements IToolPanel {
     GroupState: null,
     Id: 0,
     IsPublic: false,
+    IsDefault: false,
     PivotMode: null,
     SortState: null,
     UserId: 0
   };
 
-  gridLayout: GridLayout;
-
-  layoutName: string;
   gridLayouts: Array<GridLayout>;
+  gridLayout: GridLayout;
+  layoutName: string;
   public: boolean;
   isPublic = false;
   isPublicSelected = false;
   isNewLayout = false;
 
   constructor(
-    private gridLayoutApiService: GridLayoutApiService,
     private cdRef: ChangeDetectorRef,
+    private gridLayoutApiService: GridLayoutApiService,
     private toastrService: ToastrService
   ) {
     this.gridLayout = this.initialLayout;
@@ -54,14 +54,28 @@ export class GridLayoutMenuComponent implements IToolPanel {
 
   agInit(params): void {
     this.params = params;
-    this.gridObject = { gridId: params.gridId, gridName: params.gridName };
+    this.gridObject = {
+      gridId: params.gridId,
+      gridName: params.gridName,
+      defaultView: params.defaultView
+    };
     this.gridOptions = params.gridOptions;
     this.getLayout();
+  }
+
+  trackByFn(index, item) {
+    return item.IsDefault;
   }
 
   getLayout(): void {
     this.gridLayoutApiService.getGridLayouts(this.gridObject.gridId, 1).subscribe(result => {
       this.gridLayouts = result.payload;
+      if (this.gridObject.defaultView) {
+        this.restoreLayout(
+          this.gridLayouts.find(element => element.GridLayoutName === this.gridObject.defaultView)
+        );
+      }
+
       this.cdRef.detectChanges();
     });
   }
@@ -71,6 +85,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
       this.resetState();
       return;
     }
+
     this.gridLayout = layout;
     this.isPublicSelected = layout.IsPublic;
     this.gridLayoutApiService.GetAGridLayout(layout.Id).subscribe(response => {
@@ -86,6 +101,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
   onCreateNew() {
     this.isNewLayout = !this.isNewLayout;
     this.layoutName = '';
+
     return;
   }
 
@@ -93,6 +109,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
     if (this.layoutName === '') {
       return this.toastrService.error('Please enter name');
     }
+
     this.onSaveState(0);
   }
 
@@ -162,9 +179,9 @@ export class GridLayoutMenuComponent implements IToolPanel {
     AutoSizeAllColumns(this.gridOptions);
   }
 
+  refresh() {}
+
   openModal() {
     this.confirmationModal.showModal();
   }
-
-  refresh() {}
 }

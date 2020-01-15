@@ -11,7 +11,8 @@
 	[filter_state] [text] NULL,
 	[external_filter_state] [text] NULL,
 	[is_public] [bit] NULL,
- CONSTRAINT [PK_data_grid_state] PRIMARY KEY CLUSTERED 
+ [is_default] BIT NULL DEFAULT 0, 
+    CONSTRAINT [PK_data_grid_state] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]

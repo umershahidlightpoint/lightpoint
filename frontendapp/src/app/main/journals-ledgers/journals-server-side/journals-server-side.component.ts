@@ -1,5 +1,5 @@
 /* Core/Library Imports */
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, Input } from '@angular/core';
 import { timer, Subject } from 'rxjs';
 import { debounce } from 'rxjs/operators';
 import 'ag-grid-enterprise';
@@ -49,6 +49,7 @@ import { CacheService } from 'src/services/common/cache.service';
   styleUrls: ['./journals-server-side.component.css']
 })
 export class JournalsServerSideComponent implements OnInit, AfterViewInit {
+  @Input() defaultView = '';
   @ViewChild('journalModal', { static: false }) journalModal: JournalModalComponent;
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
   @ViewChild('reportModal', { static: false }) reportModal: ReportModalComponent;
@@ -227,9 +228,6 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   ) {
     this.hideGrid = false;
     this.DateRangeLabel = '';
-
-    this.resetFieldsSum();
-    this.initGird();
   }
 
   ngOnInit() {
@@ -238,6 +236,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       this.gridOptions.api.onFilterChanged();
     });
 
+    this.resetFieldsSum();
+    this.initGird();
     this.getJournalsTotal({ filterModel: {}, externalFilterModel: {} });
   }
 
@@ -463,7 +463,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.gridOptions.sideBar = SideBar(
       GridId.journalsLedgersId,
       GridName.journalsLedgers,
-      this.gridOptions
+      this.gridOptions,
+      this.defaultView
     );
   }
 

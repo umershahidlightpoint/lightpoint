@@ -16,5 +16,6 @@ namespace LP.Finance.Common.Dtos
         public string ExternalFilterState { get; set; }
         public string GridLayoutName { get; set; }
         public bool IsPublic { get; set; }
+        public bool IsDefault { get; set; }
     }
 }
