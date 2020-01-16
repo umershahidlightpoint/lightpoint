@@ -64,6 +64,7 @@ export class JournalModalComponent implements OnInit {
   selectedAccountFromObj: Account;
   copyAccountFromList: Account[] = [];
 
+
   constructor(
     private toastrService: ToastrService,
     private financePocServiceProxy: FinanceServiceProxy,
@@ -182,6 +183,7 @@ export class JournalModalComponent implements OnInit {
       value,
       comments
     } = this.journalForm.value;
+
 
     return {
       fund,
@@ -308,9 +310,7 @@ export class JournalModalComponent implements OnInit {
   }
 
   openModal(rowData = {} as any, contraEntryMode = false) {
-    console.log('ROW DATA ::', rowData);
     if (this.isEditMode(rowData, contraEntryMode)) {
-      console.log('ROW DATA IN EDIT ::', rowData);
       this.editJournal = true;
       this.selectedRow = rowData;
       const { source, event } = this.selectedRow;
@@ -355,7 +355,6 @@ export class JournalModalComponent implements OnInit {
         }
       });
     } else if (contraEntryMode) {
-      console.log('ROW DATA IN CONTRA ::', rowData);
 
       this.contraEntryMode = true;
 
