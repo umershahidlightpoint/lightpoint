@@ -461,29 +461,35 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       GridId.journalsLedgersId,
       GridName.journalsLedgers,
       this.gridOptions,
-      this.defaultView
+      this.defaultView,
+      this.datasource
     );
   }
 
   onFilterChanged(event) {
-    this.resetBottomRowData();
-    const havingColumns = this.havingColumns;
-    const { filterModel, valueCols } = event.api.serverSideRowModel.cacheParams;
-    const { fund, symbol, when, balance } = this.getServerSideExternalFilter();
-    const payload = {
-      filterModel,
-      valueCols,
-      havingColumns,
-      externalFilterModel: {
-        ...(fund && { fund }),
-        ...(symbol && { symbol }),
-        ...(when && { when }),
-        ...(balance && { balance })
-      }
-    };
+    try {
+      this.resetBottomRowData();
+      const havingColumns = this.havingColumns;
+      const { filterModel, valueCols } = event.api.serverSideRowModel.cacheParams;
+      const { fund, symbol, when, balance } = this.getServerSideExternalFilter();
+      const payload = {
+        filterModel,
+        valueCols,
+        havingColumns,
+        externalFilterModel: {
+          ...(fund && { fund }),
+          ...(symbol && { symbol }),
+          ...(when && { when }),
+          ...(balance && { balance })
+        }
+      };
 
-    // console.log('PAYLOAD OF FILTERS ::', payload);
-    this.getJournalsTotal(payload);
+      // console.log('PAYLOAD OF FILTERS ::', payload);
+      this.getJournalsTotal(payload);
+    }
+    catch(e){
+      console.log(e,'filter error');
+    }
   }
 
   onSortChanged() {

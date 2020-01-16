@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import { GridOptions } from 'ag-grid-community';
 
-export const SideBar = (id: number, name: string, gridInstance: GridOptions, defaultView = '') => {
+export const SideBar = (id: number, name: string, gridInstance: GridOptions, defaultView = '', dataSource = null) => {
   return {
     toolPanels: [
       {
@@ -28,7 +28,8 @@ export const SideBar = (id: number, name: string, gridInstance: GridOptions, def
           gridId: id,
           gridName: name,
           gridOptions: gridInstance,
-          defaultView
+          defaultView,
+          dataSource
         }
       }
     ],
