@@ -51,12 +51,20 @@
               </div>
               <!-- Symbol Drop Down -->
               <div class="col-sm-9">
-                <select class="custom-select" name="symbol" ngModel>
-                  <option selected disabled value="">Select a Symbol</option>
-                  <option *ngFor="let symbol of symbols" [ngValue]="symbol">
-                    {{ symbol }}
-                  </option>
-                </select>
+                <input class="form-control"
+                placeholder="Select symbol type"
+                ngModel
+                name="symbol"
+                [typeahead]="symbols"
+                [typeaheadIsFirstItemActive]="true"
+                autocomplete="off"
+                [isAnimated]="true"
+                typeaheadWaitMs="500"
+                (typeaheadNoResults)="typeaheadNoResults($event)"
+                [typeaheadScrollable]="true"
+                [typeaheadOptionsInScrollableView]="15"
+                [typeaheadMinLength]="0"
+                />
               </div>
             </div>
           </div>
