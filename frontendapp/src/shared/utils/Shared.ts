@@ -1,7 +1,13 @@
 import * as moment from 'moment';
 import { GridOptions } from 'ag-grid-community';
 
-export const SideBar = (id: number, name: string, gridInstance: GridOptions, defaultView = '', dataSource = null) => {
+export const SideBar = (
+  id: number,
+  name: string,
+  gridInstance: GridOptions,
+  defaultView = '',
+  dataSource = null
+) => {
   return {
     toolPanels: [
       {
@@ -57,7 +63,7 @@ export const IgnoreFields: Array<string> = [
   'account_id',
   // 'value',
   'LpOrderId',
-  //'LPOrderId',
+  // 'LPOrderId',
   'FilledQuantity',
   'OrderedQuantity'
 ];
@@ -506,8 +512,6 @@ export const CommonCols = (isJournalGrid, filters = null) => {
               params.node.rowPinned)
           ) {
             return false;
-          } else {
-            return params.value > 0;
           }
         },
         redFont(params) {
