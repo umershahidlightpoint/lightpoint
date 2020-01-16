@@ -20,11 +20,6 @@ namespace PostingEngine.PostingRules
 
         internal void DailyEvent(PostingEngineEnvironment env, Transaction element)
         {
-            if ( env.ValueDate.Equals(new DateTime(2019,12,18)))
-            {
-
-            }
-
             double fxrate = 1.0;
 
             // Lets get fx rate if needed
@@ -66,14 +61,23 @@ namespace PostingEngine.PostingRules
                     }
 
                     var unrealizedPnl = CommonRules.CalculateUnrealizedPnl(env, taxlot);
+                   
+                    AccountToFrom fromToAccounts = null;
 
-                    var originalAccount = taxlot.Side == "SHORT" ? "Mark to Market Shorts" : "Mark to Market Longs";
-
-                    // Need to work out based on the Security Type and the direction of the MTM
-                    var fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "CHANGE IN UNREALIZED GAIN/(LOSS)", listOfTags, taxlot.Trade);
-
-                    fromToAccounts.From = new AccountUtils().DeriveMTMCorrectAccount(fromToAccounts.From, taxlot.Trade, listOfTags, unrealizedPnl);
-                    new AccountUtils().SaveAccountDetails(env, fromToAccounts.From);
+                    if ( element.IsDerivative())
+                    {
+                        var originalAccount = AccountUtils.GetDerivativeAccountType(unrealizedPnl);
+                        fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", listOfTags, taxlot.Trade);
+                    }
+                    else
+                    {
+                        var originalAccount = taxlot.Side == "SHORT" ? "Mark to Market Shorts" : "Mark to Market Longs";
+                        fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "CHANGE IN UNREALIZED GAIN/(LOSS)", listOfTags, taxlot.Trade);
+                        if ( taxlot.Side == "SHORT" )
+                        {
+                            unrealizedPnl *= -1;
+                        }
+                    }
 
                     var fund = env.GetFund(element);
 

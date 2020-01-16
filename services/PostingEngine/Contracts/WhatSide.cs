@@ -1,4 +1,5 @@
 ﻿using LP.Finance.Common.Models;
+using System.Collections.Generic;
 
 namespace PostingEngine.Contracts
 {
@@ -7,6 +8,18 @@ namespace PostingEngine.Contracts
     /// </summary>
     public static class WhatSide
     {
+        private static List<string> _derivativeTypes = new List<string> {
+            "CROSS".ToLowerInvariant(),
+            "FORWARD".ToLowerInvariant(),
+            "Physical index future.".ToLowerInvariant(),
+            "Equity Swap".ToLowerInvariant()
+        };
+
+        public static bool IsDerivative(this Transaction element)
+        {
+            return _derivativeTypes.Contains(element.SecurityType.ToLowerInvariant());
+        }
+
         public static bool IsBuy(this Transaction transaction)
         {
             return IsBuy(transaction.Side);
