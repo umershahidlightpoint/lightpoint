@@ -13,6 +13,27 @@ insert into account_category (id, name) values (3, 'Equity')
 insert into account_category (id, name) values (4, 'Revenues')
 insert into account_category (id, name) values (5, 'Expenses')
 
+/*
+Derivative Contracts
+
+We use these for OTC Instruments
+*/
+-- ASSET 
+insert into account_type (account_category_id, name) values (1, 'Mark to Market Derivatives Contracts at Fair Value (Assets)')
+insert into account_type (account_category_id, name) values (1, 'Mark to Market Derivatives Contracts due to FX (Assets)')
+insert into account_type (account_category_id, name) values (1, 'Mark to Market Derivatives Contracts due to FX Translation (Assets)')
+
+-- LIABILITY
+insert into account_type (account_category_id, name) values (2, 'Mark to Market Derivatives Contracts at Fair Value (Liabilities)')
+insert into account_type (account_category_id, name) values (2, 'Mark to Market Derivatives Contracts due to FX (Liabilities)')
+insert into account_type (account_category_id, name) values (2, 'Mark to Market Derivatives Contracts due to FX  Translation (Liabilities)')
+
+-- REVENUE
+insert into account_type (account_category_id, name) values (4, 'Change in Unrealized Derivatives Contracts at Fair Value')
+insert into account_type (account_category_id, name) values (4, 'Change in Unrealized Derivatives Contracts due to FX')
+insert into account_type (account_category_id, name) values (4, 'Change in Unrealized Derivatives Contracts due to FX Translation')
+
+
 /* 
 Types
 */

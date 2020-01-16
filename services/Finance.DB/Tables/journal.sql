@@ -17,7 +17,7 @@
     [credit_debit] VARCHAR(10) NOT NULL DEFAULT '', 
 	[security_id] [int] NULL DEFAULT -1,
 	[comment_id] [int] NULL,
-    [is_account_to] BIT NOT NULL DEFAULT 1, 
+    [is_account_to] BIT NULL DEFAULT 1, 
     CONSTRAINT [PK_journal] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
