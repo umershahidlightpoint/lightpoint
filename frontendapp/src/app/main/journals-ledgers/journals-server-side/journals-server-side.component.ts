@@ -146,6 +146,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
             if (this.gridOptions.columnApi.getAllColumns() !== null) {
               this.rowData = result.payload;
+              this.rowData = this.getGroupedAccountCategoryData(params, this.rowData);
+
               params.successCallback(this.rowData, result.meta.LastRow);
             }
 
@@ -257,6 +259,21 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       height,
       boxSizing: 'border-box'
     };
+  }
+
+  getGroupedAccountCategoryData(params: IServerSideGetRowsParams, rowData: any) {
+    const accountCategoryIndex = params.request.rowGroupCols.findIndex(
+      item => item.id === 'AccountCategory'
+    );
+    const groupKey = params.request.groupKeys[accountCategoryIndex];
+
+    return rowData.map(item => {
+      if (!item.hasOwnProperty('AccountCategory')) {
+        return { ...item, AccountCategory: groupKey };
+      }
+
+      return item;
+    });
   }
 
   getFunds() {
@@ -486,9 +503,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
       // console.log('PAYLOAD OF FILTERS ::', payload);
       this.getJournalsTotal(payload);
-    }
-    catch(e){
-      console.log(e,'filter error');
+    } catch (ex) {
+      console.log('Filter Error :: ', ex);
     }
   }
 
