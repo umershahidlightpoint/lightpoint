@@ -37,7 +37,6 @@ export class JournalsLayoutComponent implements OnInit, AfterViewInit {
   }
 
   activateTab(tab: string) {
-    console.log('EVENT ::', tab);
     switch (tab) {
       case 'BalanceSheet':
         this.isBalanceSheetActive = true;

@@ -14,7 +14,7 @@ import { DataModalComponent } from '../../../../../shared/Component/data-modal/d
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { DataService } from 'src/services/common/data.service';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { SideBar, Style, AutoSizeAllColumns } from 'src/shared/utils/Shared';
+import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';
 import { PostingEngineService } from 'src/services/common/posting-engine.service';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
@@ -45,11 +45,14 @@ export class TradesComponent implements OnInit, AfterViewInit {
   hideGrid: boolean;
   title = '';
   orderId: number;
+  filterBySymbol = '';
 
   // Process Trade state
   key: string;
 
   style = Style;
+
+  styleForHeight = HeightStyle(550);
 
   setWidthAndHeight(width, height) {
     this.style = {
@@ -185,10 +188,12 @@ export class TradesComponent implements OnInit, AfterViewInit {
       columnDefs: this.columnDefs,
       onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
+      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
+      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
+      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
+      getExternalFilterState: this.getExternalFilterState.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),
-      getExternalFilterState: () => {
-        return {};
-      },
       onGridReady: params => {
         this.gridOptions.api = params.api;
         this.gridOptions.columnApi = params.columnApi;
@@ -212,8 +217,47 @@ export class TradesComponent implements OnInit, AfterViewInit {
 
   onRowSelected(event) {
     if (event.node.selected) {
-      // debugger
       this.dataService.onRowSelectionTrade(event.node.data.LPOrderId);
     }
+  }
+
+  ngModelChangeSymbol(e) {
+    this.filterBySymbol = e;
+    this.gridOptions.api.onFilterChanged();
+  }
+
+  onSymbolKey(e) {
+    this.filterBySymbol = e.srcElement.value;
+    this.gridOptions.api.onFilterChanged();
+
+    // For the moment we react to each key stroke
+    if (e.code === 'Enter' || e.code === 'Tab') {
+    }
+  }
+
+  isExternalFilterPassed(object) {
+    const { symbolFilter } = object;
+    this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
+    this.gridOptions.api.onFilterChanged();
+  }
+
+  isExternalFilterPresent() {
+    if (this.filterBySymbol !== '') {
+      return true;
+    }
+  }
+
+  doesExternalFilterPass(node: any) {
+    if (this.filterBySymbol !== '') {
+      const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
+      return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase());
+    }
+    return true;
+  }
+
+  getExternalFilterState() {
+    return {
+      symbolFilter: this.filterBySymbol,
+    };
   }
 }
