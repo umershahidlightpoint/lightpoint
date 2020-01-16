@@ -1,7 +1,13 @@
 import * as moment from 'moment';
 import { GridOptions } from 'ag-grid-community';
 
-export const SideBar = (id: number, name: string, gridInstance: GridOptions, defaultView = '', dataSource = null) => {
+export const SideBar = (
+  id: number,
+  name: string,
+  gridInstance: GridOptions,
+  defaultView = '',
+  dataSource = null
+) => {
   return {
     toolPanels: [
       {
@@ -57,7 +63,7 @@ export const IgnoreFields: Array<string> = [
   'account_id',
   // 'value',
   'LpOrderId',
-  //'LPOrderId',
+  // 'LPOrderId',
   'FilledQuantity',
   'OrderedQuantity'
 ];
@@ -135,6 +141,12 @@ export const ExcelStyle = [
   }
 ];
 
+export const LegendColors = {
+  nonZeroStyle: { backgroundColor: '#fbe9e7' },
+  notInBookMonStyle: { backgroundColor: '#e1f5fe' },
+  notInAccountingStyle: { backgroundColor: '#e8eaf6' }
+};
+
 export const ApplyRowStyles = params => {
   const rowColors = [
     { backgroundColor: '#B8B8B8', TextColor: '#000000' },
@@ -148,18 +160,15 @@ export const ApplyRowStyles = params => {
     { backgroundColor: '#F2FFFF', TextColor: '#000000' },
     { backgroundColor: '#F2FFFF', TextColor: '#000000' }
   ];
+
   if (params.node.group) {
     return {
       background: rowColors[params.node.level].backgroundColor,
       color: rowColors[params.node.level].TextColor
     };
+  } else if (params.data && params.data.event === 'manual') {
+    return { background: LegendColors.nonZeroStyle.backgroundColor };
   }
-};
-
-export const LegendColors = {
-  nonZeroStyle: { backgroundColor: '#fbe9e7' },
-  notInBookMonStyle: { backgroundColor: '#e1f5fe' },
-  notInAccountingStyle: { backgroundColor: '#e8eaf6' }
 };
 
 export const CalTotalRecords = (gridOptions: GridOptions) => {
@@ -470,7 +479,7 @@ export const CommonCols = (isJournalGrid, filters = null) => {
           if (noColorCategories(params) || params.node.rowPinned) {
             return false;
           } else {
-            return params.value != 0;
+            return params.value !== 0;
           }
         },
         footerRow(params) {
@@ -503,8 +512,6 @@ export const CommonCols = (isJournalGrid, filters = null) => {
               params.node.rowPinned)
           ) {
             return false;
-          } else {
-            return params.value > 0;
           }
         },
         redFont(params) {

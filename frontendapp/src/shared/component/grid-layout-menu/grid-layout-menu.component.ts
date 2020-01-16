@@ -58,7 +58,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
       gridId: params.gridId,
       gridName: params.gridName,
       defaultView: params.defaultView,
-      dataSource : params.dataSource
+      dataSource: params.dataSource
     };
     this.gridOptions = params.gridOptions;
     this.getLayout();
@@ -90,27 +90,31 @@ export class GridLayoutMenuComponent implements IToolPanel {
     this.gridLayout = layout;
     this.isPublicSelected = layout.IsPublic;
     this.gridLayoutApiService.GetAGridLayout(layout.Id).subscribe(response => {
-      if(this.gridObject.dataSource){
-        //this.gridOptions.api.setServerSideDatasource([]);
+      if (this.gridObject.dataSource) {
+        // this.gridOptions.api.setServerSideDatasource([]);
       }
+
       this.gridOptions.columnApi.setColumnState(JSON.parse(response.payload.ColumnState));
       this.gridOptions.columnApi.setPivotMode(JSON.parse(response.payload.PivotMode));
-      //this.gridOptions.columnApi.setColumnGroupState(JSON.parse(response.payload.GroupState));
+      // this.gridOptions.columnApi.setColumnGroupState(JSON.parse(response.payload.GroupState));
       this.gridOptions.api.setSortModel(JSON.parse(response.payload.SortState));
       this.gridOptions.api.setFilterModel(JSON.parse(response.payload.FilterState));
       this.gridOptions.isExternalFilterPassed(JSON.parse(response.payload.ExternalFilterState));
-      const leftPinned = JSON.parse(response.payload.ColumnState).filter(x => x.pinned === 'left').map(x => x.colId);
-      const rightPinned = JSON.parse(response.payload.ColumnState).filter(x => x.pinned === 'right').map(x => x.colId);
-      if(leftPinned.length > 0){
+      const leftPinned = JSON.parse(response.payload.ColumnState)
+        .filter(x => x.pinned === 'left')
+        .map(x => x.colId);
+      const rightPinned = JSON.parse(response.payload.ColumnState)
+        .filter(x => x.pinned === 'right')
+        .map(x => x.colId);
+      if (leftPinned.length > 0) {
         this.gridOptions.columnApi.setColumnsPinned(leftPinned, 'left');
       }
-      if(rightPinned.length > 0){
+      if (rightPinned.length > 0) {
         this.gridOptions.columnApi.setColumnsPinned(rightPinned, 'right');
       }
-      if(this.gridObject.dataSource){
-        //this.gridOptions.api.setServerSideDatasource(this.gridObject.dataSource);
+      if (this.gridObject.dataSource) {
+        // this.gridOptions.api.setServerSideDatasource(this.gridObject.dataSource);
       }
-
     });
   }
 

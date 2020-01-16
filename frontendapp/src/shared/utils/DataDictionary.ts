@@ -254,8 +254,6 @@ export class DataDictionary {
   }
 
   priceFormatterEx(params) {
-    debugger;
-    
     if (params.value === undefined) {
       return;
     }

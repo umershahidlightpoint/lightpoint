@@ -37,8 +37,7 @@ import {
   SetDateRange,
   HeightStyle,
   AutoSizeAllColumns,
-  CommonCols,
-  LegendColors
+  CommonCols
 } from 'src/shared/utils/Shared';
 import { JournalApiService } from 'src/services/journal-api.service';
 import { CacheService } from 'src/services/common/cache.service';
@@ -147,6 +146,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
             if (this.gridOptions.columnApi.getAllColumns() !== null) {
               this.rowData = result.payload;
+              this.rowData = this.getGroupedAccountCategoryData(params, this.rowData);
+
               params.successCallback(this.rowData, result.meta.LastRow);
             }
 
@@ -260,6 +261,21 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     };
   }
 
+  getGroupedAccountCategoryData(params: IServerSideGetRowsParams, rowData: any) {
+    const accountCategoryIndex = params.request.rowGroupCols.findIndex(
+      item => item.id === 'AccountCategory'
+    );
+    const groupKey = params.request.groupKeys[accountCategoryIndex];
+
+    return rowData.map(item => {
+      if (!item.hasOwnProperty('AccountCategory')) {
+        return { ...item, AccountCategory: groupKey };
+      }
+
+      return item;
+    });
+  }
+
   getFunds() {
     this.financeService.getFunds().subscribe(result => {
       const localfunds = result.payload.map(item => ({
@@ -369,7 +385,12 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         // 'start_price',
         // 'end_price'
       ];
-      const colDefs = [...commonColDefs, this.dataDictionary.column('fxrate', true)];
+      const colDefs = [
+        ...commonColDefs,
+        this.dataDictionary.column('fxrate', true),
+        this.dataDictionary.column('start_price', true),
+        this.dataDictionary.column('end_price', true)
+      ];
 
       const cdefs = this.agGridUtls.customizeColumns(
         colDefs,
@@ -447,14 +468,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         // });
         // params.api.onGroupExpandedOrCollapsed();
       },
-      // getRowStyle: params => ApplyRowStyles(params),
-      getRowStyle: params => {
-        let style = {};
-        if (params.data !== undefined && params.data.event === 'manual') {
-          style = LegendColors.nonZeroStyle;
-        }
-        return style;
-      },
+      getRowStyle: params => ApplyRowStyles(params),
       getChildCount: data => {
         // Data Contains a Group that is returned from the API
         return data ? data.groupCount : 0;
@@ -489,9 +503,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
       // console.log('PAYLOAD OF FILTERS ::', payload);
       this.getJournalsTotal(payload);
-    }
-    catch(e){
-      console.log(e,'filter error');
+    } catch (ex) {
+      console.log('Filter Error :: ', ex);
     }
   }
 
