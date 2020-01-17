@@ -5,6 +5,8 @@ CREATE VIEW [dbo].[vwFullJournal]
 	AS 
 
 select vw.*, 
+	t.TradeDate,
+	t.SettleDate,
 	t.TradeId, 
 	t.Action, 
 	t.Status, 
@@ -14,3 +16,5 @@ select vw.*,
 from current_journal vw
 left outer join current_trade_state t on t.LpOrderId = vw.source
 GO
+
+
