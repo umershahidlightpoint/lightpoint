@@ -1,18 +1,27 @@
-<!------ Modal Div Starts------>
+<!-- Modal Starts -->
 <div class="modal fade" bsModal #modal="bs-modal" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true"
   [config]="{backdrop: modal-backdrop}">
-  <!------ Modal Dialog Div Starts------>
+
+  <!-- Modal Dialog Starts -->
   <div class="modal-dialog mw-100 w-75 modal-dialog-centered" id="modal-lg">
-    <!------ Modal Content Div Starts------>
+
+    <!-- Modal Content Starts -->
     <div class="modal-content">
-      <!-- Modal Header Starts-->
+
+      <!-- Modal Header Starts -->
       <div class="modal-header">
-        <h3>{{ title }}</h3>
+        <h3>{{ gridTitle }}</h3>
         <button type="button" class="close" data-dismiss="modal" (click)="closeModal()">&times;</button>
       </div>
+
+      <!-- Modal Body Starts -->
       <div class="report-container">
         <ag-grid-angular class="ag-theme-balham height-30rem" [gridOptions]="gridOptions">
         </ag-grid-angular>
       </div>
+
     </div>
+
   </div>
+
+</div>

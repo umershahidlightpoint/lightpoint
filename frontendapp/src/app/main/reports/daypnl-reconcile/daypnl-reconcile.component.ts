@@ -492,7 +492,8 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
   }
 
   openDataGridModal(rowData: any) {
-    const { Symbol } = rowData;
+    console.log('DATA ::', rowData);
+    const { Symbol, Diff_DayPnl } = rowData;
     const { startDate } = this.selectedDate;
     this.financeService
       .getTradeJournals('', startDate.format('YYYY-MM-DD'), Symbol)
@@ -502,13 +503,19 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
         const someArray = this.agGridUtils.columizeData(data, meta.Columns);
         const columns = this.getTradeJournalColDefs(meta.Columns);
 
-        this.title = 'Trade Journals';
-        this.dataGridModal.openModal(columns, someArray);
+        const filteredData = someArray.filter(
+          item =>
+            item.AccountType === 'CHANGE IN UNREALIZED GAIN/(LOSS)' ||
+            item.AccountType === 'REALIZED GAIN/(LOSS)'
+        );
+
+        this.title = `Trade Journals (Difference: ${Diff_DayPnl})`;
+        this.dataGridModal.openModal(columns, filteredData);
       });
   }
 
   getTradeJournalColDefs(columns): Array<ColDef | ColGroupDef> {
-    const colDefs = [
+    const colDefs: Array<ColDef> = [
       this.dataDictionary.column('debit', false),
       this.dataDictionary.column('credit', false),
       this.dataDictionary.column('balance', false),
@@ -535,6 +542,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
         field: 'AccountType',
         width: 120,
         headerName: 'Type',
+        rowGroup: true,
         enableRowGroup: true,
         sortable: true,
         filter: true

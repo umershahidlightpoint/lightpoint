@@ -601,6 +601,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
       {
         field: 'symbol',
         headerName: 'Symbol',
+        rowGroup: true,
         sortable: true,
         filter: true
       },
