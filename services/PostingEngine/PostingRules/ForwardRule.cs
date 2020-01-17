@@ -113,21 +113,18 @@ namespace PostingEngine.PostingRules
                             unrealizedPnl = (rateDiff * quantity) * fxRate;
                         }
                         
+                        AccountToFrom fromToAccounts = null;
 
-                        if (taxlot.Trade.IsBuy())
+                        if (element.IsDerivative())
                         {
+                            var originalAccount = AccountUtils.GetDerivativeAccountType(unrealizedPnl);
+                            fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", listOfTags, taxlot.Trade);
                         }
-                        else if (taxlot.Trade.IsSell())
+                        else
                         {
+                            var originalAccount = taxlot.Side == "SHORT" ? "Mark to Market Shorts" : "Mark to Market Longs";
+                            fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "CHANGE IN UNREALIZED GAIN/(LOSS)", listOfTags, taxlot.Trade);
                         }
-
-                        var originalAccount = taxlot.Side == "SHORT" ? "Mark to Market Shorts" : "Mark to Market Longs";
-
-                        // Need to work out based on the Security Type and the direction of the MTM
-                        var fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "CHANGE IN UNREALIZED GAIN/(LOSS)", listOfTags, taxlot.Trade);
-
-                        fromToAccounts.From = new AccountUtils().DeriveMTMCorrectAccount(fromToAccounts.From, taxlot.Trade, listOfTags, unrealizedPnl);
-                        new AccountUtils().SaveAccountDetails(env, fromToAccounts.From);
 
                         var fund = env.GetFund(element);
 
@@ -197,13 +194,18 @@ namespace PostingEngine.PostingRules
 
                         var unrealizedPnl = CommonRules.CalculateUnrealizedPnl(env, taxlot);
 
-                        var originalAccount = taxlot.Side == "SHORT" ? "Mark to Market Shorts" : "Mark to Market Longs";
+                        AccountToFrom fromToAccounts = null;
 
-                        // Need to work out based on the Security Type and the direction of the MTM
-                        var fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "CHANGE IN UNREALIZED GAIN/(LOSS)", listOfTags, taxlot.Trade);
-
-                        fromToAccounts.From = new AccountUtils().DeriveMTMCorrectAccount(fromToAccounts.From, taxlot.Trade, listOfTags, unrealizedPnl);
-                        new AccountUtils().SaveAccountDetails(env, fromToAccounts.From);
+                        if (element.IsDerivative())
+                        {
+                            var originalAccount = AccountUtils.GetDerivativeAccountType(unrealizedPnl);
+                            fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", listOfTags, taxlot.Trade);
+                        }
+                        else
+                        {
+                            var originalAccount = taxlot.Side == "SHORT" ? "Mark to Market Shorts" : "Mark to Market Longs";
+                            fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "CHANGE IN UNREALIZED GAIN/(LOSS)", listOfTags, taxlot.Trade);
+                        }
 
                         var fund = env.GetFund(element);
 
@@ -538,10 +540,20 @@ namespace PostingEngine.PostingRules
                                         Tag.Find("CustodianCode")
                                     };
 
-                                var markToMarketAccount = (element.IsShort() || element.IsCover()) ? "Mark to Market Shorts" : "Mark to Market Longs";
-                                var accountType = (element.IsShort() || element.IsCover()) ? "SHORT POSITIONS AT COST" : "LONG POSITIONS AT COST";
+                                if (!element.IsDerivative())
+                                {
+                                    Logger.Error($"Should not be here");
+                                    break;
+                                }
 
-                                var fromAccount = new AccountUtils().CreateAccount(AccountType.All.Where(i => i.Name.Equals(accountType)).FirstOrDefault(), listOfFromTags, element);
+                                var markToMarketAccount = "Mark to Market Derivatives Contracts at Fair Value (Assets)";
+                                if (taxlot.RealizedPnl > 0 )
+                                {
+                                    markToMarketAccount = "Mark to Market Derivatives Contracts at Fair Value (Liabilities)";
+                                }
+                                var account = "Change in Unrealized Derivatives Contracts at Fair Value";
+
+                                var fromAccount = new AccountUtils().CreateAccount(AccountType.All.Where(i => i.Name.Equals(account)).FirstOrDefault(), listOfFromTags, element);
                                 var toAccount = new AccountUtils().CreateAccount(AccountType.All.Where(i => i.Name.Equals(markToMarketAccount)).FirstOrDefault(), listOfFromTags, element);
 
                                 new AccountUtils().SaveAccountDetails(env, fromAccount);
@@ -553,26 +565,21 @@ namespace PostingEngine.PostingRules
                                 {
                                     Account = fromAccount,
                                     CreditDebit = env.DebitOrCredit(fromAccount, taxlot.RealizedPnl),
+                                    Value = taxlot.RealizedPnl,
+
                                     When = env.ValueDate,
                                     StartPrice = taxlot.TradePrice,
                                     EndPrice = taxlot.CostBasis,
-                                    Value = PnL,
-                                    FxRate = 1,
+                                    FxRate = 1.0,
                                     Event = "realizedpnl",
                                     Fund = env.GetFund(element),
                                 };
 
-                                var toJournal = new Journal(element)
+                                var toJournal = new Journal(fromJournal)
                                 {
                                     Account = toAccount,
-                                    When = env.ValueDate,
-                                    StartPrice = taxlot.TradePrice,
-                                    EndPrice = taxlot.CostBasis,
-                                    FxRate = 1,
                                     CreditDebit = env.DebitOrCredit(toAccount, taxlot.RealizedPnl),
-                                    Value = PnL * -1,
-                                    Event = "realizedpnl",
-                                    Fund = env.GetFund(element),
+                                    Value = taxlot.RealizedPnl * -1,
                                 };
 
                                 env.Journals.AddRange(new[] { fromJournal, toJournal });
@@ -581,7 +588,7 @@ namespace PostingEngine.PostingRules
                             }
                             else
                             {
-                                var taxlot = CommonRules.RelieveTaxLot(env, lot, element, taxlotStatus.Quantity);
+                                var taxlot = CommonRules.RelieveTaxLot(env, lot, element, taxlotStatus.Quantity * -1);
 
                                 workingQuantity += taxlotStatus.Quantity;
 

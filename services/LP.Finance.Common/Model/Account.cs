@@ -97,7 +97,10 @@ namespace LP.Finance.Common.Models
         public KeyValuePair<string, SqlParameter[]> SaveUpdate
         {
             get {
-                var sql = @"update account set description=@description where name=@name IF @@ROWCOUNT=0 insert into account(name, description, account_type_id) values (@name, @description, @type)";
+                var sql = @"update account 
+                        set description=@description 
+                        where name=@name and account_type_id = @type
+                        IF @@ROWCOUNT=0 insert into account(name, description, account_type_id) values (@name, @description, @type)";
                 var sqlParams = new SqlParameter[]
                 {
                     new SqlParameter("id", Id),
@@ -114,10 +117,11 @@ namespace LP.Finance.Common.Models
         {
             get
             {
-                var sql = @"select id from account where name=@name";
+                var sql = @"select id from account where name=@name and account_type_id=@type";
                 var sqlParams = new SqlParameter[]
                 {
                     new SqlParameter("name", Name),
+                    new SqlParameter("type", Type.Id),
                 };
 
                 return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);

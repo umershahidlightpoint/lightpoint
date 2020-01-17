@@ -133,6 +133,7 @@
     <Build Include="StoredProcs\CacheResults.sql" />
     <Build Include="StoredProcs\SyncManualJournal.sql" />
     <Build Include="StoredProcs\UpdateManualJournal.sql" />
+    <Build Include="StoredProcs\DerivativeContracts.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">

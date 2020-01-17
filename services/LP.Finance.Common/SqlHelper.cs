@@ -371,6 +371,7 @@ namespace SqlDAL.Core
 
                 using (var command = new SqlCommand(commandText, connection))
                 {
+                    command.Transaction = transactionScope;
                     command.CommandType = commandType;
                     if (parameters != null)
                     {
@@ -385,7 +386,7 @@ namespace SqlDAL.Core
                         command.ExecuteNonQuery();
                         transactionScope.Commit();
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
                         transactionScope.Rollback();
                     }

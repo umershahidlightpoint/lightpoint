@@ -48,11 +48,16 @@ namespace PostingEngine.PostingRules.Utilities
         
         public void SaveAccountDetails(PostingEngineEnvironment env, Account account)
         {
+            SaveAccountDetails(env.ConnectionString, account);
+        }
+
+        public void SaveAccountDetails(String connectionString, Account account)
+        {
             if (!account.Exists)
             {
-                if ( _connection == null )
+                if (_connection == null)
                 {
-                    _connection = new SqlConnection(env.ConnectionString);
+                    _connection = new SqlConnection(connectionString);
                     _connection.Open();
                 }
 
@@ -72,6 +77,7 @@ namespace PostingEngine.PostingRules.Utilities
             }
         }
 
+        [Obsolete]
         /// <summary>
         /// Create an account based on the Account Definition and the past Transaction 
         /// </summary>
@@ -116,6 +122,25 @@ namespace PostingEngine.PostingRules.Utilities
             accounts.Add(name, account);
 
             return account;
+        }
+
+        internal Account CreateDerivativeAccount(int accountType, string typename, string accountname)
+        {
+            var acType = AccountType.Find(accountType, typename);
+            var account = CreateAccount(acType, accountname);
+            return account;
+        }
+
+        internal static string GetDerivativeAccountType(double unrealizedPnl)
+        {
+            var accountTypeName = "Mark to Market Derivatives Contracts at Fair Value (Assets)";
+
+            if (unrealizedPnl > 0)
+                accountTypeName = "Mark to Market Derivatives Contracts at Fair Value (Assets)";
+            else
+                accountTypeName = "Mark to Market Derivatives Contracts at Fair Value (Liabilities)";
+
+            return accountTypeName;
         }
 
         internal Account DeriveMTMCorrectAccount(Account from, Transaction element, List<Tag> tags, double unrealizedPnl)
@@ -194,16 +219,51 @@ namespace PostingEngine.PostingRules.Utilities
 
             return account;
         }
+        public Account CreateAccount(AccountType accountType, string name)
+        {
+            var accountName = $"{name}";
+
+            var key = $"{accountType.Id}-{name}";
+
+            // Lets check to see if we have created this account already
+            if (accounts.ContainsKey(key))
+            {
+                return accounts[key];
+            }
+
+            var existingAccount = Account.All.Where(a => a.Name.Equals(accountName) && a.Type.Id == accountType.Id).FirstOrDefault();
+            if (existingAccount != null)
+            {
+                return existingAccount;
+            }
+
+            var account = new Account
+            {
+                // Need to revisit this ASAP
+                //Type = def.AccountCategory,
+                Description = accountName,
+                Name = accountName,
+                Type = accountType,
+                Tags = new List<AccountTag>()
+            };
+
+            accounts.Add(key, account);
+
+            return account;
+        }
+
 
         public Account CreateAccount(AccountType accountType, string name, Transaction transaction)
         {
             var accountName = $"{name}";
 
+            var key = $"{accountType.Id}-{name}";
+
 
             // Lets check to see if we have created this account already
-            if (accounts.ContainsKey(accountName))
+            if (accounts.ContainsKey(key))
             {
-                return accounts[accountName];
+                return accounts[key];
             }
 
             var existingAccount = Account.All.Where(a => a.Name.Equals(accountName) && a.Type.Id == accountType.Id).FirstOrDefault();
@@ -222,7 +282,7 @@ namespace PostingEngine.PostingRules.Utilities
                 Tags = new List<AccountTag>()
             };
 
-            accounts.Add(accountName, account);
+            accounts.Add(key, account);
 
             return account;
         }
@@ -259,6 +319,7 @@ namespace PostingEngine.PostingRules.Utilities
             return account;
         }
 
+        [Obsolete]
         public AccountToFrom GetFromToAccount(Transaction element)
         {
             var type = element.GetType();

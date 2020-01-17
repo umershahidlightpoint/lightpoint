@@ -224,19 +224,38 @@ namespace PostingEngine
             using (var adapter = new SqlDataAdapter(dates, new SqlConnection(connectionString)))
             {
                 adapter.Fill(table);
+                adapter.Dispose();
             };
 
             var valueDate = Convert.ToDateTime(table.Rows[0]["minDate"]);
             var endDate = Convert.ToDateTime(table.Rows[0]["maxDate"]);
 
-            using (var connection = new SqlConnection(connectionString))
+            using (var cc = new SqlConnection(connectionString))
             {
-                connection.Open();
+                cc.Open();
 
-                Setup(connection);
+                Setup(cc);
 
-                connection.Close();
+                cc.Close();
             }
+
+            var journals = new List<Journal>();
+
+            var connection = new SqlConnection(connectionString);
+            connection.Open();
+            var transaction = connection.BeginTransaction();
+
+            var env = new PostingEngineEnvironment(connection, transaction)
+            {
+                BaseCurrency = "USD",
+                SecurityDetails = new SecurityDetails().Get(),
+                Categories = AccountCategory.Categories,
+                Types = AccountType.All,
+                RunDate = DateTime.Now.Date,
+                ConnectionString = connectionString,
+            };
+
+            var sqlHelper = new SqlHelper(connectionString);
 
             var rowsCompleted = 1;
             var numberOfDays = (endDate - valueDate).Days;
@@ -245,6 +264,7 @@ namespace PostingEngine
                 if (!valueDate.IsBusinessDate())
                 {
                     valueDate = valueDate.AddDays(1);
+                    rowsCompleted++;
                     continue;
                 }
 
@@ -257,7 +277,7 @@ namespace PostingEngine
                         new SqlParameter("@prevbusinessDate", valueDate.PrevBusinessDate()),
                     };
 
-                    var dataTable = new SqlHelper(connectionString).GetDataTables("DayOverDayIncome", CommandType.StoredProcedure, sqlParams.ToArray());
+                    var dataTable = sqlHelper.GetDataTables("DayOverDayIncome", CommandType.StoredProcedure, sqlParams.ToArray());
 
                     foreach( DataRow row in dataTable[0].Rows)
                     {
@@ -284,20 +304,6 @@ namespace PostingEngine
 
                         var balance = Convert.ToDouble(expencesAndRevenues.Balance);
 
-                        var connection = new SqlConnection(connectionString);
-                        connection.Open();
-                        var transaction = connection.BeginTransaction();
-
-                        var env = new PostingEngineEnvironment(connection, transaction)
-                        {
-                            BaseCurrency = "USD",
-                            SecurityDetails = new SecurityDetails().Get(),
-                            Categories = AccountCategory.Categories,
-                            Types = AccountType.All,
-                            RunDate = DateTime.Now.Date,
-                            ConnectionString = connectionString,
-                        };
-
                         var account = new AccountUtils().GetAccount(env, accountType, new string[] { env.BaseCurrency}.ToList());
 
                         var debit = new Journal(account, "expences-revenues", valueDate)
@@ -318,12 +324,114 @@ namespace PostingEngine
                             CreditDebit = env.DebitOrCredit(account, balance * -1),
                         };
 
-                        env.Journals.AddRange(new List<Journal>(new[] { debit }));
+                        journals.AddRange(new List<Journal>(new[] { debit }));
 
-                        if (env.Journals.Count() > 0)
+                    }
+                }
+                catch (Exception ex)
+                {
+                    PostingEngineCallBack?.Invoke($"Exception on {valueDate.ToString("MM-dd-yyyy")}, {ex.Message}");
+                }
+
+                PostingEngineCallBack?.Invoke($"Completed ExpencesAndRevenues for {valueDate.ToString("MM-dd-yyyy")}", numberOfDays, rowsCompleted++);
+                valueDate = valueDate.AddDays(1);
+            }
+
+            if (journals.Count() > 0)
+            {
+                CollectData(connectionString, journals);
+                journals.Clear();
+            }
+
+            transaction.Commit();
+            connection.Close();
+
+        }
+
+        public static void DerivativesContracts()
+        {
+            var dates = "select minDate = min([when]), maxDate = max([when]) from vwJournal";
+
+            PostingEngineCallBack?.Invoke("DerivativesContracts Calculation Started");
+
+            var table = new DataTable();
+
+            // read the table structure from the database
+            using (var adapter = new SqlDataAdapter(dates, new SqlConnection(connectionString)))
+            {
+                adapter.Fill(table);
+            };
+
+            var valueDate = Convert.ToDateTime(table.Rows[0]["minDate"]);
+            var endDate = Convert.ToDateTime(table.Rows[0]["maxDate"]);
+
+            // Only need to do this on the End Date, until we need to track day by day
+            valueDate = endDate;
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                Setup(connection);
+
+                connection.Close();
+            }
+
+            var rowsCompleted = 1;
+            var numberOfDays = (endDate - valueDate).Days;
+            while (valueDate <= endDate)
+            {
+                if (!valueDate.IsBusinessDate())
+                {
+                    valueDate = valueDate.AddDays(1);
+                    continue;
+                }
+
+                try
+                {
+                    var sqlParams = new SqlParameter[]
+                    {
+                        new SqlParameter("@businessDate", valueDate)
+                    };
+
+                    var dataTables = new SqlHelper(connectionString).GetDataTables("DerivativeContracts", CommandType.StoredProcedure, sqlParams.ToArray());
+                    var atFairValue = dataTables[0];
+                    var fxFairValue = dataTables[1];
+
+                    foreach (DataRow row in atFairValue.Rows)
+                    {
+                        int offset = 0;
+                        var atFairValueResult = new
                         {
-                            CollectData(env, env.Journals);
-                            env.Journals.Clear();
+                            BusinessDate = Convert.ToDateTime(row[offset++]),
+                            Symbol = Convert.ToString(row[offset++]),
+                            AccountId = Convert.ToInt32(row[offset++]),
+                            AccountName = Convert.ToString(row[offset++]),
+                            AccountType = Convert.ToString(row[offset++]),
+                            Balance = Convert.ToDecimal(row[offset++])
+                        };
+
+                        Account acc = null;
+
+                        var balance = Convert.ToDouble(atFairValueResult.Balance);
+                        if (balance >= 0) // Debit
+                        {
+                            acc = new AccountUtils().CreateDerivativeAccount(AccountCategory.AC_ASSET, atFairValueResult.AccountType, atFairValueResult.AccountName);
+                        }
+                        else // CREDIT
+                        {
+                            acc = new AccountUtils().CreateDerivativeAccount(AccountCategory.AC_LIABILITY, atFairValueResult.AccountType, atFairValueResult.AccountName);
+                        }
+                        new AccountUtils().SaveAccountDetails(connectionString, acc);
+
+                        var connection = new SqlConnection(connectionString);
+                        connection.Open();
+                        var transaction = connection.BeginTransaction();
+
+                        if (acc.Id != atFairValueResult.AccountId)
+                        {
+                            var sql = $"update journal set account_id = {acc.Id} where account_id = {atFairValueResult.AccountId} and symbol = '{atFairValueResult.Symbol}'";
+                            new SqlHelper(connectionString).UpdateWithTransaction(sql, CommandType.Text, IsolationLevel.ReadCommitted, null);
                         }
 
                         transaction.Commit();
@@ -548,7 +656,6 @@ where business_date = @busDate";
                 };
 
                 var valueDate = Convert.ToDateTime(table.Rows[0]["minDate"]);
-                //valueDate = new DateTime(2019, 1, 1);
                 var endDate = Convert.ToDateTime(table.Rows[0]["maxDate"]);
 
                 var rowsCompleted = 1;
@@ -558,6 +665,7 @@ where business_date = @busDate";
                     if (!valueDate.IsBusinessDate())
                     {
                         valueDate = valueDate.AddDays(1);
+                        rowsCompleted++;
                         continue;
                     }
 
@@ -616,16 +724,24 @@ where business_date = @busDate";
             {
                 // Skip as this should be done in the Daily Event
                 //UnrealizedCashBalances(valueDate);
-            } else if ( calculation.Equals("ExpencesAndRevenues"))
+            }
+            else if ( calculation.Equals("ExpencesAndRevenues"))
             {
                 Logger.Info("Running ExpencesAndRevenues");
                 ExpencesAndRevenues();
+            }
+            else if (calculation.Equals("DerivativesContracts"))
+            {
+                Logger.Info("Running DerivativesContracts");
+                DerivativesContracts();
             }
             else if (calculation.Equals("Complete"))
             {
                 Logger.Info("Completing PostingEngine");
                 Complete();
             }
+
+            
         }
 
         /// <summary>
@@ -780,8 +896,16 @@ where business_date = @busDate";
 
                 // This is specific to BayBerry
                 var finalTradeList = localTradeList.Where(t => t.TradeDate >= new DateTime(2019, 4, 1)).ToArray();
+
+                //var finalTradeList = localTradeList.ToArray();
+
+                // THis is required for MSUXX as we have a mix of both Cash / Open-end fund
                 var update = finalTradeList.Where(t => t.Symbol.Equals("MSUXX")).ToArray();
                 foreach(var t in update) { t.SecurityType = "Open-End Fund"; }
+
+                // REALLY REALLY HACKY
+                update = finalTradeList.Where(t => t.Symbol.Equals("TWE AU EQUITY SWAP")).ToArray();
+                foreach (var t in update) { t.Symbol = "TWE AU SWAP"; t.SecurityId = 32669; }
 
                 const bool DEBUG_TRADE_LIST = false;
                 if (DEBUG_TRADE_LIST)
@@ -791,7 +915,8 @@ where business_date = @busDate";
                     };
 
                     var symbolTags = new List<string> {
-                        "USDCAD", "GBPUSD"
+                        "GBP/USD 12/18/2019",
+                        //"USD/CAD 3/18/2020"
                     };
 
                     //finalTradeList = finalTradeList.Where(t => securityTypeTags.Contains(t.SecurityType)).ToArray();
@@ -1244,19 +1369,24 @@ where business_date = @busDate";
 
         private static int CollectData(PostingEngineEnvironment env, List<Journal> journals)
         {
-            if (__connection == null )
+            return CollectData(env.ConnectionString, journals);
+        }
+
+        private static int CollectData(string connectionString, List<Journal> journals)
+        {
+            if (__connection == null)
             {
-                __connection = new SqlConnection(env.ConnectionString);
+                __connection = new SqlConnection(connectionString);
                 __connection.Open();
             }
 
             var transaction = __connection.BeginTransaction();
 
-            Logger.Info($"Commiting Journals to the database {journals.Count()}");
+            //Logger.Info($"Commiting Journals to the database {journals.Count()}");
 
             new SQLBulkHelper().Insert("journal", journals.ToArray(), __connection, transaction);
 
-            Logger.Info($"Completed :: Commiting Journals to the database {journals.Count()}");
+            //Logger.Info($"Completed :: Commiting Journals to the database {journals.Count()}");
 
             transaction.Commit();
 
@@ -1265,7 +1395,7 @@ where business_date = @busDate";
 
         private static int CollectData(PostingEngineEnvironment env, Journal[] journals)
         {
-            return CollectData(env, journals.ToList());
+            return CollectData(env.ConnectionString, journals.ToList());
         }
 
         private static int CollectData(PostingEngineEnvironment env)
@@ -1380,9 +1510,12 @@ where business_date = @busDate";
 
             var valueDate = minTradeDate;
             var endDate = maxTradeDate;
+            /*
             if (maxSettleDate < DateTime.Now)
                 endDate = maxSettleDate;
+            */
 
+            // This is client specific at the moment, depends on the population of the database
             endDate = new DateTime(2019, 12, 17);
 
             //endDate = postingEnv.BusinessDate;
@@ -1685,7 +1818,7 @@ where business_date = @busDate";
         public bool ProcessTradeEvent(PostingEngineEnvironment env, Transaction element)
         {
             // Identify which entries to skip
-            if (element.Status.Equals("Cancelled") || element.Status.Equals("Expired"))
+            if (element.Status.Equals("Cancelled"))
             {
                 env.AddMessage($"Trade has been cancelled || expired {element.LpOrderId} -- {element.Status}");
                 // TODO: if there is already a Journal entry for this trade we need to back out the entries
@@ -1735,9 +1868,9 @@ where business_date = @busDate";
         public bool Process(PostingEngineEnvironment env, Transaction element)
         {
             // Identify which entries to skip
-            if ( element.Status.Equals("Cancelled") || element.Status.Equals("Expired"))
+            if ( element.Status.Equals("Cancelled"))
             {
-                env.AddMessage($"Trade has been cancelled || expired {element.LpOrderId} -- {element.Status}");
+                env.AddMessage($"Trade has been cancelled {element.LpOrderId} -- {element.Status}");
                 // TODO: if there is already a Journal entry for this trade we need to back out the entries
                 return false;
             }

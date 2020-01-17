@@ -117,12 +117,32 @@ namespace PostingEngine.PostingRules
                 var fxCashDebit = change * (unsettledPnl.Debit / unsettledPnl.FxRate);
                 var fxCash = fxCashCredit - fxCashDebit;
 
-                var m2mtranslation = "Mark to Market longs fx translation gain or loss";
-                if (element.IsShort() || element.IsCover())
-                    m2mtranslation = "Mark to Market shorts fx translation gain or loss";
+                var from = "";
+                var to = "";
+
+                if (element.IsDerivative())
+                {
+                    from = AccountUtils.GetDerivativeAccountType(fxCash);
+                    if (from.Contains("(Liabilities)"))
+                    {
+                        // This needs to be registered as a Credit to the Libabilities
+                        fxCash *= -1;
+                    }
+
+                    to = "Change in Unrealized Derivatives Contracts due to FX Translation";
+                }
+                else
+                {
+                    var m2mtranslation = "Mark to Market longs fx translation gain or loss";
+                    if (element.IsShort() || element.IsCover())
+                        m2mtranslation = "Mark to Market shorts fx translation gain or loss";
+
+                    from = m2mtranslation;
+                    to = "change in unrealized do to fx translation";
+                }
 
                 // Get accounts
-                var fromTo = new AccountUtils().GetAccounts(env, m2mtranslation, "change in unrealized do to fx translation", new string[] { unsettledPnl.Currency }.ToList());
+                var fromTo = new AccountUtils().GetAccounts(env, from, to, new string[] { unsettledPnl.Currency }.ToList());
 
                 var debit = new Journal(fromTo.From, "unrealized-cash-fx", env.ValueDate)
                 {

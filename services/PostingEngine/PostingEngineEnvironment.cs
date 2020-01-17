@@ -78,6 +78,7 @@ namespace PostingEngine
         }
 
         public List<Journal> Journals { get; set; }
+
         public TaxRate TaxRate { get; set; }
 
         // Rates are all multiplied, and we store that rate in the system
@@ -112,7 +113,9 @@ namespace PostingEngine
 
             // Default Rule
             {"Physical index future.", new DefaultRule() },
-            {"Equity Swap", new DefaultRule() },
+
+            // Derivatives
+            {"Equity Swap", new Derivatives() },
         };
 
         public readonly Dictionary<string, IPostingRule> JournalRules = new Dictionary<string, IPostingRule>
@@ -223,41 +226,104 @@ namespace PostingEngine
         /// <summary>
         /// Determine how to set the Value of the Journal, this will be based on the 
         /// </summary>
-        /// <param name="debitAccount">The account from where the flow will start</param>
-        /// <param name="creditAccount">The account to where the flow will end</param>
+        /// <param name="fromAccount">The account from where the flow will start</param>
+        /// <param name="toAccount">The account to where the flow will end</param>
         /// <param name="debit">Is this from the perspective of the debit account</param>
         /// <param name="value">The value to be posted</param>
         /// <returns>The correct signed value</returns>
-        public double SignedValue(Account debitAccount, Account creditAccount, bool debit, double value)
+        public double SignedValue(Account fromAccount, Account toAccount, bool debit, double value)
         {
             if (debit)
                 return value;
 
-            if (debitAccount.Type.Category.Id == creditAccount.Type.Category.Id)
+            if (fromAccount.Type.Category.Id == toAccount.Type.Category.Id)
             {
                 return value * -1;
             }
 
-            if (debitAccount.Type.Category.Id == AccountCategory.AC_ASSET && creditAccount.Type.Category.Id == AccountCategory.AC_LIABILITY)
-                return value;
+            if (fromAccount.Type.Category.Id == AccountCategory.AC_ASSET) {
+                switch (toAccount.Type.Category.Id)
+                {
+                    case AccountCategory.AC_ASSET:
+                        return value * -1;
+                    case AccountCategory.AC_LIABILITY:
+                        return value;
+                    case AccountCategory.AC_REVENUES:
+                        return value;
+                    case AccountCategory.AC_EQUITY:
+                        return value;
+                    case AccountCategory.AC_EXPENCES:
+                        return value * -1;
+                }
+            }
 
-            if (debitAccount.Type.Category.Id == AccountCategory.AC_ASSET && creditAccount.Type.Category.Id == AccountCategory.AC_ASSET)
-                return value * -1;
+            if (fromAccount.Type.Category.Id == AccountCategory.AC_LIABILITY)
+            {
+                switch (toAccount.Type.Category.Id)
+                {
+                    case AccountCategory.AC_ASSET:
+                        return value;
+                    case AccountCategory.AC_LIABILITY:
+                        return value * -1;
+                    case AccountCategory.AC_REVENUES:
+                        return value * -1;
+                    case AccountCategory.AC_EQUITY:
+                        return value * -1;
+                    case AccountCategory.AC_EXPENCES:
+                        return value;
+                }
+            }
 
-            if (debitAccount.Type.Category.Id == AccountCategory.AC_LIABILITY && creditAccount.Type.Category.Id == AccountCategory.AC_ASSET)
-                return value;
+            if (fromAccount.Type.Category.Id == AccountCategory.AC_REVENUES)
+            {
+                switch (toAccount.Type.Category.Id)
+                {
+                    case AccountCategory.AC_ASSET:
+                        return value;
+                    case AccountCategory.AC_LIABILITY:
+                        return value * -1;
+                    case AccountCategory.AC_REVENUES:
+                        return value * -1;
+                    case AccountCategory.AC_EQUITY:
+                        return value * -1;
+                    case AccountCategory.AC_EXPENCES:
+                        return value;
+                }
+            }
 
-            if (debitAccount.Type.Category.Id == AccountCategory.AC_LIABILITY && creditAccount.Type.Category.Id == AccountCategory.AC_REVENUES)
-                return value * -1;
+            if (fromAccount.Type.Category.Id == AccountCategory.AC_EQUITY)
+            {
+                switch (toAccount.Type.Category.Id)
+                {
+                    case AccountCategory.AC_ASSET:
+                        return value;
+                    case AccountCategory.AC_LIABILITY:
+                        return value * -1;
+                    case AccountCategory.AC_REVENUES:
+                        return value * -1;
+                    case AccountCategory.AC_EQUITY:
+                        return value * -1;
+                    case AccountCategory.AC_EXPENCES:
+                        return value;
+                }
+            }
 
-            if (debitAccount.Type.Category.Id == AccountCategory.AC_REVENUES && creditAccount.Type.Category.Id == AccountCategory.AC_LIABILITY)
-                return value * -1;
-
-            if (debitAccount.Type.Category.Id == AccountCategory.AC_ASSET && creditAccount.Type.Category.Id == AccountCategory.AC_REVENUES)
-                return value;
-
-            if (debitAccount.Type.Category.Id == AccountCategory.AC_REVENUES && creditAccount.Type.Category.Id == AccountCategory.AC_ASSET)
-                return value;
+            if (fromAccount.Type.Category.Id == AccountCategory.AC_EXPENCES)
+            {
+                switch (toAccount.Type.Category.Id)
+                {
+                    case AccountCategory.AC_ASSET:
+                        return value * -1;
+                    case AccountCategory.AC_LIABILITY:
+                        return value;
+                    case AccountCategory.AC_REVENUES:
+                        return value;
+                    case AccountCategory.AC_EQUITY:
+                        return value;
+                    case AccountCategory.AC_EXPENCES:
+                        return value * -1;
+                }
+            }
 
             return value;
         }
@@ -284,10 +350,12 @@ namespace PostingEngine
                 case AccountCategory.AC_ASSET:
                 case AccountCategory.AC_EXPENCES:
                     if (value >= 0) creditordebit = "debit";
+                    if (value < 0) creditordebit = "credit";
                     break;
                 case AccountCategory.AC_EQUITY:
                 case AccountCategory.AC_LIABILITY:
                 case AccountCategory.AC_REVENUES:
+                    if (value < 0) creditordebit = "debit";
                     if (value >= 0) creditordebit = "credit";
                     break;
                 default:
@@ -306,6 +374,7 @@ namespace PostingEngine
             public string Currency { get; set; }
             public string Fund { get; set; }
             public string Source { get; set; }
+            public string SecurityType { get; set; }
             public double FxRate { get; set; }
             public int SecurityId { get; set; }
         }
@@ -316,9 +385,9 @@ namespace PostingEngine
         {
             this.UnsettledPnl = new List<PnlData>();
 
-            var sql = $@"select credit, debit, symbol, quantity, fx_currency, fund, source, fxrate, security_id from vwJournal 
+            var sql = $@"select credit, debit, symbol, quantity, fx_currency, fund, source, fxrate, security_id, SecurityType from vwFullJournal 
                          where [event] = 'unrealizedpnl' 
-                         and AccountType = 'CHANGE IN UNREALIZED GAIN/(LOSS)' 
+                         and AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'Change in Unrealized Derivatives Contracts at Fair Value') 
                          and fx_currency != '{BaseCurrency}'
                          and [when] < '{ValueDate.ToString("MM-dd-yyyy")}'";
 
@@ -341,6 +410,7 @@ namespace PostingEngine
                     Source = reader.GetFieldValue<string>(6),
                     FxRate = Convert.ToDouble(reader.GetFieldValue<decimal>(7)),
                     SecurityId = reader.GetFieldValue<int>(8),
+                    SecurityType = reader.GetFieldValue<string>(9),
                 };
 
                 this.UnsettledPnl.Add(unsettledPnl);

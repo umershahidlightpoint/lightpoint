@@ -105,26 +105,10 @@ namespace PostingEngine.PostingRules
                 eodPrice = MarketPrices.Find(env.ValueDate, taxLot.Trade).Price;
             }
 
-            var unrealizedPnl = 0.0;
-            var quantity = Math.Abs(taxLot.Quantity);
+            var quantity = taxLot.Quantity;
             var priceDiff = (eodPrice - prevEodPrice);
 
-            if (taxLot.Trade.IsBuy())
-            {
-                unrealizedPnl = priceDiff * quantity;
-            }
-            else if (taxLot.Trade.IsSell())
-            {
-                unrealizedPnl = priceDiff * quantity * -1;
-            }
-            else if (taxLot.Trade.IsShort())
-            {
-                unrealizedPnl = priceDiff * quantity;
-            }
-            else if (taxLot.Trade.IsCover())
-            {
-                unrealizedPnl = priceDiff * quantity * -1;
-            }
+            var unrealizedPnl = priceDiff * quantity;
 
             return unrealizedPnl * fxrate * multiplier;
         }
@@ -167,10 +151,6 @@ namespace PostingEngine.PostingRules
             else if (createdTaxLot.Trade.IsCover())
             {
                 realizedPnl = priceDiff * Math.Abs(createdTaxLot.Quantity) * -1;
-            }
-
-            if (realizedPnl != 0.0)
-            {
             }
 
             createdTaxLot.RealizedPnl = realizedPnl * fxrate * multiplier;
@@ -216,7 +196,7 @@ namespace PostingEngine.PostingRules
             return tl;
         }
 
-        private static AccountToFrom RealizedPnlPostingAccounts(Transaction element)
+        private static AccountToFrom RealizedPnlPostingAccounts(Transaction element, double pnl)
         {
             var accountTypes = AccountType.All;
 
@@ -234,17 +214,34 @@ namespace PostingEngine.PostingRules
             Account fromAccount = null; // Debiting Account
             Account toAccount = null; // Crediting Account
 
-            var accountType = (element.IsShort() || element.IsCover()) ? "SHORT POSITIONS AT COST" : "LONG POSITIONS AT COST";
-
-            //fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CHANGE IN UNREALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfFromTags, element);
-            fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals(accountType)).FirstOrDefault(), listOfFromTags, element);
-            toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("REALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfToTags, element);
-
-            return new AccountToFrom
+            if (element.IsDerivative())
             {
-                From = fromAccount,
-                To = toAccount
-            };
+                var markToMarketAccount = "Mark to Market Derivatives Contracts at Fair Value (Liabilities)";
+                if (pnl > 0)
+                    markToMarketAccount = "Mark to Market Derivatives Contracts at Fair Value (Assets)";
+
+                fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals(markToMarketAccount)).FirstOrDefault(), listOfFromTags, element);
+                toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("REALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfToTags, element);
+
+                return new AccountToFrom
+                {
+                    From = fromAccount,
+                    To = toAccount
+                };
+            }
+            else
+            {
+                var accountType = (element.IsShort() || element.IsCover()) ? "SHORT POSITIONS AT COST" : "LONG POSITIONS AT COST";
+
+                fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals(accountType)).FirstOrDefault(), listOfFromTags, element);
+                toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("REALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfToTags, element);
+
+                return new AccountToFrom
+                {
+                    From = fromAccount,
+                    To = toAccount
+                };
+            }
         }
 
         internal static void PostRealizedPnl(PostingEngineEnvironment env, Transaction element, double realizedPnl, string from, string to)
@@ -289,7 +286,7 @@ namespace PostingEngine.PostingRules
 
         internal static void PostRealizedPnl(PostingEngineEnvironment env, Transaction element, double pnL, double start, double end, double fxrate = 1.0)
         {
-            var accountToFrom = RealizedPnlPostingAccounts(element);
+            var accountToFrom = RealizedPnlPostingAccounts(element, pnL);
 
             new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
             new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
@@ -320,9 +317,8 @@ namespace PostingEngine.PostingRules
             env.Journals.AddRange(new[] { debitJournal, creditJournal });
         }
 
-        private static AccountToFrom UnRealizedPnlPostingAccounts(Transaction element)
+        private static AccountToFrom UnRealizedPnlPostingAccounts(Transaction element, double pnl)
         {
-            var type = element.GetType();
             var accountTypes = AccountType.All;
 
             var listOfFromTags = new List<Tag> {
@@ -336,21 +332,36 @@ namespace PostingEngine.PostingRules
                 Tag.Find("CustodianCode")
             };
 
-            var markToMarketAccount = element.IsShort() ? "Mark to Market Shorts" : "Mark to Market Longs";
-
-            var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals(markToMarketAccount)).FirstOrDefault(), listOfFromTags, element);
-            var toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CHANGE IN UNREALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfToTags, element);
-
-            return new AccountToFrom
+            if ( element.IsDerivative())
             {
-                From = fromAccount,
-                To = toAccount
-            };
+                var markToMarketAccount = "Mark to Market Derivatives Contracts at Fair Value (Liabilities)";
+                if ( pnl > 0 )
+                    markToMarketAccount = "Mark to Market Derivatives Contracts at Fair Value (Assets)";
+
+                var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals(markToMarketAccount)).FirstOrDefault(), listOfFromTags, element);
+                var toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Change in Unrealized Derivatives Contracts at Fair Value")).FirstOrDefault(), listOfToTags, element);
+                return new AccountToFrom
+                {
+                    From = fromAccount,
+                    To = toAccount
+                };
+            }
+            else
+            {
+                var markToMarketAccount = element.IsShort() || element.IsCover() ? "Mark to Market Shorts" : "Mark to Market Longs";
+                var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals(markToMarketAccount)).FirstOrDefault(), listOfFromTags, element);
+                var toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CHANGE IN UNREALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfToTags, element);
+                return new AccountToFrom
+                {
+                    From = fromAccount,
+                    To = toAccount
+                };
+            }
         }
 
         internal static void PostUnRealizedPnl(PostingEngineEnvironment env, Transaction element, double unrealizedPnl, double start, double end, double fxrate)
         {
-            var accountToFrom = UnRealizedPnlPostingAccounts(element);
+            var accountToFrom = UnRealizedPnlPostingAccounts(element, unrealizedPnl);
 
             new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
             new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
@@ -423,11 +434,25 @@ namespace PostingEngine.PostingRules
                 Tag.Find("CustodianCode")
             };
 
-            var markToMarketAccount = (buyTrade.IsShort() || buyTrade.IsCover()) ? "Mark to Market Shorts" : "Mark to Market Longs";
-            var accountType = (buyTrade.IsShort() || buyTrade.IsCover()) ? "SHORT POSITIONS AT COST" : "LONG POSITIONS AT COST";
+            Account fromAccount = null;
+            Account toAccount = null;
 
-            var fromAccount = new AccountUtils().CreateAccount(AccountType.All.Where(i => i.Name.Equals(accountType)).FirstOrDefault(), listOfFromTags, element);
-            var toAccount = new AccountUtils().CreateAccount(AccountType.All.Where(i => i.Name.Equals(markToMarketAccount)).FirstOrDefault(), listOfFromTags, element);
+            if ( element.IsDerivative())
+            {
+                var accountType = (buyTrade.IsShort() || buyTrade.IsCover()) ? "SHORT POSITIONS AT COST" : "LONG POSITIONS AT COST";
+                var markToMarketAccount = (buyTrade.IsShort() || buyTrade.IsCover()) ? "Mark to Market Shorts" : "Mark to Market Longs";
+
+                fromAccount = new AccountUtils().CreateAccount(AccountType.All.Where(i => i.Name.Equals(accountType)).FirstOrDefault(), listOfFromTags, element);
+                toAccount = new AccountUtils().CreateAccount(AccountType.All.Where(i => i.Name.Equals(markToMarketAccount)).FirstOrDefault(), listOfFromTags, element);
+            }
+            else
+            {
+                var accountType = (buyTrade.IsShort() || buyTrade.IsCover()) ? "SHORT POSITIONS AT COST" : "LONG POSITIONS AT COST";
+                var markToMarketAccount = (buyTrade.IsShort() || buyTrade.IsCover()) ? "Mark to Market Shorts" : "Mark to Market Longs";
+
+                fromAccount = new AccountUtils().CreateAccount(AccountType.All.Where(i => i.Name.Equals(accountType)).FirstOrDefault(), listOfFromTags, element);
+                toAccount = new AccountUtils().CreateAccount(AccountType.All.Where(i => i.Name.Equals(markToMarketAccount)).FirstOrDefault(), listOfFromTags, element);
+            }
 
             new AccountUtils().SaveAccountDetails(env, fromAccount);
             new AccountUtils().SaveAccountDetails(env, toAccount);
@@ -446,17 +471,11 @@ namespace PostingEngine.PostingRules
                 Fund = env.GetFund(element),
             };
 
-            var toJournal = new Journal(element)
+            var toJournal = new Journal(fromJournal)
             {
                 Account = toAccount,
-                When = env.ValueDate,
-                StartPrice = taxlot.TradePrice,
-                EndPrice = taxlot.CostBasis,
-                FxRate = 1,
                 CreditDebit = env.DebitOrCredit(toAccount, PnL * -1),
                 Value = PnL * -1,
-                Event = "realizedpnl",
-                Fund = env.GetFund(element),
             };
 
             env.Journals.AddRange(new[] { fromJournal, toJournal });
@@ -575,11 +594,12 @@ namespace PostingEngine.PostingRules
                 case "Equity Swap":
                     accounttype = "FX Mark to Market on Derivative Contracts";
                     break;
-            }
-
-            if (element.IsShort() || element.IsCover())
-            {
-                accounttype = "FX MARK TO MARKET ON STOCK COST (SHORTS)";
+                default:
+                    if (element.IsShort() || element.IsCover())
+                    {
+                        accounttype = "FX MARK TO MARKET ON STOCK COST (SHORTS)";
+                    }
+                    break;
             }
 
             return accounttype;
@@ -593,7 +613,7 @@ namespace PostingEngine.PostingRules
                 case "FORWARD":
                 case "Physical index future.":
                 case "Equity Swap":
-                    accounttype = "Change in unrealized due to fx on derivates contracts";
+                    accounttype = "Change in Unrealized Derivatives Contracts due to FX Translation";
                     break;
             }
 

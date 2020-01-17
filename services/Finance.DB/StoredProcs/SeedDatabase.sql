@@ -13,6 +13,27 @@ insert into account_category (id, name) values (3, 'Equity')
 insert into account_category (id, name) values (4, 'Revenues')
 insert into account_category (id, name) values (5, 'Expenses')
 
+/*
+Derivative Contracts
+
+We use these for OTC Instruments
+*/
+-- ASSET 
+insert into account_type (account_category_id, name) values (1, 'Mark to Market Derivatives Contracts at Fair Value (Assets)')
+insert into account_type (account_category_id, name) values (1, 'Mark to Market Derivatives Contracts due to FX (Assets)')
+insert into account_type (account_category_id, name) values (1, 'Mark to Market Derivatives Contracts due to FX Translation (Assets)')
+
+-- LIABILITY
+insert into account_type (account_category_id, name) values (2, 'Mark to Market Derivatives Contracts at Fair Value (Liabilities)')
+insert into account_type (account_category_id, name) values (2, 'Mark to Market Derivatives Contracts due to FX (Liabilities)')
+insert into account_type (account_category_id, name) values (2, 'Mark to Market Derivatives Contracts due to FX  Translation (Liabilities)')
+
+-- REVENUE
+insert into account_type (account_category_id, name) values (4, 'Change in Unrealized Derivatives Contracts at Fair Value')
+insert into account_type (account_category_id, name) values (4, 'Change in Unrealized Derivatives Contracts due to FX')
+insert into account_type (account_category_id, name) values (4, 'Change in Unrealized Derivatives Contracts due to FX Translation')
+
+
 /* 
 Types
 */
@@ -92,6 +113,10 @@ INSERT INTO [server_side_filter_config]([created_by],[created_date],[last_update
 INSERT INTO [server_side_filter_config]([created_by],[created_date],[last_updated_by],[last_updated_date],[col_name],[source],[meta_info],[grid_name]) VALUES('sa',GETDATE(),NULL,NULL,'AccountType','vwFullJournal','vwFullJournal','Journals Ledgers')
 INSERT INTO [server_side_filter_config]([created_by],[created_date],[last_updated_by],[last_updated_date],[col_name],[source],[meta_info],[grid_name]) VALUES('sa',GETDATE(),NULL,NULL,'AccountName','vwFullJournal','vwFullJournal','Journals Ledgers')
 INSERT INTO [server_side_filter_config]([created_by],[created_date],[last_updated_by],[last_updated_date],[col_name],[source],[meta_info],[grid_name]) VALUES('sa',GETDATE(),NULL,NULL,'fx_currency','vwFullJournal','vwFullJournal','Journals Ledgers')
+INSERT INTO [server_side_filter_config]([created_by],[created_date],[last_updated_by],[last_updated_date],[col_name],[source],[meta_info],[grid_name]) VALUES('sa',GETDATE(),NULL,NULL,'CustodianCode','vwFullJournal','vwFullJournal','Journals Ledgers')
+INSERT INTO [server_side_filter_config]([created_by],[created_date],[last_updated_by],[last_updated_date],[col_name],[source],[meta_info],[grid_name]) VALUES('sa',GETDATE(),NULL,NULL,'SecurityType','vwFullJournal','vwFullJournal','Journals Ledgers')
+INSERT INTO [server_side_filter_config]([created_by],[created_date],[last_updated_by],[last_updated_date],[col_name],[source],[meta_info],[grid_name]) VALUES('sa',GETDATE(),NULL,NULL,'Side','vwFullJournal','vwFullJournal','Journals Ledgers')
+INSERT INTO [server_side_filter_config]([created_by],[created_date],[last_updated_by],[last_updated_date],[col_name],[source],[meta_info],[grid_name]) VALUES('sa',GETDATE(),NULL,NULL,'Action','vwFullJournal','vwFullJournal','Journals Ledgers')
 
 -- default layouts
 INSERT [dbo].[data_grid_layouts] ([grid_id], [grid_name], [grid_layout_name], [userId], [pivot_mode], [column_state], [group_state], [sort_state], [filter_state], [external_filter_state], [is_public], [is_default]) VALUES (1, N'Journals Ledgers', N'Nav', 1, N'false', N'[{"colId":"ag-Grid-AutoColumn","hide":false,"aggFunc":null,"width":200,"pivotIndex":null,"pinned":"left","rowGroupIndex":null},{"colId":"id","hide":false,"aggFunc":null,"width":90,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"source","hide":false,"aggFunc":null,"width":300,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"fund","hide":false,"aggFunc":null,"width":151,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"AccountCategory","hide":false,"aggFunc":null,"width":109,"pivotIndex":null,"pinned":null,"rowGroupIndex":0},{"colId":"AccountType","hide":false,"aggFunc":null,"width":249,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"accountName","hide":false,"aggFunc":null,"width":386,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"accountDescription","hide":false,"aggFunc":null,"width":168,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"when","hide":false,"aggFunc":null,"width":106,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"debit","hide":false,"aggFunc":"sum","width":123,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"credit","hide":false,"aggFunc":"sum","width":123,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"balance","hide":false,"aggFunc":"sum","width":117,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"quantity","hide":false,"aggFunc":"sum","width":106,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"symbol","hide":false,"aggFunc":null,"width":100,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"fxrate","hide":false,"aggFunc":null,"width":99,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"event","hide":false,"aggFunc":null,"width":116,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"security_id","hide":false,"width":116,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"fx_currency","hide":false,"aggFunc":null,"width":120,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"value","hide":false,"width":93,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"start_price","hide":false,"width":114,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"end_price","hide":false,"width":111,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"is_account_to","hide":false,"aggFunc":null,"width":131,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"TradeId","hide":false,"aggFunc":null,"width":271,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"Action","hide":false,"aggFunc":null,"width":94,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"Status","hide":false,"aggFunc":null,"width":92,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"CustodianCode","hide":false,"aggFunc":null,"width":141,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"SecurityType","hide":false,"aggFunc":null,"width":127,"pivotIndex":null,"pinned":null,"rowGroupIndex":null},{"colId":"Side","hide":false,"aggFunc":null,"width":83,"pivotIndex":null,"pinned":null,"rowGroupIndex":null}]', N'[]', N'[]', N'{"AccountCategory":{"values":["Asset","Liability"],"filterType":"set"}}', N'{"fundFilter":"All Funds","symbolFilter":"","zeroBalanceFilter":0,"absoluteSortingModel":{"sortingApplied":false,"sortingOn":[]},"dateFilter":{"startDate":"","endDate":""}}', 0, 1)

@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace PostingEngine.PostingRules
 {
-    public class DefaultRule : IPostingRule
+    public class Derivatives : IPostingRule
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         public bool IsValid(PostingEngineEnvironment env, Transaction element)
@@ -170,8 +170,6 @@ namespace PostingEngine.PostingRules
                 fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
             }
 
-            var tradeAllocations = env.Allocations.Where(i => i.LpOrderId == element.LpOrderId).ToList();
-
             if ( element.IsBuy() || element.IsShort())
             {
                 var t1 = env.GenerateOpenTaxLot(element, fxrate);
@@ -181,8 +179,6 @@ namespace PostingEngine.PostingRules
                     // TODO: Need to review this as we need to see if there is a parent, and what the parents actuall is
                     return;
                 }
-
-                //tl.Save(env.Connection, env.Transaction);
             }
             else if (element.IsSell() || element.IsCover())
             {
@@ -225,7 +221,7 @@ namespace PostingEngine.PostingRules
                                 else
                                     taxlotStatus.Status = "Partially Closed";
 
-                                CommonRules.GenerateCloseOutPostings(env, lot, taxlot, element, taxlotStatus, tradeAllocations[0].Fund);
+                                CommonRules.GenerateCloseOutPostings(env, lot, taxlot, element, taxlotStatus, env.GetFund(element));
 
                                 break;
                             }
@@ -235,7 +231,59 @@ namespace PostingEngine.PostingRules
 
                                 workingQuantity -= Math.Abs(taxlotStatus.Quantity);
 
-                                CommonRules.PostRealizedPnl(env, element, taxlot.RealizedPnl, taxlot.TradePrice, taxlot.CostBasis);
+                                var accountTypes = AccountType.All;
+
+                                var listOfTags = new List<Tag> {
+                                    Tag.Find("SecurityType"),
+                                    Tag.Find("CustodianCode")
+                                 };
+
+                                Account fromAccount = null; // Debiting Account
+                                Account toAccount = null; // Crediting Account
+
+                                var realizedPnl = taxlot.RealizedPnl;
+
+                                if (element.IsDerivative())
+                                {
+                                    var originalAccount = AccountUtils.GetDerivativeAccountType(realizedPnl);
+                                    if (originalAccount.Contains("(Liabilities)"))
+                                    {
+                                        // This needs to be registered as a Credit to the Libabilities
+                                        realizedPnl *= -1;
+                                    }
+
+                                    var fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "REALIZED GAIN/(LOSS)", listOfTags, taxlot.Trade);
+                                    fromAccount = fromToAccounts.From;
+                                    toAccount = fromToAccounts.To;
+
+                                }
+                                else
+                                {
+                                    Logger.Warn($"Must be a derivativce");
+                                    break;
+                                }
+
+                                var debitJournal = new Journal(element)
+                                {
+                                    Account = fromAccount,
+                                    When = env.ValueDate,
+                                    StartPrice = taxlot.TradePrice,
+                                    EndPrice = taxlot.CostBasis,
+                                    CreditDebit = env.DebitOrCredit(fromAccount, taxlot.RealizedPnl),
+                                    Value = env.SignedValue(fromAccount, toAccount, true, taxlot.RealizedPnl),
+                                    FxRate = fxrate,
+                                    Event = "realizedpnl",
+                                    Fund = env.GetFund(element),
+                                };
+
+                                var creditJournal = new Journal(debitJournal)
+                                {
+                                    Account = toAccount,
+                                    CreditDebit = env.DebitOrCredit(toAccount, taxlot.RealizedPnl * -1),
+                                    Value = env.SignedValue(fromAccount, toAccount, false, taxlot.RealizedPnl),
+                                };
+
+                                env.Journals.AddRange(new[] { debitJournal, creditJournal });
 
                                 taxlotStatus.Quantity = 0;
                                 taxlotStatus.Status = "Closed";
