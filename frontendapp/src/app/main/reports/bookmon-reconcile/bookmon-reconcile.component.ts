@@ -1,30 +1,34 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { GridOptions, ColDef, ColGroupDef, RowDoubleClickedEvent } from 'ag-grid-community';
+import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 import * as moment from 'moment';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
-import { Fund } from '../../../../shared/Models/account';
+import { ReportsApiService } from 'src/services/reports-api.service';
 import { DataService } from '../../../../services/common/data.service';
+import { Fund } from '../../../../shared/Models/account';
+import { DataDictionary } from 'src/shared/utils/DataDictionary';
+import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { ContextMenu } from 'src/shared/Models/common';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import {
-  Ranges,
-  Style,
-  SideBar,
-  ExcelStyle,
   CalTotalRecords,
+  SideBar,
+  Ranges,
   GetDateRangeLabel,
   SetDateRange,
-  CommaSeparatedFormat,
+  Style,
   HeightStyle,
+  ExcelStyle,
+  LegendColors,
   FormatDate,
-  FormatNumber8,
-  LegendColors
+  dateFormatter,
+  CommaSeparatedFormat,
+  moneyFormatter,
+  FormatNumber8
 } from 'src/shared/utils/Shared';
-import { GridOptions } from 'ag-grid-community';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
-import { ContextMenu } from 'src/shared/Models/common';
-import { ReportsApiService } from 'src/services/reports-api.service';
-import { DataDictionary } from 'src/shared/utils/DataDictionary';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'rep-bookmon-reconcile',
@@ -32,6 +36,7 @@ import { DataDictionary } from 'src/shared/utils/DataDictionary';
   styleUrls: ['./bookmon-reconcile.component.css']
 })
 export class BookmonReconcileComponent implements OnInit, AfterViewInit {
+  @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
   gridOptions: GridOptions;
   portfolioOptions: GridOptions;
   bookmonOptions: GridOptions;
@@ -53,6 +58,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
   cbData: any;
   bData: any;
   qData: any;
+  title: string;
 
   filterBySymbol = '';
 
@@ -124,7 +130,8 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
             startDate: moment(this.startDate, 'YYYY-MM-DD'),
             endDate: moment(this.startDate, 'YYYY-MM-DD')
           };
-        } else {}
+        } else {
+        }
       },
       error => {}
     );
@@ -144,6 +151,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
       getExternalFilterState: this.getExternalFilterState.bind(this),
       rowSelection: 'single',
       onCellClicked: this.rowSelected.bind(this),
+      onRowDoubleClicked: this.onRowDoubleClicked.bind(this),
       rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
       getContextMenuItems: params => this.getContextMenuItems(params),
@@ -267,7 +275,11 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(GridId.bookMonReconcileId, GridName.bookmonReconcile, this.gridOptions);
+    this.gridOptions.sideBar = SideBar(
+      GridId.bookMonReconcileId,
+      GridName.bookmonReconcile,
+      this.gridOptions
+    );
 
     this.bookmonOptions = {
       rowData: [],
@@ -343,7 +355,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
           width: 120,
           valueFormatter: priceFormatter
         },
-    {
+        {
           field: 'Currency',
           width: 50,
           headerName: 'Currency',
@@ -469,26 +481,28 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
   getReport(date, fund) {
     this.isLoading = true;
     this.gridOptions.api.showLoadingOverlay();
-    this.reportsApiService.getBookmonReconReport(moment(date).format('YYYY-MM-DD'), fund).subscribe(response => {
-      this.reconciledData = this.setIdentifierForReconDataAndCheckMissingRows(
-        response.payload[0],
-        response.payload[1],
-        response.payload[2]
-      );
-      this.portfolioData = response.payload[1];
-      this.bookmonData = response.payload[2];
+    this.reportsApiService
+      .getBookmonReconReport(moment(date).format('YYYY-MM-DD'), fund)
+      .subscribe(response => {
+        this.reconciledData = this.setIdentifierForReconDataAndCheckMissingRows(
+          response.payload[0],
+          response.payload[1],
+          response.payload[2]
+        );
+        this.portfolioData = response.payload[1];
+        this.bookmonData = response.payload[2];
 
-      this.gridOptions.api.setRowData(this.reconciledData);
-      this.gridOptions.api.sizeColumnsToFit();
+        this.gridOptions.api.setRowData(this.reconciledData);
+        this.gridOptions.api.sizeColumnsToFit();
 
-      this.portfolioOptions.api.setRowData(this.portfolioData);
-      this.portfolioOptions.api.sizeColumnsToFit();
+        this.portfolioOptions.api.setRowData(this.portfolioData);
+        this.portfolioOptions.api.sizeColumnsToFit();
 
-      this.bookmonOptions.api.setRowData(this.bookmonData);
-      this.bookmonOptions.api.sizeColumnsToFit();
+        this.bookmonOptions.api.setRowData(this.bookmonData);
+        this.bookmonOptions.api.sizeColumnsToFit();
 
-      this.isLoading = false;
-    });
+        this.isLoading = false;
+      });
   }
 
   setIdentifierForReconDataAndCheckMissingRows(reconData, accountingData, bookMonData) {
@@ -549,6 +563,87 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
       this.displayChart = true;
     });
     */
+  }
+
+  onRowDoubleClicked(params: RowDoubleClickedEvent) {
+    this.gridOptions.api.showLoadingOverlay();
+    this.openDataGridModal(params.data);
+  }
+
+  openDataGridModal(rowData: any) {
+    const { Symbol } = rowData;
+    this.reportsApiService
+      .getTaxLotReport(null, null, Symbol, null, false)
+      .pipe(finalize(() => this.gridOptions.api.hideOverlay()))
+      .subscribe(response => {
+        const { payload } = response;
+        const columns = this.getTaxLotColDefs();
+
+        this.title = 'Tax Lot Status';
+        this.dataGridModal.openModal(columns, payload);
+      });
+  }
+
+  getTaxLotColDefs(): Array<ColDef | ColGroupDef> {
+    return [
+      {
+        field: 'open_id',
+        headerName: 'Order Id',
+        hide: true
+      },
+      {
+        field: 'trade_date',
+        headerName: 'Trade Date',
+        sortable: true,
+        filter: true,
+        valueFormatter: dateFormatter
+      },
+      {
+        field: 'symbol',
+        headerName: 'Symbol',
+        sortable: true,
+        filter: true
+      },
+      {
+        field: 'status',
+        headerName: 'Status',
+        sortable: true,
+        filter: true
+      },
+      {
+        field: 'side',
+        headerName: 'Side',
+        sortable: true,
+        filter: true
+      },
+      {
+        field: 'original_quantity',
+        headerName: 'Orig Qty',
+        filter: true,
+        sortable: true,
+        cellClass: 'rightAlign',
+        valueFormatter: currencyFormatter,
+        aggFunc: 'sum'
+      },
+      {
+        field: 'quantity',
+        headerName: 'Rem Qty',
+        filter: true,
+        sortable: true,
+        cellClass: 'rightAlign',
+        valueFormatter: currencyFormatter,
+        aggFunc: 'sum'
+      },
+      {
+        field: 'investment_at_cost',
+        headerName: 'Investment @ Cost',
+        width: 100,
+        filter: true,
+        sortable: true,
+        cellClass: 'rightAlign',
+        valueFormatter: moneyFormatter
+      }
+    ];
   }
 
   mapCostBasisData(data: any, chartType: string) {
