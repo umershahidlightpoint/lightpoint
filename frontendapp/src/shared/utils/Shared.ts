@@ -645,10 +645,13 @@ export function BracketFormatter(params) {
   if (
     (params.data.AccountCategory === 'Equity' ||
       params.data.AccountCategory === 'Revenues' ||
-      params.data.AccountCategory === 'Expenses') &&
-    params.value > 0
+      params.data.AccountCategory === 'Expenses')
   ) {
-    return '( ' + MoneyFormat(Math.abs(params.value)) + ' )';
+    if (params.value > 0) {
+      return '( ' + MoneyFormat(Math.abs(params.value)) + ' )';
+    } else {
+      return MoneyFormat(Math.abs(params.value));
+    }
   }
   return MoneyFormat(params.value);
 }
