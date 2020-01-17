@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
-import { debounce } from 'rxjs/operators';
+import { debounce, finalize } from 'rxjs/operators';
 import { timer, Subject } from 'rxjs';
 import { Fund } from '../../../../shared/Models/account';
 import {
@@ -363,7 +363,6 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
 
   // Being called twice
   getReport(toDate, fromDate, symbol, fund) {
-    this.isLoading = true;
     this.reportsApiService
       .getTaxLotReport(
         moment(toDate).format('YYYY-MM-DD'),
@@ -375,7 +374,6 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       .subscribe(response => {
         this.stats = response.stats;
         this.data = response.payload;
-        this.isLoading = false;
         this.gridOptions.api.sizeColumnsToFit();
         this.gridOptions.api.setRowData(this.data);
       });
@@ -409,12 +407,17 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   }
 
   getTrade(tradeId) {
-    this.financeService.getTrade(tradeId).subscribe(
-      response => {
-        this.dataModal.openModal(response[0], null, true);
-      },
-      error => {}
-    );
+    this.isLoading = true;
+
+    this.financeService
+      .getTrade(tradeId)
+      .pipe(finalize(() => (this.isLoading = false)))
+      .subscribe(
+        response => {
+          this.dataModal.openModal(response[0], null, true);
+        },
+        error => {}
+      );
   }
 
   onRowSelected(event) {

@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
-import { debounce } from 'rxjs/operators';
+import { debounce, finalize } from 'rxjs/operators';
 import { timer, Subject } from 'rxjs';
 import { Fund } from '../../../../shared/Models/account';
 import {
@@ -487,18 +487,29 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
   }
 
   getTrade(tradeId) {
-    this.financeService.getTrade(tradeId).subscribe(
-      response => {
-        this.dataModal.openModal(response[0], null, true);
-      },
-      error => {}
-    );
+    this.isLoading = true;
+
+    this.financeService
+      .getTrade(tradeId)
+      .pipe(finalize(() => (this.isLoading = false)))
+      .subscribe(
+        response => {
+          this.dataModal.openModal(response[0], null, true);
+        },
+        error => {}
+      );
   }
 
   onRowSelected(event) {
     const { open_id } = event.data;
-    if((event.data.side === "BUY" || event.data.side === "SHORT") && (event.data.status === "Open" || event.data.status === "Partially Closed")){
-      if(event.data.symbol !== this.activeTradeSymbol || event.data.side !== this.activeTradeSide){
+    if (
+      (event.data.side === 'BUY' || event.data.side === 'SHORT') &&
+      (event.data.status === 'Open' || event.data.status === 'Partially Closed')
+    ) {
+      if (
+        event.data.symbol !== this.activeTradeSymbol ||
+        event.data.side !== this.activeTradeSide
+      ) {
         this.getProspectiveTrades(event.data.symbol, event.data.side);
       }
     }
@@ -514,24 +525,25 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
     }
   }
 
-  getProspectiveTrades(symbol, side){
-    this.maintenanceApiService.getProspectiveTradesToAlleviateTaxLot(symbol, side).subscribe(resp => {
-      if(resp.isSuccessful){
-        const trades = resp.payload.map(x => ({
-          id: x.id,
-          quantity: x.Quantity,
-          lpOrderId : x.LPOrderId,
-          symbol : x.Symbol,
-          side: x.Side
-        }))
+  getProspectiveTrades(symbol, side) {
+    this.maintenanceApiService.getProspectiveTradesToAlleviateTaxLot(symbol, side).subscribe(
+      resp => {
+        if (resp.isSuccessful) {
+          const trades = resp.payload.map(x => ({
+            id: x.id,
+            quantity: x.Quantity,
+            lpOrderId: x.LPOrderId,
+            symbol: x.Symbol,
+            side: x.Side
+          }));
 
-        this.activeTradeSide = side;
-        this.activeTradeSymbol = symbol;
-        this.tradeGridOptions.api.setRowData(trades);
-      }
-    }, error => {
-
-    })
+          this.activeTradeSide = side;
+          this.activeTradeSymbol = symbol;
+          this.tradeGridOptions.api.setRowData(trades);
+        }
+      },
+      error => {}
+    );
   }
 
   onFilterChanged() {
@@ -593,7 +605,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
     return GetContextMenu(false, addDefaultItems, true, null, params);
   }
 
-  alleviateTaxLot(){
+  alleviateTaxLot() {
     this.isLoading = true;
     this.show = false;
     const taxLotStatus = this.gridOptions.api.getSelectedRows();
@@ -633,7 +645,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
     const payload = {
       OpenTaxLots: taxLotStatusPayload,
       ProspectiveTrade: tradesPayload[0]
-    }
+    };
 
     this.maintenanceApiService.alleviateTaxLot(payload).subscribe(
       resp => {
@@ -652,7 +664,6 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
         this.toasterService.error('An error occured while alleviating tax lots');
       }
     );
-
   }
 
   reverseTaxLotAlleviation() {

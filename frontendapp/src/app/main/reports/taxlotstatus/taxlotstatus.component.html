@@ -6,8 +6,14 @@
 </div>
 <!-- Hide Grid Div Ends -->
 
+<!-- Loader -->
+<div *ngIf="isLoading" class="loader-wrapper mtop-15">
+  <app-loader [loadingText]="true"></app-loader>
+  <!-- Loader -->
+</div>
+
 <!-- Reports Main Div Starts -->
-<div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
+<div [hidden]="isLoading" [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
   <!-- Filters Div Starts -->
   <div class="row ">
     <!-- Funds Dropdown Div Starts -->
