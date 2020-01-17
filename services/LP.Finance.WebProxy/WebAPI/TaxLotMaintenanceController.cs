@@ -28,5 +28,12 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.AlleviateTaxLot(obj);
         }
 
+        [HttpGet]
+        [Route("prospectiveTradesToAlleviateTaxLot")]
+        public object ProspectiveTradesForTaxLotAlleviation(string symbol, string side)
+        {
+            return controller.ProspectiveTradesForTaxLotAlleviation(symbol, side);
+        }
+
     }
 }

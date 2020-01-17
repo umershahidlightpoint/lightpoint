@@ -15,5 +15,6 @@ namespace LP.Finance.Common.Dtos
         public string Side { get; set; }
         public int OriginalQuantity { get; set; }
         public int RemainingQuantity { get; set; }
+        public double TradePrice { get; set; }
     }
 }

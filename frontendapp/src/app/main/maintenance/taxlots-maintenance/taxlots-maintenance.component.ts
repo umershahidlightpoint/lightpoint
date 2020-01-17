@@ -33,6 +33,7 @@ import { ContextMenu } from 'src/shared/Models/common';
 import { MaintenanceApiService } from 'src/services/maintenance-api.service';
 import { DataModalComponent } from 'src/shared/Component/data-modal/data-modal.component';
 import { ToastrService } from 'ngx-toastr';
+import { DataDictionary } from 'src/shared/utils/DataDictionary';
 
 @Component({
   selector: 'app-taxlots-maintenance',
@@ -66,6 +67,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
   activeTradeSymbol: string;
   activeTradeSide: string;
 
+
   // private filterSubject: Subject<string> = new Subject();
   filterBySymbol = '';
   tradeGridOptions: GridOptions;
@@ -87,7 +89,8 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
     private maintenanceApiService: MaintenanceApiService,
     private dataService: DataService,
     private downloadExcelUtils: DownloadExcelUtils,
-    private toasterService: ToastrService
+    private toasterService: ToastrService,
+    public dataDictionary: DataDictionary
   ) {
     this.hideGrid = false;
   }
@@ -157,6 +160,14 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
           field: 'open_id',
           width: 120,
           headerName: 'Order Id',
+          sortable: true,
+          filter: true,
+          hide: true
+        },
+        {
+          field: 'trade_price',
+          width: 120,
+          headerName: 'Trade Price',
           sortable: true,
           filter: true,
           hide: true
@@ -374,10 +385,12 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
 
       columnDefs: [
         {
-          field: 'id',
+          field: 'tradePrice',
           width: 120,
-          headerName: 'id',
-          hide: true
+          headerName: 'Trade Price',
+          sortable: true,
+          hide: true,
+          filter: true
         },
         {
           field: 'lpOrderId',
@@ -391,7 +404,16 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
           width: 120,
           headerName: 'Quantity',
           sortable: true,
-          filter: true
+          filter: true,
+          valueFormatter: currencyFormatter,
+        },
+        {
+          field: 'remainingQuantity',
+          width: 120,
+          headerName: 'Remaining Quantity',
+          sortable: true,
+          filter: true,
+          valueFormatter: currencyFormatter,
         },
         {
           field: 'symbol',
@@ -407,6 +429,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
           sortable: true,
           filter: true
         }
+
       ],
       defaultColDef: {
         sortable: true,
@@ -462,6 +485,9 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
   }
 
   onTaxLotSelection() {
+    if(this.closingTaxLots.api) {
+      this.closingTaxLots.api.showLoadingOverlay();
+    }
     this.maintenanceApiService.getAllClosingTaxLots().subscribe(response => {
       this.closingTaxLots.api.sizeColumnsToFit();
       this.closingTaxLots.api.setRowData(response.payload);
@@ -515,14 +541,16 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
   }
 
   getProspectiveTrades(symbol, side){
+    this.tradeGridOptions.api.showLoadingOverlay();
     this.maintenanceApiService.getProspectiveTradesToAlleviateTaxLot(symbol, side).subscribe(resp => {
       if(resp.isSuccessful){
         const trades = resp.payload.map(x => ({
-          id: x.id,
           quantity: x.Quantity,
+          remainingQuantity : x.RemainingQuantity,
           lpOrderId : x.LPOrderId,
           symbol : x.Symbol,
-          side: x.Side
+          side: x.Side,
+          tradePrice: x.TradePrice
         }))
 
         this.activeTradeSide = side;
@@ -619,15 +647,17 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
       Status: x.status,
       Side: x.side,
       OriginalQuantity: x.original_quantity,
-      RemainingQuantity: x.quantity
+      RemainingQuantity: x.quantity,
+      TradePrice: x.trade_price
     }));
 
     const tradesPayload = trades.map(x => ({
-      Id: x.id,
       LpOrderId: x.lpOrderId,
       Symbol: x.symbol,
       Side: x.side,
-      Quantity: x.quantity
+      Quantity: x.quantity,
+      RemainingQuantity: x.remainingQuantity,
+      TradePrice: x.tradePrice
     }));
 
     const payload = {
@@ -712,6 +742,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
   refreshTaxLots() {
     this.onTaxLotSelection();
     this.refreshReport();
+    this.getProspectiveTrades(this.activeTradeSymbol, this.activeTradeSide);
   }
 
   setDateRange(dateFilter: any) {
