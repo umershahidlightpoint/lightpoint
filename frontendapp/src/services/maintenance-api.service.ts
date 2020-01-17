@@ -39,8 +39,13 @@ export class MaintenanceApiService {
     return this.http.put(url,obj).pipe(map((response: any) => response));
   }
 
+  // getProspectiveTradesToAlleviateTaxLot(symbol: string, side: string) {
+  //   const url = this.refDataUrl + '/trades/prospectiveTradesToAlleviateTaxLot?symbol=' + symbol + '&side=' + side;
+  //   return this.http.get(url).pipe(map((response: any) => response));
+  // }
+
   getProspectiveTradesToAlleviateTaxLot(symbol: string, side: string) {
-    const url = this.refDataUrl + '/trades/prospectiveTradesToAlleviateTaxLot?symbol=' + symbol + '&side=' + side;
+    const url = this.baseUrl + '/taxLotMaintenance/prospectiveTradesToAlleviateTaxLot?symbol=' + symbol + '&side=' + side;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 

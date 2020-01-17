@@ -1,6 +1,7 @@
 ﻿using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Models;
+using Newtonsoft.Json;
 using SqlDAL.Core;
 using System;
 using System.Collections.Generic;
@@ -150,17 +151,21 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
 
                 int lotSum = obj.OpenTaxLots.Sum(x => Math.Abs(x.RemainingQuantity));
-                int prospectiveTradeQuantity = Math.Abs(obj.ProspectiveTrade.Quantity);
+                int prospectiveTradeQuantity = Math.Abs(obj.ProspectiveTrade.RemainingQuantity);
                 if (lotSum < prospectiveTradeQuantity)
                 {
-                    message = "Quantity Mismatch";
+                    //message = "Quantity Mismatch";
                 }
 
                 List<TaxLot> taxLotList = new List<TaxLot>();
                 foreach (var item in obj.OpenTaxLots)
                 {
                     TaxLot t = new TaxLot();
-                    if (Math.Abs(item.RemainingQuantity) <= prospectiveTradeQuantity)
+                    if(prospectiveTradeQuantity == 0)
+                    {
+                        break;
+                    }
+                    else if (Math.Abs(item.RemainingQuantity) <= prospectiveTradeQuantity)
                     {
                         item.Status = "Closed";
                         if(Math.Abs(item.RemainingQuantity) < prospectiveTradeQuantity)
@@ -197,10 +202,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                     //TODO. temporary assignment for now
                     t.BusinessDate = DateTime.UtcNow;
-                    t.CostBasis = 0;
-                    t.InvestmentAtCost = 0;
+                    t.RealizedPnl = (obj.ProspectiveTrade.TradePrice - item.TradePrice) * t.Quantity;
+                    t.CostBasis = obj.ProspectiveTrade.TradePrice;
+                    t.TradePrice = item.TradePrice;
                     t.TradeDate = DateTime.UtcNow;
-                    t.TradePrice = 0;
+                    t.Quantity = SignedValueBasedOnSide(t.Quantity, obj.ProspectiveTrade.Side);
+                    t.InvestmentAtCost = t.Quantity * t.TradePrice * -1;
                     taxLotList.Add(t);
                 }
 
@@ -216,6 +223,69 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             catch(Exception ex)
             {
                 throw ex;
+            }
+
+        }
+
+        public object ProspectiveTradesForTaxLotAlleviation(string symbol, string side)
+        {
+            try
+            {
+                string correspondingSide = "";
+                SqlHelper sqlHelper = new SqlHelper(connectionString);
+                switch (side)
+                {
+                    case "BUY":
+                        correspondingSide = "SELL";
+                        break;
+                    case "SHORT":
+                        correspondingSide = "COVER";
+                        break;
+                    default:
+                        break;
+                }
+
+                List<SqlParameter> sqlParams = new List<SqlParameter>()
+            {
+                new SqlParameter("side", correspondingSide),
+                new SqlParameter("symbol", symbol)
+            };
+
+                var query = $@"select tr.LPOrderId, tr.Symbol, tr.Side, tr.Quantity, tr.TradePrice,
+                            (case when tr.side = 'SELL' then coalesce((abs(tr.Quantity) - gt.lot_quantity) * -1,tr.Quantity)
+                            else coalesce((abs(tr.Quantity) - gt.lot_quantity),tr.Quantity)
+                            end)
+                            as RemainingQuantity
+                            from current_trade_state tr
+                            left join (
+                            select t.closing_lot_id, sum(abs(t.quantity)) as lot_quantity from tax_lot t
+                            where t.active_flag = 1
+                            group by t.closing_lot_id
+                            ) gt on gt.closing_lot_id = tr.LPOrderId
+                            where tr.symbol = @symbol and tr.side = @side and (abs(tr.Quantity) > gt.lot_quantity or lot_quantity is null)
+                            order by tr.UpdatedOn desc";
+
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+                var serialized = JsonConvert.SerializeObject(dataTable);
+                var resp = JsonConvert.DeserializeObject(serialized);
+                return Utils.Wrap(true, resp, HttpStatusCode.OK);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        internal double SignedValueBasedOnSide(double value, string side)
+        {
+            switch (side)
+            {
+                case "SELL":
+                    return value * -1;
+                case "COVER":
+                    return value;
+                default:
+                    return value;
             }
 
         }

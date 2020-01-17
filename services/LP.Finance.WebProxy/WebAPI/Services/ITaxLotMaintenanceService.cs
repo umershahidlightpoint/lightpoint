@@ -11,5 +11,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
     {
         object ReverseTaxLotAlleviation(TaxLotReversalDto obj);
         object AlleviateTaxLot(AlleviateTaxLotDto obj);
+        object ProspectiveTradesForTaxLotAlleviation(string symbol, string side);
+
     }
 }
