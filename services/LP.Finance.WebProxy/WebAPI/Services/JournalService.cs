@@ -822,7 +822,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        public object GetTaxLotReport(DateTime? from, DateTime? to, string fund, string symbol, Boolean side = true)
+        public object GetTaxLotReport(DateTime? from, DateTime? to, string fund, string symbol, bool side = true)
         {
             try
             {
@@ -836,26 +836,25 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 List<SqlParameter> sqlParams = new List<SqlParameter>();
 
-                var query = $@"select * from tax_lot_status";
+                var query = $@"SELECT * FROM tax_lot_status";
 
                 //                if (from.HasValue)
                 //                {
                 //                    sqlParams.Add(new SqlParameter("from", from));
-                //                    query = query + " where tax_lot_status.[business_date] >= @from";
+                //                    query += " where tax_lot_status.[business_date] >= @from";
                 //                    whereAdded = true;
                 //                }
                 //
                 //                if (to.HasValue)
                 //                {
                 //                    sqlParams.Add(new SqlParameter("to", to));
-                //
                 //                    if (whereAdded == true)
                 //                    {
-                //                        query = query + " AND tax_lot_status.[business_date] <= @to";
+                //                        query += " AND tax_lot_status.[business_date] <= @to";
                 //                    }
                 //                    else
                 //                    {
-                //                        query = query + " where tax_lot_status.[business_date] <= @to";
+                //                        query += " where tax_lot_status.[business_date] <= @to";
                 //                    }
                 //                }
                 //
@@ -872,27 +871,28 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 //                    }
                 //                }
                 //
-                //                if (!string.IsNullOrEmpty(symbol))
-                //                {
-                //                    sqlParams.Add(new SqlParameter("symbol", symbol));
-                //                    if (whereAdded == true)
-                //                    {
-                //                        query = query + " AND tax_lot_status.[symbol] LIKE '%' +@symbol+'%'";
-                //                    }
-                //                    else
-                //                    {
-                //                        query = query + " where tax_lot_status.[symbol] LIKE '%' +@symbol+'%'";
-                //                    }
-                //                }
+                if (!string.IsNullOrEmpty(symbol))
+                {
+                    sqlParams.Add(new SqlParameter("symbol", symbol));
+                    if (whereAdded == true)
+                    {
+                        query += " AND tax_lot_status.[symbol] LIKE '%' +@symbol+'%'";
+                    }
+                    else
+                    {
+                        query = query + " WHERE tax_lot_status.[symbol] LIKE '%' +@symbol+'%'";
+                    }
+                }
 
                 if (side)
                 {
-                    query = query + " where tax_lot_status.[side] = 'BUY' OR tax_lot_status.[side] = 'SHORT'";
-                    whereAdded = true;
                     sqlParams.Add(new SqlParameter("side", side));
+                    query += string.IsNullOrEmpty(symbol)
+                        ? " WHERE tax_lot_status.[side] = 'BUY' OR tax_lot_status.[side] = 'SHORT'"
+                        : " AND (tax_lot_status.[side] = 'BUY' OR tax_lot_status.[side] = 'SHORT')";
                 }
 
-                query += " order by symbol, trade_date asc";
+                query += " ORDER BY symbol, trade_date ASC";
 
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
                 var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);

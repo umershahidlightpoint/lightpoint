@@ -58,10 +58,10 @@ export class FinanceServiceProxy {
   /*
   Get the Symbol
   */
- getSymbol() {
-  const url = encodeURI(this.refDataUrl + '/refdata/data?refdata=symbol');
-  return this.http.get<Response<Symbols>>(url).pipe(map((response: any) => response));
-}
+  getSymbol() {
+    const url = encodeURI(this.refDataUrl + '/refdata/data?refdata=symbol');
+    return this.http.get<Response<Symbols>>(url).pipe(map((response: any) => response));
+  }
   /*
   Get the Portfolios
   */
@@ -106,8 +106,16 @@ export class FinanceServiceProxy {
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
-  getTradeJournals(orderId: string) {
-    const url = encodeURI(this.refDataUrl + '/trades/journals?orderId=' + orderId);
+  getTradeJournals(orderId: string = '', when: any = '', symbol: string = '') {
+    const url = encodeURI(
+      this.refDataUrl +
+        '/trades/journals?orderId=' +
+        orderId +
+        '&when=' +
+        when +
+        '&symbol=' +
+        symbol
+    );
     return this.http.get(url).pipe(map((response: any) => response));
   }
 

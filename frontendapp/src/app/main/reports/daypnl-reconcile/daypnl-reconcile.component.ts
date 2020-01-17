@@ -1,33 +1,35 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { GridOptions, ColDef, ColGroupDef, RowDoubleClickedEvent } from 'ag-grid-community';
+import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 import * as moment from 'moment';
 import { timer, Subject } from 'rxjs';
-import { debounce } from 'rxjs/operators';
+import { debounce, finalize } from 'rxjs/operators';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
-import { Fund } from '../../../../shared/Models/account';
+import { ReportsApiService } from 'src/services/reports-api.service';
 import { DataService } from '../../../../services/common/data.service';
+import { Fund } from '../../../../shared/Models/account';
+import { DataDictionary } from 'src/shared/utils/DataDictionary';
+import { AgGridUtils } from 'src/shared/utils/AgGridUtils';
+import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { ContextMenu } from 'src/shared/Models/common';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import {
-  Ranges,
-  Style,
-  SideBar,
-  ExcelStyle,
   CalTotalRecords,
+  SideBar,
+  Ranges,
   GetDateRangeLabel,
   SetDateRange,
-  CommaSeparatedFormat,
-  FormatNumber2,
-  MoneyFormat,
+  Style,
   HeightStyle,
-  FormatDate,
+  ExcelStyle,
   LegendColors,
-  FormatNumber8
+  FormatDate,
+  dateFormatter,
+  MoneyFormat,
+  moneyFormatter
 } from 'src/shared/utils/Shared';
-import { GridOptions } from 'ag-grid-community';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
-import { ContextMenu } from 'src/shared/Models/common';
-import { ReportsApiService } from 'src/services/reports-api.service';
 
 @Component({
   selector: 'rep-daypnl-reconcile',
@@ -35,6 +37,7 @@ import { ReportsApiService } from 'src/services/reports-api.service';
   styleUrls: ['./daypnl-reconcile.component.css']
 })
 export class DayPnlComponent implements OnInit, AfterViewInit {
+  @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
   gridOptions: GridOptions;
   portfolioOptions: GridOptions;
   bookmonOptions: GridOptions;
@@ -57,6 +60,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
   cbData: any;
   bData: any;
   qData: any;
+  title: string;
 
   reconciledData: any;
   bookmonData: any;
@@ -104,6 +108,8 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     private financeService: FinanceServiceProxy,
     private reportsApiService: ReportsApiService,
     private dataService: DataService,
+    private dataDictionary: DataDictionary,
+    private agGridUtils: AgGridUtils,
     private downloadExcelUtils: DownloadExcelUtils
   ) {
     this.hideGrid = false;
@@ -162,6 +168,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
       getExternalFilterState: this.getExternalFilterState.bind(this),
       rowSelection: 'single',
       onCellClicked: this.rowSelected.bind(this),
+      onRowDoubleClicked: this.onRowDoubleClicked.bind(this),
       rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
       getContextMenuItems: params => this.getContextMenuItems(params),
@@ -258,7 +265,11 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(GridId.dayPnlReconcileId, GridName.dayPnlReconcile, this.gridOptions);
+    this.gridOptions.sideBar = SideBar(
+      GridId.dayPnlReconcileId,
+      GridName.dayPnlReconcile,
+      this.gridOptions
+    );
 
     this.bookmonOptions = {
       rowData: [],
@@ -473,6 +484,85 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
       this.displayChart = true;
     });
     */
+  }
+
+  onRowDoubleClicked(params: RowDoubleClickedEvent) {
+    this.gridOptions.api.showLoadingOverlay();
+    this.openDataGridModal(params.data);
+  }
+
+  openDataGridModal(rowData: any) {
+    const { Symbol } = rowData;
+    const { startDate } = this.selectedDate;
+    this.financeService
+      .getTradeJournals('', startDate.format('YYYY-MM-DD'), Symbol)
+      .pipe(finalize(() => this.gridOptions.api.hideOverlay()))
+      .subscribe(response => {
+        const { data, meta } = response;
+        const someArray = this.agGridUtils.columizeData(data, meta.Columns);
+        const columns = this.getTradeJournalColDefs(meta.Columns);
+
+        this.title = 'Trade Journals';
+        this.dataGridModal.openModal(columns, someArray);
+      });
+  }
+
+  getTradeJournalColDefs(columns): Array<ColDef | ColGroupDef> {
+    const colDefs = [
+      this.dataDictionary.column('debit', false),
+      this.dataDictionary.column('credit', false),
+      this.dataDictionary.column('balance', false),
+      this.dataDictionary.column('when', false),
+      this.dataDictionary.column('event', false),
+      this.dataDictionary.column('end_price', false),
+      this.dataDictionary.column('start_price', false),
+      {
+        field: 'fund',
+        headerName: 'Fund',
+        enableRowGroup: true,
+        sortable: true,
+        filter: true
+      },
+      {
+        field: 'AccountCategory',
+        width: 120,
+        headerName: 'Category',
+        enableRowGroup: true,
+        sortable: true,
+        filter: true
+      },
+      {
+        field: 'AccountType',
+        width: 120,
+        headerName: 'Type',
+        enableRowGroup: true,
+        sortable: true,
+        filter: true
+      },
+      {
+        field: 'AccountName',
+        width: 120,
+        headerName: 'Account Name',
+        enableRowGroup: true,
+        sortable: true,
+        filter: true
+      },
+      {
+        field: 'AccountDescription',
+        width: 120,
+        headerName: 'Account Description',
+        enableRowGroup: true,
+        sortable: true,
+        filter: true
+      }
+    ];
+
+    return this.agGridUtils.customizeColumns(
+      colDefs,
+      columns,
+      ['account_id', 'id', 'value', 'source', 'generated_by', 'Id', 'AllocationId', 'EMSOrderId'],
+      false
+    );
   }
 
   ngModelChangeSymbol(e) {

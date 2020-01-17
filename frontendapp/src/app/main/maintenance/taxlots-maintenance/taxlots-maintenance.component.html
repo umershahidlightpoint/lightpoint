@@ -1,103 +1,104 @@
 <!-- Hide Grid Div -->
 <div *ngIf="hideGrid" #logScroll [ngStyle]="processingMsgDiv">
-    <div class="d-flex align-items-center justify-content-center">
-      <h1> Posting Engine is Running. Please Wait. </h1>
+  <div class="d-flex align-items-center justify-content-center">
+    <h1> Posting Engine is Running. Please Wait. </h1>
+  </div>
+</div>
+<!-- Hide Grid Div Ends -->
+
+<!-- Loader -->
+<div *ngIf="isLoading" class="loader-wrapper mtop-15">
+  <app-loader [loadingText]="true"></app-loader>
+  <!-- Loader -->
+</div>
+
+<!-- Reports Main Div Starts -->
+<div [hidden]="!show || isLoading" [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
+  <!-- Filters Div Starts -->
+  <div class="row ">
+    <!-- Funds Dropdown Div Starts -->
+    <div class="col-auto">
+      <select class="form-control" [(ngModel)]="fund" (ngModelChange)="changeFund($event)">
+        <option selected>All Funds</option>
+        <option *ngFor="let fund of funds" [ngValue]="fund.fundCode">
+          {{ fund.fundCode }}
+        </option>
+      </select>
+      <!-- Funds Dropdown Div Ends -->
     </div>
-  </div>
-  <!-- Hide Grid Div Ends -->
 
-  <!-- Loader -->
-  <div *ngIf="isLoading" class="loader-wrapper mtop-15">
-    <app-loader [loadingText]="true"></app-loader>
-  <!-- Loader -->
-  </div>
+    <!-- Symbol filter -->
+    <div class="col-auto">
+      <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol" [(ngModel)]="filterBySymbol"
+        (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" />
+    </div>
 
-  <!-- Reports Main Div Starts -->
-  <div [hidden]="!show" [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
-    <!-- Filters Div Starts -->
-    <div class="row ">
-      <!-- Funds Dropdown Div Starts -->
-      <div class="col-auto">
-        <select class="form-control" [(ngModel)]="fund" (ngModelChange)="changeFund($event)">
-          <option selected>All Funds</option>
-          <option *ngFor="let fund of funds" [ngValue]="fund.fundCode">
-            {{ fund.fundCode }}
-          </option>
-        </select>
-        <!-- Funds Dropdown Div Ends -->
+    <!-- DateRange Label Div Starts -->
+    <div class="col-auto">
+      <label class="text-right"> {{ DateRangeLabel }} </label>
+    </div>
+    <!-- DateRange Label Div Ends -->
+
+    <!-- Date Picker Div Starts -->
+    <div class="col-auto">
+      <form>
+        <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off" placeholder="Choose date"
+          [(ngModel)]="selected" name="selectedDaterange" [ranges]="ranges" [showClearButton]="true"
+          [alwaysShowCalendars]="true" (ngModelChange)="changeDate($event)" [keepCalendarOpeningWithRange]="true" />
+      </form>
+    </div>
+    <!-- Date Picker Div Ends -->
+
+    <!-- Clear Button Div Starts -->
+    <div class="col-auto">
+      <button (click)="clearFilters()" class="btn btn-pa" tooltip="Clear" placement="top">
+        <i class="fa fa-remove"></i>
+      </button>
+    </div>
+    <!-- Clear Button Div Ends -->
+
+    <!----- Buttons Div Starts ----->
+    <div class="ml-auto">
+      <!-- Refresh Button Div Starts -->
+      <div class="mr-2 d-inline-block">
+        <button (click)="refreshReport()" class="btn btn-pa" tooltip="Refresh" placement="top">
+          <i class="fa fa-refresh"></i></button>
       </div>
-
-      <!-- Symbol filter -->
-      <div class="col-auto">
-        <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol" [(ngModel)]="filterBySymbol"
-          (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" />
-      </div>
-
-      <!-- DateRange Label Div Starts -->
-      <div class="col-auto">
-        <label class="text-right"> {{ DateRangeLabel }} </label>
-      </div>
-      <!-- DateRange Label Div Ends -->
-
-      <!-- Date Picker Div Starts -->
-      <div class="col-auto">
-        <form>
-          <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off" placeholder="Choose date"
-            [(ngModel)]="selected" name="selectedDaterange" [ranges]="ranges" [showClearButton]="true"
-            [alwaysShowCalendars]="true" (ngModelChange)="changeDate($event)" [keepCalendarOpeningWithRange]="true" />
-        </form>
-      </div>
-      <!-- Date Picker Div Ends -->
-
-      <!-- Clear Button Div Starts -->
-      <div class="col-auto">
-        <button (click)="clearFilters()" class="btn btn-pa" tooltip="Clear" placement="top">
-          <i class="fa fa-remove"></i>
+      <!-- Refresh Button Div Ends -->
+      <!-- Export to Excel Button -->
+      <div class="mr-3 d-inline-block">
+        <button (click)="onBtExport()" class="btn btn-pa" tooltip="Export to Excel" placement="top">
+          <i class="fa fa-arrow-circle-o-down"></i>
         </button>
       </div>
-      <!-- Clear Button Div Ends -->
-
-      <!----- Buttons Div Starts ----->
-      <div class="ml-auto">
-        <!-- Refresh Button Div Starts -->
-        <div class="mr-2 d-inline-block">
-          <button (click)="refreshReport()" class="btn btn-pa" tooltip="Refresh" placement="top">
-            <i class="fa fa-refresh"></i></button>
-        </div>
-        <!-- Refresh Button Div Ends -->
-        <!-- Export to Excel Button -->
-        <div class="mr-3 d-inline-block">
-          <button (click)="onBtExport()" class="btn btn-pa" tooltip="Export to Excel" placement="top">
-            <i class="fa fa-arrow-circle-o-down"></i>
-          </button>
-        </div>
-      </div>
-      <!----- Buttons Div Ends ----->
     </div>
-    <!-- Filters Div Ends -->
-
-    <!-- Report Grid Starts -->
-    <div #divToMeasureJournal>
-      <div [ngStyle]="styleForHeight" class="d-flex">
-        <ag-grid-angular class="w-50 h-100 ag-theme-balham" (cellClicked)="onRowSelected($event)"
-        [gridOptions]="gridOptions">
-        </ag-grid-angular>
-  
-        <div class="w-50 h-100">
-          <ag-grid-angular class="w-100 h-50 ag-theme-balham" (cellClicked)="onTradeRowSelected($event)"            [gridOptions]="closingTaxLots">
-          </ag-grid-angular>
-
-          <div class="w-100 h-50 p-0">
-            <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="tradeGridOptions">
-            </ag-grid-angular>
-          </div>
-        </div>
-      </div>
-      <!-- Report Grid Ends -->
-    </div>
-  <!-- Reports Main Div Ends-->
+    <!----- Buttons Div Ends ----->
   </div>
+  <!-- Filters Div Ends -->
 
-  <!-- Data Modal -->
-  <app-data-modal #dataModal title="Trade Detail" [isCustomData]="true">
-  </app-data-modal>
+  <!-- Report Grid Starts -->
+  <div #divToMeasureJournal>
+    <div [ngStyle]="styleForHeight" class="d-flex">
+      <ag-grid-angular class="w-50 h-100 ag-theme-balham" (cellClicked)="onRowSelected($event)"
+        [gridOptions]="gridOptions">
+      </ag-grid-angular>
+
+      <div class="w-50 h-100">
+        <ag-grid-angular class="w-100 h-50 ag-theme-balham" (cellClicked)="onTradeRowSelected($event)"
+          [gridOptions]="closingTaxLots">
+        </ag-grid-angular>
+
+        <div class="w-100 h-50 p-0">
+          <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="tradeGridOptions">
+          </ag-grid-angular>
+        </div>
+      </div>
+    </div>
+    <!-- Report Grid Ends -->
+  </div>
+  <!-- Reports Main Div Ends-->
+</div>
+
+<!-- Data Modal -->
+<app-data-modal #dataModal title="Trade Detail" [isCustomData]="true">
+</app-data-modal>
