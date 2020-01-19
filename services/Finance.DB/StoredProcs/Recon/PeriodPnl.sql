@@ -1,5 +1,7 @@
 ﻿/*
-exec PeriodPnl '2019-12-18'
+exec PeriodPnl '2019-12-31'
+
+exec PnlToDate '2019-12-31', '2019-01-01'
 */
 CREATE PROCEDURE [dbo].[PeriodPnl]
 	@Now Date
@@ -13,161 +15,123 @@ declare @ITD Date
 Set @MTD = DATEFROMPARTS(YEAR(@Now),MONTH(@Now),1)
 Set @QTD = DATEADD(qq, DATEDIFF(qq, 0, @Now), 0)
 Set @YTD = DATEFROMPARTS(YEAR(@Now),1,1)
--- Set @ITD = DATEFROMPARTS(1970,1,1)
+select @ITD = MIN([when]) from journal with(nolock)
 
-select @ITD = MIN([when]) from vwJournal
+print '==> Dates'
+print @Now
+print @MTD
+print @QTD
+print @YTD
+print @ITD
+print '==> Dates'
 
-select business_date as BusDate, SecurityCode as SecurityCode, Fund, st.SecurityTypeCode as SecurityType, pos.currency, 0 as realizedPnl, 0 as unrealizedPnl, 0 as Pnl
+DECLARE @PnlData TABLE (
+	BusDate DATE,
+	SecurityCode VARCHAR(50),
+	SecurityId int,
+	Fund VARCHAR(50),
+	SecurityType VARCHAR(50),
+	Currency VARCHAR(10),
+	Quantity numeric(22,9),
+	realizedPnl numeric(22,9), 
+	unrealizedPnl numeric(22,9), 
+	Pnl numeric(22,9)
+)
+
+INSERT INTO @PnlData(
+	BusDate,
+	SecurityCode,
+	SecurityId,
+	Fund,
+	SecurityType,
+	Currency,
+	Quantity, 
+	realizedPnl, 
+	unrealizedPnl, 
+	Pnl
+)
+Exec PnlToDate @Now, @Now
+select * 
 into #daypnl
-from fnPositions(@Now) pos
-inner join SecurityMaster..Security s on s.SecurityId = pos.security_id
-inner join SecurityMaster..SecurityType st on st.SecurityTypeId = s.SecurityTypeId
+from @PnlData
+delete from @PnlData
 
-update #daypnl
-set realizedPnl = GG
-from #daypnl t
-inner join (
-select [When], Symbol, Fund, SUM(credit-debit) as GG from vwJournal
-where AccountType in ('REALIZED GAIN/(LOSS)') and [event] in ('realizedpnl')
-group by [When], Symbol, Fund
-) as v on v.[when] = t.BusDate and v.fund = t.fund and v.symbol = t.SecurityCode
-
-update #daypnl
-set unrealizedPnl = GG
-from #daypnl t
-inner join (
-select [When], Symbol, Fund, SUM(credit-debit) as GG from vwJournal
-where AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)') and [event] in ('unrealizedpnl')
-group by [When], Symbol, Fund
-) as v on v.[when] = t.BusDate and v.fund = t.fund and v.symbol = t.SecurityCode
-
-update #daypnl
-set Pnl = Round(unrealizedPnl + realizedPnl,2)
-from #daypnl
-
--- select * from #daypnl
-
-select business_date as BusDate, SecurityCode as SecurityCode, Fund, st.SecurityTypeCode as SecurityType, pos.currency, 0 as realizedPnl, 0 as unrealizedPnl, 0 as Pnl
+INSERT INTO @PnlData(
+	BusDate,
+	SecurityCode,
+	SecurityId,
+	Fund,
+	SecurityType,
+	Currency,
+	Quantity, 
+	realizedPnl, 
+	unrealizedPnl, 
+	Pnl
+)
+Exec PnlToDate @Now, @MTD
+select * 
 into #mtdpnl
-from fnPositions(@Now) pos
-inner join SecurityMaster..Security s on s.SecurityId = pos.security_id
-inner join SecurityMaster..SecurityType st on st.SecurityTypeId = s.SecurityTypeId
+from @PnlData
+delete from @PnlData
 
-update #mtdpnl
-set realizedPnl = GG
-from #mtdpnl t
-inner join (
-select [When], Symbol, Fund, SUM(credit-debit) as GG from vwJournal
-where AccountType in ('REALIZED GAIN/(LOSS)') and [event] in ('realizedpnl')
-group by [When], Symbol, Fund
-) as v on v.[when] <= @Now and v.[when] > @MTD and v.fund = t.fund and v.symbol = t.SecurityCode
-
-update #mtdpnl
-set unrealizedPnl = GG
-from #mtdpnl t
-inner join (
-select [When], Symbol, Fund, SUM(credit-debit) as GG from vwJournal
-where AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)') and [event] in ('unrealizedpnl')
-group by [When], Symbol, Fund
-) as v on v.[when] <= @Now and v.[when] > @MTD and v.fund = t.fund and v.symbol = t.SecurityCode
-
-update #mtdpnl
-set Pnl = Round(unrealizedPnl + realizedPnl,2)
-from #mtdpnl
-
--- select * from #mtdpnl
-
-select business_date as BusDate, SecurityCode as SecurityCode, Fund, st.SecurityTypeCode as SecurityType, pos.currency, 0 as realizedPnl, 0 as unrealizedPnl, 0 as Pnl
+INSERT INTO @PnlData(
+	BusDate,
+	SecurityCode,
+	SecurityId,
+	Fund,
+	SecurityType,
+	Currency,
+	Quantity, 
+	realizedPnl, 
+	unrealizedPnl, 
+	Pnl
+)
+Exec PnlToDate @Now, @QTD
+select * 
 into #qtdpnl
-from fnPositions(@Now) pos
-inner join SecurityMaster..Security s on s.SecurityId = pos.security_id
-inner join SecurityMaster..SecurityType st on st.SecurityTypeId = s.SecurityTypeId
+from @PnlData
+delete from @PnlData
 
-update #qtdpnl
-set realizedPnl = GG
-from #qtdpnl t
-inner join (
-select [When], Symbol, Fund, SUM(credit-debit) as GG from vwJournal
-where AccountType in ('REALIZED GAIN/(LOSS)') and [event] in ('realizedpnl')
-group by [When], Symbol, Fund
-) as v on v.[when] <= @Now and v.[when] > @QTD and v.fund = t.fund and v.symbol = t.SecurityCode
-
-update #qtdpnl
-set unrealizedPnl = GG
-from #qtdpnl t
-inner join (
-select [When], Symbol, Fund, SUM(credit-debit) as GG from vwJournal
-where AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)') and [event] in ('unrealizedpnl')
-group by [When], Symbol, Fund
-) as v on v.[when] <= @Now and v.[when] > @QTD and v.fund = t.fund and v.symbol = t.SecurityCode
-
-update #qtdpnl
-set Pnl = Round(unrealizedPnl + realizedPnl,2)
-from #qtdpnl
-
--- select * from #qtdpnl
-
-select business_date as BusDate, SecurityCode as SecurityCode, Fund, st.SecurityTypeCode as SecurityType, pos.currency, 0 as realizedPnl, 0 as unrealizedPnl, 0 as Pnl
+INSERT INTO @PnlData(
+	BusDate,
+	SecurityCode,
+	SecurityId,
+	Fund,
+	SecurityType,
+	Currency,
+	Quantity, 
+	realizedPnl, 
+	unrealizedPnl, 
+	Pnl
+)
+Exec PnlToDate @Now, @YTD
+select * 
 into #ytdpnl
-from fnPositions(@Now) pos
-inner join SecurityMaster..Security s on s.SecurityId = pos.security_id
-inner join SecurityMaster..SecurityType st on st.SecurityTypeId = s.SecurityTypeId
+from @PnlData
+delete from @PnlData
 
-update #ytdpnl
-set realizedPnl = GG
-from #ytdpnl t
-inner join (
-select [When], Symbol, Fund, SUM(credit-debit) as GG from vwJournal
-where AccountType in ('REALIZED GAIN/(LOSS)') and [event] in ('realizedpnl')
-group by [When], Symbol, Fund
-) as v on v.[when] <= @Now and v.[when] > @YTD and v.fund = t.fund and v.symbol = t.SecurityCode
-
-update #ytdpnl
-set unrealizedPnl = GG
-from #ytdpnl t
-inner join (
-select [When], Symbol, Fund, SUM(credit-debit) as GG from vwJournal
-where AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)') and [event] in ('unrealizedpnl')
-group by [When], Symbol, Fund
-) as v on v.[when] <= @Now and v.[when] > @YTD and v.fund = t.fund and v.symbol = t.SecurityCode
-
-update #ytdpnl
-set Pnl = Round(unrealizedPnl + realizedPnl,2)
-from #ytdpnl
-
--- select * from #ytdpnl
-
-select business_date as BusDate, SecurityCode as SecurityCode, Fund, st.SecurityTypeCode as SecurityType, pos.currency, 0 as realizedPnl, 0 as unrealizedPnl, 0 as Pnl
+INSERT INTO @PnlData(
+	BusDate,
+	SecurityCode,
+	SecurityId,
+	Fund,
+	SecurityType,
+	Currency,
+	Quantity, 
+	realizedPnl, 
+	unrealizedPnl, 
+	Pnl
+)
+Exec PnlToDate @Now, @ITD
+select * 
 into #itdpnl
-from fnPositions(@Now) pos
-inner join SecurityMaster..Security s on s.SecurityId = pos.security_id
-inner join SecurityMaster..SecurityType st on st.SecurityTypeId = s.SecurityTypeId
+from @PnlData
+delete from @PnlData
 
-update #itdpnl
-set realizedPnl = GG
-from #itdpnl t
-inner join (
-select [When], Symbol, Fund, SUM(credit-debit) as GG from vwJournal
-where AccountType in ('REALIZED GAIN/(LOSS)') and [event] in ('realizedpnl')
-group by [When], Symbol, Fund
-) as v on v.[when] <= @Now and v.[when] > @ITD and v.fund = t.fund and v.symbol = t.SecurityCode
+delete from pnl_summary where BusDate = @Now
 
-update #itdpnl
-set unrealizedPnl = GG
-from #itdpnl t
-inner join (
-select [When], Symbol, Fund, SUM(credit-debit) as GG from vwJournal
-where AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)') and [event] in ('unrealizedpnl')
-group by [When], Symbol, Fund
-) as v on v.[when] <= @Now and v.[when] > @ITD and v.fund = t.fund and v.symbol = t.SecurityCode
-
-update #itdpnl
-set Pnl = Round(unrealizedPnl + realizedPnl,2)
-from #itdpnl
-
--- select * from #itdpnl
-
-select day.BusDate, day.SecurityCode, day.SecurityType, day.currency, day.Pnl as DayPnl, mtd.Pnl as MTDPnl, qtd.Pnl as QTDPnl, ytd.Pnl as YTDPnl, itd.Pnl as ITDPnl 
+insert into pnl_summary (BusDate, SecurityCode, SecurityId, SecurityType, Quantity, currency, DayPnl, MtdPnl, QtdPnl, YtdPnl, ItdPnl)
+select day.BusDate, day.SecurityCode, day.SecurityId, day.SecurityType, day.Quantity, day.currency, day.Pnl as DayPnl, mtd.Pnl as MTDPnl, qtd.Pnl as QTDPnl, ytd.Pnl as YTDPnl, itd.Pnl as ITDPnl 
 from #daypnl day
 inner join #mtdpnl mtd on mtd.SecurityCode = day.SecurityCode and mtd.Fund = day.Fund and mtd.SecurityType = day.SecurityType and mtd.currency = day.currency
 inner join #qtdpnl qtd on qtd.SecurityCode = day.SecurityCode and qtd.Fund = day.Fund and qtd.SecurityType = day.SecurityType and qtd.currency = day.currency

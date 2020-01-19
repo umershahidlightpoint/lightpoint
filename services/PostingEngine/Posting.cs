@@ -928,8 +928,7 @@ where business_date = @busDate";
                 {
                     "ae551383-1c97-42e9-8650-0785ed20044f",
                     "aa17610f-5403-4bd4-99c5-4100126aa655",
-                    "a213f4f3-2e5f-4529-8f7c-a2e7d4b4368a",
-                    "ca94fcfeb4e04863bf670e50dcca5150"
+                    "a213f4f3-2e5f-4529-8f7c-a2e7d4b4368a"
                 };
 
                 finalTradeList = finalTradeList.Where(t => !excludeTrade.Contains(t.LpOrderId)).ToArray();
@@ -1516,7 +1515,7 @@ where business_date = @busDate";
             */
 
             // This is client specific at the moment, depends on the population of the database
-            endDate = new DateTime(2019, 12, 17);
+            endDate = new DateTime(2019, 12, 31);
 
             //endDate = postingEnv.BusinessDate;
 

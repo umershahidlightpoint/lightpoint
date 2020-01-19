@@ -1,4 +1,5 @@
-﻿using LP.Finance.Common.Models;
+﻿using LP.Finance.Common.Model;
+using LP.Finance.Common.Models;
 using PostingEngine.MarketData;
 using PostingEngine.PostingRules.Utilities;
 using System;
@@ -308,7 +309,7 @@ namespace PostingEngine.PostingRules
                     FxRate = fxrate,
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
                     Value = moneyUSD,
-                    Event = "journal",
+                    Event = Event.JOURNAL,
                     Fund = env.GetFund(element),
                 };
 
@@ -322,7 +323,7 @@ namespace PostingEngine.PostingRules
                     FxRate = fxrate,
                     CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD),
                     Value = moneyUSD,
-                    Event = "journal",
+                    Event = Event.JOURNAL,
                     Fund = env.GetFund(element),
                 };
 

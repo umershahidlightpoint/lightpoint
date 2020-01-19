@@ -187,8 +187,6 @@ namespace PostingEngine.PostingRules
                 Quantity = quantity
             };
 
-            
-            //CalculateRealizedPnl(env, tl, taxLotToRelieve);
             CalculateRealizedPnl(env, tl);
 
             tl.Save(env.Connection, env.Transaction);
@@ -266,11 +264,11 @@ namespace PostingEngine.PostingRules
                 CreditDebit = env.DebitOrCredit(fromAccount, realizedPnl),
                 Value = env.SignedValue(fromAccount, toAccount, true, realizedPnl * -1),
                 FxRate = element.TradePrice,
-                Event = "realizedpnl",
+                Event = Event.REALIZED_PNL,
                 Fund = env.GetFund(element),
             };
 
-            var creditJournal = new Journal(element, toAccount, "realizedpnl", env.ValueDate)
+            var creditJournal = new Journal(element, toAccount, Event.REALIZED_PNL, env.ValueDate)
             {
                 StartPrice = 0,
                 EndPrice = 0,
@@ -300,11 +298,11 @@ namespace PostingEngine.PostingRules
                 CreditDebit = env.DebitOrCredit(accountToFrom.From, pnL),
                 Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, pnL),
                 FxRate = fxrate,
-                Event = "realizedpnl",
+                Event = Event.REALIZED_PNL,
                 Fund = env.GetFund(element),
             };
 
-            var creditJournal = new Journal(element, accountToFrom.To, "realizedpnl", env.ValueDate)
+            var creditJournal = new Journal(element, accountToFrom.To, Event.REALIZED_PNL, env.ValueDate)
             {
                 StartPrice = start,
                 EndPrice = end,
@@ -369,7 +367,7 @@ namespace PostingEngine.PostingRules
             var fromJournal = new Journal(element)
             {
                 When = env.ValueDate,
-                Event = "unrealizedpnl",
+                Event = Event.UNREALIZED_PNL,
                 FxRate = fxrate,
                 Fund = env.GetFund(element),
                 StartPrice = start,
@@ -467,7 +465,7 @@ namespace PostingEngine.PostingRules
                 EndPrice = taxlot.CostBasis,
                 Value = PnL,
                 FxRate = 1,
-                Event = "realizedpnl",
+                Event = Event.REALIZED_PNL,
                 Fund = env.GetFund(element),
             };
 
@@ -662,7 +660,7 @@ namespace PostingEngine.PostingRules
                     FxRate = fxrate,
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
                     Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
-                    Event = "settlement",
+                    Event = Event.SETTLEMENT,
                     Fund = env.GetFund(element)
                 };
 
@@ -680,7 +678,7 @@ namespace PostingEngine.PostingRules
 
                     CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
                     Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
-                    Event = "settlement",
+                    Event = Event.SETTLEMENT,
                     Fund = env.GetFund(element)
                 };
 

@@ -974,6 +974,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 if (source.Equals("exposure"))
                 {
                     query = "BookmonReconcile";
+                } else if (source.Equals("fundadmin"))
+                {
+                    query = "FundAdminReconcile";
                 }
             }
 

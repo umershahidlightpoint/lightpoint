@@ -1,4 +1,5 @@
-﻿using LP.Finance.Common.Models;
+﻿using LP.Finance.Common.Model;
+using LP.Finance.Common.Models;
 using PostingEngine.Contracts;
 using PostingEngine.MarketData;
 using PostingEngine.PostingRules.Utilities;
@@ -96,7 +97,7 @@ namespace PostingEngine.PostingRules
                         CreditDebit = env.DebitOrCredit(fromToAccounts.From, unrealizedPnl),
                         StartPrice = prevEodPrice,
                         EndPrice = eodPrice,
-                        Event = "unrealizedpnl",
+                        Event = Event.UNREALIZED_PNL,
                         Fund = fund,
                     };
 
@@ -108,7 +109,7 @@ namespace PostingEngine.PostingRules
                         Quantity = quantity,
                         Value = env.SignedValue(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnl),
                         CreditDebit = env.DebitOrCredit(fromToAccounts.To, env.SignedValue(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnl)),
-                        Event = "unrealizedpnl",
+                        Event = Event.UNREALIZED_PNL,
                         StartPrice = prevEodPrice,
                         EndPrice = eodPrice,
                         Fund = fund,
@@ -272,7 +273,7 @@ namespace PostingEngine.PostingRules
                                     CreditDebit = env.DebitOrCredit(fromAccount, taxlot.RealizedPnl),
                                     Value = env.SignedValue(fromAccount, toAccount, true, taxlot.RealizedPnl),
                                     FxRate = fxrate,
-                                    Event = "realizedpnl",
+                                    Event = Event.REALIZED_PNL,
                                     Fund = env.GetFund(element),
                                 };
 

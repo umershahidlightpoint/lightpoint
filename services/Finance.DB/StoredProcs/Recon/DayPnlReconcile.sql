@@ -41,12 +41,23 @@ update #temp
 set unrealizedPnl = GG
 from #temp t
 inner join (
-select [When], s.SecurityCode as Symbol, Fund, SUM(credit-debit) as GG from vwJournal v
+select [When], s.SecurityCode as Symbol, Fund, SUM(credit-debit) as GG from vwFullJournal v
 inner join SecurityMaster..Security s on s.SecurityId = v.security_id
 where (AccountType = 'CHANGE IN UNREALIZED GAIN/(LOSS)' and [event] = 'unrealizedpnl')
 or (AccountType = 'change in unrealized due to fx on original Cost' and [event] = 'daily-unrealizedpnl-fx')
 or (AccountType = 'change in unrealized do to fx translation' and [event] = 'unrealized-cash-fx')
--- and Symbol = 'MAREL NA'
+and v.SecurityType not in ( 'Equity Swap', 'FORWARD' )
+group by [When], s.SecurityCode, Fund
+) as v on v.[when] = t.BusDate and v.fund = t.fund and v.symbol = t.SecurityCode
+
+update #temp
+set unrealizedPnl = GG
+from #temp t
+inner join (
+select [When], s.SecurityCode as Symbol, Fund, SUM(credit-debit) as GG from vwFullJournal v
+inner join SecurityMaster..Security s on s.SecurityId = v.security_id
+where (AccountType = 'Change in Unrealized Derivatives Contracts at Fair Value')
+and v.SecurityType in ( 'Equity Swap', 'FORWARD' )
 group by [When], s.SecurityCode, Fund
 ) as v on v.[when] = t.BusDate and v.fund = t.fund and v.symbol = t.SecurityCode
 
@@ -61,7 +72,10 @@ coalesce(p.SecurityCode, b.SecurityCode) as Symbol,
 coalesce(p.Fund, b.Fund) as Fund, 
 coalesce(p.SecurityType, b.SecurityType) as SecurityType, 
 coalesce(p.Currency, b.Currency) as Currency,
-ROUND(coalesce(b.DayPnl,0) - coalesce(p.DayPnl,0),2) as Diff_DayPnl, 
+case
+	when ABS(ROUND(coalesce(b.DayPnl,0) - coalesce(p.DayPnl,0),2)) <= 1.0 then 0.0
+	else ROUND(coalesce(b.DayPnl,0) - coalesce(p.DayPnl,0),2) 
+end as Diff_DayPnl, 
 'BookMon -->' as BookMon, 
 b.*, 
 'PA -->' as PortfolioA, 

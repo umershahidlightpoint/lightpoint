@@ -108,8 +108,10 @@ namespace PostingEngine
             {"Cash", new CashRule() },
 
             // Forward Rule
-            {"FORWARD", new ForwardRule() },
-            {"CROSS", new ForwardRule() },
+            {"FORWARD", new Forward() },
+
+            // CROSS
+            {"CROSS", new Cross() },
 
             // Default Rule
             {"Physical index future.", new DefaultRule() },
