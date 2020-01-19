@@ -9,6 +9,7 @@ import { NgcatalystModule } from 'ngcatalyst';
 import { ReportsComponent } from './reports.component';
 import { BalanceReportComponent } from './balance-report/balance-report.component';
 import { BookmonReconcileComponent } from './bookmon-reconcile/bookmon-reconcile.component';
+import { FundAdminReconcileComponent } from './fundadmin-reconcile/fundadmin-reconcile.component';
 import { CostBasisComponent } from './costbasis/costbasis.component';
 import { DayPnlComponent } from './daypnl-reconcile/daypnl-reconcile.component';
 import { TaxLotsComponent } from './taxlots/taxlots.component';
@@ -24,6 +25,7 @@ const reportComponents = [
     ReportsComponent,
     BalanceReportComponent,
     BookmonReconcileComponent,
+    FundAdminReconcileComponent,
     CostBasisComponent,
     DayPnlComponent,
     TaxLotsComponent,

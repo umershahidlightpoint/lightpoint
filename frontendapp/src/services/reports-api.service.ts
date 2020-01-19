@@ -38,6 +38,11 @@ export class ReportsApiService {
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
+  getFundAdminReconReport(date, fund) {
+    const url = this.baseUrl + '/journal/recon?source=fundadmin&date=' + date + '&fund=' + fund;
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
+
   /*
   Get Cost Basis Report
   */

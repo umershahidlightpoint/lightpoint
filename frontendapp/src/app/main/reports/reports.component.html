@@ -35,6 +35,12 @@
       </div>
     </tab>
 
+    <tab heading="Fund Admin Reconcile" (selectTab)="activeFundAdminReport()">
+      <div [ngStyle]="style">
+        <rep-fundadmin-reconcile *ngIf="fundadminReportActive"></rep-fundadmin-reconcile>
+      </div>
+    </tab>
+
     <tab heading="Trial Balance" (selectTab)="activeTrialBalanceReport()">
       <div [ngStyle]="style">
         <rep-trial-balance *ngIf="trialBalanceReportActive"></rep-trial-balance>

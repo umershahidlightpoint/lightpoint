@@ -12,6 +12,7 @@ export class ReportsComponent implements OnInit {
   taxLotReportActive = false;
   dayPnLReportActive = false;
   bookmonReportActive = false;
+  fundadminReportActive = false;
   trialBalanceReportActive = false;
   hideGrid: boolean;
 
@@ -38,6 +39,10 @@ export class ReportsComponent implements OnInit {
 
   activeCostBasisReport() {
     this.costBasisReportActive = true;
+  }
+
+  activeFundAdminReport() {
+    this.fundadminReportActive = true;
   }
 
   activeTaxLotReport() {
