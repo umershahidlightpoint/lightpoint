@@ -4,6 +4,7 @@ import { TabsModule, ModalModule, TooltipModule } from 'ngx-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import { LpComponentsLibModule} from 'lp-components-lib';
 
 import { NgcatalystModule } from 'ngcatalyst';
 import { ReportsComponent } from './reports.component';
@@ -47,6 +48,7 @@ const reportComponents = [
         applyLabel: 'Okay',
         firstDay: 1
       }),
+    LpComponentsLibModule,
     NgcatalystModule,
     SharedModule,
     RouterModule.forChild(ReportsRoutes),

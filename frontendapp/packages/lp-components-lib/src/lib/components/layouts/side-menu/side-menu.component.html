@@ -1,0 +1,39 @@
+<!-- SideNav Main Container -->
+<div class="sidenav-container" [@onSideNavChange]="sideNavState ? 'open' : 'close'">
+
+    <!-- Nav Items Container -->
+    <div class="nav-items-container d-flex flex-column justify-content-around  h-100 ">
+
+        <!-- User Nav List -->
+        <mat-nav-list class="d-flex flex-column justify-content-start">
+            <a mat-list-item *ngFor="let page of userPages" [routerLink]="page.routerLink" title={{page?.name}}>
+                <i class="fa fa-lg {{page?.icon}}"></i>
+                <span class="ml-1" [@animateText]="linkText ? 'show' : 'hide'">{{ page?.name }} </span>
+            </a>
+        </mat-nav-list>
+        <!-- User Nav List Ends -->
+
+        <hr class="divider">
+
+        <!-- Admin Nav List -->
+        <mat-nav-list class="d-flex flex-column justify-content-end">
+            <a mat-list-item *ngFor="let page of adminPages" [routerLink]="page.routerLink" title={{page?.name}}>
+                <i class="fa fa-lg {{page?.icon}}"></i>
+                <span class="ml-1" [@animateText]="linkText ? 'show' : 'hide'">{{ page?.name }} </span>
+            </a>
+        </mat-nav-list>
+        <!-- Admin Nav List Ends -->
+
+        <!-- Toggle Menu Button -->
+        <div class="toggle-menu-button">
+            <i class="fa fa-lg mx-1"
+                [ngClass]="{'fa-arrow-circle-left': sideNavState, 'fa-arrow-circle-right': !sideNavState}"
+                aria-hidden="true" (click)="onSinenavToggle()"></i>
+        </div>
+        <!-- Expand/Collapse Button Div Ends -->
+
+    </div>
+    <!-- Nav Items Container Ends -->
+
+</div>
+<!-- SideNav Main Container Ends -->

@@ -1,12 +1,9 @@
 <div>
-    <app-header [sidenav]="leftMenu"></app-header>
-
-    <mat-sidenav-container class="sidenav-container">
-        <mat-sidenav #leftMenu mode="side" opened>
-            <app-left-menu></app-left-menu>
-        </mat-sidenav>
-        <mat-sidenav-content class="sidenav-content" [@onMainContentChange]="onSideNavChange ? 'open': 'close'">
-            <router-outlet></router-outlet>
-        </mat-sidenav-content>
-    </mat-sidenav-container>
+    <lp-header heading="Portfolio Accounting" > </lp-header>
+    <lp-main
+        [userPages]="userPages"
+        [adminPages]="adminPages"
+    >
+        <router-outlet ></router-outlet>
+    </lp-main>
 </div>

@@ -133,6 +133,41 @@
           }
         }
       }
+    },
+    "lp-components-lib": {
+      "projectType": "library",
+      "root": "packages/lp-components-lib",
+      "sourceRoot": "packages/lp-components-lib/src",
+      "prefix": "lp",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "packages/lp-components-lib/tsconfig.lib.json",
+            "project": "packages/lp-components-lib/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "packages/lp-components-lib/src/test.ts",
+            "tsConfig": "packages/lp-components-lib/tsconfig.spec.json",
+            "karmaConfig": "packages/lp-components-lib/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "packages/lp-components-lib/tsconfig.lib.json",
+              "packages/lp-components-lib/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "AccountApp"

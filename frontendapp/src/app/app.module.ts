@@ -10,6 +10,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { MaterialModule } from './material.module';
 import { ToastrModule } from 'ngx-toastr';
 import { TooltipModule } from 'ngx-bootstrap';
+import { LpComponentsLibModule} from 'lp-components-lib';
 
 /*
 Services
@@ -21,20 +22,19 @@ import { DataService } from '../services/common/data.service';
 import { AgGridUtils } from '../shared/utils/AgGridUtils';
 import { DataDictionary } from '../shared/utils/DataDictionary';
 import { PerformanceCanDeactivateGuard } from '../../src/services/guards/performance-can-deactivate-guard.service';
-
 /*
 Components
 */
 import { AppComponent } from './app.component';
-import { HeaderComponent } from './menu/header/header.component';
-import { LeftMenuComponent } from './menu/left-menu/left-menu.component';
+// import { HeaderComponent } from './menu/header/header.component';
+// import { LeftMenuComponent } from './menu/left-menu/left-menu.component';
 import { NotfoundComponent } from './main/not-found/notfound/notfound.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    HeaderComponent,
-    LeftMenuComponent,
+    // HeaderComponent,
+    // LeftMenuComponent,
     NotfoundComponent
   ],
   imports: [
@@ -44,7 +44,8 @@ import { NotfoundComponent } from './main/not-found/notfound/notfound.component'
     AppRoutingModule,
     MaterialModule,
     ToastrModule.forRoot(),
-    TooltipModule
+    TooltipModule,
+    LpComponentsLibModule
   ],
   exports: [],
   providers: [
