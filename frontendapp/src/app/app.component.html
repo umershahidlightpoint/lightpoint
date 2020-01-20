@@ -1,9 +1,8 @@
 <div>
-    <lp-header heading="Portfolio Accounting" > </lp-header>
-    <lp-main
-        [userPages]="userPages"
-        [adminPages]="adminPages"
-    >
-        <router-outlet ></router-outlet>
-    </lp-main>
+    <lp-header title="Portfolio Accounting">
+        <app-header-content></app-header-content>
+    </lp-header>
+    <lp-menu [userPages]="userPages" [adminPages]="adminPages">
+        <router-outlet></router-outlet>
+    </lp-menu>
 </div>

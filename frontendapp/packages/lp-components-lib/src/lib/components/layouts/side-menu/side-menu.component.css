@@ -1,17 +1,16 @@
 .sidenav-container {
   height: 100vh;
-  background: #f4f5f7;
 }
-  
+
 .nav-items-container {
   padding-top: 40px;
 }
-  
+
 .divider {
   width: 90%;
   border: 2px solid gray;
 }
-  
+
 .toggle-menu-button {
   padding: 0 12px;
   color: gray;
