@@ -620,7 +620,9 @@ export const FormatNumber4 = (numberToFormat: number) => {
 
 export const FormatNumber8 = (numberToFormat: number) => {
   if (numberToFormat !== null) {
-    return numberToFormat.toFixed(8);
+    const precisionNumber = numberToFormat.toFixed(8);
+    const split = precisionNumber.split(".");
+    return split[0].replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') + "." + split[1];
   }
 };
 
