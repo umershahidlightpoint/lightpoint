@@ -135,6 +135,7 @@
     <Build Include="StoredProcs\DerivativeContracts.sql" />
     <Build Include="StoredProcs\Recon\FundAdminReconcile.sql" />
     <Build Include="StoredProcs\Recon\PnlToDate.sql" />
+    <Build Include="Tables\pnl_summary.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">
