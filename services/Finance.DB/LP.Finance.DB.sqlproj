@@ -126,7 +126,6 @@
     <Build Include="Tables\trade_exclusion.sql" />
     <Build Include="StoredProcs\Recon\BookmonReconcile.sql" />
     <Build Include="StoredProcs\Recon\DayPnlReconcile.sql" />
-    <Build Include="StoredProcs\Recon\FundAdminRecon.sql" />
     <Build Include="StoredProcs\Recon\PeriodPnl.sql" />
     <Build Include="Tables\current_journals.sql" />
     <Build Include="Tables\current_trade_state.sql" />
@@ -134,6 +133,8 @@
     <Build Include="StoredProcs\SyncManualJournal.sql" />
     <Build Include="StoredProcs\UpdateManualJournal.sql" />
     <Build Include="StoredProcs\DerivativeContracts.sql" />
+    <Build Include="StoredProcs\Recon\FundAdminReconcile.sql" />
+    <Build Include="StoredProcs\Recon\PnlToDate.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">
