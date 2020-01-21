@@ -387,7 +387,7 @@ namespace PostingEngine
         {
             this.UnsettledPnl = new List<PnlData>();
 
-            var sql = $@"select credit, debit, symbol, quantity, fx_currency, fund, source, fxrate, security_id, SecurityType from vwFullJournal 
+            var sql = $@"select credit, debit, symbol, quantity, fx_currency, fund, source, fxrate, security_id, SecurityType from vwWorkingJournals 
                          where [event] = 'unrealizedpnl' 
                          and AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'Change in Unrealized Derivatives Contracts at Fair Value') 
                          and fx_currency != '{BaseCurrency}'

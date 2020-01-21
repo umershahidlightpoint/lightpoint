@@ -911,16 +911,16 @@ where business_date = @busDate";
                 if (DEBUG_TRADE_LIST)
                 { 
                     var securityTypeTags = new List<string> {
-                    "CROSS"
+                    "FORWARD"
                     };
 
                     var symbolTags = new List<string> {
-                        "GBP/USD 12/18/2019",
+                        "NDLS",
                         //"USD/CAD 3/18/2020"
                     };
 
-                    //finalTradeList = finalTradeList.Where(t => securityTypeTags.Contains(t.SecurityType)).ToArray();
-                    finalTradeList = finalTradeList.Where(t => symbolTags.Contains(t.Symbol)).ToArray();
+                    finalTradeList = finalTradeList.Where(t => securityTypeTags.Contains(t.SecurityType)).ToArray();
+                    //finalTradeList = finalTradeList.Where(t => symbolTags.Contains(t.Symbol)).ToArray();
                     //finalTradeList = finalTradeList.Where(t => t.SettleCurrency.ToLowerInvariant().Equals("gbp")).ToArray();
                 }
 

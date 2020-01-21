@@ -328,6 +328,17 @@ namespace PostingEngine.PostingRules
 
         }
 
+
+        /// <summary>
+        /// Generate all of the journal entries we need for reduction / closeout of a tax lot
+        /// </summary>
+        /// <param name="env"></param>
+        /// <param name="lot"></param>
+        /// <param name="taxlotStatus"></param>
+        /// <param name="element"></param>
+        /// <param name="workingQuantity"></param>
+        /// <param name="fxrate"></param>
+        /// <param name="multiplier"></param>
         private void GenerateJournals(PostingEngineEnvironment env, TaxLotDetail lot, TaxLotStatus taxlotStatus, Transaction element, double workingQuantity, double fxrate, double multiplier)
         {
             var buyTrade = env.FindTrade(lot.Trade.LpOrderId);

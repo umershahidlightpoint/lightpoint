@@ -138,7 +138,7 @@ namespace PostingEngine.PostingRules
 
             if (createdTaxLot.Trade.IsBuy())
             {
-                realizedPnl = priceDiff * Math.Abs(createdTaxLot.Quantity);
+                realizedPnl = priceDiff * createdTaxLot.Quantity;
             }
             else if (createdTaxLot.Trade.IsSell())
             {
@@ -146,11 +146,11 @@ namespace PostingEngine.PostingRules
             }
             else if (createdTaxLot.Trade.IsShort())
             {
-                realizedPnl = priceDiff * Math.Abs(createdTaxLot.Quantity);
+                realizedPnl = priceDiff * createdTaxLot.Quantity;
             }
             else if (createdTaxLot.Trade.IsCover())
             {
-                realizedPnl = priceDiff * Math.Abs(createdTaxLot.Quantity) * -1;
+                realizedPnl = priceDiff * createdTaxLot.Quantity * -1;
             }
 
             createdTaxLot.RealizedPnl = realizedPnl * fxrate * multiplier;
@@ -288,6 +288,19 @@ namespace PostingEngine.PostingRules
 
             new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
             new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
+
+            if ( element.IsCover() || element.IsShort())
+            {
+
+            }
+                
+            if ( element.Symbol.Equals("NDLS"))
+            {
+
+            }
+
+            if (element.IsShort() || element.IsCover())
+                pnL *= -1;
 
             var debitJournal = new Journal(element)
             {

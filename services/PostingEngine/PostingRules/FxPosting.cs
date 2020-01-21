@@ -58,13 +58,12 @@ namespace PostingEngine.PostingRules
 
             var usdEquivalent = Math.Abs(element.NetMoney) * effectiveRate;
 
-            if ( element.IsBuy() || element.IsShort())
+            if ( element.IsBuy() || element.IsSell()) // BUY || SELL
             {
-                //usdEquivalent *= -1;
             }
-            else
+            else // SHORT || COVER
             {
-
+                usdEquivalent *= -1;
             }
 
             // Get accounts
@@ -196,9 +195,9 @@ namespace PostingEngine.PostingRules
         /// <returns></returns>
         internal void CreateFxUnsettled(PostingEngineEnvironment env)
         {
-            var sql = $@"select credit, debit, symbol, quantity, fx_currency, fund, source, fxrate, security_id, side from vwFullJournal 
+            var sql = $@"select credit, debit, symbol, quantity, fx_currency, fund, source, fxrate, security_id, side from vwWorkingJournals 
                          where [event] = 'unrealizedpnl' 
-                         and AccountType = 'CHANGE IN UNREALIZED GAIN/(LOSS)' 
+                         and AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'Change in Unrealized Derivatives Contracts at Fair Value')
                          and fx_currency != '{env.BaseCurrency}'
                          and [when] < '{env.ValueDate.ToString("MM-dd-yyyy")}'";
 
