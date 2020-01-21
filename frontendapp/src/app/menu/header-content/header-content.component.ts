@@ -1,19 +1,16 @@
 import { Component, OnInit, DoCheck, AfterViewInit, Input } from '@angular/core';
-import { MatSidenav } from '@angular/material';
 import * as moment from 'moment';
 import { PostingEngineService } from 'src/services/common/posting-engine.service';
+import { PostingEngineApiService } from 'src/services/posting-engine-api.service';
 import { ServicesStatusApiService } from '../../../services/services-status-api.service';
 import { JournalApiService } from 'src/services/journal-api.service';
-import { PostingEngineApiService } from 'src/services/posting-engine-api.service';
 
 @Component({
-  selector: 'app-header',
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css']
+  selector: 'app-header-content',
+  templateUrl: './header-content.component.html',
+  styleUrls: ['./header-content.component.css']
 })
-export class HeaderComponent implements OnInit, AfterViewInit, DoCheck {
-  @Input() sidenav: MatSidenav;
-
+export class HeaderContentComponent implements OnInit, AfterViewInit, DoCheck {
   postingEngineStatus: boolean;
   progressBar: any;
   baseCurrency = 'USD'; // Driven by a System Setting

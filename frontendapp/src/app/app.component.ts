@@ -1,15 +1,10 @@
 import { MatSidenav } from '@angular/material';
-import { Component, OnInit, Injector } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Event, Router, NavigationEnd } from '@angular/router';
 import { onMainContentChange } from './menu/animations/animations';
 import { SidenavService } from '../services/common/sidenav.service';
 import { ServicesStatusApiService } from '../services/services-status-api.service';
-
-interface Page {
-  routerLink: string;
-  name: string;
-  icon: string;
-}
+import { Page } from 'lp-components-lib/lib/models/page.model';
 
 @Component({
   selector: 'app-root',
@@ -24,9 +19,9 @@ export class AppComponent implements OnInit {
 
   public userPages: Page[] = [
     {
-     name: 'Reports',
-     routerLink: '/reports',
-     icon: 'fa-bar-chart'
+      name: 'Reports',
+      routerLink: '/reports',
+      icon: 'fa-bar-chart'
     },
     {
       name: 'Data Services',
@@ -49,7 +44,8 @@ export class AppComponent implements OnInit {
     {
       name: 'Accruals OMS',
       routerLink: 'oms/accruals',
-      icon: 'fa-files-o' },
+      icon: 'fa-files-o'
+    },
     {
       name: 'Trades OMS',
       routerLink: 'oms/trade-allocation',

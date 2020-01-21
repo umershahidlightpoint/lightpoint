@@ -10,7 +10,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { MaterialModule } from './material.module';
 import { ToastrModule } from 'ngx-toastr';
 import { TooltipModule } from 'ngx-bootstrap';
-import { LpComponentsLibModule} from 'lp-components-lib';
+import { LpComponentsLibModule } from 'lp-components-lib';
 
 /*
 Services
@@ -26,14 +26,14 @@ import { PerformanceCanDeactivateGuard } from '../../src/services/guards/perform
 Components
 */
 import { AppComponent } from './app.component';
-// import { HeaderComponent } from './menu/header/header.component';
+import { HeaderContentComponent } from './menu/header-content/header-content.component';
 // import { LeftMenuComponent } from './menu/left-menu/left-menu.component';
 import { NotfoundComponent } from './main/not-found/notfound/notfound.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    // HeaderComponent,
+    HeaderContentComponent,
     // LeftMenuComponent,
     NotfoundComponent
   ],

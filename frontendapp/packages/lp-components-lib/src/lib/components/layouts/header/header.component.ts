@@ -1,6 +1,6 @@
-import { Subscription } from 'rxjs';
 import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { MatSidenav } from '@angular/material';
+import { Subscription } from 'rxjs';
 import { SidenavService } from '../../../services/sidenav.service';
 
 @Component({
@@ -9,12 +9,15 @@ import { SidenavService } from '../../../services/sidenav.service';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-  @Input() heading: string;
+  @Input() title = 'My App';
+  @Input() colorMode = 'dark';
+  @Input() backgroundColor = '#0275d8';
+  @Input() textColor = '#fff';
+
   public sidenav: MatSidenav;
   public sideNavSubscription: Subscription;
 
-  constructor(private sidenavService: SidenavService) {
-   }
+  constructor(private sidenavService: SidenavService) {}
 
   ngOnInit() {
     this.initLeftMenu();
