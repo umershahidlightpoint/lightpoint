@@ -74,26 +74,11 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
 
   journalDate: any;
 
-  selectedChartOption: any = 'CostBasis';
-  selectedChartTitle: any = 'Cost Basis';
-  chartOptions: any = [
-    { key: 'CostBasis', value: 'Cost Basis' },
-    { key: 'Balance', value: 'Balance' },
-    { key: 'Quantity', value: 'Quantity' }
-  ];
-
   ranges: any = Ranges;
 
   style = Style;
 
   styleForHeight = HeightStyle(248);
-
-  propIDCostBasis = 'CostBasisLineChart';
-  propIDBalance = 'BalanceLineChart';
-  propIDQuantity = 'QuantityLineChart';
-  divHeight = 200;
-  divWidth = '95%';
-  lineColors = ['#ff6960', '#00bd9a'];
 
   processingMsgDiv = {
     border: '1px solid #eee',
@@ -472,18 +457,6 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
         rowNode.setSelected(false);
       }
     });
-
-    /*
-    this.reportsApiService.getCostBasisChart(symbol).subscribe(response => {
-      debugger
-      this.chartData = response.payload;
-      this.chartData = this.chartData.sort((x,y) => {return new Date(y.Date).getTime() - new Date(x.Date).getTime()});
-
-      this.mapCostBasisData(response.payload, this.selectedChartOption);
-      this.mapChartsData(response.payload);
-      this.displayChart = true;
-    });
-    */
   }
 
   onRowDoubleClicked(params: RowDoubleClickedEvent) {
@@ -587,55 +560,6 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     }
   }
 
-  mapCostBasisData(data: any, chartType: string) {
-    this.labels = data.map(item => item.Date);
-    this.cbData = {
-      chartType: data.map(item => ({
-        date: FormatDate(item.Date, 'YYYY-MM-DD'),
-        value: item[chartType]
-      }))
-    };
-  }
-
-  mapChartsData(data: any) {
-    this.labels = data.map(item => item.Date);
-
-    this.bData = {
-      Balance: data.map(item => ({
-        date: FormatDate(item.Date, 'YYYY-MM-DD'),
-        value: item.Balance
-      }))
-    };
-
-    this.qData = {
-      Quantity: data.map(item => ({
-        date: FormatDate(item.Date, 'YYYY-MM-DD'),
-        value: item.Quantity
-      }))
-    };
-
-    this.unrealizedData = {
-      unrealized_pnl: data.map(item => ({
-        date: FormatDate(item.Date, 'YYYY-MM-DD'),
-        value: item.unrealized_pnl
-      }))
-    };
-
-    this.realizedData = {
-      realized_pnl: data.map(item => ({
-        date: FormatDate(item.Date, 'YYYY-MM-DD'),
-        value: item.realized_pnl
-      }))
-    };
-
-    this.netpnlData = {
-      Pnl: data.map(item => ({
-        date: FormatDate(item.Date, 'YYYY-MM-DD'),
-        value: item.Pnl
-      }))
-    };
-  }
-
   onFilterChanged() {
     this.pinnedBottomRowData = CalTotalRecords(this.gridOptions);
     this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
@@ -711,14 +635,6 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
   changeFund(selectedFund) {
     this.fund = selectedFund;
     this.getReport(this.startDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
-  }
-
-  changeChart(selectedChart) {
-    this.selectedChartOption = selectedChart;
-    this.selectedChartTitle = this.chartOptions.find(({ key }) => selectedChart === key).value;
-    if (this.chartData) {
-      this.mapCostBasisData(this.chartData, this.selectedChartOption);
-    }
   }
 
   clearFilters() {
