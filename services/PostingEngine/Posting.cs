@@ -976,7 +976,7 @@ where business_date = @busDate";
                 tradingPostingEnv.Trades = finalTradeList.Where(i => !i.SecurityType.Equals("Journals")).ToArray();
                 tradingPostingEnv.CallBack = postingEngineCallBack;
                 sw.Start();
-                int count = RunAsync(connection, transaction, tradingPostingEnv).GetAwaiter().GetResult();
+                int count = RunAsync(connection, transaction, tradingPostingEnv, false).GetAwaiter().GetResult();
                 sw.Stop();
                 new JournalLog()
                 {
@@ -995,7 +995,7 @@ where business_date = @busDate";
                 tradingPostingEnv.CallBack = postingEngineCallBack;
 
                 sw.Start();
-                count = count + RunAsync(connection, transaction, tradingPostingEnv).GetAwaiter().GetResult();
+                count = count + RunAsync(connection, transaction, tradingPostingEnv, true).GetAwaiter().GetResult();
                 sw.Stop();
 
                 new JournalLog()
@@ -1498,7 +1498,7 @@ where business_date = @busDate";
         /// <param name="transaction">Transaction</param>
         /// <param name="postingEnv">The posting environment</param>
         /// <returns></returns>
-        static async Task<int> RunAsync(SqlConnection connection, SqlTransaction transaction, PostingEngineEnvironment postingEnv)
+        static async Task<int> RunAsync(SqlConnection connection, SqlTransaction transaction, PostingEngineEnvironment postingEnv, bool journalsOnly = false)
         {
             if (postingEnv.Trades.Count() == 0)
                 return 0;
@@ -1545,8 +1545,11 @@ where business_date = @busDate";
 
                 postingEnv.ValueDate = valueDate;
                 postingEnv.PreviousValueDate = valueDate.PrevBusinessDate();
-                postingEnv.TaxRate = new TaxRates().Get(valueDate);
-                postingEnv.GetUnsettledPnl();
+                if (!journalsOnly)
+                {
+                    postingEnv.TaxRate = new TaxRates().Get(valueDate);
+                    postingEnv.GetUnsettledPnl();
+                }
 
                 var tradeData = postingEnv.Trades.Where(i => i.TradeDate <= valueDate).OrderBy(i => i.TradeTime).ToList();
 

@@ -133,9 +133,9 @@ delete from pnl_summary where BusDate = @Now
 insert into pnl_summary (BusDate, SecurityCode, SecurityId, SecurityType, Quantity, currency, DayPnl, MtdPnl, QtdPnl, YtdPnl, ItdPnl)
 select day.BusDate, day.SecurityCode, day.SecurityId, day.SecurityType, day.Quantity, day.currency, day.Pnl as DayPnl, mtd.Pnl as MTDPnl, qtd.Pnl as QTDPnl, ytd.Pnl as YTDPnl, itd.Pnl as ITDPnl 
 from #daypnl day
-inner join #mtdpnl mtd on mtd.SecurityCode = day.SecurityCode and mtd.Fund = day.Fund and mtd.SecurityType = day.SecurityType and mtd.currency = day.currency
-inner join #qtdpnl qtd on qtd.SecurityCode = day.SecurityCode and qtd.Fund = day.Fund and qtd.SecurityType = day.SecurityType and qtd.currency = day.currency
-inner join #ytdpnl ytd on ytd.SecurityCode = day.SecurityCode and ytd.Fund = day.Fund and ytd.SecurityType = day.SecurityType and ytd.currency = day.currency
-inner join #itdpnl itd on itd.SecurityCode = day.SecurityCode and itd.Fund = day.Fund and itd.SecurityType = day.SecurityType and itd.currency = day.currency
+inner join #mtdpnl mtd on mtd.SecurityId = day.SecurityId and mtd.Fund = day.Fund and mtd.SecurityType = day.SecurityType and mtd.currency = day.currency
+inner join #qtdpnl qtd on qtd.SecurityId = day.SecurityId and qtd.Fund = day.Fund and qtd.SecurityType = day.SecurityType and qtd.currency = day.currency
+inner join #ytdpnl ytd on ytd.SecurityId = day.SecurityId and ytd.Fund = day.Fund and ytd.SecurityType = day.SecurityType and ytd.currency = day.currency
+inner join #itdpnl itd on itd.SecurityId = day.SecurityId and itd.Fund = day.Fund and itd.SecurityType = day.SecurityType and itd.currency = day.currency
 
 RETURN 0
