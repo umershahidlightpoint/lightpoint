@@ -27,6 +27,12 @@
       ],
       "lp-components-lib/*": [
         "dist/lp-components-lib/*"
+      ],
+      "lp-toolkit": [
+        "dist/lp-toolkit"
+      ],
+      "lp-toolkit/*": [
+        "dist/lp-toolkit/*"
       ]
     }
   }
