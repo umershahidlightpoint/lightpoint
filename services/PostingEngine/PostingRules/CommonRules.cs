@@ -598,34 +598,9 @@ namespace PostingEngine.PostingRules
         {
             var accounttype = v;
 
-            switch (element.SecurityType)
+            if (element.IsShort() || element.IsCover())
             {
-                case "FORWARD":
-                case "Physical index future.":
-                case "Equity Swap":
-                    accounttype = "FX Mark to Market on Derivative Contracts";
-                    break;
-                default:
-                    if (element.IsShort() || element.IsCover())
-                    {
-                        accounttype = "FX MARK TO MARKET ON STOCK COST (SHORTS)";
-                    }
-                    break;
-            }
-
-            return accounttype;
-        }
-        public static string GetChangeInUnrealizedDueToFx(Transaction element, string v)
-        {
-            var accounttype = v;
-
-            switch (element.SecurityType)
-            {
-                case "FORWARD":
-                case "Physical index future.":
-                case "Equity Swap":
-                    accounttype = "Change in Unrealized Derivatives Contracts due to FX Translation";
-                    break;
+                accounttype = "FX MARK TO MARKET ON STOCK COST (SHORTS)";
             }
 
             return accounttype;

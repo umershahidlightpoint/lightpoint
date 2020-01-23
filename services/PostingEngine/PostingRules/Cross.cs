@@ -260,7 +260,14 @@ namespace PostingEngine.PostingRules
 
                         env.Journals.AddRange(new[] { credit, debit });
 
-                        CommonRules.PostRealizedPnl(env, element, realizedPnl, "CHANGE IN UNREALIZED GAIN/(LOSS)", "REALIZED GAIN/(LOSS)");
+                        var originalAccount = AccountUtils.GetDerivativeAccountType(realizedPnl);
+                        if (originalAccount.Contains("(Liabilities)"))
+                        {
+                            // This needs to be registered as a Credit to the Libabilities
+                            realizedPnl *= -1;
+                        }
+
+                        CommonRules.PostRealizedPnl(env, element, realizedPnl, originalAccount, "REALIZED GAIN/(LOSS)");
                     }
                     else // SELL
                     {
@@ -302,7 +309,14 @@ namespace PostingEngine.PostingRules
 
                         env.Journals.AddRange(new[] { credit, debit });
 
-                        CommonRules.PostRealizedPnl(env, element, realizedPnl, "CHANGE IN UNREALIZED GAIN/(LOSS)", "REALIZED GAIN/(LOSS)");
+                        var originalAccount = AccountUtils.GetDerivativeAccountType(realizedPnl);
+                        if (originalAccount.Contains("(Liabilities)"))
+                        {
+                            // This needs to be registered as a Credit to the Libabilities
+                            realizedPnl *= -1;
+                        }
+
+                        CommonRules.PostRealizedPnl(env, element, realizedPnl, originalAccount, "REALIZED GAIN/(LOSS)");
 
                     }
 

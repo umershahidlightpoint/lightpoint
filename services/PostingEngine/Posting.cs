@@ -1557,58 +1557,61 @@ where business_date = @busDate";
 
                 //PostingEngineCallBack?.Invoke($"Sorted / Filtered Trades in {sw.ElapsedMilliseconds} ms");
 
-                // BUY || SHORT trades
-                // creates tax lots
-                var buyShort = tradeData.Where(i => i.TradeDate.Equals(valueDate) && (i.IsBuy() || i.IsShort())).ToList();
-                PostingEngineCallBack?.Invoke($"Processing BUY|SHORT {buyShort.Count()} Trades");
-                foreach (var trade in buyShort)
+                if (!journalsOnly)
                 {
-                    // We only process trades that have not broken
-                    if (ignoreTrades.Contains(trade.LpOrderId))
-                        continue;
-
-                    try
+                    // BUY || SHORT trades
+                    // creates tax lots
+                    var buyShort = tradeData.Where(i => i.TradeDate.Equals(valueDate) && (i.IsBuy() || i.IsShort())).ToList();
+                    PostingEngineCallBack?.Invoke($"Processing BUY|SHORT {buyShort.Count()} Trades");
+                    foreach (var trade in buyShort)
                     {
-                        var processed = new Posting().ProcessTradeEvent(postingEnv, trade);
-                        if (!processed)
+                        // We only process trades that have not broken
+                        if (ignoreTrades.Contains(trade.LpOrderId))
+                            continue;
+
+                        try
                         {
-                            // Lets add to the ignore list
-                            ignoreTrades.Add(trade.LpOrderId);
+                            var processed = new Posting().ProcessTradeEvent(postingEnv, trade);
+                            if (!processed)
+                            {
+                                // Lets add to the ignore list
+                                ignoreTrades.Add(trade.LpOrderId);
+                            }
+                        }
+                        catch (Exception exe)
+                        {
+                            postingEnv.AddMessage(exe.Message);
+
+                            Error(exe, trade);
                         }
                     }
-                    catch (Exception exe)
+
+                    // SELL || COVER trades
+                    // alleviates tax lots
+                    // generates realized pnl.
+                    var sellCover = tradeData.Where(i => i.TradeDate.Equals(valueDate) && (i.IsSell() || i.IsCover())).ToList();
+                    PostingEngineCallBack?.Invoke($"Processing SELL|COVER {sellCover.Count()} Trades");
+                    foreach (var trade in sellCover)
                     {
-                        postingEnv.AddMessage(exe.Message);
+                        // We only process trades that have not broken
+                        if (ignoreTrades.Contains(trade.LpOrderId))
+                            continue;
 
-                        Error(exe, trade);
-                    }
-                }
-
-                // SELL || COVER trades
-                // alleviates tax lots
-                // generates realized pnl.
-                var sellCover = tradeData.Where(i => i.TradeDate.Equals(valueDate) && (i.IsSell() || i.IsCover())).ToList();
-                PostingEngineCallBack?.Invoke($"Processing SELL|COVER {sellCover.Count()} Trades");
-                foreach (var trade in sellCover)
-                {
-                    // We only process trades that have not broken
-                    if (ignoreTrades.Contains(trade.LpOrderId))
-                        continue;
-
-                    try
-                    {
-                        var processed = new Posting().ProcessTradeEvent(postingEnv, trade);
-                        if (!processed)
+                        try
                         {
-                            // Lets add to the ignore list
-                            ignoreTrades.Add(trade.LpOrderId);
+                            var processed = new Posting().ProcessTradeEvent(postingEnv, trade);
+                            if (!processed)
+                            {
+                                // Lets add to the ignore list
+                                ignoreTrades.Add(trade.LpOrderId);
+                            }
                         }
-                    }
-                    catch (Exception exe)
-                    {
-                        postingEnv.AddMessage(exe.Message);
+                        catch (Exception exe)
+                        {
+                            postingEnv.AddMessage(exe.Message);
 
-                        Error(exe, trade);
+                            Error(exe, trade);
+                        }
                     }
                 }
 

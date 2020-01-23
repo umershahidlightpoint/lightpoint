@@ -140,7 +140,7 @@ namespace PostingEngine.PostingRules
                                 var fxJournalsForInvestmentAtCost = FxPosting.CreateFx(
                                     env,
                                     CommonRules.GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"),
-                                    CommonRules.GetChangeInUnrealizedDueToFx(element, "Change in unrealized due to fx on original Cost"),
+                                    "Change in unrealized due to fx on original Cost",
                                     "daily", quantity, taxlot, element);
                                 env.Journals.AddRange(fxJournalsForInvestmentAtCost);
 
@@ -349,7 +349,7 @@ namespace PostingEngine.PostingRules
             var fxJournalsForInvestmentAtCost = FxPosting.CreateFx(
                 env,
                 CommonRules.GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"),
-                CommonRules.GetChangeInUnrealizedDueToFx(element, "Change in unrealized due to fx on original Cost"),
+                "Change in unrealized due to fx on original Cost",
                 "daily", workingQuantity, taxlotStatus, buyTrade);
             env.Journals.AddRange(fxJournalsForInvestmentAtCost);
 
@@ -420,7 +420,7 @@ namespace PostingEngine.PostingRules
                 sumFxMarkToMarket = Convert.ToDouble(dataTable[2].Rows[0][2]);
                 sumFxMarkToMarket += fxJournalsForInvestmentAtCost[0].Value;
 
-                ReversePosting(env, CommonRules.GetChangeInUnrealizedDueToFx(element, "Change in unrealized due to fx on original Cost"), CommonRules.GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"), buyTrade, sumFxMarkToMarket);
+                ReversePosting(env, "Change in unrealized due to fx on original Cost", CommonRules.GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"), buyTrade, sumFxMarkToMarket);
             }
 
 

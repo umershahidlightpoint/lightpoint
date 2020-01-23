@@ -118,8 +118,6 @@ namespace PostingEngine.PostingRules
                             {
                                 var fxJournals = FxPosting.CreateFx(
                                     env,
-                                    "DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )",
-                                    "fx gain or loss on unsettled balance",
                                     "daily",
                                     quantity, null, element);
                                 env.Journals.AddRange(fxJournals);
@@ -143,8 +141,6 @@ namespace PostingEngine.PostingRules
                     {
                         var fxJournals = FxPosting.CreateFx(
                             env,
-                            "DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )",
-                            "fx gain or loss on unsettled balance",
                             "daily",
                             element.Quantity, null, element);
                         env.Journals.AddRange(fxJournals);
@@ -152,9 +148,6 @@ namespace PostingEngine.PostingRules
                 }
 
             }
-
-            if (element.SettleCurrency.Equals(env.BaseCurrency))
-                return;
         }
 
         public void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
