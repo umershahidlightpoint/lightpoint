@@ -62,7 +62,8 @@ export class DataGridModalComponent implements OnInit {
     this.gridOptions.api.setRowData(rowData);
     this.modal.show();
     this.expandGroups();
-    this.gridOptions.api.sizeColumnsToFit();
+    AutoSizeAllColumns(this.gridOptions);
+    // this.gridOptions.api.sizeColumnsToFit();
   }
 
   expandGroups() {

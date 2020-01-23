@@ -80,4 +80,10 @@ export class ReportsApiService {
     const url = this.baseUrl + '/journal/lastPostedDate';
     return this.http.get(url).pipe(map((response: any) => response));
   }
+
+  getPeriodJournals(symbol, now, period) {
+    const url =
+    this.baseUrl + '/journal/periodJournals?symbol=' + symbol + '&now=' + now + '&period=' + period;
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
 }

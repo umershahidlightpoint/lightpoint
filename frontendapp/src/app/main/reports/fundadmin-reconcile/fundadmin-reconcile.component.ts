@@ -8,6 +8,7 @@ import { ReportsApiService } from 'src/services/reports-api.service';
 import { DataService } from '../../../../services/common/data.service';
 import { Fund } from '../../../../shared/Models/account';
 import { DataDictionary } from 'src/shared/utils/DataDictionary';
+import { AgGridUtils } from 'src/shared/utils/AgGridUtils';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { ContextMenu } from 'src/shared/Models/common';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
@@ -91,7 +92,8 @@ export class FundAdminReconcileComponent implements OnInit, AfterViewInit {
     private reportsApiService: ReportsApiService,
     private dataService: DataService,
     private downloadExcelUtils: DownloadExcelUtils,
-    public dataDictionary: DataDictionary
+    public dataDictionary: DataDictionary,
+    private agGridUtils: AgGridUtils,
   ) {
     this.hideGrid = false;
   }
@@ -358,6 +360,7 @@ export class FundAdminReconcileComponent implements OnInit, AfterViewInit {
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       rowSelection: 'single',
       onCellClicked: this.rowSelected.bind(this),
+      onRowDoubleClicked: this.onRowDoubleClickedSymbol.bind(this),
       rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
       getContextMenuItems: params => this.getContextMenuItems(params),
@@ -555,6 +558,103 @@ export class FundAdminReconcileComponent implements OnInit, AfterViewInit {
         this.title = 'Tax Lot Status';
         this.dataGridModal.openModal(columns, payload);
       });
+  }
+
+  onRowDoubleClickedSymbol(params: RowDoubleClickedEvent) {
+    const cellFocused = this.portfolioOptions.api.getFocusedCell().column.getColDef().field;
+
+    if (cellFocused === 'DayPnl') {
+      const cellHeaderName = 'day';
+      this.openDataGridModalSymbol(params.data, cellHeaderName);
+    } else if (cellFocused === 'MtdPnl') {
+      const cellHeaderName = 'mtd';
+      this.openDataGridModalSymbol(params.data, cellHeaderName);
+    } else {
+      const cellHeaderName = 'ytd';
+      this.openDataGridModalSymbol(params.data, cellHeaderName);
+    }
+
+  }
+
+  openDataGridModalSymbol(rowData: any, period) {
+    const { SecurityCode } = rowData;
+    this.reportsApiService
+      .getPeriodJournals(SecurityCode, this.startDate, period)
+      .pipe(finalize(() => this.gridOptions.api.hideOverlay()))
+      .subscribe(response => {
+        const { payload, meta } = response;
+        const someArray = this.agGridUtils.columizeData(payload, meta.Columns);
+        const columns = this.getTradeJournalColDefs(meta.Columns);
+
+        this.title = 'Trade Journals';
+        this.dataGridModal.openModal(columns, someArray);
+      });
+  }
+
+  getTradeJournalColDefs(columns): Array<ColDef | ColGroupDef> {
+    const colDefs: Array<ColDef> = [
+      this.dataDictionary.column('debit', false),
+      this.dataDictionary.column('credit', false),
+      this.dataDictionary.column('balance', false),
+      this.dataDictionary.column('when', false),
+      this.dataDictionary.column('end_price', false),
+      this.dataDictionary.column('start_price', false),
+      {
+        field: 'fund',
+        headerName: 'Fund',
+        enableRowGroup: true,
+        sortable: true,
+        filter: true
+      },
+      {
+        field: 'AccountCategory',
+        width: 120,
+        headerName: 'Category',
+        enableRowGroup: true,
+        sortable: true,
+        filter: true
+      },
+      {
+        field: 'event',
+        width: 120,
+        headerName: 'Event',
+        rowGroup: true,
+        enableRowGroup: true,
+        sortable: true,
+        filter: true
+      },
+      {
+        field: 'AccountType',
+        width: 120,
+        headerName: 'Type',
+        enableRowGroup: true,
+        sortable: true,
+        filter: true
+      },
+      {
+        field: 'AccountName',
+        width: 120,
+        headerName: 'Account Name',
+        enableRowGroup: true,
+        sortable: true,
+        filter: true
+      },
+      {
+        field: 'AccountDescription',
+        width: 120,
+        headerName: 'Account Description',
+        enableRowGroup: true,
+        sortable: true,
+        filter: true
+      }
+    ];
+
+    return this.agGridUtils.customizeColumns(
+      colDefs,
+      columns,
+      ['account_id', 'id', 'value', 'source', 'generated_by', 'Id', 'AllocationId', 'EMSOrderId'],
+      false
+    );
   }
 
   getTaxLotColDefs(): Array<ColDef | ColGroupDef> {
