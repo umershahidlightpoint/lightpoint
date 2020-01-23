@@ -28,7 +28,7 @@ import { ContextMenu } from 'src/shared/Models/common';
 @Component({
   selector: 'app-report-grid',
   templateUrl: './report-grid.component.html',
-  styleUrls: ['./report-grid.component.css']
+  styleUrls: ['./report-grid.component.scss']
 })
 export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   @Input() tableHeader: string;

@@ -33,7 +33,7 @@ import { JournalApiService } from 'src/services/journal-api.service';
 @Component({
   selector: 'app-trial-balance',
   templateUrl: './trial-balance.component.html',
-  styleUrls: ['./trial-balance.component.css']
+  styleUrls: ['./trial-balance.component.scss']
 })
 export class TrialGridExampleComponent implements OnInit, AfterContentInit {
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;

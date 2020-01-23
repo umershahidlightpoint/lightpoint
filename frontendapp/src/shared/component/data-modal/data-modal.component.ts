@@ -6,7 +6,7 @@ import { HeightStyle } from 'src/shared/utils/Shared';
 @Component({
   selector: 'app-data-modal',
   templateUrl: './data-modal.component.html',
-  styleUrls: ['./data-modal.component.css']
+  styleUrls: ['./data-modal.component.scss']
 })
 export class DataModalComponent implements OnInit, AfterViewInit {
   @ViewChild('modal', { static: false }) modal: ModalDirective;

@@ -33,7 +33,7 @@ import { finalize } from 'rxjs/operators';
 @Component({
   selector: 'rep-fundadmin-reconcile',
   templateUrl: './fundadmin-reconcile.component.html',
-  styleUrls: ['./fundadmin-reconcile.component.css']
+  styleUrls: ['./fundadmin-reconcile.component.scss']
 })
 export class FundAdminReconcileComponent implements OnInit, AfterViewInit {
   @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;

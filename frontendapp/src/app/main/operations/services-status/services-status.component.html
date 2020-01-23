@@ -23,7 +23,7 @@
         </div>
 
         <div class="status" [ngClass]="{
-            'bc-green': service.status == 'Running',
+            'primary-color': service.status == 'Running',
             'bc-red': service.status == 'Stopped'
           }">
           <span>{{ service.status }}</span>

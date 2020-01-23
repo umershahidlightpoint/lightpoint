@@ -12,7 +12,7 @@ import { JournalApiService } from 'src/services/journal-api.service';
 @Component({
   selector: 'app-journals-summay-detail',
   templateUrl: './journals-summay-detail.component.html',
-  styleUrls: ['./journals-summay-detail.component.css']
+  styleUrls: ['./journals-summay-detail.component.scss']
 })
 export class JournalsSummayDetailComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() filters: any;

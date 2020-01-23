@@ -38,7 +38,7 @@ import { DataDictionary } from 'src/shared/utils/DataDictionary';
 @Component({
   selector: 'app-taxlots-maintenance',
   templateUrl: './taxlots-maintenance.component.html',
-  styleUrls: ['./taxlots-maintenance.component.css']
+  styleUrls: ['./taxlots-maintenance.component.scss']
 })
 export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;

@@ -23,19 +23,22 @@
                 "glob": "favicon.ico",
                 "input": "src/",
                 "output": "/"
-                },
-                {
-                  "glob": "config.js",
-                  "input": "src/",
-                  "output": "/"
-                  },
-                  {
-                    "glob": "**/*",
-                    "input": "src/assets/images/",
-                    "output": "/assets/images/"
-                  }
+              },
+              {
+                "glob": "config.js",
+                "input": "src/",
+                "output": "/"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/assets/images/",
+                "output": "/assets/images/"
+              }
             ],
-            "styles": ["src/styles.css", "./node_modules/ngcatalyst/lib/styles.css"],
+            "styles": [
+              "src/styles.scss",
+              "./node_modules/ngcatalyst/lib/styles.css"
+            ],
             "scripts": [],
             "es5BrowserSupport": true
           },
@@ -93,17 +96,25 @@
             "styles": [
               "./node_modules/bootstrap/dist/css/bootstrap.min.css",
               "./node_modules/ngcatalyst/lib/styles.css",
-              "src/styles.css"
+              "src/styles.scss"
             ],
             "scripts": [],
-            "assets": ["src/favicon.ico", "src/assets"]
+            "assets": [
+              "src/favicon.ico",
+              "src/assets"
+            ]
           }
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
-            "tsConfig": ["src/tsconfig.app.json", "src/tsconfig.spec.json"],
-            "exclude": ["**/node_modules/**"]
+            "tsConfig": [
+              "src/tsconfig.app.json",
+              "src/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
           }
         }
       }
@@ -129,7 +140,9 @@
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
             "tsConfig": "e2e/tsconfig.e2e.json",
-            "exclude": ["**/node_modules/**"]
+            "exclude": [
+              "**/node_modules/**"
+            ]
           }
         }
       }
@@ -205,5 +218,10 @@
       }
     }
   },
-  "defaultProject": "AccountApp"
+  "defaultProject": "AccountApp",
+  "schematics": {
+    "@schematics/angular:component": {
+      "styleext": "scss"
+    }
+  }
 }

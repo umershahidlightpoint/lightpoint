@@ -5,7 +5,7 @@ import { DataService } from 'src/services/common/data.service';
 @Component({
   selector: 'app-reports',
   templateUrl: './reports.component.html',
-  styleUrls: ['./reports.component.css']
+  styleUrls: ['./reports.component.scss']
 })
 export class ReportsComponent implements OnInit {
   costBasisReportActive = true;

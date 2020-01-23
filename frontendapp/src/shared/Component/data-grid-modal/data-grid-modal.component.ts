@@ -7,7 +7,7 @@ import { ModalDirective } from 'ngx-bootstrap';
 @Component({
   selector: 'app-data-grid-modal',
   templateUrl: './data-grid-modal.component.html',
-  styleUrls: ['./data-grid-modal.component.css']
+  styleUrls: ['./data-grid-modal.component.scss']
 })
 export class DataGridModalComponent implements OnInit {
   @ViewChild('modal', { static: false }) modal: ModalDirective;

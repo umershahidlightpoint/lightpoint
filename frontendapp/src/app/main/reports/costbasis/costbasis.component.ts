@@ -37,7 +37,7 @@ import { ReportsApiService } from 'src/services/reports-api.service';
 @Component({
   selector: 'rep-costbasis',
   templateUrl: './costbasis.component.html',
-  styleUrls: ['./costbasis.component.css']
+  styleUrls: ['./costbasis.component.scss']
 })
 export class CostBasisComponent implements OnInit, AfterViewInit {
   gridOptions: GridOptions;

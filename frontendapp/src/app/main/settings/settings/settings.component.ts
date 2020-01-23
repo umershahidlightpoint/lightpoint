@@ -11,7 +11,7 @@ import { DataService } from 'src/services/common/data.service';
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.component.html',
-  styleUrls: ['./settings.component.css']
+  styleUrls: ['./settings.component.scss']
 })
 export class SettingsComponent implements OnInit {
   @ViewChild('settingsForm', { static: true }) settingsForm: NgForm;

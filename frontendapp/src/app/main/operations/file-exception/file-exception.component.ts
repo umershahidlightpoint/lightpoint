@@ -13,7 +13,7 @@ import { FileManagementApiService } from 'src/services/file-management-api.servi
 @Component({
   selector: 'app-file-exception',
   templateUrl: './file-exception.component.html',
-  styleUrls: ['./file-exception.component.css']
+  styleUrls: ['./file-exception.component.scss']
 })
 export class FileExceptionComponent implements OnInit, AfterViewInit {
   @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<any>;

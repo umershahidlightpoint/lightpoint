@@ -5,7 +5,7 @@ import { IAfterGuiAttachedParams } from 'ag-grid-community';
 @Component({
   selector: 'app-ag-grid-checkbox',
   templateUrl: './ag-grid-checkbox.component.html',
-  styleUrls: ['./ag-grid-checkbox.component.css']
+  styleUrls: ['./ag-grid-checkbox.component.scss']
 })
 export class AgGridCheckboxComponent implements AgRendererComponent {
   constructor() {}

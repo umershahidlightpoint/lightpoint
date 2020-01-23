@@ -7,7 +7,7 @@ import {
 @Component({
   selector: 'app-balance-report',
   templateUrl: './balance-report.component.html',
-  styleUrls: ['./balance-report.component.css']
+  styleUrls: ['./balance-report.component.scss']
 })
 export class BalanceReportComponent implements OnInit {
   @Input() trialBalanceReport: Array<TrialBalanceReport>;

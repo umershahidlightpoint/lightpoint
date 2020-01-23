@@ -23,7 +23,7 @@ import { PostingEngineApiService } from 'src/services/posting-engine-api.service
 @Component({
   selector: 'app-trades',
   templateUrl: './trades.component.html',
-  styleUrls: ['./trades.component.css']
+  styleUrls: ['./trades.component.scss']
 })
 export class TradesComponent implements OnInit, AfterViewInit {
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;

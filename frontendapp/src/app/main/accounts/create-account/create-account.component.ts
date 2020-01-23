@@ -24,7 +24,7 @@ import { AccountApiService } from 'src/services/account-api.service';
 @Component({
   selector: 'app-create-account',
   templateUrl: './create-account.component.html',
-  styleUrls: ['./create-account.component.css']
+  styleUrls: ['./create-account.component.scss']
 })
 export class CreateAccountComponent implements OnInit, OnChanges {
   editCase = false;

@@ -29,7 +29,7 @@ import { ReportsApiService } from 'src/services/reports-api.service';
 @Component({
   selector: 'rep-taxlots',
   templateUrl: './taxlots.component.html',
-  styleUrls: ['./taxlots.component.css']
+  styleUrls: ['./taxlots.component.scss']
 })
 export class TaxLotsComponent implements OnInit, AfterViewInit {
   private gridColumnApi;

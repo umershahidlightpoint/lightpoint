@@ -16,7 +16,7 @@ import { DataDictionary } from 'src/shared/utils/DataDictionary';
 @Component({
   selector: 'app-fx-rates',
   templateUrl: './fx-rates.component.html',
-  styleUrls: ['./fx-rates.component.css']
+  styleUrls: ['./fx-rates.component.scss']
 })
 export class FxRatesComponent implements OnInit {
   @ViewChild('fileInput', { static: false }) fileInput: ElementRef;

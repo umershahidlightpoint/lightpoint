@@ -8,7 +8,7 @@ import * as moment from 'moment';
 @Component({
   selector: 'app-calculation-graphs',
   templateUrl: './calculation-graphs.component.html',
-  styleUrls: ['./calculation-graphs.component.css']
+  styleUrls: ['./calculation-graphs.component.scss']
 })
 export class CalculationGraphsComponent implements OnInit, OnChanges {
   @Input() chartObject: GraphObject;

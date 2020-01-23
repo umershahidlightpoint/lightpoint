@@ -4,7 +4,7 @@ import { ServicesStatusApiService } from '../../../../services/services-status-a
 @Component({
   selector: 'app-services-status',
   templateUrl: './services-status.component.html',
-  styleUrls: ['./services-status.component.css']
+  styleUrls: ['./services-status.component.scss']
 })
 export class ServicesStatusComponent implements OnInit {
   show = false;

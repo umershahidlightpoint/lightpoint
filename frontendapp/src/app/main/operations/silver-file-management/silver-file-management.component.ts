@@ -13,7 +13,7 @@ import { FileManagementApiService } from 'src/services/file-management-api.servi
 @Component({
   selector: 'app-silver-file-management',
   templateUrl: './silver-file-management.component.html',
-  styleUrls: ['./silver-file-management.component.css']
+  styleUrls: ['./silver-file-management.component.scss']
 })
 export class SilverFileManagementComponent implements OnInit, AfterViewInit {
   @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<any>;

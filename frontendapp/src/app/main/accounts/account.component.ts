@@ -23,7 +23,7 @@ import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-mo
 @Component({
   selector: 'app-ledger-form',
   templateUrl: './account.component.html',
-  styleUrls: ['./account.component.css']
+  styleUrls: ['./account.component.scss']
 })
 export class AccountComponent implements OnInit, AfterViewInit {
   rowData: Array<Account>;

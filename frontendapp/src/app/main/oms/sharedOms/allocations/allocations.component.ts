@@ -10,7 +10,7 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 @Component({
   selector: 'app-allocations',
   templateUrl: './allocations.component.html',
-  styleUrls: ['./allocations.component.css']
+  styleUrls: ['./allocations.component.scss']
 })
 export class AllocationsComponent implements OnInit, AfterViewInit {
   public allocationsGridOptions: GridOptions;

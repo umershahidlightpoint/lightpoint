@@ -33,7 +33,7 @@ import { finalize } from 'rxjs/operators';
 @Component({
   selector: 'rep-bookmon-reconcile',
   templateUrl: './bookmon-reconcile.component.html',
-  styleUrls: ['./bookmon-reconcile.component.css']
+  styleUrls: ['./bookmon-reconcile.component.scss']
 })
 export class BookmonReconcileComponent implements OnInit, AfterViewInit {
   @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;

@@ -35,7 +35,7 @@ import { JournalApiService } from 'src/services/journal-api.service';
 @Component({
   selector: 'app-journals-ledgers',
   templateUrl: './journals-ledgers.component.html',
-  styleUrls: ['./journals-ledgers.component.css']
+  styleUrls: ['./journals-ledgers.component.scss']
 })
 export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   @ViewChild('journalModal', { static: false })

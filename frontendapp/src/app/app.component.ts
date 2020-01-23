@@ -16,7 +16,7 @@ import { Page } from 'lp-components-lib';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  styleUrls: ['./app.component.scss'],
   animations: [onMainContentChange]
 })
 export class AppComponent implements OnInit {

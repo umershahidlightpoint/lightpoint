@@ -42,7 +42,7 @@
 .status {
   border-radius: 25px;
   color: #ffffff;
-  height: 27px;
+  height: 29px;
   width: 95px;
   padding: 2px 19px;
 }
@@ -51,6 +51,10 @@
   color: rgba(0, 0, 0, 0.87);
   font-weight: 500;
   padding: 0 0 0 34px;
+}
+
+.primary-color {
+  background-color: #0275D8;
 }
 
 /* Spinner Style */
