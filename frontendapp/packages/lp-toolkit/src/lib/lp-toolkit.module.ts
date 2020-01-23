@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 import { MatSidenavModule } from '@angular/material';
 import { MatListModule } from '@angular/material/list';
 
-import { LpComponentsLibComponent } from './lp-components-lib.component';
+import { LpToolkitComponent } from './lp-toolkit.component';
 import { MenuComponent } from './components/layouts/menu/menu.component';
 import { HeaderComponent } from './components/layouts/header/header.component';
 import { SideMenuComponent } from './components/layouts/side-menu/side-menu.component';
@@ -16,7 +16,7 @@ import { NotFoundComponent } from './components/not-found/not-found.component';
 import { SidenavService } from './services/sidenav.service';
 
 const sharedComponents = [
-  LpComponentsLibComponent,
+  LpToolkitComponent,
   MenuComponent,
   HeaderComponent,
   SideMenuComponent,
@@ -33,10 +33,10 @@ const materialModules = [MatSidenavModule, MatListModule];
   exports: [CommonModule, ...sharedComponents, ...materialModules, RouterModule],
   entryComponents: []
 })
-export class LpComponentsLibModule {
-  static forRoot(): ModuleWithProviders<LpComponentsLibModule> {
+export class LpToolkitModule {
+  static forRoot(): ModuleWithProviders<LpToolkitModule> {
     return {
-      ngModule: LpComponentsLibModule,
+      ngModule: LpToolkitModule,
       providers: [SidenavService]
     };
   }
