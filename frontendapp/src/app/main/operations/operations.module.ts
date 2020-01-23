@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TabsModule } from 'ngx-bootstrap';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
-import { LpComponentsLibModule } from 'lp-components-lib';
+import { LpToolkitModule } from 'lp-toolkit';
 
 import { OperationsComponent } from './operations.component';
 import { FileExceptionComponent } from '../operations/file-exception/file-exception.component';
@@ -38,7 +38,7 @@ const operationsComponents = [
       firstDay: 1
     }),
     RouterModule.forChild(OperationsRoutes),
-    LpComponentsLibModule,
+    LpToolkitModule,
     SharedModule
   ]
 })

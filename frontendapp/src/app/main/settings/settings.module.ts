@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TabsModule } from 'ngx-bootstrap';
-import { LpComponentsLibModule } from 'lp-components-lib';
+import { LpToolkitModule } from 'lp-toolkit';
 
 // Settings Component
 import { SettingsComponent } from './settings/settings.component';
@@ -26,7 +26,7 @@ const settingsComponents = [SettingsComponent, LayoutsComponent];
     FormsModule,
     SharedModule,
     RouterModule.forChild(SettingsRoutes),
-    LpComponentsLibModule,
+    LpToolkitModule,
     SharedModule
   ]
 })

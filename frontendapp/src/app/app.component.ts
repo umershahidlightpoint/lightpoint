@@ -11,7 +11,7 @@ import { MatSidenav } from '@angular/material';
 import { onMainContentChange } from './menu/animations/animations';
 import { SidenavService } from '../services/common/sidenav.service';
 import { ServicesStatusApiService } from '../services/services-status-api.service';
-import { Page } from 'lp-components-lib';
+import { Page } from 'lp-toolkit';
 
 @Component({
   selector: 'app-root',

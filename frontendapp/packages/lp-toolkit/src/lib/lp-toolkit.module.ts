@@ -9,9 +9,9 @@ import { LpToolkitComponent } from './lp-toolkit.component';
 import { MenuComponent } from './components/layouts/menu/menu.component';
 import { HeaderComponent } from './components/layouts/header/header.component';
 import { SideMenuComponent } from './components/layouts/side-menu/side-menu.component';
-import { LoadingComponent } from './components/loading/loading.component';
-import { ProgressComponent } from './components/progress/progress.component';
 import { NotFoundComponent } from './components/not-found/not-found.component';
+import { ProgressComponent } from './components/progress/progress.component';
+import { LoadingComponent } from './components/loading/loading.component';
 
 import { SidenavService } from './services/sidenav.service';
 
@@ -20,17 +20,17 @@ const sharedComponents = [
   MenuComponent,
   HeaderComponent,
   SideMenuComponent,
-  LoadingComponent,
+  NotFoundComponent,
   ProgressComponent,
-  NotFoundComponent
+  LoadingComponent
 ];
 
 const materialModules = [MatSidenavModule, MatListModule];
 
 @NgModule({
   declarations: [...sharedComponents],
-  imports: [CommonModule, ...materialModules, RouterModule],
-  exports: [CommonModule, ...sharedComponents, ...materialModules, RouterModule],
+  imports: [CommonModule, RouterModule, ...materialModules],
+  exports: [CommonModule, RouterModule, ...materialModules, ...sharedComponents],
   entryComponents: []
 })
 export class LpToolkitModule {

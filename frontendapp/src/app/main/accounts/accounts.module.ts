@@ -5,7 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TabsModule, ModalModule, TooltipModule } from 'ngx-bootstrap';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
-import { LpComponentsLibModule } from 'lp-components-lib';
+import { LpToolkitModule } from 'lp-toolkit';
 
 import { AccountRoutes } from './accounts.route';
 import { SharedModule } from '../../shared.module';
@@ -37,7 +37,7 @@ const AccountsComponents = [
     TypeaheadModule.forRoot(),
     BsDropdownModule.forRoot(),
     RouterModule.forChild(AccountRoutes),
-    LpComponentsLibModule,
+    LpToolkitModule,
     SharedModule
   ]
 })

@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { TabsModule, ModalModule, TooltipModule } from 'ngx-bootstrap';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
-import { LpComponentsLibModule } from 'lp-components-lib';
+import { LpToolkitModule } from 'lp-toolkit';
 
 import { MaintenanceComponent } from './maintenance.component';
 import { TaxlotsMaintenanceComponent } from './taxlots-maintenance/taxlots-maintenance.component';
@@ -30,7 +30,7 @@ const maintenanceComponents = [MaintenanceComponent, TaxlotsMaintenanceComponent
       firstDay: 1
     }),
     RouterModule.forChild(MaintenanceRoutes),
-    LpComponentsLibModule,
+    LpToolkitModule,
     SharedModule
   ]
 })

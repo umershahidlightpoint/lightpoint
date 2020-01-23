@@ -5,7 +5,7 @@
     "ng": "ng",
     "start": "ng serve -o",
     "build": "ng build",
-    "lib:build": "ng build lp-tookit",
+    "lib:build": "ng build lpToolkit",
     "deploy": "copyfiles dist/AccountApp/**/* ../distribution/Web/server/",
     "test": "ng test",
     "lint": "ng lint",
