@@ -109,5 +109,10 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
         {
             throw new NotImplementedException();
         }
+
+        public object GetPeriodJournals(string symbol, DateTime now, string period)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

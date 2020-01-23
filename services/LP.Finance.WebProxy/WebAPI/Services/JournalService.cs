@@ -1541,5 +1541,20 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             return Utils.Wrap(true, resp, HttpStatusCode.OK);
         }
+
+        public object GetPeriodJournals(string symbol, DateTime now, string period)
+        {
+            List<SqlParameter> sqlParams = new List<SqlParameter>();
+            sqlParams.Add(new SqlParameter("@Now", now));
+            sqlParams.Add(new SqlParameter("@Symbol", symbol));
+            sqlParams.Add(new SqlParameter("@Period", period));
+
+            var dataTable = sqlHelper.GetDataTable("PeriodJournals", CommandType.StoredProcedure, sqlParams.ToArray());
+            var meta = MetaData.ToMetaData(dataTable);
+            var serialized = JsonConvert.SerializeObject(dataTable);
+            var data = JsonConvert.DeserializeObject(serialized);
+
+            return Utils.Wrap(true, data, HttpStatusCode.OK,"Journals fetched successfully", meta);
+        }
     }
 }

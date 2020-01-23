@@ -173,5 +173,12 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return controller.GetClosingTaxLots();
         }
+
+        [Route("periodJournals")]
+        [HttpGet]
+        public object GetPeriodJournals(string symbol, DateTime now, string period)
+        {
+            return controller.GetPeriodJournals(symbol, now, period);
+        }
     }
 }
