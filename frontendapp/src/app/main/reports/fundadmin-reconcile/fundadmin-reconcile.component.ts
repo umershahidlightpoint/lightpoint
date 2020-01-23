@@ -493,7 +493,9 @@ export class FundAdminReconcileComponent implements OnInit, AfterViewInit {
     const modifiedReconData = reconData.map(x => ({
       ...x,
       id: i++,
-      ...(x.Diff_Quantity !== 0 || x.Diff_Exposure !== 0 ? { nonZero: true } : { nonZero: false }),
+      ...(x.Diff_Quantity !== 0 || x.Diff_DayPnl !== 0 || x.Diff_MTDPnl !== 0 || x.Diff_YTDPnl !== 0
+        ? { nonZero: true }
+        : { nonZero: false }),
       ...(accountingData.find(y => y.SecurityCode === x.Symbol) === undefined
         ? { notInAccounting: true }
         : { notInAccounting: false }),

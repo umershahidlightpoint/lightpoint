@@ -7,20 +7,18 @@ import { Router } from '@angular/router';
   styleUrls: ['./not-found.component.css']
 })
 export class NotFoundComponent implements OnInit {
-
   @Input() imgPath: string;
   @Input() route: string;
-  @Input() btnText: string;
-  @Input() btnTextColor: string;
-  @Input() btnBgColor: string;
-  @Input() backgroundColor: string;
+  @Input() btnText: 'GO TO HOMEPAGE';
+  @Input() btnTextColor: '#dbd8d0';
+  @Input() btnBgColor: '#007bff';
+  @Input() backgroundColor: '#0275d8';
 
-  constructor(private router: Router) { }
+  constructor(private router: Router) {}
 
   ngOnInit() {}
 
   redirect() {
     this.router.navigateByUrl(this.route);
   }
-
 }

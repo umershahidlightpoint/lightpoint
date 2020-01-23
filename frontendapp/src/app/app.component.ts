@@ -7,20 +7,15 @@ import {
   NavigationCancel,
   NavigationError
 } from '@angular/router';
-import { MatSidenav } from '@angular/material';
-import { onMainContentChange } from './menu/animations/animations';
-import { SidenavService } from '../services/common/sidenav.service';
 import { ServicesStatusApiService } from '../services/services-status-api.service';
 import { Page } from 'lp-toolkit';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
-  animations: [onMainContentChange]
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  public onSideNavChange: boolean;
   public userPages: Page[] = [
     {
       name: 'Reports',
@@ -81,18 +76,9 @@ export class AppComponent implements OnInit {
     }
   ];
 
-  leftMenu: MatSidenav;
   isNavigating = false;
 
-  constructor(
-    private router: Router,
-    private sidenavService: SidenavService,
-    public servicesStatusApiService: ServicesStatusApiService
-  ) {
-    this.sidenavService.sideNavState$.subscribe(res => {
-      this.onSideNavChange = res;
-    });
-
+  constructor(private router: Router, public servicesStatusApiService: ServicesStatusApiService) {
     // Only Hit API, Once Navigation Finish
     this.router.events.subscribe((event: Event) => {
       if (event instanceof NavigationStart) {
