@@ -1,6 +1,7 @@
 ﻿/*
 select * from fnPositions('2019-12-31')
 exec PnlToDate '2019-12-31', '2019-01-01'
+exec PnlToDate '2019-12-31', '2019-12-01'
 */
 
 CREATE PROCEDURE [dbo].[PnlToDate]
@@ -19,37 +20,36 @@ inner join SecurityMaster..SecurityType st on st.SecurityTypeId = s.SecurityType
 group by business_date, SecurityCode, SecurityId, Fund, st.SecurityTypeCode, pos.currency
 
 update #results
-set realizedPnl = GG
+set realizedPnl = coalesce(GG,0)
 from #results t
 inner join (
-select [When], Symbol, Fund, SUM(credit-debit) as GG from current_journal
+select Symbol, Fund, SUM(credit-debit) as GG from current_journal
 where AccountType in ('REALIZED GAIN/(LOSS)') and [event] in ('realizedpnl')
-group by [When], Symbol, Fund
-) as v on v.[when] >= @From and v.[when] <= @Now and v.fund = t.fund and v.symbol = t.SecurityCode
+and [when] >= @From and [when] <= @Now
+group by Symbol, Fund
+) as v on v.fund = t.fund and v.symbol = t.SecurityCode
 
 update #results
-set unrealizedPnl = GG
+set unrealizedPnl = coalesce(GG,0)
 from #results t
 inner join (
-select [When], s.SecurityCode as Symbol, Fund, SUM(credit-debit) as GG from vwFullJournal v
-inner join SecurityMaster..Security s on s.SecurityId = v.security_id
+select Symbol, Fund, SUM(credit-debit) as GG from vwFullJournal v
 where (AccountType = 'CHANGE IN UNREALIZED GAIN/(LOSS)' and [event] = 'unrealizedpnl')
-or (AccountType = 'change in unrealized due to fx on original Cost' and [event] = 'daily-unrealizedpnl-fx')
-or (AccountType = 'change in unrealized do to fx translation' and [event] = 'unrealized-cash-fx')
 and v.SecurityType not in ( 'Equity Swap', 'FORWARD' )
-group by [When], s.SecurityCode, Fund
-) as v on v.[when] >= @From and v.[when] <= @Now and v.fund = t.fund and v.symbol = t.SecurityCode
+and v.[when] >= @From and v.[when] <= @Now
+group by Symbol, Fund
+) as v on v.fund = t.fund and v.symbol = t.SecurityCode
 
 update #results
 set unrealizedPnl = GG
 from #results t
 inner join (
-select [When], s.SecurityCode as Symbol, Fund, SUM(credit-debit) as GG from vwFullJournal v
-inner join SecurityMaster..Security s on s.SecurityId = v.security_id
+select Symbol, Fund, SUM(credit-debit) as GG from vwFullJournal v
 where (AccountType = 'Change in Unrealized Derivatives Contracts at Fair Value')
 and v.SecurityType in ( 'Equity Swap', 'FORWARD' )
-group by [When], s.SecurityCode, Fund
-) as v on v.[when] >= @From and v.[when] <= @Now and v.fund = t.fund and v.symbol = t.SecurityCode
+and v.[when] >= @From and v.[when] <= @Now
+group by Symbol, Fund
+) as v on v.fund = t.fund and v.symbol = t.SecurityCode
 
 update #results
 set Pnl = Round(unrealizedPnl + realizedPnl,2)
