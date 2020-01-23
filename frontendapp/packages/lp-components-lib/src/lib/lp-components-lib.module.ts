@@ -10,6 +10,7 @@ import { MenuComponent } from './components/layouts/menu/menu.component';
 import { HeaderComponent } from './components/layouts/header/header.component';
 import { SideMenuComponent } from './components/layouts/side-menu/side-menu.component';
 import { LoadingComponent } from './components/loading/loading.component';
+import { ProgressComponent } from './components/progress/progress.component';
 
 import { SidenavService } from './services/sidenav.service';
 
@@ -18,7 +19,8 @@ const sharedComponents = [
   MenuComponent,
   HeaderComponent,
   SideMenuComponent,
-  LoadingComponent
+  LoadingComponent,
+  ProgressComponent
 ];
 
 const materialModules = [MatSidenavModule, MatListModule];

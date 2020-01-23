@@ -30,6 +30,7 @@ export class SettingsComponent implements OnInit {
   requestType = 'PUT';
   isLoading = true;
   isSaving = false;
+  isGridViewsActive = false;
   hideGrid: boolean;
 
   private gridOptions: GridOptions;
@@ -89,6 +90,16 @@ export class SettingsComponent implements OnInit {
     });
 
     // this.alignGrids();
+  }
+
+  activateTab(tab: string) {
+    switch (tab) {
+      case 'GridViews':
+        this.isGridViewsActive = true;
+        break;
+      default:
+        break;
+    }
   }
 
   onChangeReportingMonth(selectedMonth) {

@@ -113,24 +113,29 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-      this.initGrid();
-      this.getLatestJournalDate();
-      this.getFunds();
-      //In case we need to enable filter by symbol from server side
-      // this.filterSubject.pipe(debounce(() => timer(1000))).subscribe(() => {
-      //   this.getReport(this.startDate, this.filterBySymbol, this.fund === 'All Funds' ? 'ALL' : this.fund);
-      // });
+    this.initGrid();
+    this.getLatestJournalDate();
+    this.getFunds();
+    // In case we need to enable filter by symbol from server side
+    // this.filterSubject.pipe(debounce(() => timer(1000))).subscribe(() => {
+    //   this.getReport(this.startDate, this.filterBySymbol, this.fund === 'All Funds' ? 'ALL' : this.fund);
+    // });
   }
 
-  getLatestJournalDate(){
-    this.reportsApiService.getLatestJournalDate().subscribe(date => {
-      if (date.isSuccessful && date.statusCode === 200) {
-        this.journalDate = date.payload[0].when;
-        this.startDate = this.journalDate;
-        this.selectedDate = { startDate: moment(this.startDate, 'YYYY-MM-DD'), endDate: moment(this.endDate, 'YYYY-MM-DD') };
-      }},
-    error => {
-    });
+  getLatestJournalDate() {
+    this.reportsApiService.getLatestJournalDate().subscribe(
+      date => {
+        if (date.isSuccessful && date.statusCode === 200) {
+          this.journalDate = date.payload[0].when;
+          this.startDate = this.journalDate;
+          this.selectedDate = {
+            startDate: moment(this.startDate, 'YYYY-MM-DD'),
+            endDate: moment(this.endDate, 'YYYY-MM-DD')
+          };
+        }
+      },
+      error => {}
+    );
   }
 
   initGrid() {
@@ -354,17 +359,19 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   getReport(date, symbol, fund) {
     this.isLoading = true;
     this.gridOptions.api.showLoadingOverlay();
-    this.reportsApiService.getCostBasisReport(moment(date).format('YYYY-MM-DD'), symbol, fund).subscribe(response => {
-      this.trialBalanceReportStats = response.stats;
-      this.trialBalanceReport = response.payload;
-      if (this.trialBalanceReport.length === 0) {
-        this.timeseriesOptions.api.setRowData([]);
-        this.displayChart = false;
-      }
-      this.gridOptions.api.setRowData(this.trialBalanceReport);
-      this.gridOptions.api.sizeColumnsToFit();
-      this.isLoading = false;
-    });
+    this.reportsApiService
+      .getCostBasisReport(moment(date).format('YYYY-MM-DD'), symbol, fund)
+      .subscribe(response => {
+        this.trialBalanceReportStats = response.stats;
+        this.trialBalanceReport = response.payload;
+        if (this.trialBalanceReport.length === 0) {
+          this.timeseriesOptions.api.setRowData([]);
+          this.displayChart = false;
+        }
+        this.gridOptions.api.setRowData(this.trialBalanceReport);
+        this.gridOptions.api.sizeColumnsToFit();
+        this.isLoading = false;
+      });
   }
 
   rowSelected(row) {

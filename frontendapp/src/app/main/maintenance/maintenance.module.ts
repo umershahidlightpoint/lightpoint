@@ -1,21 +1,19 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TabsModule, ModalModule, TooltipModule } from 'ngx-bootstrap';
+import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { TabsModule, ModalModule, TooltipModule } from 'ngx-bootstrap';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import { LpComponentsLibModule } from 'lp-components-lib';
 
 import { MaintenanceComponent } from './maintenance.component';
 import { TaxlotsMaintenanceComponent } from './taxlots-maintenance/taxlots-maintenance.component';
 
-import { RouterModule } from '@angular/router';
 import { SharedModule } from '../../shared.module';
 import { MaintenanceRoutes } from './maintenance.route';
 
-const maintenanceComponents = [
-     MaintenanceComponent,
-     TaxlotsMaintenanceComponent
-  ];
+const maintenanceComponents = [MaintenanceComponent, TaxlotsMaintenanceComponent];
 
 @NgModule({
   declarations: [...maintenanceComponents],
@@ -28,11 +26,12 @@ const maintenanceComponents = [
     FormsModule,
     BsDropdownModule.forRoot(),
     NgxDaterangepickerMd.forRoot({
-        applyLabel: 'Okay',
-        firstDay: 1
-      }),
-    SharedModule,
+      applyLabel: 'Okay',
+      firstDay: 1
+    }),
     RouterModule.forChild(MaintenanceRoutes),
+    LpComponentsLibModule,
+    SharedModule
   ]
 })
-export class MaintenanceModule { }
+export class MaintenanceModule {}

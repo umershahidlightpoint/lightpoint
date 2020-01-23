@@ -1,10 +1,11 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TabsModule, ModalModule, TooltipModule } from 'ngx-bootstrap';
+import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { TabsModule, ModalModule, TooltipModule } from 'ngx-bootstrap';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
-import { RouterModule } from '@angular/router';
+import { LpComponentsLibModule } from 'lp-components-lib';
 
 import { AccountRoutes } from './accounts.route';
 import { SharedModule } from '../../shared.module';
@@ -16,12 +17,12 @@ import { ChartOfAccountComponent } from './account-mapping/chart-of-account/char
 import { ChartOfAccountDetailComponent } from './account-mapping/chart-of-account-detail/chart-of-account-detail.component';
 
 const AccountsComponents = [
-    AccountComponent,
-    CreateAccountComponent,
-    AccountMappingComponent,
-    ChartOfAccountComponent,
-    ChartOfAccountDetailComponent
-  ];
+  AccountComponent,
+  CreateAccountComponent,
+  AccountMappingComponent,
+  ChartOfAccountComponent,
+  ChartOfAccountDetailComponent
+];
 
 @NgModule({
   declarations: [...AccountsComponents],
@@ -35,10 +36,9 @@ const AccountsComponents = [
     ReactiveFormsModule,
     TypeaheadModule.forRoot(),
     BsDropdownModule.forRoot(),
-    SharedModule,
     RouterModule.forChild(AccountRoutes),
+    LpComponentsLibModule,
     SharedModule
   ]
 })
-
-export class AccountsModule { }
+export class AccountsModule {}

@@ -4,7 +4,7 @@ import { TabsModule, ModalModule, TooltipModule } from 'ngx-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
-import { LpComponentsLibModule} from 'lp-components-lib';
+import { LpComponentsLibModule } from 'lp-components-lib';
 
 import { NgcatalystModule } from 'ngcatalyst';
 import { ReportsComponent } from './reports.component';
@@ -21,18 +21,17 @@ import { RouterModule } from '@angular/router';
 import { ReportsRoutes } from './reports.routes';
 import { SharedModule } from '../../shared.module';
 
-
 const reportComponents = [
-    ReportsComponent,
-    BalanceReportComponent,
-    BookmonReconcileComponent,
-    FundAdminReconcileComponent,
-    CostBasisComponent,
-    DayPnlComponent,
-    TaxLotsComponent,
-    TaxLotStatusComponent,
-    TrialBalanceComponent,
-  ];
+  ReportsComponent,
+  BalanceReportComponent,
+  BookmonReconcileComponent,
+  FundAdminReconcileComponent,
+  CostBasisComponent,
+  DayPnlComponent,
+  TaxLotsComponent,
+  TaxLotStatusComponent,
+  TrialBalanceComponent
+];
 
 @NgModule({
   declarations: [...reportComponents],
@@ -45,14 +44,14 @@ const reportComponents = [
     FormsModule,
     BsDropdownModule.forRoot(),
     NgxDaterangepickerMd.forRoot({
-        applyLabel: 'Okay',
-        firstDay: 1
-      }),
-    LpComponentsLibModule,
+      applyLabel: 'Okay',
+      firstDay: 1
+    }),
     NgcatalystModule,
+    LpComponentsLibModule,
     SharedModule,
     RouterModule.forChild(ReportsRoutes),
     SharedModule
   ]
 })
-export class ReportsModule { }
+export class ReportsModule {}

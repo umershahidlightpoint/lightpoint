@@ -52,7 +52,7 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
 
   initGrid() {
     this.gridOptions = {
-      rowData: [],
+      rowData: null,
       sideBar: SideBar,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       pinnedBottomRowData: null,

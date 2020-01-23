@@ -8,9 +8,9 @@
 
 <!-- Loader -->
 <div *ngIf="isLoading" class="loader-wrapper mtop-15">
-  <app-loader [loadingText]="true"></app-loader>
-  <!-- Loader -->
+  <lp-loading></lp-loading>
 </div>
+<!-- Loader -->
 
 <!-- Reports Main Div Starts -->
 <div [hidden]="!show || isLoading" [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">

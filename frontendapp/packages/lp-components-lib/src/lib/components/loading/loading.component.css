@@ -1,0 +1,9 @@
+.spinner-grow {
+  width: 4rem;
+  height: 4rem;
+}
+
+.spinner-text {
+  font-weight: 300;
+  font-size: 1.4em;
+}

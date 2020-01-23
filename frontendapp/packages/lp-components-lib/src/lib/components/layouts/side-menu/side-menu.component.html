@@ -10,7 +10,8 @@
             <a mat-list-item *ngFor="let page of userPages" [routerLink]="page.routerLink" title={{page?.name}}>
                 <i [ngClass]="{'text-light': colorMode === 'dark', 'text-dark': colorMode === 'light'}"
                     class="fa fa-lg {{page?.icon}}"></i>
-                <span class="ml-1" [@animateText]="linkText ? 'show' : 'hide'">{{ page?.name }} </span>
+                <span [ngClass]="{'text-light': colorMode === 'dark', 'text-dark': colorMode === 'light'}" class="ml-1"
+                    [@animateText]="linkText ? 'show' : 'hide'">{{ page?.name }} </span>
             </a>
         </mat-nav-list>
         <!-- User Nav List Ends -->
@@ -22,7 +23,8 @@
             <a mat-list-item *ngFor="let page of adminPages" [routerLink]="page.routerLink" title={{page?.name}}>
                 <i [ngClass]="{'text-light': colorMode === 'dark', 'text-dark': colorMode === 'light'}"
                     class="fa fa-lg {{page?.icon}}"></i>
-                <span class="ml-1" [@animateText]="linkText ? 'show' : 'hide'">{{ page?.name }} </span>
+                <span [ngClass]="{'text-light': colorMode === 'dark', 'text-dark': colorMode === 'light'}" class="ml-1"
+                    [@animateText]="linkText ? 'show' : 'hide'">{{ page?.name }} </span>
             </a>
         </mat-nav-list>
         <!-- Admin Nav List Ends -->
