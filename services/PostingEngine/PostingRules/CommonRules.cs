@@ -289,18 +289,17 @@ namespace PostingEngine.PostingRules
             new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
             new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
 
-            if ( element.IsCover() || element.IsShort())
+
+            if (element.IsDerivative())
             {
-
-            }
-                
-            if ( element.Symbol.Equals("NDLS"))
-            {
-
-            }
-
-            if (element.IsShort() || element.IsCover())
+                // Need to Credit the From and Debit the to
                 pnL *= -1;
+            }
+            else
+            {
+                if (element.IsShort() || element.IsCover())
+                    pnL *= -1;
+            }
 
             var debitJournal = new Journal(element)
             {

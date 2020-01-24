@@ -907,16 +907,16 @@ where business_date = @busDate";
                 update = finalTradeList.Where(t => t.Symbol.Equals("TWE AU EQUITY SWAP")).ToArray();
                 foreach (var t in update) { t.Symbol = "TWE AU SWAP"; t.SecurityId = 32669; }
 
-                const bool DEBUG_TRADE_LIST = false;
+                const bool DEBUG_TRADE_LIST = true;
                 if (DEBUG_TRADE_LIST)
                 { 
                     var securityTypeTags = new List<string> {
-                    "FORWARD"
+                    "CROSS", "FORWARD"
                     };
 
                     var symbolTags = new List<string> {
-                        "NDLS",
-                        //"USD/CAD 3/18/2020"
+                        //"NDLS",
+                        "USD/CAD 09/18/2019"
                     };
 
                     finalTradeList = finalTradeList.Where(t => securityTypeTags.Contains(t.SecurityType)).ToArray();

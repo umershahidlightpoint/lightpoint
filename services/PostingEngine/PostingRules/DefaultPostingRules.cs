@@ -168,59 +168,6 @@ namespace PostingEngine.PostingRules
                 }
 
                 }
-
-            if (element.SettleCurrency.Equals(env.BaseCurrency))
-                return;
-
-            /*
-            if ( env.ValueDate > element.TradeDate && env.ValueDate <= element.SettleDate)
-            {
-                var prev = Convert.ToDouble(FxRates.Find(env.PreviousValueDate, element.SettleCurrency).Rate);
-                var eod = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
-
-                var local = Convert.ToDouble(element.NetMoney);
-
-                var changeDelta = eod - prev;
-                var change = changeDelta * local * -1;
-                var fromTo = new AccountUtils().GetAccounts(env, "Settled Cash", "fx gain or loss on settled balance", new string[] { element.SettleCurrency }.ToList());
-
-                var debit = new Journal(fromTo.From, "settled-cash-fx", env.ValueDate)
-                {
-                    Source = element.LpOrderId,
-                    Fund = element.Fund,
-                    Quantity = local,
-
-                    FxCurrency = element.SettleCurrency,
-                    Symbol = element.Symbol,
-                    SecurityId = element.SecurityId,
-                    FxRate = changeDelta,
-                    StartPrice = prev,
-                    EndPrice = eod,
-
-                    Value = env.SignedValue(fromTo.From, fromTo.To, true, change),
-                    CreditDebit = env.DebitOrCredit(fromTo.From, change),
-                };
-
-                var credit = new Journal(fromTo.To, "settled-cash-fx", env.ValueDate)
-                {
-                    Source = element.LpOrderId,
-                    Fund = element.Fund,
-                    Quantity = local,
-
-                    FxCurrency = element.SettleCurrency,
-                    Symbol = element.Symbol,
-                    SecurityId = element.SecurityId,
-                    FxRate = changeDelta,
-                    StartPrice = prev,
-                    EndPrice = eod,
-
-                    Value = env.SignedValue(fromTo.From, fromTo.To, false, change),
-                    CreditDebit = env.DebitOrCredit(fromTo.To, change),
-                };
-
-                env.Journals.AddRange(new[] { debit, credit });
-            }
-                */
         }
         internal void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {

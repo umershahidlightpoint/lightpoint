@@ -152,6 +152,8 @@ namespace PostingEngine.PostingRules
 
         public void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
+            CommonRules.GenerateSettlementDateJournals(env, element);
+
             // On Settlement Date we backout the Tax Lot for FORWARDS
             if (env.TaxLotStatus.ContainsKey(element.LpOrderId))
             {
@@ -195,152 +197,7 @@ namespace PostingEngine.PostingRules
                 fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
             }
 
-            if ( element.IsBuy() || element.IsShort())
-            {
-                var t1 = env.GenerateOpenTaxLot(element, fxrate);
-
-                if ( element.Quantity == 0 )
-                {
-                    // TODO: Need to review this as we need to see if there is a parent, and what the parents actuall is
-                    return;
-                }
-            }
-            else if (element.IsSell() || element.IsCover())
-            {
-                // Get Matching Lots
-                var openLots = env.Methodology.GetOpenLots(env, element);
-
-                if ( openLots.Count() == 0)
-                {
-                    var t1 = env.GenerateOpenTaxLot(element, fxrate);
-
-                    // Whats going on here?
-                    // We are skipping anything that does not get an OpenLot
-                    env.AddMessage($"Created an Open Tax Lot for {element.Symbol}::{element.Side}");
-                }
-                else
-                {
-                    var workingQuantity = element.Quantity;
-
-                    foreach( var lot in openLots)
-                    {
-                        if (workingQuantity == 0)
-                            break;
-
-                        if ( !env.TaxLotStatus.ContainsKey(lot.Trade.LpOrderId))
-                        {
-                            Logger.Warn($"Unable to Find Tax Lot for {lot.Trade.Symbol}::{lot.Trade.Side}::{lot.Trade.Status}");
-                            // TODO: For this open lot there should be a corresponding open to 
-                            //Logger.Warn($"Unable to Find Tax Lot for {lot.Trade.Symbol}::{lot.Trade.Side}::{lot.Trade.Status}");
-                            continue;
-                        }
-
-                        var taxlotStatus = env.TaxLotStatus[lot.Trade.LpOrderId];
-                        if (taxlotStatus != null && taxlotStatus.Quantity != 0 && !taxlotStatus.Status.ToLowerInvariant().Equals("closed"))
-                        {
-                            // Does the open Lot fully fullfill the quantity ?
-                            if (Math.Abs(taxlotStatus.Quantity) >= Math.Abs(workingQuantity))
-                            {
-                                var buyTrade = env.FindTrade(lot.Trade.LpOrderId);
-
-                                var taxlot = CommonRules.RelieveTaxLot(env, lot, element, workingQuantity, true);
-
-                                taxlotStatus.Quantity += workingQuantity;
-                                if (taxlotStatus.Quantity == 0)
-                                    taxlotStatus.Status = "Closed";
-                                else
-                                    taxlotStatus.Status = "Partially Closed";
-
-                                var prevPrice = MarketPrices.Find(env.PreviousValueDate, lot.Trade).Price;
-                                var unrealizedPnl = taxlotStatus.Quantity * (element.SettleNetPrice - prevPrice) * fxrate;
-
-                                CommonRules.PostUnRealizedPnl(
-                                    env,
-                                    buyTrade, 
-                                    unrealizedPnl,
-                                    MarketPrices.Find(env.PreviousValueDate, lot.Trade).Price,
-                                    element.SettleNetPrice, fxrate);
-
-                                var PnL = Math.Abs(taxlot.Quantity) * (taxlot.CostBasis - taxlot.TradePrice) * fxrate;
-                                CommonRules.PostRealizedPnl(
-                                    env,
-                                    buyTrade, 
-                                    taxlot.RealizedPnl,
-                                    taxlot.TradePrice,
-                                    taxlot.CostBasis, fxrate);
-
-                                var listOfFromTags = new List<Tag>
-                                    {
-                                        Tag.Find("SecurityType"),
-                                        Tag.Find("CustodianCode")
-                                    };
-
-                                if (!element.IsDerivative())
-                                {
-                                    Logger.Error($"Should not be here");
-                                    break;
-                                }
-
-                                var markToMarketAccount = "Mark to Market Derivatives Contracts at Fair Value (Assets)";
-                                if (taxlot.RealizedPnl > 0 )
-                                {
-                                    markToMarketAccount = "Mark to Market Derivatives Contracts at Fair Value (Liabilities)";
-                                }
-                                var account = "Change in Unrealized Derivatives Contracts at Fair Value";
-
-                                var fromAccount = new AccountUtils().CreateAccount(AccountType.All.Where(i => i.Name.Equals(account)).FirstOrDefault(), listOfFromTags, element);
-                                var toAccount = new AccountUtils().CreateAccount(AccountType.All.Where(i => i.Name.Equals(markToMarketAccount)).FirstOrDefault(), listOfFromTags, element);
-
-                                new AccountUtils().SaveAccountDetails(env, fromAccount);
-                                new AccountUtils().SaveAccountDetails(env, toAccount);
-
-
-                                // Now Generate Entries
-                                var fromJournal = new Journal(element)
-                                {
-                                    Account = fromAccount,
-                                    CreditDebit = env.DebitOrCredit(fromAccount, taxlot.RealizedPnl),
-                                    Value = taxlot.RealizedPnl,
-
-                                    When = env.ValueDate,
-                                    StartPrice = taxlot.TradePrice,
-                                    EndPrice = taxlot.CostBasis,
-                                    FxRate = 1.0,
-                                    Event = Event.REALIZED_PNL,
-                                    Fund = env.GetFund(element),
-                                };
-
-                                var toJournal = new Journal(fromJournal)
-                                {
-                                    Account = toAccount,
-                                    CreditDebit = env.DebitOrCredit(toAccount, taxlot.RealizedPnl),
-                                    Value = taxlot.RealizedPnl * -1,
-                                };
-
-                                env.Journals.AddRange(new[] { fromJournal, toJournal });
-
-                                break;
-                            }
-                            else
-                            {
-                                var taxlot = CommonRules.RelieveTaxLot(env, lot, element, taxlotStatus.Quantity * -1);
-
-                                workingQuantity += taxlotStatus.Quantity;
-
-                                CommonRules.PostRealizedPnl(env, element, taxlot.RealizedPnl, taxlot.TradePrice, taxlot.CostBasis,fxrate);
-
-                                taxlotStatus.Quantity = 0;
-                                taxlotStatus.Status = "Closed";
-                            }
-                        }
-                    }                    
-                }
-
-            }
-            else
-            {
-                // We have a Debit / Credit Dividends
-            }
+            var t1 = env.GenerateOpenTaxLot(element, fxrate);
         }
     }
 }
