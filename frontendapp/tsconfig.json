@@ -22,11 +22,11 @@
       "@angular/core/src/metadata/*": [
         "./node_modules/@angular/core"
       ],
-      "lp-components-lib": [
-        "dist/lp-components-lib"
+      "lp-toolkit": [
+        "dist/lp-toolkit"
       ],
-      "lp-components-lib/*": [
-        "dist/lp-components-lib/*"
+      "lp-toolkit/*": [
+        "dist/lp-toolkit/*"
       ]
     }
   }

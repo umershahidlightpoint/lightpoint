@@ -8,7 +8,7 @@ import { JournalApiService } from 'src/services/journal-api.service';
 @Component({
   selector: 'app-header-content',
   templateUrl: './header-content.component.html',
-  styleUrls: ['./header-content.component.css']
+  styleUrls: ['./header-content.component.scss']
 })
 export class HeaderContentComponent implements OnInit, AfterViewInit, DoCheck {
   postingEngineStatus: boolean;

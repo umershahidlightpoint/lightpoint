@@ -5,7 +5,7 @@ import { DataService } from 'src/services/common/data.service';
 @Component({
   selector: 'app-journals-layout',
   templateUrl: './journals-layout.component.html',
-  styleUrls: ['./journals-layout.component.css']
+  styleUrls: ['./journals-layout.component.scss']
 })
 export class JournalsLayoutComponent implements OnInit, AfterViewInit {
   hideGrid = false;

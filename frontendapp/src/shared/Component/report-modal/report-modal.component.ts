@@ -16,7 +16,7 @@ import { HeightStyle } from "src/shared/utils/Shared";
 @Component({
   selector: "app-report-modal",
   templateUrl: "./report-modal.component.html",
-  styleUrls: ["./report-modal.component.css"]
+  styleUrls: ["./report-modal.component.scss"]
 })
 export class ReportModalComponent implements OnInit {
   @ViewChild("modal", { static: false }) modal: ModalDirective;

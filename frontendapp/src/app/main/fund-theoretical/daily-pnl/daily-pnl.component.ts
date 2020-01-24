@@ -22,7 +22,7 @@ import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.ser
 @Component({
   selector: 'app-daily-pnl',
   templateUrl: './daily-pnl.component.html',
-  styleUrls: ['./daily-pnl.component.css']
+  styleUrls: ['./daily-pnl.component.scss']
 })
 export class DailyPnlComponent implements OnInit {
   @ViewChild('fileInput', { static: false }) fileInput: ElementRef;

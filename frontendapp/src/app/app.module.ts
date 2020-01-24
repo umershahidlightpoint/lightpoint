@@ -10,7 +10,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { MaterialModule } from './material.module';
 import { ToastrModule } from 'ngx-toastr';
 import { TooltipModule } from 'ngx-bootstrap';
-import { LpComponentsLibModule } from 'lp-components-lib';
+import { LpToolkitModule } from 'lp-toolkit';
+import { SharedModule } from './shared.module';
 
 /*
 Services
@@ -45,7 +46,8 @@ import { NotfoundComponent } from './main/not-found/notfound/notfound.component'
     MaterialModule,
     ToastrModule.forRoot(),
     TooltipModule,
-    LpComponentsLibModule
+    LpToolkitModule,
+    SharedModule
   ],
   exports: [],
   providers: [

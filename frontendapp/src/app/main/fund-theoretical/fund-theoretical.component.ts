@@ -22,7 +22,7 @@ import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.ser
 @Component({
   selector: 'app-fund-theoretical',
   templateUrl: './fund-theoretical.component.html',
-  styleUrls: ['./fund-theoretical.component.css']
+  styleUrls: ['./fund-theoretical.component.scss']
 })
 export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   @ViewChild('dataGridModal', { static: false })

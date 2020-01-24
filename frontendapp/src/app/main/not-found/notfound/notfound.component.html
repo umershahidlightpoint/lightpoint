@@ -1,19 +1,9 @@
-    <div id="preloader">
-        <div class="d-flex preloader-content">
-          <div class="d-flex">
-            <img class="preloader-image" width="182" height="58" src="./assets/images/logo.png" alt="logo" />
-          </div>
-          <div class="preloader-title">
-              <div><h2 class="notFound-txt">404 - PAGE NOT FOUND</h2></div>
-              <div>
-                <h4>The page you are looking for might have been removed</h4>
-                <h4 class="text-center">had its name changed or is temporary unavailable.</h4>
-            </div>
-            <div class="text-center">
-                <button class="btn btn-primary"  style="color: #dbd8d0;" (click)="redirect()">
-                    GO TO HOMEPAGE
-                  </button>
-            </div>
-            </div>
-        </div>
-      </div>
+<lp-not-found
+      [backgroundColor] = 'backgroundColor'
+      [imgPath]= "imgPath"
+      [btnText]= "btnText"
+      [btnTextColor]= "btnTextColor"
+      [btnBgColor] = "btnBgColor"
+      [route]= 'route'
+      >
+</lp-not-found>

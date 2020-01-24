@@ -1,22 +1,21 @@
-import { MatSidenav } from '@angular/material';
 import { Component, OnInit } from '@angular/core';
-import { Event, Router, NavigationEnd } from '@angular/router';
-import { onMainContentChange } from './menu/animations/animations';
-import { SidenavService } from '../services/common/sidenav.service';
+import {
+  Event,
+  Router,
+  NavigationStart,
+  NavigationEnd,
+  NavigationCancel,
+  NavigationError
+} from '@angular/router';
 import { ServicesStatusApiService } from '../services/services-status-api.service';
-import { Page } from 'lp-components-lib/lib/models/page.model';
+import { Page } from 'lp-toolkit';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
-  animations: [onMainContentChange]
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  leftMenu: MatSidenav;
-
-  public onSideNavChange: boolean;
-
   public userPages: Page[] = [
     {
       name: 'Reports',
@@ -34,7 +33,6 @@ export class AppComponent implements OnInit {
       icon: 'fa-book'
     }
   ];
-
   public adminPages: Page[] = [
     {
       name: 'Maintenance',
@@ -66,11 +64,11 @@ export class AppComponent implements OnInit {
       routerLink: 'operations',
       icon: 'fa-tasks'
     },
-    {
-      name: 'Grid Views',
-      routerLink: 'settings/grid-views',
-      icon: 'fa-th'
-    },
+    // {
+    //   name: 'Grid Views',
+    //   routerLink: 'settings/grid-views',
+    //   icon: 'fa-th'
+    // },
     {
       name: 'Settings',
       routerLink: '/settings',
@@ -78,19 +76,23 @@ export class AppComponent implements OnInit {
     }
   ];
 
-  constructor(
-    private router: Router,
-    private sidenavService: SidenavService,
-    public servicesStatusApiService: ServicesStatusApiService
-  ) {
-    this.sidenavService.sideNavState$.subscribe(res => {
-      this.onSideNavChange = res;
-    });
+  isNavigating = false;
 
+  constructor(private router: Router, public servicesStatusApiService: ServicesStatusApiService) {
+    // Only Hit API, Once Navigation Finish
     this.router.events.subscribe((event: Event) => {
-      // Only Hit API, Once Navigation Finish
+      if (event instanceof NavigationStart) {
+        this.isNavigating = true;
+      }
       if (event instanceof NavigationEnd) {
+        this.isNavigating = false;
         this.servicesStatusApiService.loadServices();
+      }
+      if (event instanceof NavigationCancel) {
+        this.isNavigating = false;
+      }
+      if (event instanceof NavigationError) {
+        this.isNavigating = false;
       }
     });
   }

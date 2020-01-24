@@ -1,12 +1,11 @@
 import { ModuleWithProviders, NgModule } from '@angular/core';
-
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AgGridModule } from 'ag-grid-angular';
 import { TabsModule, ModalModule, TooltipModule } from 'ngx-bootstrap';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
-import { NgcatalystModule } from 'ngcatalyst';
 import { ToastrModule } from 'ngx-toastr';
+import { NgcatalystModule } from 'ngcatalyst';
 
 import { GridLayoutMenuComponent } from '../shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { TemplateRendererComponent } from './template-renderer/template-renderer.component';
@@ -42,31 +41,30 @@ const sharedComponents = [
     CommonModule,
     FormsModule,
     AgGridModule.withComponents([
-    GridLayoutMenuComponent,
-    TemplateRendererComponent,
-    AgGridCheckboxComponent
-  ]),
-  TabsModule.forRoot(),
-  ModalModule.forRoot(),
-  TooltipModule.forRoot(),
-  NgxDaterangepickerMd.forRoot({
-    applyLabel: 'Okay',
-    firstDay: 1
-  }),
-  NgcatalystModule,
-  ToastrModule.forRoot()
-],
-  declarations: [ ...sharedComponents],
+      GridLayoutMenuComponent,
+      TemplateRendererComponent,
+      AgGridCheckboxComponent
+    ]),
+    TabsModule.forRoot(),
+    ModalModule.forRoot(),
+    TooltipModule.forRoot(),
+    NgxDaterangepickerMd.forRoot({
+      applyLabel: 'Okay',
+      firstDay: 1
+    }),
+    NgcatalystModule,
+    ToastrModule.forRoot()
+  ],
+  declarations: [...sharedComponents],
 
-  exports:      [ ...sharedComponents, CommonModule, FormsModule, AgGridModule],
+  exports: [...sharedComponents, CommonModule, FormsModule, AgGridModule],
   providers: [AgGridUtils]
 })
-
 export class SharedModule {
-    static forRoot(): ModuleWithProviders {
-      return {
-        ngModule: SharedModule,
-        // providers: []
-      };
-    }
+  static forRoot(): ModuleWithProviders {
+    return {
+      ngModule: SharedModule
+      // providers: []
+    };
   }
+}

@@ -38,7 +38,7 @@ import { CacheService } from 'src/services/common/cache.service';
 @Component({
   selector: 'app-journals-summary',
   templateUrl: './journals-summary.component.html',
-  styleUrls: ['./journals-summary.component.css']
+  styleUrls: ['./journals-summary.component.scss']
 })
 export class JournalsSummaryComponent implements OnInit {
   private rowData: any[] = [];

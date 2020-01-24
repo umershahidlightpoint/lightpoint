@@ -18,7 +18,7 @@
 
         <!-- Loading Spinner -->
         <div *ngIf="isLoading" class="d-flex justify-content-center align-items-center height-50vh">
-          <app-loader></app-loader>
+          <lp-loading></lp-loading>
         </div>
         <!-- Loading Spinner Ends -->
 
@@ -120,6 +120,11 @@
       </div>
     </tab>
     <!-- General Settings Tab Ends -->
+
+    <!-- General Settings Tab -->
+    <tab heading="Grid Views" (selectTab)="activateTab('GridViews')">
+      <app-layouts *ngIf="isGridViewsActive"></app-layouts>
+    </tab>
 
   </tabset>
   <!-- General Settings Tab Set Ends -->

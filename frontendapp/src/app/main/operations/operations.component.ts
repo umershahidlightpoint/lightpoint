@@ -17,7 +17,7 @@ import { FileManagementApiService } from 'src/services/file-management-api.servi
 @Component({
   selector: 'app-operations',
   templateUrl: './operations.component.html',
-  styleUrls: ['./operations.component.css']
+  styleUrls: ['./operations.component.scss']
 })
 export class OperationsComponent implements OnInit, AfterViewChecked {
   @ViewChild('confirmModal', { static: false })

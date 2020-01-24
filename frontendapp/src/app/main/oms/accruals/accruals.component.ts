@@ -11,7 +11,7 @@ import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/util
 @Component({
   selector: 'app-accruals',
   templateUrl: './accruals.component.html',
-  styleUrls: ['./accruals.component.css']
+  styleUrls: ['./accruals.component.scss']
 })
 export class AccrualsComponent implements OnInit, AfterViewInit {
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;

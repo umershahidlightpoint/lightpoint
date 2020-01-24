@@ -15,7 +15,7 @@ import { Account, Fund } from '../../../../../shared/Models/account';
 @Component({
   selector: 'app-journal-modal',
   templateUrl: './journal-modal.component.html',
-  styleUrls: ['./journal-modal.component.css']
+  styleUrls: ['./journal-modal.component.scss']
 })
 export class JournalModalComponent implements OnInit {
   @ViewChild('modal', { static: false }) modal: ModalDirective;

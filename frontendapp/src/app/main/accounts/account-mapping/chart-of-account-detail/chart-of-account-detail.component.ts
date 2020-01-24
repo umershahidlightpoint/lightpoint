@@ -19,7 +19,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-chart-of-account-detail',
   templateUrl: './chart-of-account-detail.component.html',
-  styleUrls: ['./chart-of-account-detail.component.css']
+  styleUrls: ['./chart-of-account-detail.component.scss']
 })
 export class ChartOfAccountDetailComponent implements OnInit, OnDestroy {
   @ViewChild('modal', { static: false }) modal: ModalDirective;

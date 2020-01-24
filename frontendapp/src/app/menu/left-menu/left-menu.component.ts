@@ -11,7 +11,7 @@ interface Page {
 @Component({
   selector: 'app-left-menu',
   templateUrl: './left-menu.component.html',
-  styleUrls: ['./left-menu.component.css'],
+  styleUrls: ['./left-menu.component.scss'],
   animations: [onSideNavChange, animateText]
 })
 export class LeftMenuComponent implements OnInit {

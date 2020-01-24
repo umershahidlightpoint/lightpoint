@@ -1,6 +1,6 @@
 <!-- Loading Spinner -->
 <div *ngIf="!show" class="d-flex justify-content-center align-items-center height-50vh">
-  <app-loader></app-loader>
+  <lp-loading></lp-loading>
 </div>
 <!-- Loading Spinner Ends -->
 
@@ -23,7 +23,7 @@
         </div>
 
         <div class="status" [ngClass]="{
-            'bc-green': service.status == 'Running',
+            'primary-color': service.status == 'Running',
             'bc-red': service.status == 'Stopped'
           }">
           <span>{{ service.status }}</span>

@@ -34,7 +34,7 @@ import {
 @Component({
   selector: 'rep-daypnl-reconcile',
   templateUrl: './daypnl-reconcile.component.html',
-  styleUrls: ['./daypnl-reconcile.component.css']
+  styleUrls: ['./daypnl-reconcile.component.scss']
 })
 export class DayPnlComponent implements OnInit, AfterViewInit {
   @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;

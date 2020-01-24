@@ -12,7 +12,7 @@ import { GridLayoutApiService } from 'src/services/grid-layout-api.service';
 @Component({
   selector: 'app-layouts',
   templateUrl: './layouts.component.html',
-  styleUrls: ['./layouts.component.css']
+  styleUrls: ['./layouts.component.scss']
 })
 export class LayoutsComponent implements OnInit, AfterViewInit {
   @ViewChild('confirmationModal', { static: false })
@@ -52,7 +52,7 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
 
   initGrid() {
     this.gridOptions = {
-      rowData: [],
+      rowData: null,
       sideBar: SideBar,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       pinnedBottomRowData: null,

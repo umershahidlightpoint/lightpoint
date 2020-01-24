@@ -19,7 +19,7 @@ import { Observable } from 'rxjs';
 @Component({
   selector: 'app-journals',
   templateUrl: './journals.component.html',
-  styleUrls: ['./journals.component.css']
+  styleUrls: ['./journals.component.scss']
 })
 export class JournalsComponent implements OnInit, OnChanges {
   @Input() subscription: Observable<string>;

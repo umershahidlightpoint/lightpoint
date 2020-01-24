@@ -9,7 +9,7 @@ import { GridLayout } from 'src/shared/Models/funds-theoretical';
 @Component({
   selector: 'app-grid-layout-menu',
   templateUrl: './grid-layout-menu.component.html',
-  styleUrls: ['./grid-layout-menu.component.css']
+  styleUrls: ['./grid-layout-menu.component.scss']
 })
 export class GridLayoutMenuComponent implements IToolPanel {
   @ViewChild('confirmModal', { static: false })

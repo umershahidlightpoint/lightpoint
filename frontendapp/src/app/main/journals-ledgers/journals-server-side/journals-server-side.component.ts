@@ -45,7 +45,7 @@ import { CacheService } from 'src/services/common/cache.service';
 @Component({
   selector: 'app-journals-server-side',
   templateUrl: './journals-server-side.component.html',
-  styleUrls: ['./journals-server-side.component.css']
+  styleUrls: ['./journals-server-side.component.scss']
 })
 export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   @Input() defaultView = '';

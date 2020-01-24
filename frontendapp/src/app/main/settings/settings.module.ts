@@ -1,22 +1,21 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TabsModule } from 'ngx-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { TabsModule } from 'ngx-bootstrap';
+import { LpToolkitModule } from 'lp-toolkit';
+
 // Settings Component
 import { SettingsComponent } from './settings/settings.component';
 
 // Layout Component
 import { LayoutsComponent } from './layouts/layouts.component';
 
-// Account Component
+// Settings Routes
 import { SettingsRoutes } from './settings.route';
 import { SharedModule } from '../../shared.module';
 
-const settingsComponents = [
-    SettingsComponent,
-    LayoutsComponent
-  ];
+const settingsComponents = [SettingsComponent, LayoutsComponent];
 
 @NgModule({
   declarations: [...settingsComponents],
@@ -27,8 +26,8 @@ const settingsComponents = [
     FormsModule,
     SharedModule,
     RouterModule.forChild(SettingsRoutes),
+    LpToolkitModule,
     SharedModule
   ]
 })
-
-export class SettingsModule { }
+export class SettingsModule {}

@@ -1,9 +1,10 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TabsModule } from 'ngx-bootstrap';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { RouterModule } from '@angular/router';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { TabsModule } from 'ngx-bootstrap';
+import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import { LpToolkitModule } from 'lp-toolkit';
 
 import { OperationsComponent } from './operations.component';
 import { FileExceptionComponent } from '../operations/file-exception/file-exception.component';
@@ -16,13 +17,13 @@ import { OperationsRoutes } from './operations.route';
 import { SharedModule } from 'src/app/shared.module';
 
 const operationsComponents = [
-    OperationsComponent,
-    FileExceptionComponent,
-    FileManagementComponent,
-    FileUploadComponent,
-    SilverFileManagementComponent,
-    ServicesStatusComponent,
-  ];
+  OperationsComponent,
+  FileExceptionComponent,
+  FileManagementComponent,
+  FileUploadComponent,
+  SilverFileManagementComponent,
+  ServicesStatusComponent
+];
 
 @NgModule({
   declarations: [...operationsComponents],
@@ -33,12 +34,12 @@ const operationsComponents = [
     FormsModule,
     ReactiveFormsModule,
     NgxDaterangepickerMd.forRoot({
-        applyLabel: 'Okay',
-        firstDay: 1
-      }),
+      applyLabel: 'Okay',
+      firstDay: 1
+    }),
     RouterModule.forChild(OperationsRoutes),
+    LpToolkitModule,
     SharedModule
-  ],
+  ]
 })
-
-export class OperationsModule { }
+export class OperationsModule {}

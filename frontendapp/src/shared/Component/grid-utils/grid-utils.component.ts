@@ -7,7 +7,7 @@ import { AutoSizeAllColumns } from 'src/shared/utils/Shared';
 @Component({
   selector: 'app-grid-utils',
   templateUrl: './grid-utils.component.html',
-  styleUrls: ['./grid-utils.component.css']
+  styleUrls: ['./grid-utils.component.scss']
 })
 export class GridUtilsComponent implements OnInit {
   @Input() gridOptions: any;

@@ -1,0 +1,143 @@
+.text-left {
+  text-align: left;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.img-fluid {
+  max-width: 100%;
+  height: auto;
+}
+
+.overflow-y-auto {
+  overflow-y: auto;
+}
+
+.responsive-image {
+  max-width: 100%;
+  height: auto;
+}
+
+.position-relative {
+  position: relative;
+}
+
+.position-absolute {
+  position: absolute;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.color-white {
+  color: #fff;
+}
+
+.color-blue {
+  color: $accent-color;
+}
+
+.color-red {
+  color: $red;
+}
+
+.color-green {
+  color: $green;
+}
+
+.lh-0 {
+  line-height: 0;
+}
+
+.bg-red {
+  background: $red;
+}
+
+.bg-green {
+  background: $green;
+}
+
+.text-uppercase {
+  text-transform: uppercase;
+}
+
+.border-top {
+  border-top: 1px solid $border-color;
+}
+
+.border-right {
+  border-right: 1px solid $border-color;
+}
+
+.border-bottom {
+  border-bottom: 1px solid $border-color;
+}
+
+.border-top-0 {
+  border-top: 0;
+}
+
+.border-left-0 {
+  border-left: 0;
+}
+
+.border-right-0 {
+  border-right: 0;
+}
+
+.fz10 {
+  font-size: 10px;
+}
+
+.fz12 {
+  font-size: 12px;
+}
+
+.fz13 {
+  font-size: 13px;
+}
+
+.fz14 {
+  font-size: 14px;
+}
+
+.fz15 {
+  font-size: 15px;
+}
+
+.fz16 {
+  font-size: 16px;
+}
+
+.fz18 {
+  font-size: 18px;
+}
+
+.fz20 {
+  font-size: 20px;
+}
+
+.fz26 {
+  font-size: 26px;
+}
+
+.ff-medium {
+  font-family: 'Exo2-Medium', sans-serif;
+}
+
+.ff-bold {
+  font-family: 'Exo2-Bold', sans-serif;
+}
+
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -16,7 +16,7 @@ import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.ser
 @Component({
   selector: 'app-market-prices',
   templateUrl: './market-prices.component.html',
-  styleUrls: ['./market-prices.component.css']
+  styleUrls: ['./market-prices.component.scss']
 })
 export class MarketPricesComponent implements OnInit {
   @ViewChild('fileInput', { static: false }) fileInput: ElementRef;

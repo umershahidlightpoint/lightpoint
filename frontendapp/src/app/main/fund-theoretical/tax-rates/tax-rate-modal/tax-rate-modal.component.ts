@@ -7,7 +7,7 @@ import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.ser
 @Component({
   selector: 'app-tax-rate-modal',
   templateUrl: './tax-rate-modal.component.html',
-  styleUrls: ['./tax-rate-modal.component.css']
+  styleUrls: ['./tax-rate-modal.component.scss']
 })
 export class TaxRateModalComponent implements OnInit {
   @ViewChild('modal', { static: false }) modal: ModalDirective;

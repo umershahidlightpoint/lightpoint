@@ -36,7 +36,7 @@ import { DataModalComponent } from 'src/shared/Component/data-modal/data-modal.c
 @Component({
   selector: 'rep-taxlotstatus',
   templateUrl: './taxlotstatus.component.html',
-  styleUrls: ['./taxlotstatus.component.css']
+  styleUrls: ['./taxlotstatus.component.scss']
 })
 export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;

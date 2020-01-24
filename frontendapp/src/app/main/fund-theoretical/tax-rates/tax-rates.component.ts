@@ -18,7 +18,7 @@ import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.ser
 @Component({
   selector: 'app-tax-rates',
   templateUrl: './tax-rates.component.html',
-  styleUrls: ['./tax-rates.component.css']
+  styleUrls: ['./tax-rates.component.scss']
 })
 export class TaxRatesComponent implements OnInit, AfterViewInit {
   @ViewChild('taxRateModal', { static: false })

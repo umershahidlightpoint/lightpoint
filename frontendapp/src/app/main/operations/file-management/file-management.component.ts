@@ -14,7 +14,7 @@ import { FileManagementApiService } from 'src/services/file-management-api.servi
 @Component({
   selector: 'app-file-management',
   templateUrl: './file-management.component.html',
-  styleUrls: ['./file-management.component.css']
+  styleUrls: ['./file-management.component.scss']
 })
 export class FileManagementComponent implements OnInit, AfterViewInit {
   @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<any>;

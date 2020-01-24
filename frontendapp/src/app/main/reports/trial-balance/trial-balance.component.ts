@@ -22,7 +22,7 @@ import { ReportsApiService } from 'src/services/reports-api.service';
 @Component({
   selector: 'rep-trial-balance',
   templateUrl: './trial-balance.component.html',
-  styleUrls: ['./trial-balance.component.css']
+  styleUrls: ['./trial-balance.component.scss']
 })
 export class TrialBalanceComponent implements OnInit, AfterViewInit {
   @ViewChild('trialBalanceReportGrid', { static: false })

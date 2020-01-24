@@ -17,13 +17,13 @@ import { FundtheoreticalRoutes } from './fund-theoretical.route';
 import { SharedModule } from '../../shared.module';
 
 const fundtheoreticalComponents = [
-    FundTheoreticalComponent,
-    DailyPnlComponent,
-    FxRatesComponent,
-    MarketPricesComponent,
-    TaxRatesComponent,
-    TaxRateModalComponent
-  ];
+  FundTheoreticalComponent,
+  DailyPnlComponent,
+  FxRatesComponent,
+  MarketPricesComponent,
+  TaxRatesComponent,
+  TaxRateModalComponent
+];
 
 @NgModule({
   declarations: [...fundtheoreticalComponents],
@@ -35,13 +35,12 @@ const fundtheoreticalComponents = [
     TooltipModule,
     FormsModule,
     NgxDaterangepickerMd.forRoot({
-        applyLabel: 'Okay',
-        firstDay: 1
-      }),
+      applyLabel: 'Okay',
+      firstDay: 1
+    }),
     NgcatalystModule,
     RouterModule.forChild(FundtheoreticalRoutes),
     SharedModule
   ]
 })
-
-export class FundTheoreticalModule { }
+export class FundTheoreticalModule {}

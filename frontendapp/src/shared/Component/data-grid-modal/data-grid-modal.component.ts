@@ -7,7 +7,7 @@ import { ModalDirective } from 'ngx-bootstrap';
 @Component({
   selector: 'app-data-grid-modal',
   templateUrl: './data-grid-modal.component.html',
-  styleUrls: ['./data-grid-modal.component.css']
+  styleUrls: ['./data-grid-modal.component.scss']
 })
 export class DataGridModalComponent implements OnInit {
   @ViewChild('modal', { static: false }) modal: ModalDirective;
@@ -62,7 +62,8 @@ export class DataGridModalComponent implements OnInit {
     this.gridOptions.api.setRowData(rowData);
     this.modal.show();
     this.expandGroups();
-    this.gridOptions.api.sizeColumnsToFit();
+    AutoSizeAllColumns(this.gridOptions);
+    // this.gridOptions.api.sizeColumnsToFit();
   }
 
   expandGroups() {
