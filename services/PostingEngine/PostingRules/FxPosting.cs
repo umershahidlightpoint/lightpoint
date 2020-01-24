@@ -96,6 +96,93 @@ namespace PostingEngine.PostingRules
             return new List<Journal>(new[] { debit, credit });
         }
 
+        internal static List<Journal> CreateFx(PostingEngineEnvironment env,
+    string tradeEvent,
+    double quantity,
+    TaxLotStatus taxlotStatus,
+    Transaction element)
+        {
+            if (tradeEvent.Equals(Event.TRADE_DATE))
+                return new List<Journal>();
+
+            // TBD: THIS IS FOR BOBBY
+            if (element.SecurityType.Equals("FORWARD"))
+                return new List<Journal>();
+
+            // Check to see if the BaseCurrency == SettleCurrency because if it is then no need to do the FX translation
+            if (env.BaseCurrency.Equals(element.SettleCurrency))
+                return new List<Journal>();
+
+            var currency = element.SettleCurrency;
+
+            var prevEodFxRate = Convert.ToDouble(FxRates.Find(env.PreviousValueDate, currency).Rate);
+            var eodFxRate = Convert.ToDouble(FxRates.Find(env.ValueDate, currency).Rate);
+            var effectiveRate = eodFxRate - prevEodFxRate;
+
+            var usdEquivalent = Math.Abs(element.NetMoney) * effectiveRate;
+
+            if (element.IsBuy() || element.IsSell()) // BUY || SELL
+            {
+            }
+            else // SHORT || COVER
+            {
+                usdEquivalent *= -1;
+            }
+
+            var fromAccount = "FX MARKET TO MARKET ON STOCK COST";
+            var toAccount = "Change in unrealized due to fx on original Cost";
+
+            if ( element.IsDerivative())
+            {
+                toAccount = "Change in Unrealized Derivatives Contracts due to FX";
+
+                if ( usdEquivalent > 0)
+                {
+                    fromAccount = "Mark to Market Derivatives Contracts due to FX (Assets)";
+                    
+                } else
+                {
+                    fromAccount = "Mark to Market Derivatives Contracts due to FX (Liabilities)";
+                }
+            }
+            else
+            {
+                if ( element.IsShort() || element.IsCover())
+                {
+                    fromAccount = "FX MARK TO MARKET ON STOCK COST (SHORTS)";
+                }
+            }
+
+            // Get accounts
+            var toFrom = new AccountUtils().GetAccounts(env, fromAccount, toAccount, _TAGS, element);
+
+            var debit = new Journal(element, toFrom.From, $"{tradeEvent}-unrealizedpnl-fx", env.ValueDate)
+            {
+                Quantity = quantity,
+                FxRate = effectiveRate,
+                StartPrice = prevEodFxRate,
+                EndPrice = eodFxRate,
+                Fund = env.GetFund(element),
+                Value = env.SignedValue(toFrom.From, toFrom.To, true, usdEquivalent),
+                CreditDebit = env.DebitOrCredit(toFrom.From, usdEquivalent),
+            };
+
+            var credit = new Journal(element, toFrom.To, $"{tradeEvent}-unrealizedpnl-fx", env.ValueDate)
+            {
+                Quantity = quantity,
+                FxRate = effectiveRate,
+                StartPrice = prevEodFxRate,
+                EndPrice = eodFxRate,
+                Fund = env.GetFund(element),
+
+                Value = env.SignedValue(toFrom.From, toFrom.To, false, usdEquivalent),
+                CreditDebit = env.DebitOrCredit(toFrom.To, usdEquivalent),
+            };
+
+
+            return new List<Journal>(new[] { debit, credit });
+        }
+
         internal double CreateFxUnsettled(PostingEngineEnvironment env, Transaction element)
         {
             var journals = new List<Journal>();
@@ -121,14 +208,15 @@ namespace PostingEngine.PostingRules
 
                 if (element.IsDerivative())
                 {
+                    to = "Mark to Market Derivatives Contracts due to FX Translation (Assets)";
                     from = AccountUtils.GetDerivativeAccountType(fxCash);
                     if (from.Contains("(Liabilities)"))
                     {
+                        to = "Mark to Market Derivatives Contracts due to FX  Translation (Liabilities)";
+
                         // This needs to be registered as a Credit to the Libabilities
                         fxCash *= -1;
                     }
-
-                    to = "Change in Unrealized Derivatives Contracts due to FX Translation";
                 }
                 else
                 {

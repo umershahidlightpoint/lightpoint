@@ -140,7 +140,7 @@ namespace PostingEngine.PostingRules
                                 var fxJournalsForInvestmentAtCost = FxPosting.CreateFx(
                                     env,
                                     CommonRules.GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"),
-                                    CommonRules.GetChangeInUnrealizedDueToFx(element, "Change in unrealized due to fx on original Cost"),
+                                    "Change in unrealized due to fx on original Cost",
                                     "daily", quantity, taxlot, element);
                                 env.Journals.AddRange(fxJournalsForInvestmentAtCost);
 
@@ -168,59 +168,6 @@ namespace PostingEngine.PostingRules
                 }
 
                 }
-
-            if (element.SettleCurrency.Equals(env.BaseCurrency))
-                return;
-
-            /*
-            if ( env.ValueDate > element.TradeDate && env.ValueDate <= element.SettleDate)
-            {
-                var prev = Convert.ToDouble(FxRates.Find(env.PreviousValueDate, element.SettleCurrency).Rate);
-                var eod = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
-
-                var local = Convert.ToDouble(element.NetMoney);
-
-                var changeDelta = eod - prev;
-                var change = changeDelta * local * -1;
-                var fromTo = new AccountUtils().GetAccounts(env, "Settled Cash", "fx gain or loss on settled balance", new string[] { element.SettleCurrency }.ToList());
-
-                var debit = new Journal(fromTo.From, "settled-cash-fx", env.ValueDate)
-                {
-                    Source = element.LpOrderId,
-                    Fund = element.Fund,
-                    Quantity = local,
-
-                    FxCurrency = element.SettleCurrency,
-                    Symbol = element.Symbol,
-                    SecurityId = element.SecurityId,
-                    FxRate = changeDelta,
-                    StartPrice = prev,
-                    EndPrice = eod,
-
-                    Value = env.SignedValue(fromTo.From, fromTo.To, true, change),
-                    CreditDebit = env.DebitOrCredit(fromTo.From, change),
-                };
-
-                var credit = new Journal(fromTo.To, "settled-cash-fx", env.ValueDate)
-                {
-                    Source = element.LpOrderId,
-                    Fund = element.Fund,
-                    Quantity = local,
-
-                    FxCurrency = element.SettleCurrency,
-                    Symbol = element.Symbol,
-                    SecurityId = element.SecurityId,
-                    FxRate = changeDelta,
-                    StartPrice = prev,
-                    EndPrice = eod,
-
-                    Value = env.SignedValue(fromTo.From, fromTo.To, false, change),
-                    CreditDebit = env.DebitOrCredit(fromTo.To, change),
-                };
-
-                env.Journals.AddRange(new[] { debit, credit });
-            }
-                */
         }
         internal void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
@@ -349,7 +296,7 @@ namespace PostingEngine.PostingRules
             var fxJournalsForInvestmentAtCost = FxPosting.CreateFx(
                 env,
                 CommonRules.GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"),
-                CommonRules.GetChangeInUnrealizedDueToFx(element, "Change in unrealized due to fx on original Cost"),
+                "Change in unrealized due to fx on original Cost",
                 "daily", workingQuantity, taxlotStatus, buyTrade);
             env.Journals.AddRange(fxJournalsForInvestmentAtCost);
 
@@ -420,7 +367,7 @@ namespace PostingEngine.PostingRules
                 sumFxMarkToMarket = Convert.ToDouble(dataTable[2].Rows[0][2]);
                 sumFxMarkToMarket += fxJournalsForInvestmentAtCost[0].Value;
 
-                ReversePosting(env, CommonRules.GetChangeInUnrealizedDueToFx(element, "Change in unrealized due to fx on original Cost"), CommonRules.GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"), buyTrade, sumFxMarkToMarket);
+                ReversePosting(env, "Change in unrealized due to fx on original Cost", CommonRules.GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"), buyTrade, sumFxMarkToMarket);
             }
 
 

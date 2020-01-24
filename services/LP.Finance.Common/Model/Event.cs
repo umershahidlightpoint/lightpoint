@@ -13,6 +13,7 @@ namespace LP.Finance.Common.Model
 
         public static string REALIZED_PNL = "realizedpnl";
         public static string UNREALIZED_PNL = "unrealizedpnl";
+        public static string DAILY_UNREALIZED_PNL = "daily-unrealizedpnl";
 
         public static string SETTLED_CASH = "settled-cash";
 

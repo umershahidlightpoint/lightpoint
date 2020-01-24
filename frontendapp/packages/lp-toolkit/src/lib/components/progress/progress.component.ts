@@ -3,7 +3,7 @@ import { Component, OnInit, Input } from '@angular/core';
 @Component({
   selector: 'lp-progress',
   templateUrl: './progress.component.html',
-  styleUrls: ['./progress.component.css']
+  styleUrls: ['./progress.component.scss']
 })
 export class ProgressComponent implements OnInit {
   @Input() color = '#f53d3d';
