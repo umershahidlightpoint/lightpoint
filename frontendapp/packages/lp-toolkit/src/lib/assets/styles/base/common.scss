@@ -1,0 +1,161 @@
+body {
+  font-family: 'Exo2-Regular', sans-serif;
+  font-size: 14px;
+  background: $bg;
+  color: $color;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $color;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+svg {
+  max-width: 100%;
+}
+
+.icon-btn {
+  min-width: 20px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s ease-out, color 0.2s ease-out;
+
+  &:hover {
+    color: #fff;
+
+    svg {
+      fill: #fff;
+    }
+  }
+
+  svg {
+    fill: $color;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.divider {
+  display: inline-block;
+
+  svg {
+    width: 41px;
+    height: 70px;
+    fill: $accent-color;
+  }
+}
+
+.increase-icon {
+  display: flex;
+  align-items: center;
+
+  svg {
+    width: 26px;
+    height: 26px;
+    fill: $green;
+  }
+}
+
+.chart {
+  display: block;
+  min-height: 100px;
+}
+
+.value {
+  font: 400 17px 'Exo2-Medium';
+  color: $green;
+}
+
+.value--negative {
+  @extend .value;
+  color: $red;
+}
+
+[basechart] {
+  max-width: 100% !important;
+}
+
+.square {
+  position: relative;
+}
+
+.square:after {
+  content: '';
+  display: block;
+  padding-bottom: 100%;
+}
+
+.content {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.tab-item {
+  position: relative;
+  padding: 0 8px 0 0;
+  text-align: center;
+  line-height: 40px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1.6666px;
+  font-family: 'Exo2-Bold', sans-serif;
+  font-size: 10px;
+
+  &.pointer:hover,
+  &--active {
+    color: #fff;
+  }
+
+  &--active {
+    position: relative;
+
+    &:before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      height: 5px;
+      width: 5px;
+      background: $accent-color;
+      border-radius: 50%;
+      transform: translateX(-50%);
+    }
+  }
+}
+
+table,
+.d-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.border-inner {
+  border-style: hidden;
+}
+
+.table--no-border td {
+  border: 0;
+}
+
+td,
+.d-table-cell {
+  padding: 8px;
+  vertical-align: top;
+  border: 1px solid $border-color;
+}
