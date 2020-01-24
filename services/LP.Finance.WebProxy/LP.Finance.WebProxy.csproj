@@ -69,6 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppStartCacheHelper.cs" />
+    <Compile Include="Filters\HttpInterceptorFilter.cs" />
     <Compile Include="GraphQLEntities\PerformanceQuery.cs" />
     <Compile Include="GraphQLEntities\PerformanceQuerySchema.cs" />
     <Compile Include="ProjectInstaller.cs">

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -27,6 +28,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
     {
         private static readonly string
             connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public SqlHelper sqlHelper = new SqlHelper(connectionString);
         private readonly EntityMapper mapper = new EntityMapper();
@@ -1373,6 +1375,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object serverSideJournals(ServerRowModel obj)
         {
+            var sw = new Stopwatch();
+            sw.Start();
+            Logger.Info($"started serverSideJournals at {DateTime.UtcNow}");
             var viewName = "vwFullJournal";
 
             try
@@ -1380,6 +1385,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 journalStats journalStats = new journalStats();
 
                 var sql = ServerSideRowModelHelper.BuildSql(obj, viewName);
+                Logger.Info($"serverSideJournals sql generated in {sw.ElapsedMilliseconds} ms");
                 var dataTable = sqlHelper.GetDataTable(sql.Item1, CommandType.Text, sql.Item3.ToArray());
                 int lastRow = ServerSideRowModelHelper.GetRowCount(obj, dataTable);
                 bool rootNodeGroupOrNoGrouping =
@@ -1396,12 +1402,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
                 var returnResult = Utils.Wrap(true, json, HttpStatusCode.OK, sql.Item2, metaData, journalStats);
-
+                sw.Stop();
+                Logger.Info($"finished serverSideJournals at {DateTime.UtcNow} in {sw.ElapsedMilliseconds} ms | {sw.ElapsedMilliseconds / 1000} s");
                 return returnResult;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                sw.Stop();
+                Logger.Error(ex, $"serverSideJournals failed at {DateTime.UtcNow} in {sw.ElapsedMilliseconds} ms | {sw.ElapsedMilliseconds / 1000} s");
                 throw ex;
             }
         }
