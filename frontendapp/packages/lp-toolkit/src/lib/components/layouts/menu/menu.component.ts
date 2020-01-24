@@ -8,7 +8,7 @@ import { Page } from '../../../models/page.model';
 @Component({
   selector: 'lp-menu',
   templateUrl: './menu.component.html',
-  styleUrls: ['./menu.component.css'],
+  styleUrls: ['./menu.component.scss'],
   animations: [onMainContentChange]
 })
 export class MenuComponent implements OnInit, OnDestroy {

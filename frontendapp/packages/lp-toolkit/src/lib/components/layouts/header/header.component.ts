@@ -6,7 +6,7 @@ import { SidenavService } from '../../../services/sidenav.service';
 @Component({
   selector: 'lp-header',
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css']
+  styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   @Input() title = 'My App';
