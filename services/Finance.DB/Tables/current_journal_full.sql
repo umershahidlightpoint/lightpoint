@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[current_journal_denorm](
+﻿CREATE TABLE [dbo].[current_journal_full](
 	[when] [datetime] NULL,
 	[event] [varchar](100) NULL,
 	[credit] [numeric](22, 9) NULL,
@@ -31,16 +31,16 @@
 ) ON [PRIMARY]
 GO
 
-ALTER TABLE [dbo].[current_journal_denorm] ADD  DEFAULT ((1)) FOR [is_account_to]
+ALTER TABLE [dbo].[current_journal_full] ADD  DEFAULT ((1)) FOR [is_account_to]
 GO
 
-create clustered index Ix_current_journal_denorm_when
-ON current_journal_denorm([when] desc)
+create clustered index Ix_current_journal_full_when
+ON current_journal_full([when] desc)
 
 GO
 
-create nonclustered index Ix_current_journal_denorm_covering_index
-ON current_journal_denorm ([when],accountcategory, accounttype, fund, accountname) INCLUDE (source,[event], credit,debit,symbol,security_id, quantity, id, account_id, fx_currency,accountdescription,[value], start_price, end_price,fxrate,is_account_to,tradedate,settledate,tradeid,[action],[status],custodiancode,securitytype,side);
+create nonclustered index Ix_current_journal_full_covering_index
+ON current_journal_full ([when],accountcategory, accounttype, fund, accountname) INCLUDE (source,[event], credit,debit,symbol,security_id, quantity, id, account_id, fx_currency,accountdescription,[value], start_price, end_price,fxrate,is_account_to,tradedate,settledate,tradeid,[action],[status],custodiancode,securitytype,side);
 
 
 

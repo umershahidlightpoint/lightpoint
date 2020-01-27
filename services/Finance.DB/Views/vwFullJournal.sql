@@ -4,17 +4,9 @@ Requires that the CacheResults sp is run first to populate the two tables, curre
 CREATE VIEW [dbo].[vwFullJournal]
 	AS 
 
-select vw.*, 
-	t.TradeDate,
-	t.SettleDate,
-	t.TradeId, 
-	t.Action, 
-	t.Status, 
-	t.CustodianCode, 
-	t.SecurityType,
-	t.Side
-from current_journal vw
-left outer join current_trade_state t on t.LpOrderId = vw.source
+select vw.*
+from current_journal_full vw
+
 GO
 
 

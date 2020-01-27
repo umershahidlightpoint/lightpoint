@@ -1378,7 +1378,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var sw = new Stopwatch();
             sw.Start();
             Logger.Info($"started serverSideJournals at {DateTime.UtcNow}");
-            var viewName = "vwFullJournal";
+            var viewName = "current_journal_denorm";
 
             try
             {
@@ -1386,7 +1386,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var sql = ServerSideRowModelHelper.BuildSql(obj, viewName);
                 Logger.Info($"serverSideJournals sql generated in {sw.ElapsedMilliseconds} ms");
-                var query = sql.Item1 + " OPTION(MAXDOP 1)";
+                var query = sql.Item1 + " OPTION(MAXDOP 4)";
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sql.Item3.ToArray());
                 int lastRow = ServerSideRowModelHelper.GetRowCount(obj, dataTable);
                 bool rootNodeGroupOrNoGrouping =
@@ -1421,14 +1421,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 journalStats journalStats = new journalStats();
 
-                var sql = ServerSideRowModelHelper.BuildSql(obj, "vwFulljournal", true);
+                var sql = ServerSideRowModelHelper.BuildSql(obj, "current_journal_denorm", true);
                 var query = $@"select p.debit, p.credit, (abs(p.debit) - abs(p.credit)) as balance from (
                                 select sum(t.debit) as debit, sum(t.credit) as credit from (
                                 select [AccountCategory], sum(debit) as debit,
                                 sum(credit) as credit
                                 from vwFullJournal
                                 {sql.Item1}
-                                group by [AccountCategory]) t ) p OPTION(MAXDOP 1)";
+                                group by [AccountCategory]) t ) p OPTION(MAXDOP 4)";
 
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sql.Item3.ToArray());
                 var resp = JsonConvert.SerializeObject(dataTable);
