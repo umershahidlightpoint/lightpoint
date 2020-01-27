@@ -1386,7 +1386,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var sql = ServerSideRowModelHelper.BuildSql(obj, viewName);
                 Logger.Info($"serverSideJournals sql generated in {sw.ElapsedMilliseconds} ms");
-                var dataTable = sqlHelper.GetDataTable(sql.Item1, CommandType.Text, sql.Item3.ToArray());
+                var query = sql.Item1 + " OPTION(MAXDOP 1)";
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sql.Item3.ToArray());
                 int lastRow = ServerSideRowModelHelper.GetRowCount(obj, dataTable);
                 bool rootNodeGroupOrNoGrouping =
                     ServerSideRowModelHelper.isDoingGroupingByRootNodeOrNoGrouping(obj.rowGroupCols, obj.groupKeys);
@@ -1427,7 +1428,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                 sum(credit) as credit
                                 from vwFullJournal
                                 {sql.Item1}
-                                group by [AccountCategory]) t ) p";
+                                group by [AccountCategory]) t ) p OPTION(MAXDOP 1)";
 
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sql.Item3.ToArray());
                 var resp = JsonConvert.SerializeObject(dataTable);

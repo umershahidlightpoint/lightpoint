@@ -443,9 +443,12 @@ namespace LP.Finance.Common
             List<object> values = (List<object>)value["values"];
             foreach (var item in values)
             {
-                sqlParams.Add(new SqlParameter($"{columnName}{index}", item));
-                filterModelWhereList.Add($"@{columnName}{index}");
-                index++;
+                if (item != null)
+                {
+                    sqlParams.Add(new SqlParameter($"{columnName}{index}", item));
+                    filterModelWhereList.Add($"@{columnName}{index}");
+                    index++;
+                }
             }
 
             if (filterModelWhereList.Count > 0)
