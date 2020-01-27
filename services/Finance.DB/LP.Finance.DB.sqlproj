@@ -137,6 +137,7 @@
     <Build Include="StoredProcs\Recon\PnlToDate.sql" />
     <Build Include="Tables\pnl_summary.sql" />
     <Build Include="StoredProcs\Recon\PeriodJournals.sql" />
+    <Build Include="Tables\current_journal_denorm.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">
