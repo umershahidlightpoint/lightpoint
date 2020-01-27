@@ -1378,7 +1378,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var sw = new Stopwatch();
             sw.Start();
             Logger.Info($"started serverSideJournals at {DateTime.UtcNow}");
-            var viewName = "current_journal_denorm";
+            var viewName = "vwFullJournal";
 
             try
             {
@@ -1421,7 +1421,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 journalStats journalStats = new journalStats();
 
-                var sql = ServerSideRowModelHelper.BuildSql(obj, "current_journal_denorm", true);
+                var sql = ServerSideRowModelHelper.BuildSql(obj, "vwFullJournal", true);
                 var query = $@"select p.debit, p.credit, (abs(p.debit) - abs(p.credit)) as balance from (
                                 select sum(t.debit) as debit, sum(t.credit) as credit from (
                                 select [AccountCategory], sum(debit) as debit,

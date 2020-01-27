@@ -23,7 +23,7 @@ update #results
 set realizedPnl = coalesce(GG,0)
 from #results t
 inner join (
-select Symbol, Fund, SUM(credit-debit) as GG from current_journal
+select Symbol, Fund, SUM(credit-debit) as GG from vwFullJournal
 where AccountType in ('REALIZED GAIN/(LOSS)') and [event] in ('realizedpnl')
 and [when] >= @From and [when] <= @Now
 group by Symbol, Fund
