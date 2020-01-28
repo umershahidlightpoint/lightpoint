@@ -34,6 +34,7 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
   fileManagementActive = false;
   exportExceptionActive = false;
   servicesStatus = false;
+  servicesLog = false;
 
   periodPlaceholder: { name: 'Select a Period' };
   selectedPeriod: { name: string };
@@ -278,6 +279,10 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
 
   activeServicesStatus() {
     this.servicesStatus = true;
+  }
+
+  activeServicesLog() {
+    this.servicesLog = true;
   }
 
   openModal() {

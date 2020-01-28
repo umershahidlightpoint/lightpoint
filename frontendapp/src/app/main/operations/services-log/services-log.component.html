@@ -1,0 +1,19 @@
+<div class="row">
+    <div class="ml-3">
+      <h4>{{title}}</h4>
+    </div>
+  </div>
+  <!-- AG Grid for Files -->
+  <div [ngStyle]="styleForLogsHeight">
+    <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions"
+      [getContextMenuItems]="getContextMenuItems">
+    </ag-grid-angular>
+    <!----- Action buttons Template Starts ----->
+    <ng-template #actionButtons let-row>
+      <button class="btn action-btn width-15 height-30px" (click)="downloadFile(row)" tooltip="View" placement="auto"
+        container="body">
+        <i class="fa fa-download" aria-hidden="true"></i>
+      </button>
+    </ng-template>
+    <!----- Action buttons Template Ends ----->
+  </div>
