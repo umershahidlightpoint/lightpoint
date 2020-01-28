@@ -97,7 +97,7 @@ namespace PostingEngine.PostingRules
                         CreditDebit = env.DebitOrCredit(fromToAccounts.From, unrealizedPnl),
                         StartPrice = prevEodPrice,
                         EndPrice = eodPrice,
-                        Event = Event.UNREALIZED_PNL,
+                        Event = Event.DAILY_UNREALIZED_PNL,
                         Fund = fund,
                     };
 
@@ -109,7 +109,7 @@ namespace PostingEngine.PostingRules
                         Quantity = quantity,
                         Value = env.SignedValue(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnl),
                         CreditDebit = env.DebitOrCredit(fromToAccounts.To, env.SignedValue(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnl)),
-                        Event = Event.UNREALIZED_PNL,
+                        Event = Event.DAILY_UNREALIZED_PNL,
                         StartPrice = prevEodPrice,
                         EndPrice = eodPrice,
                         Fund = fund,

@@ -23,21 +23,13 @@ namespace PostingEngine
             ITD(key, valueDate);
 
             // Then Cost Basis
-            CostBasis(key, valueDate);
-
-            // Settled Cash
-            CalculateDailyPnl(key, valueDate);
+            CostBasisAndDayPnl(key, valueDate);
 
             // Unofficial Daily Pnl
             SettledCashBalances(key, valueDate);
 
-            // Mark to Market Cash Fx
-            UnrealizedCashBalances(key, valueDate);
-
             // Expences / Revenue
             ExpencesAndRevenues(key, valueDate);
-
-            //DerivativesContracts(key, valueDate);
 
             Complete(key, valueDate);
         }
@@ -85,27 +77,6 @@ namespace PostingEngine
             });
         }
 
-        static void DerivativesContracts(Guid key, DateTime valueDate)
-        {
-            // This runs thru everything, we need more or a scalpable
-            PostingEngine.RunCalculation("DerivativesContracts", valueDate, key, (message, totalRows, rowsDone) => {
-                if (message.StartsWith("Processing"))
-                {
-                    // Do nothing
-                    return;
-                }
-                if (message.StartsWith("Completed"))
-                {
-                    var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
-
-                    Logger.Info($"{message}, % Completed {completed}");
-                    return;
-                }
-
-                Logger.Info($"{message}");
-            });
-        }
-
         static void Complete(Guid key, DateTime valueDate)
         {
             // This runs thru everything, we need more or a scalpable
@@ -127,26 +98,6 @@ namespace PostingEngine
             });
         }
 
-        static void UnrealizedCashBalances(Guid key, DateTime valueDate)
-        {
-            // This runs thru everything, we need more or a scalpable
-            PostingEngine.RunCalculation("UnrealizedCashBalances", valueDate, key, (message, totalRows, rowsDone) => {
-                if (message.StartsWith("Processing"))
-                {
-                    // Do nothing
-                    return;
-                }
-                if (message.StartsWith("Completed"))
-                {
-                    var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
-
-                    Logger.Info($"{message}, % Completed {completed}");
-                    return;
-                }
-
-                Logger.Info($"{message}");
-            });
-        }
         static void SettledCashBalances(Guid key, DateTime valueDate)
         {
             // This runs thru everything, we need more or a scalpable
@@ -209,6 +160,27 @@ namespace PostingEngine
                 Logger.Info($"{message}");
             });
 
+        }
+
+        static void CostBasisAndDayPnl(Guid key, DateTime valueDate)
+        {
+            // This runs thru everything, we need more or a scalpable
+            PostingEngine.RunCalculation("CostBasisAndDayPnl", valueDate, key, (message, totalRows, rowsDone) => {
+                if (message.StartsWith("Processing"))
+                {
+                    // Do nothing
+                    return;
+                }
+                if (message.StartsWith("Completed"))
+                {
+                    var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
+
+                    Logger.Info($"{message}, % Completed {completed}");
+                    return;
+                }
+
+                Logger.Info($"{message}");
+            });
         }
 
         static void CostBasis(Guid key, DateTime valueDate)

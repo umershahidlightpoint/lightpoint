@@ -14,6 +14,28 @@ namespace PostingEngine.PostingRules
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
+        private List<Tag> listOfTags = new List<Tag> {
+            Tag.Find("SecurityType"),
+            Tag.Find("CustodianCode")
+        };
+
+        private List<Tag> listOfTradeTags = new List<Tag> {
+            Tag.Find("SecurityType"),
+            Tag.Find("CustodianCode"),
+            Tag.Find("TradeCurrency")
+        };
+
+        private AccountType atSettledCash;
+        private AccountType unrealizedAccountType;
+        private AccountType realizedAccountType;
+
+        public Cross()
+        {
+            atSettledCash = AccountType.Find("Settled Cash");
+            unrealizedAccountType = AccountType.Find("Change in Unrealized Derivatives Contracts at Fair Value");
+            realizedAccountType = AccountType.Find("REALIZED GAIN/(LOSS)");
+        }
+
         public bool IsValid(PostingEngineEnvironment env, Transaction element)
         {
             return element.IsDerivative() && element.SecurityType.ToLowerInvariant().Equals("cross");
@@ -26,11 +48,6 @@ namespace PostingEngine.PostingRules
         /// <param name="element">Trade we aee interested in</param>
         public void DailyEvent(PostingEngineEnvironment env, Transaction element)
         {
-            if ( element.SettleDate.Date.Equals(env.ValueDate.Date))
-            {
-                return;
-            }
-
             double fxrate = 1.0;
 
             // Lets get fx rate if needed
@@ -48,25 +65,6 @@ namespace PostingEngine.PostingRules
                 // Check to see if the TaxLot is still open and it has a non zero Quantity
                 if (!taxlot.Status.ToLowerInvariant().Equals("closed") && Math.Abs(taxlot.Quantity) > 0)
                 {
-                    var listOfTags = new List<Tag>
-                    {
-                        Tag.Find("SecurityType"),
-                        Tag.Find("CustodianCode")
-                    };
-
-                    var tradeCurrency = element.TradeCurrency;
-                    var settleCurrency = element.SettleCurrency;
-                    var allocations = env.FindTradeAllocations(element);
-
-                    var buy = allocations.Where(i => i.SecurityType.Equals("SPOT") && i.IsBuy()).FirstOrDefault();
-                    var sell = allocations.Where(i => i.SecurityType.Equals("SPOT") && i.IsSell()).FirstOrDefault();
-
-                    if (buy == null || sell == null)
-                    {
-                        Logger.Error($"Unable to process {element.SecurityType}::{element.LpOrderId}");
-                        return;
-                    }
-
                     var prevEodPrice = 0.0;
                     var eodPrice = 0.0;
                     var fxRate = 0.0;
@@ -75,15 +73,15 @@ namespace PostingEngine.PostingRules
                     {
                         if (env.ValueDate == element.TradeDate)
                         {
-                            prevEodPrice = element.SettleNetPrice;
+                            prevEodPrice =  1 / element.SettleNetPrice;
                             fxRate = FxRates.Find(env.ValueDate, element.SettleCurrency).Rate;
-                            eodPrice = 1 / fxRate;
+                            eodPrice = fxRate;
                         }
                         else
                         {
                             prevEodPrice = FxRates.Find(env.PreviousValueDate, element.SettleCurrency).Rate;
                             fxRate = FxRates.Find(env.PreviousValueDate, element.SettleCurrency).Rate;
-                            eodPrice = 1 / fxRate;
+                            eodPrice = fxRate;
                         }
                     }
                     else
@@ -92,19 +90,17 @@ namespace PostingEngine.PostingRules
                         {
                             prevEodPrice = element.SettleNetPrice;
                             fxRate = FxRates.Find(env.ValueDate, element.TradeCurrency).Rate;
-                            eodPrice = FxRates.Find(env.ValueDate, element.TradeCurrency).Rate;
+                            eodPrice = fxRate;
                         }
                         else
                         {
                             prevEodPrice = FxRates.Find(env.PreviousValueDate, element.TradeCurrency).Rate;
                             fxRate = FxRates.Find(env.ValueDate, element.TradeCurrency).Rate;
-                            eodPrice = FxRates.Find(env.ValueDate, element.TradeCurrency).Rate;
+                            eodPrice = fxRate;
                         }
                     }
 
                     var unrealizedPnl = 0.0;
-                    var q1 = buy.Quantity;
-                    var q2 = sell.Quantity;
 
                     var quantity = taxlot.Quantity;
                     var rateDiff = (eodPrice - prevEodPrice);
@@ -191,17 +187,8 @@ namespace PostingEngine.PostingRules
                     return;
                 }
 
-                var listOfTradeTags = new List<Tag> {
-                    Tag.Find("SecurityType"),
-                    Tag.Find("CustodianCode"),
-                    Tag.Find("TradeCurrency")
-                };
-
-                var accountType = AccountType.All.Where(i => i.Name.Equals("Settled Cash")).FirstOrDefault();
-
-                var accountSell = new AccountUtils().CreateAccount(accountType, listOfTradeTags, sell);
-
-                var accountBuy = new AccountUtils().CreateAccount(accountType, listOfTradeTags, buy);
+                var accountSell = new AccountUtils().CreateAccount(atSettledCash, listOfTradeTags, sell);
+                var accountBuy = new AccountUtils().CreateAccount(atSettledCash, listOfTradeTags, buy);
 
                 new AccountUtils().SaveAccountDetails(env, accountSell);
                 new AccountUtils().SaveAccountDetails(env, accountBuy);
@@ -254,13 +241,11 @@ namespace PostingEngine.PostingRules
                     env.Journals.AddRange(new[] { credit, debit });
 
                     var originalAccount = AccountUtils.GetDerivativeAccountType(realizedPnl);
-                    if (originalAccount.Contains("(Liabilities)"))
-                    {
-                        // This needs to be registered as a Credit to the Libabilities
-                        realizedPnl *= -1;
-                    }
 
-                    CommonRules.PostRealizedPnl(env, element, realizedPnl, originalAccount, "REALIZED GAIN/(LOSS)");
+                    // Realized Pnl to go along with the Settled Cash
+                    CommonRules.GenerateJournalEntry(env, element, listOfTags, realizedAccountType, Event.REALIZED_PNL, realizedPnl);
+
+                    CommonRules.GenerateJournalEntries(env, element, listOfTags, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", realizedPnl * -1);
                 }
                 else // SELL
                 {
@@ -303,14 +288,11 @@ namespace PostingEngine.PostingRules
                     env.Journals.AddRange(new[] { credit, debit });
 
                     var originalAccount = AccountUtils.GetDerivativeAccountType(realizedPnl);
-                    if (originalAccount.Contains("(Liabilities)"))
-                    {
-                        // This needs to be registered as a Credit to the Libabilities
-                        realizedPnl *= -1;
-                    }
 
-                    CommonRules.PostRealizedPnl(env, element, realizedPnl, originalAccount, "REALIZED GAIN/(LOSS)");
+                    // Realized Pnl to go along with the Settled Cash
+                    CommonRules.GenerateJournalEntry(env, element, listOfTags, realizedAccountType, Event.REALIZED_PNL, realizedPnl);
 
+                    CommonRules.GenerateJournalEntries(env, element, listOfTags, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", realizedPnl * -1);
                 }
 
                 if (taxlot.Quantity != 0)
@@ -343,6 +325,8 @@ namespace PostingEngine.PostingRules
 
             // For a CROSS We just create an open Tax Lot, no other activity occurs
             var t1 = env.GenerateOpenTaxLot(element, fxrate);
+
+            Logger.Info($"Generated Open TaxLot {t1.Symbol}::{t1.Side}::{element.SecurityType}");
         }
     }
 }

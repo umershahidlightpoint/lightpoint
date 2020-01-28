@@ -17,6 +17,12 @@ namespace PostingEngine.PostingRules
     // Common functions that are shared across all IPostingRule implementations
     public class DefaultPostingRules
     {
+        private List<Tag> listOfTags = new List<Tag>
+                {
+                    Tag.Find("SecurityType"),
+                    Tag.Find("CustodianCode")
+                };
+
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         internal void DailyEvent(PostingEngineEnvironment env, Transaction element)
@@ -33,122 +39,12 @@ namespace PostingEngine.PostingRules
             if (env.TaxLotStatus.ContainsKey(element.LpOrderId))
             {
                 // Determine if we need to accumulate unrealized PNL
-                var taxlot = env.TaxLotStatus[element.LpOrderId];
+                var taxLotStatus = env.TaxLotStatus[element.LpOrderId];
 
                 // Check to see if the TaxLot is still open and it has a non zero Quantity
-                if (!taxlot.Status.ToLowerInvariant().Equals("closed") && Math.Abs(taxlot.Quantity) > 0)
+                if (!taxLotStatus.Status.ToLowerInvariant().Equals("closed") && Math.Abs(taxLotStatus.Quantity) > 0)
                 {
-                    var listOfTags = new List<Tag>
-                    {
-                        Tag.Find("SecurityType"),
-                        Tag.Find("CustodianCode")
-                    };
-
-                    // We have an open / partially closed tax lot so now need to calculate unrealized Pnl
-                    var quantity = taxlot.Quantity;
-
-                    var prevEodPrice = 0.0;
-                    var eodPrice = 0.0;
-
-                    if (env.ValueDate == element.TradeDate)
-                    {
-                        eodPrice = MarketPrices.Find(env.ValueDate, element).Price;
-                        prevEodPrice = element.SettleNetPrice;
-                    }
-                    else
-                    {
-                        prevEodPrice = MarketPrices.Find(env.PreviousValueDate, element).Price;
-                        eodPrice = MarketPrices.Find(env.ValueDate, element).Price;
-                    }
-
-                    var unrealizedPnl = CommonRules.CalculateUnrealizedPnl(env, taxlot);
-                   
-                    AccountToFrom fromToAccounts = null;
-
-                    if ( element.IsDerivative())
-                    {
-                        var originalAccount = AccountUtils.GetDerivativeAccountType(unrealizedPnl);
-                        fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", listOfTags, taxlot.Trade);
-                    }
-                    else
-                    {
-                        var originalAccount = taxlot.Side == "SHORT" ? "Mark to Market Shorts" : "Mark to Market Longs";
-                        fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "CHANGE IN UNREALIZED GAIN/(LOSS)", listOfTags, taxlot.Trade);
-                        if ( taxlot.Side == "SHORT" )
-                        {
-                            unrealizedPnl *= -1;
-                        }
-                    }
-
-                    var fund = env.GetFund(element);
-
-                    var debit = new Journal(element)
-                    {
-                        Account = fromToAccounts.From,
-                        When = env.ValueDate,
-                        Symbol = taxlot.Symbol,
-                        Quantity = quantity,
-                        FxRate = fxrate,
-                        Value = env.SignedValue(fromToAccounts.From, fromToAccounts.To, true, unrealizedPnl),
-                        CreditDebit = env.DebitOrCredit(fromToAccounts.From, unrealizedPnl),
-                        StartPrice = prevEodPrice,
-                        EndPrice = eodPrice,
-                        Event = Event.UNREALIZED_PNL,
-                        Fund = fund,
-                    };
-
-                    var credit = new Journal(element)
-                    {
-                        Account = fromToAccounts.To,
-                        When = env.ValueDate,
-                        FxRate = fxrate,
-                        Quantity = quantity,
-                        Value = env.SignedValue(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnl),
-                        CreditDebit = env.DebitOrCredit(fromToAccounts.To, unrealizedPnl),
-                        Event = Event.UNREALIZED_PNL,
-                        StartPrice = prevEodPrice,
-                        EndPrice = eodPrice,
-                        Fund = fund,
-                    };
-
-                    env.Journals.AddRange(new[] { debit, credit });
-
-                    if (fxrate != 1.0)
-                    {
-                        if (element.TradeDate != env.ValueDate && element.SettleDate >= env.ValueDate)
-                        {
-                            var fxJournals = FxPosting.CreateFx(
-                                env,
-                                "DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )", 
-                                "fx gain or loss on unsettled balance",
-                                "daily", 
-                                quantity, null, element);
-                            env.Journals.AddRange(fxJournals);
-                        }
-
-                        if (taxlot.Quantity != 0.0)
-                        {
-                            if ( env.ValueDate.Equals(new DateTime(2019,12,17)))
-                            {
-
-                            }
-
-                            if (element.TradeDate != env.ValueDate)
-                            {
-
-                                // Has to happen for every day
-                                var fxJournalsForInvestmentAtCost = FxPosting.CreateFx(
-                                    env,
-                                    CommonRules.GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"),
-                                    "Change in unrealized due to fx on original Cost",
-                                    "daily", quantity, taxlot, element);
-                                env.Journals.AddRange(fxJournalsForInvestmentAtCost);
-
-                                new FxPosting().CreateFxUnsettled(env, element);
-                            }
-                        }
-                    }
-
+                    GenerateDailyUnrealized(env, taxLotStatus, element, taxLotStatus.Quantity, fxrate);
                 }
             }
             else
@@ -169,10 +65,107 @@ namespace PostingEngine.PostingRules
 
                 }
         }
+
+        private void GenerateDailyUnrealized(PostingEngineEnvironment env, TaxLotStatus taxLotStatus, Transaction element, double quantity, double fxRate)
+        {
+            var prevEodPrice = 0.0;
+            var eodPrice = 0.0;
+
+            if (env.ValueDate == taxLotStatus.Trade.TradeDate)
+            {
+                prevEodPrice = taxLotStatus.Trade.SettleNetPrice;
+                eodPrice = MarketPrices.Find(env.ValueDate, taxLotStatus.Trade).Price;
+            }
+            else
+            {
+                prevEodPrice = MarketPrices.Find(env.PreviousValueDate, taxLotStatus.Trade).Price;
+                eodPrice = MarketPrices.Find(env.ValueDate, taxLotStatus.Trade).Price;
+            }
+
+            var endPrice = element.SettleNetPrice;
+
+            if ( taxLotStatus.Quantity == 0.0 )
+            {
+                eodPrice = endPrice;
+            }
+
+            var unrealizedPnl = CommonRules.CalculateUnrealizedPnl(env, taxLotStatus, quantity, eodPrice);
+
+            var originalAccount = taxLotStatus.Side == "SHORT" ? "Mark to Market Shorts" : "Mark to Market Longs";
+            var fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "CHANGE IN UNREALIZED GAIN/(LOSS)", listOfTags, taxLotStatus.Trade);
+            if (taxLotStatus.Side == "SHORT")
+            {
+                unrealizedPnl *= -1;
+            }
+
+            var fund = env.GetFund(taxLotStatus.Trade);
+
+            var debit = new Journal(taxLotStatus.Trade)
+            {
+                Account = fromToAccounts.From,
+                When = env.ValueDate,
+                Symbol = taxLotStatus.Symbol,
+                Quantity = quantity,
+                FxRate = fxRate,
+                Value = env.SignedValue(fromToAccounts.From, fromToAccounts.To, true, unrealizedPnl),
+                CreditDebit = env.DebitOrCredit(fromToAccounts.From, unrealizedPnl),
+                StartPrice = prevEodPrice,
+                EndPrice = eodPrice,
+                Event = Event.DAILY_UNREALIZED_PNL,
+                Fund = fund,
+            };
+
+            var credit = new Journal(debit)
+            {
+                Account = fromToAccounts.To,
+                Value = env.SignedValue(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnl),
+                CreditDebit = env.DebitOrCredit(fromToAccounts.To, unrealizedPnl),
+            };
+
+            env.Journals.AddRange(new[] { debit, credit });
+
+            if (fxRate != 1.0)
+            {
+                if (element.TradeDate != env.ValueDate && element.SettleDate >= env.ValueDate)
+                {
+                    var fxJournals = FxPosting.CreateFx(
+                        env,
+                        "DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )",
+                        "fx gain or loss on unsettled balance",
+                        "daily",
+                        quantity, null, element);
+                    env.Journals.AddRange(fxJournals);
+                }
+
+                if (taxLotStatus.Quantity != 0.0)
+                {
+                    if (env.ValueDate.Equals(new DateTime(2019, 12, 17)))
+                    {
+
+                    }
+
+                    if (element.TradeDate != env.ValueDate)
+                    {
+
+                        // Has to happen for every day
+                        var fxJournalsForInvestmentAtCost = FxPosting.CreateFx(
+                            env,
+                            CommonRules.GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"),
+                            "Change in unrealized due to fx on original Cost",
+                            "daily", quantity, taxLotStatus, element);
+                        env.Journals.AddRange(fxJournalsForInvestmentAtCost);
+
+                        new FxPosting().CreateFxUnsettled(env, element);
+                    }
+                }
+            }
+        }
+
         internal void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
             CommonRules.GenerateSettlementDateJournals(env, element);
         }
+
         internal void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
             double multiplier = 1.0;
@@ -306,18 +299,23 @@ namespace PostingEngine.PostingRules
             else
                 taxlotStatus.Status = "Partially Closed";
 
-            var prevPrice = MarketPrices.Find(env.PreviousValueDate, lot.Trade).Price;
+            if (taxlotStatus.Quantity == 0.0)
+            {
+                GenerateDailyUnrealized(env, taxlotStatus, element, workingQuantity * -1, fxrate);
+            }
 
-            // Calculate the unrealized PNL for the created Tax Lot
-            var unrealizedPnl = Math.Abs(taxlot.Quantity) * (element.SettleNetPrice - prevPrice) * multiplier;
+            // Calculate the unrealized Backout PNL for the created Tax Lot
+            var unrealizedPnl = Math.Abs(taxlot.Quantity) * (element.SettleNetPrice - buyTrade.SettleNetPrice) * multiplier * fxrate;
 
             unrealizedPnl *= CommonRules.DetermineSign(element);
 
-            CommonRules.PostUnRealizedPnl(
+            // Need to backout the Unrealized PNL here, as we are reducing the position of the TaxLot
+            CommonRules.ReverseUnrealizedPnl(
                 env,
                 buyTrade,
-                unrealizedPnl,
-                prevPrice,
+                element,
+                unrealizedPnl * -1,
+                buyTrade.SettleNetPrice,
                 element.SettleNetPrice,
                 fxrate);
 
@@ -377,6 +375,7 @@ namespace PostingEngine.PostingRules
                                         Tag.Find("CustodianCode")
                                     };
 
+            /*
             var markToMarketAccount = (buyTrade.IsShort() || buyTrade.IsCover()) ? "Mark to Market Shorts" : "Mark to Market Longs";
 
             var fromTo = new AccountUtils().GetAccounts(env, "CHANGE IN UNREALIZED GAIN/(LOSS)", markToMarketAccount, listOfFromTags, element);
@@ -418,6 +417,7 @@ namespace PostingEngine.PostingRules
             };
 
             env.Journals.AddRange(new[] { fromJournal, toJournal });
+            */
         }
 
        
@@ -512,7 +512,7 @@ namespace PostingEngine.PostingRules
 
             var fromTo = new AccountUtils().GetAccounts(env, m2mtranslation, "change in unrealized do to fx translation", new string[] { element.SettleCurrency }.ToList());
 
-            var debit = new Journal(fromTo.From, "unrealized-cash-fx", env.ValueDate)
+            var debit = new Journal(fromTo.From, Event.UNREALIZED_FX_TRANSLATION, env.ValueDate)
             {
                 Source = element.LpOrderId,
                 Fund = env.GetFund(element),
@@ -529,7 +529,7 @@ namespace PostingEngine.PostingRules
                 CreditDebit = env.DebitOrCredit(fromTo.From, realizedFxPnl),
             };
 
-            var credit = new Journal(fromTo.To, "unrealized-cash-fx", env.ValueDate)
+            var credit = new Journal(fromTo.To, Event.UNREALIZED_FX_TRANSLATION, env.ValueDate)
             {
                 Source = element.LpOrderId,
                 Fund = env.GetFund(element),

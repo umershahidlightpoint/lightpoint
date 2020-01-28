@@ -1,4 +1,5 @@
-﻿using LP.Finance.Common.Models;
+﻿using LP.Finance.Common;
+using LP.Finance.Common.Models;
 using PostingEngine.Contracts;
 using PostingEngine.MarketData;
 using PostingEngine.PostingRules;
@@ -12,6 +13,10 @@ namespace PostingEngine
 {
     public class PostingEngineEnvironment
     {
+        public PostingEngineEnvironment()
+        {
+        }
+
         public bool Completed { get; set; }
         public PostingEngineEnvironment(SqlConnection connection, SqlTransaction transaction = null)
         {
@@ -22,25 +27,48 @@ namespace PostingEngine
 
             Journals = new List<Journal>();
             TaxLotStatus = new Dictionary<string, TaxLotStatus>();
+
+            SetupMappins();
+        }
+
+        private static SqlConnection __connection;
+
+        internal int CollectData(List<Journal> journals)
+        {
+            return CollectData(ConnectionString, journals);
+        }
+
+        private int CollectData(string connectionString, List<Journal> journals)
+        {
+            if (__connection == null)
+            {
+                __connection = new SqlConnection(connectionString);
+                __connection.Open();
+            }
+
+            var transaction = __connection.BeginTransaction();
+
+            //Logger.Info($"Commiting Journals to the database {journals.Count()}");
+
+            new SQLBulkHelper().Insert("journal", journals.ToArray(), __connection, transaction);
+
+            //Logger.Info($"Completed :: Commiting Journals to the database {journals.Count()}");
+
+            transaction.Commit();
+
+            return journals.Count();
         }
 
         public string ConnectionString { get; set; }
-
         public PostingEngineCallBack CallBack { get; set; }
-
         public string BaseCurrency { get; set; }
         public string RunId { get; internal set; }
         public string Period { get; set; }
         public DateTime ValueDate { get; set; }
         public DateTime PreviousValueDate { get; set; }
         public DateTime BusinessDate { get; set; }
-
         public bool SkipWeekends { get; set; }
-
         public DateTime RunDate { get; set; }
-        public AccountCategory[] Categories { get; set; }
-        public List<AccountType> Types { get; set; }
-
         public Transaction[] Allocations { get; set; }
         public Transaction[] Trades { get; set; }
         public Dictionary<string, Accrual> Accruals { get; set; }
@@ -88,37 +116,42 @@ namespace PostingEngine
 
         public Dictionary<string, IPostingRule> Rules { get; set; }
 
+        private void SetupMappins()
+        {
+            TradingRules = new Dictionary<string, IPostingRule>
+            {
+                // Common
+                {"REIT", new CommonStock() },
+                {"ADR", new CommonStock() },
+                {"Bond", new CommonStock() },
+                {"Common Stock", new CommonStock() },
+                {"Open-End Fund", new CommonStock() },
+                {"Unit", new CommonStock() },
+
+                // Equity Option
+                {"Equity Option", new EquityOption() },
+
+                // Cash
+                {"Cash", new CashRule() },
+
+                // Forward Rule
+                {"FORWARD", new Forward() },
+
+                // CROSS
+                {"CROSS", new Cross() },
+
+                // Default Rule
+                {"Physical index future.", new DefaultRule() },
+
+                // Derivatives
+                {"Equity Swap", new Derivatives() },
+            };
+
+        }
         // Map of Product type to IPostingRule, now we can run each of these in parellel, once we have the data
         // which is readonly we can spin up a number of Tasks, each responsible for processing the right product
         // type, keep the commits to the database towards the end
-        public readonly Dictionary<string, IPostingRule> TradingRules = new Dictionary<string, IPostingRule>
-        {
-            // Common
-            {"REIT", new CommonStock() },
-            {"ADR", new CommonStock() },
-            {"Bond", new CommonStock() },
-            {"Common Stock", new CommonStock() },
-            {"Open-End Fund", new CommonStock() },
-            {"Unit", new CommonStock() },
-
-            // Equity Option
-            {"Equity Option", new EquityOption() },
-
-            // Cash
-            {"Cash", new CashRule() },
-
-            // Forward Rule
-            {"FORWARD", new Forward() },
-
-            // CROSS
-            {"CROSS", new Cross() },
-
-            // Default Rule
-            {"Physical index future.", new DefaultRule() },
-
-            // Derivatives
-            {"Equity Swap", new Derivatives() },
-        };
+        public Dictionary<string, IPostingRule> TradingRules = new Dictionary<string, IPostingRule>();
 
         public readonly Dictionary<string, IPostingRule> JournalRules = new Dictionary<string, IPostingRule>
         {
@@ -381,17 +414,20 @@ namespace PostingEngine
             public int SecurityId { get; set; }
         }
 
-        public List<PnlData> UnsettledPnl { get; set; }
+        public List<PnlData> UnsettledPnl { get; private set; }
 
-        public void GetUnsettledPnl()
+        public void GetUnsettledPnl(DateTime valueDate)
         {
-            this.UnsettledPnl = new List<PnlData>();
+            // TODO: Need to ensure that we are getting the right data from this list
+            if (UnsettledPnl == null)
+                UnsettledPnl = new List<PnlData>();
 
             var sql = $@"select credit, debit, symbol, quantity, fx_currency, fund, source, fxrate, security_id, SecurityType from vwWorkingJournals 
-                         where [event] = 'unrealizedpnl' 
-                         and AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'Change in Unrealized Derivatives Contracts at Fair Value') 
+                         where [event] in ('unrealizedpnl', 'daily-unrealizedpnl')
+                         and AccountCategory = 'Revenues'
+                         -- and AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'Change in Unrealized Derivatives Contracts at Fair Value') 
                          and fx_currency != '{BaseCurrency}'
-                         and [when] < '{ValueDate.ToString("MM-dd-yyyy")}'";
+                         and [when] = '{valueDate.ToString("MM-dd-yyyy")}'";
 
             var _connection = new SqlConnection(ConnectionString);
             _connection.Open();

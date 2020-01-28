@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClientSpecifics\ClientSpecifics.cs" />
     <Compile Include="Contracts\WhatSide.cs" />
     <Compile Include="MarketData\CostBasises.cs" />
     <Compile Include="MarketData\FxRate.cs" />
@@ -71,6 +72,12 @@
     <Compile Include="PostingRules\EquityOption.cs" />
     <Compile Include="PostingRules\FxPosting.cs" />
     <Compile Include="PostingRules\DefaultPostingRules.cs" />
+    <Compile Include="SetupEnvironment.cs" />
+    <Compile Include="Tasks\Implementation\CostBasisTask.cs" />
+    <Compile Include="Tasks\Implementation\DailyPnlTask.cs" />
+    <Compile Include="Tasks\Implementation\ExpencesAndRevenuesTask.cs" />
+    <Compile Include="Tasks\PostingTask.cs" />
+    <Compile Include="Tasks\Implementation\PullFromBookmonTask.cs" />
     <Compile Include="TaxLotMethods\BaseTaxLotMethodology.cs" />
     <Compile Include="TaxLotMethods\FIFOTaxLotMethod.cs" />
     <Compile Include="Contracts\ITaxLotMethodology.cs" />

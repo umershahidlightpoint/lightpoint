@@ -14,7 +14,7 @@ namespace PostingEngine.PostingRules
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         public bool IsValid(PostingEngineEnvironment env, Transaction element)
         {
-            return true;
+            return element.IsDerivative();
         }
 
         /// <summary>
@@ -68,21 +68,14 @@ namespace PostingEngine.PostingRules
 
                     AccountToFrom fromToAccounts = null;
 
-                    if (element.IsDerivative())
+                    var originalAccount = AccountUtils.GetDerivativeAccountType(unrealizedPnl);
+                    if ( originalAccount.Contains("(Liabilities)"))
                     {
-                        var originalAccount = AccountUtils.GetDerivativeAccountType(unrealizedPnl);
-                        if ( originalAccount.Contains("(Liabilities)"))
-                        {
-                            // This needs to be registered as a Credit to the Libabilities
-                            unrealizedPnl *= -1;
-                        }
-                        fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", listOfTags, taxlot.Trade);
+                        // This needs to be registered as a Credit to the Libabilities
+                        unrealizedPnl *= -1;
                     }
-                    else
-                    {
-                        var originalAccount = taxlot.Side == "SHORT" ? "Mark to Market Shorts" : "Mark to Market Longs";
-                        fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "CHANGE IN UNREALIZED GAIN/(LOSS)", listOfTags, taxlot.Trade);
-                    }
+
+                    fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", listOfTags, taxlot.Trade);
 
                     var fund = env.GetFund(element);
 
@@ -97,7 +90,7 @@ namespace PostingEngine.PostingRules
                         CreditDebit = env.DebitOrCredit(fromToAccounts.From, unrealizedPnl),
                         StartPrice = prevEodPrice,
                         EndPrice = eodPrice,
-                        Event = Event.UNREALIZED_PNL,
+                        Event = Event.DAILY_UNREALIZED_PNL,
                         Fund = fund,
                     };
 
@@ -109,7 +102,7 @@ namespace PostingEngine.PostingRules
                         Quantity = quantity,
                         Value = env.SignedValue(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnl),
                         CreditDebit = env.DebitOrCredit(fromToAccounts.To, env.SignedValue(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnl)),
-                        Event = Event.UNREALIZED_PNL,
+                        Event = Event.DAILY_UNREALIZED_PNL,
                         StartPrice = prevEodPrice,
                         EndPrice = eodPrice,
                         Fund = fund,
@@ -244,25 +237,16 @@ namespace PostingEngine.PostingRules
 
                                 var realizedPnl = taxlot.RealizedPnl;
 
-                                if (element.IsDerivative())
+                                var originalAccount = AccountUtils.GetDerivativeAccountType(realizedPnl);
+                                if (originalAccount.Contains("(Liabilities)"))
                                 {
-                                    var originalAccount = AccountUtils.GetDerivativeAccountType(realizedPnl);
-                                    if (originalAccount.Contains("(Liabilities)"))
-                                    {
-                                        // This needs to be registered as a Credit to the Libabilities
-                                        realizedPnl *= -1;
-                                    }
-
-                                    var fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "REALIZED GAIN/(LOSS)", listOfTags, taxlot.Trade);
-                                    fromAccount = fromToAccounts.From;
-                                    toAccount = fromToAccounts.To;
-
+                                    // This needs to be registered as a Credit to the Libabilities
+                                    realizedPnl *= -1;
                                 }
-                                else
-                                {
-                                    Logger.Warn($"Must be a derivativce");
-                                    break;
-                                }
+
+                                var fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "REALIZED GAIN/(LOSS)", listOfTags, taxlot.Trade);
+                                fromAccount = fromToAccounts.From;
+                                toAccount = fromToAccounts.To;
 
                                 var debitJournal = new Journal(element)
                                 {
