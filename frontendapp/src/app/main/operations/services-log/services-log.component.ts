@@ -116,7 +116,7 @@ export class ServicesLogComponent implements OnInit, AfterViewInit {
       const blob = new Blob([file], { type: 'text/csv' });
       const element = document.createElement('a');
       element.href = URL.createObjectURL(blob);
-      element.download = "test.txt";
+      element.download = fileName + '.txt';
       document.body.appendChild(element);
       element.click();
     });
