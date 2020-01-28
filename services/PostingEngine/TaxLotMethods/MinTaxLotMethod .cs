@@ -18,7 +18,7 @@ namespace PostingEngine.TaxLotMethods
 
         public List<TaxLotDetail> GetOpenLots(PostingEngineEnvironment env, Transaction element)
         {
-            Logger.Info($"Getting Open Tax Lots for {element.Symbol}::{element.Side}::{env.GetFund(element)}::{element.TradeDate}");
+            Logger.Info($"Getting Open Tax Lots for {element.Symbol}::{element.Side}::{env.GetFund(element)}::{element.TradeDate.ToString("MM-dd-yyyy")}");
 
             var minTaxLots = new List<TaxLotDetail>();
 
@@ -43,7 +43,7 @@ namespace PostingEngine.TaxLotMethods
             // Display all of the retrieved Tax Lots so that we can double check
             foreach(var i in minTaxLots)
             {
-                Logger.Info($"Retrieved Open Tax Lots {i.Trade.TradeDate}::{i.TaxRate.Rate}::{i.PotentialPnl}::{i.TaxLiability}::{i.TaxLotStatus.Quantity}");
+                Logger.Info($"Retrieved Open Tax Lots {i.Trade.TradeDate.ToString("MM-dd-yyyy")}::{i.TaxRate.Rate}::{i.PotentialPnl}::{i.TaxLiability}::{i.TaxLotStatus.Quantity}");
             }
 
             return minTaxLots;

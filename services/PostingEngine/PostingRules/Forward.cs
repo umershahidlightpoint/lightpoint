@@ -66,23 +66,14 @@ namespace PostingEngine.PostingRules
                         Tag.Find("CustodianCode")
                     };
 
-                    var prevEodPrice = 0.0;
-                    var eodPrice = 0.0;
-                    var fxRate = 0.0;
+                    var eodPrice = MarketPrices.Find(env.ValueDate, element).Price;
+                    var prevEodPrice = MarketPrices.Find(env.PreviousValueDate, element).Price;
 
-                    if (element.TradeCurrency.Equals(env.BaseCurrency))
+                    if (element.TradeCurrency.Equals(env.BaseCurrency)) 
                     {
                         if (env.ValueDate == element.TradeDate)
                         {
-                            prevEodPrice = 1 / element.SettleNetPrice;
-                            fxRate = FxRates.Find(env.ValueDate, element.SettleCurrency).Rate;
-                            eodPrice = fxRate;
-                        }
-                        else
-                        {
-                            prevEodPrice = FxRates.Find(env.PreviousValueDate, element.SettleCurrency).Rate;
-                            fxRate = FxRates.Find(env.PreviousValueDate, element.SettleCurrency).Rate;
-                            eodPrice = fxRate;
+                            prevEodPrice = element.SettleNetPrice;
                         }
                     }
                     else
@@ -90,33 +81,26 @@ namespace PostingEngine.PostingRules
                         if (env.ValueDate == element.TradeDate)
                         {
                             prevEodPrice = element.SettleNetPrice;
-                            fxRate = FxRates.Find(env.ValueDate, element.TradeCurrency).Rate;
-                            eodPrice = fxRate;
                         }
-                        else
-                        {
-                            prevEodPrice = FxRates.Find(env.PreviousValueDate, element.TradeCurrency).Rate;
-                            fxRate = FxRates.Find(env.ValueDate, element.TradeCurrency).Rate;
-                            eodPrice = fxRate;
-                        }
+                    }
+
+                    // we need to do this when there is no price for the trade from market data
+                    if ( prevEodPrice == 0.0 )
+                    {
+                        prevEodPrice = element.SettleNetPrice;
                     }
 
                     // We have an open / partially closed tax lot so now need to calculate unrealized Pnl
                     var quantity = taxlot.Quantity;
 
-                    var unrealizedPnl = 0.0;
-
                     var rateDiff = (eodPrice - prevEodPrice);
 
-                    if (element.SettleCurrency.Equals(env.BaseCurrency))
-                    {
-                        unrealizedPnl = (rateDiff * quantity);
-                    }
-                    else
-                    {
-                        unrealizedPnl = (rateDiff * quantity) * fxRate;
-                    }
+                    var unrealizedPnl = (rateDiff * quantity);
 
+                    if (element.TradeCurrency.Equals(env.BaseCurrency))
+                    {
+                        unrealizedPnl = unrealizedPnl / eodPrice;
+                    }
 
                     var originalAccount = AccountUtils.GetDerivativeAccountType(unrealizedPnl);
                     var fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", listOfTags, taxlot.Trade);
