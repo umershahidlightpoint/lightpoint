@@ -24,9 +24,9 @@ namespace LP.Finance.WebProxy.WebAPI
         }
 
         [HttpGet, Route("download")]
-        public object DownloadLogFile(string path, string fileName)
+        public object DownloadLogFile(string fileName)
         {
-            return service.DownloadLog(path, fileName);
+            return service.DownloadLog(fileName);
         }
     }
 }

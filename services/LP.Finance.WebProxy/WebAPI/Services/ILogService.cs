@@ -9,6 +9,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
     interface ILogService
     {
         object GetLogFiles();
-        object DownloadLog(string path, string fileName);
+        object DownloadLog(string fileName);
     }
 }

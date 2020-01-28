@@ -27,8 +27,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
                 var fileList = Directory.GetFiles(currentDir + "Finance-Logs").ToList();
                 var fileNames = fileList.Select(x => new {
-                    FileName = System.IO.Path.GetFileName(x),
-                    FilePath = x
+                    FileName = System.IO.Path.GetFileName(x)
                 }).ToList();
 
                 sw.Stop();
@@ -43,8 +42,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        public object DownloadLog(string path, string fileName)
+        public object DownloadLog(string fileName)
         {
+            var path = System.AppDomain.CurrentDomain.BaseDirectory + "Finance-Logs" + Path.DirectorySeparatorChar + fileName;
             var dataBytes = File.ReadAllBytes(path);
             var dataStream = new MemoryStream(dataBytes);
             HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
