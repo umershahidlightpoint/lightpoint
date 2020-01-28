@@ -122,7 +122,6 @@
           <app-silver-file-management *ngIf="fileManagementActive"></app-silver-file-management>
         </div>
         <!-- Silver File Management Ends -->
-
       </div>
     </div>
   </tab>
@@ -135,18 +134,27 @@
         <app-file-exception *ngIf="exportExceptionActive"></app-file-exception>
       </div>
     </div>
-  </tab>
   <!-- File Exception Tab Ends -->
+  </tab>
 
-  <!-- File Exception Tab -->
+  <!-- Services Status Tab -->
   <tab heading="Services Status" (selectTab)="activeServicesStatus()">
     <div class="col-12">
       <div [ngStyle]="style">
         <app-services-status *ngIf="servicesStatus"></app-services-status>
       </div>
     </div>
+    <!-- Services Status Tab Ends -->
   </tab>
-  <!-- File Exception Tab Ends -->
 
+  <!-- Services Log Tab -->
+  <tab heading="Services Log" (selectTab)="activeServicesLog()">
+    <div class="col-12">
+      <div [ngStyle]="style">
+        <app-services-log *ngIf="servicesLog"></app-services-log>
+      </div>
+    </div>
+    <!-- Services Log Tab Ends -->
+  </tab>
 </tabset>
 <!-- Main Tab View Ends -->

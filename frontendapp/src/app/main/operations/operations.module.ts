@@ -12,6 +12,7 @@ import { FileManagementComponent } from '../operations/file-management/file-mana
 import { FileUploadComponent } from '../operations/file-upload/file-upload.component';
 import { SilverFileManagementComponent } from 'src/app/main/operations/silver-file-management/silver-file-management.component';
 import { ServicesStatusComponent } from 'src/app/main/operations/services-status/services-status.component';
+import { ServicesLogComponent } from './services-log/services-log.component';
 
 import { OperationsRoutes } from './operations.route';
 import { SharedModule } from 'src/app/shared.module';
@@ -22,7 +23,8 @@ const operationsComponents = [
   FileManagementComponent,
   FileUploadComponent,
   SilverFileManagementComponent,
-  ServicesStatusComponent
+  ServicesStatusComponent,
+  ServicesLogComponent
 ];
 
 @NgModule({
