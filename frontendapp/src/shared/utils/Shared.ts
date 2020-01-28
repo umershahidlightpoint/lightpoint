@@ -515,16 +515,12 @@ export const CommonCols = (isJournalGrid, filters = null) => {
           }
         },
         redFont(params) {
-          if (
-            params.data !== undefined &&
-            (noColorCategories(params) ||
-              params.data.AccountCategory === 'Asset' ||
-              params.node.rowPinned)
-          ) {
+          if (params.data !== undefined && (noColorCategories(params) || params.node.rowPinned)) {
             return false;
-          } else if (params.data !== undefined && params.data.AccountCategory === 'Liability') {
-            return true;
-          } else {
+          } else if (
+            params.data !== undefined &&
+            (params.data.AccountCategory === 'Asset' || params.data.AccountCategory === 'Liability')
+          ) {
             return params.value < 0;
           }
         },
@@ -621,8 +617,8 @@ export const FormatNumber4 = (numberToFormat: number) => {
 export const FormatNumber8 = (numberToFormat: number) => {
   if (numberToFormat !== null) {
     const precisionNumber = numberToFormat.toFixed(8);
-    const split = precisionNumber.split(".");
-    return split[0].replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') + "." + split[1];
+    const split = precisionNumber.split('.');
+    return split[0].replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') + '.' + split[1];
   }
 };
 
@@ -645,9 +641,9 @@ export function BracketFormatter(params) {
     return;
   }
   if (
-    (params.data.AccountCategory === 'Equity' ||
-      params.data.AccountCategory === 'Revenues' ||
-      params.data.AccountCategory === 'Expenses')
+    params.data.AccountCategory === 'Equity' ||
+    params.data.AccountCategory === 'Revenues' ||
+    params.data.AccountCategory === 'Expenses'
   ) {
     if (params.value > 0) {
       return '( ' + MoneyFormat(Math.abs(params.value)) + ' )';

@@ -612,7 +612,7 @@ namespace LP.Finance.Common
                 if (obj.valueCols.Any(x => x.field == "debit") && obj.valueCols.Any(x => x.field == "credit") &&
                     obj.valueCols.Any(x => x.field == "balance"))
                 {
-                    return "select (abs(debit)) - (abs(credit)) as balance, * ";
+                    return "select cast(round((abs(debit)) - (abs(credit)), 2) as numeric(22, 2)) as balance, * ";
                 }
                 else
                 {
@@ -635,7 +635,7 @@ namespace LP.Finance.Common
                         {
                             if (obj.valueCols.Any(x => x.field == "debit") && obj.valueCols.Any(x => x.field == "credit"))
                             {
-                                aggregateCols.Add($"{col.aggFunc}(abs(debit)) - {col.aggFunc}(abs(credit)) as {col.field}");
+                                aggregateCols.Add($"cast(round({col.aggFunc}(abs(debit)) - {col.aggFunc}(abs(credit)), 2) as numeric(22, 2)) as {col.field}");
                             }
                         }
                         else
