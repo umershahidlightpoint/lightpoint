@@ -1,6 +1,5 @@
 <!-- SideNav Main Container -->
-<div [style.background-color]="backgroundColor" class="sidenav-container"
-    [@onSideNavChange]="sideNavState ? 'open' : 'close'">
+<div class="sidenav-container color-secondary" [@onSideNavChange]="sideNavState ? 'open' : 'close'">
 
     <!-- Nav Items Container -->
     <div class="nav-items-container d-flex flex-column justify-content-around  h-100 ">
@@ -8,10 +7,8 @@
         <!-- User Nav List -->
         <mat-nav-list class="d-flex flex-column justify-content-start">
             <a mat-list-item *ngFor="let page of userPages" [routerLink]="page.routerLink" title={{page?.name}}>
-                <i [ngClass]="{'text-light': colorMode === 'dark', 'text-dark': colorMode === 'light'}"
-                    class="fa fa-lg {{page?.icon}}"></i>
-                <span [ngClass]="{'text-light': colorMode === 'dark', 'text-dark': colorMode === 'light'}" class="ml-1"
-                    [@animateText]="linkText ? 'show' : 'hide'">{{ page?.name }} </span>
+                <i class="fa fa-lg {{page?.icon}}"></i>
+                <span [@animateText]="linkText ? 'show' : 'hide'">{{ page?.name }} </span>
             </a>
         </mat-nav-list>
         <!-- User Nav List Ends -->
@@ -21,10 +18,8 @@
         <!-- Admin Nav List -->
         <mat-nav-list class="d-flex flex-column justify-content-end">
             <a mat-list-item *ngFor="let page of adminPages" [routerLink]="page.routerLink" title={{page?.name}}>
-                <i [ngClass]="{'text-light': colorMode === 'dark', 'text-dark': colorMode === 'light'}"
-                    class="fa fa-lg {{page?.icon}}"></i>
-                <span [ngClass]="{'text-light': colorMode === 'dark', 'text-dark': colorMode === 'light'}" class="ml-1"
-                    [@animateText]="linkText ? 'show' : 'hide'">{{ page?.name }} </span>
+                <i class="fa fa-lg {{page?.icon}}"></i>
+                <span [@animateText]="linkText ? 'show' : 'hide'">{{ page?.name }} </span>
             </a>
         </mat-nav-list>
         <!-- Admin Nav List Ends -->

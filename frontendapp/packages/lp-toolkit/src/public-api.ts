@@ -12,6 +12,7 @@ export { SideMenuComponent } from './lib/components/layouts/side-menu/side-menu.
 export { NotFoundComponent } from './lib/components/not-found/not-found.component';
 export { ProgressComponent } from './lib/components/progress/progress.component';
 export { LoadingComponent } from './lib/components/loading/loading.component';
+export { SelectThemeComponent } from './lib/components/select-theme/select-theme.component';
 
 /*
  * Services

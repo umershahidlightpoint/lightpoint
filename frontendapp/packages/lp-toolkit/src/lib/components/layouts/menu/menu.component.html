@@ -1,8 +1,7 @@
 <div>
     <mat-sidenav-container class="sidenav-container">
         <mat-sidenav #leftMenu mode="side" opened>
-            <lp-side-menu [userPages]="userPages" [adminPages]="adminPages" [backgroundColor]="backgroundColor"
-                [colorMode]="colorMode">
+            <lp-side-menu [userPages]="userPages" [adminPages]="adminPages">
             </lp-side-menu>
         </mat-sidenav>
         <mat-sidenav-content class="sidenav-content" [@onMainContentChange]="onSideNavChange ? 'open': 'close'">

@@ -12,8 +12,6 @@ import { Page } from '../../../models/page.model';
 export class SideMenuComponent implements OnInit {
   @Input() userPages: Page[];
   @Input() adminPages: Page[];
-  @Input() colorMode: string;
-  @Input() backgroundColor: string;
 
   public sideNavState = false;
   public linkText = false;

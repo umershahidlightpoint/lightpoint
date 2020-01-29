@@ -1,0 +1,12 @@
+@import './styles.scss';
+
+:root {
+  --primary: #563d7c;
+  --on-primary: #ffffff;
+  --primary-light: #a17adc;
+  --on-primary-light: #ffffff;
+  --secondary: #f4f5f7;
+  --on-secondary: #000000;
+  --tertiary: #6c757d;
+  --on-tertiary: #000000;
+}

@@ -10,9 +10,6 @@ import { SidenavService } from '../../../services/sidenav.service';
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   @Input() title = 'My App';
-  @Input() colorMode = 'dark';
-  @Input() backgroundColor = '#0275d8';
-  @Input() textColor = '#fff';
 
   public sidenav: MatSidenav;
   public sideNavSubscription: Subscription;

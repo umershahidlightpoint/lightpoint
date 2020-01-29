@@ -1,3 +1,5 @@
+@import '../../assets/styles/styles.scss';
+
 .progress-loader {
   position: relative;
   height: 4px;
@@ -6,10 +8,6 @@
   background-color: #fee7e7;
   border-radius: 2px;
   overflow: hidden;
-}
-
-.progress-loader .indeterminate {
-  background-color: #f53d3d;
 }
 
 .progress-loader .indeterminate:before {

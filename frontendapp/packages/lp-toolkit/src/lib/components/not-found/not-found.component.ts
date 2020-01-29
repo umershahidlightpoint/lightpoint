@@ -10,9 +10,6 @@ export class NotFoundComponent implements OnInit {
   @Input() imgPath: string;
   @Input() route: string;
   @Input() btnText: 'GO TO HOMEPAGE';
-  @Input() btnTextColor: '#dbd8d0';
-  @Input() btnBgColor: '#007bff';
-  @Input() backgroundColor: '#0275d8';
 
   constructor(private router: Router) {}
 

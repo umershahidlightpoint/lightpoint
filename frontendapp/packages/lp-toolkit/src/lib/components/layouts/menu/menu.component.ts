@@ -15,8 +15,6 @@ export class MenuComponent implements OnInit, OnDestroy {
   @ViewChild('leftMenu', { static: true }) leftMenu: MatSidenav;
   @Input() userPages: Page[] = [];
   @Input() adminPages: Page[] = [];
-  @Input() colorMode = 'light';
-  @Input() backgroundColor = '#f4f5f7';
 
   public onSideNavChange: boolean;
   public sideNavSubscription: Subscription;

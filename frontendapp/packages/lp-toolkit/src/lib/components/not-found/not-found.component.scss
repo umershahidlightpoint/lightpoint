@@ -1,15 +1,15 @@
-  .notFound-wrap {
-    height: 90vh;
-  }
+@import '../../assets/styles/styles.scss';
 
-  .notFound-title {
-    color: #9BBDDB;
-    font-family: inherit;
-    font-weight: 400;
-    font-size: 1.5em;
-  }
+.not-found-wrap {
+  height: 90vh;
+}
 
-  .notFound-txt{
-    color: #151c29;
-    font-weight: 700;
-  }
+.not-found-title {
+  font-family: inherit;
+  font-weight: 400;
+  font-size: 1.5em;
+}
+
+.not-found-text {
+  font-weight: 700;
+}
