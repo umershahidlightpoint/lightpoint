@@ -19,17 +19,16 @@ export class SelectThemeComponent implements OnInit, ControlValueAccessor {
   public themes: Theme[];
 
   @Input() name: string;
-  @Input() theme: Theme;
-  @Input() activeTheme: string;
+  @Input() theme = '';
 
   onChange: any = () => {};
   onTouched: any = () => {};
 
-  get value(): Theme {
+  get value(): string {
     return this.theme;
   }
 
-  set value(theme: Theme) {
+  set value(theme: string) {
     this.theme = theme;
     this.onChange(theme);
     this.onTouched();
@@ -40,8 +39,8 @@ export class SelectThemeComponent implements OnInit, ControlValueAccessor {
   ngOnInit() {
     const availableThemes: Theme[] = this.themeService.getAvailableThemes();
     this.themes = availableThemes;
-    if (this.activeTheme) {
-      this.value = availableThemes.find(element => element.name === this.activeTheme);
+    if (this.theme) {
+      this.value = this.theme;
     }
   }
 
@@ -60,6 +59,7 @@ export class SelectThemeComponent implements OnInit, ControlValueAccessor {
   }
 
   onThemeChange() {
-    this.themeService.setActiveTheme(this.theme);
+    const theme: Theme = this.themes.find(element => element.name === this.theme);
+    this.themeService.setActiveTheme(theme);
   }
 }
