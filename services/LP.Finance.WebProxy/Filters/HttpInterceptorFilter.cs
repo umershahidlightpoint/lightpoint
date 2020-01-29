@@ -16,10 +16,10 @@ namespace LP.Finance.WebProxy.Filters
         public override void OnActionExecuting(HttpActionContext actionContext)
         {
             Trace.CorrelationManager.ActivityId = Guid.NewGuid();
-            Logger.Info(actionContext.Request.RequestUri.ToString());
-            Logger.Info(actionContext.Request.Method.ToString());
+            Logger.Info("Request URL : {requestUrl}", actionContext.Request.RequestUri.ToString());
+            Logger.Info("Request Type : {requestType}",actionContext.Request.Method.ToString());
             var requestBody = actionContext.ActionArguments.Select(x=> x.Value).FirstOrDefault();
-            Logger.Info(JsonConvert.SerializeObject(requestBody));
+            Logger.Info("Request Payload : {payload}", JsonConvert.SerializeObject(requestBody));
         }
     }
 }

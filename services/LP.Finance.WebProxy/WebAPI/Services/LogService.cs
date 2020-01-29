@@ -25,14 +25,22 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             { 
                 Logger.Info($"started GetLogFiles at {DateTime.UtcNow}");
                 var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
-                var fileList = Directory.GetFiles(currentDir + "Finance-Logs").ToList();
-                var fileNames = fileList.Select(x => new {
-                    FileName = System.IO.Path.GetFileName(x)
-                }).ToList();
+                if (Directory.Exists(currentDir + "Logs"))
+                {
+                    var fileList = Directory.GetFiles(currentDir + "Logs").ToList();
+                    var fileNames = fileList.Select(x => new
+                    {
+                        FileName = System.IO.Path.GetFileName(x)
+                    }).ToList();
 
-                sw.Stop();
-                Logger.Info($"finished GetLogFiles at {DateTime.UtcNow} in {sw.ElapsedMilliseconds} ms | {sw.ElapsedMilliseconds / 1000} s");
-                return Utils.Wrap(true, fileNames, HttpStatusCode.OK);
+                    sw.Stop();
+                    Logger.Info($"finished GetLogFiles at {DateTime.UtcNow} in {sw.ElapsedMilliseconds} ms | {sw.ElapsedMilliseconds / 1000} s");
+                    return Utils.Wrap(true, fileNames, HttpStatusCode.OK);
+                }
+                else
+                {
+                    return Utils.Wrap(false, null);
+                }
             }
             catch(Exception ex)
             {
@@ -44,7 +52,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object DownloadLog(string fileName)
         {
-            var path = System.AppDomain.CurrentDomain.BaseDirectory + "Finance-Logs" + Path.DirectorySeparatorChar + fileName;
+            var path = System.AppDomain.CurrentDomain.BaseDirectory + "Logs" + Path.DirectorySeparatorChar + fileName;
             var dataBytes = File.ReadAllBytes(path);
             var dataStream = new MemoryStream(dataBytes);
             HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);

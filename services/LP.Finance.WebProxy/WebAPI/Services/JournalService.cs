@@ -1385,8 +1385,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 journalStats journalStats = new journalStats();
 
                 var sql = ServerSideRowModelHelper.BuildSql(obj, viewName);
-                Logger.Info($"serverSideJournals sql generated in {sw.ElapsedMilliseconds} ms");
                 var query = sql.Item1 + " OPTION(MAXDOP 4)";
+                Logger.Info("serverSideJournals query {query}",query);
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sql.Item3.ToArray());
                 int lastRow = ServerSideRowModelHelper.GetRowCount(obj, dataTable);
                 bool rootNodeGroupOrNoGrouping =
@@ -1404,13 +1404,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var returnResult = Utils.Wrap(true, json, HttpStatusCode.OK, sql.Item2, metaData, journalStats);
                 sw.Stop();
-                Logger.Info($"finished serverSideJournals at {DateTime.UtcNow} in {sw.ElapsedMilliseconds} ms | {sw.ElapsedMilliseconds / 1000} s");
+                Logger.Info("finished serverSideJournals in {elapsedTime} ms", sw.ElapsedMilliseconds);
                 return returnResult;
             }
             catch (Exception ex)
             {
                 sw.Stop();
-                Logger.Error(ex, $"serverSideJournals failed at {DateTime.UtcNow} in {sw.ElapsedMilliseconds} ms | {sw.ElapsedMilliseconds / 1000} s");
+                Logger.Error(ex, "serverSideJournals failed after {elapsedTime} ms", sw.ElapsedMilliseconds);
                 throw ex;
             }
         }
