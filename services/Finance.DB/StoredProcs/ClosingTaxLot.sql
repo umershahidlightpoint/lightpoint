@@ -7,7 +7,7 @@ AS
 select symbol, source, sum(debit-credit) as realized_pnl from vwJournal 
 where 
 AccountType = 'CHANGE IN UNREALIZED GAIN/(LOSS)' 
-and [event] = 'unrealizedpnl' 
+and [event] in ('daily-unrealizedpnl', 'reverse-unrealizedpnl')
 and [when] <= @busDate
 and [source] = @LpOrderId
 group by symbol, source
@@ -23,8 +23,8 @@ group by symbol, source
 
 select symbol, source, sum(debit-credit) as asset_daily_unrealizedpnl_fx from vwJournal 
 where 
-AccountType = 'FX MARKET TO MARKET ON STOCK COST' 
-and [event] = 'daily-unrealizedpnl-fx' 
+AccountType in ('FX MARKET TO MARKET ON STOCK COST', 'FX MARK TO MARKET ON STOCK COST (SHORTS)')
+and [event] in ('daily-unrealizedpnl-fx', 'reversal-unrealized-cash-fx')
 and [when] <= @busDate
 and [source] = @LpOrderId
 group by symbol, source
@@ -32,7 +32,7 @@ group by symbol, source
 select symbol, source, sum(debit-credit) as revenue_daily_unrealizedpnl_fx from vwJournal 
 where 
 AccountType = 'Change in unrealized due to fx on original Cost' 
-and [event] = 'daily-unrealizedpnl-fx' 
+and [event] in ('daily-unrealizedpnl-fx', 'reversal-unrealized-cash-fx')
 and [when] <= @busDate
 and [source] = @LpOrderId
 group by symbol, source

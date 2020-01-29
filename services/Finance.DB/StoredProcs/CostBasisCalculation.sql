@@ -85,7 +85,7 @@ into #unrealized_long
 FROM vwJournal j
 where 
 AccountType = 'Mark to Market Longs' and
-[event] in ('unrealizedpnl', 'realizedpnl') -- Need to ensure that we remove the realized from the unrealized
+[event] in ('daily-unrealizedpnl', 'realizedpnl') -- Need to ensure that we remove the realized from the unrealized
 and j.[when] <= @bDate
 group by j.symbol
 
@@ -106,7 +106,7 @@ SELECT @bDate as busdate, J.symbol, sum(credit-debit) as unrealized_pnl, 'SHORT'
 into #unrealized_short
 FROM vwJournal j
 where AccountType = 'Mark to Market Shorts'
-and [event] in ('unrealizedpnl', 'realizedpnl')
+and [event] in ('daily-unrealizedpnl', 'realizedpnl')
 and j.[when] <= @bDate
 group by j.symbol
 

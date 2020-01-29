@@ -74,12 +74,12 @@ namespace PostingEngine.PostingRules
             if (env.ValueDate == taxLotStatus.Trade.TradeDate)
             {
                 prevEodPrice = taxLotStatus.Trade.SettleNetPrice;
-                eodPrice = MarketPrices.Find(env.ValueDate, taxLotStatus.Trade).Price;
+                eodPrice = MarketPrices.GetPrice(env, env.ValueDate, taxLotStatus.Trade).Price;
             }
             else
             {
-                prevEodPrice = MarketPrices.Find(env.PreviousValueDate, taxLotStatus.Trade).Price;
-                eodPrice = MarketPrices.Find(env.ValueDate, taxLotStatus.Trade).Price;
+                prevEodPrice = MarketPrices.GetPrice(env, env.PreviousValueDate, taxLotStatus.Trade).Price;
+                eodPrice = MarketPrices.GetPrice(env, env.ValueDate, taxLotStatus.Trade).Price;
             }
 
             var endPrice = element.SettleNetPrice;
@@ -239,6 +239,8 @@ namespace PostingEngine.PostingRules
                         var taxlotStatus = env.TaxLotStatus[lot.Trade.LpOrderId];
                         if (taxlotStatus != null && taxlotStatus.Quantity != 0 && !taxlotStatus.Status.ToLowerInvariant().Equals("closed"))
                         {
+                            Logger.Info($"Relieving Tax Lot {taxlotStatus.TradeDate.ToString("MM-dd-yyyy")}::{taxlotStatus.Symbol}::{taxlotStatus.OpenId}");
+
                             // Does the open Lot fully fullfill the quantity ?
                             if (Math.Abs(taxlotStatus.Quantity) >= Math.Abs(workingQuantity))
                             {

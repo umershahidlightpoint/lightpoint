@@ -7,20 +7,26 @@ Exec PeriodPnl '2019-12-31'
 CREATE PROCEDURE [dbo].[FundAdminReconcile]
 	@businessDate Date
 AS
-	declare @busdate as date
-	set @busdate = @businessDate
 
 /*
 Grab Data from PA first
 */
 
-Exec PeriodPnl @Busdate
+Exec PeriodPnl @businessDate
 
-select @busDate as busDate, Symbol as SecurityCode, SecurityId, Sum(Amount) as Quantity, Sum(Pl) as DayPnl, Sum(MTDPnl) as MTDPnl, Sum(YTDPnl) as YTDPnl 
+select @businessDate as busDate, s.SecurityCode, pnl.SecurityId, Sum(Amount) as Quantity, Sum(Pl) as DayPnl, Sum(MTDPnl) as MTDPnl, Sum(YTDPnl) as YTDPnl 
 into #fundadmin
-from PositionMaster..CITCOPnl
-where BusDate = @busdate and Symbol is not null and SecurityId != 0
-group by Symbol, SecurityId
+from PositionMaster..CITCOPnl pnl
+inner join SecurityMaster..Security s on s.SecurityId = pnl.SecurityId
+where BusDate = @businessDate and Symbol is not null and pnl.SecurityId != 0
+group by s.SecurityCode, pnl.SecurityId
+
+-- select * from pnl_summary
+select @businessDate as BusDate, Currency, SecurityCode, SecurityType, Sum(Quantity) as Quantity, SUm(DayPnl) as DayPnl, SUm(MtdPnl) as MtdPnl, SUm(QtdPnl) as QtdPnl, SUm(YtdPnl) as YtdPnl, SUm(ItdPnl) as ItdPnl
+into #pnl_summary
+from pnl_summary
+where BusDate =  @businessDate
+group by Currency, SecurityCode, SecurityType
 
 -- Reconcile
 select 
@@ -46,14 +52,14 @@ end as Diff_YTDPnl,
 b.*, 
 'PA -->' as PortfolioA, 
 p.* 
-from pnl_summary p
-full outer join #fundadmin b on b.Busdate = p.BusDate and b.SecurityId = p.SecurityId
+from #pnl_summary p
+full outer join #fundadmin b on b.Busdate = p.BusDate and b.SecurityCode = p.SecurityCode
 where p.BusDate = @businessDate
 -- and b.Currency = p.Currency
 order by p.SecurityCode
 
 -- Our Data
-select * from pnl_summary
+select * from #pnl_summary
 order by SecurityCode
 
 -- Fund Admin data

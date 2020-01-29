@@ -246,6 +246,8 @@ where business_date = @busDate";
                 BaseCurrency = "USD"
             };
 
+            SetupEnvironment.Setup(env.ConnectionString);
+
             Key = key;
             PostingEngineCallBack = postingEngineCallBack;
 
@@ -289,6 +291,14 @@ where business_date = @busDate";
             {
                 Logger.Info("Completing PostingEngine");
                 Complete();
+            }
+            else if (calculation.Equals("EndOfYear"))
+            {
+                var calc = PostingTasks.Get("endofyear");
+                env.ValueDate = new DateTime(2020, 1, 1);
+
+                var result = PostingTasks.RunTask(env, calc);
+                result.Wait();
             }
         }
 

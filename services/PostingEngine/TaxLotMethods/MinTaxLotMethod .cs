@@ -69,7 +69,7 @@ namespace PostingEngine.TaxLotMethods
         /// <returns></returns>
         private double CalculateUnrealizedPnl(PostingEngineEnvironment env, TaxLotDetail i, Transaction trade)
         {
-            var eodPrice = MarketPrices.Find(env.ValueDate, i.Trade).Price;
+            var eodPrice = MarketPrices.GetPrice(env, env.ValueDate, i.Trade).Price;
             var fxrate = FxRates.Find(env.ValueDate, i.Trade.SettleCurrency).Rate;
 
             if (env.TaxLotStatus.ContainsKey(i.Trade.LpOrderId))

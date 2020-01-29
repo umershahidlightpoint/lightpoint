@@ -6,14 +6,18 @@ exec CacheResults
 CREATE PROCEDURE [dbo].[CacheResults]
 AS
 
+RAISERROR ('Preparing', 0, 1) WITH NOWAIT
+
 	select * into #current_trade_state from vwCurrentStateTrades 
 	select * into #current_journal from vwJournal
 
+	RAISERROR ('Dropping Indexes', 0, 1) WITH NOWAIT
 	drop index Ix_current_journal_full_when on current_journal_full
 	drop index Ix_current_journal_full_covering_index on current_journal_full
 
 	truncate table current_journal_full
 
+	RAISERROR ('Populating current_journal_full', 0, 1) WITH NOWAIT
 	insert into current_journal_full
 	select vw.*, 
 	t.TradeDate,
@@ -27,6 +31,7 @@ AS
 from #current_journal vw
 left outer join #current_trade_state t on t.LpOrderId = vw.source
 
+RAISERROR ('Creating Indexes', 0, 1) WITH NOWAIT
 create clustered index Ix_current_journal_full_when
 ON current_journal_full([when] desc)
 
@@ -34,6 +39,7 @@ ON current_journal_full([when] desc)
 create nonclustered index Ix_current_journal_full_covering_index
 ON current_journal_full ([when],accountcategory, accounttype, fund, accountname) INCLUDE (source,[event], credit,debit,symbol,security_id, quantity, id, account_id, fx_currency,accountdescription,[value], start_price, end_price,fxrate,is_account_to,tradedate,settledate,tradeid,[action],[status],custodiancode,securitytype,side);
 
+RAISERROR ('Completed', 0, 1) WITH NOWAIT
 
 	select count(*), 'journal entries' from #current_journal
 	union

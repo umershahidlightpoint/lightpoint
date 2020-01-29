@@ -71,6 +71,7 @@ namespace PostingEngine.PostingRules
 
             return 1;
         }
+
         /// <summary>
         /// Calcualte the Unrealized Pnl for this Tax lot
         /// </summary>
@@ -97,12 +98,19 @@ namespace PostingEngine.PostingRules
             if (env.ValueDate == taxLotStatus.Trade.TradeDate)
             {
                 prevEodPrice = taxLotStatus.Trade.SettleNetPrice;
-                eodPrice = MarketPrices.Find(env.ValueDate, taxLotStatus.Trade).Price;
+                var eodMarketPrice = MarketPrices.GetPrice(env, env.ValueDate, taxLotStatus.Trade);
+
+                if (!eodMarketPrice.Valid)
+                {
+                    env.AddMessage(eodMarketPrice.Error);
+                }
+
+                eodPrice = eodMarketPrice.Price;
             }
             else
             {
-                prevEodPrice = MarketPrices.Find(env.PreviousValueDate, taxLotStatus.Trade).Price;
-                eodPrice = MarketPrices.Find(env.ValueDate, taxLotStatus.Trade).Price;
+                prevEodPrice = MarketPrices.GetPrice(env, env.PreviousValueDate, taxLotStatus.Trade).Price;
+                eodPrice = MarketPrices.GetPrice(env, env.ValueDate, taxLotStatus.Trade).Price;
             }
 
             eodPrice = endPrice != 0 ? endPrice : eodPrice;
@@ -177,7 +185,7 @@ namespace PostingEngine.PostingRules
             if ( taxLotToRelieve.LpOrderId.Equals(trade.LpOrderId))
             {
                 // Same, so we are dealing with the same trade, so we are backing out the same trade
-                SettleNetPrice = MarketPrices.Find(trade.SettleDate, trade.Symbol).Price;
+                SettleNetPrice = MarketPrices.GetPrice(env, trade.SettleDate, trade).Price;
             }
 
             var prevFxRate = FxRates.Find(taxLotToRelieve.TradeDate, taxLotToRelieve.SettleCurrency).Rate;
@@ -498,7 +506,7 @@ namespace PostingEngine.PostingRules
                 fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
             }
 
-            var prevPrice = MarketPrices.Find(env.PreviousValueDate, lot.Trade).Price;
+            var prevPrice = MarketPrices.GetPrice(env, env.PreviousValueDate, lot.Trade).Price;
             var unrealizedPnl = Math.Abs(taxlotStatus.Quantity) * (element.SettleNetPrice - prevPrice) * multiplier;
             unrealizedPnl = Math.Abs(unrealizedPnl) * CommonRules.DetermineSign(taxlotStatus.Trade);
 
@@ -509,7 +517,7 @@ namespace PostingEngine.PostingRules
                 buyTrade,
                 element,
                 unrealizedPnl,
-                MarketPrices.Find(env.PreviousValueDate, lot.Trade).Price,
+                MarketPrices.GetPrice(env, env.PreviousValueDate, lot.Trade).Price,
                 element.SettleNetPrice, fxrate);
 
             var PnL = taxlot.RealizedPnl;
@@ -646,7 +654,7 @@ namespace PostingEngine.PostingRules
                 if (element.IsSell() || element.IsCover())
                     moneyUSD = moneyUSD * -1;
 
-                var eodPrice = MarketPrices.Find(env.ValueDate, element).Price;
+                var eodPrice = MarketPrices.GetPrice(env, env.ValueDate, element).Price;
 
                 var fromJournal = new Journal(element, accountToFrom.From, Event.TRADE_DATE, env.ValueDate)
                 {

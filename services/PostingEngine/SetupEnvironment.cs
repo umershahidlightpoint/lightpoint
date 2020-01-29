@@ -21,5 +21,30 @@ namespace PostingEngine
             Account.Load(connection);
             Tag.Load(connection);
         }
+
+        internal static void Setup(string ConnectionString)
+        {
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+
+                try
+                {
+                    AccountCategory.Load(connection);
+                    AccountType.Load(connection);
+                    Account.Load(connection);
+                    Tag.Load(connection);
+                }
+                catch (Exception ex )
+                {
+
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+        }
+
     }
 }

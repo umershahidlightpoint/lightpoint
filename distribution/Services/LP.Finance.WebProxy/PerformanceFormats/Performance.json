@@ -1,0 +1,69 @@
+{
+  "Header": [],
+  "Trailer": [],
+  "Record": [
+    {
+      "source": "PerformanceDate",
+      "destination": "PerformanceDate",
+      "function": null,
+      "format": "",
+      "type": "date",
+      "offset": 0,
+      "rule": ""
+    },
+    {
+      "source": "Fund",
+      "destination": "Fund",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 1,
+      "rule": ""
+    },
+    {
+      "source": "Portfolio",
+      "destination": "Portfolio",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 2,
+      "rule": ""
+    },
+    {
+      "source": "StartOfMonthEstimateNav",
+      "destination": "StartOfMonthEstimateNav",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 3,
+      "rule": ""
+    },
+    {
+      "source": "Performance",
+      "destination": "Performance",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 4,
+      "rule": ""
+    },
+    {
+      "source": "MonthEndNav",
+      "destination": "MonthEndNav",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 5,
+      "rule": ""
+    },
+    {
+      "source": "MTD",
+      "destination": "MTD",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 6,
+      "rule": ""
+    }
+  ]
+}

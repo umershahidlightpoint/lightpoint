@@ -10,7 +10,7 @@ namespace PostingEngine.ClientSpecifics
         public Transaction[] Transform(Transaction[] trades)
         {
             // This is specific to BayBerry
-            var finalTradeList = trades.Where(t => t.TradeDate >= new DateTime(2019, 4, 1) && t.TradeDate <= new DateTime(2019, 12, 31)).ToArray();
+            var finalTradeList = trades.Where(t => t.TradeDate >= new DateTime(2019, 4, 1)).ToArray();
 
             //var finalTradeList = localTradeList.ToArray();
 
@@ -26,7 +26,7 @@ namespace PostingEngine.ClientSpecifics
             if (DEBUG_TRADE_LIST)
             {
                 var securityTypeTags = new List<string> {
-                    //"FORWARD",
+                    "FORWARD",
                     //"Equity Swap"
                     };
 
@@ -34,8 +34,8 @@ namespace PostingEngine.ClientSpecifics
                 {
                     //"NXT LN SWAP",
                     //"BGA AU SWAP",
-                    "GBP/USD 3/18/2020",
-                    "USD/CAD 3/18/2020"
+                    //"GBP/USD 3/18/2020",
+                    //"USD/CAD 3/18/2020"
                 };
 
                 if ( securityTypeTags.Count() > 0 )
