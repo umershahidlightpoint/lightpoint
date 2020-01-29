@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatSidenavModule } from '@angular/material';
 import { MatListModule } from '@angular/material/list';
+import { AgGridModule } from 'ag-grid-angular';
 
 import { LpToolkitComponent } from './lp-toolkit.component';
 import { MenuComponent } from './components/layouts/menu/menu.component';
@@ -14,6 +15,8 @@ import { NotFoundComponent } from './components/not-found/not-found.component';
 import { ProgressComponent } from './components/progress/progress.component';
 import { LoadingComponent } from './components/loading/loading.component';
 import { SelectThemeComponent } from './components/select-theme/select-theme.component';
+import { ServicesLogComponent } from './components/services-log/services-log.component';
+import { TemplateRendererComponent } from './components/shared/template-renderer/template-renderer.component';
 
 import { SidenavService } from './services/sidenav.service';
 
@@ -25,14 +28,24 @@ const sharedComponents = [
   NotFoundComponent,
   ProgressComponent,
   LoadingComponent,
-  SelectThemeComponent
+  SelectThemeComponent,
+  ServicesLogComponent,
+  TemplateRendererComponent
 ];
 
 const materialModules = [MatSidenavModule, MatListModule];
 
 @NgModule({
   declarations: [...sharedComponents],
-  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, ...materialModules],
+  imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    ReactiveFormsModule,
+    AgGridModule.withComponents([
+      TemplateRendererComponent
+  ]),
+  ...materialModules],
   exports: [
     CommonModule,
     RouterModule,
