@@ -16,8 +16,8 @@ export class ServicesLogComponent implements OnInit, AfterViewInit {
 
   @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<any>;
 
-  @Input() getLogsUrl = 'http://localhost:9092/api/log/files';
-  @Input() downloadFileUrl = 'http://localhost:9092/api/log/download?path=&fileName=';
+  @Input() getLogsUrl:string;
+  @Input() downloadFileUrl:string;
 
   gridOptions: GridOptions;
   logs: Log[];

@@ -8,9 +8,8 @@ import { HeightStyle } from 'src/shared/utils/Shared';
 })
 export class ServicesLogComponent implements OnInit {
 
-  title = 'Portfolio Accounting Services Log';
   getLogsUrl = 'http://localhost:9092/api/log/files';
-  downloadFileUrl = 'http://localhost:9092/api/log/download?path=&fileName=';
+  downloadFileUrl = 'http://localhost:9092/api/log/download?fileName=';
   styleForHeight = HeightStyle(156);
 
   constructor() {}
