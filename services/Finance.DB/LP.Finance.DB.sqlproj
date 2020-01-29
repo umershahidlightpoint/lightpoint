@@ -138,6 +138,8 @@
     <Build Include="Tables\pnl_summary.sql" />
     <Build Include="StoredProcs\Recon\PeriodJournals.sql" />
     <Build Include="Tables\current_journal_full.sql" />
+    <Build Include="Tables\log.sql" />
+    <Build Include="StoredProcs\InsertLog.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">
