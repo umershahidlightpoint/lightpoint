@@ -7,8 +7,6 @@ import { Component, OnInit, Input } from '@angular/core';
 })
 export class LoadingComponent implements OnInit {
   @Input() loadingText = true;
-  @Input() loaderColor = '#0275d8';
-  @Input() textColor = '#0275d8';
 
   constructor() {}
 

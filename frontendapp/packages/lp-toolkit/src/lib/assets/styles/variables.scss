@@ -1,1 +1,8 @@
-$primary: #000000;
+$primary: var(--primary);
+$on-primary: var(--on-primary);
+$primary-light: var(--primary-light);
+$on-primary-light: var(--on-primary-light);
+$secondary: var(--secondary);
+$on-secondary: var(--on-secondary);
+$tertiary: var(--tertiary);
+$on-tertiary: var(--on-tertiary);

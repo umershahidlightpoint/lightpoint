@@ -6,8 +6,6 @@ import { Component, OnInit, Input } from '@angular/core';
   styleUrls: ['./progress.component.scss']
 })
 export class ProgressComponent implements OnInit {
-  @Input() color = '#f53d3d';
-
   constructor() {}
 
   ngOnInit() {}

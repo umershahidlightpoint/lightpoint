@@ -50,6 +50,7 @@ body {
 /******************************
 ***   AG GRID Font Colors   ***
 ******************************/
+
 .redFont {
   color: red;
   font-style: italic;
@@ -72,7 +73,7 @@ body {
 .ranges ul li button.active,
 .md-drppicker td.active,
 .md-drppicker td.active:hover {
-  background-color: #0275d8 !important;
+  background-color: var(--primary) !important;
 }
 
 .md-drppicker .clear svg {
@@ -92,7 +93,7 @@ body {
 }
 
 .nav-link.active {
-  background-color: #0275d8 !important;
+  background-color: var(--primary) !important;
   color: white !important;
 }
 
@@ -313,7 +314,7 @@ body {
 ******************************/
 
 .color-primary {
-  background: #0275d8 !important;
+  background: var(--primary) !important;
 }
 
 .color-white {
@@ -382,38 +383,38 @@ body {
 
 .btn-pa {
   color: #fff;
-  background-color: #0275d8;
-  border-color: #0275d8;
+  background-color: var(--primary);
+  border-color: var(--primary);
 }
 
 .btn-pa:hover {
   color: #fff;
-  background-color: #0b65b4;
-  border-color: #0275d8;
+  background-color: var(--primary);
+  border-color: var(--primary);
 }
 
 .btn-pa:focus,
 .btn-pa.focus {
-  box-shadow: 0 0 0 0.2rem rgba(11, 101, 180, 0.5);
+  box-shadow: 0 0 0 0.2rem var(--primary);
 }
 
 .btn-pa.disabled,
 .btn-pa:disabled {
   color: #fff;
-  background-color: #519ddf;
-  border-color: #519ddf;
+  background-color: var(--primary-light);
+  border-color: var(--primary-light);
 }
 
 .btn-pa:not(:disabled):not(.disabled):active,
 .btn-pa:not(:disabled):not(.disabled).active,
 .show > .btn-pa.dropdown-toggle {
   color: #fff;
-  background-color: #0275d8;
-  border-color: #0275d8;
+  background-color: var(--primary);
+  border-color: var(--primary);
 }
 
 .btn-pa:not(:disabled):not(.disabled):active:focus,
 .btn-pa:not(:disabled):not(.disabled).active:focus,
 .show > .btn-pa.dropdown-toggle:focus {
-  box-shadow: 0 0 0 0.2rem rgba(11, 101, 180, 0.5);
+  box-shadow: 0 0 0 0.2rem var(--primary);
 }
