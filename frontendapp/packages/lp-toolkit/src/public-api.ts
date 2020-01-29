@@ -30,6 +30,7 @@ export * from './lib/utils/index';
 /*
  * Models
  */
+export { Theme } from './lib/models/theme.model';
 export { Page } from './lib/models/page.model';
 
 /*

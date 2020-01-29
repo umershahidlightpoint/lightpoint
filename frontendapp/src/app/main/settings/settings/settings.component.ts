@@ -1,12 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
+import { NgForm } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import * as moment from 'moment';
-import { SettingApiService } from '../../../../services/setting-api.service';
-import { AgGridUtils } from '../../../../shared/utils/AgGridUtils';
-import { Style, HeightStyle } from '../../../../shared/utils/Shared';
-import { NgForm } from '@angular/forms';
 import { DataService } from 'src/services/common/data.service';
+import { SettingApiService } from '../../../../services/setting-api.service';
+import { Style, HeightStyle } from '../../../../shared/utils/Shared';
 
 @Component({
   selector: 'app-settings',
@@ -33,20 +31,6 @@ export class SettingsComponent implements OnInit {
   isGridViewsActive = false;
   hideGrid: boolean;
 
-  private gridOptions: GridOptions;
-  private allocationsGridOptions: GridOptions;
-
-  bottomOptions = { alignedGrids: [] };
-  accrualsData: any;
-  allocationAccrualsData: any;
-  columnDefs: Array<ColDef | ColGroupDef>;
-  page: any;
-  pageSize: any;
-  accountSearch = { id: undefined };
-  valueFilter: number;
-  sortColum: any;
-  sortDirection: any;
-
   style = Style;
 
   styleForHeight = HeightStyle(180);
@@ -72,13 +56,10 @@ export class SettingsComponent implements OnInit {
   constructor(
     private settingApiService: SettingApiService,
     private dataService: DataService,
-    private toastrService: ToastrService,
-    private agGridUtils: AgGridUtils
+    private toastrService: ToastrService
   ) {
     this.hideGrid = false;
     this.createDates();
-
-    // this.initGrids();
   }
 
   ngOnInit() {
@@ -88,8 +69,6 @@ export class SettingsComponent implements OnInit {
         this.getCurrencies();
       }
     });
-
-    // this.alignGrids();
   }
 
   activateTab(tab: string) {
@@ -191,74 +170,4 @@ export class SettingsComponent implements OnInit {
 
     return days;
   }
-
-  // initGrids() {
-  //   this.gridOptions = {
-  //     rowData: [],
-  //     columnDefs: this.columnDefs,
-  //     onGridReady: () => {
-  //       // this.gridOptions.api.sizeColumnsToFit();
-  //     },
-  //     onFirstDataRendered: () => {
-  //       // params.api.sizeColumnsToFit();
-  //     },
-  //     rowSelection: 'single',
-  //     enableFilter: true,
-  //     animateRows: true,
-  //     alignedGrids: [],
-  //     suppressHorizontalScroll: false
-  //   } as GridOptions;
-
-  //   this.allocationsGridOptions = {
-  //     rowData: [],
-  //     columnDefs: this.columnDefs,
-  //     onGridReady: () => {
-  //       // this.gridOptions.api.sizeColumnsToFit();
-  //     },
-  //     onFirstDataRendered: () => {
-  //       // params.api.sizeColumnsToFit();
-  //     },
-  //     enableFilter: true,
-  //     animateRows: true,
-  //     alignedGrids: [],
-  //     suppressHorizontalScroll: false
-  //   } as GridOptions;
-  // }
-
-  // alignGrids() {
-  //   // Align Scroll of Grid and Footer Grid
-  //   this.gridOptions.alignedGrids.push(this.bottomOptions);
-  //   this.bottomOptions.alignedGrids.push(this.gridOptions);
-  //   this.page = 0;
-  //   this.pageSize = 0;
-  //   this.accountSearch.id = 0;
-  //   this.valueFilter = 0;
-  //   this.sortColum = '';
-  //   this.sortDirection = '';
-  //   this.financeService.getAccruals().subscribe(result => {
-  //     this.accrualsData = result;
-  //     const someArray = this.agGridUtils.columizeData(result.data, this.accrualsData.meta.Columns);
-  //     const cdefs = this.agGridUtils.customizeColumns([], this.accrualsData.meta.Columns, [], false);
-  //   });
-  // }
-
-  // onRowSelected(event) {
-  //   if (event.node.selected) {
-  //     this.financeService.getAccrualAllocations(event.node.data.AccrualId).subscribe(result => {
-  //       this.allocationAccrualsData = result;
-  //       const someArray = this.agGridUtils.columizeData(
-  //         result.data,
-  //         this.allocationAccrualsData.meta.Columns
-  //       );
-  //       const cdefs = this.agGridUtils.customizeColumns(
-  //         [],
-  //         this.allocationAccrualsData.meta.Columns,
-  //         ['Id', 'AllocationId', 'EMSOrderId'],
-  //         false
-  //       );
-
-  //       // this.allocationsGridOptions.api.setColumnDefs(cdefs);
-  //     });
-  //   }
-  // }
 }

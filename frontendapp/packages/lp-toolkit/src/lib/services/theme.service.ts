@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Theme, blue, purple } from '../assets/theme';
+import { blue, purple } from '../assets/theme';
+import { Theme } from '../models/theme.model';
 
 @Injectable({
   providedIn: 'root'

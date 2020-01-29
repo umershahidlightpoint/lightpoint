@@ -41,6 +41,14 @@
             </div>
             <!-- Save Button Ends -->
 
+            <!-- App Theme Dropdown -->
+            <h4 class="mt-2">Application Theme</h4>
+            <lp-select-theme activeTheme="blue" #themeSelect="ngModel" ngModel name="theme"></lp-select-theme>
+
+            <p class="help-block text-danger" *ngIf="themeSelect.invalid && themeSelect.touched">*Please select a
+              theme</p>
+            <!-- App Theme Dropdown Ends -->
+
             <!-- Reporting Currency Dropdown -->
             <h4 class="mt-2">Reporting Currency</h4>
             <select class="form-control" #currencySelect="ngModel" ngModel name="currency" required>

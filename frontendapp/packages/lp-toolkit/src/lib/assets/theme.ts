@@ -1,7 +1,4 @@
-export interface Theme {
-  name: string;
-  properties: any;
-}
+import { Theme } from '../models/theme.model';
 
 export const blue: Theme = {
   name: 'blue',
