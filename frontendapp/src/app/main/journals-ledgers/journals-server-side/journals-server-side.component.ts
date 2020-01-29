@@ -146,7 +146,9 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
             if (this.gridOptions.columnApi.getAllColumns() !== null) {
               this.rowData = result.payload;
+              this.rowData = this.checkIfASingleFilterIsAppliedOnAccountCategory(params, this.rowData);
               this.rowData = this.getGroupedAccountCategoryData(params, this.rowData);
+              
 
               params.successCallback(this.rowData, result.meta.LastRow);
             }
@@ -274,6 +276,29 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
       return item;
     });
+  }
+
+  checkIfASingleFilterIsAppliedOnAccountCategory(params: IServerSideGetRowsParams, rowData: any) {
+    let filteredCategory;
+    if(params.request.filterModel.hasOwnProperty('AccountCategory')){
+      const obj = params.request.filterModel['AccountCategory'];
+      const filterList : Array<string>[] = obj['values'];
+      if(filterList.length == 1){
+        filteredCategory = filterList[0];
+      }
+    }
+
+    if(filteredCategory){
+      return rowData.map(item => {
+        if (!item.hasOwnProperty('AccountCategory')) {
+          return { ...item, AccountCategory: filteredCategory };
+        }
+        return item;
+      });
+
+    } else {
+      return rowData;
+    }
   }
 
   getFunds() {
