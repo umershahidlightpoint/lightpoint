@@ -60,7 +60,11 @@ const materialModules = [MatSidenavModule, MatListModule];
   entryComponents: []
 })
 export class LpToolkitModule {
-  static forRoot(config: LPToolkitConfig): ModuleWithProviders<LpToolkitModule> {
+  static forRoot(config?: LPToolkitConfig): ModuleWithProviders<LpToolkitModule> {
+    if (!config) {
+      config = { themes: [] };
+    }
+
     return {
       ngModule: LpToolkitModule,
       providers: [
