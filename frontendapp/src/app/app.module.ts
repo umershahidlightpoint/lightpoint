@@ -35,7 +35,6 @@ import { NotfoundComponent } from './main/not-found/notfound/notfound.component'
   declarations: [
     AppComponent,
     HeaderContentComponent,
-    // LeftMenuComponent,
     NotfoundComponent
   ],
   imports: [
