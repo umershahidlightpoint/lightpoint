@@ -55,13 +55,13 @@ namespace PostingEngine.PostingRules
 
                     if (env.ValueDate == element.TradeDate)
                     {
-                        eodPrice = MarketPrices.Find(env.ValueDate, element).Price;
+                        eodPrice = MarketPrices.GetPrice(env, env.ValueDate, element).Price;
                         prevEodPrice = element.SettleNetPrice;
                     }
                     else
                     {
-                        prevEodPrice = MarketPrices.Find(env.PreviousValueDate, element).Price;
-                        eodPrice = MarketPrices.Find(env.ValueDate, element).Price;
+                        prevEodPrice = MarketPrices.GetPrice(env, env.PreviousValueDate, element).Price;
+                        eodPrice = MarketPrices.GetPrice(env, env.ValueDate, element).Price;
                     }
 
                     var unrealizedPnl = CommonRules.CalculateUnrealizedPnl(env, taxlot);

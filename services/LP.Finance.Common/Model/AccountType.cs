@@ -5,8 +5,9 @@ using System.Linq;
 
 namespace LP.Finance.Common.Models
 {
-    public class AccountType : IDbAction
+    public class AccountType : IDbAction, IDbActionIdentity
     {
+        public bool Exists { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
         public AccountCategory Category { get; set; }
@@ -14,6 +15,11 @@ namespace LP.Finance.Common.Models
         private readonly static List<AccountType> _all = new List<AccountType>();
 
         public static List<AccountType> All { get { return _all; } }
+
+        public static void Add(AccountType item)
+        {
+            All.Add(item);
+        }
 
         public static AccountType Find(int id)
         {
@@ -93,6 +99,20 @@ namespace LP.Finance.Common.Models
             All.Add(accountType);
 
             return accountType;
+        }
+
+        public KeyValuePair<string, SqlParameter[]> Identity
+        {
+            get
+            {
+                var sql = @"select id from account_type where name=@name";
+                var sqlParams = new SqlParameter[]
+                {
+                    new SqlParameter("name", Name),
+                };
+
+                return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);
+            }
         }
     }
 }

@@ -51,6 +51,12 @@ namespace PostingEngine.PostingRules.Utilities
             SaveAccountDetails(env.ConnectionString, account);
         }
 
+        public void Save(PostingEngineEnvironment env, AccountType accountType)
+        {
+            Save(env.ConnectionString, accountType);
+            AccountType.Add(accountType);
+        }
+
         public void SaveAccountDetails(String connectionString, Account account)
         {
             if (!account.Exists)
@@ -72,6 +78,26 @@ namespace PostingEngine.PostingRules.Utilities
                     tag.Save(_connection, transaction);
                 }
                 account.Exists = true;
+
+                transaction.Commit();
+            }
+        }
+
+        public void Save(string connectionString, AccountType accountType)
+        {
+            if (!accountType.Exists)
+            {
+                if (_connection == null)
+                {
+                    _connection = new SqlConnection(connectionString);
+                    _connection.Open();
+                }
+
+                var transaction = _connection.BeginTransaction();
+
+                accountType.Save(_connection, transaction);
+                accountType.Id = accountType.Identity(_connection, transaction);
+                accountType.Exists = true;
 
                 transaction.Commit();
             }

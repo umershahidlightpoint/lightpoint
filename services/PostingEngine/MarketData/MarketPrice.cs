@@ -4,6 +4,12 @@ namespace PostingEngine.MarketData
 {
     public class MarketPrice
     {
+        public MarketPrice()
+        {
+            Valid = true;
+            Error = String.Empty;
+        }
+
         public string Symbol { get; set; }
         public double Price { get; set; }
 
@@ -17,6 +23,8 @@ namespace PostingEngine.MarketData
             }
         }
 
+        public bool Valid { get; set; }
+        public string Error { get; set; }
     }
 
 }

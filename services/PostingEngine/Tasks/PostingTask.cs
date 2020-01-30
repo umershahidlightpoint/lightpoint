@@ -20,6 +20,8 @@ namespace PostingEngine.Tasks
                 return new ExpencesAndRevenuesTask();
             if (name.Equals("dailypnl"))
                 return new DailyPnlTask();
+            if (name.Equals("endofyear"))
+                return new EndOfYearTask();
 
             return null;
         }

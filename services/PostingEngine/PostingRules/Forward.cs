@@ -35,7 +35,6 @@ namespace PostingEngine.PostingRules
             realizedAccountType = AccountType.Find("REALIZED GAIN/(LOSS)");
         }
 
-
         /// <summary>
         /// Run for each day that the Tax Lot remains open / partially closed
         /// </summary>
@@ -66,10 +65,14 @@ namespace PostingEngine.PostingRules
                         Tag.Find("CustodianCode")
                     };
 
-                    var eodPrice = MarketPrices.Find(env.ValueDate, element).Price;
-                    var prevEodPrice = MarketPrices.Find(env.PreviousValueDate, element).Price;
+                    var split = element.Symbol.Split(new char[] { '/', ' ' });
+                    var baseCurrency = split[0];
+                    var riskCurrency = split[1];
 
-                    if (element.TradeCurrency.Equals(env.BaseCurrency)) 
+                    var eodPrice = MarketPrices.GetPrice(env, env.ValueDate, element).Price;
+                    var prevEodPrice = MarketPrices.GetPrice(env, env.PreviousValueDate, element).Price;
+
+                    if (baseCurrency.Equals(env.BaseCurrency)) 
                     {
                         if (env.ValueDate == element.TradeDate)
                         {
@@ -90,6 +93,11 @@ namespace PostingEngine.PostingRules
                         prevEodPrice = element.SettleNetPrice;
                     }
 
+                    if ( eodPrice == 0.0 )
+                    {
+                        eodPrice = element.SettleNetPrice;
+                    }
+
                     // We have an open / partially closed tax lot so now need to calculate unrealized Pnl
                     var quantity = taxlot.Quantity;
 
@@ -97,7 +105,7 @@ namespace PostingEngine.PostingRules
 
                     var unrealizedPnl = (rateDiff * quantity);
 
-                    if (element.TradeCurrency.Equals(env.BaseCurrency))
+                    if (baseCurrency.Equals(env.BaseCurrency))
                     {
                         unrealizedPnl = unrealizedPnl / eodPrice;
                     }
@@ -163,23 +171,25 @@ namespace PostingEngine.PostingRules
             if (env.TaxLotStatus.ContainsKey(element.LpOrderId))
             {
                 var taxlotStatus = env.TaxLotStatus[element.LpOrderId];
-                var tradeCurrency = element.TradeCurrency;
-                var settleCurrency = element.SettleCurrency;
 
-                var accountBuy = new AccountUtils().CreateAccount(atSettledCash, new List<string> { element.SecurityType, element.CustodianCode, tradeCurrency });
-                var accountSell = new AccountUtils().CreateAccount(atSettledCash, new List<string> { element.SecurityType, element.CustodianCode, settleCurrency });
+                var split = element.Symbol.Split(new char[] { '/', ' ' });
+                var baseCurrency = split[0];
+                var riskCurrency = split[1];
+
+                var accountBuy = new AccountUtils().CreateAccount(atSettledCash, new List<string> { element.SecurityType, element.CustodianCode, baseCurrency });
+                var accountSell = new AccountUtils().CreateAccount(atSettledCash, new List<string> { element.SecurityType, element.CustodianCode, riskCurrency });
 
                 new AccountUtils().SaveAccountDetails(env, accountBuy);
                 new AccountUtils().SaveAccountDetails(env, accountSell);
 
                 var tradePrice = element.SettleNetPrice;
-                var fxCurrency = element.SettleCurrency;
+                var fxCurrency = riskCurrency;
                 var baseQuantity = element.Quantity;
 
                 // Net money is in the settlement Currency
                 var netMoney = element.NetMoney;
 
-                if ( !env.BaseCurrency.Equals(tradeCurrency))
+                if ( !env.BaseCurrency.Equals(baseCurrency))
                 {
                     fxCurrency = element.TradeCurrency;
                     tradePrice = 1 / element.SettleNetPrice;
@@ -200,7 +210,7 @@ namespace PostingEngine.PostingRules
                     {
                         Source = element.LpOrderId,
                         Fund = env.GetFund(element),
-                        FxCurrency = element.TradeCurrency,
+                        FxCurrency = baseCurrency,
                         Symbol = element.Symbol,
                         SecurityId = element.SecurityId,
                         Quantity = Convert.ToDouble(element.Quantity),
@@ -217,7 +227,7 @@ namespace PostingEngine.PostingRules
                     {
                         Source = element.LpOrderId,
                         Fund = env.GetFund(element),
-                        FxCurrency = element.SettleCurrency,
+                        FxCurrency = riskCurrency,
                         Symbol = element.Symbol,
                         SecurityId = element.SecurityId,
                         Quantity = Convert.ToDouble(element.Quantity),
@@ -247,7 +257,7 @@ namespace PostingEngine.PostingRules
                     {
                         Source = element.LpOrderId,
                         Fund = env.GetFund(element),
-                        FxCurrency = element.TradeCurrency,
+                        FxCurrency = baseCurrency,
                         Symbol = element.Symbol,
                         SecurityId = element.SecurityId,
                         Quantity = Convert.ToDouble(element.Quantity),
@@ -264,7 +274,7 @@ namespace PostingEngine.PostingRules
                     {
                         Source = element.LpOrderId,
                         Fund = env.GetFund(element),
-                        FxCurrency = element.SettleCurrency,
+                        FxCurrency = riskCurrency,
                         Symbol = element.Symbol,
                         SecurityId = element.SecurityId,
                         Quantity = Convert.ToDouble(element.Quantity),

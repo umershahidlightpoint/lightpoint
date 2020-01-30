@@ -23,33 +23,33 @@ update #results
 set realizedPnl = coalesce(GG,0)
 from #results t
 inner join (
-select Symbol, Fund, SUM(credit-debit) as GG from vwFullJournal
+select security_id, Symbol, Fund, SUM(credit-debit) as GG from current_journal
 where AccountType in ('REALIZED GAIN/(LOSS)') and [event] in ('realizedpnl')
 and [when] >= @From and [when] <= @Now
-group by Symbol, Fund
-) as v on v.fund = t.fund and v.symbol = t.SecurityCode
+group by security_id, Symbol, Fund
+) as v on v.fund = t.fund and v.security_id = t.SecurityId
 
 update #results
 set unrealizedPnl = coalesce(GG,0)
 from #results t
 inner join (
-select Symbol, Fund, SUM(credit-debit) as GG from vwFullJournal v
-where (AccountType = 'CHANGE IN UNREALIZED GAIN/(LOSS)' and [event] = 'unrealizedpnl')
-and v.SecurityType not in ( 'Equity Swap', 'FORWARD' )
+select security_id, Symbol, Fund, SUM(credit-debit) as GG from vwFullJournal v
+where (AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'Change in unrealized due to fx on original Cost', 'change in unrealized do to fx translation'))
+and v.SecurityType not in ( 'Equity Swap', 'FORWARD', 'CROSS' )
 and v.[when] >= @From and v.[when] <= @Now
-group by Symbol, Fund
-) as v on v.fund = t.fund and v.symbol = t.SecurityCode
+group by security_id, Symbol, Fund
+) as v on v.fund = t.fund and v.security_id = t.SecurityId
 
 update #results
 set unrealizedPnl = GG
 from #results t
 inner join (
-select Symbol, Fund, SUM(credit-debit) as GG from vwFullJournal v
-where (AccountType = 'Change in Unrealized Derivatives Contracts at Fair Value')
-and v.SecurityType in ( 'Equity Swap', 'FORWARD' )
+select security_id, Symbol, Fund, SUM(credit-debit) as GG from vwFullJournal v
+where (AccountType in ('Change in Unrealized Derivatives Contracts at Fair Value', 'Change in Unrealized Derivatives Contracts due to FX Translation'))
+and v.SecurityType in ( 'Equity Swap', 'FORWARD', 'CROSS' )
 and v.[when] >= @From and v.[when] <= @Now
-group by Symbol, Fund
-) as v on v.fund = t.fund and v.symbol = t.SecurityCode
+group by security_id, Symbol, Fund
+) as v on v.fund = t.fund and v.security_id = t.SecurityId
 
 update #results
 set Pnl = Round(unrealizedPnl + realizedPnl,2)

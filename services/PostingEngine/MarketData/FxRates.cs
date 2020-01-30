@@ -87,6 +87,8 @@ namespace PostingEngine.MarketData
 
         public static void CacheData()
         {
+            Logger.Info("Caching FxRates");
+
             if (Mock)
             {
                 _all = Utils.GetFile<Dictionary<string, FxRate>>("all_fxrates");

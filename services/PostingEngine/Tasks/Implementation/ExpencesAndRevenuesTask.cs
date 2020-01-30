@@ -46,14 +46,6 @@ namespace PostingEngine.Tasks
             connection.Open();
             var transaction = connection.BeginTransaction();
 
-            var envAA = new PostingEngineEnvironment(connection, transaction)
-            {
-                BaseCurrency = "USD",
-                SecurityDetails = new SecurityDetails().Get(),
-                RunDate = DateTime.Now.Date,
-                ConnectionString = env.ConnectionString,
-            };
-
             var sqlHelper = new SqlHelper(env.ConnectionString);
 
             var rowsCompleted = 1;

@@ -19,12 +19,12 @@ namespace PostingEngine.MarketData
 
         public static void CacheData()
         {
+            Logger.Info("Caching MarketPrices");
+
             if (Mock)
             {
                 _all = Utils.GetFile<Dictionary<string, MarketPrice>>("all_marketprices");
             }
-
-            Logger.Info("Caching Market Prices");
 
             var sql = $@"select business_date, symbol, MAX(price) from FundAccounting..market_prices group by business_date, symbol";
 
@@ -60,7 +60,19 @@ namespace PostingEngine.MarketData
             _all = list;
         }
 
-        public static MarketPrice Find(DateTime busDate, Transaction element)
+        public static MarketPrice GetPrice(PostingEngineEnvironment env, DateTime valueDate, Transaction element)
+        {
+            var eodMarketPrice = Find(valueDate, element);
+
+            if (!eodMarketPrice.Valid)
+            {
+                env.AddMessage(eodMarketPrice.Error);
+            }
+
+            return eodMarketPrice;
+        }
+
+        private static MarketPrice Find(DateTime busDate, Transaction element)
         {
             var mp = new MarketPrice
             {
@@ -69,8 +81,6 @@ namespace PostingEngine.MarketData
 
             if ( element.Symbol.Equals("MSUXX"))
             {
-                //Logger.Warn($"Using Price = 1 for {element.Symbol}");
-
                 return mp; 
             }
 
@@ -78,10 +88,20 @@ namespace PostingEngine.MarketData
 
             mp = new MarketPrice
             {
-                Price = price.Price
+                Price = price.Price,
+                Valid = price.Valid,
+                Error = price.Error,
             };
 
-            if ( element.TradeCurrency.ToLowerInvariant().Equals("gbx") || element.TradeCurrency.Equals("GBp"))
+            var baseCurrency = element.TradeCurrency;
+
+            if ( element.SecurityType.Equals("FORWARD"))
+            {
+                var split = element.Symbol.Split(new char[] { '/', ' ' });
+                baseCurrency = split[0];
+            }
+
+            if ( baseCurrency.ToLowerInvariant().Equals("gbx") || baseCurrency.Equals("GBp"))
             {
                 mp.Price = mp.Price / 100.0;
             }
@@ -89,7 +109,7 @@ namespace PostingEngine.MarketData
             return mp;
         }
 
-        internal static MarketPrice Find(DateTime busDate, string symbol)
+        private static MarketPrice Find(DateTime busDate, string symbol)
         {
             var bDate = busDate.ToString("MM-dd-yyyy");
 
@@ -98,28 +118,14 @@ namespace PostingEngine.MarketData
             if (_all.ContainsKey(key))
                 return _all[key];
 
-            //Logger.Warn($"Unable to find Primary MarketPrice for {key}");
-
-            // We need to manufactor a rate
-            var priorDate = busDate.PrevBusinessDate();
-
             var priorRate = 0.0;
-
-            bDate = priorDate.ToString("MM-dd-yyyy");
-            key = $"{symbol}@{bDate}";
-            if (_all.ContainsKey(key))
-            {
-                priorRate = _all[key].Price;
-            }
-
-            //Logger.Warn($"Unable to find Secondary MarketPrice for {key}");
 
             return new MarketPrice
             {
-                Price = priorRate
+                Price = priorRate,
+                Error = $"Unable to find MarketPrice for {key}",
+                Valid = false
             };
-
-            //return _dummyFx;
         }
 
         public Dictionary<string, MarketPrice> Get(DateTime now)

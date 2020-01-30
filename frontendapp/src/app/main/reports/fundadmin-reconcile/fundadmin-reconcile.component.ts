@@ -23,11 +23,10 @@ import {
   HeightStyle,
   ExcelStyle,
   LegendColors,
-  FormatDate,
   dateFormatter,
   CommaSeparatedFormat,
   moneyFormatter,
-  FormatNumber8
+  pnlFormatter
 } from 'src/shared/utils/Shared';
 import { finalize } from 'rxjs/operators';
 
@@ -205,7 +204,7 @@ export class FundAdminReconcileComponent implements OnInit, AfterViewInit {
           sortable: true,
           filter: true,
           width: 120,
-          valueFormatter: priceFormatter
+          valueFormatter: pnlFormatter
         },
         {
           field: 'Diff_MTDPnl',
@@ -214,7 +213,7 @@ export class FundAdminReconcileComponent implements OnInit, AfterViewInit {
           sortable: true,
           filter: true,
           width: 120,
-          valueFormatter: priceFormatter
+          valueFormatter: pnlFormatter
         },
         {
           field: 'Diff_YTDPnl',
@@ -223,7 +222,7 @@ export class FundAdminReconcileComponent implements OnInit, AfterViewInit {
           sortable: true,
           filter: true,
           width: 120,
-          valueFormatter: priceFormatter
+          valueFormatter: pnlFormatter
         },
         {
           field: 'Currency',
@@ -319,7 +318,7 @@ export class FundAdminReconcileComponent implements OnInit, AfterViewInit {
           sortable: true,
           filter: true,
           width: 120,
-          valueFormatter: priceFormatter
+          valueFormatter: pnlFormatter
         },
         {
           field: 'MTDPnl',
@@ -328,7 +327,7 @@ export class FundAdminReconcileComponent implements OnInit, AfterViewInit {
           sortable: true,
           filter: true,
           width: 120,
-          valueFormatter: priceFormatter
+          valueFormatter: pnlFormatter
         },
         {
           field: 'YTDPnl',
@@ -337,7 +336,7 @@ export class FundAdminReconcileComponent implements OnInit, AfterViewInit {
           sortable: true,
           filter: true,
           width: 120,
-          valueFormatter: priceFormatter
+          valueFormatter: pnlFormatter
         },
         {
           field: 'Currency',
@@ -409,7 +408,7 @@ export class FundAdminReconcileComponent implements OnInit, AfterViewInit {
           sortable: true,
           filter: true,
           width: 120,
-          valueFormatter: priceFormatter
+          valueFormatter: pnlFormatter
         },
         {
           field: 'MtdPnl',
@@ -418,7 +417,7 @@ export class FundAdminReconcileComponent implements OnInit, AfterViewInit {
           sortable: true,
           filter: true,
           width: 120,
-          valueFormatter: priceFormatter
+          valueFormatter: pnlFormatter
         },
         {
           field: 'YtdPnl',
@@ -427,7 +426,7 @@ export class FundAdminReconcileComponent implements OnInit, AfterViewInit {
           sortable: true,
           filter: true,
           width: 120,
-          valueFormatter: priceFormatter
+          valueFormatter: pnlFormatter
         },
 
         {
@@ -851,11 +850,4 @@ function currencyFormatter(params) {
     return;
   }
   return CommaSeparatedFormat(params.value);
-}
-
-function priceFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  return FormatNumber8(params.value);
 }

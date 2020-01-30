@@ -4,8 +4,15 @@ exec PeriodPnl '2019-12-31'
 exec PnlToDate '2019-12-31', '2019-01-01'
 */
 CREATE PROCEDURE [dbo].[PeriodPnl]
-	@Now Date
+	@Now Date,
+	@Full bit = 0
 AS
+
+-- If the enties in the database already exist then skip the population
+if ( exists (select top 1 * from pnl_summary where BusDate = @Now) and @Full = 0)
+begin
+	return 0
+end
 
 declare @MTD Date
 declare @QTD Date
