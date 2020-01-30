@@ -1,14 +1,18 @@
-<div class="row h-100 w-100">
+<!-- Main Container -->
+<div class="w-100 h-100">
+
   <!-- AG Grid for Files -->
-    <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions">
-    </ag-grid-angular>
-    <!-- Action Buttons Template Starts -->
-    <ng-template #actionButtons let-row>
-      <button class="btn action-btn w-15 h-30px" (click)="downloadFile(row)" tooltip="View" placement="auto"
-        container="body">
-        <i class="fa fa-download" aria-hidden="true"></i>
-      </button>
-    </ng-template>
-    <!-- Action Buttons Template Ends -->
-  </div>
-  
+  <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions">
+  </ag-grid-angular>
+
+  <!-- Action Buttons Template Starts -->
+  <ng-template #actionButtons let-row>
+    <button class="btn action-btn" (click)="downloadFile(row)" tooltip="Download File" placement="auto"
+      container="body">
+      <i class="fa fa-download" aria-hidden="true"></i>
+    </button>
+  </ng-template>
+  <!-- Action Buttons Template Ends -->
+
+</div>
+<!-- Main Container Ends -->

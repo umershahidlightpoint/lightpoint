@@ -51,8 +51,8 @@ export class AppModule {}
 
 Available pre-built themes:
 
-- *blue-theme.css*
-- *purple-theme.css*
+- _blue-theme.css_
+- _purple-theme.css_
 
 This is as simple as including one line in your `styles.css/styles.scss` file:
 
@@ -68,11 +68,11 @@ You can create your own theme files to define custom themes.
 
 In order to add a custom theme:
 
-**1)** Create a *theme.css* file
+**1)** Create a _theme.css_ file
 
 A typical theme file will look something like this:
 
-*`green-theme.css`*
+_`green-theme.css`_
 
 ```css
 :root {
@@ -93,11 +93,11 @@ A typical theme file will look something like this:
 @import './path/to/theme/green-theme.css';
 ```
 
-**3)** Now in order to register your newly created theme with LP Toolkit, Create a *toolkit-config.ts* file
+**3)** Now in order to register your newly created theme with LP Toolkit, Create a _toolkit-config.ts_ file
 
 A typical toolkit-config file will look something like this:
 
-*`toolkit-config.ts`*
+_`toolkit-config.ts`_
 
 ```typescript
 import { LPToolkitConfig } from 'lp-toolkit';
@@ -157,9 +157,9 @@ appTitle: string = 'Portfolio Accounting';
 
 ### Attributes:
 
-| Attribute       | Type   | Default |
-| --------------- | ------ | ------- |
-| appTitle        | string | My App  |
+| Attribute | Type   | Default |
+| --------- | ------ | ------- |
+| appTitle  | string | My App  |
 
 ## 2. Side Menu
 
@@ -202,10 +202,10 @@ public adminPages: Page[] = [
 
 ### Attributes:
 
-| Attribute       | Type    | Default |
-| --------------- | ------- | ------- |
-| userPages       | Page[ ] | empty   |
-| adminPages      | Page[ ] | empty   |
+| Attribute  | Type    | Default |
+| ---------- | ------- | ------- |
+| userPages  | Page[ ] | empty   |
+| adminPages | Page[ ] | empty   |
 
 ## 3. Not Found
 
@@ -240,11 +240,11 @@ btnText = 'GO TO REPORTS';
 
 ### Attributes:
 
-| Attribute       | Type   | Default        |
-| --------------- | ------ | -------------- |
-| imgPath         | string | none           |
-| route           | string | none           |
-| btnText         | string | GO TO HOMEPAGE |
+| Attribute | Type   | Default        |
+| --------- | ------ | -------------- |
+| imgPath   | string | none           |
+| route     | string | none           |
+| btnText   | string | GO TO HOMEPAGE |
 
 ## 4. Loading
 
@@ -287,10 +287,7 @@ Html:
 Html:
 
 ```html
-<lp-services-log 
-	[getLogsUrl]="getLogsUrl" 
-	[downloadFileUrl]="downloadFileUrl">
-</lp-services-log>
+<lp-services-log [getLogsUrl]="getLogsUrl" [downloadFileUrl]="downloadFileUrl"> </lp-services-log>
 ```
 
 Typescript:
@@ -302,10 +299,27 @@ downloadFileUrl: string = 'http://localhost:yourlocalhost/api/log/download?fileN
 
 ### Attributes:
 
-| Attribute       | Type   | Default        |
-| --------------- | ------ | -------------- |
-| getLogsUrl      | string | none           |
-| downloadFileUrl | string | none           |
+| Attribute       | Type   | Default |
+| --------------- | ------ | ------- |
+| getLogsUrl      | string | none    |
+| downloadFileUrl | string | none    |
+
+**Response (getLogsUrl):**
+
+```typescript
+{
+"message": "The Request was Successful",
+"payload": [
+		{
+			"FileName": "Finance-Log-2020-01-29.log"
+		},
+		{
+			"FileName": "Finance-Log-2020-01-30.log"
+		}
+],
+"statusCode": 200
+}
+```
 
 ## 7. Select Theme
 
@@ -323,36 +337,26 @@ Html:
 
 ```html
 <form #settingsForm="ngForm" (ngSubmit)="onSaveSettings()">
-
-	<div class="row justify-content-end">
-
-        <div class="col-auto">
-            <button class="btn btn-primary"
-				[disabled]="settingsForm.invalid"
-				type="submit">
-			</button>
-        </div>
+  <div class="row justify-content-end">
+    <div class="col-auto">
+      <button class="btn btn-primary" [disabled]="settingsForm.invalid" type="submit"></button>
     </div>
+  </div>
 
-    <h4>Application Theme</h4>
-    <lp-select-theme
-		#themeSelect="ngModel"
-		ngModel="blue"
-		name="theme"
-		required>
-	</lp-select-theme>
+  <h4>Application Theme</h4>
+  <lp-select-theme #themeSelect="ngModel" ngModel="blue" name="theme" required> </lp-select-theme>
 
-    <p class="text-danger" 
-		*ngIf="themeSelect.invalid && themeSelect.touched">
-		*Please select a theme
-	</p>
+  <p class="text-danger" *ngIf="themeSelect.invalid && themeSelect.touched">
+    *Please select a theme
+  </p>
 
-    <h4 class="mt-4">Theme Value</h4>
-    <p>Value: <span class="font-weight-bold font-italic">
-			{{settingsForm.form.value.theme}}
-		</span>
-	</p>
-
+  <h4 class="mt-4">Theme Value</h4>
+  <p>
+    Value:
+    <span class="font-weight-bold font-italic">
+      {{settingsForm.form.value.theme}}
+    </span>
+  </p>
 </form>
 ```
 
@@ -382,10 +386,10 @@ interface Page {
 
 ```typescript
 const userPage: Page = {
-      name: 'Reports',
-      routerLink: '/reports',
-      icon: 'fa-bar-chart'
-    };
+  name: 'Reports',
+  routerLink: '/reports',
+  icon: 'fa-bar-chart'
+};
 ```
 
 ## 2. LPToolkitConfig
