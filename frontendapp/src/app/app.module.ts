@@ -46,7 +46,7 @@ import { NotfoundComponent } from './main/not-found/notfound/notfound.component'
     MaterialModule,
     ToastrModule.forRoot(),
     TooltipModule,
-    LpToolkitModule,
+    LpToolkitModule.forRoot(),
     SharedModule
   ],
   exports: [],
