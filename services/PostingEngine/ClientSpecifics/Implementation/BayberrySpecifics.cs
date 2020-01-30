@@ -22,6 +22,11 @@ namespace PostingEngine.ClientSpecifics
             update = finalTradeList.Where(t => t.Symbol.Equals("TWE AU EQUITY SWAP")).ToArray();
             foreach (var t in update) { t.Symbol = "TWE AU SWAP"; t.SecurityId = 32669; }
 
+            var sec = finalTradeList.Where(t => t.Symbol.Equals("DUE GY")).FirstOrDefault();
+
+            update = finalTradeList.Where(t => t.Symbol.Equals("DUE GR")).ToArray();
+            foreach (var t in update) { t.Symbol = sec.Symbol; t.SecurityId = sec.SecurityId; }
+
             const bool DEBUG_TRADE_LIST = false;
             if (DEBUG_TRADE_LIST)
             {

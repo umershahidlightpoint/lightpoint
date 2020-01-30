@@ -661,6 +661,13 @@ export function moneyFormatter(params) {
   return MoneyFormat(params.value);
 }
 
+export function pnlFormatter(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  return MoneyFormat(params.value);
+}
+
 export const CommaSeparatedFormat = (numberToFormat: number) => {
   return numberToFormat === 0
     ? '0.00'
