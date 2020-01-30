@@ -1,4 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
+import { LPToolkitConfigService } from './lp-toolkit-config.service';
+import { LPToolkitConfig } from '../models/lp-toolkit-config.model';
 import { blue, purple } from '../assets/theme';
 import { Theme } from '../models/theme.model';
 
@@ -8,6 +10,10 @@ import { Theme } from '../models/theme.model';
 export class ThemeService {
   private active: Theme = blue;
   private availableThemes: Theme[] = [blue, purple];
+
+  constructor(@Inject(LPToolkitConfigService) private config: LPToolkitConfig) {
+    this.availableThemes = this.availableThemes.concat(config.themes);
+  }
 
   getAvailableThemes(): Theme[] {
     return this.availableThemes;

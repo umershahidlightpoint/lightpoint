@@ -19,6 +19,10 @@ import { ServicesLogComponent } from './components/services-log/services-log.com
 import { TemplateRendererComponent } from './components/shared/template-renderer/template-renderer.component';
 
 import { SidenavService } from './services/sidenav.service';
+import { ThemeService } from './services/theme.service';
+import { LPToolkitConfigService } from './services/lp-toolkit-config.service';
+
+import { LPToolkitConfig } from './models/lp-toolkit-config.model';
 
 const sharedComponents = [
   LpToolkitComponent,
@@ -42,10 +46,9 @@ const materialModules = [MatSidenavModule, MatListModule];
     RouterModule,
     FormsModule,
     ReactiveFormsModule,
-    AgGridModule.withComponents([
-      TemplateRendererComponent
-  ]),
-  ...materialModules],
+    AgGridModule.withComponents([TemplateRendererComponent]),
+    ...materialModules
+  ],
   exports: [
     CommonModule,
     RouterModule,
@@ -57,10 +60,17 @@ const materialModules = [MatSidenavModule, MatListModule];
   entryComponents: []
 })
 export class LpToolkitModule {
-  static forRoot(): ModuleWithProviders<LpToolkitModule> {
+  static forRoot(config: LPToolkitConfig): ModuleWithProviders<LpToolkitModule> {
     return {
       ngModule: LpToolkitModule,
-      providers: [SidenavService]
+      providers: [
+        SidenavService,
+        ThemeService,
+        {
+          provide: LPToolkitConfigService,
+          useValue: config
+        }
+      ]
     };
   }
 }

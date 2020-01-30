@@ -13,9 +13,7 @@ export { NotFoundComponent } from './lib/components/not-found/not-found.componen
 export { ProgressComponent } from './lib/components/progress/progress.component';
 export { LoadingComponent } from './lib/components/loading/loading.component';
 export { SelectThemeComponent } from './lib/components/select-theme/select-theme.component';
-
 export { ServicesLogComponent } from './lib/components/services-log/services-log.component';
-export { } from './lib/components/shared';
 
 /*
  * Services
@@ -30,6 +28,7 @@ export * from './lib/utils/index';
 /*
  * Models
  */
+export { LPToolkitConfig } from './lib/models/lp-toolkit-config.model';
 export { Theme } from './lib/models/theme.model';
 export { Page } from './lib/models/page.model';
 
