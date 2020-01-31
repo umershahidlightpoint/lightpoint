@@ -5,7 +5,7 @@
   <div class="width-20">
 
     <!-- Dropdown -->
-    <select [disabled]="isLoading" class="custom-select" [(ngModel)]="organization"
+    <select [disabled]="isLoading" class="form-control custom-select" [(ngModel)]="organization"
       (change)="selectOrganization($event)" required>
       <option hidden [value]="0">Choose Organization</option>
       <option *ngFor="let list of organizationList; let i = index">

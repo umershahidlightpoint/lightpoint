@@ -8,13 +8,13 @@
 
   <!-- Action Buttons Template Starts -->
   <ng-template #actionButtons let-row>
-    <button class="btn edit-btn-props width-15 height-30px" (click)="viewLayout(row)" tooltip="View" placement="auto"
+    <button class="btn grid-btn width-15 height-30px" (click)="viewLayout(row)" tooltip="View" placement="auto"
       container="body">
       <i class="fa fa-lg fa-eye" aria-hidden="true"></i>
     </button>
 
-    <button class="btn edit-btn-props width-15 height-30px" (click)="showConfirmation(row)" tooltip="Delete"
-      placement="auto" container="body">
+    <button class="btn grid-btn width-15 height-30px" (click)="showConfirmation(row)" tooltip="Delete" placement="auto"
+      container="body">
       <i class="fa fa-lg fa-trash-o" aria-hidden="true"></i>
     </button>
   </ng-template>

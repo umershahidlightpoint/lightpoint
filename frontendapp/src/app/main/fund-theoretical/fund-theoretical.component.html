@@ -18,10 +18,10 @@
         <!-- Action Buttons Form Tag Starts -->
         <form>
           <!-- Form Row Div Starts -->
-          <div class="form-row">
+          <div class="row">
 
             <!-- Date Picker Div Starts -->
-            <div class="col-2">
+            <div class="col-auto">
               <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
                 [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate"
                 [singleDatePicker]="true" [autoApply]="true" autocomplete="off" [showDropdowns]="true" />
@@ -29,7 +29,7 @@
             <!-- Date Picker Div Ends -->
 
             <!-- Generate Rows Div Starts -->
-            <div class="col-6">
+            <div class="col-auto">
               <button class="btn btn-pa" type="button" (click)="generateRows()" [disabled]="!generateFundsDate">
                 Generate Rows
               </button>

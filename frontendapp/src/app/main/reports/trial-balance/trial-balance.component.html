@@ -22,13 +22,13 @@
     <!-- Funds Dropdown Div Ends -->
 
     <!-- DateRange Label Div Starts -->
-    <div>
+    <div class="font-weight-bold">
       <label style="text-align: right"> {{ DateRangeLabel }} </label>
     </div>
     <!-- DateRange Label Div Ends -->
 
     <!-- Date Picker Div Starts -->
-    <div class="col-md-5">
+    <div class="col-auto">
       <form>
         <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off" placeholder="Choose date"
           [(ngModel)]="selected" name="selectedDaterange" [ranges]="ranges" [showClearButton]="true"

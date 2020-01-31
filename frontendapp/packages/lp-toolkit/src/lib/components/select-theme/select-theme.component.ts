@@ -59,7 +59,6 @@ export class SelectThemeComponent implements OnInit, ControlValueAccessor {
   }
 
   onThemeChange() {
-    const theme: Theme = this.themes.find(element => element.name === this.theme);
-    this.themeService.setActiveTheme(theme);
+    this.themeService.setActiveTheme(this.theme);
   }
 }

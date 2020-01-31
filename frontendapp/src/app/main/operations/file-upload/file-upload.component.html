@@ -2,7 +2,7 @@
 <div class="row mt-2">
 
   <!-- File Type Dropdown Div -->
-  <div class="col-3">
+  <div class="col-auto">
     <select class="form-control" [(ngModel)]="fileType" (ngModelChange)="changeFileType($event)">
       <option [disabled]="true">Select a File Type</option>
       <option *ngFor="let fileType of fileTypes">
@@ -13,7 +13,7 @@
   <!-- File Type Dropdown Div Ends -->
 
   <!-- File Upload Input Div -->
-  <div class="col-9">
+  <div class="col-auto">
     <input #fileInput class="btn btn-pa mr-2 file-input" type="file" (change)="onFileInput($event.target.files)">
     <button class="btn btn-pa" type="button" [disabled]="disableFileUpload || uploadLoader" (click)="uploadRows()">
       Upload
@@ -25,11 +25,11 @@
 </div>
 <!-- File Upload Container Ends -->
 
-    <!-- AG Grid for file Upload -->
-    <div [ngStyle]="styleForLogsHeight" [ngClass]="{'w-100' : displayGrid, 'd-none' : !displayGrid}">
-      <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="uploadGrid">
-      </ag-grid-angular>
-    </div>
+<!-- AG Grid for file Upload -->
+<div [ngStyle]="styleForLogsHeight" [ngClass]="{'w-100' : displayGrid, 'd-none' : !displayGrid}">
+  <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="uploadGrid">
+  </ag-grid-angular>
+</div>
 
 <!-- Confirmation Modal Component -->
 <app-confirmation-modal #confirmationModal (confirmDeletion)="confirmReset()" [modalTitle]="'Reset Performance'"

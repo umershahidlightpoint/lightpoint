@@ -64,11 +64,6 @@ export class AppComponent implements OnInit {
       routerLink: 'operations',
       icon: 'fa-tasks'
     },
-    // {
-    //   name: 'Grid Views',
-    //   routerLink: 'settings/grid-views',
-    //   icon: 'fa-th'
-    // },
     {
       name: 'Settings',
       routerLink: '/settings',
