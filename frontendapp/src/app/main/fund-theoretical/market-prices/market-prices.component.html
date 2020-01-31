@@ -1,5 +1,6 @@
 <!-- Action Buttons Form Tag Starts -->
-<div class="form-row">
+<div class="row">
+
   <!-- <div class="col-md-2">
     <select class="form-control" [(ngModel)]="vRange" [selectedIndex]="0" (ngModelChange)="vChange($event)">
       <option *ngFor="let a of vRanges" [ngValue]="a.Days">
@@ -8,31 +9,32 @@
     </select>
   </div> -->
 
-  <!----- Symbol Filter Div Starts----->
-  <div class="col-2">
+  <!-- Symbol Filter Div Starts -->
+  <div class="col-auto">
     <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol" [(ngModel)]="filterBySymbol"
       (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" />
   </div>
-  <!----- Symbol Filter Div Ends----->
+  <!-- Symbol Filter Div Ends -->
 
-  <!----- Date Picker Div Starts----->
-  <div class="col-5">
+  <!-- Date Picker Div Starts -->
+  <div class="col-auto">
     <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off" placeholder="Choose date"
       [(ngModel)]="selected" name="selectedDaterange" [showClearButton]="true" [alwaysShowCalendars]="true"
       (ngModelChange)="ngModelChange($event)" [keepCalendarOpeningWithRange]="true" />
   </div>
-  <!----- Date Picker Div Ends----->
+  <!-- Date Picker Div Ends -->
 
-  <!----- Clear Button  Div Starts ----->
+  <!-- Clear Button  Div Starts -->
   <div class="mr-auto">
     <button (click)="clearFilters()" class="btn btn-pa" tooltip="Clear" placement="top">
       <i class="fa fa-remove"></i>
     </button>
   </div>
-  <!----- Clear Button  Div Ends ----->
+  <!-- Clear Button  Div Ends -->
 
   <!-- Action Buttons Div Starts -->
   <div class="ml-auto mr-2">
+
     <button class="btn btn-pa mr-2" type="button" [disabled]="disableCommit" (click)="commitMarketPriceData()">
       Commit
     </button>
@@ -49,24 +51,25 @@
     </button>
     <!-- Show Calculation Graphs Button -->
 
-
   </div>
   <!-- Action Buttons Div Ends -->
+
 </div>
-<!-- Form Row Div Ends -->
 <!-- Action Buttons Form Tag Ends -->
 
-<!----- Div To Measure Identifier starts ----->
+<!-- Div To Measure Identifier starts -->
 <div #divToMeasure>
-  <!----- Style For Height ----->
+
+  <!-- Style For Height -->
   <div [ngStyle]="styleForHeight">
+
     <div class="row h-100">
-      <!----- Ag Grid Tag Starts ----->
+      <!-- Ag Grid Tag Starts -->
       <div [ngClass]="{'col-6': isExpanded, 'col-12': !isExpanded}">
         <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="marketPriceGrid">
         </ag-grid-angular>
       </div>
-      <!----- Ag Grid Tag Ends ----->
+      <!-- Ag Grid Tag Ends -->
 
       <!-- App Calculation Graphs Div Starts -->
       <div *ngIf="isExpanded" class="col-6">
@@ -77,7 +80,7 @@
     </div>
   </div>
 </div>
-<!----- Div To Measure Identifier Ends ----->
+<!-- Div To Measure Identifier Ends -->
 
 <!-- Data Grid Modal Component Selector Starts -->
 <app-data-grid-modal #dataGridModal [gridTitle]="title">

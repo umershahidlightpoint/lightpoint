@@ -28,7 +28,7 @@
               </div>
               <!-- Account Type Drop Down -->
               <div *ngIf="editCase && canEditAccount || !editCase" class="col-sm-9">
-                <select [(ngModel)]="accTypeId" class="custom-select" (change)="getAccountTags(accTypeId)"
+                <select [(ngModel)]="accTypeId" class="form-control custom-select" (change)="getAccountTags(accTypeId)"
                   formControlName="type" [attr.disabled]="canEditAccount === false ? true : null">
                   <option *ngIf="!editCase" hidden [value]="0">Choose your account type</option>
                   <option *ngFor="let accType of accountTypes" [ngValue]="accType.Id">
@@ -90,8 +90,7 @@
                   <!-- Account Tags Drop Down -->
                   <div class="col-sm-7 btn-group" dropdown>
                     <button id="button-basic" dropdownToggle type="button"
-                      class="btn btn-sm btn-pa dropdown-toggle max-height-100"
-                      aria-controls="dropdown-basic">
+                      class="btn btn-sm btn-pa dropdown-toggle max-height-100" aria-controls="dropdown-basic">
                       Add Tag <span class="caret"></span>
                     </button>
                     <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu ml-3" role="menu"

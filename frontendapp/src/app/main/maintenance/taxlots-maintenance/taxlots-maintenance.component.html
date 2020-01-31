@@ -34,7 +34,7 @@
     </div>
 
     <!-- DateRange Label Div Starts -->
-    <div class="col-auto">
+    <div class="font-weight-bold">
       <label class="text-right"> {{ DateRangeLabel }} </label>
     </div>
     <!-- DateRange Label Div Ends -->
@@ -57,47 +57,60 @@
     </div>
     <!-- Clear Button Div Ends -->
 
-    <!----- Buttons Div Starts ----->
+    <!-- Buttons Div Starts -->
     <div class="ml-auto">
+
       <!-- Refresh Button Div Starts -->
       <div class="mr-2 d-inline-block">
         <button (click)="refreshReport()" class="btn btn-pa" tooltip="Refresh" placement="top">
-          <i class="fa fa-refresh"></i></button>
+          <i class="fa fa-refresh"></i>
+        </button>
       </div>
       <!-- Refresh Button Div Ends -->
+
       <!-- Export to Excel Button -->
       <div class="mr-3 d-inline-block">
         <button (click)="onBtExport()" class="btn btn-pa" tooltip="Export to Excel" placement="top">
           <i class="fa fa-arrow-circle-o-down"></i>
         </button>
       </div>
+      <!-- Export to Excel Button Ends -->
+
     </div>
-    <!----- Buttons Div Ends ----->
+    <!-- Buttons Div Ends -->
+
   </div>
   <!-- Filters Div Ends -->
 
   <!-- Report Grid Starts -->
   <div #divToMeasureJournal>
     <div [ngStyle]="styleForHeight" class="d-flex">
+
       <ag-grid-angular class="w-50 h-100 ag-theme-balham" (cellClicked)="onRowSelected($event)"
         [gridOptions]="gridOptions">
       </ag-grid-angular>
 
       <div class="w-50 h-100">
+
         <ag-grid-angular class="w-100 h-50 ag-theme-balham" (cellClicked)="onTradeRowSelected($event)"
           [gridOptions]="closingTaxLots">
         </ag-grid-angular>
 
         <div class="w-100 h-50 p-0">
+
           <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="tradeGridOptions">
           </ag-grid-angular>
+
         </div>
+
       </div>
     </div>
-    <!-- Report Grid Ends -->
+
   </div>
-  <!-- Reports Main Div Ends-->
+  <!-- Report Grid Ends -->
+
 </div>
+<!-- Reports Main Div Ends-->
 
 <!-- Data Modal -->
 <app-data-modal #dataModal title="Trade Detail" [isCustomData]="true">

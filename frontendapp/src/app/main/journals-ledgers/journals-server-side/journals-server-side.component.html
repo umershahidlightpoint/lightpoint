@@ -13,7 +13,7 @@
     <div class="row">
 
         <!-- Funds Dropdown Div Starts -->
-        <div class="col-md-2">
+        <div class="col-auto">
             <select class="form-control" [(ngModel)]="fund" (ngModelChange)="ngModelChangeFund($event)">
                 <option selected>All Funds</option>
                 <option *ngFor="let f of funds" [ngValue]="f.FundCode">
@@ -24,7 +24,7 @@
         <!-- Funds Dropdown Div Ends -->
 
         <!-- Symbol Filter -->
-        <div>
+        <div class="col-auto">
             <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol"
                 [(ngModel)]="filterBySymbol" (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)"
                 class="form-control" />
@@ -32,7 +32,7 @@
         <!-- Symbol Filter Ends -->
 
         <!-- Zero Balance Filter -->
-        <div class="ml-3 mt-6">
+        <div class="col-auto mt-6">
             <label><input type="checkbox" id="zeroBalanceCheckBox" [(ngModel)]="filterByZeroBalance"
                     (ngModelChange)="ngModelChangeZeroBalance($event)">
                 Exclude zero balance</label>
@@ -40,13 +40,13 @@
         <!-- Zero Balance Filter Ends -->
 
         <!-- Date Range Label Div Starts -->
-        <div>
+        <div class="font-weight-bold mt-6">
             <label class="text-right"> {{ DateRangeLabel }} </label>
         </div>
         <!-- Date Range Label Div Ends -->
 
         <!-- Date Picker Div Starts -->
-        <div class="col-md-5">
+        <div class="col-auto">
             <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off" placeholder="Choose date"
                 [(ngModel)]="selected" name="selectedDaterange" [ranges]="ranges" [showClearButton]="true"
                 [alwaysShowCalendars]="true" (ngModelChange)="ngModelChange($event)"
