@@ -203,6 +203,9 @@
     <PackageReference Include="AWSSDK.S3">
       <Version>3.3.104.31</Version>
     </PackageReference>
+    <PackageReference Include="EPPlus">
+      <Version>4.5.3.3</Version>
+    </PackageReference>
     <PackageReference Include="GraphQL">
       <Version>2.4.0</Version>
     </PackageReference>
