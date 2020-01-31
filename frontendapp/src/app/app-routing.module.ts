@@ -10,7 +10,7 @@ const routes: Routes = [
   // { path: 'analysis', component: SummaryComponent },
   // { path: 'trial-balance', component: TrialGridExampleComponent },
   {
-    path: 'oms', // contains trade-allocation OMS, journal-allocation OMS, accruals OMS
+    path: 'oms', // Contains Trade-Allocation OMS, Journal-Allocation OMS, Accruals OMS
     loadChildren: './main/oms/oms.module#OmsModule'
   },
   {
@@ -23,8 +23,7 @@ const routes: Routes = [
   },
   {
     path: 'fund-theoretical',
-    loadChildren: './main/fund-theoretical/fund-theoretical.module#FundTheoreticalModule',
-
+    loadChildren: './main/fund-theoretical/fund-theoretical.module#FundTheoreticalModule'
   },
   {
     path: 'reports',

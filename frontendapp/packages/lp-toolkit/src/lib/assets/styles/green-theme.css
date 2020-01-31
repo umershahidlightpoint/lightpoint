@@ -1,9 +1,9 @@
 @import './styles.scss';
 
 :root {
-  --primary: #1565c0;
+  --primary: #2e7d32;
   --on-primary: #ffffff;
-  --primary-light: #5e92f3;
+  --primary-light: #60ad5e;
   --on-primary-light: #000000;
   --secondary: #f4f5f6;
   --on-secondary: #000000;

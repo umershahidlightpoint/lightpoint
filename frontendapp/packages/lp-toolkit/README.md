@@ -53,6 +53,10 @@ Available pre-built themes:
 
 - _blue-theme.css_
 - _purple-theme.css_
+- _green-theme.css_
+- _brown-theme.css_
+- _magenta-theme.css_
+- _teal-theme.css_
 
 This is as simple as including one line in your `styles.css/styles.scss` file:
 
@@ -125,6 +129,7 @@ export const toolkitConfig: LPToolkitConfig = {
 
 ```typescript
 import { LpToolkitModule } from 'lp-toolkit';
+import { toolkitConfig } from './toolkit-config';
 
 @NgModule({
     imports: [
@@ -134,6 +139,32 @@ import { LpToolkitModule } from 'lp-toolkit';
 })
 export class AppModule {}
 ```
+
+## Theme Service
+
+LP Toolkit also provides a `Theme Service` which exposes a bunch of methods to programmatically change themes.
+
+### Usage example
+
+```typescript
+import { ThemeService } from 'lp-toolkit';
+
+export class AppComponent implements OnInit {
+  constructor(private themeService: ThemeService) {}
+
+  ngOnInit() {
+    this.themeService.setActiveTheme('purple');
+  }
+}
+```
+
+### Attributes:
+
+| Method               | Params            | Return Type | Description                              |
+| -------------------- | ----------------- | ----------- | ---------------------------------------- |
+| getAvailableThemes() | none              | Theme[]     | Returns an array of all available themes |
+| getActiveTheme()     | none              | Theme       | Returns the currently active theme       |
+| setActiveTheme()     | themeName: string | void        | Sets a theme as active theme             |
 
 ## Components
 
@@ -287,14 +318,16 @@ Html:
 Html:
 
 ```html
-<lp-services-log [getLogsUrl]="getLogsUrl" [downloadFileUrl]="downloadFileUrl"> </lp-services-log>
+<lp-services-log [getLogsUrl]="getLogsUrl" [downloadFileUrl]="downloadFileUrl">
+</lp-services-log>
 ```
 
 Typescript:
 
 ```typescript
 getLogsUrl: string = 'http://localhost:yourlocalhost/api/log/files';
-downloadFileUrl: string = 'http://localhost:yourlocalhost/api/log/download?fileName=';
+downloadFileUrl: string =
+  'http://localhost:yourlocalhost/api/log/download?fileName=';
 ```
 
 ### Attributes:
@@ -339,12 +372,17 @@ Html:
 <form #settingsForm="ngForm" (ngSubmit)="onSaveSettings()">
   <div class="row justify-content-end">
     <div class="col-auto">
-      <button class="btn btn-primary" [disabled]="settingsForm.invalid" type="submit"></button>
+      <button
+        class="btn btn-primary"
+        [disabled]="settingsForm.invalid"
+        type="submit"
+      ></button>
     </div>
   </div>
 
   <h4>Application Theme</h4>
-  <lp-select-theme #themeSelect="ngModel" ngModel="blue" name="theme" required> </lp-select-theme>
+  <lp-select-theme #themeSelect="ngModel" ngModel="blue" name="theme" required>
+  </lp-select-theme>
 
   <p class="text-danger" *ngIf="themeSelect.invalid && themeSelect.touched">
     *Please select a theme

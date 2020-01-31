@@ -19,6 +19,7 @@ export { ServicesLogComponent } from './lib/components/services-log/services-log
  * Services
  */
 export { LpToolkitService } from './lib/lp-toolkit.service';
+export { ThemeService } from './lib/services/theme.service';
 
 /*
  * Utils

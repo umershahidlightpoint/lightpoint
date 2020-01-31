@@ -31,12 +31,13 @@ import { HeaderContentComponent } from './menu/header-content/header-content.com
 // import { LeftMenuComponent } from './menu/left-menu/left-menu.component';
 import { NotfoundComponent } from './main/not-found/notfound/notfound.component';
 
+/*
+Configs
+*/
+import { toolkitConfig } from './toolkit-config';
+
 @NgModule({
-  declarations: [
-    AppComponent,
-    HeaderContentComponent,
-    NotfoundComponent
-  ],
+  declarations: [AppComponent, HeaderContentComponent, NotfoundComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
