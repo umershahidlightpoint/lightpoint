@@ -20,6 +20,8 @@ namespace LP.Finance.Common.Model
         public List<string> havingColumns { get; set; } = new List<string>();
         //those columns which are to be sorted on their absolute value.
        public List<string> absoluteSorting { get; set; } = new List<string>();
+        //to be used incase of grid layouts. will participate in creation of select clause for excel reports.
+        public List<GridColDef> gridColDefs { get; set; }
 
 
     }

@@ -33,6 +33,28 @@ namespace LP.Finance.Common
             }
         }
 
+        public static Tuple<string, List<SqlParameter>> BuildSqlFromGridLayouts(ServerRowModel layout, string from)
+        {
+            List<SqlParameter> sqlParams = new List<SqlParameter>();
+            var select = CreateSelectFromGridLayout(layout);
+            Tuple<string, string, int> whereSql = CreateWhereSql(layout, sqlParams);
+            string query = $"select {select} from {from} where {whereSql.Item1}";
+            return new Tuple<string, List<SqlParameter>>(query, sqlParams);
+        }
+
+        private static string CreateSelectFromGridLayout(ServerRowModel layout)
+        {
+            List<string> selectList = new List<string>();
+            foreach(var item in layout.gridColDefs)
+            {
+                if (!item.hide)
+                {
+                    selectList.Add(item.colId);
+                }
+            }
+            return string.Join(",", selectList.Select(x => x));
+        }
+
         private static string CreateHavingSql(ServerRowModel obj, List<SqlParameter> sqlParams, int index)
         {
             StringBuilder query = new StringBuilder("");

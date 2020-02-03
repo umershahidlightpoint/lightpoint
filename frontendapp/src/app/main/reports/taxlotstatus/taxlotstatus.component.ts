@@ -177,6 +177,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           width: 120,
           headerName: 'Symbol',
           rowGroup: true,
+          enableRowGroup: true,
           sortable: true,
           filter: true
         },

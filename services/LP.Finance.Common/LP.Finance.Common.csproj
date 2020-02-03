@@ -109,6 +109,8 @@
     <Compile Include="Model\CostBasis.cs" />
     <Compile Include="Model\DBActions.cs" />
     <Compile Include="Model\FileException.cs" />
+    <Compile Include="Model\GridColDef.cs" />
+    <Compile Include="Model\GridLayout.cs" />
     <Compile Include="Model\IDbAction.cs" />
     <Compile Include="Model\Journal.cs" />
     <Compile Include="Model\JournalLog.cs" />
