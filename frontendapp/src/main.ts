@@ -20,9 +20,8 @@ function loadConfig() {
 }
 
 loadConfig().then(() => {
-
   // debugger;
-  
+
   environment.remoteServerUrl = window['config'].remoteServerUrl;
   environment.referenceDataUrl = window['config'].referenceDataUrl;
 
@@ -30,4 +29,3 @@ loadConfig().then(() => {
     .bootstrapModule(AppModule)
     .catch(err => console.error(err));
 });
-

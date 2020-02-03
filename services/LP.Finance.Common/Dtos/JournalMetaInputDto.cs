@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using LP.Finance.Common.CustomValidators;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace LP.Finance.Common.Dtos
 {

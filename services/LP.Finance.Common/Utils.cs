@@ -13,7 +13,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using LP.Finance.Common.Model;
-using System.Linq;
 using System.Globalization;
 
 namespace LP.Finance.Common
@@ -47,6 +46,7 @@ namespace LP.Finance.Common
         public int Total { get; set; }
         public int TotalRecords { get; set; }
         public List<FilterValues> Filters { get; set; }
+        public object FundsRange { get; set; }
         public int? LastRow { get; set; }
         public bool FooterSum { get; set; }
         public List<ColumnDef> Columns { get; set; }
@@ -66,7 +66,7 @@ namespace LP.Finance.Common
                 {
                     filter = true,
                     headerName =
-                        col.ColumnName, // This will be driven by a data dictionary that will provide the write names in the System
+                        col.ColumnName, // This will be driven by a Data Dictionary that will provide the write names in the System
                     field = col.ColumnName,
                     Type = col.DataType.ToString()
                 });
@@ -89,7 +89,7 @@ namespace LP.Finance.Common
                 {
                     filter = true,
                     headerName =
-                        col.Name, // This will be driven by a data dictionary that will provide the write names in the System
+                        col.Name, // This will be driven by a Data Dictionary that will provide the write names in the System
                     field = col.Name,
                     Type = col.GetType().ToString()
                 });
@@ -526,10 +526,10 @@ namespace LP.Finance.Common
 
 
             SqlBulkCopyOptions options;
-            if(fireTriggers && checkConstraints)
+            if (fireTriggers && checkConstraints)
             {
                 options = SqlBulkCopyOptions.FireTriggers | SqlBulkCopyOptions.CheckConstraints;
-            } 
+            }
             else if (fireTriggers)
             {
                 options = SqlBulkCopyOptions.FireTriggers;

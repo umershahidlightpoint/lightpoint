@@ -37,7 +37,8 @@ import {
   SetDateRange,
   HeightStyle,
   AutoSizeAllColumns,
-  CommonCols
+  CommonCols,
+  getRange
 } from 'src/shared/utils/Shared';
 import { JournalApiService } from 'src/services/journal-api.service';
 import { CacheService } from 'src/services/common/cache.service';
@@ -65,6 +66,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   fieldsSum: Array<{ name: string; total: number }>;
   fund = 'All Funds';
   funds: any;
+  fundsRange: any;
   filterBySymbol = '';
   symbol = '';
   DateRangeLabel: string;
@@ -88,7 +90,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   absoluteSortingAsc = false;
   absoluteSortingDesc = false;
 
-  ranges: any = Ranges;
+  ranges: any;
 
   ignoreFields = IgnoreFields;
 
@@ -146,9 +148,11 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
             if (this.gridOptions.columnApi.getAllColumns() !== null) {
               this.rowData = result.payload;
-              this.rowData = this.checkIfASingleFilterIsAppliedOnAccountCategory(params, this.rowData);
+              this.rowData = this.checkIfASingleFilterIsAppliedOnAccountCategory(
+                params,
+                this.rowData
+              );
               this.rowData = this.getGroupedAccountCategoryData(params, this.rowData);
-              
 
               params.successCallback(this.rowData, result.meta.LastRow);
             }
@@ -280,22 +284,21 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
   checkIfASingleFilterIsAppliedOnAccountCategory(params: IServerSideGetRowsParams, rowData: any) {
     let filteredCategory;
-    if(params.request.filterModel.hasOwnProperty('AccountCategory')){
+    if (params.request.filterModel.hasOwnProperty('AccountCategory')) {
       const obj = params.request.filterModel['AccountCategory'];
-      const filterList : Array<string>[] = obj['values'];
-      if(filterList.length == 1){
+      const filterList: Array<string>[] = obj['values'];
+      if (filterList.length === 1) {
         filteredCategory = filterList[0];
       }
     }
 
-    if(filteredCategory){
+    if (filteredCategory) {
       return rowData.map(item => {
         if (!item.hasOwnProperty('AccountCategory')) {
           return { ...item, AccountCategory: filteredCategory };
         }
         return item;
       });
-
     } else {
       return rowData;
     }
@@ -389,6 +392,9 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       GridName: GridName.journalsLedgers
     };
     this.cacheService.getServerSideJournalsMeta(payload).subscribe(result => {
+      this.fundsRange = result.payload.FundsRange;
+      this.ranges = getRange(this.getCustomFundRange());
+
       const metaColumns = result.payload.Columns;
       const commonColDefs = CommonCols(true, result.payload.Filters);
       const disabledFilters = [
@@ -579,6 +585,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
   ngModelChangeFund(e) {
     this.fund = e;
+
+    this.ranges = getRange(this.getCustomFundRange(e));
     this.gridOptions.api.onFilterChanged();
   }
 
@@ -693,6 +701,30 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
   }
 
+  getCustomFundRange(fund = 'All Funds') {
+    const customRange: any = {};
+
+    this.fundsRange.forEach(element => {
+      if (fund === 'All Funds' && moment().year() !== element.Year) {
+        [customRange[element.Year]] = [
+          [
+            moment(`${element.Year}-01-01`).startOf('year'),
+            moment(`${element.Year}-01-01`).endOf('year')
+          ]
+        ];
+      } else if (fund === element.fund && moment().year() !== element.Year) {
+        [customRange[element.Year]] = [
+          [
+            moment(`${element.Year}-01-01`).startOf('year'),
+            moment(`${element.Year}-01-01`).endOf('year')
+          ]
+        ];
+      }
+    });
+
+    return customRange;
+  }
+
   getExternalFilterState() {
     return {
       fundFilter: this.fund,
@@ -720,7 +752,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       ...(this.filterBySymbol !== '' && {
         symbol: { values: this.filterBySymbol, filterType: 'text' }
       }),
-      ...(this.filterByZeroBalance == 1 && {
+      ...(this.filterByZeroBalance === 1 && {
         balance: { values: 0, filterType: 'number', type: 'notEqual' }
       }),
       ...(this.startDate !== null && {
