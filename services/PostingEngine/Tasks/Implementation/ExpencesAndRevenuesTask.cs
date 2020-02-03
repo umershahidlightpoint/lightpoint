@@ -81,16 +81,13 @@ namespace PostingEngine.Tasks
                             Balance = Convert.ToDecimal(row[offset++]),
                         };
 
-                        var year = valueDate.Year.ToString();
-                        if (valueDate.Year == DateTime.Now.Year)
-                            year = "Current Year";
+                        var accountType = $"Net Income Current Year";
 
-                        var accountType = $"Net Income {year}";
                         if (AccountType.Find(AccountCategory.AC_EQUITY, accountType, false) == null)
                         {
                             // Need to create the Account Type
                             var createdAccountType = AccountType.FindOrCreate(AccountCategory.AC_EQUITY, accountType);
-                            createdAccountType.Save(env.ConnectionString);
+                            new AccountUtils().Save(env, createdAccountType);
                         }
 
                         var balance = Convert.ToDouble(expencesAndRevenues.Balance);

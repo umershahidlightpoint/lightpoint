@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClientSpecifics\Implementation\CowenSpecifics.cs" />
     <Compile Include="ClientSpecifics\Implementation\BayberrySpecifics.cs" />
     <Compile Include="ClientSpecifics\ClientSpecifics.cs" />
     <Compile Include="ClientSpecifics\Implementation\DefaultSpecifics.cs" />
@@ -87,10 +88,13 @@
     <Compile Include="Tasks\PostingTask.cs" />
     <Compile Include="Tasks\Implementation\PullFromBookmonTask.cs" />
     <Compile Include="TaxLotMethods\BaseTaxLotMethodology.cs" />
-    <Compile Include="TaxLotMethods\FIFOTaxLotMethod.cs" />
+    <Compile Include="TaxLotMethods\Implementation\FIFOTaxLotMethod.cs" />
     <Compile Include="Contracts\ITaxLotMethodology.cs" />
-    <Compile Include="TaxLotMethods\MinTaxLotMethod .cs" />
-    <Compile Include="TaxLotMethods\LIFOTaxLotMethod.cs" />
+    <Compile Include="TaxLotMethods\Implementation\DLGMinTaxLotMethod.cs" />
+    <Compile Include="TaxLotMethods\Implementation\MinimumTaxLotMethod.cs" />
+    <Compile Include="TaxLotMethods\Implementation\MinTaxLotMethod .cs" />
+    <Compile Include="TaxLotMethods\Implementation\LIFOTaxLotMethod.cs" />
+    <Compile Include="TaxLotMethods\TaxLotDetail.cs" />
     <Compile Include="Utilities\AccountUtils.cs" />
     <Compile Include="PostingRules\CommonStock.cs" />
     <Compile Include="PostingRules\FakeJournals.cs" />

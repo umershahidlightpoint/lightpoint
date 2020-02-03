@@ -15,3 +15,5 @@ select vw.*,
 from vwJournal vw
 left outer join vwCurrentStateTrades t on t.LpOrderId = vw.source
 GO
+
+

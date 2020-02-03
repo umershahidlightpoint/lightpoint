@@ -177,7 +177,7 @@ namespace PostingEngine.PostingRules
             else if (element.IsSell() || element.IsCover())
             {
                 // Get Matching Lots
-                var openLots = env.Methodology.GetOpenLots(env, element);
+                var openLots = env.Methodology.GetOpenLots(env, element, element.Quantity);
 
                 if ( openLots.Count() == 0)
                 {

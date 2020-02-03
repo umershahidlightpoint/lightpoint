@@ -138,6 +138,12 @@ namespace PostingEngine.PostingRules
                     };
 
                     env.Journals.AddRange(new[] { debit, credit });
+
+                    if (element.LpOrderId.Equals("3bbf9793-d01a-4a08-b25c-448fd1777ef1"))
+                    {
+
+                    }
+
                     if (element.TradeDate != env.ValueDate && element.SettleDate >= env.ValueDate)
                     {
                         var fxJournals = FxPosting.CreateFx(
@@ -182,29 +188,19 @@ namespace PostingEngine.PostingRules
                 new AccountUtils().SaveAccountDetails(env, accountBuy);
                 new AccountUtils().SaveAccountDetails(env, accountSell);
 
-                var tradePrice = element.SettleNetPrice;
                 var fxCurrency = riskCurrency;
+                var tradePrice = taxlotStatus.TradePrice;
                 var baseQuantity = element.Quantity;
 
-                // Net money is in the settlement Currency
-                var netMoney = element.NetMoney;
-
-                if ( !env.BaseCurrency.Equals(baseCurrency))
-                {
-                    fxCurrency = element.TradeCurrency;
-                    tradePrice = 1 / element.SettleNetPrice;
-                    baseQuantity = element.NetMoney * tradePrice;
-                }
-
+                var eodPrice = MarketPrices.GetPrice(env, env.ValueDate, element).Price;
                 var fxRate = FxRates.Find(env.ValueDate, fxCurrency).Rate;
 
-                var buyValue = baseQuantity / tradePrice;
-                var sellValue = baseQuantity * fxRate;
-
+                var buyValue = baseQuantity * tradePrice * fxRate;
+                var sellValue = baseQuantity * eodPrice * fxRate;
 
                 if (element.IsBuy()) // BUY
                 {
-                    var realizedPnl = buyValue - sellValue;
+                    var realizedPnl = sellValue - buyValue;
 
                     var debit = new Journal(accountBuy, Event.SETTLED_CASH, env.ValueDate)
                     {
@@ -216,8 +212,8 @@ namespace PostingEngine.PostingRules
                         Quantity = Convert.ToDouble(element.Quantity),
 
                         FxRate = tradePrice,
-                        StartPrice = 0,
-                        EndPrice = 0,
+                        StartPrice = tradePrice,
+                        EndPrice = eodPrice,
 
                         Value = env.SignedValue(accountBuy, accountSell, true, buyValue),
                         CreditDebit = env.DebitOrCredit(accountBuy, buyValue),
@@ -251,7 +247,7 @@ namespace PostingEngine.PostingRules
                 }
                 else // SELL
                 {
-                    var realizedPnl = sellValue - buyValue;
+                    var realizedPnl = buyValue - sellValue;
 
                     var debit = new Journal(accountBuy, Event.SETTLED_CASH, env.ValueDate)
                     {

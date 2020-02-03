@@ -22,7 +22,7 @@ namespace PostingEngine.Tasks
                         exec FundAccounting..PullDailyFxPrices @minDate, @maxDate
                         ";
                 var command = new SqlCommand(sql, connection);
-                command.CommandTimeout = 120; // 2 Mins
+                command.CommandTimeout = 60; // 1 Mins, shoudl not take this long.
 
                 command.ExecuteNonQuery();
                 connection.Close();

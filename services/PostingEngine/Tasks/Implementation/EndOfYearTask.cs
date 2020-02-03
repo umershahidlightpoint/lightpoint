@@ -1,4 +1,5 @@
-﻿using LP.Finance.Common.Models;
+﻿using LP.Finance.Common.Model;
+using LP.Finance.Common.Models;
 using PostingEngine.PostingRules.Utilities;
 using SqlDAL.Core;
 using System;
@@ -44,57 +45,32 @@ namespace PostingEngine.Tasks
                     Credit = Convert.ToDecimal(row[offset++]),
                 };
 
+                var credit = Convert.ToDouble(yearEndResult.Credit);
+                var debit = Convert.ToDouble(yearEndResult.Debit);
+
                 var balance = Convert.ToDouble(yearEndResult.Debit - yearEndResult.Credit);
 
-                var accountType = $"[{yearEndResult.AccountCategory}]{yearEndResult.AccountType}";
+                var netIncomePrev = $"Retained Earnings {(valueDate.Year - 1)}";
+                var netIncomeCurrent = $"Net Income Current Year";
 
-                if (AccountType.Find(AccountCategory.AC_EQUITY, accountType, false) == null)
+                if (AccountType.Find(AccountCategory.AC_EQUITY, netIncomePrev, false) == null)
                 {
                     // Need to create the Account Type
-                    var createdAccountType = AccountType.FindOrCreate(AccountCategory.AC_EQUITY, accountType);
+                    var createdAccountType = AccountType.FindOrCreate(AccountCategory.AC_EQUITY, netIncomePrev);
                     new AccountUtils().Save(env, createdAccountType);
-                    //createdAccountType.Save(env.ConnectionString);
                 }
 
-                var debitAccount = new AccountUtils().GetAccount(env, yearEndResult.AccountType, new string[] { env.BaseCurrency }.ToList());
-
-                var creditAccount = new AccountUtils().GetAccount(env, accountType, new string[] { env.BaseCurrency }.ToList());
-
-                var debit = new Journal(debitAccount, "year-end", valueDate)
+                if (AccountType.Find(AccountCategory.AC_EQUITY, netIncomeCurrent, false) == null)
                 {
-                    Source = "year-closeout",
-                    Fund = yearEndResult.Fund,
-                    Quantity = balance,
+                    // Need to create the Account Type
+                    var createdAccountType = AccountType.FindOrCreate(AccountCategory.AC_EQUITY, netIncomeCurrent);
+                    new AccountUtils().Save(env, createdAccountType);
+                }
 
-                    FxCurrency = env.BaseCurrency,
-                    Symbol = env.BaseCurrency,
-                    SecurityId = -1,
-                    FxRate = 0,
-                    StartPrice = 0,
-                    EndPrice = 0,
+                var accountName = $"[{yearEndResult.AccountCategory}]{yearEndResult.AccountType}";
 
-                    Value = yearEndResult.AccountCategory.Equals("Expenses") ? balance * -1 : balance,
-                    CreditDebit = env.DebitOrCredit(debitAccount, balance),
-                };
-
-                var credit = new Journal(creditAccount, "year-end", valueDate)
-                {
-                    Source = "year-closeout",
-                    Fund = yearEndResult.Fund,
-                    Quantity = balance,
-
-                    FxCurrency = env.BaseCurrency,
-                    Symbol = env.BaseCurrency,
-                    SecurityId = -1,
-                    FxRate = 0,
-                    StartPrice = 0,
-                    EndPrice = 0,
-
-                    Value = balance * -1,
-                    CreditDebit = env.DebitOrCredit(creditAccount, balance),
-                };
-
-                journals.AddRange(new List<Journal>(new[] { credit, debit }));
+                journals.AddRange(ReverseCredit(env, valueDate, yearEndResult, yearEndResult.AccountType, netIncomePrev, accountName, credit));
+                journals.AddRange(ReverseDebit(env, valueDate, yearEndResult, yearEndResult.AccountType, netIncomePrev, accountName, debit));
             }
 
             if (journals.Count() > 0)
@@ -105,5 +81,106 @@ namespace PostingEngine.Tasks
 
             return true;
         }
+
+        private IEnumerable<Journal> ReverseCredit(PostingEngineEnvironment env, DateTime valueDate, dynamic yearEndResult, string fromAccount, string toAccount, string accountName, double balance)
+        {
+            var debitAccount = new AccountUtils().CreateAccount(fromAccount, accountName);
+            var creditAccount = new AccountUtils().CreateAccount(toAccount, accountName);
+
+            new AccountUtils().SaveAccountDetails(env, debitAccount);
+            new AccountUtils().SaveAccountDetails(env, creditAccount);
+
+            if ( yearEndResult.AccountCategory.Equals("Expenses"))
+            {
+                balance *= -1;
+            }
+
+            var debitJournal = new Journal(debitAccount, Event.YEAR_END, valueDate)
+            {
+                Source = "year-closeout",
+                Fund = yearEndResult.Fund,
+                Quantity = balance,
+
+                FxCurrency = env.BaseCurrency,
+                Symbol = env.BaseCurrency,
+                SecurityId = -1,
+                FxRate = 0,
+                StartPrice = 0,
+                EndPrice = 0,
+
+                Value = balance * -1,
+                CreditDebit = env.DebitOrCredit(debitAccount, balance),
+            };
+
+            var creditJournal = new Journal(creditAccount, Event.YEAR_END, valueDate)
+            {
+                Source = "year-closeout",
+                Fund = yearEndResult.Fund,
+                Quantity = balance,
+
+                FxCurrency = env.BaseCurrency,
+                Symbol = env.BaseCurrency,
+                SecurityId = -1,
+                FxRate = 0,
+                StartPrice = 0,
+                EndPrice = 0,
+
+                Value = balance,
+                CreditDebit = env.DebitOrCredit(creditAccount, balance),
+            };
+
+            return new Journal[] { creditJournal, debitJournal };
+        }
+
+        private IEnumerable<Journal> ReverseDebit(PostingEngineEnvironment env, DateTime valueDate, dynamic yearEndResult, string fromAccount, string toAccount, string accountName, double balance)
+        {
+            var debitAccount = new AccountUtils().CreateAccount(fromAccount, accountName);
+            var creditAccount = new AccountUtils().CreateAccount(toAccount, accountName);
+
+            new AccountUtils().SaveAccountDetails(env, debitAccount);
+            new AccountUtils().SaveAccountDetails(env, creditAccount);
+
+            if (yearEndResult.AccountCategory.Equals("Expenses"))
+            {
+                balance *= -1;
+            }
+
+            var debitJournal = new Journal(debitAccount, Event.YEAR_END, valueDate)
+            {
+                Source = "year-closeout",
+                Fund = yearEndResult.Fund,
+                Quantity = balance,
+
+                FxCurrency = env.BaseCurrency,
+                Symbol = env.BaseCurrency,
+                SecurityId = -1,
+                FxRate = 0,
+                StartPrice = 0,
+                EndPrice = 0,
+
+                Value = balance,
+                CreditDebit = env.DebitOrCredit(debitAccount, balance),
+            };
+
+            var creditJournal = new Journal(creditAccount, Event.YEAR_END, valueDate)
+            {
+                Source = "year-closeout",
+                Fund = yearEndResult.Fund,
+                Quantity = balance,
+
+                FxCurrency = env.BaseCurrency,
+                Symbol = env.BaseCurrency,
+                SecurityId = -1,
+                FxRate = 0,
+                StartPrice = 0,
+                EndPrice = 0,
+
+                Value = balance * -1,
+                CreditDebit = env.DebitOrCredit(creditAccount, balance),
+            };
+
+            return new Journal[] { creditJournal, debitJournal };
+        }
+
     }
 }
