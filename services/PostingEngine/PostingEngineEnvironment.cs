@@ -73,6 +73,21 @@ namespace PostingEngine
         public Transaction[] Trades { get; set; }
         public Dictionary<string, Accrual> Accruals { get; set; }
 
+        /// <summary>
+        /// Check to see if the Tax Lot is Still Open for this trade
+        /// </summary>
+        /// <param name="i"></param>
+        /// <returns></returns>
+        internal bool TaxLotsIsOpen(Transaction i)
+        {
+            if ( TaxLotStatus.ContainsKey(i.LpOrderId))
+            {
+                return !TaxLotStatus[i.LpOrderId].Status.Equals("closed");
+            }
+
+            return false;
+        }
+
         public Dictionary<string, TaxLotStatus> TaxLotStatus { get; private set; }
 
         internal TradeTaxRate TradeTaxRate(Transaction i)
@@ -429,29 +444,34 @@ namespace PostingEngine
                          and fx_currency != '{BaseCurrency}'
                          and [when] = '{valueDate.ToString("MM-dd-yyyy")}'";
 
-            var _connection = new SqlConnection(ConnectionString);
-            _connection.Open();
-            var command = new SqlCommand(sql, _connection);
-            //command.Transaction = env.Transaction;
-            var reader = command.ExecuteReader(System.Data.CommandBehavior.SingleResult);
-
-            while (reader.Read())
+            using (var _connection = new SqlConnection(ConnectionString))
             {
-                var unsettledPnl = new PnlData
-                {
-                    Credit = Convert.ToDouble(reader.GetFieldValue<decimal>(0)),
-                    Debit = Convert.ToDouble(reader.GetFieldValue<decimal>(1)),
-                    Symbol = reader.GetFieldValue<string>(2),
-                    Quantity = Convert.ToDouble(reader.GetFieldValue<decimal>(3)),
-                    Currency = reader.GetFieldValue<string>(4),
-                    Fund = reader.GetFieldValue<string>(5),
-                    Source = reader.GetFieldValue<string>(6),
-                    FxRate = Convert.ToDouble(reader.GetFieldValue<decimal>(7)),
-                    SecurityId = reader.GetFieldValue<int>(8),
-                    SecurityType = reader.GetFieldValue<string>(9),
-                };
+                _connection.Open();
+                var command = new SqlCommand(sql, _connection);
+                //command.Transaction = env.Transaction;
+                var reader = command.ExecuteReader(System.Data.CommandBehavior.SingleResult);
 
-                this.UnsettledPnl.Add(unsettledPnl);
+                while (reader.Read())
+                {
+                    var unsettledPnl = new PnlData
+                    {
+                        Credit = Convert.ToDouble(reader.GetFieldValue<decimal>(0)),
+                        Debit = Convert.ToDouble(reader.GetFieldValue<decimal>(1)),
+                        Symbol = reader.GetFieldValue<string>(2),
+                        Quantity = Convert.ToDouble(reader.GetFieldValue<decimal>(3)),
+                        Currency = reader.GetFieldValue<string>(4),
+                        Fund = reader.GetFieldValue<string>(5),
+                        Source = reader.GetFieldValue<string>(6),
+                        FxRate = Convert.ToDouble(reader.GetFieldValue<decimal>(7)),
+                        SecurityId = reader.GetFieldValue<int>(8),
+                        SecurityType = reader.GetFieldValue<string>(9),
+                    };
+
+                    this.UnsettledPnl.Add(unsettledPnl);
+                }
+
+                reader.Close();
+                _connection.Close();
             }
         }
 

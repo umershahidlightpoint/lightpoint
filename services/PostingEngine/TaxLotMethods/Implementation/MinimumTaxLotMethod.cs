@@ -12,27 +12,27 @@ namespace PostingEngine.TaxLotMethods
     /// </summary>
     /// <param name="element">Closing Tax Lot</param>
     /// <returns>List of matched open Lots / ordered by Min Tax effect</returns>
-    public class MinTaxLotMethod : ITaxLotMethodology
+    public class MinimumTaxLotMethod : ITaxLotMethodology
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public List<TaxLotDetail> GetOpenLots(PostingEngineEnvironment env, Transaction element)
+        public List<TaxLotDetail> GetOpenLots(PostingEngineEnvironment env, Transaction element, double workingQuantity)
         {
-            Logger.Info($"Getting Open Tax Lots for {element.Symbol}::{element.Side}::{env.GetFund(element)}::{element.TradeDate.ToString("MM-dd-yyyy")}");
+            Logger.Info($"Getting Open Tax Lots for {element.Symbol}::{element.Side}::{workingQuantity}::{element.TradeDate.ToString("MM-dd-yyyy")}");
 
-            var minTaxLots = new List<TaxLotDetail>();
-
-            var openlots = new BaseTaxLotMethodology().OpenTaxLots(env, element).ToList();
+            var openlots = BaseTaxLotMethodology.OpenTaxLots(env, element, workingQuantity).ToList();
 
             var results = openlots.Select(i => new {
                 trade = i.Trade,
                 taxRate = i.TaxRate,
                 taxLotStatus = i.TaxLotStatus,
-                potentialPnl = CalculateUnrealizedPnl(env, i, element),
-                taxAmount = CalculateTaxImplication(env, i, element)
+                potentialPnl = CalculateUnrealizedPnl(env, i, element, i.TaxLotStatus.Quantity),
+                taxAmount = CalculateTaxImplication(env, i, element, i.TaxLotStatus.Quantity)
             }).ToList();
 
-            minTaxLots = results.Where(i => i.taxLotStatus.Quantity != 0).OrderBy(i=> Math.Abs(i.taxAmount)).Select(i=> new TaxLotDetail {
+            // this gives me the losses first and then the gains
+            var taxlots = results.Where(i => i.taxLotStatus.Quantity != 0).OrderBy(i => Math.Abs(i.taxAmount)).Select(i => new TaxLotDetail
+            {
                 TaxRate = i.taxRate,
                 Trade = i.trade,
                 TaxLotStatus = i.taxLotStatus,
@@ -40,18 +40,14 @@ namespace PostingEngine.TaxLotMethods
                 TaxLiability = i.taxAmount
             }).ToList();
 
-            // Display all of the retrieved Tax Lots so that we can double check
-            foreach(var i in minTaxLots)
-            {
-                Logger.Info($"Retrieved Open Tax Lots {i.Trade.TradeDate.ToString("MM-dd-yyyy")}::{i.TaxRate.Rate}::{i.PotentialPnl}::{i.TaxLiability}::{i.TaxLotStatus.Quantity}");
-            }
+            BaseTaxLotMethodology.Log(Logger, taxlots);
 
-            return minTaxLots;
+            return taxlots;
         }
 
-        private double CalculateTaxImplication(PostingEngineEnvironment env, TaxLotDetail i, Transaction trade)
+        private double CalculateTaxImplication(PostingEngineEnvironment env, TaxLotDetail i, Transaction trade, double workingQuantity)
         {
-            var unrealizedPnl = CalculateUnrealizedPnl(env, i, trade);
+            var unrealizedPnl = CalculateUnrealizedPnl(env, i, trade, workingQuantity);
 
             var taxrate = Convert.ToDouble(i.TaxRate.Rate);
 
@@ -67,18 +63,23 @@ namespace PostingEngine.TaxLotMethods
         /// <param name="i"></param>
         /// <param name="trade"></param>
         /// <returns></returns>
-        private double CalculateUnrealizedPnl(PostingEngineEnvironment env, TaxLotDetail i, Transaction trade)
+        private double CalculateUnrealizedPnl(PostingEngineEnvironment env, TaxLotDetail i, Transaction trade, double workingQuantity)
         {
-            var eodPrice = MarketPrices.GetPrice(env, env.ValueDate, i.Trade).Price;
             var fxrate = FxRates.Find(env.ValueDate, i.Trade.SettleCurrency).Rate;
+
+            double multiplier = 1.0;
+
+            if (env.SecurityDetails.ContainsKey(trade.BloombergCode))
+                multiplier = env.SecurityDetails[trade.BloombergCode].Multiplier;
+
 
             if (env.TaxLotStatus.ContainsKey(i.Trade.LpOrderId))
             {
                 var lot = i.TaxLotStatus;
 
-                var quantity = Math.Abs(lot.Quantity) > Math.Abs(trade.Quantity) ? trade.Quantity : lot.Quantity;
+                var quantity = lot.Quantity;
 
-                var unrealizedPnl = (trade.SettleNetPrice - i.Trade.SettleNetPrice) * Math.Abs(quantity) * fxrate;
+                var unrealizedPnl = (trade.SettleNetPrice - i.Trade.SettleNetPrice) * Math.Abs(quantity) * fxrate * multiplier;
 
                 if ( trade.IsCover() )
                 {

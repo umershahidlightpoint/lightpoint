@@ -37,7 +37,6 @@ namespace PostingEngine
                 }
                 catch (Exception ex )
                 {
-
                 }
                 finally
                 {

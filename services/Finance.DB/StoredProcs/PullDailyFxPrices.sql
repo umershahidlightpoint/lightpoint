@@ -22,6 +22,6 @@ order by BusDate, CurrencyCode desc
 
 commit tran
 
-select * from FundAccounting..fx_rates where business_date >= @startDate and business_date <= @EndDate
+-- select * from FundAccounting..fx_rates where business_date >= @startDate and business_date <= @EndDate
 
 RETURN 0

@@ -133,14 +133,7 @@ full outer join  #summary_short s on s.BusDate = l.BusDate and l.Fund = s.Fund a
 where l.BusDate >= @startDate and l.BusDate <= @endDate
 
 commit tran
--- select * from #summary_long
--- select * from #summary_short
 
--- select * from FundAccounting..unofficial_daily_pnl
-
-
--- exec FundAccounting..PullDailyActivity '2019-11-01', '2019-11-11'
-
-select * from FundAccounting..unofficial_daily_pnl where business_date >= @startDate and business_date <= @EndDate
+-- select * from FundAccounting..unofficial_daily_pnl where business_date >= @startDate and business_date <= @EndDate
 
 RETURN 0

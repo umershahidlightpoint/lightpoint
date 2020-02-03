@@ -27,5 +27,8 @@ namespace LP.Finance.Common.Model
         public static readonly string SETTLED_CASH = "settled-cash";
 
         public static readonly string JOURNAL = "journal";
+
+        // Year End CloseOut
+        public static readonly string YEAR_END = "year-end";
     }
 }

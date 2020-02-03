@@ -28,16 +28,9 @@ Components
 */
 import { AppComponent } from './app.component';
 import { HeaderContentComponent } from './menu/header-content/header-content.component';
-// import { LeftMenuComponent } from './menu/left-menu/left-menu.component';
-import { NotfoundComponent } from './main/not-found/notfound/notfound.component';
-
-/*
-Configs
-*/
-import { toolkitConfig } from './toolkit-config';
 
 @NgModule({
-  declarations: [AppComponent, HeaderContentComponent, NotfoundComponent],
+  declarations: [AppComponent, HeaderContentComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,

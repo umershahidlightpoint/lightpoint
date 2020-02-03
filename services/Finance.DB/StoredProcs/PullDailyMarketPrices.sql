@@ -23,14 +23,15 @@ into #marketdata
 from FundAccounting..market_prices
 where last_updated_by = 'webservice'
 
-select p.SecurityCode, PriceSymbol, s.SecurityId, count(*) as [count] 
+select p.SecurityCode, PriceSymbol, s.SecurityId, st.SecurityTypeCode as SecurityType, count(*) as [count] 
 into #securityId
 from PositionMaster..IntraDayPositionSplit p
 inner join SecurityMaster..Security s on s.EzeTicker = p.SecurityCode and (s.PricingSymbol = p.PriceSymbol or s.PricingSymbol is null)
+inner join SecurityMaster..SecurityType st on st.SecurityTypeId = s.SecurityTypeId 
 where BusDate >= @startDate and BusDate <= @enddate
-group by p.SecurityCode, PriceSymbol, s.SecurityId
+group by p.SecurityCode, PriceSymbol, s.SecurityId, st.SecurityTypeCode
 
-print 'Start Removing previous eod data'
+RAISERROR ('Start Removing previous eod data', 0, 0)
 delete from FundAccounting..market_prices_history where business_date >= @startDate and business_date <= @enddate and [event]='eod'
 delete from FundAccounting..market_prices where business_date >= @startDate and business_date <= @enddate and [event]='eod'
 print 'End Removing previous eod data'
@@ -43,7 +44,12 @@ select count(*) from market_prices
 
 insert into market_prices (business_date, security_id, symbol, price, [event], last_updated_by, last_updated_on)
 SELECT 
-	intraDay.BusDate, sid.SecurityId, intraDay.SecurityCode as Symbol, MAX(intraday.SettlePrice), 'eod', 'script', GetDate()
+	intraDay.BusDate, sid.SecurityId, intraDay.SecurityCode as Symbol, 
+	case
+		when sid.SecurityType in ('FORWARD') and MAX(intraday.Price) = 1 then MAX(intraday.SettlePrice)
+		else MAX(intraday.Price)
+	end,
+	'eod', 'script', GetDate()
     FROM [PositionMaster].[dbo].[IntraDayPositionSplit] as intraDay
 	inner join #dates as dates on dates.BusDate = intraDay.BusDate and dates.lmo = intraDay.LastModifiedOn
 	inner join #securityid as sid on sid.SecurityCode = intraDay.SecurityCode and sid.PriceSymbol = intraDay.PriceSymbol
@@ -53,7 +59,7 @@ SELECT
 	m.business_date is null and 
 	intraDay.Price != 0.0
 --	and intraDay.SecurityCode like '@CASHUSD' 
-	group by intraDay.BusDate, sid.SecurityId, intraDay.SecurityCode
+	group by intraDay.BusDate, sid.SecurityId, intraDay.SecurityCode, sid.SecurityType
 	order by intraDay.BusDate desc
 
 commit tran

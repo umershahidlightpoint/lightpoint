@@ -17,6 +17,9 @@ namespace PostingEngine.ClientSpecifics
             if ( !String.IsNullOrEmpty(clientName) && clientName.ToLowerInvariant().Equals("bayberry"))
                 return new BayberrySpecifics();
 
+            if (!String.IsNullOrEmpty(clientName) && clientName.ToLowerInvariant().Equals("cowen"))
+                return new CowenSpecifics();
+
             return new DefaultSpecifics();
         }
     }
