@@ -1,10 +1,4 @@
-﻿/*
-select * from fnPositions('2019-12-31')
-exec PnlToDate '2019-12-31', '2019-01-01'
-exec PnlToDate '2019-12-31', '2019-12-01'
-*/
-
-CREATE PROCEDURE [dbo].[PnlToDate]
+﻿CREATE PROCEDURE [dbo].[PnlToDate]
 	@Now Date,
 	@From Date
 AS
@@ -23,8 +17,8 @@ update #results
 set realizedPnl = coalesce(GG,0)
 from #results t
 inner join (
-select security_id, Symbol, Fund, SUM(credit-debit) as GG from current_journal
-where AccountType in ('REALIZED GAIN/(LOSS)') and [event] in ('realizedpnl')
+select security_id, Symbol, Fund, SUM(credit-debit) as GG from current_journal_full
+where AccountType in ('REALIZED GAIN/(LOSS)')
 and [when] >= @From and [when] <= @Now
 group by security_id, Symbol, Fund
 ) as v on v.fund = t.fund and v.security_id = t.SecurityId
@@ -33,7 +27,7 @@ update #results
 set unrealizedPnl = coalesce(GG,0)
 from #results t
 inner join (
-select security_id, Symbol, Fund, SUM(credit-debit) as GG from vwFullJournal v
+select security_id, Symbol, Fund, SUM(credit-debit) as GG from current_journal_full v
 where (AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'Change in unrealized due to fx on original Cost', 'change in unrealized do to fx translation'))
 and v.SecurityType not in ( 'Equity Swap', 'FORWARD', 'CROSS' )
 and v.[when] >= @From and v.[when] <= @Now
@@ -44,7 +38,7 @@ update #results
 set unrealizedPnl = GG
 from #results t
 inner join (
-select security_id, Symbol, Fund, SUM(credit-debit) as GG from vwFullJournal v
+select security_id, Symbol, Fund, SUM(credit-debit) as GG from current_journal_full v
 where (AccountType in ('Change in Unrealized Derivatives Contracts at Fair Value', 'Change in Unrealized Derivatives Contracts due to FX Translation'))
 and v.SecurityType in ( 'Equity Swap', 'FORWARD', 'CROSS' )
 and v.[when] >= @From and v.[when] <= @Now

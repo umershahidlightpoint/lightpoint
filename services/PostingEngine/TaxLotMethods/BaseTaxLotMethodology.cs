@@ -1,19 +1,11 @@
 ﻿using LP.Finance.Common.Models;
 using PostingEngine.Contracts;
-using PostingEngine.MarketData;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace PostingEngine.TaxLotMethods
 {
-    public class TaxLotDetail
-    {
-        public Transaction Trade { get; set; }
-        public TaxLotStatus TaxLotStatus { get; set; }
-        public TradeTaxRate TaxRate { get; set; }
-        public double PotentialPnl { get; set; }
-        public double TaxLiability { get; set; }
-    }
 
     class BaseTaxLotMethodology
     {
@@ -33,6 +25,8 @@ namespace PostingEngine.TaxLotMethods
                     return new LIFOTaxLotMethod();
                 case "mintax":
                     return new MinTaxLotMethod();
+                case "minimumtax":
+                    return new MinimumTaxLotMethod();
             }
         }
 
@@ -43,7 +37,7 @@ namespace PostingEngine.TaxLotMethods
         /// <param name="env"></param>
         /// <param name="element"></param>
         /// <returns></returns>
-        public List<TaxLotDetail> OpenTaxLots(PostingEngineEnvironment env, Transaction element)
+        public static List<TaxLotDetail> OpenTaxLots(PostingEngineEnvironment env, Transaction element, double workingQuantity)
         {
             var fund = env.GetFund(element);
 
@@ -61,6 +55,7 @@ namespace PostingEngine.TaxLotMethods
                     && i.Symbol == element.Symbol
                     && env.GetFund(i) == fund
                     && !i.Status.Equals("Cancelled")
+                    && env.TaxLotsIsOpen(i)
                     && i.LpOrderId != element.LpOrderId);
 
             // We need to grab the opposite of the past trade
@@ -112,6 +107,21 @@ namespace PostingEngine.TaxLotMethods
 
 
             return openLots;
+        }
+
+        static internal void Log(NLog.Logger Logger, List<TaxLotDetail> taxlots)
+        {
+            // Display all of the retrieved Tax Lots so that we can double check
+            if (taxlots.Count() == 0)
+                return;
+
+            var taxlot = taxlots[0];
+
+            Logger.Info($"Retrieved Open Tax Lots {taxlot.Trade.Symbol}::{taxlot.Trade.Side}");
+            foreach (var i in taxlots)
+            {
+                Logger.Info($"==> Open Tax Lots [{i.TradePrice}]::{i.Trade.TradeDate.ToString("MM-dd-yyyy")}::{i.TaxRate.Rate}::{i.PotentialPnl}::{i.TaxLiability}::{i.TaxLotStatus.Quantity}");
+            }
         }
     }
 

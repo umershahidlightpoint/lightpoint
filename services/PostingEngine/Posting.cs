@@ -51,11 +51,11 @@ namespace PostingEngine
 
         public static void Complete()
         {
-            PostingEngineCallBack?.Invoke("Completing Started");
+            PostingEngineCallBack?.Invoke("Start Caching Result");
 
             var dataTable = new SqlHelper(connectionString).GetDataTables("CacheResults", CommandType.StoredProcedure);
 
-            PostingEngineCallBack?.Invoke("Finished");
+            PostingEngineCallBack?.Invoke("End Caching Result");
         }
 
         public static void SettledCashBalances()
@@ -624,20 +624,6 @@ where business_date = @busDate";
                 var localTradeList = JsonConvert.DeserializeObject<Transaction[]>(trades.Result);
 
                 var finalTradeList = localTradeList.Where(t => t.TradeDate >= new DateTime(2019, 4, 1)).ToArray();
-                const bool DEBUG = false;
-                if (DEBUG)
-                {
-                    var symbols = new List<string> {
-                    "IMKTA",
-                    };
-
-
-                    var types = new List<string> {
-                    "Common Stock",
-                    };
-
-                    finalTradeList = finalTradeList.Where(t => symbols.Contains(t.Symbol)).ToArray();
-                }
 
                 var accrualList = JsonConvert.DeserializeObject<Wrap<Accrual>>(accruals.Result).Data;
                 PostingEngineCallBack?.Invoke("Retrieved All Data");
@@ -1014,14 +1000,12 @@ where business_date = @busDate";
             var maxSettleDate = postingEnv.Trades.Max(i => i.SettleDate.Date);
 
             var valueDate = minTradeDate;
-            var endDate = new DateTime(2019, 12,31);
+            var endDate = maxTradeDate; // new DateTime(2019, 12,31);
 
             int totalDays = (int) (endDate - valueDate).TotalDays;
             int daysProcessed = 0;
 
             var ignoreTrades = new List<string>();
-
-            Task<int> asyncResults = null;
 
             while (valueDate <= endDate)
             {
@@ -1167,12 +1151,10 @@ where business_date = @busDate";
                     }
                 }
 
-                PostingEngineCallBack?.Invoke($"Finsihed Processing {tradeData.Count()}");
-
                 // Cash Settlement amounts
                 if (postingEnv.Journals.Count() > 0)
                 {
-                    PostingEngineCallBack?.Invoke($"Committing all Journal Entries {postingEnv.Journals.Count()} Entries");
+                    //PostingEngineCallBack?.Invoke($"Committing all Journal Entries {postingEnv.Journals.Count()} Entries");
 
                     postingEnv.CollectData(postingEnv.Journals);
 
@@ -1181,7 +1163,7 @@ where business_date = @busDate";
 
                 sw.Stop();
 
-                PostingEngineCallBack?.Invoke($"Completed {valueDate.ToString("MM-dd-yyyy")} in {sw.ElapsedMilliseconds} ms", totalDays, daysProcessed++);
+                PostingEngineCallBack?.Invoke($"Completed {tradeData.Count()} :: {valueDate.ToString("MM-dd-yyyy")} in {sw.ElapsedMilliseconds} ms", totalDays, daysProcessed++);
 
 
                 valueDate = valueDate.AddDays(1);
@@ -1242,15 +1224,23 @@ where business_date = @busDate";
             }
 
             var startdate = datePeriod.Item1.ToString("MM-dd-yyyy") + " 00:00";
-            var enddate = datePeriod.Item2.ToString("MM-dd-yyyy") + " 16:30";
-
-            var whereClause =
-                $"where [when] between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}')";
+            var enddate = datePeriod.Item2.ToString("MM-dd-yyyy") + " 23:59";
 
             try
             {
-                // new SqlCommand("delete from ledger " + whereClause, connection).ExecuteNonQuery();
-                var command = new SqlCommand("delete from journal " + whereClause, connection);
+                var query =
+                    $@"DECLARE @Deleted_Rows INT;
+                        SET @Deleted_Rows = 1;
+                        WHILE (@Deleted_Rows > 0)
+                          BEGIN
+
+                        delete top (10000) from journal 
+                        where [when] between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}')
+                        SET @Deleted_Rows = @@ROWCOUNT;
+    
+                        END";
+
+                var command = new SqlCommand(query, connection);
                 command.CommandTimeout = 90;
                 command.ExecuteNonQuery();
 

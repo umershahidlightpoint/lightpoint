@@ -27,6 +27,7 @@ namespace LP.Finance.Common.Models
             var list = new List<AccountCategory>();
 
             var query = new SqlCommand("select * from account_category", connection);
+            query.CommandTimeout = 120;
             var reader = query.ExecuteReader(System.Data.CommandBehavior.SingleResult);
 
             while (reader.Read())

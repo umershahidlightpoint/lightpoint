@@ -107,56 +107,46 @@ namespace PostingEngine.PostingRules
             if (tradeEvent.Equals(Event.TRADE_DATE))
                 return new List<Journal>();
 
-            // TBD: THIS IS FOR BOBBY
-            if (element.SecurityType.Equals("FORWARD"))
-                return new List<Journal>();
+            var riskCurrency = element.SettleCurrency;
+
+            if ( element.SecurityType.Equals("FORWARD"))
+            {
+                var split = element.Symbol.Split(new char[] { '/', ' ' });
+                var baseCurrency = split[0];
+                riskCurrency = split[1];
+            }
 
             // Check to see if the BaseCurrency == SettleCurrency because if it is then no need to do the FX translation
-            if (env.BaseCurrency.Equals(element.SettleCurrency))
+            if (env.BaseCurrency.Equals(riskCurrency))
                 return new List<Journal>();
 
-            var currency = element.SettleCurrency;
-
-            var prevEodFxRate = Convert.ToDouble(FxRates.Find(env.PreviousValueDate, currency).Rate);
-            var eodFxRate = Convert.ToDouble(FxRates.Find(env.ValueDate, currency).Rate);
+            var prevEodFxRate = Convert.ToDouble(FxRates.Find(env.PreviousValueDate, riskCurrency).Rate);
+            var eodFxRate = Convert.ToDouble(FxRates.Find(env.ValueDate, riskCurrency).Rate);
             var effectiveRate = eodFxRate - prevEodFxRate;
 
-            var usdEquivalent = element.NetMoney * effectiveRate;
+            var usdEquivalent = element.Quantity * effectiveRate;
 
-            var fromAccount = "FX MARKET TO MARKET ON STOCK COST";
-            var toAccount = "Change in unrealized due to fx on original Cost";
+            var fromAccount = "Mark to Market Derivatives Contracts due to FX (Liabilities)";
+            var toAccount = "Change in Unrealized Derivatives Contracts due to FX";
 
-            if ( element.IsDerivative())
+            if ( usdEquivalent > 0)
             {
-                toAccount = "Change in Unrealized Derivatives Contracts due to FX";
-
-                if ( usdEquivalent > 0)
-                {
-                    fromAccount = "Mark to Market Derivatives Contracts due to FX (Assets)";
-                    
-                } else
-                {
-                    fromAccount = "Mark to Market Derivatives Contracts due to FX (Liabilities)";
-                }
-            }
-            else
-            {
-                if ( element.IsShort() || element.IsCover())
-                {
-                    fromAccount = "FX MARK TO MARKET ON STOCK COST (SHORTS)";
-                }
+                fromAccount = "Mark to Market Derivatives Contracts due to FX (Assets)";
             }
 
             // Get accounts
             var toFrom = new AccountUtils().GetAccounts(env, fromAccount, toAccount, _TAGS, element);
+
+            var fund = env.GetFund(element);
 
             var debit = new Journal(element, toFrom.From, $"{tradeEvent}-unrealizedpnl-fx", env.ValueDate)
             {
                 Quantity = quantity,
                 FxRate = effectiveRate,
                 StartPrice = prevEodFxRate,
+                FxCurrency = riskCurrency,
                 EndPrice = eodFxRate,
-                Fund = env.GetFund(element),
+                Fund = fund,
                 Value = env.SignedValue(toFrom.From, toFrom.To, true, usdEquivalent),
                 CreditDebit = env.DebitOrCredit(toFrom.From, usdEquivalent),
             };
@@ -165,9 +155,10 @@ namespace PostingEngine.PostingRules
             {
                 Quantity = quantity,
                 FxRate = effectiveRate,
+                FxCurrency = riskCurrency,
                 StartPrice = prevEodFxRate,
                 EndPrice = eodFxRate,
-                Fund = env.GetFund(element),
+                Fund = fund,
 
                 Value = env.SignedValue(toFrom.From, toFrom.To, false, usdEquivalent),
                 CreditDebit = env.DebitOrCredit(toFrom.To, usdEquivalent),

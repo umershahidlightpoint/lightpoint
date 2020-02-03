@@ -27,7 +27,7 @@ namespace PostingEngine
             // Expences / Revenue
             ExpencesAndRevenues(key, valueDate);
 
-            //EndOfYear(key, valueDate);
+            EndOfYear(key, valueDate);
 
             Complete(key, valueDate);
         }
@@ -36,214 +36,78 @@ namespace PostingEngine
         {
 
             // This runs thru everything, we need more or a scalpable
-            PostingEngine.RunCalculation("PullFromBookmon", valueDate, key, (message, totalRows, rowsDone) => {
-                if (message.StartsWith("Processing"))
-                {
-                    // Do nothing
-                    return;
-                }
-                if (message.StartsWith("Completed"))
-                {
-                    var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
-
-                    Logger.Info($"{message}, % Completed {completed}");
-                    return;
-                }
-
-                Logger.Info($"{message}");
-            });
+            PostingEngine.RunCalculation("PullFromBookmon", valueDate, key, LogProcess);
         }
 
-        static void ExpencesAndRevenues(Guid key, DateTime valueDate)
+        internal static void ExpencesAndRevenues(Guid key, DateTime valueDate)
         {
             // This runs thru everything, we need more or a scalpable
-            PostingEngine.RunCalculation("ExpencesAndRevenues", valueDate, key, (message, totalRows, rowsDone) => {
-                if (message.StartsWith("Processing"))
-                {
-                    // Do nothing
-                    return;
-                }
-                if (message.StartsWith("Completed"))
-                {
-                    var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
-
-                    Logger.Info($"{message}, % Completed {completed}");
-                    return;
-                }
-
-                Logger.Info($"{message}");
-            });
+            PostingEngine.RunCalculation("ExpencesAndRevenues", valueDate, key, LogProcess);
         }
 
-        static void EndOfYear(Guid key, DateTime valueDate)
+        private static void LogProcess(string message, int totalRows, int rowsDone)
         {
-            // This runs thru everything, we need more or a scalpable
-            PostingEngine.RunCalculation("EndOfYear", valueDate, key, (message, totalRows, rowsDone) => {
-                if (message.StartsWith("Processing"))
-                {
-                    // Do nothing
-                    return;
-                }
-                if (message.StartsWith("Completed"))
-                {
-                    var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
+            if (message.StartsWith("Processing"))
+            {
+                // Do nothing
+                return;
+            }
+            if (message.StartsWith("Completed"))
+            {
+                var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
 
-                    Logger.Info($"{message}, % Completed {completed}");
-                    return;
-                }
+                Logger.Info($"{message}, % Completed {completed}");
+                return;
+            }
 
-                Logger.Info($"{message}");
-            });
+            Logger.Info($"{message}");
         }
 
-        static void Complete(Guid key, DateTime valueDate)
+        internal static void EndOfYear(Guid key, DateTime valueDate)
         {
             // This runs thru everything, we need more or a scalpable
-            PostingEngine.RunCalculation("Complete", valueDate, key, (message, totalRows, rowsDone) => {
-                if (message.StartsWith("Processing"))
-                {
-                    // Do nothing
-                    return;
-                }
-                if (message.StartsWith("Completed"))
-                {
-                    var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
-
-                    Logger.Info($"{message}, % Completed {completed}");
-                    return;
-                }
-
-                Logger.Info($"{message}");
-            });
+            PostingEngine.RunCalculation("EndOfYear", valueDate, key, LogProcess);
         }
 
-        static void SettledCashBalances(Guid key, DateTime valueDate)
+        internal static void Complete(Guid key, DateTime valueDate)
         {
             // This runs thru everything, we need more or a scalpable
-            PostingEngine.RunCalculation("SettledCashBalances", valueDate, key, (message, totalRows, rowsDone) => {
-                if (message.StartsWith("Processing"))
-                {
-                    // Do nothing
-                    return;
-                }
-                if (message.StartsWith("Completed"))
-                {
-                    var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
-
-                    Logger.Info($"{message}, % Completed {completed}");
-                    return;
-                }
-
-                Logger.Info($"{message}");
-            });
-        }
-        static void ITD(Guid key, DateTime businesssdate)
-        {
-            // This runs thru everything, we need more or a scalpable
-            PostingEngine.Start("ITD", key, businesssdate, (message, totalRows, rowsDone) => {
-                if (message.StartsWith("Processing"))
-                {
-                    Logger.Info($"{message}");
-                    return;
-                }
-                if (message.StartsWith("Completed"))
-                {
-                    var completed = (rowsDone * 1.0 / totalRows) * 100;
-
-                    Logger.Info($"{message}, %{completed}");
-                    return;
-                }
-
-                Logger.Info($"{message}");
-            });
-
+            PostingEngine.RunCalculation("Complete", valueDate, key, LogProcess);
         }
 
-        static void NonDesructive(Guid key, DateTime businesssdate)
+        internal static void SettledCashBalances(Guid key, DateTime valueDate)
         {
             // This runs thru everything, we need more or a scalpable
-            PostingEngine.NonDesructive("ITD", key, businesssdate, (message, totalRows, rowsDone) => {
-                if (message.StartsWith("Processing"))
-                {
-                    Logger.Info($"{message}");
-                    return;
-                }
-                if (message.StartsWith("Completed"))
-                {
-                    var completed = (rowsDone * 1.0 / totalRows) * 100;
-
-                    Logger.Info($"{message}, % Completed {completed}");
-                    return;
-                }
-
-                Logger.Info($"{message}");
-            });
-
+            PostingEngine.RunCalculation("SettledCashBalances", valueDate, key, LogProcess);
+        }
+        internal static void ITD(Guid key, DateTime businesssdate)
+        {
+            // This runs thru everything, we need more or a scalpable
+            PostingEngine.Start("ITD", key, businesssdate, LogProcess);
         }
 
-        static void CostBasisAndDayPnl(Guid key, DateTime valueDate)
+        internal static void NonDesructive(Guid key, DateTime businesssdate)
         {
             // This runs thru everything, we need more or a scalpable
-            PostingEngine.RunCalculation("CostBasisAndDayPnl", valueDate, key, (message, totalRows, rowsDone) => {
-                if (message.StartsWith("Processing"))
-                {
-                    // Do nothing
-                    return;
-                }
-                if (message.StartsWith("Completed"))
-                {
-                    var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
-
-                    Logger.Info($"{message}, % Completed {completed}");
-                    return;
-                }
-
-                Logger.Info($"{message}");
-            });
+            PostingEngine.NonDesructive("ITD", key, businesssdate, LogProcess);
         }
 
-        static void CostBasis(Guid key, DateTime valueDate)
+        internal static void CostBasisAndDayPnl(Guid key, DateTime valueDate)
         {
             // This runs thru everything, we need more or a scalpable
-            PostingEngine.RunCalculation("CostBasis", valueDate, key, (message, totalRows, rowsDone) => {
-                if (message.StartsWith("Processing"))
-                {
-                    // Do nothing
-                    return;
-                }
-                if (message.StartsWith("Completed"))
-                {
-                    var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
-
-                    Logger.Info($"{message}, % Completed {completed}");
-                    return;
-                }
-
-                Logger.Info($"{message}");
-            });
-
+            PostingEngine.RunCalculation("CostBasisAndDayPnl", valueDate, key, LogProcess);
         }
 
-        static void CalculateDailyPnl(Guid key, DateTime valueDate)
+        internal static void CostBasis(Guid key, DateTime valueDate)
         {
             // This runs thru everything, we need more or a scalpable
-            PostingEngine.RunCalculation("DailyPnl", valueDate, key, (message, totalRows, rowsDone) => {
-                if (message.StartsWith("Processing"))
-                {
-                    // Do nothing
-                    return;
-                }
-                if (message.StartsWith("Completed"))
-                {
-                    var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
+            PostingEngine.RunCalculation("CostBasis", valueDate, key, LogProcess);
+        }
 
-                    Logger.Info($"{message}, % Completed {completed}");
-                    return;
-                }
-
-                Logger.Info($"{message}");
-            });
-
+        internal static void CalculateDailyPnl(Guid key, DateTime valueDate)
+        {
+            // This runs thru everything, we need more or a scalpable
+            PostingEngine.RunCalculation("DailyPnl", valueDate, key, LogProcess);
         }
     }
 }

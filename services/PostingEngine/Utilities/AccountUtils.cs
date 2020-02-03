@@ -8,6 +8,11 @@ namespace PostingEngine.PostingRules.Utilities
 {
     class AccountUtils
     {
+        public Account GetAccount(PostingEngineEnvironment env, string accountType, string[] tags)
+        {
+            return GetAccount(env, accountType, tags.ToList());
+        }
+
         public Account GetAccount(PostingEngineEnvironment env, string accountType, List<string> tags)
         {
             var account = CreateAccount(AccountType.Find(accountType), tags);
@@ -153,6 +158,13 @@ namespace PostingEngine.PostingRules.Utilities
         internal Account CreateDerivativeAccount(int accountType, string typename, string accountname)
         {
             var acType = AccountType.Find(accountType, typename);
+            var account = CreateAccount(acType, accountname);
+            return account;
+        }
+
+        internal Account CreateAccount(string typename, string accountname)
+        {
+            var acType = AccountType.Find(typename);
             var account = CreateAccount(acType, accountname);
             return account;
         }
