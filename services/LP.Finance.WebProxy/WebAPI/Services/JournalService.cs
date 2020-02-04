@@ -28,6 +28,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
     {
         private static readonly string
             connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public SqlHelper sqlHelper = new SqlHelper(connectionString);
@@ -1043,7 +1044,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 if (source.Equals("exposure"))
                 {
                     query = "BookmonReconcile";
-                } else if (source.Equals("fundadmin"))
+                }
+                else if (source.Equals("fundadmin"))
                 {
                     query = "FundAdminReconcile";
                 }
@@ -1453,7 +1455,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var sql = ServerSideRowModelHelper.BuildSql(obj, viewName);
                 var query = sql.Item1 + " OPTION(MAXDOP 4)";
-                Logger.Info("serverSideJournals query {query}",query);
+                Logger.Info("serverSideJournals query {query}", query);
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sql.Item3.ToArray());
                 int lastRow = ServerSideRowModelHelper.GetRowCount(obj, dataTable);
                 bool rootNodeGroupOrNoGrouping =
@@ -1541,16 +1543,16 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 SqlHelper sqlHelper = new SqlHelper(connectionString);
 
-                var filtersQueries = new List<string>();
-                var filterConfigQuery =
-                    $@"SELECT col_name as ColumnName, 
-                    source as Source, 
-                    meta_info as MetaInfo 
-                    from server_side_filter_config where grid_name = '{obj.GridName}'";
+                var filterConfigQuery = $@"SELECT col_name as ColumnName, 
+                                        source as Source, 
+                                        meta_info as MetaInfo 
+                                        from server_side_filter_config where grid_name = '{obj.GridName}'";
 
                 var filterConfigDataTable = sqlHelper.GetDataTable(filterConfigQuery, CommandType.Text);
+
                 var serializedConfig = JsonConvert.SerializeObject(filterConfigDataTable);
                 var filters = JsonConvert.DeserializeObject<List<ServerSideFilterConfig>>(serializedConfig);
+
                 var metaInfo = filters.Select(x => x.MetaInfo).FirstOrDefault();
 
                 // Default Value, Just to Ensure that Column Meta Data is returned even if Filters are not Present.
@@ -1560,9 +1562,25 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
 
                 var columnsQuery = $@"SELECT TOP 0 * FROM {metaInfo}";
+
                 var dataTable = sqlHelper.GetDataTable(columnsQuery, CommandType.Text);
+
                 var meta = MetaData.ToMetaData(dataTable);
 
+                var fundRangeQuery = $@"SELECT Year([when]) AS 'Year'
+                                    ,[fund]
+                                    FROM {metaInfo}
+                                    GROUP BY YEAR([when]), [fund]
+                                    ORDER BY YEAR([when])";
+
+                var fundRangeDataTable = sqlHelper.GetDataTable(fundRangeQuery, CommandType.Text);
+
+                var fundRangeSerialized = JsonConvert.SerializeObject(fundRangeDataTable);
+                var fundRanges = JsonConvert.DeserializeObject(fundRangeSerialized);
+
+                meta.FundsRange = fundRanges;
+
+                var filtersQueries = new List<string>();
                 if (filters.Count > 0)
                 {
                     for (var i = 0; i < filters.Count; i++)
@@ -1627,7 +1645,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlParams.Add(new SqlParameter("@Symbol", symbol));
                 sqlParams.Add(new SqlParameter("@Period", period));
 
-                var dataTable = sqlHelper.GetDataTable("PeriodJournals", CommandType.StoredProcedure, sqlParams.ToArray());
+                var dataTable =
+                    sqlHelper.GetDataTable("PeriodJournals", CommandType.StoredProcedure, sqlParams.ToArray());
                 var meta = MetaData.ToMetaData(dataTable);
                 var serialized = JsonConvert.SerializeObject(dataTable);
                 var data = JsonConvert.DeserializeObject(serialized);
@@ -1635,7 +1654,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 return Utils.Wrap(true, data, HttpStatusCode.OK, "Journals fetched successfully", meta);
             }
 
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }

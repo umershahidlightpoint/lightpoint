@@ -44,7 +44,7 @@ export const SideBar = (
 };
 
 export const Ranges: any = {
-  ITD: [moment('01-01-1901', 'MM-DD-YYYY'), moment()],
+  // ITD: [moment('01-01-1901', 'MM-DD-YYYY'), moment()],
   YTD: [moment().startOf('year'), moment()],
   MTD: [moment().startOf('month'), moment()],
   Today: [moment(), moment()],
@@ -54,6 +54,19 @@ export const Ranges: any = {
       .subtract(1, 'month'),
     moment()
   ]
+};
+
+export const getRange = (customRange: any = {}) => {
+  let defaultRange = { ...Ranges };
+
+  if (Object.keys(customRange).length > 0) {
+    defaultRange = {
+      ...customRange,
+      ...defaultRange
+    };
+  }
+
+  return defaultRange;
 };
 
 export const IgnoreFields: Array<string> = [
