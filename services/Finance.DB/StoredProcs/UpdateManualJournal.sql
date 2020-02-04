@@ -25,7 +25,7 @@ SET
    ,c_journal.[end_price] = v_journal.[end_price]
    ,c_journal.[fxrate] = v_journal.[fxrate]
 FROM
-    [dbo].[current_journal] AS c_journal
+    [dbo].[current_journal_full] AS c_journal
     INNER JOIN [dbo].[vwJournal] AS v_journal
         ON c_journal.id = v_journal.id
 	WHERE c_journal.id = @journalId
