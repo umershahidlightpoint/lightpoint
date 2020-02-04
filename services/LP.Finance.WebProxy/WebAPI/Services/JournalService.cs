@@ -312,6 +312,52 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return Utils.Wrap(true, payload, HttpStatusCode.OK);
         }
 
+        private int? CheckIfAccountExists(string name, SqlHelper sqlHelper)
+        {
+            var query = $"select id from account where name = '{name}'";
+            var accountId = (int?)sqlHelper.GetScalarValue(query, CommandType.Text);
+            return accountId;
+        }
+
+        private int CreateAccount(AccountInputDto account, SqlHelper sqlHelper)
+        {
+            string accountName = account.Description;
+            List<SqlParameter> accountParameters = new List<SqlParameter>
+                {
+                    new SqlParameter("name", accountName), new SqlParameter("description", account.Description),
+                    new SqlParameter("type", account.Type)
+                };
+
+            var accountQuery = $@"INSERT INTO [account]
+                        ([name]
+                        ,[description]
+                        ,[account_type_id])
+                        VALUES
+                        (@name
+                        ,@description
+                        ,@type)
+                        SELECT SCOPE_IDENTITY() AS 'Identity'";
+
+            sqlHelper.Insert(accountQuery, CommandType.Text, accountParameters.ToArray(), out int accountId);
+            return accountId;
+        }
+
+        private int CreateIfAccountNotPresent(string name, SqlHelper sqlHelper)
+        {
+            var accountId = CheckIfAccountExists(name, sqlHelper);
+            if (accountId.HasValue)
+            {
+                return accountId.Value;
+            }
+            else
+            {
+                AccountInputDto accountInputDto = new AccountInputDto();
+                accountInputDto.Description = name;
+                var id = CreateAccount(accountInputDto, sqlHelper);
+                return id;
+            }
+        }
+
         public object AddJournal(JournalInputDto journal)
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);
@@ -323,13 +369,34 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var commentsId = InsertJournalComment(journal, sqlHelper);
                 var fxCurrency = GetBaseCurrency();
 
+                List<string> accountToNameList = new List<string>();
+                List<string> accountFromNameList = new List<string>();
+                accountToNameList.Add(journal.AccountTo.AccountCategoryName);
+                accountToNameList.Add(journal.AccountTo.AccountTypeName);
+                accountToNameList.Add(journal.AccountTo.Symbol);
+                accountToNameList.Add(journal.AccountTo.Currency);
+
+                accountFromNameList.Add(journal.AccountFrom.AccountCategoryName);
+                accountFromNameList.Add(journal.AccountFrom.AccountTypeName);
+                accountFromNameList.Add(journal.AccountFrom.Symbol);
+                accountFromNameList.Add(journal.AccountFrom.Currency);
+
+                string accountToName = string.Join("-", accountToNameList.Select(x => x));
+                string accountFromName = string.Join("-", accountToNameList.Select(x => x));
+
+                journal.AccountTo.AccountId = CreateIfAccountNotPresent(accountToName, sqlHelper);
+                if (!journal.AccountFrom.AccountCategoryName.ToLowerInvariant().Equals("dummy"))
+                {
+                    journal.AccountFrom.AccountId = CreateIfAccountNotPresent(accountFromName, sqlHelper);
+                }
+
                 var accountToValue = journal.Value;
                 var source = Guid.NewGuid().ToString().ToLower();
                 var fxRate = "1.000000000";
                 var generatedBy = "user";
                 var quantity = 0;
                 var lastModifiedOn = DateTime.Now.ToString("yyyy-MM-dd");
-                var symbol = string.IsNullOrWhiteSpace(journal.Symbol) ? "" : journal.Symbol;
+                var symbol = string.IsNullOrWhiteSpace(journal.AccountTo.Symbol) ? "" : journal.AccountTo.Symbol;
                 var eventType = "manual";
                 var startPrice = 0;
                 var endPrice = 0;
@@ -519,7 +586,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var accountToValue = journal.Value;
                 var lastModifiedOn = DateTime.Now.ToString("yyyy-MM-dd");
-                var symbol = string.IsNullOrWhiteSpace(journal.Symbol) ? "" : journal.Symbol;
+                var symbol = string.IsNullOrWhiteSpace(journal.AccountTo.Symbol) ? "" : journal.AccountTo.Symbol;
 
                 var journalQuery = $@"UPDATE [journal]
                             SET [account_id] = @accountId

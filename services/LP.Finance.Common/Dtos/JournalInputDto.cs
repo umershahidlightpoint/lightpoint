@@ -6,7 +6,6 @@ namespace LP.Finance.Common.Dtos
     public class JournalInputDto
     {
         [Required] public string Fund { get; set; }
-        public string Symbol { get; set; }
         [Required] public JournalAccountInputDto AccountFrom { get; set; }
         [Required] public JournalAccountInputDto AccountTo { get; set; }
         [Required] public double Value { get; set; }
