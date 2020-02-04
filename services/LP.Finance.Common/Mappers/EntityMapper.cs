@@ -87,13 +87,11 @@ namespace LP.Finance.Common.Mappers
             {
                 Source = reader["source"].ToString(),
                 When = reader["when"].ToString(),
-                FxCurrency = reader["fx_currency"].ToString(),
                 FxRate = Convert.ToDecimal(reader["fxrate"]),
                 Fund = reader["fund"].ToString(),
                 GeneratedBy = reader["generated_by"].ToString(),
                 Quantity = Convert.ToDouble(reader["quantity"]),
                 LastModifiedOn = reader["last_modified_on"].ToString(),
-                Symbol = reader["symbol"].ToString(),
                 Event = reader["event"].ToString(),
                 StartPrice = Convert.ToDouble(reader["start_price"]),
                 EndPrice = Convert.ToDouble(reader["end_price"]),
@@ -105,6 +103,12 @@ namespace LP.Finance.Common.Mappers
                     {
                         JournalId = Convert.ToInt32(reader["id"]),
                         AccountId = Convert.ToInt32(reader["account_id"]),
+                        AccountCategoryId = Convert.ToInt32(reader["account_category_id"]),
+                        AccountCategory = reader["account_category"].ToString(),
+                        AccountTypeId = Convert.ToInt32(reader["account_type_id"]),
+                        AccountType = reader["account_type"].ToString(),
+                        Symbol = reader["symbol"].ToString(),
+                        FxCurrency = reader["fx_currency"].ToString(),
                         Value = Convert.ToDecimal(reader["value"]),
                         CreditDebit = reader["credit_debit"].ToString()
                     }
@@ -114,6 +118,12 @@ namespace LP.Finance.Common.Mappers
                     {
                         JournalId = Convert.ToInt32(reader["id"]),
                         AccountId = Convert.ToInt32(reader["account_id"]),
+                        AccountCategoryId = Convert.ToInt32(reader["account_category_id"]),
+                        AccountCategory = reader["account_category"].ToString(),
+                        AccountTypeId = Convert.ToInt32(reader["account_type_id"]),
+                        AccountType = reader["account_type"].ToString(),
+                        Symbol = reader["symbol"].ToString(),
+                        FxCurrency = reader["fx_currency"].ToString(),
                         Value = Convert.ToDecimal(reader["value"]),
                         CreditDebit = reader["credit_debit"].ToString()
                     }

@@ -253,6 +253,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             var query = $@"SELECT [journal].[id]
                         ,[account_id] 
+						,[account_category_id]
+						,[account_category].[name] AS 'account_category'
+						,[account_type_id]
+						,[account_type].[name] AS 'account_type'
                         ,[value]
                         ,[source]
                         ,[when]
@@ -273,7 +277,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 						[comment]
                         FROM [journal]
 						LEFT JOIN [journal_comments]
-						ON [journal].[comment_id] = [journal_comments].[id]
+						ON [journal].[comment_id] = [journal_comments].[id] 
+						INNER JOIN [account] 
+						ON [journal].[account_id] = [account].[id] 
+						INNER JOIN [account_type] 
+						ON [account].[account_type_id] = [account_type].[id] 
+						INNER JOIN [account_category] 
+						ON [account_type].[account_category_id] = [account_category].[id]
                         WHERE [journal].[source] = @source";
 
             List<JournalOutputDto> journal = new List<JournalOutputDto>();
@@ -293,13 +303,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 journal[0].Source,
                 journal[0].When,
-                journal[0].FxCurrency,
                 journal[0].FxRate,
                 journal[0].Fund,
                 journal[0].GeneratedBy,
                 journal[0].Quantity,
                 journal[0].LastModifiedOn,
-                journal[0].Symbol,
                 journal[0].Event,
                 journal[0].StartPrice,
                 journal[0].EndPrice,
@@ -316,7 +324,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         private int? CheckIfAccountExists(string name, SqlHelper sqlHelper)
         {
             var query = $"select id from account where name = '{name}'";
-            var accountId = (int?)sqlHelper.GetScalarValue(query, CommandType.Text);
+            var accountId = (int?) sqlHelper.GetScalarValue(query, CommandType.Text);
             return accountId;
         }
 
@@ -324,10 +332,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             string accountName = account.Description;
             List<SqlParameter> accountParameters = new List<SqlParameter>
-                {
-                    new SqlParameter("name", accountName), new SqlParameter("description", account.Description),
-                    new SqlParameter("type", account.Type)
-                };
+            {
+                new SqlParameter("name", accountName), new SqlParameter("description", account.Description),
+                new SqlParameter("type", account.Type)
+            };
 
             var accountQuery = $@"INSERT INTO [account]
                         ([name]
@@ -373,12 +381,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 List<string> accountToNameList = new List<string>();
                 List<string> accountFromNameList = new List<string>();
-                accountToNameList.Add(journal.AccountTo.AccountCategory);
                 accountToNameList.Add(journal.AccountTo.AccountType);
                 accountToNameList.Add(journal.AccountTo.AccountSymbol);
                 accountToNameList.Add(journal.AccountTo.AccountCurrency);
 
-                accountFromNameList.Add(journal.AccountFrom.AccountCategory);
                 accountFromNameList.Add(journal.AccountFrom.AccountType);
                 accountFromNameList.Add(journal.AccountFrom.AccountSymbol);
                 accountFromNameList.Add(journal.AccountFrom.AccountCurrency);
@@ -386,10 +392,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 string accountToName = string.Join("-", accountToNameList.Select(x => x));
                 string accountFromName = string.Join("-", accountFromNameList.Select(x => x));
 
-                journal.AccountTo.AccountId = CreateIfAccountNotPresent(accountToName, journal.AccountTo.AccountTypeId, sqlHelper);
+                journal.AccountTo.AccountId =
+                    CreateIfAccountNotPresent(accountToName, journal.AccountTo.AccountTypeId, sqlHelper);
                 if (!journal.AccountFrom.AccountCategory.ToLowerInvariant().Equals("dummy"))
                 {
-                    journal.AccountFrom.AccountId = CreateIfAccountNotPresent(accountFromName, journal.AccountTo.AccountTypeId, sqlHelper);
+                    journal.AccountFrom.AccountId =
+                        CreateIfAccountNotPresent(accountFromName, journal.AccountTo.AccountTypeId, sqlHelper);
                 }
 
                 var accountToValue = journal.Value;
@@ -398,7 +406,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var generatedBy = "user";
                 var quantity = 0;
                 var lastModifiedOn = DateTime.Now.ToString("yyyy-MM-dd");
-                var symbol = string.IsNullOrWhiteSpace(journal.AccountTo.AccountSymbol) ? "" : journal.AccountTo.AccountSymbol;
+                var symbol = string.IsNullOrWhiteSpace(journal.AccountTo.AccountSymbol)
+                    ? ""
+                    : journal.AccountTo.AccountSymbol;
                 var eventType = "manual";
                 var startPrice = 0;
                 var endPrice = 0;
@@ -710,9 +720,32 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 UpdateJournalComment(journal, sqlHelper);
                 var fxCurrency = GetBaseCurrency();
 
+                List<string> accountToNameList = new List<string>();
+                List<string> accountFromNameList = new List<string>();
+                accountToNameList.Add(journal.AccountTo.AccountType);
+                accountToNameList.Add(journal.AccountTo.AccountSymbol);
+                accountToNameList.Add(journal.AccountTo.AccountCurrency);
+
+                accountFromNameList.Add(journal.AccountFrom.AccountType);
+                accountFromNameList.Add(journal.AccountFrom.AccountSymbol);
+                accountFromNameList.Add(journal.AccountFrom.AccountCurrency);
+
+                string accountToName = string.Join("-", accountToNameList.Select(x => x));
+                string accountFromName = string.Join("-", accountFromNameList.Select(x => x));
+
+                journal.AccountTo.AccountId =
+                    CreateIfAccountNotPresent(accountToName, journal.AccountTo.AccountTypeId, sqlHelper);
+                if (!journal.AccountFrom.AccountCategory.ToLowerInvariant().Equals("dummy"))
+                {
+                    journal.AccountFrom.AccountId =
+                        CreateIfAccountNotPresent(accountFromName, journal.AccountTo.AccountTypeId, sqlHelper);
+                }
+
                 var accountToValue = journal.Value;
                 var lastModifiedOn = DateTime.Now.ToString("yyyy-MM-dd");
-                var symbol = string.IsNullOrWhiteSpace(journal.AccountTo.AccountSymbol) ? "" : journal.AccountTo.AccountSymbol;
+                var symbol = string.IsNullOrWhiteSpace(journal.AccountTo.AccountSymbol)
+                    ? ""
+                    : journal.AccountTo.AccountSymbol;
 
                 var journalQuery = $@"UPDATE [journal]
                             SET [account_id] = @accountId
