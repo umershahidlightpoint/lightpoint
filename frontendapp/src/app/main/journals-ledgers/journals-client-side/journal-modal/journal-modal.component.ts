@@ -10,7 +10,7 @@ import { FinanceServiceProxy } from '../../../../../services/service-proxies';
 import { JournalApiService } from 'src/services/journal-api.service';
 import { AccountApiService } from 'src/services/account-api.service';
 import { Journal, JournalAccount } from '../../../../../shared/Models/journal';
-import { Account, Fund } from '../../../../../shared/Models/account';
+import { Fund, AccountCategory, Account } from '../../../../../shared/Models/account';
 
 @Component({
   selector: 'app-journal-modal',
@@ -23,18 +23,34 @@ export class JournalModalComponent implements OnInit {
   @Output() modalClose = new EventEmitter<any>();
 
   funds: Fund;
-  symbols: any = [];
-  allAccounts: Account[];
-  dummyAccount: Account;
-  fromAccountCheck: number;
-  toAccountCheck: number;
-  maxDate: moment.Moment;
-  selectedAsOfDate: { startDate: moment.Moment; endDate: moment.Moment };
+
   valueTypes: { name: string; value: string }[] = [
     { name: 'Debit', value: 'debit' },
     { name: 'Credit', value: 'credit' }
   ];
-  backdrop: any;
+
+  toAccountCategories: AccountCategory[];
+  selectedToAccountCategory: AccountCategory;
+  toAccountTypes: AccountCategory[];
+  selectedToAccountType: AccountCategory;
+
+  fromAccountCategories: AccountCategory[];
+  selectedFromAccountCategory: AccountCategory;
+  fromAccountTypes: AccountCategory[];
+  selectedFromAccountType: AccountCategory;
+
+  dummyAccountCategory: any;
+  dummyAccountType: any;
+
+  symbols: any = [];
+  currencies: string[] = ['USD'];
+
+  selectedAsOfDate: { startDate: moment.Moment; endDate: moment.Moment };
+
+  allAccounts: Account[];
+  dummyAccount: Account;
+  fromAccountCheck: number;
+  toAccountCheck: number;
 
   selectedRow: {
     source?: string;
@@ -47,12 +63,14 @@ export class JournalModalComponent implements OnInit {
   };
   selectedJournal: Journal;
 
+  backdrop: any;
+  maxDate: moment.Moment;
+  isAsOfDateValid = false;
+  noResult = false;
   editJournal: boolean;
   contraEntryMode = false;
   isSaving = false;
   isDeleting = false;
-  noResult = false;
-  isAsOfDateValid = false;
 
   selectedAccountTo: string;
   accountTo: Account[] = [];
@@ -64,7 +82,6 @@ export class JournalModalComponent implements OnInit {
   selectedAccountFromObj: Account;
   copyAccountFromList: Account[] = [];
 
-
   constructor(
     private toastrService: ToastrService,
     private financePocServiceProxy: FinanceServiceProxy,
@@ -74,6 +91,7 @@ export class JournalModalComponent implements OnInit {
 
   ngOnInit() {
     this.getFunds();
+    this.getAccountCategories();
     this.getSymbols();
     this.getAccounts();
     this.editJournal = false;
@@ -84,6 +102,50 @@ export class JournalModalComponent implements OnInit {
     this.financePocServiceProxy.getFunds().subscribe(response => {
       if (response.payload) {
         this.funds = response.payload;
+      }
+    });
+  }
+
+  getAccountCategories() {
+    this.accountApiService.accountCategories().subscribe(response => {
+      if (response.isSuccessful) {
+        this.toAccountCategories = response.payload.map(element => {
+          if (element.Name !== 'Dummy') {
+            return { id: element.Id, name: element.Name };
+          }
+        });
+        this.fromAccountCategories = response.payload.map(element => {
+          if (element.Name !== 'Dummy') {
+            return { id: element.Id, name: element.Name };
+          }
+        });
+
+        this.dummyAccountCategory = response.payload.find(item => item.Name === 'Dummy');
+        this.getAccountTypes(this.dummyAccountCategory.Id, 'dummy');
+      } else {
+        this.toastrService.error('Failed to fetch account categories!');
+      }
+    });
+  }
+
+  getAccountTypes(accountCategoryId: number, entryType: string) {
+    this.accountApiService.accountTypes(accountCategoryId).subscribe(response => {
+      if (response.isSuccessful) {
+        if (entryType === 'to') {
+          this.toAccountTypes = response.payload.map(element => ({
+            id: element.Id,
+            name: element.Name
+          }));
+        } else if (entryType === 'from') {
+          this.fromAccountTypes = response.payload.map(element => ({
+            id: element.Id,
+            name: element.Name
+          }));
+        } else if (entryType === 'dummy') {
+          this.dummyAccountType = response.payload.find(item => item.Name === 'Dummy Type');
+        }
+      } else {
+        this.toastrService.error('Failed to fetch account categories!');
       }
     });
   }
@@ -121,104 +183,119 @@ export class JournalModalComponent implements OnInit {
   }
 
   saveJournal() {
-    this.isSaving = true;
+    // this.isSaving = true;
 
     const journalPayload = this.getPayload();
+    console.log('JOURNAL PAYLOAD', journalPayload);
 
-    if (this.editJournal) {
-      const { source } = this.selectedRow;
+    // if (this.editJournal) {
+    //   const { source } = this.selectedRow;
 
-      this.journalApiService.updateJournal(source, journalPayload).subscribe(
-        response => {
-          if (response.isSuccessful) {
-            this.toastrService.success('Journal is updated successfully !');
+    //   this.journalApiService.updateJournal(source, journalPayload).subscribe(
+    //     response => {
+    //       if (response.isSuccessful) {
+    //         this.toastrService.success('Journal is updated successfully !');
 
-            this.modal.hide();
-            this.modalClose.emit(true);
+    //         this.modal.hide();
+    //         this.modalClose.emit(true);
 
-            setTimeout(() => this.clearForm(), 500);
-          } else {
-            this.toastrService.error('Failed to update Journal !');
-          }
+    //         setTimeout(() => this.clearForm(), 500);
+    //       } else {
+    //         this.toastrService.error('Failed to update Journal !');
+    //       }
 
-          this.isSaving = false;
-        },
-        error => {
-          this.toastrService.error('Something went wrong. Try again later!');
+    //       this.isSaving = false;
+    //     },
+    //     error => {
+    //       this.toastrService.error('Something went wrong. Try again later!');
 
-          this.isSaving = false;
-        }
-      );
-    } else {
-      this.journalApiService.createJounal(journalPayload).subscribe(
-        response => {
-          if (response.isSuccessful) {
-            this.toastrService.success('Journal is created successfully !');
+    //       this.isSaving = false;
+    //     }
+    //   );
+    // } else {
+    //   this.journalApiService.createJounal(journalPayload).subscribe(
+    //     response => {
+    //       if (response.isSuccessful) {
+    //         this.toastrService.success('Journal is created successfully !');
 
-            this.modal.hide();
-            this.modalClose.emit(true);
+    //         this.modal.hide();
+    //         this.modalClose.emit(true);
 
-            setTimeout(() => this.clearForm(), 500);
-          } else {
-            this.toastrService.error('Failed to create Journal !');
-          }
+    //         setTimeout(() => this.clearForm(), 500);
+    //       } else {
+    //         this.toastrService.error('Failed to create Journal !');
+    //       }
 
-          this.isSaving = false;
-        },
-        error => {
-          this.toastrService.error('Something went wrong. Try again later!');
+    //       this.isSaving = false;
+    //     },
+    //     error => {
+    //       this.toastrService.error('Something went wrong. Try again later!');
 
-          this.isSaving = false;
-        }
-      );
-    }
+    //       this.isSaving = false;
+    //     }
+    //   );
+    // }
   }
 
   getPayload() {
     const {
       fund,
-      symbol,
       toAccountValueType,
+      toAccountCategory,
+      toAccountType,
+      toAccountSymbol,
+      toAccountCurrency,
+      fromAccountCategory,
+      fromAccountType,
+      fromAccountSymbol,
+      fromAccountCurrency,
       selectedAsOfDate,
       value,
       comments
     } = this.journalForm.value;
 
-
     return {
       fund,
-      ...(symbol && { symbol }),
-      accountFrom:
-        this.selectedAccountFromObj != null
-          ? {
-              ...(this.editJournal &&
-                !this.contraEntryMode && {
-                  journalId: this.selectedJournal.AccountFrom.JournalId
-                }),
-              accountId: this.selectedAccountFromObj.accountId,
-              entryType: this.getEntryType(),
-              accountCategoryId: this.selectedAccountFromObj.categoryId,
-              accountTypeId: this.selectedAccountFromObj.typeId
-            }
-          : {
-              ...(this.editJournal &&
-                !this.contraEntryMode && {
-                  journalId: this.selectedJournal.AccountFrom.JournalId
-                }),
-              accountId: this.dummyAccount.accountId,
-              entryType: this.getEntryType(),
-              accountCategoryId: this.dummyAccount.categoryId,
-              accountTypeId: this.dummyAccount.typeId
-            },
       accountTo: {
         ...(this.editJournal && {
           journalId: this.selectedJournal.AccountTo.JournalId
         }),
-        accountId: this.selectedAccountToObj.accountId,
         entryType: toAccountValueType,
-        accountCategoryId: this.selectedAccountToObj.categoryId,
-        accountTypeId: this.selectedAccountToObj.typeId
+        accountCategoryId: this.selectedToAccountCategory.id,
+        accountTypeId: this.selectedToAccountType.id,
+        accountCategory: toAccountCategory,
+        accountType: toAccountType,
+        accountSymbol: toAccountSymbol,
+        accountCurrency: toAccountCurrency
       },
+      accountFrom: fromAccountCategory
+        ? {
+            ...(this.editJournal &&
+              !this.contraEntryMode && {
+                journalId: this.selectedJournal.AccountFrom.JournalId
+              }),
+            entryType: this.getEntryType(),
+            accountCategoryId: this.selectedFromAccountCategory.id,
+            accountTypeId: this.selectedFromAccountType.id,
+            accountCategory: fromAccountCategory,
+            accountType: fromAccountType,
+            accountSymbol: fromAccountSymbol,
+            accountCurrency: fromAccountCurrency
+          }
+        : {
+            ...(this.editJournal &&
+              !this.contraEntryMode && {
+                journalId: this.selectedJournal.AccountFrom.JournalId
+              }),
+            accountId: this.dummyAccount.accountId,
+            entryType: this.getEntryType(),
+            accountCategoryId: this.dummyAccountCategory.Id,
+            accountTypeId: this.dummyAccountType.Id,
+            accountCategory: this.dummyAccountCategory.Name,
+            accountType: this.dummyAccountType.Name,
+            accountSymbol: '',
+            accountCurrency: ''
+          },
       asOf: moment(selectedAsOfDate.startDate).format('YYYY-MM-DD'),
       value: this.contraEntryMode ? this.selectedRow.balance * -1 : value,
       ...(this.editJournal && { commentId: this.selectedJournal.CommentId }),
@@ -260,6 +337,24 @@ export class JournalModalComponent implements OnInit {
 
   typeaheadNoResults(event: boolean): void {
     this.noResult = event;
+  }
+
+  onToAccountCategorySelected(event: TypeaheadMatch): void {
+    this.selectedToAccountCategory = event.item;
+    this.getAccountTypes(event.item.id, 'to');
+  }
+
+  onFromAccountCategorySelected(event: TypeaheadMatch): void {
+    this.selectedFromAccountCategory = event.item;
+    this.getAccountTypes(event.item.id, 'from');
+  }
+
+  onToAccountTypeSelected(event: TypeaheadMatch): void {
+    this.selectedToAccountType = event.item;
+  }
+
+  onFromAccountTypeSelected(event: TypeaheadMatch): void {
+    this.selectedFromAccountType = event.item;
   }
 
   accountToChange(event) {
@@ -355,7 +450,6 @@ export class JournalModalComponent implements OnInit {
         }
       });
     } else if (contraEntryMode) {
-
       this.contraEntryMode = true;
 
       this.selectedRow = rowData;
