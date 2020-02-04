@@ -10,6 +10,7 @@ import * as moment from 'moment';
 import { FinanceServiceProxy } from '../../../../../services/service-proxies';
 import { JournalApiService } from 'src/services/journal-api.service';
 import { AccountApiService } from 'src/services/account-api.service';
+import { SettingApiService } from 'src/services/setting-api.service';
 import { Response } from 'src/shared/Models/response';
 import { Journal, JournalAccount } from '../../../../../shared/Models/journal';
 import { Fund, AccountCategory, Account } from '../../../../../shared/Models/account';
@@ -45,7 +46,7 @@ export class JournalModalComponent implements OnInit {
   dummyAccountType: AccountCategory;
 
   symbols: any = [];
-  currencies: string[] = ['USD'];
+  currencies: string[] = [];
 
   selectedAsOfDate: { startDate: moment.Moment; endDate: moment.Moment };
 
@@ -88,13 +89,15 @@ export class JournalModalComponent implements OnInit {
     private toastrService: ToastrService,
     private financePocServiceProxy: FinanceServiceProxy,
     private journalApiService: JournalApiService,
-    private accountApiService: AccountApiService
+    private accountApiService: AccountApiService,
+    private settingApiService: SettingApiService
   ) {}
 
   ngOnInit() {
     this.getFunds();
     this.getAccountCategories();
     this.getSymbols();
+    this.getCurrencies();
     this.getAccounts();
     this.editJournal = false;
     this.maxDate = moment();
@@ -166,6 +169,19 @@ export class JournalModalComponent implements OnInit {
     this.financePocServiceProxy.getSymbol().subscribe(data => {
       this.symbols = data.payload.map(item => item.symbol);
     });
+  }
+
+  getCurrencies() {
+    this.settingApiService.getReportingCurrencies().subscribe(
+      response => {
+        if (response.isSuccessful) {
+          this.currencies = response.payload;
+        }
+      },
+      error => {
+        this.toastrService.error('Failed to fetch currencies!');
+      }
+    );
   }
 
   getAccounts() {

@@ -531,26 +531,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             };
             double accountToValue;
             double accountFromValue;
-            //using (var connection = new SqlConnection(connectionString))
-            //{
-            //    connection.Open();
-
-            //    try
-            //    {
-            //        AccountCategory.Load(connection);
-            //        AccountType.Load(connection);
-            //        Account.Load(connection);
-            //        Tag.Load(connection);
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //    }
-            //    finally
-            //    {
-            //        connection.Close();
-            //    }
-            //}
-            //var engineEnvironment = new PostingEngineEnvironment(null);
 
             if (journal.AccountTo.EntryType.Equals("debit"))
             {
