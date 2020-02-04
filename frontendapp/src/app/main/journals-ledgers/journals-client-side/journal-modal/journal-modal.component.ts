@@ -183,58 +183,58 @@ export class JournalModalComponent implements OnInit {
   }
 
   saveJournal() {
-    // this.isSaving = true;
+    this.isSaving = true;
 
     const journalPayload = this.getPayload();
     console.log('JOURNAL PAYLOAD', journalPayload);
 
-    // if (this.editJournal) {
-    //   const { source } = this.selectedRow;
+    if (this.editJournal) {
+      const { source } = this.selectedRow;
 
-    //   this.journalApiService.updateJournal(source, journalPayload).subscribe(
-    //     response => {
-    //       if (response.isSuccessful) {
-    //         this.toastrService.success('Journal is updated successfully !');
+      this.journalApiService.updateJournal(source, journalPayload).subscribe(
+        response => {
+          if (response.isSuccessful) {
+            this.toastrService.success('Journal is updated successfully !');
 
-    //         this.modal.hide();
-    //         this.modalClose.emit(true);
+            this.modal.hide();
+            this.modalClose.emit(true);
 
-    //         setTimeout(() => this.clearForm(), 500);
-    //       } else {
-    //         this.toastrService.error('Failed to update Journal !');
-    //       }
+            setTimeout(() => this.clearForm(), 500);
+          } else {
+            this.toastrService.error('Failed to update Journal !');
+          }
 
-    //       this.isSaving = false;
-    //     },
-    //     error => {
-    //       this.toastrService.error('Something went wrong. Try again later!');
+          this.isSaving = false;
+        },
+        error => {
+          this.toastrService.error('Something went wrong. Try again later!');
 
-    //       this.isSaving = false;
-    //     }
-    //   );
-    // } else {
-    //   this.journalApiService.createJounal(journalPayload).subscribe(
-    //     response => {
-    //       if (response.isSuccessful) {
-    //         this.toastrService.success('Journal is created successfully !');
+          this.isSaving = false;
+        }
+      );
+    } else {
+      this.journalApiService.createJounal(journalPayload).subscribe(
+        response => {
+          if (response.isSuccessful) {
+            this.toastrService.success('Journal is created successfully !');
 
-    //         this.modal.hide();
-    //         this.modalClose.emit(true);
+            this.modal.hide();
+            this.modalClose.emit(true);
 
-    //         setTimeout(() => this.clearForm(), 500);
-    //       } else {
-    //         this.toastrService.error('Failed to create Journal !');
-    //       }
+            setTimeout(() => this.clearForm(), 500);
+          } else {
+            this.toastrService.error('Failed to create Journal !');
+          }
 
-    //       this.isSaving = false;
-    //     },
-    //     error => {
-    //       this.toastrService.error('Something went wrong. Try again later!');
+          this.isSaving = false;
+        },
+        error => {
+          this.toastrService.error('Something went wrong. Try again later!');
 
-    //       this.isSaving = false;
-    //     }
-    //   );
-    // }
+          this.isSaving = false;
+        }
+      );
+    }
   }
 
   getPayload() {
@@ -420,7 +420,7 @@ export class JournalModalComponent implements OnInit {
       this.journalApiService.getJournal(source).subscribe(response => {
         if (response.isSuccessful) {
           this.selectedJournal = response.payload;
-          const { Fund, Symbol, AccountFrom, AccountTo, When, Comment } = this.selectedJournal;
+          const { Fund, AccountTo, AccountFrom, When, Comment } = this.selectedJournal;
           this.selectedRow.balance = AccountTo.Value;
 
           this.setContraEntryMode(AccountFrom);
@@ -436,7 +436,6 @@ export class JournalModalComponent implements OnInit {
 
           this.setFormValues(
             Fund,
-            Symbol,
             fromAccount,
             AccountFrom != null ? AccountFrom.CreditDebit : null,
             toAccount,
@@ -461,7 +460,6 @@ export class JournalModalComponent implements OnInit {
 
       this.setFormValues(
         this.funds[0].FundCode,
-        null,
         null,
         null,
         accountTo,
@@ -506,7 +504,6 @@ export class JournalModalComponent implements OnInit {
 
   setFormValues(
     fund: string,
-    symbol: string,
     fromAccount: Account,
     fromAccountValueType: string,
     toAccount: Account,
@@ -517,7 +514,6 @@ export class JournalModalComponent implements OnInit {
   ) {
     this.journalForm.form.patchValue({
       ...(fund != null && { fund }),
-      ...(symbol != null && { symbol }),
       ...(fromAccount != null && { fromAccount }),
       ...(fromAccountValueType != null && { fromAccountValueType }),
       ...(toAccount != null && { toAccount }),
@@ -550,9 +546,13 @@ export class JournalModalComponent implements OnInit {
     this.selectedAccountFrom = '';
     this.selectedAccountFromObj = null;
 
+    this.selectedToAccountCategory = null;
+    this.selectedToAccountType = null;
+    this.selectedFromAccountCategory = null;
+    this.selectedFromAccountType = null;
+
     this.journalForm.resetForm({
       fund: '',
-      symbol: '',
       fromAccount: '',
       fromAccountValueType: '',
       toAccount: '',
