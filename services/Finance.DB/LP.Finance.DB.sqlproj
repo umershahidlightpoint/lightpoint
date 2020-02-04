@@ -147,6 +147,7 @@
     <Build Include="StoredProcs\RunStats.sql" />
     <None Include="StoredProcs\addHocScripts\Script1.sql" />
     <Build Include="StoredProcs\EndOfYear.sql" />
+    <Build Include="Tables\report_recepient.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">

@@ -7,6 +7,6 @@ namespace LP.FileProcessing
 {
     public interface IReport
     {
-        void Generate(DataTable dt);
+        void Generate(DataTable dt, List<string> recepeintList);
     }
 }

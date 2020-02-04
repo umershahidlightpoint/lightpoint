@@ -22,7 +22,7 @@ namespace PostingEngine.Reports
             connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
         SqlHelper sqlHelper = new SqlHelper(connectionString);
 
-        internal void TaxLotReport()
+        internal async void TaxLotReport()
         {
             try
             {
@@ -33,10 +33,15 @@ namespace PostingEngine.Reports
                 layout.filterModel = JsonConvert.DeserializeObject<ExpandoObject>(layoutJSON.FilterState);
                 layout.externalFilterModel = JsonConvert.DeserializeObject<ExpandoObject>(layoutJSON.ExternalFilterState);
                 layout.sortModel = JsonConvert.DeserializeObject<List<SortModel>>(layoutJSON.SortState);
-                var queryObject = ServerSideRowModelHelper.BuildSqlFromGridLayouts(layout, "tax_lot_status");
-                //var query = $@"SELECT * FROM tax_lot_status";
-                var dataTable = sqlHelper.GetDataTable(queryObject.Item1, CommandType.Text, queryObject.Item2.ToArray());
-                report.Generate(dataTable);
+                //var queryObject = ServerSideRowModelHelper.BuildSqlFromGridLayouts(layout, "tax_lot_status");
+                var query = $@"SELECT * FROM tax_lot_status";
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
+
+                var recepientQuery = $"select email_id as EmailId from report_recepients where task = 'EOD' and report = 'Tax Lot Status'";
+                var recepientDataTable = sqlHelper.GetDataTable(recepientQuery, CommandType.Text);
+                var recepientsSerialized = JsonConvert.SerializeObject(recepientDataTable);
+                var recepientList = JsonConvert.DeserializeObject<List<string>>(recepientsSerialized);
+                report.Generate(dataTable, recepientList);
             }
             catch(Exception ex)
             {

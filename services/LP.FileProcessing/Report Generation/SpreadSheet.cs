@@ -11,7 +11,7 @@ namespace LP.FileProcessing.Report_Generation
 {
     public class SpreadSheet : IReport
     { 
-        public async void Generate(DataTable dt)
+        public void Generate(DataTable dt, List<string> recepeintList)
         {
             MemoryStream ms;
             using (ExcelPackage pck = new ExcelPackage())
@@ -19,14 +19,17 @@ namespace LP.FileProcessing.Report_Generation
                 ExcelWorksheet ws = pck.Workbook.Worksheets.Add("TaxLotReport");
                 ws.Cells["A1"].LoadFromDataTable(dt, true);
                 ms = new MemoryStream(pck.GetAsByteArray());
-                await SendEmailAsync("hammad.zia@techverx.com", "hammad", "hammadzia000@gmail.com", null, null, "TaxLotReport", "this is an excel sheet", ms, false);
+
+                //Task.Run(() => {
+                //    SendEmail("hammad.zia@techverx.com", "hammad", "hammad.zia@techverx.com", null, null, "TaxLotReport", "this is an excel sheet", ms, false);
+                //});
+
+                SendEmail("hammad.zia@techverx.com", "hammad", "hammad.zia@techverx.com", null, null, "TaxLotReport", "this is an excel sheet", ms, false);
             }
-
-
         }
 
         //TODO extract this out to utils
-        public static async Task<bool> SendEmailAsync(string from, string fromName, string to, string cc, string bcc,
+        public static void SendEmail(string from, string fromName, string to, string cc, string bcc,
             string subject,
             string body, MemoryStream attachment, bool isHtml)
         {
@@ -52,16 +55,15 @@ namespace LP.FileProcessing.Report_Generation
 
                 using (var smtp = new SmtpClient())
                 {
-                    await smtp.SendMailAsync(message);
-                    await Task.FromResult(0);
+                    smtp.Send(message);
+                    //smtp.SendMailAsync(message);
+                    //await Task.FromResult(0);
                 }
 
-                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return false;
             }
         }
     }

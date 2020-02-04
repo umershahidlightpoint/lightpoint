@@ -37,15 +37,15 @@ namespace LP.Finance.Common
         {
             List<SqlParameter> sqlParams = new List<SqlParameter>();
             var select = CreateSelectFromGridLayout(layout);
-            Tuple<string, string, int> whereSql = CreateWhereSql(layout, sqlParams);
-            string query = $"select {select} from {from} where {whereSql.Item1}";
+            Tuple<string, string, int> whereSql = CreateWhereSqlFromGridLayout(layout, sqlParams);
+            string query = $"select {select} from {from} {whereSql.Item1}";
             return new Tuple<string, List<SqlParameter>>(query, sqlParams);
         }
 
         private static string CreateSelectFromGridLayout(ServerRowModel layout)
         {
             List<string> selectList = new List<string>();
-            foreach(var item in layout.gridColDefs)
+            foreach (var item in layout.gridColDefs)
             {
                 if (!item.hide)
                 {
@@ -210,6 +210,47 @@ namespace LP.Finance.Common
             sqlParams.Add(new SqlParameter("pageNumber", obj.pageNumber));
             sqlParams.Add(new SqlParameter("pageSize", obj.pageSize));
             return " OFFSET(@pageNumber -1) * @pageSize ROWS FETCH NEXT @pageSize  ROWS ONLY";
+        }
+
+        private static Tuple<string, string, int> CreateWhereSqlFromGridLayout(ServerRowModel obj, List<SqlParameter> sqlParams)
+        {
+            List<string> whereParts = new List<string>();
+            int index = 0;
+            StringBuilder message = new StringBuilder();
+            List<string> duplicateFilterList = new List<string>();
+            StringBuilder query = new StringBuilder("");
+           
+
+            var filterDict = (IDictionary<string, dynamic>)(obj.filterModel);
+            var externalFilterDict = (IDictionary<string, dynamic>)(obj.externalFilterModel);
+            //var externalFilters = ExtractExternalFilters(obj, ref sqlParams, index);
+            if (filterDict != null)
+            {
+                foreach (var col in filterDict)
+                {
+                    string columnName = col.Key;
+                    var value = (IDictionary<string, object>)(col.Value);
+                    List<string> filterModelWhereList = new List<string>();
+                    //only extract in grid filters which are not present in external filters. External filters have precedence over internal.
+                    if (!externalFilterDict.Keys.Contains(columnName, StringComparer.CurrentCultureIgnoreCase))
+                    {
+                        index = ExtractInGridFilters(sqlParams, whereParts, index, columnName, value, filterModelWhereList);
+                    }
+                    else
+                    {
+                        duplicateFilterList.Add(columnName);
+                    }
+                }
+            }
+
+            if (whereParts.Count > 0)
+            {
+                query.Append(" where " + string.Join(" and ", whereParts.Where(x => !string.IsNullOrEmpty(x)).Select(x => x)));
+                return new Tuple<string, string, int>(query.ToString(), message.ToString(), index);
+            }
+
+            return new Tuple<string, string, int>(" ", message.ToString(), index);
+
         }
 
         private static Tuple<string, string, int> CreateWhereSql(ServerRowModel obj, List<SqlParameter> sqlParams)
