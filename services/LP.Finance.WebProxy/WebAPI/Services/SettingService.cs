@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Net;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
-using LP.Finance.Common.Models;
 using Newtonsoft.Json;
 using SqlDAL.Core;
 
@@ -27,15 +25,17 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             try
             {
-                var tradesResult = Utils.GetWebApiData(tradesURL);
+                var query = $@"SELECT distinct TradeCurrency from current_trade_state";
 
-                tradesResult.Wait();
-                var result = tradesResult.Result;
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
 
-                var elements = JsonConvert.DeserializeObject<List<Transaction>>(result);
-                var currencyList = elements.Select(item => item.TradeCurrency).Distinct().ToList();
+                var currencyCodes = new List<string>();
+                foreach (DataRow dr in dataTable.Rows)
+                {
+                    currencyCodes.Add((string) dr["TradeCurrency"]);
+                }
 
-                return Utils.Wrap(true, currencyList, HttpStatusCode.OK);
+                return Utils.Wrap(true, currencyCodes, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {

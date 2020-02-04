@@ -1,13 +1,11 @@
 export interface Journal {
   Source: string;
   When: Date;
-  FxCurrency: string;
   FxRate: number;
   Fund: string;
   GeneratedBy: string;
   Quantity: number;
   LastModifiedOn: Date;
-  Symbol: string;
   Event: string;
   StartPrice: number;
   EndPrice: number;
@@ -24,6 +22,12 @@ export interface Journal {
 export interface JournalAccount {
   JournalId: number;
   AccountId: number;
+  AccountCategoryId: number;
+  AccountCategory: string;
+  AccountTypeId: number;
+  AccountType: string;
+  Symbol: string;
+  FxCurrency: string;
   Value: number;
   CreditDebit: string;
 }

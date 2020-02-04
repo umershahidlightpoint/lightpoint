@@ -1,14 +1,17 @@
 /* Core/Libraries */
 import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { map } from 'rxjs/operators';
 import { ModalDirective } from 'ngx-bootstrap';
-import { ToastrService } from 'ngx-toastr';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead/typeahead-match.class';
+import { ToastrService } from 'ngx-toastr';
 import * as moment from 'moment';
 /* Services/Components */
 import { FinanceServiceProxy } from '../../../../../services/service-proxies';
 import { JournalApiService } from 'src/services/journal-api.service';
 import { AccountApiService } from 'src/services/account-api.service';
+import { SettingApiService } from 'src/services/setting-api.service';
+import { Response } from 'src/shared/Models/response';
 import { Journal, JournalAccount } from '../../../../../shared/Models/journal';
 import { Fund, AccountCategory, Account } from '../../../../../shared/Models/account';
 
@@ -39,11 +42,11 @@ export class JournalModalComponent implements OnInit {
   fromAccountTypes: AccountCategory[];
   selectedFromAccountType: AccountCategory;
 
-  dummyAccountCategory: any;
-  dummyAccountType: any;
+  dummyAccountCategory: AccountCategory;
+  dummyAccountType: AccountCategory;
 
   symbols: any = [];
-  currencies: string[] = ['USD'];
+  currencies: string[] = [];
 
   selectedAsOfDate: { startDate: moment.Moment; endDate: moment.Moment };
 
@@ -86,13 +89,15 @@ export class JournalModalComponent implements OnInit {
     private toastrService: ToastrService,
     private financePocServiceProxy: FinanceServiceProxy,
     private journalApiService: JournalApiService,
-    private accountApiService: AccountApiService
+    private accountApiService: AccountApiService,
+    private settingApiService: SettingApiService
   ) {}
 
   ngOnInit() {
     this.getFunds();
     this.getAccountCategories();
     this.getSymbols();
+    this.getCurrencies();
     this.getAccounts();
     this.editJournal = false;
     this.maxDate = moment();
@@ -107,53 +112,76 @@ export class JournalModalComponent implements OnInit {
   }
 
   getAccountCategories() {
-    this.accountApiService.accountCategories().subscribe(response => {
-      if (response.isSuccessful) {
-        this.toAccountCategories = response.payload.map(element => {
-          if (element.Name !== 'Dummy') {
-            return { id: element.Id, name: element.Name };
-          }
-        });
-        this.fromAccountCategories = response.payload.map(element => {
-          if (element.Name !== 'Dummy') {
-            return { id: element.Id, name: element.Name };
-          }
-        });
+    this.accountApiService
+      .accountCategories()
+      .pipe(
+        map(response => {
+          response.payload = response.payload.map(element => ({
+            id: element.Id,
+            name: element.Name
+          }));
 
-        this.dummyAccountCategory = response.payload.find(item => item.Name === 'Dummy');
-        this.getAccountTypes(this.dummyAccountCategory.Id, 'dummy');
-      } else {
-        this.toastrService.error('Failed to fetch account categories!');
-      }
-    });
+          return response as Response<AccountCategory[]>;
+        })
+      )
+      .subscribe(response => {
+        if (response.isSuccessful) {
+          this.toAccountCategories = response.payload.filter(element => element.name !== 'Dummy');
+          this.fromAccountCategories = response.payload.filter(element => element.name !== 'Dummy');
+
+          this.dummyAccountCategory = response.payload.find(item => item.name === 'Dummy');
+          this.getAccountTypes(this.dummyAccountCategory.id, 'dummy');
+        } else {
+          this.toastrService.error('Failed to fetch account categories!');
+        }
+      });
   }
 
   getAccountTypes(accountCategoryId: number, entryType: string) {
-    this.accountApiService.accountTypes(accountCategoryId).subscribe(response => {
-      if (response.isSuccessful) {
-        if (entryType === 'to') {
-          this.toAccountTypes = response.payload.map(element => ({
+    this.accountApiService
+      .accountTypes(accountCategoryId)
+      .pipe(
+        map(response => {
+          response.payload = response.payload.map(element => ({
             id: element.Id,
             name: element.Name
           }));
-        } else if (entryType === 'from') {
-          this.fromAccountTypes = response.payload.map(element => ({
-            id: element.Id,
-            name: element.Name
-          }));
-        } else if (entryType === 'dummy') {
-          this.dummyAccountType = response.payload.find(item => item.Name === 'Dummy Type');
+
+          return response as Response<AccountCategory[]>;
+        })
+      )
+      .subscribe(response => {
+        if (response.isSuccessful) {
+          if (entryType === 'to') {
+            this.toAccountTypes = response.payload;
+          } else if (entryType === 'from') {
+            this.fromAccountTypes = response.payload;
+          } else if (entryType === 'dummy') {
+            this.dummyAccountType = response.payload.find(item => item.name === 'Dummy Type');
+          }
+        } else {
+          this.toastrService.error('Failed to fetch account categories!');
         }
-      } else {
-        this.toastrService.error('Failed to fetch account categories!');
-      }
-    });
+      });
   }
 
   getSymbols() {
     this.financePocServiceProxy.getSymbol().subscribe(data => {
       this.symbols = data.payload.map(item => item.symbol);
     });
+  }
+
+  getCurrencies() {
+    this.settingApiService.getReportingCurrencies().subscribe(
+      response => {
+        if (response.isSuccessful) {
+          this.currencies = response.payload;
+        }
+      },
+      error => {
+        this.toastrService.error('Failed to fetch currencies!');
+      }
+    );
   }
 
   getAccounts() {
@@ -254,6 +282,8 @@ export class JournalModalComponent implements OnInit {
       comments
     } = this.journalForm.value;
 
+    console.log('FORM ::', this.journalForm.value);
+
     return {
       fund,
       accountTo: {
@@ -268,34 +298,35 @@ export class JournalModalComponent implements OnInit {
         accountSymbol: toAccountSymbol,
         accountCurrency: toAccountCurrency
       },
-      accountFrom: fromAccountCategory
-        ? {
-            ...(this.editJournal &&
-              !this.contraEntryMode && {
-                journalId: this.selectedJournal.AccountFrom.JournalId
-              }),
-            entryType: this.getEntryType(),
-            accountCategoryId: this.selectedFromAccountCategory.id,
-            accountTypeId: this.selectedFromAccountType.id,
-            accountCategory: fromAccountCategory,
-            accountType: fromAccountType,
-            accountSymbol: fromAccountSymbol,
-            accountCurrency: fromAccountCurrency
-          }
-        : {
-            ...(this.editJournal &&
-              !this.contraEntryMode && {
-                journalId: this.selectedJournal.AccountFrom.JournalId
-              }),
-            accountId: this.dummyAccount.accountId,
-            entryType: this.getEntryType(),
-            accountCategoryId: this.dummyAccountCategory.Id,
-            accountTypeId: this.dummyAccountType.Id,
-            accountCategory: this.dummyAccountCategory.Name,
-            accountType: this.dummyAccountType.Name,
-            accountSymbol: '',
-            accountCurrency: ''
-          },
+      accountFrom:
+        fromAccountCategory && fromAccountCategory !== 'Dummy'
+          ? {
+              ...(this.editJournal &&
+                !this.contraEntryMode && {
+                  journalId: this.selectedJournal.AccountFrom.JournalId
+                }),
+              entryType: this.getEntryType(),
+              accountCategoryId: this.selectedFromAccountCategory.id,
+              accountTypeId: this.selectedFromAccountType.id,
+              accountCategory: fromAccountCategory,
+              accountType: fromAccountType,
+              accountSymbol: fromAccountSymbol,
+              accountCurrency: fromAccountCurrency
+            }
+          : {
+              ...(this.editJournal &&
+                !this.contraEntryMode && {
+                  journalId: this.selectedJournal.AccountFrom.JournalId
+                }),
+              accountId: this.dummyAccount.accountId,
+              entryType: this.getEntryType(),
+              accountCategoryId: this.dummyAccountCategory.id,
+              accountTypeId: this.dummyAccountType.id,
+              accountCategory: this.dummyAccountCategory.name,
+              accountType: this.dummyAccountType.name,
+              accountSymbol: '',
+              accountCurrency: ''
+            },
       asOf: moment(selectedAsOfDate.startDate).format('YYYY-MM-DD'),
       value: this.contraEntryMode ? this.selectedRow.balance * -1 : value,
       ...(this.editJournal && { commentId: this.selectedJournal.CommentId }),
@@ -436,10 +467,16 @@ export class JournalModalComponent implements OnInit {
 
           this.setFormValues(
             Fund,
-            fromAccount,
-            AccountFrom != null ? AccountFrom.CreditDebit : null,
-            toAccount,
             AccountTo.CreditDebit,
+            AccountTo.AccountCategory,
+            AccountTo.AccountType,
+            AccountTo.Symbol,
+            AccountTo.FxCurrency,
+            AccountFrom != null ? AccountFrom.CreditDebit : null,
+            AccountFrom.AccountCategory,
+            AccountFrom.AccountType,
+            AccountTo.Symbol,
+            AccountTo.FxCurrency,
             When,
             AccountTo.Value,
             Comment
@@ -462,8 +499,14 @@ export class JournalModalComponent implements OnInit {
         this.funds[0].FundCode,
         null,
         null,
-        accountTo,
-        this.valueTypes[0].value,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
         when,
         balance,
         'A Contra Journal Entry!'
@@ -473,7 +516,10 @@ export class JournalModalComponent implements OnInit {
     this.modal.show();
   }
 
-  setAccountsValue(AccountFrom: any, AccountTo: any): { fromAccount: Account; toAccount: Account } {
+  setAccountsValue(
+    AccountFrom: JournalAccount,
+    AccountTo: JournalAccount
+  ): { fromAccount: Account; toAccount: Account } {
     const fromAccountJournal: Account =
       AccountFrom != null
         ? this.allAccounts.find(item => item.accountId === AccountFrom.AccountId)
@@ -491,6 +537,24 @@ export class JournalModalComponent implements OnInit {
     this.selectedAccountTo = toAccountJournal.name;
     this.selectedAccountToObj = toAccountJournal;
 
+    // New Implementation
+    this.selectedToAccountCategory = {
+      id: AccountTo.AccountCategoryId,
+      name: AccountTo.AccountCategory
+    };
+    this.selectedToAccountType = {
+      id: AccountTo.AccountTypeId,
+      name: AccountTo.AccountType
+    };
+    this.selectedFromAccountCategory = {
+      id: AccountFrom.AccountCategoryId,
+      name: AccountFrom.AccountCategory
+    };
+    this.selectedFromAccountType = {
+      id: AccountFrom.AccountTypeId,
+      name: AccountFrom.AccountType
+    };
+
     return { fromAccount: fromAccountJournal, toAccount: toAccountJournal };
   }
 
@@ -504,20 +568,32 @@ export class JournalModalComponent implements OnInit {
 
   setFormValues(
     fund: string,
-    fromAccount: Account,
-    fromAccountValueType: string,
-    toAccount: Account,
     toAccountValueType: string,
+    toAccountCategory: string,
+    toAccountType: string,
+    toAccountSymbol: string,
+    toAccountCurrency: string,
+    fromAccountValueType: string,
+    fromAccountCategory: string,
+    fromAccountType: string,
+    fromAccountSymbol: string,
+    fromAccountCurrency: string,
     when: Date,
     value: number,
     comments: string
   ) {
     this.journalForm.form.patchValue({
       ...(fund != null && { fund }),
-      ...(fromAccount != null && { fromAccount }),
-      ...(fromAccountValueType != null && { fromAccountValueType }),
-      ...(toAccount != null && { toAccount }),
       ...(toAccountValueType != null && { toAccountValueType }),
+      ...(toAccountCategory != null && { toAccountCategory }),
+      ...(toAccountType != null && { toAccountType }),
+      ...(toAccountSymbol != null && { toAccountSymbol }),
+      ...(toAccountCurrency != null && { toAccountCurrency }),
+      ...(fromAccountValueType != null && { fromAccountValueType }),
+      ...(fromAccountCategory != null && { fromAccountCategory }),
+      ...(fromAccountType != null && { fromAccountType }),
+      ...(fromAccountSymbol != null && { fromAccountSymbol }),
+      ...(fromAccountCurrency != null && { fromAccountCurrency }),
       ...(when != null && {
         selectedAsOfDate: {
           startDate: moment(when, 'MM/DD/YYYY'),
@@ -546,6 +622,8 @@ export class JournalModalComponent implements OnInit {
     this.selectedAccountFrom = '';
     this.selectedAccountFromObj = null;
 
+    this.toAccountTypes = null;
+    this.fromAccountTypes = null;
     this.selectedToAccountCategory = null;
     this.selectedToAccountType = null;
     this.selectedFromAccountCategory = null;
