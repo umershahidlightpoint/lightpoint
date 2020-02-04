@@ -622,8 +622,8 @@ export class JournalModalComponent implements OnInit {
     this.selectedAccountFrom = '';
     this.selectedAccountFromObj = null;
 
-    this.toAccountTypes = null;
-    this.fromAccountTypes = null;
+    this.toAccountTypes = [];
+    this.fromAccountTypes = [];
     this.selectedToAccountCategory = null;
     this.selectedToAccountType = null;
     this.selectedFromAccountCategory = null;

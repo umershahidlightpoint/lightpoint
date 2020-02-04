@@ -39,8 +39,11 @@ namespace PostingEngine.Reports
 
                 var recepientQuery = $"select email_id as EmailId from report_recepients where task = 'EOD' and report = 'Tax Lot Status'";
                 var recepientDataTable = sqlHelper.GetDataTable(recepientQuery, CommandType.Text);
-                var recepientsSerialized = JsonConvert.SerializeObject(recepientDataTable);
-                var recepientList = JsonConvert.DeserializeObject<List<string>>(recepientsSerialized);
+                var recepientList = new List<string>();
+                foreach(DataRow dr in recepientDataTable.Rows)
+                {
+                    recepientList.Add((string)dr["EmailId"]);
+                }
                 report.Generate(dataTable, recepientList);
             }
             catch(Exception ex)
