@@ -372,11 +372,17 @@ export class JournalModalComponent implements OnInit {
 
   onToAccountCategorySelected(event: TypeaheadMatch): void {
     this.selectedToAccountCategory = event.item;
+    this.journalForm.form.patchValue({
+      toAccountType: ''
+    });
     this.getAccountTypes(event.item.id, 'to');
   }
 
   onFromAccountCategorySelected(event: TypeaheadMatch): void {
     this.selectedFromAccountCategory = event.item;
+    this.journalForm.form.patchValue({
+      fromAccountType: ''
+    });
     this.getAccountTypes(event.item.id, 'from');
   }
 
@@ -455,7 +461,7 @@ export class JournalModalComponent implements OnInit {
           this.selectedRow.balance = AccountTo.Value;
 
           this.setContraEntryMode(AccountFrom);
-          const { fromAccount, toAccount } = this.setAccountsValue(AccountFrom, AccountTo);
+          this.setAccountsValue(AccountFrom, AccountTo);
 
           this.accountTo = this.accountFrom.filter(accountName => {
             return accountName.name !== this.selectedAccountFrom;
@@ -475,8 +481,8 @@ export class JournalModalComponent implements OnInit {
             AccountFrom != null ? AccountFrom.CreditDebit : null,
             AccountFrom.AccountCategory,
             AccountFrom.AccountType,
-            AccountTo.Symbol,
-            AccountTo.FxCurrency,
+            AccountFrom.Symbol,
+            AccountFrom.FxCurrency,
             When,
             AccountTo.Value,
             Comment
@@ -519,23 +525,23 @@ export class JournalModalComponent implements OnInit {
   setAccountsValue(
     AccountFrom: JournalAccount,
     AccountTo: JournalAccount
-  ): { fromAccount: Account; toAccount: Account } {
-    const fromAccountJournal: Account =
-      AccountFrom != null
-        ? this.allAccounts.find(item => item.accountId === AccountFrom.AccountId)
-        : null;
-    const toAccountJournal: Account =
-      AccountTo != null
-        ? this.allAccounts.find(item => item.accountId === AccountTo.AccountId)
-        : null;
+  ) {
+    // const fromAccountJournal: Account =
+    //   AccountFrom != null
+    //     ? this.allAccounts.find(item => item.accountId === AccountFrom.AccountId)
+    //     : null;
+    // const toAccountJournal: Account =
+    //   AccountTo != null
+    //     ? this.allAccounts.find(item => item.accountId === AccountTo.AccountId)
+    //     : null;
 
-    this.selectedAccountFrom =
-      fromAccountJournal != null && fromAccountJournal.categoryId !== 0
-        ? fromAccountJournal.name
-        : '';
-    this.selectedAccountFromObj = fromAccountJournal;
-    this.selectedAccountTo = toAccountJournal.name;
-    this.selectedAccountToObj = toAccountJournal;
+    // this.selectedAccountFrom =
+    //   fromAccountJournal != null && fromAccountJournal.categoryId !== 0
+    //     ? fromAccountJournal.name
+    //     : '';
+    // this.selectedAccountFromObj = fromAccountJournal;
+    // this.selectedAccountTo = toAccountJournal.name;
+    // this.selectedAccountToObj = toAccountJournal;
 
     // New Implementation
     this.selectedToAccountCategory = {
@@ -555,7 +561,7 @@ export class JournalModalComponent implements OnInit {
       name: AccountFrom.AccountType
     };
 
-    return { fromAccount: fromAccountJournal, toAccount: toAccountJournal };
+   // return { fromAccount: fromAccountJournal, toAccount: toAccountJournal };
   }
 
   setContraEntryMode(accountFrom: JournalAccount) {
@@ -631,10 +637,16 @@ export class JournalModalComponent implements OnInit {
 
     this.journalForm.resetForm({
       fund: '',
-      fromAccount: '',
+      toAccountValueType: '',
+      toAccountCategory: '',
+      toAccountType: '',
+      toAccountSymbol: '',
+      toAccountCurrency: '',
       fromAccountValueType: '',
-      toAccount: '',
-      toAccountValueType: ''
+      fromAccountCategory: '',
+      fromAccountType: '',
+      fromAccountSymbol: '',
+      fromAccountCurrency: '',
     });
   }
 }

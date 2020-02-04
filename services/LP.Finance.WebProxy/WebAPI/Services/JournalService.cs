@@ -323,7 +323,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         private int? CheckIfAccountExists(string name, SqlHelper sqlHelper)
         {
-            var query = $"select id from account where name = '{name}'";
+            var query = $"select id from account  with(NOLOCK) where name = '{name}'";
             var accountId = (int?) sqlHelper.GetScalarValue(query, CommandType.Text);
             return accountId;
         }
@@ -397,7 +397,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 if (!journal.AccountFrom.AccountCategory.ToLowerInvariant().Equals("dummy"))
                 {
                     journal.AccountFrom.AccountId =
-                        CreateIfAccountNotPresent(accountFromName, journal.AccountTo.AccountTypeId, sqlHelper);
+                        CreateIfAccountNotPresent(accountFromName, journal.AccountFrom.AccountTypeId, sqlHelper);
                 }
 
                 var accountToValue = journal.Value;
@@ -447,7 +447,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         new SqlParameter("generatedBy", generatedBy),
                         new SqlParameter("quantity", quantity),
                         new SqlParameter("lastModifiedOn", lastModifiedOn),
-                        new SqlParameter("symbol", symbol),
+                        new SqlParameter("symbol", journal.AccountFrom.AccountSymbol),
                         new SqlParameter("eventType", eventType),
                         new SqlParameter("startPrice", startPrice),
                         new SqlParameter("endPrice", endPrice),
@@ -476,7 +476,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("generatedBy", generatedBy),
                     new SqlParameter("quantity", quantity),
                     new SqlParameter("lastModifiedOn", lastModifiedOn),
-                    new SqlParameter("symbol", symbol),
+                    new SqlParameter("symbol", journal.AccountTo.AccountSymbol),
                     new SqlParameter("eventType", eventType),
                     new SqlParameter("startPrice", startPrice),
                     new SqlParameter("endPrice", endPrice),
@@ -718,7 +718,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 if (!journal.AccountFrom.AccountCategory.ToLowerInvariant().Equals("dummy"))
                 {
                     journal.AccountFrom.AccountId =
-                        CreateIfAccountNotPresent(accountFromName, journal.AccountTo.AccountTypeId, sqlHelper);
+                        CreateIfAccountNotPresent(accountFromName, journal.AccountFrom.AccountTypeId, sqlHelper);
                 }
 
                 var accountToValue = journal.Value;
@@ -755,7 +755,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         new SqlParameter("fxCurrency", fxCurrency),
                         new SqlParameter("fund", journal.Fund),
                         new SqlParameter("lastModifiedOn", lastModifiedOn),
-                        new SqlParameter("symbol", symbol),
+                        new SqlParameter("symbol", journal.AccountFrom.AccountSymbol),
                         new SqlParameter("entryType", journal.AccountFrom.EntryType),
                         new SqlParameter("source", source.ToString()),
                         new SqlParameter("isAccountTo", Convert.ToInt32(0))
@@ -776,7 +776,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("fxCurrency", fxCurrency),
                     new SqlParameter("fund", journal.Fund),
                     new SqlParameter("lastModifiedOn", lastModifiedOn),
-                    new SqlParameter("symbol", symbol),
+                    new SqlParameter("symbol", journal.AccountTo.AccountSymbol),
                     new SqlParameter("entryType", journal.AccountTo.EntryType),
                     new SqlParameter("source", source.ToString()),
                     new SqlParameter("isAccountTo", 1)
