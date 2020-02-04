@@ -343,7 +343,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return accountId;
         }
 
-        private int CreateIfAccountNotPresent(string name, SqlHelper sqlHelper)
+        private int CreateIfAccountNotPresent(string name, int accountTypeId, SqlHelper sqlHelper)
         {
             var accountId = CheckIfAccountExists(name, sqlHelper);
             if (accountId.HasValue)
@@ -354,6 +354,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 AccountInputDto accountInputDto = new AccountInputDto();
                 accountInputDto.Description = name;
+                accountInputDto.Type = accountTypeId;
                 var id = CreateAccount(accountInputDto, sqlHelper);
                 return id;
             }
@@ -372,23 +373,23 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 List<string> accountToNameList = new List<string>();
                 List<string> accountFromNameList = new List<string>();
-                accountToNameList.Add(journal.AccountTo.AccountCategoryName);
-                accountToNameList.Add(journal.AccountTo.AccountTypeName);
-                accountToNameList.Add(journal.AccountTo.Symbol);
-                accountToNameList.Add(journal.AccountTo.Currency);
+                accountToNameList.Add(journal.AccountTo.AccountCategory);
+                accountToNameList.Add(journal.AccountTo.AccountType);
+                accountToNameList.Add(journal.AccountTo.AccountSymbol);
+                accountToNameList.Add(journal.AccountTo.AccountCurrency);
 
-                accountFromNameList.Add(journal.AccountFrom.AccountCategoryName);
-                accountFromNameList.Add(journal.AccountFrom.AccountTypeName);
-                accountFromNameList.Add(journal.AccountFrom.Symbol);
-                accountFromNameList.Add(journal.AccountFrom.Currency);
+                accountFromNameList.Add(journal.AccountFrom.AccountCategory);
+                accountFromNameList.Add(journal.AccountFrom.AccountType);
+                accountFromNameList.Add(journal.AccountFrom.AccountSymbol);
+                accountFromNameList.Add(journal.AccountFrom.AccountCurrency);
 
                 string accountToName = string.Join("-", accountToNameList.Select(x => x));
-                string accountFromName = string.Join("-", accountToNameList.Select(x => x));
+                string accountFromName = string.Join("-", accountFromNameList.Select(x => x));
 
-                journal.AccountTo.AccountId = CreateIfAccountNotPresent(accountToName, sqlHelper);
-                if (!journal.AccountFrom.AccountCategoryName.ToLowerInvariant().Equals("dummy"))
+                journal.AccountTo.AccountId = CreateIfAccountNotPresent(accountToName, journal.AccountTo.AccountTypeId, sqlHelper);
+                if (!journal.AccountFrom.AccountCategory.ToLowerInvariant().Equals("dummy"))
                 {
-                    journal.AccountFrom.AccountId = CreateIfAccountNotPresent(accountFromName, sqlHelper);
+                    journal.AccountFrom.AccountId = CreateIfAccountNotPresent(accountFromName, journal.AccountTo.AccountTypeId, sqlHelper);
                 }
 
                 var accountToValue = journal.Value;
@@ -397,7 +398,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var generatedBy = "user";
                 var quantity = 0;
                 var lastModifiedOn = DateTime.Now.ToString("yyyy-MM-dd");
-                var symbol = string.IsNullOrWhiteSpace(journal.AccountTo.Symbol) ? "" : journal.AccountTo.Symbol;
+                var symbol = string.IsNullOrWhiteSpace(journal.AccountTo.AccountSymbol) ? "" : journal.AccountTo.AccountSymbol;
                 var eventType = "manual";
                 var startPrice = 0;
                 var endPrice = 0;
@@ -520,21 +521,145 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             };
             double accountToValue;
             double accountFromValue;
+            //using (var connection = new SqlConnection(connectionString))
+            //{
+            //    connection.Open();
 
-            var engineEnvironment = new PostingEngineEnvironment(null);
+            //    try
+            //    {
+            //        AccountCategory.Load(connection);
+            //        AccountType.Load(connection);
+            //        Account.Load(connection);
+            //        Tag.Load(connection);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //    }
+            //    finally
+            //    {
+            //        connection.Close();
+            //    }
+            //}
+            //var engineEnvironment = new PostingEngineEnvironment(null);
 
             if (journal.AccountTo.EntryType.Equals("debit"))
             {
-                accountToValue = engineEnvironment.SignedValue(accountTo, accountFrom, true, journal.Value);
-                accountFromValue = engineEnvironment.SignedValue(accountTo, accountFrom, false, journal.Value);
+                accountToValue = SignedValue(accountTo, accountFrom, true, journal.Value);
+                accountFromValue = SignedValue(accountTo, accountFrom, false, journal.Value);
             }
             else
             {
-                accountFromValue = engineEnvironment.SignedValue(accountFrom, accountTo, true, journal.Value);
-                accountToValue = engineEnvironment.SignedValue(accountFrom, accountTo, false, journal.Value);
+                accountFromValue = SignedValue(accountFrom, accountTo, true, journal.Value);
+                accountToValue = SignedValue(accountFrom, accountTo, false, journal.Value);
             }
 
             return new Tuple<double, double>(accountToValue, accountFromValue);
+        }
+
+        /// <summary>
+        /// Determine how to set the Value of the Journal, this will be based on the 
+        /// </summary>
+        /// <param name="fromAccount">The account from where the flow will start</param>
+        /// <param name="toAccount">The account to where the flow will end</param>
+        /// <param name="debit">Is this from the perspective of the debit account</param>
+        /// <param name="value">The value to be posted</param>
+        /// <returns>The correct signed value</returns>
+        public double SignedValue(Account fromAccount, Account toAccount, bool debit, double value)
+        {
+            if (debit)
+                return value;
+
+            if (fromAccount.Type.Category.Id == toAccount.Type.Category.Id)
+            {
+                return value * -1;
+            }
+
+            if (fromAccount.Type.Category.Id == AccountCategory.AC_ASSET)
+            {
+                switch (toAccount.Type.Category.Id)
+                {
+                    case AccountCategory.AC_ASSET:
+                        return value * -1;
+                    case AccountCategory.AC_LIABILITY:
+                        return value;
+                    case AccountCategory.AC_REVENUES:
+                        return value;
+                    case AccountCategory.AC_EQUITY:
+                        return value;
+                    case AccountCategory.AC_EXPENCES:
+                        return value * -1;
+                }
+            }
+
+            if (fromAccount.Type.Category.Id == AccountCategory.AC_LIABILITY)
+            {
+                switch (toAccount.Type.Category.Id)
+                {
+                    case AccountCategory.AC_ASSET:
+                        return value;
+                    case AccountCategory.AC_LIABILITY:
+                        return value * -1;
+                    case AccountCategory.AC_REVENUES:
+                        return value * -1;
+                    case AccountCategory.AC_EQUITY:
+                        return value * -1;
+                    case AccountCategory.AC_EXPENCES:
+                        return value;
+                }
+            }
+
+            if (fromAccount.Type.Category.Id == AccountCategory.AC_REVENUES)
+            {
+                switch (toAccount.Type.Category.Id)
+                {
+                    case AccountCategory.AC_ASSET:
+                        return value;
+                    case AccountCategory.AC_LIABILITY:
+                        return value * -1;
+                    case AccountCategory.AC_REVENUES:
+                        return value * -1;
+                    case AccountCategory.AC_EQUITY:
+                        return value * -1;
+                    case AccountCategory.AC_EXPENCES:
+                        return value;
+                }
+            }
+
+            if (fromAccount.Type.Category.Id == AccountCategory.AC_EQUITY)
+            {
+                switch (toAccount.Type.Category.Id)
+                {
+                    case AccountCategory.AC_ASSET:
+                        return value;
+                    case AccountCategory.AC_LIABILITY:
+                        return value * -1;
+                    case AccountCategory.AC_REVENUES:
+                        return value * -1;
+                    case AccountCategory.AC_EQUITY:
+                        return value * -1;
+                    case AccountCategory.AC_EXPENCES:
+                        return value;
+                }
+            }
+
+            if (fromAccount.Type.Category.Id == AccountCategory.AC_EXPENCES)
+            {
+                switch (toAccount.Type.Category.Id)
+                {
+                    case AccountCategory.AC_ASSET:
+                        return value * -1;
+                    case AccountCategory.AC_LIABILITY:
+                        return value;
+                    case AccountCategory.AC_REVENUES:
+                        return value;
+                    case AccountCategory.AC_EQUITY:
+                        return value;
+                    case AccountCategory.AC_EXPENCES:
+                        return value * -1;
+                }
+            }
+
+            return value;
         }
 
         private string GetBaseCurrency()
@@ -587,7 +712,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var accountToValue = journal.Value;
                 var lastModifiedOn = DateTime.Now.ToString("yyyy-MM-dd");
-                var symbol = string.IsNullOrWhiteSpace(journal.AccountTo.Symbol) ? "" : journal.AccountTo.Symbol;
+                var symbol = string.IsNullOrWhiteSpace(journal.AccountTo.AccountSymbol) ? "" : journal.AccountTo.AccountSymbol;
 
                 var journalQuery = $@"UPDATE [journal]
                             SET [account_id] = @accountId

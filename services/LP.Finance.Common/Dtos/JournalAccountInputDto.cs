@@ -9,10 +9,10 @@ namespace LP.Finance.Common.Dtos
         [Required] public string EntryType { get; set; }
         [Required] public int AccountCategoryId { get; set; }
         [Required] public int AccountTypeId { get; set; }
-        [Required] public string Symbol { get; set; }
-        [Required] public string AccountCategoryName { get; set; }
-        [Required] public string AccountTypeName { get; set; }
-        [Required] public string Currency { get; set; }
+        public string AccountSymbol { get; set; }
+        [Required] public string AccountCategory { get; set; }
+        [Required] public string AccountType { get; set; }
+        public string AccountCurrency { get; set; }
 
     }
 }
