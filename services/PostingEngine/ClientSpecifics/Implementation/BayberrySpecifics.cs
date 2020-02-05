@@ -32,12 +32,12 @@ namespace PostingEngine.ClientSpecifics
             {
                 var securityTypeTags = new List<string> {
                     //"FORWARD",
-                    //"Equity Swap"
+                    "Equity Swap"
                     };
 
                 var symbolTags = new List<string>
                 {
-                    "BGA AU SWAP",
+                    //"BGA AU SWAP",
                     //"GIL",
                     //"LW",
                     //"GBP/USD 12/18/2019",

@@ -104,6 +104,11 @@ namespace PostingEngine.PostingRules
     TaxLotStatus taxlotStatus,
     Transaction element)
         {
+            if ( element.LpOrderId.Equals("5686b2f0-b811-4614-b44d-5d0480370441"))
+            {
+
+            }
+
             if (tradeEvent.Equals(Event.TRADE_DATE))
                 return new List<Journal>();
 
@@ -120,11 +125,14 @@ namespace PostingEngine.PostingRules
             if (env.BaseCurrency.Equals(riskCurrency))
                 return new List<Journal>();
 
+            var prevPrice = Convert.ToDouble(MarketPrices.GetPrice(env, env.PreviousValueDate, element).Price);
+            var eodPrice = Convert.ToDouble(MarketPrices.GetPrice(env, env.ValueDate, element).Price);
+
             var prevEodFxRate = Convert.ToDouble(FxRates.Find(env.PreviousValueDate, riskCurrency).Rate);
             var eodFxRate = Convert.ToDouble(FxRates.Find(env.ValueDate, riskCurrency).Rate);
             var effectiveRate = eodFxRate - prevEodFxRate;
 
-            var usdEquivalent = element.Quantity * effectiveRate;
+            var usdEquivalent = element.Quantity * (eodPrice - prevPrice) * effectiveRate;
 
             var fromAccount = "Mark to Market Derivatives Contracts due to FX (Liabilities)";
             var toAccount = "Change in Unrealized Derivatives Contracts due to FX";
@@ -187,12 +195,32 @@ namespace PostingEngine.PostingRules
             var prevRate = FxRates.Find(env.PreviousValueDate, unsettledPnls[0].Currency).Rate;
             var eodRate = FxRates.Find(env.ValueDate, unsettledPnls[0].Currency).Rate;
 
+            if ( element.SecurityType.Equals("FORWARD") || element.SecurityType.Equals("CROSS"))
+            {
+                prevRate = MarketPrices.GetPrice(env, env.PreviousValueDate, element).Price;
+                eodRate = MarketPrices.GetPrice(env, env.ValueDate, element).Price;
+            }
+
             unsettledPnls.ForEach(unsettledPnl => {
+                
 
                 var change = eodRate - prevRate;
                 var fxCashCredit = change * (unsettledPnl.Credit / unsettledPnl.FxRate);
                 var fxCashDebit = change * (unsettledPnl.Debit / unsettledPnl.FxRate);
                 var fxCash = fxCashCredit - fxCashDebit;
+
+                if (element.SecurityType.Equals("FORWARD") || element.SecurityType.Equals("CROSS"))
+                {
+                    var when = unsettledPnl.When;
+                    var price = MarketPrices.GetPrice(env, when, element).Price;
+
+                    if (price == 0.0)
+                        price = 1;
+
+                    fxCashCredit = change * (unsettledPnl.Credit / price);
+                    fxCashDebit = change * (unsettledPnl.Debit / price);
+                    fxCash = fxCashCredit - fxCashDebit;
+                }
 
                 var from = "";
                 var to = "";

@@ -140,7 +140,7 @@ namespace PostingEngine.PostingRules
                     };
 
                     env.Journals.AddRange(new[] { debit, credit });
-
+                    /*
                     if (element.TradeDate != env.ValueDate && element.SettleDate >= env.ValueDate)
                     {
                         var fxJournals = FxPosting.CreateFx(
@@ -149,10 +149,12 @@ namespace PostingEngine.PostingRules
                             quantity, null, element);
                         env.Journals.AddRange(fxJournals);
                     }
+                    */
                 }
             }
             else
             {
+                /*
                 if (fxrate != 1.0)
                 {
                     if (element.TradeDate != env.ValueDate && element.SettleDate >= env.ValueDate)
@@ -164,7 +166,7 @@ namespace PostingEngine.PostingRules
                         env.Journals.AddRange(fxJournals);
                     }
                 }
-
+                */
             }
         }
 

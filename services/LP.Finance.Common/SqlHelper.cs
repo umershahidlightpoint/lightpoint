@@ -127,7 +127,7 @@ namespace SqlDAL.Core
 
                 using (var command = new SqlCommand(commandText, connection))
                 {
-                    command.CommandTimeout = 120;
+                    command.CommandTimeout = 300;
                     command.CommandType = commandType;
                     if (parameters != null)
                     {

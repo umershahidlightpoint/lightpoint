@@ -11,29 +11,56 @@ using System.Linq;
 
 namespace PostingEngine
 {
-    public class PostingEngineEnvironment
+    public static class EnvironmentFactory
     {
+        public static IPostingEngineEnvironment GetEnvironment(string env)
+        {
+            return new PostingEngineEnvironment();
+        }
+    }
+
+    // Base of the PostingEngine Environment, allow for multiple implementations
+    public interface IPostingEngineEnvironment
+    {
+        int CollectData(List<Journal> journals);
+        PostingEngineCallBack CallBack { get; set; }
+        DateTime ValueDate { get; set; }
+        DateTime PreviousValueDate { get; set; }
+        DateTime BusinessDate { get; set; }
+        string ConnectionString { get; set; }
+    }
+
+    public class PostingEngineEnvironment : IPostingEngineEnvironment
+    {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public PostingEngineEnvironment()
         {
-        }
-
-        public bool Completed { get; set; }
-        public PostingEngineEnvironment(SqlConnection connection, SqlTransaction transaction = null)
-        {
-            Connection = connection;
-            Transaction = transaction;
-
             Messages = new Dictionary<string, int>();
 
             Journals = new List<Journal>();
             TaxLotStatus = new Dictionary<string, TaxLotStatus>();
+        }
 
-            SetupMappins();
+        public PostingEngineEnvironment(string connectionString): this()
+        {
+            Connection = new SqlConnection(connectionString);
+            Transaction = Connection.BeginTransaction();
+
+            SetupSecurityTypeMappings();
+        }
+
+        public PostingEngineEnvironment(SqlConnection connection, SqlTransaction transaction = null) : this()
+        {
+            Connection = connection;
+            Transaction = transaction;
+
+            SetupSecurityTypeMappings();
         }
 
         private static SqlConnection __connection;
 
-        internal int CollectData(List<Journal> journals)
+        public int CollectData(List<Journal> journals)
         {
             return CollectData(ConnectionString, journals);
         }
@@ -124,14 +151,9 @@ namespace PostingEngine
 
         public TaxRate TaxRate { get; set; }
 
-        // Rates are all multiplied, and we store that rate in the system
-        //public Dictionary<string, MarketPrice> PrevMarketPrices { get; set; }
-        //public Dictionary<string, MarketPrice> EODMarketPrices { get; set; }
-        public Dictionary<string, CostBasisDto> CostBasis { get; set; }
-
         public Dictionary<string, IPostingRule> Rules { get; set; }
 
-        private void SetupMappins()
+        private void SetupSecurityTypeMappings()
         {
             TradingRules = new Dictionary<string, IPostingRule>
             {
@@ -159,7 +181,7 @@ namespace PostingEngine
                 {"Physical index future.", new DefaultRule() },
 
                 // Derivatives
-                {"Equity Swap", new Derivatives() },
+                {"Equity Swap", new EquitySwaps() },
             };
 
         }
@@ -173,46 +195,9 @@ namespace PostingEngine
             {"Journals", new FakeJournals() },
         };
 
-        internal double CalculateCB(Transaction element, string symbol, string side)
-        {
-            if ( Journals.Count > 0)
-            {
-                if (side.Equals("buy"))
-                {
-                    var longPosition = Journals.Where(i => i.Account.Type.Name == "LONG POSITIONS AT COST" && i.Symbol.Equals(symbol));
-                    if ( longPosition.Count() == 0 )
-                        return element.TradePrice;
-                    var cbValue = longPosition.Sum(i => i.Value);
-                    var cbQuantity = longPosition.Sum(i => i.Quantity);
-                    var cbCostBasis = element.TradePrice;
-                    if (cbQuantity != 0)
-                        cbCostBasis = cbValue / cbQuantity;
-
-                    return Math.Abs(cbCostBasis);
-                }
-                else if (side.Equals("short"))
-                {
-                    var positions = Journals.Where(i => i.Account.Type.Name == "SHORT POSITIONS AT COST" && i.Symbol.Equals(symbol));
-                    if (positions.Count() == 0)
-                        return element.TradePrice;
-
-                    var cbValue = positions.Sum(i => i.Value);
-                    var cbQuantity = positions.Sum(i => i.Quantity);
-                    var cbCostBasis = element.TradePrice;
-                    if (cbQuantity != 0)
-                        cbCostBasis = cbValue / cbQuantity;
-
-                    return cbCostBasis;
-                }
-            }
-
-            return 0;    
-        }
-
         public SqlConnection Connection { get; private set; }
         public SqlTransaction Transaction { get; private set; }
 
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public void AddMessage(string message)
         {
@@ -417,6 +402,7 @@ namespace PostingEngine
 
         public class PnlData
         {
+            public DateTime When { get; set; }
             public double Credit { get; set; }
             public double Debit { get; set; }
             public string Symbol { get; set; }
@@ -437,7 +423,7 @@ namespace PostingEngine
             if (UnsettledPnl == null)
                 UnsettledPnl = new List<PnlData>();
 
-            var sql = $@"select credit, debit, symbol, quantity, fx_currency, fund, source, fxrate, security_id, SecurityType from vwWorkingJournals 
+            var sql = $@"select [when], credit, debit, symbol, quantity, fx_currency, fund, source, fxrate, security_id, SecurityType from vwWorkingJournals 
                          where [event] in ('unrealizedpnl', 'daily-unrealizedpnl')
                          and AccountCategory = 'Revenues'
                          -- and AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'Change in Unrealized Derivatives Contracts at Fair Value') 
@@ -455,16 +441,17 @@ namespace PostingEngine
                 {
                     var unsettledPnl = new PnlData
                     {
-                        Credit = Convert.ToDouble(reader.GetFieldValue<decimal>(0)),
-                        Debit = Convert.ToDouble(reader.GetFieldValue<decimal>(1)),
-                        Symbol = reader.GetFieldValue<string>(2),
-                        Quantity = Convert.ToDouble(reader.GetFieldValue<decimal>(3)),
-                        Currency = reader.GetFieldValue<string>(4),
-                        Fund = reader.GetFieldValue<string>(5),
-                        Source = reader.GetFieldValue<string>(6),
-                        FxRate = Convert.ToDouble(reader.GetFieldValue<decimal>(7)),
-                        SecurityId = reader.GetFieldValue<int>(8),
-                        SecurityType = reader.GetFieldValue<string>(9),
+                        When = reader.GetFieldValue<DateTime>(0),
+                        Credit = Convert.ToDouble(reader.GetFieldValue<decimal>(1)),
+                        Debit = Convert.ToDouble(reader.GetFieldValue<decimal>(2)),
+                        Symbol = reader.GetFieldValue<string>(3),
+                        Quantity = Convert.ToDouble(reader.GetFieldValue<decimal>(4)),
+                        Currency = reader.GetFieldValue<string>(5),
+                        Fund = reader.GetFieldValue<string>(6),
+                        Source = reader.GetFieldValue<string>(7),
+                        FxRate = Convert.ToDouble(reader.GetFieldValue<decimal>(8)),
+                        SecurityId = reader.GetFieldValue<int>(9),
+                        SecurityType = reader.GetFieldValue<string>(10),
                     };
 
                     this.UnsettledPnl.Add(unsettledPnl);

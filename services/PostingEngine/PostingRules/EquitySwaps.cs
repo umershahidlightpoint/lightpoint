@@ -13,7 +13,7 @@ using System.Linq;
 
 namespace PostingEngine.PostingRules
 {
-    public class Derivatives : IPostingRule
+    public class EquitySwaps : IPostingRule
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         public bool IsValid(PostingEngineEnvironment env, Transaction element)
@@ -98,18 +98,11 @@ namespace PostingEngine.PostingRules
                         Fund = fund,
                     };
 
-                    var credit = new Journal(element)
+                    var credit = new Journal(debit)
                     {
                         Account = fromToAccounts.To,
-                        When = env.ValueDate,
-                        FxRate = fxrate,
-                        Quantity = quantity,
                         Value = env.SignedValue(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnl),
                         CreditDebit = env.DebitOrCredit(fromToAccounts.To, env.SignedValue(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnl)),
-                        Event = Event.DAILY_UNREALIZED_PNL,
-                        StartPrice = prevEodPrice,
-                        EndPrice = eodPrice,
-                        Fund = fund,
                     };
 
                     Logger.Info($"[Journals] ==> From : {debit.CreditDebit}::{debit.Value}::{debit.Account.Type.Category.Name} --> To : {credit.CreditDebit}::{credit.Value}::{credit.Account.Type.Category.Name} ({unrealizedPnl})");
@@ -150,15 +143,13 @@ namespace PostingEngine.PostingRules
 
         public void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
-            // NO Need for Swaps and Futures / Forwards as we don't own the stock
+            // Need to make sure that we generate the reversal on this
+            CommonRules.GenerateSettlementDateJournals(env, element);
         }
 
         public void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
-            double multiplier = 1.0;
-
-            if (env.SecurityDetails.ContainsKey(element.BloombergCode))
-                multiplier = env.SecurityDetails[element.BloombergCode].Multiplier;
+            double multiplier = env.SecurityDetails.ContainsKey(element.BloombergCode) ? env.SecurityDetails[element.BloombergCode].Multiplier : 1.0;
 
             double fxrate = 1.0;
 
@@ -242,14 +233,6 @@ namespace PostingEngine.PostingRules
 
             var taxlot = CommonRules.RelieveTaxLot(env, lot, element, workingQuantity, true);
 
-            // Has to happen for every day
-            var fxJournalsForInvestmentAtCost = FxPosting.CreateFx(
-                env,
-                CommonRules.GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"),
-                "Change in unrealized due to fx on original Cost",
-                "daily", workingQuantity, taxlotStatus, buyTrade);
-            env.Journals.AddRange(fxJournalsForInvestmentAtCost);
-
             taxlotStatus.Quantity += workingQuantity;
             if (taxlotStatus.Quantity == 0)
                 taxlotStatus.Status = "Closed";
@@ -318,13 +301,12 @@ namespace PostingEngine.PostingRules
             {
                 var closeOut = changeInUnRealizedFx + fxChange;
 
-                //PostUnrealizedFxGain(env, buyTrade, closeOut, taxlot.TradePrice, taxlot.CostBasis, changeDueToFx);
+                PostUnrealizedFxGain(env, buyTrade, closeOut, taxlot.TradePrice, taxlot.CostBasis, changeDueToFx);
             }
 
             if (dataTable[2].Rows.Count > 0)
             {
                 var sumFxMarkToMarket = Convert.ToDouble(dataTable[2].Rows[0][2]);
-                sumFxMarkToMarket += fxJournalsForInvestmentAtCost[0].Value;
 
                 //ReversePosting(env, "Change in unrealized due to fx on original Cost", CommonRules.GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"), buyTrade, sumFxMarkToMarket);
             }

@@ -520,12 +520,10 @@ namespace PostingEngine.PostingRules
                 MarketPrices.GetPrice(env, env.PreviousValueDate, lot.Trade).Price,
                 element.SettleNetPrice, fxrate);
 
-            var PnL = taxlot.RealizedPnl;
-
             PostRealizedPnl(
                 env,
                 buyTrade,
-                PnL,
+                taxlot.RealizedPnl,
                 taxlot.TradePrice,
                 taxlot.CostBasis, fxrate);
 
@@ -558,11 +556,11 @@ namespace PostingEngine.PostingRules
             var fromJournal = new Journal(element)
             {
                 Account = fromAccount,
-                CreditDebit = env.DebitOrCredit(fromAccount, PnL),
+                CreditDebit = env.DebitOrCredit(fromAccount, taxlot.RealizedPnl),
                 When = env.ValueDate,
                 StartPrice = taxlot.TradePrice,
                 EndPrice = taxlot.CostBasis,
-                Value = PnL,
+                Value = taxlot.RealizedPnl,
                 FxRate = 1,
                 Event = Event.REALIZED_PNL,
                 Fund = env.GetFund(element),
@@ -571,8 +569,8 @@ namespace PostingEngine.PostingRules
             var toJournal = new Journal(fromJournal)
             {
                 Account = toAccount,
-                CreditDebit = env.DebitOrCredit(toAccount, PnL * -1),
-                Value = PnL * -1,
+                CreditDebit = env.DebitOrCredit(toAccount, taxlot.RealizedPnl * -1),
+                Value = taxlot.RealizedPnl * -1,
             };
 
             env.Journals.AddRange(new[] { fromJournal, toJournal });
@@ -722,38 +720,23 @@ namespace PostingEngine.PostingRules
                 if (element.IsShort() || element.IsSell())
                     moneyUSD = moneyUSD * -1;
 
-                var debit = new Journal
+                var debit = new Journal(element)
                 {
-                    Source = element.LpOrderId,
                     Account = accountToFrom.From,
-                    When = env.ValueDate,
-                    FxCurrency = element.SettleCurrency,
-                    Symbol = element.Symbol,
-                    SecurityId = element.SecurityId,
-                    Quantity = element.Quantity,
-                    FxRate = fxrate,
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
                     Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
+
+                    When = env.ValueDate,
+                    FxRate = fxrate,
                     Event = Event.SETTLEMENT,
                     Fund = env.GetFund(element)
                 };
 
-                var credit = new Journal
+                var credit = new Journal (debit)
                 {
-                    Source = element.LpOrderId,
-                    FxCurrency = element.SettleCurrency,
-                    Symbol = element.Symbol,
-                    SecurityId = element.SecurityId,
-                    Quantity = element.Quantity,
-
-                    FxRate = fxrate,
-                    When = env.ValueDate,
                     Account = accountToFrom.To,
-
                     CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
                     Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
-                    Event = Event.SETTLEMENT,
-                    Fund = env.GetFund(element)
                 };
 
                 env.Journals.AddRange(new[] { debit, credit });

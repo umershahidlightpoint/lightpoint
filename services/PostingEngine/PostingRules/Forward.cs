@@ -42,13 +42,9 @@ namespace PostingEngine.PostingRules
         /// <param name="element">Trade we aee interested in</param>
         public void DailyEvent(PostingEngineEnvironment env, Transaction element)
         {
-            double fxrate = 1.0;
-
-            // Lets get fx rate if needed
-            if (!element.SettleCurrency.Equals(env.BaseCurrency))
-            {
-                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
-            }
+            var split = element.Symbol.Split(new char[] { '/', ' ' });
+            var baseCurrency = split[0];
+            var riskCurrency = split[1];
 
             // Calculate the unrealized PNL
             if (env.TaxLotStatus.ContainsKey(element.LpOrderId))
@@ -65,26 +61,12 @@ namespace PostingEngine.PostingRules
                         Tag.Find("CustodianCode")
                     };
 
-                    var split = element.Symbol.Split(new char[] { '/', ' ' });
-                    var baseCurrency = split[0];
-                    var riskCurrency = split[1];
-
                     var eodPrice = MarketPrices.GetPrice(env, env.ValueDate, element).Price;
                     var prevEodPrice = MarketPrices.GetPrice(env, env.PreviousValueDate, element).Price;
 
-                    if (baseCurrency.Equals(env.BaseCurrency)) 
+                    if (env.ValueDate == element.TradeDate)
                     {
-                        if (env.ValueDate == element.TradeDate)
-                        {
-                            prevEodPrice = element.SettleNetPrice;
-                        }
-                    }
-                    else
-                    {
-                        if (env.ValueDate == element.TradeDate)
-                        {
-                            prevEodPrice = element.SettleNetPrice;
-                        }
+                        prevEodPrice = element.SettleNetPrice;
                     }
 
                     // we need to do this when there is no price for the trade from market data
@@ -117,6 +99,7 @@ namespace PostingEngine.PostingRules
 
                     var debit = new Journal(element)
                     {
+                        FxCurrency = riskCurrency,
                         Account = fromToAccounts.From,
                         When = env.ValueDate,
                         Symbol = taxlot.Symbol,
@@ -139,40 +122,43 @@ namespace PostingEngine.PostingRules
 
                     env.Journals.AddRange(new[] { debit, credit });
 
-                    if (element.LpOrderId.Equals("3bbf9793-d01a-4a08-b25c-448fd1777ef1"))
-                    {
+                    var fxChange = new FxPosting().CreateFxUnsettled(env, element);
 
-                    }
-
+                    /*
                     if (element.TradeDate != env.ValueDate && element.SettleDate >= env.ValueDate)
                     {
                         var fxJournals = FxPosting.CreateFx(
                             env,
                             "daily",
                             quantity, null, element);
-                        env.Journals.AddRange(fxJournals);
+                        if ( fxJournals.Count() > 0)
+                            env.Journals.AddRange(fxJournals);
                     }
+                    */
                 }
             }
             else
             {
-                if (fxrate != 1.0)
+                /*
+                if (element.TradeDate != env.ValueDate && element.SettleDate >= env.ValueDate)
                 {
-                    if (element.TradeDate != env.ValueDate && element.SettleDate >= env.ValueDate)
-                    {
-                        var fxJournals = FxPosting.CreateFx(
-                            env,
-                            "daily",
-                            element.Quantity, null, element);
+                    var fxJournals = FxPosting.CreateFx(
+                        env,
+                        "daily",
+                        element.Quantity, null, element);
+                    if (fxJournals.Count() > 0)
                         env.Journals.AddRange(fxJournals);
-                    }
                 }
-
+                */
             }
         }
 
         public void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
+            if ( element.LpOrderId.Equals("0b9749d1-abe6-4bab-ad7d-65dccf17017b"))
+            {
+
+            }
             // On Settlement Date we backout the Tax Lot for FORWARDS
             if (env.TaxLotStatus.ContainsKey(element.LpOrderId))
             {
@@ -211,12 +197,12 @@ namespace PostingEngine.PostingRules
                         SecurityId = element.SecurityId,
                         Quantity = Convert.ToDouble(element.Quantity),
 
-                        FxRate = tradePrice,
+                        FxRate = fxRate,
                         StartPrice = tradePrice,
                         EndPrice = eodPrice,
 
-                        Value = env.SignedValue(accountBuy, accountSell, true, buyValue),
-                        CreditDebit = env.DebitOrCredit(accountBuy, buyValue),
+                        Value = env.SignedValue(accountBuy, accountSell, true, sellValue),
+                        CreditDebit = env.DebitOrCredit(accountBuy, sellValue),
                     };
 
                     var credit = new Journal(accountSell, Event.SETTLED_CASH, env.ValueDate)
@@ -228,12 +214,12 @@ namespace PostingEngine.PostingRules
                         SecurityId = element.SecurityId,
                         Quantity = Convert.ToDouble(element.Quantity),
 
-                        FxRate = tradePrice,
-                        StartPrice = 0,
-                        EndPrice = 0,
+                        FxRate = fxRate,
+                        StartPrice = tradePrice,
+                        EndPrice = eodPrice,
 
-                        Value = env.SignedValue(accountBuy, accountSell, true, sellValue * -1),
-                        CreditDebit = env.DebitOrCredit(accountSell, sellValue),
+                        Value = env.SignedValue(accountBuy, accountSell, true, buyValue * -1),
+                        CreditDebit = env.DebitOrCredit(accountSell, buyValue * -1),
                     };
 
                     env.Journals.AddRange(new[] { credit, debit });
@@ -243,13 +229,22 @@ namespace PostingEngine.PostingRules
                     // Realized Pnl to go along with the Settled Cash
                     CommonRules.GenerateJournalEntry(env, element, listOfTags, realizedAccountType, Event.REALIZED_PNL, realizedPnl);
 
-                    CommonRules.GenerateJournalEntries(env, element, listOfTags, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", realizedPnl * -1);
+                    if (originalAccount.Contains("(Liabilities)"))
+                    {
+                        CommonRules.GenerateJournalEntries(env, element, listOfTags, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", realizedPnl);
+                    }
+                    else
+                    {
+                        CommonRules.GenerateJournalEntries(env, element, listOfTags, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", realizedPnl * -1);
+                    }
+
+                    
                 }
                 else // SELL
                 {
-                    var realizedPnl = buyValue - sellValue;
+                    var realizedPnl = sellValue - buyValue;
 
-                    var debit = new Journal(accountBuy, Event.SETTLED_CASH, env.ValueDate)
+                    var debit = new Journal(accountSell, Event.SETTLED_CASH, env.ValueDate)
                     {
                         Source = element.LpOrderId,
                         Fund = env.GetFund(element),
@@ -258,15 +253,15 @@ namespace PostingEngine.PostingRules
                         SecurityId = element.SecurityId,
                         Quantity = Convert.ToDouble(element.Quantity),
 
-                        FxRate = tradePrice,
-                        StartPrice = 0,
-                        EndPrice = 0,
+                        FxRate = fxRate,
+                        StartPrice = tradePrice,
+                        EndPrice = eodPrice,
 
-                        Value = env.SignedValue(accountBuy, accountSell, true, sellValue),
-                        CreditDebit = env.DebitOrCredit(accountBuy, element.Quantity),
+                        Value = env.SignedValue(accountSell, accountBuy, true, sellValue),
+                        CreditDebit = env.DebitOrCredit(accountSell, sellValue),
                     };
 
-                    var credit = new Journal(accountSell, Event.SETTLED_CASH, env.ValueDate)
+                    var credit = new Journal(accountBuy, Event.SETTLED_CASH, env.ValueDate)
                     {
                         Source = element.LpOrderId,
                         Fund = env.GetFund(element),
@@ -275,12 +270,12 @@ namespace PostingEngine.PostingRules
                         SecurityId = element.SecurityId,
                         Quantity = Convert.ToDouble(element.Quantity),
 
-                        FxRate = tradePrice,
-                        StartPrice = 0,
-                        EndPrice = 0,
+                        FxRate = fxRate,
+                        StartPrice = tradePrice,
+                        EndPrice = eodPrice,
 
-                        Value = env.SignedValue(accountBuy, accountSell, true, buyValue * -1),
-                        CreditDebit = env.DebitOrCredit(accountSell, element.Quantity),
+                        Value = env.SignedValue(accountSell, accountBuy, true, buyValue * -1),
+                        CreditDebit = env.DebitOrCredit(accountSell, buyValue * -1),
                     };
 
                     env.Journals.AddRange(new[] { credit, debit });
@@ -290,7 +285,14 @@ namespace PostingEngine.PostingRules
                     // Realized Pnl to go along with the Settled Cash
                     CommonRules.GenerateJournalEntry(env, element, listOfTags, realizedAccountType, Event.REALIZED_PNL, realizedPnl);
 
-                    CommonRules.GenerateJournalEntries(env, element, listOfTags, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", realizedPnl * -1);
+                    if (originalAccount.Contains("(Liabilities)"))
+                    {
+                        CommonRules.GenerateJournalEntries(env, element, listOfTags, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", realizedPnl);
+                    }
+                    else
+                    {
+                        CommonRules.GenerateJournalEntries(env, element, listOfTags, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", realizedPnl * -1);
+                    }
                 }
 
                 if (taxlotStatus.Quantity != 0)

@@ -72,6 +72,7 @@
     <Compile Include="PostingRules\AccountingRules.cs" />
     <Compile Include="PostingRules\CashRule.cs" />
     <Compile Include="PostingRules\CommonRules.cs" />
+    <Compile Include="PostingRules\EquitySwaps.cs" />
     <Compile Include="PostingRules\Derivatives.cs" />
     <Compile Include="PostingRules\Forward.cs" />
     <Compile Include="PostingRules\Cross.cs" />

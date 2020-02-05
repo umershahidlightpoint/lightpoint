@@ -481,14 +481,6 @@ where business_date = @busDate";
                 // Lets do Trading Activity, so no Journals
                 sw.Reset();
 
-                tradingPostingEnv.Completed = false;
-
-
-                
-
-                // Lets process the saving of the journals in the background
-                HandleJournals(tradingPostingEnv);
-
                 // differentiating between trades and journals. Moving forward we can create journal entries per symbol in a parallel fashion.
                 PostingEngineCallBack?.Invoke($"Processing Trades on {DateTime.Now}");
                 tradingPostingEnv.SkipWeekends = true;
@@ -560,8 +552,6 @@ where business_date = @busDate";
 
                 transaction.Commit();
                 postingEngineCallBack?.Invoke("Posting Engine Processing Completed");
-
-                tradingPostingEnv.Completed = true;
             }
         }
 
@@ -665,13 +655,7 @@ where business_date = @busDate";
                 sw.Reset();
                 sw.Start();
 
-                postingEnv.Completed = false;
-
-
                 PostingEngineCallBack?.Invoke($"Processing Trades on {DateTime.Now}");
-
-                // Lets process the saving of the journals in the background
-                HandleJournals(postingEnv);
 
                 // differentiating between trades and journals. Moving forward we can create journal entries per symbol in a parallel fashion.
                 postingEnv.SkipWeekends = true;
@@ -732,8 +716,6 @@ where business_date = @busDate";
 
                 transaction.Commit();
                 postingEngineCallBack?.Invoke("Posting Engine Processing Completed");
-
-                postingEnv.Completed = true;
             }
         }
 
@@ -851,136 +833,6 @@ where business_date = @busDate";
             }.Save(connection, transaction);
 
             return postingEnv.Trades.Count();
-        }
-
-        static ObservableCollection<List<Journal>> Journals = new ObservableCollection<List<Journal>>();
-
-        static PostingEngineEnvironment _postingEnv = null;
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="env"></param>
-        static void HandleJournals(PostingEngineEnvironment env)
-        {
-            _postingEnv = env;
-            Journals.CollectionChanged += CollectionChanged;
-        }
-
-        private static SqlConnection __connection;
-
-        private static int CollectData(string connectionString, List<Journal> journals)
-        {
-            if (__connection == null)
-            {
-                __connection = new SqlConnection(connectionString);
-                __connection.Open();
-            }
-
-            var transaction = __connection.BeginTransaction();
-
-            //Logger.Info($"Commiting Journals to the database {journals.Count()}");
-
-            new SQLBulkHelper().Insert("journal", journals.ToArray(), __connection, transaction);
-
-            //Logger.Info($"Completed :: Commiting Journals to the database {journals.Count()}");
-
-            transaction.Commit();
-
-            return journals.Count();
-        }
-
-        private static int CollectData(PostingEngineEnvironment env)
-        {
-            var connection = new SqlConnection(env.ConnectionString);
-            connection.Open();
-            var transaction = connection.BeginTransaction();
-
-            while (true)
-            {
-                if (env.Completed)
-                {
-                    break;
-                }
-
-                if ( _journalQueue.Count() > 0)
-                {
-                    var journals = new List<Journal>();
-
-                    while (_journalQueue.Count() > 0 )
-                    {
-                        var j = new List<Journal>();
-                        var result = _journalQueue.TryDequeue(out j);
-
-                        if ( result == false )
-                        {
-                            // What do we do ?
-                        } else {
-                            journals.AddRange(j.ToArray());
-                        }
-                    }
-                    Logger.Info($"Commiting Journals to the database {journals.Count()}");
-
-                    new SQLBulkHelper().Insert("journal", journals.ToArray(), connection, transaction);
-
-                    Logger.Info($"Completed :: Commiting Journals to the database {journals.Count()}");
-                }
-
-                Thread.Sleep(1000);
-            }
-
-            if (_journalQueue.Count() > 0)
-            {
-                var journals = new List<Journal>();
-
-                while (_journalQueue.Count() > 0)
-                {
-                    var j = new List<Journal>();
-                    var result = _journalQueue.TryDequeue(out j);
-
-                    if (result == false)
-                    {
-                        // What do we do ?
-                    }
-                    else
-                    {
-                        journals.AddRange(j.ToArray());
-                    }
-                }
-                Logger.Info($"Final Commit Journals to the database {journals.Count()}");
-
-                new SQLBulkHelper().Insert("journal", journals.ToArray(), connection, transaction);
-
-                Logger.Info($"Completed :: Final Commit Journals to the database {journals.Count()}");
-            }
-
-            transaction.Commit();
-            connection.Close();
-
-            return 1;
-        }
-
-        static ConcurrentQueue<List<Journal>> _journalQueue = new ConcurrentQueue<List<Journal>>();
-
-        private static void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            if ( e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
-            {
-                return;
-            }
-
-            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
-            {
-                var items = e.NewItems.Cast<List<Journal>>();
-
-                foreach( var i in items)
-                {
-                    Journals.Remove(i);
-
-                    var data = i.ToList();
-
-                    Task.Run(() => _postingEnv.CollectData(data));
-                }
-            }
         }
 
         /// <summary>
