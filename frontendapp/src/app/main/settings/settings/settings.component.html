@@ -45,7 +45,7 @@
             <h4 class="mt-2">Application Theme</h4>
             <lp-select-theme #themeSelect="ngModel" ngModel="blue" name="theme" required></lp-select-theme>
 
-            <p class="help-block text-danger" *ngIf="themeSelect.invalid && themeSelect.touched">*Please select a
+            <p class="form-text text-danger" *ngIf="themeSelect.invalid && themeSelect.touched">*Please select a
               theme</p>
             <!-- App Theme Dropdown Ends -->
 
@@ -58,7 +58,7 @@
               </option>
             </select>
 
-            <p class="help-block text-danger" *ngIf="currencySelect.invalid && currencySelect.touched">*Please select a
+            <p class="form-text text-danger" *ngIf="currencySelect.invalid && currencySelect.touched">*Please select a
               currency</p>
             <!-- Reporting Currency Dropdown Ends -->
 
@@ -71,7 +71,7 @@
               </option>
             </select>
 
-            <p class="help-block text-danger" *ngIf="methodologySelect.invalid && methodologySelect.touched">*Please
+            <p class="form-text text-danger" *ngIf="methodologySelect.invalid && methodologySelect.touched">*Please
               select
               a methodology</p>
             <!-- Tax Methodology Dropdown Ends -->
@@ -97,7 +97,7 @@
                   </option>
                 </select>
 
-                <p class="help-block text-danger" *ngIf="monthSelect.invalid && monthSelect.touched">*Please select a
+                <p class="form-text text-danger" *ngIf="monthSelect.invalid && monthSelect.touched">*Please select a
                   month
                 </p>
               </div>
@@ -112,7 +112,7 @@
                   </option>
                 </select>
 
-                <p class="help-block text-danger" *ngIf="daySelect.invalid && daySelect.touched">*Please select a day
+                <p class="form-text text-danger" *ngIf="daySelect.invalid && daySelect.touched">*Please select a day
                 </p>
               </div>
               <!-- Fiscal Year End Day Ends -->

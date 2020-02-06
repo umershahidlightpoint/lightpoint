@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TabsModule, ModalModule, TooltipModule } from 'ngx-bootstrap';
+import { TabsModule, ModalModule, AlertModule, TooltipModule } from 'ngx-bootstrap';
+import { LpToolkitModule } from 'lp-toolkit';
 import { FormsModule } from '@angular/forms';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
@@ -18,17 +19,15 @@ import { RouterModule } from '@angular/router';
 import { JournalsLedgerRoutes } from './journals-ledger.routes';
 
 const journalLedgerComponents = [
-    JournalsLayoutComponent,
-    JournalsServerSideComponent,
-    // GridUtilsComponent,
-    JournalModalComponent,
-    ReportModalComponent,
-  ];
+  JournalsLayoutComponent,
+  JournalsServerSideComponent,
+  // GridUtilsComponent,
+  JournalModalComponent,
+  ReportModalComponent
+];
 
 @NgModule({
-  declarations: [
-    ...journalLedgerComponents
-],
+  declarations: [...journalLedgerComponents],
   exports: [JournalsLayoutComponent, JournalsServerSideComponent, SharedModule],
   imports: [
     SharedModule,
@@ -36,17 +35,17 @@ const journalLedgerComponents = [
     CommonModule,
     TabsModule,
     ModalModule,
+    AlertModule,
     TooltipModule,
+    LpToolkitModule,
     FormsModule,
     BsDropdownModule.forRoot(),
     NgxDaterangepickerMd.forRoot({
-        applyLabel: 'Okay',
-        firstDay: 1
-      }),
-    TypeaheadModule.forRoot(),
+      applyLabel: 'Okay',
+      firstDay: 1
+    }),
+    TypeaheadModule.forRoot()
   ],
-  providers: [
-    AgGridUtils
-  ],
+  providers: [AgGridUtils]
 })
 export class JournalsLedgerModule {}

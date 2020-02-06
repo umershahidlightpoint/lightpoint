@@ -2,7 +2,7 @@ import { ModuleWithProviders, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AgGridModule } from 'ag-grid-angular';
-import { TabsModule, ModalModule, TooltipModule } from 'ngx-bootstrap';
+import { TabsModule, ModalModule, AlertModule, TooltipModule } from 'ngx-bootstrap';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { ToastrModule } from 'ngx-toastr';
 import { NgcatalystModule } from 'ngcatalyst';
@@ -47,6 +47,7 @@ const sharedComponents = [
     ]),
     TabsModule.forRoot(),
     ModalModule.forRoot(),
+    AlertModule.forRoot(),
     TooltipModule.forRoot(),
     NgxDaterangepickerMd.forRoot({
       applyLabel: 'Okay',

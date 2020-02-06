@@ -9,3 +9,8 @@
 .close {
   font-size: 1.5em;
 }
+
+.modal-body {
+  overflow-y: auto;
+  max-height: 60vh;
+}

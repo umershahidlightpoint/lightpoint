@@ -19,8 +19,20 @@
         </div>
         <!-- Modal Header Ends-->
 
+        <!-- Loading Spinner -->
+        <div *ngIf="isLoading" class="d-flex justify-content-center align-items-center height-50vh">
+          <lp-loading></lp-loading>
+        </div>
+        <!-- Loading Spinner Ends -->
+
         <!-- Modal Body Starts-->
-        <div class="modal-body">
+        <div [hidden]="isLoading" class="modal-body">
+
+          <!-- No Result Alert -->
+          <alert *ngIf="noResult" type="danger" [dismissible]="true">
+            <strong>Warning!</strong> Please, only select values from the dropdown!
+          </alert>
+          <!-- No Result Alert Ends -->
 
           <!-- Fund Div Starts -->
           <div class="form-group">
@@ -52,11 +64,11 @@
                 <h6>To Account</h6>
               </div>
               <div class="col-3">
-                <select class="form-control custom-select" name="toAccountValueType" (change)=onToEntrySelect($event)
+                <select class="form-control custom-select" name="toAccountEntryType" (change)=onToEntrySelect($event)
                   ngModel required>
                   <option selected disabled value="">Entry type</option>
-                  <option *ngFor="let valueType of valueTypes" [value]="valueType.value">
-                    {{ valueType.name }}
+                  <option *ngFor="let entryType of entryTypes" [value]="entryType.value">
+                    {{ entryType.name }}
                   </option>
                 </select>
               </div>
@@ -73,7 +85,8 @@
                   [typeaheadIsFirstItemActive]="true" [typeaheadMinLength]="0" [typeaheadOptionsInScrollableView]="15"
                   [typeahead]="toAccountCategories" typeaheadOptionField="name"
                   (typeaheadNoResults)="typeaheadNoResults($event)"
-                  (typeaheadOnSelect)="onToAccountCategorySelected($event)" ngModel name="toAccountCategory" required />
+                  (typeaheadOnSelect)="onToAccountCategorySelected($event)"
+                  (ngModelChange)="onToAccountCategoryChange($event)" ngModel name="toAccountCategory" required />
               </div>
               <!-- Account Category TypeAhead Ends -->
 
@@ -127,10 +140,10 @@
                 <h6>From Account</h6>
               </div>
               <div class="col-3">
-                <select disabled class="form-control custom-select" name="fromAccountValueType" ngModel>
+                <select disabled class="form-control custom-select" name="fromAccountEntryType" ngModel>
                   <option selected disabled value="">Entry type</option>
-                  <option *ngFor="let valueType of valueTypes" [value]="valueType.value">
-                    {{ valueType.name }}
+                  <option *ngFor="let entryType of entryTypes" [value]="entryType.value">
+                    {{ entryType.name }}
                   </option>
                 </select>
               </div>
@@ -147,7 +160,9 @@
                   [typeaheadIsFirstItemActive]="true" [typeaheadMinLength]="0" [typeaheadOptionsInScrollableView]="15"
                   [typeahead]="fromAccountCategories" typeaheadOptionField="name"
                   (typeaheadNoResults)="typeaheadNoResults($event)"
-                  (typeaheadOnSelect)="onFromAccountCategorySelected($event)" ngModel name="fromAccountCategory" />
+                  (typeaheadOnSelect)="onFromAccountCategorySelected($event)" #fromAccountCategoryTypeahead="ngModel"
+                  (ngModelChange)="onFromAccountCategoryChange($event)" ngModel name="fromAccountCategory"
+                  [required]="fromAccountTypeTypeahead.value !== '' || fromAccountSymbolTypeahead.value !== '' || fromAccountCurrencyTypeahead.value !== ''" />
               </div>
               <!-- Account Category TypeAhead Ends -->
 
@@ -157,7 +172,9 @@
                   [isAnimated]="true" [typeaheadScrollable]="true" [typeaheadIsFirstItemActive]="true"
                   [typeaheadMinLength]="0" [typeaheadOptionsInScrollableView]="15" [typeahead]="fromAccountTypes"
                   typeaheadOptionField="name" (typeaheadNoResults)="typeaheadNoResults($event)"
-                  (typeaheadOnSelect)="onFromAccountTypeSelected($event)" ngModel name="fromAccountType" />
+                  (typeaheadOnSelect)="onFromAccountTypeSelected($event)" #fromAccountTypeTypeahead="ngModel" ngModel
+                  name="fromAccountType"
+                  [required]="fromAccountCategoryTypeahead.value !== '' || fromAccountSymbolTypeahead.value !== '' || fromAccountCurrencyTypeahead.value !== ''" />
               </div>
               <!-- Account Type TypeAhead Ends -->
 
@@ -172,7 +189,9 @@
                 <input class="form-control" placeholder="Select a symbol" autocomplete="off" typeaheadWaitMs="500"
                   [isAnimated]="true" [typeaheadScrollable]="true" [typeaheadIsFirstItemActive]="true"
                   [typeaheadMinLength]="0" [typeaheadOptionsInScrollableView]="15" [typeahead]="symbols"
-                  (typeaheadNoResults)="typeaheadNoResults($event)" ngModel name="fromAccountSymbol" />
+                  (typeaheadNoResults)="typeaheadNoResults($event)" #fromAccountSymbolTypeahead="ngModel" ngModel
+                  name="fromAccountSymbol"
+                  [required]="fromAccountCategoryTypeahead.value !== '' || fromAccountTypeTypeahead.value !== '' || fromAccountCurrencyTypeahead.value !== ''" />
               </div>
               <!-- Symbol TypeAhead Ends -->
 
@@ -181,7 +200,9 @@
                 <input class="form-control" placeholder="Select a currency" autocomplete="off" typeaheadWaitMs="500"
                   [isAnimated]="true" [typeaheadScrollable]="true" [typeaheadIsFirstItemActive]="true"
                   [typeaheadMinLength]="0" [typeaheadOptionsInScrollableView]="15" [typeahead]="currencies"
-                  (typeaheadNoResults)="typeaheadNoResults($event)" ngModel name="fromAccountCurrency" />
+                  (typeaheadNoResults)="typeaheadNoResults($event)" #fromAccountCurrencyTypeahead="ngModel" ngModel
+                  name="fromAccountCurrency"
+                  [required]="fromAccountCategoryTypeahead.value !== '' || fromAccountTypeTypeahead.value !== '' || fromAccountSymbolTypeahead.value !== ''" />
               </div>
               <!-- Currency TypeAhead Ends -->
 
