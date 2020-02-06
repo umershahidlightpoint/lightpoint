@@ -30,7 +30,7 @@ namespace PostingEngine
 
             EndOfYear(key, valueDate);
 
-            GenerateEODReports();
+            //GenerateEODReports();
             Complete(key, valueDate);
         }
 
