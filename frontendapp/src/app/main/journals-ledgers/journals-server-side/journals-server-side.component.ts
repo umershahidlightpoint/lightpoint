@@ -1,5 +1,12 @@
 /* Core/Library Imports */
-import { Component, OnInit, AfterViewInit, ViewChild, Input } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+  Input,
+  ChangeDetectorRef
+} from '@angular/core';
 import { timer, Subject } from 'rxjs';
 import { debounce } from 'rxjs/operators';
 import 'ag-grid-enterprise';
@@ -231,6 +238,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     private dataDictionary: DataDictionary,
     private journalApiService: JournalApiService,
     private cacheService: CacheService,
+    private cdRef: ChangeDetectorRef,
     private toastrService: ToastrService
   ) {
     this.hideGrid = false;
@@ -394,6 +402,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.cacheService.getServerSideJournalsMeta(payload).subscribe(result => {
       this.fundsRange = result.payload.FundsRange;
       this.ranges = getRange(this.getCustomFundRange());
+      this.cdRef.detectChanges();
 
       const metaColumns = result.payload.Columns;
       const commonColDefs = CommonCols(true, result.payload.Filters);
@@ -587,6 +596,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.fund = e;
 
     this.ranges = getRange(this.getCustomFundRange(e));
+    this.cdRef.detectChanges();
     this.gridOptions.api.onFilterChanged();
   }
 

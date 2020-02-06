@@ -2,7 +2,7 @@
 import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Observable, forkJoin } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, finalize } from 'rxjs/operators';
 import { ModalDirective } from 'ngx-bootstrap';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead/typeahead-match.class';
 import { ToastrService } from 'ngx-toastr';
@@ -33,14 +33,14 @@ export class JournalModalComponent implements OnInit {
     { name: 'Credit', value: 'credit' }
   ];
 
-  toAccountCategories: AccountCategory[];
+  toAccountCategories: AccountCategory[] = [];
   selectedToAccountCategory: AccountCategory;
-  toAccountTypes: AccountCategory[];
+  toAccountTypes: AccountCategory[] = [];
   selectedToAccountType: AccountCategory;
 
-  fromAccountCategories: AccountCategory[];
+  fromAccountCategories: AccountCategory[] = [];
   selectedFromAccountCategory: AccountCategory;
-  fromAccountTypes: AccountCategory[];
+  fromAccountTypes: AccountCategory[] = [];
   selectedFromAccountType: AccountCategory;
 
   dummyAccountCategory: AccountCategory;
@@ -72,6 +72,8 @@ export class JournalModalComponent implements OnInit {
   editJournal: boolean;
   contraEntryMode = false;
   isLoading = false;
+  isFetchingToAccountTypes = false;
+  isFetchingFromAccountTypes = false;
   isSaving = false;
   isDeleting = false;
 
@@ -385,9 +387,15 @@ export class JournalModalComponent implements OnInit {
     this.journalForm.form.patchValue({
       toAccountType: ''
     });
-    this.getAccountTypes(event.item.id).subscribe(
-      response => (this.toAccountTypes = response.payload)
-    );
+
+    this.isFetchingToAccountTypes = true;
+    this.getAccountTypes(event.item.id)
+      .pipe(
+        finalize(() => {
+          this.isFetchingToAccountTypes = false;
+        })
+      )
+      .subscribe(response => (this.toAccountTypes = response.payload));
   }
 
   onToAccountCategoryChange(value: string): void {
@@ -408,9 +416,15 @@ export class JournalModalComponent implements OnInit {
     this.journalForm.form.patchValue({
       fromAccountType: ''
     });
-    this.getAccountTypes(event.item.id).subscribe(
-      response => (this.fromAccountTypes = response.payload)
-    );
+
+    this.isFetchingFromAccountTypes = true;
+    this.getAccountTypes(event.item.id)
+      .pipe(
+        finalize(() => {
+          this.isFetchingFromAccountTypes = false;
+        })
+      )
+      .subscribe(response => (this.fromAccountTypes = response.payload));
   }
 
   onFromAccountCategoryChange(value: string): void {
@@ -518,12 +532,23 @@ export class JournalModalComponent implements OnInit {
     this.selectedFromAccountCategory = this.getMappedJournalAccount(fromAccount, 'Category');
     this.selectedFromAccountType = this.getMappedJournalAccount(fromAccount, 'Type');
 
-    this.getAccountTypes(toAccount.AccountCategoryId).subscribe(
-      response => (this.toAccountTypes = response.payload)
-    );
-    this.getAccountTypes(fromAccount.AccountCategoryId).subscribe(
-      response => (this.fromAccountTypes = response.payload)
-    );
+    this.isFetchingToAccountTypes = true;
+    this.getAccountTypes(toAccount.AccountCategoryId)
+      .pipe(
+        finalize(() => {
+          this.isFetchingToAccountTypes = false;
+        })
+      )
+      .subscribe(response => (this.toAccountTypes = response.payload));
+
+    this.isFetchingFromAccountTypes = true;
+    this.getAccountTypes(fromAccount.AccountCategoryId)
+      .pipe(
+        finalize(() => {
+          this.isFetchingFromAccountTypes = false;
+        })
+      )
+      .subscribe(response => (this.fromAccountTypes = response.payload));
   }
 
   getMappedJournalAccount(journalAccount: JournalAccount, accountProperty: string) {

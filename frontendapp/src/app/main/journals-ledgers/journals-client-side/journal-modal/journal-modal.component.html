@@ -91,14 +91,21 @@
               <!-- Account Category TypeAhead Ends -->
 
               <!-- Account Type TypeAhead -->
-              <div class="col-sm-6">
-                <input class="form-control" placeholder="Select account type" autocomplete="off" typeaheadWaitMs="500"
-                  [isAnimated]="true" [typeaheadScrollable]="true" [typeaheadIsFirstItemActive]="true"
-                  [typeaheadMinLength]="0" [typeaheadOptionsInScrollableView]="15" [typeahead]="toAccountTypes"
-                  typeaheadOptionField="name" (typeaheadNoResults)="typeaheadNoResults($event)"
+              <div [ngClass]="{'col-sm-6': !isFetchingToAccountTypes, 'col-sm-5': isFetchingToAccountTypes}">
+                <input [disabled]="isFetchingToAccountTypes" class="form-control" placeholder="Select account type"
+                  autocomplete="off" typeaheadWaitMs="500" [isAnimated]="true" [typeaheadScrollable]="true"
+                  [typeaheadIsFirstItemActive]="true" [typeaheadMinLength]="0" [typeaheadOptionsInScrollableView]="15"
+                  [typeahead]="toAccountTypes" typeaheadOptionField="name"
+                  (typeaheadNoResults)="typeaheadNoResults($event)"
                   (typeaheadOnSelect)="onToAccountTypeSelected($event)" ngModel name="toAccountType" required />
               </div>
               <!-- Account Type TypeAhead Ends -->
+
+              <!-- Loader -->
+              <div *ngIf="isFetchingToAccountTypes" class="col-sm-1 loader-wrapper">
+                <lp-loading [loadingText]="false"></lp-loading>
+              </div>
+              <!-- Loader Ends -->
 
             </div>
             <!-- Account Category / Type Row Ends -->
@@ -167,16 +174,23 @@
               <!-- Account Category TypeAhead Ends -->
 
               <!-- Account Type TypeAhead -->
-              <div class="col-sm-6">
-                <input class="form-control" placeholder="Select account type" autocomplete="off" typeaheadWaitMs="500"
-                  [isAnimated]="true" [typeaheadScrollable]="true" [typeaheadIsFirstItemActive]="true"
-                  [typeaheadMinLength]="0" [typeaheadOptionsInScrollableView]="15" [typeahead]="fromAccountTypes"
-                  typeaheadOptionField="name" (typeaheadNoResults)="typeaheadNoResults($event)"
+              <div [ngClass]="{'col-sm-6': !isFetchingFromAccountTypes, 'col-sm-5': isFetchingFromAccountTypes}">
+                <input [disabled]="isFetchingFromAccountTypes" class="form-control" placeholder="Select account type"
+                  autocomplete="off" typeaheadWaitMs="500" [isAnimated]="true" [typeaheadScrollable]="true"
+                  [typeaheadIsFirstItemActive]="true" [typeaheadMinLength]="0" [typeaheadOptionsInScrollableView]="15"
+                  [typeahead]="fromAccountTypes" typeaheadOptionField="name"
+                  (typeaheadNoResults)="typeaheadNoResults($event)"
                   (typeaheadOnSelect)="onFromAccountTypeSelected($event)" #fromAccountTypeTypeahead="ngModel" ngModel
                   name="fromAccountType"
                   [required]="fromAccountCategoryTypeahead.value !== '' || fromAccountSymbolTypeahead.value !== '' || fromAccountCurrencyTypeahead.value !== ''" />
               </div>
               <!-- Account Type TypeAhead Ends -->
+
+              <!-- Loader -->
+              <div *ngIf="isFetchingFromAccountTypes" class="col-sm-1 loader-wrapper">
+                <lp-loading [loadingText]="false"></lp-loading>
+              </div>
+              <!-- Loader Ends -->
 
             </div>
             <!-- Account Category / Type Row Ends -->
