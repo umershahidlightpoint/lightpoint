@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../environments/environment.prod';
 import { forkJoin, Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs';
@@ -34,8 +35,10 @@ export class ServicesStatusApiService {
   servicesStatusArr$ = this.servicesArr.asObservable();
 
   constructor(private http: HttpClient) {
-    this.baseUrl = window['config'].remoteServerUrl;
-    this.refDataUrl = window['config'].referenceDataUrl;
+    // this.baseUrl = window['config'].remoteServerUrl;
+    // this.refDataUrl = window['config'].referenceDataUrl;
+    this.baseUrl = window['config'] ? window['config'].remoteServerUrl : environment.testCaseRemoteServerUrl;
+    this.refDataUrl = window['config'] ? window['config'].referenceDataUrl : environment.testCaseReferenceDataUrl;
   }
 
   getStatusFinance() {

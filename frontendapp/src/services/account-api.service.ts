@@ -1,6 +1,6 @@
 import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { environment } from '../environments/environment.prod';
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -10,7 +10,8 @@ export class AccountApiService {
   private baseUrl: string;
 
   constructor(private http: HttpClient) {
-    this.baseUrl = window['config'].remoteServerUrl;
+
+    this.baseUrl = window['config'] ? window['config'].remoteServerUrl : environment.testCaseRemoteServerUrl;
   }
 
   /*

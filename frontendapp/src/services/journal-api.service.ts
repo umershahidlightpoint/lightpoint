@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../environments/environment.prod';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Response } from '../shared/Models/response';
@@ -12,7 +13,9 @@ export class JournalApiService {
   private baseUrl: string;
 
   constructor(private http: HttpClient) {
-    this.baseUrl = window['config'].remoteServerUrl;
+    // this.baseUrl = window['config'].remoteServerUrl;
+    this.baseUrl = window['config'] ? window['config'].remoteServerUrl : environment.testCaseRemoteServerUrl;
+    // this.refDataUrl = 'http://localhost:4000/refdata';
   }
 
   /*
