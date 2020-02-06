@@ -1,6 +1,7 @@
 /* Core/Libraries */
 import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ModalDirective } from 'ngx-bootstrap';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead/typeahead-match.class';
@@ -27,7 +28,7 @@ export class JournalModalComponent implements OnInit {
 
   funds: Fund;
 
-  valueTypes: { name: string; value: string }[] = [
+  entryTypes: { name: string; value: string }[] = [
     { name: 'Debit', value: 'debit' },
     { name: 'Credit', value: 'credit' }
   ];
@@ -52,8 +53,6 @@ export class JournalModalComponent implements OnInit {
 
   allAccounts: Account[];
   dummyAccount: Account;
-  fromAccountCheck: number;
-  toAccountCheck: number;
 
   selectedRow: {
     source?: string;
@@ -72,142 +71,149 @@ export class JournalModalComponent implements OnInit {
   noResult = false;
   editJournal: boolean;
   contraEntryMode = false;
+  isLoading = false;
   isSaving = false;
   isDeleting = false;
 
-  selectedAccountTo: string;
-  accountTo: Account[] = [];
-  selectedAccountToObj: Account;
-  copyAccountToList: Account[] = [];
-
-  selectedAccountFrom: string;
-  accountFrom: Account[] = [];
-  selectedAccountFromObj: Account;
-  copyAccountFromList: Account[] = [];
-
   constructor(
-    private toastrService: ToastrService,
     private financePocServiceProxy: FinanceServiceProxy,
-    private journalApiService: JournalApiService,
     private accountApiService: AccountApiService,
-    private settingApiService: SettingApiService
+    private journalApiService: JournalApiService,
+    private settingApiService: SettingApiService,
+    private toastrService: ToastrService
   ) {}
 
   ngOnInit() {
-    this.getFunds();
-    this.getAccountCategories();
-    this.getSymbols();
-    this.getCurrencies();
-    this.getAccounts();
+    this.initJournalData();
     this.editJournal = false;
     this.maxDate = moment();
   }
 
-  getFunds() {
-    this.financePocServiceProxy.getFunds().subscribe(response => {
-      if (response.payload) {
-        this.funds = response.payload;
-      }
-    });
-  }
+  initJournalData() {
+    this.isLoading = true;
+    this.requestJournalData().subscribe(
+      ([
+        fundsResponse,
+        accountCategoriesResponse,
+        symbolsResponse,
+        currenciesResponse,
+        accountsResponse
+      ]: [
+        Response<Fund>,
+        Response<AccountCategory[]>,
+        Response<any[]>,
+        Response<any[]>,
+        Response<any[]>
+      ]) => {
+        this.getFunds(fundsResponse);
+        this.getAccountCategories(accountCategoriesResponse);
+        this.getSymbols(symbolsResponse);
+        this.getCurrencies(currenciesResponse);
+        this.getAccounts(accountsResponse);
 
-  getAccountCategories() {
-    this.accountApiService
-      .accountCategories()
-      .pipe(
-        map(response => {
-          response.payload = response.payload.map(element => ({
-            id: element.Id,
-            name: element.Name
-          }));
-
-          return response as Response<AccountCategory[]>;
-        })
-      )
-      .subscribe(response => {
-        if (response.isSuccessful) {
-          this.toAccountCategories = response.payload.filter(element => element.name !== 'Dummy');
-          this.fromAccountCategories = response.payload.filter(element => element.name !== 'Dummy');
-
-          this.dummyAccountCategory = response.payload.find(item => item.name === 'Dummy');
-          this.getAccountTypes(this.dummyAccountCategory.id, 'dummy');
-        } else {
-          this.toastrService.error('Failed to fetch account categories!');
-        }
-      });
-  }
-
-  getAccountTypes(accountCategoryId: number, entryType: string) {
-    this.accountApiService
-      .accountTypes(accountCategoryId)
-      .pipe(
-        map(response => {
-          response.payload = response.payload.map(element => ({
-            id: element.Id,
-            name: element.Name
-          }));
-
-          return response as Response<AccountCategory[]>;
-        })
-      )
-      .subscribe(response => {
-        if (response.isSuccessful) {
-          if (entryType === 'to') {
-            this.toAccountTypes = response.payload;
-          } else if (entryType === 'from') {
-            this.fromAccountTypes = response.payload;
-          } else if (entryType === 'dummy') {
-            this.dummyAccountType = response.payload.find(item => item.name === 'Dummy Type');
-          }
-        } else {
-          this.toastrService.error('Failed to fetch account categories!');
-        }
-      });
-  }
-
-  getSymbols() {
-    this.financePocServiceProxy.getSymbol().subscribe(data => {
-      this.symbols = data.payload.map(item => item.symbol);
-    });
-  }
-
-  getCurrencies() {
-    this.settingApiService.getReportingCurrencies().subscribe(
-      response => {
-        if (response.isSuccessful) {
-          this.currencies = response.payload;
-        }
+        this.isLoading = false;
       },
       error => {
-        this.toastrService.error('Failed to fetch currencies!');
+        this.isLoading = false;
       }
     );
   }
 
-  getAccounts() {
-    this.accountApiService.getAllAccounts().subscribe(response => {
-      if (response.isSuccessful) {
-        this.allAccounts = response.payload.map(element => ({
-          accountId: element.AccountId,
-          name: element.AccountName,
-          description: element.Description,
-          typeId: element.TypeId,
-          type: element.Type,
-          categoryId: element.CategoryId,
-          category: element.Category,
-          hasJournal: element.HasJournal,
-          canDeleted: element.CanDeleted,
-          canEdited: element.CanEdited
+  requestJournalData(): Observable<any[]> {
+    const fundsResponse = this.financePocServiceProxy.getFunds();
+    const accountCategoriesResponse = this.accountApiService.accountCategories().pipe(
+      map(response => {
+        response.payload = response.payload.map(element => ({
+          id: element.Id,
+          name: element.Name
         }));
 
-        this.accountTo = this.allAccounts.filter(element => element.categoryId !== 0);
-        this.accountFrom = this.allAccounts.filter(element => element.categoryId !== 0);
-        this.dummyAccount = this.allAccounts.find(item => item.categoryId === 0);
+        return response as Response<AccountCategory[]>;
+      })
+    );
+    const symbolsResponse = this.financePocServiceProxy.getSymbol();
+    const currenciesResponse = this.settingApiService.getReportingCurrencies();
+    const accountsResponse = this.accountApiService.getAllAccounts();
 
-        this.copyAccountFromList = JSON.parse(JSON.stringify(this.accountFrom));
-        this.copyAccountToList = JSON.parse(JSON.stringify(this.accountTo));
-      }
-    });
+    return forkJoin([
+      fundsResponse,
+      accountCategoriesResponse,
+      symbolsResponse,
+      currenciesResponse,
+      accountsResponse
+    ]);
+  }
+
+  getFunds(response) {
+    if (response.payload) {
+      this.funds = response.payload;
+    } else {
+      this.toastrService.error('Failed to fetch funds!');
+    }
+  }
+
+  getAccountCategories(response) {
+    if (response.isSuccessful) {
+      this.toAccountCategories = response.payload.filter(element => element.name !== 'Dummy');
+      this.fromAccountCategories = response.payload.filter(element => element.name !== 'Dummy');
+
+      this.dummyAccountCategory = response.payload.find(item => item.name === 'Dummy');
+      this.getAccountTypes(this.dummyAccountCategory.id).subscribe(
+        data => (this.dummyAccountType = data.payload.find(item => item.name === 'Dummy Type'))
+      );
+    } else {
+      this.toastrService.error('Failed to fetch account categories!');
+    }
+  }
+
+  getAccountTypes(accountCategoryId: number): Observable<Response<AccountCategory[]>> {
+    return this.accountApiService.accountTypes(accountCategoryId).pipe(
+      map(response => {
+        response.payload = response.payload.map(element => ({
+          id: element.Id,
+          name: element.Name
+        }));
+
+        return response as Response<AccountCategory[]>;
+      })
+    );
+  }
+
+  getSymbols(response) {
+    if (response.isSuccessful) {
+      this.symbols = response.payload.map(item => item.symbol);
+    } else {
+      this.toastrService.error('Failed to fetch symbols!');
+    }
+  }
+
+  getCurrencies(response) {
+    if (response.isSuccessful) {
+      this.currencies = response.payload;
+    } else {
+      this.toastrService.error('Failed to fetch currencies!');
+    }
+  }
+
+  getAccounts(response) {
+    if (response.isSuccessful) {
+      this.allAccounts = response.payload.map(element => ({
+        accountId: element.AccountId,
+        name: element.AccountName,
+        description: element.Description,
+        typeId: element.TypeId,
+        type: element.Type,
+        categoryId: element.CategoryId,
+        category: element.Category,
+        hasJournal: element.HasJournal,
+        canDeleted: element.CanDeleted,
+        canEdited: element.CanEdited
+      }));
+
+      this.dummyAccount = this.allAccounts.find(item => item.categoryId === 0);
+    } else {
+      this.toastrService.error('Failed to fetch Accounts!');
+    }
   }
 
   saveJournal() {
@@ -222,14 +228,14 @@ export class JournalModalComponent implements OnInit {
       this.journalApiService.updateJournal(source, journalPayload).subscribe(
         response => {
           if (response.isSuccessful) {
-            this.toastrService.success('Journal is updated successfully !');
+            this.toastrService.success('Journal is updated successfully!');
 
             this.modal.hide();
             this.modalClose.emit(true);
 
             setTimeout(() => this.clearForm(), 500);
           } else {
-            this.toastrService.error('Failed to update Journal !');
+            this.toastrService.error('Failed to update Journal!');
           }
 
           this.isSaving = false;
@@ -244,14 +250,14 @@ export class JournalModalComponent implements OnInit {
       this.journalApiService.createJounal(journalPayload).subscribe(
         response => {
           if (response.isSuccessful) {
-            this.toastrService.success('Journal is created successfully !');
+            this.toastrService.success('Journal is created successfully!');
 
             this.modal.hide();
             this.modalClose.emit(true);
 
             setTimeout(() => this.clearForm(), 500);
           } else {
-            this.toastrService.error('Failed to create Journal !');
+            this.toastrService.error('Failed to create Journal!');
           }
 
           this.isSaving = false;
@@ -265,10 +271,37 @@ export class JournalModalComponent implements OnInit {
     }
   }
 
+  deleteJournal() {
+    this.isDeleting = true;
+    const { source } = this.selectedRow;
+
+    this.journalApiService.deleteJournal(source).subscribe(
+      response => {
+        if (response.isSuccessful) {
+          this.toastrService.success('Journal is deleted successfully!');
+
+          this.modal.hide();
+          this.modalClose.emit(true);
+
+          setTimeout(() => this.clearForm(), 500);
+        } else {
+          this.toastrService.error('Failed to delete Journal!');
+        }
+
+        this.isDeleting = false;
+      },
+      error => {
+        this.toastrService.error('Something went wrong. Try again later!');
+
+        this.isDeleting = false;
+      }
+    );
+  }
+
   getPayload() {
     const {
       fund,
-      toAccountValueType,
+      toAccountEntryType,
       toAccountCategory,
       toAccountType,
       toAccountSymbol,
@@ -282,15 +315,13 @@ export class JournalModalComponent implements OnInit {
       comments
     } = this.journalForm.value;
 
-    console.log('FORM ::', this.journalForm.value);
-
     return {
       fund,
       accountTo: {
         ...(this.editJournal && {
           journalId: this.selectedJournal.AccountTo.JournalId
         }),
-        entryType: toAccountValueType,
+        entryType: toAccountEntryType,
         accountCategoryId: this.selectedToAccountCategory.id,
         accountTypeId: this.selectedToAccountType.id,
         accountCategory: toAccountCategory,
@@ -335,39 +366,18 @@ export class JournalModalComponent implements OnInit {
     };
   }
 
-  getEntryType() {
-    return this.journalForm.value.toAccountValueType === 'debit' ? 'credit' : 'debit';
-  }
-
-  deleteJournal() {
-    this.isDeleting = true;
-    const { source } = this.selectedRow;
-
-    this.journalApiService.deleteJournal(source).subscribe(
-      response => {
-        if (response.isSuccessful) {
-          this.toastrService.success('Journal is deleted successfully!');
-
-          this.modal.hide();
-          this.modalClose.emit(true);
-
-          setTimeout(() => this.clearForm(), 500);
-        } else {
-          this.toastrService.error('Failed to delete Journal!');
-        }
-
-        this.isDeleting = false;
-      },
-      error => {
-        this.toastrService.error('Something went wrong. Try again later!');
-
-        this.isDeleting = false;
-      }
-    );
-  }
-
   typeaheadNoResults(event: boolean): void {
     this.noResult = event;
+  }
+
+  onToEntrySelect(event: Event) {
+    this.journalForm.form.patchValue({
+      fromAccountEntryType: this.getEntryType()
+    });
+  }
+
+  getEntryType() {
+    return this.journalForm.value.toAccountEntryType === 'debit' ? 'credit' : 'debit';
   }
 
   onToAccountCategorySelected(event: TypeaheadMatch): void {
@@ -375,7 +385,22 @@ export class JournalModalComponent implements OnInit {
     this.journalForm.form.patchValue({
       toAccountType: ''
     });
-    this.getAccountTypes(event.item.id, 'to');
+    this.getAccountTypes(event.item.id).subscribe(
+      response => (this.toAccountTypes = response.payload)
+    );
+  }
+
+  onToAccountCategoryChange(value: string): void {
+    if (value === '') {
+      this.journalForm.form.patchValue({
+        toAccountType: ''
+      });
+      this.toAccountTypes = [];
+    }
+  }
+
+  onToAccountTypeSelected(event: TypeaheadMatch): void {
+    this.selectedToAccountType = event.item;
   }
 
   onFromAccountCategorySelected(event: TypeaheadMatch): void {
@@ -383,56 +408,22 @@ export class JournalModalComponent implements OnInit {
     this.journalForm.form.patchValue({
       fromAccountType: ''
     });
-    this.getAccountTypes(event.item.id, 'from');
+    this.getAccountTypes(event.item.id).subscribe(
+      response => (this.fromAccountTypes = response.payload)
+    );
   }
 
-  onToAccountTypeSelected(event: TypeaheadMatch): void {
-    this.selectedToAccountType = event.item;
+  onFromAccountCategoryChange(value: string): void {
+    if (value === '') {
+      this.journalForm.form.patchValue({
+        fromAccountType: ''
+      });
+      this.fromAccountTypes = [];
+    }
   }
 
   onFromAccountTypeSelected(event: TypeaheadMatch): void {
     this.selectedFromAccountType = event.item;
-  }
-
-  accountToChange(event) {
-    if (event == null || event === '') {
-      this.selectedAccountTo = '';
-      this.accountFrom = this.copyAccountFromList;
-      this.selectedAccountToObj = null;
-    }
-  }
-
-  accountFromChange(event) {
-    if (event == null || event === '') {
-      this.selectedAccountFrom = '';
-      this.accountTo = this.copyAccountToList;
-      this.selectedAccountFromObj = null;
-    }
-  }
-
-  onSelectAccountTo(event: TypeaheadMatch): void {
-    this.selectedAccountToObj = event.item;
-    this.accountFrom = this.accountFrom.filter(accountName => {
-      return accountName.name !== event.value;
-    });
-  }
-
-  onSelectAccountFrom(event: TypeaheadMatch): void {
-    this.selectedAccountFromObj = event.item;
-    this.accountTo = this.accountFrom.filter(accountName => {
-      return accountName.name !== event.value;
-    });
-  }
-
-  onToEntrySelect(event: Event) {
-    this.journalForm.form.patchValue({
-      fromAccountValueType:
-        (event.target as HTMLSelectElement).value === 'debit' ? 'credit' : 'debit'
-    });
-  }
-
-  trackByFn(index, item) {
-    return item.accountId;
   }
 
   onDatesChanged(selectedDate) {
@@ -454,52 +445,51 @@ export class JournalModalComponent implements OnInit {
         return;
       }
 
-      this.journalApiService.getJournal(source).subscribe(response => {
-        if (response.isSuccessful) {
-          this.selectedJournal = response.payload;
-          const { Fund, AccountTo, AccountFrom, When, Comment } = this.selectedJournal;
-          this.selectedRow.balance = AccountTo.Value;
+      this.isLoading = true;
+      this.journalApiService.getJournal(source).subscribe(
+        response => {
+          if (response.isSuccessful) {
+            const { Fund, AccountTo, AccountFrom, When, Comment } = response.payload;
+            this.selectedJournal = response.payload;
+            this.selectedRow.balance = AccountTo.Value;
 
-          this.setContraEntryMode(AccountFrom);
-          this.setAccountsValue(AccountFrom, AccountTo);
+            this.setContraEntryMode(AccountFrom);
+            this.setJournalAccountsValue(AccountTo, AccountFrom);
 
-          this.accountTo = this.accountFrom.filter(accountName => {
-            return accountName.name !== this.selectedAccountFrom;
-          });
+            this.setFormValues(
+              Fund,
+              AccountTo.CreditDebit,
+              AccountTo.AccountCategory,
+              AccountTo.AccountType,
+              AccountTo.Symbol,
+              AccountTo.FxCurrency,
+              AccountFrom ? AccountFrom.CreditDebit : null,
+              AccountFrom.AccountCategory !== 'Dummy' && AccountFrom.AccountCategory,
+              AccountFrom.AccountCategory !== 'Dummy' && AccountFrom.AccountType,
+              AccountFrom.AccountCategory !== 'Dummy' && AccountFrom.Symbol,
+              AccountFrom.AccountCategory !== 'Dummy' && AccountFrom.FxCurrency,
+              When,
+              AccountTo.Value,
+              Comment
+            );
+          } else {
+            this.toastrService.error('Failed to fetch Journal details. Try again later!');
+          }
 
-          this.accountFrom = this.accountFrom.filter(accountName => {
-            return accountName.name !== this.selectedAccountTo;
-          });
-
-          this.setFormValues(
-            Fund,
-            AccountTo.CreditDebit,
-            AccountTo.AccountCategory,
-            AccountTo.AccountType,
-            AccountTo.Symbol,
-            AccountTo.FxCurrency,
-            AccountFrom != null ? AccountFrom.CreditDebit : null,
-            AccountFrom.AccountCategory,
-            AccountFrom.AccountType,
-            AccountFrom.Symbol,
-            AccountFrom.FxCurrency,
-            When,
-            AccountTo.Value,
-            Comment
-          );
-        } else {
-          this.toastrService.error('Something went wrong!');
+          this.isLoading = false;
+        },
+        error => {
+          this.isLoading = false;
+          this.toastrService.error('Something went wrong. Try again later!');
         }
-      });
+      );
     } else if (contraEntryMode) {
       this.contraEntryMode = true;
 
       this.selectedRow = rowData;
       const { when, balance, AccountType } = this.selectedRow;
 
-      const accountTo: Account = this.allAccounts.find(element => element.type === AccountType);
-      this.selectedAccountTo = accountTo.categoryId !== 0 ? accountTo.name : '';
-      this.selectedAccountToObj = accountTo;
+      // TODO :: Set Journal Accounts Value For Contra Entry Here
 
       this.setFormValues(
         this.funds[0].FundCode,
@@ -522,50 +512,29 @@ export class JournalModalComponent implements OnInit {
     this.modal.show();
   }
 
-  setAccountsValue(
-    AccountFrom: JournalAccount,
-    AccountTo: JournalAccount
-  ) {
-    // const fromAccountJournal: Account =
-    //   AccountFrom != null
-    //     ? this.allAccounts.find(item => item.accountId === AccountFrom.AccountId)
-    //     : null;
-    // const toAccountJournal: Account =
-    //   AccountTo != null
-    //     ? this.allAccounts.find(item => item.accountId === AccountTo.AccountId)
-    //     : null;
+  setJournalAccountsValue(toAccount: JournalAccount, fromAccount: JournalAccount) {
+    this.selectedToAccountCategory = this.getMappedJournalAccount(toAccount, 'Category');
+    this.selectedToAccountType = this.getMappedJournalAccount(toAccount, 'Type');
+    this.selectedFromAccountCategory = this.getMappedJournalAccount(fromAccount, 'Category');
+    this.selectedFromAccountType = this.getMappedJournalAccount(fromAccount, 'Type');
 
-    // this.selectedAccountFrom =
-    //   fromAccountJournal != null && fromAccountJournal.categoryId !== 0
-    //     ? fromAccountJournal.name
-    //     : '';
-    // this.selectedAccountFromObj = fromAccountJournal;
-    // this.selectedAccountTo = toAccountJournal.name;
-    // this.selectedAccountToObj = toAccountJournal;
-
-    // New Implementation
-    this.selectedToAccountCategory = {
-      id: AccountTo.AccountCategoryId,
-      name: AccountTo.AccountCategory
-    };
-    this.selectedToAccountType = {
-      id: AccountTo.AccountTypeId,
-      name: AccountTo.AccountType
-    };
-    this.selectedFromAccountCategory = {
-      id: AccountFrom.AccountCategoryId,
-      name: AccountFrom.AccountCategory
-    };
-    this.selectedFromAccountType = {
-      id: AccountFrom.AccountTypeId,
-      name: AccountFrom.AccountType
-    };
-
-   // return { fromAccount: fromAccountJournal, toAccount: toAccountJournal };
+    this.getAccountTypes(toAccount.AccountCategoryId).subscribe(
+      response => (this.toAccountTypes = response.payload)
+    );
+    this.getAccountTypes(fromAccount.AccountCategoryId).subscribe(
+      response => (this.fromAccountTypes = response.payload)
+    );
   }
 
-  setContraEntryMode(accountFrom: JournalAccount) {
-    this.contraEntryMode = accountFrom == null ? true : false;
+  getMappedJournalAccount(journalAccount: JournalAccount, accountProperty: string) {
+    return {
+      id: journalAccount[`Account${accountProperty}Id`],
+      name: journalAccount[`Account${accountProperty}`]
+    };
+  }
+
+  setContraEntryMode(fromAccount: JournalAccount) {
+    this.contraEntryMode = fromAccount == null;
   }
 
   isEditMode(data: any, contraEntryMode: boolean) {
@@ -574,12 +543,12 @@ export class JournalModalComponent implements OnInit {
 
   setFormValues(
     fund: string,
-    toAccountValueType: string,
+    toAccountEntryType: string,
     toAccountCategory: string,
     toAccountType: string,
     toAccountSymbol: string,
     toAccountCurrency: string,
-    fromAccountValueType: string,
+    fromAccountEntryType: string,
     fromAccountCategory: string,
     fromAccountType: string,
     fromAccountSymbol: string,
@@ -589,25 +558,25 @@ export class JournalModalComponent implements OnInit {
     comments: string
   ) {
     this.journalForm.form.patchValue({
-      ...(fund != null && { fund }),
-      ...(toAccountValueType != null && { toAccountValueType }),
-      ...(toAccountCategory != null && { toAccountCategory }),
-      ...(toAccountType != null && { toAccountType }),
-      ...(toAccountSymbol != null && { toAccountSymbol }),
-      ...(toAccountCurrency != null && { toAccountCurrency }),
-      ...(fromAccountValueType != null && { fromAccountValueType }),
-      ...(fromAccountCategory != null && { fromAccountCategory }),
-      ...(fromAccountType != null && { fromAccountType }),
-      ...(fromAccountSymbol != null && { fromAccountSymbol }),
-      ...(fromAccountCurrency != null && { fromAccountCurrency }),
-      ...(when != null && {
+      ...(fund && { fund }),
+      ...(toAccountEntryType && { toAccountEntryType }),
+      ...(toAccountCategory && { toAccountCategory }),
+      ...(toAccountType && { toAccountType }),
+      ...(toAccountSymbol && { toAccountSymbol }),
+      ...(toAccountCurrency && { toAccountCurrency }),
+      ...(fromAccountEntryType && { fromAccountEntryType }),
+      ...(fromAccountCategory && { fromAccountCategory }),
+      ...(fromAccountType && { fromAccountType }),
+      ...(fromAccountSymbol && { fromAccountSymbol }),
+      ...(fromAccountCurrency && { fromAccountCurrency }),
+      ...(when && {
         selectedAsOfDate: {
           startDate: moment(when, 'MM/DD/YYYY'),
           endDate: moment(when, 'MM/DD/YYYY')
         }
       }),
-      ...(value != null && { value: Math.abs(value) }),
-      ...(comments != null && { comments })
+      ...(value && { value: Math.abs(value) }),
+      ...(comments && { comments })
     });
   }
 
@@ -621,13 +590,6 @@ export class JournalModalComponent implements OnInit {
     this.editJournal = false;
     this.contraEntryMode = false;
 
-    this.toAccountCheck = null;
-    this.fromAccountCheck = null;
-    this.selectedAccountTo = '';
-    this.selectedAccountToObj = null;
-    this.selectedAccountFrom = '';
-    this.selectedAccountFromObj = null;
-
     this.toAccountTypes = [];
     this.fromAccountTypes = [];
     this.selectedToAccountCategory = null;
@@ -637,16 +599,16 @@ export class JournalModalComponent implements OnInit {
 
     this.journalForm.resetForm({
       fund: '',
-      toAccountValueType: '',
+      toAccountEntryType: '',
       toAccountCategory: '',
       toAccountType: '',
       toAccountSymbol: '',
       toAccountCurrency: '',
-      fromAccountValueType: '',
+      fromAccountEntryType: '',
       fromAccountCategory: '',
       fromAccountType: '',
       fromAccountSymbol: '',
-      fromAccountCurrency: '',
+      fromAccountCurrency: ''
     });
   }
 }

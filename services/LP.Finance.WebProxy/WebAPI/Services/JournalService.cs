@@ -323,8 +323,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         private int? CheckIfAccountExists(string name, SqlHelper sqlHelper)
         {
-            var query = $"select id from account  with(NOLOCK) where name = '{name}'";
+            var query = $"SELECT id FROM account with(NOLOCK) WHERE name = '{name}'";
             var accountId = (int?) sqlHelper.GetScalarValue(query, CommandType.Text);
+
             return accountId;
         }
 
@@ -348,6 +349,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         SELECT SCOPE_IDENTITY() AS 'Identity'";
 
             sqlHelper.Insert(accountQuery, CommandType.Text, accountParameters.ToArray(), out int accountId);
+
             return accountId;
         }
 
@@ -358,14 +360,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 return accountId.Value;
             }
-            else
-            {
-                AccountInputDto accountInputDto = new AccountInputDto();
-                accountInputDto.Description = name;
-                accountInputDto.Type = accountTypeId;
-                var id = CreateAccount(accountInputDto, sqlHelper);
-                return id;
-            }
+
+            AccountInputDto accountInputDto = new AccountInputDto {Description = name, Type = accountTypeId};
+            var id = CreateAccount(accountInputDto, sqlHelper);
+
+            return id;
         }
 
         public object AddJournal(JournalInputDto journal)
@@ -379,18 +378,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var commentsId = InsertJournalComment(journal, sqlHelper);
                 var fxCurrency = GetBaseCurrency();
 
-                List<string> accountToNameList = new List<string>();
-                List<string> accountFromNameList = new List<string>();
-                accountToNameList.Add(journal.AccountTo.AccountType);
-                accountToNameList.Add(journal.AccountTo.AccountSymbol);
-                accountToNameList.Add(journal.AccountTo.AccountCurrency);
-
-                accountFromNameList.Add(journal.AccountFrom.AccountType);
-                accountFromNameList.Add(journal.AccountFrom.AccountSymbol);
-                accountFromNameList.Add(journal.AccountFrom.AccountCurrency);
-
-                string accountToName = string.Join("-", accountToNameList.Select(x => x));
-                string accountFromName = string.Join("-", accountFromNameList.Select(x => x));
+                var accountsName = GetAccountsName(journal);
+                var accountToName = accountsName.Item1;
+                var accountFromName = accountsName.Item2;
 
                 journal.AccountTo.AccountId =
                     CreateIfAccountNotPresent(accountToName, journal.AccountTo.AccountTypeId, sqlHelper);
@@ -700,18 +690,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 UpdateJournalComment(journal, sqlHelper);
                 var fxCurrency = GetBaseCurrency();
 
-                List<string> accountToNameList = new List<string>();
-                List<string> accountFromNameList = new List<string>();
-                accountToNameList.Add(journal.AccountTo.AccountType);
-                accountToNameList.Add(journal.AccountTo.AccountSymbol);
-                accountToNameList.Add(journal.AccountTo.AccountCurrency);
-
-                accountFromNameList.Add(journal.AccountFrom.AccountType);
-                accountFromNameList.Add(journal.AccountFrom.AccountSymbol);
-                accountFromNameList.Add(journal.AccountFrom.AccountCurrency);
-
-                string accountToName = string.Join("-", accountToNameList.Select(x => x));
-                string accountFromName = string.Join("-", accountFromNameList.Select(x => x));
+                var accountsName = GetAccountsName(journal);
+                var accountToName = accountsName.Item1;
+                var accountFromName = accountsName.Item2;
 
                 journal.AccountTo.AccountId =
                     CreateIfAccountNotPresent(accountToName, journal.AccountTo.AccountTypeId, sqlHelper);
@@ -803,6 +784,25 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return Utils.Wrap(true);
         }
 
+        private Tuple<string, string> GetAccountsName(JournalInputDto journal)
+        {
+            List<string> accountToNameList = new List<string>();
+            List<string> accountFromNameList = new List<string>();
+
+            accountToNameList.Add(journal.AccountTo.AccountType);
+            accountToNameList.Add(journal.AccountTo.AccountSymbol);
+            accountToNameList.Add(journal.AccountTo.AccountCurrency);
+
+            accountFromNameList.Add(journal.AccountFrom.AccountType);
+            accountFromNameList.Add(journal.AccountFrom.AccountSymbol);
+            accountFromNameList.Add(journal.AccountFrom.AccountCurrency);
+
+            string accountToName = string.Join("-", accountToNameList.Select(x => x));
+            string accountFromName = string.Join("-", accountFromNameList.Select(x => x));
+
+            return new Tuple<string, string>(accountToName, accountFromName);
+        }
+
         private void UpdateJournalComment(JournalInputDto journal, SqlHelper sqlHelper)
         {
             List<SqlParameter> journalCommentsParameters = new List<SqlParameter>
@@ -851,8 +851,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var journalQuery = $@"DELETE FROM [journal]
                                     WHERE [journal].[source] = @source";
 
-                var currentJournalQuery = $@"DELETE FROM [current_journal]
-                                    WHERE [current_journal].[source] = @source";
+                var currentJournalQuery = $@"DELETE FROM [current_journal_full]
+                                    WHERE [current_journal_full].[source] = @source";
 
                 List<SqlParameter> commentParameters = new List<SqlParameter>
                 {
