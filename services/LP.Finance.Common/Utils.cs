@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LP.Finance.Common.Model;
 using System.Globalization;
+using System.Net.Mail;
 
 namespace LP.Finance.Common
 {
@@ -504,6 +505,47 @@ namespace LP.Finance.Common
                 dataTable.Columns.Remove("total");
 
             return total;
+        }
+
+        public static void SendEmailWithSpreadSheet(string from, string fromName, List<string> to, string cc, string bcc,
+            string subject,
+            string body, MemoryStream attachment, bool isHtml)
+        {
+            try
+            {
+                var message = new MailMessage { From = new MailAddress(@from, fromName) };
+                foreach (var emailAddress in to)
+                {
+                    message.To.Add(new MailAddress(emailAddress));
+                }
+
+                if (!string.IsNullOrEmpty(cc))
+                {
+                    message.CC.Add(cc);
+                }
+
+                if (!string.IsNullOrEmpty(bcc))
+                {
+                    message.Bcc.Add(bcc);
+                }
+
+                message.Subject = subject;
+                message.Body = body;
+                message.Attachments.Add(new Attachment(attachment, $"{subject}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+                message.IsBodyHtml = isHtml;
+
+                using (var smtp = new SmtpClient())
+                {
+                    smtp.Send(message);
+                    //smtp.SendMailAsync(message);
+                    //await Task.FromResult(0);
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
     }
 

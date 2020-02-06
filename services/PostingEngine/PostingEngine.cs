@@ -1,4 +1,5 @@
 ﻿using PostingEngine.MarketData;
+using PostingEngine.Reports;
 using System;
 
 namespace PostingEngine
@@ -29,6 +30,7 @@ namespace PostingEngine
 
             EndOfYear(key, valueDate);
 
+            GenerateEODReports();
             Complete(key, valueDate);
         }
 
@@ -108,6 +110,12 @@ namespace PostingEngine
         {
             // This runs thru everything, we need more or a scalpable
             PostingEngine.RunCalculation("DailyPnl", valueDate, key, LogProcess);
+        }
+
+        static void GenerateEODReports()
+        {
+            EODReports reports = new EODReports();
+            reports.TaxLotReport();
         }
     }
 }

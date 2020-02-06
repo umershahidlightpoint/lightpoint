@@ -21,6 +21,8 @@ namespace PostingEngine.Reports
         private static readonly string
             connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
         SqlHelper sqlHelper = new SqlHelper(connectionString);
+        private static readonly string fromEmail = ConfigurationManager.AppSettings["FromEmail"].ToString();
+        private static readonly string fromName = ConfigurationManager.AppSettings["FromName"].ToString();
 
         internal async void TaxLotReport()
         {
@@ -37,14 +39,19 @@ namespace PostingEngine.Reports
                 var query = $@"SELECT * FROM tax_lot_status";
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
 
-                var recepientQuery = $"select email_id as EmailId from report_recepients where task = 'EOD' and report = 'Tax Lot Status'";
+                var recepientQuery = $"select email_id as EmailId from report_recepient where task = 'EOD' and report = 'Tax Lot Status'";
                 var recepientDataTable = sqlHelper.GetDataTable(recepientQuery, CommandType.Text);
                 var recepientList = new List<string>();
                 foreach(DataRow dr in recepientDataTable.Rows)
                 {
                     recepientList.Add((string)dr["EmailId"]);
                 }
-                report.Generate(dataTable, recepientList);
+                string header = "TaxLotReport";
+                string content = "This is an automatically generated email.";
+                if (recepientList.Count > 0)
+                {
+                    report.Generate(dataTable, recepientList, header, content, fromEmail, fromName);
+                }
             }
             catch(Exception ex)
             {
