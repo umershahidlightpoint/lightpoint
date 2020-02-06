@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../environments/environment.prod';
 import { Observable } from 'rxjs';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-// @Injectable({
-//   providedIn: 'root'
-// })
 @Injectable()
 export class AccountmappingApiService {
   private baseUrl: string;
@@ -18,7 +16,7 @@ export class AccountmappingApiService {
   dispatchModifications$ = this.dispatchModifications.asObservable();
 
   constructor(private http: HttpClient) {
-    this.baseUrl = window['config'].remoteServerUrl;
+    this.baseUrl = window['config'] ? window['config'].remoteServerUrl : environment.testCaseRemoteServerUrl;
   }
 
   storeAccountList(obj: any) {

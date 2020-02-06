@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../environments/environment.prod';
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -10,8 +11,8 @@ export class MaintenanceApiService {
   private refDataUrl: string;
 
   constructor(private http: HttpClient) {
-    this.baseUrl = window['config'].remoteServerUrl;
-    this.refDataUrl = window['config'].referenceDataUrl;
+    this.baseUrl = window['config'] ? window['config'].remoteServerUrl : environment.testCaseRemoteServerUrl;
+    this.refDataUrl = window['config'] ? window['config'].referenceDataUrl : environment.testCaseReferenceDataUrl;
   }
 
   // /*
