@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
-import { TemplateRendererComponent } from '../shared/template-renderer/template-renderer.component';
+import { TemplateRendererComponent } from '../template-renderer/template-renderer.component';
 import { GridUtils } from '../../utils/index';
 
 @Component({
