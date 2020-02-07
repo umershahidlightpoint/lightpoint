@@ -33,7 +33,7 @@ namespace PostingEngine.PostingRules
             // Lets get fx rate if needed
             if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
             }
 
             // Calculate the unrealized PNL
@@ -164,7 +164,21 @@ namespace PostingEngine.PostingRules
 
         internal void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
-            CommonRules.GenerateSettlementDateJournals(env, element);
+            if (env.IsTaxLot(element))
+            {
+                CommonRules.GenerateSettlementDateJournals(env, element);
+                return;
+            }
+
+            // This is only for closing tax lots
+            var closingTaxLots = env.TaxLot.Where(i => i.ClosingLotId.Equals(element.LpOrderId));
+
+            foreach (var closingTaxLot in closingTaxLots)
+            {
+                var taxLotStatus = env.TaxLotStatus[closingTaxLot.OpeningLotId];
+
+                CommonRules.GenerateSettlementDateJournals(env, taxLotStatus, closingTaxLot);
+            }
         }
 
         internal void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
@@ -179,7 +193,7 @@ namespace PostingEngine.PostingRules
             // Lets get fx rate if needed
             if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
             }
 
 
@@ -200,105 +214,58 @@ namespace PostingEngine.PostingRules
                     return;
                 }
 
-                var tl = env.GenerateOpenTaxLot(element, fxrate);
+                var tl = env.GenerateOpenTaxLotStatus(element, fxrate);
+                CommonRules.GenerateTradeDateJournals(env, element);
             }
             else if (element.IsSell() || element.IsCover())
             {
-                // Get Matching Lots
-                var taxLotMethodology = ConfigurationManager.AppSettings["TaxMethod"].ToString();
-
                 var workingQuantity = element.Quantity;
-                if (taxLotMethodology.Equals("MINTAX"))
+
+                var openLots = env.Methodology.GetOpenLots(env, element, workingQuantity);
+
+                foreach (var lot in openLots)
                 {
-                    while (workingQuantity != 0.0)
+                    if (workingQuantity == 0)
+                        break;
+
+                    if (!env.TaxLotStatus.ContainsKey(lot.Trade.LpOrderId))
                     {
-                        var localOpenTaxLots = env.Methodology.GetOpenLots(env, element, workingQuantity);
-
-                        var lot = localOpenTaxLots[0];
-
-                        if (!env.TaxLotStatus.ContainsKey(lot.Trade.LpOrderId))
-                        {
-                            // TODO: For this open lot there should be a corresponding open to 
-                            env.AddMessage($"Unable to Find Tax Lot for {lot.Trade.Symbol}::{lot.Trade.Side}::{lot.Trade.Status}");
-                            //Logger.Warn($"Unable to Find Tax Lot for {element.Symbol}::{element.Side}::{element.Status}");
-                            continue;
-                        }
-
-                        var taxlotStatus = env.TaxLotStatus[lot.Trade.LpOrderId];
-                        if (taxlotStatus != null && taxlotStatus.Quantity != 0 && !taxlotStatus.Status.ToLowerInvariant().Equals("closed"))
-                        {
-                            Logger.Info($"Relieving Tax Lot {taxlotStatus.Symbol}::{taxlotStatus.TradePrice}::{taxlotStatus.TradeDate.ToString("MM-dd-yyyy")}::{taxlotStatus.OpenId}::{lot.TaxLiability}::{lot.TaxRate.Rate}::{lot.PotentialPnl}");
-
-                            // Does the open Lot fully fullfill the quantity ?
-                            if (Math.Abs(taxlotStatus.Quantity) >= Math.Abs(workingQuantity))
-                            {
-                                // Lets generate all the journal entries we need
-                                GenerateJournals(env, lot, taxlotStatus, element, workingQuantity, fxrate, multiplier);
-
-                                break;
-                            }
-                            else
-                            {
-                                var quantity = taxlotStatus.Quantity;
-
-                                GenerateJournals(env, lot, taxlotStatus, element, taxlotStatus.Quantity * -1, fxrate, multiplier);
-
-                                workingQuantity += quantity;
-                            }
-                        }
-
-
+                        // TODO: For this open lot there should be a corresponding open to 
+                        env.AddMessage($"Unable to Find Tax Lot for {lot.Trade.Symbol}::{lot.Trade.Side}::{lot.Trade.Status}");
+                        //Logger.Warn($"Unable to Find Tax Lot for {element.Symbol}::{element.Side}::{element.Status}");
+                        continue;
                     }
-                }
-                else
-                {
-                    var openLots = env.Methodology.GetOpenLots(env, element, workingQuantity);
 
-                    foreach (var lot in openLots)
+                    var taxlotStatus = env.TaxLotStatus[lot.Trade.LpOrderId];
+                    if (taxlotStatus != null && taxlotStatus.Quantity != 0 && !taxlotStatus.Status.ToLowerInvariant().Equals("closed"))
                     {
-                        if (workingQuantity == 0)
+                        Logger.Info($"Relieving Tax Lot {taxlotStatus.TradeDate.ToString("MM-dd-yyyy")}::{taxlotStatus.Symbol}::{taxlotStatus.OpenId}::{lot.TaxLiability}::{lot.TaxRate.Rate}::{lot.PotentialPnl}");
+
+                        // Does the open Lot fully fullfill the quantity ?
+                        if (Math.Abs(taxlotStatus.Quantity) >= Math.Abs(workingQuantity))
+                        {
+                            // Lets generate all the journal entries we need
+                            GenerateJournals(env, lot, taxlotStatus, element, workingQuantity, fxrate, multiplier);
+
                             break;
-
-                        if (!env.TaxLotStatus.ContainsKey(lot.Trade.LpOrderId))
-                        {
-                            // TODO: For this open lot there should be a corresponding open to 
-                            env.AddMessage($"Unable to Find Tax Lot for {lot.Trade.Symbol}::{lot.Trade.Side}::{lot.Trade.Status}");
-                            //Logger.Warn($"Unable to Find Tax Lot for {element.Symbol}::{element.Side}::{element.Status}");
-                            continue;
                         }
-
-                        var taxlotStatus = env.TaxLotStatus[lot.Trade.LpOrderId];
-                        if (taxlotStatus != null && taxlotStatus.Quantity != 0 && !taxlotStatus.Status.ToLowerInvariant().Equals("closed"))
+                        else
                         {
-                            Logger.Info($"Relieving Tax Lot {taxlotStatus.TradeDate.ToString("MM-dd-yyyy")}::{taxlotStatus.Symbol}::{taxlotStatus.OpenId}::{lot.TaxLiability}::{lot.TaxRate.Rate}::{lot.PotentialPnl}");
+                            var quantity = taxlotStatus.Quantity;
 
-                            // Does the open Lot fully fullfill the quantity ?
-                            if (Math.Abs(taxlotStatus.Quantity) >= Math.Abs(workingQuantity))
-                            {
-                                // Lets generate all the journal entries we need
-                                GenerateJournals(env, lot, taxlotStatus, element, workingQuantity, fxrate, multiplier);
+                            GenerateJournals(env, lot, taxlotStatus, element, taxlotStatus.Quantity * -1, fxrate, multiplier);
 
-                                break;
-                            }
-                            else
-                            {
-                                var quantity = taxlotStatus.Quantity;
-
-                                GenerateJournals(env, lot, taxlotStatus, element, taxlotStatus.Quantity * -1, fxrate, multiplier);
-
-                                workingQuantity += quantity;
-                            }
+                            workingQuantity += quantity;
                         }
                     }
                 }
+
+                CommonRules.GenerateTradeDateJournals(env, element);
             }
             else
             {
                 // We have a Debit / Credit Dividends
             }
-
-            CommonRules.GenerateTradeDateJournals(env, element);
-
         }
 
 
@@ -335,13 +302,13 @@ namespace PostingEngine.PostingRules
             if (taxlotStatus.Quantity == 0.0)
             {
                 // Is this really needed, as if the tax lot is zero then should not generate any additional unrealized pnl
-                //GenerateDailyUnrealized(env, taxlotStatus, element, workingQuantity * -1, fxrate);
+                GenerateDailyUnrealized(env, taxlotStatus, element, workingQuantity * -1, fxrate);
             }
 
             var eodPrice = MarketPrices.GetPrice(env, env.PreviousValueDate, buyTrade).Price;
 
             // Calculate the unrealized Backout PNL for the created Tax Lot
-            var unrealizedPnl = Math.Abs(taxlot.Quantity) * (eodPrice - buyTrade.SettleNetPrice) * multiplier * fxrate;
+            var unrealizedPnl = taxlot.Quantity * (eodPrice - buyTrade.SettleNetPrice) * multiplier * fxrate;
 
             unrealizedPnl *= CommonRules.DetermineSign(element);
 
@@ -350,7 +317,7 @@ namespace PostingEngine.PostingRules
                 env,
                 buyTrade,
                 element,
-                unrealizedPnl * -1,
+                taxlot.RealizedPnl * -1,
                 buyTrade.SettleNetPrice,
                 element.SettleNetPrice,
                 fxrate);

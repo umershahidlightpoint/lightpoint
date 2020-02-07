@@ -80,7 +80,7 @@ namespace PostingEngine.PostingRules
 
             if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
             }
 
             var moneyUSD = element.LocalNetNotional * fxrate;

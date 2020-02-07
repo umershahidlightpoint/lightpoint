@@ -39,7 +39,9 @@ namespace PostingEngine
             Messages = new Dictionary<string, int>();
 
             Journals = new List<Journal>();
+
             TaxLotStatus = new Dictionary<string, TaxLotStatus>();
+            TaxLot = new List<TaxLot>();
         }
 
         public PostingEngineEnvironment(string connectionString): this()
@@ -115,7 +117,13 @@ namespace PostingEngine
             return false;
         }
 
+        internal bool IsTaxLot(Transaction i)
+        {
+            return TaxLotStatus.ContainsKey(i.LpOrderId);
+        }
+
         public Dictionary<string, TaxLotStatus> TaxLotStatus { get; private set; }
+        public List<TaxLot> TaxLot { get; private set; }
 
         internal TradeTaxRate TradeTaxRate(Transaction i)
         {
@@ -468,7 +476,7 @@ namespace PostingEngine
         /// <param name="element">Trade to create the tax lot</param>
         /// <param name="fxrate">FxRate for this trade</param>
         /// <returns>Generated TaxLot</returns>
-        public TaxLotStatus GenerateOpenTaxLot(Transaction element, double fxrate)
+        public TaxLotStatus GenerateOpenTaxLotStatus(Transaction element, double fxrate)
         {
             var taxlotStatus = new TaxLotStatus
             {

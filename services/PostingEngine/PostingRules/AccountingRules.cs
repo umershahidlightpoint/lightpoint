@@ -36,36 +36,8 @@ namespace PostingEngine.PostingRules
                 _pbUnsettledActivity = accountTypes.Where(i => i.Name.Equals("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )")).FirstOrDefault();
             }
 
-            Account fromAccount = null; // Debiting Account
-            Account toAccount = null; // Crediting Account
-
-            switch (element.Side.ToLowerInvariant())
-            {
-                case "buy":
-                    fromAccount = new AccountUtils()
-                        .CreateAccount(_pbUnsettledActivity, listOfTags, element);
-                    toAccount = new AccountUtils()
-                        .CreateAccount(_settledCash, listOfTags, element);
-                    break;
-                case "sell":
-                    fromAccount = new AccountUtils()
-                        .CreateAccount(_pbUnsettledActivity, listOfTags, element);
-                    toAccount = new AccountUtils()
-                        .CreateAccount(_settledCash, listOfTags, element);
-                    break;
-                case "short":
-                    fromAccount = new AccountUtils()
-                        .CreateAccount(_pbUnsettledActivity, listOfTags, element);
-                    toAccount = new AccountUtils()
-                        .CreateAccount(_settledCash, listOfTags, element);
-                    break;
-                case "cover":
-                    fromAccount = new AccountUtils()
-                        .CreateAccount(_pbUnsettledActivity, listOfTags, element);
-                    toAccount = new AccountUtils()
-                        .CreateAccount(_settledCash, listOfTags, element);
-                    break;
-            }
+            var fromAccount = new AccountUtils().CreateAccount(_pbUnsettledActivity, listOfTags, element);
+            var toAccount = new AccountUtils().CreateAccount(_settledCash, listOfTags, element);
 
             new AccountUtils().SaveAccountDetails(env, fromAccount);
             new AccountUtils().SaveAccountDetails(env, toAccount);

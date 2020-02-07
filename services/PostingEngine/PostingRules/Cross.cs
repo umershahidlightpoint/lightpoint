@@ -53,7 +53,7 @@ namespace PostingEngine.PostingRules
             // Lets get fx rate if needed
             if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
             }
 
             // Calculate the unrealized PNL
@@ -74,13 +74,13 @@ namespace PostingEngine.PostingRules
                         if (env.ValueDate == element.TradeDate)
                         {
                             prevEodPrice =  1 / element.SettleNetPrice;
-                            fxRate = FxRates.Find(env.ValueDate, element.SettleCurrency).Rate;
+                            fxRate = FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate;
                             eodPrice = fxRate;
                         }
                         else
                         {
-                            prevEodPrice = FxRates.Find(env.PreviousValueDate, element.SettleCurrency).Rate;
-                            fxRate = FxRates.Find(env.PreviousValueDate, element.SettleCurrency).Rate;
+                            prevEodPrice = FxRates.Find(env, env.PreviousValueDate, element.SettleCurrency).Rate;
+                            fxRate = FxRates.Find(env, env.PreviousValueDate, element.SettleCurrency).Rate;
                             eodPrice = fxRate;
                         }
                     }
@@ -89,13 +89,13 @@ namespace PostingEngine.PostingRules
                         if (env.ValueDate == element.TradeDate)
                         {
                             prevEodPrice = element.SettleNetPrice;
-                            fxRate = FxRates.Find(env.ValueDate, element.TradeCurrency).Rate;
+                            fxRate = FxRates.Find(env, env.ValueDate, element.TradeCurrency).Rate;
                             eodPrice = fxRate;
                         }
                         else
                         {
-                            prevEodPrice = FxRates.Find(env.PreviousValueDate, element.TradeCurrency).Rate;
-                            fxRate = FxRates.Find(env.ValueDate, element.TradeCurrency).Rate;
+                            prevEodPrice = FxRates.Find(env, env.PreviousValueDate, element.TradeCurrency).Rate;
+                            fxRate = FxRates.Find(env, env.ValueDate, element.TradeCurrency).Rate;
                             eodPrice = fxRate;
                         }
                     }
@@ -195,8 +195,8 @@ namespace PostingEngine.PostingRules
                 new AccountUtils().SaveAccountDetails(env, accountSell);
                 new AccountUtils().SaveAccountDetails(env, accountBuy);
 
-                var sellFx = FxRates.Find(env.ValueDate, sell.TradeCurrency);
-                var buyFx = FxRates.Find(env.ValueDate, buy.TradeCurrency);
+                var sellFx = FxRates.Find(env, env.ValueDate, sell.TradeCurrency);
+                var buyFx = FxRates.Find(env, env.ValueDate, buy.TradeCurrency);
 
                 var sellValue = sell.Quantity * sellFx.Rate;
                 var buyValue = buy.Quantity * buyFx.Rate;
@@ -322,11 +322,11 @@ namespace PostingEngine.PostingRules
             // Lets get fx rate if needed
             if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
             }
 
             // For a CROSS We just create an open Tax Lot, no other activity occurs
-            var t1 = env.GenerateOpenTaxLot(element, fxrate);
+            var t1 = env.GenerateOpenTaxLotStatus(element, fxrate);
 
             Logger.Info($"Generated Open TaxLot {t1.Symbol}::{t1.Side}::{element.SecurityType}");
         }

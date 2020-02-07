@@ -10,6 +10,8 @@ namespace LP.Finance.Common.Models
 {
     public class TaxLot : IDbAction, IDbModel
     {
+        public string Key {  get { return Trade != null ? Trade.LpOrderId : "undefinedLpOrderId"; } }
+
         // Non Persisted
         public Transaction Trade { get; set; }
 

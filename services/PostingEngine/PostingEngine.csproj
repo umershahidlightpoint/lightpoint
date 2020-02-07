@@ -85,6 +85,7 @@
     <Compile Include="Tasks\Implementation\CostBasisTask.cs" />
     <Compile Include="Tasks\Implementation\DailyPnlTask.cs" />
     <Compile Include="Tasks\Implementation\EndOfYearTask.cs" />
+    <Compile Include="Tasks\Implementation\SettledCashTask.cs" />
     <Compile Include="Tasks\Implementation\ExpencesAndRevenuesTask.cs" />
     <Compile Include="Tasks\PostingTask.cs" />
     <Compile Include="Tasks\Implementation\PullFromBookmonTask.cs" />

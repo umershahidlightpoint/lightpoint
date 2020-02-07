@@ -1,5 +1,6 @@
 ﻿/*
-exec DetailPnlToDate '2019-12-31', '2019-01-01', 'NXT LN SWAP'
+exec DetailPnlToDate '2019-12-31', '2019-01-01'
+exec DetailPnlToDate '2019-12-31', '2019-01-01', 'HOME'
 */
 
 CREATE PROCEDURE [dbo].[DetailPnlToDate]
@@ -40,8 +41,8 @@ update #results
 set realizedPnl = coalesce(GG,0)
 from #results t
 inner join (
-select security_id, Fund, SUM(credit-debit) as GG from current_journal
-where AccountType in ('REALIZED GAIN/(LOSS)') and [event] in ('realizedpnl')
+select security_id, Fund, SUM(credit-debit) as GG from current_journal_full
+where AccountType in ('REALIZED GAIN/(LOSS)')
 and [when] >= @From and [when] <= @Now
 group by security_id, Fund
 ) as v on v.fund = t.fund and v.security_id = t.SecurityId
@@ -50,8 +51,8 @@ update #results
 set realizedPnl_FX = coalesce(GG,0)
 from #results t
 inner join (
-select security_id, Fund, SUM(credit-debit) as GG from current_journal
-where AccountType in ('REALIZED GAIN/(LOSS) DUE TO FX') and [event] in ('realized-cash-fx')
+select security_id, Fund, SUM(credit-debit) as GG from current_journal_full
+where AccountType in ('REALIZED GAIN/(LOSS) DUE TO FX')
 and [when] >= @From and [when] <= @Now
 group by security_id, Fund
 ) as v on v.fund = t.fund and v.security_id = t.SecurityId
@@ -60,8 +61,8 @@ update #results
 set unrealizedPnl = coalesce(GG,0)
 from #results t
 inner join (
-select v.security_id, Fund, SUM(credit-debit) as GG from vwFullJournal v
-where (AccountType = 'CHANGE IN UNREALIZED GAIN/(LOSS)' and [event] = 'unrealizedpnl')
+select v.security_id, Fund, SUM(credit-debit) as GG from current_journal_full v
+where (AccountType = 'CHANGE IN UNREALIZED GAIN/(LOSS)')
 and v.SecurityType not in ( 'Equity Swap', 'FORWARD', 'CROSS' )
 and v.[when] >= @From and v.[when] <= @Now
 group by v.security_id, Fund
@@ -71,8 +72,8 @@ update #results
 set unrealizedPnl_FX = coalesce(GG,0)
 from #results t
 inner join (
-select v.security_id, Fund, SUM(credit-debit) as GG from vwFullJournal v
-where (AccountType = 'change in unrealized due to fx on original Cost' and [event] = 'daily-unrealizedpnl-fx')
+select v.security_id, Fund, SUM(credit-debit) as GG from current_journal_full v
+where (AccountType = 'change in unrealized due to fx on original Cost')
 and v.SecurityType not in ( 'Equity Swap', 'FORWARD', 'CROSS' )
 and v.[when] >= @From and v.[when] <= @Now
 group by v.security_id, Fund
@@ -82,18 +83,20 @@ update #results
 set unrealizedPnl_FX_Translation = coalesce(GG,0)
 from #results t
 inner join (
-select v.security_id, Fund, SUM(credit-debit) as GG from vwFullJournal v
-where (AccountType = 'change in unrealized do to fx translation' and [event] = 'unrealized-cash-fx')
+select v.security_id, Fund, SUM(credit-debit) as GG from current_journal_full v
+where (AccountType = 'change in unrealized do to fx translation')
 and v.SecurityType not in ( 'Equity Swap', 'FORWARD', 'CROSS' )
 and v.[when] >= @From and v.[when] <= @Now
 group by v.security_id, Fund
 ) as v on v.fund = t.fund and v.security_id = t.SecurityId
 
+
+-- DERIVATIVES
 update #results
 set unrealizedPnl = coalesce(GG,0)
 from #results t
 inner join (
-select v.security_id, Fund, SUM(credit-debit) as GG from vwFullJournal v
+select v.security_id, Fund, SUM(credit-debit) as GG from current_journal_full v
 where (AccountType = 'Change in Unrealized Derivatives Contracts at Fair Value')
 and v.SecurityType in ( 'Equity Swap', 'FORWARD', 'CROSS' )
 and v.[when] >= @From and v.[when] <= @Now
@@ -104,8 +107,8 @@ update #results
 set unrealizedPnl_FX = coalesce(GG,0)
 from #results t
 inner join (
-select v.security_id, Fund, SUM(credit-debit) as GG from vwFullJournal v
-where (AccountCategory = 'Revenues' and [event] = 'daily-unrealizedpnl-fx')
+select v.security_id, Fund, SUM(credit-debit) as GG from current_journal_full v
+where (AccountType = 'Change in Unrealized Derivatives Contracts due to FX')
 and v.SecurityType in ( 'Equity Swap', 'FORWARD', 'CROSS' )
 and v.[when] >= @From and v.[when] <= @Now
 group by v.security_id, Fund
@@ -115,8 +118,8 @@ update #results
 set unrealizedPnl_FX_Translation = coalesce(GG,0)
 from #results t
 inner join (
-select v.security_id, Fund, SUM(credit-debit) as GG from vwFullJournal v
-where (AccountCategory = 'Revenues' and [event] = 'unrealized-cash-fx')
+select v.security_id, Fund, SUM(credit-debit) as GG from current_journal_full v
+where (AccountType = 'Change in Unrealized Derivatives Contracts due to FX Translation')
 and v.SecurityType in ( 'Equity Swap', 'FORWARD', 'CROSS' )
 and v.[when] >= @From and v.[when] <= @Now
 group by v.security_id, Fund

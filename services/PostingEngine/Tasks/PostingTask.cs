@@ -22,7 +22,9 @@ namespace PostingEngine.Tasks
                 return new DailyPnlTask();
             if (name.Equals("endofyear"))
                 return new EndOfYearTask();
-
+            if (name.Equals("settledcashbalances"))
+                return new SettledCashTask();
+            
             return null;
         }
 

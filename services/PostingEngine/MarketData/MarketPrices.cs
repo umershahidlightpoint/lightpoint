@@ -72,6 +72,18 @@ namespace PostingEngine.MarketData
             return eodMarketPrice;
         }
 
+        public static MarketPrice GetPrice(PostingEngineEnvironment env, DateTime valueDate, string symbol, bool fxrate = false)
+        {
+            var eodMarketPrice = Find(valueDate, symbol);
+
+            if (!eodMarketPrice.Valid && !fxrate)
+            {
+                env.AddMessage(eodMarketPrice.Error);
+            }
+
+            return eodMarketPrice;
+        }
+
         private static MarketPrice Find(DateTime busDate, Transaction element)
         {
             var mp = new MarketPrice

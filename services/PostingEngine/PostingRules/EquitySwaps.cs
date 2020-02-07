@@ -15,6 +15,12 @@ namespace PostingEngine.PostingRules
 {
     public class EquitySwaps : IPostingRule
     {
+        private List<Tag> listOfTags = new List<Tag>
+            {
+                Tag.Find("SecurityType"),
+                Tag.Find("CustodianCode")
+            };
+
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         public bool IsValid(PostingEngineEnvironment env, Transaction element)
         {
@@ -33,7 +39,7 @@ namespace PostingEngine.PostingRules
             // Lets get fx rate if needed
             if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
             }
 
             // Calculate the unrealized PNL
@@ -45,12 +51,6 @@ namespace PostingEngine.PostingRules
                 // Check to see if the TaxLot is still open and it has a non zero Quantity
                 if (!taxlot.Status.ToLowerInvariant().Equals("closed") && Math.Abs(taxlot.Quantity) > 0)
                 {
-                    var listOfTags = new List<Tag>
-                    {
-                        Tag.Find("SecurityType"),
-                        Tag.Find("CustodianCode")
-                    };
-
                     // We have an open / partially closed tax lot so now need to calculate unrealized Pnl
                     var quantity = taxlot.Quantity;
 
@@ -70,8 +70,6 @@ namespace PostingEngine.PostingRules
 
                     var unrealizedPnl = CommonRules.CalculateUnrealizedPnl(env, taxlot);
 
-                    AccountToFrom fromToAccounts = null;
-
                     var originalAccount = AccountUtils.GetDerivativeAccountType(unrealizedPnl);
                     if ( originalAccount.Contains("(Liabilities)"))
                     {
@@ -79,7 +77,7 @@ namespace PostingEngine.PostingRules
                         unrealizedPnl *= -1;
                     }
 
-                    fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", listOfTags, taxlot.Trade);
+                    var fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", listOfTags, taxlot.Trade);
 
                     var fund = env.GetFund(element);
 
@@ -143,8 +141,21 @@ namespace PostingEngine.PostingRules
 
         public void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
-            // Need to make sure that we generate the reversal on this
-            CommonRules.GenerateSettlementDateJournals(env, element);
+            if (env.IsTaxLot(element))
+                return;
+
+            // This is only for closing tax lots
+            var closingTaxLots = env.TaxLot.Where(i => i.ClosingLotId.Equals(element.LpOrderId));
+
+            // For the moment we don't need to deal with Settlement
+            foreach( var closingTaxLot in closingTaxLots)
+            {
+                var taxLotStatus = env.TaxLotStatus[closingTaxLot.OpeningLotId];
+
+                var buyTrade = env.FindTrade(closingTaxLot.OpeningLotId);
+
+                CommonRules.GenerateJournalEntries(env, buyTrade, closingTaxLot, listOfTags, "Settled Cash", "DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )", closingTaxLot.RealizedPnl, 1);
+            }
         }
 
         public void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
@@ -156,12 +167,12 @@ namespace PostingEngine.PostingRules
             // Lets get fx rate if needed
             if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
             }
 
             if ( element.IsBuy() || element.IsShort())
             {
-                var t1 = env.GenerateOpenTaxLot(element, fxrate);
+                var t1 = env.GenerateOpenTaxLotStatus(element, fxrate);
 
                 if ( element.Quantity == 0 )
                 {
@@ -176,7 +187,7 @@ namespace PostingEngine.PostingRules
 
                 if ( openLots.Count() == 0)
                 {
-                    var t1 = env.GenerateOpenTaxLot(element, fxrate);
+                    var t1 = env.GenerateOpenTaxLotStatus(element, fxrate);
                     // Whats going on here?
                     // We are skipping anything that does not get an OpenLot
                     env.AddMessage($"There should be for a sell {element.Symbol} have at least one open lot, non found");
@@ -227,6 +238,103 @@ namespace PostingEngine.PostingRules
             }
         }
 
+        private void GenerateDailyUnrealized(PostingEngineEnvironment env, TaxLotStatus taxLotStatus, Transaction element, double quantity, double fxRate)
+        {
+            var prevEodPrice = 0.0;
+            var eodPrice = 0.0;
+
+            if (env.ValueDate == taxLotStatus.Trade.TradeDate)
+            {
+                prevEodPrice = taxLotStatus.Trade.SettleNetPrice;
+                eodPrice = MarketPrices.GetPrice(env, env.ValueDate, taxLotStatus.Trade).Price;
+            }
+            else
+            {
+                prevEodPrice = MarketPrices.GetPrice(env, env.PreviousValueDate, taxLotStatus.Trade).Price;
+                eodPrice = MarketPrices.GetPrice(env, env.ValueDate, taxLotStatus.Trade).Price;
+            }
+
+            var endPrice = element.SettleNetPrice;
+
+            if (taxLotStatus.Quantity == 0.0)
+            {
+                eodPrice = endPrice;
+            }
+
+            var unrealizedPnl = CommonRules.CalculateUnrealizedPnl(env, taxLotStatus, quantity);
+
+            var originalAccount = AccountUtils.GetDerivativeAccountType(unrealizedPnl);
+            if (originalAccount.Contains("(Liabilities)"))
+            {
+                // This needs to be registered as a Credit to the Libabilities
+                unrealizedPnl *= -1;
+            }
+
+            var fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", listOfTags, taxLotStatus.Trade);
+
+            var fund = env.GetFund(element);
+
+            var debit = new Journal(taxLotStatus.Trade)
+            {
+                Account = fromToAccounts.From,
+                When = env.ValueDate,
+                Symbol = taxLotStatus.Symbol,
+                Quantity = quantity,
+                FxRate = fxRate,
+                Value = env.SignedValue(fromToAccounts.From, fromToAccounts.To, true, unrealizedPnl),
+                CreditDebit = env.DebitOrCredit(fromToAccounts.From, unrealizedPnl),
+                StartPrice = prevEodPrice,
+                EndPrice = eodPrice,
+                Event = Event.DAILY_UNREALIZED_PNL,
+                Fund = fund,
+            };
+
+            var credit = new Journal(debit)
+            {
+                Account = fromToAccounts.To,
+                Value = env.SignedValue(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnl),
+                CreditDebit = env.DebitOrCredit(fromToAccounts.To, unrealizedPnl),
+            };
+
+            env.Journals.AddRange(new[] { debit, credit });
+
+            if (fxRate != 1.0)
+            {
+                if (element.TradeDate != env.ValueDate && element.SettleDate >= env.ValueDate)
+                {
+                    var fxJournals = FxPosting.CreateFx(
+                        env,
+                        "DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )",
+                        "fx gain or loss on unsettled balance",
+                        "daily",
+                        quantity, null, element);
+                    env.Journals.AddRange(fxJournals);
+                }
+
+                if (taxLotStatus.Quantity != 0.0)
+                {
+                    if (env.ValueDate.Equals(new DateTime(2019, 12, 17)))
+                    {
+
+                    }
+
+                    if (element.TradeDate != env.ValueDate)
+                    {
+
+                        // Has to happen for every day
+                        var fxJournalsForInvestmentAtCost = FxPosting.CreateFx(
+                            env,
+                            CommonRules.GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"),
+                            "Change in unrealized due to fx on original Cost",
+                            "daily", quantity, taxLotStatus, element);
+                        env.Journals.AddRange(fxJournalsForInvestmentAtCost);
+
+                        new FxPosting().CreateFxUnsettled(env, element);
+                    }
+                }
+            }
+        }
+
         private void GenerateJournals(PostingEngineEnvironment env, TaxLotDetail lot, TaxLotStatus taxlotStatus, Transaction element, double workingQuantity, double fxrate, double multiplier)
         {
             var buyTrade = env.FindTrade(lot.Trade.LpOrderId);
@@ -242,25 +350,28 @@ namespace PostingEngine.PostingRules
             if (taxlotStatus.Quantity == 0.0)
             {
                 // Is this really needed, as if the tax lot is zero then should not generate any additional unrealized pnl
-                //GenerateDailyUnrealized(env, taxlotStatus, element, workingQuantity * -1, fxrate);
+                GenerateDailyUnrealized(env, taxlotStatus, element, workingQuantity * -1, fxrate);
             }
 
-            var eodPrice = MarketPrices.GetPrice(env, env.PreviousValueDate, buyTrade).Price;
-
-            // Calculate the unrealized Backout PNL for the created Tax Lot
-            var unrealizedPnl = Math.Abs(taxlot.Quantity) * (eodPrice - buyTrade.SettleNetPrice) * multiplier * fxrate;
-
-            unrealizedPnl *= CommonRules.DetermineSign(element);
-
             // Need to backout the Unrealized PNL here, as we are reducing the position of the TaxLot
+            // Do we need this for the Equity Swap ?
+            /*
             CommonRules.ReverseUnrealizedPnl(
                 env,
                 buyTrade,
                 element,
-                unrealizedPnl * -1,
+                taxlot.RealizedPnl,
                 buyTrade.SettleNetPrice,
                 element.SettleNetPrice,
                 fxrate);
+            */
+
+            var markToMarketAccount = "Mark to Market Derivatives Contracts at Fair Value (Liabilities)";
+            if (taxlot.RealizedPnl > 0)
+                markToMarketAccount = "Mark to Market Derivatives Contracts at Fair Value (Assets)";
+
+            CommonRules.GenerateJournalEntries(env, buyTrade, taxlot, listOfTags, "DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )", "REALIZED GAIN/(LOSS)", taxlot.RealizedPnl, fxrate);
+            CommonRules.GenerateJournalEntries(env, buyTrade, taxlot, listOfTags, "Change in Unrealized Derivatives Contracts at Fair Value", markToMarketAccount, taxlot.RealizedPnl * -1, fxrate);
 
             // Original FxRate
             var changeDueToFx = fxrate - taxlotStatus.FxRate;
@@ -268,6 +379,7 @@ namespace PostingEngine.PostingRules
             var changeInRealizedPnlDueToFx = changeDueToFx * (taxlot.TradePrice) * Math.Abs(taxlot.Quantity);
             var changeInUnRealizedPnlDueToFx = changeDueToFx * (taxlot.CostBasis - taxlot.TradePrice) * Math.Abs(taxlot.Quantity);
 
+            /*
             CommonRules.PostRealizedPnl(
                 env,
                 buyTrade,
@@ -275,6 +387,12 @@ namespace PostingEngine.PostingRules
                 taxlot.TradePrice,
                 taxlot.CostBasis,
                 fxrate);
+            */
+
+            /*
+            var accountType = AccountType.Find("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )");
+            CommonRules.GenerateJournalEntry(env, buyTrade, listOfTags, accountType, Event.SETTLED_CASH, taxlot.RealizedPnl * -1);
+            */
 
             /*
             if (fxrate != 1.0)

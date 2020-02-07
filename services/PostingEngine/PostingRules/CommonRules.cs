@@ -24,7 +24,7 @@ namespace PostingEngine.PostingRules
         /// <param name="fxrate">Appropriate fxrate</param>
         internal static TaxLot RelieveTaxLot(PostingEngineEnvironment env, TaxLotDetail lot, Transaction trade, double quantity, bool reverse = false)
         {
-            var prevFxRate = FxRates.Find(lot.Trade.TradeDate, lot.Trade.SettleCurrency).Rate;
+            var prevFxRate = FxRates.Find(env, lot.Trade.TradeDate, lot.Trade.SettleCurrency).Rate;
 
             var investmentAtCost = quantity * lot.Trade.SettleNetPrice * prevFxRate;
             if (reverse)
@@ -44,6 +44,8 @@ namespace PostingEngine.PostingRules
             };
 
             CalculateRealizedPnl(env, tl);
+
+            env.TaxLot.Add(tl);
 
             tl.Save(env.Connection, env.Transaction);
 
@@ -89,7 +91,7 @@ namespace PostingEngine.PostingRules
             // Lets get fx rate if needed
             if (!taxLotStatus.Trade.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, taxLotStatus.Trade.SettleCurrency).Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, taxLotStatus.Trade.SettleCurrency).Rate);
             }
 
             var eodPrice = 0.0;
@@ -145,7 +147,7 @@ namespace PostingEngine.PostingRules
             // Lets get fx rate if needed
             if (!createdTaxLot.Trade.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, createdTaxLot.Trade.SettleCurrency).Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, createdTaxLot.Trade.SettleCurrency).Rate);
             }
 
             if (createdTaxLot.Trade.IsBuy())
@@ -170,6 +172,114 @@ namespace PostingEngine.PostingRules
             return createdTaxLot.RealizedPnl;
         }
 
+        internal static void GenerateSettlementDateJournals(PostingEngineEnvironment env, TaxLotStatus taxLotStatus, TaxLot closingTaxLot)
+        {
+            double fxrate = 1.0;
+
+            var element = taxLotStatus.Trade;
+
+            // Lets get fx rate if needed
+            if (!element.SettleCurrency.Equals(env.BaseCurrency))
+            {
+                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
+            }
+
+            var accountToFrom = new AccountingRules().GetFromToAccountOnSettlement(env, element);
+
+            if (accountToFrom.To == null || accountToFrom.From == null)
+            {
+                env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
+                return;
+            }
+
+            // This is the fully loaded value to tbe posting
+            var backout = Math.Abs(closingTaxLot.Trade.NetMoney) * fxrate;
+
+            // BUY -- Debit
+            // SELL -- Credit
+
+            if (closingTaxLot.Trade.IsShort() || closingTaxLot.Trade.IsSell())
+                backout *= -1;
+
+            if (backout != 0.0)
+            {
+                var debit = new Journal(element)
+                {
+                    Account = accountToFrom.From,
+                    CreditDebit = env.DebitOrCredit(accountToFrom.From, backout),
+                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, backout),
+
+                    When = env.ValueDate,
+                    FxRate = fxrate,
+                    Event = Event.SETTLEMENT,
+                    Fund = env.GetFund(element)
+                };
+
+                var credit = new Journal(debit)
+                {
+                    Account = accountToFrom.To,
+                    CreditDebit = env.DebitOrCredit(accountToFrom.To, backout * -1),
+                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, backout),
+                };
+
+                env.Journals.AddRange(new[] { debit, credit });
+            }
+        }
+
+        internal static void GenerateSettlementDateJournalsEquitySwap(PostingEngineEnvironment env, TaxLotStatus taxLotStatus, TaxLot closingTaxLot)
+        {
+            double fxrate = 1.0;
+
+            var element = taxLotStatus.Trade;
+
+            // Lets get fx rate if needed
+            if (!element.SettleCurrency.Equals(env.BaseCurrency))
+            {
+                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
+            }
+
+            var accountToFrom = new AccountingRules().GetFromToAccountOnSettlement(env, element);
+
+            if (accountToFrom.To == null || accountToFrom.From == null)
+            {
+                env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
+                return;
+            }
+
+            // This is the fully loaded value to tbe posting
+            var backout = Math.Abs(closingTaxLot.RealizedPnl);
+
+            // BUY -- Debit
+            // SELL -- Credit
+
+            if (closingTaxLot.Trade.IsShort() || closingTaxLot.Trade.IsSell())
+                backout *= -1;
+
+            if (backout != 0.0)
+            {
+                var debit = new Journal(element)
+                {
+                    Account = accountToFrom.From,
+                    CreditDebit = env.DebitOrCredit(accountToFrom.From, backout),
+                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, backout),
+
+                    When = env.ValueDate,
+                    FxRate = fxrate,
+                    Event = Event.SETTLEMENT,
+                    Fund = env.GetFund(element)
+                };
+
+                var credit = new Journal(debit)
+                {
+                    Account = accountToFrom.To,
+                    CreditDebit = env.DebitOrCredit(accountToFrom.To, backout * -1),
+                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, backout),
+                };
+
+                env.Journals.AddRange(new[] { debit, credit });
+            }
+        }
+
         /// <summary>
         /// Relieves the passed TaxLostStatus, this should only be used for FORWARDS etc that expire
         /// </summary>
@@ -188,7 +298,7 @@ namespace PostingEngine.PostingRules
                 SettleNetPrice = MarketPrices.GetPrice(env, trade.SettleDate, trade).Price;
             }
 
-            var prevFxRate = FxRates.Find(taxLotToRelieve.TradeDate, taxLotToRelieve.SettleCurrency).Rate;
+            var prevFxRate = FxRates.Find(env, taxLotToRelieve.TradeDate, taxLotToRelieve.SettleCurrency).Rate;
 
             var investmentAtCost = quantity * taxLotToRelieve.SettleNetPrice * prevFxRate;
             if (reverse)
@@ -208,6 +318,8 @@ namespace PostingEngine.PostingRules
             };
 
             CalculateRealizedPnl(env, tl);
+
+            env.TaxLot.Add(tl);
 
             tl.Save(env.Connection, env.Transaction);
 
@@ -234,9 +346,11 @@ namespace PostingEngine.PostingRules
 
             if (element.IsDerivative())
             {
-                var markToMarketAccount = "Mark to Market Derivatives Contracts at Fair Value (Liabilities)";
+                var markToMarketAccount = "Change in Unrealized Derivatives Contracts at Fair Value";
+                /*
                 if (pnl > 0)
                     markToMarketAccount = "Mark to Market Derivatives Contracts at Fair Value (Assets)";
+                */
 
                 fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals(markToMarketAccount)).FirstOrDefault(), listOfFromTags, element);
                 toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("REALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfToTags, element);
@@ -332,6 +446,37 @@ namespace PostingEngine.PostingRules
             env.Journals.AddRange(new[] { debitJournal, creditJournal });
         }
 
+        internal static void GenerateJournalEntries(PostingEngineEnvironment env, Transaction element, TaxLot taxlot, List<Tag> tags, string from, string to, double value, double fxrate)
+        {
+            var fromAccount = new AccountUtils().CreateAccount(AccountType.Find(from), tags, element);
+            var toAccount = new AccountUtils().CreateAccount(AccountType.Find(to), tags, element);
+
+            new AccountUtils().SaveAccountDetails(env, fromAccount);
+            new AccountUtils().SaveAccountDetails(env, toAccount);
+
+            var fromJournal = new Journal(element)
+            {
+                Account = fromAccount,
+                When = env.ValueDate,
+                StartPrice = taxlot.TradePrice,
+                EndPrice = taxlot.CostBasis,
+                CreditDebit = env.DebitOrCredit(fromAccount, value),
+                Value = env.SignedValue(fromAccount, toAccount, true, value),
+                FxRate = fxrate,
+                Event = Event.REALIZED_PNL,
+                Fund = env.GetFund(element),
+            };
+
+            var toJournal = new Journal(fromJournal)
+            {
+                Account = toAccount,
+                CreditDebit = env.DebitOrCredit(toAccount, value),
+                Value = env.SignedValue(fromAccount, toAccount, false, value),
+            };
+
+            env.Journals.AddRange(new[] { fromJournal, toJournal});
+        }
+
         internal static void PostRealizedPnl(PostingEngineEnvironment env, Transaction element, double realizedPnl, string from, string to)
         {
             var listOfTags = new List<Tag> {
@@ -379,16 +524,15 @@ namespace PostingEngine.PostingRules
             new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
             new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
 
+            var fund = env.GetFund(element);
 
-            if (element.IsDerivative())
+            var fromAmount = pnL;
+            var toAmount = pnL;
+
+            if ( element.IsShort())
             {
-                // Need to Credit the From and Debit the to
-                pnL *= -1;
-            }
-            else
-            {
-                if (element.IsShort() || element.IsCover())
-                    pnL *= -1;
+                fromAmount *= -1;
+                toAmount *= -1;
             }
 
             var debitJournal = new Journal(element)
@@ -397,11 +541,11 @@ namespace PostingEngine.PostingRules
                 When = env.ValueDate,
                 StartPrice = start,
                 EndPrice = end,
-                CreditDebit = env.DebitOrCredit(accountToFrom.From, pnL),
-                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, pnL),
+                CreditDebit = env.DebitOrCredit(accountToFrom.From, fromAmount),
+                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, fromAmount),
                 FxRate = fxrate,
                 Event = Event.REALIZED_PNL,
-                Fund = env.GetFund(element),
+                Fund = fund
             };
 
             var creditJournal = new Journal(element, accountToFrom.To, Event.REALIZED_PNL, env.ValueDate)
@@ -409,9 +553,9 @@ namespace PostingEngine.PostingRules
                 StartPrice = start,
                 EndPrice = end,
                 FxRate = fxrate,
-                CreditDebit = env.DebitOrCredit(accountToFrom.To, pnL * -1),
-                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, pnL),
-                Fund = env.GetFund(element),
+                CreditDebit = env.DebitOrCredit(accountToFrom.To, toAmount),
+                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, toAmount),
+                Fund = fund
             };
 
             env.Journals.AddRange(new[] { debitJournal, creditJournal });
@@ -421,16 +565,10 @@ namespace PostingEngine.PostingRules
         {
             var accountTypes = AccountType.All;
 
-            var listOfFromTags = new List<Tag> {
+            var listOfFromToTags = new List<Tag> {
                 Tag.Find("SecurityType"),
                 Tag.Find("CustodianCode")
              };
-
-            var listOfToTags = new List<Tag>
-            {
-                Tag.Find("SecurityType"),
-                Tag.Find("CustodianCode")
-            };
 
             if ( element.IsDerivative())
             {
@@ -438,8 +576,9 @@ namespace PostingEngine.PostingRules
                 if ( pnl > 0 )
                     markToMarketAccount = "Mark to Market Derivatives Contracts at Fair Value (Assets)";
 
-                var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals(markToMarketAccount)).FirstOrDefault(), listOfFromTags, element);
-                var toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Change in Unrealized Derivatives Contracts at Fair Value")).FirstOrDefault(), listOfToTags, element);
+                var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals(markToMarketAccount)).FirstOrDefault(), listOfFromToTags, element);
+                var toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("Change in Unrealized Derivatives Contracts at Fair Value")).FirstOrDefault(), listOfFromToTags, element);
+
                 return new AccountToFrom
                 {
                     From = fromAccount,
@@ -449,8 +588,8 @@ namespace PostingEngine.PostingRules
             else
             {
                 var markToMarketAccount = element.IsShort() || element.IsCover() ? "Mark to Market Shorts" : "Mark to Market Longs";
-                var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals(markToMarketAccount)).FirstOrDefault(), listOfFromTags, element);
-                var toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CHANGE IN UNREALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfToTags, element);
+                var fromAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals(markToMarketAccount)).FirstOrDefault(), listOfFromToTags, element);
+                var toAccount = new AccountUtils().CreateAccount(accountTypes.Where(i => i.Name.Equals("CHANGE IN UNREALIZED GAIN/(LOSS)")).FirstOrDefault(), listOfFromToTags, element);
                 return new AccountToFrom
                 {
                     From = fromAccount,
@@ -469,7 +608,7 @@ namespace PostingEngine.PostingRules
             var fromJournal = new Journal(openTaxLot)
             {
                 When = env.ValueDate,
-                Event = Event.REVERSE_UNREALIZED_PNL,
+                Event = Event.REALIZED_PNL,
                 FxRate = fxrate,
                 Fund = env.GetFund(openTaxLot),
                 StartPrice = start,
@@ -503,7 +642,7 @@ namespace PostingEngine.PostingRules
             // Lets get fx rate if needed
             if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
             }
 
             var prevPrice = MarketPrices.GetPrice(env, env.PreviousValueDate, lot.Trade).Price;
@@ -613,7 +752,7 @@ namespace PostingEngine.PostingRules
             // Lets get fx rate if needed
             if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
             }
 
             var tradeAllocations = env.Allocations.Where(i => i.LpOrderId == element.LpOrderId).ToList();
@@ -697,7 +836,7 @@ namespace PostingEngine.PostingRules
             // Lets get fx rate if needed
             if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
             }
 
             var accountToFrom = new AccountingRules().GetFromToAccountOnSettlement(env, element);

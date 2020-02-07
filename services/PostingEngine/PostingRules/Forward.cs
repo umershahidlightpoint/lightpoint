@@ -155,10 +155,6 @@ namespace PostingEngine.PostingRules
 
         public void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
-            if ( element.LpOrderId.Equals("0b9749d1-abe6-4bab-ad7d-65dccf17017b"))
-            {
-
-            }
             // On Settlement Date we backout the Tax Lot for FORWARDS
             if (env.TaxLotStatus.ContainsKey(element.LpOrderId))
             {
@@ -179,7 +175,7 @@ namespace PostingEngine.PostingRules
                 var baseQuantity = element.Quantity;
 
                 var eodPrice = MarketPrices.GetPrice(env, env.ValueDate, element).Price;
-                var fxRate = FxRates.Find(env.ValueDate, fxCurrency).Rate;
+                var fxRate = FxRates.Find(env, env.ValueDate, fxCurrency).Rate;
 
                 var buyValue = baseQuantity * tradePrice * fxRate;
                 var sellValue = baseQuantity * eodPrice * fxRate;
@@ -318,10 +314,10 @@ namespace PostingEngine.PostingRules
             // Lets get fx rate if needed
             if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
             }
 
-            var t1 = env.GenerateOpenTaxLot(element, fxrate);
+            var t1 = env.GenerateOpenTaxLotStatus(element, fxrate);
             Logger.Info($"Generated Open TaxLot {t1.Symbol}::{t1.Side}::{element.SecurityType}");
         }
     }

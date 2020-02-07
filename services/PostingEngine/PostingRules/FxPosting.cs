@@ -52,8 +52,8 @@ namespace PostingEngine.PostingRules
 
             var currency = element.SettleCurrency;
 
-            var prevEodFxRate = Convert.ToDouble(FxRates.Find(env.PreviousValueDate, currency).Rate);
-            var eodFxRate = Convert.ToDouble(FxRates.Find(env.ValueDate, currency).Rate);
+            var prevEodFxRate = Convert.ToDouble(FxRates.Find(env, env.PreviousValueDate, currency).Rate);
+            var eodFxRate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, currency).Rate);
             var effectiveRate = eodFxRate - prevEodFxRate;
 
             var usdEquivalent = element.NetMoney * effectiveRate;
@@ -128,8 +128,8 @@ namespace PostingEngine.PostingRules
             var prevPrice = Convert.ToDouble(MarketPrices.GetPrice(env, env.PreviousValueDate, element).Price);
             var eodPrice = Convert.ToDouble(MarketPrices.GetPrice(env, env.ValueDate, element).Price);
 
-            var prevEodFxRate = Convert.ToDouble(FxRates.Find(env.PreviousValueDate, riskCurrency).Rate);
-            var eodFxRate = Convert.ToDouble(FxRates.Find(env.ValueDate, riskCurrency).Rate);
+            var prevEodFxRate = Convert.ToDouble(FxRates.Find(env, env.PreviousValueDate, riskCurrency).Rate);
+            var eodFxRate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, riskCurrency).Rate);
             var effectiveRate = eodFxRate - prevEodFxRate;
 
             var usdEquivalent = element.Quantity * (eodPrice - prevPrice) * effectiveRate;
@@ -192,8 +192,8 @@ namespace PostingEngine.PostingRules
                 return 0.0;
             }
 
-            var prevRate = FxRates.Find(env.PreviousValueDate, unsettledPnls[0].Currency).Rate;
-            var eodRate = FxRates.Find(env.ValueDate, unsettledPnls[0].Currency).Rate;
+            var prevRate = FxRates.Find(env, env.PreviousValueDate, unsettledPnls[0].Currency).Rate;
+            var eodRate = FxRates.Find(env, env.ValueDate, unsettledPnls[0].Currency).Rate;
 
             if ( element.SecurityType.Equals("FORWARD") || element.SecurityType.Equals("CROSS"))
             {
@@ -335,8 +335,8 @@ namespace PostingEngine.PostingRules
                 if (unsettledPnl.Currency.Equals(env.BaseCurrency))
                     continue;
 
-                var prevRate = FxRates.Find(env.PreviousValueDate, unsettledPnl.Currency).Rate;
-                var eodRate = FxRates.Find(env.ValueDate, unsettledPnl.Currency).Rate;
+                var prevRate = FxRates.Find(env, env.PreviousValueDate, unsettledPnl.Currency).Rate;
+                var eodRate = FxRates.Find(env, env.ValueDate, unsettledPnl.Currency).Rate;
 
                 var change = eodRate - prevRate;
                 var fxCashCredit = change * (unsettledPnl.Credit / unsettledPnl.FxRate);

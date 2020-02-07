@@ -88,7 +88,7 @@ namespace PostingEngine.TaxLotMethods
         /// <returns></returns>
         private double CalculateUnrealizedPnl(PostingEngineEnvironment env, TaxLotDetail i, Transaction trade, double workingQuantity)
         {
-            var fxrate = FxRates.Find(env.ValueDate, i.Trade.SettleCurrency).Rate;
+            var fxrate = FxRates.Find(env, env.ValueDate, i.Trade.SettleCurrency).Rate;
 
             double multiplier = 1.0;
 

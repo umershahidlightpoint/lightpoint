@@ -33,7 +33,7 @@ namespace PostingEngine.PostingRules
             // Lets get fx rate if needed
             if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
             }
 
             // Calculate the unrealized PNL
@@ -165,12 +165,12 @@ namespace PostingEngine.PostingRules
             // Lets get fx rate if needed
             if (!element.SettleCurrency.Equals(env.BaseCurrency))
             {
-                fxrate = Convert.ToDouble(FxRates.Find(env.ValueDate, element.SettleCurrency).Rate);
+                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
             }
 
             if ( element.IsBuy() || element.IsShort())
             {
-                var t1 = env.GenerateOpenTaxLot(element, fxrate);
+                var t1 = env.GenerateOpenTaxLotStatus(element, fxrate);
 
                 if ( element.Quantity == 0 )
                 {
@@ -185,7 +185,7 @@ namespace PostingEngine.PostingRules
 
                 if ( openLots.Count() == 0)
                 {
-                    var t1 = env.GenerateOpenTaxLot(element, fxrate);
+                    var t1 = env.GenerateOpenTaxLotStatus(element, fxrate);
                     // Whats going on here?
                     // We are skipping anything that does not get an OpenLot
                     env.AddMessage($"There should be for a sell {element.Symbol} have at least one open lot, non found");

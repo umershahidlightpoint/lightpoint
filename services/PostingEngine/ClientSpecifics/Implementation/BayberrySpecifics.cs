@@ -27,19 +27,24 @@ namespace PostingEngine.ClientSpecifics
             update = finalTradeList.Where(t => t.Symbol.Equals("DUE GR")).ToArray();
             foreach (var t in update) { t.Symbol = sec.Symbol; t.SecurityId = sec.SecurityId; }
 
-            const bool DEBUG_TRADE_LIST = true;
+            const bool DEBUG_TRADE_LIST = false;
             if (DEBUG_TRADE_LIST)
             {
                 var securityTypeTags = new List<string> {
                     //"FORWARD",
-                    "Equity Swap"
+                    //"Common Stock",
+                    //"Equity Swap"
                     };
 
                 var symbolTags = new List<string>
                 {
-                    //"BGA AU SWAP",
+                    //"AEO",
+                    //"ROST",
+                    //"CDAY",
                     //"GIL",
                     //"LW",
+                    "BGA AU SWAP",
+                    //"MAREL NA",
                     //"GBP/USD 12/18/2019",
                     //"USD/CAD 3/18/2020"
                 };

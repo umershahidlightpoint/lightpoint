@@ -21,30 +21,27 @@ namespace PostingEngine.MarketData
 
         private static Dictionary<string, FxRate> _all { get; set; }
 
-        public static FxRate Find(DateTime busDate, string currency)
+        private static FxRate USD = new FxRate { Rate = 1.0 };
+
+        public static FxRate Find(PostingEngineEnvironment env, DateTime busDate, string currency)
         {
             if ( currency.Equals("USD"))
             {
-                return new FxRate
-                {
-                    Rate = 1
-                };
+                return USD;
             }
 
-            /*
             var ccy = $"@CASH{currency}";
-            var f = MarketPrices.Find(busDate, ccy);
+            var f = MarketPrices.GetPrice(env, busDate, ccy, true);
             if (f.Price != 0)
                 return new FxRate
                 {
                     Rate = f.Price
                 };
-                */
 
             return FindEx(busDate, currency);
         }
 
-        public static FxRate FindEx(DateTime busDate, string currency)
+        private static FxRate FindEx(DateTime busDate, string currency)
         {
             var bDate = busDate.ToString("MM-dd-yyyy");
 

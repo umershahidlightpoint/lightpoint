@@ -43,10 +43,10 @@ from #temp t
 inner join (
 select [When], s.SecurityCode as Symbol, Fund, SUM(credit-debit) as GG from vwFullJournal v
 inner join SecurityMaster..Security s on s.SecurityId = v.security_id
-where (AccountType = 'CHANGE IN UNREALIZED GAIN/(LOSS)' and [event] = 'unrealizedpnl')
+where (AccountType = 'CHANGE IN UNREALIZED GAIN/(LOSS)' and [event] = 'daily-unrealizedpnl')
 or (AccountType = 'change in unrealized due to fx on original Cost' and [event] = 'daily-unrealizedpnl-fx')
 or (AccountType = 'change in unrealized do to fx translation' and [event] = 'unrealized-cash-fx')
-and v.SecurityType not in ( 'Equity Swap', 'FORWARD' )
+and v.SecurityType not in ( 'Equity Swap', 'FORWARD', 'CROSS' )
 group by [When], s.SecurityCode, Fund
 ) as v on v.[when] = t.BusDate and v.fund = t.fund and v.symbol = t.SecurityCode
 
@@ -57,7 +57,7 @@ inner join (
 select [When], s.SecurityCode as Symbol, Fund, SUM(credit-debit) as GG from vwFullJournal v
 inner join SecurityMaster..Security s on s.SecurityId = v.security_id
 where (AccountType = 'Change in Unrealized Derivatives Contracts at Fair Value')
-and v.SecurityType in ( 'Equity Swap', 'FORWARD' )
+and v.SecurityType in ( 'Equity Swap', 'FORWARD', 'CROSS' )
 group by [When], s.SecurityCode, Fund
 ) as v on v.[when] = t.BusDate and v.fund = t.fund and v.symbol = t.SecurityCode
 

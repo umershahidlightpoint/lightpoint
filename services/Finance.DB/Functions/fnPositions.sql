@@ -1,7 +1,7 @@
 ﻿/*
 Examples:
 
-select * from fnPositions('2019-12-17')
+select * from fnPositions('2019-12-31')
 
 select * from tax_lot_status
 select * from market_prices
@@ -26,18 +26,22 @@ RETURNS @returntable TABLE
 	investment_at_cost numeric(22,9),
 	exposure numeric(22,9),
 	price numeric(22,9),
-	fx numeric(22,9)
+	fx numeric(22,9),
+	commission numeric(22,9),
+	fees numeric(22,9)
 )
 AS
 BEGIN
 
-WITH taxlotstatus (business_date, open_id, symbol, side, security_id, fund, trade_currency, currency, quantity, investment_at_cost, price, security_type)
+WITH taxlotstatus (business_date, open_id, symbol, side, security_id, fund, trade_currency, currency, quantity, investment_at_cost, price, comissions, fees, security_type)
 AS
 (
 select @bDate as business_date, open_id, tax_lot_status.symbol, tax_lot_status.side, t.SecurityId, tax_lot_status.Fund, t.TradeCurrency, t.SettleCurrency,
 SUM(original_quantity) as quantity, 
 Sum(investment_at_cost * -1) as investment_at_cost,
 Max(trade_price) as price,
+SUM(t.Commission) as commission,
+SUM(t.fees) as fees,
 t.SecurityType
 from tax_lot_status 
 inner join TradeMaster..trade t on t.LpOrderId = tax_lot_status.open_id
@@ -86,7 +90,9 @@ where coalesce(sd.Multiplier, sf.ContractSize) is not null
 			when trade_currency = 'GBX' or trade_currency = 'GBP' then Max(coalesce(mp.price, 0)) / 100.0
 			else Max(coalesce(mp.price, 0))
 		end,
-		Max(coalesce(fx.price, 1))
+		Max(coalesce(fx.price, 1)),
+		SUM(tls.comissions),
+		SUM(tls.fees)
 		from taxlotstatus tls
 		left outer join taxlot tl on tl.open_lot_id = tls.open_id
 		left outer join market_prices mp on mp.security_id = tls.security_id and mp.business_date = @bDate

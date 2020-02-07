@@ -12,9 +12,9 @@ AS
 Grab Data from PA first
 */
 
-Exec PeriodPnl @businessDate
+Exec PeriodPnl @businessDate, 1
 
-select @businessDate as busDate, s.SecurityCode, pnl.SecurityId, Sum(Amount) as Quantity, Sum(Pl) as DayPnl, Sum(MTDPnl) as MTDPnl, Sum(YTDPnl) as YTDPnl 
+select @businessDate as busDate, s.SecurityCode, pnl.SecurityId, Sum(Amount) as Quantity, Sum(PLBaseRealizedPnl + PLBaseUnRealizedPnl) as DayPnl, Sum(MTDBaseRealizedPnl + MTDBaseUnRealizedPnl) as MTDPnl, Sum(YTDBaseRealizedPnl + YTDBaseUnRealizedPnl) as YTDPnl 
 into #fundadmin
 from PositionMaster..CITCOPnl pnl
 inner join SecurityMaster..Security s on s.SecurityId = pnl.SecurityId
