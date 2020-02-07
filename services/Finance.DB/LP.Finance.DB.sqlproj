@@ -66,6 +66,7 @@
     <Folder Include="StoredProcs\Recon" />
     <Folder Include="StoredProcs\Reports" />
     <Folder Include="StoredProcs\addHocScripts" />
+    <Folder Include="StoredProcs\Research and Development" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\file.sql" />
@@ -148,6 +149,7 @@
     <None Include="StoredProcs\addHocScripts\Script1.sql" />
     <Build Include="StoredProcs\EndOfYear.sql" />
     <Build Include="Tables\report_recepient.sql" />
+    <Build Include="StoredProcs\Research and Development\CacheBatchResults_rd.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">
