@@ -52,9 +52,11 @@ namespace PostingEngine
         public static void Complete()
         {
             PostingEngineCallBack?.Invoke("Start Caching Result");
-
-            var dataTable = new SqlHelper(connectionString).GetDataTables("CacheResults", CommandType.StoredProcedure);
-
+            var sqlParams = new SqlParameter[]
+            {
+                new SqlParameter("BatchSize", 100000)
+            };            
+            var dataTable = new SqlHelper(connectionString).GetDataTables("CacheBatchResults_rd", CommandType.StoredProcedure, sqlParams, Logger);
             PostingEngineCallBack?.Invoke("End Caching Result");
         }
 

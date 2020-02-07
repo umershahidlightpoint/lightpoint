@@ -119,12 +119,18 @@ namespace SqlDAL.Core
             }
         }
 
-        public DataTableCollection GetDataTables(string commandText, CommandType commandType, SqlParameter[] parameters = null)
+        public DataTableCollection GetDataTables(string commandText, CommandType commandType, SqlParameter[] parameters = null, NLog.Logger logger = null)
         {
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
-
+                connection.InfoMessage += delegate (object sender, SqlInfoMessageEventArgs e)
+                {
+                    if (logger != null)
+                    {
+                        logger.Info(e.Message);
+                    }
+                };
                 using (var command = new SqlCommand(commandText, connection))
                 {
                     command.CommandTimeout = 300;
