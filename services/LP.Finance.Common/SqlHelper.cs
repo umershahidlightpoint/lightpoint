@@ -126,7 +126,10 @@ namespace SqlDAL.Core
                 connection.Open();
                 connection.InfoMessage += delegate (object sender, SqlInfoMessageEventArgs e)
                 {
-                    logger.Info(e.Message);
+                    if (logger != null)
+                    {
+                        logger.Info(e.Message);
+                    }
                 };
                 using (var command = new SqlCommand(commandText, connection))
                 {
