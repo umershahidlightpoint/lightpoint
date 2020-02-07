@@ -154,14 +154,17 @@ export class JournalModalComponent implements OnInit {
     }
   }
 
-  getAccountCategories(response) {
+  getAccountCategories(response: Response<AccountCategory[]>) {
     if (response.isSuccessful) {
-      this.toAccountCategories = response.payload.filter(element => element.name !== 'Dummy');
-      this.fromAccountCategories = response.payload.filter(element => element.name !== 'Dummy');
+      this.toAccountCategories = response.payload.filter(element => element.id !== 0);
+      this.fromAccountCategories = response.payload.filter(element => element.id !== 0);
 
-      this.dummyAccountCategory = response.payload.find(item => item.name === 'Dummy');
+      this.dummyAccountCategory = response.payload.find(item => item.id === 0);
       this.getAccountTypes(this.dummyAccountCategory.id).subscribe(
-        data => (this.dummyAccountType = data.payload.find(item => item.name === 'Dummy Type'))
+        data =>
+          (this.dummyAccountType = data.payload.find(element =>
+            element.name.toLowerCase().startsWith('dummy')
+          ))
       );
     } else {
       this.toastrService.error('Failed to fetch account categories!');
@@ -332,7 +335,7 @@ export class JournalModalComponent implements OnInit {
         accountCurrency: toAccountCurrency
       },
       accountFrom:
-        fromAccountCategory && fromAccountCategory !== 'Dummy'
+        fromAccountCategory && this.selectedFromAccountCategory.id !== 0
           ? {
               ...(this.editJournal &&
                 !this.contraEntryMode && {
@@ -478,10 +481,10 @@ export class JournalModalComponent implements OnInit {
               AccountTo.Symbol,
               AccountTo.FxCurrency,
               AccountFrom ? AccountFrom.CreditDebit : null,
-              AccountFrom.AccountCategory !== 'Dummy' && AccountFrom.AccountCategory,
-              AccountFrom.AccountCategory !== 'Dummy' && AccountFrom.AccountType,
-              AccountFrom.AccountCategory !== 'Dummy' && AccountFrom.Symbol,
-              AccountFrom.AccountCategory !== 'Dummy' && AccountFrom.FxCurrency,
+              AccountFrom.AccountCategoryId !== 0 && AccountFrom.AccountCategory,
+              AccountFrom.AccountCategoryId !== 0 && AccountFrom.AccountType,
+              AccountFrom.AccountCategoryId !== 0 && AccountFrom.Symbol,
+              AccountFrom.AccountCategoryId !== 0 && AccountFrom.FxCurrency,
               When,
               AccountTo.Value,
               Comment
