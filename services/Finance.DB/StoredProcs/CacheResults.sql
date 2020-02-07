@@ -11,14 +11,16 @@ RAISERROR ('Preparing', 0, 1) WITH NOWAIT
 	select * into #current_trade_state from vwCurrentStateTrades 
 	select * into #current_journal from vwJournal
 
-	RAISERROR ('Dropping Indexes', 0, 1) WITH NOWAIT
-	drop index Ix_current_journal_full_when on current_journal_full
-	drop index Ix_current_journal_full_covering_index on current_journal_full
+	--RAISERROR ('Dropping Indexes', 0, 1) WITH NOWAIT
+	--drop index Ix_current_journal_full_when on current_journal_full
+	--drop index Ix_current_journal_full_covering_index on current_journal_full
 
-	truncate table current_journal_full
+	--truncate table current_journal_full
+	RAISERROR ('Dropping table', 0, 1) WITH NOWAIT
+	drop table current_journal_full
 
 	RAISERROR ('Populating current_journal_full', 0, 1) WITH NOWAIT
-	insert into current_journal_full
+	--insert into current_journal_full
 	select vw.*, 
 	t.TradeDate,
 	t.SettleDate,
@@ -28,6 +30,7 @@ RAISERROR ('Preparing', 0, 1) WITH NOWAIT
 	t.CustodianCode, 
 	t.SecurityType,
 	t.Side
+	into current_journal_full
 from #current_journal vw
 left outer join #current_trade_state t on t.LpOrderId = vw.source
 
