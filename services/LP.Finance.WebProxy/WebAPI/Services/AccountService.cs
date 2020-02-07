@@ -78,7 +78,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 : (accountCategory.Length > 0 ? " WHERE [account_category].[name] LIKE '%'+@accountCategory+'%'" : ""));
 
             query.Append(
-                " ORDER BY [account].[id] DESC OFFSET(@pageNumber - 1) * @pageSize ROWS FETCH NEXT @pageSize ROWS ONLY");
+                " ORDER BY [account].[id] DESC");
+
+//            query.Append(
+//                " OFFSET(@pageNumber - 1) * @pageSize ROWS FETCH NEXT @pageSize ROWS ONLY");
 
             List<AccountsOutputDto> accounts = new List<AccountsOutputDto>();
             MetaData meta = new MetaData();
