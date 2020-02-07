@@ -14,6 +14,7 @@ export { ProgressComponent } from './lib/components/progress/progress.component'
 export { LoadingComponent } from './lib/components/loading/loading.component';
 export { SelectThemeComponent } from './lib/components/select-theme/select-theme.component';
 export { ServicesLogComponent } from './lib/components/services-log/services-log.component';
+export { ConfirmationModalComponent } from './lib/components/confirmation-modal/confirmation-modal.component';
 
 /*
  * Services

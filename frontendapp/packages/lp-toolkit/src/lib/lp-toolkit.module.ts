@@ -6,6 +6,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSidenavModule } from '@angular/material';
 import { MatListModule } from '@angular/material/list';
 import { AgGridModule } from 'ag-grid-angular';
+import { TabsModule, ModalModule, AlertModule, TooltipModule } from 'ngx-bootstrap';
 
 import { LpToolkitComponent } from './lp-toolkit.component';
 import { MenuComponent } from './components/layouts/menu/menu.component';
@@ -16,7 +17,8 @@ import { ProgressComponent } from './components/progress/progress.component';
 import { LoadingComponent } from './components/loading/loading.component';
 import { SelectThemeComponent } from './components/select-theme/select-theme.component';
 import { ServicesLogComponent } from './components/services-log/services-log.component';
-import { TemplateRendererComponent } from './components/shared/template-renderer/template-renderer.component';
+import { TemplateRendererComponent } from './components/template-renderer/template-renderer.component';
+import { ConfirmationModalComponent } from './components/confirmation-modal/confirmation-modal.component';
 
 import { SidenavService } from './services/sidenav.service';
 import { ThemeService } from './services/theme.service';
@@ -34,10 +36,12 @@ const sharedComponents = [
   LoadingComponent,
   SelectThemeComponent,
   ServicesLogComponent,
-  TemplateRendererComponent
+  TemplateRendererComponent,
+  ConfirmationModalComponent
 ];
 
 const materialModules = [MatSidenavModule, MatListModule];
+const bootstrapModules = [TabsModule, ModalModule, AlertModule, TooltipModule];
 
 @NgModule({
   declarations: [...sharedComponents],
@@ -47,7 +51,8 @@ const materialModules = [MatSidenavModule, MatListModule];
     FormsModule,
     ReactiveFormsModule,
     AgGridModule.withComponents([TemplateRendererComponent]),
-    ...materialModules
+    ...materialModules,
+    ...bootstrapModules
   ],
   exports: [
     CommonModule,
