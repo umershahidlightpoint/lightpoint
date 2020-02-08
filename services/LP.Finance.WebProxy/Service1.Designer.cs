@@ -1,4 +1,4 @@
-﻿namespace LP.ReferenceData.WebProxy
+﻿namespace LP.Finance.WebProxy
 {
     partial class Service1
     {

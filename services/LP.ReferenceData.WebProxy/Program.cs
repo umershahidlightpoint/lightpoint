@@ -9,12 +9,14 @@ namespace LP.ReferenceData.WebProxy
 {
     static class Program
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         static void Main(string[] args)
         {
-            Console.WriteLine(args);
+            Logger.Info($"Arguments : {String.Join("|", args)}");
 
             if (args.Count() == 0)
             {
@@ -29,7 +31,7 @@ namespace LP.ReferenceData.WebProxy
             {
                 Service1 service = new Service1();
                 service.Start();
-                Console.WriteLine("Waiting");
+                Logger.Info($"Service Running");
                 System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite);
             }
         }

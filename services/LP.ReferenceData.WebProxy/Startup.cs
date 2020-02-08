@@ -10,8 +10,11 @@ namespace LP.ReferenceData.WebProxy
 {
     public class Startup
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         public void Configuration(IAppBuilder app)
         {
+            Logger.Info($"Startup");
+
             app.MapSignalR();
 
             // Configure Web API for self-host.

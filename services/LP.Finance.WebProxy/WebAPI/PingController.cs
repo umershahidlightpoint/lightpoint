@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Web.Http;
 
-namespace LP.ReferenceData.WebProxy.WebAPI
+namespace LP.Finance.WebProxy.WebAPI
 {
     public class PingController : ApiController
     {

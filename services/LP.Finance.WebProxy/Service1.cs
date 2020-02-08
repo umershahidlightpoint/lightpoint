@@ -2,7 +2,7 @@
 using System;
 using System.ServiceProcess;
 
-namespace LP.ReferenceData.WebProxy
+namespace LP.Finance.WebProxy
 {
     public partial class Service1 : ServiceBase
     {

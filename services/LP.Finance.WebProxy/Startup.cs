@@ -9,7 +9,7 @@ using Microsoft.AspNet.SignalR;
 using Microsoft.Owin.Cors;
 using Owin;
 
-namespace LP.ReferenceData.WebProxy
+namespace LP.Finance.WebProxy
 {
     public class Startup
     {
