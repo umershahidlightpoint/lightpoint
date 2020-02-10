@@ -42,8 +42,8 @@ namespace PostingEngine.ClientSpecifics
                     //"ROST",
                     //"CDAY",
                     //"GIL",
-                    //"LW",
-                    "BGA AU SWAP",
+                    "9142 JP",
+                    //"BGA AU SWAP",
                     //"MAREL NA",
                     //"GBP/USD 12/18/2019",
                     //"USD/CAD 3/18/2020"

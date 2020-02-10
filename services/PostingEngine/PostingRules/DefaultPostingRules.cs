@@ -171,7 +171,7 @@ namespace PostingEngine.PostingRules
             }
 
             // This is only for closing tax lots
-            var closingTaxLots = env.TaxLot.Where(i => i.ClosingLotId.Equals(element.LpOrderId));
+            var closingTaxLots = env.TaxLot.Where(i => i.ClosingLotId.Equals(element.LpOrderId)).ToList();
 
             foreach (var closingTaxLot in closingTaxLots)
             {
@@ -245,7 +245,9 @@ namespace PostingEngine.PostingRules
                         if (Math.Abs(taxlotStatus.Quantity) >= Math.Abs(workingQuantity))
                         {
                             // Lets generate all the journal entries we need
-                            GenerateJournals(env, lot, taxlotStatus, element, workingQuantity, fxrate, multiplier);
+                            var taxlot = GenerateJournals(env, lot, taxlotStatus, element, workingQuantity, fxrate, multiplier);
+
+                            CommonRules.GenerateTradeDateJournals(env, taxlotStatus, taxlot);
 
                             break;
                         }
@@ -253,14 +255,14 @@ namespace PostingEngine.PostingRules
                         {
                             var quantity = taxlotStatus.Quantity;
 
-                            GenerateJournals(env, lot, taxlotStatus, element, taxlotStatus.Quantity * -1, fxrate, multiplier);
+                            var closingTaxLot = GenerateJournals(env, lot, taxlotStatus, element, taxlotStatus.Quantity * -1, fxrate, multiplier);
+
+                            CommonRules.GenerateTradeDateJournals(env, taxlotStatus, closingTaxLot);
 
                             workingQuantity += quantity;
                         }
                     }
                 }
-
-                CommonRules.GenerateTradeDateJournals(env, element);
             }
             else
             {
@@ -279,7 +281,7 @@ namespace PostingEngine.PostingRules
         /// <param name="workingQuantity"></param>
         /// <param name="fxrate"></param>
         /// <param name="multiplier"></param>
-        private void GenerateJournals(PostingEngineEnvironment env, TaxLotDetail lot, TaxLotStatus taxlotStatus, Transaction element, double workingQuantity, double fxrate, double multiplier)
+        private TaxLot GenerateJournals(PostingEngineEnvironment env, TaxLotDetail lot, TaxLotStatus taxlotStatus, Transaction element, double workingQuantity, double fxrate, double multiplier)
         {
             var buyTrade = env.FindTrade(lot.Trade.LpOrderId);
 
@@ -371,59 +373,9 @@ namespace PostingEngine.PostingRules
                 ReversePosting(env, "Change in unrealized due to fx on original Cost", CommonRules.GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"), buyTrade, sumFxMarkToMarket);
             }
 
-
-            var listOfFromTags = new List<Tag>
-                                    {
-                                        Tag.Find("SecurityType"),
-                                        Tag.Find("CustodianCode")
-                                    };
-
-            /*
-            var markToMarketAccount = (buyTrade.IsShort() || buyTrade.IsCover()) ? "Mark to Market Shorts" : "Mark to Market Longs";
-
-            var fromTo = new AccountUtils().GetAccounts(env, "CHANGE IN UNREALIZED GAIN/(LOSS)", markToMarketAccount, listOfFromTags, element);
-
-            if (fxrate == 1.0)
-            {
-                changeInUnRealized = Convert.ToDouble(taxlot.RealizedPnl) * -1;
-            }
-
-            // Now Generate Entries for the trade that is drawing down on the taxLot
-            var fromJournal = new Journal(buyTrade)
-            {
-                Account = fromTo.From,
-                When = env.ValueDate,
-
-                CreditDebit = env.DebitOrCredit(fromTo.From, changeInUnRealized),
-                Value = env.SignedValue(fromTo.From, fromTo.To, true, changeInUnRealized),
-                Event = Event.UNREALIZED_PNL,
-                Fund = env.GetFund(element),
-
-                StartPrice = taxlot.TradePrice,
-                EndPrice = taxlot.CostBasis,
-                FxRate = fxrate,
-            };
-
-            var toJournal = new Journal(buyTrade)
-            {
-                Account = fromTo.To,
-                When = env.ValueDate,
-
-                CreditDebit = env.DebitOrCredit(fromTo.To, changeInUnRealized * -1),
-                Value = env.SignedValue(fromTo.From, fromTo.To, false, changeInUnRealized),
-                Event = Event.UNREALIZED_PNL,
-                Fund = env.GetFund(element),
-
-                StartPrice = taxlot.TradePrice,
-                EndPrice = taxlot.CostBasis,
-                FxRate = fxrate,
-            };
-
-            env.Journals.AddRange(new[] { fromJournal, toJournal });
-            */
+            return taxlot;
         }
 
-       
         private void PostRealizedFxGain(PostingEngineEnvironment env, Transaction element, double realizedFxPnl, double start, double end, double fxrate)
         {
             var accountType = (element.IsShort() || element.IsCover()) ? "SHORT POSITIONS AT COST" : "LONG POSITIONS AT COST";

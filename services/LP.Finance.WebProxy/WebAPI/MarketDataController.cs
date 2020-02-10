@@ -1,5 +1,4 @@
 ﻿using LP.Finance.Common.Model;
-using LP.Finance.WebProxy.WebAPI.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -15,7 +14,8 @@ using System.Net;
 using System.Data.SqlClient;
 using System.Linq;
 using LP.FileProcessing;
-using LP.FileProcessing.MetaData;
+using LP.Finance.Common.IO;
+using LP.Finance.Common.FileMetaData;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -35,7 +35,7 @@ namespace LP.Finance.WebProxy.WebAPI
 
         public SqlHelper SqlHelper = new SqlHelper(ConnectionString);
         private readonly FileProcessor _fileProcessor = new FileProcessor();
-        private readonly FileManagementService _fileManagementService = new FileManagementService();
+        private readonly FileManager _fileManagementService = new FileManager(ConnectionString);
 
         public object GetPrices()
         {
@@ -148,7 +148,7 @@ namespace LP.Finance.WebProxy.WebAPI
                         DateTime.Now)
                 };
 
-                _fileManagementService.InsertActivityAndPositionFilesForSilver(fileList);
+                _fileManagementService.InsertActivityAndPositionFiles(fileList);
                 /*
                 var dailyPerformanceResult = new DailyPnlCalculator().CalculateDailyPerformance(performanceRecords);
                 var dailyPerformance = dailyPerformanceResult.GetType().GetProperty("payload")

@@ -58,15 +58,6 @@ namespace PostingEngine.PostingRules
 
             var usdEquivalent = element.NetMoney * effectiveRate;
 
-            if ( element.IsBuy())
-            {
-                usdEquivalent *= -1;
-            }
-            else if (element.IsShort())
-            {
-
-            }
-
             // Get accounts
             var toFrom = new AccountUtils().GetAccounts(env, fromAccount, toAccount, _TAGS, element);
 

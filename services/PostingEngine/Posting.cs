@@ -235,7 +235,7 @@ namespace PostingEngine
         /// <param name="period"></param>
         /// <param name="key"></param>
         /// <param name="postingEngineCallBack"></param>
-        public static void Start(string period, Guid key, DateTime businessDate, PostingEngineCallBack postingEngineCallBack)
+        public static void RunForPeriod(string period, Guid key, DateTime businessDate, PostingEngineCallBack postingEngineCallBack)
         {
             Period = period;
             Key = key;

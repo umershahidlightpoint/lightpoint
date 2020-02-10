@@ -33,7 +33,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public SqlHelper sqlHelper = new SqlHelper(connectionString);
         private readonly EntityMapper mapper = new EntityMapper();
-        private static readonly string tradesURL = "/api/trade?period=ITD";
         private static readonly string allocationsURL = "/api/allocation?period=ITD";
 
         public object Data(string symbol, int pageNumber, int pageSize, string sortColumn = "id",
@@ -1580,11 +1579,15 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
+        private static int COUNT = 0;
+
         public object serverSideJournals(ServerRowModel obj)
         {
             var sw = new Stopwatch();
             sw.Start();
-            Logger.Info($"started serverSideJournals at {DateTime.UtcNow}");
+            var count = COUNT++;
+
+            Logger.Info($"{count} started serverSideJournals at {DateTime.UtcNow}");
             var viewName = "vwFullJournal";
 
             try
@@ -1592,7 +1595,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 journalStats journalStats = new journalStats();
 
                 var sql = ServerSideRowModelHelper.BuildSql(obj, viewName);
-                var query = sql.Item1 + " OPTION(MAXDOP 4)";
+                var query = sql.Item1 + " OPTION(MAXDOP 1)";
                 Logger.Info("serverSideJournals query {query}", query);
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sql.Item3.ToArray());
                 int lastRow = ServerSideRowModelHelper.GetRowCount(obj, dataTable);
@@ -1611,7 +1614,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var returnResult = Utils.Wrap(true, json, HttpStatusCode.OK, sql.Item2, metaData, journalStats);
                 sw.Stop();
-                Logger.Info("finished serverSideJournals in {elapsedTime} ms", sw.ElapsedMilliseconds);
+                Logger.Info($"{count} finished serverSideJournals in {sw.ElapsedMilliseconds} ms");
                 return returnResult;
             }
             catch (Exception ex)
