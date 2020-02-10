@@ -91,7 +91,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
     this.isPublicSelected = layout.IsPublic;
     this.gridLayoutApiService.GetAGridLayout(layout.Id).subscribe(response => {
       if (this.gridObject.dataSource) {
-        // this.gridOptions.api.setServerSideDatasource([]);
+        this.gridOptions.api.setServerSideDatasource(null);
       }
 
       this.gridOptions.columnApi.setColumnState(JSON.parse(response.payload.ColumnState));
@@ -113,7 +113,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
         this.gridOptions.columnApi.setColumnsPinned(rightPinned, 'right');
       }
       if (this.gridObject.dataSource) {
-        // this.gridOptions.api.setServerSideDatasource(this.gridObject.dataSource);
+        this.gridOptions.api.setServerSideDatasource(this.gridObject.dataSource);
       }
     });
   }
