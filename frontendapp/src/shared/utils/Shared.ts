@@ -1,6 +1,6 @@
 import * as moment from 'moment';
 import { GridOptions } from 'ag-grid-community';
-import { CustomToolPanelParams } from 'lp-toolkit';
+import { GridUtils, LayoutServices } from 'lp-toolkit';
 
 export const SideBar = (
   gridId: number,
@@ -9,49 +9,23 @@ export const SideBar = (
   defaultView = '',
   dataSource = null
 ) => {
-  const customToolPanel: CustomToolPanelParams = {
-    api: gridOptions.api,
-    layoutServices: {
-      getGridLayouts: 'http://localhost:9092/api/dataGrid/getDataGridLayouts',
-      getLayoutDetail: 'http://localhost:9092/api/dataGrid/getAGridLayout',
-      saveGridLayout: 'http://localhost:9092/api/dataGrid',
-      deleteGridLayout: 'http://localhost:9092/api/dataGrid',
-      dataProperty: 'payload'
-    },
-    userId: 1,
+  const layoutServices: LayoutServices = {
+    getGridLayouts: 'http://localhost:9092/api/dataGrid/getDataGridLayouts',
+    getLayoutDetail: 'http://localhost:9092/api/dataGrid/getAGridLayout',
+    saveGridLayout: 'http://localhost:9092/api/dataGrid',
+    deleteGridLayout: 'http://localhost:9092/api/dataGrid',
+    dataProperty: 'payload'
+  };
+
+  return GridUtils.SideBar(
+    1,
     gridId,
     gridName,
     gridOptions,
+    layoutServices,
     defaultView,
     dataSource
-  };
-  return {
-    toolPanels: [
-      {
-        id: 'columns',
-        labelDefault: 'Columns',
-        labelKey: 'columns',
-        iconKey: 'columns',
-        toolPanel: 'agColumnsToolPanel'
-      },
-      {
-        id: 'filters',
-        labelDefault: 'Filters',
-        labelKey: 'filters',
-        iconKey: 'filter',
-        toolPanel: 'agFiltersToolPanel'
-      },
-      {
-        id: 'layouts',
-        labelDefault: 'Layout',
-        labelKey: 'Grid Layout',
-        iconKey: 'columns',
-        toolPanel: 'customToolPanel',
-        toolPanelParams: customToolPanel
-      }
-    ],
-    defaultToolPanel: ''
-  };
+  );
 };
 
 export const Ranges: any = {

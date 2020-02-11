@@ -34,11 +34,7 @@ export * from './lib/utils/index';
 export { LPToolkitConfig } from './lib/models/lp-toolkit-config.model';
 export { Theme } from './lib/models/theme.model';
 export { Page } from './lib/models/page.model';
-export {
-  IExternalFilter,
-  CustomGridOptions,
-  CustomToolPanelParams
-} from './lib/models/grid-layout.model';
+export { IExternalFilter, CustomGridOptions, LayoutServices } from './lib/models/grid-layout.model';
 
 /*
  * Modules

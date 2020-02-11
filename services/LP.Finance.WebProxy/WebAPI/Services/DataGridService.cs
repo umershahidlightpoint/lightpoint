@@ -268,12 +268,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                           ,[grid_name]
                           ,[grid_layout_name]
                           ,[userId]
-                          ,[pivot_mode]
                           ,[column_state]
                           ,[group_state]
+                          ,[pivot_mode]
                           ,[sort_state]
                           ,[filter_state]
                           ,[external_filter_state]
+                          ,[is_public]
+                          ,[is_default]
                            FROM [data_grid_layouts]";
 
             if (userId != null)
@@ -299,11 +301,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         GridLayoutName = reader["grid_layout_name"].ToString(),
                         UserId = Convert.ToInt32(reader["userId"]),
                         ColumnState = reader["column_state"].ToString(),
-                        FilterState = reader["filter_state"].ToString(),
-                        ExternalFilterState = reader["external_filter_state"].ToString(),
+                        GroupState = reader["group_state"].ToString(),
                         PivotMode = reader["pivot_mode"].ToString(),
                         SortState = reader["sort_state"].ToString(),
-                        GroupState = reader["group_state"].ToString()
+                        FilterState = reader["filter_state"].ToString(),
+                        ExternalFilterState = reader["external_filter_state"].ToString(),
+                        IsPublic = Convert.ToBoolean(reader["is_public"]),
+                        IsDefault = Convert.ToBoolean(reader["is_default"])
                     });
                 }
 

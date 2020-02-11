@@ -133,6 +133,7 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
             gridName: layout.GridName,
             gridLayoutName: layout.GridLayoutName,
             isPublic: layout.IsPublic,
+            isDefault: layout.IsDefault,
             gridState: `[{
                 "ColumnState":  ${layout.ColumnState},
                 "GroupState":  ${layout.GroupState},

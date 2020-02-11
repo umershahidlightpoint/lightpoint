@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { tap, map, catchError } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
@@ -17,7 +17,7 @@ export class GridLayoutAPIService {
     const encodedURI = encodeURI(`${url}?userId=${userId}&gridId=${gridId}`);
     return this.httpClient.get(encodedURI).pipe(
       map((response: any) => response),
-      catchError(this.handleError)
+      catchError((error: HttpErrorResponse) => this.handleError(error))
     );
   }
 
@@ -28,7 +28,7 @@ export class GridLayoutAPIService {
     const encodedURI = encodeURI(`${url}?id=${layoutId}`);
     return this.httpClient.get(encodedURI).pipe(
       map((response: any) => response),
-      catchError(this.handleError)
+      catchError((error: HttpErrorResponse) => this.handleError(error))
     );
   }
 
@@ -36,10 +36,19 @@ export class GridLayoutAPIService {
     Save a Grid Layout
     */
   saveGridLayout(url: string, payload: any): Observable<any> {
-    return this.httpClient.post(encodeURI(url), payload).pipe(
-      map((response: any) => response),
-      catchError(this.handleError)
-    );
+    return this.httpClient
+      .post(encodeURI(url), payload, {
+        observe: 'response'
+      })
+      .pipe(
+        tap((response: HttpResponse<any>) => {
+          if (response.status >= 200 || response.status < 300) {
+            this.toastrService.success('Grid layout saved successfully.');
+          }
+        }),
+        map((response: HttpResponse<any>) => response.body),
+        catchError((error: HttpErrorResponse) => this.handleError(error))
+      );
   }
 
   /*
@@ -47,10 +56,19 @@ export class GridLayoutAPIService {
     */
   deleteGridLayout(url: string, layoutId: number | string): Observable<any> {
     const encodedURI = encodeURI(`${url}/${layoutId}`);
-    return this.httpClient.delete(encodedURI).pipe(
-      map((response: any) => response),
-      catchError(this.handleError)
-    );
+    return this.httpClient
+      .delete(encodedURI, {
+        observe: 'response'
+      })
+      .pipe(
+        tap((response: HttpResponse<any>) => {
+          if (response.status >= 200 || response.status < 300) {
+            this.toastrService.success('Grid layout deleted successfully.');
+          }
+        }),
+        map((response: HttpResponse<any>) => response.body),
+        catchError((error: HttpErrorResponse) => this.handleError(error))
+      );
   }
 
   private handleError(error: HttpErrorResponse) {

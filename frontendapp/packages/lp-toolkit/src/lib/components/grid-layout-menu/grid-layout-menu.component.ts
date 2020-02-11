@@ -169,7 +169,6 @@ export class GridLayoutMenuComponent implements IToolPanel {
           : false
         : this.activeGridLayout.IsPublic
     };
-    console.log('LAYOUT PAYLOAD ::', gridLayoutPayload);
 
     this.gridLayoutAPIService
       .saveGridLayout(this.params.layoutServices.saveGridLayout, gridLayoutPayload)
