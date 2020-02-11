@@ -25,22 +25,22 @@ fdescribe('SettingsService', () => {
 
   describe('Get User settings URL: api/setting', () => {
     it('returned user settings', () => {
-        // const dummySettings = {
-        //     payload: [
-        //       {
-        //         id: 18,
-        //         created_by: 'John Doe',
-        //         created_date: '2019-12-17T00:00:00',
-        //         last_updated_by: 'John Doe',
-        //         last_updated_date: '2020-01-10T00:00:00',
-        //         currency_code: 'USD',
-        //         tax_methodology: 'MINTAX',
-        //         fiscal_month: 'February',
-        //         fiscal_day: 15
-        //         }
-        //     ],
-        //     statusCode: 200
-        //   };
+        const dummySettings = {
+            payload: [
+              {
+                id: 18,
+                created_by: 'John Doe',
+                created_date: '2019-12-17T00:00:00',
+                last_updated_by: 'John Doe',
+                last_updated_date: '2020-01-10T00:00:00',
+                currency_code: 'USD',
+                tax_methodology: 'MINTAX',
+                fiscal_month: 'February',
+                fiscal_day: 15
+                }
+            ],
+            statusCode: 200
+          };
 
         service.getSettings().subscribe(settings => {
         expect(settings.statusCode).toEqual(200);
@@ -48,7 +48,7 @@ fdescribe('SettingsService', () => {
 
         const request = httpTestingController.expectOne(baseUrl + '/setting');
         expect(request.request.method).toBe('GET');
-        // request.flush(dummySettings);
+        request.flush(dummySettings);
     });
   });
 
