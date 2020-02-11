@@ -28,7 +28,7 @@ export const SideBar = (
   defaultView: string = '',
   dataSource: IServerSideDatasource = null,
   hiddenByDefault: boolean = false,
-  position: string = 'right'
+  position: 'left' | 'right' = 'right'
 ) => {
   const customToolPanelParams: CustomToolPanelParams = {
     api: gridOptions.api,
