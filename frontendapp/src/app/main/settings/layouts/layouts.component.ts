@@ -1,12 +1,12 @@
 import { Component, OnInit, AfterViewInit, TemplateRef, ViewChild } from '@angular/core';
-import { ToastrService } from 'ngx-toastr';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
-import { SideBar, HeightStyle, AutoSizeAllColumns } from 'src/shared/utils/Shared';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { DataService } from 'src/services/common/data.service';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { TemplateRendererComponent } from 'src/app/template-renderer/template-renderer.component';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
+import { GridLayoutMenuComponent } from 'lp-toolkit';
+import { ToastrService } from 'ngx-toastr';
+import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { SideBar, HeightStyle, AutoSizeAllColumns } from 'src/shared/utils/Shared';
+import { DataService } from 'src/services/common/data.service';
 import { GridLayoutApiService } from 'src/services/grid-layout-api.service';
 
 @Component({
@@ -15,15 +15,14 @@ import { GridLayoutApiService } from 'src/services/grid-layout-api.service';
   styleUrls: ['./layouts.component.scss']
 })
 export class LayoutsComponent implements OnInit, AfterViewInit {
-  @ViewChild('confirmationModal', { static: false })
-  confirmModal: ConfirmationModalComponent;
+  @ViewChild('confirmationModal', { static: false }) confirmModal: ConfirmationModalComponent;
   @ViewChild('actionButtons', { static: false }) actionButtons: TemplateRef<any>;
 
-  isEngineRunning = false;
-  hideGrid = false;
   gridOptions: GridOptions;
   gridLayouts: any;
   rowData: any;
+  isEngineRunning = false;
+  hideGrid = false;
   selectedLayout = null;
   gridLayoutJson = null;
 
@@ -37,9 +36,7 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
     this.initGrid();
   }
 
-  ngOnInit() {
-    // this.isEngineRunning = this.postingEngineService.getStatus();
-  }
+  ngOnInit() {}
 
   ngAfterViewInit() {
     this.dataService.flag$.subscribe(obj => {
@@ -53,14 +50,12 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      sideBar: SideBar,
-      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       pinnedBottomRowData: null,
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       rowGroupPanelShow: 'after',
       pivotPanelShow: 'after',
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
-      suppressColumnVirtualisation: true,
       getExternalFilterState: () => {
         return {};
       },
@@ -70,9 +65,10 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
         AutoSizeAllColumns(params);
         params.api.sizeColumnsToFit();
       },
-      enableFilter: true,
-      animateRows: true,
       alignedGrids: [],
+      animateRows: true,
+      enableFilter: true,
+      suppressColumnVirtualisation: true,
       suppressHorizontalScroll: false,
       defaultColDef: {
         sortable: true,
@@ -80,7 +76,11 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-    this.gridOptions.sideBar = SideBar(GridId.gridViewsId, GridName.gridViews, this.gridOptions);
+    this.gridOptions.sideBar = SideBar(
+      GridId.gridLayoutsId,
+      GridName.gridLayouts,
+      this.gridOptions
+    );
   }
 
   customizeColumns() {
@@ -145,9 +145,6 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
           }));
         }
         this.gridOptions.api.setRowData(this.rowData);
-
-        AutoSizeAllColumns(this.gridOptions);
-
         this.gridOptions.api.sizeColumnsToFit();
       },
       error => {
@@ -171,10 +168,11 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
       response => {
         if (response.isSuccessful) {
           this.toastrService.success('Grid layout is successfully deleted!');
-          this.getGridLayouts();
+
           this.gridLayoutJson = null;
+          this.getGridLayouts();
         } else {
-          this.toastrService.error('Something went wrong. Try again later!');
+          this.toastrService.error('Failed to delete grid layout!');
         }
       },
       error => {
