@@ -16,7 +16,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Amazon.S3;
-using LP.FileProcessing.MetaData;
+using LP.Finance.Common.FileMetaData;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
@@ -29,6 +29,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         private static readonly string tradesURL = "http://localhost:9091/api/trade/data?period=";
         private static readonly string positionsURL = "http://localhost:9091/api/positions?period=2019-09-24";
         private readonly FileProcessor fileProcessor = new FileProcessor();
+
         private static readonly AmazonS3Client S3Client = new AmazonS3Client();
         private readonly S3Endpoint s3Endpoint = new S3Endpoint(S3Client);
 

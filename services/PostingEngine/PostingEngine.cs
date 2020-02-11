@@ -8,16 +8,22 @@ namespace PostingEngine
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public void Start(DateTime valueDate)
+        /// <summary>
+        /// Run the posting engine, being passed a period, and also a date
+        /// </summary>
+        /// <param name="valueDate">End date</param>
+        /// <param name="period">Period back, i.e. Date - period</param>
+        public void RunForPeriod(DateTime valueDate, string period)
         {
             var key = Guid.NewGuid();
 
             PullFromLegacySystem(key, valueDate);
+
             FxRates.CacheData();
             MarketPrices.CacheData();
 
             // Get all Activity
-            ITD(key, valueDate);
+            RunForPeriod(key, valueDate, period);
 
             // Then Cost Basis
             CostBasisAndDayPnl(key, valueDate);
@@ -36,7 +42,6 @@ namespace PostingEngine
 
         internal static void PullFromLegacySystem(Guid key, DateTime valueDate)
         {
-
             // This runs thru everything, we need more or a scalpable
             PostingEngine.RunCalculation("PullFromBookmon", valueDate, key, LogProcess);
         }
@@ -82,10 +87,11 @@ namespace PostingEngine
             // This runs thru everything, we need more or a scalpable
             PostingEngine.RunCalculation("SettledCashBalances", valueDate, key, LogProcess);
         }
-        internal static void ITD(Guid key, DateTime businesssdate)
+
+        internal static void RunForPeriod(Guid key, DateTime businesssdate, string period)
         {
             // This runs thru everything, we need more or a scalpable
-            PostingEngine.Start("ITD", key, businesssdate, LogProcess);
+            PostingEngine.RunForPeriod(period, key, businesssdate, LogProcess);
         }
 
         internal static void NonDesructive(Guid key, DateTime businesssdate)

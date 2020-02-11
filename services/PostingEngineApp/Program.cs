@@ -17,16 +17,29 @@ namespace PostingEngineCmd
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
+        /// <summary>
+        /// Args are as follows
+        /// period=ITD | MTD | QTD or number of days i.e. 1D, 300D
+        /// valuedate=YYYY-MM-DD
+        /// </summary>
+        /// <param name="args">List of the arguments we can pass to the Process</param>
         static void Main(string[] args)
         {
-            // Generate Journals First
-            // Doing this for the previous Business Date
-            var date = System.DateTime.Now.Date;
-            date = date.PrevBusinessDate();
+            // Defaults if no arguments passed
+            var date = DateTime.Now.Date.PrevBusinessDate();
+            var period = "ITD";
 
-            Logger.Info($"Running Posting Engine for date {date}");
+            if ( args.Length > 0 )
+            {
+                Logger.Info($"Args {string.Join(",", args)}");
 
-            new PostingEngineEx().Start(date);
+                // Lets grab the parameters
+
+            } 
+
+            Logger.Info($"Running Posting Engine for Period {period} and ValueDate {date}");
+
+            new PostingEngineEx().RunForPeriod(date, period);
         }
 
         

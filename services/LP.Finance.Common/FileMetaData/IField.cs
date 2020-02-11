@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace LP.FileProcessing.MetaData
+namespace LP.Finance.Common.FileMetaData
 {
     public interface IField
     {

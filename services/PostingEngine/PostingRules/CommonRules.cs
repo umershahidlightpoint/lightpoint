@@ -192,8 +192,12 @@ namespace PostingEngine.PostingRules
                 return;
             }
 
+            var openQuantity = Math.Abs(taxLotStatus.OriginalQuantity);
+            var closeQuantity = Math.Abs(closingTaxLot.Quantity);
+            var percentage = closeQuantity / openQuantity;
+
             // This is the fully loaded value to tbe posting
-            var backout = Math.Abs(closingTaxLot.Trade.NetMoney) * fxrate;
+            var backout = Math.Abs(closingTaxLot.Trade.NetMoney) * fxrate * percentage;
 
             // BUY -- Debit
             // SELL -- Credit
@@ -738,6 +742,67 @@ namespace PostingEngine.PostingRules
                 From = fromAccount,
                 To = toAccount
             };
+        }
+
+        internal static void GenerateTradeDateJournals(PostingEngineEnvironment env, TaxLotStatus taxLotStatus, TaxLot closingTaxLot)
+        {
+            var element = taxLotStatus.Trade;
+
+            double multiplier = 1.0;
+
+            if (env.SecurityDetails.ContainsKey(element.BloombergCode))
+                multiplier = env.SecurityDetails[element.BloombergCode].Multiplier;
+
+            double fxrate = 1.0;
+
+            var openQuantity = Math.Abs(taxLotStatus.OriginalQuantity);
+            var closeQuantity = Math.Abs(closingTaxLot.Quantity);
+            var percentage = closeQuantity / openQuantity;
+
+            // Lets get fx rate if needed
+            if (!element.SettleCurrency.Equals(env.BaseCurrency))
+            {
+                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
+            }
+
+            var accountToFrom = GetFromToAccount(env, element);
+            if (accountToFrom.To == null || accountToFrom.From == null)
+            {
+                env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
+                return;
+            }
+
+            if (closingTaxLot.Trade.NetMoney != 0.0)
+            {
+                var moneyUSD = Math.Abs(closingTaxLot.Trade.NetMoney) * fxrate * percentage;
+
+                // BUY -- Debit
+                // SELL -- Credit
+
+                if (closingTaxLot.Trade.IsSell() || closingTaxLot.Trade.IsCover())
+                    moneyUSD = moneyUSD * -1;
+
+                var eodPrice = MarketPrices.GetPrice(env, env.ValueDate, closingTaxLot.Trade).Price;
+
+                var fromJournal = new Journal(element, accountToFrom.From, Event.TRADE_DATE, env.ValueDate)
+                {
+                    CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
+                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
+                    FxRate = fxrate,
+                    StartPrice = closingTaxLot.Trade.SettleNetPrice,
+                    EndPrice = eodPrice,
+                    Fund = env.GetFund(closingTaxLot.Trade),
+                };
+
+                var toJournal = new Journal(fromJournal)
+                {
+                    Account = accountToFrom.To,
+                    CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
+                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
+                };
+
+                env.Journals.AddRange(new[] { fromJournal, toJournal });
+            }
         }
 
         internal static void GenerateTradeDateJournals(PostingEngineEnvironment env, Transaction element)

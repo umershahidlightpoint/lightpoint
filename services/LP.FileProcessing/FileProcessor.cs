@@ -6,6 +6,7 @@ using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using LP.Finance.Common.FileMetaData;
 
 /*
 * Start of a common library for generating and consuming files

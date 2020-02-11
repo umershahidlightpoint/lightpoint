@@ -6,15 +6,15 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using LP.FileProcessing;
-using LP.FileProcessing.MetaData;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Model;
 using Newtonsoft.Json;
 using SqlDAL.Core;
+using LP.Finance.Common.FileMetaData;
+using LP.Finance.Common.IO;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
@@ -24,7 +24,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public SqlHelper SqlHelper = new SqlHelper(ConnectionString);
         private readonly FileProcessor _fileProcessor = new FileProcessor();
-        private readonly FileManagementService _fileManagementService = new FileManagementService();
+        private readonly FileManager _fileManager = new FileManager(ConnectionString);
         public object AuditTrail(int id)
         {
             try
@@ -153,7 +153,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
 
                 var failedPerformanceList =
-                    _fileManagementService.MapFailedRecords(failedRecords, DateTime.Now, uploadedResult.Item3);
+                    _fileManager.MapFailedRecords(failedRecords, DateTime.Now, uploadedResult.Item3);
 
                 List<FileInputDto> fileList = new List<FileInputDto>
                 {
@@ -163,7 +163,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         DateTime.Now)
                 };
 
-                _fileManagementService.InsertActivityAndPositionFilesForSilver(fileList);
+                _fileManager.InsertActivityAndPositionFiles(fileList);
                 
                 foreach (var i in fxRates)
                 {

@@ -1,7 +1,8 @@
 ﻿using LP.FileProcessing;
-using LP.FileProcessing.MetaData;
+using LP.Finance.Common.IO;
 using LP.Finance.Common;
 using LP.Finance.Common.Calculators;
+using LP.Finance.Common.FileMetaData;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Model;
 using Newtonsoft.Json;
@@ -27,7 +28,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public SqlHelper SqlHelper = new SqlHelper(ConnectionString);
         private readonly FileProcessor _fileProcessor = new FileProcessor();
-        private readonly FileManagementService _fileManagementService = new FileManagementService();
+        private readonly FileManager _fileManagementService = new FileManager(ConnectionString);
 
         public object GetMonthlyPerformance(DateTime? dateFrom = null, DateTime? dateTo = null, string fund = null,
             string portfolio = null)
@@ -469,7 +470,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         DateTime.Now)
                 };
 
-                _fileManagementService.InsertActivityAndPositionFilesForSilver(fileList);
+                _fileManagementService.InsertActivityAndPositionFiles(fileList);
                 var monthlyPerformanceResult = CalculateMonthlyPerformance(performanceRecords);
                 var monthlyPerformance = monthlyPerformanceResult.GetType().GetProperty("payload")
                     ?.GetValue(monthlyPerformanceResult, null);
@@ -750,7 +751,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         DateTime.Now)
                 };
 
-                _fileManagementService.InsertActivityAndPositionFilesForSilver(fileList);
+                _fileManagementService.InsertActivityAndPositionFiles(fileList);
                 var previousData = GetLatestDailyPnlPerPortfolio();
                 var previousList = previousData.Item2;
                 if (previousData.Item1)
