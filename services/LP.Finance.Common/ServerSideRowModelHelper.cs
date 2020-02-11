@@ -633,9 +633,32 @@ namespace LP.Finance.Common
                 case "date":
                     var dateFrom = (string)filterObject["dateFrom"];
                     var dateTo = (string)filterObject["dateTo"];
-                    sqlParams.Add(new SqlParameter($"dateFrom{index}", dateFrom));
-                    sqlParams.Add(new SqlParameter($"dateTo{index}", dateTo));
-                    whereParts.Add($"[{columnName}] >= @dateFrom{index} and [{columnName}] <= @dateTo{index}");
+                    var range = (string)filterObject["range"];
+
+                    if(string.IsNullOrEmpty(dateFrom) && string.IsNullOrEmpty(dateTo))
+                    {
+                        if (!string.IsNullOrEmpty(range))
+                        {
+                            var constructedDateRange = ConstructDateRange(range);
+                            if (constructedDateRange.Item1)
+                            {
+                                dateFrom = constructedDateRange.Item2;
+                                dateTo = constructedDateRange.Item3;
+                            }
+                        }
+                    }
+
+                    if(!string.IsNullOrEmpty(dateFrom) && !string.IsNullOrEmpty(dateTo))
+                    {
+                        sqlParams.Add(new SqlParameter($"dateFrom{index}", dateFrom));
+                        sqlParams.Add(new SqlParameter($"dateTo{index}", dateTo));
+                        whereParts.Add($"[{columnName}] >= @dateFrom{index} and [{columnName}] <= @dateTo{index}");
+                    }
+                    else if (!string.IsNullOrEmpty(dateFrom))
+                    {
+                        sqlParams.Add(new SqlParameter($"dateFrom{index}", dateFrom));
+                        whereParts.Add($"[{columnName}] = @dateFrom{index}");
+                    }
                     index++;
                     break;
                 case "number":
@@ -657,7 +680,24 @@ namespace LP.Finance.Common
             return whereParts;
         }
 
-        private static string CreateSelectSql(ServerRowModel obj, string from)
+        private static Tuple<bool,string, string> ConstructDateRange(string range)
+        {
+            string currentDate = DateTime.Now.ToString();
+            string startDate;
+            switch (range)
+            {
+                case "YTD":
+                    startDate = new DateTime(DateTime.Now.Year, 1, 1).ToString();
+                    return new Tuple<bool, string, string>(true, startDate, currentDate);
+                case "MTD":
+                    startDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).ToString();
+                    return new Tuple<bool, string, string>(true, startDate, currentDate);
+                default:
+                    return new Tuple<bool, string, string>(false, null, null);
+            }
+        }
+
+            private static string CreateSelectSql(ServerRowModel obj, string from)
         {
             var grouping = IsDoingGrouping(obj.rowGroupCols, obj.groupKeys);
             StringBuilder query = new StringBuilder("select ");
