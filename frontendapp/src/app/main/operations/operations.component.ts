@@ -4,7 +4,7 @@ import * as moment from 'moment';
 import { FormGroup, FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { PostingEngineService } from 'src/services/common/posting-engine.service';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { GridLayoutMenuComponent } from 'lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
@@ -115,9 +115,9 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
   }
 
   ngOnInit() {
-    // /*
-    // Align Scroll of Grid and Footer Grid
-    // */
+    /*
+    Align Scroll of Grid and Footer Grid
+    */
     // this.gridOptions.alignedGrids.push(this.bottomOptions);
     // this.bottomOptions.alignedGrids.push(this.gridOptions);
     /*

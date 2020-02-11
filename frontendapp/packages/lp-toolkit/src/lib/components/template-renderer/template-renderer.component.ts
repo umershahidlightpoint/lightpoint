@@ -8,10 +8,11 @@ import { ICellRendererParams } from 'ag-grid-community';
   styleUrls: ['./template-renderer.component.scss']
 })
 export class TemplateRendererComponent implements ICellRendererAngularComp {
-  template: TemplateRef<any>;
-  templateContext: { $implicit: any; params: any };
+  public template: TemplateRef<any>;
+  public templateContext: { $implicit: any; params: any };
 
   agInit(params: ICellRendererParams): void {
+    // tslint:disable-next-line: no-string-literal
     this.template = params['ngTemplate'];
     this.refresh(params);
   }
@@ -21,6 +22,7 @@ export class TemplateRendererComponent implements ICellRendererAngularComp {
       $implicit: params.data,
       params
     };
+
     return true;
   }
 }

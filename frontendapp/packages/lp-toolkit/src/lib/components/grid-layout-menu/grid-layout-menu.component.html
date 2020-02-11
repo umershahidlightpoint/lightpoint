@@ -1,0 +1,140 @@
+<!-- Main Container -->
+<div class="main-container">
+
+    <!-- Layout Selection Section -->
+    <ng-container *ngIf="!isLayoutFormMode">
+
+        <!-- Layout Selection Dropdown Row -->
+        <div class="row">
+
+            <!-- Selection Dropdown -->
+            <div class="col-md-12 pr-2">
+
+                <select class="form-control" [(ngModel)]="activeGridLayout" (ngModelChange)="onSelectLayout($event)">
+                    <option selected [ngValue]="initialLayout">Select a Layout</option>
+                    <ng-container *ngFor="let layout of gridLayouts; trackBy: trackByFn">
+                        <option *ngIf="!layout.IsDefault" [ngClass]="{'public-layout': layout.IsPublic}"
+                            [ngValue]="layout">
+                            {{ layout.GridLayoutName }}
+                        </option>
+                    </ng-container>
+                </select>
+
+            </div>
+            <!-- Selection Dropdown Ends -->
+
+        </div>
+        <!-- Layout Selection Dropdown Row Ends -->
+
+        <!-- Layout Selection Actions Row -->
+        <div class="row mt-2">
+
+            <!-- New Layout Button -->
+            <div class="col-md-4 pl-3 pr-0">
+                <button class="btn btn-sm btn-primary btn-block" (click)="isLayoutFormMode = !isLayoutFormMode">
+                    New
+                </button>
+            </div>
+            <!-- New Layout Button Ends -->
+
+            <!-- Update Layout Button -->
+            <div class="col-md-4 pl-1 pr-0">
+                <button class="btn btn-sm btn-primary btn-block" [disabled]="selectedLayoutIsPublic"
+                    (click)="onUpdateLayout()">
+                    Update
+                </button>
+            </div>
+            <!-- Update Layout Button Ends -->
+
+            <!-- Delete Layout Button -->
+            <div class="col-md-4 pl-1 pr-2">
+                <button class="btn btn-sm btn-primary btn-block" (click)="onDeleteLayout()">
+                    Delete
+                </button>
+            </div>
+            <!-- Delete Layout Button Ends -->
+
+        </div>
+        <!-- Layout Selection Actions Row Ends -->
+
+        <!-- Layout Reset Row -->
+        <div class="row mt-1">
+
+            <!-- Reset Layout Button -->
+            <div class="col-md-12 pl-3 pr-2">
+                <button class="btn btn-sm btn-primary btn-block" (click)="onResetLayout()">
+                    Reset
+                </button>
+            </div>
+            <!-- Reset Layout Button Ends -->
+
+        </div>
+        <!-- Layout Reset Row Ends -->
+
+    </ng-container>
+    <!-- Layout Selection Section Ends -->
+
+    <!-- Layout Form Section -->
+    <ng-container *ngIf="isLayoutFormMode">
+
+        <!-- Layout Form -->
+        <form #layoutForm="ngForm" (ngSubmit)="onSaveLayout()">
+
+            <!-- Layout Name Input -->
+            <div class="row">
+
+                <div class="col-md-12 pl-3 pr-0">
+                    <input type="text" autocomplete="off" placeholder="Layout Name" class="form-control row-width"
+                        name="layoutName" ngModel required />
+                </div>
+
+            </div>
+            <!-- Layout Name Input Ends -->
+
+            <!-- Layout Type Checkbox -->
+            <div class="row mt-2 ml-2">
+
+                <div class="form-group form-check">
+                    <input type="checkbox" autocomplete="off" class="form-check-input" id="publicCheck" [value]="true"
+                        name="publicLayout" ngModel>
+                    <label class="form-check-label" for="publicCheck">Public</label>
+                </div>
+
+            </div>
+            <!-- Layout Type Checkbox Ends -->
+
+            <!-- Layout Selection Action Button -->
+            <div class="row justify-content-center">
+
+                <!-- Cancel Button -->
+                <div class="col-md-4 pr-1">
+                    <button type="button" class="btn btn-sm btn-primary btn-block"
+                        (click)="isLayoutFormMode = !isLayoutFormMode">
+                        Cancel
+                    </button>
+                </div>
+                <!-- Cancel Button Ends -->
+
+                <!-- Save Layout Button -->
+                <div class="col-md-4 pl-0">
+                    <button [disabled]="layoutForm.invalid" type="submit" class="btn btn-sm btn-primary btn-block">
+                        Save
+                    </button>
+                </div>
+                <!-- Save Layout Button Ends -->
+
+            </div>
+            <!-- Layout Selection Action Button Ends -->
+
+        </form>
+        <!-- Layout Form Ends -->
+
+    </ng-container>
+    <!-- Layout Form Section Ends -->
+
+</div>
+<!-- Main Container -->
+
+<!-- Confirmation Modal -->
+<lp-confirmation-modal #confirmationModal modalTitle="Delete Layout" (confirmDeletion)="onConfirmDeleteLayout()">
+</lp-confirmation-modal>

@@ -14,6 +14,7 @@ export { ProgressComponent } from './lib/components/progress/progress.component'
 export { LoadingComponent } from './lib/components/loading/loading.component';
 export { SelectThemeComponent } from './lib/components/select-theme/select-theme.component';
 export { ServicesLogComponent } from './lib/components/services-log/services-log.component';
+export { GridLayoutMenuComponent } from './lib/components/grid-layout-menu/grid-layout-menu.component';
 export { ConfirmationModalComponent } from './lib/components/confirmation-modal/confirmation-modal.component';
 
 /*
@@ -33,6 +34,11 @@ export * from './lib/utils/index';
 export { LPToolkitConfig } from './lib/models/lp-toolkit-config.model';
 export { Theme } from './lib/models/theme.model';
 export { Page } from './lib/models/page.model';
+export {
+  IExternalFilter,
+  CustomGridOptions,
+  CustomToolPanelParams
+} from './lib/models/grid-layout.model';
 
 /*
  * Modules

@@ -1,13 +1,30 @@
 import * as moment from 'moment';
 import { GridOptions } from 'ag-grid-community';
+import { CustomToolPanelParams } from 'lp-toolkit';
 
 export const SideBar = (
-  id: number,
-  name: string,
-  gridInstance: GridOptions,
+  gridId: number,
+  gridName: string,
+  gridOptions: GridOptions,
   defaultView = '',
   dataSource = null
 ) => {
+  const customToolPanel: CustomToolPanelParams = {
+    api: gridOptions.api,
+    layoutServices: {
+      getGridLayouts: 'http://localhost:9092/api/dataGrid/getDataGridLayouts',
+      getLayoutDetail: 'http://localhost:9092/api/dataGrid/getAGridLayout',
+      saveGridLayout: 'http://localhost:9092/api/dataGrid',
+      deleteGridLayout: 'http://localhost:9092/api/dataGrid',
+      dataProperty: 'payload'
+    },
+    userId: 1,
+    gridId,
+    gridName,
+    gridOptions,
+    defaultView,
+    dataSource
+  };
   return {
     toolPanels: [
       {
@@ -25,18 +42,12 @@ export const SideBar = (
         toolPanel: 'agFiltersToolPanel'
       },
       {
-        id: 'custom filters',
+        id: 'layouts',
         labelDefault: 'Layout',
         labelKey: 'Grid Layout',
-        iconKey: 'filter',
+        iconKey: 'columns',
         toolPanel: 'customToolPanel',
-        toolPanelParams: {
-          gridId: id,
-          gridName: name,
-          gridOptions: gridInstance,
-          defaultView,
-          dataSource
-        }
+        toolPanelParams: customToolPanel
       }
     ],
     defaultToolPanel: ''

@@ -17,6 +17,7 @@ import { ProgressComponent } from './components/progress/progress.component';
 import { LoadingComponent } from './components/loading/loading.component';
 import { SelectThemeComponent } from './components/select-theme/select-theme.component';
 import { ServicesLogComponent } from './components/services-log/services-log.component';
+import { GridLayoutMenuComponent } from './components/grid-layout-menu/grid-layout-menu.component';
 import { TemplateRendererComponent } from './components/template-renderer/template-renderer.component';
 import { ConfirmationModalComponent } from './components/confirmation-modal/confirmation-modal.component';
 
@@ -36,6 +37,7 @@ const sharedComponents = [
   LoadingComponent,
   SelectThemeComponent,
   ServicesLogComponent,
+  GridLayoutMenuComponent,
   TemplateRendererComponent,
   ConfirmationModalComponent
 ];
@@ -62,7 +64,7 @@ const bootstrapModules = [TabsModule, ModalModule, AlertModule, TooltipModule];
     ...materialModules,
     ...sharedComponents
   ],
-  entryComponents: []
+  entryComponents: [GridLayoutMenuComponent]
 })
 export class LpToolkitModule {
   static forRoot(config?: LPToolkitConfig): ModuleWithProviders<LpToolkitModule> {
