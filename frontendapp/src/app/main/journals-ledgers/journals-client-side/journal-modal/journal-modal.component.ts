@@ -135,7 +135,7 @@ export class JournalModalComponent implements OnInit {
     );
     const symbolsResponse = this.financePocServiceProxy.getSymbol();
     const currenciesResponse = this.settingApiService.getReportingCurrencies();
-    const accountsResponse = this.accountApiService.getAllAccounts();
+    const accountsResponse = this.accountApiService.getAllRawAccounts();
 
     return forkJoin([
       fundsResponse,

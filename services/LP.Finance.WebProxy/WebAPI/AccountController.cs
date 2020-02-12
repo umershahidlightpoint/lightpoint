@@ -32,6 +32,13 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.GetAccounts(pageNumber, pageSize, accountName, accountCategory);
         }
 
+        [Route("all")]
+        [HttpGet]
+        public object GetAllAccounts()
+        {
+            return controller.GetAllAccounts();
+        }
+
         [Route("mappedAccount")]
         [HttpGet]
         public object GetMappedAccounts()

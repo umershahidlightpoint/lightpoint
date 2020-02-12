@@ -17,6 +17,11 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
             return Utils.GetFile("accounts");
         }
 
+        public object GetAllAccounts()
+        {
+            throw new System.NotImplementedException();
+        }
+
         public object GetMappedAccounts()
         {
             throw new System.NotImplementedException();
