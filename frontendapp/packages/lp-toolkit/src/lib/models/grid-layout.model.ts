@@ -30,15 +30,9 @@ export interface LayoutServices {
   dataProperty: string;
 }
 
-export interface IExternalFilter {
-  getExternalFilterState(): any;
-  clearExternalFilters(): void;
-  setExternalFilter(externalFilterState: any): void;
-}
-
 export interface CustomGridOptions extends GridOptions {
   getExternalFilterState(): any;
-  clearExternalFilters(): void;
+  clearExternalFilter(): void;
   setExternalFilter(externalFilterState: any): void;
 }
 
