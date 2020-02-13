@@ -56,6 +56,7 @@ namespace PostingEngine.Tasks
                         valueDate = valueDate.AddDays(1);
                         continue;
                     }
+
                     env.ValueDate = valueDate;
                     env.PreviousValueDate = valueDate.PrevBusinessDate();
 

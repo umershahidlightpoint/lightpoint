@@ -133,7 +133,7 @@ namespace SqlDAL.Core
                 };
                 using (var command = new SqlCommand(commandText, connection))
                 {
-                    command.CommandTimeout = 300;
+                    command.CommandTimeout = 60 * 10; // 10 Mins max, if that's not sufficent then we have a serious issue
                     command.CommandType = commandType;
                     if (parameters != null)
                     {

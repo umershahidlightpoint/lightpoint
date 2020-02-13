@@ -150,6 +150,8 @@
     <Build Include="StoredProcs\EndOfYear.sql" />
     <Build Include="Tables\report_recepient.sql" />
     <Build Include="StoredProcs\Research and Development\CacheBatchResults_rd.sql" />
+    <Build Include="Views\vwWorkingJOurnals.sql" />
+    <Build Include="Functions\fnTaxLotReport.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">

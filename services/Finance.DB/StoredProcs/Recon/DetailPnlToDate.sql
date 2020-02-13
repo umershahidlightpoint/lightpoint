@@ -2,7 +2,6 @@
 exec DetailPnlToDate '2019-12-31', '2019-01-01'
 exec DetailPnlToDate '2019-12-31', '2019-01-01', 'HOME'
 */
-
 CREATE PROCEDURE [dbo].[DetailPnlToDate]
 	@Now Date,
 	@From Date,
@@ -28,8 +27,9 @@ Sum(pos.quantity) as position,
 
 0 as market_Value,
 
-0 as Pnl
-
+0 as Pnl,
+SUM(pos.commission) as commission,
+SUM(pos.fees) as fees
 into #results
 from fnPositions(@Now) pos
 inner join SecurityMaster..Security s on s.SecurityId = pos.security_id

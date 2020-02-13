@@ -17,7 +17,7 @@ namespace PostingEngine
         {
             var key = Guid.NewGuid();
 
-            PullFromLegacySystem(key, valueDate);
+            PullFromLegacySystem(key, valueDate, period);
 
             FxRates.CacheData();
             MarketPrices.CacheData();
@@ -26,30 +26,30 @@ namespace PostingEngine
             RunForPeriod(key, valueDate, period);
 
             // Then Cost Basis
-            CostBasisAndDayPnl(key, valueDate);
+            CostBasisAndDayPnl(key, valueDate, period);
 
             // Unofficial Daily Pnl
-            SettledCashBalances(key, valueDate);
+            RunAction(key, "SettledCashBalances", valueDate, period);
 
             // Expences / Revenue
-            ExpencesAndRevenues(key, valueDate);
+            ExpencesAndRevenues(key, valueDate, period);
 
-            EndOfYear(key, valueDate);
+            RunAction(key, "EndOfYear", valueDate, period);
 
             //GenerateEODReports();
-            Complete(key, valueDate);
+            RunAction(key, "Complete", valueDate, period);
         }
 
-        internal static void PullFromLegacySystem(Guid key, DateTime valueDate)
+        internal static void PullFromLegacySystem(Guid key, DateTime valueDate, string period)
         {
             // This runs thru everything, we need more or a scalpable
-            PostingEngine.RunCalculation("PullFromBookmon", valueDate, key, LogProcess);
+            PostingEngine.RunCalculation("PullFromBookmon", period, valueDate, key, LogProcess);
         }
 
-        internal static void ExpencesAndRevenues(Guid key, DateTime valueDate)
+        internal static void ExpencesAndRevenues(Guid key, DateTime valueDate, string period)
         {
             // This runs thru everything, we need more or a scalpable
-            PostingEngine.RunCalculation("ExpencesAndRevenues", valueDate, key, LogProcess);
+            PostingEngine.RunCalculation("ExpencesAndRevenues", period, valueDate, key, LogProcess);
         }
 
         private static void LogProcess(string message, int totalRows, int rowsDone)
@@ -70,22 +70,14 @@ namespace PostingEngine
             Logger.Info($"{message}");
         }
 
-        internal static void EndOfYear(Guid key, DateTime valueDate)
+        internal static void RunAction(Guid key, string action, DateTime valueDate, string period)
         {
-            // This runs thru everything, we need more or a scalpable
-            PostingEngine.RunCalculation("EndOfYear", valueDate, key, LogProcess);
+            PostingEngine.RunCalculation(action, period, valueDate, key, LogProcess);
         }
-
-        internal static void Complete(Guid key, DateTime valueDate)
+        internal static void SettledCashBalances(Guid key, DateTime valueDate, string period)
         {
             // This runs thru everything, we need more or a scalpable
-            PostingEngine.RunCalculation("Complete", valueDate, key, LogProcess);
-        }
-
-        internal static void SettledCashBalances(Guid key, DateTime valueDate)
-        {
-            // This runs thru everything, we need more or a scalpable
-            PostingEngine.RunCalculation("SettledCashBalances", valueDate, key, LogProcess);
+            PostingEngine.RunCalculation("SettledCashBalances", period, valueDate, key, LogProcess);
         }
 
         internal static void RunForPeriod(Guid key, DateTime businesssdate, string period)
@@ -100,22 +92,22 @@ namespace PostingEngine
             PostingEngine.NonDesructive("ITD", key, businesssdate, LogProcess);
         }
 
-        internal static void CostBasisAndDayPnl(Guid key, DateTime valueDate)
+        internal static void CostBasisAndDayPnl(Guid key, DateTime valueDate, string period)
         {
             // This runs thru everything, we need more or a scalpable
-            PostingEngine.RunCalculation("CostBasisAndDayPnl", valueDate, key, LogProcess);
+            PostingEngine.RunCalculation("CostBasisAndDayPnl", period, valueDate, key, LogProcess);
         }
 
-        internal static void CostBasis(Guid key, DateTime valueDate)
+        internal static void CostBasis(Guid key, DateTime valueDate, string period)
         {
             // This runs thru everything, we need more or a scalpable
-            PostingEngine.RunCalculation("CostBasis", valueDate, key, LogProcess);
+            PostingEngine.RunCalculation("CostBasis", period, valueDate, key, LogProcess);
         }
 
-        internal static void CalculateDailyPnl(Guid key, DateTime valueDate)
+        internal static void CalculateDailyPnl(Guid key, DateTime valueDate, string period)
         {
             // This runs thru everything, we need more or a scalpable
-            PostingEngine.RunCalculation("DailyPnl", valueDate, key, LogProcess);
+            PostingEngine.RunCalculation("DailyPnl", period, valueDate, key, LogProcess);
         }
 
         static void GenerateEODReports()

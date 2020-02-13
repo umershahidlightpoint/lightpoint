@@ -24,7 +24,9 @@ namespace PostingEngine.Tasks
                 return new EndOfYearTask();
             if (name.Equals("settledcashbalances"))
                 return new SettledCashTask();
-            
+            if (name.Equals("cleanup"))
+                return new CleanupTask();
+
             return null;
         }
 
