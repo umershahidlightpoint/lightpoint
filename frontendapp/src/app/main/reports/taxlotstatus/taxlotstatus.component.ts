@@ -223,7 +223,56 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           sortable: true,
           cellClass: 'rightAlign',
           valueFormatter: moneyFormatter
+        },
+        {
+          field: 'trade_price',
+          headerName: 'Trade Price',
+          width: 100,
+          filter: true,
+          sortable: true,
+          cellClass: 'rightAlign',
+          valueFormatter: moneyFormatter
+        },
+        {
+          field: 'current_price',
+          headerName: 'SOD Price',
+          width: 100,
+          filter: true,
+          sortable: true,
+          cellClass: 'rightAlign',
+          valueFormatter: moneyFormatter
+        },
+        {
+          field: 'realized',
+          headerName: 'Realized',
+          width: 100,
+          filter: true,
+          sortable: true,
+          cellClass: 'rightAlign',
+          valueFormatter: moneyFormatter,
+          aggFunc: 'sum'
+        },
+        {
+          field: 'unrealized',
+          headerName: 'UnRealized',
+          width: 100,
+          filter: true,
+          sortable: true,
+          cellClass: 'rightAlign',
+          valueFormatter: moneyFormatter,
+          aggFunc: 'sum'
+        },
+        {
+          field: 'net',
+          headerName: 'Net P&L',
+          width: 100,
+          filter: true,
+          sortable: true,
+          cellClass: 'rightAlign',
+          valueFormatter: moneyFormatter,
+          aggFunc: 'sum'
         }
+
       ],
       defaultColDef: {
         sortable: true,

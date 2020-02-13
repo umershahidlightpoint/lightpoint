@@ -1043,41 +1043,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 List<SqlParameter> sqlParams = new List<SqlParameter>();
 
-                var query = $@"SELECT * FROM tax_lot_status";
+                var query = $@"SELECT * FROM fnTaxLotReport('{System.DateTime.Now.ToString("yyyy-MM-dd")}') as tls";
 
-                //                if (from.HasValue)
-                //                {
-                //                    sqlParams.Add(new SqlParameter("from", from));
-                //                    query += " where tax_lot_status.[business_date] >= @from";
-                //                    whereAdded = true;
-                //                }
-                //
-                //                if (to.HasValue)
-                //                {
-                //                    sqlParams.Add(new SqlParameter("to", to));
-                //                    if (whereAdded == true)
-                //                    {
-                //                        query += " AND tax_lot_status.[business_date] <= @to";
-                //                    }
-                //                    else
-                //                    {
-                //                        query += " where tax_lot_status.[business_date] <= @to";
-                //                    }
-                //                }
-                //
-                //                if (fund != "ALL")
-                //                {
-                //                    sqlParams.Add(new SqlParameter("fund", fund));
-                //                    if (whereAdded == true)
-                //                    {
-                //                        query = query + " AND journal.[fund] = @fund";
-                //                    }
-                //                    else
-                //                    {
-                //                        query = query + "where journal.[fund] = @fund";
-                //                    }
-                //                }
-                //
                 if (!string.IsNullOrEmpty(symbol))
                 {
                     sqlParams.Add(new SqlParameter("symbol", symbol));

@@ -1,4 +1,7 @@
-﻿using System.Data.SqlClient;
+﻿using LP.Finance.Common;
+using SqlDAL.Core;
+using System.Configuration;
+using System.Data.SqlClient;
 
 namespace PostingEngine.Tasks
 {
@@ -15,18 +18,62 @@ namespace PostingEngine.Tasks
                         declare @minDate as Date
                         declare @maxDate as Date
 
-                        select @minDate = min(busDate), @maxDate = max(busDate) from PositionMaster..IntraDayPositionSplit
+                        select @minDate = min(busDate), @maxDate = max(busDate) from PositionMaster..IntraDayPositionSplit with(nolock)
 
-                        exec FundAccounting..PullDailyActivity @minDate, @maxDate
-                        exec FundAccounting..PullDailyMarketPrices @minDate, @maxDate
-                        exec FundAccounting..PullDailyFxPrices @minDate, @maxDate
+                        exec PullDailyActivity @minDate, @maxDate
+                        exec PullDailyMarketPrices @minDate, @maxDate
                         ";
                 var command = new SqlCommand(sql, connection);
+                command.CommandTimeout = 120; // 1 Mins, shoudl not take this long.
+
+                env.CallBack?.Invoke("[Start] PullDailyActivity & PullDailyMarketPrices");
+
+                command.ExecuteNonQuery();
+
+                env.CallBack?.Invoke("[End] PullDailyActivity & PullDailyMarketPrices");
+
+                sql = @"
+                        declare @minDate as Date
+                        declare @maxDate as Date
+
+                        select @minDate = min(busDate), @maxDate = max(busDate) from PositionMaster..IntraDayPositionSplit with(nolock)
+
+                        exec PullDailyFxPrices @minDate, @maxDate
+                        ";
+                command = new SqlCommand(sql, connection);
+                command.CommandTimeout = 120; // 1 Mins, shoudl not take this long.
+
+                env.CallBack?.Invoke("[Start] PullDailyFxPrices");
+                command.ExecuteNonQuery();
+                env.CallBack?.Invoke("[End] PullDailyFxPrices");
+
+                sql = @"
+                        truncate table current_trade_state
+                        ";
+                command = new SqlCommand(sql, connection);
                 command.CommandTimeout = 60; // 1 Mins, shoudl not take this long.
 
                 command.ExecuteNonQuery();
+
+                var source_ConnectionString = "Source_FinanceDB";
+
+                var connectionString = ConfigurationManager.ConnectionStrings[source_ConnectionString].ToString();
+
+                var dataTable = new SqlHelper(connectionString).GetDataTable("select * from vwCurrentStateTrades", System.Data.CommandType.Text);
+
+                var transaction = connection.BeginTransaction();
+
+                env.CallBack?.Invoke("[Start] Bulk Copy from vwCurrentStateTrades");
+
+                new SQLBulkHelper().Insert("current_trade_state", dataTable, connection, transaction, false, false);
+
+                env.CallBack?.Invoke("[End] Bulk Copy from vwCurrentStateTrades");
+
+                transaction.Commit();
                 connection.Close();
             }
+
+            // Now lets populate the current_trade_state table from the Core system
 
             return true;
         }

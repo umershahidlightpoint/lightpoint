@@ -44,7 +44,7 @@ SUM(t.Commission) as commission,
 SUM(t.fees) as fees,
 t.SecurityType
 from tax_lot_status 
-inner join TradeMaster..trade t on t.LpOrderId = tax_lot_status.open_id
+inner join current_trade_state t on t.LpOrderId = tax_lot_status.open_id
 where tax_lot_status.trade_date <= @bDate
 group by open_id, tax_lot_status.symbol, tax_lot_status.side, t.SecurityId, tax_lot_status.Fund, t.TradeCurrency, t.SettleCurrency, t.SecurityType
 )

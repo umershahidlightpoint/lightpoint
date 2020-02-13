@@ -551,6 +551,7 @@ namespace LP.Finance.Common
 
     public class SQLBulkHelper
     {
+
         public void Insert(string tablename, IDbModel[] models, SqlConnection connection, SqlTransaction transaction,
             bool fireTriggers = false, bool checkConstraints = false)
         {
@@ -588,6 +589,7 @@ namespace LP.Finance.Common
             using (var bulk = new SqlBulkCopy(connection,
                 options, transaction))
             {
+                bulk.BulkCopyTimeout = 300;
                 bulk.BatchSize = 100000;
                 bulk.DestinationTableName = tablename;
 
@@ -599,6 +601,47 @@ namespace LP.Finance.Common
                 bulk.WriteToServer(table);
             }
         }
+
+        public void Insert(string tablename, DataTable sourceData, SqlConnection connection, SqlTransaction transaction,
+            bool fireTriggers = false, bool checkConstraints = false)
+        {
+            if (sourceData.Rows.Count == 0)
+                return;
+
+            SqlBulkCopyOptions options;
+            if (fireTriggers && checkConstraints)
+            {
+                options = SqlBulkCopyOptions.FireTriggers | SqlBulkCopyOptions.CheckConstraints;
+            }
+            else if (fireTriggers)
+            {
+                options = SqlBulkCopyOptions.FireTriggers;
+            }
+            else if (checkConstraints)
+            {
+                options = SqlBulkCopyOptions.CheckConstraints;
+            }
+            else
+            {
+                options = SqlBulkCopyOptions.Default;
+            }
+
+            using (var bulk = new SqlBulkCopy(connection,
+                options, transaction))
+            {
+                bulk.BulkCopyTimeout = 300;
+                bulk.BatchSize = 100000;
+                bulk.DestinationTableName = tablename;
+
+                foreach (DataColumn c in sourceData.Columns)
+                {
+                    bulk.ColumnMappings.Add(c.ColumnName, c.ColumnName);
+                }
+
+                bulk.WriteToServer(sourceData);
+            }
+        }
+
     }
 
     public static class HelperFunctions

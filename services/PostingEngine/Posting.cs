@@ -64,13 +64,15 @@ namespace PostingEngine
         {
         }
 
-        public static void RunCalculation(string calculation, DateTime valueDate, Guid key, PostingEngineCallBack postingEngineCallBack)
+        public static void RunCalculation(string calculation, string period, DateTime valueDate, Guid key, PostingEngineCallBack postingEngineCallBack)
         {
             var env = new PostingEngineEnvironment()
             {
                 ConnectionString = connectionString,
                 CallBack = postingEngineCallBack,
-                BaseCurrency = "USD"
+                BaseCurrency = "USD",
+                Period = period,
+                ValueDate = valueDate,
             };
 
             SetupEnvironment.Setup(env.ConnectionString);
@@ -939,7 +941,8 @@ namespace PostingEngine
             catch ( Exception ex )
             {
                 Logger.Debug(ex, "Unable to complete Cleanup");
-                return false;
+                // We have to throw the exception here as if this fails we need to terminate ASAP
+                throw ex;
             }
 
             return true;

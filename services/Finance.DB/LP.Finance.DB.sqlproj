@@ -154,6 +154,8 @@
     <Build Include="Tables\cash_dividends_audit_trail.sql" />
     <Build Include="Triggers\cash_dividend_insert_trigger.sql" />
     <Build Include="Triggers\cash_dividend_update_trigger.sql" />
+    <Build Include="Views\vwWorkingJOurnals.sql" />
+    <Build Include="Functions\fnTaxLotReport.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">

@@ -15,7 +15,7 @@ namespace PostingEngine.Tasks
     /// <summary>
     /// Grab all of the Items to create contra journal entries for each of the line items
     /// </summary>
-    public class EndOfYearTask : IPostingTask
+    class EndOfYearTask : IPostingTask
     {
         public bool Run(PostingEngineEnvironment env)
         {
