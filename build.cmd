@@ -34,8 +34,8 @@ mkdir distribution\XA\Tools
 
 REM Container
 xcopy /q ..\container\LightpointApp\bin\Debug /s distribution\XA\UI
-rename distribution\UI\LightPointApp.exe PortfolioAccounting.exe
-rename distribution\UI\LightPointApp.exe.config PortfolioAccounting.exe.config
+rename distribution\XA\UI\LightPointApp.exe PortfolioAccounting.exe
+rename distribution\XA\UI\LightPointApp.exe.config PortfolioAccounting.exe.config
 
 REM Services
 mkdir distribution\APP\services\LP.Finance.WebProxy
