@@ -27,7 +27,9 @@ export enum GridId {
   fxRateId,
   dayPnlReconcileId,
   bookMonReconcileId,
-  taxlotsMaintenanceId
+  taxlotsMaintenanceId,
+  dividendsId,
+  stockSplitsId
 }
 
 export enum GridName {
@@ -59,5 +61,7 @@ export enum GridName {
   fxRate = 'Fx Rate',
   dayPnlReconcile = 'DayPnl Reconcile',
   bookmonReconcile = 'Bookmon Reconcile',
-  taxlotsMaintenance = 'Tax Lots Maintenance'
+  taxlotsMaintenance = 'Tax Lots Maintenance',
+  dividends = 'Dividends',
+  stockSplits = 'Stock Splits'
 }
