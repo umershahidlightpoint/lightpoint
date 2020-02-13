@@ -50,14 +50,6 @@ export class AccountApiService {
   }
 
   /*
-  Get All Accounts
-  */
-  getAllRawAccounts() {
-    const url = this.baseUrl + '/account/all';
-    return this.http.get(url).pipe(map((response: any) => response));
-  }
-
-  /*
   Get the Account Types
   */
   getAccountTypes(keyword: string) {

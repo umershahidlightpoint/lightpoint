@@ -9,6 +9,7 @@ import { map, tap } from 'rxjs/operators';
 export class CacheService {
   private baseUrl: string;
   private metaData: any;
+  private dummyAccount: any;
 
   constructor(private http: HttpClient) {
     this.baseUrl = window['config'].remoteServerUrl;
@@ -27,7 +28,24 @@ export class CacheService {
     );
   }
 
+  getDummyAccount(): Observable<any> {
+    const url = this.baseUrl + '/account/dummy';
+
+    if (this.dummyAccount) {
+      return of(this.dummyAccount);
+    }
+
+    return this.http.get(url).pipe(
+      map((response: any) => response),
+      tap(data => (this.metaData = data))
+    );
+  }
+
   purgeServerSideJournalsMeta(): void {
     this.metaData = null;
+  }
+
+  purgeDummyAccount(): void {
+    this.dummyAccount = null;
   }
 }

@@ -103,7 +103,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return Utils.Wrap(true, accounts, HttpStatusCode.OK, null, meta);
         }
 
-        public object GetAllAccounts()
+        public object GetDummyAccount()
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);
 
@@ -116,29 +116,23 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 	                    ,[account_category].[name] AS 'category'
                         FROM [account]
 						LEFT JOIN [account_type] ON [account].[account_type_id] = [account_type].[id]
-						LEFT JOIN [account_category] ON [account_type].[account_category_id] = [account_category].[id]");
-
-            query.Append(
-                " ORDER BY [account].[id] DESC");
+						LEFT JOIN [account_category] ON [account_type].[account_category_id] = [account_category].[id]
+						WHERE [account_category].[id] = 0");
 
             var data = sqlHelper.GetDataTable(query.ToString(), CommandType.Text);
 
-            List<AccountsOutputDto> accounts = new List<AccountsOutputDto>();
-            foreach (DataRow row in data.Rows)
+            var dummyAccount = new AccountsOutputDto
             {
-                accounts.Add(new AccountsOutputDto
-                {
-                    AccountId = Convert.ToInt32(row["account_id"]),
-                    AccountName = row["name"].ToString(),
-                    Description = row["description"].ToString(),
-                    TypeId = Convert.ToInt32(row["type_id"]),
-                    Type = row["type"].ToString(),
-                    CategoryId = Convert.ToInt32(row["category_id"]),
-                    Category = row["category"].ToString()
-                });
-            }
+                AccountId = Convert.ToInt32(data.Rows[0]["account_id"]),
+                AccountName = data.Rows[0]["name"].ToString(),
+                Description = data.Rows[0]["description"].ToString(),
+                TypeId = Convert.ToInt32(data.Rows[0]["type_id"]),
+                Type = data.Rows[0]["type"].ToString(),
+                CategoryId = Convert.ToInt32(data.Rows[0]["category_id"]),
+                Category = data.Rows[0]["category"].ToString()
+            };
 
-            return Utils.Wrap(true, accounts, HttpStatusCode.OK);
+            return Utils.Wrap(true, dummyAccount, HttpStatusCode.OK);
         }
 
         public object GetMappedAccounts()

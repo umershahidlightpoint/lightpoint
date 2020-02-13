@@ -96,6 +96,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   absoluteSorting: string[] = [];
   absoluteSortingAsc = false;
   absoluteSortingDesc = false;
+  isJournalModalActive = false;
 
   ranges: any;
 
@@ -820,7 +821,11 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   }
 
   openJournalModal() {
-    this.journalModal.openModal();
+    this.isJournalModalActive = true;
+
+    setTimeout(() => {
+      this.journalModal.openModal();
+    }, 250);
   }
 
   openEditModal(data, contraEntryMode) {
