@@ -3,9 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LP.FileProcessing;
 using LP.FileProcessing.Report_Generation;
 using LP.Finance.Common.Dtos;
@@ -20,50 +17,66 @@ namespace PostingEngine.Reports
     {
         private static readonly string
             connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
-        SqlHelper sqlHelper = new SqlHelper(connectionString);
-        private static readonly string fromEmail = ConfigurationManager.AppSettings["FromEmail"].ToString();
-        private static readonly string fromName = ConfigurationManager.AppSettings["FromName"].ToString();
+
+        private readonly SqlHelper sqlHelper = new SqlHelper(connectionString);
+        private static readonly string FromEmail = ConfigurationManager.AppSettings["FromEmail"].ToString();
+        private static readonly string FromName = ConfigurationManager.AppSettings["FromName"].ToString();
 
         internal async void TaxLotReport()
         {
             try
             {
                 IReport report = new SpreadSheet();
-                ServerRowModel layout = new ServerRowModel();
-                var layoutJSON = GetLayout("Taxlot Status");
-                layout.gridColDefs = JsonConvert.DeserializeObject<List<GridColDef>>(layoutJSON.ColumnState);
-                layout.filterModel = JsonConvert.DeserializeObject<ExpandoObject>(layoutJSON.FilterState);
-                layout.externalFilterModel = JsonConvert.DeserializeObject<ExpandoObject>(layoutJSON.ExternalFilterState);
-                layout.sortModel = JsonConvert.DeserializeObject<List<SortModel>>(layoutJSON.SortState);
-                //var queryObject = ServerSideRowModelHelper.BuildSqlFromGridLayouts(layout, "tax_lot_status");
-                var query = $@"SELECT * FROM tax_lot_status";
-                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
 
-                var recepientQuery = $"select email_id as EmailId from report_recepient where task = 'EOD' and report = 'Tax Lot Status'";
-                var recepientDataTable = sqlHelper.GetDataTable(recepientQuery, CommandType.Text);
-                var recepientList = new List<string>();
-                foreach(DataRow dr in recepientDataTable.Rows)
+                ServerRowModel layout = new ServerRowModel();
+                var layoutJson = GetLayout("Taxlot Status");
+                layout.gridColDefs = JsonConvert.DeserializeObject<List<GridColDef>>(layoutJson.ColumnState);
+                layout.filterModel = JsonConvert.DeserializeObject<ExpandoObject>(layoutJson.FilterState);
+                layout.externalFilterModel =
+                    JsonConvert.DeserializeObject<ExpandoObject>(layoutJson.ExternalFilterState);
+                layout.sortModel = JsonConvert.DeserializeObject<List<SortModel>>(layoutJson.SortState);
+                var filterKeys = new Dictionary<string, string>
                 {
-                    recepientList.Add((string)dr["EmailId"]);
+                    {"fundFilter", "fund"},
+                    {"symbolFilter", "symbol"},
+                    {"dateFilter", "trade_date"}
+                };
+                layout.externalFilterModel =
+                    ServerSideRowModelHelper.MapExternalFilters(layout.externalFilterModel, filterKeys);
+                var queryObject = ServerSideRowModelHelper.BuildSqlFromGridLayouts(layout, "tax_lot_status");
+
+                var query = $@"SELECT * FROM tax_lot_status";
+                var dataTable =
+                    sqlHelper.GetDataTable(queryObject.Item1, CommandType.Text, queryObject.Item2.ToArray());
+
+                var recipientQuery =
+                    $"SELECT email_id AS EmailId FROM report_recepient WHERE task = 'EOD' AND report = 'Tax Lot Status'";
+                var recipientDataTable = sqlHelper.GetDataTable(recipientQuery, CommandType.Text);
+
+                var recipientList = new List<string>();
+                foreach (DataRow dr in recipientDataTable.Rows)
+                {
+                    recipientList.Add((string) dr["EmailId"]);
                 }
+
                 string header = "TaxLotReport";
                 string content = "This is an automatically generated email.";
-                if (recepientList.Count > 0)
+                if (recipientList.Count > 0)
                 {
-                    report.Generate(dataTable, recepientList, header, content, fromEmail, fromName);
+                    report.Generate(dataTable, recipientList, header, content, FromEmail, FromName);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
-           
         }
 
         public DataGridStatusDto GetLayout(string gridName)
         {
-            var query = $@"select top 1 * from data_grid_layouts where grid_name = '{gridName}' and is_default = 1";
+            var query = $@"SELECT TOP 1 * FROM data_grid_layouts WHERE grid_name = '{gridName}' AND is_default = 1";
             var data = sqlHelper.GetDataTable(query, CommandType.Text);
+
             DataGridStatusDto gridLayout = new DataGridStatusDto();
             foreach (DataRow row in data.Rows)
             {
@@ -74,8 +87,8 @@ namespace PostingEngine.Reports
                 gridLayout.SortState = row["sort_state"].ToString();
                 gridLayout.GroupState = row["group_state"].ToString();
             }
+
             return gridLayout;
         }
-
     }
 }
