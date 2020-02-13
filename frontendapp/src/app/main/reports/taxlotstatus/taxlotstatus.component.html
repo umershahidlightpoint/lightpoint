@@ -57,7 +57,7 @@
     </div>
     <!-- Clear Button Div Ends -->
 
-    <!----- Buttons Div Starts ----->
+    <!-- Buttons Div Starts -->
     <div class="ml-auto">
       <!-- Refresh Button Div Starts -->
       <div class="mr-2 d-inline-block">
@@ -66,33 +66,56 @@
       </div>
       <!-- Refresh Button Div Ends -->
       <!-- Export to Excel Button -->
-      <div class="mr-3 d-inline-block">
+      <div class="mr-2 d-inline-block">
         <button (click)="onBtExport()" class="btn btn-pa" tooltip="Export to Excel" placement="top">
           <i class="fa fa-arrow-circle-o-down"></i>
         </button>
       </div>
+      <!-- Export to Excel Button Ends -->
+      <!-- Expand/Collapse Button -->
+      <div class="mr-3 d-inline-block">
+        <button (click)="isExpanded = !isExpanded" class="btn btn-pa" tooltip="Collapse" placement="top">
+          <i class="fa fa-arrows-alt"></i>
+        </button>
+      </div>
+      <!-- Expand/Collapse Button Ends -->
     </div>
-    <!----- Buttons Div Ends ----->
+    <!-- Buttons Div Ends -->
   </div>
   <!-- Filters Div Ends -->
 
   <!-- Report Grid Starts -->
-  <div #divToMeasureJournal>
-    <div [ngStyle]="styleForHeight" class="d-flex">
-      <ag-grid-angular class="w-50 h-100 ag-theme-balham" (rowSelected)="onRowSelected($event)"
-        [gridOptions]="gridOptions">
-      </ag-grid-angular>
+  <div [ngStyle]="styleForHeight">
 
-      <div class="w-50 h-100">
-        <ag-grid-angular class="w-100 h-50 ag-theme-balham" (rowSelected)="onTradeRowSelected($event)"
-          [gridOptions]="closingTaxLots">
+    <div class="row h-100">
+
+      <div [ngClass]="{'col-12': !isExpanded, 'col-6': isExpanded}" class="pr-0">
+        <ag-grid-angular class="w-100 h-100 ag-theme-balham" (rowSelected)="onRowSelected($event)"
+          [gridOptions]="gridOptions">
         </ag-grid-angular>
+      </div>
 
-        <div class="w-100 height-45 p-0">
-          <app-journals [subscription]="tradeSelectionChanged" [title]="'Journals'"></app-journals>
+      <div *ngIf="isExpanded" [ngClass]="{'col-6': isExpanded}">
+
+        <div class="row h-50">
+          <div class="col-12 pl-0">
+            <ag-grid-angular class="w-100 h-100 ag-theme-balham" (rowSelected)="onTradeRowSelected($event)"
+              [gridOptions]="closingTaxLots">
+            </ag-grid-angular>
+          </div>
+        </div>
+
+        <div class="row height-45">
+          <div class="col-12 pl-0">
+            <div class="w-100 h-100 p-0">
+              <app-journals [subscription]="tradeSelectionChanged" [title]="'Journals'"></app-journals>
+            </div>
+          </div>
         </div>
       </div>
+
     </div>
+
   </div>
   <!-- Report Grid Ends -->
 </div>

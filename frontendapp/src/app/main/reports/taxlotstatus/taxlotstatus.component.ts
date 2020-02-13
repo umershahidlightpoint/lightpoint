@@ -55,6 +55,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   isLoading = false;
   hideGrid: boolean;
   journalDate: any;
+  isExpanded = false;
 
   ranges: any = Ranges;
 
@@ -272,7 +273,6 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           valueFormatter: moneyFormatter,
           aggFunc: 'sum'
         }
-
       ],
       defaultColDef: {
         sortable: true,
