@@ -37,9 +37,9 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [HttpPut]
         [Route("deleteCashDividend")]
-        public object DeleteCashDividend(int id)
+        public object DeleteCashDividend(DeleteCashDividendInputDto obj)
         {
-            return controller.DeleteCashDividend(id);
+            return controller.DeleteCashDividend(obj.Id);
         }
 
         [HttpGet]

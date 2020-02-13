@@ -224,7 +224,23 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object GetDividendDetails()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var query = $@"select * from vwDividendDetails";
+
+                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text);
+
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+
+                var json = JsonConvert.DeserializeObject(jsonResult);
+
+                return Utils.Wrap(true, json, HttpStatusCode.OK, "Dividend details fetched successfully");
+            }
+            catch (Exception ex)
+            {
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    "An error occured while fetching dividend details");
+            }
         }
     }
 }

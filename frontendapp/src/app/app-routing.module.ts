@@ -37,6 +37,10 @@ export const routes: Routes = [
     path: 'operations',
     loadChildren: './main/operations/operations.module#OperationsModule'
   },
+  {
+    path: 'corporate-actions',
+    loadChildren: './main/corporate-actions/corporate-actions.module#CorporateActionsModule'
+  },
   { path: '', redirectTo: '/reports', pathMatch: 'full' },
   {
     path: '**',
