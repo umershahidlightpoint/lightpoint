@@ -15,6 +15,7 @@ import { SettingApiService } from 'src/services/setting-api.service';
 import { Response } from 'src/shared/Models/response';
 import { Journal, JournalAccount } from '../../../../../shared/Models/journal';
 import { Fund, AccountCategory, Account } from '../../../../../shared/Models/account';
+import { CacheService } from 'src/services/common/cache.service';
 
 @Component({
   selector: 'app-journal-modal',
@@ -51,7 +52,6 @@ export class JournalModalComponent implements OnInit {
 
   selectedAsOfDate: { startDate: moment.Moment; endDate: moment.Moment };
 
-  allAccounts: Account[];
   dummyAccount: Account;
 
   selectedRow: {
@@ -82,6 +82,7 @@ export class JournalModalComponent implements OnInit {
     private accountApiService: AccountApiService,
     private journalApiService: JournalApiService,
     private settingApiService: SettingApiService,
+    private cacheService: CacheService,
     private toastrService: ToastrService
   ) {}
 
@@ -135,7 +136,7 @@ export class JournalModalComponent implements OnInit {
     );
     const symbolsResponse = this.financePocServiceProxy.getSymbol();
     const currenciesResponse = this.settingApiService.getReportingCurrencies();
-    const accountsResponse = this.accountApiService.getAllAccounts();
+    const accountsResponse = this.cacheService.getDummyAccount();
 
     return forkJoin([
       fundsResponse,
@@ -202,20 +203,18 @@ export class JournalModalComponent implements OnInit {
 
   getAccounts(response) {
     if (response.isSuccessful) {
-      this.allAccounts = response.payload.map(element => ({
-        accountId: element.AccountId,
-        name: element.AccountName,
-        description: element.Description,
-        typeId: element.TypeId,
-        type: element.Type,
-        categoryId: element.CategoryId,
-        category: element.Category,
-        hasJournal: element.HasJournal,
-        canDeleted: element.CanDeleted,
-        canEdited: element.CanEdited
-      }));
-
-      this.dummyAccount = this.allAccounts.find(item => item.categoryId === 0);
+      this.dummyAccount = {
+        accountId: response.payload.AccountId,
+        name: response.payload.AccountName,
+        description: response.payload.Description,
+        typeId: response.payload.TypeId,
+        type: response.payload.Type,
+        categoryId: response.payload.CategoryId,
+        category: response.payload.Category,
+        hasJournal: response.payload.HasJournal,
+        canDeleted: response.payload.CanDeleted,
+        canEdited: response.payload.CanEdited
+      };
     } else {
       this.toastrService.error('Failed to fetch Accounts!');
     }

@@ -103,6 +103,38 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return Utils.Wrap(true, accounts, HttpStatusCode.OK, null, meta);
         }
 
+        public object GetDummyAccount()
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+
+            var query = new StringBuilder($@"SELECT [account].[id] AS 'account_id'
+                        ,[account].[name]
+	                    ,[account].[description]
+						,[account_type].[id] AS 'type_id'
+	                    ,[account_type].[name] AS 'type'
+                        ,[account_category].[id] AS 'category_id'
+	                    ,[account_category].[name] AS 'category'
+                        FROM [account]
+						LEFT JOIN [account_type] ON [account].[account_type_id] = [account_type].[id]
+						LEFT JOIN [account_category] ON [account_type].[account_category_id] = [account_category].[id]
+						WHERE [account_category].[id] = 0");
+
+            var data = sqlHelper.GetDataTable(query.ToString(), CommandType.Text);
+
+            var dummyAccount = new AccountsOutputDto
+            {
+                AccountId = Convert.ToInt32(data.Rows[0]["account_id"]),
+                AccountName = data.Rows[0]["name"].ToString(),
+                Description = data.Rows[0]["description"].ToString(),
+                TypeId = Convert.ToInt32(data.Rows[0]["type_id"]),
+                Type = data.Rows[0]["type"].ToString(),
+                CategoryId = Convert.ToInt32(data.Rows[0]["category_id"]),
+                Category = data.Rows[0]["category"].ToString()
+            };
+
+            return Utils.Wrap(true, dummyAccount, HttpStatusCode.OK);
+        }
+
         public object GetMappedAccounts()
         {
             dynamic postingEngine = new PostingEngineService().GetProgress();

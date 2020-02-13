@@ -82,6 +82,7 @@
     <Compile Include="PostingRules\DefaultPostingRules.cs" />
     <Compile Include="Reports\EODReports.cs" />
     <Compile Include="SetupEnvironment.cs" />
+    <Compile Include="Tasks\Implementation\CleanupTask.cs" />
     <Compile Include="Tasks\Implementation\CostBasisTask.cs" />
     <Compile Include="Tasks\Implementation\DailyPnlTask.cs" />
     <Compile Include="Tasks\Implementation\EndOfYearTask.cs" />

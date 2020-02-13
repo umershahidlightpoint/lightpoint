@@ -1,22 +1,35 @@
-﻿CREATE PROCEDURE [dbo].[CacheBatchResults_rd]
+﻿/*
+exec [CacheBatchResults_rd] 100000
+*/
+
+
+CREATE PROCEDURE [dbo].[CacheBatchResults_rd]
   @BatchSize int
 AS
 
 DECLARE @From INT
 DECLARE @To INT
 DECLARE @TotalCount INT
+DECLARE @TotalNumberOfRecords INT
+DECLARE @Step INT
+DECLARE @Percentage numeric(22,9)
+DECLARE @Message varchar(500)
+DECLARE @TotalProcessed INT
 
+SET NOCOUNT ON
 
-
+set @Step = 0
 
 RAISERROR ('Preparing', 0, 1) WITH NOWAIT
 
-	select * into #current_trade_state from vwCurrentStateTrades 
-	select * into #current_journal from vwJournal
+set @Message = 'Batch Size ' + Convert(varchar(10), @BatchSize);
 
+RAISERROR (@message, 0, 1) WITH NOWAIT
 
-	SELECT @TotalCount = MAX(id), @From = MIN(id)  FROM #current_journal
+	SELECT @TotalNumberOfRecords = count(*) FROM vwJournal
+	SELECT @TotalCount = MAX(id), @From = MIN(id)  FROM vwJournal
 	SET @To = @From + @BatchSize
+	SET @TotalProcessed = 0
 
 	RAISERROR ('Dropping table', 0, 1) WITH NOWAIT
 	drop table if exists current_journal_full
@@ -71,29 +84,34 @@ ALTER TABLE [dbo].[current_journal_full] ADD  DEFAULT ((1)) FOR [is_account_to]
 			t.CustodianCode, 
 			t.SecurityType,
 			t.Side
-			from #current_journal vw
-			left outer join #current_trade_state t on t.LpOrderId = vw.source
+			from vwJournal vw
+			left outer join current_trade_state t on t.LpOrderId = vw.source
 			where vw.id >= @From and vw.id < @To
 
-			print 'inserting ranges: ' + Convert(varchar(100), @From) + 'to ' + Convert(varchar(100), @To);
+			SET @TotalProcessed = @TotalProcessed + @BatchSize
+			SET @Percentage = (Convert(numeric(22,9), @TotalProcessed) / Convert(numeric(22,9), @TotalNumberOfRecords)) * 100
+
+			set @Message = '[' + Convert(varchar(100), @Step) + '] [' + Convert(varchar(100), ROUND(@Percentage, 2))+ '] inserting ranges: ' + Convert(varchar(100), @From) + ' to ' + Convert(varchar(100), @To)
+
+			RAISERROR (@message, 0,1) with nowait
 			SET @From = @To
 			SET @To = @To + @BatchSize
+			Set @Step = @Step + 1
 		END
 
 
-RAISERROR ('Creating Indexes', 0, 1) WITH NOWAIT
+RAISERROR ('Creating Clustered Indexes', 0, 1) WITH NOWAIT
 create clustered index Ix_current_journal_full_when
 ON current_journal_full([when] desc)
 
-
+RAISERROR ('Creating Non Clustered Indexes', 0, 1) WITH NOWAIT
 create nonclustered index Ix_current_journal_full_covering_index
 ON current_journal_full ([when],accountcategory, accounttype, fund, accountname) INCLUDE (source,[event], credit,debit,symbol,security_id, quantity, id, account_id, fx_currency,accountdescription,[value], start_price, end_price,fxrate,is_account_to,tradedate,settledate,tradeid,[action],[status],custodiancode,securitytype,side);
 
 RAISERROR ('Completed', 0, 1) WITH NOWAIT
 
-	select count(*), 'journal entries' from #current_journal
+	select count(*), 'journal entries' from vwJournal
 	union
-	select count(*), 'trade population' from #current_trade_state
+	select count(*), 'trade population' from current_trade_state
 
 RETURN 0
-GO

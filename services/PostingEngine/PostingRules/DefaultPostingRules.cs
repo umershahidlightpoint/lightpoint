@@ -67,7 +67,7 @@ namespace PostingEngine.PostingRules
                 }
         }
 
-        private void GenerateDailyUnrealized(PostingEngineEnvironment env, TaxLotStatus taxLotStatus, Transaction element, double quantity, double fxRate)
+        private void GenerateDailyUnrealized(PostingEngineEnvironment env, TaxLotStatus taxLotStatus, Transaction element, double quantity, double fxRate, bool closeout = false)
         {
             var prevEodPrice = 0.0;
             var eodPrice = 0.0;
@@ -85,7 +85,7 @@ namespace PostingEngine.PostingRules
 
             var endPrice = element.SettleNetPrice;
 
-            if ( taxLotStatus.Quantity == 0.0 )
+            if ( closeout )
             {
                 eodPrice = endPrice;
             }
@@ -183,6 +183,10 @@ namespace PostingEngine.PostingRules
 
         internal void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
+            if ( element.LpOrderId.Equals("d27c75c68174479285e385fc9a4f0444") || element.LpOrderId.Equals("c36309a8b72d45f49149a29c667c4803"))
+            {
+
+            }
             double multiplier = 1.0;
 
             if (env.SecurityDetails.ContainsKey(element.BloombergCode))
@@ -245,9 +249,9 @@ namespace PostingEngine.PostingRules
                         if (Math.Abs(taxlotStatus.Quantity) >= Math.Abs(workingQuantity))
                         {
                             // Lets generate all the journal entries we need
-                            var taxlot = GenerateJournals(env, lot, taxlotStatus, element, workingQuantity, fxrate, multiplier);
+                            var closingTaxLot = GenerateJournals(env, lot, taxlotStatus, element, workingQuantity, fxrate, multiplier);
 
-                            CommonRules.GenerateTradeDateJournals(env, taxlotStatus, taxlot);
+                            CommonRules.GenerateTradeDateJournals(env, taxlotStatus, closingTaxLot);
 
                             break;
                         }
@@ -301,10 +305,10 @@ namespace PostingEngine.PostingRules
             else
                 taxlotStatus.Status = "Partially Closed";
 
-            if (taxlotStatus.Quantity == 0.0)
+            //if (taxlotStatus.Quantity == 0.0)
             {
                 // Is this really needed, as if the tax lot is zero then should not generate any additional unrealized pnl
-                GenerateDailyUnrealized(env, taxlotStatus, element, workingQuantity * -1, fxrate);
+                GenerateDailyUnrealized(env, taxlotStatus, element, workingQuantity * -1, fxrate, true);
             }
 
             var eodPrice = MarketPrices.GetPrice(env, env.PreviousValueDate, buyTrade).Price;

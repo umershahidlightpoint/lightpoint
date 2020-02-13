@@ -8,7 +8,6 @@ namespace PostingEngine.Tasks
     public class DailyPnlTask : IPostingTask
     {
         private string Module = "DailyPnlTask";
-
         private static bool UpdateDailyPnl(List<DailyPnL> records, string connectionString)
         {
             var query = $@"update unofficial_daily_pnl set 

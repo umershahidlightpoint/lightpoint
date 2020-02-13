@@ -174,6 +174,8 @@ namespace PostingEngine.PostingRules
 
         internal static void GenerateSettlementDateJournals(PostingEngineEnvironment env, TaxLotStatus taxLotStatus, TaxLot closingTaxLot)
         {
+            double multiplier = 1.0;
+
             double fxrate = 1.0;
 
             var element = taxLotStatus.Trade;
@@ -192,12 +194,12 @@ namespace PostingEngine.PostingRules
                 return;
             }
 
-            var openQuantity = Math.Abs(taxLotStatus.OriginalQuantity);
+            var openQuantity = Math.Abs(closingTaxLot.Trade.Quantity);
             var closeQuantity = Math.Abs(closingTaxLot.Quantity);
             var percentage = closeQuantity / openQuantity;
 
             // This is the fully loaded value to tbe posting
-            var backout = Math.Abs(closingTaxLot.Trade.NetMoney) * fxrate * percentage;
+            var backout = Math.Abs(closingTaxLot.Trade.NetMoney) * fxrate * multiplier * percentage;
 
             // BUY -- Debit
             // SELL -- Credit
@@ -755,9 +757,9 @@ namespace PostingEngine.PostingRules
 
             double fxrate = 1.0;
 
-            var openQuantity = Math.Abs(taxLotStatus.OriginalQuantity);
-            var closeQuantity = Math.Abs(closingTaxLot.Quantity);
-            var percentage = closeQuantity / openQuantity;
+            var openQuantity = Math.Abs(closingTaxLot.Quantity);
+            var closeQuantity = Math.Abs(closingTaxLot.Trade.Quantity);
+            var percentage = openQuantity / closeQuantity;
 
             // Lets get fx rate if needed
             if (!element.SettleCurrency.Equals(env.BaseCurrency))
@@ -774,7 +776,7 @@ namespace PostingEngine.PostingRules
 
             if (closingTaxLot.Trade.NetMoney != 0.0)
             {
-                var moneyUSD = Math.Abs(closingTaxLot.Trade.NetMoney) * fxrate * percentage;
+                var moneyUSD = Math.Abs(closingTaxLot.Trade.NetMoney) * fxrate * multiplier * percentage;
 
                 // BUY -- Debit
                 // SELL -- Credit

@@ -8,6 +8,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object Data(string symbol, string search = "");
 
         object GetAccounts(int pageNumber, int pageSize, string accountName, string accountCategory);
+        object GetDummyAccount();
         object GetMappedAccounts();
 
         object GetAccount(int id);

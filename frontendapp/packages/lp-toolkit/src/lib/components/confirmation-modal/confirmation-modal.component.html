@@ -1,8 +1,13 @@
-<!-- Confirmation Modal Starts -->
-<div bsModal #confirm="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal"
+<!-- Confirmation Modal -->
+<div bsModal #confirmationModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal"
   aria-hidden="true" [config]="{backdrop: false}">
-  <div class="modal-dialog modal-dialog-centered" id="modal-lg">
+
+  <!-- Confirmation Modal Dialog -->
+  <div class="modal-dialog modal-dialog-centered">
+
+    <!-- Confirmation Modal Content -->
     <div class="modal-content">
+
       <!-- Modal Header Start -->
       <div class="modal-header">
         <h3>{{title}}</h3>
@@ -10,11 +15,13 @@
           &times;
         </button>
       </div>
+      <!-- Modal Header Ends -->
+
       <!-- Modal Body Start -->
       <div class="modal-body">
         <div class="row">
           <div class="col-10">
-            <label class="description">{{description}}</label>
+            <label class="modal-description">{{description}}</label>
           </div>
         </div>
       </div>
@@ -27,7 +34,12 @@
           Yes
         </button>
       </div>
+
     </div>
+    <!-- Confirmation Modal Content Ends -->
+
   </div>
+  <!-- Confirmation Modal Dialog Ends -->
+
 </div>
 <!-- Confirmation Modal Ends -->

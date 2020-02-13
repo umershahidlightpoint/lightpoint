@@ -113,7 +113,7 @@
 </div>
 <!-- Main Div Ends -->
 
-<app-journal-modal #journalModal (modalClose)="closeJournalModal()">
+<app-journal-modal *ngIf="isJournalModalActive" #journalModal (modalClose)="closeJournalModal()">
 </app-journal-modal>
 
 <app-data-modal #dataModal (modalClose)="closeDataModal()" [orderId]="orderId" [title]="'Order Detail'">

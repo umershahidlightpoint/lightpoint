@@ -150,6 +150,12 @@
     <Build Include="StoredProcs\EndOfYear.sql" />
     <Build Include="Tables\report_recepient.sql" />
     <Build Include="StoredProcs\Research and Development\CacheBatchResults_rd.sql" />
+    <Build Include="Tables\cash_dividends.sql" />
+    <Build Include="Tables\cash_dividends_audit_trail.sql" />
+    <Build Include="Triggers\cash_dividend_insert_trigger.sql" />
+    <Build Include="Triggers\cash_dividend_update_trigger.sql" />
+    <Build Include="Views\vwWorkingJOurnals.sql" />
+    <Build Include="Functions\fnTaxLotReport.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">

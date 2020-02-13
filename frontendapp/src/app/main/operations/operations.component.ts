@@ -1,17 +1,17 @@
-import { Component, ElementRef, OnInit, AfterViewChecked, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewChecked, ViewChild, ElementRef } from '@angular/core';
+import { FormGroup, FormControl } from '@angular/forms';
 import { GridOptions } from 'ag-grid-community';
 import * as moment from 'moment';
-import { FormGroup, FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-import { PostingEngineService } from 'src/services/common/posting-engine.service';
 import { GridLayoutMenuComponent } from 'lp-toolkit';
+import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 import { ContextMenu } from 'src/shared/Models/common';
-import { JournalApiService } from 'src/services/journal-api.service';
+import { PostingEngineService } from 'src/services/common/posting-engine.service';
 import { PostingEngineApiService } from 'src/services/posting-engine-api.service';
+import { JournalApiService } from 'src/services/journal-api.service';
 import { FileManagementApiService } from 'src/services/file-management-api.service';
 
 @Component({
@@ -20,8 +20,7 @@ import { FileManagementApiService } from 'src/services/file-management-api.servi
   styleUrls: ['./operations.component.scss']
 })
 export class OperationsComponent implements OnInit, AfterViewChecked {
-  @ViewChild('confirmModal', { static: false })
-  confirmationModal: ConfirmationModalComponent;
+  @ViewChild('confirmModal', { static: false }) confirmationModal: ConfirmationModalComponent;
   @ViewChild('logScroll', { static: false }) private logContainer: ElementRef;
 
   public gridOptions: GridOptions;
@@ -149,7 +148,6 @@ export class OperationsComponent implements OnInit, AfterViewChecked {
     this.gridOptions = {
       rowData: null,
       columnDefs: this.columnDefs,
-      sideBar: SideBar,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       getContextMenuItems: params => this.getContextMenuItems(params),
       getExternalFilterState: () => {

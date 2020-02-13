@@ -1,11 +1,4 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  Output,
-  EventEmitter,
-  Input
-} from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import { ModalDirective } from 'ngx-bootstrap';
 
 @Component({
@@ -14,11 +7,10 @@ import { ModalDirective } from 'ngx-bootstrap';
   styleUrls: ['./confirmation-modal.component.scss']
 })
 export class ConfirmationModalComponent implements OnInit {
+  @ViewChild('confirmationModal', { static: false }) confirmationModal: ModalDirective;
 
-  @Input('modalTitle') title: string;
-  @Input('modalDescription') description = 'Are you really sure?';
-
-  @ViewChild('confirm', { static: false }) confirmModal: ModalDirective;
+  @Input() title: string;
+  @Input() description = 'Are you really sure?';
   @Output() confirmDeletion = new EventEmitter<any>();
 
   constructor() {}
@@ -26,15 +18,15 @@ export class ConfirmationModalComponent implements OnInit {
   ngOnInit() {}
 
   showModal() {
-    this.confirmModal.show();
+    this.confirmationModal.show();
   }
 
   closeModal() {
-    this.confirmModal.hide();
+    this.confirmationModal.hide();
   }
 
   delete() {
     this.confirmDeletion.emit(true);
-    this.confirmModal.hide();
+    this.confirmationModal.hide();
   }
 }

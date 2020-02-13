@@ -12,7 +12,7 @@ export enum GridId {
   journalAllocationId,
   selectedJournalAllocationId,
   silverFilesId,
-  gridViewsId,
+  gridLayoutsId,
   costBasisId,
   journalsId,
   fileExceptionId,
@@ -27,7 +27,7 @@ export enum GridId {
   fxRateId,
   dayPnlReconcileId,
   bookMonReconcileId,
-  taxlotsMaintenanceId,
+  taxlotsMaintenanceId
 }
 
 export enum GridName {
@@ -44,7 +44,7 @@ export enum GridName {
   journalAllocation = 'Journal Allocation',
   selectedJournalAllocation = 'Selected Journal Allocation',
   silverFiles = 'Silver Files',
-  gridViews = 'Grid Views',
+  gridLayouts = 'Grid Layouts',
   costBasis = 'Cost Basis',
   journals = 'Journals',
   fileException = 'File Exception',
