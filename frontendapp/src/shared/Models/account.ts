@@ -35,7 +35,7 @@ export interface Account {
   typeId: number;
   categoryId: number;
   hasJournal: string;
-  Tags: [
+  Tags?: [
     {
       Id: number;
       Value: string;
