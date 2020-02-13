@@ -74,8 +74,9 @@
       <!-- Export to Excel Button Ends -->
       <!-- Expand/Collapse Button -->
       <div class="mr-3 d-inline-block">
-        <button (click)="isExpanded = !isExpanded" class="btn btn-pa" tooltip="Collapse" placement="top">
-          <i class="fa fa-arrows-alt"></i>
+        <ng-template #tooltipTemplate>{{isExpanded ? 'Expand' : 'Collapse'}}</ng-template>
+        <button (click)="isExpanded = !isExpanded" class="btn btn-pa" [tooltip]="tooltipTemplate" placement="top">
+          <i class="fa" [ngClass]="{'fa-arrow-right': isExpanded, 'fa-arrow-left': !isExpanded}"></i>
         </button>
       </div>
       <!-- Expand/Collapse Button Ends -->
@@ -95,7 +96,7 @@
         </ag-grid-angular>
       </div>
 
-      <div *ngIf="isExpanded" [ngClass]="{'col-6': isExpanded}">
+      <div [hidden]="!isExpanded" [ngClass]="{'col-6': isExpanded}">
 
         <div class="row h-50">
           <div class="col-12 pl-0">
