@@ -17,5 +17,16 @@
 >
 </ag-grid-angular>
 
+<h4>Details</h4>
+
+<ag-grid-angular
+ class="w-100 h-100 ag-theme-balham"
+ style="margin-top: 20px;"
+ [gridOptions]="dividendDetailsGrid"
+ (rowSelected)="onRowSelected($event)"
+ [rowData]="rowData"
+>
+</ag-grid-angular>
+
 <app-create-dividend #dividendModal (modalClose)="closeDividendModal()">
 </app-create-dividend>

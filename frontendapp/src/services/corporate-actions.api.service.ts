@@ -41,6 +41,11 @@ export class CorporateActionsApiService {
     return this.http.get(url).pipe(map((response: any) => response), retry(1), catchError(this.handleError));
 }
 
+getDividendDetails() {
+  const url = this.baseUrl + '/corporateAction/cashDividendDetails';
+  return this.http.get(url).pipe(map((response: any) => response), retry(1), catchError(this.handleError));
+}
+
   handleError(error) {
     let errorMessage = '';
     if (error.error instanceof ErrorEvent) {

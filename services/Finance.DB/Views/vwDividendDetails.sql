@@ -1,6 +1,7 @@
 ﻿CREATE VIEW vwDividendDetails
 AS
 select t.fund,
+d.id,
 t.symbol,
 t.quantity,
 t.fx_rate,
