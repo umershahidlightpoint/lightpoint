@@ -1,5 +1,6 @@
-import { Component, OnInit, DoCheck, AfterViewInit, Input } from '@angular/core';
+import { Component, OnInit, AfterViewInit, DoCheck } from '@angular/core';
 import * as moment from 'moment';
+import { WindowRef } from 'src/services/window-ref.service';
 import { PostingEngineService } from 'src/services/common/posting-engine.service';
 import { PostingEngineApiService } from 'src/services/posting-engine-api.service';
 import { ServicesStatusApiService } from '../../../services/services-status-api.service';
@@ -13,13 +14,16 @@ import { JournalApiService } from 'src/services/journal-api.service';
 export class HeaderContentComponent implements OnInit, AfterViewInit, DoCheck {
   postingEngineStatus: boolean;
   progressBar: any;
-  baseCurrency = 'USD'; // Driven by a System Setting
+  isDevMode = false;
+  environment = '';
+  baseCurrency = ''; // Driven by a System Setting
   date: string = moment().format('MM-DD-YYYY');
   effectiveDate: string;
   toDateHasJournals: boolean;
   servicesStatus = true;
 
   constructor(
+    private windowRef: WindowRef,
     private postingEngineApiService: PostingEngineApiService,
     private postingEngineService: PostingEngineService,
     private servicesStatusApiService: ServicesStatusApiService,
@@ -80,9 +84,14 @@ export class HeaderContentComponent implements OnInit, AfterViewInit, DoCheck {
   }
 
   doDatesHaveJournals() {
-    this.journalApiService.checkForJournals(this.effectiveDate, this.date).subscribe(response => {
-      const { payload } = response;
-      this.toDateHasJournals = payload[0].hasJournalsForPreviousDay === 0 ? false : true;
+    this.journalApiService.getAppMetaData(this.effectiveDate, this.date).subscribe(response => {
+      const { environment, baseCurrency, hasJournalsForPreviousDay } = response.payload;
+      if (this.windowRef.nativeWindow.location.hostname === 'localhost') {
+        this.isDevMode = true;
+        this.environment = environment;
+      }
+      this.baseCurrency = baseCurrency;
+      this.toDateHasJournals = hasJournalsForPreviousDay;
     });
   }
 }

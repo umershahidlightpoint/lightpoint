@@ -1,0 +1,13 @@
+
+  <tabset>
+    <tab heading="Dividends">
+      <div [ngStyle]="style">
+        <div class="clearfix"></div>
+        <div [ngStyle]="styleForHeight">
+          <app-dividends *ngIf="corporateActions"></app-dividends>
+          <h4>Dividends Details</h4>
+          <app-stock-splits *ngIf="corporateActions"></app-stock-splits>
+        </div>
+      </div>
+    </tab>
+  </tabset>

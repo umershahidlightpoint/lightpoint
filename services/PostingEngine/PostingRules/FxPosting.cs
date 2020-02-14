@@ -56,7 +56,28 @@ namespace PostingEngine.PostingRules
             var eodFxRate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, currency).Rate);
             var effectiveRate = eodFxRate - prevEodFxRate;
 
-            var usdEquivalent = element.NetMoney * effectiveRate;
+            var usdEquivalent = Math.Abs(element.NetMoney) * Math.Abs(effectiveRate);
+            if ( element.IsBuy())
+            {
+                if ( effectiveRate <0 ) // We are increasing what we owe so a debit ?
+                {
+                    usdEquivalent *= -1;
+                }
+            }
+            else if ( element.IsShort())
+            {
+                if (effectiveRate > 0)
+                {
+                    usdEquivalent *= -1;
+                }
+            } else
+            {
+                // No Idea
+                if ( element.IsSell() || element.IsCover())
+                {
+                    usdEquivalent = element.NetMoney * effectiveRate;
+                }
+            }
 
             // Get accounts
             var toFrom = new AccountUtils().GetAccounts(env, fromAccount, toAccount, _TAGS, element);

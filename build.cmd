@@ -27,26 +27,27 @@ msbuild LightPointApp.sln
 cd ..\finance
 
 IF exist distribution/nul ( rmdir /s /q distribution )
-mkdir distribution\Services
-mkdir distribution\Web
-mkdir distribution\UI
+mkdir distribution\APP\Services
+mkdir distribution\XA\Web
+mkdir distribution\XA\UI
+mkdir distribution\XA\Tools
 
 REM Container
-xcopy /q ..\container\LightpointApp\bin\Debug /s distribution\UI
-rename distribution\UI\LightPointApp.exe PortfolioAccounting.exe
-rename distribution\UI\LightPointApp.exe.config PortfolioAccounting.exe.config
+xcopy /q ..\container\LightpointApp\bin\Debug /s distribution\XA\UI
+rename distribution\XA\UI\LightPointApp.exe PortfolioAccounting.exe
+rename distribution\XA\UI\LightPointApp.exe.config PortfolioAccounting.exe.config
 
 REM Services
-mkdir distribution\services\LP.Finance.WebProxy
-xcopy /q services\LP.Finance.WebProxy\bin\Debug /s distribution\services\LP.Finance.WebProxy
+mkdir distribution\APP\services\LP.Finance.WebProxy
+xcopy /q services\LP.Finance.WebProxy\bin\Debug /s distribution\APP\services\LP.Finance.WebProxy
 
-mkdir distribution\services\LP.ReferenceData.WebProxy
-xcopy /q services\LP.ReferenceData.WebProxy\bin\Debug /s distribution\services\LP.ReferenceData.WebProxy
+mkdir distribution\APP\services\LP.ReferenceData.WebProxy
+xcopy /q services\LP.ReferenceData.WebProxy\bin\Debug /s distribution\APP\services\LP.ReferenceData.WebProxy
 
-mkdir distribution\services\PostingEngine
-xcopy /q services\PostingEngineApp\bin\Debug /s distribution\services\PostingEngine
+mkdir distribution\XA\Tools\PostingEngine
+xcopy /q services\PostingEngineApp\bin\Debug /s distribution\XA\Tools\PostingEngine
 
-xcopy /q scripts /s distribution\services
+xcopy /q scripts /s distribution\APP\services
 
 REM Web UI
 cd ./frontendapp

@@ -1620,10 +1620,15 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        public object DoHaveJournals(DateTime previousDay, DateTime currentDay)
+        public object AppMetaData(DateTime previousDay, DateTime currentDay)
         {
             try
             {
+                SqlConnectionStringBuilder connectionStringBuilder = new SqlConnectionStringBuilder(connectionString);
+                string environment = connectionStringBuilder.DataSource;
+
+                var baseCurrency = GetBaseCurrency();
+
                 List<SqlParameter> toParams = new List<SqlParameter>
                 {
                     new SqlParameter("previousDay", previousDay),
@@ -1631,10 +1636,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var query =
                     $@"SELECT TOP 1 (CASE WHEN[journal].[when] = @previousDay THEN 1 ELSE 0 END) AS 'hasJournalsForPreviousDay' FROM[journal]";
-
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, toParams.ToArray());
-                var res = JsonConvert.SerializeObject(dataTable);
-                var response = JsonConvert.DeserializeObject(res);
+
+                var response = new
+                {
+                    hasJournalsForPreviousDay = Convert.ToBoolean(dataTable.Rows[0]["hasJournalsForPreviousDay"]),
+                    baseCurrency,
+                    environment
+                };
 
                 return Utils.Wrap(true, response, HttpStatusCode.OK);
             }

@@ -1,0 +1,21 @@
+
+<div style="text-align: right">
+    <div class="d-inline-block mr-3">
+        <button class="btn btn-pa" type="button" (click)="openDividendModal()" tooltip="Create Dividend"
+            placement="top">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
+
+<ag-grid-angular
+ class="w-100 h-100 ag-theme-balham"
+ style="margin-top: 20px;"
+ [gridOptions]="gridOptions"
+ (rowSelected)="onRowSelected($event)"
+ [rowData]="rowData"
+>
+</ag-grid-angular>
+
+<app-create-dividend #dividendModal (modalClose)="closeDividendModal()">
+</app-create-dividend>

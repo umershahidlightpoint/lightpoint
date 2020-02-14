@@ -474,7 +474,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
       .subscribe(response => {
         const { data, meta } = response;
         const someArray = this.agGridUtils.columizeData(data, meta.Columns);
-        const columns = this.getTradeJournalColDefs(meta.Columns);
+        const columns = this.dataDictionary.getTradeJournalColDefs(meta.Columns);
 
         const filteredData = someArray.filter(
           item =>
@@ -485,65 +485,6 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
         this.title = `Trade Journals (Difference: ${Diff_DayPnl})`;
         this.dataGridModal.openModal(columns, filteredData);
       });
-  }
-
-  getTradeJournalColDefs(columns): Array<ColDef | ColGroupDef> {
-    const colDefs: Array<ColDef> = [
-      this.dataDictionary.column('debit', false),
-      this.dataDictionary.column('credit', false),
-      this.dataDictionary.column('balance', false),
-      this.dataDictionary.column('when', false),
-      this.dataDictionary.column('event', false),
-      this.dataDictionary.column('end_price', false),
-      this.dataDictionary.column('start_price', false),
-      {
-        field: 'fund',
-        headerName: 'Fund',
-        enableRowGroup: true,
-        sortable: true,
-        filter: true
-      },
-      {
-        field: 'AccountCategory',
-        width: 120,
-        headerName: 'Category',
-        enableRowGroup: true,
-        sortable: true,
-        filter: true
-      },
-      {
-        field: 'AccountType',
-        width: 120,
-        headerName: 'Type',
-        rowGroup: true,
-        enableRowGroup: true,
-        sortable: true,
-        filter: true
-      },
-      {
-        field: 'AccountName',
-        width: 120,
-        headerName: 'Account Name',
-        enableRowGroup: true,
-        sortable: true,
-        filter: true
-      },
-      {
-        field: 'AccountDescription',
-        width: 120,
-        headerName: 'Account Description',
-        enableRowGroup: true,
-        sortable: true,
-        filter: true
-      }
-    ];
-
-    return this.agGridUtils.customizeColumns(
-      colDefs,
-      columns,
-      ['account_id', 'id', 'value', 'source', 'generated_by', 'Id', 'AllocationId', 'EMSOrderId'],
-      false
-    );
   }
 
   ngModelChangeSymbol(e) {

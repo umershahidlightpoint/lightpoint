@@ -1,0 +1,21 @@
+.modal {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-backdrop {
+  position: relative;
+}
+
+.close {
+  font-size: 1.5em;
+}
+
+.modal-body {
+  overflow-y: auto;
+  max-height: 76vh;
+}
+
+::ng-deep .loader-wrapper .spinner-grow {
+  width: 2rem !important;
+  height: 2rem !important;
+}
