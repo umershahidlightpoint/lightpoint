@@ -7,9 +7,10 @@
     <!-- Modal Content Starts -->
     <div class="modal-content">
         <!------ Form Starts------>
+
         <form [formGroup]="dividentForm" (ngSubmit)="onSubmit()">
 
-        <!-- Modal Header -->               
+        <!-- Modal Header -->
         <div class="modal-header">
           <h3>Create Dividend</h3>
           <button type="button" class="close" data-dismiss="modal" (click)="close()">&times;</button>
@@ -22,23 +23,16 @@
         </alert>
         <!-- No Result Alert Ends -->
 
-        <!-- Loading Spinner -->
-         <!-- <div *ngIf="isLoading" class="d-flex justify-content-center align-items-center height-50vh"> -->
-            <!-- <lp-loading></lp-loading> -->
-        <!-- Loading Spinner Ends -->
-        <!-- </div> -->
-
-                <!-- Modal Body Starts-->
+         <!-- Modal Body Starts-->
         <div class="modal-body">
 
-                              <!-- Fund Div Starts -->
+        <!-- Ticker Div Starts -->
           <div class="form-group">
-            <div class="row" style="margin: 0;">
-              <!-- Fund Label -->
+            <div class="row m-0">
               <div class="col-sm-3">
                 <label> Ticker * </label>
               </div>
-              <!-- Fund Drop Down -->
+              <!-- ticker Drop Down -->
               <div class="col-sm-9">
                 <input class="form-control"
                 placeholder="Select ticker"
@@ -60,22 +54,43 @@
                 </div>
               </div>
             </div>
-          </div>
-          <!-- Fund Div Ends -->
 
-        <!-- Heading -->
-        <div class="form-group">
-            <div class="row" style="margin: 0;">
-                <div class="col-12">
-                <h6>Select Date</h6>
+              <div class="row" style="margin: 10px 0 0 0;">
+
+              <div class="col-sm-3">
+                <label>Currency * </label>
                 </div>
-            </div>
-        </div>
+                <div class="col-sm-9">
+                <input class="form-control"
+                    placeholder="Select currency"
+                    formControlName="currency"
+                    [ngClass]="{ 'is-invalid': submitted && formFields.currency.errors }"
+                    required
+                    autocomplete="off"
+                    typeaheadWaitMs="500"
+                    [isAnimated]="true"
+                    [typeaheadScrollable]="true"
+                    [typeaheadIsFirstItemActive]="true"
+                    [typeaheadMinLength]="0"
+                    [typeaheadOptionsInScrollableView]="15"
+                    [typeahead]="currencies$"
+                    (typeaheadNoResults)="typeaheadNoCurrency($event)"
+                    />
+                      <div *ngIf="submitted && formFields.currency.errors" class="invalid-feedback">
+                      <div *ngIf="formFields.currency.errors.required">Currency is required</div>
+                    </div>
+                </div>
+                </div>
 
+          </div>
+          <!-- ticker Div Ends -->
+
+        <fieldset class="wrap-dates">
+            <legend class="dates-heading">Dates</legend>
 
         <!-- Notice Date Div Starts -->
         <div class="form-group">
-        <div class="row" style="margin: 0;">
+        <div class="row m-0">
             <div class="col-sm-3">
             <label> Notice Date * </label>
             </div>
@@ -102,7 +117,7 @@
 
         <!-- ExDate Div Starts -->
         <div class="form-group">
-            <div class="row" style="margin: 0;">
+            <div class="row m-0">
                 <div class="col-sm-3">
                 <label> Ex-Date * </label>
                 </div>
@@ -129,7 +144,7 @@
 
         <!-- RecordDate Div Starts -->
         <div class="form-group">
-            <div class="row" style="margin: 0;">
+            <div class="row m-0">
                 <div class="col-sm-3">
                 <label> Record Date * </label>
                 </div>
@@ -155,7 +170,7 @@
 
         <!-- PayDate Div Starts -->
         <div class="form-group">
-            <div class="row" style="margin: 0;">
+            <div class="row m-0">
                 <div class="col-sm-3">
                 <label> Pay Date * </label>
                 </div>
@@ -180,64 +195,33 @@
             </div>
             <!-- PayDate Div End -->
         </div>
+        </fieldset>
 
         <!-- Heading -->
-        <div class="form-group">
-            <div class="row" style="margin: 0;">
-                <div class="col-12">
-                <h6>Some Heading</h6>
-                </div>
-            </div>
-        </div>
-
+        <fieldset style="margin-top: 1rem;">
+            <legend>Rates</legend>
 
         <!-- PayDate Div Starts -->
         <div class="form-group">
-            <div class="row" style="margin: 0;">
-                <div class="col-sm-2">
+            <div class="row m-0">
+                <div class="col-sm-3">
                 <label> Rate/Ratio * </label>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-9">
                     <input class="form-control" [ngClass]="{ 'is-invalid': submitted && formFields.ratio.errors }" formControlName="ratio" type="number" step=".05" required>
                     <div *ngIf="submitted && formFields.ratio.errors" class="invalid-feedback">
                         <div *ngIf="formFields.ratio.errors.required">Ratio is required</div>
                     </div>
                 </div>
-                <div class="col-sm-2"></div>
-
-                <div class="col-sm-2">
-                    <label>Currency * </label>
-                    </div>
-                    <div class="col-sm-3">
-                    <input class="form-control"
-                        placeholder="Select currency"
-                        formControlName="currency"
-                        [ngClass]="{ 'is-invalid': submitted && formFields.currency.errors }"
-                        required
-                        autocomplete="off"
-                        typeaheadWaitMs="500"
-                        [isAnimated]="true"
-                        [typeaheadScrollable]="true"
-                        [typeaheadIsFirstItemActive]="true"
-                        [typeaheadMinLength]="0"
-                        [typeaheadOptionsInScrollableView]="15"
-                        [typeahead]="currencies$"
-                        (typeaheadNoResults)="typeaheadNoCurrency($event)"
-                        />
-                          <div *ngIf="submitted && formFields.currency.errors" class="invalid-feedback">
-                          <div *ngIf="formFields.currency.errors.required">Currency is required</div>
-                        </div>
-                    </div>
 
             </div>
             <!-- PayDate Div End -->
         </div>
 
-        <!-- {{dividentForm.valid}} {{dividentForm.pristine}} {{dividentForm.dirty}} {{dividentForm}} -->
         <!--Div Start -->
         <div class="form-group">
-            <div class="row" style="margin: 0;">
-                <div class="col-sm-2">
+            <div class="row m-0">
+                <div class="col-sm-3">
                 <label>Holding Rate*</label>
                 </div>
                 <div class="col-sm-3">
@@ -247,9 +231,7 @@
                     </div>
                 </div>
                 
-                <div class="col-sm-2"></div>
-
-                <div class="col-sm-2">
+                <div class="col-sm-3 text-right">
                     <label>Fx Rate * </label>
                     </div>
                     <div class="col-sm-3">
@@ -262,6 +244,8 @@
             </div>
             <!-- Div End -->
         </div>
+
+        </fieldset>
 
         <!-- Modal Footer Starts -->
         <div class="modal-footer">
@@ -284,7 +268,6 @@
             </div>
 
         </div>
-    
          <!------ Form End------>
           </form>
         

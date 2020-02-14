@@ -70,7 +70,6 @@ export class CreateDividendComponent implements OnInit {
 
   getDividends() {
     this.corporateActionsApiService.getDividends().subscribe(data => {
-      console.log(data, 'LLLLLLLLLLLLLLLLLL');
     });
   }
 
@@ -89,7 +88,6 @@ export class CreateDividendComponent implements OnInit {
 
   deleteDividend() {
     this.isDeleting = true;
-    console.log(this.selectedRow.id,"LLLLLLLLLLLLLLLLLLLLLLLLLLID HAI BHARWE")
     this.corporateActionsApiService.deleteDividend(this.selectedRow.id).subscribe(
       response => {
         if (response.isSuccessful) {

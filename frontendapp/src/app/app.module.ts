@@ -16,6 +16,7 @@ import { SharedModule } from './shared.module';
 /*
 Services
 */
+import { WindowRef } from 'src/services/window-ref.service';
 import { SidenavService } from '../services/common/sidenav.service';
 import { FinanceServiceProxy } from '../services/service-proxies';
 import { PostingEngineService } from '../services/common/posting-engine.service';
@@ -44,6 +45,7 @@ import { HeaderContentComponent } from './menu/header-content/header-content.com
   ],
   exports: [],
   providers: [
+    WindowRef,
     SidenavService,
     FinanceServiceProxy,
     DataService,

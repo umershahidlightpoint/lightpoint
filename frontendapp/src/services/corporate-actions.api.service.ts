@@ -39,7 +39,12 @@ export class CorporateActionsApiService {
   getDividends() {
     const url = this.baseUrl + '/corporateAction/cashDividend';
     return this.http.get(url).pipe(map((response: any) => response), retry(1), catchError(this.handleError));
-}
+  }
+
+  getDividendDetail(id) {
+    const url = this.baseUrl + '/corporateAction/cashDividendAudit?id=' + id;
+    return this.http.get(url).pipe(map((response: any) => response), retry(1), catchError(this.handleError));
+  }
 
 getDividendDetails() {
   const url = this.baseUrl + '/corporateAction/cashDividendDetails';
@@ -55,7 +60,6 @@ getDividendDetails() {
         // server-side error
         errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
     }
-    console.log(errorMessage);
     return throwError(errorMessage);
 }
 
