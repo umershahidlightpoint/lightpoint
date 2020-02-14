@@ -22,6 +22,7 @@ import {
   MoneyFormat,
   CommaSeparatedFormat,
   HeightStyle,
+  priceFormatterEx,
   DateFormatter
 } from 'src/shared/utils/Shared';
 import { GridOptions } from 'ag-grid-community';
@@ -218,12 +219,21 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         },
         {
           field: 'investment_at_cost',
-          headerName: 'Investment @ Cost',
+          headerName: 'IoC',
           width: 100,
           filter: true,
           sortable: true,
           cellClass: 'rightAlign',
           valueFormatter: moneyFormatter
+        },
+        {
+          field: 'eod_px',
+          headerName: 'EOD Price',
+          width: 100,
+          filter: true,
+          sortable: true,
+          cellClass: 'rightAlign',
+          valueFormatter: priceFormatterEx
         },
         {
           field: 'trade_price',
@@ -232,16 +242,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           filter: true,
           sortable: true,
           cellClass: 'rightAlign',
-          valueFormatter: moneyFormatter
-        },
-        {
-          field: 'current_price',
-          headerName: 'SOD Price',
-          width: 100,
-          filter: true,
-          sortable: true,
-          cellClass: 'rightAlign',
-          valueFormatter: moneyFormatter
+          valueFormatter: priceFormatterEx
         },
         {
           field: 'realized',
@@ -266,6 +267,28 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         {
           field: 'net',
           headerName: 'Net P&L',
+          width: 100,
+          filter: true,
+          sortable: true,
+          cellClass: 'rightAlign',
+          valueFormatter: moneyFormatter,
+          aggFunc: 'sum'
+        }
+        ,
+        {
+          field: 'original_investment_at_cost',
+          headerName: 'Orig IoC',
+          width: 100,
+          filter: true,
+          sortable: true,
+          cellClass: 'rightAlign',
+          valueFormatter: moneyFormatter,
+          aggFunc: 'sum'
+        }
+        ,
+        {
+          field: 'residual_investment_at_cost',
+          headerName: 'Residual IoC',
           width: 100,
           filter: true,
           sortable: true,

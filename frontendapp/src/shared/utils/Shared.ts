@@ -608,7 +608,8 @@ export const FormatNumber2 = (numberToFormat: number) => {
 
 export const FormatNumber4 = (numberToFormat: number) => {
   if (numberToFormat !== null) {
-    return numberToFormat.toFixed(4);
+    const n = +numberToFormat;
+    return n.toFixed(4);
   }
 };
 
@@ -627,6 +628,21 @@ export function priceFormatter(params) {
   return FormatNumber4(params.value);
 }
 
+export function priceFormatterEx(params) {
+  if (params.value === undefined) {
+    return;
+  }
+
+  return FormatNumber4(params.value);
+}
+
+export const PriceFormatterTrial = (numberToFormat: number) => {
+  if (numberToFormat !== null) {
+    const n = +numberToFormat;
+    return n.toFixed(4).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+  }
+};
+
 export const MoneyFormat = (numberToFormat: number) => {
   if (numberToFormat !== null) {
     const n = +numberToFormat;
@@ -639,7 +655,7 @@ export function BracketFormatter(params) {
     return;
   }
   if (
-    params.data.AccountCategory === 'Equity' ||
+    params.data.AccountCategory === 'Owners Equity' ||
     params.data.AccountCategory === 'Revenues' ||
     params.data.AccountCategory === 'Expenses'
   ) {
