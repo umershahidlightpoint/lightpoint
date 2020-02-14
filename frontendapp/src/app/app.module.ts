@@ -12,6 +12,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { TooltipModule } from 'ngx-bootstrap';
 import { LpToolkitModule } from 'lp-toolkit';
 import { SharedModule } from './shared.module';
+import { AngularSplitModule } from 'angular-split';
 
 /*
 Services
@@ -41,6 +42,7 @@ import { HeaderContentComponent } from './menu/header-content/header-content.com
     ToastrModule.forRoot(),
     TooltipModule,
     LpToolkitModule.forRoot(),
+    AngularSplitModule.forRoot(),
     SharedModule
   ],
   exports: [],
