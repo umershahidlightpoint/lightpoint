@@ -384,7 +384,7 @@ export class DividendsComponent implements OnInit, AfterViewInit {
       this.data = response.payload;
       this.gridOptions.api.sizeColumnsToFit();
       this.gridOptions.api.setRowData(this.data);
-
+      this.gridOptions.api.expandAll();
     });
   }
 
@@ -393,6 +393,7 @@ export class DividendsComponent implements OnInit, AfterViewInit {
       this.data = response.payload;
       this.dividendDetailsGrid.api.sizeColumnsToFit();
       this.dividendDetailsGrid.api.setRowData(this.data);
+      this.dividendDetailsGrid.api.expandAll();
     });
   }
 
@@ -518,7 +519,9 @@ export class DividendsComponent implements OnInit, AfterViewInit {
 
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
+    this.dividendDetailsGrid.api.showLoadingOverlay();
     this.getDividends();
+    this.getDividendDetails();
   }
 
   clearFilters() {
@@ -556,7 +559,7 @@ export class DividendsComponent implements OnInit, AfterViewInit {
       const modifiedCols = columns.map(col => {
         return { ...col, editable: false };
       });
-      this.title = 'Dividend Detail';
+      this.title = 'Dividend Audit Trail';
       this.dataGridModal.openModal(modifiedCols, payload);
     });
   }
