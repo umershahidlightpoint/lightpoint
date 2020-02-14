@@ -45,6 +45,19 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
   @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
 
+  action: {
+    taxLotStatusSize: number;
+    closingtaxLotSize: number;
+    taxLotStatusView: boolean;
+    closingtaxLotView: boolean;
+    useTransition: boolean;
+  } = {
+    taxLotStatusSize: 50,
+    closingtaxLotSize: 50,
+    taxLotStatusView: true,
+    closingtaxLotView: false,
+    useTransition: true
+  };
   pinnedBottomRowData;
   gridOptions: GridOptions;
   closingTaxLots: GridOptions;
