@@ -1,15 +1,23 @@
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
-import { FinanceServiceProxy } from '../../../../services/service-proxies';
-import { debounce, finalize } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
 import { timer, Subject } from 'rxjs';
+import { debounce, finalize } from 'rxjs/operators';
+import { GridOptions } from 'ag-grid-community';
+import * as moment from 'moment';
+import { DataService } from '../../../../services/common/data.service';
+import { FinanceServiceProxy } from '../../../../services/service-proxies';
+import { ReportsApiService } from 'src/services/reports-api.service';
 import { Fund } from '../../../../shared/Models/account';
 import {
   TrialBalanceReport,
   TrialBalanceReportStats
 } from '../../../../shared/Models/trial-balance';
-import { DataService } from '../../../../services/common/data.service';
-import * as moment from 'moment';
-import { BehaviorSubject } from 'rxjs';
+import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
+import { DataModalComponent } from 'src/shared/Component/data-modal/data-modal.component';
+import { AgGridUtils } from 'src/shared/utils/AgGridUtils';
+import { DataDictionary } from 'src/shared/utils/DataDictionary';
 import {
   Ranges,
   Style,
@@ -24,14 +32,9 @@ import {
   HeightStyle,
   DateFormatter
 } from 'src/shared/utils/Shared';
-import { GridOptions } from 'ag-grid-community';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import { ContextMenu } from 'src/shared/Models/common';
-import { ReportsApiService } from 'src/services/reports-api.service';
-import { DataModalComponent } from 'src/shared/Component/data-modal/data-modal.component';
+import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
 @Component({
   selector: 'rep-taxlotstatus',
@@ -40,6 +43,7 @@ import { DataModalComponent } from 'src/shared/Component/data-modal/data-modal.c
 })
 export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
+  @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
 
   pinnedBottomRowData;
   gridOptions: GridOptions;
@@ -79,9 +83,11 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   };
 
   constructor(
+    private dataService: DataService,
     private financeService: FinanceServiceProxy,
     private reportsApiService: ReportsApiService,
-    private dataService: DataService,
+    private agGridUtils: AgGridUtils,
+    private dataDictionary: DataDictionary,
     private downloadExcelUtils: DownloadExcelUtils
   ) {
     this.hideGrid = false;
@@ -506,9 +512,33 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     return true;
   }
 
+  openDataGridModal(rowData: any) {
+    const { open_id } = rowData;
+    this.financeService
+      .getTradeJournals(open_id, '', '')
+      .pipe(finalize(() => this.gridOptions.api.hideOverlay()))
+      .subscribe(response => {
+        const { data, meta } = response;
+        const someArray = this.agGridUtils.columizeData(data, meta.Columns);
+        const columns = this.dataDictionary.getTradeJournalColDefs(meta.Columns);
+
+        this.dataGridModal.openModal(columns, someArray);
+      });
+  }
+
   getContextMenuItems(params): Array<ContextMenu> {
+    const addDefaultItems = [
+      {
+        name: 'View Journals',
+        action: () => {
+          this.gridOptions.api.showLoadingOverlay();
+          this.openDataGridModal(params.node.data);
+        }
+      }
+    ];
+
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
-    return GetContextMenu(true, null, true, null, params);
+    return GetContextMenu(false, addDefaultItems, true, null, params);
   }
 
   setDateRange(dateFilter: any) {
