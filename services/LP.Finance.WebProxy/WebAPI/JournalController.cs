@@ -4,7 +4,6 @@ using LP.Finance.Common.Dtos;
 using LP.Finance.WebProxy.WebAPI.Services;
 using LP.Finance.Common.Cache;
 using LP.Finance.Common.Model;
-using System.Collections.Generic;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -153,11 +152,11 @@ namespace LP.Finance.WebProxy.WebAPI
             }
         }
 
-        [Route("doHaveJournals")]
+        [Route("appMetaData")]
         [HttpGet]
-        public object DoHaveJournals(DateTime to, DateTime from)
+        public object AppMetaData(DateTime to, DateTime from)
         {
-            return controller.DoHaveJournals(to, from);
+            return controller.AppMetaData(to, from);
         }
 
         [Route("lastPostedDate")]

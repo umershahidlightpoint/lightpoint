@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Model;
@@ -90,7 +89,7 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
             throw new NotImplementedException();
         }
 
-        public object DoHaveJournals(DateTime to, DateTime from)
+        public object AppMetaData(DateTime to, DateTime from)
         {
             throw new NotImplementedException();
         }

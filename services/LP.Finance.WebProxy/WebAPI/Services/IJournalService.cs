@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Model;
 
@@ -25,9 +24,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object serverSideJournals(ServerRowModel obj);
         object GetTotalCount(ServerRowModel obj);
         object GetJournalsMetaData(JournalMetaInputDto obj);
-        object DoHaveJournals(DateTime to, DateTime from);
+        object AppMetaData(DateTime to, DateTime from);
         object GetLastJournalPostedDate();
         object GetPeriodJournals(string symbol, DateTime now, string period);
-
     }
 }

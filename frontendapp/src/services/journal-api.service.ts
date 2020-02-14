@@ -14,7 +14,9 @@ export class JournalApiService {
 
   constructor(private http: HttpClient) {
     // this.baseUrl = window['config'].remoteServerUrl;
-    this.baseUrl = window['config'] ? window['config'].remoteServerUrl : environment.testCaseRemoteServerUrl;
+    this.baseUrl = window['config']
+      ? window['config'].remoteServerUrl
+      : environment.testCaseRemoteServerUrl;
     // this.refDataUrl = 'http://localhost:4000/refdata';
   }
 
@@ -138,8 +140,8 @@ Get the Journal Logs
     return this.http.post(url, obj).pipe(map((response: any) => response));
   }
 
-  checkForJournals(toDate, fromDate) {
-    const url = this.baseUrl + '/journal/doHaveJournals?to=' + toDate + '&from=' + fromDate;
+  getAppMetaData(toDate, fromDate) {
+    const url = this.baseUrl + '/journal/appMetaData?to=' + toDate + '&from=' + fromDate;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 }
