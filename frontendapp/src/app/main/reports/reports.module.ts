@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { LpToolkitModule } from 'lp-toolkit';
+import { AngularSplitModule } from 'angular-split';
 
 import { NgcatalystModule } from 'ngcatalyst';
 import { ReportsComponent } from './reports.component';
@@ -50,6 +51,7 @@ const reportComponents = [
     RouterModule.forChild(ReportsRoutes),
     NgcatalystModule,
     LpToolkitModule,
+    AngularSplitModule,
     SharedModule
   ]
 })

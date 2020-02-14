@@ -9,9 +9,14 @@
     <span class="progress-text">{{ progressBar }}% Complete</span>
   </div>
 
+  <!-- Environment -->
+  <div *ngIf="isDevMode" class="mr-2">
+    Environment:<span class="font-weight-bold"> {{ environment }} </span>
+  </div>
+
   <!-- Base Currency -->
   <div class="mr-2">
-    <span>Reporting Ccy {{ baseCurrency }} </span>
+    Reporting Ccy:<span class="font-weight-bold"> {{ baseCurrency }} </span>
   </div>
 
   <!-- Date -->

@@ -1,12 +1,14 @@
 // tslint:disable: forin
 // tslint:disable: triple-equals
 import { Injectable } from '@angular/core';
-import { priceFormatter, moneyFormatter, PercentageFormatter } from 'src/shared/utils/Shared';
+import { ColDef, ColGroupDef } from 'ag-grid-community';
 import { DecimalPipe } from '@angular/common';
+import { AgGridUtils } from './AgGridUtils';
+import { priceFormatter, moneyFormatter, PercentageFormatter } from 'src/shared/utils/Shared';
 
 @Injectable()
 export class DataDictionary {
-  constructor(private decimalPipe: DecimalPipe) {}
+  constructor(private agGridUtils: AgGridUtils, private decimalPipe: DecimalPipe) {}
 
   column(field: string, isJournalGrid: boolean) {
     let columnDefinition = {};
@@ -268,6 +270,65 @@ export class DataDictionary {
     }
     const formattedValue = this.decimalPipe.transform(per, digitsInfo);
     return formattedValue.toString();
+  }
+
+  getTradeJournalColDefs(columns): Array<ColDef | ColGroupDef> {
+    const colDefs: Array<ColDef> = [
+      this.column('debit', false),
+      this.column('credit', false),
+      this.column('balance', false),
+      this.column('when', false),
+      this.column('event', false),
+      this.column('end_price', false),
+      this.column('start_price', false),
+      {
+        field: 'fund',
+        headerName: 'Fund',
+        enableRowGroup: true,
+        sortable: true,
+        filter: true
+      },
+      {
+        field: 'AccountCategory',
+        width: 120,
+        headerName: 'Category',
+        enableRowGroup: true,
+        sortable: true,
+        filter: true
+      },
+      {
+        field: 'AccountType',
+        width: 120,
+        headerName: 'Type',
+        rowGroup: true,
+        enableRowGroup: true,
+        sortable: true,
+        filter: true
+      },
+      {
+        field: 'AccountName',
+        width: 120,
+        headerName: 'Account Name',
+        enableRowGroup: true,
+        sortable: true,
+        filter: true
+      },
+      {
+        field: 'AccountDescription',
+        width: 120,
+        headerName: 'Account Description',
+        enableRowGroup: true,
+        sortable: true,
+        filter: true
+      }
+    ];
+
+    return this.agGridUtils.customizeColumns(
+      colDefs,
+      columns,
+      ['account_id', 'id', 'value', 'source', 'generated_by', 'Id', 'AllocationId', 'EMSOrderId'],
+      false
+    );
   }
 }
 

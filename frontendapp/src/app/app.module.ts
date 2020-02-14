@@ -12,10 +12,12 @@ import { ToastrModule } from 'ngx-toastr';
 import { TooltipModule } from 'ngx-bootstrap';
 import { LpToolkitModule } from 'lp-toolkit';
 import { SharedModule } from './shared.module';
+import { AngularSplitModule } from 'angular-split';
 
 /*
 Services
 */
+import { WindowRef } from 'src/services/window-ref.service';
 import { SidenavService } from '../services/common/sidenav.service';
 import { FinanceServiceProxy } from '../services/service-proxies';
 import { PostingEngineService } from '../services/common/posting-engine.service';
@@ -40,10 +42,12 @@ import { HeaderContentComponent } from './menu/header-content/header-content.com
     ToastrModule.forRoot(),
     TooltipModule,
     LpToolkitModule.forRoot(),
+    AngularSplitModule.forRoot(),
     SharedModule
   ],
   exports: [],
   providers: [
+    WindowRef,
     SidenavService,
     FinanceServiceProxy,
     DataService,

@@ -74,8 +74,11 @@
       <!-- Export to Excel Button Ends -->
       <!-- Expand/Collapse Button -->
       <div class="mr-3 d-inline-block">
-        <button (click)="isExpanded = !isExpanded" class="btn btn-pa" tooltip="Collapse" placement="top">
-          <i class="fa fa-arrows-alt"></i>
+        <ng-template #tooltipTemplate>{{action.closingtaxLotView ? 'Expand' : 'Collapse'}}</ng-template>
+        <button (click)="action.closingtaxLotView = !action.closingtaxLotView" class="btn btn-pa"
+          [tooltip]="tooltipTemplate" placement="top">
+          <i class="fa"
+            [ngClass]="{'fa-arrow-right': action.closingtaxLotView, 'fa-arrow-left': !action.closingtaxLotView}"></i>
         </button>
       </div>
       <!-- Expand/Collapse Button Ends -->
@@ -87,40 +90,50 @@
   <!-- Report Grid Starts -->
   <div [ngStyle]="styleForHeight">
 
-    <div class="row h-100">
+    <!-- Split Row Starts -->
+    <div class="split-area row h-100">
 
-      <div [ngClass]="{'col-12': !isExpanded, 'col-6': isExpanded}" class="pr-0">
-        <ag-grid-angular class="w-100 h-100 ag-theme-balham" (rowSelected)="onRowSelected($event)"
-          [gridOptions]="gridOptions">
-        </ag-grid-angular>
-      </div>
+      <!-- AS Split Container -->
+      <as-split class="pl-15 pr-15" disabled="true" direction="horizontal" [useTransition]="action.useTransition"
+        (dragEnd)="action.taxLotStatusSize=$event.sizes[0]; action.closingtaxLotSize=$event.sizes[1];">
 
-      <div *ngIf="isExpanded" [ngClass]="{'col-6': isExpanded}">
+        <!-- Tax Lot Split Area -->
+        <as-split-area [visible]="action.taxLotStatusView" [size]="action.taxLotStatusSize" order="1">
+          <ag-grid-angular class="w-100 h-100 ag-theme-balham" (rowSelected)="onRowSelected($event)"
+            [gridOptions]="gridOptions">
+          </ag-grid-angular>
+        </as-split-area>
+        <!-- Tax Lot Split Area Ends -->
 
-        <div class="row h-50">
-          <div class="col-12 pl-0">
-            <ag-grid-angular class="w-100 h-100 ag-theme-balham" (rowSelected)="onTradeRowSelected($event)"
-              [gridOptions]="closingTaxLots">
-            </ag-grid-angular>
+        <!-- Closing Tax Lot Split Area -->
+        <as-split-area [visible]="action.closingtaxLotView" [size]="action.closingtaxLotSize" order="2">
+          <ag-grid-angular class="w-100 h-50 ag-theme-balham" (rowSelected)="onTradeRowSelected($event)"
+            [gridOptions]="closingTaxLots">
+          </ag-grid-angular>
+          <div class="w-100 height-45 p-0">
+            <app-journals [subscription]="tradeSelectionChanged" [title]="'Journals'"></app-journals>
           </div>
-        </div>
+        </as-split-area>
+        <!-- Closing Tax Lot Split Area Ends -->
 
-        <div class="row height-45">
-          <div class="col-12 pl-0">
-            <div class="w-100 h-100 p-0">
-              <app-journals [subscription]="tradeSelectionChanged" [title]="'Journals'"></app-journals>
-            </div>
-          </div>
-        </div>
-      </div>
+      </as-split>
+      <!-- AS Split Container Ends -->
 
     </div>
+    <!-- Split Row Ends -->
 
   </div>
   <!-- Report Grid Ends -->
+
 </div>
 <!-- Reports Main Div Ends-->
 
 <!-- Data Modal -->
 <app-data-modal #dataModal title="Trade Detail" [isCustomData]="true">
 </app-data-modal>
+<!-- Data Modal Ends -->
+
+<!-- Data Grid Modal Starts -->
+<app-data-grid-modal #dataGridModal gridTitle="Open Tax Lot Journals" [expanded]="true">
+</app-data-grid-modal>
+<!-- Data Grid Modal Ends -->
