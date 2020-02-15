@@ -1,5 +1,7 @@
 ﻿using LP.Finance.Common.Model;
 using LP.Finance.Common.Models;
+using PostingEngine.Contracts;
+using PostingEngine.Extensions;
 using PostingEngine.MarketData;
 using PostingEngine.PostingRules.Utilities;
 using System;
@@ -11,6 +13,18 @@ namespace PostingEngine.PostingRules
 {
     public class FakeJournals : IPostingRule
     {
+        AccountType _settledCash;
+        AccountType _paidAccount;
+        AccountType _payableAccount;
+
+        private void SetupAccounts()
+        {
+            _settledCash = AccountType.Find("Settled Cash");
+            _paidAccount = AccountType.Find("Expenses Paid");
+            _payableAccount = AccountType.Find("ACCRUED EXPENSES");
+
+        }
+
         public void DailyEvent(PostingEngineEnvironment env, Transaction element)
         {
             return;
@@ -18,6 +32,8 @@ namespace PostingEngine.PostingRules
 
         public void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
+            SetupAccounts();
+
             var accrual = env.FindAccruals(element.AccrualId);
             var allocations = env.FindAllocations(element.AccrualId);
             var allocation = allocations.Where(i => !i.Symbol.Equals(element.Symbol)).FirstOrDefault();
@@ -100,13 +116,7 @@ namespace PostingEngine.PostingRules
 
         private AccountToFrom GetSettlementFromToAccount(Transaction element)
         {
-            var listOfFromTags = new List<Tag>
-            {
-                Tag.Find("CustodianCode"),
-                Tag.Find("Symbol")
-            };
-
-            var listOfToTags = new List<Tag>
+            var listOfTags = new List<Tag>
             {
                 Tag.Find("CustodianCode"),
                 Tag.Find("Symbol")
@@ -121,13 +131,13 @@ namespace PostingEngine.PostingRules
                     // Contribution
                     if (element.Symbol.Equals("ZZ_CASH_DIVIDENDS"))
                     {
-                        fromAccount = new AccountUtils().CreateAccount(AccountType.Find("Settled Cash"), listOfToTags, element);
-                        toAccount = new AccountUtils().CreateAccount(AccountType.Find("DIVIDENDS RECEIVABLE"), listOfFromTags, element);
+                        fromAccount = new AccountUtils().CreateAccount(_settledCash, listOfTags, element);
+                        toAccount = new AccountUtils().CreateAccount(AccountType.Find("DIVIDENDS RECEIVABLE"), listOfTags, element);
                     }
                     else // Default Action
                     {
-                        fromAccount = new AccountUtils().CreateAccount(AccountType.Find("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )"), listOfToTags, element);
-                        toAccount = new AccountUtils().CreateAccount(AccountType.Find("SHORT POSITIONS AT COST"), listOfFromTags, element);
+                        fromAccount = new AccountUtils().CreateAccount(AccountType.Find("DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )"), listOfTags, element);
+                        toAccount = new AccountUtils().CreateAccount(AccountType.Find("SHORT POSITIONS AT COST"), listOfTags, element);
                     }
                     break;
             }
@@ -139,11 +149,18 @@ namespace PostingEngine.PostingRules
             };
         }
 
-        private AccountToFrom GetFromToAccount(Transaction element)
+
+        private AccountToFrom GetFromToAccount(PostingEngineEnvironment env, Transaction element)
         {
             Account fromAccount = null; // Debiting Account
             Account toAccount = null; // Crediting Account
+
             var au = new AccountUtils();
+
+            var tags = new List<Tag>
+                {
+                    Tag.Find("CustodianCode")
+                };
 
             switch (element.Side.ToLowerInvariant())
             {
@@ -151,44 +168,21 @@ namespace PostingEngine.PostingRules
                     {
                         if (element.Symbol.Equals("ZZ_INVESTOR_WITHDRAWALS"))
                         {
-                            var fromTags = new List<Tag>
-                            {
-                                Tag.Find("CustodianCode")
-                            };
-
-                            var toTags = new List<Tag>
-                            {
-                                Tag.Find("CustodianCode")
-                            };
-
-                            fromAccount = au.CreateAccount(AccountType.Find("CONTRIBUTED CAPITAL"), fromTags, element);
-                            toAccount = au.CreateAccount(AccountType.Find("Settled Cash"), toTags, element);
+                            fromAccount = au.CreateAccount(AccountType.Find("CONTRIBUTED CAPITAL"), tags, element);
+                            toAccount = au.CreateAccount(_settledCash, tags, element);
                         }
                         else if (element.Symbol.Equals("ZZ_CASH_DIVIDENDS"))
                         {
-                            var fromTags = new List<Tag>
-                            {
-                                Tag.Find("CustodianCode")
-                            };
-
-                            var toTags = new List<Tag>
-                            {
-                                Tag.Find("CustodianCode")
-                            };
-
-                            fromAccount = au.CreateAccount(AccountType.Find("DIVIDENDS RECEIVABLE"), fromTags, element);
-                            toAccount = au.CreateAccount(AccountType.Find("DIVIDEND INCOME"), toTags, element);
+                            fromAccount = au.CreateAccount(AccountType.Find("DIVIDENDS RECEIVABLE"), tags, element);
+                            toAccount = au.CreateAccount(AccountType.Find("DIVIDEND INCOME"), tags, element);
                         }
                         else
                         {
                             var symbol = element.Symbol;
                             symbol = _codeMap.ContainsKey(symbol) ? _codeMap[symbol] : symbol;
 
-                            var paidAccount = AccountType.Find("Expenses Paid");
-                            var payableAccount = AccountType.Find("ACCRUED EXPENSES");
-
-                            fromAccount = new AccountUtils().CreateAccount(paidAccount, symbol, element);
-                            toAccount = new AccountUtils().CreateAccount(payableAccount, symbol + " Payable", element);
+                            fromAccount = new AccountUtils().CreateAccount(_paidAccount, symbol + " Paid", element);
+                            toAccount = new AccountUtils().CreateAccount(_payableAccount, symbol + " Payable", element);
                         }
                         break;
                     }
@@ -196,47 +190,27 @@ namespace PostingEngine.PostingRules
                     // Contribution
                     if (element.Symbol.Equals("ZZ_INVESTOR_CONTRIBUTIONS"))
                     {
-                        var fromTags = new List<Tag>
-                        {
-                            Tag.Find("CustodianCode")
-                        };
-
-                        var toTags = new List<Tag>
-                        {
-                            Tag.Find("CustodianCode")
-                        };
-
-                        fromAccount = new AccountUtils().CreateAccount(AccountType.Find("Settled Cash"), fromTags, element);
-                        toAccount = new AccountUtils().CreateAccount(AccountType.Find("CONTRIBUTED CAPITAL"), toTags, element);
+                        fromAccount = new AccountUtils().CreateAccount(_settledCash, tags, element);
+                        toAccount = new AccountUtils().CreateAccount(AccountType.Find("CONTRIBUTED CAPITAL"), tags, element);
                     }
                     else if (element.Symbol.Equals("ZZ_CASH_DIVIDENDS"))
                     {
-                        var fromTags = new List<Tag>
-                        {
-                            Tag.Find("CustodianCode")
-                        };
-
-                        var toTags = new List<Tag>
-                        {
-                            Tag.Find("CustodianCode")
-                        };
-
-                        fromAccount = new AccountUtils().CreateAccount(AccountType.Find("DIVIDENDS RECEIVABLE"), fromTags, element);
-                        toAccount = new AccountUtils().CreateAccount(AccountType.Find("DIVIDEND INCOME"), toTags, element);
+                        fromAccount = new AccountUtils().CreateAccount(AccountType.Find("DIVIDENDS RECEIVABLE"), tags, element);
+                        toAccount = new AccountUtils().CreateAccount(AccountType.Find("DIVIDEND INCOME"), tags, element);
                     }
                     else // Default Action
                     {
                         var symbol = element.Symbol;
                         symbol = _codeMap.ContainsKey(symbol) ? _codeMap[symbol] : symbol;
 
-                        var paidAccount = AccountType.Find("Expenses Paid");
-                        var payableAccount = AccountType.Find("ACCRUED EXPENSES");
-
-                        fromAccount = new AccountUtils().CreateAccount(paidAccount, symbol, element);
-                        toAccount = new AccountUtils().CreateAccount(payableAccount, symbol + " Payable", element);
+                        fromAccount = new AccountUtils().CreateAccount(_paidAccount, symbol + " Paid", element);
+                        toAccount = new AccountUtils().CreateAccount(_payableAccount, symbol + " Payable", element);
                     }
                     break;
             }
+
+            new AccountUtils().SaveAccountDetails(env, fromAccount);
+            new AccountUtils().SaveAccountDetails(env, toAccount);
 
             return new AccountToFrom
             {
@@ -247,31 +221,27 @@ namespace PostingEngine.PostingRules
 
         public void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
-            var accrual = env.FindAccruals(element.AccrualId);
-            var allocations = env.FindAllocations(element.AccrualId);
-            var allocation = allocations.Where(i => !i.Symbol.Equals(element.Symbol)).FirstOrDefault();
+            SetupAccounts();
 
-            //Console.WriteLine(element.Symbol);
-
-            if (element.Symbol.Equals("ZZ_INVESTOR_CONTRIBUTIONS"))
-            {
-
-            }
-
-            if ( element.Status.Equals("Cancelled"))
+            // Pre validation test
+            if (element.Status.Equals("Cancelled"))
             {
                 env.AddMessage($"Entry has been cancelled {element.LpOrderId} :: {element.Side}");
                 return;
             }
 
             // Need to consider both
-            if ( element.TradeDate.Date != element.SettleDate.Date)
+            if (element.TradeDate.Date != element.SettleDate.Date)
             {
                 env.AddMessage($"Journal needs to be checked {element.LpOrderId}, {element.TradeDate}, {element.SettleDate}");
                 return;
             }
 
-            var accountToFrom = GetFromToAccount(element);
+            var accrual = env.FindAccruals(element.AccrualId);
+            var allocations = env.FindAllocations(element.AccrualId);
+            var allocation = allocations.Where(i => !i.Symbol.Equals(element.Symbol)).FirstOrDefault();
+
+            var accountToFrom = GetFromToAccount(env, element);
 
             if (accountToFrom.To == null)
             {
@@ -279,19 +249,11 @@ namespace PostingEngine.PostingRules
                 return;
             }
 
-            new AccountUtils().SaveAccountDetails(env, accountToFrom.From);
-            new AccountUtils().SaveAccountDetails(env, accountToFrom.To);
-
-            double fxrate = 1.0;
-
-            if (!element.SettleCurrency.Equals(env.BaseCurrency))
-            {
-                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
-            }
+            var fxrate = element.FxRate(env);
 
             var moneyUSD = element.LocalNetNotional * fxrate;
 
-            if (element.LocalNetNotional != 0.0)
+            if (moneyUSD != 0.0)
             {
                 var symbol = allocation != null ? allocation.Symbol : element.ParentSymbol;
                 var securityId = allocation != null ? allocation.SecurityId : element.SecurityId;
@@ -305,30 +267,23 @@ namespace PostingEngine.PostingRules
                     SecurityId = securityId,
 
                     Account = accountToFrom.From,
-                    When = env.ValueDate,
-                    FxRate = fxrate,
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
-                    Value = moneyUSD,
-                    Event = Event.JOURNAL,
-                    Fund = env.GetFund(element),
-                };
+                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
 
-                var credit = new Journal(element)
-                {
-                    Symbol = symbol,
-                    SecurityId = securityId,
-
-                    Account = accountToFrom.To,
                     When = env.ValueDate,
                     FxRate = fxrate,
-                    CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD),
-                    Value = moneyUSD,
                     Event = Event.JOURNAL,
                     Fund = env.GetFund(element),
                 };
 
-                env.Journals.Add(debit);
-                env.Journals.Add(credit);
+                var credit = new Journal(debit)
+                {
+                    Account = accountToFrom.To,
+                    CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD),
+                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
+                };
+
+                env.Journals.AddRange(new[] { debit, credit });
             }
 
             return;

@@ -178,7 +178,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           filter: true
         },
         {
-          field: 'Balance',
+          field: 'balance',
           headerName: 'Exposure (at Cost)',
           cellClass: 'rightAlign',
           sortable: true,
@@ -187,7 +187,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           valueFormatter: moneyFormatter
         },
         {
-          field: 'Quantity',
+          field: 'quantity',
           headerName: 'Quantity',
           width: 100,
           filter: true,
@@ -196,7 +196,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           valueFormatter: currencyFormatter
         },
         {
-          field: 'CostBasis',
+          field: 'cost_basis',
           headerName: 'Cost Basis',
           width: 100,
           sortable: true,
@@ -205,7 +205,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           valueFormatter: costBasisFormatter
         },
         {
-          field: 'Side',
+          field: 'side',
           width: 50,
           headerName: 'Side',
           sortable: true,
@@ -218,13 +218,25 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           valueFormatter: moneyFormatter
         },
         {
+          field: 'unrealized_pnl_fx',
+          cellClass: 'rightAlign',
+          headerName: 'Unrealized P&L FX',
+          valueFormatter: moneyFormatter
+        },
+        {
           field: 'realized_pnl',
           cellClass: 'rightAlign',
           headerName: 'Realized P&L',
           valueFormatter: moneyFormatter
         },
         {
-          field: 'Pnl',
+          field: 'realized_pnl_fx',
+          cellClass: 'rightAlign',
+          headerName: 'Realized P&L FX',
+          valueFormatter: moneyFormatter
+        },
+        {
+          field: 'net',
           cellClass: 'rightAlign',
           headerName: 'Net P&L',
           valueFormatter: moneyFormatter

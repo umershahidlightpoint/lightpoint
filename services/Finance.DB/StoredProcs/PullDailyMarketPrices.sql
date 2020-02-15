@@ -1,7 +1,6 @@
 ﻿/*
-truncate table market_prices_history
-delete from market_prices
-truncate table market_prices
+select * from market_prices where Symbol like 'DUE%'
+order by business_date desc
 
 exec [PullDailyMarketPrices] '2019-04-01', '2019-12-31'
 */
@@ -13,6 +12,8 @@ AS
 
 begin tran
 
+RAISERROR('Generating dates', 0,1);
+
 select BusDate, Max(LastModifiedOn) as lmo
 into #dates
 from PositionMaster..intradayPositionSplit where BusDate >= @startDate and BusDate <= @enddate
@@ -23,25 +24,24 @@ into #marketdata
 from FundAccounting..market_prices
 where last_updated_by = 'webservice'
 
+RAISERROR('Generating SecurityIds', 0,1);
+
 select p.SecurityCode, PriceSymbol, s.SecurityId, st.SecurityTypeCode as SecurityType, count(*) as [count] 
 into #securityId
 from PositionMaster..IntraDayPositionSplit p
+inner join #dates d on d.BusDate = p.BusDate and d.lmo = p.LastModifiedOn
 inner join SecurityMaster..Security s on s.EzeTicker = p.SecurityCode and (s.PricingSymbol = p.PriceSymbol or s.PricingSymbol is null)
 inner join SecurityMaster..SecurityType st on st.SecurityTypeId = s.SecurityTypeId 
-where BusDate >= @startDate and BusDate <= @enddate
+-- where BusDate >= @startDate and BusDate <= @enddate
+where p.SecurityCode not in ( 'DUE GY', 'DUE GR')
 group by p.SecurityCode, PriceSymbol, s.SecurityId, st.SecurityTypeCode
 
-RAISERROR ('Start Removing previous eod data', 0, 0)
+RAISERROR ('Start Removing previous eod data', 0, 1)
 delete from FundAccounting..market_prices_history where business_date >= @startDate and business_date <= @enddate and [event]='eod'
 delete from FundAccounting..market_prices where business_date >= @startDate and business_date <= @enddate and [event]='eod'
-print 'End Removing previous eod data'
+RAISERROR ('End Removing previous eod data', 0, 1)
 
-/*
-Grabbing the Price from intradyPositionSplit as this is the Local Price, SettlePrice is the USD Price, i.e. Price * EndFx
-*/
-print 'Exists'
-select count(*) from market_prices
-
+RAISERROR ('Initial Market Price load', 0, 1)
 insert into market_prices (business_date, security_id, symbol, price, [event], last_updated_by, last_updated_on)
 SELECT 
 	intraDay.BusDate, sid.SecurityId, intraDay.SecurityCode as Symbol, 
@@ -60,6 +60,31 @@ SELECT
 	intraDay.Price != 0.0
 --	and intraDay.SecurityCode like '@CASHUSD' 
 	group by intraDay.BusDate, sid.SecurityId, intraDay.SecurityCode, sid.SecurityType
+	order by intraDay.BusDate desc
+
+declare @securityId int
+select @securityId = SecurityId from SecurityMaster..Security where PricingSymbol = 'DUE GY Equity'
+print @securityId
+
+Declare @updateDate as date
+Set @updateDate = GetDate()
+
+RAISERROR ('Loading for DUE', 0, 1)
+insert into market_prices (business_date, security_id, symbol, price, [event], last_updated_by, last_updated_on)
+SELECT 
+	distinct intraDay.BusDate, @securityId, 'DUE GY' as Symbol, 
+	MAX(intraday.Price),
+	'eod', 'script', @updateDate
+    FROM [PositionMaster].[dbo].[IntraDayPositionSplit] as intraDay
+	inner join #dates as dates on dates.BusDate = intraDay.BusDate and dates.lmo = intraDay.LastModifiedOn
+	left outer join #marketdata m on m.business_date = intraDay.BusDate and m.symbol = intraDay.SecurityCode
+	where 
+	intraDay.BusDate >= @startDate and intraDay.BusDate <= @enddate and
+	intraDay.PriceSymbol = 'DUE GY EQUITY' and intraDay.SecurityCode like 'DUE %' and
+	m.business_date is null and 
+	intraDay.Price != 0.0
+--	and intraDay.SecurityCode like '@CASHUSD' 
+	group by intraDay.BusDate, intraDay.SecurityCode
 	order by intraDay.BusDate desc
 
 commit tran

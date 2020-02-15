@@ -1,4 +1,5 @@
 ﻿/*
+select distinct PositionDirection  from [vwWorkingJournals]
 */
 CREATE VIEW [dbo].[vwWorkingJournals]
 	AS 
@@ -11,9 +12,13 @@ select vw.*,
 	t.Status, 
 	t.CustodianCode, 
 	t.SecurityType,
-	t.Side
+	t.Side,
+	case 
+		when t.Side = 'BUY' then 'LONG' 
+		else 'SHORT'
+	end as PositionDirection
 from vwJournal vw
-left outer join current_trade_state t on t.LpOrderId = vw.source
+left outer join vwCurrentStateTrades t on t.LpOrderId = vw.source
 GO
 
 

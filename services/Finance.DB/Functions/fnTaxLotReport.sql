@@ -3,7 +3,7 @@ Examples:
 
 select * from tax_lot_status
 
-select * from fnTaxLotReport('2019-12-31')
+select * from fnTaxLotReport('2019-12-31') where Symbol = 'BGA AU SWAP'
 */
 CREATE FUNCTION [dbo].[fnTaxLotReport]
 (
@@ -11,7 +11,6 @@ CREATE FUNCTION [dbo].[fnTaxLotReport]
 )
 RETURNS @returntable TABLE
 (
--- tax_lot_status
 	id int,
 	open_id varchar(127),
 	symbol varchar(100),
@@ -26,33 +25,17 @@ RETURNS @returntable TABLE
 	fx_rate numeric(22,9),
 	fund varchar(100),
 	trade_price numeric(22,9),
-
--- Additional Attributes
-	current_price numeric(22,9),
+	eod_px numeric(22,9),
 	realized numeric(22,9),
 	unrealized numeric(22,9),
-	net numeric(22,9)
+	net numeric(22,9),
+	original_investment_at_cost numeric(22,9),
+	residual_investment_at_cost numeric(22,9)
 )
 AS
 BEGIN
 
-WITH taxlotstatus (business_date, open_id, symbol, side, security_id, fund, trade_currency, currency, quantity, investment_at_cost, price, comissions, fees, security_type)
-AS
-(
-select @bDate as business_date, open_id, tax_lot_status.symbol, tax_lot_status.side, t.SecurityId, tax_lot_status.Fund, t.TradeCurrency, t.SettleCurrency,
-SUM(original_quantity) as quantity, 
-Sum(investment_at_cost * -1) as investment_at_cost,
-Max(trade_price) as price,
-SUM(t.Commission) as commission,
-SUM(t.fees) as fees,
-t.SecurityType
-from tax_lot_status 
-inner join TradeMaster..trade t on t.LpOrderId = tax_lot_status.open_id
-where tax_lot_status.trade_date <= @bDate
-group by open_id, tax_lot_status.symbol, tax_lot_status.side, t.SecurityId, tax_lot_status.Fund, t.TradeCurrency, t.SettleCurrency, t.SecurityType
-)
-,
-taxlot (business_date, open_lot_id, realized_pnl)
+WITH taxlot (business_date, open_lot_id, realized_pnl)
 AS
 (
 select @bDate as business_date, open_lot_id, sum(realized_pnl) as realized_pnl
@@ -85,7 +68,6 @@ AS
 )
 
 
-
 	INSERT @returntable
 		select tls.*, 
 		-- PRICE
@@ -94,7 +76,17 @@ AS
 			else coalesce(lp.price, 0) * coalesce(sd.Multiplier,1)
 		end,
 		-- PRICE
-		coalesce(tl.realized_pnl,0) as realized, coalesce(up.balance, 0) as unrealized, coalesce(tl.realized_pnl,0) + coalesce(up.balance, 0) as net
+		coalesce(tl.realized_pnl,0) as realized, 
+		case
+			when tls.quantity != 0 then coalesce(up.balance, 0) 
+			else 0.0
+		end as unrealized,
+		case
+			when tls.quantity != 0 then coalesce(tl.realized_pnl,0) + coalesce(up.balance, 0)
+			else coalesce(tl.realized_pnl,0)
+		end as net,
+		(tls.original_quantity * tls.trade_price) * -1,
+		(tls.quantity * tls.trade_price) * -1
 		from tax_lot_status tls
 		-- inner join taxlotstatus taxls on taxls.open_id = tls.open_id		
 		inner join current_trade_state cts on cts.LPOrderId = tls.open_id
@@ -102,6 +94,7 @@ AS
 		left outer join taxlot tl on tl.open_lot_id = tls.open_id
 		left outer join latest_prices lp on lp.security_code = tls.symbol
 		left outer join unrealized_pnl up on up.source = tls.open_id
+		where tls.trade_date <= @bDate
 	RETURN
 END
 

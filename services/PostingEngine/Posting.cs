@@ -4,6 +4,7 @@ using LP.Finance.Common.Model;
 using LP.Finance.Common.Models;
 using Newtonsoft.Json;
 using PostingEngine.Contracts;
+using PostingEngine.Extensions;
 using PostingEngine.MarketData;
 using PostingEngine.PostingRules;
 using PostingEngine.PostingRules.Utilities;
@@ -682,7 +683,7 @@ namespace PostingEngine
             var maxSettleDate = postingEnv.Trades.Max(i => i.SettleDate.Date);
 
             var valueDate = minTradeDate;
-            var endDate = new DateTime(2019, 12,31);
+            var endDate = maxTradeDate; // new DateTime(2019, 12,31);
 
             int totalDays = (int) (endDate - valueDate).TotalDays;
             int daysProcessed = 0;

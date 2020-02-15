@@ -22,6 +22,7 @@ namespace PostingEngine.ClientSpecifics
             update = finalTradeList.Where(t => t.Symbol.Equals("TWE AU EQUITY SWAP")).ToArray();
             foreach (var t in update) { t.Symbol = "TWE AU SWAP"; t.SecurityId = 32669; }
 
+            // MAP DUE GR TO DUE GY
             var sec = finalTradeList.Where(t => t.Symbol.Equals("DUE GY")).FirstOrDefault();
 
             update = finalTradeList.Where(t => t.Symbol.Equals("DUE GR")).ToArray();
@@ -33,7 +34,8 @@ namespace PostingEngine.ClientSpecifics
                 var securityTypeTags = new List<string> {
                     //"FORWARD",
                     //"Common Stock",
-                    //"Equity Swap"
+                    //"Equity Swap",
+                    "Journals"
                     };
 
                 var symbolTags = new List<string>
@@ -41,7 +43,7 @@ namespace PostingEngine.ClientSpecifics
                     //"AEO",
                     //"ROST",
                     //"CDAY",
-                    "BURL",
+                    //"BURL",
                     //"9142 JP",
                     //"BGA AU SWAP",
                     //"MAREL NA",

@@ -648,7 +648,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var query = $@"SELECT TOP (1) [currency_code]
                         FROM [settings]";
 
-            return sqlHelper.GetScalarValue(query, CommandType.Text, null).ToString();
+            var result = sqlHelper.GetScalarValue(query, CommandType.Text, null);
+
+            return result != null ? result.ToString() : "USD";
         }
 
         private int InsertJournalComment(JournalInputDto journal, SqlHelper sqlHelper)
@@ -928,7 +930,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
 
-                bool whereAdded = false;
                 var businessDate = System.DateTime.Now.PrevBusinessDate();
 
                 if (date.HasValue)
@@ -936,48 +937,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 List<SqlParameter> sqlParams = new List<SqlParameter>();
 
-                var query = $@"select business_date, symbol, Balance, Quantity, cost_basis as CostBasis, Side,
-                        realized_pnl,
-                        unrealized_pnl,
-                        unrealized_pnl + realized_pnl as Pnl
-                       from cost_basis";
+                var query = $@"select * from vwCostBasis";
 
 
                 if (date.HasValue)
                 {
                     sqlParams.Add(new SqlParameter("date", date));
-                    query = query + " where cost_basis.[business_date] = @date";
-                    whereAdded = true;
+                    query = query + " where business_date = @date";
                 }
-
-//                if (fund != "ALL")
-//                {
-//                    sqlParams.Add(new SqlParameter("fund", fund));
-//                    if (whereAdded == true)
-//                    {
-//                        query = query + " AND journal.[fund] = @fund";
-//                    }
-//                    else
-//                    {
-//                        query = query + "where journal.[fund] = @fund";
-//                    }
-//                }
-//
-//                if (!string.IsNullOrEmpty(symbol))
-//                {
-//                    sqlParams.Add(new SqlParameter("symbol", symbol));
-//                    if (whereAdded == true)
-//                    {
-//                        query = query + " AND cost_basis.[symbol] LIKE '%' +@symbol+'%'";
-//                    }
-//                    else
-//                    {
-//                        query = query + "where cost_basis.[symbol] LIKE '%' +@symbol+'%'";
-//                    }
-//                }
-//
-//                query = query +
-//                        "  GROUP BY a.name, journal.symbol";
 
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
                 var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
@@ -1043,18 +1010,23 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 List<SqlParameter> sqlParams = new List<SqlParameter>();
 
-                var query = $@"SELECT * FROM fnTaxLotReport('{System.DateTime.Now.ToString("yyyy-MM-dd")}') as tls";
+                var businessDate = System.DateTime.Now.PrevBusinessDate();
+
+                if (from.HasValue)
+                    businessDate = from.Value.Date;
+
+                var query = $@"SELECT * FROM fnTaxLotReport('{businessDate.ToString("yyyy-MM-dd")}') as tls";
 
                 if (!string.IsNullOrEmpty(symbol))
                 {
                     sqlParams.Add(new SqlParameter("symbol", symbol));
                     if (whereAdded == true)
                     {
-                        query += " AND tax_lot_status.[symbol] LIKE '%' +@symbol+'%'";
+                        query += " AND tls.[symbol] LIKE '%' +@symbol+'%'";
                     }
                     else
                     {
-                        query = query + " WHERE tax_lot_status.[symbol] LIKE '%' +@symbol+'%'";
+                        query = query + " WHERE tls.[symbol] LIKE '%' +@symbol+'%'";
                     }
                 }
 
@@ -1062,8 +1034,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 {
                     sqlParams.Add(new SqlParameter("side", side));
                     query += string.IsNullOrEmpty(symbol)
-                        ? " WHERE tax_lot_status.[side] = 'BUY' OR tax_lot_status.[side] = 'SHORT'"
-                        : " AND (tax_lot_status.[side] = 'BUY' OR tax_lot_status.[side] = 'SHORT')";
+                        ? " WHERE tls.[side] = 'BUY' OR tls.[side] = 'SHORT'"
+                        : " AND (tls.[side] = 'BUY' OR tls.[side] = 'SHORT')";
                 }
 
                 query += " ORDER BY symbol, trade_date ASC";

@@ -2,6 +2,7 @@
 using LP.Finance.Common.Model;
 using LP.Finance.Common.Models;
 using PostingEngine.Contracts;
+using PostingEngine.Extensions;
 using PostingEngine.MarketData;
 using PostingEngine.PostingRules.Utilities;
 using System;
@@ -66,7 +67,7 @@ namespace PostingEngine.PostingRules
             }
             else if ( element.IsShort())
             {
-                if (effectiveRate > 0)
+                if (effectiveRate < 0)
                 {
                     usdEquivalent *= -1;
                 }
@@ -75,10 +76,15 @@ namespace PostingEngine.PostingRules
                 // No Idea
                 if ( element.IsSell() || element.IsCover())
                 {
-                    usdEquivalent = element.NetMoney * effectiveRate;
+                    usdEquivalent = element.NetMoney * effectiveRate * -1;
                 }
             }
 
+            if ( fromAccount.StartsWith("DUE FROM/(TO)"))
+            {
+                usdEquivalent *= -1;
+            }
+
             // Get accounts
             var toFrom = new AccountUtils().GetAccounts(env, fromAccount, toAccount, _TAGS, element);
 
@@ -101,84 +107,6 @@ namespace PostingEngine.PostingRules
                 StartPrice = prevEodFxRate,
                 EndPrice = eodFxRate,
                 Fund = env.GetFund(element),
-
-                Value = env.SignedValue(toFrom.From, toFrom.To, false, usdEquivalent),
-                CreditDebit = env.DebitOrCredit(toFrom.To, usdEquivalent),
-            };
-
-
-            return new List<Journal>(new[] { debit, credit });
-        }
-
-        internal static List<Journal> CreateFx(PostingEngineEnvironment env,
-    string tradeEvent,
-    double quantity,
-    TaxLotStatus taxlotStatus,
-    Transaction element)
-        {
-            if ( element.LpOrderId.Equals("5686b2f0-b811-4614-b44d-5d0480370441"))
-            {
-
-            }
-
-            if (tradeEvent.Equals(Event.TRADE_DATE))
-                return new List<Journal>();
-
-            var riskCurrency = element.SettleCurrency;
-
-            if ( element.SecurityType.Equals("FORWARD"))
-            {
-                var split = element.Symbol.Split(new char[] { '/', ' ' });
-                var baseCurrency = split[0];
-                riskCurrency = split[1];
-            }
-
-            // Check to see if the BaseCurrency == SettleCurrency because if it is then no need to do the FX translation
-            if (env.BaseCurrency.Equals(riskCurrency))
-                return new List<Journal>();
-
-            var prevPrice = Convert.ToDouble(MarketPrices.GetPrice(env, env.PreviousValueDate, element).Price);
-            var eodPrice = Convert.ToDouble(MarketPrices.GetPrice(env, env.ValueDate, element).Price);
-
-            var prevEodFxRate = Convert.ToDouble(FxRates.Find(env, env.PreviousValueDate, riskCurrency).Rate);
-            var eodFxRate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, riskCurrency).Rate);
-            var effectiveRate = eodFxRate - prevEodFxRate;
-
-            var usdEquivalent = element.Quantity * (eodPrice - prevPrice) * effectiveRate;
-
-            var fromAccount = "Mark to Market Derivatives Contracts due to FX (Liabilities)";
-            var toAccount = "Change in Unrealized Derivatives Contracts due to FX";
-
-            if ( usdEquivalent > 0)
-            {
-                fromAccount = "Mark to Market Derivatives Contracts due to FX (Assets)";
-            }
-
-            // Get accounts
-            var toFrom = new AccountUtils().GetAccounts(env, fromAccount, toAccount, _TAGS, element);
-
-            var fund = env.GetFund(element);
-
-            var debit = new Journal(element, toFrom.From, $"{tradeEvent}-unrealizedpnl-fx", env.ValueDate)
-            {
-                Quantity = quantity,
-                FxRate = effectiveRate,
-                StartPrice = prevEodFxRate,
-                FxCurrency = riskCurrency,
-                EndPrice = eodFxRate,
-                Fund = fund,
-                Value = env.SignedValue(toFrom.From, toFrom.To, true, usdEquivalent),
-                CreditDebit = env.DebitOrCredit(toFrom.From, usdEquivalent),
-            };
-
-            var credit = new Journal(element, toFrom.To, $"{tradeEvent}-unrealizedpnl-fx", env.ValueDate)
-            {
-                Quantity = quantity,
-                FxRate = effectiveRate,
-                FxCurrency = riskCurrency,
-                StartPrice = prevEodFxRate,
-                EndPrice = eodFxRate,
-                Fund = fund,
 
                 Value = env.SignedValue(toFrom.From, toFrom.To, false, usdEquivalent),
                 CreditDebit = env.DebitOrCredit(toFrom.To, usdEquivalent),
