@@ -133,7 +133,7 @@ export class CreateDividendComponent implements OnInit, OnChanges {
           FxRate: this.dividentForm.value.fxRate,
         };
 
-        this.found = this.dividends.filter(x=> x.id !== payload.Id).some(
+        this.found = this.dividends.filter(x => x.id !== payload.Id).some(
           items => items.symbol === payload.Symbol &&
                    moment(items.execution_date).format('YYYY-MM-DD') === payload.ExecutionDate
           );
