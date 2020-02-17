@@ -11,7 +11,7 @@ export class CorporateActionsComponent implements OnInit {
   corporateActions = true;
 
   style = Style;
-  styleForHeight = HeightStyle(595);
+  styleForHeight = HeightStyle(187);
 
   constructor() {
   }

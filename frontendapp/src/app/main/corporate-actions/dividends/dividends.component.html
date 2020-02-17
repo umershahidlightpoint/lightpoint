@@ -57,7 +57,7 @@
   </div>
 
 <ag-grid-angular
- class="w-100 h-100 ag-theme-balham"
+ class="w-100 height-45 ag-theme-balham"
  style="margin-top: 20px;"
  [gridOptions]="gridOptions"
  (rowSelected)="onRowSelected($event)"
@@ -68,7 +68,7 @@
 <h4>Details</h4>
 
 <ag-grid-angular
- class="w-100 h-100 ag-theme-balham"
+ class="w-100 height-45 ag-theme-balham"
  style="margin-top: 20px;"
  [gridOptions]="dividendDetailsGrid"
  (rowSelected)="onRowSelected($event)"
@@ -76,7 +76,7 @@
 >
 </ag-grid-angular>
 
-<app-create-dividend #dividendModal (modalClose)="closeDividendModal()">
+<app-create-dividend #dividendModal (modalClose)="closeDividendModal()" [dividends]="data">
 </app-create-dividend>
 
 <!-- Data Grid Modal Component Selector Starts -->

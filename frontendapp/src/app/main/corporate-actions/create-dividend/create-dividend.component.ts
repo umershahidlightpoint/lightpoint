@@ -24,22 +24,22 @@ import * as moment from 'moment';
   templateUrl: './create-dividend.component.html',
   styleUrls: ['./create-dividend.component.scss']
 })
-export class CreateDividendComponent implements OnInit {
+export class CreateDividendComponent implements OnInit, OnChanges {
 
   dividentForm: FormGroup;
-  submitted = false;
   editDividend = false;
   selectedRow;
 
   @ViewChild('dividendModal', { static: false }) dividendModal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
+  @Input() dividends: any;
 
   currencies$: Observable<string[]>;
   ticker$: Observable<[]>;
   noResult = false;
   noCurrencyFound = false;
   isDeleting = false;
-  maxDate: moment.Moment;
+  found = false;
 
   constructor(
      private formBuilder: FormBuilder,
@@ -47,7 +47,7 @@ export class CreateDividendComponent implements OnInit {
      private settingApiService: SettingApiService,
      private financePocServiceProxy: FinanceServiceProxy,
      private corporateActionsApiService: CorporateActionsApiService
-     ) { }
+     ) {}
 
   ngOnInit() {
 
@@ -62,17 +62,18 @@ export class CreateDividendComponent implements OnInit {
       holdingRate: ['', Validators],
       fxRate: ['', Validators]
   });
+
     this.getCurrencies();
     this.getSymbols();
     this.getDividends();
-    this.maxDate = moment();
   }
+
+  ngOnChanges(changes: SimpleChanges) {}
 
   getDividends() {
     this.corporateActionsApiService.getDividends().subscribe(data => {
     });
   }
-
 
   getCurrencies() {
     this.settingApiService.getReportingCurrencies().subscribe(currencies => {
@@ -112,13 +113,12 @@ export class CreateDividendComponent implements OnInit {
   }
 
   onSubmit() {
-      this.submitted = true;
       // stop here if form is invalid
       if (this.dividentForm.invalid && !this.noResult && !this.noCurrencyFound) {
           return;
       }
 
-      if (this.editDividend) {
+      if (this.editDividend) { // For Update dividend
         const payload = {
           Id: this.selectedRow.id,
           Symbol : this.dividentForm.value.ticker,
@@ -131,6 +131,14 @@ export class CreateDividendComponent implements OnInit {
           WithholdingRate: this.dividentForm.value.holdingRate,
           FxRate: this.dividentForm.value.fxRate,
         };
+
+        this.found = this.dividends.some(
+          items => items.symbol === payload.Symbol && moment(items.execution_date).format('YYYY-MM-DD') === payload.ExecutionDate
+          );
+
+        if (this.found) {
+          this.toastrService.error('Error! Duplicate record exists, Please chnage symbol or execution date');
+        } else {
 
         this.corporateActionsApiService.updateDividend(payload)
         .pipe(
@@ -146,6 +154,7 @@ export class CreateDividendComponent implements OnInit {
           () => this.toastrService.error('Request failed! Please try again')
         );
 
+        }
       } else {
         const payload = {
           Symbol : this.dividentForm.value.ticker,
@@ -159,20 +168,26 @@ export class CreateDividendComponent implements OnInit {
           FxRate: this.dividentForm.value.fxRate,
         };
 
+        this.found = this.dividends.some(
+          items => items.symbol === payload.Symbol && moment(items.execution_date).format('YYYY-MM-DD') === payload.ExecutionDate
+          );
+
+        if (this.found) {
+          this.toastrService.error('Error! Duplicate record exists, Please chnage symbol or execution date');
+        } else {
         this.corporateActionsApiService.createDividend(payload)
         .pipe(
           tap(data => {
             this.toastrService.success('Dividend create successfully!');
-            this.dividendModal.hide();
             this.modalClose.emit(true);
             this.onReset();
           })
         )
         .subscribe(
-          noop,
+          noop, // perform no operation
           () => this.toastrService.error('Request failed! Please try again')
         );
-
+        }
       }
 
   }
@@ -208,12 +223,9 @@ export class CreateDividendComponent implements OnInit {
   close() {
     this.dividendModal.hide();
     this.onReset();
-    // setTimeout(() => this.clearForm(), 250);
-    // this.router.navigateByUrl('/accounts');
   }
 
   onReset() {
-    this.submitted = false;
     this.editDividend = false;
     this.isDeleting = false;
     this.dividentForm.reset();
