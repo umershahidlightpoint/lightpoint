@@ -1,6 +1,6 @@
 <!-- Modal Div Starts -->
 <div bsModal #modal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true"
-  [config]="{backdrop: modal-backdrop}">
+  [config]="{backdrop: 'static'}">
 
   <!-- Modal Dialog Div Starts -->
   <div class="modal-dialog modal-dialog-centered modal-lg" id="modal-lg">
@@ -12,7 +12,7 @@
       <form #journalForm="ngForm" (ngSubmit)="saveJournal()">
 
         <!-- Modal Header Starts-->
-        <div class="modal-header">
+        <div class="modal-header color-primary">
           <h3 *ngIf="!editJournal"> Create Journal </h3>
           <h3 *ngIf="editJournal"> Edit Journal </h3>
           <button type="button" class="close" data-dismiss="modal" (click)="closeModal()">&times;</button>

@@ -242,11 +242,12 @@
                 <i class="fa fa-times" aria-hidden="true"></i> Cancel
             </button>
     
-            <button type="submit" class="btn btn-pa" [disabled]="!dividentForm.valid || noResult || noCurrencyFound">
-                <!-- <button type="submit" class="btn btn-pa"> -->
-                <i class="fa"></i> Save
-                <!-- <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> -->
-            </button>
+            <button type="submit" class="btn btn-pa" [ngClass]="{'cursor-not-allowed': !dividentForm.valid}"
+            [disabled]="!dividentForm.valid || noResult || noCurrencyFound || isSaving">
+            <i class="fa" [ngClass]=" {'fa-edit':editDividend, 'fa-save':!editDividend}"></i>
+            {{editDividend ? "Update" : "Save"}}
+            <span *ngIf="isSaving" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          </button>
             <!-- Modal Footer Ends -->
             </div>
 
