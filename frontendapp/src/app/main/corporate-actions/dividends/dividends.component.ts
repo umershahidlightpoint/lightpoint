@@ -27,7 +27,7 @@ import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/dat
   templateUrl: './dividends.component.html',
   styleUrls: ['./dividends.component.scss']
 })
-export class DividendsComponent implements OnInit, AfterViewInit {
+export class DividendsComponent implements OnInit {
 
   @ViewChild('dividendModal', { static: false }) dividendModal: CreateDividendComponent;
   @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
@@ -46,9 +46,7 @@ export class DividendsComponent implements OnInit, AfterViewInit {
   selected: { startDate: moment.Moment; endDate: moment.Moment };
   startDate: any;
   endDate: any;
-
-  style = Style;
-  styleForHeight = HeightStyle(220);
+  createDividend = false;
 
   constructor(
     private dataService: DataService,
@@ -68,7 +66,6 @@ export class DividendsComponent implements OnInit, AfterViewInit {
       rowData: null,
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      // onRowDoubleClicked: this.onRowDoubleClicked.bind(this),
       onFilterChanged: this.onFilterChanged.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
@@ -203,8 +200,6 @@ export class DividendsComponent implements OnInit, AfterViewInit {
       rowData: null,
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      // onRowDoubleClicked: this.onRowDoubleClicked.bind(this),
-      // onFilterChanged: this.onFilterChanged.bind(this),
       rowSelection: 'multiple',
       rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
@@ -258,6 +253,7 @@ export class DividendsComponent implements OnInit, AfterViewInit {
           headerName: 'Quantity',
           sortable: true,
           filter: true,
+          cellClass: 'rightAlign',
           valueFormatter: moneyFormatter
         },
         {
@@ -370,15 +366,6 @@ export class DividendsComponent implements OnInit, AfterViewInit {
     );
   }
 
-  ngAfterViewInit(): void {
-    this.dataService.flag$.subscribe(obj => {
-      this.hideGrid = obj;
-      if (!this.hideGrid) {
-        // this.getFunds();
-      }
-    });
-  }
-
   getDividends() {
     this.corporateActionsApiService.getDividends().subscribe(response => {
       this.data = response.payload;
@@ -390,10 +377,10 @@ export class DividendsComponent implements OnInit, AfterViewInit {
 
   getDividendDetails() {
     this.corporateActionsApiService.getDividendDetails().subscribe(response => {
-      this.data = response.payload;
+      let dividendDetail = response.payload;
       this.dividendDetailsGrid.api.sizeColumnsToFit();
-      this.dividendDetailsGrid.api.setRowData(this.data);
       this.dividendDetailsGrid.api.expandAll();
+      this.dividendDetailsGrid.api.setRowData(dividendDetail);
     });
   }
 
@@ -530,6 +517,7 @@ export class DividendsComponent implements OnInit, AfterViewInit {
     this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
     this.endDate = moment();
     this.gridOptions.api.setRowData([]);
+    this.dividendDetailsGrid.api.setRowData([]);
   }
 
 /////////// End External Filters Code //////////////

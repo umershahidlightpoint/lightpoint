@@ -11,7 +11,7 @@
         <form [formGroup]="dividentForm" (ngSubmit)="onSubmit()">
 
         <!-- Modal Header -->
-        <div class="modal-header">
+        <div class="modal-header color-primary">
           <h3>Create Dividend</h3>
           <button type="button" class="close" data-dismiss="modal" (click)="close()">&times;</button>
           <!--End Modal Header -->
@@ -37,8 +37,7 @@
                 <input class="form-control"
                 placeholder="Select ticker"
                 formControlName="ticker"
-                [ngClass]="{ 'is-invalid': submitted && formFields.ticker.errors }"
-                required
+                [ngClass]="{ 'is-invalid': formFields.ticker.errors && formFields.ticker.invalid && formFields.ticker.touched }"
                 autocomplete="off"
                 typeaheadWaitMs="500"
                 [isAnimated]="true"
@@ -49,9 +48,7 @@
                 [typeahead]="ticker$"
                 (typeaheadNoResults)="typeaheadNoResults($event)"
                 />
-                <div *ngIf="submitted && formFields.ticker.errors" class="invalid-feedback">
-                <div *ngIf="formFields.ticker.errors.required">Ticker is required</div>
-                </div>
+                <div *ngIf="formFields.ticker.invalid" class="invalid-feedback">Ticker is required</div>
               </div>
             </div>
 
@@ -64,8 +61,7 @@
                 <input class="form-control"
                     placeholder="Select currency"
                     formControlName="currency"
-                    [ngClass]="{ 'is-invalid': submitted && formFields.currency.errors }"
-                    required
+                    [ngClass]="{ 'is-invalid': formFields.currency.errors && formFields.currency.invalid && formFields.currency.touched}"
                     autocomplete="off"
                     typeaheadWaitMs="500"
                     [isAnimated]="true"
@@ -76,9 +72,7 @@
                     [typeahead]="currencies$"
                     (typeaheadNoResults)="typeaheadNoCurrency($event)"
                     />
-                      <div *ngIf="submitted && formFields.currency.errors" class="invalid-feedback">
-                      <div *ngIf="formFields.currency.errors.required">Currency is required</div>
-                    </div>
+                    <div *ngIf="formFields.currency.invalid" class="invalid-feedback">Currency is required</div>
                 </div>
                 </div>
 
@@ -98,17 +92,16 @@
             <input ngxDaterangepickerMd
                 formControlName="noticeDate"
                 class="form-control"
-                [ngClass]="{ 'is-invalid': submitted && formFields.noticeDate.errors }"
+                [ngClass]="{ 'is-invalid': formFields.noticeDate.errors && formFields.noticeDate.invalid && formFields.noticeDate.touched }"
                 type="text"
                 placeholder="Select notice date"
                 [singleDatePicker]="true"
                 [autoApply]="true"
                 autocomplete="off"
-                [maxDate]="maxDate"
-                required
                  />
-            <div *ngIf="submitted && formFields.noticeDate.errors" class="invalid-feedback">
-            <div *ngIf="formFields.noticeDate.errors.required">Notice is required</div>
+
+            <div *ngIf="formFields.noticeDate.errors && formFields.noticeDate.invalid && formFields.noticeDate.touched" class="invalid-feedback">
+            <div *ngIf="formFields.noticeDate.errors.required && formFields.noticeDate.invalid && formFields.noticeDate.touched">Notice Date is required</div>
             </div>
             </div>
         </div>
@@ -125,17 +118,15 @@
                 <input ngxDaterangepickerMd
                     formControlName="exDate"
                     class="form-control"
-                    [ngClass]="{ 'is-invalid': submitted && formFields.exDate.errors }"
+                    [ngClass]="{ 'is-invalid': formFields.exDate.errors && formFields.exDate.invalid && formFields.exDate.touched}"
                     type="text"
                     placeholder="Select ex-Date"
                     [singleDatePicker]="true"
                     [autoApply]="true"
                     autocomplete="off"
-                    [maxDate]="maxDate"
-                    required
                 />
-                <div *ngIf="submitted && formFields.exDate.errors" class="invalid-feedback">
-                    <div *ngIf="formFields.exDate.errors.required">Date is required</div>
+                <div *ngIf="formFields.exDate.errors && formFields.exDate.invalid && formFields.exDate.touched" class="invalid-feedback">
+                    <div *ngIf="formFields.exDate.errors.required && formFields.exDate.invalid && formFields.exDate.touched">Ex-Date is required</div>
                 </div>
                 </div>
             </div>
@@ -152,16 +143,15 @@
                 <input ngxDaterangepickerMd
                     formControlName="recordDate"
                     class="form-control"
-                    [ngClass]="{ 'is-invalid': submitted && formFields.recordDate.errors }"
+                    [ngClass]="{ 'is-invalid': formFields.recordDate.errors && formFields.recordDate.invalid && formFields.recordDate.touched}"
                     type="text"
                     placeholder="Select record date"
                     [singleDatePicker]="true"
                     [autoApply]="true"
                     autocomplete="off"
-                    required
                 />
-                <div *ngIf="submitted && formFields.recordDate.errors" class="invalid-feedback">
-                    <div *ngIf="formFields.recordDate.errors.required">Date is required</div>
+                <div *ngIf="formFields.recordDate.errors && formFields.recordDate.invalid && formFields.recordDate.touched" class="invalid-feedback">
+                    <div *ngIf="formFields.recordDate.errors.required && formFields.recordDate.invalid && formFields.recordDate.touched">Record Date is required</div>
                 </div>
                 </div>
             </div>
@@ -178,18 +168,16 @@
                 <input ngxDaterangepickerMd
                     formControlName="payDate"
                     class="form-control"
-                    [ngClass]="{ 'is-invalid': submitted && formFields.payDate.errors }"
+                    [ngClass]="{ 'is-invalid': formFields.payDate.errors && formFields.payDate.invalid && formFields.payDate.touched}"
                     type="text"
                     placeholder="Select pay date"
                     name="payDate"
                     [singleDatePicker]="true"
                     [autoApply]="true"
                     autocomplete="off"
-                    [maxDate]="maxDate"
-                    required
                 />
-                <div *ngIf="submitted && formFields.payDate.errors" class="invalid-feedback">
-                    <div *ngIf="formFields.payDate.errors.required">Date is required</div>
+                <div *ngIf="formFields.payDate.errors && formFields.payDate.invalid && formFields.payDate.touched" class="invalid-feedback">
+                    <div *ngIf="formFields.payDate.errors.required && formFields.payDate.invalid && formFields.payDate.touched">Pay Date is required</div>
                 </div>
                 </div>
             </div>
@@ -204,45 +192,40 @@
         <!-- PayDate Div Starts -->
         <div class="form-group">
             <div class="row m-0">
-                <div class="col-sm-3">
+                <div class="col-sm-2">
                 <label> Rate/Ratio * </label>
                 </div>
-                <div class="col-sm-9">
-                    <input class="form-control" [ngClass]="{ 'is-invalid': submitted && formFields.ratio.errors }" formControlName="ratio" type="number" step=".05" required>
-                    <div *ngIf="submitted && formFields.ratio.errors" class="invalid-feedback">
-                        <div *ngIf="formFields.ratio.errors.required">Ratio is required</div>
+                <div class="col-sm-2">
+                    <input class="form-control" [ngClass]="{ 'is-invalid': formFields.ratio.errors && formFields.ratio.invalid && formFields.ratio.touched }" formControlName="ratio" type="number" step=".05">
+                    <div *ngIf="formFields.ratio.errors && formFields.ratio.invalid && formFields.ratio.touched" class="invalid-feedback">
+                        <div *ngIf="formFields.ratio.errors.required && formFields.ratio.invalid && formFields.ratio.touched">Ratio is required</div>
                     </div>
                 </div>
 
-            </div>
-            <!-- PayDate Div End -->
-        </div>
 
-        <!--Div Start -->
-        <div class="form-group">
-            <div class="row m-0">
-                <div class="col-sm-3">
-                <label>Holding Rate*</label>
-                </div>
-                <div class="col-sm-3">
-                    <input class="form-control" [ngClass]="{ 'is-invalid': submitted && formFields.holdingRate.errors }" formControlName="holdingRate" type="number" step=".05" required>
-                    <div *ngIf="submitted && formFields.holdingRate.errors" class="invalid-feedback">
-                        <div *ngIf="formFields.holdingRate.errors.required">Rate is required</div>
+                <div class="col-sm-2">
+                    <label>Holding Rate*</label>
                     </div>
-                </div>
-                
-                <div class="col-sm-3 text-right">
-                    <label>Fx Rate * </label>
-                    </div>
-                    <div class="col-sm-3">
-                        <input class="form-control" [ngClass]="{ 'is-invalid': submitted && formFields.fxRate.errors }" formControlName="fxRate" type="number" step=".05" required>
-                        <div *ngIf="submitted && formFields.fxRate.errors" class="invalid-feedback">
-                            <div *ngIf="formFields.fxRate.errors.required">FxRate is required</div>
+                    <div class="col-sm-2">
+                        <input class="form-control" [ngClass]="{ 'is-invalid': formFields.holdingRate.errors && formFields.holdingRate.invalid && formFields.holdingRate.touched}" formControlName="holdingRate" type="number" step=".05">
+                        <div *ngIf="formFields.holdingRate.errors && formFields.holdingRate.invalid && formFields.holdingRate.touched" class="invalid-feedback">
+                            <div *ngIf="formFields.holdingRate.errors.required && formFields.holdingRate.invalid && formFields.holdingRate.touched">Rate is required</div>
                         </div>
                     </div>
 
+                <div class="col-sm-2 ">
+                    <label>Fx Rate * </label>
+                    </div>
+                    <div class="col-sm-2">
+                        <input class="form-control" [ngClass]="{ 'is-invalid': formFields.fxRate.errors && formFields.fxRate.invalid && formFields.fxRate.touched }" formControlName="fxRate" type="number" step=".05">
+                        <div *ngIf="formFields.fxRate.errors && formFields.fxRate.invalid && formFields.fxRate.touched" class="invalid-feedback">
+                            <div *ngIf="formFields.fxRate.errors.required && formFields.fxRate.invalid && formFields.fxRate.touched">Rate is required</div>
+                        </div>
+
+                    </div>
+
             </div>
-            <!-- Div End -->
+            <!-- PayDate Div End -->
         </div>
 
         </fieldset>
@@ -259,7 +242,7 @@
                 <i class="fa fa-times" aria-hidden="true"></i> Cancel
             </button>
     
-            <button type="submit" class="btn btn-pa" [disabled]="!dividentForm.valid || noResult">
+            <button type="submit" class="btn btn-pa" [disabled]="!dividentForm.valid || noResult || noCurrencyFound">
                 <!-- <button type="submit" class="btn btn-pa"> -->
                 <i class="fa"></i> Save
                 <!-- <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> -->
