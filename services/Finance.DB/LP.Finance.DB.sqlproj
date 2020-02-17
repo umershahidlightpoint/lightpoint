@@ -158,6 +158,7 @@
     <Build Include="Functions\fnTaxLotReport.sql" />
     <Build Include="Views\vwDividendDetails.sql" />
     <Build Include="Views\vwCostBasis.sql" />
+    <Build Include="Tables\configurations.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">
