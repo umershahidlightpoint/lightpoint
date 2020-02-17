@@ -12,7 +12,7 @@
       <form #journalForm="ngForm" (ngSubmit)="saveJournal()">
 
         <!-- Modal Header Starts-->
-        <div class="modal-header">
+        <div class="modal-header color-primary">
           <h3 *ngIf="!editJournal"> Create Journal </h3>
           <h3 *ngIf="editJournal"> Edit Journal </h3>
           <button type="button" class="close" data-dismiss="modal" (click)="closeModal()">&times;</button>
