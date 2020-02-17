@@ -60,7 +60,9 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
         return {};
       },
       clearExternalFilter: () => {},
-      onGridReady: params => {},
+      onGridReady: params => {
+        this.customizeColumns();
+      },
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
         params.api.sizeColumnsToFit();
@@ -151,7 +153,6 @@ export class LayoutsComponent implements OnInit, AfterViewInit {
         this.toastrService.error('Something went wrong. Try again later!');
       }
     );
-    this.customizeColumns();
   }
 
   viewLayout(row) {

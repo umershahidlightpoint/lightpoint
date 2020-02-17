@@ -17,49 +17,54 @@
   <link rel="stylesheet" type="text/html" href="styles.css">
 
   <style>
-    .preloader-container {
+    .display-flex {
       display: flex;
     }
 
-    .preloader-content {
+    .preloader-container {
       height: 100vh;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      background-color: #0275D8;
+      background-color: white;
+    }
+
+    .preloader-logo {
+      padding: 8px;
+      border-radius: 30px;
+      background-color: #4f4f4f;
     }
 
     .preloader-title {
-      color: #9BBDDB;
       font-family: inherit;
-      font-weight: 400;
-      font-size: 1.5em;
+      font-weight: 500;
+      font-size: 1.6em;
+      text-align: center;
+      color: #4f4f4f;
     }
 
     #spinner {
       width: 4rem !important;
       height: 4rem !important;
-      color: #FFFFFF !important;
+      color: #4f4f4f !important;
     }
   </style>
 </head>
 
 <body>
 
-  <div class="margin-top-50">
-    <app-root>
-      <div id="preloader">
-        <div class="preloader-container preloader-content">
-          <div class="preloader-container">
-            <img class="preloader-image" width="182" height="58" src="./assets/images/logo.png" alt="logo" />
-            <div id="spinner" class="spinner-grow" role="status">
-            </div>
-          </div>
-          <div class="preloader-title">Portfolio Accounting</div>
+  <app-root>
+    <div class="display-flex preloader-container">
+      <div class="preloader-title">Portfolio Accounting</div>
+      <div class="display-flex">
+        <div class="preloader-logo">
+          <img width="182" height="58" src="./assets/images/logo.png" alt="logo" />
+        </div>
+        <div id="spinner" class="spinner-grow" role="status">
         </div>
       </div>
-    </app-root>
-  </div>
+    </div>
+  </app-root>
 
 </body>
 
