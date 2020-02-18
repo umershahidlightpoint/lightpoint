@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LP.Finance.Common.Dtos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
     interface IConfigurationService
     {
         object GetConfigurations(string project);
-        object AddOrUpdateConfig();
+        object AddConfig(List<ConfigurationInputDto> obj);
+        object UpdateConfig(List<ConfigurationInputDto> obj);
     }
 }

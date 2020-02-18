@@ -10,6 +10,7 @@ export class CacheService {
   private baseUrl: string;
   private metaData: any;
   private dummyAccount: any;
+  private userConfig: any;
 
   constructor(private http: HttpClient) {
     this.baseUrl = window['config'].remoteServerUrl;
@@ -39,6 +40,37 @@ export class CacheService {
       map((response: any) => response),
       tap(data => (this.metaData = data))
     );
+  }
+
+  getUserConfig(project): Observable<any> {
+    const url = this.baseUrl + '/configuration?project=' + project;
+
+    if (this.userConfig) {
+      return of(this.userConfig);
+    }
+
+    return this.http.get(url).pipe(
+      map((response: any) => response),
+      tap(data => (this.userConfig = data))
+    );
+  }
+
+  addUserConfig(configs){
+    const url = this.baseUrl + '/configuration';
+    return this.http.post(url,configs).pipe(map((response: any) => response));
+  }
+
+  updateUserConfig(configs){
+    const url = this.baseUrl + '/configuration';
+    return this.http.put(url,configs).pipe(map((response: any) => response));
+  }
+
+  getConfigBasedOnKey(key){
+    if(this.userConfig){
+      return this.userConfig.filter(x => x.key === key);
+    } else {
+      return null;
+    }
   }
 
   purgeServerSideJournalsMeta(): void {

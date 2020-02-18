@@ -54,6 +54,19 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   isExpanded = false;
   disableFileUpload = true;
   disableCharts = true;
+  actionFundTheoretical: {
+    fundTheoreticalSize: number;
+    chartsSize: number;
+    fundTheoreticalView: boolean;
+    chartsView: boolean;
+    useTransition: boolean;
+  } = {
+    fundTheoreticalSize: 50,
+    chartsSize: 50,
+    fundTheoreticalView: true,
+    chartsView: false,
+    useTransition: true
+  };
 
   isDailyPnLActive = false;
   isTaxRateActive = false;

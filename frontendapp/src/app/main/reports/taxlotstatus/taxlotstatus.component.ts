@@ -59,6 +59,19 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     closingtaxLotView: false,
     useTransition: true
   };
+  actionVertical: {
+    closingtaxLotSize: number;
+    journalSize: number;
+    closingtaxLotView: boolean;
+    journalView: boolean;
+    useTransition: boolean;
+  } = {
+    closingtaxLotSize: 50,
+    journalSize: 50,
+    closingtaxLotView: true,
+    journalView: false,
+    useTransition: true
+  };
   pinnedBottomRowData;
   gridOptions: GridOptions;
   closingTaxLots: GridOptions;
@@ -111,7 +124,14 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     this.initGrid();
     this.getLatestJournalDate();
     this.getFunds();
-    // In case we need to enable filter by symbol from server side
+    // Comment out this API call, In case we need to enable filter from server side
+    // this.getReport(
+    //   this.startDate,
+    //   this.endDate,
+    //   this.filterBySymbol,
+    //   this.fund === 'All Funds' ? 'ALL' : this.fund
+    // );
+    // In case we need to enable filter by Symbol from Server Side
     // this.filterSubject.pipe(debounce(() => timer(1000))).subscribe(() => {
     //   this.getReport(this.startDate, this.endDate, this.filterBySymbol, this.fund === 'All Funds' ? 'ALL' : this.fund);
     // });
@@ -292,8 +312,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           cellClass: 'rightAlign',
           valueFormatter: moneyFormatter,
           aggFunc: 'sum'
-        }
-        ,
+        },
         {
           field: 'original_investment_at_cost',
           headerName: 'IoC (Local)',
@@ -303,8 +322,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           cellClass: 'rightAlign',
           valueFormatter: moneyFormatter,
           aggFunc: 'sum'
-        }
-        ,
+        },
         {
           field: 'residual_investment_at_cost',
           headerName: 'Residual IoC (Local)',
@@ -478,7 +496,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       this.closingTaxLots.api.sizeColumnsToFit();
       this.closingTaxLots.api.setRowData(response.payload);
 
-      if (response.payload.length == 0) {
+      if (response.payload.length === 0) {
         this.tradeSelectionSubject.next('');
       } else {
         this.tradeSelectionSubject.next(response.payload[0].closing_lot_id);
@@ -527,20 +545,62 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     const { fundFilter } = object;
     const { symbolFilter } = object;
     const { dateFilter } = object;
+
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
     this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
     this.setDateRange(dateFilter);
+
+    // Comment out In case we need to enable filter from server side
     this.getReport(this.startDate, this.endDate, this.filterBySymbol, this.fund);
     this.gridOptions.api.onFilterChanged();
   }
 
-  isExternalFilterPresent() {
+  isExternalFilterPresent(): boolean {
     if (this.fund !== 'All Funds' || this.startDate || this.filterBySymbol !== '') {
       return true;
     }
   }
 
   doesExternalFilterPass(node: any) {
+    // Client Side Filters
+    // if (this.fund !== 'All Funds' && this.filterBySymbol !== '' && this.startDate) {
+    //   const cellFund = node.data.fund;
+    //   const cellSymbol = node.data.symbol === null ? '' : node.data.symbol;
+    //   const cellDate = moment(node.data.trade_date).format('YYYY-MM-DD');
+    //   return (
+    //     cellFund === this.fund &&
+    //     cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) &&
+    //     this.startDate <= cellDate &&
+    //     this.endDate >= cellDate
+    //   );
+    // }
+    // if (this.fund !== 'All Funds' && this.filterBySymbol !== '') {
+    //   const cellFund = node.data.fund;
+    //   const cellSymbol = node.data.symbol === null ? '' : node.data.symbol;
+    //   return cellFund === this.fund && cellSymbol.includes(this.filterBySymbol);
+    // }
+    // if (this.fund !== 'All Funds' && this.startDate) {
+    //   const cellFund = node.data.fund;
+    //   const cellDate = moment(node.data.trade_date).format('YYYY-MM-DD');
+    //   return cellFund === this.fund && this.startDate <= cellDate && this.endDate >= cellDate;
+    // }
+    // if (this.filterBySymbol !== '' && this.startDate) {
+    //   const cellSymbol = node.data.symbol === null ? '' : node.data.symbol;
+    //   const cellDate = moment(node.data.trade_date).format('YYYY-MM-DD');
+    //   return (
+    //     cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) &&
+    //     this.startDate <= cellDate &&
+    //     this.endDate >= cellDate
+    //   );
+    // }
+    // if (this.fund !== 'All Funds') {
+    //   const cellFund = node.data.fund;
+    //   return cellFund === this.fund;
+    // }
+    // if (this.startDate) {
+    //   const cellDate = moment(node.data.trade_date).format('YYYY-MM-DD');
+    //   return this.startDate <= cellDate && this.endDate >= cellDate;
+    // }
     if (this.filterBySymbol !== '') {
       const cellSymbol = node.data.symbol === null ? '' : node.data.symbol;
       return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase());
@@ -612,6 +672,9 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     this.DateRangeLabel = '';
     this.selected = null;
     this.filterBySymbol = '';
+    // Client Side Filters
+    // this.gridOptions.api.setRowData(this.data);
+    // Server Side Filters
     this.gridOptions.api.setRowData([]);
     this.closingTaxLots.api.setRowData([]);
     this.tradeSelectionSubject.next('');
@@ -645,6 +708,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     }
     this.startDate = selectedDate.startDate.format('YYYY-MM-DD');
     this.endDate = selectedDate.endDate.format('YYYY-MM-DD');
+    // In case we need to enable filter from Server Side
     this.getReport(
       this.startDate,
       this.endDate,
@@ -652,16 +716,19 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       this.fund === 'All Funds' ? 'ALL' : this.fund
     );
     this.getRangeLabel();
+    // this.gridOptions.api.onFilterChanged();
   }
 
   changeFund(selectedFund) {
     this.fund = selectedFund;
+    // In case we need to enable from Server Side
     this.getReport(
       this.startDate,
       this.endDate,
       this.filterBySymbol,
       this.fund === 'All Funds' ? 'ALL' : this.fund
     );
+    // this.gridOptions.api.onFilterChanged();
   }
 
   onBtExport() {
