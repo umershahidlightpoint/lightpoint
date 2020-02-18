@@ -1,23 +1,23 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
-import { FinanceServiceProxy } from '../../../services/service-proxies';
 import { GridOptions } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { Account, AccountCategory } from '../../../shared/Models/account';
-import { DataService } from 'src/services/common/data.service';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GridLayoutMenuComponent } from 'lp-toolkit';
-import { SideBar, AutoSizeAllColumns, HeightStyle, Style } from 'src/shared/utils/Shared';
-import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
+import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import * as moment from 'moment';
-import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { MonthlyPerformanceData } from 'src/shared/Models/funds-theoretical';
-import { DataGridModalComponent } from '../../../shared/Component/data-grid-modal/data-grid-modal.component';
-import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 import { AgGridCheckboxComponent } from '../../../shared/Component/ag-grid-checkbox/ag-grid-checkbox.component';
+import { DataGridModalComponent } from '../../../shared/Component/data-grid-modal/data-grid-modal.component';
 import { DatePickerModalComponent } from 'src/shared/Component/date-picker-modal/date-picker-modal.component';
-import { ContextMenu, CustomColDef } from 'src/shared/Models/common';
-import { DataDictionary } from 'src/shared/utils/DataDictionary';
+import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
+import { DataService } from 'src/services/common/data.service';
+import { FinanceServiceProxy } from '../../../services/service-proxies';
 import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.service';
+import { MonthlyPerformanceData } from 'src/shared/Models/funds-theoretical';
+import { Account, AccountCategory } from '../../../shared/Models/account';
+import { DataDictionary } from 'src/shared/utils/DataDictionary';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { ContextMenu, CustomColDef } from 'src/shared/Models/common';
+import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
+import { SideBar, AutoSizeAllColumns, HeightStyle, Style } from 'src/shared/utils/Shared';
 
 @Component({
   selector: 'app-fund-theoretical',
@@ -206,26 +206,22 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
   initGrid() {
     this.fundTheoreticalGrid = {
-      columnDefs: null,
       rowData: this.monthlyPerformanceData,
-      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      getExternalFilterState: () => {
-        return {};
-      },
       pinnedBottomRowData: null,
-      onRowSelected: params => {},
-      clearExternalFilter: () => {},
+      columnDefs: null,
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       onFilterChanged: this.generateData.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
       pivotPanelShow: 'after',
-      singleClickEdit: true,
-      pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
-      enableCellChangeFlash: true,
+      pivotColumnGroupTotals: 'after',
       animateRows: true,
+      singleClickEdit: true,
+      enableCellChangeFlash: true,
       deltaRowDataMode: true,
+      onRowSelected: params => {},
       getRowNodeId: data => {
         return data.rowId;
       },
