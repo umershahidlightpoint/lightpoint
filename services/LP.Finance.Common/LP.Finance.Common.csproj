@@ -52,6 +52,7 @@
     <Compile Include="Dtos\AlleviateTaxLotDto.cs" />
     <Compile Include="Dtos\CashDividendInputDto.cs" />
     <Compile Include="Dtos\ChartOfAccountMappingDto.cs" />
+    <Compile Include="Dtos\ConfigurationInputDto.cs" />
     <Compile Include="Dtos\DeleteCashDividendInputDto.cs" />
     <Compile Include="Dtos\FxRateInputDto.cs" />
     <Compile Include="Dtos\GridLayoutDto.cs" />

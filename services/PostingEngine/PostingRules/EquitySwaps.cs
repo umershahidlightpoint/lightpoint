@@ -1,6 +1,7 @@
 ﻿using LP.Finance.Common.Model;
 using LP.Finance.Common.Models;
 using PostingEngine.Contracts;
+using PostingEngine.Extensions;
 using PostingEngine.MarketData;
 using PostingEngine.PostingRules.Utilities;
 using PostingEngine.TaxLotMethods;

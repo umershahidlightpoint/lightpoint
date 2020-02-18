@@ -35,6 +35,34 @@ body {
 }
 
 /******************************
+******* Bootstrap Modal ********
+******************************/
+
+.modal-backdrop {
+  position: inherit;
+}
+
+/******************************
+*****   Bootstrap Form    *****
+******************************/
+
+.form-control:focus {
+  border-color: $tertiary;
+  box-shadow: 0 0 0 0.1rem $tertiary;
+}
+
+/******************************
+***** Bootstrap Dropdown  *****
+******************************/
+
+.dropdown-item.active,
+.dropdown-item:active {
+  color: $on-primary;
+  text-decoration: none;
+  background-color: $primary;
+}
+
+/******************************
 ********  Date Picker  ********
 ******************************/
 
@@ -58,23 +86,12 @@ body {
 }
 
 /******************************
-*****   Bootstrap Form    *****
+*******  Angular Split  *******
 ******************************/
 
-.form-control:focus {
-  border-color: $tertiary;
-  box-shadow: 0 0 0 0.1rem $tertiary;
-}
-
-/******************************
-***** Bootstrap Dropdown  *****
-******************************/
-
-.dropdown-item.active,
-.dropdown-item:active {
-  color: $on-primary;
-  text-decoration: none;
-  background-color: $primary;
+.split-area .as-transition.as-init:not(.as-dragging) > .as-split-area,
+.as-transition.as-init:not(.as-dragging) > .as-split-gutter {
+  transition: flex-basis 1s !important;
 }
 
 /******************************
@@ -303,12 +320,20 @@ body {
   padding-right: 10px !important;
 }
 
+.pr-15 {
+  padding-right: 15px !important;
+}
+
 .pb-10 {
   padding-bottom: 10px !important;
 }
 
 .pl-10 {
   padding-left: 10px !important;
+}
+
+.pl-15 {
+  padding-left: 15px !important;
 }
 
 .pt-5 {

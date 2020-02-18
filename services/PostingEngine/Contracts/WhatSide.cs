@@ -1,12 +1,14 @@
 ﻿using LP.Finance.Common.Models;
+using PostingEngine.MarketData;
+using System;
 using System.Collections.Generic;
 
-namespace PostingEngine.Contracts
+namespace PostingEngine.Extensions
 {
     /// <summary>
     /// Helper functions to make determining the side of the transaction easier
     /// </summary>
-    public static class WhatSide
+    public static class TransactionExtensions
     {
         private static List<string> _derivativeTypes = new List<string> {
             "CROSS".ToLowerInvariant(),
@@ -14,6 +16,12 @@ namespace PostingEngine.Contracts
             "Physical index future.".ToLowerInvariant(),
             "Equity Swap".ToLowerInvariant()
         };
+
+        public static double FxRate(this Transaction element, PostingEngineEnvironment env)
+        {
+            var fxrate = !element.SettleCurrency.Equals(env.BaseCurrency) ? Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate) : 1.0;
+            return fxrate;
+        }
 
         public static bool IsDerivative(this Transaction element)
         {

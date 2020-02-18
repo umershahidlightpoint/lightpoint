@@ -69,7 +69,19 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   journalDate: Date;
 
   labels: string[] = [];
-  displayChart = false;
+  actionCostBasis: {
+    costBasisSize: number;
+    chartsSize: number;
+    costBasisView: boolean;
+    chartsView: boolean;
+    useTransition: boolean;
+  } = {
+    costBasisSize: 50,
+    chartsSize: 50,
+    costBasisView: true,
+    chartsView: false,
+    useTransition: true
+  };
 
   selectedChartOption: any = 'CostBasis';
   selectedChartTitle: any = 'Cost Basis';
@@ -178,7 +190,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           filter: true
         },
         {
-          field: 'Balance',
+          field: 'balance',
           headerName: 'Exposure (at Cost)',
           cellClass: 'rightAlign',
           sortable: true,
@@ -187,7 +199,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           valueFormatter: moneyFormatter
         },
         {
-          field: 'Quantity',
+          field: 'quantity',
           headerName: 'Quantity',
           width: 100,
           filter: true,
@@ -196,7 +208,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           valueFormatter: currencyFormatter
         },
         {
-          field: 'CostBasis',
+          field: 'cost_basis',
           headerName: 'Cost Basis',
           width: 100,
           sortable: true,
@@ -205,7 +217,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           valueFormatter: costBasisFormatter
         },
         {
-          field: 'Side',
+          field: 'side',
           width: 50,
           headerName: 'Side',
           sortable: true,
@@ -218,13 +230,25 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           valueFormatter: moneyFormatter
         },
         {
+          field: 'unrealized_pnl_fx',
+          cellClass: 'rightAlign',
+          headerName: 'Unrealized P&L FX',
+          valueFormatter: moneyFormatter
+        },
+        {
           field: 'realized_pnl',
           cellClass: 'rightAlign',
           headerName: 'Realized P&L',
           valueFormatter: moneyFormatter
         },
         {
-          field: 'Pnl',
+          field: 'realized_pnl_fx',
+          cellClass: 'rightAlign',
+          headerName: 'Realized P&L FX',
+          valueFormatter: moneyFormatter
+        },
+        {
+          field: 'net',
           cellClass: 'rightAlign',
           headerName: 'Net P&L',
           valueFormatter: moneyFormatter
@@ -366,7 +390,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
         this.trialBalanceReport = response.payload;
         if (this.trialBalanceReport.length === 0) {
           this.timeseriesOptions.api.setRowData([]);
-          this.displayChart = false;
+          this.actionCostBasis.chartsView = false;
         }
         this.gridOptions.api.setRowData(this.trialBalanceReport);
         this.gridOptions.api.sizeColumnsToFit();
@@ -390,7 +414,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       this.mapChartsData(response.payload);
       this.timeseriesOptions.api.setRowData(this.chartData);
       this.timeseriesOptions.api.sizeColumnsToFit();
-      this.displayChart = true;
+      this.actionCostBasis.chartsView = true;
     });
   }
 
@@ -590,13 +614,13 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.filterBySymbol = '';
     this.gridOptions.api.setRowData([]);
     this.timeseriesOptions.api.setRowData([]);
-    this.displayChart = false;
+    this.actionCostBasis.chartsView = false;
   }
 
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
     this.timeseriesOptions.api.setRowData([]);
-    this.displayChart = false;
+    this.actionCostBasis.chartsView = false;
     if (this.selectedDate.startDate == null) {
       this.selectedDate = {
         startDate: moment(this.journalDate, 'YYYY-MM-DD'),

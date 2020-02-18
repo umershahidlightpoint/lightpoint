@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { NgcatalystModule } from 'ngcatalyst';
 import { RouterModule } from '@angular/router';
+import { LpToolkitModule } from 'lp-toolkit';
+import { AngularSplitModule } from 'angular-split';
 
 import { FundTheoreticalComponent } from './fund-theoretical.component';
 import { DailyPnlComponent } from '../fund-theoretical/daily-pnl/daily-pnl.component';
@@ -15,7 +17,6 @@ import { TaxRateModalComponent } from './tax-rates/tax-rate-modal/tax-rate-modal
 import { FundtheoreticalRoutes } from './fund-theoretical.route';
 
 import { SharedModule } from '../../shared.module';
-import { LpToolkitModule } from 'lp-toolkit';
 
 const fundtheoreticalComponents = [
   FundTheoreticalComponent,
@@ -41,8 +42,9 @@ const fundtheoreticalComponents = [
     }),
     NgcatalystModule,
     RouterModule.forChild(FundtheoreticalRoutes),
-    SharedModule,
-    LpToolkitModule
+    LpToolkitModule,
+    AngularSplitModule,
+    SharedModule
   ]
 })
 export class FundTheoreticalModule {}

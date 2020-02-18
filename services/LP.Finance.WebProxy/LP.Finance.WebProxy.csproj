@@ -90,14 +90,17 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebAPI\AnalysisController.cs" />
+    <Compile Include="WebAPI\ConfigurationController.cs" />
     <Compile Include="WebAPI\CorporateActionsController.cs" />
     <Compile Include="WebAPI\FxRateController.cs" />
     <Compile Include="WebAPI\LogController.cs" />
     <Compile Include="WebAPI\MarketDataController.cs" />
     <Compile Include="WebAPI\Services\AnalysisService.cs" />
+    <Compile Include="WebAPI\Services\ConfigurationService.cs" />
     <Compile Include="WebAPI\Services\CorporateActionsService.cs" />
     <Compile Include="WebAPI\Services\FxRateService.cs" />
     <Compile Include="WebAPI\Services\IAnalysisService.cs" />
+    <Compile Include="WebAPI\Services\IConfigurationService.cs" />
     <Compile Include="WebAPI\Services\ICorporateActionsService.cs" />
     <Compile Include="WebAPI\Services\IFxRateService.cs" />
     <Compile Include="WebAPI\Services\ILogService.cs" />

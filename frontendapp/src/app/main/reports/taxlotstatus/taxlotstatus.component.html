@@ -73,13 +73,26 @@
       </div>
       <!-- Export to Excel Button Ends -->
       <!-- Expand/Collapse Button -->
-      <div class="mr-3 d-inline-block">
-        <ng-template #tooltipTemplate>{{isExpanded ? 'Expand' : 'Collapse'}}</ng-template>
-        <button (click)="isExpanded = !isExpanded" class="btn btn-pa" [tooltip]="tooltipTemplate" placement="top">
-          <i class="fa" [ngClass]="{'fa-arrow-right': isExpanded, 'fa-arrow-left': !isExpanded}"></i>
+      <div class="d-inline-block" [ngClass]="{'mr-2': action.closingtaxLotView, 'mr-3': !action.closingtaxLotView}">
+        <ng-template #tooltipTemplate>{{action.closingtaxLotView ? 'Expand' : 'Collapse'}}</ng-template>
+        <button (click)="action.closingtaxLotView = !action.closingtaxLotView" class="btn btn-pa"
+          [tooltip]="tooltipTemplate" placement="top">
+          <i class="fa"
+            [ngClass]="{'fa-arrow-right': action.closingtaxLotView, 'fa-arrow-left': !action.closingtaxLotView}"></i>
         </button>
       </div>
       <!-- Expand/Collapse Button Ends -->
+      <!-- Vertical Expand/Collapse Button -->
+      <div *ngIf="action.closingtaxLotView" class="d-inline-block"
+        [ngClass]="{'mr-3': action.closingtaxLotView, 'mr-2': !action.closingtaxLotView}">
+        <ng-template #tooltipTemplate>{{actionVertical.journalView ? 'Expand' : 'Collapse'}}</ng-template>
+        <button (click)="actionVertical.journalView = !actionVertical.journalView" class="btn btn-pa"
+          [tooltip]="tooltipTemplate" placement="top">
+          <i class="fa"
+            [ngClass]="{'fa-arrow-down': actionVertical.journalView, 'fa-arrow-up': !actionVertical.journalView}"></i>
+        </button>
+      </div>
+      <!-- Vertical Expand/Collapse Button Ends -->
     </div>
     <!-- Buttons Div Ends -->
   </div>
@@ -88,37 +101,64 @@
   <!-- Report Grid Starts -->
   <div [ngStyle]="styleForHeight">
 
-    <div class="row h-100">
+    <!-- Main Split Row Starts -->
+    <div class="split-area row h-100">
 
-      <div [ngClass]="{'col-12': !isExpanded, 'col-6': isExpanded}" class="pr-0">
-        <ag-grid-angular class="w-100 h-100 ag-theme-balham" (rowSelected)="onRowSelected($event)"
-          [gridOptions]="gridOptions">
-        </ag-grid-angular>
-      </div>
+      <!-- AS Split Main Container -->
+      <as-split class="pl-15 pr-15" disabled="false" direction="horizontal" [useTransition]="action.useTransition"
+        (dragEnd)="action.taxLotStatusSize=$event.sizes[0]; action.closingtaxLotSize=$event.sizes[1];">
 
-      <div [hidden]="!isExpanded" [ngClass]="{'col-6': isExpanded}">
+        <!-- Tax Lot Split Area -->
+        <as-split-area [visible]="action.taxLotStatusView" [size]="action.taxLotStatusSize" order="1">
+          <ag-grid-angular class="w-100 h-100 ag-theme-balham" (rowSelected)="onRowSelected($event)"
+            [gridOptions]="gridOptions">
+          </ag-grid-angular>
+        </as-split-area>
+        <!-- Tax Lot Split Area Ends -->
 
-        <div class="row h-50">
-          <div class="col-12 pl-0">
-            <ag-grid-angular class="w-100 h-100 ag-theme-balham" (rowSelected)="onTradeRowSelected($event)"
-              [gridOptions]="closingTaxLots">
-            </ag-grid-angular>
-          </div>
-        </div>
+        <!-- Closing Tax Lot Split Area -->
+        <as-split-area [visible]="action.closingtaxLotView" [size]="action.closingtaxLotSize" order="2">
 
-        <div class="row height-45">
-          <div class="col-12 pl-0">
-            <div class="w-100 h-100 p-0">
-              <app-journals [subscription]="tradeSelectionChanged" [title]="'Journals'"></app-journals>
-            </div>
-          </div>
-        </div>
-      </div>
+          <!-- Closing Tax Lot Split Container -->
+          <as-split disabled="false" direction="vertical" [useTransition]="actionVertical.useTransition"
+            (dragEnd)="actionVertical.closingtaxLotSize=$event.sizes[0]; actionVertical.journalSize=$event.sizes[1];">
+
+            <!-- Closing Tax Lot Area -->
+            <as-split-area [visible]="actionVertical.closingtaxLotView" [size]="actionVertical.closingtaxLotSize"
+              order="1">
+
+              <ag-grid-angular class="w-100 h-100 ag-theme-balham" (rowSelected)="onTradeRowSelected($event)"
+                [gridOptions]="closingTaxLots">
+              </ag-grid-angular>
+
+            </as-split-area>
+            <!-- Closing Tax Lot Area Ends -->
+
+            <!-- Journals Area -->
+            <as-split-area [visible]="actionVertical.journalView" [size]="actionVertical.journalSize" order="2">
+
+              <div class="w-100 height-90 p-0">
+                <app-journals [subscription]="tradeSelectionChanged" [title]="'Journals'"></app-journals>
+              </div>
+
+            </as-split-area>
+            <!-- Journals Area Ends -->
+
+          </as-split>
+          <!-- Closing Tax Lot Split Container Ends -->
+
+        </as-split-area>
+        <!-- Closing Tax Lot Split Area Ends -->
+
+      </as-split>
+      <!-- AS Split Main Container Ends -->
 
     </div>
+    <!-- Main Split Row Ends -->
 
   </div>
   <!-- Report Grid Ends -->
+
 </div>
 <!-- Reports Main Div Ends-->
 

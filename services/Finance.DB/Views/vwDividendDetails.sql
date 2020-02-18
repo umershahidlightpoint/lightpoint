@@ -1,6 +1,7 @@
 ﻿CREATE VIEW vwDividendDetails
 AS
 select t.fund,
+d.id,
 t.symbol,
 t.quantity,
 t.fx_rate,
@@ -15,6 +16,7 @@ abs(t.quantity * d.rate) * d.fx_rate * d.fx_rate as settlement_local_net_dividen
 from tax_lot_status t
 inner join cash_dividends d on t.symbol = d.symbol
 and d.active_flag = 1
-and t.trade_date < d.execution_date
+and d.execution_date <= GETDATE()
+and t.trade_date <= d.execution_date
 and (t.status = 'open' or t.status = 'partially closed') 
 and (t.side = 'buy' or t.side = 'short')

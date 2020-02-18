@@ -67,7 +67,7 @@ export class AppComponent implements OnInit {
     {
       name: 'Corporate Actions',
       routerLink: 'corporate-actions',
-      icon: 'fa-hand-o-right'
+      icon: 'fa-group'
     },
     {
       name: 'Settings',
