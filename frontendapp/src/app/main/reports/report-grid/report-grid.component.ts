@@ -108,7 +108,7 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
       rowData: null,
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
+      /* Custom Method Binding for External Filters from Grid Layout Component */
       getExternalFilterState: this.getExternalFilterState.bind(this),
       clearExternalFilter: this.clear.bind(this),
       setExternalFilter: this.isExternalFilterPassed.bind(this),

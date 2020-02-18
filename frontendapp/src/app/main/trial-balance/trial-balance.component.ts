@@ -116,7 +116,7 @@ export class TrialGridExampleComponent implements OnInit, AfterContentInit {
       onCellDoubleClicked: this.openModal.bind(this),
       onFilterChanged: this.onFilterChanged.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
-      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
+      /* Custom Method Binding for External Filters from Grid Layout Component */
       isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       getExternalFilterState: this.getExternalFilterState.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),

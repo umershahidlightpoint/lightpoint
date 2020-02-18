@@ -154,7 +154,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.gridOptions = {
       rowData: null,
       pinnedBottomRowData: null,
-      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
+      /* Custom Method Binding for External Filters from Grid Layout Component */
       getExternalFilterState: this.getExternalFilterState.bind(this),
       clearExternalFilter: this.clearFilters.bind(this),
       setExternalFilter: this.isExternalFilterPassed.bind(this),

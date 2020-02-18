@@ -28,7 +28,6 @@ import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/dat
   styleUrls: ['./dividends.component.scss']
 })
 export class DividendsComponent implements OnInit {
-
   @ViewChild('dividendModal', { static: false }) dividendModal: CreateDividendComponent;
   @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
 
@@ -69,7 +68,7 @@ export class DividendsComponent implements OnInit {
       onFilterChanged: this.onFilterChanged.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
+      /* Custom Method Binding for External Filters from Grid Layout Component */
       isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       clearExternalFilter: this.clearFilters.bind(this),
       getExternalFilterState: this.getExternalFilterState.bind(this),
@@ -158,7 +157,7 @@ export class DividendsComponent implements OnInit {
           headerName: 'Currency',
           width: 100,
           filter: true,
-          sortable: true,
+          sortable: true
         },
         {
           field: 'withholding_rate',
@@ -176,7 +175,7 @@ export class DividendsComponent implements OnInit {
           filter: true,
           sortable: true,
           cellClass: 'rightAlign',
-          valueFormatter: moneyFormatter,
+          valueFormatter: moneyFormatter
         },
         {
           field: 'active_flag',
@@ -186,7 +185,6 @@ export class DividendsComponent implements OnInit {
           sortable: true,
           hide: true
         }
-
       ],
       defaultColDef: {
         sortable: true,
@@ -194,7 +192,6 @@ export class DividendsComponent implements OnInit {
         filter: true
       }
     } as GridOptions;
-
 
     this.dividendDetailsGrid = {
       rowData: null,
@@ -236,7 +233,7 @@ export class DividendsComponent implements OnInit {
           rowGroup: true,
           enableRowGroup: true,
           filter: true,
-          sortable: true,
+          sortable: true
         },
         {
           field: 'symbol',
@@ -279,7 +276,7 @@ export class DividendsComponent implements OnInit {
           headerName: 'Currency',
           width: 100,
           filter: true,
-          sortable: true,
+          sortable: true
         },
         {
           field: 'base_gross_dividend',
@@ -349,7 +346,6 @@ export class DividendsComponent implements OnInit {
           sortable: true,
           hide: true
         }
-
       ],
       defaultColDef: {
         sortable: true,
@@ -358,12 +354,7 @@ export class DividendsComponent implements OnInit {
       }
     } as GridOptions;
 
-
-    this.gridOptions.sideBar = SideBar(
-      GridId.dividendsId,
-      GridName.dividends,
-      this.gridOptions
-    );
+    this.gridOptions.sideBar = SideBar(GridId.dividendsId, GridName.dividends, this.gridOptions);
   }
 
   getDividends() {
@@ -400,15 +391,15 @@ export class DividendsComponent implements OnInit {
   rowSelected(row) {
     const { id } = row.data;
     let node;
-    this.dividendDetailsGrid.api.forEachLeafNode((rowNode) => {
+    this.dividendDetailsGrid.api.forEachLeafNode(rowNode => {
       if (rowNode.data.id === id) {
         rowNode.setSelected(true);
         node = rowNode;
       } else {
         rowNode.setSelected(false);
-      } 
+      }
     });
-    if(node){
+    if (node) {
       this.dividendDetailsGrid.api.ensureIndexVisible(node.rowIndex);
     }
   }
@@ -461,13 +452,12 @@ export class DividendsComponent implements OnInit {
   }
 
   isExternalFilterPresent() {
-    if ( this.filterBySymbol !== '' || this.startDate) {
+    if (this.filterBySymbol !== '' || this.startDate) {
       return true;
     }
   }
 
   doesExternalFilterPass(node: any) {
-
     if (this.filterBySymbol !== '' && this.startDate) {
       const cellSymbol = node.data.symbol === null ? '' : node.data.symbol;
       const cellDate = new Date(node.data.execution_date);
@@ -485,10 +475,7 @@ export class DividendsComponent implements OnInit {
 
     if (this.startDate !== '') {
       const cellDate = new Date(node.data.execution_date);
-      return (
-        this.startDate.toDate() <= cellDate &&
-        this.endDate.toDate() >= cellDate
-        );
+      return this.startDate.toDate() <= cellDate && this.endDate.toDate() >= cellDate;
     }
 
     return true;
@@ -520,21 +507,23 @@ export class DividendsComponent implements OnInit {
     this.dividendDetailsGrid.api.setRowData([]);
   }
 
-/////////// End External Filters Code //////////////
+  /////////// End External Filters Code //////////////
 
   getContextMenuItems(params): Array<ContextMenu> {
-    const addDefaultItems = [{
-      name: 'Edit',
-      action: () => {
-        this.openEditModal(params.node.data);
+    const addDefaultItems = [
+      {
+        name: 'Edit',
+        action: () => {
+          this.openEditModal(params.node.data);
+        }
+      },
+      {
+        name: 'Audit Trail',
+        action: () => {
+          this.openDataGridModal(params);
+        }
       }
-    },
-    {
-      name: 'Audit Trail',
-      action: () => {
-        this.openDataGridModal(params);
-      }
-    }];
+    ];
     const addCustomItems = [];
     return GetContextMenu(false, addDefaultItems, false, addCustomItems, params);
   }
@@ -553,7 +542,6 @@ export class DividendsComponent implements OnInit {
   }
 
   getAuditColDefs(): Array<ColDef | ColGroupDef> {
-
     return [
       {
         field: 'id',
@@ -591,14 +579,14 @@ export class DividendsComponent implements OnInit {
         headerName: 'Record Date',
         width: 100,
         filter: true,
-        sortable: true,
+        sortable: true
       },
       {
         field: 'pay_date',
         headerName: 'Pay Date',
         width: 100,
         filter: true,
-        sortable: true,
+        sortable: true
       },
       {
         field: 'rate',
@@ -614,7 +602,7 @@ export class DividendsComponent implements OnInit {
         headerName: 'Currency',
         width: 100,
         filter: true,
-        sortable: true,
+        sortable: true
       },
       {
         field: 'withholding_rate',
@@ -632,7 +620,7 @@ export class DividendsComponent implements OnInit {
         filter: true,
         sortable: true,
         cellClass: 'rightAlign',
-        valueFormatter: moneyFormatter,
+        valueFormatter: moneyFormatter
       },
       {
         field: 'active_flag',
@@ -642,11 +630,9 @@ export class DividendsComponent implements OnInit {
         sortable: true,
         hide: true
       }
-
     ];
   }
-
-  }
+}
 
 function moneyFormatter(params) {
   if (params.value === undefined) {
@@ -675,4 +661,3 @@ function priceFormatter(params) {
   }
   return FormatNumber4(params.value);
 }
-

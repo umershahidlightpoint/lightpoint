@@ -30,7 +30,8 @@ export enum GridId {
   taxlotsMaintenanceId,
   dividendsId,
   stockSplitsId,
-  fundAdminReconcileId
+  fundAdminReconcileId,
+  allocationsId
 }
 
 export enum GridName {
@@ -65,5 +66,6 @@ export enum GridName {
   taxlotsMaintenance = 'Tax Lots Maintenance',
   dividends = 'Dividends',
   stockSplits = 'Stock Splits',
-  fundAdminReconcile = 'FundAdmin Reconcile'
+  fundAdminReconcile = 'FundAdmin Reconcile',
+  allocations = 'Allocations'
 }

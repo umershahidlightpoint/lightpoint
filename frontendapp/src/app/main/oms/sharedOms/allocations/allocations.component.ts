@@ -1,11 +1,11 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { FinanceServiceProxy } from '../../../../../services/service-proxies';
 import { GridOptions } from 'ag-grid-community';
-import { AgGridUtils } from '../../../../../shared/utils/AgGridUtils';
-import { DataService } from 'src/services/common/data.service';
+import { GridLayoutMenuComponent } from 'lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { DataService } from 'src/services/common/data.service';
+import { FinanceServiceProxy } from '../../../../../services/service-proxies';
+import { AgGridUtils } from '../../../../../shared/utils/AgGridUtils';
 import { SideBar, AutoSizeAllColumns } from 'src/shared/utils/Shared';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 
 @Component({
   selector: 'app-allocations',
@@ -60,8 +60,13 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
     this.allocationsGridOptions = {
       rowData: [],
       columnDefs: this.columnDefs,
-      //onCellDoubleClicked: this.openModal.bind(this),
+      // onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      enableFilter: true,
+      animateRows: true,
+      suppressColumnVirtualisation: true,
+      suppressHorizontalScroll: false,
+      alignedGrids: [],
       onGridReady: () => {
         // this.gridOptions.api.sizeColumnsToFit();
       },
@@ -70,16 +75,11 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
       },
       getExternalFilterState: () => {
         return {};
-      },
-      suppressColumnVirtualisation: true,
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      suppressHorizontalScroll: false
+      }
     } as GridOptions;
     this.allocationsGridOptions.sideBar = SideBar(
-      GridId.accrualsId,
-      GridName.accruals,
+      GridId.allocationsId,
+      GridName.allocations,
       this.allocationsGridOptions
     );
   }

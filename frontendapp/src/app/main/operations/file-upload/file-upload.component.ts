@@ -1,14 +1,13 @@
-import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { GridOptions, ColGroupDef, ColDef } from 'ag-grid-community';
+import { ToastrService } from 'ngx-toastr';
+import { GridLayoutMenuComponent } from 'lp-toolkit';
+/* Services/Components Imports */
+import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 import { FinanceServiceProxy } from 'src/services/service-proxies';
 import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.service';
-import { ToastrService } from 'ngx-toastr';
-
-/* Services/Components Imports */
-import { GridOptions, ColGroupDef, ColDef } from 'ag-grid-community';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { IgnoreFields, HeightStyle } from 'src/shared/utils/Shared';
 import { DataDictionary } from '../../../../shared/utils/DataDictionary';
-import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
+import { IgnoreFields, HeightStyle } from 'src/shared/utils/Shared';
 
 @Component({
   selector: 'app-file-upload',
@@ -16,8 +15,7 @@ import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-mo
   styleUrls: ['./file-upload.component.scss']
 })
 export class FileUploadComponent implements OnInit {
-  @ViewChild('confirmationModal', { static: false })
-  confirmationModal: ConfirmationModalComponent;
+  @ViewChild('confirmationModal', { static: false }) confirmationModal: ConfirmationModalComponent;
   @ViewChild('fileInput', { static: false }) fileInput: ElementRef;
 
   styleForLogsHeight = HeightStyle(220);
@@ -49,20 +47,20 @@ export class FileUploadComponent implements OnInit {
   initGrid() {
     this.uploadGrid = {
       rowData: null,
-      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      getExternalFilterState: () => {
-        return {};
-      },
       pinnedBottomRowData: null,
-      onRowSelected: params => {},
-      clearExternalFilter: () => {},
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
       pivotPanelShow: 'after',
-      singleClickEdit: true,
-      pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
+      pivotColumnGroupTotals: 'after',
       animateRows: true,
+      singleClickEdit: true,
+      getExternalFilterState: () => {
+        return {};
+      },
+      onRowSelected: params => {},
+      clearExternalFilter: () => {},
       onGridReady: params => {
         params.api.sizeColumnsToFit();
       },
