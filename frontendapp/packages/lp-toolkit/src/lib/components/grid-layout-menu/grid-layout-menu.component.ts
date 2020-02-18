@@ -180,7 +180,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
       FilterState: JSON.stringify(this.params.gridOptions.api.getFilterModel()),
       ExternalFilterState: (this.params.gridOptions as CustomGridOptions).getExternalFilterState
         ? JSON.stringify((this.params.gridOptions as CustomGridOptions).getExternalFilterState())
-        : {},
+        : JSON.stringify({}),
       IsPublic: this.isLayoutFormMode
         ? this.layoutForm.value.publicLayout
           ? true
