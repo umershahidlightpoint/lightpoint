@@ -97,8 +97,3 @@ html {
 .mtop-15 {
   margin-top: 15%;
 }
-
-:host .split-area ::ng-deep .as-transition.as-init:not(.as-dragging) > .as-split-area,
-:host ::ng-deep .as-transition.as-init:not(.as-dragging) > .as-split-gutter {
-  transition: flex-basis 1s !important;
-}

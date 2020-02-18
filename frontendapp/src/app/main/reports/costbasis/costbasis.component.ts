@@ -69,7 +69,19 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   journalDate: Date;
 
   labels: string[] = [];
-  displayChart = false;
+  actionCostBasis: {
+    costBasisSize: number;
+    chartsSize: number;
+    costBasisView: boolean;
+    chartsView: boolean;
+    useTransition: boolean;
+  } = {
+    costBasisSize: 50,
+    chartsSize: 50,
+    costBasisView: true,
+    chartsView: false,
+    useTransition: true
+  };
 
   selectedChartOption: any = 'CostBasis';
   selectedChartTitle: any = 'Cost Basis';
@@ -378,7 +390,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
         this.trialBalanceReport = response.payload;
         if (this.trialBalanceReport.length === 0) {
           this.timeseriesOptions.api.setRowData([]);
-          this.displayChart = false;
+          this.actionCostBasis.chartsView = false;
         }
         this.gridOptions.api.setRowData(this.trialBalanceReport);
         this.gridOptions.api.sizeColumnsToFit();
@@ -402,7 +414,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       this.mapChartsData(response.payload);
       this.timeseriesOptions.api.setRowData(this.chartData);
       this.timeseriesOptions.api.sizeColumnsToFit();
-      this.displayChart = true;
+      this.actionCostBasis.chartsView = true;
     });
   }
 
@@ -601,13 +613,13 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.filterBySymbol = '';
     this.gridOptions.api.setRowData([]);
     this.timeseriesOptions.api.setRowData([]);
-    this.displayChart = false;
+    this.actionCostBasis.chartsView = false;
   }
 
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
     this.timeseriesOptions.api.setRowData([]);
-    this.displayChart = false;
+    this.actionCostBasis.chartsView = false;
     if (this.selectedDate.startDate == null) {
       this.selectedDate = {
         startDate: moment(this.journalDate, 'YYYY-MM-DD'),
