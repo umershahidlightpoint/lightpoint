@@ -12,12 +12,15 @@ import {
   TrialBalanceReport,
   TrialBalanceReportStats
 } from '../../../../shared/Models/trial-balance';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 import { DataModalComponent } from 'src/shared/Component/data-modal/data-modal.component';
 import { AgGridUtils } from 'src/shared/utils/AgGridUtils';
 import { DataDictionary } from 'src/shared/utils/DataDictionary';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { ContextMenu } from 'src/shared/Models/common';
+import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import {
   Ranges,
   Style,
@@ -33,9 +36,6 @@ import {
   priceFormatterEx,
   DateFormatter
 } from 'src/shared/utils/Shared';
-import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { ContextMenu } from 'src/shared/Models/common';
-import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 
 @Component({
   selector: 'rep-taxlotstatus',
@@ -73,7 +73,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     useTransition: true
   };
   pinnedBottomRowData;
-  gridOptions: GridOptions;
+  gridOptions: CustomGridOptions;
   closingTaxLots: GridOptions;
   fund: any = 'All Funds';
   funds: Fund;
@@ -158,17 +158,21 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       rowData: null,
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      onRowDoubleClicked: this.onRowDoubleClicked.bind(this),
-      onFilterChanged: this.onFilterChanged.bind(this),
-      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
-      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
-      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
-      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      clearExternalFilter: this.clearFilters.bind(this),
+      /* Custom Method Binding for External Filters from Grid Layout Component */
       getExternalFilterState: this.getExternalFilterState.bind(this),
+      clearExternalFilter: this.clearFilters.bind(this),
+      setExternalFilter: this.isExternalFilterPassed.bind(this),
+      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
+      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
+      onFilterChanged: this.onFilterChanged.bind(this),
+      onRowDoubleClicked: this.onRowDoubleClicked.bind(this),
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
+      animateRows: true,
+      enableFilter: true,
+      suppressHorizontalScroll: false,
       suppressColumnVirtualisation: true,
+      alignedGrids: [],
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
         this.gridOptions.excelStyles = ExcelStyle;
@@ -182,10 +186,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         // AutoSizeAllColumns(params);
         params.api.sizeColumnsToFit();
       },
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      suppressHorizontalScroll: false,
+
       columnDefs: [
         {
           field: 'open_id',
@@ -339,7 +340,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         resizable: true,
         filter: true
       }
-    } as GridOptions;
+    };
     this.gridOptions.sideBar = SideBar(
       GridId.taxlotStatusId,
       GridName.taxlotStatus,
@@ -353,7 +354,11 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
       onRowDoubleClicked: this.onClosingTaxLotsRowDoubleClicked.bind(this),
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
+      animateRows: true,
+      enableFilter: true,
+      suppressHorizontalScroll: false,
       suppressColumnVirtualisation: true,
+      alignedGrids: [],
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
         this.closingTaxLots.excelStyles = ExcelStyle;
@@ -363,13 +368,10 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           node.expanded = true;
         });
         params.api.onGroupExpandedOrCollapsed();
+
         // AutoSizeAllColumns(params);
         params.api.sizeColumnsToFit();
       },
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      suppressHorizontalScroll: false,
       columnDefs: [
         {
           field: 'open_lot_id',
@@ -449,7 +451,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     this.closingTaxLots.sideBar = SideBar(
       GridId.closingTaxLotId,
       GridName.closingTaxLots,
-      this.gridOptions
+      this.closingTaxLots
     );
   }
 

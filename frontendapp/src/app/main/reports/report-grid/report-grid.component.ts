@@ -1,17 +1,21 @@
 import {
   Component,
   OnInit,
-  Input,
+  AfterViewInit,
   OnChanges,
-  SimpleChanges,
+  OnDestroy,
+  Input,
   ComponentRef,
   Output,
-  AfterViewInit,
   EventEmitter,
-  OnDestroy,
-  SimpleChange
+  SimpleChange,
+  SimpleChanges
 } from '@angular/core';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
+import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
+import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { ContextMenu } from 'src/shared/Models/common';
 import {
   AutoSizeAllColumns,
   SideBar,
@@ -20,10 +24,6 @@ import {
   moneyFormatter
 } from 'src/shared/utils/Shared';
 import { TrialBalanceReport, TrialBalanceReportStats } from 'src/shared/Models/trial-balance';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'app-report-grid',
@@ -41,7 +41,7 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
   @Output() externalFilterPassed: EventEmitter<any> = new EventEmitter<any>();
   @Output() clearFilters: EventEmitter<any> = new EventEmitter<any>();
   componentRef: ComponentRef<any>;
-  gridOptions: GridOptions;
+  gridOptions: CustomGridOptions;
   utilsEvent: any;
 
   constructor() {}
@@ -109,12 +109,16 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       /* Custom Method Binding to Clear External Filters from Grid Layout Component */
-      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       getExternalFilterState: this.getExternalFilterState.bind(this),
       clearExternalFilter: this.clear.bind(this),
+      setExternalFilter: this.isExternalFilterPassed.bind(this),
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
+      enableFilter: true,
+      animateRows: true,
+      suppressHorizontalScroll: false,
       suppressColumnVirtualisation: true,
+      alignedGrids: [],
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {},
       onFirstDataRendered: params => {
@@ -124,16 +128,12 @@ export class ReportGridComponent implements OnInit, OnChanges, AfterViewInit, On
         params.api.onGroupExpandedOrCollapsed();
         params.api.sizeColumnsToFit();
       },
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      suppressHorizontalScroll: false,
       defaultColDef: {
         sortable: true,
         resizable: true,
         filter: true
       }
-    } as GridOptions;
+    };
     if (this.isTrialBalance) {
       this.gridOptions.sideBar = SideBar(
         GridId.trailBalanceReportId,
