@@ -66,6 +66,17 @@
       </div>
       <!-- Export to Excel Button Ends -->
 
+      <!-- Expand/Collapse Button -->
+      <div class="mr-3 d-inline-block">
+        <ng-template #tooltipTemplate>{{actionCostBasis.chartsView ? 'Expand' : 'Collapse'}}</ng-template>
+        <button (click)="actionCostBasis.chartsView = !actionCostBasis.chartsView" class="btn btn-pa"
+          [tooltip]="tooltipTemplate" placement="top">
+          <i class="fa"
+            [ngClass]="{'fa-arrow-right': actionCostBasis.chartsView, 'fa-arrow-left': !actionCostBasis.chartsView}"></i>
+        </button>
+      </div>
+      <!-- Expand/Collapse Button Ends -->
+
     </div>
     <!-- Util Buttons Div Ends -->
 
@@ -73,93 +84,125 @@
   <!-- Filters Div Ends -->
 
   <!-- Grid/Charts Row Starts -->
-  <div class="row" [ngStyle]="styleForHeight">
+  <div [ngStyle]="styleForHeight">
 
-    <!-- Report Grid Starts -->
-    <div class="col-6">
+    <!-- Main Split Row Starts -->
+    <div class="split-area row h-100">
 
-      <ag-grid-angular class="w-100 h-50 ag-theme-balham" [gridOptions]="gridOptions">
-      </ag-grid-angular>
+      <!-- AS Split Main Container -->
+      <as-split class="pl-15 pr-15" disabled="false" direction="horizontal"
+        [useTransition]="actionCostBasis.useTransition"
+        (dragEnd)="actionCostBasis.costBasisSize=$event.sizes[0]; actionCostBasis.chartsSize=$event.sizes[1];">
 
-      <ag-grid-angular class="w-100 h-50 ag-theme-balham" [gridOptions]="timeseriesOptions">
-      </ag-grid-angular>
+        <!-- Cost Basis Split Area -->
+        <as-split-area [visible]="actionCostBasis.costBasisView" [size]="actionCostBasis.costBasisSize" order="1">
+
+          <!-- Cost Basis Grid -->
+          <ag-grid-angular class="w-100 h-50 ag-theme-balham" [gridOptions]="gridOptions">
+          </ag-grid-angular>
+
+          <!-- Time Series Grid -->
+          <ag-grid-angular class="w-100 h-50 ag-theme-balham" [gridOptions]="timeseriesOptions">
+          </ag-grid-angular>
+
+        </as-split-area>
+        <!-- Cost Basis Split Area Ends -->
+
+        <!-- Charts Split Area -->
+        <as-split-area [visible]="actionCostBasis.chartsView" [size]="actionCostBasis.chartsSize" order="2">
+
+          <!-- Charts Wrapper -->
+          <div class="line-chart-wrapper d-flex flex-wrap">
+
+            <!-- Charts Tab Set -->
+            <tabset class="w-100">
+
+              <tab heading="Realized/Unrealized P&L">
+
+                <div class="row">
+
+                  <div class="w-100 col-6 pt-10">
+                    <div class="chart-title">Unrealized P&L</div>
+                    <eikos-line-plot class="d-block chart" [propID]="'unrealizedData'" [lineColors]="lineColors"
+                      [dateTimeFormat]="'YYYY-MM-DD'" [data]="unrealizedData" [xAxisLabel]="'Date'" [yAxisLabel]="''"
+                      [divHeight]="divHeight" [threshold]=0 [divWidth]="divWidth">
+                    </eikos-line-plot>
+                  </div>
+
+                  <div class="w-100 col-6 pt-10">
+                    <div class="chart-title">Realized P&L</div>
+                    <eikos-line-plot class="d-block chart" [propID]="'realalizedData'" [lineColors]="lineColors"
+                      [dateTimeFormat]="'YYYY-MM-DD'" [threshold]=0 [data]="realizedData" [xAxisLabel]="'Date'"
+                      [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
+                    </eikos-line-plot>
+                  </div>
+
+                </div>
+
+              </tab>
+
+              <tab heading="Measure">
+
+                <div class="row">
+
+                  <div class="w-100 col-6 pt-10">
+                    <div class=" chart-title">Investment at Cost</div>
+                    <eikos-line-plot class="d-block chart" [propID]="propIDBalance" [lineColors]="lineColors"
+                      [data]="bData" [dateTimeFormat]="'YYYY-MM-DD'" [threshold]=0 [xAxisLabel]="'Date'"
+                      [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
+                    </eikos-line-plot>
+                  </div>
+
+                  <div class="w-100 col-6 pt-10">
+                    <div class="chart-title">Quantity</div>
+                    <eikos-line-plot class="d-block chart" [propID]="propIDQuantity" [lineColors]="lineColors"
+                      [data]="qData" [dateTimeFormat]="'YYYY-MM-DD'" [threshold]=0 [xAxisLabel]="'Date'"
+                      [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
+                    </eikos-line-plot>
+                  </div>
+
+                  <div class="w-100 col-6 pt-10">
+                    <div class="chart-title">Exposure (at Cost)</div>
+                    <eikos-line-plot class="d-block chart" [propID]="propIDCostBasis" [lineColors]="lineColors"
+                      [data]="cbData" [dateTimeFormat]="'YYYY-MM-DD'" [threshold]=0 [xAxisLabel]="'Date'"
+                      [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
+                    </eikos-line-plot>
+                  </div>
+
+                  <div class="w-100 col-6 pt-10">
+                    <div class="chart-title">Net P&L</div>
+                    <eikos-line-plot class="d-block chart" [propID]="'netpnlData'" [lineColors]="lineColors"
+                      [data]="netpnlData" [dateTimeFormat]="'YYYY-MM-DD'" [threshold]=0 [xAxisLabel]="'Date'"
+                      [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
+                    </eikos-line-plot>
+                  </div>
+
+                  <div *ngIf="marketPriceChart" class="w-100">
+                    <app-calculation-graphs class="w-50 h-75" [chartObject]="graphObject" [mode]="'single'">
+                    </app-calculation-graphs>
+                  </div>
+
+                </div>
+
+              </tab>
+
+            </tabset>
+            <!-- Charts Tab Set Ends -->
+
+          </div>
+          <!-- Charts Wrapper Ends -->
+
+        </as-split-area>
+        <!-- Charts Split Area Ends -->
+
+      </as-split>
+      <!-- AS Split Main Container Ends -->
 
     </div>
-    <!-- Report Grid Ends -->
-
-    <!-- Chart Column Starts -->
-    <div class="col-6 row-3 mt-0">
-
-      <div *ngIf="displayChart" class="line-chart-wrapper d-flex flex-wrap">
-
-        <tabset class="w-100">
-          <tab heading="Realized/Unrealized P&L">
-            <div class="row">
-              <div class="w-100 col-6 pt-10">
-                <div class="chart-title">Unrealized P&L</div>
-                <eikos-line-plot class="d-block chart" [propID]="'unrealizedData'" [lineColors]="lineColors"
-                  [dateTimeFormat]="'YYYY-MM-DD'" [data]="unrealizedData" [xAxisLabel]="'Date'" [yAxisLabel]="''"
-                  [divHeight]="divHeight" [threshold]=0 [divWidth]="divWidth">
-                </eikos-line-plot>
-              </div>
-
-              <div class="w-100 col-6 pt-10">
-                <div class="chart-title">Realized P&L</div>
-                <eikos-line-plot class="d-block chart" [propID]="'realalizedData'" [lineColors]="lineColors"
-                  [dateTimeFormat]="'YYYY-MM-DD'" [threshold]=0 [data]="realizedData" [xAxisLabel]="'Date'"
-                  [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
-                </eikos-line-plot>
-              </div>
-            </div>
-          </tab>
-
-          <tab heading="Measure">
-            <div class="row">
-              <div class="w-100 col-6 pt-10">
-                <div class=" chart-title">Investment at Cost</div>
-                <eikos-line-plot class="d-block chart" [propID]="propIDBalance" [lineColors]="lineColors" [data]="bData"
-                  [dateTimeFormat]="'YYYY-MM-DD'" [threshold]=0 [xAxisLabel]="'Date'" [yAxisLabel]="''"
-                  [divHeight]="divHeight" [divWidth]="divWidth">
-                </eikos-line-plot>
-              </div>
-
-              <div class="w-100 col-6 pt-10">
-                <div class="chart-title">Quantity</div>
-                <eikos-line-plot class="d-block chart" [propID]="propIDQuantity" [lineColors]="lineColors"
-                  [data]="qData" [dateTimeFormat]="'YYYY-MM-DD'" [threshold]=0 [xAxisLabel]="'Date'" [yAxisLabel]="''"
-                  [divHeight]="divHeight" [divWidth]="divWidth">
-                </eikos-line-plot>
-              </div>
-
-              <div class="w-100 col-6 pt-10">
-                <div class="chart-title">Exposure (at Cost)</div>
-                <eikos-line-plot class="d-block chart" [propID]="propIDCostBasis" [lineColors]="lineColors"
-                  [data]="cbData" [dateTimeFormat]="'YYYY-MM-DD'" [threshold]=0 [xAxisLabel]="'Date'" [yAxisLabel]="''"
-                  [divHeight]="divHeight" [divWidth]="divWidth">
-                </eikos-line-plot>
-              </div>
-
-              <div class="w-100 col-6 pt-10">
-                <div class="chart-title">Net P&L</div>
-                <eikos-line-plot class="d-block chart" [propID]="'netpnlData'" [lineColors]="lineColors"
-                  [data]="netpnlData" [dateTimeFormat]="'YYYY-MM-DD'" [threshold]=0 [xAxisLabel]="'Date'"
-                  [yAxisLabel]="''" [divHeight]="divHeight" [divWidth]="divWidth">
-                </eikos-line-plot>
-              </div>
-
-              <div *ngIf="marketPriceChart" class="w-100">
-                <app-calculation-graphs class="w-50 h-75" [chartObject]="graphObject" [mode]="'single'">
-                </app-calculation-graphs>
-              </div>
-            </div>
-          </tab>
-        </tabset>
-      </div>
-
-    </div>
-    <!-- Chart Column Ends -->
+    <!-- Main Split Row Ends -->
 
   </div>
+  <!-- Grid/Charts Row Ends -->
 
 </div>
 <!-- Reports Main Div Ends-->
