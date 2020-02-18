@@ -25,7 +25,7 @@ import {
   DateFormatter
 } from 'src/shared/utils/Shared';
 import { GridOptions, RowNode } from 'ag-grid-community';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
@@ -44,7 +44,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
 
   pinnedBottomRowData;
-  gridOptions: GridOptions;
+  gridOptions: CustomGridOptions;
   closingTaxLots: GridOptions;
   fund: any = 'All Funds';
   funds: Fund;
@@ -126,14 +126,14 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
       rowData: null,
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      /* Custom Method Binding for External Filters from Grid Layout Component */
+      getExternalFilterState: this.getExternalFilterState.bind(this),
+      clearExternalFilter: this.clearFilters.bind(this),
+      setExternalFilter: this.isExternalFilterPassed.bind(this),
+      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
+      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       onRowDoubleClicked: this.onRowDoubleClicked.bind(this),
       onFilterChanged: this.onFilterChanged.bind(this),
-      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
-      /* Custom Method Binding for External Filters from Grid Layout Component */
-      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
-      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      clearExternalFilter: this.clearFilters.bind(this),
-      getExternalFilterState: this.getExternalFilterState.bind(this),
       rowSelection: 'multiple',
       rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
@@ -246,7 +246,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
         resizable: true,
         filter: true
       }
-    } as GridOptions;
+    };
     this.gridOptions.sideBar = SideBar(
       GridId.taxlotsMaintenanceId,
       GridName.taxlotsMaintenance,
@@ -356,7 +356,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
     this.closingTaxLots.sideBar = SideBar(
       GridId.closingTaxLotId,
       GridName.closingTaxLots,
-      this.gridOptions
+      this.closingTaxLots
     );
 
     this.tradeGridOptions = {
@@ -435,10 +435,10 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
         filter: true
       }
     } as GridOptions;
-    this.closingTaxLots.sideBar = SideBar(
+    this.tradeGridOptions.sideBar = SideBar(
       GridId.closingTaxLotId,
       GridName.closingTaxLots,
-      this.gridOptions
+      this.tradeGridOptions
     );
   }
 

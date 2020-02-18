@@ -2,8 +2,8 @@ import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import * as moment from 'moment';
 import { GridOptions, ColGroupDef, ColDef } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { HeightStyle, SideBar, DateFormatter, Ranges } from 'src/shared/utils/Shared';
+import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
+import { HeightStyle, SideBar, DateFormatter, Ranges, SetDateRange } from 'src/shared/utils/Shared';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { FundTheoreticalApiService } from '../../../../services/fund-theoretical-api.service';
@@ -25,7 +25,7 @@ export class FxRatesComponent implements OnInit {
   title: string;
   gridData: any;
   totalGridRows: number;
-  fxRate: GridOptions;
+  fxRate: CustomGridOptions;
 
   isExpanded = false;
   graphObject: GraphObject = null;
@@ -122,12 +122,11 @@ export class FxRatesComponent implements OnInit {
       columnDefs: this.getColDefs(),
       rowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      getExternalFilterState: () => {
-        return {};
-      },
+      getExternalFilterState: this.getExternalFilterState.bind(this),
+      setExternalFilter: this.isExternalFilterPassed.bind(this),
       pinnedBottomRowData: null,
       onRowSelected: params => {},
-      clearExternalFilter: () => {},
+      clearExternalFilter: this.clearFilters.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),
@@ -158,7 +157,7 @@ export class FxRatesComponent implements OnInit {
         sortable: true,
         filter: true
       }
-    } as GridOptions;
+    };
     this.fxRate.sideBar = SideBar(GridId.fxRateId, GridName.fxRate, this.fxRate);
   }
 
@@ -198,8 +197,36 @@ export class FxRatesComponent implements OnInit {
     (this.filterByCurrency = ''), (this.selected = null);
     this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
     this.endDate = moment();
+    this.selectedDate = null;
     this.fxRate.api.setFilterModel(null);
     this.fxRate.api.onFilterChanged();
+  }
+
+  getExternalFilterState() {
+    return {
+      currencyFilter: this.filterByCurrency,
+      dateFilter: {
+        startDate: this.startDate !== undefined ? this.startDate : '',
+        endDate: this.endDate !== undefined ? this.endDate : ''
+      }
+    };
+  }
+
+  isExternalFilterPassed(object) {
+    const { currencyFilter } = object;
+    const { dateFilter } = object;
+    this.filterByCurrency = currencyFilter !== undefined ? currencyFilter : this.filterByCurrency;
+    this.setDateRange(dateFilter);
+    this.fxRate.api.onFilterChanged();
+  }
+
+  setDateRange(dateFilter: any) {
+    const dates = SetDateRange(dateFilter, this.startDate, this.endDate);
+    this.startDate = dates[0];
+    this.endDate = dates[1];
+
+    this.selectedDate =
+      dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
   }
 
   onCellValueChanged(params) {
