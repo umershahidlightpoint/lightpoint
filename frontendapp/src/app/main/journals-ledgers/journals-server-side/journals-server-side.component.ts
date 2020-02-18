@@ -471,7 +471,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       pinnedBottomRowData: null,
       /* Custom Method Binding for External Filters for Grid Layout Component */
       getExternalFilterState: this.getExternalFilterState.bind(this),
-      clearExternalFilters: this.clearExternalFilters.bind(this),
+      clearExternalFilter: this.clearExternalFilter.bind(this),
       setExternalFilter: this.setExternalFilter.bind(this),
       /* Default Grid Options */
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
@@ -777,7 +777,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     };
   }
 
-  clearExternalFilters() {
+  clearExternalFilter() {
     this.gridOptions.api.redrawRows();
     this.fund = 'All Funds';
     this.filterBySymbol = '';
