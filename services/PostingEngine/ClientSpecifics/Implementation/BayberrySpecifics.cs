@@ -35,7 +35,8 @@ namespace PostingEngine.ClientSpecifics
                     //"FORWARD",
                     //"Common Stock",
                     //"Equity Swap",
-                    "Journals"
+                    "Journals",
+                    "Cash"
                     };
 
                 var symbolTags = new List<string>

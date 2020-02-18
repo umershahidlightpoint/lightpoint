@@ -59,17 +59,26 @@ namespace PostingEngine.Tasks
 
                 var connectionString = ConfigurationManager.ConnectionStrings[source_ConnectionString].ToString();
 
+
                 var dataTable = new SqlHelper(connectionString).GetDataTable("select * from vwCurrentStateTrades", System.Data.CommandType.Text);
 
-                var transaction = connection.BeginTransaction();
 
                 env.CallBack?.Invoke("[Start] Bulk Copy from vwCurrentStateTrades");
 
+                var transaction = connection.BeginTransaction();
                 new SQLBulkHelper().Insert("current_trade_state", dataTable, connection, transaction, false, false);
+                transaction.Commit();
 
                 env.CallBack?.Invoke("[End] Bulk Copy from vwCurrentStateTrades");
 
-                transaction.Commit();
+                var sqlHelper = new SqlHelper(connectionString);
+                sqlHelper.CreateConnection();
+                sqlHelper.GetConnection().Open();
+                sqlHelper.SqlBeginTransaction();
+                sqlHelper.Update("update current_trade_state set SecurityType = 'Common Stock' where SecurityType = 'REIT'", System.Data.CommandType.Text);
+                sqlHelper.GetTransaction().Commit();
+                sqlHelper.GetConnection().Close();
+
                 connection.Close();
             }
 

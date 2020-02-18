@@ -55,7 +55,7 @@ namespace PostingEngine.PostingRules
 
             if (accountToFrom.To == null)
             {
-                env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
+                env.AddMessage($"Settlement Date : Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
                 return;
             }
 
@@ -140,6 +140,9 @@ namespace PostingEngine.PostingRules
                         toAccount = new AccountUtils().CreateAccount(AccountType.Find("SHORT POSITIONS AT COST"), listOfTags, element);
                     }
                     break;
+                case "debit":
+                    break;
+
             }
 
             return new AccountToFrom
@@ -179,7 +182,7 @@ namespace PostingEngine.PostingRules
                         else
                         {
                             var symbol = element.Symbol;
-                            symbol = _codeMap.ContainsKey(symbol) ? _codeMap[symbol] : symbol;
+                            symbol = env.CodeMap(symbol);
 
                             fromAccount = new AccountUtils().CreateAccount(_paidAccount, symbol + " Paid", element);
                             toAccount = new AccountUtils().CreateAccount(_payableAccount, symbol + " Payable", element);
@@ -200,8 +203,7 @@ namespace PostingEngine.PostingRules
                     }
                     else // Default Action
                     {
-                        var symbol = element.Symbol;
-                        symbol = _codeMap.ContainsKey(symbol) ? _codeMap[symbol] : symbol;
+                        var symbol = env.CodeMap(element.Symbol);
 
                         fromAccount = new AccountUtils().CreateAccount(_paidAccount, symbol + " Paid", element);
                         toAccount = new AccountUtils().CreateAccount(_payableAccount, symbol + " Payable", element);
@@ -233,7 +235,7 @@ namespace PostingEngine.PostingRules
             // Need to consider both
             if (element.TradeDate.Date != element.SettleDate.Date)
             {
-                env.AddMessage($"Journal needs to be checked {element.LpOrderId}, {element.TradeDate}, {element.SettleDate}");
+                env.AddMessage($"Journal needs to be checked {element.LpOrderId}::{element.TradeDate}::{element.SettleDate}");
                 return;
             }
 
@@ -258,7 +260,7 @@ namespace PostingEngine.PostingRules
                 var symbol = allocation != null ? allocation.Symbol : element.ParentSymbol;
                 var securityId = allocation != null ? allocation.SecurityId : element.SecurityId;
 
-                if (symbol == null)
+                if (String.IsNullOrEmpty(symbol))
                     symbol = element.Symbol;
 
                 var debit = new Journal(element)
@@ -302,27 +304,6 @@ namespace PostingEngine.PostingRules
             }
             return validAccrual ;
         }
-
-        internal static Dictionary<string, string> _codeMap = new Dictionary<string, string>() {
-            { "ZZ_AUDIT_FEE", "Audit Fee" },
-            { "ZZ_MANAGEMENT_FEES", "Management Fees" },
-            { "ZZ_ACCOUNTING_FEES", "Acounting Fees" },
-            { "ZZ_ADMINISTRATIVE_FEES", "Administritive Fees" },
-            { "ZZ_CUSTODY_FEES", "Custody Fees" },
-            { "ZZ_LEGAL_FEES", "Legal Fees" },
-            { "ZZ_STOCK_BORROW_FEES", "Stock Borrow Fees" },
-            { "ZZ_BANK_SERVICE_FEES", "Bank Service Fees" },
-            { "ZZ_INVESTOR_CONTRIBUTIONS", "Investor Contributions" },
-            { "ZZ_FINANCING_EXPENSE", "Finance Expense" },
-            { "ZZ_DIRECTORS_FEE", "Directors Fees" },
-            { "ZZ_DNO_INSURANCE", "DNO Insurance" },
-            { "ZZ_TAX_FEE", "Tax Fees" },
-            { "ZZ_AML_FEES", "AML Fees" },
-            { "ZZ_ORGANIZATION_COSTS", "Organization Costs" },
-            { "ZZ_OPERATING_FEE", "Operating Fees" },
-            { "ZZ_RESEARCH_COSTS", "Research Costs" },
-            { "ZZ_INSURANCE_FEES", "Insurance Fees" },
-        };
     }
 }
 

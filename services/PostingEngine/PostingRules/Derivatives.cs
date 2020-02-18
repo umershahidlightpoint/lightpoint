@@ -156,10 +156,7 @@ namespace PostingEngine.PostingRules
 
         public void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
-            double multiplier = 1.0;
-
-            if (env.SecurityDetails.ContainsKey(element.BloombergCode))
-                multiplier = env.SecurityDetails[element.BloombergCode].Multiplier;
+            var multiplier = element.Multiplier(env);
 
             double fxrate = 1.0;
 

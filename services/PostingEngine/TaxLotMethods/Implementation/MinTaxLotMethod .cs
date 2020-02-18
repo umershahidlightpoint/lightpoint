@@ -91,11 +91,7 @@ namespace PostingEngine.TaxLotMethods
         {
             var fxrate = FxRates.Find(env, env.ValueDate, i.Trade.SettleCurrency).Rate;
 
-            double multiplier = 1.0;
-
-            if (env.SecurityDetails.ContainsKey(trade.BloombergCode))
-                multiplier = env.SecurityDetails[trade.BloombergCode].Multiplier;
-
+            var multiplier = trade.Multiplier(env);
 
             if (env.TaxLotStatus.ContainsKey(i.Trade.LpOrderId))
             {

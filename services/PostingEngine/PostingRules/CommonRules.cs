@@ -82,18 +82,8 @@ namespace PostingEngine.PostingRules
         /// <returns></returns>
         public static double CalculateUnrealizedPnl(PostingEngineEnvironment env, TaxLotStatus taxLotStatus, double residualQuantity = 0, double endPrice = 0)
         {
-            double multiplier = 1.0;
-
-            if (env.SecurityDetails.ContainsKey(taxLotStatus.Trade.BloombergCode))
-                multiplier = env.SecurityDetails[taxLotStatus.Trade.BloombergCode].Multiplier;
-
-            double fxrate = 1.0;
-
-            // Lets get fx rate if needed
-            if (!taxLotStatus.Trade.SettleCurrency.Equals(env.BaseCurrency))
-            {
-                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, taxLotStatus.Trade.SettleCurrency).Rate);
-            }
+            var multiplier = taxLotStatus.Trade.Multiplier(env);
+            var fxrate = taxLotStatus.Trade.FxRate(env);
 
             var eodPrice = 0.0;
             var prevEodPrice = 0.0;
@@ -138,10 +128,7 @@ namespace PostingEngine.PostingRules
             var priceDiff = (createdTaxLot.CostBasis - createdTaxLot.TradePrice);
             var realizedPnl = 0.0;
 
-            double multiplier = 1.0;
-
-            if (env.SecurityDetails.ContainsKey(createdTaxLot.Trade.BloombergCode))
-                multiplier = env.SecurityDetails[createdTaxLot.Trade.BloombergCode].Multiplier;
+            var multiplier = createdTaxLot.Trade.Multiplier(env);
 
             double fxrate = 1.0;
 
@@ -639,10 +626,7 @@ namespace PostingEngine.PostingRules
 
         internal static void GenerateCloseOutPostings(PostingEngineEnvironment env, TaxLotDetail lot, TaxLot taxlot, Transaction element, TaxLotStatus taxlotStatus,string fund)
         {
-            double multiplier = 1.0;
-
-            if (env.SecurityDetails.ContainsKey(element.BloombergCode))
-                multiplier = env.SecurityDetails[element.BloombergCode].Multiplier;
+            var multiplier = element.Multiplier(env);
 
             double fxrate = 1.0;
 
@@ -750,11 +734,7 @@ namespace PostingEngine.PostingRules
         internal static void GenerateTradeDateJournals(PostingEngineEnvironment env, TaxLotStatus taxLotStatus, TaxLot closingTaxLot)
         {
             var element = taxLotStatus.Trade;
-
-            double multiplier = 1.0;
-
-            if (env.SecurityDetails.ContainsKey(element.BloombergCode))
-                multiplier = env.SecurityDetails[element.BloombergCode].Multiplier;
+            var multiplier = element.Multiplier(env);
 
             double fxrate = 1.0;
 
@@ -810,11 +790,7 @@ namespace PostingEngine.PostingRules
 
         internal static void GenerateTradeDateJournals(PostingEngineEnvironment env, Transaction element)
         {
-            double multiplier = 1.0;
-
-            if (env.SecurityDetails.ContainsKey(element.BloombergCode))
-                multiplier = env.SecurityDetails[element.BloombergCode].Multiplier;
-
+            var multiplier = element.Multiplier(env);
             double fxrate = 1.0;
 
             // Lets get fx rate if needed

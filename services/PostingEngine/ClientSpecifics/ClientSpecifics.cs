@@ -20,6 +20,9 @@ namespace PostingEngine.ClientSpecifics
             if (!String.IsNullOrEmpty(clientName) && clientName.ToLowerInvariant().Equals("cowen"))
                 return new CowenSpecifics();
 
+            if (!String.IsNullOrEmpty(clientName) && clientName.ToLowerInvariant().Equals("base"))
+                return new BaseSpecifics();
+
             return new DefaultSpecifics();
         }
     }

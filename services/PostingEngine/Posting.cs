@@ -280,9 +280,11 @@ namespace PostingEngine
                 var allocationList = JsonConvert.DeserializeObject<Transaction[]>(allocationsResult.payload);
                 var localTradeList = JsonConvert.DeserializeObject<Transaction[]>(trades.Result);
 
+                var finalTradeList = ClientSpecifics.ClientSpecificsFactory.Get("base").Transform(localTradeList);
+
                 // Defer to the this Factory to determine how the trade list is mutated, if the client is not recognized then
                 // we use the default Specification for the trade List.
-                var finalTradeList = ClientSpecifics.ClientSpecificsFactory.Get(clientName).Transform(localTradeList);
+                finalTradeList = ClientSpecifics.ClientSpecificsFactory.Get(clientName).Transform(finalTradeList);
 
                 var accrualList = JsonConvert.DeserializeObject<Wrap<Accrual>>(accruals.Result).Data;
                 PostingEngineCallBack?.Invoke("Retrieved All Data");

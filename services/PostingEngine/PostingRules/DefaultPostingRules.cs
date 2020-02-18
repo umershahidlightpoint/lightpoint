@@ -15,7 +15,6 @@ using System.Linq;
 
 namespace PostingEngine.PostingRules
 {
-
     // Common functions that are shared across all IPostingRule implementations
     public class DefaultPostingRules
     {
@@ -184,23 +183,8 @@ namespace PostingEngine.PostingRules
 
         internal void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
-            if ( element.LpOrderId.Equals("d27c75c68174479285e385fc9a4f0444") || element.LpOrderId.Equals("c36309a8b72d45f49149a29c667c4803"))
-            {
-
-            }
-            double multiplier = 1.0;
-
-            if (env.SecurityDetails.ContainsKey(element.BloombergCode))
-                multiplier = env.SecurityDetails[element.BloombergCode].Multiplier;
-
-            double fxrate = 1.0;
-
-            // Lets get fx rate if needed
-            if (!element.SettleCurrency.Equals(env.BaseCurrency))
-            {
-                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
-            }
-
+            var multiplier = element.Multiplier(env);
+            var fxrate = element.FxRate(env);
 
             if ( element.IsCredit() || element.IsDebit())
             {

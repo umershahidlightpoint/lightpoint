@@ -238,7 +238,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         },
         {
           field: 'investment_at_cost',
-          headerName: 'IoC',
+          headerName: 'IoC (USD)',
           width: 100,
           filter: true,
           sortable: true,
@@ -247,7 +247,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         },
         {
           field: 'eod_px',
-          headerName: 'EOD Price',
+          headerName: 'EOD px (Local)',
           width: 100,
           filter: true,
           sortable: true,
@@ -256,7 +256,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         },
         {
           field: 'trade_price',
-          headerName: 'Trade Price',
+          headerName: 'Trade px (Local)',
           width: 100,
           filter: true,
           sortable: true,
@@ -265,7 +265,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         },
         {
           field: 'realized',
-          headerName: 'Realized',
+          headerName: 'Realized (USD)',
           width: 100,
           filter: true,
           sortable: true,
@@ -275,7 +275,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         },
         {
           field: 'unrealized',
-          headerName: 'UnRealized',
+          headerName: 'Unrealized (USD)',
           width: 100,
           filter: true,
           sortable: true,
@@ -285,7 +285,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         },
         {
           field: 'net',
-          headerName: 'Net P&L',
+          headerName: 'Net P&L (USD)',
           width: 100,
           filter: true,
           sortable: true,
@@ -296,7 +296,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         ,
         {
           field: 'original_investment_at_cost',
-          headerName: 'Orig IoC',
+          headerName: 'IoC (Local)',
           width: 100,
           filter: true,
           sortable: true,
@@ -307,7 +307,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         ,
         {
           field: 'residual_investment_at_cost',
-          headerName: 'Residual IoC',
+          headerName: 'Residual IoC (Local)',
           width: 100,
           filter: true,
           sortable: true,
