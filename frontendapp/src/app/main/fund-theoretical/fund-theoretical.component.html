@@ -6,7 +6,7 @@
 </div>
 <!-- Hide Grid Div Ends -->
 
-<!-- Div Starts -->
+<!-- Main Div Starts -->
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
 
   <!-- Tab View Tag Starts -->
@@ -14,9 +14,13 @@
 
     <!-- Fund Theoretical Tab Starts -->
     <tab heading="Fund Theoretical" (selectTab)="activeFundTheretical()">
+
+      <!-- Fund Theoretical Container -->
       <div [ngStyle]="style">
+
         <!-- Action Buttons Form Tag Starts -->
         <form>
+
           <!-- Form Row Div Starts -->
           <div class="row">
 
@@ -44,9 +48,11 @@
                 <span *ngIf="commitLoader" class="spinner-border spinner-border-sm" role="status"
                   aria-hidden="true"></span>
               </button>
-              <ng-template #tooltipTemplate>{{isExpanded ? 'Hide Graph' : 'View Graph'}}</ng-template>
-              <button class="btn btn-pa ml-2" type="button" [tooltip]="tooltipTemplate" [disabled]="disableCharts"
-                (click)="expandedClicked()">
+              <ng-template #tooltipTemplate>{{actionFundTheoretical.chartsView ? 'Hide Graph' : 'View Graph'}}
+              </ng-template>
+              <button [disabled]="disableCharts"
+                (click)="actionFundTheoretical.chartsView = !actionFundTheoretical.chartsView" class="btn btn-pa ml-2"
+                [tooltip]="tooltipTemplate" placement="top">
                 <i class="fa fa-line-chart"></i>
               </button>
             </div>
@@ -54,38 +60,54 @@
 
           </div>
           <!-- Form Row Div Ends -->
+
         </form>
         <!-- Action Buttons Form Tag Ends -->
 
-        <!----- Div To Measure Identifier starts ----->
-        <div #divToMeasure>
-          <!----- Style For Height Div Starts----->
-          <div [ngStyle]="styleForHeight">
-            <!----- Row Div Starts ----->
-            <div class="row h-100">
+        <!-- Style For Height Container Starts -->
+        <div [ngStyle]="styleForHeight">
 
-              <!-- App Grid Div Starts -->
-              <div [ngClass]="{'col-6': isExpanded, 'col-12': !isExpanded}">
+          <!-- Main Split Row Starts -->
+          <div class="split-area row h-100">
+
+            <!-- AS Split Main Container -->
+            <as-split class="pl-15 pr-15" disabled="false" direction="horizontal"
+              [useTransition]="actionFundTheoretical.useTransition"
+              (dragEnd)="actionFundTheoretical.fundTheoreticalSize=$event.sizes[0]; actionFundTheoretical.chartsSize=$event.sizes[1];">
+
+              <!-- Fund Theoretical Split Area -->
+              <as-split-area [visible]="actionFundTheoretical.fundTheoreticalView"
+                [size]="actionFundTheoretical.fundTheoreticalSize" order="1">
+
+                <!-- Fund Theoretical Grid -->
                 <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="fundTheoreticalGrid">
                 </ag-grid-angular>
-              </div>
-              <!-- App Grid Div Ends -->
 
-              <!-- App Calculation Graphs Div Starts -->
-              <div *ngIf="isExpanded" class="col-6">
+              </as-split-area>
+              <!-- Fund Theoretical Split Area Ends -->
+
+              <!-- Charts Split Area -->
+              <as-split-area [visible]="actionFundTheoretical.chartsView" [size]="actionFundTheoretical.chartsSize"
+                order="2">
+
                 <app-calculation-graphs class="w-50 h-50" [chartObject]="graphObject" [mode]="'many'">
                 </app-calculation-graphs>
-              </div>
-              <!-- App Calculation Graphs Div Ends -->
 
-            </div>
-            <!----- Row Div Ends ----->
+              </as-split-area>
+              <!-- Charts Split Area Ends -->
+
+            </as-split>
+            <!-- AS Split Main Container Ends -->
 
           </div>
-          <!----- Style For Height Div Ends----->
+          <!-- Main Split Row Ends -->
+
         </div>
-        <!----- Div To Measure Identifier Ends ----->
+        <!-- Style For Height Container Ends -->
+
       </div>
+      <!-- Fund Theoretical Container Ends -->
+
     </tab>
     <!-- Fund Theoretical Tab Ends -->
 
@@ -125,17 +147,17 @@
   <!-- Tab View Tag Ends -->
 
 </div>
-<!-- Div Ends -->
+<!-- Main Div Ends -->
 
 <!-- Data Grid Modal Component Selector Starts -->
 <app-data-grid-modal #dataGridModal [gridTitle]="title">
 </app-data-grid-modal>
-<!-- Data Grid Modal Component Selector Ends -->
 
 <!-- Confirmation Modal Component -->
 <app-confirmation-modal #confirmationModal (confirmDeletion)="confirmReset()" [modalTitle]="'Reset Performance'"
   [modalDescription]="'All your changes will be lost.\nAre you sure you want to reset performance?'">
 </app-confirmation-modal>
 
+<!-- Date Picker Modal Component -->
 <app-date-picker-modal #datePickerModal (dateSelected)="addCustom($event)" [modalTitle]="'Select a Date'">
 </app-date-picker-modal>
