@@ -46,6 +46,21 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
   @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
 
+  gridOptions: CustomGridOptions;
+  closingTaxLots: GridOptions;
+  pinnedBottomRowData;
+  fund: any = 'All Funds';
+  funds: Fund;
+  DateRangeLabel: string;
+  startDate: any;
+  endDate: any;
+  selected: { startDate: moment.Moment; endDate: moment.Moment };
+  data: Array<TrialBalanceReport>;
+  stats: TrialBalanceReportStats;
+  isLoading = false;
+  hideGrid: boolean;
+  journalDate: any;
+  isExpanded = false;
   action: {
     taxLotStatusSize: number;
     closingtaxLotSize: number;
@@ -72,21 +87,6 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     journalView: false,
     useTransition: true
   };
-  pinnedBottomRowData;
-  gridOptions: CustomGridOptions;
-  closingTaxLots: GridOptions;
-  fund: any = 'All Funds';
-  funds: Fund;
-  DateRangeLabel: string;
-  startDate: any;
-  endDate: any;
-  selected: { startDate: moment.Moment; endDate: moment.Moment };
-  data: Array<TrialBalanceReport>;
-  stats: TrialBalanceReportStats;
-  isLoading = false;
-  hideGrid: boolean;
-  journalDate: any;
-  isExpanded = false;
 
   ranges: any = Ranges;
 
@@ -488,6 +488,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         this.data = response.payload;
         this.gridOptions.api.sizeColumnsToFit();
         this.gridOptions.api.setRowData(this.data);
+        this.gridOptions.api.expandAll();
       });
   }
 
@@ -552,8 +553,6 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
     this.setDateRange(dateFilter);
 
-    // Comment out In case we need to enable filter from server side
-    this.getReport(this.startDate, this.endDate, this.filterBySymbol, this.fund);
     this.gridOptions.api.onFilterChanged();
   }
 
