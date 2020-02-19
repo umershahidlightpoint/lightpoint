@@ -47,19 +47,40 @@ export class CreateStockSplitsComponent implements OnInit, OnChanges {
 
   ngOnInit() {
 
+    const pattern = '^[1-9]+$';
     this.stockSplitForm = this.formBuilder.group({
       ticker: ['', Validators.required],
       noticeDate: ['', Validators.required],
       executionDate: ['', Validators.required],
-      topRatio: ['', Validators.required],
-      bottomRatio: ['', Validators.required],
+      topRatio: ['', [Validators.required, Validators.pattern(pattern), Validators.min(1)]],
+      bottomRatio: ['', [Validators.required, Validators.pattern(pattern), Validators.min(1)]],
       adjustmentFactor: ['', Validators.required],
   });
 
+    this.onChanges();
     this.getSymbols();
   }
 
   ngOnChanges(changes: SimpleChanges) {}
+
+  onChanges(): void {
+    this.stockSplitForm.get('topRatio').valueChanges.subscribe(val => {
+      if(val > 0 && this.stockSplitForm.value.bottomRatio > 0){
+        console.log(val, "top ratio");
+        let adjustmentFactor = val/this.stockSplitForm.value.bottomRatio;
+        this.setAdjustmentFactor(adjustmentFactor);
+      }
+      
+    });
+
+    this.stockSplitForm.get('bottomRatio').valueChanges.subscribe(val => {
+      if(val > 0 && this.stockSplitForm.value.topRatio > 0){
+        console.log(val, "bottom ratio");
+        let adjustmentFactor = this.stockSplitForm.value.topRatio/val;
+        this.setAdjustmentFactor(adjustmentFactor);
+      }
+    });
+  }
 
   getSymbols() {
     this.financePocServiceProxy.getSymbol().subscribe(symbol => {
@@ -177,6 +198,12 @@ export class CreateStockSplitsComponent implements OnInit, OnChanges {
   // convenience getter for easy access to form fields
   get formFields() {
     return this.stockSplitForm.controls;
+  }
+
+  setAdjustmentFactor(value){
+    this.stockSplitForm.patchValue({
+      adjustmentFactor: value
+    });
   }
 
   openModal(data) {
