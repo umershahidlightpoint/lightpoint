@@ -1,17 +1,17 @@
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
-import { GridOptions, ColDef, ColGroupDef, RowDoubleClickedEvent } from 'ag-grid-community';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
-import * as moment from 'moment';
+import { GridOptions, RowDoubleClickedEvent } from 'ag-grid-community';
 import { timer, Subject } from 'rxjs';
 import { debounce, finalize } from 'rxjs/operators';
+import * as moment from 'moment';
+import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
+import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
+import { DataService } from '../../../../services/common/data.service';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { ReportsApiService } from 'src/services/reports-api.service';
-import { DataService } from '../../../../services/common/data.service';
 import { Fund } from '../../../../shared/Models/account';
 import { DataDictionary } from 'src/shared/utils/DataDictionary';
 import { AgGridUtils } from 'src/shared/utils/AgGridUtils';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { ContextMenu } from 'src/shared/Models/common';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
@@ -38,7 +38,7 @@ import {
 })
 export class DayPnlComponent implements OnInit, AfterViewInit {
   @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
-  gridOptions: GridOptions;
+  gridOptions: CustomGridOptions;
   portfolioOptions: GridOptions;
   bookmonOptions: GridOptions;
 
@@ -144,18 +144,22 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
       rowData: [],
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      onFilterChanged: this.onFilterChanged.bind(this),
+      /* Custom Method Binding for External Filters from Grid Layout Component */
+      getExternalFilterState: this.getExternalFilterState.bind(this),
+      clearExternalFilter: this.clearFilters.bind(this),
+      setExternalFilter: this.isExternalFilterPassed.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
-      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
-      clearExternalFilter: this.clearFilters.bind(this),
-      getExternalFilterState: this.getExternalFilterState.bind(this),
-      rowSelection: 'single',
+      onFilterChanged: this.onFilterChanged.bind(this),
       onCellClicked: this.rowSelected.bind(this),
       onRowDoubleClicked: this.onRowDoubleClicked.bind(this),
+      rowSelection: 'single',
       rowGroupPanelShow: 'after',
+      animateRows: true,
+      enableFilter: true,
+      suppressHorizontalScroll: false,
       suppressColumnVirtualisation: true,
+      alignedGrids: [],
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
         this.gridColumnApi = params.columnApi;
@@ -181,10 +185,6 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
         });
         params.api.onGroupExpandedOrCollapsed();
       },
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      suppressHorizontalScroll: false,
       columnDefs: [
         {
           field: 'Symbol',
@@ -249,7 +249,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
         resizable: true,
         filter: true
       }
-    } as GridOptions;
+    };
     this.gridOptions.sideBar = SideBar(
       GridId.dayPnlReconcileId,
       GridName.dayPnlReconcile,
@@ -260,10 +260,14 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
       rowData: [],
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      rowSelection: 'single',
       onCellClicked: this.rowSelected.bind(this),
+      rowSelection: 'single',
       rowGroupPanelShow: 'after',
+      animateRows: true,
+      enableFilter: true,
+      suppressHorizontalScroll: false,
       suppressColumnVirtualisation: true,
+      alignedGrids: [],
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
         this.gridColumnApi = params.columnApi;
@@ -275,10 +279,6 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
         });
         params.api.onGroupExpandedOrCollapsed();
       },
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      suppressHorizontalScroll: false,
       columnDefs: [
         {
           field: 'SecurityCode',
@@ -323,9 +323,13 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       rowSelection: 'single',
-      onCellClicked: this.rowSelected.bind(this),
       rowGroupPanelShow: 'after',
+      onCellClicked: this.rowSelected.bind(this),
+      animateRows: true,
+      enableFilter: true,
+      suppressHorizontalScroll: false,
       suppressColumnVirtualisation: true,
+      alignedGrids: [],
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
         this.gridColumnApi = params.columnApi;
@@ -337,10 +341,6 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
         });
         params.api.onGroupExpandedOrCollapsed();
       },
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      suppressHorizontalScroll: false,
       columnDefs: [
         {
           field: 'SecurityCode',

@@ -1,7 +1,7 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
-import { HeightStyle, SideBar, DateFormatter, Ranges } from 'src/shared/utils/Shared';
+import { HeightStyle, SideBar, DateFormatter, Ranges,SetDateRange } from 'src/shared/utils/Shared';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ToastrService } from 'ngx-toastr';
@@ -23,7 +23,7 @@ export class MarketPricesComponent implements OnInit {
   @ViewChild('dataGridModal', { static: false })
   dataGridModal: DataGridModalComponent;
 
-  marketPriceGrid: GridOptions;
+  marketPriceGrid: CustomGridOptions;
   selectedDate = null;
   gridData: any;
   fileToUpload: File = null;
@@ -118,12 +118,11 @@ export class MarketPricesComponent implements OnInit {
       columnDefs: this.getColDefs(),
       rowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      getExternalFilterState: () => {
-        return {};
-      },
+      getExternalFilterState : this.getExternalFilterState.bind(this),
       pinnedBottomRowData: null,
+      setExternalFilter: this.isExternalFilterPassed.bind(this),
       onRowSelected: params => {},
-      clearExternalFilter: () => {},
+      clearExternalFilter: this.clearFilters.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),
@@ -154,7 +153,7 @@ export class MarketPricesComponent implements OnInit {
         sortable: true,
         filter: true
       }
-    } as GridOptions;
+    };
     this.marketPriceGrid.sideBar = SideBar(
       GridId.marketPriceId,
       GridName.marketPrice,
@@ -198,8 +197,36 @@ export class MarketPricesComponent implements OnInit {
     (this.filterBySymbol = ''), (this.selected = null);
     this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
     this.endDate = moment();
+    this.selectedDate = null;
     this.marketPriceGrid.api.setFilterModel(null);
     this.marketPriceGrid.api.onFilterChanged();
+  }
+
+  getExternalFilterState() {
+    return {
+      symbolFilter: this.filterBySymbol,
+      dateFilter: {
+        startDate: this.startDate !== undefined ? this.startDate : '',
+        endDate: this.endDate !== undefined ? this.endDate : ''
+      }
+    };
+  }
+
+  isExternalFilterPassed(object) {
+    const { symbolFilter } = object;
+    const { dateFilter } = object;
+    this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
+    this.setDateRange(dateFilter);
+    this.marketPriceGrid.api.onFilterChanged();
+  }
+
+  setDateRange(dateFilter: any) {
+    const dates = SetDateRange(dateFilter, this.startDate, this.endDate);
+    this.startDate = dates[0];
+    this.endDate = dates[1];
+
+    this.selectedDate =
+      dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
   }
 
   onCellValueChanged(params) {

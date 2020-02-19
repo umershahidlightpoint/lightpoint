@@ -7,7 +7,7 @@ import {
   DateFormatter
 } from 'src/shared/utils/Shared';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { GridLayoutMenuComponent } from 'lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { DecimalPipe } from '@angular/common';

@@ -1,4 +1,9 @@
-<div>
+<div *ngIf="isLoading" class="vw-100 vh-100 d-flex flex-column justify-content-center align-items-center">
+    <p class="h1 text-muted font-weight-light">Please wait!</p>
+    <p class="h5 text-muted font-weight-light">Getting things ready for you...</p>
+</div>
+
+<div [hidden]="isLoading">
     <lp-progress *ngIf="isNavigating" class="navigation-progress position-absolute w-100"></lp-progress>
 
     <lp-header title="Portfolio Accounting">

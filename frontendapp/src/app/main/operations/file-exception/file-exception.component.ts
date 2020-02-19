@@ -1,14 +1,14 @@
-import { Component, OnInit, AfterViewInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, TemplateRef } from '@angular/core';
+import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { take } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
-import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
-import { SideBar, HeightStyle, AutoSizeAllColumns } from 'src/shared/utils/Shared';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { DataService } from 'src/services/common/data.service';
+import { GridLayoutMenuComponent } from 'lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { TemplateRendererComponent } from 'src/app/template-renderer/template-renderer.component';
 import * as moment from 'moment';
+import { TemplateRendererComponent } from 'src/app/template-renderer/template-renderer.component';
+import { DataService } from 'src/services/common/data.service';
 import { FileManagementApiService } from 'src/services/file-management-api.service';
+import { SideBar, HeightStyle, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 
 @Component({
   selector: 'app-file-exception',
@@ -51,13 +51,17 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       pinnedBottomRowData: null,
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       rowGroupPanelShow: 'after',
       pivotPanelShow: 'after',
-      pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
+      pivotColumnGroupTotals: 'after',
+      animateRows: true,
+      enableFilter: true,
+      suppressHorizontalScroll: false,
       suppressColumnVirtualisation: true,
+      alignedGrids: [],
       masterDetail: true,
       detailCellRendererParams: {
         detailGridOptions: {
@@ -79,18 +83,11 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
         getDetailRowData: params => {
           params.successCallback(params.data.exceptionList);
         },
-        getExternalFilterState: () => {
-          return {};
-        },
         onGridReady: params => {},
         onFirstDataRendered: params => {
           AutoSizeAllColumns(params);
           params.api.sizeColumnsToFit();
         },
-        enableFilter: true,
-        animateRows: true,
-        alignedGrids: [],
-        suppressHorizontalScroll: false,
         defaultColDef: {
           sortable: true,
           resizable: true,
@@ -98,7 +95,6 @@ export class FileExceptionComponent implements OnInit, AfterViewInit {
         }
       }
     } as GridOptions;
-
     this.gridOptions.sideBar = SideBar(
       GridId.fileExceptionId,
       GridName.fileException,

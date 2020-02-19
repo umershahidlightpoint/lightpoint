@@ -55,5 +55,49 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return controller.GetDividendDetails();
         }
+
+        // Stock Splits Controller
+
+        [HttpGet]
+        [Route("stockSplits")]
+        public object GetStockSplits()
+        {
+            return controller.GetStockSplits();
+        }
+
+        [HttpPost]
+        [Route("stockSplit")]
+        public object CreateStockSplit(StockSplitInputDto obj)
+        {
+            return controller.CreateStockSplit(obj);
+        }
+
+        [HttpPut]
+        [Route("stockSplit")]
+        public object EditstockSplit(StockSplitInputDto obj)
+        {
+            return controller.EditStockSplit(obj);
+        }
+
+        [HttpPut]
+        [Route("deleteStockSplit")]
+        public object DeleteStockSplit(DeleteStockSplitInputDto obj)
+        {
+            return controller.DeleteStockSplit(obj.Id);
+        }
+
+        [HttpGet]
+        [Route("stockSplitAudit")]
+        public object GetStockSplitAudit(int id)
+        {
+            return controller.StockSplitAudit(id);
+        }
+
+        [HttpGet]
+        [Route("stockSplitDetails")]
+        public object GetStockSplitDetails()
+        {
+            return controller.GetStockSplitDetails();
+        }
     }
 }

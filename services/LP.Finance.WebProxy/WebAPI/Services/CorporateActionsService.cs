@@ -47,7 +47,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         }
 
         public object CreateCashDividend(CashDividendInputDto obj)
-        {  
+        {
             try
             {
                 SqlHelper.VerifyConnection();
@@ -102,7 +102,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             catch (Exception ex)
             {
                 SqlHelper.SqlRollbackTransaction();
-                return Utils.Wrap(false,null,HttpStatusCode.InternalServerError);
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
             finally
             {
@@ -227,6 +227,217 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             try
             {
                 var query = $@"select * from vwDividendDetails";
+
+                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text);
+
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+
+                var json = JsonConvert.DeserializeObject(jsonResult);
+
+                return Utils.Wrap(true, json, HttpStatusCode.OK, "Dividend details fetched successfully");
+            }
+            catch (Exception ex)
+            {
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    "An error occured while fetching dividend details");
+            }
+        }
+
+        // Stock Splits
+
+        public object StockSplitAudit(int id)
+        {
+            try
+            {
+                List<SqlParameter> cashDividendAuditParams = new List<SqlParameter>
+                {
+                    new SqlParameter("id", id)
+                };
+
+                var query = $@"select * from stock_splits_audit_trail where stock_split_id = @id";
+
+                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text, cashDividendAuditParams.ToArray());
+
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+
+                var json = JsonConvert.DeserializeObject(jsonResult);
+
+                return Utils.Wrap(true, json, HttpStatusCode.OK, "StockSplits audit trail fetched successfully");
+            }
+            catch (Exception ex)
+            {
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    "An error occured while fetching stock splits audit trail");
+            }
+        }
+
+        public object CreateStockSplit(StockSplitInputDto obj)
+        {
+            try
+            {
+                SqlHelper.VerifyConnection();
+                var createdDate = DateTime.UtcNow;
+                var createdBy = "user";
+
+                List<SqlParameter> stockSplitParams = new List<SqlParameter>
+                {
+                    new SqlParameter("createdBy", createdBy),
+                    new SqlParameter("createdDate", createdDate),
+                    new SqlParameter("symbol", obj.Symbol),
+                    new SqlParameter("noticeDate", obj.NoticeDate),
+                    new SqlParameter("executionDate", obj.ExecutionDate),
+                    new SqlParameter("topRatio", obj.TopRatio),
+                    new SqlParameter("bottomRatio", obj.BottomRatio),
+                    new SqlParameter("adjustmentFactor", obj.AdjustmentFactor),
+                };
+
+                var query = $@"INSERT INTO [stock_splits]
+                           ([created_by]
+                           ,[created_date]
+                           ,[symbol]
+                           ,[notice_date]
+                           ,[execution_date]
+                           ,[top_ratio]
+                           ,[bottom_ratio]
+                           ,[adjustment_factor])
+                     VALUES
+                           (@createdBy
+                           ,@createdDate
+                           ,@symbol
+                           ,@noticeDate
+                           ,@executionDate
+                           ,@topRatio
+                           ,@bottomRatio
+                           ,@adjustmentFactor)";
+
+                SqlHelper.SqlBeginTransaction();
+                SqlHelper.Insert(query, CommandType.Text, stockSplitParams.ToArray());
+                SqlHelper.SqlCommitTransaction();
+                return Utils.Wrap(true, null, HttpStatusCode.OK);
+
+            }
+            catch (Exception ex)
+            {
+                SqlHelper.SqlRollbackTransaction();
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+            }
+            finally
+            {
+                SqlHelper.CloseConnection();
+            }
+        }
+
+        public object DeleteStockSplit(int id)
+        {
+            try
+            {
+                SqlHelper.VerifyConnection();
+                var lastUpdatedDate = DateTime.UtcNow;
+                var lastUpdatedBy = "user";
+
+                List<SqlParameter> stockSplitParams = new List<SqlParameter>
+                {
+                    new SqlParameter("id", id),
+                    new SqlParameter("lastUpdatedBy", lastUpdatedBy),
+                    new SqlParameter("lastUpdatedDate", lastUpdatedDate)
+                };
+
+                var query = $@"UPDATE [dbo].[stock_splits]
+                           SET [last_updated_by] = @lastUpdatedBy
+                              ,[last_updated_date] = @lastUpdatedDate
+                              ,[active_flag] = 0
+                         WHERE id = @id";
+
+                SqlHelper.SqlBeginTransaction();
+                SqlHelper.Update(query, CommandType.Text, stockSplitParams.ToArray());
+                SqlHelper.SqlCommitTransaction();
+                return Utils.Wrap(true, null, HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                SqlHelper.SqlRollbackTransaction();
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+            }
+            finally
+            {
+                SqlHelper.CloseConnection();
+            }
+        }
+
+        public object EditStockSplit(StockSplitInputDto obj)
+        {
+            try
+            {
+                SqlHelper.VerifyConnection();
+                var lastUpdatedDate = DateTime.UtcNow;
+                var lastUpdatedBy = "user";
+
+                List<SqlParameter> stockSplitParams = new List<SqlParameter>
+                {
+                    new SqlParameter("id", obj.Id),
+                    new SqlParameter("lastUpdatedBy", lastUpdatedBy),
+                    new SqlParameter("lastUpdatedDate", lastUpdatedDate),
+                    new SqlParameter("symbol", obj.Symbol),
+                    new SqlParameter("noticeDate", obj.NoticeDate),
+                    new SqlParameter("executionDate", obj.ExecutionDate),
+                    new SqlParameter("topRatio", obj.TopRatio),
+                    new SqlParameter("bottomRatio", obj.BottomRatio),
+                    new SqlParameter("adjustmentFactor", obj.AdjustmentFactor),
+                };
+
+                var query = $@"UPDATE [dbo].[stock_splits]
+                           SET [last_updated_by] = @lastUpdatedBy
+                              ,[last_updated_date] = @lastUpdatedDate
+                              ,[symbol] = @symbol
+                              ,[notice_date] = @noticeDate
+                              ,[execution_date] = @executionDate
+                              ,[top_ratio] = @topRatio
+                              ,[bottom_ratio] = @bottomRatio
+                              ,[adjustment_factor] = @adjustmentFactor
+                         WHERE id = @id";
+
+                SqlHelper.SqlBeginTransaction();
+                SqlHelper.Update(query, CommandType.Text, stockSplitParams.ToArray());
+                SqlHelper.SqlCommitTransaction();
+                return Utils.Wrap(true, null, HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                SqlHelper.SqlRollbackTransaction();
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+            }
+            finally
+            {
+                SqlHelper.CloseConnection();
+            }
+        }
+
+        public object GetStockSplits()
+        {
+            try
+            {
+                var query = $@"select * from stock_splits where active_flag = 1";
+
+                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text);
+
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+
+                var json = JsonConvert.DeserializeObject(jsonResult);
+
+                return Utils.Wrap(true, json, HttpStatusCode.OK, "StockSplits fetched successfully");
+            }
+            catch (Exception ex)
+            {
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    "An error occured while fetching stock splits");
+            }
+        }
+
+        public object GetStockSplitDetails()
+        {
+            try
+            {
+                var query = $@"select * from vwStockSplitDetails";
 
                 var dataTable = SqlHelper.GetDataTable(query, CommandType.Text);
 

@@ -26,7 +26,7 @@ import { DataService } from '../../../../services/common/data.service';
 import { JournalModalComponent } from '../journals-client-side/journal-modal/journal-modal.component';
 import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
 import { DataModalComponent } from '../../../../shared/Component/data-modal/data-modal.component';
-import { GridLayoutMenuComponent } from '../../../../shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
 import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
 import { AgGridUtils } from '../../../../shared/utils/AgGridUtils';
@@ -65,7 +65,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   rowData: any[] = [];
   isEngineRunning = false;
   hideGrid = false;
-  gridOptions: GridOptions;
+  gridOptions: CustomGridOptions;
   gridLayouts: any;
   colDefs: Array<ColDef | ColGroupDef>;
   pinnedBottomRowData: any;
@@ -471,8 +471,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       pinnedBottomRowData: null,
       /* Custom Method Binding for External Filters for Grid Layout Component */
       getExternalFilterState: this.getExternalFilterState.bind(this),
-      clearExternalFilter: this.clearFilters.bind(this),
-      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
+      clearExternalFilter: this.clearExternalFilter.bind(this),
+      setExternalFilter: this.setExternalFilter.bind(this),
       /* Default Grid Options */
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
@@ -515,7 +515,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         // Data Contains a Group that is returned from the API
         return data ? data.groupCount : 0;
       }
-    } as GridOptions;
+    };
     this.gridOptions.sideBar = SideBar(
       GridId.journalsLedgersId,
       GridName.journalsLedgers,
@@ -627,7 +627,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.gridOptions.api.onFilterChanged();
   }
 
-  isExternalFilterPassed(object) {
+  setExternalFilter(object) {
     const { fundFilter } = object;
     const { symbolFilter } = object;
     const { dateFilter } = object;
@@ -777,7 +777,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     };
   }
 
-  clearFilters() {
+  clearExternalFilter() {
     this.gridOptions.api.redrawRows();
     this.fund = 'All Funds';
     this.filterBySymbol = '';

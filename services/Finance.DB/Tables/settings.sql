@@ -8,5 +8,6 @@
     [currency_code] VARCHAR(100) NOT NULL, 
     [tax_methodology] VARCHAR(100) NOT NULL, 
     [fiscal_month] VARCHAR(20) NOT NULL, 
-    [fiscal_day] INT NOT NULL
+    [fiscal_day] INT NOT NULL, 
+    [theme] VARCHAR(100) NULL
 )

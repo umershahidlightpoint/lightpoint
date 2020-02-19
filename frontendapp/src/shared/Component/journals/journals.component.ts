@@ -1,20 +1,13 @@
-import {
-  Component,
-  OnInit,
-  OnChanges,
-  Input,
-  SimpleChanges
-} from '@angular/core';
-import { FinanceServiceProxy } from '../../../services/service-proxies';
+import { Component, OnInit, OnChanges, Input, SimpleChanges } from '@angular/core';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
-import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
-import { DataService } from 'src/services/common/data.service';
-import { SideBar, AutoSizeAllColumns } from 'src/shared/utils/Shared';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { DataDictionary } from 'src/shared/utils/DataDictionary';
-
 import { Observable } from 'rxjs';
+import { GridLayoutMenuComponent } from 'lp-toolkit';
+import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { DataService } from 'src/services/common/data.service';
+import { FinanceServiceProxy } from '../../../services/service-proxies';
+import { AgGridUtils } from '../../../shared/utils/AgGridUtils';
+import { DataDictionary } from 'src/shared/utils/DataDictionary';
+import { SideBar, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 
 @Component({
   selector: 'app-journals',
@@ -156,16 +149,7 @@ export class JournalsComponent implements OnInit, OnChanges {
       const cdefs = this.agGridUtils.customizeColumns(
         columnDefs,
         this.journalsTradesData.meta.Columns,
-        [
-          'account_id',
-          'id',
-          'value',
-          'source',
-          'generated_by',
-          'Id',
-          'AllocationId',
-          'EMSOrderId'
-        ],
+        ['account_id', 'id', 'value', 'source', 'generated_by', 'Id', 'AllocationId', 'EMSOrderId'],
         false
       );
       this.journalsGridOptions.api.setColumnDefs(cdefs);

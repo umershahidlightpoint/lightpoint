@@ -1,24 +1,24 @@
 import {
   Component,
   OnInit,
+  AfterViewInit,
   ViewChild,
   ElementRef,
-  TemplateRef,
-  AfterViewInit
+  TemplateRef
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { CreateAccountComponent } from './create-account/create-account.component';
-import { AccountApiService } from '../../../services/account-api.service';
 import { GridOptions } from 'ag-grid-community';
-import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
 import { ToastrService } from 'ngx-toastr';
-import { Account, AccountCategory } from '../../../shared/Models/account';
-import { DataService } from 'src/services/common/data.service';
+import { GridLayoutMenuComponent } from 'lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { SideBar, AutoSizeAllColumns, HeightStyle, Style } from 'src/shared/utils/Shared';
-import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
+import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
+import { CreateAccountComponent } from './create-account/create-account.component';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
+import { DataService } from 'src/services/common/data.service';
+import { AccountApiService } from '../../../services/account-api.service';
+import { Account, AccountCategory } from '../../../shared/Models/account';
+import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
+import { SideBar, AutoSizeAllColumns, HeightStyle, Style } from 'src/shared/utils/Shared';
 
 @Component({
   selector: 'app-ledger-form',
@@ -126,17 +126,13 @@ export class AccountComponent implements OnInit, AfterViewInit {
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      getExternalFilterState: () => {
-        return {};
-      },
       pinnedBottomRowData: null,
-      clearExternalFilter: () => {},
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
       pivotPanelShow: 'after',
-      pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
+      pivotColumnGroupTotals: 'after',
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
         params.api.sizeColumnsToFit();

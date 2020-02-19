@@ -1,13 +1,17 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { GridOptions } from 'ag-grid-community';
 import { timer, Subject } from 'rxjs';
 import { debounce } from 'rxjs/operators';
+import * as moment from 'moment';
+import { DataService } from '../../../../services/common/data.service';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
+import { ReportsApiService } from 'src/services/reports-api.service';
 import { Fund } from '../../../../shared/Models/account';
 import {
   TrialBalanceReport,
   TrialBalanceReportStats
 } from '../../../../shared/Models/trial-balance';
-import { DataService } from '../../../../services/common/data.service';
+import { GraphObject } from 'src/shared/Models/graph-object';
 import {
   Ranges,
   Style,
@@ -24,15 +28,11 @@ import {
   FormatDate,
   DateFormatter
 } from 'src/shared/utils/Shared';
-import { GridOptions } from 'ag-grid-community';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
+import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
+import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
-import * as moment from 'moment';
-import { GraphObject } from 'src/shared/Models/graph-object';
-import { ReportsApiService } from 'src/services/reports-api.service';
 
 @Component({
   selector: 'rep-costbasis',
@@ -40,7 +40,7 @@ import { ReportsApiService } from 'src/services/reports-api.service';
   styleUrls: ['./costbasis.component.scss']
 })
 export class CostBasisComponent implements OnInit, AfterViewInit {
-  gridOptions: GridOptions;
+  gridOptions: CustomGridOptions;
   timeseriesOptions: GridOptions;
   gridColumnApi;
   pinnedBottomRowData;
@@ -154,18 +154,22 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.gridOptions = {
       rowData: null,
       pinnedBottomRowData: null,
-      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      onFilterChanged: this.onFilterChanged.bind(this),
+      /* Custom Method Binding for External Filters from Grid Layout Component */
+      getExternalFilterState: this.getExternalFilterState.bind(this),
+      clearExternalFilter: this.clearFilters.bind(this),
+      setExternalFilter: this.isExternalFilterPassed.bind(this),
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
-      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
-      isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
-      clearExternalFilter: this.clearFilters.bind(this),
-      getExternalFilterState: this.getExternalFilterState.bind(this),
-      rowSelection: 'single',
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      onFilterChanged: this.onFilterChanged.bind(this),
       onCellClicked: this.rowSelected.bind(this),
+      rowSelection: 'single',
       rowGroupPanelShow: 'after',
+      animateRows: true,
+      enableFilter: true,
+      suppressHorizontalScroll: false,
       suppressColumnVirtualisation: true,
+      alignedGrids: [],
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
         this.gridColumnApi = params.columnApi;
@@ -177,10 +181,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
         });
         params.api.onGroupExpandedOrCollapsed();
       },
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      suppressHorizontalScroll: false,
       columnDefs: [
         {
           field: 'symbol',
@@ -259,7 +259,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
         resizable: true,
         filter: true
       }
-    } as GridOptions;
+    };
     this.gridOptions.sideBar = SideBar(GridId.costBasisId, GridName.costBasis, this.gridOptions);
 
     this.timeseriesOptions = {
@@ -268,7 +268,11 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
+      animateRows: true,
+      enableFilter: true,
+      suppressHorizontalScroll: false,
       suppressColumnVirtualisation: true,
+      alignedGrids: [],
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
         this.gridColumnApi = params.columnApi;
@@ -280,10 +284,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
         });
         params.api.onGroupExpandedOrCollapsed();
       },
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      suppressHorizontalScroll: false,
       columnDefs: [
         {
           field: 'Date',
@@ -430,7 +430,8 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       chartData != null ? moment(chartData[0].BusinessDate).format('YYYY-MM-DD') : null;
     data[symbol] = [];
 
-    for (let item in chartData) {
+    // tslint:disable-next-line: forin
+    for (const item in chartData) {
       data[symbol].push({
         date: moment(chartData[item].BusinessDate).format('YYYY-MM-DD'),
         value: chartData[item].Price

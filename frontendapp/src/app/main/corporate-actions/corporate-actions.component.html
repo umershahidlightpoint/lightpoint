@@ -8,4 +8,13 @@
         </div>
       </div>
     </tab>
+
+    <tab heading="Stock Splits" (selectTab)="activeStockSplits()">
+      <div [ngStyle]="style">
+        <div class="clearfix"></div>
+        <div [ngStyle]="styleForHeight">
+          <app-stock-splits *ngIf="stockSplits"></app-stock-splits>
+        </div>
+      </div>
+    </tab>
   </tabset>

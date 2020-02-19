@@ -39,17 +39,22 @@
 
             <!-- Update Layout Button -->
             <div class="col-md-4 pl-1 pr-0">
-                <button class="btn btn-sm btn-primary btn-block" [disabled]="selectedLayoutIsPublic"
-                    (click)="onUpdateLayout()">
-                    Update
+                <button class="btn btn-sm btn-primary btn-block" type="button"
+                    [disabled]="selectedLayoutIsPublic || isUpdating" (click)="onUpdateLayout()">
+                    <span *ngIf="isUpdating" class="spinner-border spinner-border-sm" role="status"
+                        aria-hidden="true"></span>
+                    <span [hidden]="isUpdating">Update</span>
                 </button>
             </div>
             <!-- Update Layout Button Ends -->
 
             <!-- Delete Layout Button -->
             <div class="col-md-4 pl-1 pr-2">
-                <button class="btn btn-sm btn-primary btn-block" (click)="onDeleteLayout()">
-                    Delete
+                <button class="btn btn-sm btn-primary btn-block" type="button" [disabled]="isDeleting"
+                    (click)="onDeleteLayout()">
+                    <span *ngIf="isDeleting" class="spinner-border spinner-border-sm" role="status"
+                        aria-hidden="true"></span>
+                    <span [hidden]="isDeleting">Delete</span>
                 </button>
             </div>
             <!-- Delete Layout Button Ends -->
@@ -117,8 +122,11 @@
 
                 <!-- Save Layout Button -->
                 <div class="col-md-4 pl-0">
-                    <button [disabled]="layoutForm.invalid" type="submit" class="btn btn-sm btn-primary btn-block">
-                        Save
+                    <button class="btn btn-sm btn-primary btn-block" type="submit"
+                        [disabled]="layoutForm.invalid || isSaving">
+                        <span *ngIf="isSaving" class="spinner-border spinner-border-sm" role="status"
+                            aria-hidden="true"></span>
+                        <span [hidden]="isSaving">Save</span>
                     </button>
                 </div>
                 <!-- Save Layout Button Ends -->

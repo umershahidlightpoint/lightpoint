@@ -112,7 +112,7 @@
         <as-split-area [visible]="actionCostBasis.chartsView" [size]="actionCostBasis.chartsSize" order="2">
 
           <!-- Charts Wrapper -->
-          <div class="line-chart-wrapper d-flex flex-wrap">
+          <div *ngIf="actionCostBasis.chartsView" class="line-chart-wrapper d-flex flex-wrap">
 
             <!-- Charts Tab Set -->
             <tabset class="w-100">

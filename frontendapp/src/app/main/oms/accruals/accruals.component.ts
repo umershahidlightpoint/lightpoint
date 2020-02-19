@@ -1,11 +1,11 @@
-import { Component, ElementRef, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { FinanceServiceProxy } from '../../../../services/service-proxies';
+import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { GridOptions } from 'ag-grid-community';
-import { AgGridUtils } from '../../../../shared/utils/AgGridUtils';
-import { DataModalComponent } from '../../../../shared/Component/data-modal/data-modal.component';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { DataService } from 'src/services/common/data.service';
+import { GridLayoutMenuComponent } from 'lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { DataModalComponent } from '../../../../shared/Component/data-modal/data-modal.component';
+import { DataService } from 'src/services/common/data.service';
+import { FinanceServiceProxy } from '../../../../services/service-proxies';
+import { AgGridUtils } from '../../../../shared/utils/AgGridUtils';
 import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';
 
 @Component({
@@ -134,53 +134,49 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
     this.gridOptions = {
       rowData: null,
       columnDefs: this.columnDefs,
-      onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      onGridReady: params => {},
-      onFirstDataRendered: params => {
-        AutoSizeAllColumns(params);
-      },
-      getExternalFilterState: () => {
-        return {};
-      },
-      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
+      onCellDoubleClicked: this.openModal.bind(this),
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
       pivotPanelShow: 'always',
       pivotColumnGroupTotals: 'after',
       pivotRowTotals: 'after',
-      enableFilter: true,
       animateRows: true,
-      alignedGrids: [],
+      enableFilter: true,
       suppressHorizontalScroll: false,
       suppressColumnVirtualisation: true,
-      defaultColDef: this.defaultColDef
+      alignedGrids: [],
+      defaultColDef: this.defaultColDef,
+      onGridReady: params => {},
+      onFirstDataRendered: params => {
+        AutoSizeAllColumns(params);
+      }
     } as GridOptions;
     this.gridOptions.sideBar = SideBar(GridId.accrualsId, GridName.accruals, this.gridOptions);
 
     this.allocationsGridOptions = {
       rowData: [],
       columnDefs: this.columnDefs,
-      onCellDoubleClicked: this.openModal.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      onCellDoubleClicked: this.openModal.bind(this),
+      rowSelection: 'single',
+      rowGroupPanelShow: 'after',
+      pivotPanelShow: 'always',
+      pivotColumnGroupTotals: 'after',
+      pivotRowTotals: 'after',
+      animateRows: true,
+      enableFilter: true,
+      suppressHorizontalScroll: false,
+      suppressColumnVirtualisation: true,
+      alignedGrids: [],
+      defaultColDef: this.defaultColDef,
       onGridReady: params => {},
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
       },
       getExternalFilterState: () => {
         return {};
-      },
-      rowSelection: 'single',
-      rowGroupPanelShow: 'after',
-      pivotPanelShow: 'always',
-      pivotColumnGroupTotals: 'after',
-      pivotRowTotals: 'after',
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      suppressHorizontalScroll: false,
-      suppressColumnVirtualisation: true,
-      defaultColDef: this.defaultColDef
+      }
     } as GridOptions;
     this.allocationsGridOptions.sideBar = SideBar(
       GridId.selectedAccrualsId,
@@ -208,6 +204,4 @@ export class AccrualsComponent implements OnInit, AfterViewInit {
       });
     }
   }
-
-  isExternalFilterPresent() {}
 }
