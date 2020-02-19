@@ -17,6 +17,7 @@ import { SettingApiService } from 'src/services/setting-api.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
+  public isLoading = false;
   public userPages: Page[] = [
     {
       name: 'Reports',
@@ -104,6 +105,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.isLoading = true;
     this.getSettings();
   }
 
@@ -114,8 +116,11 @@ export class AppComponent implements OnInit {
           this.themeService.setActiveTheme(response.payload[0].theme);
         } else if (response.isSuccessful && response.statusCode === 404) {
         }
+        this.isLoading = false;
       },
-      error => {}
+      error => {
+        this.isLoading = false;
+      }
     );
   }
 }
