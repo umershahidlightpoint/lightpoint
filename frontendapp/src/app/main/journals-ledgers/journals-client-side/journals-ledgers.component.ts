@@ -122,7 +122,7 @@ export class JournalsLedgersComponent implements OnInit, AfterViewInit {
   initGird() {
     this.gridOptions = {
       rowData: null,
-      /* Custom Method Binding to Clear External Filters from Grid Layout Component */
+      /* Custom Method Binding for External Filters from Grid Layout Component */
       isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
       isExternalFilterPassed: this.isExternalFilterPassed.bind(this),
       doesExternalFilterPass: this.doesExternalFilterPass.bind(this),

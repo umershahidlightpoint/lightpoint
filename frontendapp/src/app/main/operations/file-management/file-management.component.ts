@@ -1,15 +1,15 @@
-import { Component, TemplateRef, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, TemplateRef } from '@angular/core';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
-import { TemplateRendererComponent } from '../../../template-renderer/template-renderer.component';
-import { File } from 'src/shared/models/files';
-import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { ToastrService } from 'ngx-toastr';
+import { GridLayoutMenuComponent } from 'lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import * as moment from 'moment';
+import { TemplateRendererComponent } from '../../../template-renderer/template-renderer.component';
+import { FileManagementApiService } from 'src/services/file-management-api.service';
+import { File } from 'src/shared/models/files';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
-import * as moment from 'moment';
-import { FileManagementApiService } from 'src/services/file-management-api.service';
+import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';
 
 @Component({
   selector: 'app-file-management',
@@ -57,20 +57,16 @@ export class FileManagementComponent implements OnInit, AfterViewInit {
     this.filesGridOptions = {
       rowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      getExternalFilterState: () => {
-        return {};
-      },
+      animateRows: true,
+      enableFilter: true,
+      suppressHorizontalScroll: false,
+      suppressColumnVirtualisation: true,
+      alignedGrids: [],
       onGridReady: params => {},
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
-      },
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      suppressHorizontalScroll: false,
-      suppressColumnVirtualisation: true
+      }
     } as GridOptions;
-
     this.filesGridOptions.getRowStyle = params => {
       if (params.data.exceptions) {
         return { backgroundColor: '#ffcfcf' };

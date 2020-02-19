@@ -42,6 +42,9 @@ export class GridLayoutMenuComponent implements IToolPanel {
   public activeGridLayout: GridLayout;
   public selectedLayoutIsPublic = false;
   public isLayoutFormMode = false;
+  public isSaving = false;
+  public isUpdating = false;
+  public isDeleting = false;
 
   constructor(
     private cdRef: ChangeDetectorRef,
@@ -83,6 +86,8 @@ export class GridLayoutMenuComponent implements IToolPanel {
   }
 
   onSelectLayout(layout: GridLayout) {
+    this.params.gridOptions.api.showLoadingOverlay();
+
     if (layout && layout.Id === 0) {
       this.onResetLayout();
 
@@ -94,51 +99,64 @@ export class GridLayoutMenuComponent implements IToolPanel {
 
     this.gridLayoutAPIService
       .getGridLayout(this.params.layoutServices.getLayoutDetail, layout.Id)
-      .subscribe(response => {
-        if (this.params.dataSource) {
-          this.params.gridOptions.api.setServerSideDatasource(null);
-        }
+      .subscribe(
+        response => {
+          this.params.gridOptions.api.hideOverlay();
 
-        this.params.gridOptions.columnApi.setColumnState(
-          JSON.parse(response[this.dataProperty].ColumnState)
-        );
-        this.params.gridOptions.columnApi.setPivotMode(
-          JSON.parse(response[this.dataProperty].PivotMode)
-        );
-        this.params.gridOptions.api.setSortModel(JSON.parse(response[this.dataProperty].SortState));
-        this.params.gridOptions.api.setFilterModel(
-          JSON.parse(response[this.dataProperty].FilterState)
-        );
-        if ((this.params.gridOptions as CustomGridOptions).setExternalFilter) {
-          (this.params.gridOptions as CustomGridOptions).setExternalFilter(
-            JSON.parse(response[this.dataProperty].ExternalFilterState)
+          if (this.params.dataSource) {
+            this.params.gridOptions.api.setServerSideDatasource(null);
+          }
+
+          this.params.gridOptions.columnApi.setColumnState(
+            JSON.parse(response[this.dataProperty].ColumnState)
           );
-        }
+          this.params.gridOptions.columnApi.setPivotMode(
+            JSON.parse(response[this.dataProperty].PivotMode)
+          );
+          this.params.gridOptions.api.setSortModel(
+            JSON.parse(response[this.dataProperty].SortState)
+          );
+          this.params.gridOptions.api.setFilterModel(
+            JSON.parse(response[this.dataProperty].FilterState)
+          );
+          if ((this.params.gridOptions as CustomGridOptions).setExternalFilter) {
+            (this.params.gridOptions as CustomGridOptions).setExternalFilter(
+              JSON.parse(response[this.dataProperty].ExternalFilterState)
+            );
+          }
 
-        const leftPinnedColumns = JSON.parse(response[this.dataProperty].ColumnState)
-          .filter(element => element.pinned === 'left')
-          .map(element => element.colId);
-        const rightPinnedColumns = JSON.parse(response[this.dataProperty].ColumnState)
-          .filter(element => element.pinned === 'right')
-          .map(element => element.colId);
-        if (leftPinnedColumns.length > 0) {
-          this.params.gridOptions.columnApi.setColumnsPinned(leftPinnedColumns, 'left');
-        }
-        if (rightPinnedColumns.length > 0) {
-          this.params.gridOptions.columnApi.setColumnsPinned(rightPinnedColumns, 'right');
-        }
+          const leftPinnedColumns = JSON.parse(response[this.dataProperty].ColumnState)
+            .filter(element => element.pinned === 'left')
+            .map(element => element.colId);
+          const rightPinnedColumns = JSON.parse(response[this.dataProperty].ColumnState)
+            .filter(element => element.pinned === 'right')
+            .map(element => element.colId);
+          if (leftPinnedColumns.length > 0) {
+            this.params.gridOptions.columnApi.setColumnsPinned(leftPinnedColumns, 'left');
+          }
+          if (rightPinnedColumns.length > 0) {
+            this.params.gridOptions.columnApi.setColumnsPinned(rightPinnedColumns, 'right');
+          }
 
-        if (this.params.dataSource) {
-          this.params.gridOptions.api.setServerSideDatasource(this.params.dataSource);
+          if (this.params.dataSource) {
+            this.params.gridOptions.api.setServerSideDatasource(this.params.dataSource);
+          }
+        },
+        error => {
+          this.params.gridOptions.api.hideOverlay();
         }
-      });
+      );
   }
 
   onSaveLayout() {
+    this.isSaving = true;
+
     this.saveLayout(0);
   }
 
   onUpdateLayout() {
+    this.isUpdating = true;
+
     if (this.selectedLayoutIsPublic) {
       this.toastrService.error('Public Grid layouts are not editable!');
     } else {
@@ -162,7 +180,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
       FilterState: JSON.stringify(this.params.gridOptions.api.getFilterModel()),
       ExternalFilterState: (this.params.gridOptions as CustomGridOptions).getExternalFilterState
         ? JSON.stringify((this.params.gridOptions as CustomGridOptions).getExternalFilterState())
-        : {},
+        : JSON.stringify({}),
       IsPublic: this.isLayoutFormMode
         ? this.layoutForm.value.publicLayout
           ? true
@@ -172,23 +190,40 @@ export class GridLayoutMenuComponent implements IToolPanel {
 
     this.gridLayoutAPIService
       .saveGridLayout(this.params.layoutServices.saveGridLayout, gridLayoutPayload)
-      .subscribe(response => {
-        if (this.isLayoutFormMode) {
-          this.isLayoutFormMode = false;
-          this.layoutForm.resetForm();
-        }
+      .subscribe(
+        response => {
+          if (this.isLayoutFormMode) {
+            this.isLayoutFormMode = false;
+            this.layoutForm.resetForm();
+          }
 
-        this.getGridLayouts();
-      });
+          this.isSaving = false;
+          this.isUpdating = false;
+          this.getGridLayouts();
+        },
+        error => {
+          this.isSaving = false;
+          this.isUpdating = false;
+        }
+      );
   }
 
   onConfirmDeleteLayout() {
+    this.isDeleting = true;
+
     this.gridLayoutAPIService
       .deleteGridLayout(this.params.layoutServices.deleteGridLayout, this.activeGridLayout.Id)
-      .subscribe(response => {
-        this.onResetLayout();
-        this.getGridLayouts();
-      });
+      .subscribe(
+        response => {
+          this.isDeleting = false;
+
+          this.onResetLayout();
+          this.getGridLayouts();
+        },
+        error => {
+          this.isDeleting = false;
+        }
+      );
   }
 
   trackByFn(index, item) {
@@ -202,8 +237,8 @@ export class GridLayoutMenuComponent implements IToolPanel {
     this.params.gridOptions.columnApi.resetColumnGroupState();
     this.params.gridOptions.api.setSortModel([]);
     this.params.gridOptions.api.setFilterModel({});
-    if ((this.params.gridOptions as CustomGridOptions).clearExternalFilters) {
-      (this.params.gridOptions as CustomGridOptions).clearExternalFilters();
+    if ((this.params.gridOptions as CustomGridOptions).clearExternalFilter) {
+      (this.params.gridOptions as CustomGridOptions).clearExternalFilter();
     }
 
     GridUtils.autoSizeAllColumns(this.params.gridOptions);
