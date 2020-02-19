@@ -109,6 +109,7 @@ export class SettingsComponent implements OnInit {
 
           this.settingId = response.payload[0].id;
           this.settingsForm.form.patchValue({
+            theme: response.payload[0].theme,
             currency: response.payload[0].currency_code,
             methodology: response.payload[0].tax_methodology,
             month: response.payload[0].fiscal_month
@@ -130,6 +131,7 @@ export class SettingsComponent implements OnInit {
     this.isSaving = true;
     const payload = {
       id: this.settingId,
+      theme: this.settingsForm.value.theme,
       currencyCode: this.settingsForm.value.currency,
       taxMethodology: this.settingsForm.value.methodology,
       fiscalMonth: this.settingsForm.value.month,

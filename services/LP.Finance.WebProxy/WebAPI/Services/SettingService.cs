@@ -59,6 +59,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("createdBy", createdBy),
                     new SqlParameter("createdDate", createdDate),
                     new SqlParameter("lastUpdatedDate", createdDate),
+                    new SqlParameter("theme", setting.Theme),
                     new SqlParameter("currencyCode", setting.CurrencyCode),
                     new SqlParameter("taxMethodology", setting.TaxMethodology),
                     new SqlParameter("fiscalMonth", setting.FiscalMonth),
@@ -67,10 +68,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var query = $@"INSERT INTO [settings]
                                     ([created_by], [created_date], [last_updated_date], [currency_code], [tax_methodology], [fiscal_month]
-                                    ,[fiscal_day])
+                                    ,[fiscal_day], [theme])
                                     VALUES
                                     (@createdBy, @createdDate, @lastUpdatedDate, @currencyCode, @taxMethodology, @fiscalMonth
-                                    ,@fiscalDay)";
+                                    ,@fiscalDay, @theme)";
 
                 sqlHelper.Insert(query, CommandType.Text, settingParameters.ToArray());
                 sqlHelper.CloseConnection();
@@ -102,6 +103,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("createdBy", createdBy),
                     new SqlParameter("lastUpdatedBy", createdBy),
                     new SqlParameter("lastUpdatedDate", lastUpdatedDate),
+                    new SqlParameter("theme", setting.Theme),
                     new SqlParameter("currencyCode", setting.CurrencyCode),
                     new SqlParameter("taxMethodology", setting.TaxMethodology),
                     new SqlParameter("fiscalMonth", setting.FiscalMonth),
@@ -117,6 +119,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                             ,[tax_methodology] = @taxMethodology
                             ,[fiscal_month] = @fiscalMonth
                             ,[fiscal_day] = @fiscalDay
+                            ,[theme] = @theme
                             WHERE [settings].[id] = @id";
 
                 sqlHelper.Update(settingQuery, CommandType.Text, settingParameters.ToArray());
@@ -145,7 +148,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                 currency_code, 
                                 tax_methodology, 
                                 fiscal_month, 
-                                fiscal_day
+                                fiscal_day,
+                                theme
                                FROM settings";
 
 
