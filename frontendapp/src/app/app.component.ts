@@ -7,8 +7,9 @@ import {
   NavigationCancel,
   NavigationError
 } from '@angular/router';
+import { ThemeService, Page } from 'lp-toolkit';
 import { ServicesStatusApiService } from '../services/services-status-api.service';
-import { Page } from 'lp-toolkit';
+import { SettingApiService } from 'src/services/setting-api.service';
 
 @Component({
   selector: 'app-root',
@@ -78,7 +79,12 @@ export class AppComponent implements OnInit {
 
   isNavigating = false;
 
-  constructor(private router: Router, public servicesStatusApiService: ServicesStatusApiService) {
+  constructor(
+    private router: Router,
+    private themeService: ThemeService,
+    public servicesStatusApiService: ServicesStatusApiService,
+    private settingApiService: SettingApiService
+  ) {
     // Only Hit API, Once Navigation Finish
     this.router.events.subscribe((event: Event) => {
       if (event instanceof NavigationStart) {
@@ -97,5 +103,19 @@ export class AppComponent implements OnInit {
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.getSettings();
+  }
+
+  getSettings() {
+    this.settingApiService.getSettings().subscribe(
+      response => {
+        if (response.isSuccessful && response.statusCode === 200) {
+          this.themeService.setActiveTheme(response.payload[0].theme);
+        } else if (response.isSuccessful && response.statusCode === 404) {
+        }
+      },
+      error => {}
+    );
+  }
 }

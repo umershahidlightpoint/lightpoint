@@ -43,7 +43,7 @@
 
             <!-- App Theme Dropdown -->
             <h4 class="mt-2">Application Theme</h4>
-            <lp-select-theme #themeSelect="ngModel" ngModel="blue" name="theme" required></lp-select-theme>
+            <lp-select-theme #themeSelect="ngModel" ngModel name="theme" required></lp-select-theme>
 
             <p class="form-text text-danger" *ngIf="themeSelect.invalid && themeSelect.touched">*Please select a
               theme</p>
