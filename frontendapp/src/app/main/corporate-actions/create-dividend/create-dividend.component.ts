@@ -65,15 +65,9 @@ export class CreateDividendComponent implements OnInit, OnChanges {
 
     this.getCurrencies();
     this.getSymbols();
-    this.getDividends();
   }
 
   ngOnChanges(changes: SimpleChanges) {}
-
-  getDividends() {
-    this.corporateActionsApiService.getDividends().subscribe(data => {
-    });
-  }
 
   getCurrencies() {
     this.settingApiService.getReportingCurrencies().subscribe(currencies => {

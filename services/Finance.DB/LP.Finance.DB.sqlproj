@@ -159,6 +159,8 @@
     <Build Include="Views\vwDividendDetails.sql" />
     <Build Include="Views\vwCostBasis.sql" />
     <Build Include="Tables\configurations.sql" />
+    <Build Include="Tables\stock_splits.sql" />
+    <Build Include="Tables\stock_splits_audit_trail.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">

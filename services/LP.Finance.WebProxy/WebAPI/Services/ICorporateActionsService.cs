@@ -15,5 +15,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object DeleteCashDividend(int id);
         object CashDividendAudit(int id);
         object GetDividendDetails();
+        // StockSplits
+        object GetStockSplits();
+        object CreateStockSplit(StockSplitInputDto obj);
+        object EditStockSplit(StockSplitInputDto obj);
+        object DeleteStockSplit(int id);
+        object StockSplitAudit(int id);
+        object GetStockSplitDetails();
     }
 }

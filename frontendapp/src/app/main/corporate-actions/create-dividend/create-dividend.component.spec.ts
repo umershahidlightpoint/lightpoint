@@ -183,9 +183,9 @@ fdescribe('CreateDividendComponent', () => {
 
       expect(component.currencies$).toBeGreaterThanOrEqual(1);
   });
-      const request = httpTestingController.match(baseUrl + '/setting/currency');
-      // expect(request.request.method).toBe('GET');
-      // request.flush(dummyCurrencies);
+      const request = httpTestingController.expectOne(baseUrl + '/setting/currency');
+      expect(request.request.method).toBe('GET');
+      request.flush(dummyCurrencies);
   });
 });
 
@@ -376,9 +376,9 @@ fdescribe('CreateDividendComponent', () => {
 
     expect(component.ticker$).toBeGreaterThanOrEqual(1);
 });
-    const request = httpTestingController.match(refUrl + '/refdata/data?refdata=symbol');
-    // expect(request.request.method).toBe('GET');
-    // request.flush(dummySymbols);
+    const request = httpTestingController.expectOne(refUrl + '/refdata/data?refdata=symbol');
+    expect(request.request.method).toBe('GET');
+    request.flush(dummySymbols);
 });
 });
 

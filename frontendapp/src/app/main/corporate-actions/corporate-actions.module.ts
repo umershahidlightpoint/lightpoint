@@ -17,12 +17,14 @@ import { CorporateActionsRoutes } from './corporate-actions.route';
 
 import { SharedModule } from 'src/app/shared.module';
 import { CreateDividendComponent } from './create-dividend/create-dividend.component';
+import { CreateStockSplitsComponent } from './stock-splits/create-stock-splits/create-stock-splits.component';
 
 const corporateActionsComponents = [
   CorporateActionsComponent,
   DividendsComponent,
   CreateDividendComponent,
-  StockSplitsComponent
+  StockSplitsComponent,
+  CreateStockSplitsComponent
 ];
 
 @NgModule({

@@ -1,7 +1,85 @@
-<!-- <ag-grid-angular
- class="w-100 h-100 ag-theme-balham"
+
+  <div class="row">
+
+    <!-- Symbol Filter -->
+    <div class="col-auto">
+      <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol" [(ngModel)]="filterBySymbol"
+        (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" />
+    </div>
+    <!-- Symbol Filter Ends -->
+
+    <!-- Date Picker Div Starts -->
+    <div class="col-auto">
+      <form>
+        <input ngxDaterangepickerMd
+            class="form-control"
+            type="text"
+            placeholder="Choose date"
+            [(ngModel)]="selected"
+            (ngModelChange)="ngModelChangeDates($event)"
+            name=" selected"
+            [autoApply]="true"
+            [alwaysShowCalendars]="true"
+            [keepCalendarOpeningWithRange]="true"
+           />
+      </form>
+    </div>
+    <!-- Date Picker Div Ends -->
+
+    <!-- Clear Button Div Starts -->
+    <div class="col-auto">
+      <button (click)="clearFilters()" class="btn btn-pa" value="clear" tooltip="Clear" placement="top">
+        <i class="fa fa-remove"></i>
+      </button>
+    </div>
+    <!-- Clear Button Div Ends -->
+
+    <!-- Util Buttons Div Starts -->
+    <div class="col-auto ml-auto" style="margin-right: 40px;">
+
+      <!-- Refresh Button Div Starts -->
+      <div class="mr-2 d-inline-block">
+        <button (click)="refreshReport()" class="btn btn-pa" value="refresh" tooltip="Refresh" placement="top">
+          <i class="fa fa-refresh"></i></button>
+      </div>
+      <!-- Refresh Button Div Ends -->
+
+      <div class="d-inline-block add-journal-btn">
+        <button class="btn btn-pa" type="button" value="showModal" (click)="openStockSplitModal()" tooltip="Create StockSplits"
+          placement="top">
+          <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+      </div>
+
+    </div>
+    <!-- Util Buttons Div Ends -->
+
+  </div>
+
+<ag-grid-angular
+ class="w-100 height-45 ag-theme-balham"
+ style="margin-top: 20px;"
  [gridOptions]="gridOptions"
  (rowSelected)="onRowSelected($event)"
  [rowData]="rowData"
- >
-</ag-grid-angular> -->
+>
+</ag-grid-angular>
+
+<h4>Details</h4>
+
+<ag-grid-angular
+ class="w-100 height-45 ag-theme-balham"
+ style="margin-top: 20px;"
+ [gridOptions]="stockSplitDetailsGrid"
+ (rowSelected)="onRowSelected($event)"
+ [rowData]="rowData"
+>
+</ag-grid-angular>
+
+<app-create-stock-splits #stockSplitsModal (modalClose)="closeStockSplitModal()" [stockSplits]="data">
+</app-create-stock-splits>
+
+<!-- Data Grid Modal Component Selector Starts -->
+<app-data-grid-modal #dataGridModal [gridTitle]="title">
+</app-data-grid-modal>
+<!-- Data Grid Modal Component Selector Ends -->
