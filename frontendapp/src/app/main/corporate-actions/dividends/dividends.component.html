@@ -28,7 +28,7 @@
 
     <!-- Clear Button Div Starts -->
     <div class="col-auto">
-      <button (click)="clearFilters()" class="btn btn-pa" tooltip="Clear" placement="top">
+      <button (click)="clearFilters()" class="btn btn-pa" value="clear" tooltip="Clear" placement="top">
         <i class="fa fa-remove"></i>
       </button>
     </div>
@@ -39,13 +39,13 @@
 
       <!-- Refresh Button Div Starts -->
       <div class="mr-2 d-inline-block">
-        <button (click)="refreshReport()" class="btn btn-pa" tooltip="Refresh" placement="top">
+        <button (click)="refreshReport()" class="btn btn-pa" value="refresh" tooltip="Refresh" placement="top">
           <i class="fa fa-refresh"></i></button>
       </div>
       <!-- Refresh Button Div Ends -->
 
       <div class="d-inline-block add-journal-btn">
-        <button class="btn btn-pa" type="button" (click)="openDividendModal()" tooltip="Create Dividend"
+        <button class="btn btn-pa" type="button" value="showModal" (click)="openDividendModal()" tooltip="Create Dividend"
           placement="top">
           <i class="fa fa-plus" aria-hidden="true"></i>
         </button>
