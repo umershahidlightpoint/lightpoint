@@ -1,6 +1,6 @@
 
 import { CorporateActionsApiService } from './../../../../services/corporate-actions.api.service';
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import {
   SideBar,
   SetDateRange,
@@ -54,7 +54,7 @@ export class StockSplitsComponent implements OnInit {
   ngOnInit() {
     this.initGrid();
     this.getStockSplits();
-    this.getDividendDetails();
+    this.getStockSplitDetails();
   }
 
   getStockSplits() {
@@ -66,12 +66,12 @@ export class StockSplitsComponent implements OnInit {
     });
   }
 
-  getDividendDetails() {
-    this.corporateActionsApiService.getDividendDetails().subscribe(response => {
-      let dividendDetail = response.payload;
+  getStockSplitDetails() {
+    this.corporateActionsApiService.getStockSplitDetails().subscribe(response => {
+      let stockSplitDetail = response.payload;
       this.stockSplitDetailsGrid.api.sizeColumnsToFit();
       this.stockSplitDetailsGrid.api.expandAll();
-      this.stockSplitDetailsGrid.api.setRowData(dividendDetail);
+      this.stockSplitDetailsGrid.api.setRowData(stockSplitDetail);
     });
   }
 
@@ -221,8 +221,8 @@ export class StockSplitsComponent implements OnInit {
           hide: true
         },
         {
-          field: 'fund',
-          headerName: 'Fund',
+          field: 'portfolio',
+          headerName: 'Portfolio',
           width: 100,
           rowGroup: true,
           enableRowGroup: true,
@@ -239,26 +239,26 @@ export class StockSplitsComponent implements OnInit {
           filter: true
         },
         {
-          field: 'quantity',
+          field: 'pre_split_quantity',
           width: 120,
-          headerName: 'Quantity',
+          headerName: 'Pre-Split-Quantity',
           sortable: true,
           filter: true,
           cellClass: 'rightAlign',
           valueFormatter: moneyFormatter
         },
         {
-          field: 'execution_date',
-          headerName: 'Execution Date',
+          field: 'post_split_quantity',
+          headerName: 'Post-Split-Quantity',
           sortable: true,
-          sort: 'asc',
           filter: true,
           width: 100,
-          valueFormatter: dateFormatter
+          cellClass: 'rightAlign',
+          valueFormatter: moneyFormatter
         },
         {
-          field: 'fx_rate',
-          headerName: 'Fx Rate',
+          field: 'cost_basis_pre_split',
+          headerName: 'Cost Basis(Pre-Split)',
           width: 100,
           filter: true,
           sortable: true,
@@ -266,15 +266,17 @@ export class StockSplitsComponent implements OnInit {
           valueFormatter: moneyFormatter
         },
         {
-          field: 'currency',
-          headerName: 'Currency',
+          field: 'cost_basis_post_split',
+          headerName: 'Cost Basis(Post-Split)',
           width: 100,
           filter: true,
           sortable: true,
+          cellClass: 'rightAlign',
+          valueFormatter: moneyFormatter
         },
         {
-          field: 'base_gross_dividend',
-          headerName: 'Base Gross Dividend',
+          field: 'pre_split_investment_at_cost',
+          headerName: 'Pre-Split Investment at cost',
           width: 100,
           filter: true,
           sortable: true,
@@ -283,62 +285,14 @@ export class StockSplitsComponent implements OnInit {
           aggFunc: 'sum'
         },
         {
-          field: 'base_withholding_amount',
-          headerName: 'Base Withholding Amount',
+          field: 'post_split_investment_at_cost',
+          headerName: 'Post-Spli Investment at Cost',
           width: 100,
           filter: true,
           sortable: true,
           cellClass: 'rightAlign',
           valueFormatter: moneyFormatter,
           aggFunc: 'sum'
-        },
-        {
-          field: 'base_net_dividend',
-          headerName: 'Base Net Dividend',
-          width: 100,
-          filter: true,
-          sortable: true,
-          cellClass: 'rightAlign',
-          valueFormatter: moneyFormatter,
-          aggFunc: 'sum'
-        },
-        {
-          field: 'settlement_gross_dividend',
-          headerName: 'Settlement Gross Dividend',
-          width: 100,
-          filter: true,
-          sortable: true,
-          cellClass: 'rightAlign',
-          valueFormatter: moneyFormatter,
-          aggFunc: 'sum'
-        },
-        {
-          field: 'settlement_withholdings_amount',
-          headerName: 'Settlement Withholding Amount',
-          width: 100,
-          filter: true,
-          sortable: true,
-          cellClass: 'rightAlign',
-          valueFormatter: moneyFormatter,
-          aggFunc: 'sum'
-        },
-        {
-          field: 'settlement_local_net_dividend',
-          headerName: 'Settlement Local Net Dividend',
-          width: 100,
-          filter: true,
-          sortable: true,
-          cellClass: 'rightAlign',
-          valueFormatter: moneyFormatter,
-          aggFunc: 'sum'
-        },
-        {
-          field: 'active_flag',
-          headerName: 'Active Flag',
-          width: 100,
-          filter: true,
-          sortable: true,
-          hide: true
         }
 
       ],
@@ -367,7 +321,7 @@ export class StockSplitsComponent implements OnInit {
 
   closeStockSplitModal() {
     this.getStockSplits();
-    this.getDividendDetails();
+    this.getStockSplitDetails();
   }
 
   rowSelected(row) {
@@ -481,7 +435,7 @@ export class StockSplitsComponent implements OnInit {
     this.gridOptions.api.showLoadingOverlay();
     this.stockSplitDetailsGrid.api.showLoadingOverlay();
     this.getStockSplits();
-    this.getDividendDetails();
+    this.getStockSplitDetails();
   }
 
   clearFilters() {
@@ -560,52 +514,27 @@ export class StockSplitsComponent implements OnInit {
         width: 100
       },
       {
-        field: 'record_date',
-        headerName: 'Record Date',
+        field: 'top_ratio',
+        headerName: 'Top Ratio',
         width: 100,
         filter: true,
         sortable: true,
       },
       {
-        field: 'pay_date',
+        field: 'bottom_ratio',
         headerName: 'Pay Date',
         width: 100,
         filter: true,
         sortable: true,
       },
       {
-        field: 'rate',
+        field: 'adjustment_factor',
         headerName: 'Rate',
         width: 100,
         filter: true,
         sortable: true,
         cellClass: 'rightAlign',
         valueFormatter: moneyFormatter
-      },
-      {
-        field: 'currency',
-        headerName: 'Currency',
-        width: 100,
-        filter: true,
-        sortable: true,
-      },
-      {
-        field: 'withholding_rate',
-        headerName: 'Holding Rate',
-        width: 100,
-        filter: true,
-        sortable: true,
-        cellClass: 'rightAlign',
-        valueFormatter: moneyFormatter
-      },
-      {
-        field: 'fx_rate',
-        headerName: 'Fx Rate',
-        width: 100,
-        filter: true,
-        sortable: true,
-        cellClass: 'rightAlign',
-        valueFormatter: moneyFormatter,
       },
       {
         field: 'active_flag',

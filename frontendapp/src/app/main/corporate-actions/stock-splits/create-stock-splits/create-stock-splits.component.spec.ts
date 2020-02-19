@@ -395,7 +395,6 @@ fdescribe('CreateStockSplitsComponent', () => {
       topRatio: 1.3,
       bottomRatio: 40,
       adjustmentFactor: 1,
-      fxRate: 1
     });
 
     fixture.whenStable().then(() => {
