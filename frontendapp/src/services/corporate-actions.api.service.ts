@@ -82,7 +82,7 @@ export class CorporateActionsApiService {
     return this.http.get(url).pipe(map((response: any) => response), retry(1), catchError(this.handleError));
   }
 
-  getStockSplitDetail(id) {
+  getStockSplitAudit(id) {
     const url = this.baseUrl + '/corporateAction/stockSplitAudit?id=' + id;
     return this.http.get(url).pipe(map((response: any) => response), retry(1), catchError(this.handleError));
   }

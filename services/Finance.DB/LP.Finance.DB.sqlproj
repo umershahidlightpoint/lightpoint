@@ -161,6 +161,9 @@
     <Build Include="Tables\configurations.sql" />
     <Build Include="Tables\stock_splits.sql" />
     <Build Include="Tables\stock_splits_audit_trail.sql" />
+    <Build Include="Views\vwStockSplitDetails.sql" />
+    <Build Include="Triggers\stock_split_insert_trigger.sql" />
+    <Build Include="Triggers\stock_split_update_trigger.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">

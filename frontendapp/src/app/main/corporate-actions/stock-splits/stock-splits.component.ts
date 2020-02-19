@@ -69,9 +69,9 @@ export class StockSplitsComponent implements OnInit {
   getStockSplitDetails() {
     this.corporateActionsApiService.getStockSplitDetails().subscribe(response => {
       let stockSplitDetail = response.payload;
+      this.stockSplitDetailsGrid.api.setRowData(stockSplitDetail);
       this.stockSplitDetailsGrid.api.sizeColumnsToFit();
       this.stockSplitDetailsGrid.api.expandAll();
-      this.stockSplitDetailsGrid.api.setRowData(stockSplitDetail);
     });
   }
 
@@ -221,7 +221,7 @@ export class StockSplitsComponent implements OnInit {
           hide: true
         },
         {
-          field: 'portfolio',
+          field: 'fund',
           headerName: 'Portfolio',
           width: 100,
           rowGroup: true,
@@ -468,13 +468,13 @@ export class StockSplitsComponent implements OnInit {
 
   openDataGridModal(rowNode) {
     const { id } = rowNode.node.data;
-    this.corporateActionsApiService.getDividendDetail(id).subscribe(response => {
+    this.corporateActionsApiService.getStockSplitAudit(id).subscribe(response => {
       const { payload } = response;
       const columns = this.getAuditColDefs();
       const modifiedCols = columns.map(col => {
         return { ...col, editable: false };
       });
-      this.title = 'StockSplit Audit Trail';
+      this.title = 'Stock Split Audit Trail';
       this.dataGridModal.openModal(modifiedCols, payload);
     });
   }
@@ -522,14 +522,14 @@ export class StockSplitsComponent implements OnInit {
       },
       {
         field: 'bottom_ratio',
-        headerName: 'Pay Date',
+        headerName: 'Bottom Ratio',
         width: 100,
         filter: true,
         sortable: true,
       },
       {
         field: 'adjustment_factor',
-        headerName: 'Rate',
+        headerName: 'Adjustment Factor',
         width: 100,
         filter: true,
         sortable: true,
