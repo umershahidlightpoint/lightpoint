@@ -54,6 +54,7 @@
     <Compile Include="Dtos\ChartOfAccountMappingDto.cs" />
     <Compile Include="Dtos\ConfigurationInputDto.cs" />
     <Compile Include="Dtos\DeleteCashDividendInputDto.cs" />
+    <Compile Include="Dtos\DeleteStockSplitInputDto.cs" />
     <Compile Include="Dtos\FxRateInputDto.cs" />
     <Compile Include="Dtos\GridLayoutDto.cs" />
     <Compile Include="Dtos\JournalAccountInputDto.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="Dtos\SettingInputDto.cs" />
     <Compile Include="Dtos\SettingInputPatchDto.cs" />
     <Compile Include="Dtos\SettingTagInputDto.cs" />
+    <Compile Include="Dtos\StockSplitInputDto.cs" />
     <Compile Include="Dtos\TaxLotReversalDto.cs" />
     <Compile Include="Dtos\TaxRateOutputDto.cs" />
     <Compile Include="Dtos\TaxRateInputDto.cs" />

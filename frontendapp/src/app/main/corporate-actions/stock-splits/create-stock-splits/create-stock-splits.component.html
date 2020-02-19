@@ -1,0 +1,190 @@
+<!-- Modal Div Starts -->
+<div bsModal #stockSplitsModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true"
+  [config]="{backdrop: 'static'}">
+
+  <!-- Modal Dialog Div Starts -->
+  <div class="modal-dialog modal-dialog-centered modal-lg" id="modal-lg">
+    <!-- Modal Content Starts -->
+    <div class="modal-content">
+        <!------ Form Starts------>
+
+        <form [formGroup]="stockSplitForm" (ngSubmit)="onSubmit()">
+
+        <!-- Modal Header -->
+        <div class="modal-header color-primary">
+          <h3>Create StockSplits</h3>
+          <button type="button" class="close" data-dismiss="modal" (click)="close()">&times;</button>
+          <!--End Modal Header -->
+        </div>
+
+        <!-- No Result Alert -->
+        <alert *ngIf="noResult || noCurrencyFound" type="danger" [dismissible]="true">
+            <strong>Warning!</strong> Please, only select values from the dropdown!
+        </alert>
+        <!-- No Result Alert Ends -->
+
+         <!-- Modal Body Starts-->
+        <div class="modal-body">
+
+        <!-- Ticker Div Starts -->
+          <div class="form-group">
+            <div class="row m-0">
+              <div class="col-sm-3">
+                <label> Ticker * </label>
+              </div>
+              <!-- ticker Drop Down -->
+              <div class="col-sm-9">
+                <input class="form-control"
+                placeholder="Select ticker"
+                formControlName="ticker"
+                [ngClass]="{ 'is-invalid': formFields.ticker.errors && formFields.ticker.invalid && formFields.ticker.touched }"
+                autocomplete="off"
+                typeaheadWaitMs="500"
+                [isAnimated]="true"
+                [typeaheadScrollable]="true"
+                [typeaheadIsFirstItemActive]="true"
+                [typeaheadMinLength]="0"
+                [typeaheadOptionsInScrollableView]="15"
+                [typeahead]="ticker$"
+                (typeaheadNoResults)="typeaheadNoResults($event)"
+                />
+                <div *ngIf="formFields.ticker.invalid" class="invalid-feedback">Ticker is required</div>
+              </div>
+            </div>
+
+          </div>
+          <!-- ticker Div Ends -->
+
+        <fieldset class="wrap-dates">
+            <legend class="dates-heading">Dates</legend>
+
+        <!-- Notice Date Div Starts -->
+        <div class="form-group">
+        <div class="row m-0">
+            <div class="col-sm-3">
+            <label> Notice Date * </label>
+            </div>
+            <div class="col-sm-9">
+            <input ngxDaterangepickerMd
+                formControlName="noticeDate"
+                class="form-control"
+                [ngClass]="{ 'is-invalid': formFields.noticeDate.errors && formFields.noticeDate.invalid && formFields.noticeDate.touched }"
+                type="text"
+                placeholder="Select notice date"
+                [singleDatePicker]="true"
+                [autoApply]="true"
+                autocomplete="off"
+                 />
+
+            <div *ngIf="formFields.noticeDate.errors && formFields.noticeDate.invalid && formFields.noticeDate.touched" class="invalid-feedback">
+            <div *ngIf="formFields.noticeDate.errors.required && formFields.noticeDate.invalid && formFields.noticeDate.touched">Notice Date is required</div>
+            </div>
+            </div>
+        </div>
+        <!-- Notice Date Div End -->
+        </div>
+
+        <!-- ExDate Div Starts -->
+        <div class="form-group">
+            <div class="row m-0">
+                <div class="col-sm-3">
+                <label> Ex-Date * </label>
+                </div>
+                <div class="col-sm-9">
+                <input ngxDaterangepickerMd
+                    formControlName="executionDate"
+                    class="form-control"
+                    [ngClass]="{ 'is-invalid': formFields.executionDate.errors && formFields.executionDate.invalid && formFields.executionDate.touched}"
+                    type="text"
+                    placeholder="Select ex-Date"
+                    [singleDatePicker]="true"
+                    [autoApply]="true"
+                    autocomplete="off"
+                />
+                <div *ngIf="formFields.executionDate.errors && formFields.executionDate.invalid && formFields.executionDate.touched" class="invalid-feedback">
+                    <div *ngIf="formFields.executionDate.errors.required && formFields.executionDate.invalid && formFields.executionDate.touched">Execution Date is required</div>
+                </div>
+                </div>
+            </div>
+            <!-- ExDate Div End -->
+        </div>
+
+        </fieldset>
+
+        <!-- Heading -->
+        <fieldset style="margin-top: 1rem;">
+            <legend>Ratio</legend>
+
+        <!-- PayDate Div Starts -->
+        <div class="form-group">
+            <div class="row m-0">
+                <div class="col-sm-2 pl-1 pr-1">
+                <label> Top Ratio * </label>
+                </div>
+                <div class="col-sm-2 pl-1 pr-1">
+                    <input class="form-control" [ngClass]="{ 'is-invalid': formFields.topRatio.errors && formFields.topRatio.invalid && formFields.topRatio.touched }" formControlName="topRatio" type="number" step=".05">
+                    <div *ngIf="formFields.topRatio.errors && formFields.topRatio.invalid && formFields.topRatio.touched" class="invalid-feedback">
+                        <div *ngIf="formFields.topRatio.errors.required && formFields.topRatio.invalid && formFields.topRatio.touched">Ratio is required</div>
+                    </div>
+                </div>
+
+
+                <div class="col-sm-2 pr-1">
+                    <label>Bottom Ratio *</label>
+                    </div>
+                    <div class="col-sm-2 pl-1 pr-1">
+                        <input class="form-control" [ngClass]="{ 'is-invalid': formFields.bottomRatio.errors && formFields.bottomRatio.invalid && formFields.bottomRatio.touched}" formControlName="bottomRatio" type="number" step=".05">
+                        <div *ngIf="formFields.bottomRatio.errors && formFields.bottomRatio.invalid && formFields.bottomRatio.touched" class="invalid-feedback">
+                            <div *ngIf="formFields.bottomRatio.errors.required && formFields.bottomRatio.invalid && formFields.bottomRatio.touched">Rate is required</div>
+                        </div>
+                    </div>
+
+                <div class="col-sm-2 pr-1">
+                    <label>Adjustment Factor * </label>
+                    </div>
+                    <div class="col-sm-2 pl-1 pr-1">
+                        <input class="form-control" [ngClass]="{ 'is-invalid': formFields.adjustmentFactor.errors && formFields.adjustmentFactor.invalid && formFields.adjustmentFactor.touched }" formControlName="adjustmentFactor" type="number" step=".05">
+                        <div *ngIf="formFields.adjustmentFactor.errors && formFields.adjustmentFactor.invalid && formFields.adjustmentFactor.touched" class="invalid-feedback">
+                            <div *ngIf="formFields.adjustmentFactor.errors.required && formFields.adjustmentFactor.invalid && formFields.adjustmentFactor.touched">Adj Factor is required</div>
+                        </div>
+
+                    </div>
+
+            </div>
+            <!-- PayDate Div End -->
+        </div>
+
+        </fieldset>
+
+        <!-- Modal Footer Starts -->
+        <div class="modal-footer">
+
+            <button *ngIf="editStockSplit" type="button" class="btn btn-danger mr-auto" [disabled]="isDeleting"
+            (click)="deleteStockSplit()"><i class="fa fa-trash"></i> Delete
+            <span *ngIf="isDeleting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            </button>
+    
+            <button type="button" class="btn btn-secondary" (click)="close()">
+                <i class="fa fa-times" aria-hidden="true"></i> Cancel
+            </button>
+    
+            <button type="submit" class="btn btn-pa" [ngClass]="{'cursor-not-allowed': !stockSplitForm.valid}"
+            [disabled]="!stockSplitForm.valid || isSaving">
+            <i class="fa" [ngClass]=" {'fa-edit':editStockSplit, 'fa-save':!editStockSplit}"></i>
+            {{editStockSplit ? "Update" : "Save"}}
+            <span *ngIf="isSaving" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          </button>
+            <!-- Modal Footer Ends -->
+            </div>
+
+        </div>
+         <!------ Form End------>
+          </form>
+        
+        </div>
+
+    </div>
+    <!-- Modal Dialog Div Ends -->
+
+</div>
+<!-- Modal Div Starts Ends -->

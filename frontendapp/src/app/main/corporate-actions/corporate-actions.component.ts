@@ -9,6 +9,7 @@ import { Style, HeightStyle } from 'src/shared/utils/Shared';
 export class CorporateActionsComponent implements OnInit {
 
   corporateActions = true;
+  stockSplits = false;
 
   style = Style;
   styleForHeight = HeightStyle(187);
@@ -20,5 +21,9 @@ export class CorporateActionsComponent implements OnInit {
 
   activeCorporateActions() {
     this.corporateActions = true;
+  }
+
+  activeStockSplits() {
+    this.stockSplits = true;
   }
 }
