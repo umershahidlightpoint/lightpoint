@@ -262,12 +262,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var json = JsonConvert.DeserializeObject(jsonResult);
 
-                return Utils.Wrap(true, json, HttpStatusCode.OK, "StockSplits fetched successfully");
+                return Utils.Wrap(true, json, HttpStatusCode.OK, "StockSplits audit trail fetched successfully");
             }
             catch (Exception ex)
             {
                 return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
-                    "An error occured while fetching dividends");
+                    "An error occured while fetching stock splits audit trail");
             }
         }
 
@@ -429,7 +429,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             catch (Exception ex)
             {
                 return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
-                    "An error occured while fetching dividends");
+                    "An error occured while fetching stock splits");
             }
         }
 
@@ -437,7 +437,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             try
             {
-                var query = $@"select * from vwDividendDetails";
+                var query = $@"select * from vwStockSplitDetails";
 
                 var dataTable = SqlHelper.GetDataTable(query, CommandType.Text);
 
