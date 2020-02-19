@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment.prod';
 import * as moment from 'moment';
 import { GridOptions } from 'ag-grid-community';
 import { GridUtils, LayoutServices } from 'lp-toolkit';
@@ -9,11 +10,17 @@ export const SideBar = (
   defaultView = '',
   dataSource = null
 ) => {
+  // tslint:disable-next-line: no-string-literal
+  const baseUrl = window['config']
+    // tslint:disable-next-line: no-string-literal
+    ? window['config'].remoteServerUrl
+    : environment.testCaseRemoteServerUrl;
+
   const layoutServices: LayoutServices = {
-    getGridLayouts: 'http://localhost:9092/api/dataGrid/getDataGridLayouts',
-    getLayoutDetail: 'http://localhost:9092/api/dataGrid/getAGridLayout',
-    saveGridLayout: 'http://localhost:9092/api/dataGrid',
-    deleteGridLayout: 'http://localhost:9092/api/dataGrid',
+    getGridLayouts: `${baseUrl}/dataGrid/getDataGridLayouts`,
+    getLayoutDetail: `${baseUrl}/dataGrid/getAGridLayout`,
+    saveGridLayout: `${baseUrl}/dataGrid`,
+    deleteGridLayout: `${baseUrl}/dataGrid`,
     dataProperty: 'payload'
   };
 
