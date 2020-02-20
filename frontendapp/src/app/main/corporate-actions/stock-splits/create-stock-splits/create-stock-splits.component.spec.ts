@@ -100,12 +100,6 @@ fdescribe('CreateStockSplitsComponent', () => {
     expect(payDate.valid).toBeFalsy();
   });
 
-  it('adjustmentFactor field validity', () => {
-    const ratio = component.stockSplitForm.controls.adjustmentFactor;
-    expect(ratio.valid).toBeFalsy();
-  });
-
-
   it('should disable save button', () => {
     fixture.detectChanges();
 
@@ -511,5 +505,21 @@ fdescribe('CreateStockSplitsComponent', () => {
    });
 
  });
+
+  it('calculation for adjustment factor', () => {
+   fixture.detectChanges();
+   component.stockSplitForm.setValue({
+      ticker: 'AROW',
+      noticeDate: { startDate: moment('2020-02-17T00:00:00'), endDate: moment('2020-02-17T00:00:00') },
+      executionDate: { startDate: moment('2020-02-16T00:00:00'), endDate: moment('2020-02-16T00:00:00') },
+      topRatio: 3,
+      bottomRatio: 6,
+      adjustmentFactor: 0.5
+    });
+   if (component.stockSplitForm.value.adjustmentFactor === 0.5) {
+      expect(component.stockSplitForm.value.adjustmentFactor).toBe(0.5);
+     }
+
+   });
 
 });

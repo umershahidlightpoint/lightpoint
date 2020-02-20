@@ -54,17 +54,11 @@ export class CreateStockSplitsComponent implements OnInit, OnChanges {
       executionDate: ['', Validators.required],
       topRatio: ['', [Validators.required, Validators.pattern(pattern), Validators.min(1)]],
       bottomRatio: ['', [Validators.required, Validators.pattern(pattern), Validators.min(1)]],
-      adjustmentFactor: ['', Validators.required],
+      adjustmentFactor: [''],
   });
 
     this.onChanges();
     this.getSymbols();
-  }
-
-  onKeydown(event) {
-    if (event.key === 'Backspace') {
-      return false;
-    }
   }
 
   ngOnChanges(changes: SimpleChanges) {}
