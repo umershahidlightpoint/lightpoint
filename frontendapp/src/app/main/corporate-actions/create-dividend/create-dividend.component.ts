@@ -69,6 +69,12 @@ export class CreateDividendComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {}
 
+  onKeydown(event) {
+    if (event.key === 'Backspace') {
+      return false;
+    }
+  }
+
   getCurrencies() {
     this.settingApiService.getReportingCurrencies().subscribe(currencies => {
       this.currencies$ = currencies.payload;

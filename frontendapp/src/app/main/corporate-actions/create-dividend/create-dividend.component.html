@@ -98,6 +98,7 @@
                 [singleDatePicker]="true"
                 [autoApply]="true"
                 autocomplete="off"
+                (keydown)="onKeydown($event)"
                  />
 
             <div *ngIf="formFields.noticeDate.errors && formFields.noticeDate.invalid && formFields.noticeDate.touched" class="invalid-feedback">
@@ -124,6 +125,7 @@
                     [singleDatePicker]="true"
                     [autoApply]="true"
                     autocomplete="off"
+                    (keydown)="onKeydown($event)"
                 />
                 <div *ngIf="formFields.exDate.errors && formFields.exDate.invalid && formFields.exDate.touched" class="invalid-feedback">
                     <div *ngIf="formFields.exDate.errors.required && formFields.exDate.invalid && formFields.exDate.touched">Ex-Date is required</div>
@@ -149,6 +151,7 @@
                     [singleDatePicker]="true"
                     [autoApply]="true"
                     autocomplete="off"
+                    (keydown)="onKeydown($event)"
                 />
                 <div *ngIf="formFields.recordDate.errors && formFields.recordDate.invalid && formFields.recordDate.touched" class="invalid-feedback">
                     <div *ngIf="formFields.recordDate.errors.required && formFields.recordDate.invalid && formFields.recordDate.touched">Record Date is required</div>
@@ -175,6 +178,7 @@
                     [singleDatePicker]="true"
                     [autoApply]="true"
                     autocomplete="off"
+                    (keydown)="onKeydown($event)"
                 />
                 <div *ngIf="formFields.payDate.errors && formFields.payDate.invalid && formFields.payDate.touched" class="invalid-feedback">
                     <div *ngIf="formFields.payDate.errors.required && formFields.payDate.invalid && formFields.payDate.touched">Pay Date is required</div>

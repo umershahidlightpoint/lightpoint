@@ -61,22 +61,25 @@ export class CreateStockSplitsComponent implements OnInit, OnChanges {
     this.getSymbols();
   }
 
+  onKeydown(event) {
+    if (event.key === 'Backspace') {
+      return false;
+    }
+  }
+
   ngOnChanges(changes: SimpleChanges) {}
 
   onChanges(): void {
     this.stockSplitForm.get('topRatio').valueChanges.subscribe(val => {
-      if(val > 0 && this.stockSplitForm.value.bottomRatio > 0){
-        console.log(val, "top ratio");
-        let adjustmentFactor = val/this.stockSplitForm.value.bottomRatio;
+      if (val > 0 && this.stockSplitForm.value.bottomRatio > 0) {
+        const adjustmentFactor = val / this.stockSplitForm.value.bottomRatio;
         this.setAdjustmentFactor(adjustmentFactor);
       }
-      
     });
 
     this.stockSplitForm.get('bottomRatio').valueChanges.subscribe(val => {
-      if(val > 0 && this.stockSplitForm.value.topRatio > 0){
-        console.log(val, "bottom ratio");
-        let adjustmentFactor = this.stockSplitForm.value.topRatio/val;
+      if (val > 0 && this.stockSplitForm.value.topRatio > 0) {
+        const adjustmentFactor = this.stockSplitForm.value.topRatio / val;
         this.setAdjustmentFactor(adjustmentFactor);
       }
     });
@@ -120,7 +123,7 @@ export class CreateStockSplitsComponent implements OnInit, OnChanges {
           return;
       }
 
-      if (this.editStockSplit) { // For Update dividend
+      if (this.editStockSplit) { // For Update stock split
         const payload = {
           Id: this.selectedRow.id,
           Symbol : this.stockSplitForm.value.ticker,
@@ -131,10 +134,18 @@ export class CreateStockSplitsComponent implements OnInit, OnChanges {
           AdjustmentFactor: this.stockSplitForm.value.adjustmentFactor
         };
 
+        // execution date should grater than notice date
+        if (payload.ExecutionDate < payload.NoticeDate) {
+          this.toastrService.error('Error! Execution date should be greater than notice date');
+          this.isSaving = false;
+          return;
+        }
+
         this.found = this.stockSplits.filter(x => x.id !== payload.Id).some(
           items => items.symbol === payload.Symbol &&
                    moment(items.execution_date).format('YYYY-MM-DD') === payload.ExecutionDate
           );
+
 
         if (this.found) {
           this.toastrService.error('Error! Duplicate record exists, Please chnage symbol or execution date');
@@ -158,7 +169,7 @@ export class CreateStockSplitsComponent implements OnInit, OnChanges {
 
         }
       } else {
-        const payload = {
+        const payload = { // Create new stock split
 
           Symbol : this.stockSplitForm.value.ticker,
           NoticeDate: moment(this.stockSplitForm.value.noticeDate.startDate).format('YYYY-MM-DD'),
@@ -167,6 +178,13 @@ export class CreateStockSplitsComponent implements OnInit, OnChanges {
           BottomRatio: this.stockSplitForm.value.bottomRatio,
           AdjustmentFactor: this.stockSplitForm.value.adjustmentFactor
         };
+
+        // execution date should grater than notice date
+        if (payload.ExecutionDate < payload.NoticeDate) {
+          this.toastrService.error('Error! Execution date should be greater than notice date');
+          this.isSaving = false;
+          return;
+        }
 
         this.found = this.stockSplits.some(
           items => items.symbol === payload.Symbol && moment(items.execution_date).format('YYYY-MM-DD') === payload.ExecutionDate
@@ -200,7 +218,7 @@ export class CreateStockSplitsComponent implements OnInit, OnChanges {
     return this.stockSplitForm.controls;
   }
 
-  setAdjustmentFactor(value){
+  setAdjustmentFactor(value) {
     this.stockSplitForm.patchValue({
       adjustmentFactor: value
     });
