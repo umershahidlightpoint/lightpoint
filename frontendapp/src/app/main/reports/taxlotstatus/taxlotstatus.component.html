@@ -43,8 +43,8 @@
     <div class="col-auto">
       <form>
         <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off" placeholder="Choose date"
-          [(ngModel)]="selected" name="selectedDaterange" [ranges]="ranges" [showClearButton]="true"
-          [alwaysShowCalendars]="true" (ngModelChange)="changeDate($event)" [keepCalendarOpeningWithRange]="true" />
+          [(ngModel)]="selected" name="selectedDaterange" (ngModelChange)="changeDate($event)" [singleDatePicker]="true"
+          [autoApply]="true" />
       </form>
     </div>
     <!-- Date Picker Div Ends -->
