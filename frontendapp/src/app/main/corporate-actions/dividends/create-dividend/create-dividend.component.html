@@ -91,13 +91,14 @@
             <div class="col-sm-9">
             <input ngxDaterangepickerMd
                 formControlName="noticeDate"
-                class="form-control"
+                class="form-control bc-white"
                 [ngClass]="{ 'is-invalid': formFields.noticeDate.errors && formFields.noticeDate.invalid && formFields.noticeDate.touched }"
                 type="text"
                 placeholder="Select notice date"
                 [singleDatePicker]="true"
                 [autoApply]="true"
                 autocomplete="off"
+                readonly
                  />
 
             <div *ngIf="formFields.noticeDate.errors && formFields.noticeDate.invalid && formFields.noticeDate.touched" class="invalid-feedback">
@@ -117,13 +118,14 @@
                 <div class="col-sm-9">
                 <input ngxDaterangepickerMd
                     formControlName="exDate"
-                    class="form-control"
+                    class="form-control bc-white"
                     [ngClass]="{ 'is-invalid': formFields.exDate.errors && formFields.exDate.invalid && formFields.exDate.touched}"
                     type="text"
                     placeholder="Select ex-Date"
                     [singleDatePicker]="true"
                     [autoApply]="true"
                     autocomplete="off"
+                    readonly
                 />
                 <div *ngIf="formFields.exDate.errors && formFields.exDate.invalid && formFields.exDate.touched" class="invalid-feedback">
                     <div *ngIf="formFields.exDate.errors.required && formFields.exDate.invalid && formFields.exDate.touched">Ex-Date is required</div>
@@ -142,13 +144,14 @@
                 <div class="col-sm-9">
                 <input ngxDaterangepickerMd
                     formControlName="recordDate"
-                    class="form-control"
+                    class="form-control bc-white"
                     [ngClass]="{ 'is-invalid': formFields.recordDate.errors && formFields.recordDate.invalid && formFields.recordDate.touched}"
                     type="text"
                     placeholder="Select record date"
                     [singleDatePicker]="true"
                     [autoApply]="true"
                     autocomplete="off"
+                    readonly
                 />
                 <div *ngIf="formFields.recordDate.errors && formFields.recordDate.invalid && formFields.recordDate.touched" class="invalid-feedback">
                     <div *ngIf="formFields.recordDate.errors.required && formFields.recordDate.invalid && formFields.recordDate.touched">Record Date is required</div>
@@ -167,7 +170,7 @@
                 <div class="col-sm-9">
                 <input ngxDaterangepickerMd
                     formControlName="payDate"
-                    class="form-control"
+                    class="form-control bc-white"
                     [ngClass]="{ 'is-invalid': formFields.payDate.errors && formFields.payDate.invalid && formFields.payDate.touched}"
                     type="text"
                     placeholder="Select pay date"
@@ -175,6 +178,7 @@
                     [singleDatePicker]="true"
                     [autoApply]="true"
                     autocomplete="off"
+                    readonly
                 />
                 <div *ngIf="formFields.payDate.errors && formFields.payDate.invalid && formFields.payDate.touched" class="invalid-feedback">
                     <div *ngIf="formFields.payDate.errors.required && formFields.payDate.invalid && formFields.payDate.touched">Pay Date is required</div>

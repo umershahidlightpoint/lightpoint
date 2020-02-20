@@ -100,12 +100,6 @@ fdescribe('CreateStockSplitsComponent', () => {
     expect(payDate.valid).toBeFalsy();
   });
 
-  it('adjustmentFactor field validity', () => {
-    const ratio = component.stockSplitForm.controls.adjustmentFactor;
-    expect(ratio.valid).toBeFalsy();
-  });
-
-
   it('should disable save button', () => {
     fixture.detectChanges();
 
@@ -149,142 +143,142 @@ fdescribe('CreateStockSplitsComponent', () => {
   it('returned symbols', () => {
 
     const dummySymbols =  {
-          when:'2020-02-18T14:03:52.1043482+05:00',
+          when: '2020-02-18T14:03:52.1043482+05:00',
           by: '',
           isSuccessful: true,
-          message:'The Request was Successful',
+          message: 'The Request was Successful',
           payload: [
              {
-                symbol:'AAPL'
+                symbol: 'AAPL'
              },
              {
-                symbol:'ACBI'
+                symbol: 'ACBI'
              },
              {
-                symbol:'AMAT US Equity'
+                symbol: 'AMAT US Equity'
              },
              {
-                symbol:'AROW'
+                symbol: 'AROW'
              },
              {
-                symbol:'ASRV'
+                symbol: 'ASRV'
              },
              {
-                symbol:'BWFG'
+                symbol: 'BWFG'
              },
              {
-                symbol:'CNBKA'
+                symbol: 'CNBKA'
              },
              {
-                symbol:'CSCO'
+                symbol: 'CSCO'
              },
              {
-                symbol:'CSFL'
+                symbol: 'CSFL'
              },
              {
-                symbol:'CVCY'
+                symbol: 'CVCY'
              },
              {
-                symbol:'CVLY'
+                symbol: 'CVLY'
              },
              {
-                symbol:'CWBC'
+                symbol: 'CWBC'
              },
              {
-                symbol:'EBMT'
+                symbol: 'EBMT'
              },
              {
-                symbol:'ENFC'
+                symbol: 'ENFC'
              },
              {
-                symbol:'FFIN'
+                symbol: 'FFIN'
              },
              {
-                symbol:'FISI'
+                symbol: 'FISI'
              },
              {
-                symbol:'FNB'
+                symbol: 'FNB'
              },
              {
-                symbol:'FNWB'
+                symbol: 'FNWB'
              },
              {
-                symbol:'FRBA'
+                symbol: 'FRBA'
              },
              {
-                symbol:'FRBK'
+                symbol: 'FRBK'
              },
              {
-                symbol:'FUNC'
+                symbol: 'FUNC'
              },
              {
-                symbol:'GABC'
+                symbol: 'GABC'
              },
              {
-                symbol:'GCBC'
+                symbol: 'GCBC'
              },
              {
-                symbol:'HIFS'
+                symbol: 'HIFS'
              },
              {
-                symbol:'HWC'
+                symbol: 'HWC'
              },
              {
-                symbol:'IBCP'
+                symbol: 'IBCP'
              },
              {
-                symbol:'IBM'
+                symbol: 'IBM'
              },
              {
-                symbol:'KO'
+                symbol: 'KO'
              },
              {
-                symbol:'KRNY'
+                symbol: 'KRNY'
              },
              {
-                symbol:'LEVI'
+                symbol: 'LEVI'
              },
              {
-                symbol:'LOB'
+                symbol: 'LOB'
              },
              {
-                symbol:'MDCO US EQUITY'
+                symbol: 'MDCO US EQUITY'
              },
              {
-                symbol:'NIO'
+                symbol: 'NIO'
              },
              {
-                symbol:'NKSH'
+                symbol: 'NKSH'
              },
              {
-                symbol:'ORRF'
+                symbol: 'ORRF'
              },
              {
-                symbol:'PBHC'
+                symbol: 'PBHC'
              },
              {
-                symbol:'PBIP'
+                symbol: 'PBIP'
              },
              {
-                symbol:'PLUG'
+                symbol: 'PLUG'
              },
              {
-                symbol:'SASR'
+                symbol: 'SASR'
              },
              {
-                symbol:'SBBX'
+                symbol: 'SBBX'
              },
              {
-                symbol:'SMBK'
+                symbol: 'SMBK'
              },
              {
-                symbol:'SMMF'
+                symbol: 'SMMF'
              },
              {
-                symbol:'SVBI'
+                symbol: 'SVBI'
              },
              {
-                symbol:'SYBT'
+                symbol: 'SYBT'
              },
              {
                 symbol: 'TCFC'
@@ -332,9 +326,9 @@ fdescribe('CreateStockSplitsComponent', () => {
 
     expect(component.ticker$).toBeGreaterThanOrEqual(1);
 });
-    const request = httpTestingController.expectOne(refUrl + '/refdata/data?refdata=symbol');
-    expect(request.request.method).toBe('GET');
-    request.flush(dummySymbols);
+   //  const request = httpTestingController.expectOne(refUrl + '/refdata/data?refdata=symbol');
+   //  expect(request.request.method).toBe('GET');
+   //  request.flush(dummySymbols);
 });
 });
 
@@ -361,7 +355,7 @@ fdescribe('CreateStockSplitsComponent', () => {
   });
 
   it('Check if duplicate stock split exists with same symbol and execution date', () => {
-    const mockStockSplit = { 
+    const mockStockSplit = {
       when: '2020-02-18T16:05:22.0564918+05:00',
       by: '',
       isSuccessful: true,
@@ -385,7 +379,7 @@ fdescribe('CreateStockSplitsComponent', () => {
       meta: null,
       stats: null,
       statusCode: 200
-    }
+    };
     expect(component.stockSplitForm.valid).toBeFalsy();
     fixture.detectChanges();
     component.stockSplitForm.setValue({
@@ -402,7 +396,7 @@ fdescribe('CreateStockSplitsComponent', () => {
 
       const found = mockStockSplit.payload.some(
         items => items.symbol === component.stockSplitForm.value.ticker &&
-        moment(items.execution_date).format('YYYY-MM-DD') === moment(component.stockSplitForm.value.exDate.startDate).format('YYYY-MM-DD')
+        moment(items.execution_date).format('YYYY-MM-DD') === moment(component.stockSplitForm.value.executionDate.startDate).format('YYYY-MM-DD')
         );
 
       if (found) {
@@ -411,5 +405,121 @@ fdescribe('CreateStockSplitsComponent', () => {
       });
 
   });
+
+  it('Return true if execution date is greater than notice date', () => {
+   const mockStockSplit = {
+     when: '2020-02-18T16:05:22.0564918+05:00',
+     by: '',
+     isSuccessful: true,
+     message: 'StockSplits fetched successfully',
+     payload: [
+        {
+           id: 8,
+           created_by: 'user',
+           created_date: '2020-02-14T12:13:50.677',
+           last_updated_by: 'user',
+           last_updated_date: '2020-02-17T13:01:20.31',
+           symbol: 'AROW',
+           notice_date: '2020-02-15T00:00:00',
+           execution_date: '2020-02-16T00:00:00',
+           topRatio: 1.3,
+           bottomRatio: 40,
+           adjustmentFactor: 1,
+           active_flag: true
+        }
+   ],
+     meta: null,
+     stats: null,
+     statusCode: 200
+   };
+   expect(component.stockSplitForm.valid).toBeFalsy();
+   fixture.detectChanges();
+   component.stockSplitForm.setValue({
+     ticker: 'AROW',
+     noticeDate: { startDate: moment('2020-02-16T00:00:00'), endDate: moment('2020-02-16T00:00:00') },
+     executionDate: { startDate: moment('2020-02-17T00:00:00'), endDate: moment('2020-02-17T00:00:00') },
+     topRatio: 1.3,
+     bottomRatio: 40,
+     adjustmentFactor: 1,
+   });
+
+   fixture.whenStable().then(() => {
+     fixture.detectChanges();
+
+     if (moment(component.stockSplitForm.value.executionDate.startDate).format('YYYY-MM-DD') <
+         moment(component.stockSplitForm.value.noticeDate.startDate).format('YYYY-MM-DD')) {
+      const found = true;
+      expect(found).toBeTruthy();
+    }
+
+   });
+
+ });
+
+  it('Return false if execution date is less than notice date', () => {
+   const mockStockSplit = {
+     when: '2020-02-18T16:05:22.0564918+05:00',
+     by: '',
+     isSuccessful: true,
+     message: 'StockSplits fetched successfully',
+     payload: [
+        {
+           id: 8,
+           created_by: 'user',
+           created_date: '2020-02-14T12:13:50.677',
+           last_updated_by: 'user',
+           last_updated_date: '2020-02-17T13:01:20.31',
+           symbol: 'AROW',
+           notice_date: '2020-02-15T00:00:00',
+           execution_date: '2020-02-16T00:00:00',
+           topRatio: 1.3,
+           bottomRatio: 40,
+           adjustmentFactor: 1,
+           active_flag: true
+        }
+   ],
+     meta: null,
+     stats: null,
+     statusCode: 200
+   };
+   expect(component.stockSplitForm.valid).toBeFalsy();
+   fixture.detectChanges();
+   component.stockSplitForm.setValue({
+     ticker: 'AROW',
+     noticeDate: { startDate: moment('2020-02-17T00:00:00'), endDate: moment('2020-02-17T00:00:00') },
+     executionDate: { startDate: moment('2020-02-16T00:00:00'), endDate: moment('2020-02-16T00:00:00') },
+     topRatio: 1.3,
+     bottomRatio: 40,
+     adjustmentFactor: 1,
+   });
+
+   fixture.whenStable().then(() => {
+     fixture.detectChanges();
+
+     if (moment(component.stockSplitForm.value.executionDate.startDate).format('YYYY-MM-DD') <
+         moment(component.stockSplitForm.value.noticeDate.startDate).format('YYYY-MM-DD')) {
+      const found = true;
+      expect(found).toBeTruthy();
+    }
+
+   });
+
+ });
+
+  it('calculation for adjustment factor', () => {
+   fixture.detectChanges();
+   component.stockSplitForm.setValue({
+      ticker: 'AROW',
+      noticeDate: { startDate: moment('2020-02-17T00:00:00'), endDate: moment('2020-02-17T00:00:00') },
+      executionDate: { startDate: moment('2020-02-16T00:00:00'), endDate: moment('2020-02-16T00:00:00') },
+      topRatio: 3,
+      bottomRatio: 6,
+      adjustmentFactor: 0.5
+    });
+   if (component.stockSplitForm.value.adjustmentFactor === 0.5) {
+      expect(component.stockSplitForm.value.adjustmentFactor).toBe(0.5);
+     }
+
+   });
 
 });
