@@ -59,7 +59,7 @@ export class StockSplitsComponent implements OnInit {
 
   getStockSplits() {
     this.corporateActionsApiService.getStockSplits().subscribe(response => {
-      this.data = response.payload;
+      this.data = response.payload.map(obj => ({ ...obj, ratio:   obj.top_ratio + '' + '/' + obj.bottom_ratio }));
       this.gridOptions.api.sizeColumnsToFit();
       this.gridOptions.api.setRowData(this.data);
       this.gridOptions.api.expandAll();
@@ -149,7 +149,8 @@ export class StockSplitsComponent implements OnInit {
           filter: true,
           sortable: true,
           cellClass: 'rightAlign',
-          valueFormatter: moneyFormatter
+          valueFormatter: moneyFormatter,
+          hide: true
         },
         {
           field: 'bottom_ratio',
@@ -158,7 +159,16 @@ export class StockSplitsComponent implements OnInit {
           filter: true,
           sortable: true,
           cellClass: 'rightAlign',
+          hide: true,
           valueFormatter: moneyFormatter
+        },
+        {
+          field: 'ratio',
+          headerName: 'Ratio',
+          width: 100,
+          filter: true,
+          sortable: true,
+          cellClass: 'rightAlign',
         },
         {
           field: 'adjustment_factor',
