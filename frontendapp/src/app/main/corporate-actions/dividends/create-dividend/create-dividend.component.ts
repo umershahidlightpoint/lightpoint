@@ -10,8 +10,8 @@ import {
   SimpleChanges
 } from '@angular/core';
 import { SettingApiService } from 'src/services/setting-api.service'; // for get currencies
-import { FinanceServiceProxy } from './../../../../services/service-proxies'; // for get symbols
-import { CorporateActionsApiService } from './../../../../services/corporate-actions.api.service';
+import { FinanceServiceProxy } from './../../../../../services/service-proxies'; // for get symbols
+import { CorporateActionsApiService } from './../../../../../services/corporate-actions.api.service';
 import { ModalDirective } from 'ngx-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, noop } from 'rxjs';

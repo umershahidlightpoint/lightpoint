@@ -2,7 +2,7 @@
 
 > Common Components and Tooling for LightPoint Angular Applications.
 
-[![package version](https://img.shields.io/badge/package-0.0.5-blue)](https://github.com/LightPointFinancialTechnology/lpToolkit.git)
+[![package version](https://img.shields.io/badge/package-0.0.6-blue)](https://github.com/LightPointFinancialTechnology/lpToolkit.git)
 [![last commit](https://img.shields.io/badge/last%20commit-january-brightgreen)](https://github.com/LightPointFinancialTechnology/lpToolkit.git)
 
 This library works fine with the latest version of angular.
@@ -27,6 +27,8 @@ To install the library include the following in your **_package.json_ ** depende
 Then do
 
 `npm install`
+
+> **Note:** If `lp-toolkit` is previously installed and is already present in your `node_modules` directory, then please delete it from your `node_modules` before `npm install`
 
 import **LpToolkitModule** in your root module:
 
@@ -408,6 +410,206 @@ onSaveSettings() {
 }
 ```
 
+## 8. Grid Layout Menu
+
+### Usage example
+
+Html:
+
+```html
+<ag-grid-angular
+  class="w-100 h-100 ag-theme-balham"
+  [gridOptions]="gridOptions"
+></ag-grid-angular>
+```
+
+Typescript:
+
+```typescript
+import { GridOptions } from 'ag-grid-community';
+import { GridLayoutMenuComponent, GridUtils, CustomGridOptions, LayoutServices } from 'lp-toolkit';
+
+public gridOptions: GridOptions;
+
+initGird() {
+	this.gridOptions = {
+		rowData: [],
+		onGridReady: params => {
+		},
+		frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+		... ,
+		/* Add these Grid Option Properties only in Case of External Filters */
+		isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
+		doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
+		... ,
+		/* Add these Custom Grid Option Properties only in Case of External Filters */
+		getExternalFilterState: this.getExternalFilterState.bind(this),
+		clearExternalFilter: this.clearExternalFilter.bind(this),
+		setExternalFilter: this.setExternalFilter.bind(this)
+	};
+
+	const url = 'http://localhost:9091/api';
+	const layoutServices: LayoutServices = {
+		getGridLayouts: url,
+		getLayoutDetail: url,
+		saveGridLayout: url,
+		deleteGridLayout: url,
+		dataProperty: 'payload'				// Key/Name of Data Property in Response Body
+	  };
+	// After the gridOptions is ready
+	this.gridOptions.sideBar = GridUtils.SideBar(
+		userId,
+		gridId,
+		gridName,
+		gridOptions,				// Current Grid's GridOptions, e.g.  this.gridOptions
+		layoutServices,
+		defaultView,				// Optional: Name of DefaultView for the Grid
+		dataSource				// Optional: Pass DataSource In Case of ServerSideRowModel
+	);
+}
+
+// This method should return the External Filters Object
+getExternalFilterState() {
+    return {
+      fundFilter: this.fund
+    };
+}
+
+// This method is called when a Grid Layout is Reset clear External Filters here
+clearExternalFilter() {
+    this.fund = '';
+    this.gridOptions.api.onFilterChanged();
+}
+
+// This method is called when a Grid Layout is Applied set your External Filters here
+setExternalFilter(externalFilter) {
+    const { fundFilter } = externalFilter;
+    this.fund = fundFilter;
+    this.gridOptions.api.onFilterChanged();
+  }
+```
+
+**Read more** about [External Filters in AG Grid](https://www.ag-grid.com/javascript-grid-filter-external/ 'External Filters in AG Grid')
+
+> **Note:** If you are using **External Filters** then the type of **GridOptions** should be **CustomGridOptions**
+> i.e. `public gridOptions: CustomGridOptions;`
+> else it should be GridOptions
+> i.e. `public gridOptions: GridOptions;`
+
+### API EndPoints
+
+### API Interface
+
+```typescript
+interface GridLayout {
+  UserId: number | string;
+  Id: number | string;
+  GridId: number | string;
+  GridName: string;
+  GridLayoutName: string;
+  ColumnState: ColDef[] | ColGroupDef[] | string;
+  GroupState: any[] | string;
+  PivotMode: boolean | string;
+  SortState: any[] | string;
+  FilterState: any | string;
+  ExternalFilterState: any | string;
+  IsPublic: boolean;
+  IsDefault?: boolean;
+}
+```
+
+**1) GET :: getGridLayouts (Get All Layouts of a Grid by `userId` and `gridId` passed as query params):**
+
+**Response**
+
+```typescript
+{
+"message": "The Request was Successful",
+"payload": [
+	{
+	"Id": 1,
+	"GridId": 1,
+	"GridName": "Journals Ledgers",
+	"GridLayoutName": "Events",
+	"ColumnState": "[{\"colId\":\"ag-Grid-AutoColumn\",\"hide\":false,\"aggFunc\":null,\"width\":402,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"source\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"fund\",\"hide\":true,\"aggFunc\":null,\"width\":120,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null}]",
+	},
+"IsPublic": false,
+"IsDefault": false
+],
+"statusCode": 200
+}
+```
+
+**2) GET :: getLayoutDetail (Get a Grid Layout Details by `id` passed as query param):**
+
+**Response**
+
+```typescript
+{
+"message": "The Request was Successful",
+"payload": [
+	{
+	"Id": 1,
+	"GridId": 1,
+	"GridName": "Journals Ledgers",
+	"GridLayoutName": "Events",
+	"ColumnState": "[{\"colId\":\"ag-Grid-AutoColumn\",\"hide\":false,\"aggFunc\":null,\"width\":402,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"source\",\"hide\":true,\"aggFunc\":null,\"width\":200,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null},{\"colId\":\"fund\",\"hide\":true,\"aggFunc\":null,\"width\":120,\"pivotIndex\":null,\"pinned\":null,\"rowGroupIndex\":null}]",
+	},
+"GroupState": "[]",
+"PivotMode": "false",
+"SortState": "[]",
+"FilterState": "{\"side\":{\"values\":[\"LONG\"],\"filterType\":\"set\"}}",
+"ExternalFilterState": "{\"fundFilter\":\"All Funds\"}",
+"IsPublic": false,
+"IsDefault": false
+],
+"statusCode": 200
+}
+```
+
+**3) POST :: saveGridLayout (Save (Id will be 0 in Payload) or Update a Grid Layout):**
+
+**Payload**
+
+```typescript
+{
+  UserId: number | string;
+  Id: number | string;
+  GridId: number | string;
+  GridName: string;
+  GridLayoutName: string;
+  ColumnState: ColDef[] | ColGroupDef[] | string;
+  GroupState: any[] | string;
+  PivotMode: boolean | string;
+  SortState: any[] | string;
+  FilterState: any | string;
+  ExternalFilterState: any | string;
+  IsPublic: boolean;
+}
+```
+
+**Response**
+
+```typescript
+{
+"message": "The Request was Successful",
+"payload": [],
+"statusCode": 200
+}
+```
+
+**4) DELETE :: deleteGridLayout (Delete a Grid Layout by `id` passed as route param):**
+
+**Response**
+
+```typescript
+{
+"message": "The Request was Successful",
+"payload": [],
+"statusCode": 200
+}
+```
+
 ## Interfaces
 
 ## 1. Page
@@ -484,6 +686,61 @@ const blue: Theme = {
     '--tertiary': '#6c757d',
     '--on-tertiary': '#ffffff'
   }
+};
+```
+
+## 4. CustomGridOptions
+
+```typescript
+interface CustomGridOptions extends GridOptions {
+  getExternalFilterState(): any;
+  clearExternalFilter(): void;
+  setExternalFilter(externalFilterState: any): void;
+}
+```
+
+### Usage example
+
+```typescript
+private gridOptions: CustomGridOptions;
+
+this.gridOptions = {
+    rowData: [],
+    onGridReady: params => {
+    },
+    ... ,
+    /* Grid Options Properties for External Filters */
+    isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
+    doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
+    /* Custom Grid Options Properties for External Filters */
+    getExternalFilterState: this.getExternalFilterState.bind(this),
+    clearExternalFilter: this.clearExternalFilter.bind(this),
+    setExternalFilter: this.setExternalFilter.bind(this)
+};
+```
+
+## 5. LayoutServices
+
+```typescript
+interface LayoutServices {
+  getGridLayouts: string;
+  getLayoutDetail: string;
+  saveGridLayout: string;
+  deleteGridLayout: string;
+  dataProperty: string;
+}
+```
+
+### Usage example
+
+```typescript
+const url = 'http://localhost:9091/api';
+const layoutServices: LayoutServices = {
+  getGridLayouts: url,
+  getLayoutDetail: url,
+  saveGridLayout: url,
+  deleteGridLayout: url,
+  dataProperty: 'payload'
 };
 ```
 

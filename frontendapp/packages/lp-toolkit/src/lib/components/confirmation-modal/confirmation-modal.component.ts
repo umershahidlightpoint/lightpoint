@@ -11,22 +11,29 @@ export class ConfirmationModalComponent implements OnInit {
 
   @Input() title: string;
   @Input() description = 'Are you really sure?';
-  @Output() confirmDeletion = new EventEmitter<any>();
+  @Output() confirmed = new EventEmitter<any>();
+  @Output() cancelled = new EventEmitter<any>();
 
   constructor() {}
 
   ngOnInit() {}
 
+  onConfirmed() {
+    this.confirmed.emit(true);
+    this.onCloseModal();
+  }
+
+  onCancelled() {
+    this.cancelled.emit(true);
+    this.onCloseModal();
+  }
+
   showModal() {
     this.confirmationModal.show();
   }
 
-  closeModal() {
-    this.confirmationModal.hide();
-  }
-
-  delete() {
-    this.confirmDeletion.emit(true);
+  onCloseModal() {
+    this.cancelled.emit(true);
     this.confirmationModal.hide();
   }
 }

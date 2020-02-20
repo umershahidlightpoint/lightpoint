@@ -254,7 +254,9 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
     this.resetFieldsSum();
     this.initGird();
-    this.getJournalsTotal({ filterModel: {}, externalFilterModel: {} });
+    if(!this.defaultView){
+      this.getJournalsTotal({ filterModel: {}, externalFilterModel: {} });
+    }
   }
 
   ngAfterViewInit() {
@@ -501,7 +503,11 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       },
       getMainMenuItems: this.getMainMenuItems.bind(this),
       onGridReady: params => {
-        params.api.setServerSideDatasource(this.datasource);
+        if(this.defaultView){
+          params.api.setServerSideDatasource(null);
+        } else{
+          params.api.setServerSideDatasource(this.datasource);
+        }
         this.gridOptions.excelStyles = ExcelStyle;
       },
       onFirstDataRendered: params => {
@@ -527,27 +533,36 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
   onFilterChanged(event) {
     try {
-      this.resetBottomRowData();
-      const havingColumns = this.havingColumns;
-      const { filterModel, valueCols } = event.api.serverSideRowModel.cacheParams;
-      const { fund, symbol, when, balance } = this.getServerSideExternalFilter();
-      const payload = {
-        filterModel,
-        valueCols,
-        havingColumns,
-        externalFilterModel: {
-          ...(fund && { fund }),
-          ...(symbol && { symbol }),
-          ...(when && { when }),
-          ...(balance && { balance })
-        }
-      };
-
-      // console.log('PAYLOAD OF FILTERS ::', payload);
-      this.getJournalsTotal(payload);
+      if(event.api.serverSideRowModel.cacheParams){
+        this.payloadForJournalTotals(event.api.serverSideRowModel.cacheParams);
+      }
     } catch (ex) {
       console.log('Filter Error :: ', ex);
     }
+  }
+
+  payloadForJournalTotals(cacheParams){
+    this.resetBottomRowData();
+      const havingColumns = this.havingColumns;
+      if(cacheParams){
+        const { filterModel, valueCols } = cacheParams;
+        const { fund, symbol, when, balance } = this.getServerSideExternalFilter();
+        const payload = {
+          filterModel,
+          valueCols,
+          havingColumns,
+          externalFilterModel: {
+            ...(fund && { fund }),
+            ...(symbol && { symbol }),
+            ...(when && { when }),
+            ...(balance && { balance })
+          }
+        };
+
+        console.log("on filter changed");
+        // console.log('PAYLOAD OF FILTERS ::', payload);
+        this.getJournalsTotal(payload);
+      }
   }
 
   onSortChanged() {
@@ -641,7 +656,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
 
     this.setDateRange(dateFilter);
-    this.gridOptions.api.onFilterChanged();
+    //this.gridOptions.api.onFilterChanged();
   }
 
   isExternalFilterPresent(): boolean {
@@ -818,6 +833,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.gridOptions.api.showLoadingOverlay();
     this.initColDefs();
     this.gridOptions.api.setServerSideDatasource(this.datasource);
+    const cacheParams = (this.gridOptions.api as any).serverSideRowModel.cacheParams;
+    this.payloadForJournalTotals(cacheParams);
   }
 
   openJournalModal() {

@@ -475,6 +475,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
 
   // Being called twice
   getReport(toDate, fromDate, symbol, fund) {
+    this.gridOptions.api.showLoadingOverlay();
     this.reportsApiService
       .getTaxLotReport(
         moment(toDate).format('YYYY-MM-DD'),
@@ -483,13 +484,20 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         fund,
         false
       )
-      .subscribe(response => {
-        this.stats = response.stats;
-        this.data = response.payload;
-        this.gridOptions.api.sizeColumnsToFit();
-        this.gridOptions.api.setRowData(this.data);
-        this.gridOptions.api.expandAll();
-      });
+      .subscribe(
+        response => {
+          this.stats = response.stats;
+          this.data = response.payload;
+          this.gridOptions.api.sizeColumnsToFit();
+          this.gridOptions.api.setRowData(this.data);
+          this.gridOptions.api.expandAll();
+
+          this.gridOptions.api.hideOverlay();
+        },
+        error => {
+          this.gridOptions.api.hideOverlay();
+        }
+      );
   }
 
   onTaxLotSelection(lporderid) {
