@@ -25,9 +25,14 @@
 
 fieldset{
   border: 1px solid #dee2e6;;
-  padding: 5px !important;
+  padding: 10px !important;
 }
 
 legend {
   width: auto !important;
+}
+
+.form-control:disabled, .form-control[readonly] {
+  background-color: #ffffff;
+  opacity: 1;
 }

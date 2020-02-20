@@ -18,7 +18,7 @@
         </div>
 
         <!-- No Result Alert -->
-        <alert *ngIf="noResult || noCurrencyFound" type="danger" [dismissible]="true">
+        <alert *ngIf="noResult" type="danger" [dismissible]="true">
             <strong>Warning!</strong> Please, only select values from the dropdown!
         </alert>
         <!-- No Result Alert Ends -->
@@ -48,7 +48,7 @@
                 [typeahead]="ticker$"
                 (typeaheadNoResults)="typeaheadNoResults($event)"
                 />
-                <div *ngIf="formFields.ticker.invalid" class="invalid-feedback">Ticker is required</div>
+                <span *ngIf="formFields.ticker.invalid  && formFields.ticker.touched" class="invalid-feedback">Ticker is required</span>
               </div>
             </div>
 
@@ -65,20 +65,19 @@
             <label> Notice Date * </label>
             </div>
             <div class="col-sm-9">
-            <input ngxDaterangepickerMd
+            <input
+                ngxDaterangepickerMd
                 formControlName="noticeDate"
-                class="form-control"
+                class="form-control bc-white cursor-pointer"
                 [ngClass]="{ 'is-invalid': formFields.noticeDate.errors && formFields.noticeDate.invalid && formFields.noticeDate.touched }"
                 type="text"
                 placeholder="Select notice date"
                 [singleDatePicker]="true"
                 [autoApply]="true"
                 autocomplete="off"
+                readonly
                  />
-
-            <div *ngIf="formFields.noticeDate.errors && formFields.noticeDate.invalid && formFields.noticeDate.touched" class="invalid-feedback">
-            <div *ngIf="formFields.noticeDate.errors.required && formFields.noticeDate.invalid && formFields.noticeDate.touched">Notice Date is required</div>
-            </div>
+                 <span *ngIf="formFields.noticeDate.invalid  && formFields.noticeDate.touched" class="invalid-feedback">Notice Date is required</span>
             </div>
         </div>
         <!-- Notice Date Div End -->
@@ -91,19 +90,19 @@
                 <label> Ex-Date * </label>
                 </div>
                 <div class="col-sm-9">
-                <input ngxDaterangepickerMd
+                <input
+                    ngxDaterangepickerMd
                     formControlName="executionDate"
-                    class="form-control"
+                    class="form-control bc-white"
                     [ngClass]="{ 'is-invalid': formFields.executionDate.errors && formFields.executionDate.invalid && formFields.executionDate.touched}"
                     type="text"
                     placeholder="Select ex-Date"
                     [singleDatePicker]="true"
                     [autoApply]="true"
                     autocomplete="off"
+                    readonly
                 />
-                <div *ngIf="formFields.executionDate.errors && formFields.executionDate.invalid && formFields.executionDate.touched" class="invalid-feedback">
-                    <div *ngIf="formFields.executionDate.errors.required && formFields.executionDate.invalid && formFields.executionDate.touched">Execution Date is required</div>
-                </div>
+                <span *ngIf="formFields.executionDate.invalid  && formFields.executionDate.touched" class="invalid-feedback">Execution Date is required</span>
                 </div>
             </div>
             <!-- ExDate Div End -->
@@ -123,9 +122,7 @@
                 </div>
                 <div class="col-sm-2 pl-1 pr-1">
                     <input class="form-control" [ngClass]="{ 'is-invalid': formFields.topRatio.errors && formFields.topRatio.invalid && formFields.topRatio.touched }" formControlName="topRatio" type="number" min="1" step="1">
-                    <div *ngIf="formFields.topRatio.errors && formFields.topRatio.invalid && formFields.topRatio.touched" class="invalid-feedback">
-                        <div *ngIf="formFields.topRatio.errors.required && formFields.topRatio.invalid && formFields.topRatio.touched">Ratio is required</div>
-                    </div>
+                    <span *ngIf="formFields.topRatio.invalid  && formFields.topRatio.touched" class="invalid-feedback">Ratio is required</span>
                 </div>
 
 
@@ -134,20 +131,14 @@
                     </div>
                     <div class="col-sm-2 pl-1 pr-1">
                         <input class="form-control" [ngClass]="{ 'is-invalid': formFields.bottomRatio.errors && formFields.bottomRatio.invalid && formFields.bottomRatio.touched}" formControlName="bottomRatio" type="number" min="1" step="1">
-                        <div *ngIf="formFields.bottomRatio.errors && formFields.bottomRatio.invalid && formFields.bottomRatio.touched" class="invalid-feedback">
-                            <div *ngIf="formFields.bottomRatio.errors.required && formFields.bottomRatio.invalid && formFields.bottomRatio.touched">Rate is required</div>
-                        </div>
+                        <span *ngIf="formFields.bottomRatio.invalid  && formFields.bottomRatio.touched" class="invalid-feedback">Rate is required</span>
                     </div>
 
                 <div class="col-sm-2 pr-1">
-                    <label>Adjustment Factor * </label>
+                    <label>Adjustment Factor </label>
                     </div>
-                    <div class="col-sm-2 pl-1 pr-1">
-                        <input readonly class="form-control" formControlName="adjustmentFactor" type="number">
-                        <!-- <div *ngIf="formFields.adjustmentFactor.errors && formFields.adjustmentFactor.invalid && formFields.adjustmentFactor.touched" class="invalid-feedback">
-                            <div *ngIf="formFields.adjustmentFactor.errors.required && formFields.adjustmentFactor.invalid && formFields.adjustmentFactor.touched">Adj Factor is required</div>
-                        </div> -->
-
+                    <div class="col-sm-2 pl-1 pr-1 readonly-class">
+                        <input readonly class="form-control readonly-class" formControlName="adjustmentFactor" type="number">
                     </div>
 
             </div>

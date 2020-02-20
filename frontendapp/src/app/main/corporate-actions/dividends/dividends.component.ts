@@ -1,7 +1,5 @@
 import { CorporateActionsApiService } from './../../../../services/corporate-actions.api.service';
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
-import { DataService } from '../../../../services/common/data.service';
-import { BehaviorSubject } from 'rxjs';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import {
   Style,
   SideBar,
@@ -18,7 +16,7 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { ContextMenu } from 'src/shared/Models/common';
-import { CreateDividendComponent } from '../create-dividend/create-dividend.component';
+import { CreateDividendComponent } from './create-dividend/create-dividend.component';
 import * as moment from 'moment';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 
@@ -48,7 +46,6 @@ export class DividendsComponent implements OnInit {
   createDividend = false;
 
   constructor(
-    private dataService: DataService,
     private corporateActionsApiService: CorporateActionsApiService
   ) {
     this.hideGrid = false;
