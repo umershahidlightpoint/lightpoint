@@ -1,10 +1,9 @@
-import { Component, TemplateRef, OnInit, AfterViewInit, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, TemplateRef, Input } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { TemplateRendererComponent } from '../template-renderer/template-renderer.component';
-import { GridUtils } from '../../utils/index';
 
 @Component({
   selector: 'lp-services-log',
@@ -17,8 +16,8 @@ export class ServicesLogComponent implements OnInit, AfterViewInit {
   @Input() getLogsUrl: string;
   @Input() downloadFileUrl: string;
 
-  gridOptions: GridOptions;
-  logs: Log[];
+  public gridOptions: GridOptions;
+  public logs: Log[];
 
   constructor(private http: HttpClient) {
     this.initGrid();
@@ -33,22 +32,18 @@ export class ServicesLogComponent implements OnInit, AfterViewInit {
   initGrid() {
     this.gridOptions = {
       rowData: null,
-      getExternalFilterState: () => {
-        return {};
-      },
-      onGridReady: () => {
-        this.gridOptions.api.sizeColumnsToFit();
-      },
-      onFirstDataRendered: params => {
-        GridUtils.autoSizeAllColumns(params);
+      onGridReady: params => {
+        this.setColDefs();
         params.api.sizeColumnsToFit();
       },
-      enableFilter: true,
+      onFirstDataRendered: params => {
+        params.api.sizeColumnsToFit();
+      },
       animateRows: true,
-      alignedGrids: [],
+      enableFilter: true,
       suppressHorizontalScroll: true,
       suppressColumnVirtualisation: true
-    } as GridOptions;
+    };
   }
 
   setColDefs() {
@@ -56,9 +51,9 @@ export class ServicesLogComponent implements OnInit, AfterViewInit {
       {
         field: 'FileName',
         headerName: 'File Name',
+        enableRowGroup: true,
         sortable: true,
         filter: true,
-        enableRowGroup: true,
         resizable: true
       },
       {
@@ -72,35 +67,40 @@ export class ServicesLogComponent implements OnInit, AfterViewInit {
     this.gridOptions.api.setColumnDefs(colDefs);
   }
 
-  getDataFromAPI() {
+  getDataFromAPI(): Observable<Response<Log>> {
     return this.http.get(this.getLogsUrl).pipe(map((response: Response<Log>) => response));
   }
 
   getFiles() {
-    this.getDataFromAPI().subscribe(result => {
-      this.logs = result.payload.map(item => ({
-        FileName: item.FileName
-      }));
-      this.gridOptions.api.setRowData(this.logs);
-    });
-    this.setColDefs();
+    this.getDataFromAPI().subscribe(
+      response => {
+        this.logs = response.payload.map(item => ({
+          FileName: item.FileName
+        }));
+        this.gridOptions.api.setRowData(this.logs);
+      },
+      error => {}
+    );
+  }
+
+  getLogFile(fileName): Observable<any> {
+    const url = this.downloadFileUrl + fileName;
+
+    return this.http.get(url, { responseType: 'text' });
   }
 
   downloadFile(params) {
     const fileName = params.FileName;
-    this.getLogFile(fileName).subscribe(file => {
-      const blob = new Blob([file], { type: 'text/csv' });
+
+    this.getLogFile(fileName).subscribe(response => {
+      const blob = new Blob([response], { type: 'text/csv' });
       const element = document.createElement('a');
+
       element.href = URL.createObjectURL(blob);
       element.download = fileName + '.txt';
       document.body.appendChild(element);
       element.click();
     });
-  }
-
-  getLogFile(name): Observable<any> {
-    const url = this.downloadFileUrl + name;
-    return this.http.get(url, { responseType: 'text' });
   }
 }
 interface Log {

@@ -11,7 +11,7 @@
       <!-- Modal Header Start -->
       <div class="modal-header">
         <h3>{{title}}</h3>
-        <button type="button" class="close" (click)="closeModal()">
+        <button type="button" class="close" (click)="onCloseModal()">
           &times;
         </button>
       </div>
@@ -25,15 +25,18 @@
           </div>
         </div>
       </div>
+      <!-- Modal Body Ends -->
+
       <!-- Modal Footer Start -->
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeModal()">
+        <button type="button" class="btn btn-secondary" (click)="onCancelled()">
           No
         </button>
-        <button type="button" class="btn btn-primary" (click)="delete()">
+        <button type="button" class="btn btn-primary" (click)="onConfirmed()">
           Yes
         </button>
       </div>
+      <!-- Modal Footer Ends -->
 
     </div>
     <!-- Confirmation Modal Content Ends -->
