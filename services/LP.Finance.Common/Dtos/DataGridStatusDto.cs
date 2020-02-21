@@ -14,7 +14,7 @@ namespace LP.Finance.Common.Dtos
         public string PivotMode { get; set; }
         public string SortState { get; set; }
         public string FilterState { get; set; }
-        public string ExternalFilterState { get; set; }
+        public string ExternalFilterState { get; set; } = "{}";
         public bool IsPublic { get; set; }
         public bool IsDefault { get; set; }
     }
