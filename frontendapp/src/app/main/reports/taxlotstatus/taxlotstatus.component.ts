@@ -1,3 +1,4 @@
+
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { timer, Subject } from 'rxjs';
@@ -15,6 +16,8 @@ import {
 import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
+import { CreateDividendComponent } from 'src/shared/Component/create-dividend/create-dividend.component';
+import { CreateStockSplitsComponent } from 'src/shared/Component/create-stock-splits/create-stock-splits.component';
 import { DataModalComponent } from 'src/shared/Component/data-modal/data-modal.component';
 import { AgGridUtils } from 'src/shared/utils/AgGridUtils';
 import { DataDictionary } from 'src/shared/utils/DataDictionary';
@@ -45,6 +48,8 @@ import {
 export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
   @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
+  @ViewChild('dividendModal', { static: false }) dividendModal: CreateDividendComponent;
+  @ViewChild('stockSplitsModal', { static: false }) stockSplitsModal: CreateStockSplitsComponent;
 
   gridOptions: CustomGridOptions;
   closingTaxLots: GridOptions;
@@ -261,7 +266,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         },
         {
           field: 'investment_at_cost',
-          headerName: 'IoC',
+          headerName: 'IoC (USD)',
           width: 100,
           filter: true,
           sortable: true,
@@ -270,7 +275,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         },
         {
           field: 'eod_px',
-          headerName: 'EOD Price',
+          headerName: 'EOD px (Local)',
           width: 100,
           filter: true,
           sortable: true,
@@ -279,7 +284,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         },
         {
           field: 'trade_price',
-          headerName: 'Trade Price',
+          headerName: 'Trade px (Local)',
           width: 100,
           filter: true,
           sortable: true,
@@ -288,7 +293,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         },
         {
           field: 'realized',
-          headerName: 'Realized',
+          headerName: 'Realized (USD)',
           width: 100,
           filter: true,
           sortable: true,
@@ -298,7 +303,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         },
         {
           field: 'unrealized',
-          headerName: 'UnRealized',
+          headerName: 'Unrealized (USD)',
           width: 100,
           filter: true,
           sortable: true,
@@ -308,7 +313,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         },
         {
           field: 'net',
-          headerName: 'Net P&L',
+          headerName: 'Net P&L (USD)',
           width: 100,
           filter: true,
           sortable: true,
@@ -318,7 +323,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         },
         {
           field: 'original_investment_at_cost',
-          headerName: 'Orig IoC',
+          headerName: 'IoC (Local)',
           width: 100,
           filter: true,
           sortable: true,
@@ -328,7 +333,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         },
         {
           field: 'residual_investment_at_cost',
-          headerName: 'Residual IoC',
+          headerName: 'Residual IoC (Local)',
           width: 100,
           filter: true,
           sortable: true,
@@ -641,7 +646,24 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           this.gridOptions.api.showLoadingOverlay();
           this.openDataGridModal(params.node.data);
         }
-      }
+      },
+      {
+        name: 'Corporate Actions',
+        subMenu: [
+          {
+            name: 'Create Dividend',
+            action: () => {
+              this.dividendModal.openDividendModalFromOutside(params.node.data.symbol);
+            },
+          },
+          {
+            name: 'Create Stock Split',
+            action: () => {
+              this.stockSplitsModal.openStockSplitModalFromOutside(params.node.data.symbol);
+            },
+          }
+        ]
+      },
     ];
 
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)

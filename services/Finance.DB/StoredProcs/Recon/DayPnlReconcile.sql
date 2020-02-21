@@ -1,26 +1,30 @@
 ﻿/*
 Examples 
 
-exec [DayPnlReconcile] '2019-12-18'
+select * from fnPositions('2020-02-19')
+exec [DayPnlReconcile] '2020-02-19'
 */
-CREATE PROCEDURE [dbo].[DayPnlReconcile]
+CREATE   PROCEDURE [dbo].[DayPnlReconcile]
 	@businessDate Date
 AS
 declare @busdate as date
 set @busdate = @businessDate
 
+RAISERROR('Generating Bookmon PNL', 0, 1) with nowait
+
 select p.BusDate, s.SecurityCode as SecurityCode, Fund, st.SecurityTypeCode as SecurityType, p.Currency,  Sum(DayPnL) as DayPnl 
 into #bookmon_pnl
-from PositionMaster..intradayPositionSplit p
+from PositionMaster..intradayPositionSplit p with(nowait)
 inner join SecurityMaster..Security s on s.EzeTicker = p.SecurityCode
 inner join SecurityMaster..SecurityType st on st.SecurityTypeId = s.SecurityTypeId
-inner join ( select BusDate, Max(LastModifiedOn) as lmo  from PositionMaster..intradayPositionSplit group by BusDate) as lmo on lmo.BusDate = p.BusDate and lmo.lmo = p.LastModifiedOn
+inner join ( select BusDate, Max(LastModifiedOn) as lmo  from PositionMaster..intradayPositionSplit with(nowait) group by BusDate) as lmo on lmo.BusDate = p.BusDate and lmo.lmo = p.LastModifiedOn
 where p.BusDate = @busDate and p.SecurityCode not like '@CASH%' and p.SecurityCode not like 'ZZ_%'
 group by p.BusDate, s.SecurityCode, Fund, p.Currency, st.SecurityTypeCode
 order by p.BusDate, SecurityCode, Fund, p.Currency
 
+RAISERROR('Generating Base Records', 0, 1) with nowait
 
-select business_date as BusDate, s.SecurityCode as SecurityCode, Fund, st.SecurityTypeCode as SecurityType, pos.currency, 0 as realizedPnl, 0 as unrealizedPnl, 0 as DayPnl
+select distinct business_date as BusDate, s.SecurityCode as SecurityCode, Fund, st.SecurityTypeCode as SecurityType, pos.currency, 0 as realizedPnl, 0 as unrealizedPnl, 0 as DayPnl
 into #temp
 from fnPositions(@busDate) pos
 inner join SecurityMaster..Security s on s.SecurityId = pos.security_id

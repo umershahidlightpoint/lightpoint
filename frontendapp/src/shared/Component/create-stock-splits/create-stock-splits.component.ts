@@ -9,8 +9,8 @@ import {
   OnChanges,
   SimpleChanges
 } from '@angular/core';
-import { FinanceServiceProxy } from './../../../../../services/service-proxies'; // for get symbols
-import { CorporateActionsApiService } from './../../../../../services/corporate-actions.api.service';
+import { FinanceServiceProxy } from './../../../services/service-proxies'; // for get symbols
+import { CorporateActionsApiService } from './../../../services/corporate-actions.api.service';
 import { ModalDirective } from 'ngx-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, noop } from 'rxjs';
@@ -30,7 +30,7 @@ export class CreateStockSplitsComponent implements OnInit, OnChanges {
 
   @ViewChild('stockSplitsModal', { static: false }) stockSplitsModal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
-  @Input() stockSplits: any;
+  stockSplits: any;
 
   ticker$: Observable<[]>;
   noResult = false;
@@ -59,6 +59,7 @@ export class CreateStockSplitsComponent implements OnInit, OnChanges {
 
     this.onChanges();
     this.getSymbols();
+    this.getStockSplits();
   }
 
   ngOnChanges(changes: SimpleChanges) {}
@@ -82,6 +83,12 @@ export class CreateStockSplitsComponent implements OnInit, OnChanges {
   getSymbols() {
     this.financePocServiceProxy.getSymbol().subscribe(symbol => {
       this.ticker$ = symbol.payload.map(item => item.symbol);
+    });
+  }
+
+  getStockSplits() {
+    this.corporateActionsApiService.getStockSplits().subscribe(response => {
+      this.stockSplits = response.payload;
     });
   }
 
@@ -192,7 +199,8 @@ export class CreateStockSplitsComponent implements OnInit, OnChanges {
         this.corporateActionsApiService.createStockSplit(payload)
         .pipe(
           tap(data => {
-            this.toastrService.success('Stock Splits create successfully!');
+            this.toastrService.success('Stock Split created successfully!');
+            this.getStockSplits();
             this.isSaving = false,
             this.modalClose.emit(true);
             this.onReset();
@@ -229,8 +237,12 @@ export class CreateStockSplitsComponent implements OnInit, OnChanges {
       this.editStockSplit = true;
       this.stockSplitForm.setValue({
         ticker: data.symbol,
-        noticeDate: { startDate: moment(data.notice_date), endDate: moment(data.notice_date) },
-        executionDate: { startDate: moment(data.execution_date), endDate: moment(data.execution_date) },
+        noticeDate: { startDate: moment(data.notice_date),
+                      endDate: moment(data.notice_date)
+                     },
+        executionDate: { startDate: moment(data.execution_date),
+                         endDate: moment(data.execution_date)
+                        },
         topRatio: data.top_ratio,
         bottomRatio: data.bottom_ratio,
         adjustmentFactor: data.adjustment_factor
@@ -238,6 +250,15 @@ export class CreateStockSplitsComponent implements OnInit, OnChanges {
       this.stockSplitsModal.show();
     }
 
+  }
+
+  openStockSplitModalFromOutside(data) {
+    const symbol = data;
+    this.stockSplitForm.patchValue({
+      ticker: symbol
+    });
+
+    this.stockSplitsModal.show();
   }
 
   close() {

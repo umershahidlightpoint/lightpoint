@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TabsModule, ModalModule, TooltipModule } from 'ngx-bootstrap';
-import { FormsModule } from '@angular/forms';
+import { TabsModule, ModalModule, AlertModule, TooltipModule } from 'ngx-bootstrap';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { LpToolkitModule } from 'lp-toolkit';
@@ -43,6 +44,8 @@ const reportComponents = [
     ModalModule,
     TooltipModule,
     FormsModule,
+    ReactiveFormsModule,
+    TypeaheadModule.forRoot(),
     BsDropdownModule.forRoot(),
     NgxDaterangepickerMd.forRoot({
       applyLabel: 'Okay',

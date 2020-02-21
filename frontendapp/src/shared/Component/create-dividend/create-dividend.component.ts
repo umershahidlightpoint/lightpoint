@@ -10,8 +10,8 @@ import {
   SimpleChanges
 } from '@angular/core';
 import { SettingApiService } from 'src/services/setting-api.service'; // for get currencies
-import { FinanceServiceProxy } from './../../../../../services/service-proxies'; // for get symbols
-import { CorporateActionsApiService } from './../../../../../services/corporate-actions.api.service';
+import { FinanceServiceProxy } from './../../../services/service-proxies'; // for get symbols
+import { CorporateActionsApiService } from './../../../services/corporate-actions.api.service';
 import { ModalDirective } from 'ngx-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, noop } from 'rxjs';
@@ -31,7 +31,7 @@ export class CreateDividendComponent implements OnInit, OnChanges {
 
   @ViewChild('dividendModal', { static: false }) dividendModal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
-  @Input() dividends: any;
+  dividends: any;
 
   currencies$: Observable<string[]>;
   ticker$: Observable<[]>;
@@ -65,6 +65,7 @@ export class CreateDividendComponent implements OnInit, OnChanges {
 
     this.getCurrencies();
     this.getSymbols();
+    this.getDividends();
   }
 
   ngOnChanges(changes: SimpleChanges) {}
@@ -78,6 +79,12 @@ export class CreateDividendComponent implements OnInit, OnChanges {
   getSymbols() {
     this.financePocServiceProxy.getSymbol().subscribe(symbol => {
       this.ticker$ = symbol.payload.map(item => item.symbol);
+    });
+  }
+
+  getDividends() {
+    this.corporateActionsApiService.getDividends().subscribe(response => {
+      this.dividends = response.payload;
     });
   }
 
@@ -178,7 +185,8 @@ export class CreateDividendComponent implements OnInit, OnChanges {
         this.corporateActionsApiService.createDividend(payload)
         .pipe(
           tap(data => {
-            this.toastrService.success('Dividend create successfully!');
+            this.toastrService.success('Dividend created successfully!');
+            this.getDividends();
             this.isSaving = false,
             this.modalClose.emit(true);
             this.onReset();
@@ -221,6 +229,15 @@ export class CreateDividendComponent implements OnInit, OnChanges {
       this.dividendModal.show();
     }
 
+  }
+
+  openDividendModalFromOutside(data) {
+    const symbol = data;
+    this.dividentForm.patchValue({
+      ticker: symbol
+    });
+
+    this.dividendModal.show();
   }
 
   close() {

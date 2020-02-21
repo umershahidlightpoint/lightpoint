@@ -10,6 +10,61 @@ namespace LP.Finance.Common.Models
 {
     public class TaxLotStatus : IDbAction, IDbModel
     {
+        public static List<TaxLotStatus> All { get; private set; }
+
+        private DateTime GeneratedOn { get; set; }
+
+        public TaxLotStatus()
+        {
+
+        }
+
+        private TaxLotStatus(SqlDataReader reader)
+        {
+            var offset = 0;
+
+            this.Id = reader.GetFieldValue<int>(offset++);
+            this.OpenId = reader.GetFieldValue<string>(offset++);
+            this.Symbol = reader.GetFieldValue<string>(offset++);
+            this.Side = reader.GetFieldValue<string>(offset++);
+            this.Status = reader.GetFieldValue<string>(offset++);
+            this.OriginalQuantity = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++));
+            this.Quantity = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++));
+            this.BusinessDate = reader.GetFieldValue<DateTime>(offset++);
+            this.GeneratedOn = reader.GetFieldValue<DateTime>(offset++);
+            this.TradeDate = reader.GetFieldValue<DateTime>(offset++);
+            this.InvestmentAtCost = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++));
+            this.FxRate = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++));
+            this.Fund = reader.GetFieldValue<string>(offset++);
+            this.TradePrice = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++));
+        }
+
+        public static TaxLotStatus[] Load(SqlConnection connection)
+        {
+            All = new List<TaxLotStatus>();
+
+            var list = new List<TaxLotStatus>();
+
+            var query = new SqlCommand("select * from tax_lot_status with(nolock)", connection);
+            var reader = query.ExecuteReader(System.Data.CommandBehavior.SingleResult);
+
+            while (reader.Read())
+            {
+                try
+                {
+                    list.Add(new TaxLotStatus(reader));
+                } catch ( Exception ex )
+                {
+
+                }
+            }
+            reader.Close();
+
+            All.AddRange(list);
+
+            return All.ToArray();
+        }
+
         // Non Persisted
         public Transaction Trade { get; set; }
 
@@ -71,10 +126,11 @@ namespace LP.Finance.Common.Models
         {
             get
             {
-                var sql = "update journal set a=b, c=d where id = @id";
+                var sql = "update tax_lot_status set Quantity=@quantity, generated_on=GetDate() where id = @id";
                 var sqlParams = new SqlParameter[]
                 {
-                    new SqlParameter()
+                    new SqlParameter("quantity", Quantity),
+                    new SqlParameter("id", Id),
                 };
 
                 return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);

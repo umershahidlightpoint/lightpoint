@@ -118,11 +118,13 @@ namespace PostingEngine.TaxLotMethods
 
             var taxlot = taxlots[0];
 
+            /*
             Logger.Info($"Retrieved Open Tax Lots {taxlot.Trade.Symbol}::{taxlot.Trade.Side}");
             foreach (var i in taxlots)
             {
                 Logger.Info($"==> Open Tax Lots [{i.TradePrice}]::{i.Trade.TradeDate.ToString("MM-dd-yyyy")}::{i.TaxRate.Rate}::{i.PotentialPnl}::{i.TaxLiability}::{i.TaxLotStatus.Quantity}");
             }
+            */
         }
     }
 

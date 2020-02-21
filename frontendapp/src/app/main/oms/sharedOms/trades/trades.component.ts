@@ -11,6 +11,8 @@ import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataModalComponent } from '../../../../../shared/Component/data-modal/data-modal.component';
+import { CreateDividendComponent } from 'src/shared/Component/create-dividend/create-dividend.component';
+import { CreateStockSplitsComponent } from 'src/shared/Component/create-stock-splits/create-stock-splits.component';
 import { PostingEngineApiService } from 'src/services/posting-engine-api.service';
 import { PostingEngineService } from 'src/services/common/posting-engine.service';
 import { DataService } from 'src/services/common/data.service';
@@ -27,6 +29,9 @@ import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/util
 })
 export class TradesComponent implements OnInit, AfterViewInit {
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
+  @ViewChild('dividendModal', { static: false }) dividendModal: CreateDividendComponent;
+  @ViewChild('stockSplitsModal', { static: false }) stockSplitsModal: CreateStockSplitsComponent;
+
   @Output() titleEmitter = new EventEmitter<string>();
   @Input() tradeType = '';
 
@@ -176,7 +181,24 @@ export class TradesComponent implements OnInit, AfterViewInit {
         action: () => {
           this.processOrder(params.node.data.LPOrderId, params.node);
         }
-      }
+      },
+      {
+        name: 'Corporate Actions',
+        subMenu: [
+          {
+            name: 'Create Dividend',
+            action: () => {
+              this.dividendModal.openDividendModalFromOutside(params.node.data.Symbol);
+            },
+          },
+          {
+            name: 'Create Stock Split',
+            action: () => {
+              this.stockSplitsModal.openStockSplitModalFromOutside(params.node.data.Symbol);
+            },
+          }
+        ]
+      },
     ];
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(false, addDefaultItems, true, null, params);

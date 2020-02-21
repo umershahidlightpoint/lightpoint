@@ -1,6 +1,11 @@
+
 import { ModuleWithProviders, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+
 import { AgGridModule } from 'ag-grid-angular';
 import { TabsModule, ModalModule, AlertModule, TooltipModule } from 'ngx-bootstrap';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
@@ -17,9 +22,10 @@ import { ReportGridComponent } from './main/reports/report-grid/report-grid.comp
 import { GridUtilsComponent } from '../shared/Component/grid-utils/grid-utils.component';
 import { DataGridModalComponent } from '../shared/Component/data-grid-modal/data-grid-modal.component';
 import { DatePickerModalComponent } from '../shared/Component/date-picker-modal/date-picker-modal.component';
-import { LoaderComponent } from '../shared/Component/loader/loader.component';
 import { CalculationGraphsComponent } from '../shared/Component/calculation-graphs/calculation-graphs.component';
 import { JournalsComponent } from '../shared/Component/journals/journals.component';
+import { CreateDividendComponent } from './../shared/Component/create-dividend/create-dividend.component';
+import { CreateStockSplitsComponent } from './../shared/Component/create-stock-splits/create-stock-splits.component';
 
 const sharedComponents = [
   GridLayoutMenuComponent,
@@ -31,15 +37,19 @@ const sharedComponents = [
   GridUtilsComponent,
   DataGridModalComponent,
   DatePickerModalComponent,
-  LoaderComponent,
   CalculationGraphsComponent,
-  JournalsComponent
+  JournalsComponent,
+  CreateDividendComponent,
+  CreateStockSplitsComponent
 ];
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
+    TypeaheadModule,
+    BsDropdownModule,
     AgGridModule.withComponents([
       GridLayoutMenuComponent,
       TemplateRendererComponent,

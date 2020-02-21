@@ -23,6 +23,16 @@ namespace PostingEngine.Extensions
             return fxrate;
         }
 
+        public static double Multiplier(this Transaction element, PostingEngineEnvironment env)
+        {
+            var multiplier = 1.0;
+
+            if (env.SecurityDetails.ContainsKey(element.BloombergCode))
+                multiplier = env.SecurityDetails[element.BloombergCode].Multiplier;
+
+            return multiplier;
+        }
+
         public static bool IsDerivative(this Transaction element)
         {
             return _derivativeTypes.Contains(element.SecurityType.ToLowerInvariant());

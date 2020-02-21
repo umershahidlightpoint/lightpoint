@@ -1,9 +1,8 @@
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AppModule } from './../../../../app.module';
+import { AppModule } from './../../../app/app.module';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { DebugElement } from '@angular/core';
-import { CorporateActionsModule } from './../../corporate-actions.module';
 import * as moment from 'moment';
 
 import { CommonModule } from '@angular/common';
@@ -12,13 +11,13 @@ import { TabsModule, ModalModule, AlertModule, TooltipModule } from 'ngx-bootstr
 // Create Dividend Component
 import { CreateDividendComponent } from './create-dividend.component';
 
-import { CorporateActionsApiService } from './../../../../../services/corporate-actions.api.service';
-import { FinanceServiceProxy } from './../../../../../services/service-proxies';
-import { SettingApiService } from './../../../../../services/setting-api.service';
+import { CorporateActionsApiService } from './../../../services/corporate-actions.api.service';
+import { FinanceServiceProxy } from './../../../services/service-proxies';
+import { SettingApiService } from './../../../services/setting-api.service';
 
 import { HttpClientModule } from '@angular/common/http';
 import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
-import { SharedModule } from '../../../../shared.module';
+import { SharedModule } from './../../../app/shared.module';
 import { By } from '@angular/platform-browser';
 
 fdescribe('CreateDividendComponent', () => {
@@ -39,7 +38,6 @@ fdescribe('CreateDividendComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         AppModule,
-        CorporateActionsModule,
         CommonModule,
         HttpClientModule,
         HttpClientTestingModule,

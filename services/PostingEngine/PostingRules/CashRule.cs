@@ -1,4 +1,5 @@
 ﻿using LP.Finance.Common.Models;
+using PostingEngine.Extensions;
 using PostingEngine.MarketData;
 using PostingEngine.PostingRules.Utilities;
 using System;
@@ -28,27 +29,38 @@ namespace PostingEngine.PostingRules
             return;
         }
 
-        private AccountToFrom GetFromToAccount(Transaction element)
+        AccountType _settledCash;
+        AccountType _paidAccount;
+        AccountType _payableAccount;
+
+        private void SetupAccounts()
         {
-            Account fromAccount = null; // Debiting Account
+            _settledCash = AccountType.Find("Settled Cash");
+            _paidAccount = AccountType.Find("Expenses Paid");
+            _payableAccount = AccountType.Find("ACCRUED EXPENSES");
+
+        }
+
+        private AccountToFrom GetFromToAccount(PostingEngineEnvironment env,Transaction element)
+        {
+            SetupAccounts();
+
             Account toAccount = null; // Crediting Account
 
             var symbol = element.Symbol;
-            symbol = FakeJournals._codeMap.ContainsKey(symbol) ? FakeJournals._codeMap[symbol] : symbol;
-
-
-            var fromAccountType = AccountType.Find("PREPAID EXPENSES");
+            symbol = env.CodeMap(symbol);
 
             var toTags = new List<Tag>
                 {
                     Tag.Find("CustodianCode")
                 };
 
+            var fromAccount = new AccountUtils().CreateAccount(_payableAccount, symbol + " Payable", element);
+
             switch (element.Side.ToLowerInvariant())
             {
                 case "debit":
-                    fromAccount = new AccountUtils().CreateAccount(AccountType.Find("Settled Cash"), toTags, element);
-                    toAccount = new AccountUtils().CreateAccount(fromAccountType, symbol + " Paid", element);
+                    toAccount = new AccountUtils().CreateAccount(_settledCash, toTags, element);
                     break;
                 case "credit":
                     break;
@@ -65,7 +77,7 @@ namespace PostingEngine.PostingRules
 
         private void AccrualPayment(PostingEngineEnvironment env, Transaction element, Accrual accrual)
         {
-            var accountToFrom = GetFromToAccount(element);
+            var accountToFrom = GetFromToAccount(env, element);
 
             if (accountToFrom.To == null || accountToFrom.From == null)
             {
@@ -83,10 +95,20 @@ namespace PostingEngine.PostingRules
                 fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
             }
 
-            var moneyUSD = element.LocalNetNotional * fxrate;
+            var moneyUSD = Math.Abs(element.LocalNetNotional) * fxrate;
+
+            if ( element.IsDebit())
+            {
+                moneyUSD *= -1;
+            }
+            else
+            {
+
+            }
 
             var debit = new Journal (element)
             {
+                Symbol = element.Symbol,
                 Account = accountToFrom.From,
                 When = env.ValueDate,
                 FxRate = fxrate,
@@ -96,15 +118,11 @@ namespace PostingEngine.PostingRules
                 Fund = env.GetFund(element),
             };
 
-            var credit = new Journal(element)
+            var credit = new Journal(debit)
             {
                 Account = accountToFrom.To,
-                When = env.ValueDate,
-                FxRate = fxrate,
                 CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD),
                 Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
-                Event = "prepaid-expense",
-                Fund = env.GetFund(element),
             };
 
             env.Journals.Add(debit);

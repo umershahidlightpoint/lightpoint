@@ -24,6 +24,96 @@ namespace PostingEngine.PostingRules
                 Tag.Find("CustodianCode")
             };
 
+        internal static List<Journal> ReverseFxPosting(PostingEngineEnvironment env,
+            string fromAccount,
+            string toAccount,
+            string tradeEvent,
+            TaxLotStatus taxlotStatus,
+            TaxLot closingTaxLot)
+        {
+            if (tradeEvent.Equals(Event.TRADE_DATE))
+                return new List<Journal>();
+
+            var element = closingTaxLot.Trade;
+            var currency = element.SettleCurrency;
+
+            // Check to see if the BaseCurrency == SettleCurrency because if it is then no need to do the FX translation
+            if (env.BaseCurrency.Equals(currency))
+                return new List<Journal>();
+
+            var prevEodFxRate = Convert.ToDouble(FxRates.Find(env, env.PreviousValueDate, currency).Rate);
+            var eodFxRate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, currency).Rate);
+            var effectiveRate = eodFxRate - prevEodFxRate;
+
+
+            var openQuantity = Math.Abs(closingTaxLot.Trade.Quantity);
+            var closeQuantity = Math.Abs(closingTaxLot.Quantity);
+            var percentage = closeQuantity / openQuantity;
+
+            var closingTrade = env.FindTrade(closingTaxLot.ClosingLotId);
+
+            var usdEquivalent = Math.Abs(closingTrade.NetMoney) * Math.Abs(effectiveRate);
+
+            if (element.IsBuy())
+            {
+                if (effectiveRate < 0) // We are increasing what we owe so a debit ?
+                {
+                    usdEquivalent *= -1;
+                }
+            }
+            else if (element.IsShort())
+            {
+                if (effectiveRate > 0)
+                {
+                    usdEquivalent *= -1;
+                }
+            }
+            else if (element.IsCover())
+            {
+                usdEquivalent = element.NetMoney * effectiveRate;
+            }
+            else
+            {
+                usdEquivalent = element.NetMoney * effectiveRate;
+            }
+
+            // We are inverting so
+            usdEquivalent *= -1;
+
+            usdEquivalent *= percentage;
+
+            // Get accounts
+            var toFrom = new AccountUtils().GetAccounts(env, fromAccount, toAccount, _TAGS, element);
+
+            var debit = new Journal(taxlotStatus.Trade, toFrom.From, $"{tradeEvent}-unrealizedpnl-fx", env.ValueDate)
+            {
+                Quantity = closeQuantity,
+                FxRate = effectiveRate,
+                StartPrice = prevEodFxRate,
+                EndPrice = eodFxRate,
+                Fund = env.GetFund(taxlotStatus.Trade),
+
+                Value = env.SignedValue(toFrom.From, toFrom.To, true, usdEquivalent),
+                CreditDebit = env.DebitOrCredit(toFrom.From, usdEquivalent),
+            };
+
+            var credit = new Journal(taxlotStatus.Trade, toFrom.To, $"{tradeEvent}-unrealizedpnl-fx", env.ValueDate)
+            {
+                Quantity = closeQuantity,
+                FxRate = effectiveRate,
+                StartPrice = prevEodFxRate,
+                EndPrice = eodFxRate,
+                Fund = env.GetFund(taxlotStatus.Trade),
+
+                Value = env.SignedValue(toFrom.From, toFrom.To, false, usdEquivalent),
+                CreditDebit = env.DebitOrCredit(toFrom.To, usdEquivalent),
+            };
+
+
+            return new List<Journal>(new[] { debit, credit });
+
+        }
+
         /// <summary>
         /// Create the entries for Unsettled Fx gain / loss
         /// </summary>
@@ -38,7 +128,8 @@ namespace PostingEngine.PostingRules
             string tradeEvent,
             double quantity,
             TaxLotStatus taxlotStatus,
-            Transaction element)
+            Transaction element,
+            bool invert = false)
         {
             if (tradeEvent.Equals(Event.TRADE_DATE))
                 return new List<Journal>();
@@ -58,18 +149,25 @@ namespace PostingEngine.PostingRules
             var effectiveRate = eodFxRate - prevEodFxRate;
 
             var usdEquivalent = Math.Abs(element.NetMoney) * Math.Abs(effectiveRate);
+
             if ( element.IsBuy())
             {
-                if ( effectiveRate <0 ) // We are increasing what we owe so a debit ?
+                if ( effectiveRate < 0 ) // We are increasing what we owe so a debit ?
                 {
                     usdEquivalent *= -1;
+                }
+                else
+                {
                 }
             }
             else if ( element.IsShort())
             {
-                if (effectiveRate < 0)
+                if (effectiveRate > 0)
                 {
                     usdEquivalent *= -1;
+                }
+                else
+                {
                 }
             } else
             {
@@ -80,10 +178,8 @@ namespace PostingEngine.PostingRules
                 }
             }
 
-            if ( fromAccount.StartsWith("DUE FROM/(TO)"))
-            {
+            if (invert)
                 usdEquivalent *= -1;
-            }
 
             // Get accounts
             var toFrom = new AccountUtils().GetAccounts(env, fromAccount, toAccount, _TAGS, element);

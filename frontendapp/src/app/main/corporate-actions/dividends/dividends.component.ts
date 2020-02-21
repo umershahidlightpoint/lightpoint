@@ -1,4 +1,4 @@
-import { CorporateActionsApiService } from './../../../../services/corporate-actions.api.service';
+
 import { Component, OnInit, ViewChild } from '@angular/core';
 import {
   Style,
@@ -16,8 +16,9 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { ContextMenu } from 'src/shared/Models/common';
-import { CreateDividendComponent } from './create-dividend/create-dividend.component';
 import * as moment from 'moment';
+import { CorporateActionsApiService } from './../../../../services/corporate-actions.api.service';
+import { CreateDividendComponent } from 'src/shared/Component/create-dividend/create-dividend.component';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 
 @Component({
@@ -44,6 +45,20 @@ export class DividendsComponent implements OnInit {
   startDate: any;
   endDate: any;
   createDividend = false;
+
+  dividendScreenRatio: {
+    dividendSize: number;
+    detailsSize: number;
+    dividendView: boolean;
+    detailsView: boolean;
+    useTransition: boolean;
+  } = {
+    dividendSize: 50,
+    detailsSize: 50,
+    dividendView: true,
+    detailsView: false,
+    useTransition: true
+  };
 
   constructor(
     private corporateActionsApiService: CorporateActionsApiService
@@ -490,6 +505,7 @@ export class DividendsComponent implements OnInit {
 
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
+    this.dividendScreenRatio.detailsView = false;
     this.dividendDetailsGrid.api.showLoadingOverlay();
     this.getDividends();
     this.getDividendDetails();
@@ -498,6 +514,7 @@ export class DividendsComponent implements OnInit {
   clearFilters() {
     this.selected = null;
     this.filterBySymbol = '';
+    this.dividendScreenRatio.detailsView = false;
     this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
     this.endDate = moment();
     this.gridOptions.api.setRowData([]);
