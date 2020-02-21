@@ -27,6 +27,7 @@ INSERT [dbo].[account_category] ([id], [name]) VALUES (2, N'Liability')
 INSERT [dbo].[account_category] ([id], [name]) VALUES (3, N'Equity')
 INSERT [dbo].[account_category] ([id], [name]) VALUES (4, N'Revenues')
 INSERT [dbo].[account_category] ([id], [name]) VALUES (5, N'Expenses')
+INSERT [dbo].[account_category] ([id], [name]) VALUES (0, N'Dummy')
 
 /*
 Derivative Contracts
@@ -84,7 +85,12 @@ INSERT [dbo].[account_type] ([id], [account_category_id], [name]) VALUES (43, 5,
 INSERT [dbo].[account_type] ([id], [account_category_id], [name]) VALUES (44, 5, N'EMPLOYEE COMPENSATION')
 INSERT [dbo].[account_type] ([id], [account_category_id], [name]) VALUES (45, 5, N'Expenses Paid')
 INSERT [dbo].[account_type] ([id], [account_category_id], [name]) VALUES (46, 5, N'AMORTIZATION AND DEPRECIATION')
+INSERT [dbo].[account_type] ([id], [account_category_id], [name]) VALUES (47, 0, N'Dummy Type')
+
 SET IDENTITY_INSERT [dbo].[account_type] OFF
+
+--dummy account
+INSERT INTO [dbo].[account]([name],[description],[account_type_id]) VALUES('Dummy Account','Default Account',(select top 1 id from account_type where account_category_id = 0))
 
 -- server side filters
 delete from server_side_filter_config
