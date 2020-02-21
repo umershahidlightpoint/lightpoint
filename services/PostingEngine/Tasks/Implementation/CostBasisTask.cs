@@ -42,9 +42,8 @@ namespace PostingEngine.Tasks
 
                     try
                     {
-                        var transaction = connection.BeginTransaction();
-                        CostBasisDto.Calculate(connection, transaction, valueDate);
-                        transaction.Commit();
+                        // Transaction in the store proc here
+                        CostBasisDto.Calculate(connection, valueDate);
                     }
                     catch (Exception ex)
                     {

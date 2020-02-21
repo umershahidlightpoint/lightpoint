@@ -602,7 +602,7 @@ namespace PostingEngine.PostingRules
             var fromJournal = new Journal(openTaxLot)
             {
                 When = env.ValueDate,
-                Event = Event.REALIZED_PNL,
+                Event = Event.REVERSE_UNREALIZED_PNL,
                 FxRate = fxrate,
                 Fund = env.GetFund(openTaxLot),
                 StartPrice = start,

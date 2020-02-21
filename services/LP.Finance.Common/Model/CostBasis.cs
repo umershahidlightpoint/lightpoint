@@ -100,13 +100,13 @@ namespace LP.Finance.Common.Models
         /// </summary>
         /// <param name="connection">DB Connection</param>
         /// <param name="businessDate">The buisness date</param>
-        public static void Calculate(SqlConnection connection, SqlTransaction trans, DateTime businessDate)
+        public static void Calculate(SqlConnection connection, DateTime businessDate)
         {
             var busDate = businessDate.Date.ToString("MM-dd-yyyy");
 
             var sp = "CostBasisCalculation";
 
-            using (var command = new SqlCommand(sp, connection, trans))
+            using (var command = new SqlCommand(sp, connection))
             {
                 command.CommandTimeout = 120; // 2 Mins
                 command.CommandType = CommandType.StoredProcedure;

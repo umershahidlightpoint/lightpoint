@@ -2,11 +2,98 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 
 namespace LP.Finance.Common.Models
 {
+    /// <summary>
+    /// Helper functions for Journals
+    /// </summary>
+    public static class JournalExtensions
+    {
+        public static double Unrealized(this IEnumerable<Journal> journals)
+        {
+            var list = new string[]
+            {
+                "CHANGE IN UNREALIZED GAIN/(LOSS)",
+            };
+
+            var toSum = journals.Where(i => list.Contains(i.Account.Type.Name));
+            return toSum.Sum(i => i.Debit - i.Credit);
+        }
+
+
+        public static double UnrealizedFxTranslation(this IEnumerable<Journal> journals)
+        {
+            var list = new string[]
+            {
+                "Mark to Market longs fx translation gain or loss",
+                "Mark to Market shorts fx translation gain or loss"
+            };
+
+            var toSum = journals.Where(i => list.Contains(i.Account.Type.Name));
+            return toSum.Sum(i => i.Debit - i.Credit);
+        }
+
+        public static double AssetDailyUnrealizedFx(this IEnumerable<Journal> journals)
+        {
+            var list = new string[]
+            {
+                "FX MARKET TO MARKET ON STOCK COST",
+                "FX MARK TO MARKET ON STOCK COST (SHORTS)",
+            };
+
+            var toSum = journals.Where(i => list.Contains(i.Account.Type.Name));
+            return toSum.Sum(i => i.Debit - i.Credit);
+        }
+
+        public static double RevenueDailyUnrealizedFx(this IEnumerable<Journal> journals)
+        {
+            var list = new string[]
+            {
+                "Change in unrealized due to fx on original Cost",
+            };
+
+            var toSum = journals.Where(i => list.Contains(i.Account.Type.Name));
+            return toSum.Sum(i => i.Debit - i.Credit);
+        }
+    }
+
     public class Journal : IDbAction, IDbModel
     {
+        private List<int> _assetExpences = new List<int>
+        {
+            AccountCategory.AC_ASSET,
+            AccountCategory.AC_EXPENCES
+        };
+
+        public double Credit {
+            get
+            {
+                if ( _assetExpences.Contains(Account.Type.Category.Id) && Value < 0)
+                    return Math.Abs(Value);
+
+                if (!_assetExpences.Contains(Account.Type.Category.Id) && Value > 0)
+                    return Math.Abs(Value);
+
+                return 0;
+            }
+        }
+
+        public double Debit
+        {
+            get
+            {
+                if (_assetExpences.Contains(Account.Type.Category.Id) && Value > 0)
+                    return Math.Abs(Value);
+
+                if (!_assetExpences.Contains(Account.Type.Category.Id) && Value < 0)
+                    return Math.Abs(Value);
+
+                return 0;
+            }
+        }
+
         // Default Constructor
         public Journal()
         {

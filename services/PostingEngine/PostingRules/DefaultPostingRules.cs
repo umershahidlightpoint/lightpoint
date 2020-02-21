@@ -28,13 +28,7 @@ namespace PostingEngine.PostingRules
 
         internal void DailyEvent(PostingEngineEnvironment env, Transaction element)
         {
-            double fxrate = 1.0;
-
-            // Lets get fx rate if needed
-            if (!element.SettleCurrency.Equals(env.BaseCurrency))
-            {
-                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
-            }
+            var fxrate = element.FxRate(env);
 
             // Calculate the unrealized PNL
             if (env.TaxLotStatus.ContainsKey(element.LpOrderId))
@@ -54,20 +48,29 @@ namespace PostingEngine.PostingRules
                 {
                     if (element.TradeDate != env.ValueDate && element.SettleDate >= env.ValueDate)
                     {
-                        var fxJournals = FxPosting.CreateFx(
-                            env,
-                            "DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )",
-                            "fx gain or loss on unsettled balance",
-                            "daily",
-                            element.Quantity, null, element);
-                        env.Journals.AddRange(fxJournals);
+                        var closingTaxLots = env.TaxLot.Where(i => i.ClosingLotId.Equals(element.LpOrderId)).ToList();
+
+                        foreach (var closingTaxLot in closingTaxLots)
+                        {
+                            var taxLotStatus = env.TaxLotStatus[closingTaxLot.OpeningLotId];
+
+                            var fxJournals = FxPosting.ReverseFxPosting(
+                                    env,
+                                    "DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )",
+                                    "fx gain or loss on unsettled balance",
+                                    "daily",
+                                    taxLotStatus, closingTaxLot);
+                            env.Journals.AddRange(fxJournals);
+
+                        }
+
                     }
                 }
 
                 }
         }
 
-        private void GenerateDailyUnrealized(PostingEngineEnvironment env, TaxLotStatus taxLotStatus, Transaction element, double quantity, double fxRate, bool closeout = false)
+        private double GenerateDailyUnrealized(PostingEngineEnvironment env, TaxLotStatus taxLotStatus, Transaction element, double quantity, double fxRate, bool closeout = false)
         {
             var prevEodPrice = 0.0;
             var eodPrice = 0.0;
@@ -94,7 +97,8 @@ namespace PostingEngine.PostingRules
 
             var originalAccount = taxLotStatus.Side == "SHORT" ? "Mark to Market Shorts" : "Mark to Market Longs";
             var fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "CHANGE IN UNREALIZED GAIN/(LOSS)", listOfTags, taxLotStatus.Trade);
-            if (taxLotStatus.Side == "SHORT")
+
+            if (taxLotStatus.Trade.IsShort())
             {
                 unrealizedPnl *= -1;
             }
@@ -129,25 +133,20 @@ namespace PostingEngine.PostingRules
             {
                 if (element.TradeDate != env.ValueDate && element.SettleDate >= env.ValueDate)
                 {
+                    // Take into account the FX rate between Value and Settlement Date
                     var fxJournals = FxPosting.CreateFx(
                         env,
                         "DUE FROM/(TO) PRIME BROKERS ( Unsettled Activity )",
                         "fx gain or loss on unsettled balance",
                         "daily",
-                        quantity, null, element);
+                        quantity, null, element, true);
                     env.Journals.AddRange(fxJournals);
                 }
 
                 if (taxLotStatus.Quantity != 0.0)
                 {
-                    if (env.ValueDate.Equals(new DateTime(2019, 12, 17)))
-                    {
-
-                    }
-
                     if (element.TradeDate != env.ValueDate)
                     {
-
                         // Has to happen for every day
                         var fxJournalsForInvestmentAtCost = FxPosting.CreateFx(
                             env,
@@ -160,10 +159,17 @@ namespace PostingEngine.PostingRules
                     }
                 }
             }
+
+            return unrealizedPnl;
         }
 
         internal void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
+            if (element.LpOrderId.StartsWith("0d877"))
+            {
+
+            }
+
             if (env.IsTaxLot(element))
             {
                 CommonRules.GenerateSettlementDateJournals(env, element);
@@ -230,6 +236,11 @@ namespace PostingEngine.PostingRules
                     {
                         Logger.Info($"Relieving Tax Lot {taxlotStatus.TradeDate.ToString("MM-dd-yyyy")}::{taxlotStatus.Symbol}::{taxlotStatus.OpenId}::{lot.TaxLiability}::{lot.TaxRate.Rate}::{lot.PotentialPnl}");
 
+                        if ( taxlotStatus.OpenId.StartsWith("f34d"))
+                        {
+
+                        }
+
                         // Does the open Lot fully fullfill the quantity ?
                         if (Math.Abs(taxlotStatus.Quantity) >= Math.Abs(workingQuantity))
                         {
@@ -270,7 +281,10 @@ namespace PostingEngine.PostingRules
         /// <param name="workingQuantity"></param>
         /// <param name="fxrate"></param>
         /// <param name="multiplier"></param>
-        private TaxLot GenerateJournals(PostingEngineEnvironment env, TaxLotDetail lot, TaxLotStatus taxlotStatus, Transaction element, double workingQuantity, double fxrate, double multiplier)
+        private TaxLot GenerateJournals(PostingEngineEnvironment env, 
+            TaxLotDetail lot, 
+            TaxLotStatus taxlotStatus, 
+            Transaction element, double workingQuantity, double fxrate, double multiplier)
         {
             var buyTrade = env.FindTrade(lot.Trade.LpOrderId);
 
@@ -284,34 +298,18 @@ namespace PostingEngine.PostingRules
                 "daily", workingQuantity, taxlotStatus, buyTrade);
             env.Journals.AddRange(fxJournalsForInvestmentAtCost);
 
+            var localWorkingQuantity = taxlotStatus.Quantity;
+
             taxlotStatus.Quantity += workingQuantity;
             if (taxlotStatus.Quantity == 0)
                 taxlotStatus.Status = "Closed";
             else
                 taxlotStatus.Status = "Partially Closed";
 
-            //if (taxlotStatus.Quantity == 0.0)
-            {
-                // Is this really needed, as if the tax lot is zero then should not generate any additional unrealized pnl
-                GenerateDailyUnrealized(env, taxlotStatus, element, workingQuantity * -1, fxrate, true);
-            }
+            // Is this really needed, as if the tax lot is zero then should not generate any additional unrealized pnl
+            var dailyUnrealized = GenerateDailyUnrealized(env, taxlotStatus, element, workingQuantity * -1, fxrate, true);
 
             var eodPrice = MarketPrices.GetPrice(env, env.PreviousValueDate, buyTrade).Price;
-
-            // Calculate the unrealized Backout PNL for the created Tax Lot
-            var unrealizedPnl = taxlot.Quantity * (eodPrice - buyTrade.SettleNetPrice) * multiplier * fxrate;
-
-            unrealizedPnl *= CommonRules.DetermineSign(element);
-
-            // Need to backout the Unrealized PNL here, as we are reducing the position of the TaxLot
-            CommonRules.ReverseUnrealizedPnl(
-                env,
-                buyTrade,
-                element,
-                taxlot.RealizedPnl * -1,
-                buyTrade.SettleNetPrice,
-                element.SettleNetPrice,
-                fxrate);
 
             // Original FxRate
             var changeDueToFx = fxrate - taxlotStatus.FxRate;
@@ -336,11 +334,37 @@ namespace PostingEngine.PostingRules
             sqlParams.Add(new SqlParameter("@busDate", env.ValueDate));
             sqlParams.Add(new SqlParameter("@LpOrderId", lot.Trade.LpOrderId));
 
+            // This gets passed values, we also need to get anything that posts for this valuedate
             var dataTable = new SqlHelper(env.ConnectionString).GetDataTables("ClosingTaxLot", CommandType.StoredProcedure, sqlParams.ToArray());
 
-            var changeInUnRealized = 1.0;
+            var journalsToBePosted = env.Journals.Where(i => i.Source.Equals(lot.Trade.LpOrderId));
+
+            var unrealisedPnl = journalsToBePosted.Unrealized() * -1;
+            var unrealisedPnlFx = journalsToBePosted.UnrealizedFxTranslation() * -1;
+            var assetUnrealisedPnl = journalsToBePosted.AssetDailyUnrealizedFx();
+            var revenueUnrealisedPnl = journalsToBePosted.RevenueDailyUnrealizedFx();
+
+            var changeInUnRealized = 0.0;
             if (dataTable[0].Rows.Count > 0)
                 changeInUnRealized = Convert.ToDouble(dataTable[0].Rows[0][2]);
+
+            var q = Math.Abs(localWorkingQuantity);
+            var p = Math.Abs(taxlot.Quantity);
+            var percentage = p / q;
+
+            //changeInUnRealized -= (dailyUnrealized + unrealisedPnl);
+            changeInUnRealized -= (unrealisedPnl);
+            changeInUnRealized *= percentage;
+
+            // Need to backout the Unrealized PNL here, as we are reducing the position of the TaxLot
+            CommonRules.ReverseUnrealizedPnl(
+                env,
+                buyTrade,
+                element,
+                changeInUnRealized,
+                buyTrade.SettleNetPrice,
+                element.SettleNetPrice,
+                fxrate);
 
             var changeInUnRealizedFx = 0.0;
             if (dataTable[1].Rows.Count > 0)
@@ -348,16 +372,18 @@ namespace PostingEngine.PostingRules
 
             if (changeInUnRealizedFx != 0.0)
             {
-                var closeOut = changeInUnRealizedFx + fxChange;
+                var closeOut = changeInUnRealizedFx - fxChange - unrealisedPnlFx;
 
-                PostUnrealizedFxGain(env, buyTrade, closeOut, taxlot.TradePrice, taxlot.CostBasis, changeDueToFx);
+                // Need to reserve the amount
+                ReverseUnrealizedFxGain(env, buyTrade, closeOut * -1, taxlot.TradePrice, taxlot.CostBasis, changeDueToFx);
             }
 
             var sumFxMarkToMarket = 0.0;
             if (dataTable[2].Rows.Count > 0)
             {
                 sumFxMarkToMarket = Convert.ToDouble(dataTable[2].Rows[0][2]);
-                sumFxMarkToMarket += fxJournalsForInvestmentAtCost[0].Value;
+                //sumFxMarkToMarket -= fxJournalsForInvestmentAtCost[0].Value;
+                sumFxMarkToMarket -= revenueUnrealisedPnl;
 
                 ReversePosting(env, "Change in unrealized due to fx on original Cost", CommonRules.GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"), buyTrade, sumFxMarkToMarket);
             }
@@ -448,11 +474,18 @@ namespace PostingEngine.PostingRules
             env.Journals.AddRange(new List<Journal>(new[] { debit, credit }));
         }
 
-        private void PostUnrealizedFxGain(PostingEngineEnvironment env, Transaction element, double realizedFxPnl, double start, double end, double fxrate)
+        /// <summary>
+        /// Reverse the collection fx due to Transaction
+        /// </summary>
+        /// <param name="env"></param>
+        /// <param name="element"></param>
+        /// <param name="realizedFxPnl"></param>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="fxrate"></param>
+        private void ReverseUnrealizedFxGain(PostingEngineEnvironment env, Transaction element, double fxTranslationPnl, double start, double end, double fxrate)
         {
-            var m2mtranslation = "Mark to Market longs fx translation gain or loss";
-            if (element.IsShort())
-                m2mtranslation = "Mark to Market shorts fx translation gain or loss";
+            var m2mtranslation = element.IsShort() ? "Mark to Market shorts fx translation gain or loss" : "Mark to Market longs fx translation gain or loss";
 
             var fromTo = new AccountUtils().GetAccounts(env, m2mtranslation, "change in unrealized do to fx translation", new string[] { element.SettleCurrency }.ToList());
 
@@ -469,25 +502,15 @@ namespace PostingEngine.PostingRules
                 StartPrice = start,
                 EndPrice = end,
 
-                Value = env.SignedValue(fromTo.From, fromTo.To, true, realizedFxPnl* -1),
-                CreditDebit = env.DebitOrCredit(fromTo.From, realizedFxPnl),
+                Value = env.SignedValue(fromTo.From, fromTo.To, true, fxTranslationPnl),
+                CreditDebit = env.DebitOrCredit(fromTo.From, fxTranslationPnl),
             };
 
-            var credit = new Journal(fromTo.To, Event.UNREALIZED_FX_TRANSLATION, env.ValueDate)
+            var credit = new Journal(debit)
             {
-                Source = element.LpOrderId,
-                Fund = env.GetFund(element),
-                FxCurrency = element.SettleCurrency,
-                Symbol = element.Symbol,
-                SecurityId = element.SecurityId,
-                Quantity = Convert.ToDouble(element.Quantity),
-
-                FxRate = fxrate,
-                StartPrice = start,
-                EndPrice = end,
-
-                Value = env.SignedValue(fromTo.From, fromTo.To, false, realizedFxPnl * -1),
-                CreditDebit = env.DebitOrCredit(fromTo.To, realizedFxPnl),
+                Account = fromTo.To,
+                Value = env.SignedValue(fromTo.From, fromTo.To, false, fxTranslationPnl),
+                CreditDebit = env.DebitOrCredit(fromTo.To, fxTranslationPnl),
             };
 
             env.Journals.AddRange(new List<Journal>(new[] { debit, credit }));
