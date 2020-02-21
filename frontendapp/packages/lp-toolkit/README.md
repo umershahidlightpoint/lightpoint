@@ -3,7 +3,7 @@
 > Common Components and Tooling for LightPoint Angular Applications.
 
 [![package version](https://img.shields.io/badge/package-0.0.6-blue)](https://github.com/LightPointFinancialTechnology/lpToolkit.git)
-[![last commit](https://img.shields.io/badge/last%20commit-january-brightgreen)](https://github.com/LightPointFinancialTechnology/lpToolkit.git)
+[![last commit](https://img.shields.io/badge/last%20commit-february-brightgreen)](https://github.com/LightPointFinancialTechnology/lpToolkit.git)
 
 This library works fine with the latest version of angular.
 

@@ -55,6 +55,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   startDate: any;
   endDate: any;
   selected: { startDate: moment.Moment; endDate: moment.Moment };
+  maxDate: moment.Moment;
   data: Array<TrialBalanceReport>;
   stats: TrialBalanceReportStats;
   isLoading = false;
@@ -124,6 +125,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     this.initGrid();
     this.getLatestJournalDate();
     this.getFunds();
+    this.maxDate = moment();
     // Comment out this API call, In case we need to enable filter from server side
     // this.getReport(
     //   this.startDate,
