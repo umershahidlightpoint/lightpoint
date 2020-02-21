@@ -52,6 +52,10 @@ namespace PostingEngine.Tasks
             var numberOfDays = (endDate - valueDate).Days;
             while (valueDate <= endDate)
             {
+                if ( valueDate.Year == 2020)
+                {
+
+                }
                 if (!valueDate.IsBusinessDate())
                 {
                     valueDate = valueDate.AddDays(1);

@@ -341,7 +341,7 @@ namespace SqlDAL.Core
             }
         }
 
-        public void Update(string commandText, CommandType commandType, SqlParameter[] parameters)
+        public void Update(string commandText, CommandType commandType, SqlParameter[] parameters = null)
         {
             using (var command = new SqlCommand(commandText, SqlConnection, SqlTransaction))
             {

@@ -20,7 +20,29 @@ namespace PostingEngine.ClientSpecifics
             if (!String.IsNullOrEmpty(clientName) && clientName.ToLowerInvariant().Equals("cowen"))
                 return new CowenSpecifics();
 
+            if (!String.IsNullOrEmpty(clientName) && clientName.ToLowerInvariant().Equals("base"))
+                return new BaseSpecifics();
+
             return new DefaultSpecifics();
         }
+
+        /// <summary>
+        /// Get the instance of the class specified, so classname will be grabbed from the config file, so for example
+        /// <add key="Client" value="PostingEngine.ClientSpecifics.BayberrySpecifics"/>
+        /// </summary>
+        /// <param name="className"></param>
+        /// <returns></returns>
+        public static IClientSpecifics GetImplementation(string className)
+        {
+            var assembly = typeof(IClientSpecifics).Assembly;
+            if (assembly != null)
+            {
+                var type = assembly.GetType(className);
+                return Activator.CreateInstance(type) as IClientSpecifics;
+            }
+
+            return new DefaultSpecifics();
+        }
+
     }
 }

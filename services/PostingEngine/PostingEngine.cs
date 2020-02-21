@@ -25,9 +25,6 @@ namespace PostingEngine
             // Get all Activity
             RunForPeriod(key, valueDate, period);
 
-            // Then Cost Basis
-            CostBasisAndDayPnl(key, valueDate, period);
-
             // Unofficial Daily Pnl
             RunAction(key, "SettledCashBalances", valueDate, period);
 
@@ -37,7 +34,10 @@ namespace PostingEngine
             RunAction(key, "EndOfYear", valueDate, period);
 
             //GenerateEODReports();
-            RunAction(key, "Complete", valueDate, period);
+            RunAction(key, "CacheData", valueDate, period);
+
+            // Then Cost Basis
+            CostBasisAndDayPnl(key, valueDate, period);
         }
 
         internal static void PullFromLegacySystem(Guid key, DateTime valueDate, string period)

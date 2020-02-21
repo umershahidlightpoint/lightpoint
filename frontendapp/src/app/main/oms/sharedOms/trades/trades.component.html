@@ -10,3 +10,9 @@
 
 <app-data-modal #dataModal [orderId]="orderId" [title]="title">
 </app-data-modal>
+
+<app-create-dividend #dividendModal (modalClose)="closeDividendModal()">
+</app-create-dividend>
+
+<app-create-stock-splits #stockSplitsModal (modalClose)="closeStockSplitModal()">
+</app-create-stock-splits>

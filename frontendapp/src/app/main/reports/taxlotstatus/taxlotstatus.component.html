@@ -44,7 +44,7 @@
       <form>
         <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off" placeholder="Choose date"
           [(ngModel)]="selected" name="selectedDaterange" (ngModelChange)="changeDate($event)" [singleDatePicker]="true"
-          [autoApply]="true" />
+          [autoApply]="true" [maxDate]="maxDate" />
       </form>
     </div>
     <!-- Date Picker Div Ends -->
@@ -171,3 +171,8 @@
 <app-data-grid-modal #dataGridModal gridTitle="Open Tax Lot Journals" [expanded]="true">
 </app-data-grid-modal>
 <!-- Data Grid Modal Ends -->
+
+<app-create-dividend #dividendModal (modalClose)="closeDividendModal()"></app-create-dividend>
+
+<app-create-stock-splits #stockSplitsModal (modalClose)="closeStockSplitModal()">
+</app-create-stock-splits>

@@ -1,3 +1,7 @@
 ::ng-deep .rightAlign {
     text-align: right;
   }
+
+::ng-deep .tabset-wrapper .tab-content {
+  height: 100% !important;
+} 

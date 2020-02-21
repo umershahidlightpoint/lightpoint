@@ -54,6 +54,7 @@ namespace PostingEngine.Tasks
                     if (!valueDate.IsBusinessDate())
                     {
                         valueDate = valueDate.AddDays(1);
+                        rowsCompleted++;
                         continue;
                     }
 
@@ -90,16 +91,6 @@ namespace PostingEngine.Tasks
                             if (settledCash.Currency.Equals(env.BaseCurrency))
                                 continue;
 
-                            // Now Generate the correct set of entries
-
-                            if (settledCash.Symbol.Equals("RBD"))
-                            {
-
-                            }
-
-                            //if (settledCash.Quantity == 0)
-                            //    continue;
-
                             var prevFx = Convert.ToDouble(FxRates.Find(env, env.PreviousValueDate, settledCash.Currency).Rate);
                             var eodFx = Convert.ToDouble(FxRates.Find(env, env.ValueDate, settledCash.Currency).Rate);
 
@@ -108,17 +99,21 @@ namespace PostingEngine.Tasks
                             var changeDelta = eodFx - prevFx;
                             var change = changeDelta * local * -1;
 
+                            var symbol = $"@CASH{settledCash.Currency}";
+                            var security = env.Trades?.Where(i => i.Symbol.Equals(symbol)).FirstOrDefault();
+                            var securityId = security != null ? security.SecurityId : -1;
+
                             var fromTo = new AccountUtils().GetAccounts(env, "Settled Cash", "fx gain or loss on settled balance", new string[] { settledCash.Currency }.ToList());
 
                             var debit = new Journal(fromTo.From, "settled-cash-fx", valueDate)
                             {
-                                Source = settledCash.Source,
+                                Source = symbol,
                                 Fund = settledCash.Fund,
                                 Quantity = local,
 
                                 FxCurrency = settledCash.Currency,
-                                Symbol = settledCash.Symbol,
-                                SecurityId = settledCash.SecurityId,
+                                Symbol = symbol,
+                                SecurityId = securityId,
                                 FxRate = changeDelta,
                                 StartPrice = prevFx,
                                 EndPrice = eodFx,
@@ -127,19 +122,9 @@ namespace PostingEngine.Tasks
                                 CreditDebit = env.DebitOrCredit(fromTo.From, change),
                             };
 
-                            var credit = new Journal(fromTo.To, "settled-cash-fx", valueDate)
+                            var credit = new Journal(debit)
                             {
-                                Source = settledCash.Source,
-                                Fund = settledCash.Fund,
-                                Quantity = local,
-
-                                FxCurrency = settledCash.Currency,
-                                Symbol = settledCash.Symbol,
-                                SecurityId = settledCash.SecurityId,
-                                FxRate = changeDelta,
-                                StartPrice = prevFx,
-                                EndPrice = eodFx,
-
+                                Account = fromTo.To,
                                 Value = env.SignedValue(fromTo.From, fromTo.To, false, change),
                                 CreditDebit = env.DebitOrCredit(fromTo.To, change),
                             };

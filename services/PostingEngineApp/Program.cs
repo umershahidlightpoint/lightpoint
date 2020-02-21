@@ -29,13 +29,20 @@ namespace PostingEngineCmd
             var date = DateTime.Now.Date.PrevBusinessDate();
             var period = "ITD";
 
-            if ( args.Length > 0 )
+            if (args.Length > 0)
             {
-                Logger.Info($"Args {string.Join(",", args)}");
+                Logger.Info($"Args {string.Join(" , ", args)}");
+            }
 
-                // Lets grab the parameters
+            if ( args.Length > 0)
+            {
+                date = DateTime.Parse(args[0]);
+            }
 
-            } 
+            if (args.Length > 1)
+            {
+                period = args[1];
+            }
 
             Logger.Info($"Running Posting Engine for Period {period} and ValueDate {date}");
 

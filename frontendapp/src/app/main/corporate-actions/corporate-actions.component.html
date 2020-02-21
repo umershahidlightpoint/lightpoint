@@ -2,7 +2,6 @@
   <tabset>
     <tab heading="Dividends">
       <div [ngStyle]="style">
-        <div class="clearfix"></div>
         <div [ngStyle]="styleForHeight">
           <app-dividends *ngIf="corporateActions"></app-dividends>
         </div>
@@ -11,7 +10,6 @@
 
     <tab heading="Stock Splits" (selectTab)="activeStockSplits()">
       <div [ngStyle]="style">
-        <div class="clearfix"></div>
         <div [ngStyle]="styleForHeight">
           <app-stock-splits *ngIf="stockSplits"></app-stock-splits>
         </div>

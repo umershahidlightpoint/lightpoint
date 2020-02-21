@@ -5,6 +5,12 @@ using System.Linq;
 
 namespace PostingEngine.ClientSpecifics
 {
+    /// <summary>
+    /// Used to isolate the trades that are to be processed, this will depend on client.  Each client will need to implement
+    /// IClientSpecifics and add an entry in the config file, indicating which client it is.
+    /// 
+    /// Ideal this should be the name of the Class impletming the IClientSpefics, that needs to be implemented.
+    /// </summary>
     public class BayberrySpecifics : IClientSpecifics
     {
         public Transaction[] Transform(Transaction[] trades)
@@ -35,14 +41,16 @@ namespace PostingEngine.ClientSpecifics
                     //"FORWARD",
                     //"Common Stock",
                     //"Equity Swap",
-                    "Journals"
+                    //"Journals",
+                    //"Cash"
                     };
 
                 var symbolTags = new List<string>
                 {
-                    //"AEO",
+                    "NLFSK DC",
+                    "GNS LN",
                     //"ROST",
-                    //"CDAY",
+                    "AEO",
                     //"BURL",
                     //"9142 JP",
                     //"BGA AU SWAP",

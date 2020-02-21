@@ -170,6 +170,14 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       suppressHorizontalScroll: false,
       suppressColumnVirtualisation: true,
       alignedGrids: [],
+      deltaRowDataMode: true,
+      getRowNodeId: data => {
+        return data.id;
+      },
+      onRowDataUpdated: params => {
+        console.log('Filters ::', params.api.getFilterModel());
+        console.log('Data Updated ::', params);
+      },
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
         this.gridColumnApi = params.columnApi;

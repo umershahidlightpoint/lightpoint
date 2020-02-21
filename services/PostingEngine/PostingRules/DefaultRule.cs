@@ -161,10 +161,7 @@ namespace PostingEngine.PostingRules
         {
             double fxrate = 1.0;
 
-            double multiplier = 1.0;
-
-            if (env.SecurityDetails.ContainsKey(element.BloombergCode))
-                multiplier = env.SecurityDetails[element.BloombergCode].Multiplier;
+            var multiplier = element.Multiplier(env);
 
             // Lets get fx rate if needed
             if (!element.SettleCurrency.Equals(env.BaseCurrency))

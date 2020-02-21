@@ -3,9 +3,9 @@ declare @busDate Date
 declare @startDate Date
 declare @prevDate Date
 
-set @startDate = '2019-01-01'
-set @busDate = '2019-12-31'
-set @prevDate = '2019-12-30'
+set @startDate = '2020-01-01'
+set @busDate = '2020-01-04'
+set @prevDate = '2020-01-03'
 
 exec [DayOverDayIncome] @startDate, @busDate, @prevDate
 */
@@ -50,7 +50,7 @@ left outer join #prev_expences as pe on pe.Fund = ce.Fund
 left outer join #prev_revenues as pr on pr.Fund = ce.Fund
 */
 
-select Fund, 0 as Debit, 0 as Credit, sum(debit-credit) as Balance from current_journal
+select Fund, sum(debit) as Debit, sum(credit) as Credit, sum(debit-credit) as Balance from vwJournal
 where AccountCategory in ( 'Revenues', 'Expenses' )
 and [when] > @prevbusinessDate and [when] <= @businessDate
 group by Fund

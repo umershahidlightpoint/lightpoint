@@ -20,6 +20,7 @@ namespace PostingEngine
             AccountType.Load(connection);
             Account.Load(connection);
             Tag.Load(connection);
+            TaxLotStatus.Load(connection);
         }
 
         internal static void Setup(string ConnectionString)
@@ -30,10 +31,7 @@ namespace PostingEngine
 
                 try
                 {
-                    AccountCategory.Load(connection);
-                    AccountType.Load(connection);
-                    Account.Load(connection);
-                    Tag.Load(connection);
+                    Setup(connection);
                 }
                 catch (Exception ex )
                 {

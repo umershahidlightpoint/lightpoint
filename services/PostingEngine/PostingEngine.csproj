@@ -54,6 +54,7 @@
     <Compile Include="ClientSpecifics\Implementation\CowenSpecifics.cs" />
     <Compile Include="ClientSpecifics\Implementation\BayberrySpecifics.cs" />
     <Compile Include="ClientSpecifics\ClientSpecifics.cs" />
+    <Compile Include="ClientSpecifics\Implementation\BaseSpecifics.cs" />
     <Compile Include="ClientSpecifics\Implementation\DefaultSpecifics.cs" />
     <Compile Include="Contracts\WhatSide.cs" />
     <Compile Include="MarketData\CostBasises.cs" />

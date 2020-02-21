@@ -6,7 +6,7 @@
       <!------ Form Starts------>
       <form #roleForm="ngForm" [formGroup]="accountForm" (ngSubmit)="onSave()">
         <!-- Modal Header -->
-        <div class="modal-header">
+        <div class="modal-header color-primary">
           <h3 *ngIf="editCase">Edit Account ({{ accountCategory }})</h3>
           <h3 *ngIf="!editCase">Create Account ({{ selectedAccountCategory?.name }})</h3>
           <button type="button" class="close" data-dismiss="modal" (click)="close()">&times;</button>
