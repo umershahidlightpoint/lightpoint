@@ -35,7 +35,7 @@
     <!-- Clear Button Div Ends -->
 
     <!-- Util Buttons Div Starts -->
-    <div class="col-auto ml-auto" style="margin-right: 40px;">
+    <div class="col-auto ml-auto">
 
       <!-- Refresh Button Div Starts -->
       <div class="mr-2 d-inline-block">
@@ -44,42 +44,72 @@
       </div>
       <!-- Refresh Button Div Ends -->
 
-      <div class="d-inline-block add-journal-btn">
+      <div class="d-inline-block">
         <button class="btn btn-pa" type="button" value="showModal" (click)="openDividendModal()" tooltip="Create Dividend"
           placement="top">
           <i class="fa fa-plus" aria-hidden="true"></i>
         </button>
       </div>
 
+    <!-- Expand/Collapse Button -->
+      <!-- <div class="mr-3 d-inline-block">
+        <ng-template #tooltipTemplate>{{dividendScreenRatio.chartsView ? 'Expand' : 'Collapse'}}</ng-template>
+        <button (click)="dividendScreenRatio.chartsView = !dividendScreenRatio.chartsView" class="btn btn-pa"
+          [tooltip]="tooltipTemplate" placement="top">
+          <i class="fa"
+            [ngClass]="{'fa-arrow-right': dividendScreenRatio.chartsView, 'fa-arrow-left': !dividendScreenRatio.chartsView}"></i>
+        </button>
+      </div> -->
+      <!-- <div class="d-inline-block ml-2">
+        <ng-template #tooltipTemplate> Expand</ng-template>
+        <button class="btn btn-pa"
+          [tooltip]="tooltipTemplate" placement="top">
+          <i class="fa fa-arrow-right"></i>
+        </button>
+      </div> -->
+
     </div>
     <!-- Util Buttons Div Ends -->
 
   </div>
 
-<ag-grid-angular
- class="w-100 height-45 ag-theme-balham"
- style="margin-top: 20px;"
- [gridOptions]="gridOptions"
- (rowSelected)="onRowSelected($event)"
- [rowData]="rowData"
->
-</ag-grid-angular>
+<!-- Main Split Row Starts -->
+<div class="split-area row h-100">
 
-<h4>Details</h4>
 
-<ag-grid-angular
- class="w-100 height-45 ag-theme-balham"
- style="margin-top: 20px;"
- [gridOptions]="dividendDetailsGrid"
- (rowSelected)="onRowSelected($event)"
- [rowData]="rowData"
->
-</ag-grid-angular>
+  <ag-grid-angular
+    class="w-100 height-45 ag-theme-balham"
+    style="margin-top: 20px;"
+    [gridOptions]="gridOptions"
+    (rowSelected)="onRowSelected($event)"
+    [rowData]="rowData"
+   >
+  </ag-grid-angular>
 
-<app-create-dividend #dividendModal (modalClose)="closeDividendModal()" [dividends]="data">
+
+<div class="w-100 height-45 mt-3 tabset-wrapper">
+<tabset class="w-100 height-45 mt-3">
+  <tab class="h-100" heading="Details" (selectTab)="activeStockSplits()">
+        <ag-grid-angular
+        class="w-100 h-100 ag-theme-balham"
+        style="margin-top: 20px;"
+        [gridOptions]="dividendDetailsGrid"
+        (rowSelected)="onRowSelected($event)"
+        [rowData]="rowData"
+        >
+        </ag-grid-angular>
+  </tab>
+
+  <tab heading="Preview">
+    <app-preview></app-preview>
+  </tab>
+</tabset>
+</div>
+  
+</div>
+
+<app-create-dividend #dividendModal (modalClose)="closeDividendModal()">
 </app-create-dividend>
 
-<!-- Data Grid Modal Component Selector Starts -->
 <app-data-grid-modal #dataGridModal [gridTitle]="title">
 </app-data-grid-modal>
-<!-- Data Grid Modal Component Selector Ends -->

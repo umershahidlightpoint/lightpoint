@@ -1,3 +1,4 @@
+
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { timer, Subject } from 'rxjs';
@@ -15,6 +16,8 @@ import {
 import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
+import { CreateDividendComponent } from 'src/shared/Component/create-dividend/create-dividend.component';
+import { CreateStockSplitsComponent } from 'src/shared/Component/create-stock-splits/create-stock-splits.component';
 import { DataModalComponent } from 'src/shared/Component/data-modal/data-modal.component';
 import { AgGridUtils } from 'src/shared/utils/AgGridUtils';
 import { DataDictionary } from 'src/shared/utils/DataDictionary';
@@ -45,6 +48,8 @@ import {
 export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
   @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
+  @ViewChild('dividendModal', { static: false }) dividendModal: CreateDividendComponent;
+  @ViewChild('stockSplitsModal', { static: false }) stockSplitsModal: CreateStockSplitsComponent;
 
   gridOptions: CustomGridOptions;
   closingTaxLots: GridOptions;
@@ -641,7 +646,24 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           this.gridOptions.api.showLoadingOverlay();
           this.openDataGridModal(params.node.data);
         }
-      }
+      },
+      {
+        name: 'Corporate Actions',
+        subMenu: [
+          {
+            name: 'Create Dividend',
+            action: () => {
+              this.dividendModal.openDividendModalFromOutside(params.node.data.symbol);
+            },
+          },
+          {
+            name: 'Create Stock Split',
+            action: () => {
+              this.stockSplitsModal.openStockSplitModalFromOutside(params.node.data.symbol);
+            },
+          }
+        ]
+      },
     ];
 
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)

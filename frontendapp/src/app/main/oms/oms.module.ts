@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TabsModule, ModalModule, TooltipModule } from 'ngx-bootstrap';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 
 // Journal Allocation
 import { JournalAllocationComponent } from './journal-allocation/journal-allocation.component';
@@ -35,6 +36,8 @@ const omsComponents = [
     ModalModule,
     TooltipModule,
     FormsModule,
+    ReactiveFormsModule,
+    TypeaheadModule.forRoot(),
     SharedModule,
     RouterModule.forChild(OmsRoutes),
   ]

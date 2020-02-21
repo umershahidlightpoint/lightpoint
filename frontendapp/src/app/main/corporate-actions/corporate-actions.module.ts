@@ -7,24 +7,23 @@ import { TabsModule, ModalModule, AlertModule, TooltipModule } from 'ngx-bootstr
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import { AngularSplitModule } from 'angular-split';
 import { LpToolkitModule } from 'lp-toolkit';
 
 import { CorporateActionsComponent } from './corporate-actions.component';
 import { DividendsComponent } from './dividends/dividends.component';
 import { StockSplitsComponent } from './stock-splits/stock-splits.component';
+import { PreviewComponent } from './dividends/preview/preview.component';
 
 import { CorporateActionsRoutes } from './corporate-actions.route';
 
 import { SharedModule } from 'src/app/shared.module';
-import { CreateDividendComponent } from './dividends/create-dividend/create-dividend.component';
-import { CreateStockSplitsComponent } from './stock-splits/create-stock-splits/create-stock-splits.component';
 
 const corporateActionsComponents = [
   CorporateActionsComponent,
   DividendsComponent,
-  CreateDividendComponent,
   StockSplitsComponent,
-  CreateStockSplitsComponent
+  PreviewComponent
 ];
 
 @NgModule({
@@ -44,6 +43,7 @@ const corporateActionsComponents = [
       applyLabel: 'Okay',
       firstDay: 1
     }),
+    AngularSplitModule.forRoot(),
     RouterModule.forChild(CorporateActionsRoutes),
     LpToolkitModule,
     SharedModule
