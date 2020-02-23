@@ -508,7 +508,11 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   }
 
   onTaxLotSelection(lporderid) {
-    this.reportsApiService.getClosingTaxLots(lporderid).subscribe(response => {
+
+    const startDate = this.selected.startDate.format('YYYY-MM-DD');
+    const endDate = this.selected.endDate.format('YYYY-MM-DD');
+
+    this.reportsApiService.getClosingTaxLots(lporderid, startDate, endDate).subscribe(response => {
       // this.stats = response.stats;
       // this.data = response.data;
       this.closingTaxLots.api.sizeColumnsToFit();

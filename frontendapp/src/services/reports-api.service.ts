@@ -66,8 +66,8 @@ export class ReportsApiService {
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
-  getClosingTaxLots(lporderid) {
-    const url = this.baseUrl + '/journal/closingTaxLots?orderid=' + lporderid;
+  getClosingTaxLots(lporderid, fromDate, toDate) {
+    const url = this.baseUrl + '/journal/closingTaxLots?orderid=' + lporderid + '&to=' + toDate;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
