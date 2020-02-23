@@ -4,7 +4,7 @@ Examples
 select * from fnPositions('2020-02-19')
 exec [DayPnlReconcile] '2020-02-19'
 */
-CREATE   PROCEDURE [dbo].[DayPnlReconcile]
+CREATE PROCEDURE [dbo].[DayPnlReconcile]
 	@businessDate Date
 AS
 declare @busdate as date
@@ -35,7 +35,7 @@ set realizedPnl = GG
 from #temp t
 inner join (
 select [When], s.SecurityCode as Symbol, Fund, SUM(credit-debit) as GG 
-from vwJournal v
+from current_journal_full v
 inner join SecurityMaster..Security s on s.SecurityId = v.security_id
 where AccountType in ('REALIZED GAIN/(LOSS)') and [event] in ('realizedpnl')
 group by [When], s.SecurityCode, Fund
@@ -45,11 +45,11 @@ update #temp
 set unrealizedPnl = GG
 from #temp t
 inner join (
-select [When], s.SecurityCode as Symbol, Fund, SUM(credit-debit) as GG from vwFullJournal v
+select [When], s.SecurityCode as Symbol, Fund, SUM(credit-debit) as GG from current_journal_full v
 inner join SecurityMaster..Security s on s.SecurityId = v.security_id
-where (AccountType = 'CHANGE IN UNREALIZED GAIN/(LOSS)' and [event] = 'daily-unrealizedpnl')
+where (AccountType = 'CHANGE IN UNREALIZED GAIN/(LOSS)')
 or (AccountType = 'change in unrealized due to fx on original Cost' and [event] = 'daily-unrealizedpnl-fx')
-or (AccountType = 'change in unrealized do to fx translation' and [event] = 'unrealized-cash-fx')
+or (AccountType = 'change in unrealized do to fx translation' and [event] = 'unrealized-fx-translation')
 and v.SecurityType not in ( 'Equity Swap', 'FORWARD', 'CROSS' )
 group by [When], s.SecurityCode, Fund
 ) as v on v.[when] = t.BusDate and v.fund = t.fund and v.symbol = t.SecurityCode
@@ -58,7 +58,7 @@ update #temp
 set unrealizedPnl = GG
 from #temp t
 inner join (
-select [When], s.SecurityCode as Symbol, Fund, SUM(credit-debit) as GG from vwFullJournal v
+select [When], s.SecurityCode as Symbol, Fund, SUM(credit-debit) as GG from current_journal_full v
 inner join SecurityMaster..Security s on s.SecurityId = v.security_id
 where (AccountType = 'Change in Unrealized Derivatives Contracts at Fair Value')
 and v.SecurityType in ( 'Equity Swap', 'FORWARD', 'CROSS' )

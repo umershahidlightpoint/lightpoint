@@ -252,7 +252,7 @@ namespace PostingEngine
             var trades = GetTransactions(tradesURL + "ITD");
             var accruals = GetTransactions(accrualsURL + "ITD");
 
-            using (var connection = new SqlConnection(connectionString))
+            using (var connection = new SqlConnection(connectionString + ";Application Name=PostingEngine"))
             {
                 connection.Open();
 
@@ -909,62 +909,15 @@ namespace PostingEngine
         /// <param name="period">Period with which to run with</param>
         private static bool Cleanup(SqlConnection connection, string period)
         {
-            Tuple<DateTime, DateTime> datePeriod;
-
-            switch (period)
+            var process = new CleanupTask();
+            var result = process.Run(new PostingEngineEnvironment
             {
-                case "ITD":
-                    datePeriod = System.DateTime.Now.ITD();
-                    break;
-                case "MTD":
-                    datePeriod = System.DateTime.Now.MTD();
-                    break;
-                default:
-                    datePeriod = System.DateTime.Now.Today();
-                    break;
-            }
+                ConnectionString = connectionString,
+                Period = period,
+                CallBack = PostingEngineEx.LogProcess
+            });
 
-            var startdate = datePeriod.Item1.ToString("MM-dd-yyyy") + " 00:00";
-            var enddate = datePeriod.Item2.ToString("MM-dd-yyyy") + " 23:59";
-
-            try
-            {
-                var query =
-                    $@"DECLARE @Deleted_Rows INT;
-                        SET @Deleted_Rows = 1;
-                        WHILE (@Deleted_Rows > 0)
-                          BEGIN
-
-                        delete top (10000) from journal 
-                        where [when] between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}')
-                        SET @Deleted_Rows = @@ROWCOUNT;
-    
-                        END";
-
-                var command = new SqlCommand(query, connection);
-                command.CommandTimeout = 90;
-                command.ExecuteNonQuery();
-
-                if (period.Equals("ITD"))
-                {
-                    // We need to preserve the Accounts, so once created we are good to go
-                    //new SqlCommand("delete from account_tag", connection).ExecuteNonQuery();
-                    //new SqlCommand("delete from account", connection).ExecuteNonQuery();
-
-                    new SqlCommand("delete from journal_log", connection).ExecuteNonQuery();
-                    new SqlCommand("delete from tax_lot", connection).ExecuteNonQuery();
-                    new SqlCommand("delete from tax_lot_status", connection).ExecuteNonQuery();
-                    new SqlCommand("delete from cost_basis", connection).ExecuteNonQuery();
-                }
-            }
-            catch ( Exception ex )
-            {
-                Logger.Debug(ex, "Unable to complete Cleanup");
-                // We have to throw the exception here as if this fails we need to terminate ASAP
-                throw ex;
-            }
-
-            return true;
+            return result;
         }
 
         private static void Error(Exception ex, Transaction element)

@@ -52,7 +52,7 @@ namespace PostingEngine
             PostingEngine.RunCalculation("ExpencesAndRevenues", period, valueDate, key, LogProcess);
         }
 
-        private static void LogProcess(string message, int totalRows, int rowsDone)
+        internal static void LogProcess(string message, int totalRows, int rowsDone)
         {
             if (message.StartsWith("Processing"))
             {

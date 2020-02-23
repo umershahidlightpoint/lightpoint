@@ -8,6 +8,8 @@ namespace PostingEngine.Tasks
 {
     class CleanupTask : IPostingTask
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         private readonly string Module = "Cleanup";
         public bool Run(PostingEngineEnvironment env)
         {
@@ -31,20 +33,42 @@ namespace PostingEngine.Tasks
             var startdate = datePeriod.Item1.ToString("MM-dd-yyyy") + " 00:00";
             var enddate = datePeriod.Item2.ToString("MM-dd-yyyy") + " 23:59";
 
-            using (var connection = new SqlConnection(env.ConnectionString))
+            using (var connection = new SqlConnection(env.ConnectionString + ";Application Name=PE:Cleanup"))
             {
+                connection.InfoMessage += delegate (object sender, SqlInfoMessageEventArgs e)
+                {
+                    if (Logger != null)
+                    {
+                        Logger.Info(e.Message);
+                    }
+                };
+
+                connection.Open();
+
                 try
                 {
                     var query =
                         $@"DECLARE @Deleted_Rows INT;
+                        DECLARE @Message Varchar(100);
+                        DECLARE @Total INT;
+                        DECLARE @Progress INT;
+                        SELECT @Total = count(*) from journal with(nowait);
+                        SET @Progress = 0;
+
                         SET @Deleted_Rows = 1;
                         WHILE (@Deleted_Rows > 0)
-                          BEGIN
+                        BEGIN
 
-                        delete top (10000) from journal 
-                        where [when] between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}')
-                        SET @Deleted_Rows = @@ROWCOUNT;
+                            delete top (10000) from journal 
+                            where [when] between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}')
+
+                            SET @Deleted_Rows = @@ROWCOUNT;
+                            SET @Progress = @Progress + 10000
     
+                            set @Message = 'Removed ' + Convert(varchar(25), @Progress) + ' of ' + Convert(varchar(25), @Total);
+
+                            RAISERROR (@Message, 0, 1) WITH NOWAIT
+
                         END";
 
                     var command = new SqlCommand(query, connection);

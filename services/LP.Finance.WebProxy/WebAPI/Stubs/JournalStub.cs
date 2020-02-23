@@ -49,7 +49,7 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
             throw new NotImplementedException();
         }
 
-        public object GetClosingTaxLots(string orderid)
+        public object GetClosingTaxLots(string orderid, DateTime? to)
         {
             throw new NotImplementedException();
         }
