@@ -89,6 +89,7 @@ export class GridLayoutMenuComponent implements IToolPanel {
     this.params.gridOptions.api.showLoadingOverlay();
 
     if (layout && layout.Id === 0) {
+      this.params.gridOptions.api.hideOverlay();
       this.onResetLayout();
 
       return;
