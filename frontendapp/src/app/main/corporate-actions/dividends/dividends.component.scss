@@ -4,4 +4,8 @@
 
 ::ng-deep .tabset-wrapper .tab-content {
   height: 100% !important;
-} 
+}
+
+::ng-deep .as-split-area {
+   overflow-y: hidden !important;
+}

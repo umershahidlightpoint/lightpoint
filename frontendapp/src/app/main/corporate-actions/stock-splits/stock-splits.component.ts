@@ -45,6 +45,20 @@ export class StockSplitsComponent implements OnInit {
   endDate: any;
   createDividend = false;
 
+  stockSplitScreenRatio: {
+    stockSplitSize: number;
+    detailsSize: number;
+    stockSplitView: boolean;
+    detailsView: boolean;
+    useTransition: boolean;
+  } = {
+    stockSplitSize: 50,
+    detailsSize: 50,
+    stockSplitView: true,
+    detailsView: false,
+    useTransition: true
+  };
+
   constructor(
     private corporateActionsApiService: CorporateActionsApiService
   ) {
@@ -446,11 +460,13 @@ export class StockSplitsComponent implements OnInit {
     this.stockSplitDetailsGrid.api.showLoadingOverlay();
     this.getStockSplits();
     this.getStockSplitDetails();
+    this.stockSplitScreenRatio.detailsView = false;
   }
 
   clearFilters() {
     this.selected = null;
     this.filterBySymbol = '';
+    this.stockSplitScreenRatio.detailsView = false;
     this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
     this.endDate = moment();
     this.gridOptions.api.setRowData([]);

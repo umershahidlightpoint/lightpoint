@@ -12,7 +12,7 @@ export class CorporateActionsComponent implements OnInit {
   stockSplits = false;
 
   style = Style;
-  styleForHeight = HeightStyle(249);
+  styleForHeight = HeightStyle(206);
 
   constructor() {
   }

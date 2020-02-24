@@ -18,12 +18,14 @@ import { PreviewComponent } from './dividends/preview/preview.component';
 import { CorporateActionsRoutes } from './corporate-actions.route';
 
 import { SharedModule } from 'src/app/shared.module';
+import { StockSplitsPreviewComponent } from './stock-splits/stock-splits-preview/stock-splits-preview.component';
 
 const corporateActionsComponents = [
   CorporateActionsComponent,
   DividendsComponent,
   StockSplitsComponent,
-  PreviewComponent
+  PreviewComponent,
+  StockSplitsPreviewComponent
 ];
 
 @NgModule({

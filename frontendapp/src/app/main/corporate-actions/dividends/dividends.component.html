@@ -44,7 +44,7 @@
       </div>
       <!-- Refresh Button Div Ends -->
 
-      <div class="d-inline-block mr-3">
+      <div class="mr-2 d-inline-block">
         <button class="btn btn-pa" type="button" value="showModal" (click)="openDividendModal()" tooltip="Create Dividend"
           placement="top">
           <i class="fa fa-plus" aria-hidden="true"></i>
@@ -52,21 +52,14 @@
       </div>
 
     <!-- Expand/Collapse Button -->
-      <!-- <div class="mr-3 d-inline-block">
-        <ng-template #tooltipTemplate>{{dividendScreenRatio.chartsView ? 'Expand' : 'Collapse'}}</ng-template>
-        <button (click)="dividendScreenRatio.chartsView = !dividendScreenRatio.chartsView" class="btn btn-pa"
+      <div class="mr-3 d-inline-block">
+        <ng-template #tooltipTemplate>{{dividendScreenRatio.detailsView ? 'Expand' : 'Collapse'}}</ng-template>
+        <button (click)="dividendScreenRatio.detailsView = !dividendScreenRatio.detailsView" class="btn btn-pa"
           [tooltip]="tooltipTemplate" placement="top">
           <i class="fa"
-            [ngClass]="{'fa-arrow-right': dividendScreenRatio.chartsView, 'fa-arrow-left': !dividendScreenRatio.chartsView}"></i>
+            [ngClass]="{'fa-arrow-right': dividendScreenRatio.detailsView, 'fa-arrow-left': !dividendScreenRatio.detailsView}"></i>
         </button>
-      </div> -->
-      <!-- <div class="d-inline-block ml-2">
-        <ng-template #tooltipTemplate> Expand</ng-template>
-        <button class="btn btn-pa"
-          [tooltip]="tooltipTemplate" placement="top">
-          <i class="fa fa-arrow-right"></i>
-        </button>
-      </div> -->
+      </div>
 
     </div>
     <!-- Util Buttons Div Ends -->
@@ -76,9 +69,25 @@
 <!-- Main Split Row Starts -->
 <div class="split-area row h-100">
 
+  <!-- AS Split Main Container -->
+  <as-split
+    class="pl-15 pr-15"
+    disabled="false"
+    direction="vertical"
+    [useTransition]="dividendScreenRatio.useTransition"
+    (dragEnd)="dividendScreenRatio.dividendSize=$event.sizes[0]; dividendScreenRatio.detailsSize=$event.sizes[1];"
+   >
+
+  <!-- Cost Basis Split Area -->
+  <as-split-area
+     [visible]="dividendScreenRatio.dividendView"
+     [size]="dividendScreenRatio.dividendSize"
+     order="1"
+  >
+
 
   <ag-grid-angular
-    class="w-100 height-45 ag-theme-balham"
+    class="w-100 h-100 ag-theme-balham"
     style="margin-top: 20px;"
     [gridOptions]="gridOptions"
     (rowSelected)="onRowSelected($event)"
@@ -86,8 +95,11 @@
    >
   </ag-grid-angular>
 
+</as-split-area>
 
-<div class="w-100 height-45 mt-3 tabset-wrapper">
+  <!-- Charts Split Area -->
+  <as-split-area [visible]="dividendScreenRatio.detailsView" [size]="dividendScreenRatio.detailsSize" order="2">
+<div class="w-100 h-100 mt-3 tabset-wrapper">
 <tabset class="w-100 height-45 mt-3">
   <tab class="h-100" heading="Details" (selectTab)="activeStockSplits()">
         <ag-grid-angular
@@ -105,6 +117,9 @@
   </tab>
 </tabset>
 </div>
+</as-split-area>
+
+</as-split>
   
 </div>
 
