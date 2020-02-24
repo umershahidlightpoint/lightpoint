@@ -27,5 +27,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object AppMetaData(DateTime to, DateTime from);
         object GetLastJournalPostedDate();
         object GetPeriodJournals(string symbol, DateTime now, string period);
+        object GetValidDates(string columnName, string source);
     }
 }

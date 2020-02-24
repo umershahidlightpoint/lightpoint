@@ -113,5 +113,10 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
         {
             throw new NotImplementedException();
         }
+
+        public object GetValidDates(string columnName, string source)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

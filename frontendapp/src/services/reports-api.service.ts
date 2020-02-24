@@ -87,4 +87,9 @@ export class ReportsApiService {
     this.baseUrl + '/journal/periodJournals?symbol=' + symbol + '&now=' + now + '&period=' + period;
     return this.http.get(url).pipe(map((response: any) => response));
   }
+
+  getValidDates(column, source) {
+    const url = this.baseUrl + '/journal/validDates?columnName=' + column + '&source=' + source;
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
 }

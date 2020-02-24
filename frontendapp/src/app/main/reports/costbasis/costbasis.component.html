@@ -34,7 +34,7 @@
     <div class="col-auto">
       <form>
         <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
-          [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name=" selectedDate" [singleDatePicker]="true"
+          [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name=" selectedDate" [isInvalidDate]="isInvalidDate.bind(this)" [singleDatePicker]="true"
           [autoApply]="true" />
       </form>
     </div>

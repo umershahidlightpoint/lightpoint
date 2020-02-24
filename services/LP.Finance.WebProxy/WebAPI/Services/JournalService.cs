@@ -1748,5 +1748,18 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 throw ex;
             }
         }
+
+        public object GetValidDates(string columnName, string source)
+        {
+            var query = $"select distinct {columnName} from {source} order by {columnName} desc";
+
+            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
+            List<DateTime> dates = new List<DateTime>();
+            foreach (DataRow dr in dataTable.Rows)
+            {
+                dates.Add((DateTime)dr["business_date"]);
+            }
+            return Utils.Wrap(true, dates, HttpStatusCode.OK);
+        }
     }
 }
