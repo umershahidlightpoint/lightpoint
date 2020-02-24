@@ -1,5 +1,10 @@
 @import '../../../assets/styles/styles.scss';
 
+mat-nav-list .active-link {
+  color: $on-primary;
+  background-color: $primary;
+}
+
 .sidenav-container {
   height: 100vh;
 }

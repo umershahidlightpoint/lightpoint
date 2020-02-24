@@ -6,7 +6,7 @@
 
         <!-- User Nav List -->
         <mat-nav-list class="d-flex flex-column justify-content-start">
-            <a mat-list-item *ngFor="let page of userPages" routerLinkActive="color-primary"
+            <a mat-list-item *ngFor="let page of userPages" routerLinkActive="active-link"
                 [routerLink]="page.routerLink" title={{page?.name}}>
                 <i class="fa fa-lg {{page?.icon}}"></i>
                 <span class="ml-1" [@animateText]="linkText ? 'show' : 'hide'">{{ page?.name }} </span>
@@ -18,7 +18,7 @@
 
         <!-- Admin Nav List -->
         <mat-nav-list class="d-flex flex-column justify-content-end">
-            <a mat-list-item *ngFor="let page of adminPages" routerLinkActive="color-primary"
+            <a mat-list-item *ngFor="let page of adminPages" routerLinkActive="active-link"
                 [routerLink]="page.routerLink" title={{page?.name}}>
                 <i class="fa fa-lg {{page?.icon}}"></i>
                 <span class="ml-1" [@animateText]="linkText ? 'show' : 'hide'">{{ page?.name }} </span>
