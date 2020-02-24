@@ -72,13 +72,13 @@ namespace PostingEngine.PostingRules
             {
                 usdEquivalent = element.NetMoney * effectiveRate;
             }
-            else
+            else // SELL
             {
                 usdEquivalent = element.NetMoney * effectiveRate;
             }
 
             // We are inverting so
-            usdEquivalent *= -1;
+            // usdEquivalent *= -1;
 
             usdEquivalent *= percentage;
 

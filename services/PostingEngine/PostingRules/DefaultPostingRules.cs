@@ -236,7 +236,7 @@ namespace PostingEngine.PostingRules
                     {
                         Logger.Info($"Relieving Tax Lot {taxlotStatus.TradeDate.ToString("MM-dd-yyyy")}::{taxlotStatus.Symbol}::{taxlotStatus.OpenId}::{lot.TaxLiability}::{lot.TaxRate.Rate}::{lot.PotentialPnl}");
 
-                        if ( taxlotStatus.OpenId.StartsWith("f34d"))
+                        if ( taxlotStatus.OpenId.Equals("61994d8d-946a-4ede-8e42-5f890452a0cb"))
                         {
 
                         }

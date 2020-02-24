@@ -1077,7 +1077,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        public object GetClosingTaxLots(string orderid = null)
+        public object GetClosingTaxLots(string orderid = null, DateTime? to = null)
         {
             try
             {
@@ -1087,10 +1087,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
 
-                if (!string.IsNullOrEmpty(orderid))
+                if (!string.IsNullOrEmpty(orderid) && to.HasValue)
                 {
                     var query =
-                        $@"select * from tax_lot where open_lot_id='{orderid}' and active_flag = 1";
+                        $@"select * from tax_lot where open_lot_id='{orderid}' and active_flag = 1 and trade_date <='{to?.ToString("yyyy-MM-dd")}'";
                     List<SqlParameter> sqlParams = new List<SqlParameter>();
                     var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
                     var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);

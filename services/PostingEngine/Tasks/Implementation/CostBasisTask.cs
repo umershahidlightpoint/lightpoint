@@ -16,7 +16,7 @@ namespace PostingEngine.Tasks
             var dates = "select minDate = min([when]), maxDate = max([when]) from vwJournal";
             var table = new DataTable();
 
-            using (var connection = new SqlConnection(env.ConnectionString))
+            using (var connection = new SqlConnection(env.ConnectionString + ";Application Name=PE:CostBasis"))
             {
                 connection.Open();
 

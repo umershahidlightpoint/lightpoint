@@ -59,9 +59,9 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [Route("closingTaxLots")]
         [HttpGet]
-        public object GetClosingTaxLots(string orderid)
+        public object GetClosingTaxLots(string orderid, DateTime? to)
         {
-            return controller.GetClosingTaxLots(orderid);
+            return controller.GetClosingTaxLots(orderid, to);
         }
 
         [Route("taxlotsReport")]

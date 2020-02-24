@@ -47,12 +47,15 @@ namespace PostingEngine.ClientSpecifics
 
                 var symbolTags = new List<string>
                 {
-                    "NLFSK DC",
-                    "GNS LN",
+                    //"NLFSK DC",
+                    //"MC FP",
+                    //"ALD FP",
+                    //"GNS LN",
                     //"ROST",
-                    "AEO",
+                    //"AEO",
                     //"BURL",
                     //"9142 JP",
+                    "BYG LN"
                     //"BGA AU SWAP",
                     //"MAREL NA",
                     //"GBP/USD 12/18/2019",

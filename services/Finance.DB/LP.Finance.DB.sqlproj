@@ -111,7 +111,6 @@
     <Build Include="StoredProcs\PullDailyFxPrices.sql" />
     <Build Include="Tables\settings.sql" />
     <Build Include="Views\vwTaxLots.sql" />
-    <Build Include="Views\vwCurrentStateTrades_old.sql" />
     <Build Include="Views\vwNormalizedEodFxRates.sql" />
     <Build Include="Views\vwPositions.sql" />
     <Build Include="Tables\third_party_account.sql" />
@@ -132,7 +131,6 @@
     <Build Include="StoredProcs\Recon\PeriodPnl.sql" />
     <Build Include="Tables\current_journals.sql" />
     <Build Include="Tables\current_trade_state.sql" />
-    <Build Include="StoredProcs\CacheResults.sql" />
     <Build Include="StoredProcs\SyncManualJournal.sql" />
     <Build Include="StoredProcs\UpdateManualJournal.sql" />
     <Build Include="StoredProcs\DerivativeContracts.sql" />
@@ -164,6 +162,7 @@
     <Build Include="Views\vwStockSplitDetails.sql" />
     <Build Include="Triggers\stock_split_insert_trigger.sql" />
     <Build Include="Triggers\stock_split_update_trigger.sql" />
+    <Build Include="Functions\fnSide.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">
