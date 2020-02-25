@@ -1,41 +1,40 @@
 .modal {
     background-color: rgba(0, 0, 0, 0.4);
   }
-  
+
   .modal-backdrop {
     position: relative;
   }
-  
+
   .close {
     font-size: 1.5em;
     color: white;
     display: none;
   }
-  
+
   .modal-body {
     overflow-y: auto;
     max-height: 76vh;
   }
-  
+
   ::ng-deep .loader-wrapper .spinner-grow {
     width: 2rem !important;
     height: 2rem !important;
   }
-  
-  
+
   fieldset{
     border: 1px solid #dee2e6;;
     padding: 10px !important;
   }
-  
+
   legend {
     width: auto !important;
   }
-  
+
   .btn:hover {
       color: none;
   }
-  
+
   .form-control:disabled, .form-control[readonly] {
     background-color: #ffffff;
     opacity: 1;

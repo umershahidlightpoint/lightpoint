@@ -7,17 +7,15 @@
         <div class="modal-header color-primary">
             <h3>Create Security</h3>
             <button type="button" class="close" data-dismiss="modal" (click)="close()">&times;</button>
-          </div>
-
-
+        </div>
 
     <form [formGroup]="securityForm">
 
         <div class="modal-body">
 
-        <fieldset class="wrap-dates" style="overflow: visible !important; height: auto !important;">
+        <!-- <fieldset class="wrap-dates" style="overflow: visible !important; height: auto !important;">
             <legend class="dates-heading" style="overflow: visible !important; height: auto !important;" (click)="isCollapsedTrade = !isCollapsedTrade"
-            [attr.aria-expanded]="!isCollapsedTrade" aria-controls="collapseTrade">From Trade
+            [attr.aria-expanded]="!isCollapsedTrade" aria-controls="collapseTrade">Trade
             <i *ngIf="!isCollapsedTrade" class="fa fa-chevron-down"></i>
             <i *ngIf="isCollapsedTrade" class="fa fa-chevron-up"></i>
         </legend>
@@ -138,7 +136,7 @@
             </div>
         </div>
 
-        </fieldset>
+        </fieldset> -->
 
         <fieldset class="wrap-dates">
             <legend class="dates-heading" (click)="isCollapsedFinance = !isCollapsedFinance"
@@ -469,10 +467,10 @@
 
                 <div class="col-sm-2 pl-3 pr-1">
                     <label> Upfront </label>
-                    </div>
-                    <div class="col-sm-2 pl-1 pr-1">
-                        <input class="form-control" formControlName="upfront" type="number">
-                    </div>
+                </div>
+                <div class="col-sm-2 pl-1 pr-1">
+                     <input class="form-control" formControlName="upfront" type="number">
+                </div>
 
                 <div class="col-sm-2 pl-3 pr-1">
                 <label> Premium Rate </label>
@@ -487,21 +485,17 @@
 
                 <div class="col-sm-2 pl-1 pr-1">
                     <label> Frequency Rate </label>
-                    </div>
-                    <div class="col-sm-2 pl-1 pr-1">
-                        <input class="form-control" formControlName="frequencyRate" type="number">
-                    </div>
+                </div>
+                <div class="col-sm-2 pl-1 pr-1">
+                     <input class="form-control" formControlName="frequencyRate" type="number">
+                </div>
 
             </div>
 
-            
         </div>
 
         </fieldset>
         </div>
-
-
-
 
         <div class="modal-footer">
 
@@ -513,14 +507,14 @@
             <button type="button" class="btn btn-secondary" (click)="close()">
                 <i class="fa fa-times" aria-hidden="true"></i> Cancel
             </button>
+
+            <button type="submit" class="btn btn-pa">
+            Save
+            </button>
             
             </div>
         
           </form>
-
-
-
-
         
         </div>
 
