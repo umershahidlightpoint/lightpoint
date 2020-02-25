@@ -12,7 +12,7 @@ export class JournalsLayoutComponent implements OnInit, AfterViewInit {
   isBalanceSheetActive = false;
   isIncomeStatementActive = false;
   isTrialBalanceActive = false;
-  isServerSideJournalActive = false;
+  isServerSideJournalActive = true;
   isClientSideJournalActive = false;
 
   style = Style;

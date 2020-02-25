@@ -333,7 +333,7 @@ namespace PostingEngine.PostingRules
             var accountType = (element.IsShort() || element.IsCover()) ? "SHORT POSITIONS AT COST" : "LONG POSITIONS AT COST";
             var fromTo = new AccountUtils().GetAccounts(env, accountType, "REALIZED GAIN/(LOSS) DUE TO FX", new string[] { element.SettleCurrency }.ToList());
 
-            var debit = new Journal(fromTo.From, "realized-cash-fx", env.ValueDate)
+            var debit = new Journal(fromTo.From, Event.REALIZED_CASH_FX, env.ValueDate)
             {
                 Source = element.LpOrderId,
                 Fund = env.GetFund(element),
@@ -350,7 +350,7 @@ namespace PostingEngine.PostingRules
                 CreditDebit = env.DebitOrCredit(fromTo.From, realizedFxPnl),
             };
 
-            var credit = new Journal(fromTo.To, "realized-cash-fx", env.ValueDate)
+            var credit = new Journal(fromTo.To, Event.REALIZED_CASH_FX, env.ValueDate)
             {
                 Source = element.LpOrderId,
                 Fund = env.GetFund(element),

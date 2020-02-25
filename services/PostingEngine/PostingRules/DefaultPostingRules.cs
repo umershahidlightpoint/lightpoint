@@ -150,8 +150,8 @@ namespace PostingEngine.PostingRules
                         // Has to happen for every day
                         var fxJournalsForInvestmentAtCost = FxPosting.CreateFx(
                             env,
-                            CommonRules.GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"),
                             "Change in unrealized due to fx on original Cost",
+                            CommonRules.GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"),
                             "daily", quantity, taxLotStatus, element);
                         env.Journals.AddRange(fxJournalsForInvestmentAtCost);
 
@@ -383,6 +383,12 @@ namespace PostingEngine.PostingRules
             {
                 sumFxMarkToMarket = Convert.ToDouble(dataTable[2].Rows[0][2]);
                 //sumFxMarkToMarket -= fxJournalsForInvestmentAtCost[0].Value;
+
+                //sumFxMarkToMarket -= revenueUnrealisedPnl;
+
+                // partial same as Unrealized PNL
+                sumFxMarkToMarket *= percentage;
+
                 sumFxMarkToMarket -= revenueUnrealisedPnl;
 
                 ReversePosting(env, "Change in unrealized due to fx on original Cost", CommonRules.GetFXMarkToMarketAccountType(element, "FX MARKET TO MARKET ON STOCK COST"), buyTrade, sumFxMarkToMarket);
@@ -396,7 +402,7 @@ namespace PostingEngine.PostingRules
             var accountType = (element.IsShort() || element.IsCover()) ? "SHORT POSITIONS AT COST" : "LONG POSITIONS AT COST";
             var fromTo = new AccountUtils().GetAccounts(env, accountType, "REALIZED GAIN/(LOSS) DUE TO FX", new string[] { element.SettleCurrency }.ToList());
 
-            var debit = new Journal(fromTo.From, "realized-cash-fx", env.ValueDate)
+            var debit = new Journal(fromTo.From, Event.REALIZED_CASH_FX, env.ValueDate)
             {
                 Source = element.LpOrderId,
                 Fund = env.GetFund(element),
@@ -413,7 +419,7 @@ namespace PostingEngine.PostingRules
                 CreditDebit = env.DebitOrCredit(fromTo.From, realizedFxPnl),
             };
 
-            var credit = new Journal(fromTo.To, "realized-cash-fx", env.ValueDate)
+            var credit = new Journal(fromTo.To, Event.REALIZED_CASH_FX, env.ValueDate)
             {
                 Source = element.LpOrderId,
                 Fund = env.GetFund(element),

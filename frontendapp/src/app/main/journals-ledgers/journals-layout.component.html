@@ -12,8 +12,16 @@
     <!-- Tabs Container -->
     <tabset class="tab-color">
 
+        <!-- Server Side Journal Tab Starts -->
+        <tab heading="Journals">
+            <div [ngStyle]="style">
+                <app-journals-server-side *ngIf="isServerSideJournalActive"></app-journals-server-side>
+            </div>
+        </tab>
+        <!-- Server Side Journal Tab Ends -->
+        
         <!-- Nav Tab Starts -->
-        <tab heading="NAV">
+        <tab heading="NAV" (selectTab)="activateTab('Nav')">
             <div [ngStyle]="style">
                 <app-journals-server-side defaultView='Nav'></app-journals-server-side>
             </div>
@@ -46,14 +54,6 @@
             </div>
         </tab>
         <!-- Trial Balance Tab Ends -->
-
-        <!-- Server Side Journal Tab Starts -->
-        <tab heading="Journals" (selectTab)="activateTab('ServerSideJournal')">
-            <div [ngStyle]="style">
-                <app-journals-server-side *ngIf="isServerSideJournalActive"></app-journals-server-side>
-            </div>
-        </tab>
-        <!-- Server Side Journal Tab Ends -->
 
         <!-- Client Side Journal Tab Starts -->
         <!-- <tab heading="Client Side Journals" (selectTab)="activateTab('ClientSideJournal')">
