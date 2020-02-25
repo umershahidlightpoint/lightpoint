@@ -15,6 +15,7 @@ export { LoadingComponent } from './lib/components/loading/loading.component';
 export { SelectThemeComponent } from './lib/components/select-theme/select-theme.component';
 export { ServicesLogComponent } from './lib/components/services-log/services-log.component';
 export { GridLayoutMenuComponent } from './lib/components/grid-layout-menu/grid-layout-menu.component';
+export { ModalComponent } from './lib/components/modal/modal.component';
 export { ConfirmationModalComponent } from './lib/components/confirmation-modal/confirmation-modal.component';
 
 /*
@@ -35,6 +36,7 @@ export { LPToolkitConfig } from './lib/models/lp-toolkit-config.model';
 export { Theme } from './lib/models/theme.model';
 export { Page } from './lib/models/page.model';
 export { CustomGridOptions, LayoutServices } from './lib/models/grid-layout.model';
+export { ModalFooterConfig } from './lib/models/modal-footer-config';
 
 /*
  * Modules

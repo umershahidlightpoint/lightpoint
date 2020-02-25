@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
-import { ModalDirective } from 'ngx-bootstrap';
+import { ModalComponent, ModalFooterConfig } from 'lp-toolkit';
 import { ToastrService } from 'ngx-toastr';
 import * as moment from 'moment';
 import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.service';
@@ -10,7 +10,7 @@ import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.ser
   styleUrls: ['./tax-rate-modal.component.scss']
 })
 export class TaxRateModalComponent implements OnInit {
-  @ViewChild('modal', { static: false }) modal: ModalDirective;
+  @ViewChild('lpModal', { static: false }) lpModal: ModalComponent;
   @Output() closeModalEvent = new EventEmitter<any>();
 
   taxRate: any;
@@ -21,6 +21,10 @@ export class TaxRateModalComponent implements OnInit {
   lastTaxRateData;
   editTaxRate: boolean;
   backdrop: any;
+
+  footerConfig: ModalFooterConfig = {
+    showConfirmButton: true
+  };
 
   constructor(
     private toastrService: ToastrService,
@@ -36,6 +40,10 @@ export class TaxRateModalComponent implements OnInit {
   }
 
   saveTaxRate() {
+    this.footerConfig = {
+      confirmButtonDisabledState: true,
+      confirmButtonLoadingState: true
+    };
     const taxRatePayload = {
       effectiveFrom: this.selectedDate.startDate.format('YYYY-MM-DD'),
       effectiveTo: this.selectedDate.endDate.format('YYYY-MM-DD'),
@@ -49,30 +57,54 @@ export class TaxRateModalComponent implements OnInit {
         response => {
           if (response.isSuccessful) {
             this.toastrService.success('Tax Rate is edited successfully !');
-            this.modal.hide();
+            this.lpModal.hideModal();
             this.closeModalEvent.emit(true);
             setTimeout(() => this.clearForm(), 500);
           } else {
-            this.modal.hide();
+            this.lpModal.hideModal();
             this.toastrService.error('Failed to edit Tax Rate !');
           }
+
+          this.footerConfig = {
+            confirmButtonDisabledState: false,
+            confirmButtonLoadingState: false
+          };
         },
         error => {
-          this.modal.hide();
+          this.footerConfig = {
+            confirmButtonDisabledState: false,
+            confirmButtonLoadingState: false
+          };
+          this.lpModal.hideModal();
           this.toastrService.error('Something went wrong. Try again later!');
         }
       );
     } else {
-      this.fundTheoreticalApiService.createTaxRate(taxRatePayload).subscribe(response => {
-        if (response.isSuccessful) {
-          this.toastrService.success('Tax Rate is created successfully !');
-          this.modal.hide();
-          this.closeModalEvent.emit(true);
-          setTimeout(() => this.clearForm(), 500);
-        } else {
-          this.toastrService.error('Failed to create Tax Rate !');
+      this.fundTheoreticalApiService.createTaxRate(taxRatePayload).subscribe(
+        response => {
+          if (response.isSuccessful) {
+            this.toastrService.success('Tax Rate is created successfully !');
+            this.lpModal.hideModal();
+            this.closeModalEvent.emit(true);
+            setTimeout(() => this.clearForm(), 500);
+          } else {
+            this.toastrService.error('Failed to create Tax Rate !');
+          }
+
+          this.footerConfig = {
+            confirmButtonDisabledState: false,
+            confirmButtonLoadingState: false
+          };
+        },
+        error => {
+          this.footerConfig = {
+            confirmButtonDisabledState: false,
+            confirmButtonLoadingState: false
+          };
+          this.lpModal.hideModal();
+          this.toastrService.error('Something went wrong. Try again later!');
         }
-      });
+      );
     }
   }
 
@@ -80,9 +112,11 @@ export class TaxRateModalComponent implements OnInit {
     if (lastTaxRateData === null) {
       return 1;
     }
+
     const effectiveFrom = moment(taxRateObject.effectiveFrom);
     const effectiveTo = moment(this.lastTaxRateData.effectiveTo);
     const dayDiff = effectiveFrom.diff(effectiveTo, 'days');
+
     return effectiveFrom.diff(effectiveTo, 'days');
   }
 
@@ -90,6 +124,10 @@ export class TaxRateModalComponent implements OnInit {
     this.lastTaxRateData = previoustaxRateData;
     if (rowData && Object.keys(rowData).length > 1) {
       this.editTaxRate = true;
+      this.footerConfig = {
+        confirmButtonText: 'Edit',
+        confirmButtonIcon: 'fa-edit'
+      };
       this.taxRate = rowData;
       this.selectedDate = {
         startDate: moment(this.taxRate.effectiveFrom),
@@ -98,12 +136,17 @@ export class TaxRateModalComponent implements OnInit {
       this.longTermTaxRate = this.taxRate.longTermTaxRate;
       this.shortTermTaxRate = this.taxRate.shortTermTaxRate;
       this.shortTermPeriod = this.taxRate.shortTermPeriod;
+    } else {
+      this.footerConfig = {
+        confirmButtonText: 'Save',
+        confirmButtonIcon: 'fa-save'
+      };
     }
-    this.modal.show();
+
+    this.lpModal.showModal();
   }
 
-  closeModal() {
-    this.modal.hide();
+  onCloseModal() {
     setTimeout(() => this.clearForm(), 1000);
   }
 

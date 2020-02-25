@@ -19,6 +19,7 @@ import { SelectThemeComponent } from './components/select-theme/select-theme.com
 import { ServicesLogComponent } from './components/services-log/services-log.component';
 import { GridLayoutMenuComponent } from './components/grid-layout-menu/grid-layout-menu.component';
 import { TemplateRendererComponent } from './components/template-renderer/template-renderer.component';
+import { ModalComponent } from './components/modal/modal.component';
 import { ConfirmationModalComponent } from './components/confirmation-modal/confirmation-modal.component';
 
 import { SidenavService } from './services/sidenav.service';
@@ -39,6 +40,7 @@ const sharedComponents = [
   ServicesLogComponent,
   GridLayoutMenuComponent,
   TemplateRendererComponent,
+  ModalComponent,
   ConfirmationModalComponent
 ];
 

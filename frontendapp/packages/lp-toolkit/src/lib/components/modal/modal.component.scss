@@ -1,0 +1,14 @@
+@import '../../assets/styles/styles.scss';
+
+.modal {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.close {
+  color: $on-primary;
+  opacity: 0.75;
+}
+
+.close:not(:disabled):not(.disabled):hover {
+  opacity: 1;
+}
