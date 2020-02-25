@@ -123,7 +123,7 @@ export class CreateSecurityComponent implements OnInit {
   close() {
     this.securityModal.hide();
     this.isCollapsedTrade = false;
-    this.isCollapsedFinance = true;
+    this.isCollapsedFinance = false;
   }
 
 }
