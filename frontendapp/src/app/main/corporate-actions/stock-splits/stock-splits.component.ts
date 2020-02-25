@@ -15,7 +15,7 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { ContextMenu } from 'src/shared/Models/common';
-import { CreateStockSplitsComponent } from 'src/shared/Component/create-stock-splits/create-stock-splits.component';
+import { CreateStockSplitsComponent } from 'src/shared/Modal/create-stock-splits/create-stock-splits.component';
 import * as moment from 'moment';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 

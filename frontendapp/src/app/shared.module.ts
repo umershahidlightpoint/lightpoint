@@ -6,6 +6,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
+import { CollapseModule } from 'ngx-bootstrap/collapse';
+
 import { AgGridModule } from 'ag-grid-angular';
 import { TabsModule, ModalModule, AlertModule, TooltipModule } from 'ngx-bootstrap';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
@@ -24,8 +26,9 @@ import { DataGridModalComponent } from '../shared/Component/data-grid-modal/data
 import { DatePickerModalComponent } from '../shared/Component/date-picker-modal/date-picker-modal.component';
 import { CalculationGraphsComponent } from '../shared/Component/calculation-graphs/calculation-graphs.component';
 import { JournalsComponent } from '../shared/Component/journals/journals.component';
-import { CreateDividendComponent } from './../shared/Component/create-dividend/create-dividend.component';
-import { CreateStockSplitsComponent } from './../shared/Component/create-stock-splits/create-stock-splits.component';
+import { CreateDividendComponent } from './../shared/Modal/create-dividend/create-dividend.component';
+import { CreateStockSplitsComponent } from './../shared/Modal/create-stock-splits/create-stock-splits.component';
+import { CreateSecurityComponent } from './../shared/Modal/create-security/create-security.component';
 
 const sharedComponents = [
   GridLayoutMenuComponent,
@@ -40,7 +43,8 @@ const sharedComponents = [
   CalculationGraphsComponent,
   JournalsComponent,
   CreateDividendComponent,
-  CreateStockSplitsComponent
+  CreateStockSplitsComponent,
+  CreateSecurityComponent
 ];
 
 @NgModule({
@@ -50,6 +54,7 @@ const sharedComponents = [
     ReactiveFormsModule,
     TypeaheadModule,
     BsDropdownModule,
+    CollapseModule.forRoot(),
     AgGridModule.withComponents([
       GridLayoutMenuComponent,
       TemplateRendererComponent,

@@ -18,7 +18,7 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { ContextMenu } from 'src/shared/Models/common';
 import * as moment from 'moment';
 import { CorporateActionsApiService } from './../../../../services/corporate-actions.api.service';
-import { CreateDividendComponent } from 'src/shared/Component/create-dividend/create-dividend.component';
+import { CreateDividendComponent } from 'src/shared/Modal/create-dividend/create-dividend.component';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 
 @Component({
