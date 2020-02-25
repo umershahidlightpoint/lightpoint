@@ -34,7 +34,7 @@
             <div *ngIf="showFooter" class="modal-footer">
 
                 <!-- Modal Delete Button -->
-                <button *ngIf="modalFooterConfig.showDeleteButton" type="button" class="btn btn-primary pull-right"
+                <button *ngIf="modalFooterConfig.showDeleteButton" type="button" class="btn btn-danger mr-auto"
                     aria-label="Delete" [disabled]="modalFooterConfig.deleteButtonDisabledState" (click)="onDelete()">
                     <span *ngIf="modalFooterConfig.deleteButtonLoadingState" class="spinner-border spinner-border-sm"
                         role="status" aria-hidden="true"></span>
