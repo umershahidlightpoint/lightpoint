@@ -114,6 +114,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   };
   graphObject: GraphObject = null;
   marketPriceChart = false;
+  validDates : Array<string> = null;
 
   constructor(
     private financeService: FinanceServiceProxy,
@@ -126,7 +127,8 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.initGrid();
-    this.getLatestJournalDate();
+    //this.getLatestJournalDate();
+    this.getValidDates();
     this.getFunds();
     // In case we need to enable filter by symbol from server side
     // this.filterSubject.pipe(debounce(() => timer(1000))).subscribe(() => {
@@ -134,11 +136,30 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     // });
   }
 
-  getLatestJournalDate() {
-    this.reportsApiService.getLatestJournalDate().subscribe(
-      date => {
-        if (date.isSuccessful && date.statusCode === 200) {
-          this.journalDate = date.payload[0].when;
+  // getLatestJournalDate() {
+  //   this.reportsApiService.getLatestJournalDate().subscribe(
+  //     date => {
+  //       if (date.isSuccessful && date.statusCode === 200) {
+  //         this.journalDate = date.payload[0].when;
+  //         this.startDate = this.journalDate;
+  //         this.selectedDate = {
+  //           startDate: moment(this.startDate, 'YYYY-MM-DD'),
+  //           endDate: moment(this.endDate, 'YYYY-MM-DD')
+  //         };
+  //       }
+  //     },
+  //     error => {}
+  //   );
+  // }
+
+  //dates against which data is present.
+  getValidDates() {
+    this.reportsApiService.getValidDates('business_date', 'cost_basis').subscribe(
+      resp => {
+        if (resp.isSuccessful && resp.statusCode === 200 && resp.payload && resp.payload.length > 0) {
+          this.validDates = resp.payload.map(x=> moment(x,'YYYY-MM-DD').format('YYYY-MM-DD'));
+          console.log(this.validDates);
+          this.journalDate = resp.payload[0];
           this.startDate = this.journalDate;
           this.selectedDate = {
             startDate: moment(this.startDate, 'YYYY-MM-DD'),
@@ -148,6 +169,22 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       },
       error => {}
     );
+  }
+
+  isInvalidDate(event : moment.Moment){
+    if(event.isValid){
+      let date = event.format('YYYY-MM-DD');
+      if(!this.validDates){
+        return false;
+      } else if(this.validDates.some(x=> x === date)){
+        return false;
+      } else {
+        return true;
+      }
+    } 
+    else {
+      return false;
+    }
   }
 
   initGrid() {

@@ -16,8 +16,8 @@ import {
 import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
-import { CreateDividendComponent } from 'src/shared/Component/create-dividend/create-dividend.component';
-import { CreateStockSplitsComponent } from 'src/shared/Component/create-stock-splits/create-stock-splits.component';
+import { CreateDividendComponent } from 'src/shared/Modal/create-dividend/create-dividend.component';
+import { CreateStockSplitsComponent } from 'src/shared/Modal/create-stock-splits/create-stock-splits.component';
 import { DataModalComponent } from 'src/shared/Component/data-modal/data-modal.component';
 import { AgGridUtils } from 'src/shared/utils/AgGridUtils';
 import { DataDictionary } from 'src/shared/utils/DataDictionary';

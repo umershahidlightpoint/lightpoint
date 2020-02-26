@@ -34,7 +34,7 @@
     <div class="col-auto">
       <form>
         <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
-          [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name=" selectedDate" [singleDatePicker]="true"
+          [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name=" selectedDate" [isInvalidDate]="isInvalidDate.bind(this)" [singleDatePicker]="true"
           [autoApply]="true" />
       </form>
     </div>
@@ -115,7 +115,7 @@
           <div *ngIf="actionCostBasis.chartsView" class="line-chart-wrapper d-flex flex-wrap">
 
             <!-- Charts Tab Set -->
-            <tabset class="w-100">
+            <tabset class="w-100 ml-3">
 
               <tab heading="Realized/Unrealized P&L">
 

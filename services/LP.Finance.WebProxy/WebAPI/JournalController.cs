@@ -179,5 +179,12 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return controller.GetPeriodJournals(symbol, now, period);
         }
+
+        [Route("validDates")]
+        [HttpGet]
+        public object GetValidDates(string columnName, string source)
+        {
+            return controller.GetValidDates(columnName, source);
+        }
     }
 }

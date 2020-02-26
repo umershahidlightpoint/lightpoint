@@ -72,6 +72,11 @@ export class AppComponent implements OnInit {
       icon: 'fa-group'
     },
     {
+      name: 'Securities',
+      routerLink: 'oms/security',
+      icon: 'fa-lock'
+    },
+    {
       name: 'Settings',
       routerLink: '/settings',
       icon: 'fa-cog'

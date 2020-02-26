@@ -1,0 +1,523 @@
+<div bsModal #securityModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true"
+  [config]="{backdrop: 'static'}">
+
+  <div class="modal-dialog modal-dialog-centered modal-xl" id="modal-xl">
+    <div class="modal-content">
+
+        <div class="modal-header color-primary">
+            <h3>Create Security</h3>
+            <button type="button" class="close" data-dismiss="modal" (click)="close()">&times;</button>
+        </div>
+
+    <form [formGroup]="securityForm">
+
+        <div class="modal-body">
+
+        <!-- <fieldset class="wrap-dates" style="overflow: visible !important; height: auto !important;">
+            <legend class="dates-heading" style="overflow: visible !important; height: auto !important;" (click)="isCollapsedTrade = !isCollapsedTrade"
+            [attr.aria-expanded]="!isCollapsedTrade" aria-controls="collapseTrade">Trade
+            <i *ngIf="!isCollapsedTrade" class="fa fa-chevron-down"></i>
+            <i *ngIf="isCollapsedTrade" class="fa fa-chevron-up"></i>
+        </legend>
+
+        <div class="form-group" id="collapseTrade" style="overflow: visible !important; height: auto !important;" [display]="visible" [collapse]="isCollapsedTrade" [isAnimated]="true">
+            <div class="row m-0">
+                <div class="col-sm-2 pl-1 pr-1">
+                <label> Security </label>
+                </div>
+                <div class="col-sm-2 pl-1">
+                    <input class="form-control" formControlName="security" type="text">
+                </div>
+
+
+                <div class="col-sm-2 pl-1">
+                    <label>Currency</label>
+                    </div>
+                    <div class="col-sm-2 pl-1 pr-1">
+                        <input class="form-control" formControlName="currency" type="number" >
+                    </div>
+
+                <div class="col-sm-2 pr-1">
+                    <label>Trade Quantity </label>
+                    </div>
+                    <div class="col-sm-2 pl-1 pr-1">
+                        <input class="form-control" formControlName="tradeQuantity" type="number">
+
+                    </div>
+
+            </div>
+
+            <div class="row" style="margin: 11px 0">
+                <div class="col-sm-2 pl-1 pr-1">
+                <label> Trade Date </label>
+                </div>
+                <div class="col-sm-4 pl-1 pr-1">
+                    <input
+                     ngxDaterangepickerMd
+                     formControlName="tradeDate"
+                     class="form-control bc-white"
+                     type="text"
+                     placeholder="Select trade date"
+                     name="tradeDate"
+                     [singleDatePicker]="true"
+                     [autoApply]="true"
+                     autocomplete="off"
+                     readonly
+                     >
+                </div>
+
+                
+                <div class="col-sm-2 pr-1">
+                    <label>Execution Date</label>
+                    </div>
+                    <div class="col-sm-4 pl-1 pr-1">
+                        <input
+                        ngxDaterangepickerMd
+                        formControlName="executionDate"
+                        class="form-control bc-white"
+                        type="text"
+                        placeholder="Select execution date"
+                        name="executionDate"
+                        [singleDatePicker]="true"
+                        [autoApply]="true"
+                        autocomplete="off"
+                        readonly
+                        >
+                    </div>
+
+            </div>
+
+            <div class="row" style="margin: 11px 0">
+                <div class="col-sm-2 pl-1 pr-1">
+                <label> Payer </label>
+                </div>
+                <div class="col-sm-4 pl-1 pr-1">
+                    <input class="form-control" formControlName="payer" type="text">
+                </div>
+                
+                <div class="col-sm-2 pr-1">
+                    <label>Payee</label>
+                    </div>
+                    <div class="col-sm-4 pl-1 pr-1">
+                        <input class="form-control" formControlName="payee" type="text" >
+                    </div>
+
+            </div>
+
+
+
+            <div class="row" style="margin: 11px 0">
+                <div class="col-sm-2 pl-1 pr-1">
+                <label> Local Net Price </label>
+                </div>
+                <div class="col-sm-4 pl-1 pr-1">
+                    <input
+                     formControlName="localNetPrice"
+                     name="localNetPrice"
+                     class="form-control"
+                     autocomplete="off"
+                     >
+                </div>
+
+                
+                <div class="col-sm-2 pr-1">
+                    <label>Local Net Notional</label>
+                    </div>
+                    <div class="col-sm-4 pl-1 pr-1">
+                        <input
+                        formControlName="localNetNotional"
+                        class="form-control"
+                        type="text"
+                        name="localNetNotional"
+                        autocomplete="off"
+                        >
+                    </div>
+
+            </div>
+        </div>
+
+        </fieldset> -->
+
+        <fieldset class="wrap-dates">
+            <legend class="dates-heading" (click)="isCollapsedFinance = !isCollapsedFinance"
+            [attr.aria-expanded]="!isCollapsedFinance" aria-controls="collapseFinancing">Financing
+            <i *ngIf="!isCollapsedFinance" class="fa fa-chevron-down"></i>
+            <i *ngIf="isCollapsedFinance" class="fa fa-chevron-up"></i>
+        </legend>
+
+        <div class="form-group" id="collapseFinancing" [collapse]="isCollapsedFinance" [isAnimated]="true">
+
+            <div class="row" style="margin: 11px 0">
+                <div class="col-sm-2 pl-1 pr-1">
+                <label> Maturity Date </label>
+                </div>
+                <div class="col-sm-4 pl-1 pr-1">
+                    <input
+                    ngxDaterangepickerMd
+                    formControlName="maturityDate"
+                    class="form-control bc-white"
+                    type="text"
+                    placeholder="Select maturity date"
+                    name="maturityDate"
+                    [singleDatePicker]="true"
+                    [autoApply]="true"
+                    autocomplete="off"
+                    readonly 
+                    >
+                </div>
+
+                <div class="col-sm-2 pr-1">
+                    <label>Valuation Date</label>
+                    </div>
+                    <div class="col-sm-4 pl-1 pr-1">
+                        <input 
+                        ngxDaterangepickerMd
+                        formControlName="valuationDate"
+                        class="form-control bc-white"
+                        type="text"
+                        placeholder="Select valuation date"
+                        name="valuationDate"
+                        [singleDatePicker]="true"
+                        [autoApply]="true"
+                        autocomplete="off"
+                        readonly
+                        >
+                    </div>
+
+            </div>
+            <div class="row m-0">
+
+                <div class="col-sm-2 pl-1 pr-1">
+                    <label> Security Return Description </label>
+                    </div>
+                    <div class="col-sm-2 pl-1 pr-1">
+                        <select class="form-control" formControlName="securityReturnDesc" required>
+                            <option selected disabled value="">Select</option>
+                            <option>
+                              Bullet
+                            </option>
+                            <option>
+                              Total Return
+                            </option>
+                          </select>
+                    </div>
+
+                <div class="col-sm-2 pl-3 pr-1">
+                    <label> Spread </label>
+                    </div>
+                    <div class="col-sm-2 pl-1 pr-1">
+                        <input class="form-control" formControlName="spread" type="number" >
+                    </div>
+
+                <div class="col-sm-2 pl-3 pr-1">
+                <label> Financing Leg </label>
+                </div>
+                <div class="col-sm-2 pl-1 pr-1">
+                    <select class="form-control" formControlName="financingLeg" required>
+                        <option selected disabled value="">Select</option>
+                        <option>
+                          Bullet
+                        </option>
+                        <option>
+                          Total Return
+                        </option>
+                      </select>
+                </div>
+
+            </div>
+
+            <div class="row" style="margin: 11px 0">
+                <div class="col-sm-2 pl-1 pr-1">
+                <label> Financing End dates </label>
+                </div>
+                <div class="col-sm-4 pl-1 pr-1">
+                    <input
+                    ngxDaterangepickerMd
+                    formControlName="financingEndDate"
+                    class="form-control bc-white"
+                    type="text"
+                    placeholder="Select financing end date"
+                    name="financingEndDate"
+                    [singleDatePicker]="true"
+                    [autoApply]="true"
+                    autocomplete="off"
+                    readonly 
+                    >
+                </div>
+
+                <div class="col-sm-2 pr-1">
+                    <label>Financing Payment date</label>
+                    </div>
+                    <div class="col-sm-4 pl-1 pr-1">
+                        <input 
+                        ngxDaterangepickerMd
+                        formControlName="financingPayDate"
+                        class="form-control bc-white"
+                        type="text"
+                        placeholder="Select financing payment date"
+                        name="financingPayDate"
+                        [singleDatePicker]="true"
+                        [autoApply]="true"
+                        autocomplete="off"
+                        readonly
+                        >
+                    </div>
+
+            </div>
+
+            <div class="row" style="margin: 11px 0">
+                <div class="col-sm-2 pl-1 pr-1">
+                <label> Financing Reset Dates </label>
+                </div>
+                <div class="col-sm-2 pl-1 pr-1">
+                    <select class="form-control" formControlName="financingResetDate" required>
+                        <option selected disabled value="">Select</option>
+                        <option>
+                          No of days
+                        </option>
+                        <option>
+                          Date
+                        </option>
+                        <option>
+                          Monthly
+                        </option>
+                        <option>
+                          Quarterly
+                        </option>
+                        <option>
+                            Yearly
+                        </option>
+                      </select>
+                </div>
+
+                <div class="col-sm-2 pl-1 pr-1" *ngIf="monthly">
+                    <select class="form-control" formControlName="financingResetMonthSelection" required>
+                        <option selected disabled value="">Select</option>
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                        <option>4</option>
+                        <option>5</option>
+                        <option>6</option>
+                        <option>7</option>
+                        <option>8</option>
+                        <option>9</option>
+                        <option>10</option>
+                        <option>11</option>
+                        <option>12</option>
+                      </select>
+                </div>
+
+                <div class="col-sm-2 pl-1 pr-1" *ngIf="quarterly">
+                    <select class="form-control" formControlName="financingResetQuarterSelection" required>
+                        <option selected disabled value="">Select</option>
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                        <option>4</option>
+                      </select>
+                </div>
+
+                <div class="col-sm-2 pl-1 pr-1" *ngIf="date">
+                    <input
+                    ngxDaterangepickerMd
+                    formControlName="financingResetDateSelection"
+                    class="form-control bc-white"
+                    type="text"
+                    placeholder="Select date"
+                    name="financingResetDateSelection"
+                    [singleDatePicker]="true"
+                    [autoApply]="true"
+                    autocomplete="off"
+                    readonly 
+                    >
+                </div>
+
+                
+                <div class="col-sm-2 pr-1">
+                    <label>Next Financing End Date</label>
+                    </div>
+                    <div class="col-sm-4 pl-1 pr-1">
+                        <input
+                        ngxDaterangepickerMd
+                        formControlName="nextFinancingEndDate"
+                        class="form-control bc-white"
+                        type="text"
+                        placeholder="Select next financing end date"
+                        name="nextFinancingEndDate"
+                        [singleDatePicker]="true"
+                        [autoApply]="true"
+                        autocomplete="off"
+                        readonly 
+                        >
+                    </div>
+
+            </div>
+
+            <div class="row m-0">
+
+                <div class="col-sm-2 pl-1 pr-1">
+                    <label> Fixed Rate </label>
+                    </div>
+                    <div class="col-sm-2 pl-1 pr-1">
+                        <input class="form-control" formControlName="fixedRate" type="number" >
+                    </div>
+
+                <div class="col-sm-2 pl-3 pr-1">
+                    <label> DOC Fixed Rate </label>
+                    </div>
+                    <div class="col-sm-2 pl-1 pr-1">
+                        <select class="form-control" formControlName="docFixedRate" required>
+                            <option selected disabled value="">Select</option>
+                            <option>
+                              30/360
+                            </option>
+                            <option>
+                              Actual/360
+                            </option>
+                            <option>
+                              Actual/365
+                            </option>
+                          </select>
+                    </div>
+
+                <div class="col-sm-2 pl-3 pr-1">
+                <label> Floating Rate </label>
+                </div>
+                <div class="col-sm-2 pl-1 pr-1">
+                    <select class="form-control" formControlName="floatingRate" required>
+                        <option selected disabled value="">Select</option>
+                        <option>
+                          USD
+                        </option>
+                        <option>
+                          LIBOR
+                        </option>
+                        <option>
+                            BBA
+                        </option>
+                      </select>
+                </div>
+
+            </div>
+
+            <div class="row" style="margin: 11px 0">
+
+                <div class="col-sm-2 pl-1 pr-1">
+                    <label> DCC Floating Rate </label>
+                    </div>
+                    <div class="col-sm-2 pl-1 pr-1">
+                        <select class="form-control" formControlName="docFloatingRate" required>
+                            <option selected disabled value="">Select</option>
+                            <option>
+                              30/360
+                            </option>
+                            <option>
+                              Actual/360
+                            </option>
+                            <option>
+                              Actual/365
+                            </option>
+                          </select>
+                    </div>
+
+                <div class="col-sm-2 pl-3 pr-1">
+                    <label> Primary Market </label>
+                    </div>
+                    <div class="col-sm-2 pl-1 pr-1">
+                        <select class="form-control" formControlName="primaryMarket" required>
+                            <option selected disabled value="">Select</option>
+                            <option>
+                              OTC
+                            </option>
+                            <option>
+                              Listed
+                            </option>
+                          </select>
+                    </div>
+
+                <div class="col-sm-2 pl-3 pr-1">
+                <label> Reference Equity </label>
+                </div>
+                <div class="col-sm-2 pl-1 pr-1">
+                    <input class="form-control" formControlName="referenceEquity" type="text">
+                </div>
+
+            </div>
+
+            <div class="row" style="margin: 11px 0">
+
+                <div class="col-sm-2 pl-1 pr-1">
+                    <label> Reference Obligation </label>
+                    </div>
+                    <div class="col-sm-2 pl-1 pr-1">
+                        <select class="form-control" formControlName="referenceObligation" required>
+                            <option selected disabled value="">Select</option>
+                            <option>
+                              30/360
+                            </option>
+                            <option>
+                              Actual/360
+                            </option>
+                            <option>
+                              Actual/365
+                            </option>
+                          </select>
+                    </div>
+
+                <div class="col-sm-2 pl-3 pr-1">
+                    <label> Upfront </label>
+                </div>
+                <div class="col-sm-2 pl-1 pr-1">
+                     <input class="form-control" formControlName="upfront" type="number">
+                </div>
+
+                <div class="col-sm-2 pl-3 pr-1">
+                <label> Premium Rate </label>
+                </div>
+                <div class="col-sm-2 pl-1 pr-1">
+                    <input class="form-control" formControlName="premiumRate" type="number">
+                </div>
+
+            </div>
+
+            <div class="row" style="margin: 11px 0">
+
+                <div class="col-sm-2 pl-1 pr-1">
+                    <label> Frequency Rate </label>
+                </div>
+                <div class="col-sm-2 pl-1 pr-1">
+                     <input class="form-control" formControlName="frequencyRate" type="number">
+                </div>
+
+            </div>
+
+        </div>
+
+        </fieldset>
+        </div>
+
+        <div class="modal-footer">
+
+            <button *ngIf="editDividend" type="button" class="btn btn-danger mr-auto"
+            ><i class="fa fa-trash"></i> Delete
+            <span *ngIf="isDeleting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            </button>
+    
+            <button type="button" class="btn btn-secondary" (click)="close()">
+                <i class="fa fa-times" aria-hidden="true"></i> Cancel
+            </button>
+
+            <button type="submit" class="btn btn-pa">
+            Save
+            </button>
+            
+            </div>
+        
+          </form>
+        
+        </div>
+
+    </div>
+
+</div>

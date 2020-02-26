@@ -1,0 +1,68 @@
+
+  <div class="row">
+
+    <!-- Symbol Filter -->
+    <div class="col-auto">
+      <!-- <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol" [(ngModel)]="filterBySymbol"
+        (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" /> -->
+    </div>
+    <!-- Symbol Filter Ends -->
+
+    <!-- Date Picker Div Starts -->
+    <div class="col-auto">
+      <form>
+        <!-- <input ngxDaterangepickerMd
+            class="form-control"
+            type="text"
+            placeholder="Choose date"
+            [(ngModel)]="selected"
+            (ngModelChange)="ngModelChangeDates($event)"
+            name=" selected"
+            [autoApply]="true"
+            [alwaysShowCalendars]="true"
+            [keepCalendarOpeningWithRange]="true"
+           /> -->
+      </form>
+    </div>
+    <!-- Date Picker Div Ends -->
+
+    <!-- Clear Button Div Starts -->
+    <div class="col-auto">
+      <!-- <button class="btn btn-pa" value="clear" tooltip="Clear" placement="top">
+        <i class="fa fa-remove"></i>
+      </button> -->
+    </div>
+    <!-- Clear Button Div Ends -->
+
+    <!-- Util Buttons Div Starts -->
+    <div class="col-auto ml-auto">
+
+      <!-- Refresh Button Div Starts -->
+      <div class="mr-2 d-inline-block">
+        <button class="btn btn-pa" value="refresh" tooltip="Refresh" placement="top">
+          <i class="fa fa-refresh"></i></button>
+      </div>
+      <!-- Refresh Button Div Ends -->
+
+      <div class="mr-2 d-inline-block">
+        <button class="btn btn-pa" type="button" value="showModal" (click)="openSecurityModal()" tooltip="Create Security"
+          placement="top">
+          <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+      </div>
+
+    <!-- Expand/Collapse Button -->
+      <!-- <div class="mr-3 d-inline-block">
+        <ng-template #tooltipTemplate>{{dividendScreenRatio.detailsView ? 'Expand' : 'Collapse'}}</ng-template>
+        <button (click)="dividendScreenRatio.detailsView = !dividendScreenRatio.detailsView" class="btn btn-pa"
+          [tooltip]="tooltipTemplate" placement="top">
+          <i class="fa"
+            [ngClass]="{'fa-arrow-right': dividendScreenRatio.detailsView, 'fa-arrow-left': !dividendScreenRatio.detailsView}"></i>
+        </button>
+      </div> -->
+
+    </div>
+    <!-- Util Buttons Div Ends -->
+
+  </div>
+<app-create-security #securityModal (modalClose)="closeSecurityModal()"></app-create-security>
