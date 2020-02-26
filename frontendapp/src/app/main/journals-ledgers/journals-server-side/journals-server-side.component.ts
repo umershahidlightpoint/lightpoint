@@ -582,7 +582,11 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       addDefaultItems.push({
         name: 'Edit',
         action: () => {
-          this.openEditModal(params.node.data, false);
+          this.isJournalModalActive = true;
+
+          setTimeout(() => {
+            this.openEditModal(params.node.data, false);
+          }, 250);
         }
       });
     }
