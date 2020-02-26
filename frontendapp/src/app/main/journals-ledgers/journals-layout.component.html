@@ -19,11 +19,11 @@
             </div>
         </tab>
         <!-- Server Side Journal Tab Ends -->
-        
+
         <!-- Nav Tab Starts -->
         <tab heading="NAV" (selectTab)="activateTab('Nav')">
             <div [ngStyle]="style">
-                <app-journals-server-side defaultView='Nav'></app-journals-server-side>
+                <app-journals-server-side *ngIf="isNavActive" defaultView='Nav'></app-journals-server-side>
             </div>
         </tab>
         <!-- Nav Tab Ends -->

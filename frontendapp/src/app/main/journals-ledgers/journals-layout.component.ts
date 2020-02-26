@@ -9,10 +9,11 @@ import { DataService } from 'src/services/common/data.service';
 })
 export class JournalsLayoutComponent implements OnInit, AfterViewInit {
   hideGrid = false;
+  isServerSideJournalActive = true;
+  isNavActive = false;
   isBalanceSheetActive = false;
   isIncomeStatementActive = false;
   isTrialBalanceActive = false;
-  isServerSideJournalActive = true;
   isClientSideJournalActive = false;
 
   style = Style;
@@ -38,6 +39,12 @@ export class JournalsLayoutComponent implements OnInit, AfterViewInit {
 
   activateTab(tab: string) {
     switch (tab) {
+      case 'ServerSideJournal':
+        this.isServerSideJournalActive = true;
+        break;
+      case 'Nav':
+        this.isNavActive = true;
+        break;
       case 'BalanceSheet':
         this.isBalanceSheetActive = true;
         break;
@@ -46,9 +53,6 @@ export class JournalsLayoutComponent implements OnInit, AfterViewInit {
         break;
       case 'TrialBalance':
         this.isTrialBalanceActive = true;
-        break;
-      case 'ServerSideJournal':
-        this.isServerSideJournalActive = true;
         break;
       case 'ClientSideJournal':
         this.isClientSideJournalActive = true;
