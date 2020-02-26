@@ -117,7 +117,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   };
   graphObject: GraphObject = null;
   marketPriceChart = false;
-  validDates : Array<string> = null;
+  validDates: Array<string> = null;
 
   constructor(
     private financeService: FinanceServiceProxy,
@@ -130,7 +130,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.initGrid();
-    //this.getLatestJournalDate();
+    // this.getLatestJournalDate();
     this.getValidDates();
     this.getFunds();
     // In case we need to enable filter by symbol from server side
@@ -155,13 +155,17 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   //   );
   // }
 
-  //dates against which data is present.
+  // Dates against which Data is Present
   getValidDates() {
     this.reportsApiService.getValidDates('business_date', 'cost_basis').subscribe(
       resp => {
-        if (resp.isSuccessful && resp.statusCode === 200 && resp.payload && resp.payload.length > 0) {
-          this.validDates = resp.payload.map(x=> moment(x,'YYYY-MM-DD').format('YYYY-MM-DD'));
-          console.log(this.validDates);
+        if (
+          resp.isSuccessful &&
+          resp.statusCode === 200 &&
+          resp.payload &&
+          resp.payload.length > 0
+        ) {
+          this.validDates = resp.payload.map(x => moment(x, 'YYYY-MM-DD').format('YYYY-MM-DD'));
           this.journalDate = resp.payload[0];
           this.startDate = this.journalDate;
           this.selectedDate = {
@@ -174,18 +178,17 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     );
   }
 
-  isInvalidDate(event : moment.Moment){
-    if(event.isValid){
-      let date = event.format('YYYY-MM-DD');
-      if(!this.validDates){
+  isInvalidDate(event: moment.Moment) {
+    if (event.isValid) {
+      const date = event.format('YYYY-MM-DD');
+      if (!this.validDates) {
         return false;
-      } else if(this.validDates.some(x=> x === date)){
+      } else if (this.validDates.some(x => x === date)) {
         return false;
       } else {
         return true;
       }
-    } 
-    else {
+    } else {
       return false;
     }
   }
@@ -215,7 +218,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
         return data.id;
       },
       onRowDataUpdated: params => {
-        console.log('Filters ::', params.api.getFilterModel());
         console.log('Data Updated ::', params);
       },
       getContextMenuItems: params => this.getContextMenuItems(params),
@@ -462,7 +464,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       this.mapChartsData(response.payload);
       this.timeseriesOptions.api.setRowData(this.chartData);
       this.timeseriesOptions.api.sizeColumnsToFit();
-      this.actionCostBasis.chartsView = true;
     });
   }
 
@@ -603,18 +604,20 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           {
             name: 'Create Security',
             action: () => {
-              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'createSecurity');
-            },
+              this.securityModal.openSecurityModalFromOutside(
+                params.node.data.symbol,
+                'createSecurity'
+              );
+            }
           },
           {
             name: 'Extend',
             action: () => {
-              console.log(params.node.data, "EXTEND FROM COST BASSIS");
               this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
-            },
+            }
           }
         ]
-      },
+      }
     ];
 
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
