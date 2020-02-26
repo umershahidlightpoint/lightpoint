@@ -2,98 +2,104 @@
 <lp-modal #lpModal size="large" [title]="editTaxRate ? 'Edit Tax Rate' : 'Add Tax Rate'" [footerConfig]="footerConfig"
   (closed)="onCloseModal()" (canceled)="onCloseModal()" (confirmed)="form.ngSubmit.emit()">
 
-  <!-- Tax Rate Form Starts -->
-  <form #form="ngForm" (ngSubmit)="saveTaxRate()">
+  <!-- Modal Content -->
+  <div class="p-3">
 
-    <!-- Date Range Picker Starts -->
-    <div class="form-group">
+    <!-- Tax Rate Form Starts -->
+    <form #form="ngForm" (ngSubmit)="saveTaxRate()">
 
-      <div class="row">
+      <!-- Date Range Picker Starts -->
+      <div class="form-group">
 
-        <!-- Date Label -->
-        <div class="col-sm-3">
-          <label> Tax Period </label>
-        </div>
+        <div class="row">
 
-        <!-- Date Picker -->
-        <div *ngIf="!editTaxRate" class="col-sm-9">
-          <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
-            [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate" [showDropdowns]="true"
-            [autoApply]="true" autocomplete="off" [disabled]="editTaxRate" />
-        </div>
-        <div *ngIf="editTaxRate" class="col-sm-9">
-          <input class="form-control" type="text"
-            value="{{selectedDate.startDate | date:'yyyy-MM-dd'}} - {{selectedDate.endDate | date:'yyyy-MM-dd'}}"
-            name="selectedDate" [disabled]="editTaxRate" />
-        </div>
+          <!-- Date Label -->
+          <div class="col-sm-3">
+            <label> Tax Period </label>
+          </div>
 
-      </div>
+          <!-- Date Picker -->
+          <div *ngIf="!editTaxRate" class="col-sm-9">
+            <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
+              [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate" [showDropdowns]="true"
+              [autoApply]="true" autocomplete="off" [disabled]="editTaxRate" />
+          </div>
+          <div *ngIf="editTaxRate" class="col-sm-9">
+            <input class="form-control" type="text"
+              value="{{selectedDate.startDate | date:'yyyy-MM-dd'}} - {{selectedDate.endDate | date:'yyyy-MM-dd'}}"
+              name="selectedDate" [disabled]="editTaxRate" />
+          </div>
 
-    </div>
-    <!-- Date Range Picker Ends -->
-
-    <!-- Long Term Tax Rate Starts -->
-    <div class="form-group">
-
-      <div class="row">
-
-        <!-- Long Term Tax Rate Label -->
-        <div class="col-sm-3">
-          <label> Long Term Tax Rate </label>
-        </div>
-
-        <!-- Long Term Tax Rate Input -->
-        <div class="col-sm-9">
-          <input class="form-control" [(ngModel)]="longTermTaxRate" name="longTermTaxRate" type="number" step=".07">
         </div>
 
       </div>
+      <!-- Date Range Picker Ends -->
 
-    </div>
-    <!-- Long Term Tax Rate Ends -->
+      <!-- Long Term Tax Rate Starts -->
+      <div class="form-group">
 
-    <!-- Short Term Tax Rate Starts -->
-    <div class="form-group">
+        <div class="row">
 
-      <div class="row">
+          <!-- Long Term Tax Rate Label -->
+          <div class="col-sm-3">
+            <label> Long Term Tax Rate </label>
+          </div>
 
-        <!-- Short Term Tax Rate Label -->
-        <div class="col-sm-3">
-          <label> Short Term Tax Rate </label>
-        </div>
+          <!-- Long Term Tax Rate Input -->
+          <div class="col-sm-9">
+            <input class="form-control" [(ngModel)]="longTermTaxRate" name="longTermTaxRate" type="number" step=".07">
+          </div>
 
-        <!-- Short Term Tax Rate Input -->
-        <div class="col-sm-9">
-          <input class="form-control" [(ngModel)]="shortTermTaxRate" name="shortTermTaxRate" type="number" step=".07">
-        </div>
-
-      </div>
-
-    </div>
-    <!-- Short Term Tax Rate Div Ends -->
-
-    <!-- Short Term Period Starts-->
-    <div class="form-group">
-
-      <div class="row">
-
-        <!-- Short Term Period Label -->
-        <div class="col-sm-3">
-          <label> Short Term Period </label>
-        </div>
-
-        <!-- Short Term Period Input -->
-        <div class="col-sm-9">
-          <input class="form-control" [(ngModel)]="shortTermPeriod" name="shortTermPeriod" type="number" step=".07">
         </div>
 
       </div>
+      <!-- Long Term Tax Rate Ends -->
 
-    </div>
-    <!-- Short Term Period Ends-->
+      <!-- Short Term Tax Rate Starts -->
+      <div class="form-group">
 
-  </form>
-  <!-- Tax Rate Form Starts -->
+        <div class="row">
+
+          <!-- Short Term Tax Rate Label -->
+          <div class="col-sm-3">
+            <label> Short Term Tax Rate </label>
+          </div>
+
+          <!-- Short Term Tax Rate Input -->
+          <div class="col-sm-9">
+            <input class="form-control" [(ngModel)]="shortTermTaxRate" name="shortTermTaxRate" type="number" step=".07">
+          </div>
+
+        </div>
+
+      </div>
+      <!-- Short Term Tax Rate Div Ends -->
+
+      <!-- Short Term Period Starts-->
+      <div class="form-group">
+
+        <div class="row">
+
+          <!-- Short Term Period Label -->
+          <div class="col-sm-3">
+            <label> Short Term Period </label>
+          </div>
+
+          <!-- Short Term Period Input -->
+          <div class="col-sm-9">
+            <input class="form-control" [(ngModel)]="shortTermPeriod" name="shortTermPeriod" type="number" step=".07">
+          </div>
+
+        </div>
+
+      </div>
+      <!-- Short Term Period Ends-->
+
+    </form>
+    <!-- Tax Rate Form Starts -->
+
+  </div>
+  <!-- Modal Content Ends -->
 
 </lp-modal>
 <!-- LP Modal Ends -->

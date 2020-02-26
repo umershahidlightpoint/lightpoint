@@ -4,6 +4,10 @@
   background-color: rgba(0, 0, 0, 0.5);
 }
 
+.modal-body {
+  padding: 0;
+}
+
 .close {
   color: $on-primary;
   opacity: 0.75;

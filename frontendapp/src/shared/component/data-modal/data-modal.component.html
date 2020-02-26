@@ -1,77 +1,75 @@
-<!-- Modal Div Starts -->
-<div bsModal #modal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true"
-  [config]="{backdrop: modal-backdrop}">
+<!-- LP Modal -->
+<lp-modal #lpModal size="large" [showCloseButton]="true" [showFooter]="false" [title]="title" (closed)="onClose()">
 
-  <!-- Modal Dialog Div Starts -->
-  <div class="modal-dialog modal-lg modal-dialog-centered" id="modal-lg">
+  <!-- No Data Container -->
+  <div *ngIf="tableData.length === 0 && customTableData.length === 0" class="no-data-wrapper">
 
-    <!-- Modal Content Div Starts -->
-    <div class="modal-content">
-
-      <!-- Modal Header Starts-->
-      <div class="modal-header color-primary">
-        <h3>{{ title }}</h3>
-        <button type="button" class="close" data-dismiss="modal" (click)="closeModal()">&times;</button>
-      </div>
-      <!-- Modal Header Ends-->
-
-      <!-- Modal Body Starts-->
-      <div class="modal-body">
-
-        <!-- No Rows Container -->
-        <div *ngIf="tableData.length === 0 && customTableData.length === 0" class="no-data-wrapper">
-          <h4>No Data Available</h4>
-        </div>
-        <!-- No Rows Container Ends -->
-
-        <!-- Table for Data -->
-        <table *ngIf="tableData.length !== 0 || customTableData.length !== 0"
-          class="table table-sm table-striped table-bordered">
-
-          <!-- Title Row -->
-          <thead class="table-header table-secondary">
-            <tr>
-              <th scope="col" class="first-cell">Field</th>
-              <th scope="col" class="other-cells center-position">Value</th>
-            </tr>
-          </thead>
-          <!-- Title Row Ends -->
-
-          <!-- Table Body Starts -->
-          <tbody>
-
-            <ng-container *ngIf="!isCustomData">
-              <tr *ngFor="let report of tableData">
-                <td class="first-cell cell-style"> {{ report.name }}</td>
-                <td class="other-cells balance cell-style">
-                  {{(report.name === '$Debit' || report.name === '$Credit'  || report.name === '$Balance') ?  (report.value | number: '1.2-2')  :  report.value }}
-                </td>
-              </tr>
-            </ng-container>
-
-            <ng-container *ngIf="isCustomData">
-              <tr *ngFor="let report of customTableData">
-                <td class="first-cell cell-style"> {{ report.name }}</td>
-                <td class="other-cells balance cell-style">
-                  {{(report.name === '$Debit' || report.name === '$Credit'  || report.name === '$Balance') ?  (report.value | number: '1.2-2')  :  report.value }}
-                </td>
-              </tr>
-            </ng-container>
-
-          </tbody>
-          <!-- Table Body Ends -->
-
-        </table>
-        <!-- Table for Data Ends -->
-
-      </div>
-      <!-- Modal Body Ends-->
-
-    </div>
-    <!-- Modal Content Div Ends -->
+    <h4>No Data Available</h4>
 
   </div>
-  <!-- Modal Dialog Div Ends -->
+  <!-- No Data Container Ends -->
 
-</div>
-<!-- Modal Div Ends -->
+  <!-- Modal Content -->
+  <div class="modal-body-wrapper">
+
+    <!-- Data Table -->
+    <table *ngIf="tableData.length !== 0 || customTableData.length !== 0"
+      class="table table-sm table-striped table-bordered">
+
+      <!-- Table Header -->
+      <thead class="table-header table-secondary">
+
+        <!-- Title Row -->
+        <tr>
+          <th scope="col" class="first-cell">Field</th>
+          <th scope="col" class="other-cells text-center">Value</th>
+        </tr>
+        <!-- Title Row Ends -->
+
+      </thead>
+      <!-- Table Header Ends -->
+
+      <!-- Table Body -->
+      <tbody>
+
+        <!-- Table Data Container -->
+        <ng-container *ngIf="!isCustomData">
+
+          <!-- Data Row -->
+          <tr *ngFor="let report of tableData">
+            <td class="first-cell cell-style"> {{ report.name }}</td>
+            <td class="other-cells cell-style text-right">
+              {{(report.name === '$Debit' || report.name === '$Credit'  || report.name === '$Balance') ?  (report.value | number: '1.2-2')  :  report.value }}
+            </td>
+          </tr>
+          <!-- Data Row Ends -->
+
+        </ng-container>
+        <!-- Table Data Container Ends -->
+
+        <!-- Table Custom Data Container -->
+        <ng-container *ngIf="isCustomData">
+
+          <!-- Custom Data Row -->
+          <tr *ngFor="let report of customTableData">
+            <td class="first-cell cell-style"> {{ report.name }}</td>
+            <td class="other-cells cell-style text-right">
+              {{(report.name === '$Debit' || report.name === '$Credit'  || report.name === '$Balance') ?  (report.value | number: '1.2-2')  :  report.value }}
+            </td>
+          </tr>
+          <!-- Custom Data Row Ends -->
+
+        </ng-container>
+        <!-- Table Custom Data Container Ends -->
+
+      </tbody>
+      <!-- Table Body Ends -->
+
+    </table>
+    <!-- Data Table Ends -->
+
+  </div>
+  <!-- Modal Content Ends -->
+
+</lp-modal>
+<!-- LP Modal Ends -->

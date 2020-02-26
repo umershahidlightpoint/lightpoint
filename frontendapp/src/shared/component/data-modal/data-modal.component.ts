@@ -1,7 +1,14 @@
 /* Core/Libraries */
-import { Component, OnInit, AfterViewInit, ViewChild, Output, Input, EventEmitter } from '@angular/core';
-import { ModalDirective } from 'ngx-bootstrap';
-import { HeightStyle } from 'src/shared/utils/Shared';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+  Input,
+  Output,
+  EventEmitter
+} from '@angular/core';
+import { ModalComponent } from 'lp-toolkit';
 
 @Component({
   selector: 'app-data-modal',
@@ -9,34 +16,24 @@ import { HeightStyle } from 'src/shared/utils/Shared';
   styleUrls: ['./data-modal.component.scss']
 })
 export class DataModalComponent implements OnInit, AfterViewInit {
-  @ViewChild('modal', { static: false }) modal: ModalDirective;
-  @Output() modalClose = new EventEmitter<any>();
-  @Input() orderId: string;
+  @ViewChild('lpModal', { static: false }) lpModal: ModalComponent;
+
   @Input() title = 'Data Details';
   @Input() isCustomData = false;
 
+  @Output() closed = new EventEmitter<void>();
+
   tableData: any[] = [];
   customTableData: any[] = [];
-  backdrop: any;
-
-  styleForHeight = HeightStyle(220);
-
-  containerDiv = {
-    borderLeft: '1px solid #cecece',
-    borderRight: '1px solid #cecece',
-    width: '100%',
-    boxSizing: 'border-box',
-    overflow: 'overlay'
-  };
 
   constructor() {}
 
   ngOnInit() {}
 
-  ngAfterViewInit(){
-    this.modal.onHidden.subscribe(e => {
-      this.customTableData = [];
-    })
+  ngAfterViewInit() {
+    // this.lpModal.onHidden.subscribe(e => {
+    //   this.customTableData = [];
+    // });
   }
 
   /*
@@ -49,12 +46,12 @@ export class DataModalComponent implements OnInit, AfterViewInit {
       this.mapCustomData(row);
     }
 
-    this.modal.show();
+    this.lpModal.showModal();
   }
 
-  closeModal() {
-    this.modal.hide();
+  onClose() {
     this.customTableData = [];
+    this.closed.emit();
   }
 
   mapGridData(row: any, cols: any) {
@@ -66,6 +63,7 @@ export class DataModalComponent implements OnInit, AfterViewInit {
         field: i.colId,
         headerName: this.mapHeaderName(columns, i.colId)
       }));
+
     // Key Value Pair (Name, Value)
     this.tableData = columnStates.map(i => ({
       name: i.headerName,

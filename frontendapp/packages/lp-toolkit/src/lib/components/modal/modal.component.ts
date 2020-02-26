@@ -1,13 +1,16 @@
 import {
   Component,
   OnInit,
-  Input,
-  ViewChild,
-  Output,
-  EventEmitter,
+  AfterViewInit,
   OnChanges,
-  SimpleChanges
+  OnDestroy,
+  SimpleChanges,
+  ViewChild,
+  Input,
+  Output,
+  EventEmitter
 } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { ModalDirective } from 'ngx-bootstrap';
 import { ModalFooterConfig } from '../../models/modal-footer-config';
 
@@ -16,7 +19,7 @@ import { ModalFooterConfig } from '../../models/modal-footer-config';
   templateUrl: './modal.component.html',
   styleUrls: ['./modal.component.scss']
 })
-export class ModalComponent implements OnInit, OnChanges {
+export class ModalComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   @Input() size: 'small' | 'large' | 'extra-large';
   @Input() showCloseButton = false;
   @Input() showFooter = true;
@@ -53,10 +56,17 @@ export class ModalComponent implements OnInit, OnChanges {
   public config = {
     backdrop: 'static'
   };
+  public modalHiddenSubscription: Subscription;
 
   constructor() {}
 
-  ngOnInit() {}
+  ngOnInit(): void {}
+
+  ngAfterViewInit(): void {
+    this.modalHiddenSubscription = this.lpModal.onHidden.subscribe(() => {
+      this.closed.emit();
+    });
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     for (const propName in changes) {
@@ -74,9 +84,12 @@ export class ModalComponent implements OnInit, OnChanges {
     }
   }
 
+  ngOnDestroy(): void {
+    this.modalHiddenSubscription.unsubscribe();
+  }
+
   onClose() {
     this.hideModal();
-    this.closed.emit();
   }
 
   onConfirm() {
