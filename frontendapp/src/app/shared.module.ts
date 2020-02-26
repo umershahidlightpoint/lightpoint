@@ -1,4 +1,3 @@
-
 import { ModuleWithProviders, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -13,6 +12,7 @@ import { TabsModule, ModalModule, AlertModule, TooltipModule } from 'ngx-bootstr
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { ToastrModule } from 'ngx-toastr';
 import { NgcatalystModule } from 'ngcatalyst';
+import { LpToolkitModule } from 'lp-toolkit';
 
 import { GridLayoutMenuComponent } from '../shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { TemplateRendererComponent } from './template-renderer/template-renderer.component';
@@ -52,24 +52,25 @@ const sharedComponents = [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    TabsModule.forRoot(),
+    ModalModule.forRoot(),
     TypeaheadModule,
     BsDropdownModule,
+    AlertModule.forRoot(),
     CollapseModule.forRoot(),
+    TooltipModule.forRoot(),
     AgGridModule.withComponents([
       GridLayoutMenuComponent,
       TemplateRendererComponent,
       AgGridCheckboxComponent
     ]),
-    TabsModule.forRoot(),
-    ModalModule.forRoot(),
-    AlertModule.forRoot(),
-    TooltipModule.forRoot(),
     NgxDaterangepickerMd.forRoot({
       applyLabel: 'Okay',
       firstDay: 1
     }),
+    ToastrModule.forRoot(),
     NgcatalystModule,
-    ToastrModule.forRoot()
+    LpToolkitModule
   ],
   declarations: [...sharedComponents],
 

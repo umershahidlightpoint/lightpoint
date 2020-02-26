@@ -97,7 +97,7 @@
 <app-journal-modal #journalModal (modalClose)="closeJournalModal()">
 </app-journal-modal>
 
-<app-data-modal #dataModal (modalClose)="closeOrderModal()" [orderId]="orderId" [title]="'Order Detail'">
+<app-data-modal #dataModal [title]="'Order Detail'" (closed)="closeOrderModal()">
 </app-data-modal>
 
 <app-report-modal #reportModal [title]="'Report'" [tableHeader]="tableHeader">

@@ -2,7 +2,7 @@
 
 > Common Components and Tooling for LightPoint Angular Applications.
 
-[![package version](https://img.shields.io/badge/package-0.0.6-blue)](https://github.com/LightPointFinancialTechnology/lpToolkit.git)
+[![package version](https://img.shields.io/badge/package-0.0.8-blue)](https://github.com/LightPointFinancialTechnology/lpToolkit.git)
 [![last commit](https://img.shields.io/badge/last%20commit-february-brightgreen)](https://github.com/LightPointFinancialTechnology/lpToolkit.git)
 
 This library works fine with the latest version of angular.
@@ -610,6 +610,135 @@ interface GridLayout {
 }
 ```
 
+## 9. LP Modal
+
+### Usage example
+
+Html:
+
+```html
+<lp-modal #lpModal><div>I am inside Modal Body</div></lp-modal>
+```
+
+Typescript:
+
+```typescript
+import { ViewChild } from '@angular/core';
+import { ModalComponent } from 'lp-toolkit';
+
+@ViewChild('lpModal', { static: false }) lpModal: ModalComponent;
+
+showModal() {
+    this.lpModal.showModal();
+}
+
+hideModal() {
+    this.lpModal.hideModal();
+}
+```
+
+> **Note**: In your global styles file, Please add the following styles:
+> `.modal-backdrop { position: inherit; }`
+
+### Options:
+
+Html:
+
+```html
+<lp-modal
+  #lpModal
+  size="large"
+  [showCloseButton]="true"
+  [showFooter]="true"
+  [title]="isSaveState ? 'Save' : 'Edit'"
+  [footerConfig]="footerConfig"
+  (closed)="onClose()"
+  (confirmed)="onConfirm()"
+  (canceled)="onCancel()"
+  (deleted)="onDelete()"
+>
+  <div>I am inside Modal Body</div>
+</lp-modal>
+```
+
+Typescript:
+
+```typescript
+import { ViewChild } from '@angular/core';
+import { ModalComponent, ModalFooterConfig } from 'lp-toolkit';
+
+@ViewChild('lpModal', { static: false }) lpModal: ModalComponent;
+
+public isSaveState = true;
+public footerConfig: ModalFooterConfig = {
+    showConfirmButton: true,
+    confirmButtonText: 'Save',
+    confirmButtonIcon: 'fa-save',
+    confirmButtonDisabledState: false,
+    confirmButtonLoadingState: false,
+    showCancelButton: true,
+    cancelButtonText: 'Cancel',
+    cancelButtonIcon: 'fa-times',
+    cancelButtonDisabledState: false,
+    cancelButtonLoadingState: false,
+    showDeleteButton: true,
+    deleteButtonText: 'Delete',
+    deleteButtonIcon: 'fa-trash',
+    deleteButtonDisabledState: false,
+    deleteButtonLoadingState: false
+};
+
+onClose() {
+}
+
+onConfirm() {
+    this.hideModal();
+}
+
+onCancel() {
+}
+
+onDelete() {
+    this.hideModal();
+}
+
+showModal() {
+    this.lpModal.showModal();
+}
+
+hideModal() {
+    this.lpModal.hideModal();
+}
+```
+
+### Attributes:
+
+| Attribute       | Type              | Default                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| --------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| size            | string            | default (max-width: 500px)<br>Possible Values: **small, large, extra-large**                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| showCloseButton | boolean           | false                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| showFooter      | boolean           | true                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| title           | string            | LP Modal                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| footerConfig    | ModalFooterConfig | { <br>showConfirmButton: false,<br>confirmButtonText: 'Confirm',<br>confirmButtonIcon: 'fa-check-square',<br>confirmButtonDisabledState: false,<br>confirmButtonLoadingState: false,<br>showCancelButton: true,<br>cancelButtonText: 'Cancel',<br>cancelButtonIcon: 'fa-times',<br>cancelButtonDisabledState: false,<br>cancelButtonLoadingState: false,<br>showDeleteButton: false,<br>deleteButtonText: 'Delete',<br>deleteButtonIcon: 'fa-trash',<br>deleteButtonDisabledState: false,<br>deleteButtonLoadingState: false<br>} |
+
+### Events:
+
+#### (closed)
+
+> (event) An event that is emitted when the top right cross icon is clicked.
+
+#### (confirmed)
+
+> (event) An event that is emitted when the confirm is clicked.
+
+#### (canceled)
+
+> (event) An event that is emitted when the cancel is clicked.
+
+#### (deleted)
+
+> (event) An event that is emitted when the delete is clicked.
+
 ## Interfaces
 
 ## 1. Page
@@ -741,6 +870,50 @@ const layoutServices: LayoutServices = {
   saveGridLayout: url,
   deleteGridLayout: url,
   dataProperty: 'payload'
+};
+```
+
+## 6. ModalFooterConfig
+
+```typescript
+interface ModalFooterConfig {
+  showConfirmButton?: boolean;
+  confirmButtonText?: string;
+  confirmButtonIcon?: string;
+  confirmButtonDisabledState?: boolean;
+  confirmButtonLoadingState?: boolean;
+  showCancelButton?: boolean;
+  cancelButtonText?: string;
+  cancelButtonIcon?: string;
+  cancelButtonDisabledState?: boolean;
+  cancelButtonLoadingState?: boolean;
+  showDeleteButton?: boolean;
+  deleteButtonText?: string;
+  deleteButtonIcon?: string;
+  deleteButtonDisabledState?: boolean;
+  deleteButtonLoadingState?: boolean;
+}
+```
+
+### Usage example
+
+```typescript
+public modalFooterConfig: ModalFooterConfig = {
+    showConfirmButton: false,
+    confirmButtonText: 'Confirm',
+    confirmButtonIcon: 'fa-check-square',
+    confirmButtonDisabledState: false,
+    confirmButtonLoadingState: false,
+    showCancelButton: true,
+    cancelButtonText: 'Cancel',
+    cancelButtonIcon: 'fa-times',
+    cancelButtonDisabledState: false,
+    cancelButtonLoadingState: false,
+    showDeleteButton: false,
+    deleteButtonText: 'Delete',
+    deleteButtonIcon: 'fa-trash',
+    deleteButtonDisabledState: false,
+    deleteButtonLoadingState: false
 };
 ```
 
