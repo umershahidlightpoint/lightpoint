@@ -6,6 +6,7 @@ import * as moment from 'moment';
 import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
+import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
 import { DataService } from '../../../../services/common/data.service';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { ReportsApiService } from 'src/services/reports-api.service';
@@ -38,6 +39,8 @@ import {
 })
 export class DayPnlComponent implements OnInit, AfterViewInit {
   @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
+  @ViewChild('securityModal', { static: false }) securityModal: CreateSecurityComponent;
+
   gridOptions: CustomGridOptions;
   portfolioOptions: GridOptions;
   bookmonOptions: GridOptions;
@@ -532,8 +535,28 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
   }
 
   getContextMenuItems(params): Array<ContextMenu> {
+    const addDefaultItems = [
+      {
+        name: 'Security Details',
+        subMenu: [
+          {
+            name: 'Create Security',
+            action: () => {
+              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'createSecurity');
+            },
+          },
+          {
+            name: 'Extend',
+            action: () => {
+              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
+            },
+          }
+        ]
+      },
+    ];
+
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
-    return GetContextMenu(true, null, true, null, params);
+    return GetContextMenu(false, addDefaultItems, true, null, params);
   }
 
   setDateRange(dateFilter: any) {

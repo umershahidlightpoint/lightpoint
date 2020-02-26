@@ -13,6 +13,7 @@ import {
 } from 'src/shared/utils/Shared';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { ContextMenu } from 'src/shared/Models/common';
@@ -29,6 +30,7 @@ import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/dat
 export class DividendsComponent implements OnInit {
   @ViewChild('dividendModal', { static: false }) dividendModal: CreateDividendComponent;
   @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
+  @ViewChild('securityModal', { static: false }) securityModal: CreateSecurityComponent;
 
   pinnedBottomRowData;
   gridOptions: GridOptions;
@@ -412,6 +414,7 @@ export class DividendsComponent implements OnInit {
       }
     });
     if (node) {
+      this.dividendScreenRatio.detailsView = true;
       this.dividendDetailsGrid.api.ensureIndexVisible(node.rowIndex);
     }
   }
@@ -536,7 +539,24 @@ export class DividendsComponent implements OnInit {
         action: () => {
           this.openDataGridModal(params);
         }
-      }
+      },
+      {
+        name: 'Security Details',
+        subMenu: [
+          {
+            name: 'Create Security',
+            action: () => {
+              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'createSecurity');
+            },
+          },
+          {
+            name: 'Extend',
+            action: () => {
+              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
+            },
+          }
+        ]
+      },
     ];
     const addCustomItems = [];
     return GetContextMenu(false, addDefaultItems, false, addCustomItems, params);

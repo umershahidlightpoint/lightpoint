@@ -14,6 +14,9 @@ export class CreateSecurityComponent implements OnInit {
   @ViewChild('securityModal', { static: false }) securityModal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
 
+  showTrade = true;
+  showFinancing = true;
+
   isCollapsedTrade = true;
   isCollapsedFinance = false;
 
@@ -27,6 +30,7 @@ export class CreateSecurityComponent implements OnInit {
   constructor(private formBuilder: FormBuilder) { }
 
   ngOnInit() {
+  this.showTrade = false;
   this.initializeForm();
   this.onChanges();
   }
@@ -118,6 +122,24 @@ export class CreateSecurityComponent implements OnInit {
   openModal(data) {
     this.securityModal.show();
 
+  }
+
+  openSecurityModalFromOutside(data, entryPoint) {
+    const symbol = data;
+
+    if (entryPoint === 'createSecurity') {
+      this.showTrade = false;
+      this.showFinancing = true;
+    } else {
+      this.showTrade = true;
+      this.showFinancing = true;
+    }
+
+    this.securityForm.patchValue({
+      security: symbol
+    });
+
+    this.securityModal.show();
   }
 
   close() {

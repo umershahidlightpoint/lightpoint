@@ -20,6 +20,10 @@ export class DummyComponentComponent implements OnInit {
     this.securityModal.openModal(null);
   }
 
+  openSecurityModalFromOutside(data) {
+    this.securityModal.openModal(data);
+  }
+
   closeSecurityModal() {
   }
 

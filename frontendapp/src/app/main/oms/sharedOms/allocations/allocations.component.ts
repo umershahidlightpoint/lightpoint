@@ -1,11 +1,14 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataService } from 'src/services/common/data.service';
+import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
 import { FinanceServiceProxy } from '../../../../../services/service-proxies';
 import { AgGridUtils } from '../../../../../shared/utils/AgGridUtils';
 import { SideBar, AutoSizeAllColumns } from 'src/shared/utils/Shared';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { ContextMenu } from 'src/shared/Models/common';
 
 @Component({
   selector: 'app-allocations',
@@ -13,6 +16,7 @@ import { SideBar, AutoSizeAllColumns } from 'src/shared/utils/Shared';
   styleUrls: ['./allocations.component.scss']
 })
 export class AllocationsComponent implements OnInit, AfterViewInit {
+  @ViewChild('securityModal', { static: false }) securityModal: CreateSecurityComponent;
   public allocationsGridOptions: GridOptions;
   public allocationsData: [];
   allocationTradesData: any;
@@ -66,6 +70,7 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
       animateRows: true,
       suppressColumnVirtualisation: true,
       suppressHorizontalScroll: false,
+      getContextMenuItems: this.getContextMenuItems.bind(this),
       alignedGrids: [],
       onGridReady: () => {
         // this.gridOptions.api.sizeColumnsToFit();
@@ -82,6 +87,30 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
       GridName.allocations,
       this.allocationsGridOptions
     );
+  }
+
+  getContextMenuItems(params): Array<ContextMenu> {
+    const addDefaultItems = [
+      {
+        name: 'Security Details',
+        subMenu: [
+          {
+            name: 'Create Security',
+            action: () => {
+              this.securityModal.openSecurityModalFromOutside(params.node.data.Symbol, 'createSecurity');
+            },
+          },
+          {
+            name: 'Extend',
+            action: () => {
+              this.securityModal.openSecurityModalFromOutside(params.node.data.Symbol, 'extend');
+            },
+          }
+        ]
+      },
+    ];
+    // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
+    return GetContextMenu(false, addDefaultItems, true, null, params);
   }
 
   getTradeAllocations(lpOrderId) {

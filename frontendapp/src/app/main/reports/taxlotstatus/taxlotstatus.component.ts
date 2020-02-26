@@ -18,6 +18,8 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 import { CreateDividendComponent } from 'src/shared/Modal/create-dividend/create-dividend.component';
 import { CreateStockSplitsComponent } from 'src/shared/Modal/create-stock-splits/create-stock-splits.component';
+import { CreateSecurityComponent } from './../../../../shared/Modal/create-security/create-security.component';
+
 import { DataModalComponent } from 'src/shared/Component/data-modal/data-modal.component';
 import { AgGridUtils } from 'src/shared/utils/AgGridUtils';
 import { DataDictionary } from 'src/shared/utils/DataDictionary';
@@ -50,6 +52,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
   @ViewChild('dividendModal', { static: false }) dividendModal: CreateDividendComponent;
   @ViewChild('stockSplitsModal', { static: false }) stockSplitsModal: CreateStockSplitsComponent;
+  @ViewChild('securityModal', { static: false }) securityModal: CreateSecurityComponent;
 
   gridOptions: CustomGridOptions;
   closingTaxLots: GridOptions;
@@ -664,6 +667,24 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
             name: 'Create Stock Split',
             action: () => {
               this.stockSplitsModal.openStockSplitModalFromOutside(params.node.data.symbol);
+            },
+          }
+        ]
+      },
+      {
+        name: 'Security Details',
+        subMenu: [
+          {
+            name: 'Create Security',
+            action: () => {
+              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'createSecurity');
+            },
+          },
+          {
+            name: 'Extend',
+            action: () => {
+              console.log(params.node.data, " EXTEND FROM TAXLOT STATUS+++++++++++++");
+              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
             },
           }
         ]

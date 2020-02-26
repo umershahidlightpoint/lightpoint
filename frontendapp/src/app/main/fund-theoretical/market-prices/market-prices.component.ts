@@ -8,6 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 import { UtilsConfig } from 'src/shared/Models/utils-config';
 import * as moment from 'moment';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
+import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
 import { GraphObject } from 'src/shared/Models/graph-object';
 import { ContextMenu } from 'src/shared/Models/common';
 import { DataDictionary } from 'src/shared/utils/DataDictionary';
@@ -21,6 +22,7 @@ import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.ser
 export class MarketPricesComponent implements OnInit {
   @ViewChild('fileInput', { static: false }) fileInput: ElementRef;
   @ViewChild('dataGridModal', { static: false })
+  @ViewChild('securityModal', { static: false }) securityModal: CreateSecurityComponent;
   dataGridModal: DataGridModalComponent;
 
   marketPriceGrid: CustomGridOptions;
@@ -288,7 +290,24 @@ export class MarketPricesComponent implements OnInit {
         action: () => {
           this.openDataGridModal(params);
         }
-      }
+      },
+      {
+        name: 'Security Details',
+        subMenu: [
+          {
+            name: 'Create Security',
+            action: () => {
+              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'createSecurity');
+            },
+          },
+          {
+            name: 'Extend',
+            action: () => {
+              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
+            },
+          }
+        ]
+      },
     ];
     return GetContextMenu(false, addDefaultItems, true, null, params);
   }

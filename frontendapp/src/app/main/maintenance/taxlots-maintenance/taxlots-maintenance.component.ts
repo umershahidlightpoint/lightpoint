@@ -32,6 +32,7 @@ import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import { ContextMenu } from 'src/shared/Models/common';
 import { MaintenanceApiService } from 'src/services/maintenance-api.service';
 import { DataModalComponent } from 'src/shared/Component/data-modal/data-modal.component';
+import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
 import { ToastrService } from 'ngx-toastr';
 import { DataDictionary } from 'src/shared/utils/DataDictionary';
 
@@ -42,6 +43,7 @@ import { DataDictionary } from 'src/shared/utils/DataDictionary';
 })
 export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
+  @ViewChild('securityModal', { static: false }) securityModal: CreateSecurityComponent;
 
   pinnedBottomRowData;
   gridOptions: CustomGridOptions;
@@ -603,8 +605,26 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
   }
 
   getContextMenuItems(params): Array<ContextMenu> {
-    // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
-    return GetContextMenu(true, null, true, null, params);
+    const addDefaultItems = [
+      {
+        name: 'Security Details',
+        subMenu: [
+          {
+            name: 'Create Security',
+            action: () => {
+              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'createSecurity');
+            },
+          },
+          {
+            name: 'Extend',
+            action: () => {
+              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
+            },
+          }
+        ]
+      },
+    ];
+    return GetContextMenu(false, addDefaultItems, true, null, params);
   }
 
   getContextMenuItemsForClosingLots(params) {
