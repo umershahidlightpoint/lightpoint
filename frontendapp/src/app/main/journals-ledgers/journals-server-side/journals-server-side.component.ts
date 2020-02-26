@@ -26,6 +26,7 @@ import { DataService } from '../../../../services/common/data.service';
 import { JournalModalComponent } from '../journals-client-side/journal-modal/journal-modal.component';
 import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
 import { DataModalComponent } from '../../../../shared/Component/data-modal/data-modal.component';
+import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
 import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
 import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
@@ -60,6 +61,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   @ViewChild('journalModal', { static: false }) journalModal: JournalModalComponent;
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
   @ViewChild('reportModal', { static: false }) reportModal: ReportModalComponent;
+  @ViewChild('securityModal', { static: false }) securityModal: CreateSecurityComponent;
 
   private filterSubject: Subject<string> = new Subject();
   rowData: any[] = [];
@@ -582,9 +584,30 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       addDefaultItems.push({
         name: 'Edit',
         action: () => {
-          this.openEditModal(params.node.data, false);
+          this.isJournalModalActive = true;
+
+          setTimeout(() => {
+            this.openEditModal(params.node.data, false);
+          }, 250);
         }
-      });
+      },
+      {
+        name: 'Security Details',
+        subMenu: [
+          {
+            name: 'Create Security',
+            action: () => {
+              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'createSecurity');
+            },
+          },
+          {
+            name: 'Extend',
+            action: () => {
+              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
+            },
+          }
+        ]
+      },);
     }
     const addCustomItems = [
       {

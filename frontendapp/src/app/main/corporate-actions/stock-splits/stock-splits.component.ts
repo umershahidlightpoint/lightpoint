@@ -16,6 +16,7 @@ import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { ContextMenu } from 'src/shared/Models/common';
 import { CreateStockSplitsComponent } from 'src/shared/Modal/create-stock-splits/create-stock-splits.component';
+import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
 import * as moment from 'moment';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 
@@ -28,6 +29,7 @@ export class StockSplitsComponent implements OnInit {
 
   @ViewChild('stockSplitsModal', { static: false }) stockSplitsModal: CreateStockSplitsComponent;
   @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
+  @ViewChild('securityModal', { static: false }) securityModal: CreateSecurityComponent;
 
   pinnedBottomRowData;
   gridOptions: GridOptions;
@@ -360,6 +362,7 @@ export class StockSplitsComponent implements OnInit {
       }
     });
     if (node) {
+      this.stockSplitScreenRatio.detailsView = true;
       this.stockSplitDetailsGrid.api.ensureIndexVisible(node.rowIndex);
     }
   }
@@ -487,7 +490,24 @@ export class StockSplitsComponent implements OnInit {
       action: () => {
         this.openDataGridModal(params);
       }
-    }];
+    },
+    {
+      name: 'Security Details',
+      subMenu: [
+        {
+          name: 'Create Security',
+          action: () => {
+            this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'createSecurity');
+          },
+        },
+        {
+          name: 'Extend',
+          action: () => {
+            this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
+          },
+        }
+      ]
+    },];
     const addCustomItems = [];
     return GetContextMenu(false, addDefaultItems, false, addCustomItems, params);
   }

@@ -13,7 +13,7 @@
 
         <div class="modal-body">
 
-        <!-- <fieldset class="wrap-dates" style="overflow: visible !important; height: auto !important;">
+        <fieldset *ngIf="showTrade" class="wrap-dates" style="overflow: visible !important; height: auto !important;">
             <legend class="dates-heading" style="overflow: visible !important; height: auto !important;" (click)="isCollapsedTrade = !isCollapsedTrade"
             [attr.aria-expanded]="!isCollapsedTrade" aria-controls="collapseTrade">Trade
             <i *ngIf="!isCollapsedTrade" class="fa fa-chevron-down"></i>
@@ -136,9 +136,9 @@
             </div>
         </div>
 
-        </fieldset> -->
+        </fieldset>
 
-        <fieldset class="wrap-dates">
+        <fieldset *ngIf="showFinancing" class="wrap-dates">
             <legend class="dates-heading" (click)="isCollapsedFinance = !isCollapsedFinance"
             [attr.aria-expanded]="!isCollapsedFinance" aria-controls="collapseFinancing">Financing
             <i *ngIf="!isCollapsedFinance" class="fa fa-chevron-down"></i>

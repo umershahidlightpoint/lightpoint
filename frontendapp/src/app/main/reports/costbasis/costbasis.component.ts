@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 import { GridOptions } from 'ag-grid-community';
 import { timer, Subject } from 'rxjs';
 import { debounce } from 'rxjs/operators';
@@ -33,6 +33,7 @@ import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
+import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
 
 @Component({
   selector: 'rep-costbasis',
@@ -40,6 +41,8 @@ import { ContextMenu } from 'src/shared/Models/common';
   styleUrls: ['./costbasis.component.scss']
 })
 export class CostBasisComponent implements OnInit, AfterViewInit {
+  @ViewChild('securityModal', { static: false }) securityModal: CreateSecurityComponent;
+
   gridOptions: CustomGridOptions;
   timeseriesOptions: GridOptions;
   gridColumnApi;
@@ -593,7 +596,29 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   }
 
   getContextMenuItems(params): Array<ContextMenu> {
-    return GetContextMenu(true, null, true, null, params);
+    const addDefaultItems = [
+      {
+        name: 'Security Details',
+        subMenu: [
+          {
+            name: 'Create Security',
+            action: () => {
+              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'createSecurity');
+            },
+          },
+          {
+            name: 'Extend',
+            action: () => {
+              console.log(params.node.data, "EXTEND FROM COST BASSIS");
+              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
+            },
+          }
+        ]
+      },
+    ];
+
+    // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
+    return GetContextMenu(false, addDefaultItems, true, null, params);
   }
 
   setDateRange(dateFilter: any) {

@@ -13,6 +13,7 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataModalComponent } from '../../../../../shared/Component/data-modal/data-modal.component';
 import { CreateDividendComponent } from 'src/shared/Modal/create-dividend/create-dividend.component';
 import { CreateStockSplitsComponent } from 'src/shared/Modal/create-stock-splits/create-stock-splits.component';
+import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
 import { PostingEngineApiService } from 'src/services/posting-engine-api.service';
 import { PostingEngineService } from 'src/services/common/posting-engine.service';
 import { DataService } from 'src/services/common/data.service';
@@ -31,6 +32,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
   @ViewChild('dataModal', { static: false }) dataModal: DataModalComponent;
   @ViewChild('dividendModal', { static: false }) dividendModal: CreateDividendComponent;
   @ViewChild('stockSplitsModal', { static: false }) stockSplitsModal: CreateStockSplitsComponent;
+  @ViewChild('securityModal', { static: false }) securityModal: CreateSecurityComponent;
 
   @Output() titleEmitter = new EventEmitter<string>();
   @Input() tradeType = '';
@@ -174,6 +176,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
       // this.getLogs();
     });
   }
+  
   getContextMenuItems(params): Array<ContextMenu> {
     const addDefaultItems = [
       {
@@ -195,6 +198,23 @@ export class TradesComponent implements OnInit, AfterViewInit {
             name: 'Create Stock Split',
             action: () => {
               this.stockSplitsModal.openStockSplitModalFromOutside(params.node.data.Symbol);
+            },
+          }
+        ]
+      },
+      {
+        name: 'Security Details',
+        subMenu: [
+          {
+            name: 'Create Security',
+            action: () => {
+              this.securityModal.openSecurityModalFromOutside(params.node.data.Symbol, 'createSecurity');
+            },
+          },
+          {
+            name: 'Extend',
+            action: () => {
+              this.securityModal.openSecurityModalFromOutside(params.node.data.Symbol, 'extend');
             },
           }
         ]

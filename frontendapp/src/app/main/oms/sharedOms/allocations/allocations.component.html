@@ -1,3 +1,5 @@
 <h4>Allocations</h4>
 <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="allocationsGridOptions" [rowData]="allocationsData">
 </ag-grid-angular>
+
+<app-create-security #securityModal (modalClose)="closeSecurityModal()"></app-create-security>
