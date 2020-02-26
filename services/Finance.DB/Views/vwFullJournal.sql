@@ -1,12 +1,16 @@
 ﻿/*
+select distinct LongShort from vwFullJournal
+
 Requires that the CacheResults sp is run first to populate the two tables, current_XXXXX
 */
 CREATE VIEW [dbo].[vwFullJournal]
 	AS 
 
-select vw.*
-from current_journal_full vw
-
+select *, 
+case
+	when Side in ('BUY', 'SELL') then 'LONG'
+	when Side in ('SHORT', 'COVER') then 'SHORT'
+	else 'NonTrading'
+end as LongShort
+from current_journal_full
 GO
-
-

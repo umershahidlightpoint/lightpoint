@@ -358,6 +358,22 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       })
     },
     {
+      field: 'LongShort',
+      headerName: 'Long Short',
+      sortable: true,
+      rowGroup: false,
+      enableRowGroup: true,
+      filter: filters !== null ? 'agSetColumnFilter' : true,
+      colId: 'LongShort',
+      ...(filters !== null && {
+        filterParams: {
+          cellHeight: 20,
+          values: filters.find(item => item.ColumnName === 'LongShort').Values,
+          debounceMs: 1000
+        }
+      })
+    },
+    {
       field: 'AccountCategory',
       headerName: 'Category',
       enableRowGroup: true,

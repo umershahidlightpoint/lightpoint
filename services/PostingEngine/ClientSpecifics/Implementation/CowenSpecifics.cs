@@ -14,7 +14,8 @@ namespace PostingEngine.ClientSpecifics
 
             var finalTradeList = trades;
 
-            finalTradeList = finalTradeList.Where(t => !t.ExecutionBroker.Equals("TEST BROKER")).ToArray();
+            // Do not exclude the TEST BROKER TRades for the moment
+            // finalTradeList = finalTradeList.Where(t => !t.ExecutionBroker.Equals("TEST BROKER")).ToArray();
 
             const bool DEBUG_TRADE_LIST = false;
             if (DEBUG_TRADE_LIST)

@@ -110,6 +110,7 @@ INSERT INTO [server_side_filter_config]([created_by],[created_date],[last_update
 INSERT INTO [server_side_filter_config]([created_by],[created_date],[last_updated_by],[last_updated_date],[col_name],[source],[meta_info],[grid_name]) VALUES('sa',GETDATE(),NULL,NULL,'Source','vwFullJournal','vwFullJournal','Journals Ledgers')
 INSERT INTO [server_side_filter_config]([created_by],[created_date],[last_updated_by],[last_updated_date],[col_name],[source],[meta_info],[grid_name]) VALUES('sa',GETDATE(),NULL,NULL,'event','vwFullJournal','vwFullJournal','Journals Ledgers')
 INSERT INTO [server_side_filter_config]([created_by],[created_date],[last_updated_by],[last_updated_date],[col_name],[source],[meta_info],[grid_name]) VALUES('sa',GETDATE(),NULL,NULL,'TradeId','vwFullJournal','vwFullJournal','Journals Ledgers')
+INSERT INTO [server_side_filter_config]([created_by],[created_date],[last_updated_by],[last_updated_date],[col_name],[source],[meta_info],[grid_name]) VALUES('sa',GETDATE(),NULL,NULL,'LongShort','vwFullJournal','vwFullJournal','Journals Ledgers')
 
 -- default layouts
 delete from [data_grid_layouts]
