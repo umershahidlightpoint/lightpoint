@@ -599,6 +599,15 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   getContextMenuItems(params): Array<ContextMenu> {
     const addDefaultItems = [
       {
+        name: 'View Chart',
+        action: () => {
+          params.node.setSelected(true);
+          this.rowSelected(params.node);
+
+          this.actionCostBasis.chartsView = true;
+        }
+      },
+      {
         name: 'Security Details',
         subMenu: [
           {
