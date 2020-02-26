@@ -35,7 +35,7 @@
       <form>
         <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
           [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name="selectedDate" [singleDatePicker]="true"
-          [autoApply]="true" />
+          [autoApply]="true" [maxDate]="maxDate" />
       </form>
     </div>
     <!-- Date Picker Div Ends -->

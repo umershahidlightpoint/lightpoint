@@ -52,6 +52,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
   selectedDate: any;
   startDate: Date;
   endDate: Date;
+  maxDate: moment.Moment;
   isLoading = false;
   hideGrid: boolean;
   chartData: any;
@@ -103,6 +104,7 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
     this.initGrid();
     this.getLatestJournalDate();
     this.getFunds();
+    this.maxDate = moment();
   }
 
   getLatestJournalDate() {
@@ -672,17 +674,20 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
           {
             name: 'Create Security',
             action: () => {
-              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'createSecurity');
-            },
+              this.securityModal.openSecurityModalFromOutside(
+                params.node.data.symbol,
+                'createSecurity'
+              );
+            }
           },
           {
-          name: 'Extend',
+            name: 'Extend',
             action: () => {
               this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
-            },
+            }
           }
         ]
-      },
+      }
     ];
 
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)

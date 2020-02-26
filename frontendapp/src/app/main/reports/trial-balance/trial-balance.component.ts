@@ -34,6 +34,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
   startDate: any = '';
   endDate: any = '';
   selected: { startDate: moment.Moment; endDate: moment.Moment };
+  maxDate: moment.Moment;
   title = 'Account Name';
   trialBalanceReport: Array<TrialBalanceReport>;
   trialBalanceReportStats: TrialBalanceReportStats;
@@ -68,6 +69,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.getFunds();
+    this.maxDate = moment();
   }
 
   ngAfterViewInit(): void {
