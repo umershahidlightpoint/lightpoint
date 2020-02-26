@@ -17,7 +17,7 @@ export class CreateSecurityComponent implements OnInit {
   showTrade = true;
   showFinancing = true;
 
-  isCollapsedTrade = true;
+  isCollapsedTrade = false;
   isCollapsedFinance = false;
 
   //Dropdown boolean
