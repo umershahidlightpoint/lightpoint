@@ -43,6 +43,19 @@ export class FundAdminReconcileComponent implements OnInit, AfterViewInit {
   gridOptions: CustomGridOptions;
   portfolioOptions: GridOptions;
   bookmonOptions: GridOptions;
+  action: {
+    reconciledGridSize: number;
+    accountingBookMonSize: number;
+    reconciledGridView: boolean;
+    accountingBookMonView: boolean;
+    useTransition: boolean;
+  } = {
+    reconciledGridSize: 50,
+    accountingBookMonSize: 50,
+    reconciledGridView: true,
+    accountingBookMonView: false,
+    useTransition: true
+  };
 
   gridColumnApi;
   pinnedBottomRowData;

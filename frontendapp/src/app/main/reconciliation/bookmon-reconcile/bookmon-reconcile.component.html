@@ -66,6 +66,17 @@
       </div>
       <!-- Export to Excel Button Ends -->
 
+      <!-- Expand/Collapse Button -->
+      <div class="mr-3 d-inline-block">
+        <ng-template #tooltipTemplate>{{action.accountingBookMonView ? 'Expand' : 'Collapse'}}</ng-template>
+        <button (click)="action.accountingBookMonView = !action.accountingBookMonView" class="btn btn-pa"
+          [tooltip]="tooltipTemplate" placement="top">
+          <i class="fa"
+            [ngClass]="{'fa-arrow-down': action.accountingBookMonView, 'fa-arrow-up': !action.accountingBookMonView}"></i>
+        </button>
+      </div>
+      <!-- Expand/Collapse Button Ends -->
+
     </div>
     <!-- Util Buttons Div Ends -->
 
@@ -76,7 +87,7 @@
   <div class="row mx-0 mt-2">
 
     <!-- Reconciled Details Legend Starts -->
-    <div class="col-6 p-0">
+    <div class="col-12 p-0">
 
       <!-- Legend Tag Starts -->
       <div class="row mx-0">
@@ -111,34 +122,53 @@
     </div>
     <!-- Reconciled Details Legend Ends -->
 
-    <div class="col-3 p-0">
-      <div class="font-weight-bold">Accounting Details</div>
-    </div>
-
-    <div class="col-3 p-0">
-      <div class="font-weight-bold">BookMon Details</div>
-    </div>
-
   </div>
   <!-- Legends Row Ends -->
 
   <!-- Reports Grid Div Starts -->
-  <div [ngStyle]="styleForHeight" class="row m-0">
+  <div class="mt-0" [ngStyle]="styleForHeight">
 
-    <div class="col-6 p-0">
-      <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions">
-      </ag-grid-angular>
-    </div>
+    <!-- Main Split Row Starts -->
+    <div class="split-area row h-100">
 
-    <div class="col-3 p-0">
-      <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="portfolioOptions">
-      </ag-grid-angular>
-    </div>
+      <!-- AS Split Main Container -->
+      <as-split class="pl-15 pr-15" disabled="false" direction="vertical" [useTransition]="action.useTransition"
+        (dragEnd)="action.reconciledGridSize=$event.sizes[0]; action.accountingBookMonSize=$event.sizes[1];">
 
-    <div class="col-3 p-0">
-      <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="bookmonOptions">
-      </ag-grid-angular>
+        <!-- Reconciled Details Split Area -->
+        <as-split-area [visible]="action.reconciledGridView" [size]="action.reconciledGridSize" order="1">
+          <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions">
+          </ag-grid-angular>
+        </as-split-area>
+        <!-- Reconciled Details Split Area Ends -->
+
+        <!-- Accounting/BookMon Split Area -->
+        <as-split-area [visible]="action.accountingBookMonView" [size]="action.accountingBookMonSize" order="2">
+
+          <div class="row h-100">
+
+            <div class="col-6 pr-0">
+              <div class="font-weight-bold">Accounting Details</div>
+              <ag-grid-angular class="ag-theme-balham grid-height" [gridOptions]="portfolioOptions">
+              </ag-grid-angular>
+            </div>
+
+            <div class="col-6 pl-0">
+              <div class="font-weight-bold">BookMon Details</div>
+              <ag-grid-angular class="ag-theme-balham grid-height" [gridOptions]="bookmonOptions">
+              </ag-grid-angular>
+            </div>
+
+          </div>
+
+        </as-split-area>
+        <!-- Accounting/BookMon Split Area Ends -->
+
+      </as-split>
+      <!-- AS Split Main Container Ends -->
+
     </div>
+    <!-- Main Split Row Ends -->
 
   </div>
   <!-- Reports Grid Div Ends -->
@@ -151,4 +181,6 @@
 </app-data-grid-modal>
 <!-- Data Grid Modal Ends -->
 
+<!-- Create Security Modal -->
 <app-create-security #securityModal (modalClose)="closeSecurityModal()"></app-create-security>
+<!-- Create Security Modal Ends -->

@@ -463,7 +463,10 @@ body {
 
 .btn-pa:focus,
 .btn-pa.focus {
-  box-shadow: 0 0 0 0.2rem $primary;
+  color: $on-primary;
+  background-color: $primary;
+  border-color: $primary;
+  box-shadow: 0 0 0 0.2rem $primary-light;
 }
 
 .btn-pa.disabled,
@@ -484,5 +487,5 @@ body {
 .btn-pa:not(:disabled):not(.disabled):active:focus,
 .btn-pa:not(:disabled):not(.disabled).active:focus,
 .show > .btn-pa.dropdown-toggle:focus {
-  box-shadow: 0 0 0 0.2rem $primary;
+  box-shadow: 0 0 0 0.2rem $primary-light;
 }
