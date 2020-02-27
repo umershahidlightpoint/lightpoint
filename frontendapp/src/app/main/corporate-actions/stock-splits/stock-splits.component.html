@@ -57,7 +57,7 @@
         <button (click)="stockSplitScreenRatio.detailsView = !stockSplitScreenRatio.detailsView" class="btn btn-pa"
           [tooltip]="tooltipTemplate" placement="top">
           <i class="fa"
-            [ngClass]="{'fa-arrow-right': stockSplitScreenRatio.detailsView, 'fa-arrow-left': !stockSplitScreenRatio.detailsView}"></i>
+            [ngClass]="{'fa-arrow-down': stockSplitScreenRatio.detailsView, 'fa-arrow-up': !stockSplitScreenRatio.detailsView}"></i>
         </button>
       </div>
 
@@ -67,7 +67,7 @@
   </div>
 
   <!-- Main Split Row Starts -->
-<div class="split-area row h-100">
+<div class="split-area row h-100"  style="margin-top: 20px;">
 
   <!-- AS Split Main Container -->
   <as-split
@@ -88,7 +88,6 @@
 
   <ag-grid-angular
     class="w-100 h-100 ag-theme-balham"
-    style="margin-top: 20px;"
     [gridOptions]="gridOptions"
     (rowSelected)="onRowSelected($event)"
     [rowData]="rowData"
@@ -99,7 +98,7 @@
 
   <!-- Charts Split Area -->
   <as-split-area [visible]="stockSplitScreenRatio.detailsView" [size]="stockSplitScreenRatio.detailsSize" order="2">
-<div class="w-100 h-100 mt-3 tabset-wrapper">
+<div class="w-100 h-100 mt-3 tabset-wrapper grid-height">
 <tabset class="w-100 height-45 mt-3">
   <tab class="h-100" heading="Details" (selectTab)="activeStockSplits()">
         <ag-grid-angular
