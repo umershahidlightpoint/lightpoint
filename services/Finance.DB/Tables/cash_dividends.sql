@@ -14,5 +14,6 @@
 	[currency] varchar(100) NOT NULL,
 	[withholding_rate] numeric(18,9) NOT NULL,
 	[fx_rate] numeric(22,9) NOT NULL,
-	[active_flag] bit NOT NULL DEFAULT 1
+	[active_flag] bit NOT NULL DEFAULT 1,
+	[disbursed] bit NOT NULL DEFAULT 0
 )

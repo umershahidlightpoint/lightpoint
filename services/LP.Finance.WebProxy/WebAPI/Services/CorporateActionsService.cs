@@ -2,6 +2,8 @@
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Model;
 using Newtonsoft.Json;
+using PostingEngine.Tasks;
+using PostingEngine.Tasks.Implementation;
 using SqlDAL.Core;
 using System;
 using System.Collections.Generic;
@@ -452,6 +454,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
                     "An error occured while fetching dividend details");
             }
+        }
+
+        public object PreviewJournalsBeforeDividendDisbursement(string symbol, DateTime executionDate)
+        {
+            var dividendDisbursement = new DisburseDividends();
+            return dividendDisbursement.PreviewJournals(symbol, executionDate, ConnectionString);
         }
     }
 }

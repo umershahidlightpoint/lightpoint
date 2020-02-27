@@ -13,10 +13,13 @@ namespace PostingEngine.PostingRules.Utilities
             return GetAccount(env, accountType, tags.ToList());
         }
 
-        public Account GetAccount(PostingEngineEnvironment env, string accountType, List<string> tags)
+        public Account GetAccount(PostingEngineEnvironment env, string accountType, List<string> tags, bool preview = false)
         {
             var account = CreateAccount(AccountType.Find(accountType), tags);
-            SaveAccountDetails(env, account);
+            if (!preview)
+            {
+                SaveAccountDetails(env, account);
+            }
 
             return account;
         }

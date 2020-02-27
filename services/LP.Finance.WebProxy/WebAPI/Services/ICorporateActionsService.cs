@@ -15,6 +15,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object DeleteCashDividend(int id);
         object CashDividendAudit(int id);
         object GetDividendDetails();
+        object PreviewJournalsBeforeDividendDisbursement(string symbol, DateTime executionDate);
         // StockSplits
         object GetStockSplits();
         object CreateStockSplit(StockSplitInputDto obj);

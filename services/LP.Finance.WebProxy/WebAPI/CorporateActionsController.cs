@@ -35,6 +35,13 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.EditCashDividend(obj);
         }
 
+        [HttpGet]
+        [Route("previewDividendDisbursement")]
+        public object PreviewDividendDisbursement(string symbol, DateTime executionDate)
+        {
+            return controller.PreviewJournalsBeforeDividendDisbursement(symbol, executionDate);
+        }
+
         [HttpPut]
         [Route("deleteCashDividend")]
         public object DeleteCashDividend(DeleteCashDividendInputDto obj)
