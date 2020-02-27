@@ -288,6 +288,10 @@ namespace PostingEngine.PostingRules
         {
             var buyTrade = env.FindTrade(lot.Trade.LpOrderId);
 
+            if ( buyTrade.LpOrderId.Equals("dd14f7b3ba444c76bc50235b89d058aa"))
+            {
+
+            }
             var taxlot = CommonRules.RelieveTaxLot(env, lot, element, workingQuantity, true);
 
             // Has to happen for every day
@@ -353,8 +357,9 @@ namespace PostingEngine.PostingRules
             var percentage = p / q;
 
             //changeInUnRealized -= (dailyUnrealized + unrealisedPnl);
-            changeInUnRealized -= (unrealisedPnl);
+            
             changeInUnRealized *= percentage;
+            changeInUnRealized -= (unrealisedPnl);
 
             // Need to backout the Unrealized PNL here, as we are reducing the position of the TaxLot
             CommonRules.ReverseUnrealizedPnl(

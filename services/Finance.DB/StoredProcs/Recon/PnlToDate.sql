@@ -1,7 +1,4 @@
-﻿/*
-exec [PnlToDate] '2019-12-31', '2019-04-01'
-*/
-CREATE PROCEDURE [dbo].[PnlToDate]
+﻿CREATE PROCEDURE [dbo].[PnlToDate]
 	@Now Date,
 	@From Date
 AS
@@ -22,7 +19,7 @@ set realizedPnl = coalesce(GG,0)
 from #results t
 inner join (
 select security_id, Symbol, Fund, SUM(credit-debit) as GG from current_journal_full
-where AccountType in ('REALIZED GAIN/(LOSS)', 'REALIZED GAIN/(LOSS) DUE TO FX', 'fx gain or loss on unsettled balance')
+where AccountType in ('REALIZED GAIN/(LOSS)', 'REALIZED GAIN/(LOSS) DUE TO FX')
 and [when] >= @From and [when] <= @Now
 group by security_id, Symbol, Fund
 ) as v on v.fund = t.fund and v.security_id = t.SecurityId

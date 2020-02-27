@@ -55,7 +55,7 @@ namespace PostingEngine.ClientSpecifics
                     //"AEO",
                     //"BURL",
                     //"9142 JP",
-                    "MC FP"
+                    "CPLG"
                     //"BGA AU SWAP",
                     //"MAREL NA",
                     //"GBP/USD 12/18/2019",
