@@ -5,8 +5,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
-import { CollapseModule } from 'ngx-bootstrap/collapse';
-
 import { AgGridModule } from 'ag-grid-angular';
 import { TabsModule, ModalModule, AlertModule, TooltipModule } from 'ngx-bootstrap';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
@@ -57,7 +55,6 @@ const sharedComponents = [
     TypeaheadModule,
     BsDropdownModule,
     AlertModule.forRoot(),
-    CollapseModule.forRoot(),
     TooltipModule.forRoot(),
     AgGridModule.withComponents([
       GridLayoutMenuComponent,

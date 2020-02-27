@@ -13,14 +13,11 @@
 
         <div class="modal-body">
 
-        <fieldset *ngIf="showTrade" class="wrap-dates" style="overflow: visible !important; height: auto !important;">
-            <legend class="dates-heading" style="overflow: visible !important; height: auto !important;" (click)="isCollapsedTrade = !isCollapsedTrade"
-            [attr.aria-expanded]="!isCollapsedTrade" aria-controls="collapseTrade">Trade
-            <i *ngIf="!isCollapsedTrade" class="fa fa-chevron-down"></i>
-            <i *ngIf="isCollapsedTrade" class="fa fa-chevron-up"></i>
+        <fieldset *ngIf="showTrade" class="wrap-dates">
+            <legend class="dates-heading">Trade
         </legend>
 
-        <div class="form-group" id="collapseTrade" style="overflow: visible !important; height: auto !important;" [display]="visible" [collapse]="isCollapsedTrade" [isAnimated]="true">
+        <div class="form-group">
             <div class="row m-0">
                 <div class="col-sm-2 pl-1 pr-1">
                 <label> Security </label>
@@ -139,13 +136,10 @@
         </fieldset>
 
         <fieldset *ngIf="showFinancing" class="wrap-dates">
-            <legend class="dates-heading" (click)="isCollapsedFinance = !isCollapsedFinance"
-            [attr.aria-expanded]="!isCollapsedFinance" aria-controls="collapseFinancing">Financing
-            <i *ngIf="!isCollapsedFinance" class="fa fa-chevron-down"></i>
-            <i *ngIf="isCollapsedFinance" class="fa fa-chevron-up"></i>
+            <legend class="dates-heading">Financing
         </legend>
 
-        <div class="form-group" id="collapseFinancing" [collapse]="isCollapsedFinance" [isAnimated]="true">
+        <div class="form-group">
 
             <div class="row" style="margin: 11px 0">
                 <div class="col-sm-2 pl-1 pr-1">

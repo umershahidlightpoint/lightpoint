@@ -1,4 +1,4 @@
-.modal {
+  .modal {
     background-color: rgba(0, 0, 0, 0.4);
   }
 
@@ -38,12 +38,4 @@
   .form-control:disabled, .form-control[readonly] {
     background-color: #ffffff;
     opacity: 1;
-  }
-
-::ng-deep .collapseTrade{
-    overflow: visible !important;
-  }
-
- .collapseTrade{
-    overflow: visible !important;
   }
