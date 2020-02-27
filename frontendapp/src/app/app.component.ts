@@ -25,6 +25,11 @@ export class AppComponent implements OnInit {
       icon: 'fa-bar-chart'
     },
     {
+      name: 'Reconciliation',
+      routerLink: '/reconciliation',
+      icon: 'fa-balance-scale'
+    },
+    {
       name: 'Data Services',
       routerLink: '/fund-theoretical',
       icon: 'fa-calculator'

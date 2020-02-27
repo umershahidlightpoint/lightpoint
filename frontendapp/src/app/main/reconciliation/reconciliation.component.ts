@@ -3,14 +3,14 @@ import { DataService } from 'src/services/common/data.service';
 import { Style } from 'src/shared/utils/Shared';
 
 @Component({
-  selector: 'app-reports',
-  templateUrl: './reports.component.html',
-  styleUrls: ['./reports.component.scss']
+  selector: 'app-reconciliation',
+  templateUrl: './reconciliation.component.html',
+  styleUrls: ['./reconciliation.component.scss']
 })
-export class ReportsComponent implements OnInit {
-  costBasisReportActive = true;
-  taxLotReportActive = false;
-  trialBalanceReportActive = false;
+export class ReconciliationComponent implements OnInit {
+  dayPnLReconcileActive = true;
+  bookmonReconcileActive = false;
+  fundadminReconcileActive = false;
   hideGrid: boolean;
 
   style = Style;
@@ -34,15 +34,15 @@ export class ReportsComponent implements OnInit {
     });
   }
 
-  activeCostBasisReport() {
-    this.costBasisReportActive = true;
+  activeDayPnLReconcile() {
+    this.dayPnLReconcileActive = true;
   }
 
-  activeTaxLotReport() {
-    this.taxLotReportActive = true;
+  activeBookmonReconcile() {
+    this.bookmonReconcileActive = true;
   }
 
-  activeTrialBalanceReport() {
-    this.trialBalanceReportActive = true;
+  activeFundAdminReconcile() {
+    this.fundadminReconcileActive = true;
   }
 }

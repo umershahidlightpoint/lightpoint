@@ -6,8 +6,9 @@
 </div>
 <!-- Hide Grid Div Ends -->
 
-<!-- Reports Main Div Starts -->
+<!-- Reports Starts -->
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
+
   <!-- Tab View Starts -->
   <tabset class="tab-color">
 
@@ -23,24 +24,6 @@
       </div>
     </tab>
 
-    <tab heading="DayPnl Reconcile" (selectTab)="activeDayPnLReport()">
-      <div [ngStyle]="style">
-        <rep-daypnl-reconcile *ngIf="dayPnLReportActive"></rep-daypnl-reconcile>
-      </div>
-    </tab>
-
-    <tab heading="Bookmon Reconcile" (selectTab)="activeBookmonReport()">
-      <div [ngStyle]="style">
-        <rep-bookmon-reconcile *ngIf="bookmonReportActive"></rep-bookmon-reconcile>
-      </div>
-    </tab>
-
-    <tab heading="Fund Admin Reconcile" (selectTab)="activeFundAdminReport()">
-      <div [ngStyle]="style">
-        <rep-fundadmin-reconcile *ngIf="fundadminReportActive"></rep-fundadmin-reconcile>
-      </div>
-    </tab>
-
     <tab heading="Trial Balance" (selectTab)="activeTrialBalanceReport()">
       <div [ngStyle]="style">
         <rep-trial-balance *ngIf="trialBalanceReportActive"></rep-trial-balance>
@@ -49,5 +32,6 @@
 
   </tabset>
   <!-- Tab View Ends -->
+
 </div>
-<!-- Reports Main Div Ends-->
+<!-- Reports Ends-->

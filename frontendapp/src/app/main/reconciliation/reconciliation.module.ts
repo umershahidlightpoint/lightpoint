@@ -10,31 +10,27 @@ import { AngularSplitModule } from 'angular-split';
 import { NgcatalystModule } from 'ngcatalyst';
 import { LpToolkitModule } from 'lp-toolkit';
 
-import { ReportsComponent } from './reports.component';
-import { CostBasisComponent } from './costbasis/costbasis.component';
-import { TaxLotsComponent } from './taxlots/taxlots.component';
-import { TaxLotStatusComponent } from './taxlotstatus/taxlotstatus.component';
-import { TrialBalanceComponent } from './trial-balance/trial-balance.component';
-import { BalanceReportComponent } from './balance-report/balance-report.component';
+import { ReconciliationComponent } from './reconciliation.component';
+import { DayPnlComponent } from '../reconciliation/daypnl-reconcile/daypnl-reconcile.component';
+import { BookmonReconcileComponent } from '../reconciliation/bookmon-reconcile/bookmon-reconcile.component';
+import { FundAdminReconcileComponent } from '../reconciliation/fundadmin-reconcile/fundadmin-reconcile.component';
 
-import { ReportsRoutes } from './reports.routes';
+import { ReconciliationRoutes } from './reconciliation.routes';
 import { SharedModule } from '../../shared.module';
 
-const reportComponents = [
-  ReportsComponent,
-  CostBasisComponent,
-  TaxLotsComponent,
-  TaxLotStatusComponent,
-  TrialBalanceComponent,
-  BalanceReportComponent
+const reconcileComponents = [
+  ReconciliationComponent,
+  DayPnlComponent,
+  BookmonReconcileComponent,
+  FundAdminReconcileComponent
 ];
 
 @NgModule({
-  declarations: [...reportComponents],
+  declarations: [...reconcileComponents],
   exports: [],
   imports: [
     CommonModule,
-    RouterModule.forChild(ReportsRoutes),
+    RouterModule.forChild(ReconciliationRoutes),
     FormsModule,
     ReactiveFormsModule,
     TabsModule,
@@ -52,4 +48,4 @@ const reportComponents = [
     SharedModule
   ]
 })
-export class ReportsModule {}
+export class ReconciliationModule {}

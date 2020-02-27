@@ -3,31 +3,30 @@ import { Routes, RouterModule } from '@angular/router';
 
 export const routes: Routes = [
   {
+    path: 'reports',
+    loadChildren: './main/reports/reports.module#ReportsModule'
+  },
+  {
+    path: 'reconciliation',
+    loadChildren: './main/reconciliation/reconciliation.module#ReconciliationModule'
+  },
+  {
+    path: 'fund-theoretical',
+    loadChildren: './main/fund-theoretical/fund-theoretical.module#FundTheoreticalModule'
+  },
+  {
     path: 'journals-ledgers',
     loadChildren: './main/journals-ledgers/journals-ledger.module#JournalsLedgerModule'
   },
   // { path: 'analysis', component: SummaryComponent },
   // { path: 'trial-balance', component: TrialGridExampleComponent },
   {
-    path: 'oms', // contains trade-allocation OMS, journal-allocation OMS, accruals OMS
-    loadChildren: './main/oms/oms.module#OmsModule'
-  },
-  {
-    path: 'settings',
-    loadChildren: './main/settings/settings.module#SettingsModule'
-  },
-  {
     path: 'maintenance',
     loadChildren: './main/maintenance/maintenance.module#MaintenanceModule'
   },
   {
-    path: 'fund-theoretical',
-    loadChildren: './main/fund-theoretical/fund-theoretical.module#FundTheoreticalModule',
-
-  },
-  {
-    path: 'reports',
-    loadChildren: './main/reports/reports.module#ReportsModule'
+    path: 'oms', // contains Trade Allocation OMS, Journal Allocation OMS, Accruals OMS
+    loadChildren: './main/oms/oms.module#OmsModule'
   },
   {
     path: 'accounts',
@@ -41,11 +40,15 @@ export const routes: Routes = [
     path: 'corporate-actions',
     loadChildren: './main/corporate-actions/corporate-actions.module#CorporateActionsModule'
   },
+  {
+    path: 'settings',
+    loadChildren: './main/settings/settings.module#SettingsModule'
+  },
   { path: '', redirectTo: '/reports', pathMatch: 'full' },
   {
     path: '**',
     loadChildren: './main/not-found/notfound.module#NotFoundModule'
-  },
+  }
 ];
 
 @NgModule({
