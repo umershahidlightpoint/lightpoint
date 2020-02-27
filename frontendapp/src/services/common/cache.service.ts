@@ -42,7 +42,7 @@ export class CacheService {
     );
   }
 
-  getUserConfig(project): Observable<any> {
+  getUserConfig(project: string): Observable<any> {
     const url = this.baseUrl + '/configuration?project=' + project;
 
     if (this.userConfig) {
@@ -55,18 +55,19 @@ export class CacheService {
     );
   }
 
-  addUserConfig(configs){
+  addUserConfig(configs) {
     const url = this.baseUrl + '/configuration';
-    return this.http.post(url,configs).pipe(map((response: any) => response));
+
+    return this.http.post(url, configs).pipe(map((response: any) => response));
   }
 
-  updateUserConfig(configs){
+  updateUserConfig(configs) {
     const url = this.baseUrl + '/configuration';
-    return this.http.put(url,configs).pipe(map((response: any) => response));
+    return this.http.put(url, configs).pipe(map((response: any) => response));
   }
 
-  getConfigBasedOnKey(key){
-    if(this.userConfig){
+  getConfigByOnKey(key: string) {
+    if (this.userConfig) {
       return this.userConfig.filter(x => x.key === key);
     } else {
       return null;

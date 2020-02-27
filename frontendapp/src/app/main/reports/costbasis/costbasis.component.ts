@@ -3,6 +3,7 @@ import { GridOptions } from 'ag-grid-community';
 import { timer, Subject } from 'rxjs';
 import { debounce } from 'rxjs/operators';
 import * as moment from 'moment';
+import { CacheService } from 'src/services/common/cache.service';
 import { DataService } from '../../../../services/common/data.service';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { ReportsApiService } from 'src/services/reports-api.service';
@@ -72,7 +73,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   journalDate: Date;
 
   labels: string[] = [];
-  actionCostBasis: {
+  costBasisConfig: {
     costBasisSize: number;
     chartsSize: number;
     costBasisView: boolean;
@@ -120,9 +121,10 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   validDates: Array<string> = null;
 
   constructor(
+    private cacheService: CacheService,
+    private dataService: DataService,
     private financeService: FinanceServiceProxy,
     private reportsApiService: ReportsApiService,
-    private dataService: DataService,
     private downloadExcelUtils: DownloadExcelUtils
   ) {
     this.hideGrid = false;
@@ -440,7 +442,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
         this.trialBalanceReport = response.payload;
         if (this.trialBalanceReport.length === 0) {
           this.timeseriesOptions.api.setRowData([]);
-          this.actionCostBasis.chartsView = false;
+          this.costBasisConfig.chartsView = false;
         }
         this.gridOptions.api.setRowData(this.trialBalanceReport);
         this.gridOptions.api.sizeColumnsToFit();
@@ -604,7 +606,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           params.node.setSelected(true);
           this.rowSelected(params.node);
 
-          this.actionCostBasis.chartsView = true;
+          this.costBasisConfig.chartsView = true;
         }
       },
       {
@@ -696,13 +698,13 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.filterBySymbol = '';
     this.gridOptions.api.setRowData([]);
     this.timeseriesOptions.api.setRowData([]);
-    this.actionCostBasis.chartsView = false;
+    this.costBasisConfig.chartsView = false;
   }
 
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
     this.timeseriesOptions.api.setRowData([]);
-    this.actionCostBasis.chartsView = false;
+    this.costBasisConfig.chartsView = false;
     if (this.selectedDate.startDate == null) {
       this.selectedDate = {
         startDate: moment(this.journalDate, 'YYYY-MM-DD'),

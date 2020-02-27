@@ -68,11 +68,11 @@
 
       <!-- Expand/Collapse Button -->
       <div class="mr-3 d-inline-block">
-        <ng-template #tooltipTemplate>{{actionCostBasis.chartsView ? 'Expand' : 'Collapse'}}</ng-template>
+        <ng-template #tooltipTemplate>{{costBasisConfig.chartsView ? 'Expand' : 'Collapse'}}</ng-template>
         <button class="btn btn-pa" [disabled]="!this.chartData" [tooltip]="tooltipTemplate" placement="top"
-          (click)="actionCostBasis.chartsView = !actionCostBasis.chartsView">
+          (click)="costBasisConfig.chartsView = !costBasisConfig.chartsView">
           <i class="fa"
-            [ngClass]="{'fa-arrow-right': actionCostBasis.chartsView, 'fa-arrow-left': !actionCostBasis.chartsView}"></i>
+            [ngClass]="{'fa-arrow-right': costBasisConfig.chartsView, 'fa-arrow-left': !costBasisConfig.chartsView}"></i>
         </button>
       </div>
       <!-- Expand/Collapse Button Ends -->
@@ -91,11 +91,11 @@
 
       <!-- AS Split Main Container -->
       <as-split class="pl-15 pr-15" disabled="false" direction="horizontal"
-        [useTransition]="actionCostBasis.useTransition"
-        (dragEnd)="actionCostBasis.costBasisSize=$event.sizes[0]; actionCostBasis.chartsSize=$event.sizes[1];">
+        [useTransition]="costBasisConfig.useTransition"
+        (dragEnd)="costBasisConfig.costBasisSize=$event.sizes[0]; costBasisConfig.chartsSize=$event.sizes[1];">
 
         <!-- Cost Basis Split Area -->
-        <as-split-area [visible]="actionCostBasis.costBasisView" [size]="actionCostBasis.costBasisSize" order="1">
+        <as-split-area [visible]="costBasisConfig.costBasisView" [size]="costBasisConfig.costBasisSize" order="1">
 
           <!-- Cost Basis Grid -->
           <ag-grid-angular class="w-100 h-50 ag-theme-balham" [gridOptions]="gridOptions">
@@ -109,10 +109,10 @@
         <!-- Cost Basis Split Area Ends -->
 
         <!-- Charts Split Area -->
-        <as-split-area [visible]="actionCostBasis.chartsView" [size]="actionCostBasis.chartsSize" order="2">
+        <as-split-area [visible]="costBasisConfig.chartsView" [size]="costBasisConfig.chartsSize" order="2">
 
           <!-- Charts Wrapper -->
-          <div *ngIf="actionCostBasis.chartsView" class="line-chart-wrapper d-flex flex-wrap">
+          <div *ngIf="costBasisConfig.chartsView" class="line-chart-wrapper d-flex flex-wrap">
 
             <!-- Charts Tab Set -->
             <tabset class="w-100 ml-3">
