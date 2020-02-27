@@ -2,6 +2,6 @@
     text-align: right;
   }
 
-::ng-deep .as-split-area {
-    overflow: hidden !important;
- }
+ .grid-height {
+  height: calc(100% - 84px) !important;
+}
