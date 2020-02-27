@@ -8,9 +8,9 @@ import { Style } from 'src/shared/utils/Shared';
   styleUrls: ['./reconciliation.component.scss']
 })
 export class ReconciliationComponent implements OnInit {
-  dayPnLReconcileActive = true;
+  fundadminReconcileActive = true;
+  dayPnLReconcileActive = false;
   bookmonReconcileActive = false;
-  fundadminReconcileActive = false;
   hideGrid: boolean;
 
   style = Style;
@@ -34,15 +34,15 @@ export class ReconciliationComponent implements OnInit {
     });
   }
 
+  activeFundAdminReconcile() {
+    this.fundadminReconcileActive = true;
+  }
+
   activeDayPnLReconcile() {
     this.dayPnLReconcileActive = true;
   }
 
   activeBookmonReconcile() {
     this.bookmonReconcileActive = true;
-  }
-
-  activeFundAdminReconcile() {
-    this.fundadminReconcileActive = true;
   }
 }

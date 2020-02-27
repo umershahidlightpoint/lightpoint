@@ -25,11 +25,6 @@ export class AppComponent implements OnInit {
       icon: 'fa-bar-chart'
     },
     {
-      name: 'Reconciliation',
-      routerLink: '/reconciliation',
-      icon: 'fa-balance-scale'
-    },
-    {
       name: 'Data Services',
       routerLink: '/fund-theoretical',
       icon: 'fa-calculator'
@@ -38,6 +33,11 @@ export class AppComponent implements OnInit {
       name: 'Research',
       routerLink: '/journals-ledgers',
       icon: 'fa-book'
+    },
+    {
+      name: 'Reconciliation',
+      routerLink: '/reconciliation',
+      icon: 'fa-balance-scale'
     }
   ];
   public adminPages: Page[] = [

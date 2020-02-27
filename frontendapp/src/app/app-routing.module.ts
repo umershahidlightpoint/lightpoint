@@ -7,16 +7,16 @@ export const routes: Routes = [
     loadChildren: './main/reports/reports.module#ReportsModule'
   },
   {
-    path: 'reconciliation',
-    loadChildren: './main/reconciliation/reconciliation.module#ReconciliationModule'
-  },
-  {
     path: 'fund-theoretical',
     loadChildren: './main/fund-theoretical/fund-theoretical.module#FundTheoreticalModule'
   },
   {
     path: 'journals-ledgers',
     loadChildren: './main/journals-ledgers/journals-ledger.module#JournalsLedgerModule'
+  },
+  {
+    path: 'reconciliation',
+    loadChildren: './main/reconciliation/reconciliation.module#ReconciliationModule'
   },
   // { path: 'analysis', component: SummaryComponent },
   // { path: 'trial-balance', component: TrialGridExampleComponent },
