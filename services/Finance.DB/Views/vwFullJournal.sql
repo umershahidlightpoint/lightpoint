@@ -8,6 +8,7 @@ CREATE VIEW [dbo].[vwFullJournal]
 
 select *, 
 case
+	when AccountType in ('Settled Cash') then 'LONG'
 	when Side in ('BUY', 'SELL') then 'LONG'
 	when Side in ('SHORT', 'COVER') then 'SHORT'
 	else 'NonTrading'
