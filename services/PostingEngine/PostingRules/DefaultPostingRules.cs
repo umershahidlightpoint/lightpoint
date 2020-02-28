@@ -381,8 +381,11 @@ namespace PostingEngine.PostingRules
             {
                 var closeOut = changeInUnRealizedFx - fxChange;
 
+                if (element.IsBuy())
+                    closeOut *= -1;
+
                 // Need to reserve the amount
-                ReverseUnrealizedFxGain(env, buyTrade, closeOut * -1, taxlot.TradePrice, taxlot.CostBasis, changeDueToFx);
+                ReverseUnrealizedFxGain(env, buyTrade, closeOut, taxlot.TradePrice, taxlot.CostBasis, changeDueToFx);
             }
 
             var sumFxMarkToMarket = 0.0;

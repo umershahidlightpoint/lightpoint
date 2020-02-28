@@ -47,7 +47,7 @@ namespace PostingEngine.ClientSpecifics
 
                 var symbolTags = new List<string>
                 {
-                    "TWE AU 05/30/19 P16.5",
+                    //"TWE AU 05/30/19 P16.5",
                     //"NLFSK DC",
                     //"WTE CN",
                     //"ALD FP",
@@ -56,7 +56,7 @@ namespace PostingEngine.ClientSpecifics
                     //"AEO",
                     //"BURL",
                     //"9142 JP",
-                    //"MC FP"
+                    "MC FP"
                     //"BGA AU SWAP",
                     //"MAREL NA",
                     //"GBP/USD 12/18/2019",
