@@ -12,21 +12,28 @@
   <!-- Tab View Starts -->
   <tabset class="tab-color">
 
-    <tab heading="Cost Basis" (selectTab)="activeCostBasisReport()">
+    <tab heading="Cost Basis" (selectTab)="activateCostBasisReport()">
       <div [ngStyle]="style">
         <rep-costbasis *ngIf="costBasisReportActive"></rep-costbasis>
       </div>
     </tab>
 
-    <tab heading="Tax Lots Open/Closed" (selectTab)="activeTaxLotReport()">
+    <tab heading="Tax Lots Open/Closed" (selectTab)="activateTaxLotReport()">
       <div [ngStyle]="style">
         <rep-taxlotstatus *ngIf="taxLotReportActive"></rep-taxlotstatus>
       </div>
     </tab>
 
-    <tab heading="Trial Balance" (selectTab)="activeTrialBalanceReport()">
+    <tab heading="Trial Balance" (selectTab)="activateTrialBalanceReport()">
       <div [ngStyle]="style">
         <rep-trial-balance *ngIf="trialBalanceReportActive"></rep-trial-balance>
+      </div>
+    </tab>
+
+    <tab heading="Position/Market Value Appraisal" (selectTab)="activatePositionMarketValueAppraisalReport()">
+      <div [ngStyle]="style">
+        <app-position-market-value-appraisal *ngIf="positionMarketValueAppraisalActive">
+        </app-position-market-value-appraisal>
       </div>
     </tab>
 

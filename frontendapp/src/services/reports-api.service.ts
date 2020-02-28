@@ -11,7 +11,9 @@ export class ReportsApiService {
   private baseUrl: string;
 
   constructor(private http: HttpClient) {
-    this.baseUrl = window['config'] ? window['config'].remoteServerUrl : environment.testCaseRemoteServerUrl;
+    this.baseUrl = window['config']
+      ? window['config'].remoteServerUrl
+      : environment.testCaseRemoteServerUrl;
   }
 
   /*
@@ -48,7 +50,14 @@ export class ReportsApiService {
   Get Cost Basis Report
   */
   getCostBasisReport(date, symbol, fund) {
-    const url = this.baseUrl + '/journal/costbasisReport?date=' + date + '&symbol=' + symbol + '&fund=' + fund;
+    const url =
+      this.baseUrl +
+      '/journal/costbasisReport?date=' +
+      date +
+      '&symbol=' +
+      symbol +
+      '&fund=' +
+      fund;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
@@ -62,7 +71,17 @@ export class ReportsApiService {
 
   getTaxLotReport(fromDate, toDate, symbol, fund, side) {
     const url =
-      this.baseUrl + '/journal/taxlotReport?from=' + fromDate + '&to=' + toDate + '&symbol=' + symbol + '&fund=' + fund + '&side=' + side;
+      this.baseUrl +
+      '/journal/taxlotReport?from=' +
+      fromDate +
+      '&to=' +
+      toDate +
+      '&symbol=' +
+      symbol +
+      '&fund=' +
+      fund +
+      '&side=' +
+      side;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
@@ -84,12 +103,23 @@ export class ReportsApiService {
 
   getPeriodJournals(symbol, now, period) {
     const url =
-    this.baseUrl + '/journal/periodJournals?symbol=' + symbol + '&now=' + now + '&period=' + period;
+      this.baseUrl +
+      '/journal/periodJournals?symbol=' +
+      symbol +
+      '&now=' +
+      now +
+      '&period=' +
+      period;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 
   getValidDates(column, source) {
     const url = this.baseUrl + '/journal/validDates?columnName=' + column + '&source=' + source;
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
+
+  getPositionMarketValueAppraisalReport(date) {
+    const url = this.baseUrl + '/journal/marketValueAppraisalReport?date=' + date;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 }

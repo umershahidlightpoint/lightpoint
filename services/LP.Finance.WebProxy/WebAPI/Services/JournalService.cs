@@ -1779,7 +1779,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 List<SqlParameter> sqlParams = new List<SqlParameter>();
 
-                var query = $@"select s.EzeTicker, s.Sedol, s.Cusip, s.ISIN, s.EzeSecurityType, tl.quantity,
+                var query = $@"select s.EzeTicker, s.Sedol, s.Cusip, s.ISIN, s.EzeSecurityType, tl.id, tl.quantity,
                                 case when tl.side = 'BUY' then 'LONG'
                                 when tl.side = 'SHORT' then 'SHORT'
                                 end as position,
