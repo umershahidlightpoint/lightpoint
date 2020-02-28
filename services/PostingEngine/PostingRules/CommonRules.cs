@@ -757,7 +757,7 @@ namespace PostingEngine.PostingRules
 
             if (closingTaxLot.Trade.NetMoney != 0.0)
             {
-                var moneyUSD = Math.Abs(closingTaxLot.Trade.NetMoney) * fxrate * multiplier * percentage;
+                var moneyUSD = Math.Abs(closingTaxLot.Trade.NetMoney) * fxrate * percentage;
 
                 // BUY -- Debit
                 // SELL -- Credit
