@@ -131,6 +131,9 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
       onCellClicked: this.rowSelected.bind(this),
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
+      groupIncludeFooter: true,
+      suppressAggFuncInHeader: true,
+      groupIncludeTotalFooter: true,
       animateRows: true,
       enableFilter: true,
       suppressHorizontalScroll: false,
@@ -154,136 +157,99 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
         {
           field: 'position',
           headerName: 'Position',
-          sortable: true,
-          filter: true,
           rowGroup: true,
           enableRowGroup: true
         },
         {
           field: 'EzeTicker',
-          headerName: 'Symbol',
-          sortable: true,
-          filter: true
+          headerName: 'Symbol'
         },
         {
           field: 'EzeSecurityType',
           headerName: 'EzeSecurityType',
-          sortable: true,
-          filter: true,
           rowGroup: true,
           enableRowGroup: true
         },
         {
           field: 'ISIN',
-          headerName: 'ISIN',
-          sortable: true,
-          filter: true
+          headerName: 'ISIN'
         },
         {
           field: 'Sedol',
           headerName: 'Sedol',
-          sortable: true,
-          filter: true,
           cellClass: 'rightAlign',
           valueFormatter: currencyFormatter
         },
         {
           field: 'Cusip',
           headerName: 'Cusip',
-          sortable: true,
-          filter: true,
           cellClass: 'rightAlign',
           valueFormatter: currencyFormatter
         },
         {
           field: 'instrument_name',
-          headerName: 'Instrument Name',
-          filter: true,
-          sortable: true
+          headerName: 'Instrument Name'
         },
         {
           field: 'quantity',
           headerName: 'End Quantity',
-          sortable: true,
-          filter: true,
+          aggFunc: 'sum',
           cellClass: 'rightAlign',
           valueFormatter: currencyFormatter
         },
         {
           field: 'business_date',
           headerName: 'Business Date',
-          sortable: true,
-          filter: true,
           cellClass: 'rightAlign',
           valueFormatter: dateFormatter
         },
         {
           field: 'cost_basis_local',
           headerName: 'Cost Basis(Local)',
-          sortable: true,
-          filter: true,
           cellClass: 'rightAlign'
         },
         {
           field: 'end_Price_local',
           headerName: 'End Price(Local)',
-          sortable: true,
-          filter: true,
           cellClass: 'rightAlign'
         },
         {
           field: 'price_percent_change',
           headerName: 'Price % Change',
-          sortable: true,
-          filter: true,
           cellClass: 'rightAlign'
         },
         {
           field: 'local_currency',
-          headerName: 'Local Currency',
-          sortable: true,
-          filter: true,
-          cellClass: 'rightAlign'
+          headerName: 'Local Currency'
         },
         {
           field: 'fx_rate_to_reporting_currency',
-          headerName: 'FX Rate to Reporting Currency',
-          sortable: true,
-          filter: true,
-          cellClass: 'rightAlign'
+          headerName: 'FX Rate to Reporting Currency'
         },
         {
           field: 'cost_local',
           headerName: 'Cost(Local)',
-          sortable: true,
-          filter: true,
           cellClass: 'rightAlign'
         },
         {
           field: 'unrealized_pnl_local',
           headerName: 'Unrealized PnL(Local)',
-          sortable: true,
-          filter: true,
           cellClass: 'rightAlign'
         },
         {
           field: 'end_market_value_local',
           headerName: 'End Market Value(Local)',
-          sortable: true,
-          filter: true,
           cellClass: 'rightAlign'
         },
         {
           field: 'reporting_cost_basis',
           headerName: 'Reporting Cost Basis',
-          sortable: true,
-          filter: true,
           cellClass: 'rightAlign'
         }
       ],
       defaultColDef: {
-        sortable: true,
         resizable: true,
+        sortable: true,
         filter: true
       }
     };
