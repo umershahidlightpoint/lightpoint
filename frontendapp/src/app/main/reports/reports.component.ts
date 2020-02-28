@@ -11,6 +11,7 @@ export class ReportsComponent implements OnInit {
   costBasisReportActive = true;
   taxLotReportActive = false;
   trialBalanceReportActive = false;
+  positionMarketValueAppraisalActive = false;
   hideGrid: boolean;
 
   style = Style;
@@ -34,15 +35,19 @@ export class ReportsComponent implements OnInit {
     });
   }
 
-  activeCostBasisReport() {
+  activateCostBasisReport() {
     this.costBasisReportActive = true;
   }
 
-  activeTaxLotReport() {
+  activateTaxLotReport() {
     this.taxLotReportActive = true;
   }
 
-  activeTrialBalanceReport() {
+  activateTrialBalanceReport() {
     this.trialBalanceReportActive = true;
+  }
+
+  activatePositionMarketValueAppraisalReport() {
+    this.positionMarketValueAppraisalActive = true;
   }
 }
