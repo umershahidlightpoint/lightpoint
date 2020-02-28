@@ -31,7 +31,7 @@ import {
 } from 'src/shared/utils/Shared';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { LayoutConfig, GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
 import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
@@ -46,6 +46,19 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   gridOptions: CustomGridOptions;
   timeseriesOptions: GridOptions;
+  costBasisConfig: {
+    costBasisSize: number;
+    chartsSize: number;
+    costBasisView: boolean;
+    chartsView: boolean;
+    useTransition: boolean;
+  } = {
+    costBasisSize: 50,
+    chartsSize: 50,
+    costBasisView: true,
+    chartsView: false,
+    useTransition: true
+  };
   gridColumnApi;
   pinnedBottomRowData;
   fund: any = 'All Funds';
@@ -73,19 +86,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   journalDate: Date;
 
   labels: string[] = [];
-  costBasisConfig: {
-    costBasisSize: number;
-    chartsSize: number;
-    costBasisView: boolean;
-    chartsView: boolean;
-    useTransition: boolean;
-  } = {
-    costBasisSize: 50,
-    chartsSize: 50,
-    costBasisView: true,
-    chartsView: false,
-    useTransition: true
-  };
 
   selectedChartOption: any = 'CostBasis';
   selectedChartTitle: any = 'Cost Basis';
@@ -139,6 +139,49 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     // this.filterSubject.pipe(debounce(() => timer(1000))).subscribe(() => {
     //   this.getReport(this.startDate, this.filterBySymbol, this.fund === 'All Funds' ? 'ALL' : this.fund);
     // });
+  }
+
+  ngAfterViewInit(): void {
+    this.initPageLayout();
+    this.dataService.flag$.subscribe(obj => {
+      this.hideGrid = obj;
+      if (!this.hideGrid) {
+        this.getFunds();
+      }
+    });
+  }
+
+  initPageLayout() {
+    const config = this.cacheService.getConfigByKey(LayoutConfig.costBasisConfigKey);
+
+    if (config) {
+      this.costBasisConfig = JSON.parse(config.value);
+    }
+  }
+
+  applyPageLayout(event) {
+    this.costBasisConfig.costBasisSize = event.sizes ? event.sizes[0] : event[0];
+    this.costBasisConfig.chartsSize = event.sizes ? event.sizes[1] : event[1];
+
+    const config = this.cacheService.getConfigByKey(LayoutConfig.costBasisConfigKey);
+    const payload = {
+      Id: !config ? 0 : config.Id,
+      Project: LayoutConfig.projectName,
+      UOM: 'JSON',
+      Key: LayoutConfig.costBasisConfigKey,
+      Value: JSON.stringify(this.costBasisConfig),
+      Description: LayoutConfig.costBasisConfigKey
+    };
+
+    if (!config) {
+      this.cacheService.addUserConfig(payload).subscribe(response => {
+        console.log('ADDED');
+      });
+    } else {
+      this.cacheService.updateUserConfig(payload).subscribe(response => {
+        console.log('UPDATED');
+      });
+    }
   }
 
   // getLatestJournalDate() {
@@ -411,15 +454,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       GridName.timeseries,
       this.timeseriesOptions
     );
-  }
-
-  ngAfterViewInit(): void {
-    this.dataService.flag$.subscribe(obj => {
-      this.hideGrid = obj;
-      if (!this.hideGrid) {
-        this.getFunds();
-      }
-    });
   }
 
   getFunds() {

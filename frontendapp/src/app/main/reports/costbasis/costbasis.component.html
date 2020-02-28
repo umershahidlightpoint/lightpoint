@@ -91,8 +91,8 @@
 
       <!-- AS Split Main Container -->
       <as-split class="pl-15 pr-15" disabled="false" direction="horizontal"
-        [useTransition]="costBasisConfig.useTransition"
-        (dragEnd)="costBasisConfig.costBasisSize=$event.sizes[0]; costBasisConfig.chartsSize=$event.sizes[1];">
+        [useTransition]="costBasisConfig.useTransition" (dragEnd)="applyPageLayout($event)"
+        (transitionEnd)="applyPageLayout($event)">
 
         <!-- Cost Basis Split Area -->
         <as-split-area [visible]="costBasisConfig.costBasisView" [size]="costBasisConfig.costBasisSize" order="1">

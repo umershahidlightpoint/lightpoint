@@ -1,3 +1,8 @@
+export enum LayoutConfig {
+  projectName = 'Portfolio Accounting',
+  costBasisConfigKey = 'Cost Basis'
+}
+
 export enum GridId {
   journalsLedgersId = 1,
   trailBalanceId,

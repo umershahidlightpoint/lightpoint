@@ -11,5 +11,5 @@
 	[key] varchar(100) NOT NULL,
 	[value] varchar(max) NOT NULL,
 	[description] varchar(100) NULL,
-	[active_flag] bit NOT NULL
+	[active_flag] bit NOT NULL DEFAULT 1
 )
