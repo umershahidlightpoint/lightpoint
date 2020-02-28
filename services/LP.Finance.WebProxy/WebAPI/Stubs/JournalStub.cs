@@ -118,5 +118,10 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
         {
             throw new NotImplementedException();
         }
+
+        public object GetMarketValueAppraisalReport(DateTime? date)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
