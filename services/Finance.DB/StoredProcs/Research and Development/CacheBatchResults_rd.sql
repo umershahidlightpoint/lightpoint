@@ -40,6 +40,8 @@ RAISERROR (@message, 0, 1) WITH NOWAIT
 	[event] [varchar](100) NULL,
 	[credit] [numeric](22, 9) NULL,
 	[debit] [numeric](22, 9) NULL,
+	[local_credit] [numeric](22, 9) NULL,
+	[local_debit] [numeric](22, 9) NULL,
 	[symbol] [varchar](100) NULL,
 	[security_id] [int] NULL,
 	[quantity] [numeric](22, 9) NULL,
@@ -57,6 +59,7 @@ RAISERROR (@message, 0, 1) WITH NOWAIT
 	[end_price] [numeric](22, 9) NULL,
 	[fxrate] [numeric](22, 9) NULL,
 	[is_account_to] [bit] NOT NULL,
+	[local_value] [numeric](22, 9) NULL,
 	[TradeDate] [datetime] NULL,
 	[SettleDate] [datetime] NULL,
 	[TradeId] [varchar](127) NULL,
@@ -64,7 +67,9 @@ RAISERROR (@message, 0, 1) WITH NOWAIT
 	[Status] [varchar](20) NULL,
 	[CustodianCode] [varchar](63) NULL,
 	[SecurityType] [varchar](63) NULL,
-	[Side] [varchar](63) NULL
+	[Side] [varchar](63) NULL,
+	[TradeCurrency] [varchar](20) NULL,
+	SettleCurrency [varchar](20) NULL
 ) ON [PRIMARY]
 
 
@@ -83,7 +88,9 @@ ALTER TABLE [dbo].[current_journal_full] ADD  DEFAULT ((1)) FOR [is_account_to]
 			t.Status, 
 			t.CustodianCode, 
 			t.SecurityType,
-			t.Side
+			t.Side,
+			t.TradeCurrency,
+			t.SettleCurrency
 			from vwJournal vw
 			left outer join current_trade_state t on t.LpOrderId = vw.source
 			where vw.id >= @From and vw.id < @To

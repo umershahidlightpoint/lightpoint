@@ -266,6 +266,26 @@ namespace PostingEngine
             return "Unknown";
         }
 
+        public JournalValue SignedValue(Account fromAccount, Account toAccount, bool debit, double baseValue, double localValue)
+        {
+            var jv = new JournalValue(
+                this.SignedValue(fromAccount, toAccount, debit, localValue),
+                this.SignedValue(fromAccount, toAccount, debit, baseValue)
+                );
+
+            return jv;
+        }
+
+        public JournalValue SignedValueWithFx(Account fromAccount, Account toAccount, bool debit, double localValue, double fxRate)
+        {
+            var jv = new JournalValue(
+                this.SignedValue(fromAccount, toAccount, debit, localValue),
+                this.SignedValue(fromAccount, toAccount, debit, localValue * fxRate)
+                );
+
+            return jv;
+        }
+
         /// <summary>
         /// Determine how to set the Value of the Journal, this will be based on the 
         /// </summary>
@@ -413,6 +433,9 @@ namespace PostingEngine
             public DateTime When { get; set; }
             public double Credit { get; set; }
             public double Debit { get; set; }
+            public double LocalCredit { get; set; }
+            public double LocalDebit { get; set; }
+
             public string Symbol { get; set; }
             public double Quantity { get; set; }
             public string Currency { get; set; }
@@ -431,7 +454,7 @@ namespace PostingEngine
             if (UnsettledPnl == null)
                 UnsettledPnl = new List<PnlData>();
 
-            var sql = $@"select [when], credit, debit, symbol, quantity, fx_currency, fund, source, fxrate, security_id, SecurityType from vwWorkingJournals 
+            var sql = $@"select [when], credit, debit, local_credit, local_debit, symbol, quantity, fx_currency, fund, source, fxrate, security_id, SecurityType from vwWorkingJournals 
                          where [event] in ('unrealizedpnl', 'daily-unrealizedpnl')
                          and AccountCategory = 'Revenues'
                          -- and AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'Change in Unrealized Derivatives Contracts at Fair Value') 
@@ -447,19 +470,22 @@ namespace PostingEngine
 
                 while (reader.Read())
                 {
+                    var offset = 0;
                     var unsettledPnl = new PnlData
                     {
-                        When = reader.GetFieldValue<DateTime>(0),
-                        Credit = Convert.ToDouble(reader.GetFieldValue<decimal>(1)),
-                        Debit = Convert.ToDouble(reader.GetFieldValue<decimal>(2)),
-                        Symbol = reader.GetFieldValue<string>(3),
-                        Quantity = Convert.ToDouble(reader.GetFieldValue<decimal>(4)),
-                        Currency = reader.GetFieldValue<string>(5),
-                        Fund = reader.GetFieldValue<string>(6),
-                        Source = reader.GetFieldValue<string>(7),
-                        FxRate = Convert.ToDouble(reader.GetFieldValue<decimal>(8)),
-                        SecurityId = reader.GetFieldValue<int>(9),
-                        SecurityType = reader.GetFieldValue<string>(10),
+                        When = reader.GetFieldValue<DateTime>(offset++),
+                        Credit = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++)),
+                        Debit = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++)),
+                        LocalCredit = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++)),
+                        LocalDebit = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++)),
+                        Symbol = reader.GetFieldValue<string>(offset++),
+                        Quantity = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++)),
+                        Currency = reader.GetFieldValue<string>(offset++),
+                        Fund = reader.GetFieldValue<string>(offset++),
+                        Source = reader.GetFieldValue<string>(offset++),
+                        FxRate = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++)),
+                        SecurityId = reader.GetFieldValue<int>(offset++),
+                        SecurityType = reader.GetFieldValue<string>(offset++),
                     };
 
                     this.UnsettledPnl.Add(unsettledPnl);

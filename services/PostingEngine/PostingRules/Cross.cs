@@ -101,19 +101,12 @@ namespace PostingEngine.PostingRules
                         }
                     }
 
-                    var unrealizedPnl = 0.0;
-
                     var quantity = taxlot.Quantity;
                     var rateDiff = (eodPrice - prevEodPrice);
 
-                    if ( element.SettleCurrency.Equals(env.BaseCurrency))
-                    {
-                        unrealizedPnl = (rateDiff * quantity);
-                    } else {
-                        unrealizedPnl = (rateDiff * quantity) * fxRate;
-                    }
-                        
-                    var originalAccount = AccountUtils.GetDerivativeAccountType(unrealizedPnl);
+                    var unrealizedPnlLocal = (rateDiff * quantity);
+
+                    var originalAccount = AccountUtils.GetDerivativeAccountType(unrealizedPnlLocal);
                     var fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", listOfTags, taxlot.Trade);
 
                     var fund = env.GetFund(element);
@@ -125,8 +118,8 @@ namespace PostingEngine.PostingRules
                         Symbol = taxlot.Symbol,
                         Quantity = quantity,
                         FxRate = rateDiff,
-                        Value = env.SignedValue(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnl),
-                        CreditDebit = env.DebitOrCredit(fromToAccounts.From, unrealizedPnl),
+                        JournalValue = env.SignedValueWithFx(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnlLocal, fxRate),
+                        CreditDebit = env.DebitOrCredit(fromToAccounts.From, unrealizedPnlLocal),
                         StartPrice = prevEodPrice,
                         EndPrice = eodPrice,
                         Event = Event.DAILY_UNREALIZED_PNL,
@@ -136,21 +129,11 @@ namespace PostingEngine.PostingRules
                     var credit = new Journal(debit)
                     {
                         Account = fromToAccounts.To,
-                        Value = env.SignedValue(fromToAccounts.From, fromToAccounts.To, true, unrealizedPnl),
-                        CreditDebit = env.DebitOrCredit(fromToAccounts.To, unrealizedPnl),
+                        JournalValue = env.SignedValueWithFx(fromToAccounts.From, fromToAccounts.To, true, unrealizedPnlLocal, fxRate),
+                        CreditDebit = env.DebitOrCredit(fromToAccounts.To, unrealizedPnlLocal),
                     };
 
                     env.Journals.AddRange(new[] { debit, credit });
-                    /*
-                    if (element.TradeDate != env.ValueDate && element.SettleDate >= env.ValueDate)
-                    {
-                        var fxJournals = FxPosting.CreateFx(
-                            env,
-                            "daily",
-                            quantity, null, element);
-                        env.Journals.AddRange(fxJournals);
-                    }
-                    */
                 }
             }
             else

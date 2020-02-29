@@ -59,6 +59,23 @@ namespace LP.Finance.Common.Models
         }
     }
 
+    public class JournalValue
+    {
+        public JournalValue(double localValue, double baseValue)
+        {
+            this.Base = baseValue;
+            this.Local = localValue;
+        }
+
+        public double Local
+        {
+            get; private set;
+        }
+        public double Base
+        {
+            get; private set;
+        }
+    }
     public class Journal : IDbAction, IDbModel
     {
         private List<int> _assetExpences = new List<int>
@@ -145,6 +162,8 @@ namespace LP.Finance.Common.Models
         public Account Account { get; set; }
         public double Value { get; set; }
 
+        public JournalValue JournalValue { get; set; }
+
         public double StartPrice { get; set; }
         public double EndPrice { get; set; }
 
@@ -230,7 +249,7 @@ namespace LP.Finance.Common.Models
             // read the table structure from the database
             var localconnection = new SqlConnection(connection.ConnectionString + ";Password=ggtuser");
             localconnection.Open();
-            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 id, source, account_id, value, [when], generated_by, fund, fx_currency, fxrate, quantity, symbol, event, start_price, end_price, credit_debit, security_id FROM Journal", localconnection))
+            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 id, source, account_id, value, [when], generated_by, fund, fx_currency, fxrate, quantity, symbol, event, start_price, end_price, credit_debit, security_id, local_value FROM Journal", localconnection))
             {
                 adapter.Fill(table);
             };
@@ -247,7 +266,19 @@ namespace LP.Finance.Common.Models
             row["account_id"] = this.Account.Id;
             try
             {
-                row["value"] = this.Value;
+                if (this.JournalValue != null)
+                {
+                    row["value"] = this.JournalValue.Base;
+                    row["local_value"] = this.JournalValue.Local;
+                }
+                else
+                {
+                    row["value"] = this.Value;
+                    if (this.FxRate != 0)
+                        row["local_value"] = this.Value / this.FxRate;
+                    else
+                        row["local_value"] = 0;
+                }
             } catch ( Exception ex )
             {
                 row["value"] = 0;

@@ -95,11 +95,11 @@ namespace PostingEngine.PostingRules
                 fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
             }
 
-            var moneyUSD = Math.Abs(element.LocalNetNotional) * fxrate;
+            var moneyLocal = Math.Abs(element.LocalNetNotional);
 
             if ( element.IsDebit())
             {
-                moneyUSD *= -1;
+                moneyLocal *= -1;
             }
             else
             {
@@ -112,8 +112,9 @@ namespace PostingEngine.PostingRules
                 Account = accountToFrom.From,
                 When = env.ValueDate,
                 FxRate = fxrate,
-                CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
-                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
+                CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyLocal),
+                JournalValue = env.SignedValueWithFx(accountToFrom.From, accountToFrom.To, true, moneyLocal, fxrate),
+                //Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyLocal),
                 Event = "prepaid-expense",
                 Fund = env.GetFund(element),
             };
@@ -121,8 +122,9 @@ namespace PostingEngine.PostingRules
             var credit = new Journal(debit)
             {
                 Account = accountToFrom.To,
-                CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD),
-                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
+                CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyLocal),
+                //Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyLocal),
+                JournalValue = env.SignedValueWithFx(accountToFrom.From, accountToFrom.To, true, moneyLocal, fxrate),
             };
 
             env.Journals.Add(debit);

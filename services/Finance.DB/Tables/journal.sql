@@ -18,6 +18,7 @@
 	[security_id] [int] NULL DEFAULT -1,
 	[comment_id] [int] NULL,
     [is_account_to] BIT NULL DEFAULT 1, 
+    [local_value] DECIMAL(22, 9) NOT NULL DEFAULT 0, 
     CONSTRAINT [PK_journal] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC

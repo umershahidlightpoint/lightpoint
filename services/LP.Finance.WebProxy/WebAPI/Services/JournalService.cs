@@ -1628,6 +1628,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object GetJournalsMetaData(JournalMetaInputDto obj)
         {
+            Logger.Info($"GetJournalsMetaData {obj.GridName}");
+
             try
             {
                 SqlHelper sqlHelper = new SqlHelper(connectionString);
@@ -1681,6 +1683,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     meta.Filters = new List<FilterValues>();
                     for (var i = 0; i < filters.Count; i++)
                     {
+                        Logger.Info($"Getting Filters for {obj.GridName}::{filtersQueries[i]}");
+
                         List<object> filterValues;
                         using (var reader =
                             sqlHelper.GetDataReader(filtersQueries[i], CommandType.Text, null,

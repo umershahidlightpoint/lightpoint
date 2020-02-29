@@ -18,7 +18,5 @@ select vw.*,
 		else 'SHORT'
 	end as PositionDirection
 from vwJournal vw
-left outer join vwCurrentStateTrades t on t.LpOrderId = vw.source
+left outer join current_trade_state t on t.LpOrderId = vw.source
 GO
-
-

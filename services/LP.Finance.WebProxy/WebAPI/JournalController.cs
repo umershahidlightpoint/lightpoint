@@ -141,6 +141,7 @@ namespace LP.Finance.WebProxy.WebAPI
         [HttpPost]
         public object GetJournalsMetaData(JournalMetaInputDto obj)
         {
+
             var cachedData = AppStartCache.GetCachedData(obj.GridName);
             if (cachedData.Item1)
             {

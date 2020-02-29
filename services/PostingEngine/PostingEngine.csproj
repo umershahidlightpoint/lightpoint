@@ -57,6 +57,8 @@
     <Compile Include="ClientSpecifics\Implementation\BaseSpecifics.cs" />
     <Compile Include="ClientSpecifics\Implementation\DefaultSpecifics.cs" />
     <Compile Include="Contracts\WhatSide.cs" />
+    <Compile Include="CorporateActions\Dividends.cs" />
+    <Compile Include="CorporateActions\StockSplits.cs" />
     <Compile Include="MarketData\CostBasises.cs" />
     <Compile Include="MarketData\FxRate.cs" />
     <Compile Include="MarketData\FxRates.cs" />

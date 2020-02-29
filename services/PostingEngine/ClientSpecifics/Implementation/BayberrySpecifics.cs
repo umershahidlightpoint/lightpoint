@@ -39,8 +39,8 @@ namespace PostingEngine.ClientSpecifics
             {
                 var securityTypeTags = new List<string> {
                     //"FORWARD",
-                    //"Common Stock",
-                    //"Equity Swap",
+                    "Common Stock",
+                    "Equity Swap",
                     //"Journals",
                     //"Cash"
                     };
@@ -56,7 +56,7 @@ namespace PostingEngine.ClientSpecifics
                     //"AEO",
                     //"BURL",
                     //"9142 JP",
-                    "MC FP"
+                    //"MC FP"
                     //"BGA AU SWAP",
                     //"MAREL NA",
                     //"GBP/USD 12/18/2019",
