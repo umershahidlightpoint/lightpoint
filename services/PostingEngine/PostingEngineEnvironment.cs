@@ -75,15 +75,28 @@ namespace PostingEngine
                 __connection.Open();
             }
 
-            var transaction = __connection.BeginTransaction();
 
             //Logger.Info($"Commiting Journals to the database {journals.Count()}");
 
-            new SQLBulkHelper().Insert("journal", journals.ToArray(), __connection, transaction);
+            //new SQLBulkHelper().Insert("journal", journals.ToArray(), __connection, transaction);
+            try
+            {
+                if (this.Connection != null)
+                    new SQLBulkHelper().Insert("journal", journals.ToArray(), this.Connection, this.Transaction);
+                else
+                {
+                    var transaction = __connection.BeginTransaction();
 
+                    new SQLBulkHelper().Insert("journal", journals.ToArray(), __connection, transaction);
+
+                    transaction.Commit();
+                }
+
+            } catch (Exception ex )
+            {
+
+            }
             //Logger.Info($"Completed :: Commiting Journals to the database {journals.Count()}");
-
-            transaction.Commit();
 
             return journals.Count();
         }

@@ -586,10 +586,11 @@ namespace LP.Finance.Common
                 options = SqlBulkCopyOptions.Default;
             }
 
-            using (var bulk = new SqlBulkCopy(connection,
-                options, transaction))
+            // Do not put this in a transaction
+            using (var bulk = new SqlBulkCopy(connection.ConnectionString,
+                options))
             {
-                bulk.BulkCopyTimeout = 300;
+                bulk.BulkCopyTimeout = 60*10;
                 bulk.BatchSize = 100000;
                 bulk.DestinationTableName = tablename;
 
@@ -629,7 +630,7 @@ namespace LP.Finance.Common
             using (var bulk = new SqlBulkCopy(connection,
                 options, transaction))
             {
-                bulk.BulkCopyTimeout = 300;
+                bulk.BulkCopyTimeout = 60 * 10;
                 bulk.BatchSize = 100000;
                 bulk.DestinationTableName = tablename;
 

@@ -31,6 +31,7 @@ namespace LP.Finance.Common.Models
                 command.Transaction = transaction;
 
             command.Parameters.AddRange(D.Value);
+            command.CommandTimeout = 300;
             return command.ExecuteNonQuery();
         }
 

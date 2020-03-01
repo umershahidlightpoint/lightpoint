@@ -379,10 +379,22 @@ namespace PostingEngine.PostingRules
 
             if (changeInUnRealizedFx != 0.0)
             {
-                var closeOut = changeInUnRealizedFx - fxChange;
+                var closeOut = 0.0;
 
-                if (element.IsBuy())
+                if (buyTrade.LpOrderId.Equals("95db7e29-74e3-4060-be88-5161154574fa"))
+                {
+
+                }
+                if (buyTrade.IsBuy())
+                {
+                    closeOut = changeInUnRealizedFx + fxChange;
                     closeOut *= -1;
+                }
+                else
+                {
+                    closeOut = changeInUnRealizedFx - fxChange;
+                    //closeOut *= -1;
+                }
 
                 // Need to reserve the amount
                 ReverseUnrealizedFxGain(env, buyTrade, closeOut, taxlot.TradePrice, taxlot.CostBasis, changeDueToFx);
