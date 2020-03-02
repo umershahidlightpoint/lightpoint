@@ -291,7 +291,7 @@ namespace PostingEngine.PostingRules.Utilities
         }
 
 
-        public Account CreateAccount(AccountType accountType, string name, Transaction transaction)
+        public Account CreateAccount(AccountType accountType, string name)
         {
             var accountName = $"{name}";
 

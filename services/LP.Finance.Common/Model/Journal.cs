@@ -78,7 +78,7 @@ namespace LP.Finance.Common.Models
     }
     public class Journal : IDbAction, IDbModel
     {
-        private List<int> _assetExpences = new List<int>
+        private readonly List<int> _assetExpences = new List<int>
         {
             AccountCategory.AC_ASSET,
             AccountCategory.AC_EXPENCES

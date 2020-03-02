@@ -129,6 +129,7 @@ namespace LP.Finance.Common
             {
                 result = response.Content.ReadAsStringAsync();
             }
+            response.Dispose();
 
             return await result;
         }
@@ -252,6 +253,8 @@ namespace LP.Finance.Common
                 result = response.Content.ReadAsStringAsync();
             }
 
+            response.Dispose();
+
             return await result;
         }
 
@@ -292,9 +295,9 @@ namespace LP.Finance.Common
                 by = "",
                 data = payload,
                 meta = metaData,
-                stats = stats,
+                stats,
                 status = statusCode,
-                message = message
+                message
             };
         }
 

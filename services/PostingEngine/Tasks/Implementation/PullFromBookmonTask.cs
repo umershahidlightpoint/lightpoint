@@ -23,8 +23,11 @@ namespace PostingEngine.Tasks
                         exec PullDailyActivity @minDate, @maxDate
                         exec PullDailyMarketPrices @minDate, @maxDate
                         ";
-                var command = new SqlCommand(sql, connection);
-                command.CommandTimeout = 120; // 1 Mins, shoudl not take this long.
+
+                var command = new SqlCommand(sql, connection)
+                {
+                    CommandTimeout = 120 // 1 Mins, shoudl not take this long.
+                };
 
                 env.CallBack?.Invoke("[Start] PullDailyActivity & PullDailyMarketPrices");
 
@@ -47,11 +50,11 @@ namespace PostingEngine.Tasks
                 command.ExecuteNonQuery();
                 env.CallBack?.Invoke("[End] PullDailyFxPrices");
 
-                sql = @"
-                        truncate table current_trade_state
-                        ";
-                command = new SqlCommand(sql, connection);
-                command.CommandTimeout = 60; // 1 Mins, shoudl not take this long.
+                sql = @"truncate table current_trade_state";
+                command = new SqlCommand(sql, connection)
+                {
+                    CommandTimeout = 60 // 1 Mins, shoudl not take this long.
+                };
 
                 command.ExecuteNonQuery();
 

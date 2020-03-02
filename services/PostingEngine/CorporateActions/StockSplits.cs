@@ -8,7 +8,7 @@ namespace PostingEngine.CorporateActions
 {
     class StockSplits
     {
-        private PostingEngineEnvironment env;
+        private readonly PostingEngineEnvironment env;
         private StockSplits(PostingEngineEnvironment env)
         {
             this.env = env;

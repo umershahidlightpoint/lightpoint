@@ -71,7 +71,7 @@ namespace PostingEngine.PostingRules
 
                     var unrealizedPnl = CommonRules.CalculateUnrealizedPnl(env, taxlot);
 
-                    AccountToFrom fromToAccounts = null;
+                    AccountToFrom fromToAccounts;
 
                     var originalAccount = AccountUtils.GetDerivativeAccountType(unrealizedPnl);
                     if ( originalAccount.Contains("(Liabilities)"))
@@ -298,9 +298,11 @@ namespace PostingEngine.PostingRules
 
             var fxChange = new FxPosting().CreateFxUnsettled(env, buyTrade);
 
-            List<SqlParameter> sqlParams = new List<SqlParameter>();
-            sqlParams.Add(new SqlParameter("@busDate", env.ValueDate));
-            sqlParams.Add(new SqlParameter("@LpOrderId", lot.Trade.LpOrderId));
+            List<SqlParameter> sqlParams = new List<SqlParameter>
+            {
+                new SqlParameter("@busDate", env.ValueDate),
+                new SqlParameter("@LpOrderId", lot.Trade.LpOrderId)
+            };
 
             var dataTable = new SqlHelper(env.ConnectionString).GetDataTables("ClosingTaxLot", CommandType.StoredProcedure, sqlParams.ToArray());
 

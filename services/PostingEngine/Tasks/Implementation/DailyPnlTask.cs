@@ -43,10 +43,12 @@ namespace PostingEngine.Tasks
                     new SqlParameter("MTDPercentageReturn", record.MTDPercentageReturn),
                 };
 
-                var command = new SqlCommand(query, connection);
-                command.Transaction = transaction;
-                command.Parameters.AddRange(sqlParams);
-                command.ExecuteNonQuery();
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Transaction = transaction;
+                    command.Parameters.AddRange(sqlParams);
+                    command.ExecuteNonQuery();
+                }
             }
             transaction.Commit();
             connection.Close();
