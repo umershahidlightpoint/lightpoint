@@ -59,8 +59,10 @@ namespace LP.Finance.Common
         /// <returns></returns>
         public static MetaData ToMetaData(DataTable table)
         {
-            var metaData = new MetaData();
-            metaData.Columns = new List<ColumnDef>();
+            var metaData = new MetaData
+            {
+                Columns = new List<ColumnDef>()
+            };
             foreach (DataColumn col in table.Columns)
             {
                 metaData.Columns.Add(new ColumnDef
@@ -392,7 +394,7 @@ namespace LP.Finance.Common
             }
         }
 
-        private static string _lockHandle = "Uniquie Handle";
+        private readonly static string _lockHandle = "Uniquie Handle";
 
         private static void Save(dynamic state)
         {

@@ -15,20 +15,20 @@ namespace PostingEngine.PostingRules
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private List<Tag> listOfTags = new List<Tag> {
+        private readonly List<Tag> listOfTags = new List<Tag> {
             Tag.Find("SecurityType"),
             Tag.Find("CustodianCode")
         };
 
-        private List<Tag> listOfTradeTags = new List<Tag> {
+        private readonly List<Tag> listOfTradeTags = new List<Tag> {
             Tag.Find("SecurityType"),
             Tag.Find("CustodianCode"),
             Tag.Find("TradeCurrency")
         };
 
-        private AccountType atSettledCash;
-        private AccountType unrealizedAccountType;
-        private AccountType realizedAccountType;
+        private readonly AccountType atSettledCash;
+        private readonly AccountType unrealizedAccountType;
+        private readonly AccountType realizedAccountType;
 
         public Cross()
         {
@@ -49,14 +49,6 @@ namespace PostingEngine.PostingRules
         /// <param name="element">Trade we aee interested in</param>
         public void DailyEvent(PostingEngineEnvironment env, Transaction element)
         {
-            double fxrate = 1.0;
-
-            // Lets get fx rate if needed
-            if (!element.SettleCurrency.Equals(env.BaseCurrency))
-            {
-                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
-            }
-
             // Calculate the unrealized PNL
             if (env.TaxLotStatus.ContainsKey(element.LpOrderId))
             {

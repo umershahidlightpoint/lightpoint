@@ -43,8 +43,10 @@ namespace PostingEngine.Tasks
 
                         exec PullDailyFxPrices @minDate, @maxDate
                         ";
-                command = new SqlCommand(sql, connection);
-                command.CommandTimeout = 120; // 1 Mins, shoudl not take this long.
+                command = new SqlCommand(sql, connection)
+                {
+                    CommandTimeout = 120 // 1 Mins, shoudl not take this long.
+                };
 
                 env.CallBack?.Invoke("[Start] PullDailyFxPrices");
                 command.ExecuteNonQuery();

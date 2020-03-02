@@ -29,7 +29,7 @@ namespace PostingEngine.PostingRules
 
             var investmentAtCost = quantity * lot.Trade.SettleNetPrice * prevFxRate;
             if (reverse)
-                investmentAtCost = investmentAtCost * -1;
+                investmentAtCost *= -1;
 
             var tl = new TaxLot
             {

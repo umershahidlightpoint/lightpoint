@@ -371,11 +371,10 @@ namespace SqlDAL.Core
         public void UpdateWithTransaction(string commandText, CommandType commandType, IsolationLevel isolationLevel,
             SqlParameter[] parameters)
         {
-            SqlTransaction transactionScope = null;
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
-                transactionScope = connection.BeginTransaction(isolationLevel);
+                var transactionScope = connection.BeginTransaction(isolationLevel);
 
                 using (var command = new SqlCommand(commandText, connection))
                 {

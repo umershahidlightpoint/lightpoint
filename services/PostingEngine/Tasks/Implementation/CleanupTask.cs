@@ -71,8 +71,10 @@ namespace PostingEngine.Tasks
 
                         END";
 
-                    var command = new SqlCommand(query, connection);
-                    command.CommandTimeout = 90;
+                    var command = new SqlCommand(query, connection)
+                    {
+                        CommandTimeout = 90
+                    };
                     command.ExecuteNonQuery();
 
                     if (env.Period.Equals("ITD"))

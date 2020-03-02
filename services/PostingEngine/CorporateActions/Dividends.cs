@@ -13,7 +13,7 @@ namespace PostingEngine.CorporateActions
 {
     public class Dividends
     {
-        private PostingEngineEnvironment env;
+        private readonly PostingEngineEnvironment env;
         private Dividends(PostingEngineEnvironment env)
         {
             this.env = env;
@@ -77,10 +77,10 @@ namespace PostingEngine.CorporateActions
 
                     var results = taxLots.Select(t => new
                     {
-                        Symbol = t.Symbol,
-                        Quantity = t.Quantity,
+                        t.Symbol,
+                        t.Quantity,
                         Source = t.Trade.LpOrderId,
-                        SecurityId = t.Trade.SecurityId,
+                        t.Trade.SecurityId,
                         FxRate = fxRate,
                         Currency = t.Trade.SettleCurrency,
                         BaseGross = t.Quantity * dividend.Rate,
@@ -101,6 +101,7 @@ namespace PostingEngine.CorporateActions
             }
 
             reader.Close();
+            command.Dispose();
             connection.Close();
 
             return journals;

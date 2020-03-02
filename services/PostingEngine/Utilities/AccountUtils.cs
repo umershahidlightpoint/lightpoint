@@ -171,14 +171,10 @@ namespace PostingEngine.PostingRules.Utilities
 
         internal static string GetDerivativeAccountType(double unrealizedPnl)
         {
-            var accountTypeName = "Mark to Market Derivatives Contracts at Fair Value (Assets)";
-
             if (unrealizedPnl > 0)
-                accountTypeName = "Mark to Market Derivatives Contracts at Fair Value (Assets)";
-            else
-                accountTypeName = "Mark to Market Derivatives Contracts at Fair Value (Liabilities)";
+                return "Mark to Market Derivatives Contracts at Fair Value (Assets)";
 
-            return accountTypeName;
+            return "Mark to Market Derivatives Contracts at Fair Value (Liabilities)";
         }
 
         internal Account DeriveMTMCorrectAccount(Account from, Transaction element, List<Tag> tags, double unrealizedPnl)
@@ -291,7 +287,7 @@ namespace PostingEngine.PostingRules.Utilities
         }
 
 
-        public Account CreateAccount(AccountType accountType, string name)
+        public Account CreateAccount(AccountType accountType, string name, Transaction transaction)
         {
             var accountName = $"{name}";
 

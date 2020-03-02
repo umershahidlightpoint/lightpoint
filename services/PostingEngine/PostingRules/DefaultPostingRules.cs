@@ -18,7 +18,7 @@ namespace PostingEngine.PostingRules
     // Common functions that are shared across all IPostingRule implementations
     public class DefaultPostingRules
     {
-        private List<Tag> listOfTags = new List<Tag>
+        private readonly List<Tag> listOfTags = new List<Tag>
                 {
                     Tag.Find("SecurityType"),
                     Tag.Find("CustodianCode")
@@ -328,9 +328,11 @@ namespace PostingEngine.PostingRules
             DataTableCollection dataTable = null;
             if (!env.BaseCurrency.Equals(element.SettleCurrency))
             {
-                List<SqlParameter> sqlParams = new List<SqlParameter>();
-                sqlParams.Add(new SqlParameter("@busDate", env.ValueDate));
-                sqlParams.Add(new SqlParameter("@LpOrderId", lot.Trade.LpOrderId));
+                List<SqlParameter> sqlParams = new List<SqlParameter>
+                {
+                    new SqlParameter("@busDate", env.ValueDate),
+                    new SqlParameter("@LpOrderId", lot.Trade.LpOrderId)
+                };
 
                 // This gets passed values, we also need to get anything that posts for this valuedate
                 dataTable = new SqlHelper(env.ConnectionString).GetDataTables("ClosingTaxLot", CommandType.StoredProcedure, sqlParams.ToArray());

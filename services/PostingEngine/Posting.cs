@@ -44,7 +44,7 @@ namespace PostingEngine
         private static string taxLotMethodology = ConfigurationManager.AppSettings["TaxMethod"].ToString();
 
         // Name of the client that is using the system
-        private static string clientName = ConfigurationManager.AppSettings["Client"].ToString();
+        private static readonly string clientName = ConfigurationManager.AppSettings["Client"].ToString();
 
         private static string Period;
         private static Guid Key;

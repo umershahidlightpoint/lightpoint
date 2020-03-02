@@ -8,7 +8,7 @@ namespace PostingEngine.Tasks
 {
     class CostBasisTask : IPostingTask
     {
-        private string Module = "Cost Basis";
+        private readonly string Module = "Cost Basis";
         public bool Run(PostingEngineEnvironment env)
         {
             env.CallBack?.Invoke($"{Module} Calculation Started");

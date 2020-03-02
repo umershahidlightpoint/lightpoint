@@ -115,7 +115,7 @@ namespace PostingEngine.MarketData
 
             if ( baseCurrency.ToLowerInvariant().Equals("gbx") || baseCurrency.Equals("GBp"))
             {
-                mp.Price = mp.Price / 100.0;
+                mp.Price /= 100.0;
             }
 
             return mp;
