@@ -62,7 +62,7 @@ export class CreateSecurityComponent implements OnInit {
       localNetPrice: [''],
       localNetNotional: [''],
       // Financing
-      symbol: [''],
+      symbol: ['', Validators.required],
       maturityDate: [''],
       valuationDate: [''],
       securityReturnDesc: [''],
@@ -92,7 +92,6 @@ export class CreateSecurityComponent implements OnInit {
       this.symbol$ = symbol.payload.map(item => item.symbol);
     });
   }
-
 
   onChanges(): void {
     this.securityForm.get('financingResetDateType').valueChanges.subscribe(val => {
@@ -143,9 +142,10 @@ export class CreateSecurityComponent implements OnInit {
   onSubmit() {
     this.isSaving = true;
     // stop here if form is invalid
-    // if (!this.noResult) {
-    //     return;
-    // }
+    if (this.securityForm.invalid && !this.noResult) {
+        return;
+    }
+
     const payload = {
         Symbol : this.securityForm.value.symbol,
         MaturityDate: moment(this.securityForm.value.maturityDate.startDate).format('YYYY-MM-DD'),
