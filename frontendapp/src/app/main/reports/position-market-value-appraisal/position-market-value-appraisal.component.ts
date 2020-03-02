@@ -176,15 +176,11 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
         },
         {
           field: 'Sedol',
-          headerName: 'Sedol',
-          cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          headerName: 'Sedol'
         },
         {
           field: 'Cusip',
-          headerName: 'Cusip',
-          cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          headerName: 'Cusip'
         },
         {
           field: 'instrument_name',
