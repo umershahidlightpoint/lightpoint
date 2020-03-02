@@ -163,6 +163,7 @@
     <Build Include="Triggers\stock_split_update_trigger.sql" />
     <Build Include="Functions\fnSide.sql" />
     <Build Include="Tables\current_journal_full.sql" />
+    <Build Include="Tables\security_details.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">
