@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TabsModule, ModalModule, TooltipModule } from 'ngx-bootstrap';
+import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { FormsModule } from '@angular/forms';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { NgcatalystModule } from 'ngcatalyst';
@@ -35,6 +36,7 @@ const fundtheoreticalComponents = [
     TabsModule,
     ModalModule,
     TooltipModule,
+    TypeaheadModule.forRoot(),
     FormsModule,
     NgxDaterangepickerMd.forRoot({
       applyLabel: 'Okay',
