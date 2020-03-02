@@ -60,7 +60,7 @@ export class CreateDividendComponent implements OnInit, OnChanges {
       ratio: ['', Validators.required],
       currency: ['', Validators.required],
       holdingRate: ['', Validators.required],
-      fxRate: ['', Validators.required]
+      // fxRate: ['', Validators.required]
   });
 
     this.getCurrencies();
@@ -131,7 +131,7 @@ export class CreateDividendComponent implements OnInit, OnChanges {
           Rate: this.dividentForm.value.ratio,
           Currency: this.dividentForm.value.currency,
           WithholdingRate: this.dividentForm.value.holdingRate,
-          FxRate: this.dividentForm.value.fxRate,
+          // FxRate: this.dividentForm.value.fxRate,
         };
 
         this.found = this.dividends.filter(x => x.id !== payload.Id).some(
@@ -170,7 +170,7 @@ export class CreateDividendComponent implements OnInit, OnChanges {
           Rate: this.dividentForm.value.ratio,
           Currency: this.dividentForm.value.currency,
           WithholdingRate: this.dividentForm.value.holdingRate,
-          FxRate: this.dividentForm.value.fxRate,
+          // FxRate: this.dividentForm.value.fxRate,
         };
 
         this.found = this.dividends.some(
@@ -224,7 +224,7 @@ export class CreateDividendComponent implements OnInit, OnChanges {
         ratio: data.rate,
         currency: data.currency,
         holdingRate: data.withholding_rate,
-        fxRate: data.fx_rate
+        // fxRate: data.fx_rate
       });
       this.dividendModal.show();
     }
