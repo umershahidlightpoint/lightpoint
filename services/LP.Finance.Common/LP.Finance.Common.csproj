@@ -97,6 +97,7 @@
     <Compile Include="Dtos\ThirdPartyAccountsOutputDto.cs" />
     <Compile Include="Dtos\ThirdPartyOrganizationAccountsOutputDto.cs" />
     <Compile Include="Dtos\ThirdPartyAccount.cs" />
+    <Compile Include="Dtos\TradeExclusionInputDto.cs" />
     <Compile Include="Dtos\TrialBalanceReportOutPutDto.cs" />
     <Compile Include="Dtos\TrialBalanceTileOutputDto.cs" />
     <Compile Include="IO\FileManager.cs" />

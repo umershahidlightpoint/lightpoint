@@ -123,5 +123,14 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
         {
             throw new NotImplementedException();
         }
+
+        public object ExcludeTrade(TradeExclusionInputDto obj)
+         {
+            throw new NotImplementedException();
+        }
+        public object GetDetailPnLToDateReport(DateTime @from, DateTime to, string symbol)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -165,6 +165,7 @@
     <Build Include="Tables\current_journal_full.sql" />
     <Build Include="Tables\security_details.sql" />
     <Build Include="StoredProcs\PrepareRun.sql" />
+    <Build Include="StoredProcs\Reports\MarketValueAppraisalReport.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">

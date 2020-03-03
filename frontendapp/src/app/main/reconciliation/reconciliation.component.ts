@@ -11,6 +11,7 @@ export class ReconciliationComponent implements OnInit {
   fundadminReconcileActive = true;
   dayPnLReconcileActive = false;
   bookmonReconcileActive = false;
+  detailPnLToDateReportActive = false;
   hideGrid: boolean;
 
   style = Style;
@@ -34,15 +35,19 @@ export class ReconciliationComponent implements OnInit {
     });
   }
 
-  activeFundAdminReconcile() {
+  activateFundAdminReconcile() {
     this.fundadminReconcileActive = true;
   }
 
-  activeDayPnLReconcile() {
+  activateDayPnLReconcile() {
     this.dayPnLReconcileActive = true;
   }
 
-  activeBookmonReconcile() {
+  activateBookmonReconcile() {
     this.bookmonReconcileActive = true;
+  }
+
+  activateDetailPnLToDateReport() {
+    this.detailPnLToDateReportActive = true;
   }
 }

@@ -131,6 +131,11 @@ export class FinanceServiceProxy {
     const url = this.baseUrl + '/marketdata/getSymbolPrices?symbol=' + symbol;
     return this.http.get(url).pipe(map((response: any) => response));
   }
+
+  excludeTrade(data) {
+    const url = this.baseUrl + '/journal/excludeTrade';
+    return this.http.post(url, data).pipe(map((response: any) => response));
+  }
 }
 
 interface Symbols {
