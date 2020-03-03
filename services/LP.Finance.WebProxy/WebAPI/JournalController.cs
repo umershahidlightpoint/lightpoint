@@ -141,7 +141,6 @@ namespace LP.Finance.WebProxy.WebAPI
         [HttpPost]
         public object GetJournalsMetaData(JournalMetaInputDto obj)
         {
-
             var cachedData = AppStartCache.GetCachedData(obj.GridName);
             if (cachedData.Item1)
             {
@@ -202,5 +201,11 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.ExcludeTrade(obj);
         }
 
+        [Route("detailPnLDateReport")]
+        [HttpGet]
+        public object GetDetailPnLToDateReport(DateTime from, DateTime to, string symbol = "")
+        {
+            return controller.GetDetailPnLToDateReport(from, to, symbol);
+        }
     }
 }

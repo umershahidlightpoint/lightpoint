@@ -14,6 +14,7 @@ import { ReconciliationComponent } from './reconciliation.component';
 import { DayPnlComponent } from '../reconciliation/daypnl-reconcile/daypnl-reconcile.component';
 import { BookmonReconcileComponent } from '../reconciliation/bookmon-reconcile/bookmon-reconcile.component';
 import { FundAdminReconcileComponent } from '../reconciliation/fundadmin-reconcile/fundadmin-reconcile.component';
+import { DetailPnlDateComponent } from './detail-pnl-date/detail-pnl-date.component';
 
 import { ReconciliationRoutes } from './reconciliation.routes';
 import { SharedModule } from '../../shared.module';
@@ -22,7 +23,8 @@ const reconcileComponents = [
   ReconciliationComponent,
   DayPnlComponent,
   BookmonReconcileComponent,
-  FundAdminReconcileComponent
+  FundAdminReconcileComponent,
+  DetailPnlDateComponent
 ];
 
 @NgModule({

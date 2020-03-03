@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment.prod';
-import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -43,6 +42,18 @@ export class ReportsApiService {
 
   getFundAdminReconReport(date, fund) {
     const url = this.baseUrl + '/journal/recon?source=fundadmin&date=' + date + '&fund=' + fund;
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
+
+  getDetailPnLToDateReport(fromDate, toDate, symbol) {
+    const url =
+      this.baseUrl +
+      '/journal/detailPnLDateReport?from=' +
+      fromDate +
+      '&to=' +
+      toDate +
+      '&symbol=' +
+      symbol;
     return this.http.get(url).pipe(map((response: any) => response));
   }
 

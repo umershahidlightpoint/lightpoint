@@ -30,5 +30,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object GetValidDates(string columnName, string source);
         object GetMarketValueAppraisalReport(DateTime? date);
         object ExcludeTrade(TradeExclusionInputDto obj);
+        object GetDetailPnLToDateReport(DateTime from, DateTime to, string symbol);
     }
 }
