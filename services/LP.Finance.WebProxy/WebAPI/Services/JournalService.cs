@@ -1761,8 +1761,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             List<DateTime> dates = new List<DateTime>();
             foreach (DataRow dr in dataTable.Rows)
             {
-                dates.Add((DateTime)dr["business_date"]);
+                dates.Add((DateTime) dr["business_date"]);
             }
+
             return Utils.Wrap(true, dates, HttpStatusCode.OK);
         }
 
@@ -1785,9 +1786,42 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 List<SqlParameter> sqlParams = new List<SqlParameter>();
                 sqlParams.Add(new SqlParameter("date", businessDate));
-                var dataTable = sqlHelper.GetDataTable("MarketValueAppraisalReport", CommandType.StoredProcedure, sqlParams.ToArray());
+                var dataTable = sqlHelper.GetDataTable("MarketValueAppraisalReport", CommandType.StoredProcedure,
+                    sqlParams.ToArray());
                 var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
                 return reportObject;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public object GetDetailPnLToDateReport(DateTime from, DateTime to, string symbol)
+        {
+            try
+            {
+                dynamic postingEngine = new PostingEngineService().GetProgress();
+                if (postingEngine.IsRunning)
+                {
+                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                }
+
+                List<SqlParameter> sqlParams = new List<SqlParameter>()
+                {
+                    new SqlParameter("From", from),
+                    new SqlParameter("Now", to)
+                };
+
+                if (!string.IsNullOrWhiteSpace(symbol))
+                {
+                    sqlParams.Add(new SqlParameter("symbol", symbol));
+                }
+
+                var dataTable =
+                    sqlHelper.GetDataTable("DetailPnlToDate", CommandType.StoredProcedure, sqlParams.ToArray());
+
+                return Utils.Wrap(true, dataTable, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {

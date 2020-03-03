@@ -123,5 +123,10 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
         {
             throw new NotImplementedException();
         }
+
+        public object GetDetailPnLToDateReport(DateTime @from, DateTime to, string symbol)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
