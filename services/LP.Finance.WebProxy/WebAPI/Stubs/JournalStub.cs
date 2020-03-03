@@ -123,5 +123,10 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
         {
             throw new NotImplementedException();
         }
+
+        public object ExcludeTrade(TradeExclusionInputDto obj)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

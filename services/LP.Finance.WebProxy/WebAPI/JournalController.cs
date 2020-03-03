@@ -195,5 +195,12 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.GetMarketValueAppraisalReport(date);
         }
 
+        [Route("excludeTrade")]
+        [HttpPost]
+        public object ExcludeTrade(TradeExclusionInputDto obj)
+        {
+            return controller.ExcludeTrade(obj);
+        }
+
     }
 }

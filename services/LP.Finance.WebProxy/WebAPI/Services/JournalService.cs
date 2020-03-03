@@ -1794,5 +1794,63 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 throw ex;
             }
         }
+
+        public object ExcludeTrade(TradeExclusionInputDto trade)
+        {
+            try
+            {
+                sqlHelper.VerifyConnection();
+                List<SqlParameter> exclusionParams = new List<SqlParameter>
+                {
+                    new SqlParameter("lpOrderId", trade.LpOrderId),
+                    new SqlParameter("reason", string.IsNullOrEmpty(trade.Reason) ? DBNull.Value : (object)trade.Reason)
+                };
+                var query = $@"INSERT INTO [dbo].[trade_exclusion]
+                               ([lporderid]
+                               ,[reason])
+                         VALUES
+                               (@lpOrderId
+                               ,@reason)";
+
+                sqlHelper.Insert(query, CommandType.Text, exclusionParams.ToArray());
+                sqlHelper.CloseConnection();
+                return Utils.Wrap(true, null, HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                sqlHelper.CloseConnection();
+            }
+        }
+
+        public object ReverseTradeExclusion(TradeExclusionInputDto trade)
+        {
+            try
+            {
+                sqlHelper.VerifyConnection();
+                List<SqlParameter> exclusionParams = new List<SqlParameter>
+                {
+                    new SqlParameter("lpOrderId", trade.LpOrderId)
+                };
+                var query = $@"UPDATE [dbo].[trade_exclusion]
+                           SET [exclude] = 'N'
+                         WHERE lporderid = @lpOrderId";
+
+                sqlHelper.Update(query, CommandType.Text, exclusionParams.ToArray());
+                sqlHelper.CloseConnection();
+                return Utils.Wrap(true, null, HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                sqlHelper.CloseConnection();
+            }
+        }
     }
 }
