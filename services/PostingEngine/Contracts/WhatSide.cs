@@ -48,6 +48,14 @@ namespace PostingEngine.Extensions
             return IsCredit(transaction.Side);
         }
 
+        public static bool IsLong(this Transaction transaction)
+        {
+            if (IsBuy(transaction) || IsSell(transaction))
+                return true;
+
+            return false;
+        }
+
         public static bool IsDebit(this Transaction transaction)
         {
             return IsDebit(transaction.Side);

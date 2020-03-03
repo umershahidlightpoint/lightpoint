@@ -195,6 +195,7 @@ namespace PostingEngine
                     Action = "Starting Single Trade Posting Engine",
                     ActionOn = DateTime.Now
                 }.Save(connection, transaction);
+
                 sw.Reset();
                 sw.Start();
                 // Run the trades pass next
@@ -249,7 +250,7 @@ namespace PostingEngine
             PostingEngineCallBack = postingEngineCallBack;
 
             var allocations = GetTransactions(allocationsURL + "ITD");
-            var trades = GetTransactions(tradesURL + "ITD");
+            var trades = GetData<Transaction>(connectionString + ";Application Name=PostingEngine", TradeApi.TRADE_QUERY);
             var accruals = GetTransactions(accrualsURL + "ITD");
 
             using (var connection = new SqlConnection(connectionString + ";Application Name=PostingEngine"))
@@ -284,7 +285,7 @@ namespace PostingEngine
                 var allocationList = JsonConvert.DeserializeObject<Transaction[]>(allocationsResult.payload);
 
 
-                var localTradeList = JsonConvert.DeserializeObject<Transaction[]>(trades.Result);
+                var localTradeList = trades.Result.ToArray();
 
                 var finalTradeList = ClientSpecifics.ClientSpecificsFactory.Get("base").Transform(localTradeList);
 
@@ -955,10 +956,11 @@ namespace PostingEngine
         {
         }
 
-        private static async Task<List<Transaction>> GetFromView(PostingEngineEnvironment env)
+        private static async Task<List<T>> GetData<T>(string connectionString, string query)
         {
-            var dataTable  = new SqlHelper(env.ConnectionString).GetDataTable("vwCurrentStateTrades", CommandType.Text);
-            return null;
+            var tradeApi = new TradeApi();
+            var result = await Task.Run(() => tradeApi.All<T>(connectionString, query));
+            return result;
         }
 
         private static async Task<string> GetTransactions(string webURI)

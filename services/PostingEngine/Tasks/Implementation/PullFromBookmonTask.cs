@@ -66,8 +66,6 @@ namespace PostingEngine.Tasks
 
 
                 var dataTable = new SqlHelper(connectionString).GetDataTable("select * from vwCurrentStateTrades", System.Data.CommandType.Text);
-
-
                 env.CallBack?.Invoke("[Start] Bulk Copy from vwCurrentStateTrades");
 
                 var transaction = connection.BeginTransaction();
@@ -83,6 +81,16 @@ namespace PostingEngine.Tasks
                 sqlHelper.Update("update current_trade_state set SecurityType = 'Common Stock' where SecurityType = 'REIT'", System.Data.CommandType.Text);
                 sqlHelper.GetTransaction().Commit();
                 sqlHelper.GetConnection().Close();
+
+                sql = @"PullDividends";
+                command = new SqlCommand(sql, connection)
+                {
+                    CommandTimeout = 120 // 1 Mins, shoudl not take this long.
+                };
+
+                env.CallBack?.Invoke("[Start] PullDividends");
+                command.ExecuteNonQuery();
+                env.CallBack?.Invoke("[End] PullDividends");
 
                 connection.Close();
             }

@@ -1,9 +1,9 @@
 ﻿/*    
 Examples of usage    
     
-select TradeTime, SecurityType from vwCurrentStateTrades where SecurityType = 'Journals'    
+select TradeTime, ParentSymbol, TradeDate, SettleDate, LocalDividendPerShare, WithholdingRate, Side, TradeCurrency,SettleCurrency, * from vwCurrentStateTrades where SecurityType = 'Journals' and Symbol = 'ZZ_CASH_DIVIDENDS'
 */    
-    
+
 CREATE VIEW [dbo].[vwCurrentStateTrades]    
  AS   
 select    

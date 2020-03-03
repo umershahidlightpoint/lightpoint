@@ -3,12 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace LP.Finance.Common.Models
 {
     public class Transaction
     {
-        public string LpOrderId { get; set; }
+        private string _lpOrderId;
+
+        public string LPOrderId { set { _lpOrderId = value; } get { return _lpOrderId; } }
+        public string LpOrderId { set { _lpOrderId = value; }  get { return _lpOrderId; } }
         public string ParentOrderId { get; set; }
         public string AccrualId { get; set; }
         public string Action { get; set; }

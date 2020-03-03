@@ -147,6 +147,7 @@
     <Compile Include="GraphQLTypes\PerformanceType.cs" />
     <Compile Include="ServerSideRowModelHelper.cs" />
     <Compile Include="SqlHelper.cs" />
+    <Compile Include="TradeApi.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

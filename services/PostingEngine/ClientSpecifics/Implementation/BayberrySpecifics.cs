@@ -72,6 +72,12 @@ namespace PostingEngine.ClientSpecifics
 
             var excludeTrade = new List<string>
                 {
+                    // REAL
+                    "32987dd4-1d47-4f93-8eed-2ff88e89547b",
+                    "2bc838d5-a002-4970-8c80-b8a666ebb5cf",
+                    "48f6696f-a007-48ec-92c7-f168a67e65a9",
+
+                    // Others
                     "ae551383-1c97-42e9-8650-0785ed20044f",
                     "aa17610f-5403-4bd4-99c5-4100126aa655",
                     "a213f4f3-2e5f-4529-8f7c-a2e7d4b4368a"

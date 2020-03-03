@@ -1,5 +1,6 @@
 ﻿using LP.Finance.Common.Model;
 using LP.Finance.Common.Models;
+using PostingEngine.Extensions;
 using PostingEngine.MarketData;
 using PostingEngine.PostingRules.Utilities;
 using System;
@@ -35,17 +36,19 @@ namespace PostingEngine.CorporateActions
         public List<Journal> ProcessExecutionDate()
         {
             return GenerateJournals($"select symbol, notice_date, execution_date, record_date, pay_date, rate, currency, withholding_rate, fx_rate from cash_dividends where execution_date = '{env.ValueDate.ToString("yyyy-MM-dd")}'",
-                "DIVIDENDS RECEIVABLE", "DIVIDENDS PAYABLE");
+                false);
         }
 
         public List<Journal> ProcessPayDate()
         {
             return GenerateJournals($"select symbol, notice_date, execution_date, record_date, pay_date, rate, currency, withholding_rate, fx_rate from cash_dividends where pay_date = '{env.ValueDate.ToString("yyyy-MM-dd")}'",
-                "DIVIDENDS PAYABLE", "DIVIDEND INCOME");
+                true);
         }
 
-        private List<Journal> GenerateJournals(string query, string from, string to)
+        private List<Journal> GenerateJournals(string query, bool settlement)
         {
+            var multiplier = settlement ? -1 : 1;
+
             var journals = new List<Journal>();
 
             var connection = new SqlConnection(env.ConnectionString);
@@ -81,20 +84,78 @@ namespace PostingEngine.CorporateActions
                         t.Quantity,
                         Source = t.Trade.LpOrderId,
                         t.Trade.SecurityId,
+                        Long = t.Trade.IsShort(),
                         FxRate = fxRate,
+                        Fund = env.GetFund(t.Trade),
                         Currency = t.Trade.SettleCurrency,
+
                         BaseGross = t.Quantity * dividend.Rate,
                         BaseWithholding = t.Quantity * dividend.Rate * dividend.WithholdingRate,
                         BaseNet = (t.Quantity * dividend.Rate) - (t.Quantity * dividend.Rate * dividend.WithholdingRate),
-                        SettleGross = t.Quantity * dividend.Rate * fxRate,
-                        SettleWithholding = t.Quantity * dividend.Rate * dividend.WithholdingRate * fxRate,
-                        SettleNet = (t.Quantity * dividend.Rate * fxRate) - (t.Quantity * dividend.Rate * dividend.WithholdingRate * fxRate),
+
+                        SettleGross = t.Quantity * dividend.Rate * fxRate * multiplier,
+                        SettleWithholding = t.Quantity * dividend.Rate * dividend.WithholdingRate * fxRate * multiplier,
+                        SettleNet = (t.Quantity * dividend.Rate * fxRate * multiplier) - (t.Quantity * dividend.Rate * dividend.WithholdingRate * fxRate * multiplier),
                     });
 
-                    // Now for each taxlot we can post a Journal Entry
-                    foreach( var i in results)
+                    // Validate that the Types exist in the system.
+                    if (AccountType.Find(AccountCategory.AC_LIABILITY, "DIVIDENDS WITHHOLDING PAYABLE", false) == null)
                     {
-                        journals.AddRange(Post(i, from, to));
+                        // Need to create the Account Type
+                        var createdAccountType = AccountType.FindOrCreate(AccountCategory.AC_LIABILITY, "DIVIDENDS WITHHOLDING PAYABLE");
+                        new AccountUtils().Save(env, createdAccountType);
+                    }
+
+                    if (AccountType.Find(AccountCategory.AC_EXPENCES, "DIVIDENDS WITHHOLDING EXPENSE", false) == null)
+                    {
+                        // Need to create the Account Type
+                        var createdAccountType = AccountType.FindOrCreate(AccountCategory.AC_EXPENCES, "DIVIDENDS WITHHOLDING EXPENSE");
+                        new AccountUtils().Save(env, createdAccountType);
+                    }
+
+                    // Now for each taxlot we can post a Journal Entry
+                    foreach ( var i in results)
+                    {
+                        var from = "DIVIDENDS RECEIVABLE";
+                        var to = "DIVIDENDS PAYABLE";
+                        var withholdingFrom = "DIVIDENDS WITHHOLDING PAYABLE";
+                        var withholdingTo = "DIVIDENDS WITHHOLDING EXPENSE";
+
+                        if ( settlement )
+                        {
+                            withholdingFrom = "DIVIDENDS WITHHOLDING EXPENSE";
+                            withholdingTo = "Settled Cash";
+                        }
+
+                        if ( i.Long )
+                        {
+                            if (settlement)
+                            {
+                                from = "DIVIDENDS RECEIVABLE";
+                                to = "Settled Cash";
+
+
+                            }
+                            else
+                            {
+                                from = "DIVIDENDS RECEIVABLE";
+                                to = "DIVIDEND INCOME";
+                            }
+                        }
+                        else
+                        {
+                            if (settlement) {
+                                from = "DIVIDENDS PAYABLE";
+                                to = "Settled Cash";
+                            }
+                            else
+                            {
+                                from = "DIVIDENDS PAYABLE";
+                                to = "DIVIDEND EXPENSE";
+                            }
+                        }
+
+                        journals.AddRange(PostExcercise(i, from, to, withholdingFrom, withholdingTo));
                     }
                 }
 
@@ -111,14 +172,18 @@ namespace PostingEngine.CorporateActions
          DIVIDENDS PAYABLE
          DIVIDEND INCOME
          */
-        private List<Journal> Post(dynamic calculatedDividend, string from, string to)
+        private List<Journal> PostExcercise(dynamic calculatedDividend, string from, string to, string withholdingFrom, string withholdingTo)
         {
+            var journals = new List<Journal>();
+
             var fromTo = new AccountUtils().GetAccounts(env, from, to, new string[] { calculatedDividend.Currency }.ToList());
+
+            var fromToWithholding = new AccountUtils().GetAccounts(env, withholdingFrom, withholdingTo, new string[] { calculatedDividend.Currency }.ToList());
 
             var debit = new Journal(fromTo.From, Event.DIVIDEND, env.ValueDate)
             {
                 Source = calculatedDividend.Source,
-                //Fund = env.GetFund(element),
+                Fund = calculatedDividend.Fund,
                 FxCurrency = calculatedDividend.Currency,
                 Symbol = calculatedDividend.Symbol,
                 SecurityId = calculatedDividend.SecurityId,
@@ -128,20 +193,50 @@ namespace PostingEngine.CorporateActions
                 StartPrice = 0,
                 EndPrice = 0,
 
-                Value = env.SignedValue(fromTo.From, fromTo.To, true, calculatedDividend.SettleNet),
-                CreditDebit = env.DebitOrCredit(fromTo.From, calculatedDividend.SettleNet),
+                Value = env.SignedValue(fromTo.From, fromTo.To, true, calculatedDividend.SettleGross),
+                CreditDebit = env.DebitOrCredit(fromTo.From, calculatedDividend.SettleGross),
             };
 
             var credit = new Journal(debit)
             {
                 Account = fromTo.To,
-                Value = env.SignedValue(fromTo.From, fromTo.To, false, calculatedDividend.SettleNet),
-                CreditDebit = env.DebitOrCredit(fromTo.To, calculatedDividend.SettleNet),
+                Value = env.SignedValue(fromTo.From, fromTo.To, false, calculatedDividend.SettleGross),
+                CreditDebit = env.DebitOrCredit(fromTo.To, calculatedDividend.SettleGross),
             };
+            journals.AddRange(new[] { debit, credit });
 
+            if ( calculatedDividend.SettleWithholding != 0)
+            {
+                // Need to generate additional Journal Entries
 
-            return new List<Journal>(new[] { debit, credit });
+                var withholding_debit = new Journal(fromToWithholding.From, Event.DIVIDEND, env.ValueDate)
+                {
+                    Source = calculatedDividend.Source,
+                    Fund = calculatedDividend.Fund,
+                    FxCurrency = calculatedDividend.Currency,
+                    Symbol = calculatedDividend.Symbol,
+                    SecurityId = calculatedDividend.SecurityId,
+                    Quantity = calculatedDividend.Quantity,
 
+                    FxRate = calculatedDividend.FxRate,
+                    StartPrice = 0,
+                    EndPrice = 0,
+
+                    Value = env.SignedValue(fromToWithholding.From, fromToWithholding.To, true, calculatedDividend.SettleWithholding),
+                    CreditDebit = env.DebitOrCredit(fromToWithholding.From, calculatedDividend.SettleWithholding),
+                };
+
+                var withholding_credit = new Journal(debit)
+                {
+                    Account = fromToWithholding.To,
+                    Value = env.SignedValue(fromToWithholding.From, fromToWithholding.To, false, calculatedDividend.SettleWithholding),
+                    CreditDebit = env.DebitOrCredit(fromToWithholding.To, calculatedDividend.SettleWithholding),
+                };
+
+                journals.AddRange(new[] { withholding_debit, withholding_credit });
+            }
+
+            return journals;
         }
     }
 }

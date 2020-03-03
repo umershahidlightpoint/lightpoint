@@ -182,15 +182,19 @@ namespace PostingEngine.PostingRules
                 {
                     var realizedPnl = buyValue + sellValue;
 
+                    var symbol = $"@CASH{element.TradeCurrency}";
+                    var security = env.Trades?.Where(i => i.Symbol.Equals(symbol)).FirstOrDefault();
+                    var securityId = security != null ? security.SecurityId : -1;
+
                     var debit = new Journal(accountBuy, Event.SETTLED_CASH, env.ValueDate)
                     {
-                        Source = element.LpOrderId,
+                        Source = symbol,
+                        Symbol = symbol,
+                        SecurityId = securityId,
+
                         Fund = env.GetFund(element),
                         FxCurrency = element.TradeCurrency,
-                        Symbol = element.Symbol,
-                        SecurityId = element.SecurityId,
                         Quantity = Convert.ToDouble(buy.Quantity),
-
                         FxRate = buyFx.Rate,
                         StartPrice = 0,
                         EndPrice = 0,
@@ -199,15 +203,19 @@ namespace PostingEngine.PostingRules
                         CreditDebit = env.DebitOrCredit(accountBuy, buy.Quantity),
                     };
 
+                    symbol = $"@CASH{element.SettleCurrency}";
+                    security = env.Trades?.Where(i => i.Symbol.Equals(symbol)).FirstOrDefault();
+                    securityId = security != null ? security.SecurityId : -1;
+
                     var credit = new Journal(accountSell, Event.SETTLED_CASH, env.ValueDate)
                     {
-                        Source = element.LpOrderId,
+                        Source = symbol,
+                        Symbol = symbol,
+                        SecurityId = securityId,
+
                         Fund = env.GetFund(element),
                         FxCurrency = element.SettleCurrency,
-                        Symbol = element.Symbol,
-                        SecurityId = element.SecurityId,
                         Quantity = Convert.ToDouble(sell.Quantity),
-
                         FxRate = sellFx.Rate,
                         StartPrice = 0,
                         EndPrice = 0,
@@ -229,15 +237,19 @@ namespace PostingEngine.PostingRules
                 {
                     var realizedPnl = buyValue + sellValue;
 
+                    var symbol = $"@CASH{element.TradeCurrency}";
+                    var security = env.Trades?.Where(i => i.Symbol.Equals(symbol)).FirstOrDefault();
+                    var securityId = security != null ? security.SecurityId : -1;
+
                     var debit = new Journal(accountBuy, Event.SETTLED_CASH, env.ValueDate)
                     {
-                        Source = element.LpOrderId,
+                        Source = symbol,
+                        Symbol = symbol,
+                        SecurityId = securityId,
+
                         Fund = env.GetFund(element),
                         FxCurrency = element.TradeCurrency,
-                        Symbol = element.Symbol,
-                        SecurityId = element.SecurityId,
                         Quantity = Convert.ToDouble(buy.Quantity),
-
                         FxRate = buyFx.Rate,
                         StartPrice = 0,
                         EndPrice = 0,
@@ -246,13 +258,18 @@ namespace PostingEngine.PostingRules
                         CreditDebit = env.DebitOrCredit(accountBuy, buy.Quantity),
                     };
 
+                    symbol = $"@CASH{element.SettleCurrency}";
+                    security = env.Trades?.Where(i => i.Symbol.Equals(symbol)).FirstOrDefault();
+                    securityId = security != null ? security.SecurityId : -1;
+
                     var credit = new Journal(accountSell, Event.SETTLED_CASH, env.ValueDate)
                     {
-                        Source = element.LpOrderId,
+                        Source = symbol,
+                        Symbol = symbol,
+                        SecurityId = securityId,
+
                         Fund = env.GetFund(element),
                         FxCurrency = element.SettleCurrency,
-                        Symbol = element.Symbol,
-                        SecurityId = element.SecurityId,
                         Quantity = Convert.ToDouble(sell.Quantity),
 
                         FxRate = sellFx.Rate,
