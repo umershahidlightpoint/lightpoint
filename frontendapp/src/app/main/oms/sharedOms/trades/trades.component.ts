@@ -21,8 +21,10 @@ import { FinanceServiceProxy } from '../../../../../services/service-proxies';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
 import { AgGridUtils } from '../../../../../shared/utils/AgGridUtils';
+import { ToastrService } from 'ngx-toastr';
 import { SideBar, Style, AutoSizeAllColumns, HeightStyle,  LegendColors} from 'src/shared/utils/Shared';
 import { ExcludeTradeComponent } from 'src/shared/Modal/exclude-trade/exclude-trade.component';
+import { ConfirmationModalComponent } from 'packages/lp-toolkit/src/public-api';
 
 @Component({
   selector: 'app-trades',
@@ -35,6 +37,8 @@ export class TradesComponent implements OnInit, AfterViewInit {
   @ViewChild('stockSplitsModal', { static: false }) stockSplitsModal: CreateStockSplitsComponent;
   @ViewChild('securityModal', { static: false }) securityModal: CreateSecurityComponent;
   @ViewChild('tradeExclusionModal', { static: false }) tradeExclusionModal: ExcludeTradeComponent;
+  @ViewChild('confirmationModal', { static: false }) confirmationModal: ConfirmationModalComponent;
+  
   @Output() titleEmitter = new EventEmitter<string>();
   @Input() tradeType = '';
 
@@ -54,6 +58,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
   title = '';
   orderId: number;
   filterBySymbol = '';
+  toBeReversedLpOrderId : string;
 
   // Process Trade state
   key: string;
@@ -76,7 +81,8 @@ export class TradesComponent implements OnInit, AfterViewInit {
     private postingEngineService: PostingEngineService,
     private postingEngineApiService: PostingEngineApiService,
     private dataService: DataService,
-    private agGridUtils: AgGridUtils
+    private agGridUtils: AgGridUtils,
+    private toastrService: ToastrService
   ) {
     this.initGrid();
     this.hideGrid = false;
@@ -233,6 +239,13 @@ export class TradesComponent implements OnInit, AfterViewInit {
           this.openTradeExclusionModal(params.node.data.LPOrderId);
         }
       })
+    } else {
+      addDefaultItems.push({
+        name: 'Reverse Trade Exclusion',
+        action: () => {
+          this.openReverseTradeExclusionModal(params.node.data.LPOrderId);
+        }
+      })
     }
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(false, addDefaultItems, true, null, params);
@@ -334,7 +347,33 @@ export class TradesComponent implements OnInit, AfterViewInit {
     this.tradeExclusionModal.showModal(lpOrderId);
   }
 
+  openReverseTradeExclusionModal(lpOrderId){
+    this.toBeReversedLpOrderId = lpOrderId;
+    this.confirmationModal.showModal();
+  }
+
   refreshGrid(){
     this.getTrades();
+  }
+
+  reverseTradeExclusion(){
+    let payload = {
+      LpOrderId : this.toBeReversedLpOrderId,
+    }
+    this.financeService.reverseTradeExclusion(payload).subscribe( resp => {
+      if(resp.statusCode === 200){
+        this.toastrService.success("Trade exclusion reversed successfully");
+        this.refreshGrid();
+      } else {
+        this.toastrService.error(resp.message);
+      }
+    },err => {
+      this.toastrService.success("An error occured");
+    })
+    this.toBeReversedLpOrderId = null;
+  }
+
+  cancelTradeExclusionReversal(){
+    this.toBeReversedLpOrderId = null;
   }
 }

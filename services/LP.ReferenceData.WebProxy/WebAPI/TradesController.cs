@@ -121,7 +121,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             else
             {
                 query = $@"select s.*, e.exclude from FundAccounting..vwCurrentStateTrades s
-                        left join FundAccounting..trade_exclusion e on s.lporderid = e.lporderid
+                        left join FundAccounting..trade_exclusion e on s.lporderid = e.lporderid and e.exclude = 'Y'
                         where SecurityType not in ('Journals')
                         order by TradeDate desc";
             }
