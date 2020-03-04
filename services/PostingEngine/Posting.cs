@@ -4,6 +4,7 @@ using LP.Finance.Common.Model;
 using LP.Finance.Common.Models;
 using Newtonsoft.Json;
 using PostingEngine.Contracts;
+using PostingEngine.CorporateActions;
 using PostingEngine.Extensions;
 using PostingEngine.MarketData;
 using PostingEngine.PostingRules;
@@ -336,6 +337,8 @@ namespace PostingEngine
                 tradingPostingEnv.Rules = tradingPostingEnv.TradingRules;
                 tradingPostingEnv.Trades = finalTradeList.Where(i => !i.SecurityType.Equals("Journals")).ToArray();
                 tradingPostingEnv.CallBack = postingEngineCallBack;
+
+                Dividends.CacheDividends(tradingPostingEnv);
 
                 journalPostingEnv.SkipWeekends = false;
                 journalPostingEnv.Rules = tradingPostingEnv.JournalRules;
@@ -900,11 +903,10 @@ namespace PostingEngine
 
                 if (!journalsOnly)
                 {
-                    postingEnv.CallBack?.Invoke($"Dividends :: {valueDate.ToString("MM-dd-yyyy")} in {sw.ElapsedMilliseconds} ms", totalDays, daysProcessed++);
-
                     var dividends = CorporateActions.Dividends.Get(postingEnv);
                     var journals = dividends.Process();
                     postingEnv.CollectData(journals);
+                    postingEnv.CallBack?.Invoke($"Processed Dividends :: {valueDate.ToString("MM-dd-yyyy")}", totalDays, daysProcessed++);
                 }
                 sw.Stop();
                 postingEnv.CallBack?.Invoke($"Completed {label}::{tradeData.Count()} :: {valueDate.ToString("MM-dd-yyyy")} in {sw.ElapsedMilliseconds} ms", totalDays, daysProcessed++);

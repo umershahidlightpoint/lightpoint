@@ -33,16 +33,62 @@ namespace PostingEngine.CorporateActions
             return result;
         }
 
+        private static readonly List<Dividend> _dividends = new List<Dividend>();
+
+        private class Dividend
+        {
+            public string Symbol { get; internal set; }
+            public DateTime NoticeDate { get; internal set; }
+            public DateTime ExecutionDate { get; internal set; }
+            public decimal FxRate { get; internal set; }
+            public DateTime RecordDate { get; internal set; }
+            public DateTime PayDate { get; internal set; }
+            public double Rate { get; internal set; }
+            public string Ccy { get; internal set; }
+            public double WithholdingRate { get; internal set; }
+        }
+
+        public static void CacheDividends(PostingEngineEnvironment env)
+        {
+            _dividends.Clear();
+
+            var query = "select symbol, notice_date, execution_date, record_date, pay_date, rate, currency, withholding_rate, fx_rate from cash_dividends";
+
+            var connection = new SqlConnection(env.ConnectionString);
+
+            var command = new SqlCommand(query, connection);
+            var reader = command.ExecuteReader(System.Data.CommandBehavior.SingleResult);
+
+            while (reader.Read())
+            {
+                var offset = 0;
+                var dividend = new Dividend
+                {
+                    Symbol = reader.GetFieldValue<string>(offset++),
+                    NoticeDate = reader.GetFieldValue<DateTime>(offset++),
+                    ExecutionDate = reader.GetFieldValue<DateTime>(offset++),
+                    RecordDate = reader.GetFieldValue<DateTime>(offset++),
+                    PayDate = reader.GetFieldValue<DateTime>(offset++),
+                    Rate = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++)),
+                    Ccy = reader.GetFieldValue<string>(offset++),
+                    WithholdingRate = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++)),
+                    FxRate = reader.GetFieldValue<decimal>(offset++),
+                };
+
+                _dividends.Add(dividend);
+            }
+            reader.Close();
+            connection.Close();
+        }
+
         public List<Journal> ProcessExecutionDate()
         {
-            return GenerateJournals($"select symbol, notice_date, execution_date, record_date, pay_date, rate, currency, withholding_rate, fx_rate from cash_dividends where execution_date = '{env.ValueDate.ToString("yyyy-MM-dd")}'",
-                false);
+            return GenerateJournals(_dividends.Where(d=>d.ExecutionDate.ToString("yyyy-MM-dd").Equals(env.ValueDate.ToString("yyyy-MM-dd"))).ToList(),false);
         }
 
         public List<Journal> ProcessPayDate()
         {
-            return GenerateJournals($"select symbol, notice_date, execution_date, record_date, pay_date, rate, currency, withholding_rate, fx_rate from cash_dividends where pay_date = '{env.ValueDate.ToString("yyyy-MM-dd")}'",
-                true);
+            return GenerateJournals(_dividends.Where(d => d.PayDate.ToString("yyyy-MM-dd").Equals(env.ValueDate.ToString("yyyy-MM-dd"))).ToList(), true);
         }
 
         private static Dictionary<string, List<ExcercisedDividends>> state = new Dictionary<string, List<ExcercisedDividends>>();
@@ -70,34 +116,15 @@ namespace PostingEngine.CorporateActions
 
         }
 
-        private List<Journal> GenerateJournals(string query, bool settlement)
+        private List<Journal> GenerateJournals(IEnumerable<Dividend> dividends, bool settlement)
         {
             var multiplier = settlement ? -1 : 1;
 
             var journals = new List<Journal>();
 
-            var connection = new SqlConnection(env.ConnectionString);
-            connection.Open();
 
-            var command = new SqlCommand(query, connection);
-            var reader = command.ExecuteReader(System.Data.CommandBehavior.SingleResult);
-
-            while (reader.Read())
+            foreach( var dividend in dividends)
             {
-                var offset = 0;
-                var dividend = new
-                {
-                    Symbol = reader.GetFieldValue<string>(offset++),
-                    NoticeDate = reader.GetFieldValue<DateTime>(offset++),
-                    ExecutionDate = reader.GetFieldValue<DateTime>(offset++),
-                    RecordDate = reader.GetFieldValue<DateTime>(offset++),
-                    PayDate = reader.GetFieldValue<DateTime>(offset++),
-                    Rate = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++)),
-                    Ccy = reader.GetFieldValue<string>(offset++),
-                    WithholdingRate = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++)),
-                    FxRate = reader.GetFieldValue<decimal>(offset++),
-                };
-
                 var key = $"{ dividend.Symbol}::{ dividend.ExecutionDate.ToString("yyyy-MM-dd")}";
                 if (settlement && state.ContainsKey(key))
                 {
@@ -162,10 +189,6 @@ namespace PostingEngine.CorporateActions
                 }
 
             }
-
-            reader.Close();
-            command.Dispose();
-            connection.Close();
 
             return journals;
         }
