@@ -1,5 +1,9 @@
-﻿CREATE VIEW [dbo].[vwPositions]
+﻿/*
+select * from vwPositions where Dividend != 0
+*/
+CREATE VIEW [dbo].[vwPositions]
 AS
+
 SELECT cb.business_date, t.Fund, t.ParentPortfolioCode, t.PortfolioCode, t.Strategy, t.SubStrategy AS sub_strategy, t.CustodianCode AS custodian_code, t.SecurityId, tls.symbol, tls.side,t.SettleCurrency currency,   
 SUM(tls.investment_at_cost + COALESCE (tl.investment_at_cost, 0)) * - 1 AS Balance, 
 SUM(tls.original_quantity + COALESCE (tl.quantity, 0)) AS Quantity, 
@@ -17,7 +21,7 @@ MAX(COALESCE (cb.cost_basis, 0)) AS cost_basis,
 0 as CostBook,
 MAX(COALESCE (mp.price, 0)) AS eod_price, 
 MAX(COALESCE (tls.fx_rate, 0)) AS eod_fx_rate,
-0 as Dividend,
+SUM(COALESCE (cb.dividend_net, 0)) as Dividend,
 0 as Interest,
 0 as Other,
 SUM(cb.realized_pnl) + SUM(cb.unrealized_pnl) + SUM(cb.realized_pnl_fx) + SUM(cb.unrealized_pnl_fx) AS pnl 

@@ -12,6 +12,9 @@
 	[realized_pnl_fx] NUMERIC(22, 9) NULL DEFAULT 0, 
     [unrealized_pnl_fx] NUMERIC(22, 9) NULL DEFAULT 0, 
     [eod_price] NUMERIC(22, 9) NULL DEFAULT 0, 
+    [dividend] NUMERIC(22, 9) NULL DEFAULT 0, 
+    [dividend_withholding] NUMERIC(22, 9) NULL DEFAULT 0, 
+    [dividend_net] NUMERIC(22, 9) NULL DEFAULT 0, 
     CONSTRAINT [PK_cost_basis] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC

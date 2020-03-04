@@ -1,6 +1,8 @@
 ﻿/* Examples
+select * from account_type where name like 'DIV%'
 exec CostBasisCalculation '2019-12-31'
 
+select * from cost_basis where business_date = '2019-12-31'
 select * from vwCostBasis where business_date = '2019-12-31'
 and Symbol = 'EXPR'
 order by Symbol asc
@@ -143,16 +145,47 @@ select '#realized_pnl_fx', * from #realized_pnl_fx where symbol = @symbol
 
 RAISERROR('Completed #realized_pnl_fx', 0, 1) with nowait
 
+SELECT @bDate as busdate, J.symbol, j.SecurityType, j.LongShort as side, sum(credit - debit) as balance
+into #dividend
+FROM vwFullJournal j
+where 
+AccountType in ('DIVIDEND EXPENSE', 'DIVIDEND INCOME')
+and j.[when] <= @bDate
+group by j.symbol, j.LongShort,j.SecurityType
+order by j.Symbol
+
+select '#dividend', * from #dividend where symbol = @symbol
+
+RAISERROR('Completed #dividend', 0, 1) with nowait
+
+SELECT @bDate as busdate, J.symbol, j.SecurityType, j.LongShort as side, sum(credit - debit) as balance
+into #dividend_withholding
+FROM vwFullJournal j
+where 
+AccountType in ('DIVIDENDS WITHHOLDING EXPENSE')
+and j.[when] <= @bDate
+group by j.symbol, j.LongShort,j.SecurityType
+order by j.Symbol
+
+select '#dividend_withholding', * from #dividend_withholding where symbol = @symbol
+
+RAISERROR('Completed #dividend_withholding', 0, 1) with nowait
+
 select upnl.busdate, upnl.symbol, upnl.SecurityType, upnl.side, 
 coalesce(upnl.unrealized_pnl,0) as unrealized, 
 coalesce(upnlfx.unrealized_pnl_fx, 0) as unrealized_fx, 
 coalesce(rpnl.realized_pnl, 0) as realized, 
-coalesce(rpnlfx.realized_pnl_fx,0) as realized_fx, coalesce(rpnl.realized_pnl,0) + coalesce(rpnlfx.realized_pnl_fx,0) + coalesce(upnl.unrealized_pnl,0) + coalesce(upnlfx.unrealized_pnl_fx,0) as net 
+coalesce(rpnlfx.realized_pnl_fx,0) as realized_fx, coalesce(rpnl.realized_pnl,0) + coalesce(rpnlfx.realized_pnl_fx,0) + coalesce(upnl.unrealized_pnl,0) + coalesce(upnlfx.unrealized_pnl_fx,0) as net,
+coalesce(div.balance, 0) as dividend,
+coalesce(divw.balance, 0) as dividend_withholding,
+coalesce(div.balance, 0) + coalesce(divw.balance, 0) as dividend_net
 into #details
 from #unrealized_pnl upnl
 left outer join #unrealized_pnl_fx upnlfx on upnlfx.symbol = upnl.symbol and upnlfx.side = upnl.side
 left outer join #realized_pnl rpnl on rpnl.symbol = upnl.symbol and rpnl.side = upnl.side
 left outer join #realized_pnl_fx rpnlfx on rpnlfx.symbol = upnl.symbol and rpnlfx.side = upnl.side
+left outer join #dividend div on div.symbol = upnl.symbol and div.side = upnl.side
+left outer join #dividend_withholding divw on divw.symbol = upnl.symbol and divw.side = upnl.side
 order by upnl.Symbol asc
 
 select '#details', * from #details where symbol = @Symbol
@@ -162,7 +195,7 @@ RAISERROR('Updating cost_basis', 0, 1) with nowait
 delete from cost_basis where business_date = @bDate
 -- delete from cost_basis where business_date = @bDate and Side = 'SHORT'
 
-insert into cost_basis ( business_date, symbol, balance, quantity, cost_basis, side, realized_pnl, unrealized_pnl, eod_price, realized_pnl_fx, unrealized_pnl_fx )
+insert into cost_basis ( business_date, symbol, balance, quantity, cost_basis, side, realized_pnl, unrealized_pnl, eod_price, realized_pnl_fx, unrealized_pnl_fx, dividend, dividend_withholding, dividend_net )
 select cb.busdate, cb.symbol, 
 cb.Balance, 
 cb.Quantity, 
@@ -178,7 +211,10 @@ case
 end, 
 cb.eod_price,
 ul.realized_fx,
-ul.unrealized_fx
+ul.unrealized_fx,
+ul.dividend,
+ul.dividend_withholding,
+ul.dividend_net
 from #costbasis_all cb 
 inner join #details ul on ul.busdate = cb.busdate and ul.symbol = cb.symbol and ul.Side = cb.Side
 left outer join #security_details sd on sd.SecurityCode = cb.symbol
