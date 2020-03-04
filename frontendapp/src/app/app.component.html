@@ -3,7 +3,7 @@
     <p class="h5 text-muted font-weight-light">Getting things ready for you...</p>
 </div>
 
-<div [hidden]="isLoading">
+<div *ngIf="!isLoading">
     <lp-progress *ngIf="isNavigating" class="navigation-progress position-absolute w-100"></lp-progress>
 
     <lp-header title="Portfolio Accounting">

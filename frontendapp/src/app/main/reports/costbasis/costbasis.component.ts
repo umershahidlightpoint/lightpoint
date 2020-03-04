@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { GridOptions } from 'ag-grid-community';
 import { timer, Subject } from 'rxjs';
 import { debounce } from 'rxjs/operators';
@@ -121,6 +121,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   validDates: Array<string> = null;
 
   constructor(
+    private cdRef: ChangeDetectorRef,
     private cacheService: CacheService,
     private dataService: DataService,
     private financeService: FinanceServiceProxy,
@@ -157,29 +158,33 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     if (config) {
       this.costBasisConfig = JSON.parse(config.value);
     }
+
+    this.cdRef.detectChanges();
   }
 
   applyPageLayout(event) {
-    this.costBasisConfig.costBasisSize = event.sizes ? event.sizes[0] : event[0];
-    this.costBasisConfig.chartsSize = event.sizes ? event.sizes[1] : event[1];
+    if (event.sizes) {
+      this.costBasisConfig.costBasisSize = event.sizes[0];
+      this.costBasisConfig.chartsSize = event.sizes[1];
+    }
 
     const config = this.cacheService.getConfigByKey(LayoutConfig.costBasisConfigKey);
     const payload = {
-      Id: !config ? 0 : config.Id,
-      Project: LayoutConfig.projectName,
-      UOM: 'JSON',
-      Key: LayoutConfig.costBasisConfigKey,
-      Value: JSON.stringify(this.costBasisConfig),
-      Description: LayoutConfig.costBasisConfigKey
+      id: !config ? 0 : config.id,
+      project: LayoutConfig.projectName,
+      uom: 'JSON',
+      key: LayoutConfig.costBasisConfigKey,
+      value: JSON.stringify(this.costBasisConfig),
+      description: LayoutConfig.costBasisConfigKey
     };
 
     if (!config) {
       this.cacheService.addUserConfig(payload).subscribe(response => {
-        console.log('ADDED');
+        console.log('User Config Added');
       });
     } else {
       this.cacheService.updateUserConfig(payload).subscribe(response => {
-        console.log('UPDATED');
+        console.log('User Config Updated');
       });
     }
   }

@@ -14,6 +14,7 @@ export class CacheService {
   private userConfig: any;
 
   constructor(private http: HttpClient) {
+    // tslint:disable-next-line: no-string-literal
     this.baseUrl = window['config'].remoteServerUrl;
   }
 
