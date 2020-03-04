@@ -1,16 +1,13 @@
 ﻿/*
 Run after the Start up process, all changes are made to the current_trade_view, this will vary by client
 */
-CREATE PROCEDURE [dbo].[PreProcessETL]
+CREATE PROCEDURE [dbo].[PostProcessETL]
 AS
 
-	update current_trade_state set SecurityType = 'Open-End Fund' where Symbol = 'MSUXX'
-	update current_trade_state set Symbol = 'TWE AU SWAP', SecurityId = 32669 where Symbol = 'TWE AU EQUITY SWAP'
+update current_journal_full set TradeCurrency = fx_currency, SettleCurrency = fx_currency where event = 'settled-cash-fx'
 
-	DECLARE @Symbol Varchar(20)
-	Declare @SecurityId int
-
-	select top 1 @symbol = Symbol, @SecurityId = SecurityID from current_trade_state where Symbol = 'DUE GY'
-	update current_trade_state set Symbol = @Symbol, SecurityId = @SecurityId where Symbol = 'DUE GR'
+update current_journal_full set security_id = s.SecurityId from current_journal_full
+inner join SecurityMaster..Security s on s.SecurityCode = symbol
+where security_id = -1
 
 RETURN 0

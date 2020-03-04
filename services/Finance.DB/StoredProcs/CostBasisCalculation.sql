@@ -10,13 +10,17 @@ CREATE PROCEDURE [dbo].[CostBasisCalculation]
 	@symbol varchar(100) = null
 AS
 
--- SET NOCOUNT ON
-
 DECLARE @bDate as Date
 SET @bDate = @businessDate
 
-declare @v as Int
-select @v = id from account_type where name = 'CHANGE IN UNREALIZED GAIN/(LOSS)'
+SET STATISTICS TIME ON
+
+SET NOCOUNT ON
+
+
+select id 
+into #id_unrealized
+from account_type where name in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'Change in Unrealized Derivatives Contracts at Fair Value', 'Change in Unrealized Derivatives Contracts due to FX Translation', 'change in unrealized do to fx translation')
 
 RAISERROR('CostBasisCalculation', 0, 1) with nowait
 
@@ -87,52 +91,52 @@ select '#costbasis_all', * from #costbasis_all where symbol = @symbol
 
 RAISERROR('Completed #costbasis_all', 0, 1) with nowait
 
-SELECT @bDate as busdate, J.symbol, j.SecurityType, dbo.fnSide(j.Side) as side,sum(credit-debit) as unrealized_pnl
+SELECT @bDate as busdate, J.symbol, j.SecurityType, j.LongShort as side,sum(credit-debit) as unrealized_pnl
 into #unrealized_pnl
-FROM current_journal_full j
-where 
+FROM vwFullJournal j
+where
 AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'Change in Unrealized Derivatives Contracts at Fair Value', 'Change in Unrealized Derivatives Contracts due to FX Translation', 'change in unrealized do to fx translation')
 and j.[when] <= @bDate
-group by j.symbol, dbo.fnSide(j.Side) ,j.SecurityType
+group by j.symbol, j.LongShort ,j.SecurityType
 order by j.Symbol
 
 select '#unrealized_pnl', * from #unrealized_pnl where symbol = @symbol
 
 RAISERROR('Completed #unrealized_pnl', 0, 1) with nowait
 
-SELECT @bDate as busdate, J.symbol, j.SecurityType, dbo.fnSide(j.Side) as side, sum(credit - debit) as unrealized_pnl_fx
+SELECT @bDate as busdate, J.symbol, j.SecurityType, j.LongShort as side, sum(credit - debit) as unrealized_pnl_fx
 into #unrealized_pnl_fx
-FROM current_journal_full j
+FROM vwFullJournal j
 where 
 AccountType in ('Change in unrealized due to fx on original Cost', 'change in unrealized do to fx translation')
 and j.[when] <= @bDate
-group by j.symbol, dbo.fnSide(j.Side),j.SecurityType
+group by j.symbol, j.LongShort,j.SecurityType
 order by j.Symbol
 
 select '#unrealized_pnl_fx', * from #unrealized_pnl_fx where symbol = @symbol
 
 RAISERROR('Completed #unrealized_pnl_fx', 0, 1) with nowait
 
-SELECT @bDate as busdate, J.symbol, j.SecurityType, dbo.fnSide(j.Side) as side, sum(credit - debit) as realized_pnl
+SELECT @bDate as busdate, J.symbol, j.SecurityType, j.LongShort as side, sum(credit - debit) as realized_pnl
 into #realized_pnl
-FROM current_journal_full j
+FROM vwFullJournal j
 where 
 AccountType in ('REALIZED GAIN/(LOSS)')
 and j.[when] <= @bDate
-group by j.symbol, dbo.fnSide(j.Side),j.SecurityType
+group by j.symbol, j.LongShort ,j.SecurityType
 order by j.Symbol
 
 select '#realized_pnl', * from #realized_pnl where symbol = @symbol
 
 RAISERROR('Completed #realized_pnl', 0, 1) with nowait
 
-SELECT @bDate as busdate, J.symbol, j.SecurityType, dbo.fnSide(j.Side) as side, sum(credit - debit) as realized_pnl_fx
+SELECT @bDate as busdate, J.symbol, j.SecurityType, j.LongShort as side, sum(credit - debit) as realized_pnl_fx
 into #realized_pnl_fx
-FROM current_journal_full j
+FROM vwFullJournal j
 where 
 AccountType in ('REALIZED GAIN/(LOSS) DUE TO FX')
 and j.[when] <= @bDate
-group by j.symbol, dbo.fnSide(j.Side),j.SecurityType
+group by j.symbol, j.LongShort,j.SecurityType
 order by j.Symbol
 
 select '#realized_pnl_fx', * from #realized_pnl_fx where symbol = @symbol

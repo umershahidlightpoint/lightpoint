@@ -19,10 +19,9 @@ namespace PostingEngine.Tasks
 
             var dates = "select minDate = min([when]), maxDate = max([when]) from Journal";
 
-            var sql = $@"select Symbol, fx_currency, source, fund, sum((credit- debit)/coalesce(fxrate,1)) as balance, security_id from vwJournal 
-                        where AccountType = 'Settled Cash' and event = 'settlement'
+            var sql = $@"select Symbol, fx_currency, source, fund, sum(local_credit- local_debit) as balance, security_id from vwJournal 
+                        where AccountType = 'Settled Cash' and event in ('settlement', 'dividend')
                         and [when] < @busDate
-                        and [event] not in ('journal')
 						and fx_currency not in ('USD')
                         group by Symbol, fx_currency, source, fund, security_id";
 

@@ -231,7 +231,7 @@ namespace PostingEngine.PostingRules
                     {
                         Logger.Info($"Relieving Tax Lot {taxlotStatus.TradeDate.ToString("MM-dd-yyyy")}::{taxlotStatus.Symbol}::{taxlotStatus.OpenId}::{lot.TaxLiability}::{lot.TaxRate.Rate}::{lot.PotentialPnl}");
 
-                        if ( taxlotStatus.OpenId.Equals("61994d8d-946a-4ede-8e42-5f890452a0cb"))
+                        if ( taxlotStatus.OpenId.Equals("ad4f986f-6df9-4c67-86cb-7174723a8fc3"))
                         {
 
                         }
@@ -363,6 +363,13 @@ namespace PostingEngine.PostingRules
             else
             {
                 changeInUnRealized = taxlot.RealizedPnl;
+                if (buyTrade.IsCover() || buyTrade.IsShort())
+                    changeInUnRealized *= -1;
+            }
+
+            if ( buyTrade.IsBuy() || buyTrade.IsSell())
+            {
+                changeInUnRealized *= -1;
             }
 
             // Need to backout the Unrealized PNL here, as we are reducing the position of the TaxLot

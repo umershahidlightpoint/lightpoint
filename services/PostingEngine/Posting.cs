@@ -59,6 +59,10 @@ namespace PostingEngine
             };            
             var dataTable = new SqlHelper(connectionString).GetDataTables("CacheBatchResults_rd", CommandType.StoredProcedure, sqlParams, Logger);
             PostingEngineCallBack?.Invoke("End Caching Result");
+
+            PostingEngineCallBack?.Invoke("Start PostProcessETL");
+            dataTable = new SqlHelper(connectionString).GetDataTables("PostProcessETL", CommandType.StoredProcedure, null, Logger);
+            PostingEngineCallBack?.Invoke("End PostProcessETL");
         }
 
         public static void RunCalculation(string calculation, string period, DateTime valueDate, Guid key, PostingEngineCallBack postingEngineCallBack)
@@ -718,6 +722,10 @@ namespace PostingEngine
 
             var valueDate = minTradeDate;
             var endDate = maxTradeDate; // new DateTime(2019, 12,31);
+
+            // Actually need this to run thru today
+            // endDate = postingEnv.BusinessDate;
+
             if (maxSettleDate <= System.DateTime.Now)
             {
                 endDate = maxSettleDate;
@@ -728,6 +736,8 @@ namespace PostingEngine
                 valueDate = postingEnv.BusinessDate;
                 endDate = postingEnv.BusinessDate;
             }
+
+            endDate = new DateTime(2020, 01, 12);
 
             int totalDays = (int) (endDate - valueDate).TotalDays;
             int daysProcessed = 0;

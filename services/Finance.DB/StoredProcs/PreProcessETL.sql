@@ -13,4 +13,5 @@ AS
 	select top 1 @symbol = Symbol, @SecurityId = SecurityID from current_trade_state where Symbol = 'DUE GY'
 	update current_trade_state set Symbol = @Symbol, SecurityId = @SecurityId where Symbol = 'DUE GR'
 
+	update current_trade_state set SecurityType = 'Common Stock' where SecurityType = 'REIT'
 RETURN 0
