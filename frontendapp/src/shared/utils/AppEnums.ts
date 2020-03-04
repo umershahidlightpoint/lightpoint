@@ -1,6 +1,8 @@
 export enum LayoutConfig {
   projectName = 'Portfolio Accounting',
-  costBasisConfigKey = 'Cost Basis'
+  costBasisConfigKey = 'Cost Basis',
+  taxLotStatusHorizontalConfigKey = 'Tax Lot Status Horizontal',
+  taxLotStatusVerticalConfigKey = 'Tax Lot Status Vertical'
 }
 
 export enum GridId {

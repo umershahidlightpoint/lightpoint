@@ -1,10 +1,10 @@
-
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { GridOptions } from 'ag-grid-community';
 import { BehaviorSubject } from 'rxjs';
 import { timer, Subject } from 'rxjs';
 import { debounce, finalize } from 'rxjs/operators';
-import { GridOptions } from 'ag-grid-community';
 import * as moment from 'moment';
+import { CacheService } from 'src/services/common/cache.service';
 import { DataService } from '../../../../services/common/data.service';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { ReportsApiService } from 'src/services/reports-api.service';
@@ -14,12 +14,11 @@ import {
   TrialBalanceReportStats
 } from '../../../../shared/Models/trial-balance';
 import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { GridId, GridName, LayoutConfig } from 'src/shared/utils/AppEnums';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 import { CreateDividendComponent } from 'src/shared/Modal/create-dividend/create-dividend.component';
 import { CreateStockSplitsComponent } from 'src/shared/Modal/create-stock-splits/create-stock-splits.component';
 import { CreateSecurityComponent } from './../../../../shared/Modal/create-security/create-security.component';
-
 import { DataModalComponent } from 'src/shared/Component/data-modal/data-modal.component';
 import { AgGridUtils } from 'src/shared/utils/AgGridUtils';
 import { DataDictionary } from 'src/shared/utils/DataDictionary';
@@ -70,29 +69,29 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   hideGrid: boolean;
   journalDate: any;
   isExpanded = false;
-  action: {
+  taxLotStatusHorizontalConfig: {
     taxLotStatusSize: number;
-    closingtaxLotSize: number;
+    closingTaxLotSize: number;
     taxLotStatusView: boolean;
-    closingtaxLotView: boolean;
+    closingTaxLotView: boolean;
     useTransition: boolean;
   } = {
     taxLotStatusSize: 50,
-    closingtaxLotSize: 50,
+    closingTaxLotSize: 50,
     taxLotStatusView: true,
-    closingtaxLotView: false,
+    closingTaxLotView: false,
     useTransition: true
   };
-  actionVertical: {
-    closingtaxLotSize: number;
+  taxLotStatusVerticalConfig: {
+    closingTaxLotSize: number;
     journalSize: number;
-    closingtaxLotView: boolean;
+    closingTaxLotView: boolean;
     journalView: boolean;
     useTransition: boolean;
   } = {
-    closingtaxLotSize: 50,
+    closingTaxLotSize: 50,
     journalSize: 50,
-    closingtaxLotView: true,
+    closingTaxLotView: true,
     journalView: false,
     useTransition: true
   };
@@ -119,6 +118,8 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   };
 
   constructor(
+    private cdRef: ChangeDetectorRef,
+    private cacheService: CacheService,
     private dataService: DataService,
     private financeService: FinanceServiceProxy,
     private reportsApiService: ReportsApiService,
@@ -145,6 +146,89 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     // this.filterSubject.pipe(debounce(() => timer(1000))).subscribe(() => {
     //   this.getReport(this.startDate, this.endDate, this.filterBySymbol, this.fund === 'All Funds' ? 'ALL' : this.fund);
     // });
+  }
+
+  ngAfterViewInit(): void {
+    this.initPageLayout();
+    this.dataService.flag$.subscribe(obj => {
+      this.hideGrid = obj;
+      if (!this.hideGrid) {
+        this.getFunds();
+      }
+    });
+  }
+
+  initPageLayout() {
+    const horizontalConfig = this.cacheService.getConfigByKey(
+      LayoutConfig.taxLotStatusHorizontalConfigKey
+    );
+    const verticalConfig = this.cacheService.getConfigByKey(
+      LayoutConfig.taxLotStatusVerticalConfigKey
+    );
+
+    if (horizontalConfig) {
+      this.taxLotStatusHorizontalConfig = JSON.parse(horizontalConfig.value);
+    }
+
+    if (verticalConfig) {
+      this.taxLotStatusVerticalConfig = JSON.parse(verticalConfig.value);
+    }
+
+    this.cdRef.detectChanges();
+  }
+
+  applyHorizontalPageLayout(event) {
+    if (event.sizes) {
+      this.taxLotStatusHorizontalConfig.taxLotStatusSize = event.sizes[0];
+      this.taxLotStatusHorizontalConfig.closingTaxLotSize = event.sizes[1];
+    }
+
+    const config = this.cacheService.getConfigByKey(LayoutConfig.taxLotStatusHorizontalConfigKey);
+    const payload = {
+      id: !config ? 0 : config.id,
+      project: LayoutConfig.projectName,
+      uom: 'JSON',
+      key: LayoutConfig.taxLotStatusHorizontalConfigKey,
+      value: JSON.stringify(this.taxLotStatusHorizontalConfig),
+      description: LayoutConfig.taxLotStatusHorizontalConfigKey
+    };
+
+    if (!config) {
+      this.cacheService.addUserConfig(payload).subscribe(response => {
+        console.log('User Config Added');
+      });
+    } else {
+      this.cacheService.updateUserConfig(payload).subscribe(response => {
+        console.log('User Config Updated');
+      });
+    }
+  }
+
+  applyVerticalPageLayout(event) {
+    if (event.sizes) {
+      this.taxLotStatusVerticalConfig.closingTaxLotSize = event.sizes[0];
+      this.taxLotStatusVerticalConfig.journalSize = event.sizes[1];
+    }
+
+    const config = this.cacheService.getConfigByKey(LayoutConfig.taxLotStatusVerticalConfigKey);
+    const payload = {
+      id: !config ? 0 : config.id,
+      project: LayoutConfig.projectName,
+      uom: 'JSON',
+      key: LayoutConfig.taxLotStatusVerticalConfigKey,
+      value: JSON.stringify(this.taxLotStatusVerticalConfig),
+      description: LayoutConfig.taxLotStatusVerticalConfigKey
+    };
+
+    if (!config) {
+      this.cacheService.addUserConfig(payload).subscribe(response => {
+        console.log('User Config Added');
+      });
+    } else {
+      this.cacheService.updateUserConfig(payload).subscribe(response => {
+        console.log('User Config Updated');
+      });
+    }
   }
 
   getLatestJournalDate() {
@@ -465,15 +549,6 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     );
   }
 
-  ngAfterViewInit(): void {
-    this.dataService.flag$.subscribe(obj => {
-      this.hideGrid = obj;
-      if (!this.hideGrid) {
-        this.getFunds();
-      }
-    });
-  }
-
   getFunds() {
     this.financeService.getFunds().subscribe(result => {
       this.funds = result.payload.map(item => ({
@@ -511,7 +586,6 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   }
 
   onTaxLotSelection(lporderid) {
-
     const startDate = this.selected.startDate.format('YYYY-MM-DD');
     const endDate = this.selected.endDate.format('YYYY-MM-DD');
 
@@ -661,13 +735,13 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
             name: 'Create Dividend',
             action: () => {
               this.dividendModal.openDividendModalFromOutside(params.node.data.symbol);
-            },
+            }
           },
           {
             name: 'Create Stock Split',
             action: () => {
               this.stockSplitsModal.openStockSplitModalFromOutside(params.node.data.symbol);
-            },
+            }
           }
         ]
       },
@@ -677,18 +751,21 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           {
             name: 'Create Security',
             action: () => {
-              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'createSecurity');
-            },
+              this.securityModal.openSecurityModalFromOutside(
+                params.node.data.symbol,
+                'createSecurity'
+              );
+            }
           },
           {
             name: 'Extend',
             action: () => {
-              console.log(params.node.data, " EXTEND FROM TAXLOT STATUS+++++++++++++");
+              console.log(params.node.data, ' EXTEND FROM TAXLOT STATUS+++++++++++++');
               this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
-            },
+            }
           }
         ]
-      },
+      }
     ];
 
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
