@@ -207,5 +207,13 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return controller.GetDetailPnLToDateReport(from, to, symbol);
         }
+
+        [Route("reverseTradeExclusion")]
+        [HttpPost]
+        public object ReverseTradeExclusion(TradeExclusionInputDto obj)
+        {
+            return controller.ReverseTradeExclusion(obj);
+        }
     }
+
 }
