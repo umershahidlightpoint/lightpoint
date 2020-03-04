@@ -20,11 +20,11 @@ namespace PostingEngine.PostingRules
             return element.IsDerivative() && element.SecurityType.ToLowerInvariant().Equals("forward");
         }
 
-        private AccountType atSettledCash;
-        private AccountType unrealizedAccountType;
-        private AccountType realizedAccountType;
+        private readonly AccountType atSettledCash;
+        private readonly AccountType unrealizedAccountType;
+        private readonly AccountType realizedAccountType;
 
-        private List<Tag> listOfTags = new List<Tag> {
+        private readonly List<Tag> listOfTags = new List<Tag> {
             Tag.Find("SecurityType"),
             Tag.Find("CustodianCode")
         };
@@ -90,7 +90,7 @@ namespace PostingEngine.PostingRules
 
                     if (baseCurrency.Equals(env.BaseCurrency))
                     {
-                        unrealizedPnl = unrealizedPnl / eodPrice;
+                        unrealizedPnl /= eodPrice;
                     }
 
                     var originalAccount = AccountUtils.GetDerivativeAccountType(unrealizedPnl);

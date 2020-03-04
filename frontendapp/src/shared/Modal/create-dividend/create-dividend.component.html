@@ -199,7 +199,7 @@
                 <div class="col-sm-2 pl-1 pr-1">
                 <label> Rate/Ratio * </label>
                 </div>
-                <div class="col-sm-2 pl-1 pr-1">
+                <div class="col-sm-4 pl-1 pr-1">
                     <input class="form-control" [ngClass]="{ 'is-invalid': formFields.ratio.errors && formFields.ratio.invalid && formFields.ratio.touched }" formControlName="ratio" type="number" step=".05">
                     <div *ngIf="formFields.ratio.errors && formFields.ratio.invalid && formFields.ratio.touched" class="invalid-feedback">
                         <div *ngIf="formFields.ratio.errors.required && formFields.ratio.invalid && formFields.ratio.touched">Ratio is required</div>
@@ -207,17 +207,17 @@
                 </div>
 
 
-                <div class="col-sm-2 pr-1">
-                    <label>Holding Rate *</label>
+                <div class="col-sm-3 pr-1">
+                    <label>WithHolding Rate *</label>
                     </div>
-                    <div class="col-sm-2 pl-1 pr-1">
+                    <div class="col-sm-3 pl-1 pr-1">
                         <input class="form-control" [ngClass]="{ 'is-invalid': formFields.holdingRate.errors && formFields.holdingRate.invalid && formFields.holdingRate.touched}" formControlName="holdingRate" type="number" step=".05">
                         <div *ngIf="formFields.holdingRate.errors && formFields.holdingRate.invalid && formFields.holdingRate.touched" class="invalid-feedback">
                             <div *ngIf="formFields.holdingRate.errors.required && formFields.holdingRate.invalid && formFields.holdingRate.touched">Rate is required</div>
                         </div>
                     </div>
 
-                <div class="col-sm-2 pr-1">
+                <!-- <div class="col-sm-2 pr-1">
                     <label>Fx Rate * </label>
                     </div>
                     <div class="col-sm-2 pl-1 pr-1">
@@ -226,7 +226,7 @@
                             <div *ngIf="formFields.fxRate.errors.required && formFields.fxRate.invalid && formFields.fxRate.touched">Rate is required</div>
                         </div>
 
-                    </div>
+                    </div> -->
 
             </div>
             <!-- PayDate Div End -->

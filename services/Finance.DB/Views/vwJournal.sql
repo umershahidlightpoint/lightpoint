@@ -1,4 +1,7 @@
-﻿CREATE VIEW [dbo].[vwJournal]
+﻿/*
+select top 100 * from vwJournal
+*/
+CREATE VIEW [dbo].[vwJournal]
 	AS 
                             SELECT 
                                     [when],
@@ -13,6 +16,17 @@
                                         WHEN [account_category].[name] not in ('Asset','Expenses') and value < 0  THEN ABS(value) 
 										Else 0
 										END  ) debit,
+
+                                    (CASE 
+										WHEN [account_category].[name] in ('Asset', 'Expenses') and local_value < 0  THEN ABS(local_value) 
+                                        WHEN [account_category].[name] not in ('Asset', 'Expenses') and local_value > 0  THEN ABS(local_value) 
+										Else 0
+										END  ) local_credit,
+                                    (CASE 
+										WHEN [account_category].[name] in ('Asset','Expenses') and local_value > 0  THEN ABS(local_value) 
+                                        WHEN [account_category].[name] not in ('Asset','Expenses') and local_value < 0  THEN ABS(local_value) 
+										Else 0
+										END  ) local_debit,
 									[journal].[symbol],
 									[journal].[security_id],
 									[journal].[quantity],
@@ -29,8 +43,12 @@
                                     [start_price],
                                     [end_price],
 									[fxrate],
-									[is_account_to]
+									[is_account_to],
+									[local_value]
                                     FROM [journal] with(nolock) 
                         join account with(nolock)  on [journal]. [account_id] = account.id 
                         join [account_type] with(nolock) on  [account].account_type_id = [account_type].id
                         join [account_category] with(nolock) on  [account_type].account_category_id = [account_category].id
+GO
+
+

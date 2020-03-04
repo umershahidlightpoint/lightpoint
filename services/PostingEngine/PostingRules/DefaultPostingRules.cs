@@ -18,7 +18,7 @@ namespace PostingEngine.PostingRules
     // Common functions that are shared across all IPostingRule implementations
     public class DefaultPostingRules
     {
-        private List<Tag> listOfTags = new List<Tag>
+        private readonly List<Tag> listOfTags = new List<Tag>
                 {
                     Tag.Find("SecurityType"),
                     Tag.Find("CustodianCode")
@@ -165,11 +165,6 @@ namespace PostingEngine.PostingRules
 
         internal void SettlementDateEvent(PostingEngineEnvironment env, Transaction element)
         {
-            if (element.LpOrderId.StartsWith("0d877"))
-            {
-
-            }
-
             if (env.IsTaxLot(element))
             {
                 CommonRules.GenerateSettlementDateJournals(env, element);
@@ -288,10 +283,6 @@ namespace PostingEngine.PostingRules
         {
             var buyTrade = env.FindTrade(lot.Trade.LpOrderId);
 
-            if ( buyTrade.LpOrderId.Equals("dd14f7b3ba444c76bc50235b89d058aa"))
-            {
-
-            }
             var taxlot = CommonRules.RelieveTaxLot(env, lot, element, workingQuantity, true);
 
             // Has to happen for every day
@@ -334,12 +325,18 @@ namespace PostingEngine.PostingRules
 
             var fxChange = new FxPosting().CreateFxUnsettled(env, buyTrade);
 
-            List<SqlParameter> sqlParams = new List<SqlParameter>();
-            sqlParams.Add(new SqlParameter("@busDate", env.ValueDate));
-            sqlParams.Add(new SqlParameter("@LpOrderId", lot.Trade.LpOrderId));
+            DataTableCollection dataTable = null;
+            if (!env.BaseCurrency.Equals(element.SettleCurrency))
+            {
+                List<SqlParameter> sqlParams = new List<SqlParameter>
+                {
+                    new SqlParameter("@busDate", env.ValueDate),
+                    new SqlParameter("@LpOrderId", lot.Trade.LpOrderId)
+                };
 
-            // This gets passed values, we also need to get anything that posts for this valuedate
-            var dataTable = new SqlHelper(env.ConnectionString).GetDataTables("ClosingTaxLot", CommandType.StoredProcedure, sqlParams.ToArray());
+                // This gets passed values, we also need to get anything that posts for this valuedate
+                dataTable = new SqlHelper(env.ConnectionString).GetDataTables("ClosingTaxLot", CommandType.StoredProcedure, sqlParams.ToArray());
+            }
 
             var journalsToBePosted = env.Journals.Where(i => i.Source.Equals(lot.Trade.LpOrderId));
 
@@ -348,18 +345,25 @@ namespace PostingEngine.PostingRules
             var assetUnrealisedPnl = journalsToBePosted.AssetDailyUnrealizedFx();
             var revenueUnrealisedPnl = journalsToBePosted.RevenueDailyUnrealizedFx();
 
-            var changeInUnRealized = 0.0;
-            if (dataTable[0].Rows.Count > 0)
-                changeInUnRealized = Convert.ToDouble(dataTable[0].Rows[0][2]);
-
             var q = Math.Abs(localWorkingQuantity);
             var p = Math.Abs(taxlot.Quantity);
             var percentage = p / q;
 
-            //changeInUnRealized -= (dailyUnrealized + unrealisedPnl);
-            
-            changeInUnRealized *= percentage;
-            changeInUnRealized -= (unrealisedPnl);
+            var changeInUnRealized = 0.0;
+            if (dataTable != null)
+            {
+                if (dataTable[0].Rows.Count > 0)
+                    changeInUnRealized = Convert.ToDouble(dataTable[0].Rows[0][2]);
+
+                //changeInUnRealized -= (dailyUnrealized + unrealisedPnl);
+
+                changeInUnRealized *= percentage;
+                changeInUnRealized -= (unrealisedPnl);
+            }
+            else
+            {
+                changeInUnRealized = taxlot.RealizedPnl;
+            }
 
             // Need to backout the Unrealized PNL here, as we are reducing the position of the TaxLot
             CommonRules.ReverseUnrealizedPnl(
@@ -372,19 +376,34 @@ namespace PostingEngine.PostingRules
                 fxrate);
 
             var changeInUnRealizedFx = 0.0;
-            if (dataTable[1].Rows.Count > 0)
+            if (dataTable != null && dataTable[1].Rows.Count > 0)
                 changeInUnRealizedFx = Convert.ToDouble(dataTable[1].Rows[0][2]);
 
             if (changeInUnRealizedFx != 0.0)
             {
-                var closeOut = changeInUnRealizedFx - fxChange - unrealisedPnlFx;
+                var closeOut = 0.0;
+
+                if (buyTrade.LpOrderId.Equals("95db7e29-74e3-4060-be88-5161154574fa"))
+                {
+
+                }
+                if (buyTrade.IsBuy())
+                {
+                    closeOut = changeInUnRealizedFx + fxChange;
+                    closeOut *= -1;
+                }
+                else
+                {
+                    closeOut = changeInUnRealizedFx - fxChange;
+                    //closeOut *= -1;
+                }
 
                 // Need to reserve the amount
-                ReverseUnrealizedFxGain(env, buyTrade, closeOut * -1, taxlot.TradePrice, taxlot.CostBasis, changeDueToFx);
+                ReverseUnrealizedFxGain(env, buyTrade, closeOut, taxlot.TradePrice, taxlot.CostBasis, changeDueToFx);
             }
 
             var sumFxMarkToMarket = 0.0;
-            if (dataTable[2].Rows.Count > 0)
+            if (dataTable != null && dataTable[2].Rows.Count > 0)
             {
                 sumFxMarkToMarket = Convert.ToDouble(dataTable[2].Rows[0][2]);
                 //sumFxMarkToMarket -= fxJournalsForInvestmentAtCost[0].Value;

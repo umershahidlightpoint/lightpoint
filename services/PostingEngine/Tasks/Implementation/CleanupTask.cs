@@ -13,7 +13,7 @@ namespace PostingEngine.Tasks
         private readonly string Module = "Cleanup";
         public bool Run(PostingEngineEnvironment env)
         {
-            env.CallBack?.Invoke($"{Module} Calculation Started");
+            env.CallBack?.Invoke($"{Module} Started");
 
             Tuple<DateTime, DateTime> datePeriod;
 
@@ -35,57 +35,28 @@ namespace PostingEngine.Tasks
 
             using (var connection = new SqlConnection(env.ConnectionString + ";Application Name=PE:Cleanup"))
             {
+                connection.Open();
+
                 connection.InfoMessage += delegate (object sender, SqlInfoMessageEventArgs e)
                 {
-                    if (Logger != null)
-                    {
-                        Logger.Info(e.Message);
-                    }
+                    Logger.Info(e.Message);
                 };
-
-                connection.Open();
 
                 try
                 {
-                    var query =
-                        $@"DECLARE @Deleted_Rows INT;
-                        DECLARE @Message Varchar(100);
-                        DECLARE @Total INT;
-                        DECLARE @Progress INT;
-                        SELECT @Total = count(*) from journal with(nowait);
-                        SET @Progress = 0;
+                    var query = "PrepareRun";
 
-                        SET @Deleted_Rows = 1;
-                        WHILE (@Deleted_Rows > 0)
-                        BEGIN
-
-                            delete top (10000) from journal 
-                            where [when] between CONVERT(datetime, '{startdate}') and CONVERT(datetime, '{enddate}')
-
-                            SET @Deleted_Rows = @@ROWCOUNT;
-                            SET @Progress = @Progress + 10000
-    
-                            set @Message = 'Removed ' + Convert(varchar(25), @Progress) + ' of ' + Convert(varchar(25), @Total);
-
-                            RAISERROR (@Message, 0, 1) WITH NOWAIT
-
-                        END";
-
-                    var command = new SqlCommand(query, connection);
-                    command.CommandTimeout = 90;
-                    command.ExecuteNonQuery();
-
-                    if (env.Period.Equals("ITD"))
+                    var command = new SqlCommand(query, connection)
                     {
-                        // We need to preserve the Accounts, so once created we are good to go
-                        //new SqlCommand("delete from account_tag", connection).ExecuteNonQuery();
-                        //new SqlCommand("delete from account", connection).ExecuteNonQuery();
+                        CommandTimeout = 60 * 5, // Give it 5 mins for all of this
+                        CommandType = CommandType.StoredProcedure
+                    };
 
-                        new SqlCommand("delete from journal_log", connection).ExecuteNonQuery();
-                        new SqlCommand("delete from tax_lot", connection).ExecuteNonQuery();
-                        new SqlCommand("delete from tax_lot_status", connection).ExecuteNonQuery();
-                        new SqlCommand("delete from cost_basis", connection).ExecuteNonQuery();
-                    }
+                    command.Parameters.Add(new SqlParameter("@startDate", startdate));
+                    command.Parameters.Add(new SqlParameter("@endDate", enddate));
+                    command.Parameters.Add(new SqlParameter("@period", env.Period));
+
+                    command.ExecuteNonQuery();
                 }
                 catch (Exception ex)
                 {
@@ -97,7 +68,7 @@ namespace PostingEngine.Tasks
                 connection.Close();
             }
 
-            env.CallBack?.Invoke($"{Module} Calculation Finished");
+            env.CallBack?.Invoke($"{Module} Finished");
 
             return true;
         }

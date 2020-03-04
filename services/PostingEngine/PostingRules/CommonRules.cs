@@ -29,7 +29,7 @@ namespace PostingEngine.PostingRules
 
             var investmentAtCost = quantity * lot.Trade.SettleNetPrice * prevFxRate;
             if (reverse)
-                investmentAtCost = investmentAtCost * -1;
+                investmentAtCost *= -1;
 
             var tl = new TaxLot
             {
@@ -187,22 +187,22 @@ namespace PostingEngine.PostingRules
             var percentage = closeQuantity / openQuantity;
 
             // This is the fully loaded value to tbe posting
-            var backout = Math.Abs(closingTaxLot.Trade.NetMoney) * fxrate * multiplier * percentage;
+            var backoutLocal = Math.Abs(closingTaxLot.Trade.NetMoney) * multiplier * percentage;
+
 
             // BUY -- Debit
             // SELL -- Credit
 
             if (closingTaxLot.Trade.IsShort() || closingTaxLot.Trade.IsSell())
-                backout *= -1;
+                backoutLocal *= -1;
 
-            if (backout != 0.0)
+            if (backoutLocal != 0.0)
             {
                 var debit = new Journal(element)
                 {
                     Account = accountToFrom.From,
-                    CreditDebit = env.DebitOrCredit(accountToFrom.From, backout),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, backout),
-
+                    CreditDebit = env.DebitOrCredit(accountToFrom.From, backoutLocal),
+                    JournalValue = env.SignedValueWithFx(accountToFrom.From, accountToFrom.To, true, backoutLocal, fxrate),
                     When = env.ValueDate,
                     FxRate = fxrate,
                     Event = Event.SETTLEMENT,
@@ -212,8 +212,8 @@ namespace PostingEngine.PostingRules
                 var credit = new Journal(debit)
                 {
                     Account = accountToFrom.To,
-                    CreditDebit = env.DebitOrCredit(accountToFrom.To, backout * -1),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, backout),
+                    CreditDebit = env.DebitOrCredit(accountToFrom.To, backoutLocal * -1),
+                    JournalValue = env.SignedValueWithFx(accountToFrom.From, accountToFrom.To, false, backoutLocal, fxrate),
                 };
 
                 env.Journals.AddRange(new[] { debit, credit });
@@ -757,7 +757,7 @@ namespace PostingEngine.PostingRules
 
             if (closingTaxLot.Trade.NetMoney != 0.0)
             {
-                var moneyUSD = Math.Abs(closingTaxLot.Trade.NetMoney) * fxrate * multiplier * percentage;
+                var moneyUSD = Math.Abs(closingTaxLot.Trade.NetMoney) * fxrate * percentage;
 
                 // BUY -- Debit
                 // SELL -- Credit

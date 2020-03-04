@@ -7,7 +7,7 @@ namespace PostingEngine.Tasks
 {
     public class DailyPnlTask : IPostingTask
     {
-        private string Module = "DailyPnlTask";
+        private readonly string Module = "DailyPnlTask";
         private static bool UpdateDailyPnl(List<DailyPnL> records, string connectionString)
         {
             var query = $@"update unofficial_daily_pnl set 
@@ -43,10 +43,12 @@ namespace PostingEngine.Tasks
                     new SqlParameter("MTDPercentageReturn", record.MTDPercentageReturn),
                 };
 
-                var command = new SqlCommand(query, connection);
-                command.Transaction = transaction;
-                command.Parameters.AddRange(sqlParams);
-                command.ExecuteNonQuery();
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Transaction = transaction;
+                    command.Parameters.AddRange(sqlParams);
+                    command.ExecuteNonQuery();
+                }
             }
             transaction.Commit();
             connection.Close();

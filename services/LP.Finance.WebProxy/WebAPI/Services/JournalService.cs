@@ -1628,6 +1628,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object GetJournalsMetaData(JournalMetaInputDto obj)
         {
+            Logger.Info($"GetJournalsMetaData {obj.GridName}");
+
             try
             {
                 SqlHelper sqlHelper = new SqlHelper(connectionString);
@@ -1681,6 +1683,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     meta.Filters = new List<FilterValues>();
                     for (var i = 0; i < filters.Count; i++)
                     {
+                        Logger.Info($"Getting Filters for {obj.GridName}::{filtersQueries[i]}");
+
                         List<object> filterValues;
                         using (var reader =
                             sqlHelper.GetDataReader(filtersQueries[i], CommandType.Text, null,
@@ -1757,9 +1761,130 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             List<DateTime> dates = new List<DateTime>();
             foreach (DataRow dr in dataTable.Rows)
             {
-                dates.Add((DateTime)dr["business_date"]);
+                dates.Add((DateTime) dr["business_date"]);
             }
+
             return Utils.Wrap(true, dates, HttpStatusCode.OK);
+        }
+
+        public object GetMarketValueAppraisalReport(DateTime? date)
+        {
+            try
+            {
+                dynamic postingEngine = new PostingEngineService().GetProgress();
+                if (postingEngine.IsRunning)
+                {
+                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                }
+
+                var businessDate = System.DateTime.Now.PrevBusinessDate();
+
+                if (date.HasValue)
+                {
+                    businessDate = date.Value.Date;
+                }
+
+                List<SqlParameter> sqlParams = new List<SqlParameter>();
+                sqlParams.Add(new SqlParameter("date", businessDate));
+                var dataTable = sqlHelper.GetDataTable("MarketValueAppraisalReport", CommandType.StoredProcedure,
+                    sqlParams.ToArray());
+                var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                return reportObject;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public object ExcludeTrade(TradeExclusionInputDto trade)
+        {
+            try
+            {
+                sqlHelper.VerifyConnection();
+                List<SqlParameter> exclusionParams = new List<SqlParameter>
+                {
+                    new SqlParameter("lpOrderId", trade.LpOrderId),
+                    new SqlParameter("reason", string.IsNullOrEmpty(trade.Reason) ? DBNull.Value : (object)trade.Reason)
+                };
+                var query = $@"INSERT INTO [dbo].[trade_exclusion]
+                               ([lporderid]
+                               ,[reason])
+                         VALUES
+                               (@lpOrderId
+                               ,@reason)";
+
+                sqlHelper.Insert(query, CommandType.Text, exclusionParams.ToArray());
+                sqlHelper.CloseConnection();
+                return Utils.Wrap(true, null, HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                sqlHelper.CloseConnection();
+            }
+        }
+
+        public object ReverseTradeExclusion(TradeExclusionInputDto trade)
+        {
+            try
+            {
+                sqlHelper.VerifyConnection();
+                List<SqlParameter> exclusionParams = new List<SqlParameter>
+                {
+                    new SqlParameter("lpOrderId", trade.LpOrderId)
+                };
+                var query = $@"UPDATE [dbo].[trade_exclusion]
+                           SET [exclude] = 'N'
+                         WHERE lporderid = @lpOrderId";
+
+                sqlHelper.Update(query, CommandType.Text, exclusionParams.ToArray());
+                sqlHelper.CloseConnection();
+                return Utils.Wrap(true, null, HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                sqlHelper.CloseConnection();
+            }
+        }
+
+        public object GetDetailPnLToDateReport(DateTime from, DateTime to, string symbol)
+        {
+            try
+            {
+                dynamic postingEngine = new PostingEngineService().GetProgress();
+                if (postingEngine.IsRunning)
+                {
+                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                }
+
+                List<SqlParameter> sqlParams = new List<SqlParameter>()
+                {
+                    new SqlParameter("From", from),
+                    new SqlParameter("Now", to)
+                };
+
+                if (!string.IsNullOrWhiteSpace(symbol))
+                {
+                    sqlParams.Add(new SqlParameter("symbol", symbol));
+                }
+
+                var dataTable =
+                    sqlHelper.GetDataTable("DetailPnlToDate", CommandType.StoredProcedure, sqlParams.ToArray());
+
+                return Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

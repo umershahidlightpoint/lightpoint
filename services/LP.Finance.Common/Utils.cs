@@ -59,8 +59,10 @@ namespace LP.Finance.Common
         /// <returns></returns>
         public static MetaData ToMetaData(DataTable table)
         {
-            var metaData = new MetaData();
-            metaData.Columns = new List<ColumnDef>();
+            var metaData = new MetaData
+            {
+                Columns = new List<ColumnDef>()
+            };
             foreach (DataColumn col in table.Columns)
             {
                 metaData.Columns.Add(new ColumnDef
@@ -129,6 +131,7 @@ namespace LP.Finance.Common
             {
                 result = response.Content.ReadAsStringAsync();
             }
+            response.Dispose();
 
             return await result;
         }
@@ -252,6 +255,8 @@ namespace LP.Finance.Common
                 result = response.Content.ReadAsStringAsync();
             }
 
+            response.Dispose();
+
             return await result;
         }
 
@@ -292,9 +297,9 @@ namespace LP.Finance.Common
                 by = "",
                 data = payload,
                 meta = metaData,
-                stats = stats,
+                stats,
                 status = statusCode,
-                message = message
+                message
             };
         }
 
@@ -389,7 +394,7 @@ namespace LP.Finance.Common
             }
         }
 
-        private static string _lockHandle = "Uniquie Handle";
+        private readonly static string _lockHandle = "Uniquie Handle";
 
         private static void Save(dynamic state)
         {
@@ -586,10 +591,11 @@ namespace LP.Finance.Common
                 options = SqlBulkCopyOptions.Default;
             }
 
-            using (var bulk = new SqlBulkCopy(connection,
-                options, transaction))
+            // Do not put this in a transaction
+            using (var bulk = new SqlBulkCopy(connection.ConnectionString,
+                options))
             {
-                bulk.BulkCopyTimeout = 300;
+                bulk.BulkCopyTimeout = 60*10;
                 bulk.BatchSize = 100000;
                 bulk.DestinationTableName = tablename;
 
@@ -629,7 +635,7 @@ namespace LP.Finance.Common
             using (var bulk = new SqlBulkCopy(connection,
                 options, transaction))
             {
-                bulk.BulkCopyTimeout = 300;
+                bulk.BulkCopyTimeout = 60 * 10;
                 bulk.BatchSize = 100000;
                 bulk.DestinationTableName = tablename;
 

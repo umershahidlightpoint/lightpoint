@@ -12,21 +12,27 @@
     <!-- Tab View Starts -->
     <tabset class="tab-color">
 
-        <tab heading="Fund Admin" (selectTab)="activeFundAdminReconcile()">
+        <tab heading="Fund Admin" (selectTab)="activateFundAdminReconcile()">
             <div [ngStyle]="style">
                 <rep-fundadmin-reconcile *ngIf="fundadminReconcileActive"></rep-fundadmin-reconcile>
             </div>
         </tab>
 
-        <tab heading="DayPnL" (selectTab)="activeDayPnLReconcile()">
+        <tab heading="DayPnL" (selectTab)="activateDayPnLReconcile()">
             <div [ngStyle]="style">
                 <rep-daypnl-reconcile *ngIf="dayPnLReconcileActive"></rep-daypnl-reconcile>
             </div>
         </tab>
 
-        <tab heading="Bookmon" (selectTab)="activeBookmonReconcile()">
+        <tab heading="Bookmon" (selectTab)="activateBookmonReconcile()">
             <div [ngStyle]="style">
                 <rep-bookmon-reconcile *ngIf="bookmonReconcileActive"></rep-bookmon-reconcile>
+            </div>
+        </tab>
+
+        <tab heading="DetailPnLToDate" (selectTab)="activateDetailPnLToDateReport()">
+            <div [ngStyle]="style">
+                <app-detail-pnl-date *ngIf="detailPnLToDateReportActive"></app-detail-pnl-date>
             </div>
         </tab>
 

@@ -21,7 +21,8 @@ import { FinanceServiceProxy } from '../../../../../services/service-proxies';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
 import { AgGridUtils } from '../../../../../shared/utils/AgGridUtils';
-import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';
+import { SideBar, Style, AutoSizeAllColumns, HeightStyle,  LegendColors} from 'src/shared/utils/Shared';
+import { ExcludeTradeComponent } from 'src/shared/Modal/exclude-trade/exclude-trade.component';
 
 @Component({
   selector: 'app-trades',
@@ -33,7 +34,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
   @ViewChild('dividendModal', { static: false }) dividendModal: CreateDividendComponent;
   @ViewChild('stockSplitsModal', { static: false }) stockSplitsModal: CreateStockSplitsComponent;
   @ViewChild('securityModal', { static: false }) securityModal: CreateSecurityComponent;
-
+  @ViewChild('tradeExclusionModal', { static: false }) tradeExclusionModal: ExcludeTradeComponent;
   @Output() titleEmitter = new EventEmitter<string>();
   @Input() tradeType = '';
 
@@ -134,7 +135,9 @@ export class TradesComponent implements OnInit, AfterViewInit {
     this.sortDirection = '';
 
     if (this.tradeType === 'trade') {
+      this.gridOptions.api.showLoadingOverlay();
       this.financeService.getTrades().subscribe(result => {
+        this.gridOptions.api.hideOverlay();
         this.tradesData = result;
         this.rowData = [];
         const someArray = this.agGridUtils.columizeData(result.data, this.tradesData.meta.Columns);
@@ -146,6 +149,8 @@ export class TradesComponent implements OnInit, AfterViewInit {
         );
         this.gridOptions.api.setColumnDefs(cdefs);
         this.rowData = someArray as [];
+      }, err => {
+        this.gridOptions.api.hideOverlay();
       });
     } else if (this.tradeType === 'opsblotter') {
       this.financeService.getOpsBlotterJournals().subscribe(result => {
@@ -220,6 +225,15 @@ export class TradesComponent implements OnInit, AfterViewInit {
         ]
       },
     ];
+
+    if(params.node.data.exclude !== 'Y'){
+      addDefaultItems.push({
+        name: 'Exclude Trade',
+        action: () => {
+          this.openTradeExclusionModal(params.node.data.LPOrderId);
+        }
+      })
+    }
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(false, addDefaultItems, true, null, params);
   }
@@ -244,6 +258,13 @@ export class TradesComponent implements OnInit, AfterViewInit {
       onFirstDataRendered: params => {
         AutoSizeAllColumns(params);
         // params.api.sizeColumnsToFit();
+      },
+      getRowStyle: params => {
+        let style = {};
+        if (params.data.exclude === 'Y') {
+          style = LegendColors.nonZeroStyle;
+        }
+        return style;
       },
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
@@ -307,5 +328,13 @@ export class TradesComponent implements OnInit, AfterViewInit {
   clearExternalFilter() {
     this.filterBySymbol = '';
     this.gridOptions.api.onFilterChanged();
+  }
+
+  openTradeExclusionModal(lpOrderId){
+    this.tradeExclusionModal.showModal(lpOrderId);
+  }
+
+  refreshGrid(){
+    this.getTrades();
   }
 }

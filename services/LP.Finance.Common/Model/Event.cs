@@ -32,5 +32,8 @@ namespace LP.Finance.Common.Model
 
         // Year End CloseOut
         public static readonly string YEAR_END = "year-end";
+
+        // DIVIDENDS
+        public static readonly string DIVIDEND = "dividend";
     }
 }

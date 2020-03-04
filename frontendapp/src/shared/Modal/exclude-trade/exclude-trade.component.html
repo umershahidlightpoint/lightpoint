@@ -1,0 +1,14 @@
+<!-- LP Modal -->
+<lp-modal #lpModal size="large" [title]="'Exclude Trade'" [footerConfig]="footerConfig"
+  (closed)="onClose()" (confirmed)="form.ngSubmit.emit()">
+
+  <!-- Modal Content -->
+  <form #form="ngForm" (ngSubmit)="excludeTrade()">
+    <div class="form-group m-2 font-weight-bold">
+        <label for="reason">Reason:</label>
+        <textarea  class="form-control" rows="5" [(ngModel)] = "reason" name="reason" id="reason"></textarea>
+    </div>
+  </form>
+  <!-- Modal Content -->
+
+  </lp-modal>

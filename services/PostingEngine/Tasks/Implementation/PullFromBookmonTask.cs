@@ -23,8 +23,11 @@ namespace PostingEngine.Tasks
                         exec PullDailyActivity @minDate, @maxDate
                         exec PullDailyMarketPrices @minDate, @maxDate
                         ";
-                var command = new SqlCommand(sql, connection);
-                command.CommandTimeout = 120; // 1 Mins, shoudl not take this long.
+
+                var command = new SqlCommand(sql, connection)
+                {
+                    CommandTimeout = 120 // 1 Mins, shoudl not take this long.
+                };
 
                 env.CallBack?.Invoke("[Start] PullDailyActivity & PullDailyMarketPrices");
 
@@ -40,18 +43,20 @@ namespace PostingEngine.Tasks
 
                         exec PullDailyFxPrices @minDate, @maxDate
                         ";
-                command = new SqlCommand(sql, connection);
-                command.CommandTimeout = 120; // 1 Mins, shoudl not take this long.
+                command = new SqlCommand(sql, connection)
+                {
+                    CommandTimeout = 120 // 1 Mins, shoudl not take this long.
+                };
 
                 env.CallBack?.Invoke("[Start] PullDailyFxPrices");
                 command.ExecuteNonQuery();
                 env.CallBack?.Invoke("[End] PullDailyFxPrices");
 
-                sql = @"
-                        truncate table current_trade_state
-                        ";
-                command = new SqlCommand(sql, connection);
-                command.CommandTimeout = 60; // 1 Mins, shoudl not take this long.
+                sql = @"truncate table current_trade_state";
+                command = new SqlCommand(sql, connection)
+                {
+                    CommandTimeout = 60 // 1 Mins, shoudl not take this long.
+                };
 
                 command.ExecuteNonQuery();
 
@@ -61,8 +66,6 @@ namespace PostingEngine.Tasks
 
 
                 var dataTable = new SqlHelper(connectionString).GetDataTable("select * from vwCurrentStateTrades", System.Data.CommandType.Text);
-
-
                 env.CallBack?.Invoke("[Start] Bulk Copy from vwCurrentStateTrades");
 
                 var transaction = connection.BeginTransaction();
@@ -78,6 +81,16 @@ namespace PostingEngine.Tasks
                 sqlHelper.Update("update current_trade_state set SecurityType = 'Common Stock' where SecurityType = 'REIT'", System.Data.CommandType.Text);
                 sqlHelper.GetTransaction().Commit();
                 sqlHelper.GetConnection().Close();
+
+                sql = @"PullDividends";
+                command = new SqlCommand(sql, connection)
+                {
+                    CommandTimeout = 120 // 1 Mins, shoudl not take this long.
+                };
+
+                env.CallBack?.Invoke("[Start] PullDividends");
+                command.ExecuteNonQuery();
+                env.CallBack?.Invoke("[End] PullDividends");
 
                 connection.Close();
             }

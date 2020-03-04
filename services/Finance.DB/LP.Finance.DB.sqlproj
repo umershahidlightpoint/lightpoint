@@ -138,7 +138,6 @@
     <Build Include="StoredProcs\Recon\PnlToDate.sql" />
     <Build Include="Tables\pnl_summary.sql" />
     <Build Include="StoredProcs\Recon\PeriodJournals.sql" />
-    <Build Include="Tables\current_journal_full.sql" />
     <Build Include="Tables\log.sql" />
     <Build Include="StoredProcs\InsertLog.sql" />
     <Build Include="StoredProcs\Recon\DetailPnlToDate.sql" />
@@ -163,6 +162,10 @@
     <Build Include="Triggers\stock_split_insert_trigger.sql" />
     <Build Include="Triggers\stock_split_update_trigger.sql" />
     <Build Include="Functions\fnSide.sql" />
+    <Build Include="Tables\current_journal_full.sql" />
+    <Build Include="Tables\security_details.sql" />
+    <Build Include="StoredProcs\PrepareRun.sql" />
+    <Build Include="StoredProcs\Reports\MarketValueAppraisalReport.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">

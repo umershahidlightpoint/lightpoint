@@ -27,6 +27,7 @@ import { JournalsComponent } from '../shared/Component/journals/journals.compone
 import { CreateDividendComponent } from './../shared/Modal/create-dividend/create-dividend.component';
 import { CreateStockSplitsComponent } from './../shared/Modal/create-stock-splits/create-stock-splits.component';
 import { CreateSecurityComponent } from './../shared/Modal/create-security/create-security.component';
+import { ExcludeTradeComponent } from './../shared/Modal/exclude-trade/exclude-trade.component';
 
 const sharedComponents = [
   GridLayoutMenuComponent,
@@ -42,7 +43,8 @@ const sharedComponents = [
   JournalsComponent,
   CreateDividendComponent,
   CreateStockSplitsComponent,
-  CreateSecurityComponent
+  CreateSecurityComponent,
+  ExcludeTradeComponent
 ];
 
 @NgModule({

@@ -335,11 +335,19 @@ export const CommonCols = (isJournalGrid, filters = null) => {
     },
     {
       field: 'source',
+      headerName: 'Source',
       minWidth: 300,
       enableRowGroup: true,
-      headerName: 'Source',
-      filter: isJournalGrid ? 'agTextColumnFilter' : true,
-      colId: 'source'
+      enablePivot: true,
+      filter: filters !== null ? 'agSetColumnFilter' : true,
+      colId: 'source',
+      ...(filters !== null && {
+        filterParams: {
+          cellHeight: 20,
+          values: filters.find(item => item.ColumnName === 'source').Values,
+          debounceMs: 1000
+        }
+      })
     },
     {
       field: 'fund',
@@ -555,6 +563,55 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       }
     },
     {
+      field: 'local_debit',
+      aggFunc: 'sum',
+      headerName: 'Debit',
+      filter: isJournalGrid ? 'agNumberColumnFilter' : true,
+      valueFormatter: moneyFormatter,
+      width: 100,
+      colId: 'local_debit',
+      cellStyle: { 'text-align': 'right' },
+      cellClass: 'twoDecimalPlaces',
+      cellClassRules: {
+        // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value < -300; },
+        footerRow(params) {
+          if (params.node.rowPinned) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      }
+    },
+    {
+      field: 'local_credit',
+      aggFunc: 'sum',
+      headerName: 'Credit',
+      valueFormatter: moneyFormatter,
+      width: 100,
+      colId: 'local_credit',
+      filter: isJournalGrid ? 'agNumberColumnFilter' : true,
+      cellStyle: { 'text-align': 'right' },
+      cellClass: 'twoDecimalPlaces',
+      cellClassRules: {
+        // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
+        redFont(params) {
+          if (noColorCategories(params) || params.node.rowPinned) {
+            return false;
+          } else {
+            return params.value !== 0;
+          }
+        },
+        footerRow(params) {
+          if (params.node.rowPinned) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      }
+    },
+    {
       field: 'quantity',
       aggFunc: 'sum',
       width: 100,
@@ -566,24 +623,38 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       filter: isJournalGrid ? 'agNumberColumnFilter' : true,
       type: 'numericColumn'
     },
-    // {
-    //   field: 'TradeCurrency',
-    //   width: 100,
-    //   headerName: 'Trade Ccy',
-    //   sortable: true,
-    //   enableRowGroup: true,
-    //   filter: isJournalGrid ? 'agTextColumnFilter' : true,
-    //   colId: 'TradeCurrency'
-    // },
-    // {
-    //   field: 'SettleCurrency',
-    //   headerName: 'Settle Ccy',
-    //   sortable: true,
-    //   enableRowGroup: true,
-    //   filter: isJournalGrid ? 'agTextColumnFilter' : true,
-    //   width: 100,
-    //   colId: 'SettleCurrency'
-    // },
+    {
+      field: 'TradeCurrency',
+      width: 100,
+      headerName: 'Trade Ccy',
+      sortable: true,
+      enableRowGroup: true,
+      filter: filters !== null ? 'agSetColumnFilter' : true,
+      colId: 'TradeCurrency',
+      ...(filters !== null && {
+        filterParams: {
+          cellHeight: 20,
+          values: filters.find(item => item.ColumnName === 'TradeCurrency').Values,
+          debounceMs: 1000
+        }
+      })
+     },
+     {
+       field: 'SettleCurrency',
+       headerName: 'Settle Ccy',
+       sortable: true,
+       enableRowGroup: true,
+       filter: filters !== null ? 'agSetColumnFilter' : true,
+       width: 100,
+       colId: 'SettleCurrency',
+       ...(filters !== null && {
+        filterParams: {
+          cellHeight: 20,
+          values: filters.find(item => item.ColumnName === 'SettleCurrency').Values,
+          debounceMs: 1000
+        }
+      })
+     },
     {
       field: 'symbol',
       headerName: 'Symbol',

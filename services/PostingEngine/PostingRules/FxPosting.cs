@@ -19,7 +19,7 @@ namespace PostingEngine.PostingRules
      */
     internal class FxPosting
     {
-        private static List<Tag> _TAGS = new List<Tag> {
+        private readonly static List<Tag> _TAGS = new List<Tag> {
                 Tag.Find("SecurityType"),
                 Tag.Find("CustodianCode")
             };
@@ -348,8 +348,10 @@ namespace PostingEngine.PostingRules
 
             var connection = new SqlConnection(env.ConnectionString);
             connection.Open();
-            var command = new SqlCommand(sql, connection);
-            command.Transaction = env.Transaction;
+            var command = new SqlCommand(sql, connection)
+            {
+                Transaction = env.Transaction
+            };
             var reader = command.ExecuteReader(System.Data.CommandBehavior.SingleResult);
 
             while (reader.Read())

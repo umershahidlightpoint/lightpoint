@@ -15,20 +15,20 @@ namespace PostingEngine.PostingRules
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private List<Tag> listOfTags = new List<Tag> {
+        private readonly List<Tag> listOfTags = new List<Tag> {
             Tag.Find("SecurityType"),
             Tag.Find("CustodianCode")
         };
 
-        private List<Tag> listOfTradeTags = new List<Tag> {
+        private readonly List<Tag> listOfTradeTags = new List<Tag> {
             Tag.Find("SecurityType"),
             Tag.Find("CustodianCode"),
             Tag.Find("TradeCurrency")
         };
 
-        private AccountType atSettledCash;
-        private AccountType unrealizedAccountType;
-        private AccountType realizedAccountType;
+        private readonly AccountType atSettledCash;
+        private readonly AccountType unrealizedAccountType;
+        private readonly AccountType realizedAccountType;
 
         public Cross()
         {
@@ -49,14 +49,6 @@ namespace PostingEngine.PostingRules
         /// <param name="element">Trade we aee interested in</param>
         public void DailyEvent(PostingEngineEnvironment env, Transaction element)
         {
-            double fxrate = 1.0;
-
-            // Lets get fx rate if needed
-            if (!element.SettleCurrency.Equals(env.BaseCurrency))
-            {
-                fxrate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate);
-            }
-
             // Calculate the unrealized PNL
             if (env.TaxLotStatus.ContainsKey(element.LpOrderId))
             {
@@ -101,19 +93,12 @@ namespace PostingEngine.PostingRules
                         }
                     }
 
-                    var unrealizedPnl = 0.0;
-
                     var quantity = taxlot.Quantity;
                     var rateDiff = (eodPrice - prevEodPrice);
 
-                    if ( element.SettleCurrency.Equals(env.BaseCurrency))
-                    {
-                        unrealizedPnl = (rateDiff * quantity);
-                    } else {
-                        unrealizedPnl = (rateDiff * quantity) * fxRate;
-                    }
-                        
-                    var originalAccount = AccountUtils.GetDerivativeAccountType(unrealizedPnl);
+                    var unrealizedPnlLocal = (rateDiff * quantity);
+
+                    var originalAccount = AccountUtils.GetDerivativeAccountType(unrealizedPnlLocal);
                     var fromToAccounts = new AccountUtils().GetAccounts(env, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", listOfTags, taxlot.Trade);
 
                     var fund = env.GetFund(element);
@@ -125,8 +110,8 @@ namespace PostingEngine.PostingRules
                         Symbol = taxlot.Symbol,
                         Quantity = quantity,
                         FxRate = rateDiff,
-                        Value = env.SignedValue(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnl),
-                        CreditDebit = env.DebitOrCredit(fromToAccounts.From, unrealizedPnl),
+                        JournalValue = env.SignedValueWithFx(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnlLocal, fxRate),
+                        CreditDebit = env.DebitOrCredit(fromToAccounts.From, unrealizedPnlLocal),
                         StartPrice = prevEodPrice,
                         EndPrice = eodPrice,
                         Event = Event.DAILY_UNREALIZED_PNL,
@@ -136,21 +121,11 @@ namespace PostingEngine.PostingRules
                     var credit = new Journal(debit)
                     {
                         Account = fromToAccounts.To,
-                        Value = env.SignedValue(fromToAccounts.From, fromToAccounts.To, true, unrealizedPnl),
-                        CreditDebit = env.DebitOrCredit(fromToAccounts.To, unrealizedPnl),
+                        JournalValue = env.SignedValueWithFx(fromToAccounts.From, fromToAccounts.To, true, unrealizedPnlLocal, fxRate),
+                        CreditDebit = env.DebitOrCredit(fromToAccounts.To, unrealizedPnlLocal),
                     };
 
                     env.Journals.AddRange(new[] { debit, credit });
-                    /*
-                    if (element.TradeDate != env.ValueDate && element.SettleDate >= env.ValueDate)
-                    {
-                        var fxJournals = FxPosting.CreateFx(
-                            env,
-                            "daily",
-                            quantity, null, element);
-                        env.Journals.AddRange(fxJournals);
-                    }
-                    */
                 }
             }
             else
@@ -207,15 +182,19 @@ namespace PostingEngine.PostingRules
                 {
                     var realizedPnl = buyValue + sellValue;
 
+                    var symbol = $"@CASH{element.TradeCurrency}";
+                    var security = env.Trades?.Where(i => i.Symbol.Equals(symbol)).FirstOrDefault();
+                    var securityId = security != null ? security.SecurityId : -1;
+
                     var debit = new Journal(accountBuy, Event.SETTLED_CASH, env.ValueDate)
                     {
-                        Source = element.LpOrderId,
+                        Source = symbol,
+                        Symbol = symbol,
+                        SecurityId = securityId,
+
                         Fund = env.GetFund(element),
                         FxCurrency = element.TradeCurrency,
-                        Symbol = element.Symbol,
-                        SecurityId = element.SecurityId,
                         Quantity = Convert.ToDouble(buy.Quantity),
-
                         FxRate = buyFx.Rate,
                         StartPrice = 0,
                         EndPrice = 0,
@@ -224,15 +203,19 @@ namespace PostingEngine.PostingRules
                         CreditDebit = env.DebitOrCredit(accountBuy, buy.Quantity),
                     };
 
+                    symbol = $"@CASH{element.SettleCurrency}";
+                    security = env.Trades?.Where(i => i.Symbol.Equals(symbol)).FirstOrDefault();
+                    securityId = security != null ? security.SecurityId : -1;
+
                     var credit = new Journal(accountSell, Event.SETTLED_CASH, env.ValueDate)
                     {
-                        Source = element.LpOrderId,
+                        Source = symbol,
+                        Symbol = symbol,
+                        SecurityId = securityId,
+
                         Fund = env.GetFund(element),
                         FxCurrency = element.SettleCurrency,
-                        Symbol = element.Symbol,
-                        SecurityId = element.SecurityId,
                         Quantity = Convert.ToDouble(sell.Quantity),
-
                         FxRate = sellFx.Rate,
                         StartPrice = 0,
                         EndPrice = 0,
@@ -254,15 +237,19 @@ namespace PostingEngine.PostingRules
                 {
                     var realizedPnl = buyValue + sellValue;
 
+                    var symbol = $"@CASH{element.TradeCurrency}";
+                    var security = env.Trades?.Where(i => i.Symbol.Equals(symbol)).FirstOrDefault();
+                    var securityId = security != null ? security.SecurityId : -1;
+
                     var debit = new Journal(accountBuy, Event.SETTLED_CASH, env.ValueDate)
                     {
-                        Source = element.LpOrderId,
+                        Source = symbol,
+                        Symbol = symbol,
+                        SecurityId = securityId,
+
                         Fund = env.GetFund(element),
                         FxCurrency = element.TradeCurrency,
-                        Symbol = element.Symbol,
-                        SecurityId = element.SecurityId,
                         Quantity = Convert.ToDouble(buy.Quantity),
-
                         FxRate = buyFx.Rate,
                         StartPrice = 0,
                         EndPrice = 0,
@@ -271,13 +258,18 @@ namespace PostingEngine.PostingRules
                         CreditDebit = env.DebitOrCredit(accountBuy, buy.Quantity),
                     };
 
+                    symbol = $"@CASH{element.SettleCurrency}";
+                    security = env.Trades?.Where(i => i.Symbol.Equals(symbol)).FirstOrDefault();
+                    securityId = security != null ? security.SecurityId : -1;
+
                     var credit = new Journal(accountSell, Event.SETTLED_CASH, env.ValueDate)
                     {
-                        Source = element.LpOrderId,
+                        Source = symbol,
+                        Symbol = symbol,
+                        SecurityId = securityId,
+
                         Fund = env.GetFund(element),
                         FxCurrency = element.SettleCurrency,
-                        Symbol = element.Symbol,
-                        SecurityId = element.SecurityId,
                         Quantity = Convert.ToDouble(sell.Quantity),
 
                         FxRate = sellFx.Rate,

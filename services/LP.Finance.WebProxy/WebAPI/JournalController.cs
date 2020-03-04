@@ -186,5 +186,26 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return controller.GetValidDates(columnName, source);
         }
+
+        [Route("marketValueAppraisalReport")]
+        [HttpGet]
+        public object GetMarketValueAppraisalReport(DateTime date)
+        {
+            return controller.GetMarketValueAppraisalReport(date);
+        }
+
+        [Route("excludeTrade")]
+        [HttpPost]
+        public object ExcludeTrade(TradeExclusionInputDto obj)
+        {
+            return controller.ExcludeTrade(obj);
+        }
+
+        [Route("detailPnLDateReport")]
+        [HttpGet]
+        public object GetDetailPnLToDateReport(DateTime from, DateTime to, string symbol = "")
+        {
+            return controller.GetDetailPnLToDateReport(from, to, symbol);
+        }
     }
 }

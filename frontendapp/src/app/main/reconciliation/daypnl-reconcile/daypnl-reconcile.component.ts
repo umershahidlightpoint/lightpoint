@@ -558,7 +558,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
             name: 'Create Security',
             action: () => {
               this.securityModal.openSecurityModalFromOutside(
-                params.node.data.symbol,
+                params.node.data.Symbol,
                 'createSecurity'
               );
             }
@@ -566,7 +566,7 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
           {
             name: 'Extend',
             action: () => {
-              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
+              this.securityModal.openSecurityModalFromOutside(params.node.data.Symbol, 'extend');
             }
           }
         ]

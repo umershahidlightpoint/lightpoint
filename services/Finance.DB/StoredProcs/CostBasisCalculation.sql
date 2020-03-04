@@ -10,7 +10,7 @@ CREATE PROCEDURE [dbo].[CostBasisCalculation]
 	@symbol varchar(100) = null
 AS
 
-SET NOCOUNT ON
+-- SET NOCOUNT ON
 
 DECLARE @bDate as Date
 SET @bDate = @businessDate
@@ -36,8 +36,6 @@ inner join current_trade_state t on t.lpOrderId = open_id
 where trade_date <= @bDate
 group by open_id, tls.symbol, tls.side, t.TradeCurrency
 
-select '#tax_lot_status', * from #tax_lot_status where symbol = @symbol
-
 RAISERROR('Completed #tax_lot_status', 0, 1) with nowait
 
 select @bDate as business_date, open_lot_id, sum(abs(quantity)) as quantity, sum(abs(quantity * trade_price)) as investment_at_cost
@@ -53,21 +51,19 @@ Abs(coalesce(tls.quantity,0)) as totalQuantity,
 Abs(coalesce(tl.quantity,0)) as consumedQuantity, 
 Abs(coalesce(tls.quantity,0)) - Abs(coalesce(tl.quantity,0)) as quantity,
 case
-	when TradeCurrency = 'GBX' or TradeCurrency = 'GBp' then (Abs(coalesce(tls.quantity,0)) - Abs(coalesce(tl.quantity,0))) * coalesce(mp.price,1) / 100.0 
+	when TradeCurrency = 'GBX' or TradeCurrency = 'GBp' then (Abs(coalesce(tls.quantity,0)) - Abs(coalesce(tl.quantity,0))) * coalesce(mp.price,0) / 100.0 
 	--else (Abs(coalesce(tls.quantity,0)) - Abs(coalesce(tl.quantity,0))) * coalesce(mp.price,1) 
 	else (Abs(coalesce(tls.investment_at_cost,0)) - Abs(coalesce(tl.investment_at_cost,0)))
 end as investment_at_cost,
 case
-	when TradeCurrency = 'GBX' or TradeCurrency = 'GBp' then coalesce(mp.price,1) / 100.0 
-	else coalesce(mp.price,1) 
+	when TradeCurrency = 'GBX' or TradeCurrency = 'GBp' then coalesce(mp.price,0) / 100.0 
+	else coalesce(mp.price,0) 
 end as market_price
 into #tax_lots_final
 from #tax_lot_status tls
-inner join market_prices mp on mp.business_date = @bDate and mp.symbol = tls.symbol
+left outer join market_prices mp on mp.business_date = @bDate and mp.symbol = tls.symbol
 left outer join #tax_lot tl on tl.open_lot_id = tls.open_id
 order by tls.symbol
-
-select '#tax_lots_final', * from #tax_lots_final where symbol = @symbol
 
 RAISERROR('Completed #tax_lots_final', 0, 1) with nowait
 

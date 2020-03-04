@@ -1,0 +1,113 @@
+<!-- Hide Grid Div -->
+<div *ngIf="hideGrid" #logScroll [ngStyle]="processingMsgDiv">
+    <div class="d-flex align-items-center justify-content-center">
+        <h1> Posting Engine is Running. Please Wait. </h1>
+    </div>
+</div>
+<!-- Hide Grid Div Ends -->
+
+<!-- Reports Main Div Starts -->
+<div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
+
+    <!-- Filters Div Starts -->
+    <div class="row">
+
+        <!-- Funds Dropdown Div Starts -->
+        <div class="col-auto">
+            <select class="form-control" [(ngModel)]="fund" (ngModelChange)="changeFund($event)">
+                <option selected>All Funds</option>
+                <option *ngFor="let fund of funds" [ngValue]="fund.fundCode">
+                    {{ fund.fundCode }}
+                </option>
+            </select>
+        </div>
+        <!-- Funds Dropdown Div Ends -->
+
+        <!-- Symbol Filter -->
+        <div class="col-auto">
+            <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol"
+                [(ngModel)]="filterBySymbol" (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)"
+                class="form-control" />
+        </div>
+        <!-- Symbol Filter Ends -->
+
+        <!-- Date Picker Div Starts -->
+        <div class="col-auto">
+            <form>
+                <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date"
+                    [(ngModel)]="selectedDate" (ngModelChange)="changeDate($event)" name=" selectedDate"
+                    [singleDatePicker]="true" [autoApply]="true" [maxDate]="maxDate" />
+            </form>
+        </div>
+        <!-- Date Picker Div Ends -->
+
+        <!-- Clear Button Div Starts -->
+        <div class="col-auto">
+            <button (click)="clearFilters()" class="btn btn-pa" tooltip="Clear" placement="top">
+                <i class="fa fa-remove"></i>
+            </button>
+        </div>
+        <!-- Clear Button Div Ends -->
+
+        <!-- Util Buttons Div Starts -->
+        <div class="col-auto ml-auto">
+
+            <!-- Refresh Button Div Starts -->
+            <div class="mr-2 d-inline-block">
+                <button (click)="refreshReport()" class="btn btn-pa" tooltip="Refresh" placement="top">
+                    <i class="fa fa-refresh"></i></button>
+            </div>
+            <!-- Refresh Button Div Ends -->
+
+            <!-- Export to Excel Button -->
+            <div class="mr-2 d-inline-block">
+                <button (click)="onBtExport()" class="btn btn-pa" tooltip="Export to Excel" placement="top">
+                    <i class="fa fa-arrow-circle-o-down"></i>
+                </button>
+            </div>
+            <!-- Export to Excel Button Ends -->
+
+        </div>
+        <!-- Util Buttons Div Ends -->
+
+    </div>
+    <!-- Filters Div Ends -->
+
+    <!-- Grid/Charts Row Starts -->
+    <div [ngStyle]="styleForHeight">
+
+        <!-- Main Split Row Starts -->
+        <div class="split-area row h-100">
+
+            <!-- AS Split Main Container -->
+            <as-split class="pl-15 pr-15" disabled="false" direction="horizontal" [useTransition]="true">
+
+                <!-- Cost Basis Split Area -->
+                <as-split-area [visible]="true" [size]="50" order="1">
+
+                    <!-- Cost Basis Grid -->
+                    <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions">
+                    </ag-grid-angular>
+
+                </as-split-area>
+                <!-- Cost Basis Split Area Ends -->
+
+                <!-- Charts Split Area -->
+                <as-split-area [visible]="false" [size]="50" order="2">
+
+                </as-split-area>
+                <!-- Charts Split Area Ends -->
+
+            </as-split>
+            <!-- AS Split Main Container Ends -->
+
+        </div>
+        <!-- Main Split Row Ends -->
+
+    </div>
+    <!-- Grid/Charts Row Ends -->
+
+</div>
+<!-- Reports Main Div Ends-->
+
+<app-create-security #securityModal (modalClose)="closeSecurityModal()"></app-create-security>

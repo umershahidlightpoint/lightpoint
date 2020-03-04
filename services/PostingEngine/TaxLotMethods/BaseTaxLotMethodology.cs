@@ -116,9 +116,9 @@ namespace PostingEngine.TaxLotMethods
             if (taxlots.Count() == 0)
                 return;
 
-            var taxlot = taxlots[0];
 
             /*
+            var taxlot = taxlots[0];
             Logger.Info($"Retrieved Open Tax Lots {taxlot.Trade.Symbol}::{taxlot.Trade.Side}");
             foreach (var i in taxlots)
             {
