@@ -361,7 +361,27 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           cellClass: 'rightAlign',
           headerName: 'Net P&L',
           valueFormatter: moneyFormatter
+        },
+        {
+          field: 'dividend',
+          cellClass: 'rightAlign',
+          headerName: 'Dividend',
+          valueFormatter: moneyFormatter
         }
+        ,
+        {
+          field: 'dividend_withholding',
+          cellClass: 'rightAlign',
+          headerName: 'Withholding',
+          valueFormatter: moneyFormatter
+        }
+        ,
+        {
+          field: 'dividend_net',
+          cellClass: 'rightAlign',
+          headerName: 'Dividend Net',
+          valueFormatter: moneyFormatter
+        }        
       ],
       defaultColDef: {
         sortable: true,
@@ -395,14 +415,14 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       },
       columnDefs: [
         {
-          field: 'Date',
+          field: 'business_date',
           width: 120,
           headerName: 'Date',
           sortable: true,
           valueFormatter: dateFormatter
         },
         {
-          field: 'Balance',
+          field: 'balance',
           headerName: 'Exposure (at Cost)',
           cellClass: 'rightAlign',
           sortable: true,
@@ -411,7 +431,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           valueFormatter: moneyFormatter
         },
         {
-          field: 'Quantity',
+          field: 'quantity',
           headerName: 'Quantity',
           width: 100,
           filter: true,
@@ -420,7 +440,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           valueFormatter: currencyFormatter
         },
         {
-          field: 'CostBasis',
+          field: 'cost_basis',
           headerName: 'Cost Basis',
           width: 100,
           filter: true,
@@ -429,7 +449,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           valueFormatter: costBasisFormatter
         },
         {
-          field: 'Side',
+          field: 'side',
           width: 50,
           sortable: true,
           filter: true,
@@ -443,6 +463,12 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           valueFormatter: moneyFormatter
         },
         {
+          field: 'unrealized_pnl_fx',
+          cellClass: 'rightAlign',
+          headerName: 'Unrealized P&L FX',
+          valueFormatter: moneyFormatter
+        },
+        {
           field: 'realized_pnl',
           cellClass: 'rightAlign',
           headerName: 'Realized P&L',
@@ -450,12 +476,38 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           valueFormatter: moneyFormatter
         },
         {
-          field: 'Pnl',
+          field: 'realized_pnl_fx',
+          cellClass: 'rightAlign',
+          headerName: 'Realized P&L FX',
+          valueFormatter: moneyFormatter
+        },
+        {
+          field: 'net',
           cellClass: 'rightAlign',
           headerName: 'Net P&L',
           sortable: true,
           valueFormatter: moneyFormatter
+        },
+        {
+          field: 'dividend',
+          cellClass: 'rightAlign',
+          headerName: 'Dividend',
+          valueFormatter: moneyFormatter
         }
+        ,
+        {
+          field: 'dividend_withholding',
+          cellClass: 'rightAlign',
+          headerName: 'Withholding',
+          valueFormatter: moneyFormatter
+        }
+        ,
+        {
+          field: 'dividend_net',
+          cellClass: 'rightAlign',
+          headerName: 'Dividend Net',
+          valueFormatter: moneyFormatter
+        }        
       ],
       defaultColDef: {
         sortable: true,
@@ -508,7 +560,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.reportsApiService.getCostBasisChart(symbol).subscribe(response => {
       this.chartData = response.payload;
       this.chartData = this.chartData.sort((x, y) => {
-        return new Date(y.Date).getTime() - new Date(x.Date).getTime();
+        return new Date(y.business_date).getTime() - new Date(x.business_date).getTime();
       });
       this.mapCostBasisData(response.payload, this.selectedChartOption);
       this.mapChartsData(response.payload);
@@ -564,40 +616,40 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   }
 
   mapChartsData(data: any) {
-    this.labels = data.map(item => item.Date);
+    this.labels = data.map(item => item.business_date);
 
     this.bData = {
       Balance: data.map(item => ({
-        date: FormatDate(item.Date, 'YYYY-MM-DD'),
-        value: item.Balance
+        date: FormatDate(item.business_date, 'YYYY-MM-DD'),
+        value: item.balance
       }))
     };
 
     this.qData = {
       Quantity: data.map(item => ({
-        date: FormatDate(item.Date, 'YYYY-MM-DD'),
-        value: item.Quantity
+        date: FormatDate(item.business_date, 'YYYY-MM-DD'),
+        value: item.quantity
       }))
     };
 
     this.unrealizedData = {
       unrealized_pnl: data.map(item => ({
-        date: FormatDate(item.Date, 'YYYY-MM-DD'),
+        date: FormatDate(item.business_date, 'YYYY-MM-DD'),
         value: item.unrealized_pnl
       }))
     };
 
     this.realizedData = {
       realized_pnl: data.map(item => ({
-        date: FormatDate(item.Date, 'YYYY-MM-DD'),
+        date: FormatDate(item.business_date, 'YYYY-MM-DD'),
         value: item.realized_pnl
       }))
     };
 
     this.netpnlData = {
       Pnl: data.map(item => ({
-        date: FormatDate(item.Date, 'YYYY-MM-DD'),
-        value: item.Pnl
+        date: FormatDate(item.business_date, 'YYYY-MM-DD'),
+        value: item.net
       }))
     };
   }

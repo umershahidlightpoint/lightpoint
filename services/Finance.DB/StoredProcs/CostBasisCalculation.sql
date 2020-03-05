@@ -1,6 +1,8 @@
 ﻿/* Examples
+select * from account_type where name like 'DIV%'
 exec CostBasisCalculation '2019-12-31'
 
+select * from cost_basis where business_date = '2019-12-31'
 select * from vwCostBasis where business_date = '2019-12-31'
 and Symbol = 'EXPR'
 order by Symbol asc
@@ -10,13 +12,17 @@ CREATE PROCEDURE [dbo].[CostBasisCalculation]
 	@symbol varchar(100) = null
 AS
 
--- SET NOCOUNT ON
-
 DECLARE @bDate as Date
 SET @bDate = @businessDate
 
-declare @v as Int
-select @v = id from account_type where name = 'CHANGE IN UNREALIZED GAIN/(LOSS)'
+SET STATISTICS TIME ON
+
+SET NOCOUNT ON
+
+
+select id 
+into #id_unrealized
+from account_type where name in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'Change in Unrealized Derivatives Contracts at Fair Value', 'Change in Unrealized Derivatives Contracts due to FX Translation', 'change in unrealized do to fx translation')
 
 RAISERROR('CostBasisCalculation', 0, 1) with nowait
 
@@ -87,68 +93,99 @@ select '#costbasis_all', * from #costbasis_all where symbol = @symbol
 
 RAISERROR('Completed #costbasis_all', 0, 1) with nowait
 
-SELECT @bDate as busdate, J.symbol, j.SecurityType, dbo.fnSide(j.Side) as side,sum(credit-debit) as unrealized_pnl
+SELECT @bDate as busdate, J.symbol, j.SecurityType, j.LongShort as side,sum(credit-debit) as unrealized_pnl
 into #unrealized_pnl
-FROM current_journal_full j
-where 
+FROM vwFullJournal j
+where
 AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'Change in Unrealized Derivatives Contracts at Fair Value', 'Change in Unrealized Derivatives Contracts due to FX Translation', 'change in unrealized do to fx translation')
 and j.[when] <= @bDate
-group by j.symbol, dbo.fnSide(j.Side) ,j.SecurityType
+group by j.symbol, j.LongShort ,j.SecurityType
 order by j.Symbol
 
 select '#unrealized_pnl', * from #unrealized_pnl where symbol = @symbol
 
 RAISERROR('Completed #unrealized_pnl', 0, 1) with nowait
 
-SELECT @bDate as busdate, J.symbol, j.SecurityType, dbo.fnSide(j.Side) as side, sum(credit - debit) as unrealized_pnl_fx
+SELECT @bDate as busdate, J.symbol, j.SecurityType, j.LongShort as side, sum(credit - debit) as unrealized_pnl_fx
 into #unrealized_pnl_fx
-FROM current_journal_full j
+FROM vwFullJournal j
 where 
 AccountType in ('Change in unrealized due to fx on original Cost', 'change in unrealized do to fx translation')
 and j.[when] <= @bDate
-group by j.symbol, dbo.fnSide(j.Side),j.SecurityType
+group by j.symbol, j.LongShort,j.SecurityType
 order by j.Symbol
 
 select '#unrealized_pnl_fx', * from #unrealized_pnl_fx where symbol = @symbol
 
 RAISERROR('Completed #unrealized_pnl_fx', 0, 1) with nowait
 
-SELECT @bDate as busdate, J.symbol, j.SecurityType, dbo.fnSide(j.Side) as side, sum(credit - debit) as realized_pnl
+SELECT @bDate as busdate, J.symbol, j.SecurityType, j.LongShort as side, sum(credit - debit) as realized_pnl
 into #realized_pnl
-FROM current_journal_full j
+FROM vwFullJournal j
 where 
 AccountType in ('REALIZED GAIN/(LOSS)')
 and j.[when] <= @bDate
-group by j.symbol, dbo.fnSide(j.Side),j.SecurityType
+group by j.symbol, j.LongShort ,j.SecurityType
 order by j.Symbol
 
 select '#realized_pnl', * from #realized_pnl where symbol = @symbol
 
 RAISERROR('Completed #realized_pnl', 0, 1) with nowait
 
-SELECT @bDate as busdate, J.symbol, j.SecurityType, dbo.fnSide(j.Side) as side, sum(credit - debit) as realized_pnl_fx
+SELECT @bDate as busdate, J.symbol, j.SecurityType, j.LongShort as side, sum(credit - debit) as realized_pnl_fx
 into #realized_pnl_fx
-FROM current_journal_full j
+FROM vwFullJournal j
 where 
 AccountType in ('REALIZED GAIN/(LOSS) DUE TO FX')
 and j.[when] <= @bDate
-group by j.symbol, dbo.fnSide(j.Side),j.SecurityType
+group by j.symbol, j.LongShort,j.SecurityType
 order by j.Symbol
 
 select '#realized_pnl_fx', * from #realized_pnl_fx where symbol = @symbol
 
 RAISERROR('Completed #realized_pnl_fx', 0, 1) with nowait
 
+SELECT @bDate as busdate, J.symbol, j.SecurityType, j.LongShort as side, sum(credit - debit) as balance
+into #dividend
+FROM vwFullJournal j
+where 
+AccountType in ('DIVIDEND EXPENSE', 'DIVIDEND INCOME')
+and j.[when] <= @bDate
+group by j.symbol, j.LongShort,j.SecurityType
+order by j.Symbol
+
+select '#dividend', * from #dividend where symbol = @symbol
+
+RAISERROR('Completed #dividend', 0, 1) with nowait
+
+SELECT @bDate as busdate, J.symbol, j.SecurityType, j.LongShort as side, sum(credit - debit) as balance
+into #dividend_withholding
+FROM vwFullJournal j
+where 
+AccountType in ('DIVIDENDS WITHHOLDING EXPENSE')
+and j.[when] <= @bDate
+group by j.symbol, j.LongShort,j.SecurityType
+order by j.Symbol
+
+select '#dividend_withholding', * from #dividend_withholding where symbol = @symbol
+
+RAISERROR('Completed #dividend_withholding', 0, 1) with nowait
+
 select upnl.busdate, upnl.symbol, upnl.SecurityType, upnl.side, 
 coalesce(upnl.unrealized_pnl,0) as unrealized, 
 coalesce(upnlfx.unrealized_pnl_fx, 0) as unrealized_fx, 
 coalesce(rpnl.realized_pnl, 0) as realized, 
-coalesce(rpnlfx.realized_pnl_fx,0) as realized_fx, coalesce(rpnl.realized_pnl,0) + coalesce(rpnlfx.realized_pnl_fx,0) + coalesce(upnl.unrealized_pnl,0) + coalesce(upnlfx.unrealized_pnl_fx,0) as net 
+coalesce(rpnlfx.realized_pnl_fx,0) as realized_fx, coalesce(rpnl.realized_pnl,0) + coalesce(rpnlfx.realized_pnl_fx,0) + coalesce(upnl.unrealized_pnl,0) + coalesce(upnlfx.unrealized_pnl_fx,0) as net,
+coalesce(div.balance, 0) as dividend,
+coalesce(divw.balance, 0) as dividend_withholding,
+coalesce(div.balance, 0) + coalesce(divw.balance, 0) as dividend_net
 into #details
 from #unrealized_pnl upnl
 left outer join #unrealized_pnl_fx upnlfx on upnlfx.symbol = upnl.symbol and upnlfx.side = upnl.side
 left outer join #realized_pnl rpnl on rpnl.symbol = upnl.symbol and rpnl.side = upnl.side
 left outer join #realized_pnl_fx rpnlfx on rpnlfx.symbol = upnl.symbol and rpnlfx.side = upnl.side
+left outer join #dividend div on div.symbol = upnl.symbol and div.side = upnl.side
+left outer join #dividend_withholding divw on divw.symbol = upnl.symbol and divw.side = upnl.side
 order by upnl.Symbol asc
 
 select '#details', * from #details where symbol = @Symbol
@@ -158,7 +195,7 @@ RAISERROR('Updating cost_basis', 0, 1) with nowait
 delete from cost_basis where business_date = @bDate
 -- delete from cost_basis where business_date = @bDate and Side = 'SHORT'
 
-insert into cost_basis ( business_date, symbol, balance, quantity, cost_basis, side, realized_pnl, unrealized_pnl, eod_price, realized_pnl_fx, unrealized_pnl_fx )
+insert into cost_basis ( business_date, symbol, balance, quantity, cost_basis, side, realized_pnl, unrealized_pnl, eod_price, realized_pnl_fx, unrealized_pnl_fx, dividend, dividend_withholding, dividend_net )
 select cb.busdate, cb.symbol, 
 cb.Balance, 
 cb.Quantity, 
@@ -174,7 +211,10 @@ case
 end, 
 cb.eod_price,
 ul.realized_fx,
-ul.unrealized_fx
+ul.unrealized_fx,
+ul.dividend,
+ul.dividend_withholding,
+ul.dividend_net
 from #costbasis_all cb 
 inner join #details ul on ul.busdate = cb.busdate and ul.symbol = cb.symbol and ul.Side = cb.Side
 left outer join #security_details sd on sd.SecurityCode = cb.symbol

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TabsModule, ModalModule, TooltipModule } from 'ngx-bootstrap';
+import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { LpToolkitModule } from 'lp-toolkit';
@@ -24,6 +25,7 @@ const maintenanceComponents = [MaintenanceComponent, TaxlotsMaintenanceComponent
     ModalModule,
     TooltipModule,
     FormsModule,
+    TypeaheadModule.forRoot(),
     BsDropdownModule.forRoot(),
     NgxDaterangepickerMd.forRoot({
       applyLabel: 'Okay',

@@ -189,7 +189,6 @@ namespace PostingEngine.PostingRules
             // This is the fully loaded value to tbe posting
             var backoutLocal = Math.Abs(closingTaxLot.Trade.NetMoney) * multiplier * percentage;
 
-
             // BUY -- Debit
             // SELL -- Credit
 
@@ -202,7 +201,7 @@ namespace PostingEngine.PostingRules
                 {
                     Account = accountToFrom.From,
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, backoutLocal),
-                    JournalValue = env.SignedValueWithFx(accountToFrom.From, accountToFrom.To, true, backoutLocal, fxrate),
+                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, backoutLocal * fxrate),
                     When = env.ValueDate,
                     FxRate = fxrate,
                     Event = Event.SETTLEMENT,
@@ -213,7 +212,7 @@ namespace PostingEngine.PostingRules
                 {
                     Account = accountToFrom.To,
                     CreditDebit = env.DebitOrCredit(accountToFrom.To, backoutLocal * -1),
-                    JournalValue = env.SignedValueWithFx(accountToFrom.From, accountToFrom.To, false, backoutLocal, fxrate),
+                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, backoutLocal * fxrate),
                 };
 
                 env.Journals.AddRange(new[] { debit, credit });
@@ -609,16 +608,16 @@ namespace PostingEngine.PostingRules
                 EndPrice = end,
                 Quantity = trade.Quantity,
 
-                Account = accountToFrom.To,
-                CreditDebit = env.DebitOrCredit(accountToFrom.To, unrealizedPnl),
-                Value = env.SignedValue(accountToFrom.To, accountToFrom.From, true, unrealizedPnl),
+                Account = accountToFrom.From,
+                CreditDebit = env.DebitOrCredit(accountToFrom.From, unrealizedPnl),
+                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, unrealizedPnl),
             };
 
             var toJournal = new Journal(fromJournal)
             {
-                Account = accountToFrom.From,
-                CreditDebit = env.DebitOrCredit(accountToFrom.From, unrealizedPnl),
-                Value = env.SignedValue(accountToFrom.To, accountToFrom.From, false, unrealizedPnl),
+                Account = accountToFrom.To,
+                CreditDebit = env.DebitOrCredit(accountToFrom.To, unrealizedPnl),
+                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, unrealizedPnl),
             };
 
             env.Journals.AddRange(new[] { fromJournal, toJournal });

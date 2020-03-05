@@ -1,6 +1,7 @@
 ﻿using LP.Finance.Common;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -24,10 +25,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             try
             { 
                 Logger.Info($"started GetLogFiles at {DateTime.UtcNow}");
-                var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
-                if (Directory.Exists(currentDir + "Logs"))
+                var logFolder = ConfigurationManager.AppSettings["logLocation"];
+                if ( String.IsNullOrEmpty(logFolder))
+                    logFolder = System.AppDomain.CurrentDomain.BaseDirectory;
+
+                if (Directory.Exists(logFolder))
                 {
-                    var fileList = Directory.GetFiles(currentDir + "Logs").ToList();
+                    var fileList = Directory.GetFiles(logFolder).ToList();
                     var fileNames = fileList.Select(x => new
                     {
                         FileName = System.IO.Path.GetFileName(x)

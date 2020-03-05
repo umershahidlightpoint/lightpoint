@@ -181,7 +181,6 @@ namespace PostingEngine
                 // Common
                 {"REIT", new CommonStock() },
                 {"ADR", new CommonStock() },
-                {"Bond", new CommonStock() },
                 {"Common Stock", new CommonStock() },
                 {"Open-End Fund", new CommonStock() },
                 {"Unit", new CommonStock() },
@@ -203,6 +202,10 @@ namespace PostingEngine
 
                 // Derivatives
                 {"Equity Swap", new EquitySwaps() },
+
+                // Fixed Income
+                {"GLOBAL", new Bond() },
+                {"FI", new Bond() },
             };
 
         }

@@ -1,4 +1,6 @@
-﻿CREATE PROCEDURE [dbo].[PullDividends]
+﻿/*
+*/
+CREATE PROCEDURE [dbo].[PullDividends]
 AS
 
 insert into cash_dividends (created_by, created_date, last_updated_date, last_updated_by, symbol, notice_date, execution_date, record_date, pay_date, rate, currency, withholding_rate, fx_rate, active_flag)

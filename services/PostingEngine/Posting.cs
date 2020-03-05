@@ -4,6 +4,7 @@ using LP.Finance.Common.Model;
 using LP.Finance.Common.Models;
 using Newtonsoft.Json;
 using PostingEngine.Contracts;
+using PostingEngine.CorporateActions;
 using PostingEngine.Extensions;
 using PostingEngine.MarketData;
 using PostingEngine.PostingRules;
@@ -59,6 +60,10 @@ namespace PostingEngine
             };            
             var dataTable = new SqlHelper(connectionString).GetDataTables("CacheBatchResults_rd", CommandType.StoredProcedure, sqlParams, Logger);
             PostingEngineCallBack?.Invoke("End Caching Result");
+
+            PostingEngineCallBack?.Invoke("Start PostProcessETL");
+            dataTable = new SqlHelper(connectionString).GetDataTables("PostProcessETL", CommandType.StoredProcedure, null, Logger);
+            PostingEngineCallBack?.Invoke("End PostProcessETL");
         }
 
         public static void RunCalculation(string calculation, string period, DateTime valueDate, Guid key, PostingEngineCallBack postingEngineCallBack)
@@ -332,6 +337,8 @@ namespace PostingEngine
                 tradingPostingEnv.Rules = tradingPostingEnv.TradingRules;
                 tradingPostingEnv.Trades = finalTradeList.Where(i => !i.SecurityType.Equals("Journals")).ToArray();
                 tradingPostingEnv.CallBack = postingEngineCallBack;
+
+                Dividends.CacheDividends(tradingPostingEnv);
 
                 journalPostingEnv.SkipWeekends = false;
                 journalPostingEnv.Rules = tradingPostingEnv.JournalRules;
@@ -718,6 +725,10 @@ namespace PostingEngine
 
             var valueDate = minTradeDate;
             var endDate = maxTradeDate; // new DateTime(2019, 12,31);
+
+            // Actually need this to run thru today
+            // endDate = postingEnv.BusinessDate;
+
             if (maxSettleDate <= System.DateTime.Now)
             {
                 endDate = maxSettleDate;
@@ -728,6 +739,8 @@ namespace PostingEngine
                 valueDate = postingEnv.BusinessDate;
                 endDate = postingEnv.BusinessDate;
             }
+
+            endDate = new DateTime(2020, 01, 12);
 
             int totalDays = (int) (endDate - valueDate).TotalDays;
             int daysProcessed = 0;
@@ -890,11 +903,11 @@ namespace PostingEngine
 
                 if (!journalsOnly)
                 {
-                    postingEnv.CallBack?.Invoke($"Dividends :: {valueDate.ToString("MM-dd-yyyy")} in {sw.ElapsedMilliseconds} ms", totalDays, daysProcessed++);
-
+                    postingEnv.CallBack?.Invoke($"Processing Dividends :: {valueDate.ToString("MM-dd-yyyy")}");
                     var dividends = CorporateActions.Dividends.Get(postingEnv);
                     var journals = dividends.Process();
                     postingEnv.CollectData(journals);
+                    postingEnv.CallBack?.Invoke($"Processed Dividends :: {valueDate.ToString("MM-dd-yyyy")}");
                 }
                 sw.Stop();
                 postingEnv.CallBack?.Invoke($"Completed {label}::{tradeData.Count()} :: {valueDate.ToString("MM-dd-yyyy")} in {sw.ElapsedMilliseconds} ms", totalDays, daysProcessed++);

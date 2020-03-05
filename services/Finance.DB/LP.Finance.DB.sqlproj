@@ -166,6 +166,9 @@
     <Build Include="Tables\security_details.sql" />
     <Build Include="StoredProcs\PrepareRun.sql" />
     <Build Include="StoredProcs\Reports\MarketValueAppraisalReport.sql" />
+    <Build Include="StoredProcs\PostProcessETL.sql" />
+    <Build Include="StoredProcs\PreProcessETL.sql" />
+    <Build Include="StoredProcs\PullDividends.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">

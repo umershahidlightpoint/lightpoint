@@ -23,12 +23,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 {
     public class CalculationService : ICalculationService
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         private static readonly string
             ConnectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
-
-        public SqlHelper SqlHelper = new SqlHelper(ConnectionString);
-        private readonly FileProcessor _fileProcessor = new FileProcessor();
-        private readonly FileManager _fileManagementService = new FileManager(ConnectionString);
 
         public object GetMonthlyPerformance(DateTime? dateFrom = null, DateTime? dateTo = null, string fund = null,
             string portfolio = null)
@@ -84,7 +82,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             query += " ORDER BY performance_date ASC, id ASC";
 
-            var dataTable = SqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+            var dataTable = new SqlHelper(ConnectionString).GetDataTable(query, CommandType.Text, sqlParams.ToArray());
 
             var jsonResult = JsonConvert.SerializeObject(dataTable);
 
@@ -446,7 +444,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var performancePath = uploadedResult.Item2;
                 var performanceFileName = uploadedResult.Item3;
 
-                var recordBody = _fileProcessor.ImportFile(performancePath, "Performance", "PerformanceFormats", ',');
+                var recordBody = new FileProcessor().ImportFile(performancePath, "Performance", "PerformanceFormats", ',');
 
                 var records = JsonConvert.SerializeObject(recordBody.Item1);
                 var performanceRecords = JsonConvert.DeserializeObject<List<MonthlyPerformance>>(records);
@@ -459,7 +457,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
 
                 var failedPerformanceList =
-                    _fileManagementService.MapFailedRecords(failedRecords, DateTime.Now, performanceFileName);
+                    new FileManager(ConnectionString).MapFailedRecords(failedRecords, DateTime.Now, performanceFileName);
 
                 List<FileInputDto> fileList = new List<FileInputDto>
                 {
@@ -470,7 +468,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         DateTime.Now)
                 };
 
-                _fileManagementService.InsertActivityAndPositionFiles(fileList);
+                new FileManager(ConnectionString).InsertActivityAndPositionFiles(fileList);
                 var monthlyPerformanceResult = CalculateMonthlyPerformance(performanceRecords);
                 var monthlyPerformance = monthlyPerformanceResult.GetType().GetProperty("payload")
                     ?.GetValue(monthlyPerformanceResult, null);
@@ -585,7 +583,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 new SqlParameter("id", id)
             };
 
-            var dataTable = SqlHelper.GetDataTable(query, CommandType.Text, auditTrailParams.ToArray());
+            var dataTable = new SqlHelper(ConnectionString).GetDataTable(query, CommandType.Text, auditTrailParams.ToArray());
             var jsonResult = JsonConvert.SerializeObject(dataTable);
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
@@ -635,7 +633,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                           ,[itd_pnl] as ITDPnL
                       FROM [dbo].[unofficial_daily_pnl] ORDER BY business_date ASC, id ASC";
 
-                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text);
+                var dataTable = new SqlHelper(ConnectionString).GetDataTable(query, CommandType.Text);
 
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
 
@@ -694,7 +692,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                             as rn from unofficial_daily_pnl u) a
 	                        where a.rn = 1";
 
-                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text);
+                var dataTable = new SqlHelper(ConnectionString).GetDataTable(query, CommandType.Text);
 
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
 
@@ -728,7 +726,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var dailyPnlPath = uploadedResult.Item2;
                 var dailyPnlFileName = uploadedResult.Item3;
-                var recordBody = _fileProcessor.ImportFile(dailyPnlPath, "DailyPnl", "PerformanceFormats", ',');
+                var recordBody = new FileProcessor().ImportFile(dailyPnlPath, "DailyPnl", "PerformanceFormats", ',');
 
                 var records = JsonConvert.SerializeObject(recordBody.Item1);
                 var performanceRecords = JsonConvert.DeserializeObject<List<DailyPnL>>(records);
@@ -741,7 +739,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
 
                 var failedPerformanceList =
-                    _fileManagementService.MapFailedRecords(failedRecords, DateTime.Now, uploadedResult.Item3);
+                    new FileManager(ConnectionString).MapFailedRecords(failedRecords, DateTime.Now, uploadedResult.Item3);
 
                 List<FileInputDto> fileList = new List<FileInputDto>
                 {
@@ -751,7 +749,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         DateTime.Now)
                 };
 
-                _fileManagementService.InsertActivityAndPositionFiles(fileList);
+                new FileManager(ConnectionString).InsertActivityAndPositionFiles(fileList);
                 var previousData = GetLatestDailyPnlPerPortfolio();
                 var previousList = previousData.Item2;
                 if (previousData.Item1)
@@ -850,7 +848,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("id", id)
                 };
 
-                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text, auditTrailParams.ToArray());
+                var dataTable = new SqlHelper(ConnectionString).GetDataTable(query, CommandType.Text, auditTrailParams.ToArray());
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
                 dynamic json = JsonConvert.DeserializeObject(jsonResult);
 

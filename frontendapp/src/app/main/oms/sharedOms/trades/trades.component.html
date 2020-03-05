@@ -20,3 +20,6 @@
 <app-create-security #securityModal (modalClose)="closeSecurityModal()"></app-create-security>
 
 <app-exclude-trade #tradeExclusionModal (refreshData)="refreshGrid()"></app-exclude-trade>
+
+<app-confirmation-modal #confirmationModal (confirmDeletion)="reverseTradeExclusion()" (cancelEvent)="cancelTradeExclusionReversal()" [modalTitle]="'Reverse Trade Exclusion'">
+</app-confirmation-modal>

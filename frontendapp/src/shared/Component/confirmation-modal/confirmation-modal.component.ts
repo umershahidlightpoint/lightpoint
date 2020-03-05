@@ -18,6 +18,7 @@ export class ConfirmationModalComponent implements OnInit {
   @Input("modalDescription") description = "Are you really sure?";
   @ViewChild("confirm", { static: false }) confirmModal: ModalDirective;
   @Output() confirmDeletion = new EventEmitter<any>();
+  @Output() cancelEvent = new EventEmitter<any>();
 
   constructor() {}
 
@@ -28,6 +29,7 @@ export class ConfirmationModalComponent implements OnInit {
   }
 
   closeModal() {
+    this.cancelEvent.emit(true);
     this.confirmModal.hide();
   }
 

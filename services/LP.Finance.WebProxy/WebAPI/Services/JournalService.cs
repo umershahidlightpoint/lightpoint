@@ -973,15 +973,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("symbol", symbol)
                 };
 
-                var query = $@"SELECT business_date AS Date, 
-                        Balance, 
-                        Quantity, 
-                        cost_basis as CostBasis,
-                        side,
-                        realized_pnl,
-                        unrealized_pnl,
-                        unrealized_pnl + realized_pnl as Pnl
-                        FROM cost_basis WITH(NOLOCK) 
+                var query = $@"select * from vwCostBasis
                         where symbol = @symbol 
                         order BY business_date asc";
 

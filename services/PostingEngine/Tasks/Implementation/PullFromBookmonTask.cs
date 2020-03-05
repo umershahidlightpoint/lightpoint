@@ -74,6 +74,16 @@ namespace PostingEngine.Tasks
 
                 env.CallBack?.Invoke("[End] Bulk Copy from vwCurrentStateTrades");
 
+                sql = @"PreProcessETL";
+                command = new SqlCommand(sql, connection)
+                {
+                    CommandTimeout = 120 // 1 Mins, shoudl not take this long.
+                };
+
+                env.CallBack?.Invoke("[Start] PreProcessETL");
+                command.ExecuteNonQuery();
+                env.CallBack?.Invoke("[End] PreProcessETL");
+
                 var sqlHelper = new SqlHelper(connectionString);
                 sqlHelper.CreateConnection();
                 sqlHelper.GetConnection().Open();

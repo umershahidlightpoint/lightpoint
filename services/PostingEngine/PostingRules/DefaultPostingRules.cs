@@ -231,7 +231,7 @@ namespace PostingEngine.PostingRules
                     {
                         Logger.Info($"Relieving Tax Lot {taxlotStatus.TradeDate.ToString("MM-dd-yyyy")}::{taxlotStatus.Symbol}::{taxlotStatus.OpenId}::{lot.TaxLiability}::{lot.TaxRate.Rate}::{lot.PotentialPnl}");
 
-                        if ( taxlotStatus.OpenId.Equals("61994d8d-946a-4ede-8e42-5f890452a0cb"))
+                        if ( taxlotStatus.OpenId.Equals("ad4f986f-6df9-4c67-86cb-7174723a8fc3"))
                         {
 
                         }
@@ -349,6 +349,10 @@ namespace PostingEngine.PostingRules
             var p = Math.Abs(taxlot.Quantity);
             var percentage = p / q;
 
+            if (buyTrade.LPOrderId.Equals("2d6178c8-be77-425b-b2b9-12bc28465cd0"))
+            {
+            }
+
             var changeInUnRealized = 0.0;
             if (dataTable != null)
             {
@@ -359,10 +363,24 @@ namespace PostingEngine.PostingRules
 
                 changeInUnRealized *= percentage;
                 changeInUnRealized -= (unrealisedPnl);
+
+                if (buyTrade.IsCover() || buyTrade.IsShort())
+                    changeInUnRealized *= -1;
             }
             else
             {
-                changeInUnRealized = taxlot.RealizedPnl;
+                changeInUnRealized = taxlot.RealizedPnl * -1;
+                if (buyTrade.IsCover() || buyTrade.IsShort())
+                    changeInUnRealized *= -1;
+            }
+
+
+            if ( buyTrade.IsBuy() || buyTrade.IsSell())
+            {
+                //if (changeInUnRealized < 0)
+                //    changeInUnRealized *= -1;
+
+                changeInUnRealized *= 1;
             }
 
             // Need to backout the Unrealized PNL here, as we are reducing the position of the TaxLot

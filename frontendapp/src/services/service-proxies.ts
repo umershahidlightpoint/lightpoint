@@ -136,6 +136,11 @@ export class FinanceServiceProxy {
     const url = this.baseUrl + '/journal/excludeTrade';
     return this.http.post(url, data).pipe(map((response: any) => response));
   }
+
+  reverseTradeExclusion(data) {
+    const url = this.baseUrl + '/journal/reverseTradeExclusion';
+    return this.http.post(url, data).pipe(map((response: any) => response));
+  }
 }
 
 interface Symbols {

@@ -27,5 +27,6 @@
 	[reference_obligation] numeric(22,8) NULL,
 	[upfront] numeric(22,8) NULL,
 	[premium_rate] numeric(22,8) NULL,
-	[premium_frequency] numeric(22,8) NULL
+	[premium_frequency] numeric(22,8) NULL, 
+    [active_flag] BIT NOT NULL DEFAULT 1
 )

@@ -81,12 +81,16 @@ excludeTrade(){
     Reason: this.reason
   }
   this.financeService.excludeTrade(payload).subscribe( resp => {
-    this.footerConfig = {
-      confirmButtonDisabledState: false,
-      confirmButtonLoadingState: false
-    };
-    this.refreshData.emit(true);
-    this.hideModal();
+    if(resp.statusCode === 200){
+      this.footerConfig = {
+        confirmButtonDisabledState: false,
+        confirmButtonLoadingState: false
+      };
+      this.refreshData.emit(true);
+      this.hideModal();
+    } else {
+      this.hideModal();
+    }
   },err => {
     this.footerConfig = {
       confirmButtonDisabledState: false,

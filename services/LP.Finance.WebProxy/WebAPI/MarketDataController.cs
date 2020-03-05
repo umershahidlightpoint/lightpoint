@@ -33,10 +33,6 @@ namespace LP.Finance.WebProxy.WebAPI
     {
         private static readonly string ConnectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
-        public SqlHelper SqlHelper = new SqlHelper(ConnectionString);
-        private readonly FileProcessor _fileProcessor = new FileProcessor();
-        private readonly FileManager _fileManagementService = new FileManager(ConnectionString);
-
         public object GetPrices()
         {
             try
@@ -50,7 +46,7 @@ namespace LP.Finance.WebProxy.WebAPI
                                 last_updated_by as LastUpdatedBy,
                                 last_updated_on as LastUpdatedOn FROM [dbo].[market_prices] ORDER BY business_date ASC";
 
-                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text);
+                var dataTable = new SqlHelper(ConnectionString).GetDataTable(query, CommandType.Text);
 
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
 
@@ -125,7 +121,7 @@ namespace LP.Finance.WebProxy.WebAPI
 
                 var path = uploadedResult.Item2;
                 var filename = uploadedResult.Item3;
-                var recordBody = _fileProcessor.ImportFile(path, "MarketDataPrices", "PerformanceFormats", ',');
+                var recordBody = new FileProcessor().ImportFile(path, "MarketDataPrices", "PerformanceFormats", ',');
 
                 var records = JsonConvert.SerializeObject(recordBody.Item1);
                 var performanceRecords = JsonConvert.DeserializeObject<List<MarketDataPrice>>(records);
@@ -138,7 +134,7 @@ namespace LP.Finance.WebProxy.WebAPI
                 }
 
                 var failedPerformanceList =
-                    _fileManagementService.MapFailedRecords(failedRecords, DateTime.Now, uploadedResult.Item3);
+                    new FileManager(ConnectionString).MapFailedRecords(failedRecords, DateTime.Now, uploadedResult.Item3);
 
                 List<FileInputDto> fileList = new List<FileInputDto>
                 {
@@ -148,7 +144,7 @@ namespace LP.Finance.WebProxy.WebAPI
                         DateTime.Now)
                 };
 
-                _fileManagementService.InsertActivityAndPositionFiles(fileList);
+                new FileManager(ConnectionString).InsertActivityAndPositionFiles(fileList);
                 /*
                 var dailyPerformanceResult = new DailyPnlCalculator().CalculateDailyPerformance(performanceRecords);
                 var dailyPerformance = dailyPerformanceResult.GetType().GetProperty("payload")
@@ -232,7 +228,7 @@ namespace LP.Finance.WebProxy.WebAPI
                                 last_updated_by as LastUpdatedBy,
                                 last_updated_on as LastUpdatedOn FROM [dbo].[market_prices_history] history where market_price_id = {id}";
 
-                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text);
+                var dataTable = new SqlHelper(ConnectionString).GetDataTable(query, CommandType.Text);
 
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
 
@@ -269,7 +265,7 @@ namespace LP.Finance.WebProxy.WebAPI
                                 last_updated_by as LastUpdatedBy,
                                 last_updated_on as LastUpdatedOn FROM [dbo].[market_prices_history] history where [symbol] = @symbol order by business_date desc";
 
-                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text, symbolPriceParamter.ToArray());
+                var dataTable = new SqlHelper(ConnectionString).GetDataTable(query, CommandType.Text, symbolPriceParamter.ToArray());
 
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
 
