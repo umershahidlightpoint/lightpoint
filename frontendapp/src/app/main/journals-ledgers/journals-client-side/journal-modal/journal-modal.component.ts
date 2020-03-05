@@ -46,13 +46,12 @@ export class JournalModalComponent implements OnInit {
 
   dummyAccountCategory: AccountCategory;
   dummyAccountType: AccountCategory;
+  dummyAccount: Account;
 
   symbols: any = [];
   currencies: string[] = [];
 
   selectedAsOfDate: { startDate: moment.Moment; endDate: moment.Moment };
-
-  dummyAccount: Account;
 
   selectedRow: {
     source?: string;
@@ -159,14 +158,6 @@ export class JournalModalComponent implements OnInit {
     if (response.isSuccessful) {
       this.toAccountCategories = response.payload.filter(element => element.id !== 0);
       this.fromAccountCategories = response.payload.filter(element => element.id !== 0);
-
-      this.dummyAccountCategory = response.payload.find(item => item.id === 0);
-      this.getAccountTypes(this.dummyAccountCategory.id).subscribe(
-        data =>
-          (this.dummyAccountType = data.payload.find(element =>
-            element.name.toLowerCase().startsWith('dummy')
-          ))
-      );
     } else {
       this.toastrService.error('Failed to fetch account categories!');
     }
@@ -214,6 +205,15 @@ export class JournalModalComponent implements OnInit {
         hasJournal: response.payload.HasJournal,
         canDeleted: response.payload.CanDeleted,
         canEdited: response.payload.CanEdited
+      };
+
+      this.dummyAccountCategory = {
+        id: this.dummyAccount.categoryId,
+        name: this.dummyAccount.category
+      };
+      this.dummyAccountType = {
+        id: this.dummyAccount.typeId,
+        name: this.dummyAccount.type
       };
     } else {
       this.toastrService.error('Failed to fetch Accounts!');
