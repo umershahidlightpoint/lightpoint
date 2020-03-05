@@ -1,0 +1,12 @@
+@import './variables';
+
+.nav-tabs .nav-link {
+  color: $on-secondary;
+}
+
+.nav-tabs .nav-link.active,
+.nav-tabs .nav-item.show .nav-link {
+  color: $on-primary;
+  background-color: $primary;
+  border-color: $secondary $secondary;
+}

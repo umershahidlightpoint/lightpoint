@@ -35,7 +35,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     var fileNames = fileList.Select(x => new
                     {
                         FileName = System.IO.Path.GetFileName(x)
-                    }).ToList();
+                    }).OrderByDescending(x => x.FileName).Take(30).ToList();
 
                     sw.Stop();
                     Logger.Info($"finished GetLogFiles at {DateTime.UtcNow} in {sw.ElapsedMilliseconds} ms | {sw.ElapsedMilliseconds / 1000} s");
