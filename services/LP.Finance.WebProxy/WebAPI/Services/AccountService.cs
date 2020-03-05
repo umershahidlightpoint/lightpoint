@@ -106,7 +106,27 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         public object GetDummyAccount()
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);
+            try
+            {
+                var data = FetchDummyAccount(sqlHelper);
+                if(data.Item1)
+                {
+                    return data.Item2;
+                }
+                else
+                {
+                    SetUpDummyAccount(sqlHelper);
+                    return FetchDummyAccount(sqlHelper).Item2;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
+        private static Tuple<bool,object> FetchDummyAccount(SqlHelper sqlHelper)
+        {
             var query = new StringBuilder($@"SELECT [account].[id] AS 'account_id'
                         ,[account].[name]
 	                    ,[account].[description]
@@ -121,18 +141,110 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             var data = sqlHelper.GetDataTable(query.ToString(), CommandType.Text);
 
-            var dummyAccount = new AccountsOutputDto
+            if (data.Rows.Count > 0)
             {
-                AccountId = Convert.ToInt32(data.Rows[0]["account_id"]),
-                AccountName = data.Rows[0]["name"].ToString(),
-                Description = data.Rows[0]["description"].ToString(),
-                TypeId = Convert.ToInt32(data.Rows[0]["type_id"]),
-                Type = data.Rows[0]["type"].ToString(),
-                CategoryId = Convert.ToInt32(data.Rows[0]["category_id"]),
-                Category = data.Rows[0]["category"].ToString()
-            };
+                var dummyAccount = new AccountsOutputDto
+                {
+                    AccountId = Convert.ToInt32(data.Rows[0]["account_id"]),
+                    AccountName = data.Rows[0]["name"].ToString(),
+                    Description = data.Rows[0]["description"].ToString(),
+                    TypeId = Convert.ToInt32(data.Rows[0]["type_id"]),
+                    Type = data.Rows[0]["type"].ToString(),
+                    CategoryId = Convert.ToInt32(data.Rows[0]["category_id"]),
+                    Category = data.Rows[0]["category"].ToString()
+                };
 
-            return Utils.Wrap(true, dummyAccount, HttpStatusCode.OK);
+                return new Tuple<bool, object>(true,Utils.Wrap(true, dummyAccount, HttpStatusCode.OK));
+            }
+            else
+            {
+                return new Tuple<bool, object>(false, Utils.Wrap(false, null, HttpStatusCode.OK));
+            }
+        }
+
+        private void SetUpDummyAccount(SqlHelper sqlHelper)
+        {
+            SqlHelper s = new SqlHelper(connectionString);
+            try
+            {
+                int? accountCategoryId = null;
+                int? accountTypeId = null;
+                var accountCategoryQuery = "select id from account_category where id = 0";
+                var accountCategoryData = sqlHelper.GetDataTable(accountCategoryQuery.ToString(), CommandType.Text);
+                if (accountCategoryData.Rows.Count == 1)
+                {
+                    //account category exists
+                    accountCategoryId = Convert.ToInt32(accountCategoryData.Rows[0]["id"]);
+                }
+
+                var accountTypeQuery = "select id from account_type where account_category_id = 0";
+                var accountTypeData = sqlHelper.GetDataTable(accountTypeQuery.ToString(), CommandType.Text);
+                if (accountTypeData.Rows.Count == 1)
+                {
+                    //account type exists
+                    accountTypeId = Convert.ToInt32(accountTypeData.Rows[0]["id"]);
+                }
+
+
+
+                s.VerifyConnection();
+                s.SqlBeginTransaction();
+
+                if (!accountCategoryId.HasValue)
+                {
+                    //create account category
+                    var q = $@"INSERT INTO [dbo].[account_category]
+                           ([id]
+                           ,[name])
+                     VALUES
+                           (0
+                           ,N'Dummy')";
+                    s.Insert(q, CommandType.Text, null,out int accCatId);
+                    accountCategoryId = 0;
+                }
+
+                if (!accountTypeId.HasValue)
+                {
+                    //create account type
+                    var q = $@"INSERT INTO [dbo].[account_type]
+                           ([account_category_id]
+                           ,[name])
+                     VALUES
+                           ({accountCategoryId.Value}
+                           ,N'Dummy Type')
+                            SELECT SCOPE_IDENTITY() AS 'Identity'";
+
+                    s.Insert(q, CommandType.Text, null, out int accTypId);
+                    accountTypeId = accTypId;
+                }
+
+                if (accountCategoryId.HasValue && accountTypeId.HasValue)
+                {
+                    //simply create account
+                    var q = $@"INSERT INTO [dbo].[account]
+                               ([name]
+                               ,[description]
+                               ,[account_type_id])
+                         VALUES
+                               ('Dummy Account'
+                               ,'Default Account'
+                               ,{accountTypeId.Value})";
+
+                    s.Insert(q, CommandType.Text, null, out int accId);
+                }
+                s.SqlCommitTransaction();
+                
+
+            }
+            catch(Exception ex)
+            {
+                s.SqlRollbackTransaction();
+                throw ex;
+            }
+            finally
+            {
+                s.CloseConnection();
+            }
         }
 
         public object GetMappedAccounts()
