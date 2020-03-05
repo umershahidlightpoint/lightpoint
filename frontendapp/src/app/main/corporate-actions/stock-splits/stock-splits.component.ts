@@ -19,6 +19,9 @@ import {
   CommaSeparatedFormat,
   DateFormatter
 } from 'src/shared/utils/Shared';
+import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
+import { ToastrService } from 'ngx-toastr';
+
 
 @Component({
   selector: 'app-stock-splits',
@@ -29,6 +32,8 @@ export class StockSplitsComponent implements OnInit, AfterViewInit {
   @ViewChild('stockSplitsModal', { static: false }) stockSplitsModal: CreateStockSplitsComponent;
   @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
   @ViewChild('securityModal', { static: false }) securityModal: CreateSecurityComponent;
+  @ViewChild('confirmationModal', { static: false }) confirmationModal: ConfirmationModalComponent;
+
 
   pinnedBottomRowData;
   gridOptions: GridOptions;
@@ -45,6 +50,9 @@ export class StockSplitsComponent implements OnInit, AfterViewInit {
   startDate: any;
   endDate: any;
   createDividend = false;
+
+  toBeDeletedStockSplit : number = null;
+
 
   stockSplitConfig: {
     stockSplitSize: number;
@@ -63,7 +71,8 @@ export class StockSplitsComponent implements OnInit, AfterViewInit {
   constructor(
     private cdRef: ChangeDetectorRef,
     private cacheService: CacheService,
-    private corporateActionsApiService: CorporateActionsApiService
+    private corporateActionsApiService: CorporateActionsApiService,
+    private toastrService: ToastrService
   ) {
     this.hideGrid = false;
   }
@@ -126,13 +135,18 @@ export class StockSplitsComponent implements OnInit, AfterViewInit {
 
   getStockSplits() {
     this.corporateActionsApiService.getStockSplits().subscribe(response => {
-      this.data = response.payload.map(obj => ({
-        ...obj,
-        ratio: obj.top_ratio + '' + '/' + obj.bottom_ratio
-      }));
-      this.gridOptions.api.sizeColumnsToFit();
-      this.gridOptions.api.setRowData(this.data);
-      this.gridOptions.api.expandAll();
+      this.gridOptions.api.hideOverlay();
+      if(response.statusCode === 200){
+        this.data = response.payload.map(obj => ({
+          ...obj,
+          ratio: obj.top_ratio + '' + '/' + obj.bottom_ratio
+        }));
+        this.gridOptions.api.sizeColumnsToFit();
+        this.gridOptions.api.setRowData(this.data);
+        this.gridOptions.api.expandAll();
+      }
+    }, err => {
+      this.gridOptions.api.hideOverlay();
     });
   }
 
@@ -396,8 +410,25 @@ export class StockSplitsComponent implements OnInit, AfterViewInit {
   }
 
   closeStockSplitModal() {
+    this.gridOptions.api.showLoadingOverlay();
     this.getStockSplits();
     this.getStockSplitDetails();
+  }
+
+  deleteStockSplit() {
+    this.corporateActionsApiService.deleteStockSplit(this.toBeDeletedStockSplit).subscribe(
+      response => {
+        if (response.isSuccessful) {
+          this.toastrService.success('Stock Split deleted successfully!');
+          this.closeStockSplitModal();
+        } else {
+          this.toastrService.error('Failed to delete Dividend!');
+        }
+      },
+      error => {
+        this.toastrService.error('Something went wrong. Try again later!');
+      }
+    );
   }
 
   rowSelected(row) {
@@ -533,6 +564,12 @@ export class StockSplitsComponent implements OnInit, AfterViewInit {
         }
       },
       {
+        name: 'Delete',
+        action: () => {
+          this.openDeleteDividendModal(params.node.data.id);
+        }
+      },
+      {
         name: 'Audit Trail',
         action: () => {
           this.openDataGridModal(params);
@@ -561,6 +598,11 @@ export class StockSplitsComponent implements OnInit, AfterViewInit {
     ];
     const addCustomItems = [];
     return GetContextMenu(false, addDefaultItems, false, addCustomItems, params);
+  }
+
+  openDeleteDividendModal(id){
+    this.toBeDeletedStockSplit = id;
+    this.confirmationModal.showModal();
   }
 
   openDataGridModal(rowNode) {

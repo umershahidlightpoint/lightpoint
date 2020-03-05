@@ -124,3 +124,8 @@
 <!-- Data Grid Modal Component Selector Ends -->
 
 <app-create-security #securityModal (modalClose)="closeSecurityModal()"></app-create-security>
+
+<!-- Confirmation Modal Selector -->
+<app-confirmation-modal #confirmationModal (confirmDeletion)="deleteStockSplit()" [modalTitle]="'Delete Stock Split'">
+</app-confirmation-modal>
+<!-- Confirmation Modal Selector Ends -->

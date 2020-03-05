@@ -100,3 +100,8 @@
 <app-data-grid-modal #dataGridModal [gridTitle]="title"></app-data-grid-modal>
 
 <app-create-security #securityModal (modalClose)="closeSecurityModal()"></app-create-security>
+
+<!-- Confirmation Modal Selector -->
+<app-confirmation-modal #confirmationModal (confirmDeletion)="deleteDividend()" [modalTitle]="'Delete Dividend'">
+</app-confirmation-modal>
+<!-- Confirmation Modal Selector Ends -->

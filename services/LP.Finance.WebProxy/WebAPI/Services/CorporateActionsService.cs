@@ -41,8 +41,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
-                    "An error occured while fetching dividends");
+                throw ex;
             }
         }
 
@@ -102,7 +101,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             catch (Exception ex)
             {
                 SqlHelper.SqlRollbackTransaction();
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+                throw ex;
             }
             finally
             {
@@ -139,7 +138,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             catch (Exception ex)
             {
                 SqlHelper.SqlRollbackTransaction();
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+                throw ex;
             }
             finally
             {
@@ -193,7 +192,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             catch (Exception ex)
             {
                 SqlHelper.SqlRollbackTransaction();
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+                throw ex;
             }
             finally
             {
@@ -217,8 +216,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
-                    "An error occured while fetching dividends");
+                throw ex;
             }
         }
 
@@ -238,8 +236,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
-                    "An error occured while fetching dividend details");
+                throw ex;
             }
         }
 
@@ -266,8 +263,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
-                    "An error occured while fetching stock splits audit trail");
+                throw ex;
             }
         }
 
@@ -319,7 +315,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             catch (Exception ex)
             {
                 SqlHelper.SqlRollbackTransaction();
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+                throw ex;
             }
             finally
             {
@@ -356,7 +352,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             catch (Exception ex)
             {
                 SqlHelper.SqlRollbackTransaction();
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+                throw ex;
             }
             finally
             {
@@ -404,7 +400,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             catch (Exception ex)
             {
                 SqlHelper.SqlRollbackTransaction();
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+                throw ex;
             }
             finally
             {
@@ -428,8 +424,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
-                    "An error occured while fetching stock splits");
+                throw ex;
             }
         }
 
@@ -449,8 +444,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
-                    "An error occured while fetching dividend details");
+                throw ex;
             }
         }
     }

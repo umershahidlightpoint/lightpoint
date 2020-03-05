@@ -21,6 +21,9 @@ import { CacheService } from 'src/services/common/cache.service';
 import { CorporateActionsApiService } from './../../../../services/corporate-actions.api.service';
 import { CreateDividendComponent } from 'src/shared/Modal/create-dividend/create-dividend.component';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
+import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
+import { ToastrService } from 'ngx-toastr';
+
 
 @Component({
   selector: 'app-dividends',
@@ -31,6 +34,8 @@ export class DividendsComponent implements OnInit, AfterViewInit {
   @ViewChild('dividendModal', { static: false }) dividendModal: CreateDividendComponent;
   @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
   @ViewChild('securityModal', { static: false }) securityModal: CreateSecurityComponent;
+  @ViewChild('confirmationModal', { static: false }) confirmationModal: ConfirmationModalComponent;
+
 
   pinnedBottomRowData;
   gridOptions: GridOptions;
@@ -47,6 +52,8 @@ export class DividendsComponent implements OnInit, AfterViewInit {
   startDate: any;
   endDate: any;
   createDividend = false;
+
+  toBeDeletedDividend : number = null;
 
   dividendConfig: {
     dividendSize: number;
@@ -65,7 +72,8 @@ export class DividendsComponent implements OnInit, AfterViewInit {
   constructor(
     private cdRef: ChangeDetectorRef,
     private cacheService: CacheService,
-    private corporateActionsApiService: CorporateActionsApiService
+    private corporateActionsApiService: CorporateActionsApiService,
+    private toastrService: ToastrService
   ) {
     this.hideGrid = false;
   }
@@ -425,10 +433,14 @@ export class DividendsComponent implements OnInit, AfterViewInit {
 
   getDividends() {
     this.corporateActionsApiService.getDividends().subscribe(response => {
-      this.data = response.payload;
-      this.gridOptions.api.sizeColumnsToFit();
-      this.gridOptions.api.setRowData(this.data);
-      this.gridOptions.api.expandAll();
+      if(response.statusCode === 200){
+        this.data = response.payload;
+        this.gridOptions.api.sizeColumnsToFit();
+        this.gridOptions.api.setRowData(this.data);
+        this.gridOptions.api.expandAll();
+      }
+    }, err => {
+      this.gridOptions.api.hideOverlay();
     });
   }
 
@@ -450,6 +462,7 @@ export class DividendsComponent implements OnInit, AfterViewInit {
   }
 
   closeDividendModal() {
+    this.gridOptions.api.showLoadingOverlay();
     this.getDividends();
     this.getDividendDetails();
   }
@@ -587,6 +600,12 @@ export class DividendsComponent implements OnInit, AfterViewInit {
         }
       },
       {
+        name: 'Delete',
+        action: () => {
+          this.openDeleteDividendModal(params.node.data.id);
+        }
+      },
+      {
         name: 'Audit Trail',
         action: () => {
           this.openDataGridModal(params);
@@ -615,6 +634,27 @@ export class DividendsComponent implements OnInit, AfterViewInit {
     ];
     const addCustomItems = [];
     return GetContextMenu(false, addDefaultItems, false, addCustomItems, params);
+  }
+
+  openDeleteDividendModal(id){
+    this.toBeDeletedDividend = id;
+    this.confirmationModal.showModal();
+  }
+
+  deleteDividend() {
+    this.corporateActionsApiService.deleteDividend(this.toBeDeletedDividend).subscribe(
+      response => {
+        if (response.isSuccessful) {
+          this.toastrService.success('Dividend deleted successfully!');
+          this.closeDividendModal();
+        } else {
+          this.toastrService.error('Failed to delete Dividend!');
+        }
+      },
+      error => {
+        this.toastrService.error('Something went wrong. Try again later!');
+      }
+    );
   }
 
   openDataGridModal(rowNode) {

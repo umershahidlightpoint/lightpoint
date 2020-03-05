@@ -92,30 +92,30 @@ export class CreateStockSplitsComponent implements OnInit, OnChanges {
     });
   }
 
-  deleteStockSplit() {
-    this.isDeleting = true;
-    this.corporateActionsApiService.deleteStockSplit(this.selectedRow.id).subscribe(
-      response => {
-        if (response.isSuccessful) {
-          this.toastrService.success('Stock Splits is deleted successfully!');
+  // deleteStockSplit() {
+  //   this.isDeleting = true;
+  //   this.corporateActionsApiService.deleteStockSplit(this.selectedRow.id).subscribe(
+  //     response => {
+  //       if (response.isSuccessful) {
+  //         this.toastrService.success('Stock Splits is deleted successfully!');
 
-          this.stockSplitsModal.hide();
-          this.modalClose.emit(true);
+  //         this.stockSplitsModal.hide();
+  //         this.modalClose.emit(true);
 
-          setTimeout(() => this.onReset(), 500);
-        } else {
-          this.toastrService.error('Failed to delete Dividend!');
-        }
+  //         setTimeout(() => this.onReset(), 500);
+  //       } else {
+  //         this.toastrService.error('Failed to delete Dividend!');
+  //       }
 
-        this.isDeleting = false;
-      },
-      error => {
-        this.toastrService.error('Something went wrong. Try again later!');
+  //       this.isDeleting = false;
+  //     },
+  //     error => {
+  //       this.toastrService.error('Something went wrong. Try again later!');
 
-        this.isDeleting = false;
-      }
-    );
-  }
+  //       this.isDeleting = false;
+  //     }
+  //   );
+  // }
 
   onSubmit() {
       this.isSaving = true;
