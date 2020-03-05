@@ -153,8 +153,12 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   }
 
   initPageLayout() {
-    const config = this.cacheService.getConfigByKey(LayoutConfig.costBasisConfigKey);
+    const persistUIState = this.cacheService.getConfigByKey(LayoutConfig.persistUIState);
+    if (!persistUIState || !JSON.parse(persistUIState.value)) {
+      return;
+    }
 
+    const config = this.cacheService.getConfigByKey(LayoutConfig.costBasisConfigKey);
     if (config) {
       this.costBasisConfig = JSON.parse(config.value);
     }
@@ -166,6 +170,11 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     if (event.sizes) {
       this.costBasisConfig.costBasisSize = event.sizes[0];
       this.costBasisConfig.chartsSize = event.sizes[1];
+    }
+
+    const persistUIState = this.cacheService.getConfigByKey(LayoutConfig.persistUIState);
+    if (!persistUIState || !JSON.parse(persistUIState.value)) {
+      return;
     }
 
     const config = this.cacheService.getConfigByKey(LayoutConfig.costBasisConfigKey);

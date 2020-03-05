@@ -1,5 +1,4 @@
-
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import {
   Style,
   SideBar,
@@ -15,9 +14,10 @@ import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { GridId, GridName, LayoutConfig } from 'src/shared/utils/AppEnums';
 import { ContextMenu } from 'src/shared/Models/common';
 import * as moment from 'moment';
+import { CacheService } from 'src/services/common/cache.service';
 import { CorporateActionsApiService } from './../../../../services/corporate-actions.api.service';
 import { CreateDividendComponent } from 'src/shared/Modal/create-dividend/create-dividend.component';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
@@ -27,7 +27,7 @@ import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/dat
   templateUrl: './dividends.component.html',
   styleUrls: ['./dividends.component.scss']
 })
-export class DividendsComponent implements OnInit {
+export class DividendsComponent implements OnInit, AfterViewInit {
   @ViewChild('dividendModal', { static: false }) dividendModal: CreateDividendComponent;
   @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
   @ViewChild('securityModal', { static: false }) securityModal: CreateSecurityComponent;
@@ -48,7 +48,7 @@ export class DividendsComponent implements OnInit {
   endDate: any;
   createDividend = false;
 
-  dividendScreenRatio: {
+  dividendConfig: {
     dividendSize: number;
     detailsSize: number;
     dividendView: boolean;
@@ -63,6 +63,8 @@ export class DividendsComponent implements OnInit {
   };
 
   constructor(
+    private cdRef: ChangeDetectorRef,
+    private cacheService: CacheService,
     private corporateActionsApiService: CorporateActionsApiService
   ) {
     this.hideGrid = false;
@@ -72,6 +74,56 @@ export class DividendsComponent implements OnInit {
     this.initGrid();
     this.getDividends();
     this.getDividendDetails();
+  }
+
+  ngAfterViewInit(): void {
+    this.initPageLayout();
+  }
+
+  initPageLayout() {
+    const persistUIState = this.cacheService.getConfigByKey(LayoutConfig.persistUIState);
+    if (!persistUIState || !JSON.parse(persistUIState.value)) {
+      return;
+    }
+
+    const config = this.cacheService.getConfigByKey(LayoutConfig.dividendConfigKey);
+    if (config) {
+      this.dividendConfig = JSON.parse(config.value);
+    }
+
+    this.cdRef.detectChanges();
+  }
+
+  applyPageLayout(event) {
+    if (event.sizes) {
+      this.dividendConfig.dividendSize = event.sizes[0];
+      this.dividendConfig.detailsSize = event.sizes[1];
+    }
+
+    const persistUIState = this.cacheService.getConfigByKey(LayoutConfig.persistUIState);
+    if (!persistUIState || !JSON.parse(persistUIState.value)) {
+      return;
+    }
+
+    const config = this.cacheService.getConfigByKey(LayoutConfig.dividendConfigKey);
+    const payload = {
+      id: !config ? 0 : config.id,
+      project: LayoutConfig.projectName,
+      uom: 'JSON',
+      key: LayoutConfig.dividendConfigKey,
+      value: JSON.stringify(this.dividendConfig),
+      description: LayoutConfig.dividendConfigKey
+    };
+
+    if (!config) {
+      this.cacheService.addUserConfig(payload).subscribe(response => {
+        console.log('User Config Added');
+      });
+    } else {
+      this.cacheService.updateUserConfig(payload).subscribe(response => {
+        console.log('User Config Updated');
+      });
+    }
   }
 
   initGrid() {
@@ -414,7 +466,7 @@ export class DividendsComponent implements OnInit {
       }
     });
     if (node) {
-      this.dividendScreenRatio.detailsView = true;
+      this.dividendConfig.detailsView = true;
       this.dividendDetailsGrid.api.ensureIndexVisible(node.rowIndex);
     }
   }
@@ -508,7 +560,7 @@ export class DividendsComponent implements OnInit {
 
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
-    this.dividendScreenRatio.detailsView = false;
+    this.dividendConfig.detailsView = false;
     this.dividendDetailsGrid.api.showLoadingOverlay();
     this.getDividends();
     this.getDividendDetails();
@@ -517,7 +569,7 @@ export class DividendsComponent implements OnInit {
   clearFilters() {
     this.selected = null;
     this.filterBySymbol = '';
-    this.dividendScreenRatio.detailsView = false;
+    this.dividendConfig.detailsView = false;
     this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
     this.endDate = moment();
     this.gridOptions.api.setRowData([]);
@@ -546,17 +598,20 @@ export class DividendsComponent implements OnInit {
           {
             name: 'Create Security',
             action: () => {
-              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'createSecurity');
-            },
+              this.securityModal.openSecurityModalFromOutside(
+                params.node.data.symbol,
+                'createSecurity'
+              );
+            }
           },
           {
             name: 'Extend',
             action: () => {
               this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
-            },
+            }
           }
         ]
-      },
+      }
     ];
     const addCustomItems = [];
     return GetContextMenu(false, addDefaultItems, false, addCustomItems, params);

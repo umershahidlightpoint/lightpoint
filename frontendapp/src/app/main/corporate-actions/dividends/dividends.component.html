@@ -1,124 +1,98 @@
+<div class="row">
 
-  <div class="row">
+  <!-- Symbol Filter -->
+  <div class="col-auto">
+    <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol" [(ngModel)]="filterBySymbol"
+      (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" />
+  </div>
+  <!-- Symbol Filter Ends -->
 
-    <!-- Symbol Filter -->
-    <div class="col-auto">
-      <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol" [(ngModel)]="filterBySymbol"
-        (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" />
+  <!-- Date Picker Div Starts -->
+  <div class="col-auto">
+    <form>
+      <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date" [(ngModel)]="selected"
+        (ngModelChange)="ngModelChangeDates($event)" name=" selected" [autoApply]="true" [alwaysShowCalendars]="true"
+        [keepCalendarOpeningWithRange]="true" />
+    </form>
+  </div>
+  <!-- Date Picker Div Ends -->
+
+  <!-- Clear Button Div Starts -->
+  <div class="col-auto">
+    <button (click)="clearFilters()" class="btn btn-pa" value="clear" tooltip="Clear" placement="top">
+      <i class="fa fa-remove"></i>
+    </button>
+  </div>
+  <!-- Clear Button Div Ends -->
+
+  <!-- Util Buttons Div Starts -->
+  <div class="col-auto ml-auto">
+
+    <!-- Refresh Button Div Starts -->
+    <div class="mr-2 d-inline-block">
+      <button (click)="refreshReport()" class="btn btn-pa" value="refresh" tooltip="Refresh" placement="top">
+        <i class="fa fa-refresh"></i></button>
     </div>
-    <!-- Symbol Filter Ends -->
+    <!-- Refresh Button Div Ends -->
 
-    <!-- Date Picker Div Starts -->
-    <div class="col-auto">
-      <form>
-        <input ngxDaterangepickerMd
-            class="form-control"
-            type="text"
-            placeholder="Choose date"
-            [(ngModel)]="selected"
-            (ngModelChange)="ngModelChangeDates($event)"
-            name=" selected"
-            [autoApply]="true"
-            [alwaysShowCalendars]="true"
-            [keepCalendarOpeningWithRange]="true"
-           />
-      </form>
-    </div>
-    <!-- Date Picker Div Ends -->
-
-    <!-- Clear Button Div Starts -->
-    <div class="col-auto">
-      <button (click)="clearFilters()" class="btn btn-pa" value="clear" tooltip="Clear" placement="top">
-        <i class="fa fa-remove"></i>
+    <div class="mr-2 d-inline-block">
+      <button class="btn btn-pa" type="button" value="showModal" (click)="openDividendModal()" tooltip="Create Dividend"
+        placement="top">
+        <i class="fa fa-plus" aria-hidden="true"></i>
       </button>
     </div>
-    <!-- Clear Button Div Ends -->
-
-    <!-- Util Buttons Div Starts -->
-    <div class="col-auto ml-auto">
-
-      <!-- Refresh Button Div Starts -->
-      <div class="mr-2 d-inline-block">
-        <button (click)="refreshReport()" class="btn btn-pa" value="refresh" tooltip="Refresh" placement="top">
-          <i class="fa fa-refresh"></i></button>
-      </div>
-      <!-- Refresh Button Div Ends -->
-
-      <div class="mr-2 d-inline-block">
-        <button class="btn btn-pa" type="button" value="showModal" (click)="openDividendModal()" tooltip="Create Dividend"
-          placement="top">
-          <i class="fa fa-plus" aria-hidden="true"></i>
-        </button>
-      </div>
 
     <!-- Expand/Collapse Button -->
-      <div class="mr-3 d-inline-block">
-        <ng-template #tooltipTemplate>{{dividendScreenRatio.detailsView ? 'Expand' : 'Collapse'}}</ng-template>
-        <button (click)="dividendScreenRatio.detailsView = !dividendScreenRatio.detailsView" class="btn btn-pa"
-          [tooltip]="tooltipTemplate" placement="top">
-          <i class="fa"
-            [ngClass]="{'fa-arrow-down': dividendScreenRatio.detailsView, 'fa-arrow-up': !dividendScreenRatio.detailsView}"></i>
-        </button>
-      </div>
-
+    <div class="mr-3 d-inline-block">
+      <ng-template #tooltipTemplate>{{dividendConfig.detailsView ? 'Expand' : 'Collapse'}}</ng-template>
+      <button (click)="dividendConfig.detailsView = !dividendConfig.detailsView" class="btn btn-pa"
+        [tooltip]="tooltipTemplate" placement="top">
+        <i class="fa"
+          [ngClass]="{'fa-arrow-down': dividendConfig.detailsView, 'fa-arrow-up': !dividendConfig.detailsView}"></i>
+      </button>
     </div>
-    <!-- Util Buttons Div Ends -->
 
   </div>
+  <!-- Util Buttons Div Ends -->
+
+</div>
 
 <!-- Main Split Row Starts -->
 <div class="split-area row h-100" style="margin-top: 20px;">
 
   <!-- AS Split Main Container -->
-  <as-split
-    class="pl-15 pr-15"
-    disabled="false"
-    direction="vertical"
-    [useTransition]="dividendScreenRatio.useTransition"
-    (dragEnd)="dividendScreenRatio.dividendSize=$event.sizes[0]; dividendScreenRatio.detailsSize=$event.sizes[1];"
-   >
+  <as-split class="pl-15 pr-15" disabled="false" direction="vertical" [useTransition]="dividendConfig.useTransition"
+    (dragEnd)="applyPageLayout($event)" (transitionEnd)="applyPageLayout($event)">
 
-  <!-- Cost Basis Split Area -->
-  <as-split-area
-     [visible]="dividendScreenRatio.dividendView"
-     [size]="dividendScreenRatio.dividendSize"
-     order="1"
-  >
+    <!-- Cost Basis Split Area -->
+    <as-split-area [visible]="dividendConfig.dividendView" [size]="dividendConfig.dividendSize" order="1">
 
 
-  <ag-grid-angular
-    class="w-100 h-100 ag-theme-balham"
-    [gridOptions]="gridOptions"
-    (rowSelected)="onRowSelected($event)"
-    [rowData]="rowData"
-   >
-  </ag-grid-angular>
+      <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions"
+        (rowSelected)="onRowSelected($event)" [rowData]="rowData">
+      </ag-grid-angular>
 
-</as-split-area>
+    </as-split-area>
 
-  <!-- Charts Split Area -->
-  <as-split-area class="mt-3" [visible]="dividendScreenRatio.detailsView" [size]="dividendScreenRatio.detailsSize" order="2">
-<div class="w-100 h-100 grid-height tabset-wrapper">
-<tabset class="w-100 h-100">
-  <tab class="h-100" heading="Details" (selectTab)="activeStockSplits()">
-        <ag-grid-angular
-        class="w-100 h-100 mt-3 ag-theme-balham"
-        [gridOptions]="dividendDetailsGrid"
-        (rowSelected)="onRowSelected($event)"
-        [rowData]="rowData"
-        >
-        </ag-grid-angular>
-  </tab>
+    <!-- Charts Split Area -->
+    <as-split-area class="mt-3" [visible]="dividendConfig.detailsView" [size]="dividendConfig.detailsSize" order="2">
+      <div class="w-100 h-100 grid-height tabset-wrapper">
+        <tabset class="w-100 h-100">
+          <tab class="h-100" heading="Details" (selectTab)="activeStockSplits()">
+            <ag-grid-angular class="w-100 h-100 mt-3 ag-theme-balham" [gridOptions]="dividendDetailsGrid"
+              (rowSelected)="onRowSelected($event)" [rowData]="rowData">
+            </ag-grid-angular>
+          </tab>
 
-  <tab heading="Preview">
-    <app-preview></app-preview>
-  </tab>
-</tabset>
-</div>
-</as-split-area>
+          <tab heading="Preview">
+            <app-preview></app-preview>
+          </tab>
+        </tabset>
+      </div>
+    </as-split-area>
 
-</as-split>
-  
+  </as-split>
+
 </div>
 
 <app-create-dividend #dividendModal (modalClose)="closeDividendModal()"></app-create-dividend>

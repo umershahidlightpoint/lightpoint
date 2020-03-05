@@ -1,8 +1,11 @@
 export enum LayoutConfig {
   projectName = 'Portfolio Accounting',
+  persistUIState = 'PersistUIState',
   costBasisConfigKey = 'Cost Basis',
   taxLotStatusHorizontalConfigKey = 'Tax Lot Status Horizontal',
-  taxLotStatusVerticalConfigKey = 'Tax Lot Status Vertical'
+  taxLotStatusVerticalConfigKey = 'Tax Lot Status Vertical',
+  dividendConfigKey = 'Dividend',
+  stockSplitsConfigKey = 'Stock Splits'
 }
 
 export enum GridId {

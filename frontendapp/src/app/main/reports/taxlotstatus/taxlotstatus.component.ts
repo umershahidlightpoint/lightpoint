@@ -159,17 +159,20 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
   }
 
   initPageLayout() {
+    const persistUIState = this.cacheService.getConfigByKey(LayoutConfig.persistUIState);
+    if (!persistUIState || !JSON.parse(persistUIState.value)) {
+      return;
+    }
+
     const horizontalConfig = this.cacheService.getConfigByKey(
       LayoutConfig.taxLotStatusHorizontalConfigKey
     );
     const verticalConfig = this.cacheService.getConfigByKey(
       LayoutConfig.taxLotStatusVerticalConfigKey
     );
-
     if (horizontalConfig) {
       this.taxLotStatusHorizontalConfig = JSON.parse(horizontalConfig.value);
     }
-
     if (verticalConfig) {
       this.taxLotStatusVerticalConfig = JSON.parse(verticalConfig.value);
     }
@@ -181,6 +184,11 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     if (event.sizes) {
       this.taxLotStatusHorizontalConfig.taxLotStatusSize = event.sizes[0];
       this.taxLotStatusHorizontalConfig.closingTaxLotSize = event.sizes[1];
+    }
+
+    const persistUIState = this.cacheService.getConfigByKey(LayoutConfig.persistUIState);
+    if (!persistUIState || !JSON.parse(persistUIState.value)) {
+      return;
     }
 
     const config = this.cacheService.getConfigByKey(LayoutConfig.taxLotStatusHorizontalConfigKey);
@@ -208,6 +216,11 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     if (event.sizes) {
       this.taxLotStatusVerticalConfig.closingTaxLotSize = event.sizes[0];
       this.taxLotStatusVerticalConfig.journalSize = event.sizes[1];
+    }
+
+    const persistUIState = this.cacheService.getConfigByKey(LayoutConfig.persistUIState);
+    if (!persistUIState || !JSON.parse(persistUIState.value)) {
+      return;
     }
 
     const config = this.cacheService.getConfigByKey(LayoutConfig.taxLotStatusVerticalConfigKey);
