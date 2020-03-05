@@ -33,12 +33,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var payload = JsonConvert.DeserializeObject(JsonConvert.SerializeObject(dataTable));
 
-                return Utils.Wrap(true, payload, HttpStatusCode.OK, "Configurations Fetched Successfully");
+                return Utils.Wrap(true, payload, HttpStatusCode.OK, "Configurations Fetched Successfully.");
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
-                    "An error occured while Fetching Configurations");
+                throw ex;
             }
         }
 
@@ -86,12 +85,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 SqlHelper.Insert(query, CommandType.Text, configParams.ToArray());
 
-                return Utils.Wrap(true, null, HttpStatusCode.OK, "Configurations Saved Successfully");
+                return Utils.Wrap(true, null, HttpStatusCode.OK, "Configurations Saved Successfully.");
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
-                    "An error occured while Fetching Configurations");
+                throw ex;
             }
             finally
             {
@@ -125,12 +123,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 SqlHelper.Update(query, CommandType.Text, configParams.ToArray());
 
-                return Utils.Wrap(true, null, HttpStatusCode.OK, "Configurations Updated Successfully");
+                return Utils.Wrap(true, null, HttpStatusCode.OK, "Configurations Updated Successfully.");
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
-                    "An error occured while Fetching Configurations");
+                throw ex;
             }
             finally
             {

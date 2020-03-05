@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { GridOptions } from 'ag-grid-community';
 import { timer, Subject } from 'rxjs';
 import { debounce } from 'rxjs/operators';
@@ -31,7 +31,7 @@ import {
 } from 'src/shared/utils/Shared';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { LayoutConfig, GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
 import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
@@ -46,6 +46,19 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
 
   gridOptions: CustomGridOptions;
   timeseriesOptions: GridOptions;
+  costBasisConfig: {
+    costBasisSize: number;
+    chartsSize: number;
+    costBasisView: boolean;
+    chartsView: boolean;
+    useTransition: boolean;
+  } = {
+    costBasisSize: 50,
+    chartsSize: 50,
+    costBasisView: true,
+    chartsView: false,
+    useTransition: true
+  };
   gridColumnApi;
   pinnedBottomRowData;
   fund: any = 'All Funds';
@@ -73,19 +86,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   journalDate: Date;
 
   labels: string[] = [];
-  costBasisConfig: {
-    costBasisSize: number;
-    chartsSize: number;
-    costBasisView: boolean;
-    chartsView: boolean;
-    useTransition: boolean;
-  } = {
-    costBasisSize: 50,
-    chartsSize: 50,
-    costBasisView: true,
-    chartsView: false,
-    useTransition: true
-  };
 
   selectedChartOption: any = 'CostBasis';
   selectedChartTitle: any = 'Cost Basis';
@@ -121,6 +121,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   validDates: Array<string> = null;
 
   constructor(
+    private cdRef: ChangeDetectorRef,
     private cacheService: CacheService,
     private dataService: DataService,
     private financeService: FinanceServiceProxy,
@@ -139,6 +140,62 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     // this.filterSubject.pipe(debounce(() => timer(1000))).subscribe(() => {
     //   this.getReport(this.startDate, this.filterBySymbol, this.fund === 'All Funds' ? 'ALL' : this.fund);
     // });
+  }
+
+  ngAfterViewInit(): void {
+    this.initPageLayout();
+    this.dataService.flag$.subscribe(obj => {
+      this.hideGrid = obj;
+      if (!this.hideGrid) {
+        this.getFunds();
+      }
+    });
+  }
+
+  initPageLayout() {
+    const persistUIState = this.cacheService.getConfigByKey(LayoutConfig.persistUIState);
+    if (!persistUIState || !JSON.parse(persistUIState.value)) {
+      return;
+    }
+
+    const config = this.cacheService.getConfigByKey(LayoutConfig.costBasisConfigKey);
+    if (config) {
+      this.costBasisConfig = JSON.parse(config.value);
+    }
+
+    this.cdRef.detectChanges();
+  }
+
+  applyPageLayout(event) {
+    if (event.sizes) {
+      this.costBasisConfig.costBasisSize = event.sizes[0];
+      this.costBasisConfig.chartsSize = event.sizes[1];
+    }
+
+    const persistUIState = this.cacheService.getConfigByKey(LayoutConfig.persistUIState);
+    if (!persistUIState || !JSON.parse(persistUIState.value)) {
+      return;
+    }
+
+    const config = this.cacheService.getConfigByKey(LayoutConfig.costBasisConfigKey);
+    const payload = {
+      id: !config ? 0 : config.id,
+      project: LayoutConfig.projectName,
+      uom: 'JSON',
+      key: LayoutConfig.costBasisConfigKey,
+      value: JSON.stringify(this.costBasisConfig),
+      description: LayoutConfig.costBasisConfigKey
+    };
+
+    if (!config) {
+      this.cacheService.addUserConfig(payload).subscribe(response => {
+        console.log('User Config Added');
+      });
+    } else {
+      this.cacheService.updateUserConfig(payload).subscribe(response => {
+        console.log('User Config Updated');
+      });
+    }
   }
 
   // getLatestJournalDate() {
@@ -463,15 +520,6 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
       GridName.timeseries,
       this.timeseriesOptions
     );
-  }
-
-  ngAfterViewInit(): void {
-    this.dataService.flag$.subscribe(obj => {
-      this.hideGrid = obj;
-      if (!this.hideGrid) {
-        this.getFunds();
-      }
-    });
   }
 
   getFunds() {

@@ -69,7 +69,7 @@
       <!-- Expand/Collapse Button -->
       <div class="mr-3 d-inline-block">
         <ng-template #tooltipTemplate>{{costBasisConfig.chartsView ? 'Expand' : 'Collapse'}}</ng-template>
-        <button class="btn btn-pa" [disabled]="!this.chartData" [tooltip]="tooltipTemplate" placement="top"
+        <button class="btn btn-pa" [tooltip]="tooltipTemplate" placement="top"
           (click)="costBasisConfig.chartsView = !costBasisConfig.chartsView">
           <i class="fa"
             [ngClass]="{'fa-arrow-right': costBasisConfig.chartsView, 'fa-arrow-left': !costBasisConfig.chartsView}"></i>
@@ -91,8 +91,8 @@
 
       <!-- AS Split Main Container -->
       <as-split class="pl-15 pr-15" disabled="false" direction="horizontal"
-        [useTransition]="costBasisConfig.useTransition"
-        (dragEnd)="costBasisConfig.costBasisSize=$event.sizes[0]; costBasisConfig.chartsSize=$event.sizes[1];">
+        [useTransition]="costBasisConfig.useTransition" (dragEnd)="applyPageLayout($event)"
+        (transitionEnd)="applyPageLayout($event)">
 
         <!-- Cost Basis Split Area -->
         <as-split-area [visible]="costBasisConfig.costBasisView" [size]="costBasisConfig.costBasisSize" order="1">
@@ -111,8 +111,13 @@
         <!-- Charts Split Area -->
         <as-split-area [visible]="costBasisConfig.chartsView" [size]="costBasisConfig.chartsSize" order="2">
 
+          <!-- Charts Message -->
+          <div *ngIf="!chartData" class="w-100 h-100 d-flex justify-content-center align-items-center">
+            <p class="h4 font-weight-light">Please select a row for Visualization</p>
+          </div>
+
           <!-- Charts Wrapper -->
-          <div *ngIf="costBasisConfig.chartsView" class="line-chart-wrapper d-flex flex-wrap">
+          <div *ngIf="chartData && costBasisConfig.chartsView" class="line-chart-wrapper d-flex flex-wrap">
 
             <!-- Charts Tab Set -->
             <tabset class="w-100 ml-3">

@@ -1,6 +1,15 @@
-
+import { Component, ViewChild, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
+import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
+import { GridId, GridName, LayoutConfig } from 'src/shared/utils/AppEnums';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { ContextMenu } from 'src/shared/Models/common';
+import { CreateStockSplitsComponent } from 'src/shared/Modal/create-stock-splits/create-stock-splits.component';
+import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
+import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
+import * as moment from 'moment';
+import { CacheService } from 'src/services/common/cache.service';
 import { CorporateActionsApiService } from './../../../../services/corporate-actions.api.service';
-import { Component, OnInit, ViewChild } from '@angular/core';
 import {
   SideBar,
   SetDateRange,
@@ -10,23 +19,13 @@ import {
   CommaSeparatedFormat,
   DateFormatter
 } from 'src/shared/utils/Shared';
-import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
-import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
-import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { ContextMenu } from 'src/shared/Models/common';
-import { CreateStockSplitsComponent } from 'src/shared/Modal/create-stock-splits/create-stock-splits.component';
-import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
-import * as moment from 'moment';
-import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 
 @Component({
   selector: 'app-stock-splits',
   templateUrl: './stock-splits.component.html',
   styleUrls: ['./stock-splits.component.scss']
 })
-export class StockSplitsComponent implements OnInit {
-
+export class StockSplitsComponent implements OnInit, AfterViewInit {
   @ViewChild('stockSplitsModal', { static: false }) stockSplitsModal: CreateStockSplitsComponent;
   @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
   @ViewChild('securityModal', { static: false }) securityModal: CreateSecurityComponent;
@@ -47,7 +46,7 @@ export class StockSplitsComponent implements OnInit {
   endDate: any;
   createDividend = false;
 
-  stockSplitScreenRatio: {
+  stockSplitConfig: {
     stockSplitSize: number;
     detailsSize: number;
     stockSplitView: boolean;
@@ -62,6 +61,8 @@ export class StockSplitsComponent implements OnInit {
   };
 
   constructor(
+    private cdRef: ChangeDetectorRef,
+    private cacheService: CacheService,
     private corporateActionsApiService: CorporateActionsApiService
   ) {
     this.hideGrid = false;
@@ -73,9 +74,62 @@ export class StockSplitsComponent implements OnInit {
     this.getStockSplitDetails();
   }
 
+  ngAfterViewInit(): void {
+    this.initPageLayout();
+  }
+
+  initPageLayout() {
+    const persistUIState = this.cacheService.getConfigByKey(LayoutConfig.persistUIState);
+    if (!persistUIState || !JSON.parse(persistUIState.value)) {
+      return;
+    }
+
+    const config = this.cacheService.getConfigByKey(LayoutConfig.stockSplitsConfigKey);
+    if (config) {
+      this.stockSplitConfig = JSON.parse(config.value);
+    }
+
+    this.cdRef.detectChanges();
+  }
+
+  applyPageLayout(event) {
+    if (event.sizes) {
+      this.stockSplitConfig.stockSplitSize = event.sizes[0];
+      this.stockSplitConfig.detailsSize = event.sizes[1];
+    }
+
+    const persistUIState = this.cacheService.getConfigByKey(LayoutConfig.persistUIState);
+    if (!persistUIState || !JSON.parse(persistUIState.value)) {
+      return;
+    }
+
+    const config = this.cacheService.getConfigByKey(LayoutConfig.stockSplitsConfigKey);
+    const payload = {
+      id: !config ? 0 : config.id,
+      project: LayoutConfig.projectName,
+      uom: 'JSON',
+      key: LayoutConfig.stockSplitsConfigKey,
+      value: JSON.stringify(this.stockSplitConfig),
+      description: LayoutConfig.stockSplitsConfigKey
+    };
+
+    if (!config) {
+      this.cacheService.addUserConfig(payload).subscribe(response => {
+        console.log('User Config Added');
+      });
+    } else {
+      this.cacheService.updateUserConfig(payload).subscribe(response => {
+        console.log('User Config Updated');
+      });
+    }
+  }
+
   getStockSplits() {
     this.corporateActionsApiService.getStockSplits().subscribe(response => {
-      this.data = response.payload.map(obj => ({ ...obj, ratio:   obj.top_ratio + '' + '/' + obj.bottom_ratio }));
+      this.data = response.payload.map(obj => ({
+        ...obj,
+        ratio: obj.top_ratio + '' + '/' + obj.bottom_ratio
+      }));
       this.gridOptions.api.sizeColumnsToFit();
       this.gridOptions.api.setRowData(this.data);
       this.gridOptions.api.expandAll();
@@ -184,7 +238,7 @@ export class StockSplitsComponent implements OnInit {
           width: 100,
           filter: true,
           sortable: true,
-          cellClass: 'rightAlign',
+          cellClass: 'rightAlign'
         },
         {
           field: 'adjustment_factor',
@@ -203,7 +257,6 @@ export class StockSplitsComponent implements OnInit {
           sortable: true,
           hide: true
         }
-
       ],
       defaultColDef: {
         sortable: true,
@@ -211,7 +264,6 @@ export class StockSplitsComponent implements OnInit {
         filter: true
       }
     } as GridOptions;
-
 
     this.stockSplitDetailsGrid = {
       rowData: null,
@@ -253,7 +305,7 @@ export class StockSplitsComponent implements OnInit {
           rowGroup: true,
           enableRowGroup: true,
           filter: true,
-          sortable: true,
+          sortable: true
         },
         {
           field: 'symbol',
@@ -320,7 +372,6 @@ export class StockSplitsComponent implements OnInit {
           valueFormatter: moneyFormatter,
           aggFunc: 'sum'
         }
-
       ],
       defaultColDef: {
         sortable: true,
@@ -328,7 +379,6 @@ export class StockSplitsComponent implements OnInit {
         filter: true
       }
     } as GridOptions;
-
 
     this.gridOptions.sideBar = SideBar(
       GridId.stockSplitsId,
@@ -353,7 +403,7 @@ export class StockSplitsComponent implements OnInit {
   rowSelected(row) {
     const { id } = row.data;
     let node;
-    this.stockSplitDetailsGrid.api.forEachLeafNode((rowNode) => {
+    this.stockSplitDetailsGrid.api.forEachLeafNode(rowNode => {
       if (rowNode.data.id === id) {
         rowNode.setSelected(true);
         node = rowNode;
@@ -362,7 +412,7 @@ export class StockSplitsComponent implements OnInit {
       }
     });
     if (node) {
-      this.stockSplitScreenRatio.detailsView = true;
+      this.stockSplitConfig.detailsView = true;
       this.stockSplitDetailsGrid.api.ensureIndexVisible(node.rowIndex);
     }
   }
@@ -415,13 +465,12 @@ export class StockSplitsComponent implements OnInit {
   }
 
   isExternalFilterPresent() {
-    if ( this.filterBySymbol !== '' || this.startDate) {
+    if (this.filterBySymbol !== '' || this.startDate) {
       return true;
     }
   }
 
   doesExternalFilterPass(node: any) {
-
     if (this.filterBySymbol !== '' && this.startDate) {
       const cellSymbol = node.data.symbol === null ? '' : node.data.symbol;
       const cellDate = new Date(node.data.execution_date);
@@ -439,10 +488,7 @@ export class StockSplitsComponent implements OnInit {
 
     if (this.startDate !== '') {
       const cellDate = new Date(node.data.execution_date);
-      return (
-        this.startDate.toDate() <= cellDate &&
-        this.endDate.toDate() >= cellDate
-        );
+      return this.startDate.toDate() <= cellDate && this.endDate.toDate() >= cellDate;
     }
 
     return true;
@@ -463,51 +509,56 @@ export class StockSplitsComponent implements OnInit {
     this.stockSplitDetailsGrid.api.showLoadingOverlay();
     this.getStockSplits();
     this.getStockSplitDetails();
-    this.stockSplitScreenRatio.detailsView = false;
+    this.stockSplitConfig.detailsView = false;
   }
 
   clearFilters() {
     this.selected = null;
     this.filterBySymbol = '';
-    this.stockSplitScreenRatio.detailsView = false;
+    this.stockSplitConfig.detailsView = false;
     this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
     this.endDate = moment();
     this.gridOptions.api.setRowData([]);
     this.stockSplitDetailsGrid.api.setRowData([]);
   }
 
-/////////// End External Filters Code //////////////
+  /////////// End External Filters Code //////////////
 
   getContextMenuItems(params): Array<ContextMenu> {
-    const addDefaultItems = [{
-      name: 'Edit',
-      action: () => {
-        this.openEditModal(params.node.data);
-      }
-    },
-    {
-      name: 'Audit Trail',
-      action: () => {
-        this.openDataGridModal(params);
-      }
-    },
-    {
-      name: 'Security Details',
-      subMenu: [
-        {
-          name: 'Create Security',
-          action: () => {
-            this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'createSecurity');
-          },
-        },
-        {
-          name: 'Extend',
-          action: () => {
-            this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
-          },
+    const addDefaultItems = [
+      {
+        name: 'Edit',
+        action: () => {
+          this.openEditModal(params.node.data);
         }
-      ]
-    },];
+      },
+      {
+        name: 'Audit Trail',
+        action: () => {
+          this.openDataGridModal(params);
+        }
+      },
+      {
+        name: 'Security Details',
+        subMenu: [
+          {
+            name: 'Create Security',
+            action: () => {
+              this.securityModal.openSecurityModalFromOutside(
+                params.node.data.symbol,
+                'createSecurity'
+              );
+            }
+          },
+          {
+            name: 'Extend',
+            action: () => {
+              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
+            }
+          }
+        ]
+      }
+    ];
     const addCustomItems = [];
     return GetContextMenu(false, addDefaultItems, false, addCustomItems, params);
   }
@@ -526,7 +577,6 @@ export class StockSplitsComponent implements OnInit {
   }
 
   getAuditColDefs(): Array<ColDef | ColGroupDef> {
-
     return [
       {
         field: 'id',
@@ -564,14 +614,14 @@ export class StockSplitsComponent implements OnInit {
         headerName: 'Top Ratio',
         width: 100,
         filter: true,
-        sortable: true,
+        sortable: true
       },
       {
         field: 'bottom_ratio',
         headerName: 'Bottom Ratio',
         width: 100,
         filter: true,
-        sortable: true,
+        sortable: true
       },
       {
         field: 'adjustment_factor',
@@ -590,11 +640,9 @@ export class StockSplitsComponent implements OnInit {
         sortable: true,
         hide: true
       }
-
     ];
   }
-
-  }
+}
 
 function moneyFormatter(params) {
   if (params.value === undefined) {
@@ -623,4 +671,3 @@ function priceFormatter(params) {
   }
   return FormatNumber4(params.value);
 }
-

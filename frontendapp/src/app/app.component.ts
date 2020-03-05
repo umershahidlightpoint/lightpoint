@@ -7,9 +7,13 @@ import {
   NavigationCancel,
   NavigationError
 } from '@angular/router';
+import { Observable, forkJoin } from 'rxjs';
 import { ThemeService, Page } from 'lp-toolkit';
-import { ServicesStatusApiService } from '../services/services-status-api.service';
+import { CacheService } from 'src/services/common/cache.service';
 import { SettingApiService } from 'src/services/setting-api.service';
+import { ServicesStatusApiService } from 'src/services/services-status-api.service';
+import { Response } from 'src/shared/Models/response';
+import { LayoutConfig } from 'src/shared/utils/AppEnums';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +22,7 @@ import { SettingApiService } from 'src/services/setting-api.service';
 })
 export class AppComponent implements OnInit {
   public isLoading = false;
+  public isNavigating = false;
   public userPages: Page[] = [
     {
       name: 'Reports',
@@ -88,13 +93,12 @@ export class AppComponent implements OnInit {
     }
   ];
 
-  isNavigating = false;
-
   constructor(
     private router: Router,
     private themeService: ThemeService,
-    public servicesStatusApiService: ServicesStatusApiService,
-    private settingApiService: SettingApiService
+    private cacheService: CacheService,
+    private settingApiService: SettingApiService,
+    public servicesStatusApiService: ServicesStatusApiService
   ) {
     // Only Hit API, Once Navigation Finish
     this.router.events.subscribe((event: Event) => {
@@ -116,21 +120,33 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.isLoading = true;
-    this.getSettings();
+    this.initAppData();
   }
 
-  getSettings() {
-    this.settingApiService.getSettings().subscribe(
-      response => {
-        if (response.isSuccessful && response.statusCode === 200) {
-          this.themeService.setActiveTheme(response.payload[0].theme);
-        } else if (response.isSuccessful && response.statusCode === 404) {
-        }
+  initAppData() {
+    this.requestAppData().subscribe(
+      ([settingsResponse, configsResponse]: [Response<any[]>, Response<any[]>]) => {
+        this.getSettings(settingsResponse);
+
         this.isLoading = false;
       },
       error => {
         this.isLoading = false;
       }
     );
+  }
+
+  requestAppData(): Observable<any[]> {
+    const settingsResponse = this.settingApiService.getSettings();
+    const configsResponse = this.cacheService.getUserConfig(LayoutConfig.projectName);
+
+    return forkJoin([settingsResponse, configsResponse]);
+  }
+
+  getSettings(response) {
+    if (response.isSuccessful && response.statusCode === 200) {
+      this.themeService.setActiveTheme(response.payload[0].theme);
+    } else if (response.isSuccessful && response.statusCode === 404) {
+    }
   }
 }

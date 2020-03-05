@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
+import { Response } from 'src/shared/Models/response';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,7 @@ export class CacheService {
   private userConfig: any;
 
   constructor(private http: HttpClient) {
+    // tslint:disable-next-line: no-string-literal
     this.baseUrl = window['config'].remoteServerUrl;
   }
 
@@ -25,7 +27,7 @@ export class CacheService {
 
     return this.http.post(url, obj).pipe(
       map((response: any) => response),
-      tap(data => (this.metaData = data))
+      tap(response => (this.metaData = response))
     );
   }
 
@@ -38,7 +40,7 @@ export class CacheService {
 
     return this.http.get(url).pipe(
       map((response: any) => response),
-      tap(data => (this.metaData = data))
+      tap(response => (this.metaData = response))
     );
   }
 
@@ -49,26 +51,42 @@ export class CacheService {
       return of(this.userConfig);
     }
 
-    return this.http.get(url).pipe(
-      map((response: any) => response),
-      tap(data => (this.userConfig = data))
+    return this.http.get<Response<any>>(url).pipe(
+      map((response: Response<any>) => response),
+      tap((response: Response<any>) => (this.userConfig = response.payload))
     );
   }
 
   addUserConfig(configs) {
     const url = this.baseUrl + '/configuration';
 
-    return this.http.post(url, configs).pipe(map((response: any) => response));
+    return this.http.post<Response<any>>(url, configs).pipe(
+      map((response: Response<any>) => response),
+      tap((response: Response<any>) => {
+        if (response.isSuccessful) {
+          this.userConfig.push(configs);
+        }
+      })
+    );
   }
 
   updateUserConfig(configs) {
     const url = this.baseUrl + '/configuration';
-    return this.http.put(url, configs).pipe(map((response: any) => response));
+    return this.http.put<Response<any>>(url, configs).pipe(
+      map((response: Response<any>) => response),
+      tap((response: Response<any>) => {
+        if (response.isSuccessful) {
+          this.userConfig[
+            this.userConfig.findIndex(element => element.id === configs.id)
+          ] = configs;
+        }
+      })
+    );
   }
 
-  getConfigByOnKey(key: string) {
+  getConfigByKey(key: string) {
     if (this.userConfig) {
-      return this.userConfig.filter(x => x.key === key);
+      return this.userConfig.find(item => item.key === key);
     } else {
       return null;
     }
