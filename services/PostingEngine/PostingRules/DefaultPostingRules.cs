@@ -349,6 +349,10 @@ namespace PostingEngine.PostingRules
             var p = Math.Abs(taxlot.Quantity);
             var percentage = p / q;
 
+            if (buyTrade.LPOrderId.Equals("2d6178c8-be77-425b-b2b9-12bc28465cd0"))
+            {
+            }
+
             var changeInUnRealized = 0.0;
             if (dataTable != null)
             {
@@ -359,17 +363,24 @@ namespace PostingEngine.PostingRules
 
                 changeInUnRealized *= percentage;
                 changeInUnRealized -= (unrealisedPnl);
+
+                if (buyTrade.IsCover() || buyTrade.IsShort())
+                    changeInUnRealized *= -1;
             }
             else
             {
-                changeInUnRealized = taxlot.RealizedPnl;
+                changeInUnRealized = taxlot.RealizedPnl * -1;
                 if (buyTrade.IsCover() || buyTrade.IsShort())
                     changeInUnRealized *= -1;
             }
 
+
             if ( buyTrade.IsBuy() || buyTrade.IsSell())
             {
-                changeInUnRealized *= -1;
+                //if (changeInUnRealized < 0)
+                //    changeInUnRealized *= -1;
+
+                changeInUnRealized *= 1;
             }
 
             // Need to backout the Unrealized PNL here, as we are reducing the position of the TaxLot

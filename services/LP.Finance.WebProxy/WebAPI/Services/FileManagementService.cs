@@ -25,13 +25,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         private static readonly string
             connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
-        public SqlHelper sqlHelper = new SqlHelper(connectionString);
         private static readonly string tradesURL = "http://localhost:9091/api/trade/data?period=";
         private static readonly string positionsURL = "http://localhost:9091/api/positions?period=2019-09-24";
-        private readonly FileProcessor fileProcessor = new FileProcessor();
-
-        private static readonly AmazonS3Client S3Client = new AmazonS3Client();
-        private readonly S3Endpoint s3Endpoint = new S3Endpoint(S3Client);
 
         public object GetFiles(string name)
         {
@@ -39,7 +34,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 $@"select f.id, f.name, f.path,f.source,f.[statistics], f.business_date,f.exceptions, fa.file_action_id, fa.file_id, fa.action, fa.action_start_date, fa.action_end_date from [file] f
                         inner join[file_action] fa on f.id = fa.file_id order by fa.Action_Start_Date desc";
 
-            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
+            var dataTable = new SqlHelper(connectionString).GetDataTable(query, CommandType.Text);
             var jsonResult = JsonConvert.SerializeObject(dataTable);
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
             return Utils.Wrap(true, json);
@@ -50,6 +45,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             // The File Path to be Uploaded
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
             var path = currentDir + "SilverData" + Path.DirectorySeparatorChar + $"ActivityXML.xml";
+
+            var S3Client = new AmazonS3Client();
+            var s3Endpoint = new S3Endpoint(S3Client);
 
             var status = s3Endpoint.UploadFileToS3(path);
 
@@ -62,6 +60,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
             var path = currentDir + "SilverData" + Path.DirectorySeparatorChar + $"Downloaded.xml";
 
+            var S3Client = new AmazonS3Client();
+            var s3Endpoint = new S3Endpoint(S3Client);
+
             var status = s3Endpoint.DownloadFileFromS3(path);
 
             return Utils.Wrap(status);
@@ -69,6 +70,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object GetS3Files()
         {
+            var S3Client = new AmazonS3Client();
+            var s3Endpoint = new S3Endpoint(S3Client);
+
             var status = s3Endpoint.ListS3Files();
 
             return status.Count != 0 ? Utils.Wrap(true, status) : Utils.Wrap(false);
@@ -79,7 +83,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
             var extractPath = currentDir + Path.DirectorySeparatorChar + "FileFormats" + Path.DirectorySeparatorChar +
                               "Transaction_Extract.txt";
-            var recordBody = fileProcessor.ImportFile(extractPath, "Transaction", "FileFormats", '|');
+            var recordBody = new FileProcessor().ImportFile(extractPath, "Transaction", "FileFormats", '|');
             return new
             {
                 ImportedRecords = recordBody.Item1,
@@ -131,9 +135,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var positionHeader = GetHeader("HDR", "SMGOpenLotPosition", convertedBusinessDate);
             var positionTrailer = GetTrailer("TRL", "SMGOpenLotPosition ", convertedBusinessDate);
 
-            var activityResult = fileProcessor.ExportFile(tradeList, activityHeader, activityTrailer,
+            var activityResult = new FileProcessor().ExportFile(tradeList, activityHeader, activityTrailer,
                 activityPath, "Activity_json", "LpOrderId");
-            var positionResult = fileProcessor.ExportFile(positionList, positionHeader, positionTrailer,
+            var positionResult = new FileProcessor().ExportFile(positionList, positionHeader, positionTrailer,
                 positionPath, "Position_json", "IntraDayPositionId");
 
             var failedActivityList = MapFailedRecords(activityResult.Item1, businessDate, activityFileName);
@@ -345,7 +349,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                             inner join [file] f on fe.file_id = f.id
                             order by business_date desc";
 
-            var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
+            var dataTable = new SqlHelper(connectionString).GetDataTable(query, CommandType.Text);
             List<FileException> fileExceptions = new List<FileException>();
             foreach (DataRow row in dataTable.Rows)
             {

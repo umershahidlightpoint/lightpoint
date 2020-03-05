@@ -608,16 +608,16 @@ namespace PostingEngine.PostingRules
                 EndPrice = end,
                 Quantity = trade.Quantity,
 
-                Account = accountToFrom.To,
-                CreditDebit = env.DebitOrCredit(accountToFrom.To, unrealizedPnl),
-                Value = env.SignedValue(accountToFrom.To, accountToFrom.From, true, unrealizedPnl),
+                Account = accountToFrom.From,
+                CreditDebit = env.DebitOrCredit(accountToFrom.From, unrealizedPnl),
+                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, unrealizedPnl),
             };
 
             var toJournal = new Journal(fromJournal)
             {
-                Account = accountToFrom.From,
-                CreditDebit = env.DebitOrCredit(accountToFrom.From, unrealizedPnl),
-                Value = env.SignedValue(accountToFrom.To, accountToFrom.From, false, unrealizedPnl),
+                Account = accountToFrom.To,
+                CreditDebit = env.DebitOrCredit(accountToFrom.To, unrealizedPnl),
+                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, unrealizedPnl),
             };
 
             env.Journals.AddRange(new[] { fromJournal, toJournal });

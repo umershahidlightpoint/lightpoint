@@ -18,22 +18,14 @@ namespace PostingEngine.Tasks
             //DeleteJournals("settled-cash-fx");
 
             var dates = "select minDate = min([when]), maxDate = max([when]) from Journal";
-
-            var sql = $@"select Symbol, fx_currency, source, fund, sum(local_credit- local_debit) as balance, security_id from vwJournal 
-                        where AccountType = 'Settled Cash' and event in ('settlement', 'dividend')
-                        and [when] < @busDate
-						and fx_currency not in ('USD')
-                        group by Symbol, fx_currency, source, fund, security_id";
-
-            env.CallBack?.Invoke("SettledCash Calculation Started");
+            DateTime valueDate;
+            DateTime endDate;
 
             using (var connection = new SqlConnection(env.ConnectionString))
             {
                 connection.Open();
 
                 SetupEnvironment.Setup(connection);
-
-                var transaction = connection.BeginTransaction();
 
                 var table = new DataTable();
 
@@ -43,12 +35,25 @@ namespace PostingEngine.Tasks
                     adapter.Fill(table);
                 };
 
-                var valueDate = Convert.ToDateTime(table.Rows[0]["minDate"]);
-                var endDate = Convert.ToDateTime(table.Rows[0]["maxDate"]);
+                valueDate = Convert.ToDateTime(table.Rows[0]["minDate"]);
+                endDate = Convert.ToDateTime(table.Rows[0]["maxDate"]);
+            }
 
-                var rowsCompleted = 1;
-                var numberOfDays = (endDate - valueDate).Days;
-                while (valueDate <= endDate)
+            var sql = $@"select Symbol, fx_currency, source, fund, sum(local_credit- local_debit) as balance, security_id from vwJournal 
+                    where AccountType = 'Settled Cash' and event in ('settlement', 'dividend')
+                    and [when] < @busDate
+					and fx_currency not in ('USD')
+                    group by Symbol, fx_currency, source, fund, security_id";
+
+            env.CallBack?.Invoke("SettledCash Calculation Started");
+
+            var rowsCompleted = 1;
+            var numberOfDays = (endDate - valueDate).Days;
+
+            var con = new SqlConnection(env.ConnectionString);
+            con.Open();
+
+            while (valueDate <= endDate)
                 {
                     if (!valueDate.IsBusinessDate())
                     {
@@ -67,8 +72,6 @@ namespace PostingEngine.Tasks
                             new SqlParameter("busDate", valueDate),
                         };
 
-                        var con = new SqlConnection(env.ConnectionString);
-                        con.Open();
                         var command = new SqlCommand(sql, con);
                         //command.Transaction = transaction;
                         command.Parameters.AddRange(sqlParams);
@@ -131,7 +134,6 @@ namespace PostingEngine.Tasks
                             env.Journals.AddRange(new List<Journal>(new[] { debit, credit }));
                         }
                         reader.Close();
-                        con.Close();
                     }
                     catch (Exception ex)
                     {
@@ -148,9 +150,6 @@ namespace PostingEngine.Tasks
                     env.CollectData(env.Journals);
                 }
 
-                transaction.Commit();
-                connection.Close();
-            }
             return true;
         }
     }

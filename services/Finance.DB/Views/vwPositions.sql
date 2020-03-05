@@ -1,6 +1,12 @@
 ﻿/*
-select * from vwPositions where Dividend != 0
+select * from vwPositions where business_date = '2020-01-09'
+and Dividend != 0
+order by business_date
+
+where Dividend
+!= 0
 */
+
 CREATE VIEW [dbo].[vwPositions]
 AS
 

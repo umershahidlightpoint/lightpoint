@@ -55,6 +55,7 @@ namespace PostingEngine.CorporateActions
             var query = "select symbol, notice_date, execution_date, record_date, pay_date, rate, currency, withholding_rate, fx_rate from cash_dividends";
 
             var connection = new SqlConnection(env.ConnectionString);
+            connection.Open();
 
             var command = new SqlCommand(query, connection);
             var reader = command.ExecuteReader(System.Data.CommandBehavior.SingleResult);

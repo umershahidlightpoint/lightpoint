@@ -48,7 +48,7 @@ namespace PostingEngine.ClientSpecifics
                 var symbolTags = new List<string>
                 {
                     //"TWE AU 05/30/19 P16.5",
-                    //"NLFSK DC",
+                    "NLFSK DC",
                     //"WTE CN",
                     //"ALD FP",
                     //"GNS LN",
