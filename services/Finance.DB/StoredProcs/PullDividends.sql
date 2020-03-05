@@ -4,7 +4,7 @@ CREATE PROCEDURE [dbo].[PullDividends]
 AS
 
 insert into cash_dividends (created_by, created_date, last_updated_date, last_updated_by, symbol, notice_date, execution_date, record_date, pay_date, rate, currency, withholding_rate, fx_rate, active_flag)
-select 'system', GetDate(), GetDate(), 'system', t.ParentSymbol, t.TradeDate, t.TradeDate, t.SettleDate, t.SettleDate, LocalDividendPerShare, 'USD', WithholdingRate, 1, 1
+select 'system', GetDate(), GetDate(), 'system', t.ParentSymbol, t.TradeDate, t.TradeDate, t.SettleDate, t.SettleDate, t.LocalDividendPerShare, 'USD', t.WithholdingRate, 1, 1
 from TradeMaster..trade t
 left outer join cash_dividends cd on cd.execution_date = t.TradeDate and cd.symbol = t.ParentSymbol
 inner join (

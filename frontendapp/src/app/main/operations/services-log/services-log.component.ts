@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { environment } from 'src/environments/environment.prod';
 import { HeightStyle } from 'src/shared/utils/Shared';
 
 @Component({
@@ -7,13 +8,18 @@ import { HeightStyle } from 'src/shared/utils/Shared';
   styleUrls: ['./services-log.component.scss']
 })
 export class ServicesLogComponent implements OnInit {
+  // tslint:disable-next-line: no-string-literal
+  baseUrl = window['config']
+    ? // tslint:disable-next-line: no-string-literal
+      window['config'].remoteServerUrl
+    : environment.testCaseRemoteServerUrl;
 
-  getLogsUrl = 'http://localhost:9092/api/log/files';
-  downloadFileUrl = 'http://localhost:9092/api/log/download?fileName=';
+  getLogsUrl = `${this.baseUrl}/log/files`;
+  downloadFileUrl = `${this.baseUrl}/log/download?fileName=`;
+
   styleForHeight = HeightStyle(156);
 
   constructor() {}
 
   ngOnInit() {}
-
 }

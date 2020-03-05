@@ -1,9 +1,10 @@
 {
   "name": "lp-toolkit",
-  "version": "0.0.9",
+  "version": "0.0.11",
   "peerDependencies": {
     "@angular/common": "^8.2.14",
     "@angular/core": "^8.2.14",
+    "ngx-bootstrap": "^5.2.0",
     "moment": "^2.24.0"
   }
 }
