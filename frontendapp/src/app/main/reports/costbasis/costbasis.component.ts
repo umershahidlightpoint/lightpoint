@@ -3,10 +3,12 @@ import { GridOptions } from 'ag-grid-community';
 import { timer, Subject } from 'rxjs';
 import { debounce } from 'rxjs/operators';
 import * as moment from 'moment';
+import { ToastrService } from 'ngx-toastr';
 import { CacheService } from 'src/services/common/cache.service';
 import { DataService } from '../../../../services/common/data.service';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { ReportsApiService } from 'src/services/reports-api.service';
+import { SecurityApiService } from 'src/services/security-api.service';
 import { Fund } from '../../../../shared/Models/account';
 import {
   TrialBalanceReport,
@@ -123,9 +125,11 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   constructor(
     private cdRef: ChangeDetectorRef,
     private cacheService: CacheService,
+    private toastrService: ToastrService,
     private dataService: DataService,
     private financeService: FinanceServiceProxy,
     private reportsApiService: ReportsApiService,
+    private securityApiService: SecurityApiService,
     private downloadExcelUtils: DownloadExcelUtils
   ) {
     this.hideGrid = false;
@@ -713,18 +717,31 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
         name: 'Security Details',
         subMenu: [
           {
-            name: 'Create Security',
-            action: () => {
-              this.securityModal.openSecurityModalFromOutside(
-                params.node.data.symbol,
-                'createSecurity'
-              );
-            }
-          },
-          {
             name: 'Extend',
             action: () => {
-              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
+              this.isLoading = true;
+
+              this.securityApiService.getDataForSecurityModal(params.node.data.symbol).subscribe(
+                ([config, securityDetails]: [any, any]) => {
+
+                  this.isLoading = false;
+                  if (!config.isSuccessful) {
+                  this.toastrService.error('No security type found against the selected symbol!');
+                  return;
+                }
+                  if (securityDetails.payload.length === 0) {
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
+                    config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
+                } else {
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
+                    config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
+                }
+
+                },
+                error => {
+                  this.isLoading = false;
+                }
+              );
             }
           }
         ]

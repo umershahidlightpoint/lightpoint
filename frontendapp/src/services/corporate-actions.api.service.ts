@@ -59,7 +59,6 @@ export class CorporateActionsApiService {
 
   createStockSplit(payload) {
     const url = this.baseUrl + '/corporateAction/stockSplit';
-    console.log(url,payload)
     return this.http.post(url, payload).pipe(map((response: any) => response));
   }
 

@@ -786,18 +786,9 @@ export class FundAdminReconcileComponent implements OnInit, AfterViewInit {
         name: 'Security Details',
         subMenu: [
           {
-            name: 'Create Security',
-            action: () => {
-              this.securityModal.openSecurityModalFromOutside(
-                params.node.data.Symbol,
-                'createSecurity'
-              );
-            }
-          },
-          {
             name: 'Extend',
             action: () => {
-              this.securityModal.openSecurityModalFromOutside(params.node.data.Symbol, 'extend');
+              // this.securityModal.openSecurityModalFromOutside(params.node.data.Symbol, 'extend');
             }
           }
         ]

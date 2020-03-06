@@ -1,0 +1,102 @@
+﻿
+  [
+    {
+      "SecurityType": "Common Stock",
+      "Fields": [
+        {
+          "FieldName": "MaturityDate"
+        },
+        {
+          "FieldName": "ValuationDate"
+        },
+        {
+          "FieldName": "FixedRate"
+        },
+        {
+          "FieldName": "FinancingResetDateType"
+        },
+        {
+          "FieldName": "FinancingResetDate"
+        },
+        {
+          "FieldName": "DCCFixedRate"
+        }
+      ]
+    },
+
+    {
+      "SecurityType": "Journals",
+      "Fields": [
+        {
+          "FieldName": "MaturityDate"
+        },
+        {
+          "FieldName": "ValuationDate"
+        },
+        {
+          "FieldName": "SecurityReturnDescription"
+        },
+        {
+          "FieldName": "Spread"
+        },
+        {
+          "FieldName": "FinancingLeg"
+        },
+        {
+          "FieldName": "FixedRate"
+        },
+        {
+          "FieldName": "FinancingResetDateType"
+        },
+        {
+          "FieldName": "FinancingResetDate"
+        },
+        {
+          "FieldName": "DCCFixedRate"
+        }
+      ]
+    },
+    {
+      "SecurityType": "Corporate Bond",
+      "Fields": [
+        {
+          "FieldName": "MaturityDate"
+        },
+        {
+          "FieldName": "ValuationDate"
+        },
+        {
+          "FieldName": "SecurityReturnDescription"
+        },
+        {
+          "FieldName": "Spread"
+        },
+        {
+          "FieldName": "FinancingLeg"
+        },
+        {
+          "FieldName": "FixedRate"
+        },
+        {
+          "FieldName": "FinancingResetDateType"
+        },
+        {
+          "FieldName": "FinancingResetDate"
+        },
+        {
+          "FieldName": "DCCFixedRate"
+        },
+        {
+          "FieldName": "Upfront"
+        },
+        {
+          "FieldName": "PremiumRate"
+        },
+        {
+          "FieldName": "PremiumFrequency"
+        }
+      ]
+
+    }
+
+  ]

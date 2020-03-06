@@ -1,17 +1,25 @@
 
-  <div class="row">
+  <!-- Loader -->
+<div *ngIf="isLoading" class="loader-wrapper mtop-15">
+  <lp-loading></lp-loading>
+  <!-- Loader -->
+</div>
+
+<!-- <div [hidden]="isLoading"> -->
+
+  <div [hidden]="isLoading" class="row">
 
     <!-- Symbol Filter -->
     <div class="col-auto">
-      <!-- <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol" [(ngModel)]="filterBySymbol"
-        (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" /> -->
+      <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol" [(ngModel)]="filterBySymbol"
+        (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" />
     </div>
     <!-- Symbol Filter Ends -->
 
     <!-- Date Picker Div Starts -->
     <div class="col-auto">
-      <form>
-        <!-- <input ngxDaterangepickerMd
+      <!-- <form>
+        <input ngxDaterangepickerMd
             class="form-control"
             type="text"
             placeholder="Choose date"
@@ -21,16 +29,16 @@
             [autoApply]="true"
             [alwaysShowCalendars]="true"
             [keepCalendarOpeningWithRange]="true"
-           /> -->
-      </form>
+           />
+      </form> -->
     </div>
     <!-- Date Picker Div Ends -->
 
     <!-- Clear Button Div Starts -->
     <div class="col-auto">
-      <!-- <button class="btn btn-pa" value="clear" tooltip="Clear" placement="top">
+      <button (click)="clearFilters()" class="btn btn-pa" value="clear" tooltip="Clear" placement="top">
         <i class="fa fa-remove"></i>
-      </button> -->
+      </button>
     </div>
     <!-- Clear Button Div Ends -->
 
@@ -39,7 +47,7 @@
 
       <!-- Refresh Button Div Starts -->
       <div class="mr-2 d-inline-block">
-        <button class="btn btn-pa" value="refresh" tooltip="Refresh" placement="top">
+        <button (click)="refreshReport()" class="btn btn-pa" value="refresh" tooltip="Refresh" placement="top">
           <i class="fa fa-refresh"></i></button>
       </div>
       <!-- Refresh Button Div Ends -->
@@ -65,4 +73,18 @@
     <!-- Util Buttons Div Ends -->
 
   </div>
+
+  <!-- Main Split Row Starts -->
+<div [hidden]="isLoading" class="row h-100" style="margin-top: 20px;">
+
+  <ag-grid-angular
+    class="w-100 h-100 ag-theme-balham"
+    [gridOptions]="gridOptions"
+    (rowSelected)="onRowSelected($event)"
+    [rowData]="rowData"
+   >
+  </ag-grid-angular>
+
+  </div>
+  <!-- </div> -->
 <app-create-security #securityModal (modalClose)="closeSecurityModal()"></app-create-security>

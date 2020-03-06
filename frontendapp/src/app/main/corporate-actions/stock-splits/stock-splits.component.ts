@@ -22,6 +22,7 @@ import {
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 import { ToastrService } from 'ngx-toastr';
 
+import { SecurityApiService } from 'src/services/security-api.service';
 
 @Component({
   selector: 'app-stock-splits',
@@ -72,7 +73,8 @@ export class StockSplitsComponent implements OnInit, AfterViewInit {
     private cdRef: ChangeDetectorRef,
     private cacheService: CacheService,
     private corporateActionsApiService: CorporateActionsApiService,
-    private toastrService: ToastrService
+    private securityApiService: SecurityApiService,
+    private toastrService: ToastrService,
   ) {
     this.hideGrid = false;
   }
@@ -556,45 +558,57 @@ export class StockSplitsComponent implements OnInit, AfterViewInit {
   /////////// End External Filters Code //////////////
 
   getContextMenuItems(params): Array<ContextMenu> {
-    const addDefaultItems = [
-      {
-        name: 'Edit',
-        action: () => {
-          this.openEditModal(params.node.data);
-        }
-      },
-      {
-        name: 'Delete',
-        action: () => {
-          this.openDeleteDividendModal(params.node.data.id);
-        }
-      },
-      {
-        name: 'Audit Trail',
-        action: () => {
-          this.openDataGridModal(params);
-        }
-      },
-      {
-        name: 'Security Details',
-        subMenu: [
-          {
-            name: 'Create Security',
-            action: () => {
-              this.securityModal.openSecurityModalFromOutside(
-                params.node.data.symbol,
-                'createSecurity'
-              );
-            }
-          },
-          {
-            name: 'Extend',
-            action: () => {
-              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
-            }
-          }
-        ]
+    const addDefaultItems = [{
+      name: 'Edit',
+      action: () => {
+        this.openEditModal(params.node.data);
       }
+    },
+    {
+      name: 'Delete',
+      action: () => {
+        this.openDeleteDividendModal(params.node.data.id);
+      }
+    },
+    {
+      name: 'Audit Trail',
+      action: () => {
+        this.openDataGridModal(params);
+      }
+    },
+    {
+      name: 'Security Details',
+      subMenu: [
+        {
+          name: 'Extend',
+          action: () => {
+            this.isLoading = true;
+
+            this.securityApiService.getDataForSecurityModal(params.node.data.symbol).subscribe(
+              ([config, securityDetails]: [any, any]) => {
+
+                this.isLoading = false;
+                if (!config.isSuccessful) {
+                this.toastrService.error('No security type found against the selected symbol!');
+                return;
+              }
+                if (securityDetails.payload.length === 0) {
+                this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
+                  config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
+              } else {
+                this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
+                  config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
+              }
+
+              },
+              error => {
+                this.isLoading = false;
+              }
+            );
+          },
+        }
+      ]
+      },
     ];
     const addCustomItems = [];
     return GetContextMenu(false, addDefaultItems, false, addCustomItems, params);

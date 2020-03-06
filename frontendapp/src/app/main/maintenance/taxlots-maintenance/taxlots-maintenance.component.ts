@@ -610,15 +610,9 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
         name: 'Security Details',
         subMenu: [
           {
-            name: 'Create Security',
-            action: () => {
-              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'createSecurity');
-            },
-          },
-          {
             name: 'Extend',
             action: () => {
-              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
+              // this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
             },
           }
         ]
