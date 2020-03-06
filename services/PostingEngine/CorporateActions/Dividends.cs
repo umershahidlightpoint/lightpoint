@@ -12,12 +12,32 @@ using System.Threading.Tasks;
 
 namespace PostingEngine.CorporateActions
 {
-    public class Dividends
+    public partial class Dividends
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         private readonly PostingEngineEnvironment env;
         private Dividends(PostingEngineEnvironment env)
         {
             this.env = env;
+
+            // Lets make sure that we have all the approporiate AccountTypes
+            env.FindOrCreate(AccountCategory.AC_LIABILITY, "DIVIDENDS WITHHOLDING PAYABLE");
+            env.FindOrCreate(AccountCategory.AC_EXPENCES, "DIVIDENDS WITHHOLDING EXPENSE");
+
+            env.FindOrCreate(AccountCategory.AC_LIABILITY, "DIVIDENDS WITHHOLDING PAYABLE FX TRANSLATION");
+            env.FindOrCreate(AccountCategory.AC_EXPENCES, "DIVIDENDS WITHHOLDING EXPENSE FX TRANSLATION");
+
+            /*
+             * Credit Cash
+             * Debit the PAYABLE / FX TRANSLATION
+            */
+
+            env.FindOrCreate(AccountCategory.AC_EXPENCES, "DIVIDEND EXPENSE FX TRANSLATION");
+            env.FindOrCreate(AccountCategory.AC_LIABILITY, "DIVIDEND PAYABLE FX TRANSLATION");
+
+            env.FindOrCreate(AccountCategory.AC_ASSET, "DIVIDEND RECEIVABLE FX TRANSLATION");
+            env.FindOrCreate(AccountCategory.AC_REVENUES, "DIVIDEND INCOME FX TRANSLATION");
         }
 
         public static Dividends Get(PostingEngineEnvironment env)
@@ -28,25 +48,163 @@ namespace PostingEngine.CorporateActions
         public List<Journal> Process()
         {
             var result = ProcessExecutionDate();
+
+            result.AddRange(GenerateFxTranslation());
+
             result.AddRange(ProcessPayDate());
 
             return result;
         }
 
-        private static readonly List<Dividend> _dividends = new List<Dividend>();
-
-        private class Dividend
+        // We only want to generate the FX Translation between Ex date and PayDate as once it moves into Settled Cash
+        private List<Journal> GenerateFxTranslation()
         {
-            public string Symbol { get; internal set; }
-            public DateTime NoticeDate { get; internal set; }
-            public DateTime ExecutionDate { get; internal set; }
-            public decimal FxRate { get; internal set; }
-            public DateTime RecordDate { get; internal set; }
-            public DateTime PayDate { get; internal set; }
-            public double Rate { get; internal set; }
-            public string Ccy { get; internal set; }
-            public double WithholdingRate { get; internal set; }
+            var journals = new List<Journal>();
+
+            var dividendListForFxTranslation = _dividends.Where(i => env.ValueDate > i.ExecutionDate && env.ValueDate < i.PayDate);
+            if (dividendListForFxTranslation.Count() == 0)
+                return journals;
+
+            var symbols = String.Join (",", dividendListForFxTranslation.Select(i => $"'{i.Symbol}'"));
+
+            var sql1 = $@"SELECT source, fund, sum(quantity), AccountType, J.symbol, fx_currency, sum(credit - debit) as balance
+            FROM vwJournal j
+            where J.Symbol in ({symbols})
+            and AccountType in ('DIVIDEND EXPENSE', 'DIVIDEND INCOME')
+            and j.[when] < '{env.ValueDate.ToString("yyyy-MM-dd")}'  and fx_currency != 'USD'
+            group by source, fund, j.symbol, AccountType, fx_currency
+            order by source, j.Symbol";
+
+            var connection = new SqlConnection(env.ConnectionString);
+            connection.Open();
+
+            var command = new SqlCommand(sql1, connection);
+            var reader = command.ExecuteReader(System.Data.CommandBehavior.SingleResult);
+
+            while (reader.Read())
+            {
+                int offset = 0;
+
+                var element = new {
+                    Source = reader.GetFieldValue<string>(offset++),
+                    Fund = reader.GetFieldValue<string>(offset++),
+                    Quantity = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++)),
+                    AccountType = reader.GetFieldValue<string>(offset++),
+                    Symbol = reader.GetFieldValue<string>(offset++),
+                    FxCurrency = reader.GetFieldValue<string>(offset++),
+                    Balance = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++)),
+                };
+
+                var fxrateDiff = FxRates.FxIncrement(env, element.FxCurrency);
+
+                var fxTranslation = element.Balance * fxrateDiff;
+
+                var from = "DIVIDEND PAYABLE FX TRANSLATION";
+                var to = "DIVIDEND EXPENSE FX TRANSLATION";
+
+                // NOw lets generate JOurnals
+                if ( element.AccountType.Equals("DIVIDENDS RECEIVABLE"))
+                {
+                    from = "DIVIDEND RECEIVABLE FX TRANSLATION";
+                    to = "DIVIDEND INCOME FX TRANSLATION";
+                }
+
+                var fromTo = new AccountUtils().GetAccounts(env, from, to, new string[] { element.FxCurrency }.ToList());
+                var debit = new Journal(fromTo.From, Event.DIVIDEND, env.ValueDate)
+                {
+                    Source = element.Source,
+                    Fund = element.Fund,
+                    FxCurrency = element.FxCurrency,
+                    Symbol = element.Symbol,
+                    SecurityId = env.FindTrade(element.Source).SecurityId,
+                    Quantity = element.Quantity,
+
+                    FxRate = fxrateDiff,
+                    StartPrice = 0,
+                    EndPrice = 0,
+
+                    Value = env.SignedValue(fromTo.From, fromTo.To, true, fxTranslation),
+                    CreditDebit = env.DebitOrCredit(fromTo.From, fxTranslation),
+                };
+
+                var credit = new Journal(debit)
+                {
+                    Account = fromTo.To,
+                    Value = env.SignedValue(fromTo.From, fromTo.To, false, fxTranslation),
+                    CreditDebit = env.DebitOrCredit(fromTo.To, fxTranslation),
+                };
+                journals.AddRange(new[] { debit, credit });
+
+            }
+            reader.Close();
+
+            var sql2 = $@"SELECT source, fund, sum(quantity), AccountType, J.symbol, fx_currency, sum(credit - debit) as balance
+            FROM vwJournal j
+            where J.Symbol in ({symbols})
+            and AccountType in ('DIVIDENDS WITHHOLDING EXPENSE')
+            and j.[when] < '{env.ValueDate.ToString("yyyy-MM-dd")}'  and fx_currency != 'USD'
+            group by source, fund, j.symbol, AccountType, fx_currency
+            order by source, j.Symbol";
+
+            command = new SqlCommand(sql2, connection);
+            reader = command.ExecuteReader(System.Data.CommandBehavior.SingleResult);
+
+            while (reader.Read())
+            {
+                int offset = 0;
+
+                var element = new
+                {
+                    Source = reader.GetFieldValue<string>(offset++),
+                    Fund = reader.GetFieldValue<string>(offset++),
+                    Quantity = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++)),
+                    AccountType = reader.GetFieldValue<string>(offset++),
+                    Symbol = reader.GetFieldValue<string>(offset++),
+                    FxCurrency = reader.GetFieldValue<string>(offset++),
+                    Balance = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++)),
+                };
+
+                var fxrateDiff = FxRates.FxIncrement(env, element.FxCurrency);
+
+                var fxTranslation = element.Balance * fxrateDiff;
+
+                var from = "DIVIDENDS WITHHOLDING PAYABLE FX TRANSLATION";
+                var to = "DIVIDENDS WITHHOLDING EXPENSE FX TRANSLATION";
+
+                var fromTo = new AccountUtils().GetAccounts(env, from, to, new string[] { element.FxCurrency }.ToList());
+                var debit = new Journal(fromTo.From, Event.DIVIDEND, env.ValueDate)
+                {
+                    Source = element.Source,
+                    Fund = element.Fund,
+                    FxCurrency = element.FxCurrency,
+                    Symbol = element.Symbol,
+                    SecurityId = env.FindTrade(element.Source).SecurityId,
+                    Quantity = element.Quantity,
+
+                    FxRate = fxrateDiff,
+                    StartPrice = 0,
+                    EndPrice = 0,
+
+                    Value = env.SignedValue(fromTo.From, fromTo.To, true, fxTranslation),
+                    CreditDebit = env.DebitOrCredit(fromTo.From, fxTranslation),
+                };
+
+                var credit = new Journal(debit)
+                {
+                    Account = fromTo.To,
+                    Value = env.SignedValue(fromTo.From, fromTo.To, false, fxTranslation),
+                    CreditDebit = env.DebitOrCredit(fromTo.To, fxTranslation),
+                };
+                journals.AddRange(new[] { debit, credit });
+            }
+
+            reader.Close();
+            connection.Close();
+
+            return journals;
         }
+
+        private static readonly List<Dividend> _dividends = new List<Dividend>();
 
         public static void CacheDividends(PostingEngineEnvironment env)
         {
@@ -84,60 +242,47 @@ namespace PostingEngine.CorporateActions
 
         public List<Journal> ProcessExecutionDate()
         {
-            return GenerateJournals(_dividends.Where(d=>d.ExecutionDate.ToString("yyyy-MM-dd").Equals(env.ValueDate.ToString("yyyy-MM-dd"))).ToList(),false);
+            return GenerateJournals(_dividends.Where(d=>d.ExecutionDate.ToString("yyyy-MM-dd").Equals(env.ValueDate.ToString("yyyy-MM-dd")) && d.Rate != 0).ToList(),false);
         }
 
         public List<Journal> ProcessPayDate()
         {
-            return GenerateJournals(_dividends.Where(d => d.PayDate.ToString("yyyy-MM-dd").Equals(env.ValueDate.ToString("yyyy-MM-dd"))).ToList(), true);
+            return GenerateJournals(_dividends.Where(d => d.PayDate.ToString("yyyy-MM-dd").Equals(env.ValueDate.ToString("yyyy-MM-dd")) && d.Rate != 0).ToList(), true);
         }
 
         private static Dictionary<string, List<ExcercisedDividends>> state = new Dictionary<string, List<ExcercisedDividends>>();
-
-        private class ExcercisedDividends
-        {
-            public string Symbol { get; internal set; }
-            public string Currency { get; internal set; }
-            public DateTime ExecutionDate { get; internal set; }
-            public DateTime NoticeDate { get; internal set; }
-            public DateTime RecordDate { get; internal set; }
-            public bool Long { get; internal set; }
-            public int SecurityId { get; set; }
-            public double Quantity { get; internal set; }
-            public string Source { get; internal set; }
-            public double FxRate { get; internal set; }
-            public string Fund { get; internal set; }
-            public double BaseGross { get; internal set; }
-            public double BaseWithholding { get; internal set; }
-            public double BaseNet { get; internal set; }
-
-            public double SettleGross { get; internal set; }
-            public double SettleWithholding { get; internal set; }
-            public double SettleNet { get; internal set; }
-
-        }
 
         private List<Journal> GenerateJournals(IEnumerable<Dividend> dividends, bool settlement)
         {
             var multiplier = settlement ? -1 : 1;
 
             var journals = new List<Journal>();
+            if (dividends.Count() == 0)
+                return journals;
 
+            Logger.Info($"Processing Dividends {dividends.Count()}");
 
-            foreach( var dividend in dividends)
+            foreach ( var dividend in dividends)
             {
-                var key = $"{ dividend.Symbol}::{ dividend.ExecutionDate.ToString("yyyy-MM-dd")}";
+                var key = $"{dividend.Symbol}::{dividend.ExecutionDate.ToString("yyyy-MM-dd")}";
                 if (settlement && state.ContainsKey(key))
                 {
                     var entries = state[key];
-                    var fxRate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, entries[0].Currency).Rate) * -1;
+                    var fxPayDateRate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, entries[0].Currency).Rate) * -1;
                     foreach (var entry in entries )
                     {
-                        entry.SettleGross = entry.BaseGross * fxRate;
-                        entry.SettleWithholding = entry.BaseWithholding * fxRate;
-                        entry.SettleNet = entry.BaseNet * fxRate;
+                        entry.SettleGross = entry.BaseGross * fxPayDateRate;
+                        entry.SettleWithholding = entry.BaseWithholding * fxPayDateRate;
+                        entry.SettleNet = entry.BaseNet * fxPayDateRate;
                     }
                     journals.AddRange( ProcessStuff(entries, settlement));
+
+                    // Now need to reverse all of the FX Translation entries.
+                    journals.AddRange( ReverseFxTranslation(fxPayDateRate, entries) );
+
+                    // Not needed any more, as its now settled.
+                    state.Remove(key);
+
                     continue;
                 }
 
@@ -168,27 +313,110 @@ namespace PostingEngine.CorporateActions
                             SettleNet = (t.Quantity * dividend.Rate * fxRate) - (t.Quantity * dividend.Rate * dividend.WithholdingRate * fxRate),
                         });
 
-                        // Validate that the Types exist in the system.
-                        if (AccountType.Find(AccountCategory.AC_LIABILITY, "DIVIDENDS WITHHOLDING PAYABLE", false) == null)
+                        Logger.Info($"Dividends {key} added");
+                        if ( state.ContainsKey(key))
                         {
-                            // Need to create the Account Type
-                            var createdAccountType = AccountType.FindOrCreate(AccountCategory.AC_LIABILITY, "DIVIDENDS WITHHOLDING PAYABLE");
-                            new AccountUtils().Save(env, createdAccountType);
+
                         }
-
-                        if (AccountType.Find(AccountCategory.AC_EXPENCES, "DIVIDENDS WITHHOLDING EXPENSE", false) == null)
-                        {
-                            // Need to create the Account Type
-                            var createdAccountType = AccountType.FindOrCreate(AccountCategory.AC_EXPENCES, "DIVIDENDS WITHHOLDING EXPENSE");
-                            new AccountUtils().Save(env, createdAccountType);
-                        }
-
-
                         state.Add(key, results.ToList());
                         journals.AddRange(ProcessStuff(state[key], settlement));
                     }
                 }
 
+            }
+
+            return journals;
+        }
+
+        private IEnumerable<Journal> ReverseFxTranslation(double fxPayDateRate, List<ExcercisedDividends> entries)
+        {
+            var journals = new List<Journal>();
+
+            foreach( var entry in entries)
+            {
+                var OriginalSettleGross = entry.BaseGross * entry.FxRate;
+                var OriginalSettleWithholding = entry.BaseWithholding * entry.FxRate;
+
+                var NewSettleGross = Math.Abs(entry.SettleGross);
+                var NewSettleWithholding = Math.Abs(entry.SettleWithholding);
+
+                var DiffSettleGross = NewSettleGross - OriginalSettleGross;
+                var DiffSettleWithholding = NewSettleWithholding - OriginalSettleWithholding;
+
+                DiffSettleGross *= -1;
+                DiffSettleWithholding *= -1;
+
+                var from = "";
+                var to = "";
+
+                if ( entry.Long )
+                {
+                    from = "DIVIDEND RECEIVABLE FX TRANSLATION";
+                    to = "DIVIDEND INCOME FX TRANSLATION";
+                }
+                else
+                {
+                    from = "DIVIDEND PAYABLE FX TRANSLATION";
+                    to = "DIVIDEND EXPENSE FX TRANSLATION";
+                }
+
+                var fromTo = new AccountUtils().GetAccounts(env, from, to, new string[] { entry.Currency }.ToList());
+                var debit = new Journal(fromTo.From, Event.DIVIDEND, env.ValueDate)
+                {
+                    Source = entry.Source,
+                    Fund = entry.Fund,
+                    FxCurrency = entry.Currency,
+                    Symbol = entry.Symbol,
+                    SecurityId = env.FindTrade(entry.Source).SecurityId,
+                    Quantity = entry.Quantity,
+
+                    FxRate = fxPayDateRate - entry.FxRate,
+                    StartPrice = 0,
+                    EndPrice = 0,
+
+                    Value = env.SignedValue(fromTo.From, fromTo.To, true, DiffSettleGross),
+                    CreditDebit = env.DebitOrCredit(fromTo.From, DiffSettleGross),
+                };
+
+                var credit = new Journal(debit)
+                {
+                    Account = fromTo.To,
+                    Value = env.SignedValue(fromTo.From, fromTo.To, false, DiffSettleGross),
+                    CreditDebit = env.DebitOrCredit(fromTo.To, DiffSettleGross),
+                };
+                journals.AddRange(new[] { debit, credit });
+
+                if (DiffSettleWithholding != 0)
+                {
+                    var fromWithholding = "DIVIDENDS WITHHOLDING PAYABLE FX TRANSLATION";
+                    var toWithholding = "DIVIDENDS WITHHOLDING EXPENSE FX TRANSLATION";
+
+                    fromTo = new AccountUtils().GetAccounts(env, fromWithholding, toWithholding, new string[] { entry.Currency }.ToList());
+                    debit = new Journal(fromTo.From, Event.DIVIDEND, env.ValueDate)
+                    {
+                        Source = entry.Source,
+                        Fund = entry.Fund,
+                        FxCurrency = entry.Currency,
+                        Symbol = entry.Symbol,
+                        SecurityId = env.FindTrade(entry.Source).SecurityId,
+                        Quantity = entry.Quantity,
+
+                        FxRate = fxPayDateRate - entry.FxRate,
+                        StartPrice = 0,
+                        EndPrice = 0,
+
+                        Value = env.SignedValue(fromTo.From, fromTo.To, true, DiffSettleWithholding),
+                        CreditDebit = env.DebitOrCredit(fromTo.From, DiffSettleWithholding),
+                    };
+
+                    credit = new Journal(debit)
+                    {
+                        Account = fromTo.To,
+                        Value = env.SignedValue(fromTo.From, fromTo.To, false, DiffSettleWithholding),
+                        CreditDebit = env.DebitOrCredit(fromTo.To, DiffSettleWithholding),
+                    };
+                    journals.AddRange(new[] { debit, credit });
+                }
             }
 
             return journals;

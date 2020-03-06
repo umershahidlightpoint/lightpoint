@@ -61,7 +61,7 @@ namespace PostingEngine.PostingRules
                     if (env.ValueDate == element.TradeDate)
                     {
                         eodPrice = MarketPrices.GetPrice(env, env.ValueDate, element).Price;
-                        prevEodPrice = element.SettleNetPrice;
+                        prevEodPrice = element.FactoredSettleNetPrice();
                     }
                     else
                     {
@@ -263,7 +263,7 @@ namespace PostingEngine.PostingRules
             var eodPrice = MarketPrices.GetPrice(env, env.PreviousValueDate, buyTrade).Price;
 
             // Calculate the unrealized Backout PNL for the created Tax Lot
-            var unrealizedPnl = Math.Abs(taxlot.Quantity) * (eodPrice - buyTrade.SettleNetPrice) * multiplier * fxrate;
+            var unrealizedPnl = Math.Abs(taxlot.Quantity) * (eodPrice - buyTrade.FactoredSettleNetPrice()) * multiplier * fxrate;
 
             unrealizedPnl *= CommonRules.DetermineSign(element);
 
@@ -273,8 +273,8 @@ namespace PostingEngine.PostingRules
                 buyTrade,
                 element,
                 unrealizedPnl * -1,
-                buyTrade.SettleNetPrice,
-                element.SettleNetPrice,
+                buyTrade.FactoredSettleNetPrice(),
+                element.FactoredSettleNetPrice(),
                 fxrate);
 
             // Original FxRate

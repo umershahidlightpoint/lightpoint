@@ -1,8 +1,10 @@
 ﻿using LP.Finance.Common;
 using LP.Finance.Common.Models;
 using PostingEngine.Contracts;
+using PostingEngine.Extensions;
 using PostingEngine.MarketData;
 using PostingEngine.PostingRules;
+using PostingEngine.PostingRules.Utilities;
 using PostingEngine.TaxLotMethods;
 using System;
 using System.Collections.Generic;
@@ -69,6 +71,7 @@ namespace PostingEngine
 
         private int CollectData(string connectionString, List<Journal> journals)
         {
+
             if (__connection == null)
             {
                 __connection = new SqlConnection(connectionString);
@@ -99,6 +102,16 @@ namespace PostingEngine
             //Logger.Info($"Completed :: Commiting Journals to the database {journals.Count()}");
 
             return journals.Count();
+        }
+
+        internal void FindOrCreate(int aC_EXPENCES, string v)
+        {
+            if (AccountType.Find(aC_EXPENCES, v, false) == null)
+            {
+                // Need to create the Account Type
+                var createdAccountType = AccountType.FindOrCreate(aC_EXPENCES, v);
+                new AccountUtils().Save(this, createdAccountType);
+            }
         }
 
         public string ConnectionString { get; set; }
@@ -534,7 +547,7 @@ namespace PostingEngine
                 OriginalQuantity = element.Quantity,
                 Quantity = element.Quantity,
                 Fund = GetFund(element),
-                TradePrice = element.SettleNetPrice,
+                TradePrice = element.FactoredSettleNetPrice(),
             };
 
             TaxLotStatus.Add(element.LpOrderId, taxlotStatus);

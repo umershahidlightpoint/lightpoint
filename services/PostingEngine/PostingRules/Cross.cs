@@ -66,7 +66,7 @@ namespace PostingEngine.PostingRules
                     {
                         if (env.ValueDate == element.TradeDate)
                         {
-                            prevEodPrice =  1 / element.SettleNetPrice;
+                            prevEodPrice =  1 / element.FactoredSettleNetPrice();
                             fxRate = FxRates.Find(env, env.ValueDate, element.SettleCurrency).Rate;
                             eodPrice = fxRate;
                         }
@@ -81,7 +81,7 @@ namespace PostingEngine.PostingRules
                     {
                         if (env.ValueDate == element.TradeDate)
                         {
-                            prevEodPrice = element.SettleNetPrice;
+                            prevEodPrice = element.FactoredSettleNetPrice();
                             fxRate = FxRates.Find(env, env.ValueDate, element.TradeCurrency).Rate;
                             eodPrice = fxRate;
                         }

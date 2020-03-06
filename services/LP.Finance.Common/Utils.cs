@@ -556,6 +556,7 @@ namespace LP.Finance.Common
 
     public class SQLBulkHelper
     {
+        private static Dictionary<string, DataTable> cachedMetaData = new Dictionary<string, DataTable>();
 
         public void Insert(string tablename, IDbModel[] models, SqlConnection connection, SqlTransaction transaction,
             bool fireTriggers = false, bool checkConstraints = false)
@@ -563,7 +564,17 @@ namespace LP.Finance.Common
             if (models.Length == 0)
                 return;
 
-            var table = models[0].MetaData(connection);
+            DataTable table = null;
+
+            if ( cachedMetaData.ContainsKey(tablename))
+            {
+                table = cachedMetaData[tablename].Clone();
+            }
+            else
+            {
+                table = models[0].MetaData(connection);
+                cachedMetaData.Add(tablename, table.Clone());
+            }
 
             foreach (var model in models)
             {

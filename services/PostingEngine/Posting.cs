@@ -903,11 +903,11 @@ namespace PostingEngine
 
                 if (!journalsOnly)
                 {
-                    postingEnv.CallBack?.Invoke($"Processing Dividends :: {valueDate.ToString("MM-dd-yyyy")}");
+                    //postingEnv.CallBack?.Invoke($"Processing Dividends :: {valueDate.ToString("MM-dd-yyyy")}");
                     var dividends = CorporateActions.Dividends.Get(postingEnv);
                     var journals = dividends.Process();
                     postingEnv.CollectData(journals);
-                    postingEnv.CallBack?.Invoke($"Processed Dividends :: {valueDate.ToString("MM-dd-yyyy")}");
+                    //postingEnv.CallBack?.Invoke($"Processed Dividends :: {valueDate.ToString("MM-dd-yyyy")}");
                 }
                 sw.Stop();
                 postingEnv.CallBack?.Invoke($"Completed {label}::{tradeData.Count()} :: {valueDate.ToString("MM-dd-yyyy")} in {sw.ElapsedMilliseconds} ms", totalDays, daysProcessed++);

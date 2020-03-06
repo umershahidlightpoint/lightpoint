@@ -1,6 +1,6 @@
 ﻿/* Examples
 select * from account_type where name like 'DIV%'
-exec CostBasisCalculation '2019-12-31'
+exec CostBasisCalculation '2020-01-10'
 
 select * from cost_basis where business_date = '2019-12-31'
 select * from vwCostBasis where business_date = '2019-12-31'
@@ -197,7 +197,10 @@ delete from cost_basis where business_date = @bDate
 
 insert into cost_basis ( business_date, symbol, balance, quantity, cost_basis, side, realized_pnl, unrealized_pnl, eod_price, realized_pnl_fx, unrealized_pnl_fx, dividend, dividend_withholding, dividend_net )
 select cb.busdate, cb.symbol, 
-cb.Balance, 
+case 
+	when cb.side = 'LONG' then Abs(cb.Balance)
+	else cb.Balance
+end,
 cb.Quantity, 
 case
 	When ROUND(cb.Quantity,2) != 0 then ABS((cb.Balance + coalesce(ul.realized,0)) / cb.Quantity) / coalesce(sd.Multiplier,1)

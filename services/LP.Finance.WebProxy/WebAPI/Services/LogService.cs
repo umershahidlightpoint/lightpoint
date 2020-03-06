@@ -35,7 +35,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     var fileNames = fileList.Select(x => new
                     {
                         FileName = System.IO.Path.GetFileName(x)
-                    }).OrderByDescending(x => x.FileName).Take(30).ToList();
+                    }).ToList();
 
                     sw.Stop();
                     Logger.Info($"finished GetLogFiles at {DateTime.UtcNow} in {sw.ElapsedMilliseconds} ms | {sw.ElapsedMilliseconds / 1000} s");
@@ -56,8 +56,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object DownloadLog(string fileName)
         {
-            var path = System.AppDomain.CurrentDomain.BaseDirectory + "Logs" + Path.DirectorySeparatorChar + fileName;
-            var dataBytes = File.ReadAllBytes(path);
+            var logFolder = ConfigurationManager.AppSettings["logLocation"];
+            if (String.IsNullOrEmpty(logFolder))
+                logFolder = System.AppDomain.CurrentDomain.BaseDirectory;
+
+            logFolder = logFolder + Path.DirectorySeparatorChar + fileName;
+
+            var dataBytes = File.ReadAllBytes(logFolder);
             var dataStream = new MemoryStream(dataBytes);
             HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
             response.Content = new StreamContent(dataStream);

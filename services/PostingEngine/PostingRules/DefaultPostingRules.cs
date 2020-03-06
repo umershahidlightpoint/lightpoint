@@ -77,7 +77,7 @@ namespace PostingEngine.PostingRules
 
             if (env.ValueDate == taxLotStatus.Trade.TradeDate)
             {
-                prevEodPrice = taxLotStatus.Trade.SettleNetPrice;
+                prevEodPrice = taxLotStatus.Trade.FactoredSettleNetPrice();
                 eodPrice = MarketPrices.GetPrice(env, env.ValueDate, taxLotStatus.Trade).Price;
             }
             else
@@ -86,7 +86,7 @@ namespace PostingEngine.PostingRules
                 eodPrice = MarketPrices.GetPrice(env, env.ValueDate, taxLotStatus.Trade).Price;
             }
 
-            var endPrice = element.SettleNetPrice;
+            var endPrice = element.FactoredSettleNetPrice();
 
             if ( closeout )
             {
@@ -389,8 +389,8 @@ namespace PostingEngine.PostingRules
                 buyTrade,
                 element,
                 changeInUnRealized,
-                buyTrade.SettleNetPrice,
-                element.SettleNetPrice,
+                buyTrade.FactoredSettleNetPrice(),
+                element.FactoredSettleNetPrice(),
                 fxrate);
 
             var changeInUnRealizedFx = 0.0;
@@ -401,10 +401,6 @@ namespace PostingEngine.PostingRules
             {
                 var closeOut = 0.0;
 
-                if (buyTrade.LpOrderId.Equals("95db7e29-74e3-4060-be88-5161154574fa"))
-                {
-
-                }
                 if (buyTrade.IsBuy())
                 {
                     closeOut = changeInUnRealizedFx + fxChange;

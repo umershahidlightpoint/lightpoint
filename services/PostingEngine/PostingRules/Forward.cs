@@ -67,18 +67,18 @@ namespace PostingEngine.PostingRules
 
                     if (env.ValueDate == element.TradeDate)
                     {
-                        prevEodPrice = element.SettleNetPrice;
+                        prevEodPrice = element.FactoredSettleNetPrice();
                     }
 
                     // we need to do this when there is no price for the trade from market data
                     if ( prevEodPrice == 0.0 )
                     {
-                        prevEodPrice = element.SettleNetPrice;
+                        prevEodPrice = element.FactoredSettleNetPrice();
                     }
 
                     if ( eodPrice == 0.0 )
                     {
-                        eodPrice = element.SettleNetPrice;
+                        eodPrice = element.FactoredSettleNetPrice();
                     }
 
                     // We have an open / partially closed tax lot so now need to calculate unrealized Pnl
