@@ -15,11 +15,13 @@ import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { ToastrService } from 'ngx-toastr';
 import { ContextMenu } from 'src/shared/Models/common';
 import * as moment from 'moment';
 import { debounce, finalize } from 'rxjs/operators';
 import { SecurityApiService } from 'src/services/security-api.service';
 import { CreateSecurityComponent } from '../../../../../shared/Modal/create-security/create-security.component';
+import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 
 
@@ -31,6 +33,7 @@ import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/dat
 export class SecurityDetailsComponent implements OnInit {
 
   @ViewChild('securityModal', { static: false }) securityModal: CreateSecurityComponent;
+  @ViewChild('confirmationModal', { static: false }) confirmationModal: ConfirmationModalComponent;
 
   pinnedBottomRowData;
   gridOptions: GridOptions;
@@ -42,27 +45,14 @@ export class SecurityDetailsComponent implements OnInit {
   journalDate: any;
   title: string;
 
+  toBeDeletedSecurityExtended: number = null;
+
   filterBySymbol = '';
   selected: { startDate: moment.Moment; endDate: moment.Moment };
   startDate: any;
   endDate: any;
-  // createDividend = false;
 
-  // dividendScreenRatio: {
-  //   dividendSize: number;
-  //   detailsSize: number;
-  //   dividendView: boolean;
-  //   detailsView: boolean;
-  //   useTransition: boolean;
-  // } = {
-  //   dividendSize: 50,
-  //   detailsSize: 50,
-  //   dividendView: true,
-  //   detailsView: false,
-  //   useTransition: true
-  // };
-
-  constructor(private securityApiService: SecurityApiService) { }
+  constructor(private securityApiService: SecurityApiService, private toastrService: ToastrService,) { }
 
   ngOnInit() {
     this.initGrid();
@@ -307,23 +297,54 @@ export class SecurityDetailsComponent implements OnInit {
         {
           name: 'Edit',
           action: () => {
-            // this.openEditModal(params.node.data);
             this.isLoading = true;
             this.securityApiService
               .getSecurityConfig(params.node.data.symbol)
               .pipe(finalize(() => (this.isLoading = false)))
               .subscribe(
                 response => {
-                  this.securityModal.openEditModal(params.node.data.symbol,
+                  this.securityModal.openEditModal(params.node.data,
                      response.payload[0].SecurityType, response.payload[0].Fields, params.node.data, 'edit');
                 },
                 error => {}
               );
           }
+        },
+        {
+        name: 'Delete',
+        action: () => {
+          this.openDeleteSecurityModal(params.node.data.id);
+        }
         }
       ];
       const addCustomItems = [];
       return GetContextMenu(false, addDefaultItems, false, addCustomItems, params);
+    }
+
+    openDeleteSecurityModal(id){
+      this.toBeDeletedSecurityExtended = id;
+      this.confirmationModal.showModal();
+    }
+
+    deleteSecurityExtend() {
+      this.securityApiService.deleteSecurity(this.toBeDeletedSecurityExtended).subscribe(
+        response => {
+          if (response.isSuccessful) {
+            this.toastrService.success('Extended security deleted successfully!');
+            this.refreshGrid();
+          } else {
+            this.toastrService.error('Failed to delete extended security!');
+          }
+        },
+        error => {
+          this.toastrService.error('Something went wrong. Try again later!');
+        }
+      );
+    }
+
+    refreshGrid() {
+      this.gridOptions.api.showLoadingOverlay();
+      this.getSecurities();
     }
 
     onSymbolKey(e) {

@@ -8,6 +8,8 @@ import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/dat
 import { DataService } from '../../../../services/common/data.service';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { ReportsApiService } from 'src/services/reports-api.service';
+import { SecurityApiService } from 'src/services/security-api.service';
+import { ToastrService } from 'ngx-toastr';
 import { Fund } from '../../../../shared/Models/account';
 import { DataDictionary } from 'src/shared/utils/DataDictionary';
 import { ContextMenu } from 'src/shared/Models/common';
@@ -107,6 +109,8 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
     private financeService: FinanceServiceProxy,
     private reportsApiService: ReportsApiService,
     private dataService: DataService,
+    private securityApiService: SecurityApiService,
+    private toastrService: ToastrService,
     private downloadExcelUtils: DownloadExcelUtils,
     public dataDictionary: DataDictionary
   ) {
@@ -687,7 +691,28 @@ export class BookmonReconcileComponent implements OnInit, AfterViewInit {
           {
             name: 'Extend',
             action: () => {
-              // this.securityModal.openSecurityModalFromOutside(params.node.data.Symbol, 'extend');
+              this.isLoading = true;
+              this.securityApiService.getDataForSecurityModal(params.node.data.Symbol).subscribe(
+                ([config, securityDetails]: [any, any]) => {
+
+                  this.isLoading = false;
+                  if (!config.isSuccessful) {
+                  this.toastrService.error('No security type found against the selected symbol!');
+                  return;
+                }
+                  if (securityDetails.payload.length === 0) {
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.Symbol,
+                    config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
+                } else {
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.Symbol,
+                    config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
+                }
+
+                },
+                error => {
+                  this.isLoading = false;
+                }
+              );
             }
           }
         ]

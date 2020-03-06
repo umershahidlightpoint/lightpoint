@@ -88,3 +88,7 @@
   </div>
   <!-- </div> -->
 <app-create-security #securityModal (modalClose)="closeSecurityModal()"></app-create-security>
+<!-- Confirmation Modal Selector -->
+<app-confirmation-modal #confirmationModal (confirmDeletion)="deleteSecurityExtend()" [modalTitle]="'Delete Security Extended'">
+</app-confirmation-modal>
+<!-- Confirmation Modal Selector Ends -->
