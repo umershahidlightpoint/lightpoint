@@ -84,7 +84,6 @@ export class DividendsComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.initGrid();
     this.getDividends();
-    this.getDividendDetails();
   }
 
   ngAfterViewInit(): void {
@@ -271,7 +270,7 @@ export class DividendsComponent implements OnInit, AfterViewInit {
     } as GridOptions;
 
     this.dividendDetailsGrid = {
-      rowData: null,
+      rowData: [],
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       rowSelection: 'multiple',
@@ -441,18 +440,30 @@ export class DividendsComponent implements OnInit, AfterViewInit {
         this.gridOptions.api.sizeColumnsToFit();
         this.gridOptions.api.setRowData(this.data);
         this.gridOptions.api.expandAll();
+      } else{
+        this.toastrService.error(response.Message);
       }
     }, err => {
+      this.toastrService.error("The request failed");
       this.gridOptions.api.hideOverlay();
     });
   }
 
-  getDividendDetails() {
-    this.corporateActionsApiService.getDividendDetails().subscribe(response => {
-      let dividendDetail = response.payload;
-      this.dividendDetailsGrid.api.sizeColumnsToFit();
-      this.dividendDetailsGrid.api.expandAll();
-      this.dividendDetailsGrid.api.setRowData(dividendDetail);
+  getDividendDetails(id) {
+    this.dividendConfig.detailsView = true;
+    this.dividendDetailsGrid.api.showLoadingOverlay();
+    this.corporateActionsApiService.getDividendDetails(id).subscribe(response => {
+      if(response.statusCode === 200){
+        let dividendDetail = response.payload;
+        this.dividendDetailsGrid.api.sizeColumnsToFit();
+        this.dividendDetailsGrid.api.setRowData(dividendDetail);
+        this.dividendDetailsGrid.api.expandAll();
+      } else {
+        this.toastrService.error(response.Message);
+      }
+    }, err=> {
+      this.dividendDetailsGrid.api.hideOverlay();
+      this.toastrService.error("The request failed");
     });
   }
 
@@ -466,25 +477,26 @@ export class DividendsComponent implements OnInit, AfterViewInit {
 
   closeDividendModal() {
     this.gridOptions.api.showLoadingOverlay();
+    this.dividendDetailsGrid.api.setRowData([]);
     this.getDividends();
-    this.getDividendDetails();
   }
 
   rowSelected(row) {
-    const { id } = row.data;
-    let node;
-    this.dividendDetailsGrid.api.forEachLeafNode(rowNode => {
-      if (rowNode.data.id === id) {
-        rowNode.setSelected(true);
-        node = rowNode;
-      } else {
-        rowNode.setSelected(false);
-      }
-    });
-    if (node) {
-      this.dividendConfig.detailsView = true;
-      this.dividendDetailsGrid.api.ensureIndexVisible(node.rowIndex);
-    }
+     const { id } = row.data;
+    // let node;
+    // this.dividendDetailsGrid.api.forEachLeafNode(rowNode => {
+    //   if (rowNode.data.id === id) {
+    //     rowNode.setSelected(true);
+    //     node = rowNode;
+    //   } else {
+    //     rowNode.setSelected(false);
+    //   }
+    // });
+    // if (node) {
+    //   this.dividendConfig.detailsView = true;
+    //   this.dividendDetailsGrid.api.ensureIndexVisible(node.rowIndex);
+    // }
+    this.getDividendDetails(id);
   }
 
   /////////// External Filters Code //////////////
@@ -577,9 +589,9 @@ export class DividendsComponent implements OnInit, AfterViewInit {
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
     this.dividendConfig.detailsView = false;
+    this.dividendDetailsGrid.api.setRowData([]);
     this.dividendDetailsGrid.api.showLoadingOverlay();
     this.getDividends();
-    this.getDividendDetails();
   }
 
   clearFilters() {

@@ -82,7 +82,6 @@ export class StockSplitsComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.initGrid();
     this.getStockSplits();
-    this.getStockSplitDetails();
   }
 
   ngAfterViewInit(): void {
@@ -146,18 +145,29 @@ export class StockSplitsComponent implements OnInit, AfterViewInit {
         this.gridOptions.api.sizeColumnsToFit();
         this.gridOptions.api.setRowData(this.data);
         this.gridOptions.api.expandAll();
+      } else {
+        this.toastrService.error(response.Message);
       }
     }, err => {
       this.gridOptions.api.hideOverlay();
     });
   }
 
-  getStockSplitDetails() {
-    this.corporateActionsApiService.getStockSplitDetails().subscribe(response => {
-      let stockSplitDetail = response.payload;
-      this.stockSplitDetailsGrid.api.setRowData(stockSplitDetail);
-      this.stockSplitDetailsGrid.api.sizeColumnsToFit();
-      this.stockSplitDetailsGrid.api.expandAll();
+  getStockSplitDetails(id) {
+    this.stockSplitConfig.detailsView = true;
+    this.stockSplitDetailsGrid.api.showLoadingOverlay();
+    this.corporateActionsApiService.getStockSplitDetails(id).subscribe(response => {
+      if(response.statusCode === 200){
+        let stockSplitDetail = response.payload;
+        this.stockSplitDetailsGrid.api.setRowData(stockSplitDetail);
+        this.stockSplitDetailsGrid.api.sizeColumnsToFit();
+        this.stockSplitDetailsGrid.api.expandAll();
+      } else {
+        this.toastrService.error(response.Message);
+      }
+    }, err => {
+      this.toastrService.error("The request failed");
+      this.stockSplitDetailsGrid.api.hideOverlay();
     });
   }
 
@@ -414,7 +424,7 @@ export class StockSplitsComponent implements OnInit, AfterViewInit {
   closeStockSplitModal() {
     this.gridOptions.api.showLoadingOverlay();
     this.getStockSplits();
-    this.getStockSplitDetails();
+    this.stockSplitDetailsGrid.api.setRowData([]);
   }
 
   deleteStockSplit() {
@@ -435,19 +445,20 @@ export class StockSplitsComponent implements OnInit, AfterViewInit {
 
   rowSelected(row) {
     const { id } = row.data;
-    let node;
-    this.stockSplitDetailsGrid.api.forEachLeafNode(rowNode => {
-      if (rowNode.data.id === id) {
-        rowNode.setSelected(true);
-        node = rowNode;
-      } else {
-        rowNode.setSelected(false);
-      }
-    });
-    if (node) {
-      this.stockSplitConfig.detailsView = true;
-      this.stockSplitDetailsGrid.api.ensureIndexVisible(node.rowIndex);
-    }
+    // let node;
+    // this.stockSplitDetailsGrid.api.forEachLeafNode(rowNode => {
+    //   if (rowNode.data.id === id) {
+    //     rowNode.setSelected(true);
+    //     node = rowNode;
+    //   } else {
+    //     rowNode.setSelected(false);
+    //   }
+    // });
+    // if (node) {
+    //   this.stockSplitConfig.detailsView = true;
+    //   this.stockSplitDetailsGrid.api.ensureIndexVisible(node.rowIndex);
+    // }
+    this.getStockSplitDetails(id);
   }
 
   /////////// External Filters Code //////////////
@@ -541,7 +552,7 @@ export class StockSplitsComponent implements OnInit, AfterViewInit {
     this.gridOptions.api.showLoadingOverlay();
     this.stockSplitDetailsGrid.api.showLoadingOverlay();
     this.getStockSplits();
-    this.getStockSplitDetails();
+    this.stockSplitDetailsGrid.api.setRowData([]);
     this.stockSplitConfig.detailsView = false;
   }
 

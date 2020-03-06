@@ -42,17 +42,17 @@ export class CorporateActionsApiService {
   getDividends() {
     const url = this.baseUrl + '/corporateAction/cashDividend';
 
-    return this.http.get(url).pipe(map((response: any) => response), retry(1), catchError(this.handleError));
+    return this.http.get(url).pipe(map((response: any) => response), retry(1));
   }
 
   getDividendDetail(id) {
     const url = this.baseUrl + '/corporateAction/cashDividendAudit?id=' + id;
-    return this.http.get(url).pipe(map((response: any) => response), retry(1), catchError(this.handleError));
+    return this.http.get(url).pipe(map((response: any) => response), retry(1));
   }
 
-  getDividendDetails() {
-  const url = this.baseUrl + '/corporateAction/cashDividendDetails';
-  return this.http.get(url).pipe(map((response: any) => response), retry(1), catchError(this.handleError));
+  getDividendDetails(id) {
+  const url = this.baseUrl + '/corporateAction/cashDividendDetails?id=' + id;
+  return this.http.get(url).pipe(map((response: any) => response), retry(1));
   }
 
   // Stock Splits
@@ -78,17 +78,17 @@ export class CorporateActionsApiService {
   getStockSplits() {
     const url = this.baseUrl + '/corporateAction/stockSplits';
 
-    return this.http.get(url).pipe(map((response: any) => response), retry(1), catchError(this.handleError));
+    return this.http.get(url).pipe(map((response: any) => response), retry(1));
   }
 
   getStockSplitAudit(id) {
     const url = this.baseUrl + '/corporateAction/stockSplitAudit?id=' + id;
-    return this.http.get(url).pipe(map((response: any) => response), retry(1), catchError(this.handleError));
+    return this.http.get(url).pipe(map((response: any) => response), retry(1));
   }
 
-  getStockSplitDetails() {
-  const url = this.baseUrl + '/corporateAction/stockSplitDetails';
-  return this.http.get(url).pipe(map((response: any) => response), retry(1), catchError(this.handleError));
+  getStockSplitDetails(id) {
+  const url = this.baseUrl + '/corporateAction/stockSplitDetails?id=' + id;
+  return this.http.get(url).pipe(map((response: any) => response), retry(1));
   }
 
   handleError(error) {

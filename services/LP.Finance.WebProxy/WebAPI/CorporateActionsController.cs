@@ -51,9 +51,9 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [HttpGet]
         [Route("cashDividendDetails")]
-        public object GetCashDividendDetails()
+        public object GetCashDividendDetails(int id)
         {
-            return controller.GetDividendDetails();
+            return controller.GetDividendDetails(id);
         }
 
         // Stock Splits Controller
@@ -95,9 +95,9 @@ namespace LP.Finance.WebProxy.WebAPI
 
         [HttpGet]
         [Route("stockSplitDetails")]
-        public object GetStockSplitDetails()
+        public object GetStockSplitDetails(int id)
         {
-            return controller.GetStockSplitDetails();
+            return controller.GetStockSplitDetails(id);
         }
     }
 }
