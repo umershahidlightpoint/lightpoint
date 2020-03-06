@@ -6,6 +6,8 @@ import * as moment from 'moment';
 import { DataService } from '../../../../services/common/data.service';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { ReportsApiService } from 'src/services/reports-api.service';
+import { SecurityApiService } from 'src/services/security-api.service';
+import { ToastrService } from 'ngx-toastr';
 import { Fund } from '../../../../shared/Models/account';
 import { GridLayoutMenuComponent, CustomGridOptions, GridUtils } from 'lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
@@ -79,7 +81,9 @@ export class DetailPnlDateComponent implements OnInit, AfterViewInit {
     private reportsApiService: ReportsApiService,
     private agGridUtils: AgGridUtils,
     private dataDictionary: DataDictionary,
-    private downloadExcelUtils: DownloadExcelUtils
+    private downloadExcelUtils: DownloadExcelUtils,
+    private securityApiService: SecurityApiService,
+    private toastrService: ToastrService,
   ) {
     this.hideGrid = false;
   }
@@ -426,7 +430,29 @@ export class DetailPnlDateComponent implements OnInit, AfterViewInit {
           {
             name: 'Extend',
             action: () => {
-              // this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
+              this.isLoading = true;
+
+              this.securityApiService.getDataForSecurityModal(params.node.data.SecurityCode).subscribe(
+                ([config, securityDetails]: [any, any]) => {
+
+                  this.isLoading = false;
+                  if (!config.isSuccessful) {
+                  this.toastrService.error('No security type found against the selected symbol!');
+                  return;
+                }
+                  if (securityDetails.payload.length === 0) {
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.SecurityCode,
+                    config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
+                } else {
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.SecurityCode,
+                    config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
+                }
+
+                },
+                error => {
+                  this.isLoading = false;
+                }
+              );
             }
           }
         ]

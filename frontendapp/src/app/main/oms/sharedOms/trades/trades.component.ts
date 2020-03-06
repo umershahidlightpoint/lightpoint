@@ -15,6 +15,7 @@ import { CreateDividendComponent } from 'src/shared/Modal/create-dividend/create
 import { CreateStockSplitsComponent } from 'src/shared/Modal/create-stock-splits/create-stock-splits.component';
 import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
 import { PostingEngineApiService } from 'src/services/posting-engine-api.service';
+import { SecurityApiService } from 'src/services/security-api.service';
 import { PostingEngineService } from 'src/services/common/posting-engine.service';
 import { DataService } from 'src/services/common/data.service';
 import { FinanceServiceProxy } from '../../../../../services/service-proxies';
@@ -38,7 +39,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
   @ViewChild('securityModal', { static: false }) securityModal: CreateSecurityComponent;
   @ViewChild('tradeExclusionModal', { static: false }) tradeExclusionModal: ExcludeTradeComponent;
   @ViewChild('confirmationModal', { static: false }) confirmationModal: ConfirmationModalComponent;
-  
+
   @Output() titleEmitter = new EventEmitter<string>();
   @Input() tradeType = '';
 
@@ -59,6 +60,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
   orderId: number;
   filterBySymbol = '';
   toBeReversedLpOrderId : string;
+  isLoading = false;
 
   // Process Trade state
   key: string;
@@ -80,6 +82,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
     private financeService: FinanceServiceProxy,
     private postingEngineService: PostingEngineService,
     private postingEngineApiService: PostingEngineApiService,
+    private securityApiService: SecurityApiService,
     private dataService: DataService,
     private agGridUtils: AgGridUtils,
     private toastrService: ToastrService
@@ -219,7 +222,29 @@ export class TradesComponent implements OnInit, AfterViewInit {
           {
             name: 'Extend',
             action: () => {
-              // this.securityModal.openSecurityModalFromOutside(params.node.data.Symbol, 'extend');
+              this.isLoading = true;
+
+              this.securityApiService.getDataForSecurityModal(params.node.data.symbol).subscribe(
+                ([config, securityDetails]: [any, any]) => {
+
+                  this.isLoading = false;
+                  if (!config.isSuccessful) {
+                  this.toastrService.error('No security type found against the selected symbol!');
+                  return;
+                }
+                  if (securityDetails.payload.length === 0) {
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
+                    config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
+                } else {
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
+                    config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
+                }
+
+                },
+                error => {
+                  this.isLoading = false;
+                }
+              );
             },
           }
         ]

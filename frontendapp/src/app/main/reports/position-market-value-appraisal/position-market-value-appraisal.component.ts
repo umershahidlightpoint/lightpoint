@@ -338,7 +338,7 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
             action: () => {
               this.isLoading = true;
 
-              this.securityApiService.getDataForSecurityModal(params.node.data.symbol).subscribe(
+              this.securityApiService.getDataForSecurityModal(params.node.data.EzeTicker).subscribe(
                 ([config, securityDetails]: [any, any]) => {
 
                   this.isLoading = false;
@@ -347,10 +347,10 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
                   return;
                 }
                   if (securityDetails.payload.length === 0) {
-                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.EzeTicker,
                     config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
                 } else {
-                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.EzeTicker,
                     config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
                 }
 

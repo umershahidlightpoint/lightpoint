@@ -5,6 +5,8 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataService } from 'src/services/common/data.service';
 import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
 import { FinanceServiceProxy } from '../../../../../services/service-proxies';
+import { SecurityApiService } from 'src/services/security-api.service';
+import { ToastrService } from 'ngx-toastr';
 import { AgGridUtils } from '../../../../../shared/utils/AgGridUtils';
 import { SideBar, AutoSizeAllColumns } from 'src/shared/utils/Shared';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
@@ -21,11 +23,14 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
   public allocationsData: [];
   allocationTradesData: any;
   columnDefs = [];
+  isLoading = false;
 
   constructor(
     private financeService: FinanceServiceProxy,
+    private securityApiService: SecurityApiService,
     private dataService: DataService,
-    private agGridUtils: AgGridUtils
+    private agGridUtils: AgGridUtils,
+    private toasterService: ToastrService,
   ) {
     this.initGrid();
   }
@@ -97,7 +102,29 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
           {
             name: 'Extend',
             action: () => {
-              // this.securityModal.openSecurityModalFromOutside(params.node.data.Symbol, 'extend');
+              this.isLoading = true;
+
+              this.securityApiService.getDataForSecurityModal(params.node.data.symbol).subscribe(
+                ([config, securityDetails]: [any, any]) => {
+
+                  this.isLoading = false;
+                  if (!config.isSuccessful) {
+                  this.toasterService.error('No security type found against the selected symbol!');
+                  return;
+                }
+                  if (securityDetails.payload.length === 0) {
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
+                    config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
+                } else {
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
+                    config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
+                }
+
+                },
+                error => {
+                  this.isLoading = false;
+                }
+              );
             },
           }
         ]

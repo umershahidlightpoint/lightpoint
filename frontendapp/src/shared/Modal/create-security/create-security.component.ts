@@ -29,7 +29,7 @@ export class CreateSecurityComponent implements OnInit {
   isSaving = false;
 
   editSecurity = false;
-  isDeleting = false;
+  // isDeleting = false;
   selectedRow;
 
   resetDate = false;
@@ -134,12 +134,6 @@ export class CreateSecurityComponent implements OnInit {
   openModal(data) {
     if (data === undefined || !data || data == null) {
       this.securityModal.show();
-    } else {
-
-      this.selectedRow = {};
-      this.selectedRow = data;
-      this.editSecurity = true;
-      this.securityModal.show();
     }
   }
 
@@ -167,7 +161,7 @@ export class CreateSecurityComponent implements OnInit {
   }
 
   openEditModal(data, securityType, secFields, FormData, EntryPoint) {
-    this.selectedRow = {};
+    this.selectedRow = null;
     const fields = secFields;
     this.selectedRow = data;
     this.editSecurity = true;
@@ -216,7 +210,6 @@ export class CreateSecurityComponent implements OnInit {
         PremiumRate: this.securityForm.value.premiumRate,
         PremiumFrequency: this.securityForm.value.frequencyRate,
       };
-      console.log(payload);
       this.securityApiService.updateSecurity(payload)
       .pipe(
         tap(data => {
@@ -266,7 +259,7 @@ export class CreateSecurityComponent implements OnInit {
       this.securityApiService.createSecurity(payload)
       .pipe(
         tap(data => {
-          this.toastrService.success('Finance created successfully!');
+          this.toastrService.success('Security details created successfully!');
           this.isSaving = false,
           this.modalClose.emit(true);
           this.resetFields();
@@ -280,30 +273,30 @@ export class CreateSecurityComponent implements OnInit {
 
   }
 
-  deleteSecurity() {
-    this.isDeleting = true;
-    this.securityApiService.deleteSecurity(this.selectedRow.id).subscribe(
-      response => {
-        if (response.isSuccessful) {
-          this.toastrService.success('Security details deleted successfully!');
+  // deleteSecurity() {
+  //   this.isDeleting = true;
+  //   this.securityApiService.deleteSecurity(this.selectedRow.id).subscribe(
+  //     response => {
+  //       if (response.isSuccessful) {
+  //         this.toastrService.success('Security details deleted successfully!');
 
-          this.securityModal.hide();
-          this.modalClose.emit(true);
+  //         this.securityModal.hide();
+  //         this.modalClose.emit(true);
 
-          setTimeout(() => this.resetFields(), 500);
-        } else {
-          this.toastrService.error('Failed to delete security details!');
-        }
+  //         setTimeout(() => this.resetFields(), 500);
+  //       } else {
+  //         this.toastrService.error('Failed to delete security details!');
+  //       }
 
-        this.isDeleting = false;
-      },
-      error => {
-        this.toastrService.error('Something went wrong. Try again later!');
+  //       this.isDeleting = false;
+  //     },
+  //     error => {
+  //       this.toastrService.error('Something went wrong. Try again later!');
 
-        this.isDeleting = false;
-      }
-    );
-  }
+  //       this.isDeleting = false;
+  //     }
+  //   );
+  // }
 
   close() {
     this.securityModal.hide();
@@ -479,7 +472,7 @@ export class CreateSecurityComponent implements OnInit {
 
   resetFields() {
 
-    this.isDeleting = false;
+    // this.isDeleting = false;
     this.editSecurity = false;
 
     this.MaturityDate = false;
