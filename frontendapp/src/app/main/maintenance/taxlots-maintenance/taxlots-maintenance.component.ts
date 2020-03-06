@@ -1,5 +1,6 @@
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
+import { SecurityApiService } from 'src/services/security-api.service';
 import { debounce, finalize } from 'rxjs/operators';
 import { timer, Subject } from 'rxjs';
 import { Fund } from '../../../../shared/Models/account';
@@ -88,6 +89,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
   constructor(
     private financeService: FinanceServiceProxy,
     private maintenanceApiService: MaintenanceApiService,
+    private securityApiService: SecurityApiService,
     private dataService: DataService,
     private downloadExcelUtils: DownloadExcelUtils,
     private toasterService: ToastrService,
@@ -610,15 +612,31 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
         name: 'Security Details',
         subMenu: [
           {
-            name: 'Create Security',
-            action: () => {
-              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'createSecurity');
-            },
-          },
-          {
             name: 'Extend',
             action: () => {
-              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
+              this.isLoading = true;
+
+              this.securityApiService.getDataForSecurityModal(params.node.data.symbol).subscribe(
+                ([config, securityDetails]: [any, any]) => {
+
+                  this.isLoading = false;
+                  if (!config.isSuccessful) {
+                  this.toasterService.error('No security type found against the selected symbol!');
+                  return;
+                }
+                  if (securityDetails.payload.length === 0) {
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
+                    config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
+                } else {
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
+                    config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
+                }
+
+                },
+                error => {
+                  this.isLoading = false;
+                }
+              );
             },
           }
         ]

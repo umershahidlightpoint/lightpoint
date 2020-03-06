@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve -o",
+    "dev": "concurrently \" npm start\" \"cd.. && cd node && npm start\" ",
     "build": "ng build",
     "lib:build": "ng build lpToolkit && npm run postbuild",
     "postbuild": "copyfiles --up 6 packages/lp-toolkit/src/lib/assets/styles/* dist/lp-toolkit/styles/",
@@ -31,6 +32,7 @@
     "angular-split": "^3.0.0",
     "bootstrap": "^4.3.1",
     "build": "^0.1.4",
+    "concurrently": "^5.1.0",
     "core-js": "^3.4.1",
     "font-awesome": "^4.7.0",
     "intl": "^1.2.5",

@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { TabsModule, ModalModule, TooltipModule } from 'ngx-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
-
+import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import { LpToolkitModule } from 'lp-toolkit';
 
 // Journal Allocation
 import { JournalAllocationComponent } from './journal-allocation/journal-allocation.component';
@@ -18,7 +19,7 @@ import { AccrualsComponent } from './accruals/accruals.component';
 
 // Securities
 import { SecuritiesComponent } from './securities/securities.component';
-import { DummyComponentComponent } from './securities/dummy-component/dummy-component.component';
+import { SecurityDetailsComponent } from './securities/security-details/security-details.component';
 
 import { RouterModule } from '@angular/router';
 import { SharedModule } from '../../shared.module';
@@ -32,7 +33,7 @@ const omsComponents = [
      TradeAllocationComponent,
      AccrualsComponent,
      SecuritiesComponent,
-     DummyComponentComponent
+     SecurityDetailsComponent
   ];
 
 @NgModule({
@@ -46,6 +47,11 @@ const omsComponents = [
     FormsModule,
     ReactiveFormsModule,
     TypeaheadModule.forRoot(),
+    NgxDaterangepickerMd.forRoot({
+      applyLabel: 'Okay',
+      firstDay: 1
+    }),
+    LpToolkitModule,
     SharedModule,
     RouterModule.forChild(OmsRoutes),
   ]

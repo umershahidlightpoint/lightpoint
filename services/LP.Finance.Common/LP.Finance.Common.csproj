@@ -67,6 +67,8 @@
     <Compile Include="Dtos\OpenTaxLot.cs" />
     <Compile Include="Dtos\ProspectiveTradeDto.cs" />
     <Compile Include="Dtos\SecurityDetailsInputDto.cs" />
+    <Compile Include="Dtos\SecurityTypeFormConfig.cs" />
+    <Compile Include="Dtos\SecurityTypeFormFieldNames.cs" />
     <Compile Include="Dtos\SettingInputDto.cs" />
     <Compile Include="Dtos\SettingInputPatchDto.cs" />
     <Compile Include="Dtos\SettingTagInputDto.cs" />

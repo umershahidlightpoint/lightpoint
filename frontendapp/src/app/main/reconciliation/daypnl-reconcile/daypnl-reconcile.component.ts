@@ -10,6 +10,8 @@ import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create
 import { DataService } from '../../../../services/common/data.service';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { ReportsApiService } from 'src/services/reports-api.service';
+import { SecurityApiService } from 'src/services/security-api.service';
+import { ToastrService } from 'ngx-toastr';
 import { Fund } from '../../../../shared/Models/account';
 import { DataDictionary } from 'src/shared/utils/DataDictionary';
 import { AgGridUtils } from 'src/shared/utils/AgGridUtils';
@@ -112,6 +114,8 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
     private dataService: DataService,
     private dataDictionary: DataDictionary,
     private agGridUtils: AgGridUtils,
+    private securityApiService: SecurityApiService,
+    private toastrService: ToastrService,
     private downloadExcelUtils: DownloadExcelUtils
   ) {
     this.hideGrid = false;
@@ -555,18 +559,31 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
         name: 'Security Details',
         subMenu: [
           {
-            name: 'Create Security',
-            action: () => {
-              this.securityModal.openSecurityModalFromOutside(
-                params.node.data.Symbol,
-                'createSecurity'
-              );
-            }
-          },
-          {
             name: 'Extend',
             action: () => {
-              this.securityModal.openSecurityModalFromOutside(params.node.data.Symbol, 'extend');
+              this.isLoading = true;
+
+              this.securityApiService.getDataForSecurityModal(params.node.data.Symbol).subscribe(
+                ([config, securityDetails]: [any, any]) => {
+
+                  this.isLoading = false;
+                  if (!config.isSuccessful) {
+                  this.toastrService.error('No security type found against the selected symbol!');
+                  return;
+                }
+                  if (securityDetails.payload.length === 0) {
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.Symbol,
+                    config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
+                } else {
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.Symbol,
+                    config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
+                }
+
+                },
+                error => {
+                  this.isLoading = false;
+                }
+              );
             }
           }
         ]

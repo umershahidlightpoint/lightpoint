@@ -15,10 +15,24 @@ namespace LP.Finance.WebProxy.WebAPI
         private ISecurityService controller = new SecurityService();
 
         [HttpGet]
-        [Route("details")]
-        public object GetSecurityDetails(string symbol)
+        [Route("config")] // for get fields for specific symbol
+        public object GetSecurityConfig(string symbol)
         {
-            return controller.GetSecurityDetails(symbol);
+            return controller.GetSecurityConfig(symbol);
+        }
+
+        [HttpGet]
+        [Route("details")]
+        public object GetSecurityDetails()
+        {
+            return controller.GetSecurityDetails();
+        }
+
+        [HttpGet]
+        [Route("detail")] // for get single security detail if exists or not
+        public object GetSecurityDetail(string symbol)
+        {
+            return controller.GetSecurityDetail(symbol);
         }
 
         [HttpPost]
@@ -33,6 +47,13 @@ namespace LP.Finance.WebProxy.WebAPI
         public object EditSecurityDetails(SecurityDetailsInputDto details)
         {
             return controller.EditSecurityDetails(details);
+        }
+
+        [HttpPut]
+        [Route("deleteSecurityDetail")]
+        public object DeleteSecurityDetail(SecurityDetailsInputDto details)
+        {
+            return controller.DeleteSecurityDetail(details.Id);
         }
     }
 }
