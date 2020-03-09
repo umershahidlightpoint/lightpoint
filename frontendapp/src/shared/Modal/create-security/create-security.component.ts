@@ -44,6 +44,10 @@ export class CreateSecurityComponent implements OnInit {
   FinancingEndDate = false;
   FinancingPaymentDate = false;
   FinancingResetDateType = false;
+
+  fNoOfDays = false;
+  nextFinanceNoOfDays = false;
+
   FinancingResetDate = false;
   NextFinancingEndDateType = false;
   NextFinancingEndDate = false;
@@ -84,8 +88,10 @@ export class CreateSecurityComponent implements OnInit {
       financingEndDate: [''],
       financingPayDate: [''],
       financingResetDateType: [''],
+      financingNoOfDays: [''],
       financingResetDate: [''],
       nextFinancingEndDateType: [''],
+      nextFinancingNoOfDays: [''],
       nextFinancingEndDate: [''],
       fixedRate: [''],
       dccFixedRate: [''],
@@ -108,22 +114,59 @@ export class CreateSecurityComponent implements OnInit {
 
   onChanges(): void {
     this.securityForm.get('financingResetDateType').valueChanges.subscribe(val => {
-      if (!val || val !== null || val !== undefined) {
-        this.resetDate = true;
-      }
       if (val === null ) {
         this.resetDate = false;
+        this.fNoOfDays = false;
       }
+
+      if (val === 'Date') {
+        this.resetDate = true;
+        this.securityForm.patchValue({
+          financingNoOfDays: null
+        });
+        this.fNoOfDays = false;
+      }
+
+      if (val === 'No of days' || val === 'Monthly' || val === 'Quarterly' || val === 'Yearly') {
+        this.resetDate = false;
+        this.securityForm.patchValue({
+          FinancingResetDate: null
+        });
+        this.fNoOfDays = true;
+      }
+
     });
 
     this.securityForm.get('nextFinancingEndDateType').valueChanges.subscribe(value => {
-      if (!value || value !== null || value !== undefined) {
-        this.endDate = true;
-      }
-      if (value === null ) {
+      if (value == null) {
         this.endDate = false;
+        this.nextFinanceNoOfDays = false;
+      }
+      if (value === 'Date') {
+        this.endDate = true;
+        this.securityForm.patchValue({
+          nextFinancingNoOfDays: null
+        });
+        this.nextFinanceNoOfDays = false;
+      }
+
+      if (value === 'No of days' || value === 'Monthly' || value === 'Quarterly' || value === 'Yearly') {
+        this.endDate = false;
+        this.securityForm.patchValue({
+          nextFinancingEndDate: null
+        });
+        this.nextFinanceNoOfDays = true;
       }
     });
+  }
+
+  numberOnly(event): boolean {
+    const charCode = (event.which) ? event.which : event.keyCode;
+    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+      return false;
+    }
+    return true;
+
   }
 
   // convenience getter for easy access to form fields
@@ -179,6 +222,36 @@ export class CreateSecurityComponent implements OnInit {
 
     if (this.editSecurity) { // for update security
 
+      let updateNoOfdays = null;
+      let updateResetDate = null;
+
+      if (this.securityForm.value.financingResetDateType !== 'Date') {
+        updateNoOfdays = this.securityForm.value.financingNoOfDays;
+        updateResetDate = null;
+      }
+
+      if (this.securityForm.value.financingResetDateType === 'Date') {
+        updateNoOfdays = null;
+        updateResetDate = this.securityForm.value.financingResetDate ?
+        moment(this.securityForm.value.financingResetDate.startDate).format('YYYY-MM-DD') : null;
+      }
+
+      // For NextFinanceDateType
+      let nextFnoOfdays = null;
+      let nextFresetDate = null;
+
+      if (this.securityForm.value.nextFinancingEndDateType !== 'Date') {
+        nextFnoOfdays = this.securityForm.value.nextFinancingNoOfDays;
+        nextFresetDate = null;
+      }
+
+      if (this.securityForm.value.nextFinancingEndDateType === 'Date') {
+        nextFnoOfdays = null;
+        nextFresetDate = this.securityForm.value.nextFinancingEndDate ?
+          moment(this.securityForm.value.nextFinancingEndDate.startDate).format('YYYY-MM-DD') : null;
+      }
+      // End NextFinanceDateType
+
       const payload = {
         Id: this.selectedRow.id,
         Symbol : this.securityForm.value.symbol,
@@ -194,11 +267,9 @@ export class CreateSecurityComponent implements OnInit {
         FinancingPaymentDate: this.securityForm.value.financingPayDate ?
                               moment(this.securityForm.value.financingPayDate.startDate) : null,
         FinancingResetDateType: this.securityForm.value.financingResetDateType,
-        FinancingResetDate: this.securityForm.value.financingResetDate ?
-                            moment(this.securityForm.value.financingResetDate.startDate).format('YYYY-MM-DD') : null,
+        FinancingResetDate: updateNoOfdays !== null ? updateNoOfdays : updateResetDate,
         NextFinancingEndDateType: this.securityForm.value.nextFinancingEndDateType,
-        NextFinancingEndDate: this.securityForm.value.nextFinancingEndDate ?
-                              moment(this.securityForm.value.nextFinancingEndDate.startDate).format('YYYY-MM-DD') : null,
+        NextFinancingEndDate: nextFnoOfdays !== null ? nextFnoOfdays : nextFresetDate,
         FixedRate: this.securityForm.value.fixedRate,
         DCCFixedRate: this.securityForm.value.dccFixedRate,
         FloatingRate: this.securityForm.value.floatingRate,
@@ -210,22 +281,66 @@ export class CreateSecurityComponent implements OnInit {
         PremiumRate: this.securityForm.value.premiumRate,
         PremiumFrequency: this.securityForm.value.frequencyRate,
       };
+
+      if (payload.FinancingResetDate === 'Invalid date') {
+        payload.FinancingResetDate = null;
+      }
+
+      if (payload.NextFinancingEndDate === 'Invalid date') {
+        payload.NextFinancingEndDate = null;
+      }
+
       this.securityApiService.updateSecurity(payload)
       .pipe(
         tap(data => {
-          this.toastrService.success('Security details updated successfully!');
-          this.isSaving = false,
-          this.securityModal.hide();
-          this.modalClose.emit(true);
-          this.resetFields();
+          if(data.statusCode === 200) {
+            this.toastrService.success('Security details updated successfully!');
+            this.isSaving = false,
+            this.securityModal.hide();
+            this.modalClose.emit(true);
+            this.resetFields();
+          } else {
+            this.toastrService.error(data.Message);
+          }
         })
       )
       .subscribe(
         noop, // perform no operation
-        () => this.toastrService.error('Request failed! Please try again')
+        () => this.toastrService.error('The request failed')
       );
 
     } else { // for newly create security
+
+      //For Finance ResetDateType
+      let noOfdays = null;
+      let resetDate = null;
+
+      if (this.securityForm.value.financingResetDateType !== 'Date') {
+        noOfdays = this.securityForm.value.financingNoOfDays;
+        resetDate = null;
+      }
+
+      if (this.securityForm.value.financingResetDateType === 'Date') {
+        noOfdays = null;
+        resetDate = this.securityForm.value.financingResetDate ?
+          moment(this.securityForm.value.financingResetDate.startDate).format('YYYY-MM-DD') : null;
+      }
+
+      // For NextFinanceDateType
+      let nextFnoOfdays = null;
+      let nextFresetDate = null;
+
+      if (this.securityForm.value.nextFinancingEndDateType === 'No of days') {
+        nextFnoOfdays = this.securityForm.value.nextFinancingNoOfDays;
+        nextFresetDate = null;
+      }
+
+      if (this.securityForm.value.nextFinancingEndDateType !== 'No of days') {
+        nextFnoOfdays = null;
+        nextFresetDate = this.securityForm.value.NextFinancingEndDate ?
+          moment(this.securityForm.value.NextFinancingEndDate.startDate).format('YYYY-MM-DD') : null;
+      }
+
       const payload = {
         Symbol : this.securityForm.value.symbol,
         MaturityDate:  this.securityForm.value.maturityDate ?
@@ -240,11 +355,9 @@ export class CreateSecurityComponent implements OnInit {
         FinancingPaymentDate: this.securityForm.value.financingPayDate ?
                               moment(this.securityForm.value.financingPayDate.startDate) : null,
         FinancingResetDateType: this.securityForm.value.financingResetDateType,
-        FinancingResetDate: this.securityForm.value.financingResetDate ?
-                            moment(this.securityForm.value.financingResetDate.startDate).format('YYYY-MM-DD') : null,
+        FinancingResetDate:  noOfdays !== null ? noOfdays : resetDate,
         NextFinancingEndDateType: this.securityForm.value.nextFinancingEndDateType,
-        NextFinancingEndDate: this.securityForm.value.nextFinancingEndDate ?
-                              moment(this.securityForm.value.nextFinancingEndDate.startDate).format('YYYY-MM-DD') : null,
+        NextFinancingEndDate: nextFnoOfdays !== null ? nextFnoOfdays : nextFresetDate,
         FixedRate: this.securityForm.value.fixedRate,
         DCCFixedRate: this.securityForm.value.dccFixedRate,
         FloatingRate: this.securityForm.value.floatingRate,
@@ -256,18 +369,32 @@ export class CreateSecurityComponent implements OnInit {
         PremiumRate: this.securityForm.value.premiumRate,
         PremiumFrequency: this.securityForm.value.frequencyRate,
       };
+
+      if (payload.FinancingResetDate === 'Invalid date') {
+        payload.FinancingResetDate = null;
+      }
+
+      if (payload.NextFinancingEndDate === 'Invalid date') {
+        payload.NextFinancingEndDate = null;
+      }
+
       this.securityApiService.createSecurity(payload)
       .pipe(
         tap(data => {
-          this.toastrService.success('Security details created successfully!');
-          this.isSaving = false,
-          this.modalClose.emit(true);
-          this.resetFields();
+          if(data.statusCode === 200) {
+            this.toastrService.success('Security details created successfully!');
+            this.isSaving = false,
+            this.modalClose.emit(true);
+            this.resetFields();
+            this.securityModal.hide();
+          } else {
+            this.toastrService.error(data.Message);
+          }
         })
       )
       .subscribe(
         noop, // perform no operation
-        () => this.toastrService.error('Request failed! Please try again')
+        () => this.toastrService.error('The request failed')
       );
     }
 
@@ -309,10 +436,20 @@ export class CreateSecurityComponent implements OnInit {
     this.securityApiService.getDataForSecurityModal(event.item).subscribe(
       ([config, securityDetails]: [any, any]) => {
 
+        if (config.statusCode !== 200) {
+          this.toastrService.error(config.message);
+          return;
+        }
+
+        if (securityDetails.statusCode !== 200) {
+          this.toastrService.error(securityDetails.message);
+          return;
+        }
+
         if (!config.isSuccessful) {
         this.toastrService.error('No security type found against the selected symbol!');
         return;
-      }
+        }
 
         if (securityDetails.payload.length === 0) {
 
@@ -329,6 +466,7 @@ export class CreateSecurityComponent implements OnInit {
 
       },
       error => {
+        this.toastrService.error('The request failed');
       }
     );
   }
@@ -402,10 +540,16 @@ export class CreateSecurityComponent implements OnInit {
       financingResetDateType: formData.financing_reset_date_type
    });
    }
-    if (formData.financing_reset_date !== null) {
-    this.securityForm.patchValue({
-      financingResetDate: { startDate: moment(formData.financing_reset_date), endDate: moment(formData.financing_reset_date) },
-   });
+    if (formData.financing_reset_date !== null ) {
+      if (formData.financing_reset_date_type === 'No of days') {
+        this.securityForm.patchValue({
+          financingNoOfDays: formData.financing_reset_date
+       });
+      } else {
+        this.securityForm.patchValue({
+          financingResetDate: { startDate: moment(formData.financing_reset_date), endDate: moment(formData.financing_reset_date) },
+       });
+      }
    }
     if (formData.next_financing_end_date_type !== null) {
     this.securityForm.patchValue({
@@ -413,9 +557,19 @@ export class CreateSecurityComponent implements OnInit {
    });
    }
     if (formData.next_financing_end_date !== null) {
-    this.securityForm.patchValue({
-      nextFinancingEndDate: { startDate: moment(formData.next_financing_end_date), endDate: moment(formData.next_financing_end_date) },
-   });
+      if (formData.next_financing_end_date_type === 'No of days' ||
+          formData.next_financing_end_date_type === 'Monthly' ||
+          formData.next_financing_end_date_type === 'Quarterly' ||
+          formData.next_financing_end_date_type === 'Yearly'
+          ) {
+        this.securityForm.patchValue({
+          nextFinancingNoOfDays: formData.next_financing_end_date
+       });
+      } else {
+        this.securityForm.patchValue({
+          nextFinancingEndDate: { startDate: moment(formData.next_financing_end_date), endDate: moment(formData.next_financing_end_date) },
+       });
+      }
    }
     if (formData.fixed_rate !== null) {
     this.securityForm.patchValue({

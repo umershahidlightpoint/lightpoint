@@ -180,12 +180,26 @@ export class SecurityDetailsComponent implements OnInit {
           valueFormatter: dateFormatter
         },
         {
+          field: 'financing_reset_date_type',
+          headerName: 'Financing Reset Date Type',
+          width: 100,
+          filter: true,
+          sortable: true,
+        },
+        {
           field: 'financing_reset_date',
           headerName: 'Financing Reset Date',
           width: 100,
           filter: true,
           sortable: true,
           valueFormatter: dateFormatter
+        },
+        {
+          field: 'next_financing_end_date_type',
+          headerName: 'Next Financing End Date Type',
+          width: 100,
+          filter: true,
+          sortable: true,
         },
         {
           field: 'next_financing_end_date',
@@ -485,9 +499,12 @@ function currencyFormatter(params) {
 }
 
 function dateFormatter(params) {
-  if (params.value === undefined || params.value === '' || params.value === null) {
+  if (params.value === undefined || params.value === '' || params.value === null || !isNaN(params.value)) {
     return;
   }
+  if (isNaN(params.value)) {
+    return;
+   }
   return DateFormatter(params.value);
 }
 

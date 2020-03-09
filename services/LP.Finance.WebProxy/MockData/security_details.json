@@ -13,10 +13,10 @@
           "FieldName": "FixedRate"
         },
         {
-          "FieldName": "FinancingResetDateType"
+          "FieldName": "NextFinancingEndDateType"
         },
         {
-          "FieldName": "FinancingResetDate"
+          "FieldName": "NextFinancingEndDate"
         },
         {
           "FieldName": "DCCFixedRate"
@@ -53,6 +53,9 @@
         },
         {
           "FieldName": "DCCFixedRate"
+        },
+        {
+          "FieldName": "FloatingRate"
         }
       ]
     },
@@ -84,6 +87,12 @@
           "FieldName": "FinancingResetDate"
         },
         {
+          "FieldName": "NextFinancingEndDateType"
+        },
+        {
+          "FieldName": "NextFinancingEndDate"
+        },
+        {
           "FieldName": "DCCFixedRate"
         },
         {
@@ -94,6 +103,9 @@
         },
         {
           "FieldName": "PremiumFrequency"
+        },
+        {
+          "FieldName": "DCCFloatingRate"
         }
       ]
 
