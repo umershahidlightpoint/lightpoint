@@ -271,7 +271,7 @@ export class DividendsComponent implements OnInit, AfterViewInit {
 
     this.dividendDetailsGrid = {
       rowData: [],
-      pinnedBottomRowData: [],
+      pinnedBottomRowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       rowSelection: 'multiple',
       rowGroupPanelShow: 'after',
@@ -306,7 +306,6 @@ export class DividendsComponent implements OnInit, AfterViewInit {
           field: 'fund',
           headerName: 'Fund',
           width: 100,
-          rowGroup: true,
           enableRowGroup: true,
           filter: true,
           sortable: true
@@ -315,10 +314,18 @@ export class DividendsComponent implements OnInit, AfterViewInit {
           field: 'symbol',
           width: 120,
           headerName: 'Symbol',
-          rowGroup: true,
           enableRowGroup: true,
           sortable: true,
-          filter: true
+          filter: true,
+          cellClassRules: {
+            footerRow(params) {
+              if (params.node.rowPinned) {
+                return true;
+              } else {
+                return false;
+              }
+            }
+          }
         },
         {
           field: 'quantity',
@@ -362,7 +369,15 @@ export class DividendsComponent implements OnInit, AfterViewInit {
           sortable: true,
           cellClass: 'rightAlign',
           valueFormatter: moneyFormatter,
-          aggFunc: 'sum'
+          cellClassRules: {
+            footerRow(params) {
+              if (params.node.rowPinned) {
+                return true;
+              } else {
+                return false;
+              }
+            }
+          }
         },
         {
           field: 'base_withholding_amount',
@@ -372,7 +387,15 @@ export class DividendsComponent implements OnInit, AfterViewInit {
           sortable: true,
           cellClass: 'rightAlign',
           valueFormatter: moneyFormatter,
-          aggFunc: 'sum'
+          cellClassRules: {
+            footerRow(params) {
+              if (params.node.rowPinned) {
+                return true;
+              } else {
+                return false;
+              }
+            }
+          }
         },
         {
           field: 'base_net_dividend',
@@ -382,7 +405,15 @@ export class DividendsComponent implements OnInit, AfterViewInit {
           sortable: true,
           cellClass: 'rightAlign',
           valueFormatter: moneyFormatter,
-          aggFunc: 'sum'
+          cellClassRules: {
+            footerRow(params) {
+              if (params.node.rowPinned) {
+                return true;
+              } else {
+                return false;
+              }
+            }
+          }
         },
         {
           field: 'settlement_gross_dividend',
@@ -392,7 +423,15 @@ export class DividendsComponent implements OnInit, AfterViewInit {
           sortable: true,
           cellClass: 'rightAlign',
           valueFormatter: moneyFormatter,
-          aggFunc: 'sum'
+          cellClassRules: {
+            footerRow(params) {
+              if (params.node.rowPinned) {
+                return true;
+              } else {
+                return false;
+              }
+            }
+          }
         },
         {
           field: 'settlement_withholdings_amount',
@@ -402,7 +441,15 @@ export class DividendsComponent implements OnInit, AfterViewInit {
           sortable: true,
           cellClass: 'rightAlign',
           valueFormatter: moneyFormatter,
-          aggFunc: 'sum'
+          cellClassRules: {
+            footerRow(params) {
+              if (params.node.rowPinned) {
+                return true;
+              } else {
+                return false;
+              }
+            }
+          }
         },
         {
           field: 'settlement_local_net_dividend',
@@ -412,7 +459,15 @@ export class DividendsComponent implements OnInit, AfterViewInit {
           sortable: true,
           cellClass: 'rightAlign',
           valueFormatter: moneyFormatter,
-          aggFunc: 'sum'
+          cellClassRules: {
+            footerRow(params) {
+              if (params.node.rowPinned) {
+                return true;
+              } else {
+                return false;
+              }
+            }
+          }
         },
         {
           field: 'active_flag',
@@ -456,6 +511,7 @@ export class DividendsComponent implements OnInit, AfterViewInit {
       if(response.statusCode === 200){
         let dividendDetail = response.payload;
         this.dividendDetailsGrid.api.sizeColumnsToFit();
+        this.setPinnedBottomRowData(dividendDetail);
         this.dividendDetailsGrid.api.setRowData(dividendDetail);
         this.dividendDetailsGrid.api.expandAll();
       } else {
@@ -594,6 +650,32 @@ export class DividendsComponent implements OnInit, AfterViewInit {
     this.getDividends();
   }
 
+  setPinnedBottomRowData(data){
+    this.pinnedBottomRowData = [
+      {
+        fund: '',
+        symbol: 'Total: ',
+        quantity: undefined,
+        execution_date: undefined,
+        fx_rate: undefined,
+        currency: '',
+        base_gross_dividend: this.sum(data,"base_gross_dividend"),
+        base_withholding_amount: this.sum(data, "base_withholding_amount"),
+        base_net_dividend: this.sum(data, "base_net_dividend"),
+        settlement_gross_dividend: this.sum(data, "settlement_gross_dividend"),
+        settlement_withholdings_amount: this.sum(data, "settlement_withholdings_amount"),
+        settlement_local_net_dividend: this.sum(data, "settlement_local_net_dividend"),
+      }
+    ];
+    this.dividendDetailsGrid.api.setPinnedBottomRowData(this.pinnedBottomRowData);
+  }
+
+  sum(items, prop){
+      return items.reduce( function(a, b){
+          return Math.abs(a + b[prop]);
+      }, 0);
+  }
+
   clearFilters() {
     this.selected = null;
     this.filterBySymbol = '';
@@ -688,6 +770,7 @@ export class DividendsComponent implements OnInit, AfterViewInit {
   openDataGridModal(rowNode) {
     const { id } = rowNode.node.data;
     this.corporateActionsApiService.getDividendDetail(id).subscribe(response => {
+      if(response.statusCode === 200){
       const { payload } = response;
       const columns = this.getAuditColDefs();
       const modifiedCols = columns.map(col => {
@@ -695,6 +778,9 @@ export class DividendsComponent implements OnInit, AfterViewInit {
       });
       this.title = 'Dividend Audit Trail';
       this.dataGridModal.openModal(modifiedCols, payload);
+      }
+    }, err => {
+
     });
   }
 
