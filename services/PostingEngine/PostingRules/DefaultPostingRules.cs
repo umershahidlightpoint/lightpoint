@@ -112,7 +112,7 @@ namespace PostingEngine.PostingRules
                 Symbol = taxLotStatus.Symbol,
                 Quantity = quantity,
                 FxRate = fxRate,
-                Value = env.SignedValue(fromToAccounts.From, fromToAccounts.To, true, unrealizedPnl),
+                Value = AccountCategory.SignedValue(fromToAccounts.From, fromToAccounts.To, true, unrealizedPnl),
                 CreditDebit = env.DebitOrCredit(fromToAccounts.From, unrealizedPnl),
                 StartPrice = prevEodPrice,
                 EndPrice = eodPrice,
@@ -123,7 +123,7 @@ namespace PostingEngine.PostingRules
             var credit = new Journal(debit)
             {
                 Account = fromToAccounts.To,
-                Value = env.SignedValue(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnl),
+                Value = AccountCategory.SignedValue(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnl),
                 CreditDebit = env.DebitOrCredit(fromToAccounts.To, unrealizedPnl),
             };
 
@@ -202,6 +202,11 @@ namespace PostingEngine.PostingRules
                 {
                     // TODO: Need to review this as we need to see if there is a parent, and what the parents actuall is
                     return;
+                }
+
+                if ( env.ValueDate == new DateTime(2019,04,01))
+                {
+
                 }
 
                 var tl = env.GenerateOpenTaxLotStatus(element, fxrate);
@@ -453,7 +458,7 @@ namespace PostingEngine.PostingRules
                 StartPrice = start,
                 EndPrice = end,
 
-                Value = env.SignedValue(fromTo.From, fromTo.To, true, realizedFxPnl),
+                Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, true, realizedFxPnl),
                 CreditDebit = env.DebitOrCredit(fromTo.From, realizedFxPnl),
             };
 
@@ -470,7 +475,7 @@ namespace PostingEngine.PostingRules
                 StartPrice = start,
                 EndPrice = end,
 
-                Value = env.SignedValue(fromTo.From, fromTo.To, false, realizedFxPnl),
+                Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, false, realizedFxPnl),
                 CreditDebit = env.DebitOrCredit(fromTo.To, realizedFxPnl),
             };
 
@@ -494,7 +499,7 @@ namespace PostingEngine.PostingRules
                 StartPrice = 0,
                 EndPrice = 0,
 
-                Value = env.SignedValue(fromTo.From, fromTo.To, true, reversalAmount * -1),
+                Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, true, reversalAmount * -1),
                 CreditDebit = env.DebitOrCredit(fromTo.From, reversalAmount),
             };
 
@@ -511,7 +516,7 @@ namespace PostingEngine.PostingRules
                 StartPrice = 0,
                 EndPrice = 0,
 
-                Value = env.SignedValue(fromTo.From, fromTo.To, false, reversalAmount * -1),
+                Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, false, reversalAmount * -1),
                 CreditDebit = env.DebitOrCredit(fromTo.To, reversalAmount),
             };
 
@@ -546,14 +551,14 @@ namespace PostingEngine.PostingRules
                 StartPrice = start,
                 EndPrice = end,
 
-                Value = env.SignedValue(fromTo.From, fromTo.To, true, fxTranslationPnl),
+                Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, true, fxTranslationPnl),
                 CreditDebit = env.DebitOrCredit(fromTo.From, fxTranslationPnl),
             };
 
             var credit = new Journal(debit)
             {
                 Account = fromTo.To,
-                Value = env.SignedValue(fromTo.From, fromTo.To, false, fxTranslationPnl),
+                Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, false, fxTranslationPnl),
                 CreditDebit = env.DebitOrCredit(fromTo.To, fxTranslationPnl),
             };
 

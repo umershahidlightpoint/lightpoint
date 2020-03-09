@@ -5,6 +5,14 @@ using System.Linq;
 
 namespace LP.Finance.Common.Models
 {
+    /* Account      Increase    Decrease
+    * Assets       Debit       Credit
+    * Expences     Debit       Credit
+    * Liabilities  Credit      Debit
+    * Equity       Credit      Debit
+    * Revenue      Credit      Debit
+    */
+
     public class AccountCategory : IDbAction
     {
         public const int AC_ASSET = 1;
@@ -61,5 +69,120 @@ namespace LP.Finance.Common.Models
         public KeyValuePair<string, SqlParameter[]> Update => throw new NotImplementedException();
 
         public KeyValuePair<string, SqlParameter[]> Delete => throw new NotImplementedException();
+
+        /// <summary>
+        /// Determine how to set the Value of the Journal, this will be based on the 
+        /// </summary>
+        /// <param name="fromAccount">The account from where the flow will start</param>
+        /// <param name="toAccount">The account to where the flow will end</param>
+        /// <param name="debit">Is this from the perspective of the debit account</param>
+        /// <param name="value">The value to be posted</param>
+        /// <returns>The correct signed value</returns>
+        /// 
+
+        public static double SignedValue(Account fromAccount, Account toAccount, bool debit, double value)
+        {
+            return SignedValue(fromAccount.Type.Category.Id, toAccount.Type.Category.Id, debit, value);
+        }
+
+        public static double SignedValue(int fromCategory, int toCategory, bool debit, double value)
+        {
+            if (debit)
+                return value;
+
+            if (fromCategory == toCategory)
+            {
+                return value * -1;
+            }
+
+            if (fromCategory == AccountCategory.AC_ASSET)
+            {
+                switch (toCategory)
+                {
+                    case AccountCategory.AC_ASSET:
+                        return value * -1;
+                    case AccountCategory.AC_LIABILITY:
+                        return value;
+                    case AccountCategory.AC_REVENUES:
+                        return value;
+                    case AccountCategory.AC_EQUITY:
+                        return value;
+                    case AccountCategory.AC_EXPENCES:
+                        return value * -1;
+                }
+            }
+
+            if (fromCategory == AccountCategory.AC_LIABILITY)
+            {
+                switch (toCategory)
+                {
+                    case AccountCategory.AC_ASSET:
+                        return value;
+                    case AccountCategory.AC_LIABILITY:
+                        return value * -1;
+                    case AccountCategory.AC_REVENUES:
+                        return value * -1;
+                    case AccountCategory.AC_EQUITY:
+                        return value * -1;
+                    case AccountCategory.AC_EXPENCES:
+                        return value;
+                }
+            }
+
+            if (fromCategory == AccountCategory.AC_REVENUES)
+            {
+                switch (toCategory)
+                {
+                    case AccountCategory.AC_ASSET:
+                        return value;
+                    case AccountCategory.AC_LIABILITY:
+                        return value * -1;
+                    case AccountCategory.AC_REVENUES:
+                        return value * -1;
+                    case AccountCategory.AC_EQUITY:
+                        return value * -1;
+                    case AccountCategory.AC_EXPENCES:
+                        return value;
+                }
+            }
+
+            if (fromCategory == AccountCategory.AC_EQUITY)
+            {
+                switch (toCategory)
+                {
+                    case AccountCategory.AC_ASSET:
+                        return value;
+                    case AccountCategory.AC_LIABILITY:
+                        return value * -1;
+                    case AccountCategory.AC_REVENUES:
+                        return value * -1;
+                    case AccountCategory.AC_EQUITY:
+                        return value * -1;
+                    case AccountCategory.AC_EXPENCES:
+                        return value;
+                }
+            }
+
+            if (fromCategory == AccountCategory.AC_EXPENCES)
+            {
+                switch (toCategory)
+                {
+                    case AccountCategory.AC_ASSET:
+                        return value * -1;
+                    case AccountCategory.AC_LIABILITY:
+                        return value;
+                    case AccountCategory.AC_REVENUES:
+                        return value;
+                    case AccountCategory.AC_EQUITY:
+                        return value;
+                    case AccountCategory.AC_EXPENCES:
+                        return value * -1;
+                }
+            }
+
+            return value;
+        }
+
+
     }
 }

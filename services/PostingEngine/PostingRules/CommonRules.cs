@@ -1,5 +1,6 @@
 ﻿using LP.Finance.Common.Model;
 using LP.Finance.Common.Models;
+using NLog;
 using PostingEngine.Contracts;
 using PostingEngine.Extensions;
 using PostingEngine.MarketData;
@@ -7,6 +8,7 @@ using PostingEngine.PostingRules.Utilities;
 using PostingEngine.TaxLotMethods;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +17,8 @@ namespace PostingEngine.PostingRules
 {
     internal static class CommonRules
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// Relieves the passed Taxlot
         /// </summary>
@@ -201,7 +205,7 @@ namespace PostingEngine.PostingRules
                 {
                     Account = accountToFrom.From,
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, backoutLocal),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, backoutLocal * fxrate),
+                    Value = AccountCategory.SignedValue(accountToFrom.From, accountToFrom.To, true, backoutLocal * fxrate),
                     When = env.ValueDate,
                     FxRate = fxrate,
                     Event = Event.SETTLEMENT,
@@ -212,7 +216,7 @@ namespace PostingEngine.PostingRules
                 {
                     Account = accountToFrom.To,
                     CreditDebit = env.DebitOrCredit(accountToFrom.To, backoutLocal * -1),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, backoutLocal * fxrate),
+                    Value = AccountCategory.SignedValue(accountToFrom.From, accountToFrom.To, false, backoutLocal * fxrate),
                 };
 
                 env.Journals.AddRange(new[] { debit, credit });
@@ -254,7 +258,7 @@ namespace PostingEngine.PostingRules
                 {
                     Account = accountToFrom.From,
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, backout),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, backout),
+                    Value = AccountCategory.SignedValue(accountToFrom.From, accountToFrom.To, true, backout),
 
                     When = env.ValueDate,
                     FxRate = fxrate,
@@ -266,7 +270,7 @@ namespace PostingEngine.PostingRules
                 {
                     Account = accountToFrom.To,
                     CreditDebit = env.DebitOrCredit(accountToFrom.To, backout * -1),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, backout),
+                    Value = AccountCategory.SignedValue(accountToFrom.From, accountToFrom.To, false, backout),
                 };
 
                 env.Journals.AddRange(new[] { debit, credit });
@@ -423,7 +427,7 @@ namespace PostingEngine.PostingRules
                 StartPrice = 0,
                 EndPrice = 0,
                 CreditDebit = env.DebitOrCredit(fromAccount, value),
-                Value = env.SignedValue(fromAccount, toAccount, true, value),
+                Value = AccountCategory.SignedValue(fromAccount, toAccount, true, value),
                 FxRate = element.FactoredTradePrice(),
                 Event = Event.REALIZED_PNL,
                 Fund = env.GetFund(element),
@@ -433,7 +437,7 @@ namespace PostingEngine.PostingRules
             {
                 Account = toAccount,
                 CreditDebit = env.DebitOrCredit(toAccount, value),
-                Value = env.SignedValue(fromAccount, toAccount, false, value),
+                Value = AccountCategory.SignedValue(fromAccount, toAccount, false, value),
             };
 
             env.Journals.AddRange(new[] { debitJournal, creditJournal });
@@ -454,7 +458,7 @@ namespace PostingEngine.PostingRules
                 StartPrice = taxlot.TradePrice,
                 EndPrice = taxlot.CostBasis,
                 CreditDebit = env.DebitOrCredit(fromAccount, value),
-                Value = env.SignedValue(fromAccount, toAccount, true, value),
+                Value = AccountCategory.SignedValue(fromAccount, toAccount, true, value),
                 FxRate = fxrate,
                 Event = Event.REALIZED_PNL,
                 Fund = env.GetFund(element),
@@ -464,7 +468,7 @@ namespace PostingEngine.PostingRules
             {
                 Account = toAccount,
                 CreditDebit = env.DebitOrCredit(toAccount, value),
-                Value = env.SignedValue(fromAccount, toAccount, false, value),
+                Value = AccountCategory.SignedValue(fromAccount, toAccount, false, value),
             };
 
             env.Journals.AddRange(new[] { fromJournal, toJournal});
@@ -490,7 +494,7 @@ namespace PostingEngine.PostingRules
                 StartPrice = 0,
                 EndPrice = 0,
                 CreditDebit = env.DebitOrCredit(fromAccount, realizedPnl),
-                Value = env.SignedValue(fromAccount, toAccount, true, realizedPnl),
+                Value = AccountCategory.SignedValue(fromAccount, toAccount, true, realizedPnl),
                 FxRate = element.FactoredTradePrice(),
                 Event = Event.REALIZED_PNL,
                 Fund = env.GetFund(element),
@@ -502,7 +506,7 @@ namespace PostingEngine.PostingRules
                 EndPrice = 0,
                 FxRate = element.FactoredTradePrice(),
                 CreditDebit = env.DebitOrCredit(toAccount, realizedPnl),
-                Value = env.SignedValue(fromAccount, toAccount, false, realizedPnl),
+                Value = AccountCategory.SignedValue(fromAccount, toAccount, false, realizedPnl),
                 Fund = env.GetFund(element),
             };
 
@@ -535,7 +539,7 @@ namespace PostingEngine.PostingRules
                 StartPrice = start,
                 EndPrice = end,
                 CreditDebit = env.DebitOrCredit(accountToFrom.From, fromAmount),
-                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, fromAmount),
+                Value = AccountCategory.SignedValue(accountToFrom.From, accountToFrom.To, true, fromAmount),
                 FxRate = fxrate,
                 Event = Event.REALIZED_PNL,
                 Fund = fund
@@ -547,7 +551,7 @@ namespace PostingEngine.PostingRules
                 EndPrice = end,
                 FxRate = fxrate,
                 CreditDebit = env.DebitOrCredit(accountToFrom.To, toAmount),
-                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, toAmount),
+                Value = AccountCategory.SignedValue(accountToFrom.From, accountToFrom.To, false, toAmount),
                 Fund = fund
             };
 
@@ -610,14 +614,14 @@ namespace PostingEngine.PostingRules
 
                 Account = accountToFrom.From,
                 CreditDebit = env.DebitOrCredit(accountToFrom.From, unrealizedPnl),
-                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, unrealizedPnl),
+                Value = AccountCategory.SignedValue(accountToFrom.From, accountToFrom.To, true, unrealizedPnl),
             };
 
             var toJournal = new Journal(fromJournal)
             {
                 Account = accountToFrom.To,
                 CreditDebit = env.DebitOrCredit(accountToFrom.To, unrealizedPnl),
-                Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, unrealizedPnl),
+                Value = AccountCategory.SignedValue(accountToFrom.From, accountToFrom.To, false, unrealizedPnl),
             };
 
             env.Journals.AddRange(new[] { fromJournal, toJournal });
@@ -769,7 +773,7 @@ namespace PostingEngine.PostingRules
                 var fromJournal = new Journal(element, accountToFrom.From, Event.TRADE_DATE, env.ValueDate)
                 {
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
+                    Value = AccountCategory.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
                     FxRate = fxrate,
                     StartPrice = closingTaxLot.Trade.FactoredSettleNetPrice(),
                     EndPrice = eodPrice,
@@ -780,7 +784,7 @@ namespace PostingEngine.PostingRules
                 {
                     Account = accountToFrom.To,
                     CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
+                    Value = AccountCategory.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
                 };
 
                 env.Journals.AddRange(new[] { fromJournal, toJournal });
@@ -789,6 +793,8 @@ namespace PostingEngine.PostingRules
 
         internal static void GenerateTradeDateJournals(PostingEngineEnvironment env, Transaction element)
         {
+            Logger.Info($"tradedate event :: {element.LpOrderId}");
+
             var multiplier = element.Multiplier(env);
             double fxrate = 1.0;
 
@@ -839,7 +845,7 @@ namespace PostingEngine.PostingRules
                 var fromJournal = new Journal(element, accountToFrom.From, Event.TRADE_DATE, env.ValueDate)
                 {
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
+                    Value = AccountCategory.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
                     FxRate = fxrate,
                     StartPrice = element.FactoredSettleNetPrice(),
                     EndPrice = eodPrice,
@@ -850,7 +856,7 @@ namespace PostingEngine.PostingRules
                 {
                     FxRate = fxrate,
                     CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
+                    Value = AccountCategory.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
                     StartPrice = element.FactoredSettleNetPrice(),
                     EndPrice = eodPrice,
                     Fund = env.GetFund(element),
@@ -906,7 +912,7 @@ namespace PostingEngine.PostingRules
                 {
                     Account = accountToFrom.From,
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
+                    Value = AccountCategory.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
 
                     When = env.ValueDate,
                     FxRate = fxrate,
@@ -918,7 +924,7 @@ namespace PostingEngine.PostingRules
                 {
                     Account = accountToFrom.To,
                     CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
+                    Value = AccountCategory.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
                 };
 
                 env.Journals.AddRange(new[] { debit, credit });

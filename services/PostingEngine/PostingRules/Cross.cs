@@ -199,7 +199,7 @@ namespace PostingEngine.PostingRules
                         StartPrice = 0,
                         EndPrice = 0,
 
-                        Value = env.SignedValue(accountBuy, accountSell, true, buyValue),
+                        Value = AccountCategory.SignedValue(accountBuy, accountSell, true, buyValue),
                         CreditDebit = env.DebitOrCredit(accountBuy, buy.Quantity),
                     };
 
@@ -220,7 +220,7 @@ namespace PostingEngine.PostingRules
                         StartPrice = 0,
                         EndPrice = 0,
 
-                        Value = env.SignedValue(accountBuy, accountSell, true, sellValue),
+                        Value = AccountCategory.SignedValue(accountBuy, accountSell, true, sellValue),
                         CreditDebit = env.DebitOrCredit(accountSell, sell.Quantity),
                     };
 
@@ -254,7 +254,7 @@ namespace PostingEngine.PostingRules
                         StartPrice = 0,
                         EndPrice = 0,
 
-                        Value = env.SignedValue(accountBuy, accountSell, true, buy.Quantity * buyFx.Rate),
+                        Value = AccountCategory.SignedValue(accountBuy, accountSell, true, buy.Quantity * buyFx.Rate),
                         CreditDebit = env.DebitOrCredit(accountBuy, buy.Quantity),
                     };
 
@@ -276,7 +276,7 @@ namespace PostingEngine.PostingRules
                         StartPrice = 0,
                         EndPrice = 0,
 
-                        Value = env.SignedValue(accountBuy, accountSell, true, sell.Quantity * sellFx.Rate),
+                        Value = AccountCategory.SignedValue(accountBuy, accountSell, true, sell.Quantity * sellFx.Rate),
                         CreditDebit = env.DebitOrCredit(accountSell, sell.Quantity),
                     };
 

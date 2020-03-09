@@ -26,6 +26,9 @@ namespace LP.Finance.Common.Model
         public static readonly string DAILY_UNREALIZED_PNL = "daily-unrealizedpnl";
         public static readonly string REVERSE_UNREALIZED_PNL = "reverse-unrealizedpnl";
 
+        public static readonly string CASH_PAYMENT = "cash-payment";
+
+
         public static readonly string SETTLED_CASH = "settled-cash";
 
         public static readonly string JOURNAL = "journal";

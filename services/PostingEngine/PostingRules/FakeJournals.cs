@@ -270,7 +270,7 @@ namespace PostingEngine.PostingRules
 
                     Account = accountToFrom.From,
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
+                    Value = AccountCategory.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
 
                     When = env.ValueDate,
                     FxRate = fxrate,
@@ -282,7 +282,7 @@ namespace PostingEngine.PostingRules
                 {
                     Account = accountToFrom.To,
                     CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD),
-                    Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
+                    Value = AccountCategory.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
                 };
 
                 env.Journals.AddRange(new[] { debit, credit });
