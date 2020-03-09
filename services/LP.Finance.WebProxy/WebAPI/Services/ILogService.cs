@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LP.Finance.WebProxy.WebAPI.Services
+﻿namespace LP.Finance.WebProxy.WebAPI.Services
 {
     interface ILogService
     {
         object GetLogFiles();
+        object ViewLog(string fileName, int numberOfLines);
         object DownloadLog(string fileName);
     }
 }

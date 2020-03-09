@@ -205,13 +205,22 @@
                       </select>
                 </div>
 
-                <div class="col-sm-2 pl-1 pr-1" *ngIf="resetDate">
+                <div class="col-sm-2 pl-1 pr-1" *ngIf="fNoOfDays">
+                  <input
+                     class="form-control"
+                     formControlName="financingNoOfDays"
+                     type="text"
+                     (keypress)="numberOnly($event)"
+                     autocomplete="off"
+                    >
+              </div>
+
+                <div class="col-sm-2 pl-1 pr-1" [hidden]="!resetDate">
                     <input
                     ngxDaterangepickerMd
                     formControlName="financingResetDate"
                     class="form-control bc-white"
                     type="text"
-                    placeholder="Select reset date"
                     name="financingResetDate"
                     [singleDatePicker]="true"
                     [autoApply]="true"
@@ -246,7 +255,17 @@
 
                     </div>
 
-                    <div class="col-sm-2 pl-1 pr-1" *ngIf="endDate">
+                    <div class="col-sm-2 pl-1 pr-1" *ngIf="nextFinanceNoOfDays">
+                      <input
+                         class="form-control"
+                         formControlName="nextFinancingNoOfDays"
+                         type="text"
+                         (keypress)="numberOnly($event)"
+                         autocomplete="off"
+                        >
+                  </div>
+
+                    <div class="col-sm-2 pl-1 pr-1" [hidden]="!endDate">
                         <input
                         ngxDaterangepickerMd
                         formControlName="nextFinancingEndDate"

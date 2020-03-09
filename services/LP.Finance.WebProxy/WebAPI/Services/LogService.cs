@@ -1,16 +1,11 @@
 ﻿using LP.Finance.Common;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
@@ -23,10 +18,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var sw = new Stopwatch();
             sw.Start();
             try
-            { 
+            {
                 Logger.Info($"started GetLogFiles at {DateTime.UtcNow}");
                 var logFolder = ConfigurationManager.AppSettings["logLocation"];
-                if ( String.IsNullOrEmpty(logFolder))
+                if (String.IsNullOrEmpty(logFolder))
                     logFolder = System.AppDomain.CurrentDomain.BaseDirectory;
 
                 if (Directory.Exists(logFolder))
@@ -35,10 +30,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     var fileNames = fileList.Select(x => new
                     {
                         FileName = System.IO.Path.GetFileName(x)
-                    }).ToList();
+                    }).OrderByDescending(x => x.FileName).Take(30).ToList();
 
                     sw.Stop();
-                    Logger.Info($"finished GetLogFiles at {DateTime.UtcNow} in {sw.ElapsedMilliseconds} ms | {sw.ElapsedMilliseconds / 1000} s");
+                    Logger.Info(
+                        $"finished GetLogFiles at {DateTime.UtcNow} in {sw.ElapsedMilliseconds} ms | {sw.ElapsedMilliseconds / 1000} s");
                     return Utils.Wrap(true, fileNames, HttpStatusCode.OK);
                 }
                 else
@@ -46,26 +42,46 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     return Utils.Wrap(false, null);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 sw.Stop();
-                Logger.Error(ex, $"GetLogFiles failed at {DateTime.UtcNow} in {sw.ElapsedMilliseconds} ms | {sw.ElapsedMilliseconds / 1000} s");
+                Logger.Error(ex,
+                    $"GetLogFiles failed at {DateTime.UtcNow} in {sw.ElapsedMilliseconds} ms | {sw.ElapsedMilliseconds / 1000} s");
                 throw ex;
             }
+        }
+
+        public object ViewLog(string fileName, int numberOfLines)
+        {
+            var logFolder = ConfigurationManager.AppSettings["logLocation"];
+
+            if (string.IsNullOrEmpty(logFolder))
+                logFolder = AppDomain.CurrentDomain.BaseDirectory;
+
+            logFolder = logFolder + Path.DirectorySeparatorChar + fileName;
+
+            var lines = File.ReadLines(logFolder).ToArray();
+
+            return lines.Skip(lines.Length - numberOfLines);
         }
 
         public object DownloadLog(string fileName)
         {
             var logFolder = ConfigurationManager.AppSettings["logLocation"];
-            if (String.IsNullOrEmpty(logFolder))
-                logFolder = System.AppDomain.CurrentDomain.BaseDirectory;
+
+            if (string.IsNullOrEmpty(logFolder))
+                logFolder = AppDomain.CurrentDomain.BaseDirectory;
 
             logFolder = logFolder + Path.DirectorySeparatorChar + fileName;
 
             var dataBytes = File.ReadAllBytes(logFolder);
             var dataStream = new MemoryStream(dataBytes);
-            HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
-            response.Content = new StreamContent(dataStream);
+
+            HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StreamContent(dataStream)
+            };
+
             return response;
         }
     }
