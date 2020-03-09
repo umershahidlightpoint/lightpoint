@@ -1,45 +1,75 @@
-import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import {
-  HeightStyle,
+  Component,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+  ElementRef,
+  ChangeDetectorRef
+} from '@angular/core';
+import { DecimalPipe } from '@angular/common';
+import { ColDef, ColGroupDef } from 'ag-grid-community';
+import { ToastrService } from 'ngx-toastr';
+import * as moment from 'moment';
+import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
+import { GridId, GridName, LayoutConfig } from 'src/shared/utils/AppEnums';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { CacheService } from 'src/services/common/cache.service';
+import { FinanceServiceProxy } from 'src/services/service-proxies';
+import { DailyUnofficialPnLData } from 'src/shared/Models/funds-theoretical';
+import { GraphObject } from 'src/shared/Models/graph-object';
+import { UtilsConfig } from 'src/shared/Models/utils-config';
+import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.service';
+import {
   SideBar,
+  getRange,
+  SetDateRange,
+  GetDateRangeLabel,
+  HeightStyle,
   AutoSizeAllColumns,
   PercentageFormatter,
   DateFormatter
 } from 'src/shared/utils/Shared';
-import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
-import { GridLayoutMenuComponent } from 'lp-toolkit';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { DecimalPipe } from '@angular/common';
-import { FinanceServiceProxy } from 'src/services/service-proxies';
-import { ToastrService } from 'ngx-toastr';
-import { UtilsConfig } from 'src/shared/Models/utils-config';
-import { DailyUnofficialPnLData } from 'src/shared/Models/funds-theoretical';
-import * as moment from 'moment';
-import { GraphObject } from 'src/shared/Models/graph-object';
-import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.service';
 
 @Component({
   selector: 'app-daily-pnl',
   templateUrl: './daily-pnl.component.html',
   styleUrls: ['./daily-pnl.component.scss']
 })
-export class DailyPnlComponent implements OnInit {
+export class DailyPnlComponent implements OnInit, AfterViewInit {
   @ViewChild('fileInput', { static: false }) fileInput: ElementRef;
 
-  dailyPnlGrid: GridOptions;
+  dailyPnlGrid: CustomGridOptions;
+  dailyPnLConfig: {
+    dailyPnLSize: number;
+    chartsSize: number;
+    dailyPnLView: boolean;
+    chartsView: boolean;
+    useTransition: boolean;
+  } = {
+    dailyPnLSize: 50,
+    chartsSize: 50,
+    dailyPnLView: true,
+    chartsView: false,
+    useTransition: true
+  };
   selectedDate = null;
   dailyPnLData: Array<DailyUnofficialPnLData>;
   funds: Array<string>;
   portfolios: Array<string>;
   fileToUpload: File = null;
   totalGridRows: number;
-  isExpanded = false;
   graphObject: GraphObject = null;
   disableCharts = true;
   sliderValue = 0;
   uploadLoader = false;
   disableFileUpload = true;
+
+  DateRangeLabel: string;
+  selected: { startDate: moment.Moment; endDate: moment.Moment };
+  startDate: moment.Moment;
+  endDate: moment.Moment;
+  ranges: any;
+  fundsRange: any;
 
   styleForHeight = HeightStyle(224);
 
@@ -52,16 +82,112 @@ export class DailyPnlComponent implements OnInit {
   };
 
   constructor(
+    private cdRef: ChangeDetectorRef,
     private financeService: FinanceServiceProxy,
     private fundTheoreticalApiService: FundTheoreticalApiService,
     private toastrService: ToastrService,
-    public decimalPipe: DecimalPipe
+    public decimalPipe: DecimalPipe,
+    private cacheService: CacheService
   ) {}
 
   ngOnInit() {
     this.getFunds();
-    this.getDailyPnL();
+    // this.getDailyPnL();
     this.initGrid();
+    this.getPreDefinedRanges();
+  }
+
+  ngAfterViewInit(): void {
+    this.initPageLayout();
+  }
+
+  initPageLayout() {
+    const persistUIState = this.cacheService.getConfigByKey(LayoutConfig.persistUIState);
+    if (!persistUIState || !JSON.parse(persistUIState.value)) {
+      return;
+    }
+
+    const config = this.cacheService.getConfigByKey(LayoutConfig.dailyPnLConfigKey);
+    if (config) {
+      this.dailyPnLConfig = JSON.parse(config.value);
+    }
+
+    this.cdRef.detectChanges();
+  }
+
+  applyPageLayout(event) {
+    if (event.sizes) {
+      this.dailyPnLConfig.dailyPnLSize = event.sizes[0];
+      this.dailyPnLConfig.chartsSize = event.sizes[1];
+    }
+
+    const persistUIState = this.cacheService.getConfigByKey(LayoutConfig.persistUIState);
+    if (!persistUIState || !JSON.parse(persistUIState.value)) {
+      return;
+    }
+
+    const config = this.cacheService.getConfigByKey(LayoutConfig.dailyPnLConfigKey);
+    const payload = {
+      id: !config ? 0 : config.id,
+      project: LayoutConfig.projectName,
+      uom: 'JSON',
+      key: LayoutConfig.dailyPnLConfigKey,
+      value: JSON.stringify(this.dailyPnLConfig),
+      description: LayoutConfig.dailyPnLConfigKey
+    };
+
+    if (!config) {
+      this.cacheService.addUserConfig(payload).subscribe(response => {
+        console.log('User Config Added');
+      });
+    } else {
+      this.cacheService.updateUserConfig(payload).subscribe(response => {
+        console.log('User Config Updated');
+      });
+    }
+  }
+
+  getPreDefinedRanges() {
+    const payload = {
+      GridName: GridName.journalsLedgers
+    };
+    this.cacheService.getServerSideJournalsMeta(payload).subscribe(
+      result => {
+        this.fundsRange = result.payload.FundsRange;
+        this.ranges = getRange(this.getCustomFundRange());
+      },
+      err => {}
+    );
+  }
+
+  onFilterChanged(event) {
+    try {
+      this.getDailyPnL();
+    } catch (ex) {}
+  }
+
+  getCustomFundRange(fund = 'All Funds') {
+    const customRange: any = {};
+
+    this.fundsRange.forEach(element => {
+      if (fund === 'All Funds' && moment().year() !== element.Year) {
+        [customRange[element.Year]] = [
+          [
+            moment(`${element.Year}-01-01`).startOf('year'),
+            moment(`${element.Year}-01-01`).endOf('year')
+          ]
+        ];
+      } else if (fund === element.fund && moment().year() !== element.Year) {
+        [customRange[element.Year]] = [
+          [
+            moment(`${element.Year}-01-01`).startOf('year'),
+            moment(`${element.Year}-01-01`).endOf('year')
+          ]
+        ];
+      }
+    });
+
+    return customRange;
   }
 
   getFunds() {
@@ -88,50 +214,60 @@ export class DailyPnlComponent implements OnInit {
   }
 
   getDailyPnL() {
-    this.fundTheoreticalApiService.getDailyUnofficialPnL().subscribe(response => {
-      const sortedData = response.payload.sort((x, y) => this.sortDailyPnl(x, y));
-
-      this.dailyPnLData = sortedData.map(data => ({
-        businessDate: DateFormatter(data.BusinessDate),
-        fund: data.Fund,
-        portFolio: data.PortFolio,
-        tradePnL: data.TradePnL,
-        day: data.Day,
-        dailyPercentageReturn: data.DailyPercentageReturn,
-        longPnL: data.LongPnL,
-        longPercentageChange: data.LongPercentageChange,
-        shortPnL: data.ShortPnL,
-        shortPercentageChange: data.ShortPercentageChange,
-        longExposure: data.LongExposure,
-        shortExposure: data.ShortExposure,
-        grossExposure: data.GrossExposure,
-        netExposure: data.NetExposure,
-        sixMdBetaNetExposure: data.SixMdBetaNetExposure,
-        twoYwBetaNetExposure: data.TwoYwBetaNetExposure,
-        sixMdBetaShortExposure: data.SixMdBetaShortExposure,
-        navMarket: data.NavMarket,
-        dividendUSD: data.DividendUSD,
-        commUSD: data.CommUSD,
-        feeTaxesUSD: data.FeeTaxesUSD,
-        financingUSD: data.FinancingUSD,
-        otherUSD: data.OtherUSD,
-        pnLPercentage: data.PnLPercentage,
-        mtdPercentageReturn: data.MTDPercentageReturn,
-        qtdPercentageReturn: data.QTDPercentageReturn,
-        ytdPercentageReturn: data.YTDPercentageReturn,
-        itdPercentageReturn: data.ITDPercentageReturn,
-        mtdPnL: data.MTDPnL,
-        qtdPnL: data.QTDPnL,
-        ytdPnL: data.YTDPnL,
-        itdPnL: data.ITDPnL,
-        createdBy: data.CreatedBy,
-        lastUpdatedBy: data.LastUpdatedBy,
-        createdDate: data.CreatedDate,
-        lastUpdatedDate: data.lastUpdatedDate
-      }));
-      this.dailyPnlGrid.api.setRowData(this.dailyPnLData);
-      AutoSizeAllColumns(this.dailyPnlGrid);
-    });
+    this.dailyPnlGrid.api.showLoadingOverlay();
+    const from = this.startDate ? moment(this.startDate).format('YYYY-MM-DD') : null;
+    const to = this.endDate ? moment(this.endDate).format('YYYY-MM-DD') : null;
+    this.fundTheoreticalApiService.getDailyUnofficialPnL(from, to).subscribe(
+      response => {
+        this.dailyPnlGrid.api.hideOverlay();
+        if (response.statusCode === 200) {
+          const sortedData = response.payload.sort((x, y) => this.sortDailyPnl(x, y));
+          this.dailyPnLData = sortedData.map(data => ({
+            businessDate: DateFormatter(data.BusinessDate),
+            fund: data.Fund,
+            portFolio: data.PortFolio,
+            tradePnL: data.TradePnL,
+            day: data.Day,
+            dailyPercentageReturn: data.DailyPercentageReturn,
+            longPnL: data.LongPnL,
+            longPercentageChange: data.LongPercentageChange,
+            shortPnL: data.ShortPnL,
+            shortPercentageChange: data.ShortPercentageChange,
+            longExposure: data.LongExposure,
+            shortExposure: data.ShortExposure,
+            grossExposure: data.GrossExposure,
+            netExposure: data.NetExposure,
+            sixMdBetaNetExposure: data.SixMdBetaNetExposure,
+            twoYwBetaNetExposure: data.TwoYwBetaNetExposure,
+            sixMdBetaShortExposure: data.SixMdBetaShortExposure,
+            navMarket: data.NavMarket,
+            dividendUSD: data.DividendUSD,
+            commUSD: data.CommUSD,
+            feeTaxesUSD: data.FeeTaxesUSD,
+            financingUSD: data.FinancingUSD,
+            otherUSD: data.OtherUSD,
+            pnLPercentage: data.PnLPercentage,
+            mtdPercentageReturn: data.MTDPercentageReturn,
+            qtdPercentageReturn: data.QTDPercentageReturn,
+            ytdPercentageReturn: data.YTDPercentageReturn,
+            itdPercentageReturn: data.ITDPercentageReturn,
+            mtdPnL: data.MTDPnL,
+            qtdPnL: data.QTDPnL,
+            ytdPnL: data.YTDPnL,
+            itdPnL: data.ITDPnL,
+            createdBy: data.CreatedBy,
+            lastUpdatedBy: data.LastUpdatedBy,
+            createdDate: data.CreatedDate,
+            lastUpdatedDate: data.lastUpdatedDate
+          }));
+          this.dailyPnlGrid.api.setRowData(this.dailyPnLData);
+          AutoSizeAllColumns(this.dailyPnlGrid);
+        }
+      },
+      err => {
+        this.dailyPnlGrid.api.hideOverlay();
+      }
+    );
   }
 
   initGrid() {
@@ -139,12 +275,14 @@ export class DailyPnlComponent implements OnInit {
       columnDefs: this.getColDefs(),
       rowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      getExternalFilterState: () => {
-        return {};
-      },
+      getExternalFilterState: this.getExternalFilterState.bind(this),
       pinnedBottomRowData: null,
       onRowSelected: params => {},
-      clearExternalFilter: () => {},
+      clearExternalFilter: this.clearExternalFilter.bind(this),
+      onFilterChanged: this.onFilterChanged.bind(this),
+      setExternalFilter: this.isExternalFilterPassed.bind(this),
+      isExternalFilterPresent: this.isExternalFilterPresent.bind(this),
+      doesExternalFilterPass: this.doesExternalFilterPass.bind(this),
       getContextMenuItems: this.getContextMenuItems.bind(this),
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
@@ -164,7 +302,7 @@ export class DailyPnlComponent implements OnInit {
       defaultColDef: {
         resizable: true
       }
-    } as GridOptions;
+    };
     this.dailyPnlGrid.sideBar = SideBar(GridId.dailyPnlId, GridName.dailyPnl, this.dailyPnlGrid);
   }
 
@@ -172,6 +310,50 @@ export class DailyPnlComponent implements OnInit {
     const colDefs = this.getColDefs();
     this.dailyPnlGrid.api.setColumnDefs(colDefs);
     this.dailyPnlGrid.api.sizeColumnsToFit();
+  }
+
+  clearExternalFilter() {
+    this.selected = null;
+    this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
+    this.endDate = moment();
+    this.dailyPnlGrid.api.onFilterChanged();
+  }
+
+  isExternalFilterPassed(object) {
+    const { dateFilter } = object;
+    this.setDateRange(dateFilter);
+    this.dailyPnlGrid.api.onFilterChanged();
+  }
+
+  setDateRange(dateFilter: any) {
+    const dates = SetDateRange(dateFilter, this.startDate, this.endDate);
+    this.startDate = dates[0];
+    this.endDate = dates[1];
+
+    this.selected =
+      dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
+  }
+
+  getExternalFilterState() {
+    return {
+      dateFilter:
+        this.DateRangeLabel !== ''
+          ? this.DateRangeLabel
+          : {
+              startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
+              endDate: this.endDate !== null ? this.endDate.format('YYYY-MM-DD') : ''
+            }
+    };
+  }
+
+  isExternalFilterPresent() {
+    if (this.startDate) {
+      return true;
+    }
+  }
+
+  doesExternalFilterPass(node: any) {
+    return true;
   }
 
   getColDefs(): Array<ColDef | ColGroupDef> {
@@ -400,8 +582,17 @@ export class DailyPnlComponent implements OnInit {
     return GetContextMenu(false, addDefaultItems, true, null, params);
   }
 
-  expandedClicked() {
-    this.isExpanded = !this.isExpanded;
+  ngModelChange(e) {
+    this.startDate = e.startDate;
+    this.endDate = e.endDate;
+
+    this.getRangeLabel();
+    this.dailyPnlGrid.api.onFilterChanged();
+  }
+
+  getRangeLabel() {
+    this.DateRangeLabel = '';
+    this.DateRangeLabel = GetDateRangeLabel(this.startDate, this.endDate);
   }
 
   visualizeData() {
@@ -441,7 +632,7 @@ export class DailyPnlComponent implements OnInit {
       dateTimeFormat: 'YYYY-MM-DD',
       referenceDate: toDate
     };
-    this.isExpanded = true;
+    this.dailyPnLConfig.chartsView = true;
     this.disableCharts = false;
   }
 

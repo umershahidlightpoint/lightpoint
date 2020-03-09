@@ -1,13 +1,4 @@
 ﻿using LP.Finance.WebProxy.WebAPI.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 using System.Web.Http;
 
 namespace LP.Finance.WebProxy.WebAPI
@@ -21,6 +12,12 @@ namespace LP.Finance.WebProxy.WebAPI
         public object GetLogFiles()
         {
             return service.GetLogFiles();
+        }
+
+        [HttpGet, Route("view")]
+        public object ViewLogFile(string fileName, int numberOfLines)
+        {
+            return service.ViewLog(fileName, numberOfLines);
         }
 
         [HttpGet, Route("download")]

@@ -1,7 +1,26 @@
-<!-- Action Buttons Form Tag Starts -->
+<!-- Action Buttons Form -->
 <form>
-  <!-- Form Row Div Starts -->
+
+  <!-- Form Row -->
   <div class="form-row">
+
+    <!-- Date Filter -->
+    <div class="col-auto">
+      <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off" placeholder="Choose date"
+        [(ngModel)]="selected" name="selectedDaterange" [ranges]="ranges" [showClearButton]="true"
+        [alwaysShowCalendars]="true" (ngModelChange)="ngModelChange($event)" [keepCalendarOpeningWithRange]="true" />
+    </div>
+    <!-- Date Filter Ends -->
+
+    <!-- Clear Filters -->
+    <div class="col-auto">
+      <button (click)="clearExternalFilter()" class="btn btn-pa" tooltip="Clear" placement="top">
+        <i class="fa fa-remove"></i>
+      </button>
+    </div>
+    <!-- Clear Filters Ends -->
+
+    <!-- Grid Utils Container -->
     <div class="ml-auto mr-2">
 
       <!-- Grid Utils Starts -->
@@ -9,41 +28,60 @@
       </app-grid-utils>
       <!-- Grid Utils Ends -->
 
-      <!-- Show Calculation Graphs Button -->
-      <ng-template #tooltipTemplate>{{isExpanded ? 'Hide Graph' : 'View Graph'}}</ng-template>
-      <button class="btn btn-pa" type="button" [tooltip]="tooltipTemplate" [disabled]="disableCharts"
-        (click)="expandedClicked()">
-        <i class="fa fa-line-chart"></i>
-      </button>
-      <!-- Show Calculation Graphs Button -->
-
+      <!-- Expand/Collapse Button -->
+      <div class="mr-3 d-inline-block">
+        <ng-template #tooltipTemplate>{{dailyPnLConfig.chartsView ? 'Expand' : 'Collapse'}}</ng-template>
+        <button class="btn btn-pa" [disabled]="disableCharts" [tooltip]="tooltipTemplate" placement="top"
+          (click)="dailyPnLConfig.chartsView = !dailyPnLConfig.chartsView">
+          <i class="fa"
+            [ngClass]="{'fa-arrow-right': dailyPnLConfig.chartsView, 'fa-arrow-left': !dailyPnLConfig.chartsView}"></i>
+        </button>
+      </div>
+      <!-- Expand/Collapse Button Ends -->
 
     </div>
-    <!-- Action Buttons Div Ends -->
-  </div>
-  <!-- Form Row Div Ends -->
-</form>
-<!-- Action Buttons Form Tag Ends -->
+    <!-- Grid Utils Container Ends -->
 
-<!----- Div To Measure Identifier starts ----->
-<div #divToMeasure>
-  <!----- Style For Height ----->
-  <div [ngStyle]="styleForHeight">
-    <div class="row h-100">
-      <!----- Ag Grid Tag Starts ----->
-      <div [ngClass]="{'col-6': isExpanded, 'col-12': !isExpanded}">
+  </div>
+  <!-- Form Row Ends -->
+
+</form>
+<!-- Action Buttons Form Ends -->
+
+<!-- Grid/Charts Row Starts -->
+<div [ngStyle]="styleForHeight">
+
+  <!-- Main Split Row Starts -->
+  <div class="split-area row h-100">
+
+    <!-- AS Split Main Container -->
+    <as-split class="pl-15 pr-15" disabled="false" direction="horizontal" [useTransition]="dailyPnLConfig.useTransition"
+      (dragEnd)="applyPageLayout($event)" (transitionEnd)="applyPageLayout($event)">
+
+      <!-- Daily PnL Split Area -->
+      <as-split-area [visible]="dailyPnLConfig.dailyPnLView" [size]="dailyPnLConfig.dailyPnLSize" order="1">
+
         <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="dailyPnlGrid">
         </ag-grid-angular>
-      </div>
-      <!----- Ag Grid Tag Ends ----->
 
-      <!-- App Calculation Graphs Div Starts -->
-      <div *ngIf="isExpanded" class="col-6">
-        <app-calculation-graphs class="w-50 h-50" [chartObject]="graphObject" [mode]="'single'">
+      </as-split-area>
+      <!-- Daily PnL Split Area Ends -->
+
+      <!-- Charts Split Area -->
+      <as-split-area [visible]="dailyPnLConfig.chartsView" [size]="dailyPnLConfig.chartsSize" order="2">
+
+        <app-calculation-graphs *ngIf="dailyPnLConfig.chartsView" class="w-100 h-100" [chartObject]="graphObject"
+          [mode]="'single'">
         </app-calculation-graphs>
-      </div>
-      <!-- App Calculation Graphs Div Ends -->
-    </div>
+
+      </as-split-area>
+      <!-- Charts Split Area Ends -->
+
+    </as-split>
+    <!-- AS Split Main Container Ends -->
+
   </div>
+  <!-- Main Split Row Ends -->
+
 </div>
-<!----- Div To Measure Identifier Ends ----->
+<!-- Grid/Charts Row Ends -->

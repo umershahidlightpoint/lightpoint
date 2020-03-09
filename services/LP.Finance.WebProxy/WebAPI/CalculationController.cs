@@ -6,6 +6,7 @@ using System.Web.Http;
 using GraphQL;
 using GraphQL.Types;
 using LP.Finance.WebProxy.GraphQLEntities;
+using System;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -71,9 +72,9 @@ namespace LP.Finance.WebProxy.WebAPI
         }
 
         [HttpGet, Route("dailyUnofficialPnl")]
-        public object GetDailyUnofficialPnl()
+        public object GetDailyUnofficialPnl(DateTime? from, DateTime? to)
         {
-            return controller.GetDailyUnofficialPnl();
+            return controller.GetDailyUnofficialPnl(from, to);
         }
 
         [HttpPost, Route("dailyUnofficialPnlAudit/upload")]

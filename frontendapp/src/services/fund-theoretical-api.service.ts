@@ -91,8 +91,8 @@ export class FundTheoreticalApiService {
   /* 
   Daily PnL
   */
-  getDailyUnofficialPnL(): Observable<any> {
-    const url = this.baseUrl + '/calculation/dailyUnofficialPnl';
+  getDailyUnofficialPnL(from, to): Observable<any> {
+    const url = this.baseUrl + '/calculation/dailyUnofficialPnl?from=' + from + '&to=' + to;
     return this.http.get(url);
   }
 
