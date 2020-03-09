@@ -590,10 +590,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             return Utils.Wrap(true, json);
         }
 
-        public object GetDailyUnofficialPnl()
+        public object GetDailyUnofficialPnl(DateTime? from, DateTime? to)
         {
             try
             {
+                bool whereAdded = false;
+                List<SqlParameter> sqlParams = new List<SqlParameter>();
                 var query = $@"SELECT [id] as Id
                           ,[created_by] as CreatedBy
                           ,[created_date] as CreatedDate
@@ -631,9 +633,33 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                           ,[qtd_pnl] as QTDPnL
                           ,[ytd_pnl] as YTDPnL
                           ,[itd_pnl] as ITDPnL
-                      FROM [dbo].[unofficial_daily_pnl] ORDER BY business_date ASC, id ASC";
+                      FROM [dbo].[unofficial_daily_pnl]";
 
-                var dataTable = new SqlHelper(ConnectionString).GetDataTable(query, CommandType.Text);
+                if (from.HasValue)
+                {
+                    query = query + " where [business_date] >= @from";
+                    whereAdded = true;
+                    sqlParams.Add(new SqlParameter("from", from));
+                }
+
+                if (to.HasValue)
+                {
+                    if (whereAdded)
+                    {
+                        query = query + " and [business_date] <= @to";
+                        sqlParams.Add(new SqlParameter("to", to));
+                    }
+                    else
+                    {
+                        query = query + " where [business_date] <= @to";
+                        whereAdded = true;
+                        sqlParams.Add(new SqlParameter("to", to));
+                    }
+                }
+
+                query += " ORDER BY business_date ASC, id ASC";
+
+                var dataTable = new SqlHelper(ConnectionString).GetDataTable(query, CommandType.Text, sqlParams.ToArray());
 
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
 
@@ -643,8 +669,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
-                    "An error occured while fetching Daily Unofficial Pnl");
+                throw ex;
             }
         }
 
@@ -691,6 +716,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                           ,[itd_pnl] as ITDPnL from (SELECT u.* ,row_number() over (partition by u.portfolio order by u.business_date desc,u.id desc)
                             as rn from unofficial_daily_pnl u) a
 	                        where a.rn = 1";
+
+
 
                 var dataTable = new SqlHelper(ConnectionString).GetDataTable(query, CommandType.Text);
 

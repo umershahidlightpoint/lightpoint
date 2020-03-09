@@ -2,8 +2,22 @@
 <form>
   <!-- Form Row Div Starts -->
   <div class="form-row">
+    <div class="col-auto">
+      <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off" placeholder="Choose date"
+          [(ngModel)]="selected" name="selectedDaterange" [ranges]="ranges" [showClearButton]="true"
+          [alwaysShowCalendars]="true" (ngModelChange)="ngModelChange($event)"
+          [keepCalendarOpeningWithRange]="true" />
+    </div>
+
+    <div class="col-auto">
+      <button (click)="clearExternalFilter()" class="btn btn-pa" tooltip="Clear" placement="top">
+        <i class="fa fa-remove"></i>
+      </button>
+    </div>
+
     <div class="ml-auto mr-2">
 
+    
       <!-- Grid Utils Starts -->
       <app-grid-utils class="mr-0" [utilsConfig]="utilsConfig" [gridOptions]="dailyPnlGrid" (refresh)="refreshGrid()">
       </app-grid-utils>
