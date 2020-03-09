@@ -5,7 +5,7 @@
     <div class="modal-content">
 
         <div class="modal-header color-primary">
-            <h3>Create Security</h3>
+            <h3>Extend</h3>
             <button type="button" class="close" data-dismiss="modal" (click)="close()">&times;</button>
         </div>
 
@@ -19,178 +19,8 @@
 
         <div class="modal-body">
 
-        <fieldset *ngIf="showTrade" class="wrap-dates">
-            <legend class="dates-heading">Trade
-        </legend>
-
-        <div class="form-group">
-            <div class="row m-0">
-                    <div class="col-sm-2 pl-1 pr-1">
-                    <label> Security </label>
-                    </div>
-                    <div class="col-sm-2 pl-1">
-                        <input
-                            class="form-control"
-                            formControlName="security"
-                            type="text"
-                            autocomplete="off"
-                            readonly
-                            >
-                    </div>
-
-
-                <div class="col-sm-2 pl-1">
-                    <label>Currency</label>
-                </div>
-                <div class="col-sm-2 pl-1 pr-1">
-                    <input
-                        class="form-control"
-                        formControlName="currency"
-                        type="number"
-                        autocomplete="off"
-                        readonly
-                        >
-                </div>
-
-                <div class="col-sm-2 pr-1">
-                    <label>Trade Quantity </label>
-                </div>
-                <div class="col-sm-2 pl-1 pr-1">
-                    <input
-                        class="form-control"
-                        formControlName="tradeQuantity"
-                        type="number"
-                        autocomplete="off"
-                        readonly
-                        >
-                </div>
-
-            </div>
-
-            <div class="row" style="margin: 11px 0">
-                <div class="col-sm-2 pl-1 pr-1">
-                    <label> Trade Date </label>
-                </div>
-                <div class="col-sm-4 pl-1 pr-1">
-
-                    <input
-                        formControlName="tradeDate"
-                        class="form-control"
-                        type="text"
-                        name="tradeDate"
-                        autocomplete="off"
-                        readonly
-                     >
-
-                    <!-- <input
-                        ngxDaterangepickerMd
-                        formControlName="tradeDate"
-                        class="form-control bc-white"
-                        type="text"
-                        placeholder="Select trade date"
-                        name="tradeDate"
-                        [singleDatePicker]="true"
-                        [autoApply]="true"
-                        autocomplete="off"
-                        readonly
-                     > -->
-                </div>
-
-
-                <div class="col-sm-2 pr-1">
-                    <label>Execution Date</label>
-                </div>
-                <div class="col-sm-4 pl-1 pr-1">
-                        <input
-                        formControlName="executionDate"
-                        class="form-control"
-                        type="text"
-                        name="executionDate"
-                        autocomplete="off"
-                        readonly
-                        >
-                        <!-- <input
-                        ngxDaterangepickerMd
-                        formControlName="executionDate"
-                        class="form-control bc-white"
-                        type="text"
-                        placeholder="Select execution date"
-                        name="executionDate"
-                        [singleDatePicker]="true"
-                        [autoApply]="true"
-                        autocomplete="off"
-                        readonly
-                        > -->
-                </div>
-
-            </div>
-
-            <div class="row" style="margin: 11px 0">
-                <div class="col-sm-2 pl-1 pr-1">
-                <label>Payer</label>
-                </div>
-                <div class="col-sm-4 pl-1 pr-1">
-                    <input
-                       class="form-control"
-                       formControlName="payer"
-                       type="text"
-                       autocomplete="off"
-                       readonly
-                       >
-                </div>
-                
-                <div class="col-sm-2 pr-1">
-                    <label>Payee</label>
-                </div>
-                <div class="col-sm-4 pl-1 pr-1">
-                    <input
-                       class="form-control"
-                       formControlName="payee"
-                       type="text"
-                       autocomplete="off"
-                       readonly
-                       >
-                </div>
-
-            </div>
-
-
-            <div class="row" style="margin: 11px 0">
-                <div class="col-sm-2 pl-1 pr-1">
-                <label> Local Net Price </label>
-                </div>
-                <div class="col-sm-4 pl-1 pr-1">
-                    <input
-                        formControlName="localNetPrice"
-                        name="localNetPrice"
-                        class="form-control"
-                        autocomplete="off"
-                        readonly
-                        >
-                </div>
-
-                
-                <div class="col-sm-2 pr-1">
-                    <label>Local Net Notional</label>
-                    </div>
-                    <div class="col-sm-4 pl-1 pr-1">
-                        <input
-                        formControlName="localNetNotional"
-                        class="form-control"
-                        type="text"
-                        name="localNetNotional"
-                        autocomplete="off"
-                        readonly
-                        >
-                    </div>
-
-            </div>
-        </div>
-
-        </fieldset>
-
         <fieldset *ngIf="showFinancing" class="wrap-dates">
-            <legend class="dates-heading">Financing
+            <legend class="dates-heading">Details
         </legend>
 
         <div class="form-group">
@@ -213,35 +43,48 @@
                         [typeaheadMinLength]="0"
                         [typeaheadOptionsInScrollableView]="15"
                         [typeahead]="symbol$"
+                        (typeaheadOnSelect)="selectedSymbol($event)"
                         (typeaheadNoResults)="typeaheadNoResults($event)"
+                    />
+                </div>
+
+                <div class="col-sm-2 pr-1">
+                    <label> Security Type </label>
+                </div>
+
+                <div class="col-sm-4 pl-1 pr-1">
+                    <input
+                        type="text"
+                        class="form-control"
+                        formControlName="securityType"
+                        readonly
                     />
                 </div>
             </div>
 
-            <div class="row" style="margin: 11px 0">
-                <div class="col-sm-2 pl-1 pr-1">
+            <div class="row" style="margin: 11px 0" >
+                <div class="col-sm-2 pl-1 pr-1" [hidden]="!MaturityDate">
                 <label> Maturity Date </label>
                 </div>
-                <div class="col-sm-4 pl-1 pr-1">
+                <div class="col-sm-4 pl-1 pr-1" [hidden]="!MaturityDate">
                     <input
                     ngxDaterangepickerMd
                     formControlName="maturityDate"
                     class="form-control bc-white"
                     type="text"
-                    placeholder="Select maturity date"
+                    placeholder="Select next financing date"
                     name="maturityDate"
                     [singleDatePicker]="true"
                     [autoApply]="true"
                     autocomplete="off"
-                    [showDropdowns]="true"
-                    readonly 
+                    readonly
                     >
                 </div>
 
-                <div class="col-sm-2 pr-1">
+                <div class="col-sm-2 pr-1" [hidden]="!ValuationDate">
                     <label>Valuation Date</label>
                     </div>
-                    <div class="col-sm-4 pl-1 pr-1">
+                    <div class="col-sm-4 pl-1 pr-1" [hidden]="!ValuationDate">
                         <input 
                         ngxDaterangepickerMd
                         formControlName="valuationDate"
@@ -259,10 +102,10 @@
             </div>
             <div class="row m-0">
 
-                <div class="col-sm-2 pl-1 pr-1">
+                <div class="col-sm-2 pl-1 pr-1" *ngIf="SecurityReturnDescription">
                     <label> Security Return Description </label>
                     </div>
-                    <div class="col-sm-2 pl-1 pr-1">
+                    <div class="col-sm-2 pl-1 pr-1" *ngIf="SecurityReturnDescription">
                         <select class="form-control" formControlName="securityReturnDesc">
                             <option selected disabled value="">Select</option>
                             <option>
@@ -274,17 +117,17 @@
                           </select>
                     </div>
 
-                <div class="col-sm-2 pl-3 pr-1">
+                <div class="col-sm-2 pl-3 pr-1" *ngIf="Spread">
                     <label> Spread </label>
                     </div>
-                    <div class="col-sm-2 pl-1 pr-1">
+                    <div class="col-sm-2 pl-1 pr-1" *ngIf="Spread">
                         <input class="form-control" formControlName="spread" type="number" >
                     </div>
 
-                <div class="col-sm-2 pl-3 pr-1">
+                <div class="col-sm-2 pl-3 pr-1" *ngIf="FinancingLeg">
                 <label> Financing Leg </label>
                 </div>
-                <div class="col-sm-2 pl-1 pr-1">
+                <div class="col-sm-2 pl-1 pr-1" *ngIf="FinancingLeg">
                     <select class="form-control" formControlName="financingLeg">
                         <option selected disabled value="">Select</option>
                         <option>
@@ -299,10 +142,10 @@
             </div>
 
             <div class="row" style="margin: 11px 0">
-                <div class="col-sm-2 pl-1 pr-1">
-                <label> Financing End dates </label>
+                <div class="col-sm-2 pl-1 pr-1" [hidden]="!FinancingEndDate">
+                <label> Financing End date </label>
                 </div>
-                <div class="col-sm-4 pl-1 pr-1">
+                <div class="col-sm-4 pl-1 pr-1" [hidden]="!FinancingEndDate">
                     <input
                     ngxDaterangepickerMd
                     formControlName="financingEndDate"
@@ -317,31 +160,31 @@
                     >
                 </div>
 
-                <div class="col-sm-2 pr-1">
-                    <label>Financing Payment date</label>
-                    </div>
-                    <div class="col-sm-4 pl-1 pr-1">
-                        <input 
-                        ngxDaterangepickerMd
-                        formControlName="financingPayDate"
-                        class="form-control bc-white"
-                        type="text"
-                        placeholder="Select financing payment date"
-                        name="financingPayDate"
-                        [singleDatePicker]="true"
-                        [autoApply]="true"
-                        autocomplete="off"
-                        readonly
-                        >
-                    </div>
+            <div class="col-sm-2 pr-1" [hidden]="!FinancingPaymentDate">
+                <label>Financing Payment date</label>
+                </div>
+                <div class="col-sm-4 pl-1 pr-1" [hidden]="!FinancingPaymentDate">
+                    <input 
+                    ngxDaterangepickerMd
+                    formControlName="financingPayDate"
+                    class="form-control bc-white"
+                    type="text"
+                    placeholder="Select financing payment date"
+                    name="financingPayDate"
+                    [singleDatePicker]="true"
+                    [autoApply]="true"
+                    autocomplete="off"
+                    readonly
+                    >
+                </div>
 
-            </div>
+              </div>
 
             <div class="row" style="margin: 11px 0">
-                <div class="col-sm-2 pl-1 pr-1">
+                <div class="col-sm-2 pl-1 pr-1" [hidden]="!FinancingResetDate">
                 <label> Financing Reset Dates </label>
                 </div>
-                <div class="col-sm-2 pl-1 pr-1">
+                <div class="col-sm-2 pl-1 pr-1" [hidden]="!FinancingResetDate">
                     <select class="form-control" formControlName="financingResetDateType">
                         <option selected disabled value="">Select</option>
                         <option>
@@ -362,13 +205,22 @@
                       </select>
                 </div>
 
-                <div class="col-sm-2 pl-1 pr-1" *ngIf="resetDate">
+                <div class="col-sm-2 pl-1 pr-1" *ngIf="fNoOfDays">
+                  <input
+                     class="form-control"
+                     formControlName="financingNoOfDays"
+                     type="text"
+                     (keypress)="numberOnly($event)"
+                     autocomplete="off"
+                    >
+              </div>
+
+                <div class="col-sm-2 pl-1 pr-1" [hidden]="!resetDate">
                     <input
                     ngxDaterangepickerMd
                     formControlName="financingResetDate"
                     class="form-control bc-white"
                     type="text"
-                    placeholder="Select date"
                     name="financingResetDate"
                     [singleDatePicker]="true"
                     [autoApply]="true"
@@ -378,10 +230,10 @@
                 </div>
 
                 
-                <div class="col-sm-2 pr-1">
+                <div class="col-sm-2 pr-1" [hidden]="!NextFinancingEndDate">
                     <label>Next Financing End Date</label>
                     </div>
-                    <div class="col-sm-2 pl-1 pr-1">
+                    <div class="col-sm-2 pl-1 pr-1" [hidden]="!NextFinancingEndDate">
                         <select class="form-control" formControlName="nextFinancingEndDateType">
                             <option selected disabled value="">Select</option>
                             <option>
@@ -403,18 +255,28 @@
 
                     </div>
 
-                    <div class="col-sm-2 pl-1 pr-1" *ngIf="endDate">
+                    <div class="col-sm-2 pl-1 pr-1" *ngIf="nextFinanceNoOfDays">
+                      <input
+                         class="form-control"
+                         formControlName="nextFinancingNoOfDays"
+                         type="text"
+                         (keypress)="numberOnly($event)"
+                         autocomplete="off"
+                        >
+                  </div>
+
+                    <div class="col-sm-2 pl-1 pr-1" [hidden]="!endDate">
                         <input
                         ngxDaterangepickerMd
                         formControlName="nextFinancingEndDate"
                         class="form-control bc-white"
                         type="text"
-                        placeholder="Select date"
+                        placeholder="Select next financing date"
                         name="nextFinancingEndDate"
                         [singleDatePicker]="true"
                         [autoApply]="true"
                         autocomplete="off"
-                        readonly 
+                        readonly
                         >
                     </div>
 
@@ -422,17 +284,17 @@
 
             <div class="row m-0">
 
-                <div class="col-sm-2 pl-1 pr-1">
+                <div class="col-sm-2 pl-1 pr-1" *ngIf="FixedRate" >
                     <label> Fixed Rate </label>
                     </div>
-                    <div class="col-sm-2 pl-1 pr-1">
+                    <div class="col-sm-2 pl-1 pr-1" *ngIf="FixedRate">
                         <input class="form-control" formControlName="fixedRate" type="number" >
                     </div>
 
-                <div class="col-sm-2 pl-3 pr-1">
+                <div class="col-sm-2 pl-3 pr-1" *ngIf="DCCFixedRate">
                     <label> DCC Fixed Rate </label>
                     </div>
-                    <div class="col-sm-2 pl-1 pr-1">
+                    <div class="col-sm-2 pl-1 pr-1" *ngIf="DCCFixedRate">
                         <select class="form-control" formControlName="dccFixedRate">
                             <option selected disabled value="">Select</option>
                             <option>
@@ -447,10 +309,10 @@
                           </select>
                     </div>
 
-                <div class="col-sm-2 pl-3 pr-1">
+                <div class="col-sm-2 pl-3 pr-1" *ngIf="FloatingRate">
                 <label> Floating Rate </label>
                 </div>
-                <div class="col-sm-2 pl-1 pr-1">
+                <div class="col-sm-2 pl-1 pr-1" *ngIf="FloatingRate">
                     <select class="form-control" formControlName="floatingRate">
                         <option selected disabled value="">Select</option>
                         <option>
@@ -469,10 +331,10 @@
 
             <div class="row" style="margin: 11px 0">
 
-                <div class="col-sm-2 pl-1 pr-1">
+                <div class="col-sm-2 pl-1 pr-1" *ngIf="DCCFloatingRate">
                     <label> DCC Floating Rate </label>
                     </div>
-                    <div class="col-sm-2 pl-1 pr-1">
+                    <div class="col-sm-2 pl-1 pr-1" *ngIf="DCCFloatingRate">
                         <select class="form-control" formControlName="dccFloatingRate">
                             <option selected disabled value="">Select</option>
                             <option>
@@ -487,10 +349,10 @@
                           </select>
                     </div>
 
-                <div class="col-sm-2 pl-3 pr-1">
+                <div class="col-sm-2 pl-3 pr-1" *ngIf="PrimaryMarket">
                     <label> Primary Market </label>
                     </div>
-                    <div class="col-sm-2 pl-1 pr-1">
+                    <div class="col-sm-2 pl-1 pr-1" *ngIf="PrimaryMarket">
                         <select class="form-control" formControlName="primaryMarket">
                             <option selected disabled value="">Select</option>
                             <option>
@@ -502,10 +364,10 @@
                           </select>
                     </div>
 
-                <div class="col-sm-2 pl-3 pr-1">
+                <div class="col-sm-2 pl-3 pr-1" *ngIf="ReferenceEquity">
                 <label> Reference Equity </label>
                 </div>
-                <div class="col-sm-2 pl-1 pr-1">
+                <div class="col-sm-2 pl-1 pr-1" *ngIf="ReferenceEquity">
                     <input class="form-control" formControlName="referenceEquity" type="number">
                 </div>
 
@@ -513,24 +375,24 @@
 
             <div class="row" style="margin: 11px 0">
 
-                <div class="col-sm-2 pl-1 pr-1">
+                <div class="col-sm-2 pl-1 pr-1" *ngIf="ReferenceObligation">
                     <label> Reference Obligation </label>
                     </div>
-                    <div class="col-sm-2 pl-1 pr-1">
+                    <div class="col-sm-2 pl-1 pr-1" *ngIf="ReferenceObligation">
                         <input class="form-control" formControlName="referenceObligation" type="number">
                     </div>
 
-                <div class="col-sm-2 pl-3 pr-1">
+                <div class="col-sm-2 pl-3 pr-1" *ngIf="Upfront">
                     <label> Upfront </label>
                 </div>
-                <div class="col-sm-2 pl-1 pr-1">
+                <div class="col-sm-2 pl-1 pr-1" *ngIf="Upfront">
                      <input class="form-control" formControlName="upfront" type="number">
                 </div>
 
-                <div class="col-sm-2 pl-3 pr-1">
+                <div class="col-sm-2 pl-3 pr-1" *ngIf="PremiumRate" >
                 <label> Premium Rate </label>
                 </div>
-                <div class="col-sm-2 pl-1 pr-1">
+                <div class="col-sm-2 pl-1 pr-1" *ngIf="PremiumRate">
                     <input class="form-control" formControlName="premiumRate" type="number">
                 </div>
 
@@ -538,10 +400,10 @@
 
             <div class="row" style="margin: 11px 0">
 
-                <div class="col-sm-2 pl-1 pr-1">
+                <div class="col-sm-2 pl-1 pr-1" *ngIf="PremiumFrequency">
                     <label> Frequency Rate </label>
                 </div>
-                <div class="col-sm-2 pl-1 pr-1">
+                <div class="col-sm-2 pl-1 pr-1" *ngIf="PremiumFrequency">
                      <input class="form-control" formControlName="frequencyRate" type="number">
                 </div>
 
@@ -554,10 +416,10 @@
 
         <div class="modal-footer">
 
-            <button *ngIf="editDividend" type="button" class="btn btn-danger mr-auto"
-            ><i class="fa fa-trash"></i> Delete
+            <!-- <button *ngIf="editSecurity" type="button" class="btn btn-danger mr-auto"  [disabled]="isDeleting"
+            (click)="deleteSecurity()"><i class="fa fa-trash"></i> Delete
             <span *ngIf="isDeleting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            </button>
+            </button> -->
     
             <button type="button" class="btn btn-secondary" (click)="close()">
                 <i class="fa fa-times" aria-hidden="true"></i> Cancel

@@ -61,7 +61,7 @@ namespace PostingEngine.PostingRules
                     if (env.ValueDate == element.TradeDate)
                     {
                         eodPrice = MarketPrices.GetPrice(env, env.ValueDate, element).Price;
-                        prevEodPrice = element.SettleNetPrice;
+                        prevEodPrice = element.FactoredSettleNetPrice();
                     }
                     else
                     {
@@ -246,7 +246,7 @@ namespace PostingEngine.PostingRules
 
             if (env.ValueDate == taxLotStatus.Trade.TradeDate)
             {
-                prevEodPrice = taxLotStatus.Trade.SettleNetPrice;
+                prevEodPrice = taxLotStatus.Trade.FactoredSettleNetPrice();
                 eodPrice = MarketPrices.GetPrice(env, env.ValueDate, taxLotStatus.Trade).Price;
             }
             else
@@ -255,7 +255,7 @@ namespace PostingEngine.PostingRules
                 eodPrice = MarketPrices.GetPrice(env, env.ValueDate, taxLotStatus.Trade).Price;
             }
 
-            var endPrice = element.SettleNetPrice;
+            var endPrice = element.FactoredSettleNetPrice();
 
             if (taxLotStatus.Quantity == 0.0)
             {

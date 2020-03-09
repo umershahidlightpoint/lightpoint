@@ -59,7 +59,6 @@ export class CreateStockSplitsComponent implements OnInit, OnChanges {
 
     this.onChanges();
     this.getSymbols();
-    this.getStockSplits();
   }
 
   ngOnChanges(changes: SimpleChanges) {}
@@ -249,7 +248,7 @@ export class CreateStockSplitsComponent implements OnInit, OnChanges {
       });
       this.stockSplitsModal.show();
     }
-
+    this.getStockSplits();
   }
 
   openStockSplitModalFromOutside(data) {

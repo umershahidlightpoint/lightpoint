@@ -126,6 +126,13 @@ namespace PostingEngine.MarketData
             _all = list;
         }
 
+        internal static double FxIncrement(PostingEngineEnvironment env, string fxCurrency)
+        {
+            var oldRate = Find(env, env.PreviousValueDate, fxCurrency).Rate;
+            var newRate = Find(env, env.ValueDate, fxCurrency).Rate;
+            return newRate - oldRate;
+        }
+
         public Dictionary<string, FxRate> Get(DateTime now)
         {
             if (Mock)

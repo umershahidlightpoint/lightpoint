@@ -1,5 +1,6 @@
 ﻿using LP.Finance.Common;
 using LP.Finance.Common.Models;
+using PostingEngine.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -98,9 +99,11 @@ namespace PostingEngine.MarketData
 
             var price = Find(busDate, element.Symbol);
 
+            var factor = element.PricingFactor();
+
             mp = new MarketPrice
             {
-                Price = price.Price,
+                Price = price.Price / factor,
                 Valid = price.Valid,
                 Error = price.Error,
             };

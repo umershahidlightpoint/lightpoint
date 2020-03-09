@@ -1,4 +1,9 @@
-﻿using System;
+﻿using LP.Finance.Common;
+using LP.Finance.Common.Dtos;
+using LP.Finance.Common.Model;
+using Newtonsoft.Json;
+using SqlDAL.Core;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -7,9 +12,6 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using LP.Finance.Common;
-using LP.Finance.Common.Dtos;
-using SqlDAL.Core;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
@@ -24,7 +26,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             try
             {
-                int ?id = null;
+                int? id = null;
                 string message;
                 var query = $"select top 1 SecurityId from current_trade_state where symbol = @symbol";
                 List<SqlParameter> p = new List<SqlParameter>
@@ -33,7 +35,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 };
 
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, p.ToArray());
-                foreach(DataRow dr in dataTable.Rows)
+                foreach (DataRow dr in dataTable.Rows)
                 {
                     id = (int)dr["SecurityId"];
                 }
@@ -44,7 +46,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     return Utils.Wrap(false, null, HttpStatusCode.Forbidden);
                 }
 
-           
+
                 sqlHelper.VerifyConnection();
                 var createdDate = DateTime.Now;
                 var createdBy = "user";
@@ -58,19 +60,19 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("maturityDate", details.MaturityDate.HasValue ? (object)details.MaturityDate : DBNull.Value),
                     new SqlParameter("valuationDate", details.ValuationDate.HasValue ? (object)details.ValuationDate: DBNull.Value),
                     new SqlParameter("spread", details.Spread.HasValue ? (object)details.Spread : DBNull.Value),
-                    new SqlParameter("securityReturnDescription", details.SecurityReturnDescription),
-                    new SqlParameter("financingLeg", details.FinancingLeg),
-                    new SqlParameter("financingEndDate", details.FinancingEndDate),
-                    new SqlParameter("financingPaymentDate", details.FinancingPaymentDate),
-                    new SqlParameter("financingResetDateType", details.FinancingResetDateType),
-                    new SqlParameter("financingResetDate", details.FinancingResetDate),
-                    new SqlParameter("nextFinaningEndDateType", details.NextFinancingEndDateType),
-                    new SqlParameter("nextFinancingEndDate", details.NextFinancingEndDate),
-                    new SqlParameter("fixedRate", details.FixedRate.HasValue ? (object)details.FixedRate : DBNull.Value),
-                    new SqlParameter("dccFixedRate", details.DCCFixedRate),
-                    new SqlParameter("floatingRate", details.FloatingRate),
-                    new SqlParameter("dccFloatingRate", details.DCCFloatingRate),
-                    new SqlParameter("primaryMarket", details.PrimaryMarket),
+                    new SqlParameter("securityReturnDescription", !string.IsNullOrEmpty(details.SecurityReturnDescription) ? (object)details.SecurityReturnDescription : DBNull.Value),
+                    new SqlParameter("financingLeg", !string.IsNullOrEmpty(details.FinancingLeg) ? (object)details.FinancingLeg : DBNull.Value),
+                    new SqlParameter("financingEndDate", details.FinancingEndDate.HasValue ? (object)details.FinancingEndDate: DBNull.Value),
+                    new SqlParameter("financingPaymentDate", details.FinancingPaymentDate.HasValue ? (object)details.FinancingPaymentDate: DBNull.Value),
+                    new SqlParameter("financingResetDateType",!string.IsNullOrEmpty(details.FinancingResetDateType) ? (object)details.FinancingResetDateType : DBNull.Value),
+                    new SqlParameter("financingResetDate", !string.IsNullOrEmpty(details.FinancingResetDate) ? (object)details.FinancingResetDate : ""),
+                    new SqlParameter("nextFinaningEndDateType", !string.IsNullOrEmpty(details.NextFinancingEndDateType) ? (object)details.NextFinancingEndDateType : DBNull.Value),
+                    new SqlParameter("nextFinancingEndDate", !string.IsNullOrEmpty(details.NextFinancingEndDate) ? (object)details.NextFinancingEndDate : DBNull.Value),
+                    new SqlParameter("fixedRate",  details.FixedRate.HasValue ? (object)details.FixedRate : DBNull.Value),
+                    new SqlParameter("dccFixedRate", !string.IsNullOrEmpty(details.DCCFixedRate) ? (object)details.DCCFixedRate : DBNull.Value),
+                    new SqlParameter("floatingRate", !string.IsNullOrEmpty(details.FloatingRate) ? (object)details.FloatingRate : DBNull.Value),
+                    new SqlParameter("dccFloatingRate", !string.IsNullOrEmpty(details.DCCFloatingRate) ? (object)details.DCCFloatingRate : DBNull.Value),
+                    new SqlParameter("primaryMarket", !string.IsNullOrEmpty(details.PrimaryMarket) ? (object)details.PrimaryMarket : DBNull.Value),
                     new SqlParameter("referenceEquity", details.ReferenceEquity.HasValue ? (object)details.ReferenceEquity : DBNull.Value),
                     new SqlParameter("referenceObligation", details.ReferenceObligation.HasValue ? (object)details.ReferenceObligation : DBNull.Value),
                     new SqlParameter("upfront", details.Upfront.HasValue ? (object)details.Upfront : DBNull.Value),
@@ -151,12 +153,205 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object EditSecurityDetails(SecurityDetailsInputDto details)
         {
-            throw new NotImplementedException();
+            try
+            {
+                sqlHelper.VerifyConnection();
+                var lastUpdatedDate = DateTime.UtcNow;
+                var lastUpdatedBy = "user";
+
+                List<SqlParameter> securityDetailParams = new List<SqlParameter>
+                {
+                    new SqlParameter("id", details.Id),
+                    new SqlParameter("lastUpdatedBy", lastUpdatedBy),
+                    new SqlParameter("lastUpdatedDate", lastUpdatedDate),
+                    new SqlParameter("symbol", details.Symbol),
+                    new SqlParameter("maturityDate", details.MaturityDate.HasValue ? (object)details.MaturityDate : DBNull.Value),
+                    new SqlParameter("valuationDate", details.ValuationDate.HasValue ? (object)details.ValuationDate: DBNull.Value),
+                    new SqlParameter("spread", details.Spread.HasValue ? (object)details.Spread : DBNull.Value),
+                    new SqlParameter("securityReturnDescription", !string.IsNullOrEmpty(details.SecurityReturnDescription) ? (object)details.SecurityReturnDescription : DBNull.Value),
+                    new SqlParameter("financingLeg", !string.IsNullOrEmpty(details.FinancingLeg) ? (object)details.FinancingLeg : DBNull.Value),
+                    new SqlParameter("financingEndDate", details.FinancingEndDate.HasValue ? (object)details.FinancingEndDate: DBNull.Value),
+                    new SqlParameter("financingPaymentDate", details.FinancingPaymentDate.HasValue ? (object)details.FinancingPaymentDate: DBNull.Value),
+                    new SqlParameter("financingResetDateType", !string.IsNullOrEmpty(details.FinancingResetDateType) ? (object)details.FinancingResetDateType : DBNull.Value),
+                    new SqlParameter("financingResetDate", !string.IsNullOrEmpty(details.FinancingResetDate) ? (object)details.FinancingResetDate : ""),
+                    new SqlParameter("nextFinancingEndDateType", !string.IsNullOrEmpty(details.NextFinancingEndDateType) ? (object)details.NextFinancingEndDateType : DBNull.Value),
+                    new SqlParameter("nextFinancingEndDate", !string.IsNullOrEmpty(details.NextFinancingEndDate) ? (object)details.NextFinancingEndDate : DBNull.Value),
+                    new SqlParameter("fixedRate", details.FixedRate.HasValue ? (object)details.FixedRate : DBNull.Value),
+                    new SqlParameter("dccFixedRate", !string.IsNullOrEmpty(details.DCCFixedRate) ? (object)details.DCCFixedRate : DBNull.Value),
+                    new SqlParameter("floatingRate", !string.IsNullOrEmpty(details.FloatingRate) ? (object)details.FloatingRate : DBNull.Value),
+                    new SqlParameter("dccFloatingRate", !string.IsNullOrEmpty(details.DCCFloatingRate) ? (object)details.DCCFloatingRate : DBNull.Value),
+                    new SqlParameter("primaryMarket", !string.IsNullOrEmpty(details.PrimaryMarket) ? (object)details.PrimaryMarket : DBNull.Value),
+                    new SqlParameter("referenceEquity", details.ReferenceEquity.HasValue ? (object)details.ReferenceEquity : DBNull.Value),
+                    new SqlParameter("referenceObligation", details.ReferenceObligation.HasValue ? (object)details.ReferenceObligation : DBNull.Value),
+                    new SqlParameter("upfront", details.Upfront.HasValue ? (object)details.Upfront : DBNull.Value),
+                    new SqlParameter("premiumRate", details.PremiumRate.HasValue ? (object)details.PremiumRate : DBNull.Value),
+                    new SqlParameter("premiumFrequency", details.PremiumFrequency.HasValue ? (object)details.PremiumFrequency : DBNull.Value),
+                };
+
+                var query = $@"UPDATE [dbo].[security_details]
+                           SET [last_updated_by] = @lastUpdatedBy
+                              ,[last_updated_date] = @lastUpdatedDate
+                              ,[symbol] = @symbol
+                              ,[maturity_date] = @maturityDate
+                              ,[valuation_date] = @valuationDate
+                              ,[spread] = @spread
+                              ,[security_return_description] = @securityReturnDescription
+                              ,[financing_leg] = @financingLeg
+                              ,[financing_end_date] = @financingEndDate
+                              ,[financing_payment_date] = @financingPaymentDate
+                              ,[financing_reset_date_type] = @financingResetDateType
+                              ,[financing_reset_date] = @financingResetDate
+                              ,[next_financing_end_date_type] = @nextFinancingEndDateType
+                              ,[next_financing_end_date] = @nextFinancingEndDate
+                              ,[fixed_rate] = @fixedRate
+                              ,[dcc_fixed_rate] = @dccFixedRate
+                              ,[floating_rate] = @floatingRate
+                              ,[dcc_floating_rate] = @dccFloatingRate
+                              ,[primary_market] = @primaryMarket
+                              ,[reference_equity] = @referenceEquity
+                              ,[reference_obligation] = @referenceObligation
+                              ,[upfront] = @upfront
+                              ,[premium_rate] = @premiumRate
+                              ,[premium_frequency] = @premiumFrequency
+                         WHERE id = @id";
+
+                sqlHelper.SqlBeginTransaction();
+                sqlHelper.Update(query, CommandType.Text, securityDetailParams.ToArray());
+                sqlHelper.SqlCommitTransaction();
+                return Utils.Wrap(true, null, HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                sqlHelper.SqlRollbackTransaction();
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+            }
+            finally
+            {
+                sqlHelper.CloseConnection();
+            }
         }
 
-        public object GetSecurityDetails(string symbol)
+        public object GetSecurityConfig(string symbol)
         {
-            throw new NotImplementedException();
+            try
+            {
+
+                string securityType = "";
+                string message;
+                var query = $"select top 1 SecurityType from current_trade_state where symbol = @symbol";
+                List<SqlParameter> p = new List<SqlParameter>
+                {
+                   new SqlParameter("symbol", symbol)
+                };
+
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, p.ToArray());
+                foreach (DataRow dr in dataTable.Rows)
+                {
+                    securityType = (string)dr["SecurityType"];
+                }
+
+                if (securityType == "")
+                {
+                    message = "Security Type not found against this symbol";
+                    return Utils.Wrap(false, null, HttpStatusCode.Forbidden);
+                }
+
+                var schema = Utils.GetFile<List<SecurityTypeFormConfig>>("security_details", "MockData");
+
+                var results = schema.Where(o => o.SecurityType == securityType);
+
+                return Utils.Wrap(true, results, HttpStatusCode.OK, "Security Details fetched successfully");
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
+
+        public object GetSecurityDetails()
+        {
+            try
+            {
+                var query = $@"select * from security_details where active_flag = 1";
+
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
+
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+
+                var json = JsonConvert.DeserializeObject(jsonResult);
+
+                return Utils.Wrap(true, json, HttpStatusCode.OK, "Securities fetched successfully");
+            }
+            catch (Exception ex)
+            {
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    "An error occured while fetching securities");
+            }
+        }
+
+        public object DeleteSecurityDetail(int id)
+        {
+            try
+            {
+                sqlHelper.VerifyConnection();
+                var lastUpdatedDate = DateTime.UtcNow;
+                var lastUpdatedBy = "user";
+
+                List<SqlParameter> securityDetailParams = new List<SqlParameter>
+                {
+                    new SqlParameter("id", id),
+                    new SqlParameter("lastUpdatedBy", lastUpdatedBy),
+                    new SqlParameter("lastUpdatedDate", lastUpdatedDate)
+                };
+
+                var query = $@"UPDATE [dbo].[security_details]
+                           SET [last_updated_by] = @lastUpdatedBy
+                              ,[last_updated_date] = @lastUpdatedDate
+                              ,[active_flag] = 0
+                         WHERE id = @id";
+
+                sqlHelper.SqlBeginTransaction();
+                sqlHelper.Update(query, CommandType.Text, securityDetailParams.ToArray());
+                sqlHelper.SqlCommitTransaction();
+                return Utils.Wrap(true, null, HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                sqlHelper.SqlRollbackTransaction();
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+            }
+            finally
+            {
+                sqlHelper.CloseConnection();
+            }
+        }
+
+        public object GetSecurityDetail(string symbol)
+        {
+            try
+            {
+                List<SqlParameter> securityDetailParams = new List<SqlParameter>
+                {
+                    new SqlParameter("symbol", symbol)
+                };
+
+                var query = $@"select * from security_details WHERE symbol = @symbol and active_flag = 1";
+
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, securityDetailParams.ToArray());
+
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+
+                var json = JsonConvert.DeserializeObject(jsonResult);
+
+                return Utils.Wrap(true, json, HttpStatusCode.OK, "Security Detail fetched successfully");
+            }
+            catch (Exception ex)
+            {
+                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    "An error occured while fetching security detail");
+            }
+        }
+
     }
 }

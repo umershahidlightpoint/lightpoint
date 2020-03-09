@@ -19,7 +19,7 @@ namespace PostingEngine.TaxLotMethods
 
         public List<TaxLotDetail> GetOpenLots(PostingEngineEnvironment env, Transaction element, double workingQuantity)
         {
-            Logger.Info($"Getting Open Tax Lots for {element.Symbol}::{element.SettleNetPrice}::{element.Side}::[{element.Quantity}]::WQ:{workingQuantity}::{element.TradeDate.ToString("MM-dd-yyyy")}");
+            Logger.Info($"Getting Open Tax Lots for {element.Symbol}::{element.FactoredSettleNetPrice()}::{element.Side}::[{element.Quantity}]::WQ:{workingQuantity}::{element.TradeDate.ToString("MM-dd-yyyy")}");
 
             var minTaxLots = new List<TaxLotDetail>();
 
@@ -37,12 +37,12 @@ namespace PostingEngine.TaxLotMethods
             {
                 minTaxLots = results.Where(i => i.taxLotStatus.Quantity != 0)
                     //.OrderBy(i=> i.potentialPnl)
-                    .OrderByDescending(i => i.trade.SettleNetPrice)
+                    .OrderByDescending(i => i.trade.FactoredSettleNetPrice())
                     .Select(i => new TaxLotDetail
                     {
                         TaxRate = i.taxRate,
                         Trade = i.trade,
-                        TradePrice = i.trade.SettleNetPrice,
+                        TradePrice = i.trade.FactoredSettleNetPrice(),
                         TaxLotStatus = i.taxLotStatus,
                         PotentialPnl = i.potentialPnl,
                         TaxLiability = i.taxAmount
@@ -52,12 +52,12 @@ namespace PostingEngine.TaxLotMethods
             {
                 minTaxLots = results.Where(i => i.taxLotStatus.Quantity != 0)
                     //.OrderBy(i=> i.potentialPnl)
-                    .OrderBy(i => i.trade.SettleNetPrice)
+                    .OrderBy(i => i.trade.FactoredSettleNetPrice())
                     .Select(i => new TaxLotDetail
                     {
                         TaxRate = i.taxRate,
                         Trade = i.trade,
-                        TradePrice = i.trade.SettleNetPrice,
+                        TradePrice = i.trade.FactoredSettleNetPrice(),
                         TaxLotStatus = i.taxLotStatus,
                         PotentialPnl = i.potentialPnl,
                         TaxLiability = i.taxAmount
@@ -99,7 +99,7 @@ namespace PostingEngine.TaxLotMethods
 
                 var quantity = lot.Quantity;
 
-                var unrealizedPnl = (trade.SettleNetPrice - i.Trade.SettleNetPrice) * quantity * fxrate * multiplier;
+                var unrealizedPnl = (trade.FactoredSettleNetPrice() - i.Trade.FactoredSettleNetPrice()) * quantity * fxrate * multiplier;
 
                 return unrealizedPnl;
             }

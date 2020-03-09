@@ -18,11 +18,13 @@ import { GridId, GridName, LayoutConfig } from 'src/shared/utils/AppEnums';
 import { ContextMenu } from 'src/shared/Models/common';
 import * as moment from 'moment';
 import { CacheService } from 'src/services/common/cache.service';
+import { ToastrService } from 'ngx-toastr';
 import { CorporateActionsApiService } from './../../../../services/corporate-actions.api.service';
+import { finalize } from 'rxjs/operators';
+import { SecurityApiService } from 'src/services/security-api.service';
 import { CreateDividendComponent } from 'src/shared/Modal/create-dividend/create-dividend.component';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
-import { ToastrService } from 'ngx-toastr';
 
 
 @Component({
@@ -73,7 +75,8 @@ export class DividendsComponent implements OnInit, AfterViewInit {
     private cdRef: ChangeDetectorRef,
     private cacheService: CacheService,
     private corporateActionsApiService: CorporateActionsApiService,
-    private toastrService: ToastrService
+    private toastrService: ToastrService,
+    private securityApiService: SecurityApiService,
   ) {
     this.hideGrid = false;
   }
@@ -81,7 +84,6 @@ export class DividendsComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.initGrid();
     this.getDividends();
-    this.getDividendDetails();
   }
 
   ngAfterViewInit(): void {
@@ -268,7 +270,7 @@ export class DividendsComponent implements OnInit, AfterViewInit {
     } as GridOptions;
 
     this.dividendDetailsGrid = {
-      rowData: null,
+      rowData: [],
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       rowSelection: 'multiple',
@@ -438,18 +440,30 @@ export class DividendsComponent implements OnInit, AfterViewInit {
         this.gridOptions.api.sizeColumnsToFit();
         this.gridOptions.api.setRowData(this.data);
         this.gridOptions.api.expandAll();
+      } else{
+        this.toastrService.error(response.Message);
       }
     }, err => {
+      this.toastrService.error("The request failed");
       this.gridOptions.api.hideOverlay();
     });
   }
 
-  getDividendDetails() {
-    this.corporateActionsApiService.getDividendDetails().subscribe(response => {
-      let dividendDetail = response.payload;
-      this.dividendDetailsGrid.api.sizeColumnsToFit();
-      this.dividendDetailsGrid.api.expandAll();
-      this.dividendDetailsGrid.api.setRowData(dividendDetail);
+  getDividendDetails(id) {
+    this.dividendConfig.detailsView = true;
+    this.dividendDetailsGrid.api.showLoadingOverlay();
+    this.corporateActionsApiService.getDividendDetails(id).subscribe(response => {
+      if(response.statusCode === 200){
+        let dividendDetail = response.payload;
+        this.dividendDetailsGrid.api.sizeColumnsToFit();
+        this.dividendDetailsGrid.api.setRowData(dividendDetail);
+        this.dividendDetailsGrid.api.expandAll();
+      } else {
+        this.toastrService.error(response.Message);
+      }
+    }, err=> {
+      this.dividendDetailsGrid.api.hideOverlay();
+      this.toastrService.error("The request failed");
     });
   }
 
@@ -463,25 +477,26 @@ export class DividendsComponent implements OnInit, AfterViewInit {
 
   closeDividendModal() {
     this.gridOptions.api.showLoadingOverlay();
+    this.dividendDetailsGrid.api.setRowData([]);
     this.getDividends();
-    this.getDividendDetails();
   }
 
   rowSelected(row) {
-    const { id } = row.data;
-    let node;
-    this.dividendDetailsGrid.api.forEachLeafNode(rowNode => {
-      if (rowNode.data.id === id) {
-        rowNode.setSelected(true);
-        node = rowNode;
-      } else {
-        rowNode.setSelected(false);
-      }
-    });
-    if (node) {
-      this.dividendConfig.detailsView = true;
-      this.dividendDetailsGrid.api.ensureIndexVisible(node.rowIndex);
-    }
+     const { id } = row.data;
+    // let node;
+    // this.dividendDetailsGrid.api.forEachLeafNode(rowNode => {
+    //   if (rowNode.data.id === id) {
+    //     rowNode.setSelected(true);
+    //     node = rowNode;
+    //   } else {
+    //     rowNode.setSelected(false);
+    //   }
+    // });
+    // if (node) {
+    //   this.dividendConfig.detailsView = true;
+    //   this.dividendDetailsGrid.api.ensureIndexVisible(node.rowIndex);
+    // }
+    this.getDividendDetails(id);
   }
 
   /////////// External Filters Code //////////////
@@ -574,9 +589,9 @@ export class DividendsComponent implements OnInit, AfterViewInit {
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
     this.dividendConfig.detailsView = false;
+    this.dividendDetailsGrid.api.setRowData([]);
     this.dividendDetailsGrid.api.showLoadingOverlay();
     this.getDividends();
-    this.getDividendDetails();
   }
 
   clearFilters() {
@@ -615,19 +630,32 @@ export class DividendsComponent implements OnInit, AfterViewInit {
         name: 'Security Details',
         subMenu: [
           {
-            name: 'Create Security',
-            action: () => {
-              this.securityModal.openSecurityModalFromOutside(
-                params.node.data.symbol,
-                'createSecurity'
-              );
-            }
-          },
-          {
             name: 'Extend',
             action: () => {
-              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
-            }
+              this.isLoading = true;
+
+              this.securityApiService.getDataForSecurityModal(params.node.data.symbol).subscribe(
+                ([config, securityDetails]: [any, any]) => {
+
+                  this.isLoading = false;
+                  if (!config.isSuccessful) {
+                  this.toastrService.error('No security type found against the selected symbol!');
+                  return;
+                }
+                  if (securityDetails.payload.length === 0) {
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
+                    config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
+                } else {
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
+                    config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
+                }
+
+                },
+                error => {
+                  this.isLoading = false;
+                }
+              );
+            },
           }
         ]
       }

@@ -76,7 +76,7 @@ namespace PostingEngine.TaxLotMethods
 
                 var quantity = Math.Abs(lot.Quantity) > Math.Abs(workingQuantity) ? workingQuantity : lot.Quantity;
 
-                var unrealizedPnl = (trade.SettleNetPrice - i.Trade.SettleNetPrice) * Math.Abs(quantity) * fxrate * multiplier;
+                var unrealizedPnl = (trade.FactoredSettleNetPrice() - i.Trade.FactoredSettleNetPrice()) * Math.Abs(quantity) * fxrate * multiplier;
 
                 if ( trade.IsCover() )
                 {

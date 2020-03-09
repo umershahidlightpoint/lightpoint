@@ -49,6 +49,7 @@ import {
   getRange
 } from 'src/shared/utils/Shared';
 import { JournalApiService } from 'src/services/journal-api.service';
+import { SecurityApiService } from 'src/services/security-api.service';
 import { CacheService } from 'src/services/common/cache.service';
 
 @Component({
@@ -66,6 +67,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   private filterSubject: Subject<string> = new Subject();
   rowData: any[] = [];
   isEngineRunning = false;
+  isLoading = false;
   hideGrid = false;
   gridOptions: CustomGridOptions;
   gridLayouts: any;
@@ -240,6 +242,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     private agGridUtls: AgGridUtils,
     private dataDictionary: DataDictionary,
     private journalApiService: JournalApiService,
+    private securityApiService: SecurityApiService,
     private cacheService: CacheService,
     private cdRef: ChangeDetectorRef,
     private toastrService: ToastrService
@@ -539,14 +542,13 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         this.payloadForJournalTotals(event.api.serverSideRowModel.cacheParams);
       }
     } catch (ex) {
-      console.log('Filter Error :: ', ex);
     }
   }
 
   payloadForJournalTotals(cacheParams){
     this.resetBottomRowData();
-      const havingColumns = this.havingColumns;
-      if(cacheParams){
+    const havingColumns = this.havingColumns;
+    if (cacheParams) {
         const { filterModel, valueCols } = cacheParams;
         const { fund, symbol, when, balance } = this.getServerSideExternalFilter();
         const payload = {
@@ -561,8 +563,6 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
           }
         };
 
-        console.log("on filter changed");
-        // console.log('PAYLOAD OF FILTERS ::', payload);
         this.getJournalsTotal(payload);
       }
   }
@@ -595,15 +595,31 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         name: 'Security Details',
         subMenu: [
           {
-            name: 'Create Security',
-            action: () => {
-              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'createSecurity');
-            },
-          },
-          {
             name: 'Extend',
             action: () => {
-              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
+              this.isLoading = true;
+
+              this.securityApiService.getDataForSecurityModal(params.node.data.symbol).subscribe(
+                ([config, securityDetails]: [any, any]) => {
+
+                  this.isLoading = false;
+                  if (!config.isSuccessful) {
+                  this.toastrService.error('No security type found against the selected symbol!');
+                  return;
+                }
+                  if (securityDetails.payload.length === 0) {
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
+                    config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
+                } else {
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
+                    config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
+                }
+
+                },
+                error => {
+                  this.isLoading = false;
+                }
+              );
             },
           }
         ]

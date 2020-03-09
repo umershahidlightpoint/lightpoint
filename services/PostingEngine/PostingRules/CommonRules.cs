@@ -27,7 +27,7 @@ namespace PostingEngine.PostingRules
         {
             var prevFxRate = FxRates.Find(env, lot.Trade.TradeDate, lot.Trade.SettleCurrency).Rate;
 
-            var investmentAtCost = quantity * lot.Trade.SettleNetPrice * prevFxRate;
+            var investmentAtCost = quantity * lot.Trade.FactoredSettleNetPrice() * prevFxRate;
             if (reverse)
                 investmentAtCost *= -1;
 
@@ -39,8 +39,8 @@ namespace PostingEngine.PostingRules
                 BusinessDate = env.ValueDate,
                 OpeningLotId = lot.Trade.LpOrderId,
                 ClosingLotId = trade.LpOrderId,
-                TradePrice = lot.Trade.SettleNetPrice,
-                CostBasis = trade.SettleNetPrice,
+                TradePrice = lot.Trade.FactoredSettleNetPrice(),
+                CostBasis = trade.FactoredSettleNetPrice(),
                 Quantity = quantity
             };
 
@@ -90,7 +90,7 @@ namespace PostingEngine.PostingRules
 
             if (env.ValueDate == taxLotStatus.Trade.TradeDate)
             {
-                prevEodPrice = taxLotStatus.Trade.SettleNetPrice;
+                prevEodPrice = taxLotStatus.Trade.FactoredSettleNetPrice();
                 var eodMarketPrice = MarketPrices.GetPrice(env, env.ValueDate, taxLotStatus.Trade);
 
                 if (!eodMarketPrice.Valid)
@@ -283,7 +283,7 @@ namespace PostingEngine.PostingRules
         /// <param name="fxrate">Appropriate fxrate</param>
         internal static TaxLot RelieveTaxLot(PostingEngineEnvironment env, Transaction taxLotToRelieve, Transaction trade, double quantity, bool reverse = false)
         {
-            var SettleNetPrice = trade.SettleNetPrice;
+            var SettleNetPrice = trade.FactoredSettleNetPrice();
 
             if ( taxLotToRelieve.LpOrderId.Equals(trade.LpOrderId))
             {
@@ -293,7 +293,7 @@ namespace PostingEngine.PostingRules
 
             var prevFxRate = FxRates.Find(env, taxLotToRelieve.TradeDate, taxLotToRelieve.SettleCurrency).Rate;
 
-            var investmentAtCost = quantity * taxLotToRelieve.SettleNetPrice * prevFxRate;
+            var investmentAtCost = quantity * taxLotToRelieve.FactoredSettleNetPrice() * prevFxRate;
             if (reverse)
                 investmentAtCost = investmentAtCost * -1;
 
@@ -305,7 +305,7 @@ namespace PostingEngine.PostingRules
                 BusinessDate = env.ValueDate,
                 OpeningLotId = taxLotToRelieve.LpOrderId,
                 ClosingLotId = trade.LpOrderId,
-                TradePrice = taxLotToRelieve.SettleNetPrice,
+                TradePrice = taxLotToRelieve.FactoredSettleNetPrice(),
                 CostBasis = SettleNetPrice,
                 Quantity = quantity
             };
@@ -391,7 +391,7 @@ namespace PostingEngine.PostingRules
                 EndPrice = 0,
                 CreditDebit = env.DebitOrCredit(account, value),
                 Value = value,
-                FxRate = element.TradePrice,
+                FxRate = element.FactoredTradePrice(),
                 Event = eventName,
                 Fund = env.GetFund(element),
             };
@@ -424,7 +424,7 @@ namespace PostingEngine.PostingRules
                 EndPrice = 0,
                 CreditDebit = env.DebitOrCredit(fromAccount, value),
                 Value = env.SignedValue(fromAccount, toAccount, true, value),
-                FxRate = element.TradePrice,
+                FxRate = element.FactoredTradePrice(),
                 Event = Event.REALIZED_PNL,
                 Fund = env.GetFund(element),
             };
@@ -491,7 +491,7 @@ namespace PostingEngine.PostingRules
                 EndPrice = 0,
                 CreditDebit = env.DebitOrCredit(fromAccount, realizedPnl),
                 Value = env.SignedValue(fromAccount, toAccount, true, realizedPnl),
-                FxRate = element.TradePrice,
+                FxRate = element.FactoredTradePrice(),
                 Event = Event.REALIZED_PNL,
                 Fund = env.GetFund(element),
             };
@@ -500,7 +500,7 @@ namespace PostingEngine.PostingRules
             {
                 StartPrice = 0,
                 EndPrice = 0,
-                FxRate = element.TradePrice,
+                FxRate = element.FactoredTradePrice(),
                 CreditDebit = env.DebitOrCredit(toAccount, realizedPnl),
                 Value = env.SignedValue(fromAccount, toAccount, false, realizedPnl),
                 Fund = env.GetFund(element),
@@ -636,7 +636,7 @@ namespace PostingEngine.PostingRules
             }
 
             var prevPrice = MarketPrices.GetPrice(env, env.PreviousValueDate, lot.Trade).Price;
-            var unrealizedPnl = Math.Abs(taxlotStatus.Quantity) * (element.SettleNetPrice - prevPrice) * multiplier;
+            var unrealizedPnl = Math.Abs(taxlotStatus.Quantity) * (element.FactoredSettleNetPrice() - prevPrice) * multiplier;
             unrealizedPnl = Math.Abs(unrealizedPnl) * CommonRules.DetermineSign(taxlotStatus.Trade);
 
             var buyTrade = env.FindTrade(lot.Trade.LpOrderId);
@@ -647,7 +647,7 @@ namespace PostingEngine.PostingRules
                 element,
                 unrealizedPnl,
                 MarketPrices.GetPrice(env, env.PreviousValueDate, lot.Trade).Price,
-                element.SettleNetPrice, fxrate);
+                element.FactoredSettleNetPrice(), fxrate);
 
             PostRealizedPnl(
                 env,
@@ -771,7 +771,7 @@ namespace PostingEngine.PostingRules
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
                     Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
                     FxRate = fxrate,
-                    StartPrice = closingTaxLot.Trade.SettleNetPrice,
+                    StartPrice = closingTaxLot.Trade.FactoredSettleNetPrice(),
                     EndPrice = eodPrice,
                     Fund = env.GetFund(closingTaxLot.Trade),
                 };
@@ -841,7 +841,7 @@ namespace PostingEngine.PostingRules
                     CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyUSD),
                     Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyUSD),
                     FxRate = fxrate,
-                    StartPrice = element.SettleNetPrice,
+                    StartPrice = element.FactoredSettleNetPrice(),
                     EndPrice = eodPrice,
                     Fund = env.GetFund(element),
                 };
@@ -851,7 +851,7 @@ namespace PostingEngine.PostingRules
                     FxRate = fxrate,
                     CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyUSD * -1),
                     Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyUSD),
-                    StartPrice = element.SettleNetPrice,
+                    StartPrice = element.FactoredSettleNetPrice(),
                     EndPrice = eodPrice,
                     Fund = env.GetFund(element),
                 };

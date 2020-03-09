@@ -1,13 +1,15 @@
-import { Component, ViewChild, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
-import { GridOptions } from 'ag-grid-community';
-import { BehaviorSubject } from 'rxjs';
-import { timer, Subject } from 'rxjs';
-import { debounce, finalize } from 'rxjs/operators';
-import * as moment from 'moment';
 import { CacheService } from 'src/services/common/cache.service';
+
+import { Component, OnInit, AfterViewInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { BehaviorSubject, timer, Subject, forkJoin, Observable } from 'rxjs';
+import { debounce, finalize, tap } from 'rxjs/operators';
+import { GridOptions } from 'ag-grid-community';
+import * as moment from 'moment';
+import { ToastrService } from 'ngx-toastr';
 import { DataService } from '../../../../services/common/data.service';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { ReportsApiService } from 'src/services/reports-api.service';
+import { SecurityApiService } from 'src/services/security-api.service';
 import { Fund } from '../../../../shared/Models/account';
 import {
   TrialBalanceReport,
@@ -123,9 +125,11 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     private dataService: DataService,
     private financeService: FinanceServiceProxy,
     private reportsApiService: ReportsApiService,
+    private securityApiService: SecurityApiService,
     private agGridUtils: AgGridUtils,
     private dataDictionary: DataDictionary,
-    private downloadExcelUtils: DownloadExcelUtils
+    private downloadExcelUtils: DownloadExcelUtils,
+    private toastrService: ToastrService
   ) {
     this.hideGrid = false;
   }
@@ -762,20 +766,34 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
         name: 'Security Details',
         subMenu: [
           {
-            name: 'Create Security',
-            action: () => {
-              this.securityModal.openSecurityModalFromOutside(
-                params.node.data.symbol,
-                'createSecurity'
-              );
-            }
-          },
-          {
             name: 'Extend',
             action: () => {
-              console.log(params.node.data, ' EXTEND FROM TAXLOT STATUS+++++++++++++');
-              this.securityModal.openSecurityModalFromOutside(params.node.data.symbol, 'extend');
-            }
+              this.isLoading = true;
+
+              this.securityApiService.getDataForSecurityModal(params.node.data.symbol).subscribe(
+                ([config, securityDetails]: [any, any]) => {
+
+                  this.isLoading = false;
+                  if (!config.isSuccessful) {
+                  this.toastrService.error('No security type found against the selected symbol!');
+                  return;
+                }
+
+                  if (securityDetails.payload.length === 0) {
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
+                    config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
+                } else {
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
+                    config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
+                }
+
+                },
+                error => {
+                  this.isLoading = false;
+                }
+              );
+
+            },
           }
         ]
       }
@@ -784,6 +802,15 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(false, addDefaultItems, true, null, params);
   }
+
+  // getDataForSecurityModal(symbol) {
+  //   const config = this.securityApiService.getSecurityConfig(symbol);
+  //   const securityDetails = this.securityApiService.getSecurityDetail(symbol);
+  //   return forkJoin([
+  //     config,
+  //     securityDetails
+  //   ]);
+  // }
 
   setDateRange(dateFilter: any) {
     const dates = SetDateRange(dateFilter, this.startDate, this.endDate);

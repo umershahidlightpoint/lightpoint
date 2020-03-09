@@ -220,13 +220,17 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        public object GetDividendDetails()
+        public object GetDividendDetails(int id)
         {
             try
             {
-                var query = $@"select * from vwDividendDetails";
+                List<SqlParameter> dividendDetailsParam = new List<SqlParameter>
+                {
+                    new SqlParameter("id", id)
+                };
+                var query = $@"select * from vwDividendDetails where id = @id";
 
-                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text);
+                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text, dividendDetailsParam.ToArray());
 
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
 
@@ -428,19 +432,23 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        public object GetStockSplitDetails()
+        public object GetStockSplitDetails(int id)
         {
             try
             {
-                var query = $@"select * from vwStockSplitDetails";
+                List<SqlParameter> stockSplitDetailsParam = new List<SqlParameter>
+                {
+                    new SqlParameter("id", id)
+                };
+                var query = $@"select * from vwStockSplitDetails where id = @id";
 
-                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text);
+                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text, stockSplitDetailsParam.ToArray());
 
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
 
                 var json = JsonConvert.DeserializeObject(jsonResult);
 
-                return Utils.Wrap(true, json, HttpStatusCode.OK, "Dividend details fetched successfully");
+                return Utils.Wrap(true, json, HttpStatusCode.OK, "Stock split details fetched successfully");
             }
             catch (Exception ex)
             {

@@ -14,13 +14,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object EditCashDividend(CashDividendInputDto obj);
         object DeleteCashDividend(int id);
         object CashDividendAudit(int id);
-        object GetDividendDetails();
+        object GetDividendDetails(int id);
         // StockSplits
         object GetStockSplits();
         object CreateStockSplit(StockSplitInputDto obj);
         object EditStockSplit(StockSplitInputDto obj);
         object DeleteStockSplit(int id);
         object StockSplitAudit(int id);
-        object GetStockSplitDetails();
+        object GetStockSplitDetails(int id);
     }
 }

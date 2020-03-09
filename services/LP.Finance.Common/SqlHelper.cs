@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace SqlDAL.Core
 {
@@ -26,6 +27,18 @@ namespace SqlDAL.Core
         public SqlConnection GetConnection()
         {
             return SqlConnection;
+        }
+
+        public bool CheckIfConnectionExists()
+        {
+            if (SqlConnection == null)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         public SqlTransaction GetTransaction()

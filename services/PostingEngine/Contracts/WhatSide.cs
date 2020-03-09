@@ -33,6 +33,26 @@ namespace PostingEngine.Extensions
             return multiplier;
         }
 
+        public static int PricingFactor(this Transaction element)
+        {
+            if (element.SecurityType.ToLowerInvariant().Equals("global"))
+                return 100;
+
+            return 1;
+        }
+
+        // Take into account
+        public static double FactoredSettleNetPrice(this Transaction element)
+        {
+            var factor = PricingFactor(element);
+            return element.SettleNetPrice / factor;
+        }
+        public static double FactoredTradePrice(this Transaction element)
+        {
+            var factor = PricingFactor(element);
+            return element.TradePrice / factor;
+        }
+
         public static bool IsDerivative(this Transaction element)
         {
             return _derivativeTypes.Contains(element.SecurityType.ToLowerInvariant());

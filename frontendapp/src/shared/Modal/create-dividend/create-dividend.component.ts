@@ -65,7 +65,6 @@ export class CreateDividendComponent implements OnInit, OnChanges {
 
     this.getCurrencies();
     this.getSymbols();
-    this.getDividends();
   }
 
   ngOnChanges(changes: SimpleChanges) {}
@@ -84,7 +83,9 @@ export class CreateDividendComponent implements OnInit, OnChanges {
 
   getDividends() {
     this.corporateActionsApiService.getDividends().subscribe(response => {
-      this.dividends = response.payload;
+      if(response.statusCode === 200){
+        this.dividends = response.payload;
+      }
     });
   }
 
@@ -207,7 +208,6 @@ export class CreateDividendComponent implements OnInit, OnChanges {
   }
 
   openModal(data) {
-
     if (data === undefined || !data || data == null) {
       this.dividendModal.show();
     } else {
@@ -228,7 +228,7 @@ export class CreateDividendComponent implements OnInit, OnChanges {
       });
       this.dividendModal.show();
     }
-
+    this.getDividends();
   }
 
   openDividendModalFromOutside(data) {

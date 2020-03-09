@@ -57,7 +57,7 @@ namespace PostingEngine.PostingRules
                     if (env.ValueDate == element.TradeDate)
                     {
                         eodPrice = MarketPrices.GetPrice(env, env.ValueDate, element).Price;
-                        prevEodPrice = element.SettleNetPrice;
+                        prevEodPrice = element.FactoredSettleNetPrice();
                     }
                     else
                     {
