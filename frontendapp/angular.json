@@ -35,10 +35,7 @@
                 "output": "/assets/images/"
               }
             ],
-            "styles": [
-              "src/styles.scss",
-              "./node_modules/ngcatalyst/lib/styles.css"
-            ],
+            "styles": ["src/styles.scss", "./node_modules/ngcatalyst/lib/styles.css"],
             "scripts": [],
             "es5BrowserSupport": true
           },
@@ -99,22 +96,14 @@
               "src/styles.scss"
             ],
             "scripts": [],
-            "assets": [
-              "src/favicon.ico",
-              "src/assets"
-            ]
+            "assets": ["src/favicon.ico", "src/assets"]
           }
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
-            "tsConfig": [
-              "src/tsconfig.app.json",
-              "src/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
+            "tsConfig": ["src/tsconfig.app.json", "src/tsconfig.spec.json"],
+            "exclude": ["**/node_modules/**"]
           }
         }
       }
@@ -140,44 +129,7 @@
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
             "tsConfig": "e2e/tsconfig.e2e.json",
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
-        }
-      }
-    },
-    "lpToolkit": {
-      "projectType": "library",
-      "root": "packages/lp-toolkit",
-      "sourceRoot": "packages/lp-toolkit/src",
-      "prefix": "lp",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-ng-packagr:build",
-          "options": {
-            "tsConfig": "packages/lp-toolkit/tsconfig.lib.json",
-            "project": "packages/lp-toolkit/ng-package.json"
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "packages/lp-toolkit/src/test.ts",
-            "tsConfig": "packages/lp-toolkit/tsconfig.spec.json",
-            "karmaConfig": "packages/lp-toolkit/karma.conf.js"
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "packages/lp-toolkit/tsconfig.lib.json",
-              "packages/lp-toolkit/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
+            "exclude": ["**/node_modules/**"]
           }
         }
       }

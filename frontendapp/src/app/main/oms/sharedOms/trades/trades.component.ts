@@ -23,9 +23,15 @@ import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
 import { AgGridUtils } from '../../../../../shared/utils/AgGridUtils';
 import { ToastrService } from 'ngx-toastr';
-import { SideBar, Style, AutoSizeAllColumns, HeightStyle,  LegendColors} from 'src/shared/utils/Shared';
+import {
+  SideBar,
+  Style,
+  AutoSizeAllColumns,
+  HeightStyle,
+  LegendColors
+} from 'src/shared/utils/Shared';
 import { ExcludeTradeComponent } from 'src/shared/Modal/exclude-trade/exclude-trade.component';
-import { ConfirmationModalComponent } from 'packages/lp-toolkit/src/public-api';
+import { ConfirmationModalComponent } from 'lp-toolkit';
 
 @Component({
   selector: 'app-trades',
@@ -59,7 +65,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
   title = '';
   orderId: number;
   filterBySymbol = '';
-  toBeReversedLpOrderId : string;
+  toBeReversedLpOrderId: string;
   isLoading = false;
 
   // Process Trade state
@@ -145,22 +151,28 @@ export class TradesComponent implements OnInit, AfterViewInit {
 
     if (this.tradeType === 'trade') {
       this.gridOptions.api.showLoadingOverlay();
-      this.financeService.getTrades().subscribe(result => {
-        this.gridOptions.api.hideOverlay();
-        this.tradesData = result;
-        this.rowData = [];
-        const someArray = this.agGridUtils.columizeData(result.data, this.tradesData.meta.Columns);
-        const cdefs = this.agGridUtils.customizeColumns(
-          [],
-          this.tradesData.meta.Columns,
-          [],
-          false
-        );
-        this.gridOptions.api.setColumnDefs(cdefs);
-        this.rowData = someArray as [];
-      }, err => {
-        this.gridOptions.api.hideOverlay();
-      });
+      this.financeService.getTrades().subscribe(
+        result => {
+          this.gridOptions.api.hideOverlay();
+          this.tradesData = result;
+          this.rowData = [];
+          const someArray = this.agGridUtils.columizeData(
+            result.data,
+            this.tradesData.meta.Columns
+          );
+          const cdefs = this.agGridUtils.customizeColumns(
+            [],
+            this.tradesData.meta.Columns,
+            [],
+            false
+          );
+          this.gridOptions.api.setColumnDefs(cdefs);
+          this.rowData = someArray as [];
+        },
+        err => {
+          this.gridOptions.api.hideOverlay();
+        }
+      );
     } else if (this.tradeType === 'opsblotter') {
       this.financeService.getOpsBlotterJournals().subscribe(result => {
         this.tradesData = result;
@@ -190,7 +202,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
       // this.getLogs();
     });
   }
-  
+
   getContextMenuItems(params): Array<ContextMenu> {
     const addDefaultItems = [
       {
@@ -206,13 +218,13 @@ export class TradesComponent implements OnInit, AfterViewInit {
             name: 'Create Dividend',
             action: () => {
               this.dividendModal.openDividendModalFromOutside(params.node.data.Symbol);
-            },
+            }
           },
           {
             name: 'Create Stock Split',
             action: () => {
               this.stockSplitsModal.openStockSplitModalFromOutside(params.node.data.Symbol);
-            },
+            }
           }
         ]
       },
@@ -226,45 +238,53 @@ export class TradesComponent implements OnInit, AfterViewInit {
 
               this.securityApiService.getDataForSecurityModal(params.node.data.symbol).subscribe(
                 ([config, securityDetails]: [any, any]) => {
-
                   this.isLoading = false;
                   if (!config.isSuccessful) {
-                  this.toastrService.error('No security type found against the selected symbol!');
-                  return;
-                }
+                    this.toastrService.error('No security type found against the selected symbol!');
+                    return;
+                  }
                   if (securityDetails.payload.length === 0) {
-                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
-                    config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
-                } else {
-                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
-                    config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
-                }
-
+                    this.securityModal.openSecurityModalFromOutside(
+                      params.node.data.symbol,
+                      config.payload[0].SecurityType,
+                      config.payload[0].Fields,
+                      null,
+                      'extend'
+                    );
+                  } else {
+                    this.securityModal.openSecurityModalFromOutside(
+                      params.node.data.symbol,
+                      config.payload[0].SecurityType,
+                      config.payload[0].Fields,
+                      securityDetails.payload[0],
+                      'extend'
+                    );
+                  }
                 },
                 error => {
                   this.isLoading = false;
                 }
               );
-            },
+            }
           }
         ]
-      },
+      }
     ];
 
-    if(params.node.data.exclude !== 'Y'){
+    if (params.node.data.exclude !== 'Y') {
       addDefaultItems.push({
         name: 'Exclude Trade',
         action: () => {
           this.openTradeExclusionModal(params.node.data.LPOrderId);
         }
-      })
+      });
     } else {
       addDefaultItems.push({
         name: 'Reverse Trade Exclusion',
         action: () => {
           this.openReverseTradeExclusionModal(params.node.data.LPOrderId);
         }
-      })
+      });
     }
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(false, addDefaultItems, true, null, params);
@@ -362,37 +382,40 @@ export class TradesComponent implements OnInit, AfterViewInit {
     this.gridOptions.api.onFilterChanged();
   }
 
-  openTradeExclusionModal(lpOrderId){
+  openTradeExclusionModal(lpOrderId) {
     this.tradeExclusionModal.showModal(lpOrderId);
   }
 
-  openReverseTradeExclusionModal(lpOrderId){
+  openReverseTradeExclusionModal(lpOrderId) {
     this.toBeReversedLpOrderId = lpOrderId;
     this.confirmationModal.showModal();
   }
 
-  refreshGrid(){
+  refreshGrid() {
     this.getTrades();
   }
 
-  reverseTradeExclusion(){
+  reverseTradeExclusion() {
     let payload = {
-      LpOrderId : this.toBeReversedLpOrderId,
-    }
-    this.financeService.reverseTradeExclusion(payload).subscribe( resp => {
-      if(resp.statusCode === 200){
-        this.toastrService.success("Trade exclusion reversed successfully");
-        this.refreshGrid();
-      } else {
-        this.toastrService.error(resp.message);
+      LpOrderId: this.toBeReversedLpOrderId
+    };
+    this.financeService.reverseTradeExclusion(payload).subscribe(
+      resp => {
+        if (resp.statusCode === 200) {
+          this.toastrService.success('Trade exclusion reversed successfully');
+          this.refreshGrid();
+        } else {
+          this.toastrService.error(resp.message);
+        }
+      },
+      err => {
+        this.toastrService.success('An error occured');
       }
-    },err => {
-      this.toastrService.success("An error occured");
-    })
+    );
     this.toBeReversedLpOrderId = null;
   }
 
-  cancelTradeExclusionReversal(){
+  cancelTradeExclusionReversal() {
     this.toBeReversedLpOrderId = null;
   }
 }
