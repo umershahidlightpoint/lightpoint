@@ -521,18 +521,29 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             double accountToValue;
             double accountFromValue;
 
+            //if (journal.AccountTo.EntryType.Equals("debit"))
+            //{
+            //    accountToValue = AccountCategory.GetInitialSignedValue(accountTo, true, journal.Value);
+            //    accountFromValue = AccountCategory.SignedValue(accountFrom, accountTo, false, journal.Value);
+            //}
+            //else
+            //{
+            //    accountFromValue = AccountCategory.GetInitialSignedValue(accountFrom, true, journal.Value);
+            //    accountToValue = AccountCategory.SignedValue(accountFrom, accountTo, false, journal.Value);
+            //}
+
             if (journal.AccountTo.EntryType.Equals("debit"))
             {
-                accountToValue = SignedValue(accountTo, accountFrom, true, journal.Value);
-                accountFromValue = SignedValue(accountTo, accountFrom, false, journal.Value);
+                accountToValue = AccountCategory.GetInitialSignedValue(accountTo, true, journal.Value);
+                accountFromValue = AccountCategory.GetInitialSignedValue(accountFrom, false, journal.Value);
             }
             else
             {
-                accountFromValue = SignedValue(accountFrom, accountTo, true, journal.Value);
-                accountToValue = SignedValue(accountFrom, accountTo, false, journal.Value);
+                accountFromValue = AccountCategory.GetInitialSignedValue(accountFrom, true, journal.Value);
+                accountToValue = AccountCategory.GetInitialSignedValue(accountTo, false, journal.Value);
             }
 
-            return new Tuple<double, double>(accountToValue, accountFromValue);
+                return new Tuple<double, double>(accountToValue, accountFromValue);
         }
 
         /// <summary>

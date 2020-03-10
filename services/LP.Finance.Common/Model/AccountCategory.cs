@@ -183,6 +183,29 @@ namespace LP.Finance.Common.Models
             return value;
         }
 
+        public static double GetInitialSignedValue(Account ac, bool debit, double value)
+        {
+            return GetInitialSignedValue(ac.Type.Category.Id, debit, value);
+        }
+
+        public static double GetInitialSignedValue(int accountCategory, bool debit, double value)
+        {
+            switch (accountCategory)
+            {
+                case AccountCategory.AC_ASSET:
+                    return debit ? value : value * -1;
+                case AccountCategory.AC_LIABILITY:
+                    return debit ? value * -1 : value;
+                case AccountCategory.AC_REVENUES:
+                    return debit ? value * -1 : value;
+                case AccountCategory.AC_EQUITY:
+                    return debit ? value * -1 : value;
+                case AccountCategory.AC_EXPENCES:
+                    return debit ? value : value * -1;
+                default:
+                    return value;
+            }
+        }
 
     }
 }
