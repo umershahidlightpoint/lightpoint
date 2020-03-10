@@ -71,6 +71,8 @@ export class DailyPnlComponent implements OnInit, AfterViewInit {
   ranges: any;
   fundsRange: any;
 
+  returnsFormatString = '1.2-2';
+
   styleForHeight = HeightStyle(224);
 
   utilsConfig: UtilsConfig = {
@@ -491,27 +493,27 @@ export class DailyPnlComponent implements OnInit, AfterViewInit {
       {
         headerName: 'P/L %',
         field: 'pnLPercentage',
-        valueFormatter: params => this.numberFormatter(params.node.data.pnLPercentage, true)
+        valueFormatter: params => this.returnsFormatter(params.node.data.pnLPercentage, true, this.returnsFormatString)
       },
       {
         headerName: 'MTD % Return',
         field: 'mtdPercentageReturn',
-        valueFormatter: params => this.numberFormatter(params.node.data.mtdPercentageReturn, true)
+        valueFormatter: params => this.returnsFormatter(params.node.data.mtdPercentageReturn, true, this.returnsFormatString)
       },
       {
         headerName: 'QTD % Return',
         field: 'qtdPercentageReturn',
-        valueFormatter: params => this.numberFormatter(params.node.data.qtdPercentageReturn, true)
+        valueFormatter: params => this.returnsFormatter(params.node.data.qtdPercentageReturn, true, this.returnsFormatString)
       },
       {
         headerName: 'YTD % Return',
         field: 'ytdPercentageReturn',
-        valueFormatter: params => this.numberFormatter(params.node.data.ytdPercentageReturn, true)
+        valueFormatter: params => this.returnsFormatter(params.node.data.ytdPercentageReturn, true, this.returnsFormatString)
       },
       {
         headerName: 'ITD % Return',
         field: 'itdPercentageReturn',
-        valueFormatter: params => this.numberFormatter(params.node.data.itdPercentageReturn, true)
+        valueFormatter: params => this.returnsFormatter(params.node.data.itdPercentageReturn, true, this.returnsFormatString)
       },
       {
         headerName: 'MTD PnL',
@@ -577,7 +579,22 @@ export class DailyPnlComponent implements OnInit, AfterViewInit {
         action: () => {
           this.visualizeData();
         }
+      },
+      {
+        name: 'Decimal Places 2',
+        action: () => {
+          this.returnsFormatString = '1.2-2'
+          this.refreshGrid();
+        }
+      },
+      {
+        name: 'Decimal Places 16',
+        action: () => {
+          this.returnsFormatString = '1.16-16'
+          this.refreshGrid();
+        }
       }
+
     ];
     return GetContextMenu(false, addDefaultItems, true, null, params);
   }
@@ -701,6 +718,15 @@ export class DailyPnlComponent implements OnInit, AfterViewInit {
       per = PercentageFormatter(numberToFormat);
     }
     const formattedValue = this.decimalPipe.transform(per, '1.2-2');
+    return formattedValue.toString();
+  }
+
+  returnsFormatter(numberToFormat, isInPercentage, format): string {
+    let per = numberToFormat;
+    if (isInPercentage) {
+      per = PercentageFormatter(numberToFormat);
+    }
+    const formattedValue = this.decimalPipe.transform(per, format);
     return formattedValue.toString();
   }
 
