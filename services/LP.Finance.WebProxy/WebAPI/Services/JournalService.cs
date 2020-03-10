@@ -381,6 +381,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var accountToName = accountsName.Item1;
                 var accountFromName = accountsName.Item2;
 
+                bool singleSided = true;
+
                 journal.AccountTo.AccountId =
                     CreateIfAccountNotPresent(accountToName, journal.AccountTo.AccountTypeId, sqlHelper);
                 if (!journal.AccountFrom.AccountCategory.ToLowerInvariant().Equals("dummy"))
@@ -418,6 +420,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 if (!journal.AccountFrom.AccountCategory.ToLowerInvariant().Equals("dummy"))
                 {
                     var journalsValue = GetJournalsValue(journal);
+                    singleSided = false;
 
                     accountToValue = journalsValue.Item1;
                     var accountFromValue = journal.AccountFrom.AccountCategoryId == 0
@@ -451,6 +454,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                     SqlParameter[] fromJournalParameters = {new SqlParameter("journalId", fromJournalId)};
                     sqlHelper.Insert("SyncManualJournal", CommandType.StoredProcedure, fromJournalParameters);
+                }
+
+                if (singleSided)
+                {
+                    accountToValue = GetSingleSidedJournalValue(journal);
                 }
 
                 List<SqlParameter> accountToParameters = new List<SqlParameter>
@@ -494,6 +502,33 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
 
             return Utils.Wrap(true);
+        }
+
+        private double GetSingleSidedJournalValue(JournalInputDto journal)
+        {
+            var accountTo = new Account
+            {
+                Type = new AccountType
+                {
+                    Category = new AccountCategory
+                    {
+                        Id = journal.AccountTo.AccountCategoryId
+                    }
+                }
+            };
+          
+            double accountToValue;
+
+            if (journal.AccountTo.EntryType.Equals("debit"))
+            {
+                accountToValue = AccountCategory.GetInitialSignedValue(accountTo, true, journal.Value);
+            }
+            else
+            {
+                accountToValue = AccountCategory.GetInitialSignedValue(accountTo, false, journal.Value);
+            }
+
+            return accountToValue;
         }
 
         private Tuple<double, double> GetJournalsValue(JournalInputDto journal)
@@ -544,112 +579,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
 
                 return new Tuple<double, double>(accountToValue, accountFromValue);
-        }
-
-        /// <summary>
-        /// Determine how to set the Value of the Journal, this will be based on the 
-        /// </summary>
-        /// <param name="fromAccount">The account from where the flow will start</param>
-        /// <param name="toAccount">The account to where the flow will end</param>
-        /// <param name="debit">Is this from the perspective of the debit account</param>
-        /// <param name="value">The value to be posted</param>
-        /// <returns>The correct signed value</returns>
-        public double SignedValue(Account fromAccount, Account toAccount, bool debit, double value)
-        {
-            if (debit)
-                return value;
-
-            if (fromAccount.Type.Category.Id == toAccount.Type.Category.Id)
-            {
-                return value * -1;
-            }
-
-            if (fromAccount.Type.Category.Id == AccountCategory.AC_ASSET)
-            {
-                switch (toAccount.Type.Category.Id)
-                {
-                    case AccountCategory.AC_ASSET:
-                        return value * -1;
-                    case AccountCategory.AC_LIABILITY:
-                        return value;
-                    case AccountCategory.AC_REVENUES:
-                        return value;
-                    case AccountCategory.AC_EQUITY:
-                        return value;
-                    case AccountCategory.AC_EXPENCES:
-                        return value * -1;
-                }
-            }
-
-            if (fromAccount.Type.Category.Id == AccountCategory.AC_LIABILITY)
-            {
-                switch (toAccount.Type.Category.Id)
-                {
-                    case AccountCategory.AC_ASSET:
-                        return value;
-                    case AccountCategory.AC_LIABILITY:
-                        return value * -1;
-                    case AccountCategory.AC_REVENUES:
-                        return value * -1;
-                    case AccountCategory.AC_EQUITY:
-                        return value * -1;
-                    case AccountCategory.AC_EXPENCES:
-                        return value;
-                }
-            }
-
-            if (fromAccount.Type.Category.Id == AccountCategory.AC_REVENUES)
-            {
-                switch (toAccount.Type.Category.Id)
-                {
-                    case AccountCategory.AC_ASSET:
-                        return value;
-                    case AccountCategory.AC_LIABILITY:
-                        return value * -1;
-                    case AccountCategory.AC_REVENUES:
-                        return value * -1;
-                    case AccountCategory.AC_EQUITY:
-                        return value * -1;
-                    case AccountCategory.AC_EXPENCES:
-                        return value;
-                }
-            }
-
-            if (fromAccount.Type.Category.Id == AccountCategory.AC_EQUITY)
-            {
-                switch (toAccount.Type.Category.Id)
-                {
-                    case AccountCategory.AC_ASSET:
-                        return value;
-                    case AccountCategory.AC_LIABILITY:
-                        return value * -1;
-                    case AccountCategory.AC_REVENUES:
-                        return value * -1;
-                    case AccountCategory.AC_EQUITY:
-                        return value * -1;
-                    case AccountCategory.AC_EXPENCES:
-                        return value;
-                }
-            }
-
-            if (fromAccount.Type.Category.Id == AccountCategory.AC_EXPENCES)
-            {
-                switch (toAccount.Type.Category.Id)
-                {
-                    case AccountCategory.AC_ASSET:
-                        return value * -1;
-                    case AccountCategory.AC_LIABILITY:
-                        return value;
-                    case AccountCategory.AC_REVENUES:
-                        return value;
-                    case AccountCategory.AC_EQUITY:
-                        return value;
-                    case AccountCategory.AC_EXPENCES:
-                        return value * -1;
-                }
-            }
-
-            return value;
         }
 
         private string GetBaseCurrency()
@@ -705,6 +634,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var accountsName = GetAccountsName(journal);
                 var accountToName = accountsName.Item1;
                 var accountFromName = accountsName.Item2;
+                bool singleSided = true;
 
                 journal.AccountTo.AccountId =
                     CreateIfAccountNotPresent(accountToName, journal.AccountTo.AccountTypeId, sqlHelper);
@@ -734,6 +664,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 if (!journal.AccountFrom.AccountCategory.ToLowerInvariant().Equals("dummy"))
                 {
                     var journalsValue = GetJournalsValue(journal);
+                    singleSided = false;
 
                     accountToValue = journalsValue.Item1;
                     var accountFromValue = journal.AccountFrom.AccountCategoryId == 0
@@ -759,6 +690,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     SqlParameter[] fromJournalParameters =
                         {new SqlParameter("journalId", journal.AccountFrom.JournalId)};
                     sqlHelper.Update("UpdateManualJournal", CommandType.StoredProcedure, fromJournalParameters);
+                }
+
+                if (singleSided)
+                {
+                    accountToValue = GetSingleSidedJournalValue(journal);
                 }
 
                 List<SqlParameter> accountToParameters = new List<SqlParameter>
