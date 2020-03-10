@@ -16,8 +16,9 @@ export class ServicesLogComponent implements OnInit {
 
   getLogsUrl = `${this.baseUrl}/log/files`;
   downloadFileUrl = `${this.baseUrl}/log/download?fileName=`;
+  viewFileUrl = `${this.baseUrl}/log/view?numberOfLines=100&fileName=`;
 
-  styleForHeight = HeightStyle(156);
+  styleForHeight = HeightStyle(200);
 
   constructor() {}
 
