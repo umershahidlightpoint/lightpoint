@@ -138,7 +138,7 @@
           <!-- To Account Section Ends -->
 
           <!-- Account From Section -->
-          <div [hidden]="editJournal && !selectedJournal.AccountFrom" class="form-group">
+          <div [hidden]="editJournal && selectedJournal && !selectedJournal.AccountFrom" class="form-group">
 
             <hr>
             <!-- From Account Label -->
