@@ -1,33 +1,53 @@
-import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
-import * as moment from 'moment';
-import { GridOptions, ColGroupDef, ColDef } from 'ag-grid-community';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+  ElementRef,
+  ChangeDetectorRef
+} from '@angular/core';
+import { ColGroupDef, ColDef } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
+import * as moment from 'moment';
 import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
-import { HeightStyle, SideBar, DateFormatter, Ranges, SetDateRange } from 'src/shared/utils/Shared';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { FundTheoreticalApiService } from '../../../../services/fund-theoretical-api.service';
-import { UtilsConfig } from 'src/shared/Models/utils-config';
+import { GridId, GridName, LayoutConfig } from 'src/shared/utils/AppEnums';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
+import { CacheService } from 'src/services/common/cache.service';
+import { FundTheoreticalApiService } from '../../../../services/fund-theoretical-api.service';
 import { GraphObject } from 'src/shared/Models/graph-object';
+import { UtilsConfig } from 'src/shared/Models/utils-config';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
 import { DataDictionary } from 'src/shared/utils/DataDictionary';
+import { HeightStyle, SideBar, DateFormatter, Ranges, SetDateRange } from 'src/shared/utils/Shared';
 
 @Component({
   selector: 'app-fx-rates',
   templateUrl: './fx-rates.component.html',
   styleUrls: ['./fx-rates.component.scss']
 })
-export class FxRatesComponent implements OnInit {
+export class FxRatesComponent implements OnInit, AfterViewInit {
   @ViewChild('fileInput', { static: false }) fileInput: ElementRef;
-  @ViewChild('dataGridModal', { static: false })
-  dataGridModal: DataGridModalComponent;
+  @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
+
+  fxRate: CustomGridOptions;
+  fxRatesConfig: {
+    fxRatesSize: number;
+    chartsSize: number;
+    fxRatesView: boolean;
+    chartsView: boolean;
+    useTransition: boolean;
+  } = {
+    fxRatesSize: 50,
+    chartsSize: 50,
+    fxRatesView: true,
+    chartsView: false,
+    useTransition: true
+  };
+  totalGridRows: number;
   title: string;
   gridData: any;
-  totalGridRows: number;
-  fxRate: CustomGridOptions;
 
-  isExpanded = false;
   graphObject: GraphObject = null;
   disableCharts = true;
 
@@ -85,14 +105,66 @@ export class FxRatesComponent implements OnInit {
   commitLoader = false;
 
   constructor(
-    private fundTheoreticalApiService: FundTheoreticalApiService,
+    private cdRef: ChangeDetectorRef,
+    private cacheService: CacheService,
     private toastrService: ToastrService,
+    private fundTheoreticalApiService: FundTheoreticalApiService,
     public dataDictionary: DataDictionary
   ) {}
 
   ngOnInit() {
     this.getData();
     this.initGrid();
+  }
+
+  ngAfterViewInit(): void {
+    this.initPageLayout();
+  }
+
+  initPageLayout() {
+    const persistUIState = this.cacheService.getConfigByKey(LayoutConfig.persistUIState);
+    if (!persistUIState || !JSON.parse(persistUIState.value)) {
+      return;
+    }
+
+    const config = this.cacheService.getConfigByKey(LayoutConfig.fxRatesConfigKey);
+    if (config) {
+      this.fxRatesConfig = JSON.parse(config.value);
+    }
+
+    this.cdRef.detectChanges();
+  }
+
+  applyPageLayout(event) {
+    if (event.sizes) {
+      this.fxRatesConfig.fxRatesSize = event.sizes[0];
+      this.fxRatesConfig.chartsSize = event.sizes[1];
+    }
+
+    const persistUIState = this.cacheService.getConfigByKey(LayoutConfig.persistUIState);
+    if (!persistUIState || !JSON.parse(persistUIState.value)) {
+      return;
+    }
+
+    const config = this.cacheService.getConfigByKey(LayoutConfig.fxRatesConfigKey);
+    const payload = {
+      id: !config ? 0 : config.id,
+      project: LayoutConfig.projectName,
+      uom: 'JSON',
+      key: LayoutConfig.fxRatesConfigKey,
+      value: JSON.stringify(this.fxRatesConfig),
+      description: LayoutConfig.fxRatesConfigKey
+    };
+
+    if (!config) {
+      this.cacheService.addUserConfig(payload).subscribe(response => {
+        console.log('User Config Added');
+      });
+    } else {
+      this.cacheService.updateUserConfig(payload).subscribe(response => {
+        console.log('User Config Updated');
+      });
+    }
   }
 
   getData() {
@@ -332,8 +404,8 @@ export class FxRatesComponent implements OnInit {
     ];
   }
 
-  expandedClicked() {
-    this.isExpanded = !this.isExpanded;
+  onToggleChartsView() {
+    this.fxRatesConfig.chartsView = !this.fxRatesConfig.chartsView;
   }
 
   vChange($event) {}
@@ -395,7 +467,7 @@ export class FxRatesComponent implements OnInit {
       referenceDate: toDate
     };
 
-    this.isExpanded = true;
+    this.fxRatesConfig.chartsView = true;
     this.disableCharts = false;
   }
 

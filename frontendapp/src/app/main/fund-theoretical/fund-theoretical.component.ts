@@ -1,13 +1,21 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+  ElementRef,
+  ChangeDetectorRef
+} from '@angular/core';
 import { GridOptions } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { GridLayoutMenuComponent } from 'lp-toolkit';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import * as moment from 'moment';
+import { GridLayoutMenuComponent } from 'lp-toolkit';
+import { GridId, GridName, LayoutConfig } from 'src/shared/utils/AppEnums';
 import { AgGridCheckboxComponent } from '../../../shared/Component/ag-grid-checkbox/ag-grid-checkbox.component';
 import { DataGridModalComponent } from '../../../shared/Component/data-grid-modal/data-grid-modal.component';
 import { DatePickerModalComponent } from 'src/shared/Component/date-picker-modal/date-picker-modal.component';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
+import { CacheService } from 'src/services/common/cache.service';
 import { DataService } from 'src/services/common/data.service';
 import { FinanceServiceProxy } from '../../../services/service-proxies';
 import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.service';
@@ -35,6 +43,19 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
 
   rowData: Array<Account>;
   fundTheoreticalGrid: GridOptions;
+  fundTheoreticalConfig: {
+    fundTheoreticalSize: number;
+    chartsSize: number;
+    fundTheoreticalView: boolean;
+    chartsView: boolean;
+    useTransition: boolean;
+  } = {
+    fundTheoreticalSize: 50,
+    chartsSize: 50,
+    fundTheoreticalView: true,
+    chartsView: false,
+    useTransition: true
+  };
   accountCategories: AccountCategory;
   selectedAccountCategory: AccountCategory;
   account: Account;
@@ -51,22 +72,8 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   title: string;
   fileToUpload: File = null;
   graphObject: any;
-  isExpanded = false;
   disableFileUpload = true;
   disableCharts = true;
-  actionFundTheoretical: {
-    fundTheoreticalSize: number;
-    chartsSize: number;
-    fundTheoreticalView: boolean;
-    chartsView: boolean;
-    useTransition: boolean;
-  } = {
-    fundTheoreticalSize: 50,
-    chartsSize: 50,
-    fundTheoreticalView: true,
-    chartsView: false,
-    useTransition: true
-  };
 
   isDailyPnLActive = false;
   isTaxRateActive = false;
@@ -110,10 +117,12 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
   };
 
   constructor(
-    private financeService: FinanceServiceProxy,
-    private fundTheoreticalApiService: FundTheoreticalApiService,
+    private cdRef: ChangeDetectorRef,
+    private cacheService: CacheService,
     private toastrService: ToastrService,
     private dataService: DataService,
+    private financeService: FinanceServiceProxy,
+    private fundTheoreticalApiService: FundTheoreticalApiService,
     public dataDictionary: DataDictionary,
     private downloadExcelUtils: DownloadExcelUtils
   ) {
@@ -124,7 +133,15 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     this.currentMonth = currentMonthObj.month;
   }
 
+  ngOnInit() {
+    this.getFunds();
+    this.getPortfolios();
+    this.getMonthlyPerformance();
+    this.initGrid();
+  }
+
   ngAfterViewInit(): void {
+    this.initPageLayout();
     this.dataService.flag$.subscribe(obj => {
       this.hideGrid = obj;
       if (!this.hideGrid) {
@@ -132,11 +149,50 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     });
   }
 
-  ngOnInit() {
-    this.getFunds();
-    this.getPortfolios();
-    this.getMonthlyPerformance();
-    this.initGrid();
+  initPageLayout() {
+    const persistUIState = this.cacheService.getConfigByKey(LayoutConfig.persistUIState);
+    if (!persistUIState || !JSON.parse(persistUIState.value)) {
+      return;
+    }
+
+    const config = this.cacheService.getConfigByKey(LayoutConfig.fundTheoreticalConfigKey);
+    if (config) {
+      this.fundTheoreticalConfig = JSON.parse(config.value);
+    }
+
+    this.cdRef.detectChanges();
+  }
+
+  applyPageLayout(event) {
+    if (event.sizes) {
+      this.fundTheoreticalConfig.fundTheoreticalSize = event.sizes[0];
+      this.fundTheoreticalConfig.chartsSize = event.sizes[1];
+    }
+
+    const persistUIState = this.cacheService.getConfigByKey(LayoutConfig.persistUIState);
+    if (!persistUIState || !JSON.parse(persistUIState.value)) {
+      return;
+    }
+
+    const config = this.cacheService.getConfigByKey(LayoutConfig.fundTheoreticalConfigKey);
+    const payload = {
+      id: !config ? 0 : config.id,
+      project: LayoutConfig.projectName,
+      uom: 'JSON',
+      key: LayoutConfig.fundTheoreticalConfigKey,
+      value: JSON.stringify(this.fundTheoreticalConfig),
+      description: LayoutConfig.fundTheoreticalConfigKey
+    };
+
+    if (!config) {
+      this.cacheService.addUserConfig(payload).subscribe(response => {
+        console.log('User Config Added');
+      });
+    } else {
+      this.cacheService.updateUserConfig(payload).subscribe(response => {
+        console.log('User Config Updated');
+      });
+    }
   }
 
   activeFundTheretical() {
@@ -695,9 +751,11 @@ export class FundTheoreticalComponent implements OnInit, AfterViewInit {
     this.disableCommit = true;
   }
 
-  expandedClicked() {
-    this.isExpanded = !this.isExpanded;
-    this.generateData();
+  onToggleChartsView() {
+    this.fundTheoreticalConfig.chartsView = !this.fundTheoreticalConfig.chartsView;
+    if (this.fundTheoreticalConfig.chartsView) {
+      this.generateData();
+    }
   }
 
   generateData() {

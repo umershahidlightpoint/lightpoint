@@ -349,10 +349,10 @@ export class JournalModalComponent implements OnInit {
               accountCurrency: fromAccountCurrency
             }
           : {
-              ...(this.editJournal &&
-                !this.contraEntryMode && {
-                  journalId: this.selectedJournal.AccountFrom.JournalId
-                }),
+              // ...(this.editJournal &&
+              //   !this.contraEntryMode && {
+              //     journalId: this.selectedJournal.AccountFrom.JournalId
+              //   }),
               accountId: this.dummyAccount.accountId,
               entryType: this.getEntryType(),
               accountCategoryId: this.dummyAccountCategory.id,
@@ -469,7 +469,7 @@ export class JournalModalComponent implements OnInit {
             this.selectedJournal = response.payload;
             this.selectedRow.balance = AccountTo.Value;
 
-            this.setContraEntryMode(AccountFrom);
+            // this.setContraEntryMode(AccountFrom);
             this.setJournalAccountsValue(AccountTo, AccountFrom);
 
             this.setFormValues(
@@ -480,10 +480,10 @@ export class JournalModalComponent implements OnInit {
               AccountTo.Symbol,
               AccountTo.FxCurrency,
               AccountFrom ? AccountFrom.CreditDebit : null,
-              AccountFrom.AccountCategoryId !== 0 && AccountFrom.AccountCategory,
-              AccountFrom.AccountCategoryId !== 0 && AccountFrom.AccountType,
-              AccountFrom.AccountCategoryId !== 0 && AccountFrom.Symbol,
-              AccountFrom.AccountCategoryId !== 0 && AccountFrom.FxCurrency,
+              AccountFrom && AccountFrom.AccountCategoryId !== 0 && AccountFrom.AccountCategory,
+              AccountFrom && AccountFrom.AccountCategoryId !== 0 && AccountFrom.AccountType,
+              AccountFrom && AccountFrom.AccountCategoryId !== 0 && AccountFrom.Symbol,
+              AccountFrom && AccountFrom.AccountCategoryId !== 0 && AccountFrom.FxCurrency,
               When,
               AccountTo.Value,
               Comment
@@ -531,8 +531,10 @@ export class JournalModalComponent implements OnInit {
   setJournalAccountsValue(toAccount: JournalAccount, fromAccount: JournalAccount) {
     this.selectedToAccountCategory = this.getMappedJournalAccount(toAccount, 'Category');
     this.selectedToAccountType = this.getMappedJournalAccount(toAccount, 'Type');
-    this.selectedFromAccountCategory = this.getMappedJournalAccount(fromAccount, 'Category');
-    this.selectedFromAccountType = this.getMappedJournalAccount(fromAccount, 'Type');
+    if (fromAccount) {
+      this.selectedFromAccountCategory = this.getMappedJournalAccount(fromAccount, 'Category');
+      this.selectedFromAccountType = this.getMappedJournalAccount(fromAccount, 'Type');
+    }
 
     this.isFetchingToAccountTypes = true;
     this.getAccountTypes(toAccount.AccountCategoryId)
@@ -543,14 +545,16 @@ export class JournalModalComponent implements OnInit {
       )
       .subscribe(response => (this.toAccountTypes = response.payload));
 
-    this.isFetchingFromAccountTypes = true;
-    this.getAccountTypes(fromAccount.AccountCategoryId)
-      .pipe(
-        finalize(() => {
-          this.isFetchingFromAccountTypes = false;
-        })
-      )
-      .subscribe(response => (this.fromAccountTypes = response.payload));
+    if (fromAccount) {
+      this.isFetchingFromAccountTypes = true;
+      this.getAccountTypes(fromAccount.AccountCategoryId)
+        .pipe(
+          finalize(() => {
+            this.isFetchingFromAccountTypes = false;
+          })
+        )
+        .subscribe(response => (this.fromAccountTypes = response.payload));
+    }
   }
 
   getMappedJournalAccount(journalAccount: JournalAccount, accountProperty: string) {
