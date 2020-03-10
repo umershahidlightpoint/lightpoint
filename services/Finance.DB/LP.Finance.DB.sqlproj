@@ -169,6 +169,7 @@
     <Build Include="StoredProcs\PostProcessETL.sql" />
     <Build Include="StoredProcs\PreProcessETL.sql" />
     <Build Include="StoredProcs\PullDividends.sql" />
+    <Build Include="StoredProcs\DividendDetails.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">
