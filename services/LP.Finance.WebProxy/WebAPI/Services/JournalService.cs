@@ -415,7 +415,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                                     ,@securityId, @commentsId, @isAccountTo)
                                     SELECT SCOPE_IDENTITY() AS 'Identity'";
 
-                if (!journal.ContraEntryMode)
+                if (!journal.AccountFrom.AccountCategory.ToLowerInvariant().Equals("dummy"))
                 {
                     var journalsValue = GetJournalsValue(journal);
 
@@ -720,7 +720,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                             ,[credit_debit] = @entryType
                             WHERE [journal].[source] = @source AND [journal].[is_account_to] = @isAccountTo";
 
-                if (!journal.ContraEntryMode)
+                if (!journal.AccountFrom.AccountCategory.ToLowerInvariant().Equals("dummy"))
                 {
                     var journalsValue = GetJournalsValue(journal);
 
