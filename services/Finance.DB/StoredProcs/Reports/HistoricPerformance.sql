@@ -1,6 +1,18 @@
 ﻿CREATE PROCEDURE [dbo].[HistoricPerformance]
-	@param1 int = 0,
-	@param2 int
+	@Now Date,
+	@From Date
 AS
-	SELECT @param1, @param2
+
+select [when], sum(credit-debit) as balance from current_journal_full
+where AccountCategory in ('Asset', 'Liability')
+and [when] <= @Now
+group by [when]
+
+select sum(credit-debit) as balance from current_journal_full
+where AccountCategory in ('Asset', 'Liability')
+and [when] <= @Now
+
+select * from current_journal_full
+where [when] = @Now
+
 RETURN 0
