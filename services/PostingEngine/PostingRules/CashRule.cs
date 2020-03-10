@@ -1,4 +1,5 @@
-﻿using LP.Finance.Common.Models;
+﻿using LP.Finance.Common.Model;
+using LP.Finance.Common.Models;
 using PostingEngine.Extensions;
 using PostingEngine.MarketData;
 using PostingEngine.PostingRules.Utilities;
@@ -114,8 +115,8 @@ namespace PostingEngine.PostingRules
                 FxRate = fxrate,
                 CreditDebit = env.DebitOrCredit(accountToFrom.From, moneyLocal),
                 JournalValue = env.SignedValueWithFx(accountToFrom.From, accountToFrom.To, true, moneyLocal, fxrate),
-                //Value = env.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyLocal),
-                Event = "prepaid-expense",
+                //Value = AccountCategory.SignedValue(accountToFrom.From, accountToFrom.To, true, moneyLocal),
+                Event = Event.CASH_PAYMENT,
                 Fund = env.GetFund(element),
             };
 
@@ -123,7 +124,7 @@ namespace PostingEngine.PostingRules
             {
                 Account = accountToFrom.To,
                 CreditDebit = env.DebitOrCredit(accountToFrom.To, moneyLocal),
-                //Value = env.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyLocal),
+                //Value = AccountCategory.SignedValue(accountToFrom.From, accountToFrom.To, false, moneyLocal),
                 JournalValue = env.SignedValueWithFx(accountToFrom.From, accountToFrom.To, true, moneyLocal, fxrate),
             };
 

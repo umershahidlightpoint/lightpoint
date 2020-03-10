@@ -84,14 +84,6 @@ namespace PostingEngine.Tasks
                 command.ExecuteNonQuery();
                 env.CallBack?.Invoke("[End] PreProcessETL");
 
-                var sqlHelper = new SqlHelper(connectionString);
-                sqlHelper.CreateConnection();
-                sqlHelper.GetConnection().Open();
-                sqlHelper.SqlBeginTransaction();
-                sqlHelper.Update("update current_trade_state set SecurityType = 'Common Stock' where SecurityType = 'REIT'", System.Data.CommandType.Text);
-                sqlHelper.GetTransaction().Commit();
-                sqlHelper.GetConnection().Close();
-
                 sql = @"PullDividends";
                 command = new SqlCommand(sql, connection)
                 {

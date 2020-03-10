@@ -47,6 +47,7 @@ namespace PostingEngineCmd
             Logger.Info($"Running Posting Engine for Period {period} and ValueDate {date}");
 
             new PostingEngineEx().RunForPeriod(date, period);
+            //new PostingEngineEx().RunSettledCashBalances(date, period);
         }
 
         

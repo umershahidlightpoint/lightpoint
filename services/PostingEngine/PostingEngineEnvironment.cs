@@ -62,10 +62,23 @@ namespace PostingEngine
             SetupSecurityTypeMappings();
         }
 
-        private static SqlConnection __connection;
+        private SqlConnection __connection;
+
+        private void UpdateLocal(Journal journal)
+        {
+            var fxRate = FxRates.Find(this, journal.When, journal.FxCurrency).Rate;
+
+            journal.JournalValue = new JournalValue(journal.Value / fxRate, journal.Value);
+        }
 
         public int CollectData(List<Journal> journals)
         {
+            // Lets do the nasty, and update the local values based on the fxrate
+            foreach(var journal in journals)
+            {
+                UpdateLocal(journal);
+            }
+
             return CollectData(ConnectionString, journals);
         }
 
@@ -97,7 +110,7 @@ namespace PostingEngine
 
             } catch (Exception ex )
             {
-
+                Logger.Error(ex, $"Unable to save journals {this.ValueDate.ToString("yyyy-MM-dd")}");
             }
             //Logger.Info($"Completed :: Commiting Journals to the database {journals.Count()}");
 
@@ -298,8 +311,8 @@ namespace PostingEngine
         public JournalValue SignedValue(Account fromAccount, Account toAccount, bool debit, double baseValue, double localValue)
         {
             var jv = new JournalValue(
-                this.SignedValue(fromAccount, toAccount, debit, localValue),
-                this.SignedValue(fromAccount, toAccount, debit, baseValue)
+                AccountCategory.SignedValue(fromAccount, toAccount, debit, localValue),
+                AccountCategory.SignedValue(fromAccount, toAccount, debit, baseValue)
                 );
 
             return jv;
@@ -308,131 +321,13 @@ namespace PostingEngine
         public JournalValue SignedValueWithFx(Account fromAccount, Account toAccount, bool debit, double localValue, double fxRate)
         {
             var jv = new JournalValue(
-                this.SignedValue(fromAccount, toAccount, debit, localValue),
-                this.SignedValue(fromAccount, toAccount, debit, localValue * fxRate)
+                AccountCategory.SignedValue(fromAccount, toAccount, debit, localValue),
+                AccountCategory.SignedValue(fromAccount, toAccount, debit, localValue * fxRate)
                 );
 
             return jv;
         }
 
-        /// <summary>
-        /// Determine how to set the Value of the Journal, this will be based on the 
-        /// </summary>
-        /// <param name="fromAccount">The account from where the flow will start</param>
-        /// <param name="toAccount">The account to where the flow will end</param>
-        /// <param name="debit">Is this from the perspective of the debit account</param>
-        /// <param name="value">The value to be posted</param>
-        /// <returns>The correct signed value</returns>
-        public double SignedValue(Account fromAccount, Account toAccount, bool debit, double value)
-        {
-            if (debit)
-                return value;
-
-            if (fromAccount.Type.Category.Id == toAccount.Type.Category.Id)
-            {
-                return value * -1;
-            }
-
-            if (fromAccount.Type.Category.Id == AccountCategory.AC_ASSET) {
-                switch (toAccount.Type.Category.Id)
-                {
-                    case AccountCategory.AC_ASSET:
-                        return value * -1;
-                    case AccountCategory.AC_LIABILITY:
-                        return value;
-                    case AccountCategory.AC_REVENUES:
-                        return value;
-                    case AccountCategory.AC_EQUITY:
-                        return value;
-                    case AccountCategory.AC_EXPENCES:
-                        return value * -1;
-                }
-            }
-
-            if (fromAccount.Type.Category.Id == AccountCategory.AC_LIABILITY)
-            {
-                switch (toAccount.Type.Category.Id)
-                {
-                    case AccountCategory.AC_ASSET:
-                        return value;
-                    case AccountCategory.AC_LIABILITY:
-                        return value * -1;
-                    case AccountCategory.AC_REVENUES:
-                        return value * -1;
-                    case AccountCategory.AC_EQUITY:
-                        return value * -1;
-                    case AccountCategory.AC_EXPENCES:
-                        return value;
-                }
-            }
-
-            if (fromAccount.Type.Category.Id == AccountCategory.AC_REVENUES)
-            {
-                switch (toAccount.Type.Category.Id)
-                {
-                    case AccountCategory.AC_ASSET:
-                        return value;
-                    case AccountCategory.AC_LIABILITY:
-                        return value * -1;
-                    case AccountCategory.AC_REVENUES:
-                        return value * -1;
-                    case AccountCategory.AC_EQUITY:
-                        return value * -1;
-                    case AccountCategory.AC_EXPENCES:
-                        return value;
-                }
-            }
-
-            if (fromAccount.Type.Category.Id == AccountCategory.AC_EQUITY)
-            {
-                switch (toAccount.Type.Category.Id)
-                {
-                    case AccountCategory.AC_ASSET:
-                        return value;
-                    case AccountCategory.AC_LIABILITY:
-                        return value * -1;
-                    case AccountCategory.AC_REVENUES:
-                        return value * -1;
-                    case AccountCategory.AC_EQUITY:
-                        return value * -1;
-                    case AccountCategory.AC_EXPENCES:
-                        return value;
-                }
-            }
-
-            if (fromAccount.Type.Category.Id == AccountCategory.AC_EXPENCES)
-            {
-                switch (toAccount.Type.Category.Id)
-                {
-                    case AccountCategory.AC_ASSET:
-                        return value * -1;
-                    case AccountCategory.AC_LIABILITY:
-                        return value;
-                    case AccountCategory.AC_REVENUES:
-                        return value;
-                    case AccountCategory.AC_EQUITY:
-                        return value;
-                    case AccountCategory.AC_EXPENCES:
-                        return value * -1;
-                }
-            }
-
-            return value;
-        }
-
-        /// <summary>
-        /// return if the value indicates a credit or a debit 
-        /// </summary>
-        /// <param name="account"></param>
-        /// <param name="value"></param>
-        /// <returns>if the Journal entry is a credit or a debit</returns>
-        /* Account      Increase    Decrease
-            * Assets       Debit       Credit
-            * Expences     Debit       Credit
-            * Liabilities  Credit      Debit
-            * Equity       Credit      Debit
-            * Revenue      Credit      Debit
-            */
         internal string DebitOrCredit(Account account, double value)
         {
             var creditordebit = "credit";

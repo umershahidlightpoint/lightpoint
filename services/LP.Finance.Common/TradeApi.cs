@@ -12,7 +12,9 @@ namespace LP.Finance.Common
 {
     public class TradeApi
     {
-        public readonly static string TRADE_QUERY = "select * from current_trade_state order by TradeDate asc";
+        public readonly static string TRADE_QUERY = @"select * from current_trade_state cts
+                                                      where cts.LPOrderId not in ( select LPOrderId from trade_exclusion where exclude = 'Y')
+                                                      order by TradeTime asc";
 
 
         public List<T> All<T>(string connectionString, string query)

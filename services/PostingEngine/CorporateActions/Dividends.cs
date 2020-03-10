@@ -123,14 +123,14 @@ namespace PostingEngine.CorporateActions
                     StartPrice = 0,
                     EndPrice = 0,
 
-                    Value = env.SignedValue(fromTo.From, fromTo.To, true, fxTranslation),
+                    Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, true, fxTranslation),
                     CreditDebit = env.DebitOrCredit(fromTo.From, fxTranslation),
                 };
 
                 var credit = new Journal(debit)
                 {
                     Account = fromTo.To,
-                    Value = env.SignedValue(fromTo.From, fromTo.To, false, fxTranslation),
+                    Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, false, fxTranslation),
                     CreditDebit = env.DebitOrCredit(fromTo.To, fxTranslation),
                 };
                 journals.AddRange(new[] { debit, credit });
@@ -185,14 +185,14 @@ namespace PostingEngine.CorporateActions
                     StartPrice = 0,
                     EndPrice = 0,
 
-                    Value = env.SignedValue(fromTo.From, fromTo.To, true, fxTranslation),
+                    Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, true, fxTranslation),
                     CreditDebit = env.DebitOrCredit(fromTo.From, fxTranslation),
                 };
 
                 var credit = new Journal(debit)
                 {
                     Account = fromTo.To,
-                    Value = env.SignedValue(fromTo.From, fromTo.To, false, fxTranslation),
+                    Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, false, fxTranslation),
                     CreditDebit = env.DebitOrCredit(fromTo.To, fxTranslation),
                 };
                 journals.AddRange(new[] { debit, credit });
@@ -374,14 +374,14 @@ namespace PostingEngine.CorporateActions
                     StartPrice = 0,
                     EndPrice = 0,
 
-                    Value = env.SignedValue(fromTo.From, fromTo.To, true, DiffSettleGross),
+                    Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, true, DiffSettleGross),
                     CreditDebit = env.DebitOrCredit(fromTo.From, DiffSettleGross),
                 };
 
                 var credit = new Journal(debit)
                 {
                     Account = fromTo.To,
-                    Value = env.SignedValue(fromTo.From, fromTo.To, false, DiffSettleGross),
+                    Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, false, DiffSettleGross),
                     CreditDebit = env.DebitOrCredit(fromTo.To, DiffSettleGross),
                 };
                 journals.AddRange(new[] { debit, credit });
@@ -405,14 +405,14 @@ namespace PostingEngine.CorporateActions
                         StartPrice = 0,
                         EndPrice = 0,
 
-                        Value = env.SignedValue(fromTo.From, fromTo.To, true, DiffSettleWithholding),
+                        Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, true, DiffSettleWithholding),
                         CreditDebit = env.DebitOrCredit(fromTo.From, DiffSettleWithholding),
                     };
 
                     credit = new Journal(debit)
                     {
                         Account = fromTo.To,
-                        Value = env.SignedValue(fromTo.From, fromTo.To, false, DiffSettleWithholding),
+                        Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, false, DiffSettleWithholding),
                         CreditDebit = env.DebitOrCredit(fromTo.To, DiffSettleWithholding),
                     };
                     journals.AddRange(new[] { debit, credit });
@@ -500,14 +500,14 @@ namespace PostingEngine.CorporateActions
                 StartPrice = 0,
                 EndPrice = 0,
 
-                Value = env.SignedValue(fromTo.From, fromTo.To, true, calculatedDividend.SettleGross * multiplier),
+                Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, true, calculatedDividend.SettleGross * multiplier),
                 CreditDebit = env.DebitOrCredit(fromTo.From, calculatedDividend.SettleGross * multiplier),
             };
 
             var credit = new Journal(debit)
             {
                 Account = fromTo.To,
-                Value = env.SignedValue(fromTo.From, fromTo.To, false, calculatedDividend.SettleGross * multiplier),
+                Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, false, calculatedDividend.SettleGross * multiplier),
                 CreditDebit = env.DebitOrCredit(fromTo.To, calculatedDividend.SettleGross * multiplier),
             };
             journals.AddRange(new[] { debit, credit });
@@ -529,14 +529,14 @@ namespace PostingEngine.CorporateActions
                     StartPrice = 0,
                     EndPrice = 0,
 
-                    Value = env.SignedValue(fromToWithholding.From, fromToWithholding.To, true, calculatedDividend.SettleWithholding),
+                    Value = AccountCategory.SignedValue(fromToWithholding.From, fromToWithholding.To, true, calculatedDividend.SettleWithholding),
                     CreditDebit = env.DebitOrCredit(fromToWithholding.From, calculatedDividend.SettleWithholding),
                 };
 
                 var withholding_credit = new Journal(debit)
                 {
                     Account = fromToWithholding.To,
-                    Value = env.SignedValue(fromToWithholding.From, fromToWithholding.To, false, calculatedDividend.SettleWithholding),
+                    Value = AccountCategory.SignedValue(fromToWithholding.From, fromToWithholding.To, false, calculatedDividend.SettleWithholding),
                     CreditDebit = env.DebitOrCredit(fromToWithholding.To, calculatedDividend.SettleWithholding),
                 };
 

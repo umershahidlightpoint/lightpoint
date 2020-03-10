@@ -39,12 +39,6 @@ namespace PostingEngine.Tasks
                 endDate = Convert.ToDateTime(table.Rows[0]["maxDate"]);
             }
 
-            var sql = $@"select Symbol, fx_currency, source, fund, sum(local_credit- local_debit) as balance, security_id from vwJournal 
-                    where AccountType = 'Settled Cash' and event in ('settlement', 'dividend')
-                    and [when] < @busDate
-					and fx_currency not in ('USD')
-                    group by Symbol, fx_currency, source, fund, security_id";
-
             env.CallBack?.Invoke("SettledCash Calculation Started");
 
             var rowsCompleted = 1;
@@ -67,27 +61,31 @@ namespace PostingEngine.Tasks
 
                     try
                     {
-                        var sqlParams = new SqlParameter[]
-                        {
+                        var command = new SqlCommand("settledCash", con);
+                        //command.Transaction = transaction;
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.AddRange(new SqlParameter[] {
                             new SqlParameter("busDate", valueDate),
+                        });
+
+                        var table = new DataTable();
+                        using (var adapter = new SqlDataAdapter(command))
+                        {
+                            adapter.Fill(table);
                         };
 
-                        var command = new SqlCommand(sql, con);
-                        //command.Transaction = transaction;
-                        command.Parameters.AddRange(sqlParams);
-                        var reader = command.ExecuteReader(System.Data.CommandBehavior.SingleResult);
-
-                        while (reader.Read())
+                        for(var i =0; i<table.Rows.Count; i++)
                         {
+                            var offset = 0;
+
                             var settledCash = new
                             {
-                                Symbol = reader.GetFieldValue<string>(0),
-                                Currency = reader.GetFieldValue<string>(1),
-                                Source = reader.GetFieldValue<string>(2),
-                                Fund = reader.GetFieldValue<string>(3),
-                                Balance = reader.GetFieldValue<decimal>(4),
-                                SecurityId = reader.GetFieldValue<int>(5),
-                                //Quantity = reader.GetFieldValue <decimal>(6)
+                                Symbol = Convert.ToString(table.Rows[i][offset++]),
+                                Currency = Convert.ToString(table.Rows[i][offset++]),
+                                Source = Convert.ToString(table.Rows[i][offset++]),
+                                Fund = Convert.ToString(table.Rows[i][offset++]),
+                                Balance = Convert.ToDecimal(table.Rows[i][offset++]),
+                                SecurityId = Convert.ToInt32(table.Rows[i][offset++]),
                             };
 
                             if (settledCash.Currency.Equals(env.BaseCurrency))
@@ -102,7 +100,7 @@ namespace PostingEngine.Tasks
                             var change = changeDelta * local * -1;
 
                             var symbol = $"@CASH{settledCash.Currency}";
-                            var security = env.Trades?.Where(i => i.Symbol.Equals(symbol)).FirstOrDefault();
+                            var security = env.Trades?.Where(j => j.Symbol.Equals(symbol)).FirstOrDefault();
                             var securityId = security != null ? security.SecurityId : -1;
 
                             var fromTo = new AccountUtils().GetAccounts(env, "Settled Cash", "fx gain or loss on settled balance", new string[] { settledCash.Currency }.ToList());
@@ -120,20 +118,19 @@ namespace PostingEngine.Tasks
                                 StartPrice = prevFx,
                                 EndPrice = eodFx,
 
-                                Value = env.SignedValue(fromTo.From, fromTo.To, true, change),
+                                Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, true, change),
                                 CreditDebit = env.DebitOrCredit(fromTo.From, change),
                             };
 
                             var credit = new Journal(debit)
                             {
                                 Account = fromTo.To,
-                                Value = env.SignedValue(fromTo.From, fromTo.To, false, change),
+                                Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, false, change),
                                 CreditDebit = env.DebitOrCredit(fromTo.To, change),
                             };
 
                             env.Journals.AddRange(new List<Journal>(new[] { debit, credit }));
                         }
-                        reader.Close();
                     }
                     catch (Exception ex)
                     {

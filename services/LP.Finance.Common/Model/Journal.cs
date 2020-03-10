@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -273,6 +274,7 @@ namespace LP.Finance.Common.Models
                 }
                 else
                 {
+                    // This is now redundant as every Journal should now have a JournalValue
                     row["value"] = this.Value;
                     if (this.FxRate != 0)
                         row["local_value"] = this.Value / this.FxRate;

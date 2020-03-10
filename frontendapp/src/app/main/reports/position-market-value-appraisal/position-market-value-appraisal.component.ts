@@ -169,8 +169,8 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
           headerName: 'Symbol'
         },
         {
-          field: 'EzeSecurityType',
-          headerName: 'EzeSecurityType',
+          field: 'SecurityType',
+          headerName: 'SecurityType',
           rowGroup: true,
           enableRowGroup: true
         },
@@ -187,7 +187,7 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
           headerName: 'Cusip'
         },
         {
-          field: 'instrument_name',
+          field: 'SecurityDesc',
           headerName: 'Instrument Name'
         },
         {
@@ -204,12 +204,12 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
           valueFormatter: dateFormatter
         },
         {
-          field: 'cost_basis_local',
+          field: 'cost_basis',
           headerName: 'Cost Basis(Local)',
           cellClass: 'rightAlign'
         },
         {
-          field: 'end_Price_local',
+          field: 'end_price',
           headerName: 'End Price(Local)',
           cellClass: 'rightAlign'
         },
@@ -243,7 +243,18 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
         },
         {
           field: 'reporting_cost_basis',
-          headerName: 'Reporting Cost Basis',
+          headerName: 'Cost(Reporting))',
+          cellClass: 'rightAlign'
+        }
+        ,
+        {
+          field: 'reporting_cost_basis',
+          headerName: 'Unrealized PnL(Reporting)',
+          cellClass: 'rightAlign'
+        },
+        {
+          field: 'end_market_value_local',
+          headerName: 'End Market Value(Reporting)',
           cellClass: 'rightAlign'
         }
       ],

@@ -106,7 +106,7 @@ namespace PostingEngine.PostingRules
                         Symbol = taxlot.Symbol,
                         Quantity = quantity,
                         FxRate = rateDiff,
-                        Value = env.SignedValue(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnl),
+                        Value = AccountCategory.SignedValue(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnl),
                         CreditDebit = env.DebitOrCredit(fromToAccounts.From, unrealizedPnl),
                         StartPrice = prevEodPrice,
                         EndPrice = eodPrice,
@@ -117,7 +117,7 @@ namespace PostingEngine.PostingRules
                     var credit = new Journal(debit)
                     {
                         Account = fromToAccounts.To,
-                        Value = env.SignedValue(fromToAccounts.From, fromToAccounts.To, true, unrealizedPnl),
+                        Value = AccountCategory.SignedValue(fromToAccounts.From, fromToAccounts.To, true, unrealizedPnl),
                         CreditDebit = env.DebitOrCredit(fromToAccounts.To, unrealizedPnl),
                     };
 
@@ -198,7 +198,7 @@ namespace PostingEngine.PostingRules
                         StartPrice = tradePrice,
                         EndPrice = eodPrice,
 
-                        Value = env.SignedValue(accountBuy, accountSell, true, sellValue),
+                        Value = AccountCategory.SignedValue(accountBuy, accountSell, true, sellValue),
                         CreditDebit = env.DebitOrCredit(accountBuy, sellValue),
                     };
 
@@ -215,7 +215,7 @@ namespace PostingEngine.PostingRules
                         StartPrice = tradePrice,
                         EndPrice = eodPrice,
 
-                        Value = env.SignedValue(accountBuy, accountSell, true, buyValue * -1),
+                        Value = AccountCategory.SignedValue(accountBuy, accountSell, true, buyValue * -1),
                         CreditDebit = env.DebitOrCredit(accountSell, buyValue * -1),
                     };
 
@@ -254,7 +254,7 @@ namespace PostingEngine.PostingRules
                         StartPrice = tradePrice,
                         EndPrice = eodPrice,
 
-                        Value = env.SignedValue(accountSell, accountBuy, true, sellValue),
+                        Value = AccountCategory.SignedValue(accountSell, accountBuy, true, sellValue),
                         CreditDebit = env.DebitOrCredit(accountSell, sellValue),
                     };
 
@@ -271,7 +271,7 @@ namespace PostingEngine.PostingRules
                         StartPrice = tradePrice,
                         EndPrice = eodPrice,
 
-                        Value = env.SignedValue(accountSell, accountBuy, true, buyValue * -1),
+                        Value = AccountCategory.SignedValue(accountSell, accountBuy, true, buyValue * -1),
                         CreditDebit = env.DebitOrCredit(accountSell, buyValue * -1),
                     };
 
