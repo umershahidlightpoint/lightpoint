@@ -229,33 +229,42 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
         {
           field: 'cost_local',
           headerName: 'Cost(Local)',
-          cellClass: 'rightAlign'
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
         },
         {
           field: 'unrealized_pnl_local',
           headerName: 'Unrealized PnL(Local)',
-          cellClass: 'rightAlign'
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
         },
         {
           field: 'end_market_value_local',
           headerName: 'End Market Value(Local)',
-          cellClass: 'rightAlign'
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
         },
         {
-          field: 'reporting_cost_basis',
+          field: 'cost_basis_reporting',
           headerName: 'Cost(Reporting))',
-          cellClass: 'rightAlign'
+          cellClass: 'rightAlign',
+          aggFunc: 'sum',
+          valueFormatter: currencyFormatter
         }
         ,
         {
-          field: 'reporting_cost_basis',
+          field: 'unrealized_pnl_reporting',
           headerName: 'Unrealized PnL(Reporting)',
-          cellClass: 'rightAlign'
+          aggFunc: 'sum',
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
         },
         {
-          field: 'end_market_value_local',
+          field: 'end_market_value_reporting',
           headerName: 'End Market Value(Reporting)',
-          cellClass: 'rightAlign'
+          aggFunc: 'sum',
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
         }
       ],
       defaultColDef: {
