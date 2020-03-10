@@ -612,6 +612,48 @@ export const CommonCols = (isJournalGrid, filters = null) => {
       }
     },
     {
+      field: 'local_balance',
+      aggFunc: 'sum',
+      headerName: 'Balance',
+      valueFormatter: BracketFormatter,
+      width: 100,
+      colId: 'local_balance',
+      filter: isJournalGrid ? 'agNumberColumnFilter' : true,
+      cellStyle: { 'text-align': 'right' },
+      cellClass: 'twoDecimalPlaces',
+      cellClassRules: {
+        // greenBackground: function (params) { if (params.node.rowPinned) return false; else return params.value > 300; },
+        greenFont(params) {
+          if (
+            params.data !== undefined &&
+            (noColorCategories(params) ||
+              params.data.AccountCategory === 'Asset' ||
+              params.data.AccountCategory === 'Liability' ||
+              params.node.rowPinned)
+          ) {
+            return false;
+          }
+        },
+        redFont(params) {
+          if (params.data !== undefined && (noColorCategories(params) || params.node.rowPinned)) {
+            return false;
+          } else if (
+            params.data !== undefined &&
+            (params.data.AccountCategory === 'Asset' || params.data.AccountCategory === 'Liability')
+          ) {
+            return params.value < 0;
+          }
+        },
+        footerRow(params) {
+          if (params.node.rowPinned) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      }
+    },
+    {
       field: 'quantity',
       aggFunc: 'sum',
       width: 100,

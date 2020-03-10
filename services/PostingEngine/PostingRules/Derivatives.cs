@@ -91,7 +91,7 @@ namespace PostingEngine.PostingRules
                         Symbol = taxlot.Symbol,
                         Quantity = quantity,
                         FxRate = fxrate,
-                        Value = env.SignedValue(fromToAccounts.From, fromToAccounts.To, true, unrealizedPnl),
+                        Value = AccountCategory.SignedValue(fromToAccounts.From, fromToAccounts.To, true, unrealizedPnl),
                         CreditDebit = env.DebitOrCredit(fromToAccounts.From, unrealizedPnl),
                         StartPrice = prevEodPrice,
                         EndPrice = eodPrice,
@@ -105,8 +105,8 @@ namespace PostingEngine.PostingRules
                         When = env.ValueDate,
                         FxRate = fxrate,
                         Quantity = quantity,
-                        Value = env.SignedValue(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnl),
-                        CreditDebit = env.DebitOrCredit(fromToAccounts.To, env.SignedValue(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnl)),
+                        Value = AccountCategory.SignedValue(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnl),
+                        CreditDebit = env.DebitOrCredit(fromToAccounts.To, AccountCategory.SignedValue(fromToAccounts.From, fromToAccounts.To, false, unrealizedPnl)),
                         Event = Event.DAILY_UNREALIZED_PNL,
                         StartPrice = prevEodPrice,
                         EndPrice = eodPrice,
@@ -348,7 +348,7 @@ namespace PostingEngine.PostingRules
                 StartPrice = start,
                 EndPrice = end,
 
-                Value = env.SignedValue(fromTo.From, fromTo.To, true, realizedFxPnl),
+                Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, true, realizedFxPnl),
                 CreditDebit = env.DebitOrCredit(fromTo.From, realizedFxPnl),
             };
 
@@ -365,7 +365,7 @@ namespace PostingEngine.PostingRules
                 StartPrice = start,
                 EndPrice = end,
 
-                Value = env.SignedValue(fromTo.From, fromTo.To, false, realizedFxPnl),
+                Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, false, realizedFxPnl),
                 CreditDebit = env.DebitOrCredit(fromTo.To, realizedFxPnl),
             };
 
@@ -389,7 +389,7 @@ namespace PostingEngine.PostingRules
                 StartPrice = 0,
                 EndPrice = 0,
 
-                Value = env.SignedValue(fromTo.From, fromTo.To, true, reversalAmount * -1),
+                Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, true, reversalAmount * -1),
                 CreditDebit = env.DebitOrCredit(fromTo.From, reversalAmount),
             };
 
@@ -406,7 +406,7 @@ namespace PostingEngine.PostingRules
                 StartPrice = 0,
                 EndPrice = 0,
 
-                Value = env.SignedValue(fromTo.From, fromTo.To, false, reversalAmount * -1),
+                Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, false, reversalAmount * -1),
                 CreditDebit = env.DebitOrCredit(fromTo.To, reversalAmount),
             };
 
@@ -434,7 +434,7 @@ namespace PostingEngine.PostingRules
                 StartPrice = start,
                 EndPrice = end,
 
-                Value = env.SignedValue(fromTo.From, fromTo.To, true, realizedFxPnl * -1),
+                Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, true, realizedFxPnl * -1),
                 CreditDebit = env.DebitOrCredit(fromTo.From, realizedFxPnl),
             };
 
@@ -451,7 +451,7 @@ namespace PostingEngine.PostingRules
                 StartPrice = start,
                 EndPrice = end,
 
-                Value = env.SignedValue(fromTo.From, fromTo.To, false, realizedFxPnl * -1),
+                Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, false, realizedFxPnl * -1),
                 CreditDebit = env.DebitOrCredit(fromTo.To, realizedFxPnl),
             };
 

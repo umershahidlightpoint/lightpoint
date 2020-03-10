@@ -66,6 +66,30 @@ namespace PostingEngine
             PostingEngineCallBack?.Invoke("End PostProcessETL");
         }
 
+        public static void RunAction(string action, string period, DateTime valueDate, Guid key, PostingEngineCallBack postingEngineCallBack)
+        {
+            var env = new PostingEngineEnvironment()
+            {
+                ConnectionString = connectionString,
+                CallBack = postingEngineCallBack,
+                BaseCurrency = "USD",
+                Period = period,
+                ValueDate = valueDate,
+            };
+
+            SetupEnvironment.Setup(env.ConnectionString);
+
+            Key = key;
+            PostingEngineCallBack = postingEngineCallBack;
+            var taskList = new List<Task<bool>>();
+
+            var calc = PostingTasks.Get(action);
+            taskList.Add(PostingTasks.RunTask(env, calc));
+
+            Task.WaitAll(taskList.ToArray());
+
+        }
+
         public static void RunCalculation(string calculation, string period, DateTime valueDate, Guid key, PostingEngineCallBack postingEngineCallBack)
         {
             var env = new PostingEngineEnvironment()
@@ -100,15 +124,6 @@ namespace PostingEngine
                 var calc = PostingTasks.Get("pullfrombookmon");
                 var result = PostingTasks.RunTask(env, calc);
                 result.Wait();
-            }
-            else if ( calculation.Equals("SettledCashBalances"))
-            {
-                /*
-                Logger.Info("Running SettledCashBalances");
-                var calc = PostingTasks.Get("settledcashbalances");
-                var result = PostingTasks.RunTask(env, calc);
-                result.Wait();
-                */
             }
             else if ( calculation.Equals("ExpencesAndRevenues"))
             {
@@ -344,7 +359,6 @@ namespace PostingEngine
                 journalPostingEnv.Rules = tradingPostingEnv.JournalRules;
                 journalPostingEnv.Trades = finalTradeList.Where(i => i.SecurityType.Equals("Journals")).ToArray();
                 journalPostingEnv.CallBack = postingEngineCallBack;
-
 
                 var tasks = new List<Task>
                 {
@@ -740,7 +754,7 @@ namespace PostingEngine
                 endDate = postingEnv.BusinessDate;
             }
 
-            endDate = new DateTime(2020, 01, 12);
+            endDate = postingEnv.BusinessDate;
 
             int totalDays = (int) (endDate - valueDate).TotalDays;
             int daysProcessed = 0;

@@ -8,6 +8,14 @@ namespace PostingEngine
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
+        public void RunSettledCashBalances(DateTime valueDate, string period)
+        {
+            FxRates.CacheData();
+            MarketPrices.CacheData();
+
+            PostingEngine.RunAction("settledcashbalances", period, valueDate, Guid.NewGuid(), LogProcess);
+            
+        }
         /// <summary>
         /// Run the posting engine, being passed a period, and also a date
         /// </summary>
@@ -25,10 +33,7 @@ namespace PostingEngine
             // Get all Activity
             RunForPeriod(key, valueDate, period);
 
-            // Unofficial Daily Pnl
-            RunAction(key, "SettledCashBalances", valueDate, period);
-
-            // Expences / Revenue
+            // Expences / Revenue / Settled Cash Balances
             ExpencesAndRevenues(key, valueDate, period);
 
             RunAction(key, "EndOfYear", valueDate, period);
