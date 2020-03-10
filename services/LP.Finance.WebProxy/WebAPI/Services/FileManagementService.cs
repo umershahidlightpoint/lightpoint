@@ -17,6 +17,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Amazon.S3;
 using LP.Finance.Common.FileMetaData;
+using LP.Finance.Common.IO;
+using System.Net;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
@@ -27,6 +29,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         private static readonly string tradesURL = "http://localhost:9091/api/trade/data?period=";
         private static readonly string positionsURL = "http://localhost:9091/api/positions?period=2019-09-24";
+
+        public SqlHelper SqlHelper = new SqlHelper(connectionString);
+        private readonly FileProcessor _fileProcessor = new FileProcessor();
 
         public object GetFiles(string name)
         {
@@ -381,6 +386,91 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             //var jsonResult = JsonConvert.SerializeObject(dataTable);
             //dynamic json = JsonConvert.DeserializeObject(jsonResult);
             return Utils.Wrap(true, groupedExceptions);
+        }
+
+        public async Task<object> UploadTrade(HttpRequestMessage requestMessage)
+        {
+            try
+            {
+                FileManager _fileManager = new FileManager(connectionString);
+                var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "Trades");
+                if (!uploadedResult.Item1)
+                    return Utils.Wrap(false);
+
+                var path = uploadedResult.Item2;
+                var filename = uploadedResult.Item3;
+                var recordBody = _fileProcessor.ImportFile(path, "Trade", "PerformanceFormats", ',');
+
+                var records = JsonConvert.SerializeObject(recordBody.Item1);
+                var trades = JsonConvert.DeserializeObject<List<Trade>>(records);
+
+                var failedRecords = new Dictionary<object, Row>();
+                var key = 0;
+                foreach (var item in recordBody.Item2)
+                {
+                    failedRecords.Add(key++, item);
+                }
+
+                var failedTradeList =
+                    _fileManager.MapFailedRecords(failedRecords, DateTime.Now, uploadedResult.Item3);
+
+                List<FileInputDto> fileList = new List<FileInputDto>
+                {
+                    new FileInputDto(path, filename, trades.Count, "Trade",
+                        "Upload",
+                        failedTradeList,
+                        DateTime.Now)
+                };
+
+                _fileManager.InsertActivityAndPositionFiles(fileList);
+
+                foreach (var i in trades)
+                {
+                    var guid = new Guid().ToString();
+                    i.TradeId = guid;
+                    i.LPOrderId = guid;
+                    i.ParentOrderId = guid;
+
+                }
+
+
+                bool insertinto = InsertData(trades.ToArray(), "current_trade_state");
+                if (insertinto)
+                {
+                    return Utils.Wrap(true, trades, HttpStatusCode.OK);
+                }
+                else
+                {
+                    return Utils.Wrap(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private bool InsertData(IDbModel[] obj, string table)
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+            try
+            {
+                sqlHelper.VerifyConnection();
+                sqlHelper.SqlBeginTransaction();
+
+                new SQLBulkHelper().Insert(table, obj, sqlHelper.GetConnection(),
+                    sqlHelper.GetTransaction(), true);
+
+                sqlHelper.SqlCommitTransaction();
+                sqlHelper.CloseConnection();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                sqlHelper.SqlRollbackTransaction();
+                sqlHelper.CloseConnection();
+                return false;
+            }
         }
     }
 }

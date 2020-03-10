@@ -19,6 +19,11 @@
       Upload
       <span *ngIf="uploadLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
     </button>
+
+    <button class="btn btn-pa" type="button" (click)="downloadTemplate()">
+      Download Template
+      <!-- <span *ngIf="uploadLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> -->
+    </button>
   </div>
   <!-- File Upload Input Div Ends -->
 
@@ -28,6 +33,11 @@
 <!-- AG Grid for file Upload -->
 <div [ngStyle]="styleForLogsHeight" [ngClass]="{'w-100' : displayGrid, 'd-none' : !displayGrid}">
   <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="uploadGrid">
+  </ag-grid-angular>
+</div>
+
+<div [hidden]="true" [ngStyle]="styleForLogsHeight" [ngClass]="{'w-100' : displayGrid, 'd-none' : !displayGrid}">
+  <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="tradesGridPreview">
   </ag-grid-angular>
 </div>
 

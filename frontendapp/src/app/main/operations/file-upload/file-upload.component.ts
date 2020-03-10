@@ -7,7 +7,9 @@ import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-mo
 import { FinanceServiceProxy } from 'src/services/service-proxies';
 import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.service';
 import { DataDictionary } from '../../../../shared/utils/DataDictionary';
-import { IgnoreFields, HeightStyle } from 'src/shared/utils/Shared';
+import { IgnoreFields, HeightStyle, ExcelStyle } from 'src/shared/utils/Shared';
+import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
+
 
 @Component({
   selector: 'app-file-upload',
@@ -20,6 +22,7 @@ export class FileUploadComponent implements OnInit {
 
   styleForLogsHeight = HeightStyle(220);
   uploadGrid: GridOptions;
+  tradesGridPreview: GridOptions;
   displayGrid = false;
   fxRateDupList: any;
   ignoreFields = IgnoreFields;
@@ -31,13 +34,14 @@ export class FileUploadComponent implements OnInit {
   uploadLoader = false;
   confirmStatus = false;
   fileType = 'Select a File Type';
-  fileTypes = ['Monthly Performance', 'Daily PnL', 'Market Prices', 'FxRates'];
+  fileTypes = ['Monthly Performance', 'Daily PnL', 'Market Prices', 'FxRates', 'Trades'];
 
   constructor(
     private financeService: FinanceServiceProxy,
     private fundTheoreticalApiService: FundTheoreticalApiService,
     private toastrService: ToastrService,
-    private dataDictionary: DataDictionary
+    private dataDictionary: DataDictionary,
+    private downloadExcelUtils: DownloadExcelUtils
   ) {}
 
   ngOnInit() {
@@ -71,6 +75,250 @@ export class FileUploadComponent implements OnInit {
         resizable: true
       }
     } as GridOptions;
+
+    this.tradesGridPreview = {
+      rowData: [],
+      pinnedBottomRowData: null,
+      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
+      rowSelection: 'multiple',
+      rowGroupPanelShow: 'after',
+      suppressColumnVirtualisation: true,
+      getContextMenuItems: params => {},
+      onGridReady: params => {
+        this.tradesGridPreview.excelStyles = ExcelStyle;
+      },
+      onFirstDataRendered: params => {
+        params.api.forEachNode(node => {
+          node.expanded = true;
+        });
+        params.api.onGroupExpandedOrCollapsed();
+
+        // AutoSizeAllColumns(params);
+        params.api.sizeColumnsToFit();
+      },
+      enableFilter: true,
+      animateRows: true,
+      alignedGrids: [],
+      suppressHorizontalScroll: false,
+      columnDefs: [
+        {
+          field: 'Action',
+          width: 120,
+          headerName: 'Action',
+        },
+        {
+          field: 'Symbol',
+          width: 120,
+          headerName: 'Symbol',
+        },
+        {
+          field: 'Side',
+          width: 120,
+          headerName: 'Side',
+        },
+        {
+          field: 'Quantity',
+          width: 120,
+          headerName: 'Quantity',
+        },
+        {
+          field: 'TimeInForce',
+          width: 120,
+          headerName: 'TimeInForce',
+        },
+        {
+          field: 'OrderType',
+          width: 120,
+          headerName: 'OrderType',
+        },
+        {
+          field: 'SecurityType',
+          width: 120,
+          headerName: 'SecurityType',
+        },
+        {
+          field: 'BloombergCode',
+          width: 120,
+          headerName: 'BloombergCode',
+        },
+        {
+          field: 'EzeTicker',
+          width: 120,
+          headerName: 'EzeTicker',
+        },
+        {
+          field: 'SecurityCode',
+          width: 120,
+          headerName: 'SecurityCode',
+        },
+        {
+          field: 'CustodianCode',
+          width: 120,
+          headerName: 'CustodianCode',
+        },
+        {
+          field: 'ExecutionBroker',
+          width: 120,
+          headerName: 'ExecutionBroker',
+        },
+        {
+          field: 'Fund',
+          width: 120,
+          headerName: 'Fund',
+        },
+        {
+          field: 'PMCode',
+          width: 120,
+          headerName: 'PMCode',
+        },
+        {
+          field: 'PortfolioCode',
+          width: 120,
+          headerName: 'PortfolioCode',
+        },
+        {
+          field: 'Trader',
+          width: 120,
+          headerName: 'Trader',
+        },
+        {
+          field: 'TradeCurrency',
+          width: 120,
+          headerName: 'TradeCurrency',
+        },
+        {
+          field: 'TradePrice',
+          width: 120,
+          headerName: 'TradePrice',
+        },
+        {
+          field: 'TradeDate',
+          width: 120,
+          headerName: 'TradeDate',
+        },
+        {
+          field: 'SettleCurrency',
+          width: 120,
+          headerName: 'SettleCurrency',
+        },
+        {
+          field: 'SettlePrice',
+          width: 120,
+          headerName: 'SettlePrice',
+        },
+        {
+          field: 'SettleDate',
+          width: 120,
+          headerName: 'SettleDate',
+        },
+        {
+          field: 'TradeType',
+          width: 120,
+          headerName: 'TradeType',
+        },
+        {
+          field: 'TransactionCategory',
+          width: 120,
+          headerName: 'TransactionCategory',
+        },
+        {
+          field: 'TransactionType',
+          width: 120,
+          headerName: 'TransactionType',
+        },
+        {
+          field: 'ParentSymbol',
+          width: 120,
+          headerName: 'ParentSymbol',
+        },
+        {
+          field: 'Status',
+          width: 120,
+          headerName: 'Status',
+        },
+        {
+          field: 'NetMoney',
+          width: 120,
+          headerName: 'NetMoney',
+        },
+        {
+          field: 'Commission',
+          width: 120,
+          headerName: 'Commission',
+        },
+        {
+          field: 'Fees',
+          width: 120,
+          headerName: 'Fees',
+        },
+        {
+          field: 'SettleNetMoney',
+          width: 120,
+          headerName: 'SettleNetMoney',
+        },
+        {
+          field: 'NetPrice',
+          width: 120,
+          headerName: 'NetPrice',
+        },
+        {
+          field: 'SettleNetPrice',
+          width: 120,
+          headerName: 'SettleNetPrice',
+        },
+        {
+          field: 'OrderSource',
+          width: 120,
+          headerName: 'OrderSource',
+        },
+        {
+          field: 'LocalNetNotional',
+          width: 120,
+          headerName: 'LocalNetNotional',
+        },
+        {
+          field: 'TradeTime',
+          width: 120,
+          headerName: 'TradeTime',
+        },
+        {
+          field: 'LPOrderId',
+          width: 120,
+          headerName: 'LPOrderId',
+        },
+        {
+          field: 'AccrualId',
+          width: 120,
+          headerName: 'AccrualId',
+        },
+        {
+          field: 'TradeId',
+          width: 120,
+          headerName: 'TradeId',
+        },
+        {
+          field: 'SecurityId',
+          width: 120,
+          headerName: 'SecurityId',
+        },
+        {
+          field: 'ParentOrderId',
+          width: 120,
+          headerName: 'ParentOrderId',
+        },
+        {
+          field: 'UpdatedOn',
+          width: 120,
+          headerName: 'UpdatedOn',
+        }
+      ],
+      defaultColDef: {
+        sortable: true,
+        resizable: true,
+        filter: true
+      }
+    } as GridOptions;
+
   }
 
   changeFileType(selectedFileType) {
@@ -106,7 +354,24 @@ export class FileUploadComponent implements OnInit {
       this.uploadMarketData();
     } else if (this.fileType === 'FxRates') {
       this.uploadFxRatesData();
+    } else if(this.fileType === "Trades"){
+      this.uploadTradeData();
     }
+  }
+
+  downloadTemplate(){
+    if(this.fileType === "Trades"){
+      this.excelTemplate('Trades', 'Trade Sheet')
+    }
+  }
+
+  excelTemplate(fileName, sheetName) {
+    const params = {
+      fileName: fileName,
+      sheetName: sheetName
+    };
+    this.tradesGridPreview.api.exportDataAsCsv(params);
+    this.downloadExcelUtils.ToastrMessage();
   }
 
   confirmReset() {
@@ -168,6 +433,22 @@ export class FileUploadComponent implements OnInit {
       } else {
         this.toastrService.error('Something went wrong! Try Again.');
       }
+    });
+  }
+
+  uploadTradeData() {
+    this.uploadLoader = true;
+    this.fundTheoreticalApiService.uploadTradeData(this.fileToUpload).subscribe(response => {
+      this.uploadLoader = false;
+      if (response.isSuccessful && response.statusCode == 200) {
+        this.displayGrid = false;
+        this.clearForm();
+        this.toastrService.success('Trades uploaded successfully!');
+      } else {
+        this.toastrService.error('Something went wrong! Try Again.');
+      }
+    }, err=> {
+      this.toastrService.error(err.Message);
     });
   }
 
