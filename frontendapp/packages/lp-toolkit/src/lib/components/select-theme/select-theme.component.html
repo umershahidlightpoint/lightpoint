@@ -1,6 +1,0 @@
-<select class="form-control" [name]="name" [(ngModel)]="value" (change)="onThemeChange()">
-    <option selected disabled value="">Select a Theme</option>
-    <option *ngFor="let theme of themes" [ngValue]="theme.name">
-        {{ theme.name | uppercase }}
-    </option>
-</select>
