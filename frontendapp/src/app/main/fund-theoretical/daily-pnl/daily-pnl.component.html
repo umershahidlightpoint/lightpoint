@@ -21,7 +21,7 @@
     <!-- Clear Filters Ends -->
 
     <!-- Grid Utils Container -->
-    <div class="ml-auto mr-2">
+    <div class="ml-auto mr-3">
 
       <!-- Grid Utils Starts -->
       <app-grid-utils class="mr-0" [utilsConfig]="utilsConfig" [gridOptions]="dailyPnlGrid" (refresh)="refreshGrid()">
@@ -29,14 +29,12 @@
       <!-- Grid Utils Ends -->
 
       <!-- Expand/Collapse Button -->
-      <div class="mr-3 d-inline-block">
-        <ng-template #tooltipTemplate>{{dailyPnLConfig.chartsView ? 'Expand' : 'Collapse'}}</ng-template>
-        <button class="btn btn-pa" [disabled]="disableCharts" [tooltip]="tooltipTemplate" placement="top"
-          (click)="dailyPnLConfig.chartsView = !dailyPnLConfig.chartsView">
-          <i class="fa"
-            [ngClass]="{'fa-arrow-right': dailyPnLConfig.chartsView, 'fa-arrow-left': !dailyPnLConfig.chartsView}"></i>
-        </button>
-      </div>
+      <ng-template #tooltipTemplate>{{dailyPnLConfig.chartsView ? 'Expand' : 'Collapse'}}</ng-template>
+      <button class="btn btn-pa" [disabled]="disableCharts" [tooltip]="tooltipTemplate" placement="top"
+        (click)="dailyPnLConfig.chartsView = !dailyPnLConfig.chartsView">
+        <i class="fa"
+          [ngClass]="{'fa-arrow-right': dailyPnLConfig.chartsView, 'fa-arrow-left': !dailyPnLConfig.chartsView}"></i>
+      </button>
       <!-- Expand/Collapse Button Ends -->
 
     </div>
