@@ -26,12 +26,17 @@ select
 	s.SecurityDesc,
 	mp.price as end_price,
 	cts.SettleCurrency as local_currency,
-	'' as cost_local,
 	CONVERT(VARCHAR(50), CONCAT('@CASH', cts.SettleCurrency)) as cashSymbol,
 	coalesce(fxrate.price,1) as fx_rate_to_reporting_currency,
+	(coalesce(mp.price,0) - (c.cost_basis)) / coalesce(c.cost_basis,1) as price_percent_change,
+
+	c.cost_basis * tl.quantity as cost_local,
 	tl.unrealized as unrealized_pnl_local,
-	tl.unrealized as unrealized_pnl,
-	tl.quantity * mp.price as end_market_value_local
+	tl.quantity * mp.price as end_market_value_local,
+
+	c.cost_basis * tl.quantity * fxrate.price as cost_basis_reporting,
+	tl.unrealized * fxrate.price as unrealized_pnl_reporting,
+	tl.quantity * mp.price * fxrate.price as end_market_value_reporting
 from fnTaxLotReport(@date) tl
 inner join [SecurityMaster]..security s on tl.symbol = s.ezeticker
 inner join current_trade_state cts on cts.LPOrderId = tl.open_id

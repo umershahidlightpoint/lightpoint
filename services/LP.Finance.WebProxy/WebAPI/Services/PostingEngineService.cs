@@ -7,6 +7,7 @@ using System.Data.SqlClient;
 using System.Net;
 using System.Threading.Tasks;
 using LP.Finance.Common;
+using PostingEngine;
 using SqlDAL.Core;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
@@ -35,9 +36,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 Period = period;
                 logMessages = new ConcurrentDictionary<Guid, List<string>>();
 
-                PostingEngine.PostingEngineCallBack logsCallback = LogMessagesCallBack;
-
-                Task.Run(() => PostingEngine.PostingEngine.RunForPeriod(period, Key, System.DateTime.Now.Date, logsCallback))
+                Task.Run(() => new PostingEngineEx().RunForPeriod(period, Key, System.DateTime.Now.Date, LogMessagesCallBack))
                     .ContinueWith(task => { IsRunning = false; });
 
                 return new
