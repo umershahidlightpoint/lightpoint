@@ -25,7 +25,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
     public class FileManagementService : IFileManagementService
     {
         private static readonly string
-            connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+            connectionString = "Persist Security Info=True;" + ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
         private static readonly string tradesURL = "http://localhost:9091/api/trade/data?period=";
         private static readonly string positionsURL = "http://localhost:9091/api/positions?period=2019-09-24";
@@ -399,7 +399,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var path = uploadedResult.Item2;
                 var filename = uploadedResult.Item3;
-                var recordBody = _fileProcessor.ImportFile(path, "Trade", "PerformanceFormats", ',');
+                var recordBody = _fileProcessor.ImportFile(path, "Trade", "PerformanceFormats", ',', true);
 
                 var records = JsonConvert.SerializeObject(recordBody.Item1);
                 var trades = JsonConvert.DeserializeObject<List<Trade>>(records);
@@ -426,11 +426,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 foreach (var i in trades)
                 {
-                    var guid = new Guid().ToString();
+                    var guid = Guid.NewGuid().ToString().ToLower();
                     i.TradeId = guid;
                     i.LPOrderId = guid;
                     i.ParentOrderId = guid;
-
+                    i.TradeType = "manual";
                 }
 
 

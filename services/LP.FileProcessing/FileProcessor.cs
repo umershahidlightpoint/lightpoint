@@ -29,10 +29,10 @@ namespace LP.FileProcessing
         }
 
         public Tuple<List<dynamic>, List<Row>, bool> ImportFile(string path, string fileName, string folderName,
-            char delim)
+            char delim, bool firstLineHasHeadings = false)
         {
             var schema = Utils.GetFile<SilverFileFormat>(fileName, folderName);
-            var resp = ExtractPipe(path, schema, delim);
+            var resp = ExtractPipe(path, schema, delim, firstLineHasHeadings);
             return resp;
         }
 
@@ -178,13 +178,13 @@ namespace LP.FileProcessing
             WriteDelimited(items, header, trailer, path, properties, '|');
         }
 
-        public Tuple<List<dynamic>, List<Row>, bool> ExtractPipe(string path, SilverFileFormat properties, char delim)
+        public Tuple<List<dynamic>, List<Row>, bool> ExtractPipe(string path, SilverFileFormat properties, char delim, bool firstLineHasHeadings = false)
         {
-            return ExtractDelimited(path, properties, delim);
+            return ExtractDelimited(path, properties, delim, firstLineHasHeadings);
         }
 
         private Tuple<List<dynamic>, List<Row>, bool> ExtractDelimited(string path, SilverFileFormat properties,
-            char v = ',')
+            char v = ',', bool firstLineHasHeadings = false)
         {
             var recordDictionary = properties.record.Select((s, i) => new {s, i})
                 .ToDictionary(x => x.i, x => x.s);
@@ -207,6 +207,12 @@ namespace LP.FileProcessing
             List<dynamic> header = new List<dynamic>();
             foreach (var line in System.IO.File.ReadLines(path))
             {
+                if (firstLineHasHeadings && index == 0)
+                {
+                    index++;
+                    continue;
+                }
+
                 int dictionaryIndex = 0;
                 dynamic obj = new ExpandoObject();
                 List<IField> failedRecords = new List<IField>();

@@ -40,6 +40,5 @@ SettleNetPrice numeric(22,9),
 OrderSource [varchar](20),
 UpdatedOn [datetime],
 LocalNetNotional numeric(22,9),
-TradeTime [datetime],
-IsManual bit not null default 0
+TradeTime [datetime]
 )
