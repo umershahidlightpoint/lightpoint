@@ -220,22 +220,19 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        public object GetDividendDetails(int id)
+        public object GetDividendDetails(DateTime date, int id)
         {
             try
             {
                 List<SqlParameter> dividendDetailsParam = new List<SqlParameter>
                 {
-                    new SqlParameter("id", id)
+                    new SqlParameter("@dividendId", id),
+                    new SqlParameter("@executionDate", date)
                 };
-                var query = $@"select * from vwDividendDetails where id = @id";
 
-                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text, dividendDetailsParam.ToArray());
-
+                var dataTable = SqlHelper.GetDataTable("DividendDetails", CommandType.StoredProcedure, dividendDetailsParam.ToArray());
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
-
                 var json = JsonConvert.DeserializeObject(jsonResult);
-
                 return Utils.Wrap(true, json, HttpStatusCode.OK, "Dividend details fetched successfully");
             }
             catch (Exception ex)
