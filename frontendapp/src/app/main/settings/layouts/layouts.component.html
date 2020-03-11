@@ -13,8 +13,9 @@
       <i class="fa fa-lg fa-eye" aria-hidden="true"></i>
     </button>
 
-    <button [disabled]="row.isDefault" class="btn grid-btn width-15 height-30px" [ngClass]="{'cursor-not-allowed': row.isDefault}" (click)="showConfirmation(row)"
-      tooltip="Delete" placement="auto" container="body">
+    <button [disabled]="row.isDefault" class="btn grid-btn width-15 height-30px"
+      [ngClass]="{'cursor-not-allowed': row.isDefault}" (click)="showConfirmation(row)" tooltip="Delete"
+      placement="auto" container="body">
       <i class="fa fa-lg fa-trash-o" aria-hidden="true"></i>
     </button>
   </ng-template>
@@ -29,5 +30,5 @@
 </div>
 <!-- Grid View Div Ends -->
 
-<app-confirmation-modal #confirmationModal (confirmDeletion)="deleteLayout()" [modalTitle]="'Delete Layout'">
+<app-confirmation-modal #confirmationModal [title]="'Delete Layout'" (confirmed)="deleteLayout()">
 </app-confirmation-modal>

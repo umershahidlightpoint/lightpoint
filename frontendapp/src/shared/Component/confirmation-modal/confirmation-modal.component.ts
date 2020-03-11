@@ -1,40 +1,38 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  Output,
-  EventEmitter,
-  Input
-} from "@angular/core";
-import { ModalDirective } from "ngx-bootstrap";
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { ModalComponent, ModalFooterConfig } from 'lp-toolkit';
 
 @Component({
-  selector: "app-confirmation-modal",
-  templateUrl: "./confirmation-modal.component.html",
-  styleUrls: ["./confirmation-modal.component.scss"]
+  selector: 'app-confirmation-modal',
+  templateUrl: './confirmation-modal.component.html',
+  styleUrls: ['./confirmation-modal.component.scss']
 })
 export class ConfirmationModalComponent implements OnInit {
-  @Input("modalTitle") title: string;
-  @Input("modalDescription") description = "Are you really sure?";
-  @ViewChild("confirm", { static: false }) confirmModal: ModalDirective;
-  @Output() confirmDeletion = new EventEmitter<any>();
-  @Output() cancelEvent = new EventEmitter<any>();
+  @ViewChild('lpModal', { static: false }) lpModal: ModalComponent;
+
+  @Input() title = 'Confirm';
+  @Input() description = 'Are you really sure?';
+
+  @Output() confirmed = new EventEmitter<boolean>();
+  @Output() canceled = new EventEmitter<boolean>();
+
+  public footerConfig: ModalFooterConfig = {
+    showConfirmButton: true
+  };
 
   constructor() {}
 
   ngOnInit() {}
 
   showModal() {
-    this.confirmModal.show();
+    this.lpModal.showModal();
   }
 
-  closeModal() {
-    this.cancelEvent.emit(true);
-    this.confirmModal.hide();
+  onCloseModal() {
+    this.canceled.emit(true);
   }
 
-  delete() {
-    this.confirmDeletion.emit(true);
-    this.confirmModal.hide();
+  onConfirm() {
+    this.confirmed.emit(true);
+    this.lpModal.hideModal();
   }
 }

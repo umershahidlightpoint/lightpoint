@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { CanDeactivate } from '@angular/router';
-import { FundTheoreticalComponent } from '../../app/main/fund-theoretical/fund-theoretical.component';
-import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { CanDeactivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { Observable } from 'rxjs';
+import { FundTheoreticalComponent } from '../../app/main/fund-theoretical/fund-theoretical.component';
 
 @Injectable()
 export class PerformanceCanDeactivateGuard implements CanDeactivate<FundTheoreticalComponent> {
   constructor() {}
+
   canDeactivate(
     component: FundTheoreticalComponent,
     route: ActivatedRouteSnapshot,
@@ -19,6 +19,7 @@ export class PerformanceCanDeactivateGuard implements CanDeactivate<FundTheoreti
         'There are unsaved changes on this page. Do you still want to navigate?'
       );
     }
+
     return true;
   }
 }

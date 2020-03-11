@@ -3,6 +3,7 @@ import { ToastrService } from 'ngx-toastr';
 
 @Injectable({ providedIn: 'root' })
 export class DownloadExcelUtils {
+  // tslint:disable-next-line: no-string-literal
   isCefMode = !!window['cef'];
 
   constructor(private toastrService: ToastrService) {}

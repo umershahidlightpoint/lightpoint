@@ -92,13 +92,13 @@
 </div>
 <!-- Div Ends -->
 
-<!----- ----->
-<div Confirmation Modal Component>
-  <app-confirmation-modal #confirmationModal (confirmDeletion)="deleteAccount()" [modalTitle]="'Delete Account'">
-  </app-confirmation-modal>
 
-  <!----- Create Account Component Tag ----->
-  <app-create-account #createModal [selectedAccCategory]="selectedAccountCategory" (modalClose)="getAccountsRecord()">
-  </app-create-account>
-  <router-outlet></router-outlet>
-</div>
+
+<app-confirmation-modal #confirmationModal [title]="'Delete Account'" (confirmed)="deleteAccount()">
+</app-confirmation-modal>
+
+<!-- Create Account -->
+<app-create-account #createModal [selectedAccCategory]="selectedAccountCategory" (modalClose)="getAccountsRecord()">
+</app-create-account>
+
+<router-outlet></router-outlet>
