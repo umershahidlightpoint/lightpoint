@@ -50,8 +50,8 @@ export class CorporateActionsApiService {
     return this.http.get(url).pipe(map((response: any) => response), retry(1));
   }
 
-  getDividendDetails(id) {
-  const url = this.baseUrl + '/corporateAction/cashDividendDetails?id=' + id;
+  getDividendDetails(executionDate, id) {
+  const url = this.baseUrl + '/corporateAction/cashDividendDetails?executionDate=' + executionDate + '&id=' + id;
   return this.http.get(url).pipe(map((response: any) => response), retry(1));
   }
 
