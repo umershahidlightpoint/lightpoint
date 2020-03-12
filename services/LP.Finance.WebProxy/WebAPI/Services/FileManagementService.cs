@@ -475,5 +475,64 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 return false;
             }
         }
+
+        private bool InsertData(Dictionary<string, IDbModel[]> bulkContainer)
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+            try
+            {
+                sqlHelper.VerifyConnection();
+                sqlHelper.SqlBeginTransaction();
+
+                foreach (var item in bulkContainer)
+                {
+                    new SQLBulkHelper().Insert(item.Key, item.Value, sqlHelper.GetConnection(),
+                        sqlHelper.GetTransaction(), true);
+                }
+
+                sqlHelper.SqlCommitTransaction();
+                sqlHelper.CloseConnection();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                sqlHelper.SqlRollbackTransaction();
+                sqlHelper.CloseConnection();
+                return false;
+            }
+        }
+
+        public object CommitTrade(List<Trade> trades)
+        {
+            try
+            {
+                var tradeReason = trades.Select(x => new TradeReason
+                {
+                    CreatedBy = "user",
+                    CreatedDate = DateTime.Now,
+                    LPOrderId = x.LPOrderId,
+                    Reason = x.Reason
+                }).ToList();
+
+                var bulkContainer = new Dictionary<string, IDbModel[]>();
+                bulkContainer.Add("current_trade_state", trades.ToArray());
+                bulkContainer.Add("trade_reason", tradeReason.ToArray());
+
+                var insertSuccessful = InsertData(bulkContainer);
+                if (insertSuccessful)
+                {
+                    return Utils.Wrap(true, null, HttpStatusCode.OK);
+                }
+                else
+                {
+                    return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
     }
 }

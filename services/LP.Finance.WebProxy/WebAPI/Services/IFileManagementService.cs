@@ -1,4 +1,6 @@
 ﻿using LP.Finance.Common.Dtos;
+using LP.Finance.Common.Model;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -15,5 +17,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object UpdateFileAction(FileActionInputDto input);
         object GetInvalidExportRecords();
         Task<object> UploadTrade(HttpRequestMessage requestMessage);
+        object CommitTrade(List<Trade> trades);
     }
 }

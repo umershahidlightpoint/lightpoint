@@ -143,6 +143,7 @@
     <Compile Include="Model\TaxLotStatus.cs" />
     <Compile Include="Model\TaxRate.cs" />
     <Compile Include="Model\Trade.cs" />
+    <Compile Include="Model\TradeReason.cs" />
     <Compile Include="Model\ValueCols.cs" />
     <Compile Include="Model\Wrap.cs" />
     <Compile Include="Model\PayLoad.cs" />

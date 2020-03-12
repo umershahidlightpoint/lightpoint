@@ -383,6 +383,16 @@
       "type": "datetime",
       "offset": 41,
       "rule": ""
+    },
+    {
+      "source": "Reason",
+      "destination": "Reason",
+      "function": null,
+      "required": "true",
+      "format": "",
+      "type": "char",
+      "offset": 42,
+      "rule": ""
     }
   ]
 }
