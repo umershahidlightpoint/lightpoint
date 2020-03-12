@@ -157,8 +157,9 @@
 </app-data-grid-modal>
 
 <!-- Confirmation Modal -->
-<app-confirmation-modal #confirmationModal (confirmDeletion)="confirmReset()" [modalTitle]="'Reset Performance'"
-  [modalDescription]="'All your changes will be lost.\nAre you sure you want to reset performance?'">
+<app-confirmation-modal #confirmationModal [title]="'Reset Performance'"
+  [description]="'All your changes will be lost.\nAre you sure you want to reset performance?'"
+  (confirmed)="confirmReset()">
 </app-confirmation-modal>
 
 <!-- Date Picker Modal -->

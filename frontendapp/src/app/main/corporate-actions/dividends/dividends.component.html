@@ -102,6 +102,6 @@
 <app-create-security #securityModal (modalClose)="closeSecurityModal()"></app-create-security>
 
 <!-- Confirmation Modal Selector -->
-<app-confirmation-modal #confirmationModal (confirmDeletion)="deleteDividend()" [modalTitle]="'Delete Dividend'">
+<app-confirmation-modal #confirmationModal [title]="'Delete Dividend'" (confirmed)="deleteDividend()">
 </app-confirmation-modal>
 <!-- Confirmation Modal Selector Ends -->

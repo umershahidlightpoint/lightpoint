@@ -1,5 +1,4 @@
-
-  <!-- Loader -->
+<!-- Loader -->
 <div *ngIf="isLoading" class="loader-wrapper mtop-15">
   <lp-loading></lp-loading>
   <!-- Loader -->
@@ -7,18 +6,18 @@
 
 <!-- <div [hidden]="isLoading"> -->
 
-  <div [hidden]="isLoading" class="row">
+<div [hidden]="isLoading" class="row">
 
-    <!-- Symbol Filter -->
-    <div class="col-auto">
-      <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol" [(ngModel)]="filterBySymbol"
-        (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" />
-    </div>
-    <!-- Symbol Filter Ends -->
+  <!-- Symbol Filter -->
+  <div class="col-auto">
+    <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol" [(ngModel)]="filterBySymbol"
+      (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" />
+  </div>
+  <!-- Symbol Filter Ends -->
 
-    <!-- Date Picker Div Starts -->
-    <div class="col-auto">
-      <!-- <form>
+  <!-- Date Picker Div Starts -->
+  <div class="col-auto">
+    <!-- <form>
         <input ngxDaterangepickerMd
             class="form-control"
             type="text"
@@ -31,36 +30,36 @@
             [keepCalendarOpeningWithRange]="true"
            />
       </form> -->
-    </div>
-    <!-- Date Picker Div Ends -->
+  </div>
+  <!-- Date Picker Div Ends -->
 
-    <!-- Clear Button Div Starts -->
-    <div class="col-auto">
-      <button (click)="clearFilters()" class="btn btn-pa" value="clear" tooltip="Clear" placement="top">
-        <i class="fa fa-remove"></i>
+  <!-- Clear Button Div Starts -->
+  <div class="col-auto">
+    <button (click)="clearFilters()" class="btn btn-pa" value="clear" tooltip="Clear" placement="top">
+      <i class="fa fa-remove"></i>
+    </button>
+  </div>
+  <!-- Clear Button Div Ends -->
+
+  <!-- Util Buttons Div Starts -->
+  <div class="col-auto ml-auto">
+
+    <!-- Refresh Button Div Starts -->
+    <div class="mr-2 d-inline-block">
+      <button (click)="refreshReport()" class="btn btn-pa" value="refresh" tooltip="Refresh" placement="top">
+        <i class="fa fa-refresh"></i></button>
+    </div>
+    <!-- Refresh Button Div Ends -->
+
+    <div class="mr-2 d-inline-block">
+      <button class="btn btn-pa" type="button" value="showModal" (click)="openSecurityModal()" tooltip="Create Security"
+        placement="top">
+        <i class="fa fa-plus" aria-hidden="true"></i>
       </button>
     </div>
-    <!-- Clear Button Div Ends -->
-
-    <!-- Util Buttons Div Starts -->
-    <div class="col-auto ml-auto">
-
-      <!-- Refresh Button Div Starts -->
-      <div class="mr-2 d-inline-block">
-        <button (click)="refreshReport()" class="btn btn-pa" value="refresh" tooltip="Refresh" placement="top">
-          <i class="fa fa-refresh"></i></button>
-      </div>
-      <!-- Refresh Button Div Ends -->
-
-      <div class="mr-2 d-inline-block">
-        <button class="btn btn-pa" type="button" value="showModal" (click)="openSecurityModal()" tooltip="Create Security"
-          placement="top">
-          <i class="fa fa-plus" aria-hidden="true"></i>
-        </button>
-      </div>
 
     <!-- Expand/Collapse Button -->
-      <!-- <div class="mr-3 d-inline-block">
+    <!-- <div class="mr-3 d-inline-block">
         <ng-template #tooltipTemplate>{{dividendScreenRatio.detailsView ? 'Expand' : 'Collapse'}}</ng-template>
         <button (click)="dividendScreenRatio.detailsView = !dividendScreenRatio.detailsView" class="btn btn-pa"
           [tooltip]="tooltipTemplate" placement="top">
@@ -69,26 +68,24 @@
         </button>
       </div> -->
 
-    </div>
-    <!-- Util Buttons Div Ends -->
-
   </div>
+  <!-- Util Buttons Div Ends -->
 
-  <!-- Main Split Row Starts -->
+</div>
+
+<!-- Main Split Row Starts -->
 <div [hidden]="isLoading" class="row h-100" style="margin-top: 20px;">
 
-  <ag-grid-angular
-    class="w-100 h-100 ag-theme-balham"
-    [gridOptions]="gridOptions"
-    (rowSelected)="onRowSelected($event)"
-    [rowData]="rowData"
-   >
+  <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions" (rowSelected)="onRowSelected($event)"
+    [rowData]="rowData">
   </ag-grid-angular>
 
-  </div>
-  <!-- </div> -->
+</div>
+<!-- </div> -->
+
 <app-create-security #securityModal (modalClose)="closeSecurityModal()"></app-create-security>
+
 <!-- Confirmation Modal Selector -->
-<app-confirmation-modal #confirmationModal (confirmDeletion)="deleteSecurityExtend()" [modalTitle]="'Delete Security Extended'">
+<app-confirmation-modal #confirmationModal [title]="'Delete Security Extended'" (confirmed)="deleteSecurityExtend()">
 </app-confirmation-modal>
 <!-- Confirmation Modal Selector Ends -->

@@ -21,5 +21,6 @@
 
 <app-exclude-trade #tradeExclusionModal (refreshData)="refreshGrid()"></app-exclude-trade>
 
-<app-confirmation-modal #confirmationModal (confirmDeletion)="reverseTradeExclusion()" (cancelEvent)="cancelTradeExclusionReversal()" [modalTitle]="'Reverse Trade Exclusion'">
+<app-confirmation-modal #confirmationModal [title]="'Reverse Trade Exclusion'" (confirmed)="reverseTradeExclusion()"
+    (canceled)="cancelTradeExclusionReversal()">
 </app-confirmation-modal>
