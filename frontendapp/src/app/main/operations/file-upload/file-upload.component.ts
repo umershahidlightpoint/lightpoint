@@ -453,6 +453,39 @@ export class FileUploadComponent implements OnInit {
           hide: true
         }
       ],
+      defaultColDef: {
+        cellStyle: params => {
+          const exception = JSON.parse(params.data.UploadException);
+          if (exception) {
+            const invalid = exception.Fields.some(
+              element => element.Name === params.colDef.headerName
+            );
+            if (invalid) {
+              return LegendColors.nonZeroStyle;
+            }
+          } else {
+            return null;
+          }
+        },
+        tooltipValueGetter: params => {
+          const exception = JSON.parse(params.data.UploadException);
+          if (exception) {
+            let message = '';
+            const invalid = exception.Fields.some(element => {
+              if (element.Name === params.colDef.headerName) {
+                message = element.Message;
+                return true;
+              }
+            });
+            console.log('INVALID ::', invalid);
+            if (invalid) {
+              return message;
+            }
+          } else {
+            return '';
+          }
+        }
+      },
       onGridReady: params => {
         this.tradesGridPreview.excelStyles = ExcelStyle;
       },
@@ -463,11 +496,13 @@ export class FileUploadComponent implements OnInit {
           this.exceptionContent = {};
         }
       },
-      getRowStyle: params => {
-        if (params.data.IsUploadInValid) {
-          return LegendColors.nonZeroStyle;
-        }
-      },
+      // getRowStyle: params => {
+      //   if (params.data.IsUploadInValid) {
+      //     return LegendColors.nonZeroStyle;
+      //   }
+      // },
+      suppressColumnVirtualisation: true,
+      enableBrowserTooltips: true,
       rowSelection: 'single'
     };
   }
