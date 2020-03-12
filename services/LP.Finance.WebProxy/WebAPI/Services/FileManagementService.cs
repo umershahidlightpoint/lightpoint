@@ -404,11 +404,23 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var records = JsonConvert.SerializeObject(recordBody.Item1);
                 var trades = JsonConvert.DeserializeObject<List<Trade>>(records);
 
+                foreach (var i in trades)
+                {
+                    var guid = Guid.NewGuid().ToString().ToLower();
+                    i.TradeId = guid;
+                    i.LPOrderId = guid;
+                    i.ParentOrderId = guid;
+                    i.TradeType = "manual";
+                }
+
                 var failedRecords = new Dictionary<object, Row>();
                 var key = 0;
                 foreach (var item in recordBody.Item2)
                 {
                     failedRecords.Add(key++, item);
+                    var tradeElement = trades.ElementAt(item.RowNumber - 1);
+                    tradeElement.IsUploadInValid = true;
+                    tradeElement.UploadException = JsonConvert.SerializeObject(item);
                 }
 
                 var failedTradeList =
@@ -423,26 +435,17 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 };
 
                 _fileManager.InsertActivityAndPositionFiles(fileList);
+                return Utils.Wrap(true, trades, HttpStatusCode.OK);
 
-                foreach (var i in trades)
-                {
-                    var guid = Guid.NewGuid().ToString().ToLower();
-                    i.TradeId = guid;
-                    i.LPOrderId = guid;
-                    i.ParentOrderId = guid;
-                    i.TradeType = "manual";
-                }
-
-
-                bool insertinto = InsertData(trades.ToArray(), "current_trade_state");
-                if (insertinto)
-                {
-                    return Utils.Wrap(true, trades, HttpStatusCode.OK);
-                }
-                else
-                {
-                    return Utils.Wrap(false);
-                }
+                //bool insertinto = InsertData(trades.ToArray(), "current_trade_state");
+                //if (insertinto)
+                //{
+                //    return Utils.Wrap(true, trades, HttpStatusCode.OK);
+                //}
+                //else
+                //{
+                //    return Utils.Wrap(false);
+                //}
             }
             catch (Exception ex)
             {

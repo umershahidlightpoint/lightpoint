@@ -153,6 +153,7 @@
       "source": "TradeCurrency",
       "destination": "TradeCurrency",
       "function": null,
+      "required":  true,
       "format": "",
       "type": "char",
       "offset": 16,

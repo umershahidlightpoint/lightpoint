@@ -53,6 +53,10 @@ namespace LP.Finance.Common.Model
         public string OrderSource { get; set; }
         public DateTime? UpdatedOn { get; set; }
         public double? LocalNetNotional { get; set; }
+        public bool IsUploadInValid { get; set; }
+        public string UploadException { get; set; }
+
+
 
         public void PopulateRow(DataRow row)
         {

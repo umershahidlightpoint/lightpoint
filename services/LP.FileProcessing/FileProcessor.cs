@@ -253,6 +253,11 @@ namespace LP.FileProcessing
                             isValid = val.Item2;
                             message = val.Item3;
                         }
+                        else if (!string.IsNullOrEmpty(recordDictionary[dictionaryIndex].Required) && recordDictionary[dictionaryIndex].Required.Equals("true") && string.IsNullOrEmpty(item))
+                        {
+                            isValid = false;
+                            message = "This is a required field";
+                        }
 
                         AddProperty(obj, recordDictionary[dictionaryIndex].Destination, item);
                     }
@@ -260,6 +265,7 @@ namespace LP.FileProcessing
                     if (!isValid)
                     {
                         successful = false;
+                        isValid = true;
                         Field failedField = new Field()
                         {
                             Name = recordDictionary[dictionaryIndex].Destination,

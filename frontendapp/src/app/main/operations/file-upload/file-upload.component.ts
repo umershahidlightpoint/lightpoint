@@ -36,6 +36,8 @@ export class FileUploadComponent implements OnInit {
   fileType = 'Select a File Type';
   fileTypes = ['Monthly Performance', 'Daily PnL', 'Market Prices', 'FxRates', 'Trades'];
 
+  displayTradeGrid: boolean = false;
+
   constructor(
     private financeService: FinanceServiceProxy,
     private fundTheoreticalApiService: FundTheoreticalApiService,
@@ -310,6 +312,18 @@ export class FileUploadComponent implements OnInit {
           field: 'UpdatedOn',
           width: 120,
           headerName: 'UpdatedOn',
+        },
+        {
+          field: 'IsUploadInValid',
+          width: 120,
+          headerName: 'IsUploadInValid',
+          hide: true
+        },
+        {
+          field: 'UploadException',
+          width: 120,
+          headerName: 'UploadException',
+          hide: true
         }
       ],
       defaultColDef: {
@@ -442,6 +456,8 @@ export class FileUploadComponent implements OnInit {
       this.uploadLoader = false;
       if (response.isSuccessful && response.statusCode == 200) {
         this.displayGrid = false;
+        this.displayTradeGrid = true;
+        this.tradesGridPreview.api.setRowData(response.payload);
         this.clearForm();
         this.toastrService.success('Trades uploaded successfully!');
       } else {
