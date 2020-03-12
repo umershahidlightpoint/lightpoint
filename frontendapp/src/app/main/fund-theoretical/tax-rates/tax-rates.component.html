@@ -90,6 +90,6 @@
 <!-- Tax Rate Modal Selector Ends-->
 
 <!-- Confirmation Modal Component Selector Starts -->
-<app-confirmation-modal #confirmationModal (confirmDeletion)="deleteTaxRate()" [modalTitle]="'Delete Tax Rate'">
+<app-confirmation-modal #confirmationModal [title]="'Delete Tax Rate'" (confirmed)="deleteTaxRate()">
 </app-confirmation-modal>
 <!-- Confirmation Modal Component Selector Ends -->
