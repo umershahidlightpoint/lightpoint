@@ -1,47 +1,120 @@
-<!-- File Upload Container -->
+<!-- Main Container -->
 <div class="row mt-2">
 
-  <!-- File Type Dropdown Div -->
+  <!-- File Type Dropdown -->
   <div class="col-auto">
+
     <select class="form-control" [(ngModel)]="fileType" (ngModelChange)="changeFileType($event)">
       <option [disabled]="true">Select a File Type</option>
       <option *ngFor="let fileType of fileTypes">
         {{ fileType }}
       </option>
     </select>
-  </div>
-  <!-- File Type Dropdown Div Ends -->
 
-  <!-- File Upload Input Div -->
+  </div>
+  <!-- File Type Dropdown Ends -->
+
+  <!-- File Upload Actions -->
   <div class="col-auto">
+
+    <!-- Download Template -->
+    <button class="btn btn-pa mr-2" type="button" [disabled]="fileType === 'Select a File Type'"
+      (click)="downloadTemplate()">
+      Download Template
+    </button>
+    <!-- Download Template Ends -->
+
+    <!-- File Input -->
     <input #fileInput class="btn btn-pa mr-2 file-input" type="file" (change)="onFileInput($event.target.files)">
+    <!-- File Input Ends -->
+
+    <!-- Upload File -->
     <button class="btn btn-pa" type="button" [disabled]="disableFileUpload || uploadLoader" (click)="uploadRows()">
       Upload
       <span *ngIf="uploadLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
     </button>
+    <!-- Upload File Ends -->
 
-    <button class="btn btn-pa" type="button" (click)="downloadTemplate()">
-      Download Template
-      <!-- <span *ngIf="uploadLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> -->
-    </button>
   </div>
-  <!-- File Upload Input Div Ends -->
+  <!-- File Upload Actions Ends -->
+
+  <!-- Expand/Collapse Button -->
+  <!-- <ng-template #tooltipTemplate>{{marketPricesConfig.chartsView ? 'Expand' : 'Collapse'}}</ng-template>
+  <button class="btn btn-pa" [tooltip]="tooltipTemplate" placement="top"
+    (click)="marketPricesConfig.chartsView = !marketPricesConfig.chartsView">
+    <i class="fa"
+      [ngClass]="{'fa-arrow-right': marketPricesConfig.chartsView, 'fa-arrow-left': !marketPricesConfig.chartsView}"></i>
+  </button> -->
+  <!-- Expand/Collapse Button Ends -->
 
 </div>
-<!-- File Upload Container Ends -->
+<!-- Main Container Ends -->
 
-<!-- AG Grid for file Upload -->
+<!-- File Upload AG Grid -->
 <div [ngStyle]="styleForLogsHeight" [ngClass]="{'w-100' : displayGrid, 'd-none' : !displayGrid}">
+
   <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="uploadGrid">
   </ag-grid-angular>
-</div>
 
-<div [hidden]="false" [ngStyle]="styleForLogsHeight" [ngClass]="{'w-100' : displayGrid, 'd-none' : !displayGrid}">
-  <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="tradesGridPreview">
+</div>
+<!-- File Upload AG Grid Ends -->
+
+<!-- Review Grid Container -->
+<div [hidden]="!displayTradeGrid" [ngStyle]="styleForLogsHeight">
+
+  <!-- Main Split Row Starts -->
+  <div class="split-area row h-100">
+
+    <!-- AS Split Main Container -->
+    <as-split class="pl-15 pr-15" disabled="false" direction="horizontal" [useTransition]="true">
+
+      <!-- Review Grid Split Area -->
+      <as-split-area [visible]="true" [size]="60" order="1">
+
+        <!-- Review Grid -->
+        <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="tradesGridPreview">
+        </ag-grid-angular>
+        <!-- Review Grid Ends -->
+
+      </as-split-area>
+      <!-- Review Grid Split Area Ends -->
+
+      <!-- Content Viewer Split Area -->
+      <as-split-area [visible]="true" [size]="40" order="2">
+
+        <lp-content-viewer class="h-100" [content]="exceptionContent" contentType="json"></lp-content-viewer>
+
+      </as-split-area>
+      <!-- Content Viewer Split Area Ends -->
+
+    </as-split>
+    <!-- AS Split Main Container Ends -->
+
+  </div>
+  <!-- Main Split Row Ends -->
+
+</div>
+<!-- Review Grid Container Ends -->
+
+<!-- File Template Grids -->
+<div [hidden]="true">
+
+  <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="monthlyPerformanceGridPreview">
   </ag-grid-angular>
-</div>
 
-<!-- Confirmation Modal Component -->
+  <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="dailyPnLGridPreview">
+  </ag-grid-angular>
+
+  <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="marketPricesGridPreview">
+  </ag-grid-angular>
+
+  <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="fxratesGridPreview">
+  </ag-grid-angular>
+
+</div>
+<!-- File Template Grids Ends -->
+
+<!-- Confirmation Modal -->
 <app-confirmation-modal #confirmationModal (confirmDeletion)="confirmReset()" [modalTitle]="'Reset Performance'"
   [modalDescription]="'All your changes will be lost.\nAre you sure you want to reset performance?'">
 </app-confirmation-modal>

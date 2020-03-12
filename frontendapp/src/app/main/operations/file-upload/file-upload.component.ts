@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { GridOptions, ColGroupDef, ColDef } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { GridLayoutMenuComponent } from 'lp-toolkit';
@@ -7,9 +7,8 @@ import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-mo
 import { FinanceServiceProxy } from 'src/services/service-proxies';
 import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.service';
 import { DataDictionary } from '../../../../shared/utils/DataDictionary';
-import { IgnoreFields, HeightStyle, ExcelStyle } from 'src/shared/utils/Shared';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
-
+import { IgnoreFields, HeightStyle, ExcelStyle, LegendColors } from 'src/shared/utils/Shared';
 
 @Component({
   selector: 'app-file-upload',
@@ -22,12 +21,17 @@ export class FileUploadComponent implements OnInit {
 
   styleForLogsHeight = HeightStyle(220);
   uploadGrid: GridOptions;
+  monthlyPerformanceGridPreview: GridOptions;
+  dailyPnLGridPreview: GridOptions;
+  marketPricesGridPreview: GridOptions;
+  fxratesGridPreview: GridOptions;
   tradesGridPreview: GridOptions;
   displayGrid = false;
   fxRateDupList: any;
   ignoreFields = IgnoreFields;
   columns: Array<ColDef | ColGroupDef>;
   rowData: any[] = [];
+  exceptionContent: any;
 
   fileToUpload: File = null;
   disableFileUpload = true;
@@ -36,12 +40,12 @@ export class FileUploadComponent implements OnInit {
   fileType = 'Select a File Type';
   fileTypes = ['Monthly Performance', 'Daily PnL', 'Market Prices', 'FxRates', 'Trades'];
 
-  displayTradeGrid: boolean = false;
+  displayTradeGrid = false;
 
   constructor(
+    private toastrService: ToastrService,
     private financeService: FinanceServiceProxy,
     private fundTheoreticalApiService: FundTheoreticalApiService,
-    private toastrService: ToastrService,
     private dataDictionary: DataDictionary,
     private downloadExcelUtils: DownloadExcelUtils
   ) {}
@@ -78,261 +82,394 @@ export class FileUploadComponent implements OnInit {
       }
     } as GridOptions;
 
-    this.tradesGridPreview = {
+    this.monthlyPerformanceGridPreview = {
       rowData: [],
-      pinnedBottomRowData: null,
-      frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      rowSelection: 'multiple',
-      rowGroupPanelShow: 'after',
-      suppressColumnVirtualisation: true,
-      getContextMenuItems: params => {},
-      onGridReady: params => {
-        this.tradesGridPreview.excelStyles = ExcelStyle;
-      },
-      onFirstDataRendered: params => {
-        params.api.forEachNode(node => {
-          node.expanded = true;
-        });
-        params.api.onGroupExpandedOrCollapsed();
-
-        // AutoSizeAllColumns(params);
-        params.api.sizeColumnsToFit();
-      },
-      enableFilter: true,
-      animateRows: true,
-      alignedGrids: [],
-      suppressHorizontalScroll: false,
       columnDefs: [
         {
-          field: 'Action',
-          width: 120,
-          headerName: 'Action',
-        },
-        {
-          field: 'Symbol',
-          width: 120,
-          headerName: 'Symbol',
-        },
-        {
-          field: 'Side',
-          width: 120,
-          headerName: 'Side',
-        },
-        {
-          field: 'Quantity',
-          width: 120,
-          headerName: 'Quantity',
-        },
-        {
-          field: 'TimeInForce',
-          width: 120,
-          headerName: 'TimeInForce',
-        },
-        {
-          field: 'OrderType',
-          width: 120,
-          headerName: 'OrderType',
-        },
-        {
-          field: 'SecurityType',
-          width: 120,
-          headerName: 'SecurityType',
-        },
-        {
-          field: 'BloombergCode',
-          width: 120,
-          headerName: 'BloombergCode',
-        },
-        {
-          field: 'EzeTicker',
-          width: 120,
-          headerName: 'EzeTicker',
-        },
-        {
-          field: 'SecurityCode',
-          width: 120,
-          headerName: 'SecurityCode',
-        },
-        {
-          field: 'CustodianCode',
-          width: 120,
-          headerName: 'CustodianCode',
-        },
-        {
-          field: 'ExecutionBroker',
-          width: 120,
-          headerName: 'ExecutionBroker',
+          field: 'PerformanceDate',
+          headerName: 'PerformanceDate',
+          hide: true
         },
         {
           field: 'Fund',
-          width: 120,
-          headerName: 'Fund',
+          headerName: 'Fund'
         },
         {
-          field: 'PMCode',
-          width: 120,
-          headerName: 'PMCode',
+          field: 'Portfolio',
+          headerName: 'Portfolio'
         },
         {
-          field: 'PortfolioCode',
-          width: 120,
-          headerName: 'PortfolioCode',
+          field: 'StartOfMonthEstimateNav',
+          headerName: 'StartOfMonthEstimateNav'
         },
         {
-          field: 'Trader',
-          width: 120,
-          headerName: 'Trader',
+          field: 'Performance',
+          headerName: 'Performance'
         },
         {
-          field: 'TradeCurrency',
-          width: 120,
-          headerName: 'TradeCurrency',
+          field: 'MonthEndNav',
+          headerName: 'MonthEndNav'
         },
         {
-          field: 'TradePrice',
-          width: 120,
-          headerName: 'TradePrice',
+          field: 'MTD',
+          headerName: 'MTD'
+        }
+      ],
+      onGridReady: params => {
+        this.monthlyPerformanceGridPreview.excelStyles = ExcelStyle;
+      }
+    };
+
+    this.dailyPnLGridPreview = {
+      rowData: [],
+      columnDefs: [
+        {
+          field: 'BusinessDate',
+          headerName: 'BusinessDate'
         },
         {
-          field: 'TradeDate',
-          width: 120,
-          headerName: 'TradeDate',
+          field: 'Portfolio',
+          headerName: 'Portfolio'
         },
         {
-          field: 'SettleCurrency',
-          width: 120,
-          headerName: 'SettleCurrency',
+          field: 'Fund',
+          headerName: 'Fund'
         },
         {
-          field: 'SettlePrice',
-          width: 120,
-          headerName: 'SettlePrice',
+          field: 'TradePnL',
+          headerName: 'TradePnL'
         },
         {
-          field: 'SettleDate',
-          width: 120,
-          headerName: 'SettleDate',
+          field: 'Day',
+          headerName: 'Day'
         },
         {
-          field: 'TradeType',
-          width: 120,
-          headerName: 'TradeType',
+          field: 'DailyPercentageReturn',
+          headerName: 'DailyPercentageReturn'
         },
         {
-          field: 'TransactionCategory',
-          width: 120,
-          headerName: 'TransactionCategory',
+          field: 'LongPnL',
+          headerName: 'LongPnL'
         },
         {
-          field: 'TransactionType',
-          width: 120,
-          headerName: 'TransactionType',
+          field: 'LongPercentageChange',
+          headerName: 'LongPercentageChange'
         },
         {
-          field: 'ParentSymbol',
-          width: 120,
-          headerName: 'ParentSymbol',
+          field: 'ShortPnL',
+          headerName: 'ShortPnL'
         },
         {
-          field: 'Status',
-          width: 120,
-          headerName: 'Status',
+          field: 'ShortPercentageChange',
+          headerName: 'ShortPercentageChange'
         },
         {
-          field: 'NetMoney',
-          width: 120,
-          headerName: 'NetMoney',
+          field: 'LongExposure',
+          headerName: 'LongExposure'
         },
         {
-          field: 'Commission',
-          width: 120,
-          headerName: 'Commission',
+          field: 'ShortExposure',
+          headerName: 'ShortExposure'
         },
         {
-          field: 'Fees',
-          width: 120,
-          headerName: 'Fees',
+          field: 'GrossExposure',
+          headerName: 'GrossExposure'
         },
         {
-          field: 'SettleNetMoney',
-          width: 120,
-          headerName: 'SettleNetMoney',
+          field: 'NetExposure',
+          headerName: 'NetExposure'
         },
         {
-          field: 'NetPrice',
-          width: 120,
-          headerName: 'NetPrice',
+          field: 'SixMdBetaNetExposure',
+          headerName: 'SixMdBetaNetExposure'
         },
         {
-          field: 'SettleNetPrice',
-          width: 120,
-          headerName: 'SettleNetPrice',
+          field: 'TwoYwBetaNetExposure',
+          headerName: 'TwoYwBetaNetExposure'
         },
         {
-          field: 'OrderSource',
-          width: 120,
-          headerName: 'OrderSource',
+          field: 'SixMdBetaShortExposure',
+          headerName: 'SixMdBetaShortExposure'
         },
         {
-          field: 'LocalNetNotional',
-          width: 120,
-          headerName: 'LocalNetNotional',
+          field: 'NavMarket',
+          headerName: 'NavMarket'
         },
         {
-          field: 'TradeTime',
-          width: 120,
-          headerName: 'TradeTime',
+          field: 'DividendUSD',
+          headerName: 'DividendUSD'
         },
         {
-          field: 'LPOrderId',
-          width: 120,
-          headerName: 'LPOrderId',
+          field: 'CommUSD',
+          headerName: 'CommUSD'
         },
         {
-          field: 'AccrualId',
-          width: 120,
-          headerName: 'AccrualId',
+          field: 'FeeTaxesUSD',
+          headerName: 'FeeTaxesUSD'
         },
         {
-          field: 'TradeId',
-          width: 120,
-          headerName: 'TradeId',
+          field: 'FinancingUSD',
+          headerName: 'FinancingUSD'
+        },
+        {
+          field: 'OtherUSD',
+          headerName: 'OtherUSD'
+        },
+        {
+          field: 'PnLPercentage',
+          headerName: 'PnLPercentage'
+        }
+      ],
+      onGridReady: params => {
+        this.dailyPnLGridPreview.excelStyles = ExcelStyle;
+      }
+    };
+
+    this.marketPricesGridPreview = {
+      rowData: [],
+      columnDefs: [
+        {
+          field: 'Date',
+          headerName: 'Date'
         },
         {
           field: 'SecurityId',
-          width: 120,
-          headerName: 'SecurityId',
+          headerName: 'SecurityId'
+        },
+        {
+          field: 'Price',
+          headerName: 'Price'
+        },
+        {
+          field: 'CCY',
+          headerName: 'CCY'
+        }
+      ],
+      onGridReady: params => {
+        this.marketPricesGridPreview.excelStyles = ExcelStyle;
+      }
+    };
+
+    this.fxratesGridPreview = {
+      rowData: [],
+      columnDefs: [
+        {
+          field: 'Date',
+          headerName: 'Date'
+        },
+        {
+          field: 'Price',
+          headerName: 'Price'
+        },
+        {
+          field: 'CCY',
+          headerName: 'CCY'
+        }
+      ],
+      onGridReady: params => {
+        this.fxratesGridPreview.excelStyles = ExcelStyle;
+      }
+    };
+
+    this.tradesGridPreview = {
+      rowData: [],
+      columnDefs: [
+        {
+          field: 'Action',
+          headerName: 'Action'
+        },
+        {
+          field: 'Symbol',
+          headerName: 'Symbol'
+        },
+        {
+          field: 'Side',
+          headerName: 'Side'
+        },
+        {
+          field: 'Quantity',
+          headerName: 'Quantity'
+        },
+        {
+          field: 'TimeInForce',
+          headerName: 'TimeInForce'
+        },
+        {
+          field: 'OrderType',
+          headerName: 'OrderType'
+        },
+        {
+          field: 'SecurityType',
+          headerName: 'SecurityType'
+        },
+        {
+          field: 'BloombergCode',
+          headerName: 'BloombergCode'
+        },
+        {
+          field: 'EzeTicker',
+          headerName: 'EzeTicker'
+        },
+        {
+          field: 'SecurityCode',
+          headerName: 'SecurityCode'
+        },
+        {
+          field: 'CustodianCode',
+          headerName: 'CustodianCode'
+        },
+        {
+          field: 'ExecutionBroker',
+          headerName: 'ExecutionBroker'
+        },
+        {
+          field: 'Fund',
+          headerName: 'Fund'
+        },
+        {
+          field: 'PMCode',
+          headerName: 'PMCode'
+        },
+        {
+          field: 'PortfolioCode',
+          headerName: 'PortfolioCode'
+        },
+        {
+          field: 'Trader',
+          headerName: 'Trader'
+        },
+        {
+          field: 'TradeCurrency',
+          headerName: 'TradeCurrency'
+        },
+        {
+          field: 'TradePrice',
+          headerName: 'TradePrice'
+        },
+        {
+          field: 'TradeDate',
+          headerName: 'TradeDate'
+        },
+        {
+          field: 'SettleCurrency',
+          headerName: 'SettleCurrency'
+        },
+        {
+          field: 'SettlePrice',
+          headerName: 'SettlePrice'
+        },
+        {
+          field: 'SettleDate',
+          headerName: 'SettleDate'
+        },
+        {
+          field: 'TradeType',
+          headerName: 'TradeType'
+        },
+        {
+          field: 'TransactionCategory',
+          headerName: 'TransactionCategory'
+        },
+        {
+          field: 'TransactionType',
+          headerName: 'TransactionType'
+        },
+        {
+          field: 'ParentSymbol',
+          headerName: 'ParentSymbol'
+        },
+        {
+          field: 'Status',
+          headerName: 'Status'
+        },
+        {
+          field: 'NetMoney',
+          headerName: 'NetMoney'
+        },
+        {
+          field: 'Commission',
+          headerName: 'Commission'
+        },
+        {
+          field: 'Fees',
+          headerName: 'Fees'
+        },
+        {
+          field: 'SettleNetMoney',
+          headerName: 'SettleNetMoney'
+        },
+        {
+          field: 'NetPrice',
+          headerName: 'NetPrice'
+        },
+        {
+          field: 'SettleNetPrice',
+          headerName: 'SettleNetPrice'
+        },
+        {
+          field: 'OrderSource',
+          headerName: 'OrderSource'
+        },
+        {
+          field: 'LocalNetNotional',
+          headerName: 'LocalNetNotional'
+        },
+        {
+          field: 'TradeTime',
+          headerName: 'TradeTime'
+        },
+        {
+          field: 'LPOrderId',
+          headerName: 'LPOrderId'
+        },
+        {
+          field: 'AccrualId',
+          headerName: 'AccrualId'
+        },
+        {
+          field: 'TradeId',
+          headerName: 'TradeId'
+        },
+        {
+          field: 'SecurityId',
+          headerName: 'SecurityId'
         },
         {
           field: 'ParentOrderId',
-          width: 120,
-          headerName: 'ParentOrderId',
+          headerName: 'ParentOrderId'
         },
         {
           field: 'UpdatedOn',
-          width: 120,
-          headerName: 'UpdatedOn',
+          headerName: 'UpdatedOn'
         },
         {
           field: 'IsUploadInValid',
-          width: 120,
           headerName: 'IsUploadInValid',
           hide: true
         },
         {
           field: 'UploadException',
-          width: 120,
           headerName: 'UploadException',
           hide: true
         }
       ],
-      defaultColDef: {
-        sortable: true,
-        resizable: true,
-        filter: true
-      }
-    } as GridOptions;
-
+      onGridReady: params => {
+        this.tradesGridPreview.excelStyles = ExcelStyle;
+      },
+      onRowClicked: params => {
+        if (params.data.UploadException) {
+          this.exceptionContent = JSON.parse(params.data.UploadException);
+        } else {
+          this.exceptionContent = {};
+        }
+      },
+      getRowStyle: params => {
+        if (params.data.IsUploadInValid) {
+          return LegendColors.nonZeroStyle;
+        }
+      },
+      rowSelection: 'single'
+    };
   }
 
   changeFileType(selectedFileType) {
@@ -368,23 +505,30 @@ export class FileUploadComponent implements OnInit {
       this.uploadMarketData();
     } else if (this.fileType === 'FxRates') {
       this.uploadFxRatesData();
-    } else if(this.fileType === "Trades"){
+    } else if (this.fileType === 'Trades') {
       this.uploadTradeData();
     }
   }
 
-  downloadTemplate(){
-    if(this.fileType === "Trades"){
-      this.excelTemplate('Trades', 'Trade Sheet')
-    }
+  downloadTemplate() {
+    const template = this.fileType
+      .split(' ')
+      .map((word, i) => {
+        if (i === 0) {
+          return word.toLowerCase();
+        }
+        return word.charAt(0).toUpperCase() + word.slice(1);
+      })
+      .join('');
+    this.excelTemplate(this.fileType, `${this.fileType} Sheet`, template);
   }
 
-  excelTemplate(fileName, sheetName) {
+  excelTemplate(fileName, sheetName, template) {
     const params = {
-      fileName: fileName,
-      sheetName: sheetName
+      fileName,
+      sheetName
     };
-    this.tradesGridPreview.api.exportDataAsCsv(params);
+    this[`${template}GridPreview`].api.exportDataAsCsv(params);
     this.downloadExcelUtils.ToastrMessage();
   }
 
@@ -429,11 +573,11 @@ export class FileUploadComponent implements OnInit {
     this.uploadLoader = true;
     this.fundTheoreticalApiService.uploadMarketPriceData(this.fileToUpload).subscribe(response => {
       this.uploadLoader = false;
-      if (response.isSuccessful && response.statusCode == 200) {
+      if (response.isSuccessful && response.statusCode === 200) {
         this.displayGrid = false;
         this.clearForm();
         this.toastrService.success('File uploaded successfully!');
-      } else if (response.isSuccessful && response.statusCode == 403) {
+      } else if (response.isSuccessful && response.statusCode === 403) {
         this.displayGrid = true;
 
         this.columns = response.meta;
@@ -454,17 +598,16 @@ export class FileUploadComponent implements OnInit {
     this.uploadLoader = true;
     this.fundTheoreticalApiService.uploadTradeData(this.fileToUpload).subscribe(response => {
       this.uploadLoader = false;
-      if (response.isSuccessful && response.statusCode == 200) {
+      if (response.isSuccessful && response.statusCode === 200) {
         this.displayGrid = false;
         this.displayTradeGrid = true;
+
         this.tradesGridPreview.api.setRowData(response.payload);
         this.clearForm();
         this.toastrService.success('Trades uploaded successfully!');
       } else {
         this.toastrService.error('Something went wrong! Try Again.');
       }
-    }, err=> {
-      this.toastrService.error(err.Message);
     });
   }
 
@@ -473,10 +616,10 @@ export class FileUploadComponent implements OnInit {
     this.fundTheoreticalApiService.uploadFxData(this.fileToUpload).subscribe(response => {
       this.uploadLoader = false;
       this.displayGrid = false;
-      if (response.isSuccessful && response.statusCode == 200) {
+      if (response.isSuccessful && response.statusCode === 200) {
         this.clearForm();
         this.toastrService.success('File uploaded successfully!');
-      } else if (response.isSuccessful && response.statusCode == 403) {
+      } else if (response.isSuccessful && response.statusCode === 403) {
         this.displayGrid = true;
 
         this.columns = response.meta;
