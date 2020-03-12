@@ -722,6 +722,15 @@ namespace LP.Finance.Common
                                     $"cast(round({col.aggFunc}(abs(debit)) - {col.aggFunc}(abs(credit)), 2) as numeric(22, 2)) as {col.field}");
                             }
                         }
+                        else if (col.field.Equals("local_balance"))
+                        {
+                            if (obj.valueCols.Any(x => x.field == "local_debit") &&
+                                obj.valueCols.Any(x => x.field == "local_credit"))
+                            {
+                                aggregateCols.Add(
+                                    $"cast(round({col.aggFunc}(abs(local_debit)) - {col.aggFunc}(abs(local_credit)), 2) as numeric(22, 2)) as {col.field}");
+                            }
+                        }
                         else
                         {
                             aggregateCols.Add($"{col.aggFunc}({col.field}) as {col.field}");
