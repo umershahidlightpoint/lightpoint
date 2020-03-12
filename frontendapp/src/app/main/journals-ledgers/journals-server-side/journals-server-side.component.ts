@@ -850,6 +850,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     return (this.fieldsSum = [
       { name: 'debit', total: 0 },
       { name: 'credit', total: 0 },
+      { name: 'local_debit', total: 0 },
+      { name: 'local_credit', total: 0 },
       { name: 'Commission', total: 0 },
       { name: 'Fees', total: 0 },
       { name: 'TradePrice', total: 0 },

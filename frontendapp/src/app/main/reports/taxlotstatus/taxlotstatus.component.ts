@@ -356,7 +356,8 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           sortable: true,
           cellClass: 'rightAlign',
           valueFormatter: currencyFormatter,
-          aggFunc: 'sum'
+          aggFunc: 'sum',
+          enableValue: true,
         },
         {
           field: 'quantity',
@@ -366,7 +367,8 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           sortable: true,
           cellClass: 'rightAlign',
           valueFormatter: currencyFormatter,
-          aggFunc: 'sum'
+          aggFunc: 'sum',
+          enableValue: true,
         },
         {
           field: 'investment_at_cost',

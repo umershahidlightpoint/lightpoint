@@ -29,6 +29,7 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
 import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
+import { formatPercent } from '@angular/common';
 
 @Component({
   selector: 'app-position-market-value-appraisal',
@@ -165,14 +166,16 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
           enableRowGroup: true
         },
         {
-          field: 'EzeTicker',
-          headerName: 'Symbol'
-        },
-        {
           field: 'SecurityType',
           headerName: 'SecurityType',
           rowGroup: true,
           enableRowGroup: true
+        },
+        {
+          field: 'EzeTicker',
+          headerName: 'Symbol',
+          enableRowGroup: true,
+          rowGroup: true,
         },
         {
           field: 'ISIN',
@@ -194,6 +197,7 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
           field: 'quantity',
           headerName: 'End Quantity',
           aggFunc: 'sum',
+          enableValue: true,
           cellClass: 'rightAlign',
           valueFormatter: currencyFormatter
         },
@@ -214,9 +218,15 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
           cellClass: 'rightAlign'
         },
         {
+          field: 'end_price_reporting',
+          headerName: 'End Price(Reporting)',
+          cellClass: 'rightAlign'
+        },
+        {
           field: 'price_percent_change',
           headerName: 'Price % Change',
-          cellClass: 'rightAlign'
+          cellClass: 'rightAlign',
+          valueFormatter: decimnalFormatter2
         },
         {
           field: 'local_currency',
@@ -224,7 +234,14 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
         },
         {
           field: 'fx_rate_to_reporting_currency',
-          headerName: 'FX Rate to Reporting Currency'
+          headerName: 'FX Rate to Reporting Currency',
+          valueFormatter: decimnalFormatter4
+        },
+        {
+          field: 'end_market_value_local',
+          headerName: 'End Market Value(Local)',
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
         },
         {
           field: 'cost_local',
@@ -239,8 +256,10 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
           valueFormatter: currencyFormatter
         },
         {
-          field: 'end_market_value_local',
-          headerName: 'End Market Value(Local)',
+          field: 'end_market_value_reporting',
+          headerName: 'End Market Value(Reporting)',
+          aggFunc: 'sum',
+          enableValue: true,
           cellClass: 'rightAlign',
           valueFormatter: currencyFormatter
         },
@@ -249,6 +268,7 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
           headerName: 'Cost(Reporting))',
           cellClass: 'rightAlign',
           aggFunc: 'sum',
+          enableValue: true,
           valueFormatter: currencyFormatter
         }
         ,
@@ -256,13 +276,7 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
           field: 'unrealized_pnl_reporting',
           headerName: 'Unrealized PnL(Reporting)',
           aggFunc: 'sum',
-          cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
-        },
-        {
-          field: 'end_market_value_reporting',
-          headerName: 'End Market Value(Reporting)',
-          aggFunc: 'sum',
+          enableValue: true,
           cellClass: 'rightAlign',
           valueFormatter: currencyFormatter
         }
@@ -494,6 +508,13 @@ function decimnalFormatter2(params) {
     return;
   }
   return FormatNumber2(params.value);
+}
+
+function decimnalFormatter4(params) {
+  if (params.value === undefined) {
+    return;
+  }
+  return FormatNumber4(params.value);
 }
 
 function moneyFormatter(params) {
