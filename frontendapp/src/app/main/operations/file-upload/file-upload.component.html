@@ -33,6 +33,11 @@
       Upload
       <span *ngIf="uploadLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
     </button>
+
+    <button class="btn btn-pa" type="button" (click)="commitData()">
+      Commit
+      <!-- <span *ngIf="commitLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> -->
+    </button>
     <!-- Upload File Ends -->
 
   </div>

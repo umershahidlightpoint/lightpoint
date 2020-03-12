@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using LP.Finance.Common.FileMetaData;
+using LP.Finance.Common.Cache;
 
 /*
 * Start of a common library for generating and consuming files
@@ -449,6 +450,15 @@ namespace LP.FileProcessing
             }
 
             return new Tuple<object, bool, string>(value, valid, exception);
+        }
+
+        public void IsValidCurrency()
+        {
+            var currencyMap = AppStartCache.GetCachedData("currency");
+            if (currencyMap.Item1)
+            {
+                var currency = (Dictionary<string, string>)currencyMap.Item2;
+            }
         }
 
         #endregion

@@ -19,6 +19,7 @@ using Amazon.S3;
 using LP.Finance.Common.FileMetaData;
 using LP.Finance.Common.IO;
 using System.Net;
+using LP.Finance.Common.Cache;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
@@ -399,6 +400,34 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var path = uploadedResult.Item2;
                 var filename = uploadedResult.Item3;
+
+                var symbolCache = AppStartCache.GetCachedData("symbol");
+                var currencyCache = AppStartCache.GetCachedData("currency");
+                Dictionary<string, int> symbols;
+                Dictionary<string, string> currency;
+
+                if (symbolCache.Item1)
+                {
+                    symbols = (Dictionary<string, int>)symbolCache.Item2;
+                }
+                else
+                {
+                    symbols = GetSymbols();
+                    AppStartCache.CacheData("symbol", symbols);
+                }
+
+                if (currencyCache.Item1)
+                {
+                    currency = (Dictionary<string, string>)currencyCache.Item2;
+                }
+                else
+                {
+                    currency = GetCurrencies();
+                    AppStartCache.CacheData("currency", currency);
+                }
+
+               
+
                 var recordBody = _fileProcessor.ImportFile(path, "Trade", "PerformanceFormats", ',', true);
 
                 var records = JsonConvert.SerializeObject(recordBody.Item1);
@@ -451,6 +480,26 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 throw ex;
             }
+        }
+
+        public Dictionary<string, int> GetSymbols()
+        {
+            var query = $@"select securityid as SecurityId, securitycode as SecurityCode from [SecurityMaster]..security";
+            var dataTable = new SqlHelper(connectionString).GetDataTable(query, CommandType.Text);
+            var jsonResult = JsonConvert.SerializeObject(dataTable);
+            var symbols = JsonConvert.DeserializeObject<List<SymbolDto>>(jsonResult);
+            var symbolDict = symbols.ToDictionary(x => x.SecurityCode, x => x.SecurityId);
+            return symbolDict;
+        }
+
+        public Dictionary<string, string> GetCurrencies()
+        {
+            var query = $@"select currencycode as CurrencyCode from [SecurityMaster]..currency";
+            var dataTable = new SqlHelper(connectionString).GetDataTable(query, CommandType.Text);
+            var jsonResult = JsonConvert.SerializeObject(dataTable);
+            var currency = JsonConvert.DeserializeObject<List<CurrencyDto>>(jsonResult);
+            var currencyDict = currency.ToDictionary(x => x.CurrencyCode, x => x.CurrencyCode);
+            return currencyDict;
         }
 
         private bool InsertData(IDbModel[] obj, string table)

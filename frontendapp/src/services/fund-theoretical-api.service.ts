@@ -134,4 +134,9 @@ export class FundTheoreticalApiService {
     formData.append('fileKey', file, file.name);
     return this.http.post(url, formData);
   }
+
+  commitTradeData(data): Observable<any> {
+    const url = this.baseUrl + '/fileManagement/commitTrade';
+    return this.http.post(url, data);
+  }
 }

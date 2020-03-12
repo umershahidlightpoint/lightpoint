@@ -41,6 +41,8 @@ export class FileUploadComponent implements OnInit {
   fileTypes = ['Monthly Performance', 'Daily PnL', 'Market Prices', 'FxRates', 'Trades'];
 
   displayTradeGrid = false;
+  commitLoader = false;
+  tradePreviewData : any = null
 
   constructor(
     private toastrService: ToastrService,
@@ -443,6 +445,10 @@ export class FileUploadComponent implements OnInit {
           headerName: 'UpdatedOn'
         },
         {
+          field: 'Reason',
+          headerName: 'Reason'
+        },
+        {
           field: 'IsUploadInValid',
           headerName: 'IsUploadInValid',
           hide: true
@@ -508,6 +514,10 @@ export class FileUploadComponent implements OnInit {
     } else if (this.fileType === 'Trades') {
       this.uploadTradeData();
     }
+  }
+
+  commitData(){
+      this.commitTradeData();
   }
 
   downloadTemplate() {
@@ -601,13 +611,31 @@ export class FileUploadComponent implements OnInit {
       if (response.isSuccessful && response.statusCode === 200) {
         this.displayGrid = false;
         this.displayTradeGrid = true;
-
+        this.tradePreviewData = response.payload;
         this.tradesGridPreview.api.setRowData(response.payload);
         this.clearForm();
         this.toastrService.success('Trades uploaded successfully!');
       } else {
         this.toastrService.error('Something went wrong! Try Again.');
       }
+    });
+  }
+
+  commitTradeData() {
+    this.commitLoader = true;
+    this.fundTheoreticalApiService.commitTradeData(this.tradePreviewData).subscribe(response => {
+      this.commitLoader = false;
+      if (response.isSuccessful && response.statusCode === 200) {
+        this.displayGrid = false;
+        this.displayTradeGrid = false;
+        this.tradesGridPreview.api.setRowData([]);
+        this.clearForm();
+        this.toastrService.success('Trades committed successfully!');
+      } else {
+        this.toastrService.error('Something went wrong! Try Again.');
+      }
+    }, err => {
+      this.toastrService.error(err.Message);
     });
   }
 
