@@ -20,9 +20,9 @@ function loadConfig() {
 }
 
 loadConfig().then(() => {
-  // debugger;
-
+  // tslint:disable-next-line: no-string-literal
   environment.remoteServerUrl = window['config'].remoteServerUrl;
+  // tslint:disable-next-line: no-string-literal
   environment.referenceDataUrl = window['config'].referenceDataUrl;
 
   platformBrowserDynamic()

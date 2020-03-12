@@ -1,38 +1,59 @@
-import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
-import { HeightStyle, SideBar, DateFormatter, Ranges,SetDateRange } from 'src/shared/utils/Shared';
-import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
-import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+  ElementRef,
+  ChangeDetectorRef
+} from '@angular/core';
+import { ColDef, ColGroupDef } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { UtilsConfig } from 'src/shared/Models/utils-config';
 import * as moment from 'moment';
+import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
+import { GridId, GridName, LayoutConfig } from 'src/shared/utils/AppEnums';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
-import { GraphObject } from 'src/shared/Models/graph-object';
-import { ContextMenu } from 'src/shared/Models/common';
-import { DataDictionary } from 'src/shared/utils/DataDictionary';
+import { CacheService } from 'src/services/common/cache.service';
 import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.service';
 import { SecurityApiService } from 'src/services/security-api.service';
+import { GraphObject } from 'src/shared/Models/graph-object';
+import { UtilsConfig } from 'src/shared/Models/utils-config';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { ContextMenu } from 'src/shared/Models/common';
+import { DataDictionary } from 'src/shared/utils/DataDictionary';
+import { HeightStyle, SideBar, DateFormatter, Ranges, SetDateRange } from 'src/shared/utils/Shared';
 
 @Component({
   selector: 'app-market-prices',
   templateUrl: './market-prices.component.html',
   styleUrls: ['./market-prices.component.scss']
 })
-export class MarketPricesComponent implements OnInit {
+export class MarketPricesComponent implements OnInit, AfterViewInit {
   @ViewChild('fileInput', { static: false }) fileInput: ElementRef;
   @ViewChild('dataGridModal', { static: false })
-  @ViewChild('securityModal', { static: false }) securityModal: CreateSecurityComponent;
+  @ViewChild('securityModal', { static: false })
+  securityModal: CreateSecurityComponent;
   dataGridModal: DataGridModalComponent;
 
   isLoading = false;
   marketPriceGrid: CustomGridOptions;
+  marketPricesConfig: {
+    marketPricesSize: number;
+    chartsSize: number;
+    marketPricesView: boolean;
+    chartsView: boolean;
+    useTransition: boolean;
+  } = {
+    marketPricesSize: 50,
+    chartsSize: 50,
+    marketPricesView: true,
+    chartsView: false,
+    useTransition: true
+  };
   selectedDate = null;
   gridData: any;
   fileToUpload: File = null;
   totalGridRows: number;
-  isExpanded = false;
   graphObject: GraphObject = null;
   disableCharts = true;
   sliderValue = 0;
@@ -85,15 +106,67 @@ export class MarketPricesComponent implements OnInit {
   commitLoader = false;
 
   constructor(
+    private cdRef: ChangeDetectorRef,
+    private cacheService: CacheService,
+    private toastrService: ToastrService,
     private fundTheoreticalApiService: FundTheoreticalApiService,
     private securityApiService: SecurityApiService,
-    private toastrService: ToastrService,
     public dataDictionary: DataDictionary
   ) {}
 
   ngOnInit() {
     this.getData();
     this.initGrid();
+  }
+
+  ngAfterViewInit(): void {
+    this.initPageLayout();
+  }
+
+  initPageLayout() {
+    const persistUIState = this.cacheService.getConfigByKey(LayoutConfig.persistUIState);
+    if (!persistUIState || !JSON.parse(persistUIState.value)) {
+      return;
+    }
+
+    const config = this.cacheService.getConfigByKey(LayoutConfig.marketPricesConfigKey);
+    if (config) {
+      this.marketPricesConfig = JSON.parse(config.value);
+    }
+
+    this.cdRef.detectChanges();
+  }
+
+  applyPageLayout(event) {
+    if (event.sizes) {
+      this.marketPricesConfig.marketPricesSize = event.sizes[0];
+      this.marketPricesConfig.chartsSize = event.sizes[1];
+    }
+
+    const persistUIState = this.cacheService.getConfigByKey(LayoutConfig.persistUIState);
+    if (!persistUIState || !JSON.parse(persistUIState.value)) {
+      return;
+    }
+
+    const config = this.cacheService.getConfigByKey(LayoutConfig.marketPricesConfigKey);
+    const payload = {
+      id: !config ? 0 : config.id,
+      project: LayoutConfig.projectName,
+      uom: 'JSON',
+      key: LayoutConfig.marketPricesConfigKey,
+      value: JSON.stringify(this.marketPricesConfig),
+      description: LayoutConfig.marketPricesConfigKey
+    };
+
+    if (!config) {
+      this.cacheService.addUserConfig(payload).subscribe(response => {
+        console.log('User Config Added');
+      });
+    } else {
+      this.cacheService.updateUserConfig(payload).subscribe(response => {
+        console.log('User Config Updated');
+      });
+    }
   }
 
   getData() {
@@ -123,7 +196,7 @@ export class MarketPricesComponent implements OnInit {
       columnDefs: this.getColDefs(),
       rowData: null,
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
-      getExternalFilterState : this.getExternalFilterState.bind(this),
+      getExternalFilterState: this.getExternalFilterState.bind(this),
       pinnedBottomRowData: null,
       setExternalFilter: this.isExternalFilterPassed.bind(this),
       onRowSelected: params => {},
@@ -304,29 +377,37 @@ export class MarketPricesComponent implements OnInit {
 
               this.securityApiService.getDataForSecurityModal(params.node.data.symbol).subscribe(
                 ([config, securityDetails]: [any, any]) => {
-
                   this.isLoading = false;
                   if (!config.isSuccessful) {
-                  this.toastrService.error('No security type found against the selected symbol!');
-                  return;
-                }
+                    this.toastrService.error('No security type found against the selected symbol!');
+                    return;
+                  }
                   if (securityDetails.payload.length === 0) {
-                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
-                    config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
-                } else {
-                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
-                    config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
-                }
-
+                    this.securityModal.openSecurityModalFromOutside(
+                      params.node.data.symbol,
+                      config.payload[0].SecurityType,
+                      config.payload[0].Fields,
+                      null,
+                      'extend'
+                    );
+                  } else {
+                    this.securityModal.openSecurityModalFromOutside(
+                      params.node.data.symbol,
+                      config.payload[0].SecurityType,
+                      config.payload[0].Fields,
+                      securityDetails.payload[0],
+                      'extend'
+                    );
+                  }
                 },
                 error => {
                   this.isLoading = false;
                 }
               );
-            },
+            }
           }
         ]
-      },
+      }
     ];
     return GetContextMenu(false, addDefaultItems, true, null, params);
   }
@@ -378,8 +459,8 @@ export class MarketPricesComponent implements OnInit {
     ];
   }
 
-  expandedClicked() {
-    this.isExpanded = !this.isExpanded;
+  onToggleChartsView() {
+    this.marketPricesConfig.chartsView = !this.marketPricesConfig.chartsView;
   }
 
   vChange($event) {}
@@ -441,7 +522,7 @@ export class MarketPricesComponent implements OnInit {
       referenceDate: toDate
     };
 
-    this.isExpanded = true;
+    this.marketPricesConfig.chartsView = true;
     this.disableCharts = false;
   }
 

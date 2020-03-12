@@ -281,10 +281,13 @@ namespace LP.Finance.Common.Models
                     else
                         row["local_value"] = 0;
                 }
-            } catch ( Exception ex )
+            } 
+            catch ( Exception ex )
             {
                 row["value"] = 0;
+                row["local_value"] = 0;
             }
+
             row["when"] = this.When;
             row["generated_by"] = this.GeneratedBy;
             row["fund"] = this.Fund;

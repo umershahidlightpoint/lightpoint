@@ -504,10 +504,10 @@ export class DividendsComponent implements OnInit, AfterViewInit {
     });
   }
 
-  getDividendDetails(id) {
+  getDividendDetails(id, executionDate) {
     this.dividendConfig.detailsView = true;
     this.dividendDetailsGrid.api.showLoadingOverlay();
-    this.corporateActionsApiService.getDividendDetails(id).subscribe(response => {
+    this.corporateActionsApiService.getDividendDetails(executionDate, id).subscribe(response => {
       if(response.statusCode === 200){
         let dividendDetail = response.payload;
         this.dividendDetailsGrid.api.sizeColumnsToFit();
@@ -539,6 +539,7 @@ export class DividendsComponent implements OnInit, AfterViewInit {
 
   rowSelected(row) {
      const { id } = row.data;
+     const { execution_date} = row.data;
     // let node;
     // this.dividendDetailsGrid.api.forEachLeafNode(rowNode => {
     //   if (rowNode.data.id === id) {
@@ -552,7 +553,7 @@ export class DividendsComponent implements OnInit, AfterViewInit {
     //   this.dividendConfig.detailsView = true;
     //   this.dividendDetailsGrid.api.ensureIndexVisible(node.rowIndex);
     // }
-    this.getDividendDetails(id);
+    this.getDividendDetails(id, execution_date);
   }
 
   /////////// External Filters Code //////////////

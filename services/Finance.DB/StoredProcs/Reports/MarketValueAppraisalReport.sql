@@ -25,13 +25,20 @@ select
     tl.business_date,
 	s.SecurityDesc,
 	mp.price as end_price,
+	mp.price * coalesce(fxrate.price,1) as end_price_reporting,
 	cts.SettleCurrency as local_currency,
-	'' as cost_local,
 	CONVERT(VARCHAR(50), CONCAT('@CASH', cts.SettleCurrency)) as cashSymbol,
 	coalesce(fxrate.price,1) as fx_rate_to_reporting_currency,
-	tl.unrealized as unrealized_pnl_local,
-	tl.unrealized as unrealized_pnl,
-	tl.quantity * mp.price as end_market_value_local
+	(coalesce(mp.price,0) - (c.cost_basis)) / coalesce(c.cost_basis,1) as price_percent_change,
+
+	c.cost_basis * tl.quantity as cost_local,
+	tl.quantity * mp.price as end_market_value_local,
+	tl.quantity * (mp.price - c.cost_basis) as unrealized_pnl_local,
+
+	c.cost_basis * tl.quantity * coalesce(fxrate.price,1) as cost_basis_reporting,
+	tl.quantity * mp.price * coalesce(fxrate.price,1) as end_market_value_reporting,
+	(tl.quantity * mp.price * coalesce(fxrate.price,1)) - (c.cost_basis * tl.quantity * coalesce(fxrate.price,1)) as unrealized_pnl_reporting
+
 from fnTaxLotReport(@date) tl
 inner join [SecurityMaster]..security s on tl.symbol = s.ezeticker
 inner join current_trade_state cts on cts.LPOrderId = tl.open_id
@@ -42,4 +49,5 @@ left join cost_basis c on c.symbol = tl.symbol and c.business_date = tl.business
 where 
     tl.side in ('BUY', 'SHORT') 
     and tl.status in ('open', 'partially closed')
+order by tl.Symbol
 RETURN 0

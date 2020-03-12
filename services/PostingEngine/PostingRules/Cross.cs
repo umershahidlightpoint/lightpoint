@@ -249,13 +249,13 @@ namespace PostingEngine.PostingRules
 
                         Fund = env.GetFund(element),
                         FxCurrency = element.TradeCurrency,
-                        Quantity = Convert.ToDouble(buy.Quantity),
-                        FxRate = buyFx.Rate,
+                        Quantity = Convert.ToDouble(sell.Quantity),
+                        FxRate = sellFx.Rate,
                         StartPrice = 0,
                         EndPrice = 0,
 
-                        Value = AccountCategory.SignedValue(accountBuy, accountSell, true, buy.Quantity * buyFx.Rate),
-                        CreditDebit = env.DebitOrCredit(accountBuy, buy.Quantity),
+                        Value = AccountCategory.SignedValue(accountSell, accountBuy, true, sell.Quantity * sellFx.Rate),
+                        CreditDebit = env.DebitOrCredit(accountSell, sell.Quantity),
                     };
 
                     symbol = $"@CASH{element.SettleCurrency}";
@@ -270,14 +270,14 @@ namespace PostingEngine.PostingRules
 
                         Fund = env.GetFund(element),
                         FxCurrency = element.SettleCurrency,
-                        Quantity = Convert.ToDouble(sell.Quantity),
+                        Quantity = Convert.ToDouble(buy.Quantity),
 
-                        FxRate = sellFx.Rate,
+                        FxRate = buyFx.Rate,
                         StartPrice = 0,
                         EndPrice = 0,
 
-                        Value = AccountCategory.SignedValue(accountBuy, accountSell, true, sell.Quantity * sellFx.Rate),
-                        CreditDebit = env.DebitOrCredit(accountSell, sell.Quantity),
+                        Value = AccountCategory.SignedValue(accountSell, accountBuy, true, buy.Quantity * buyFx.Rate),
+                        CreditDebit = env.DebitOrCredit(accountSell, buy.Quantity),
                     };
 
                     env.Journals.AddRange(new[] { credit, debit });

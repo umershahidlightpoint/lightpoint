@@ -1,8 +1,8 @@
 // tslint:disable: forin
 // tslint:disable: triple-equals
 import { Injectable } from '@angular/core';
-import { ColDef, ColGroupDef } from 'ag-grid-community';
 import { DecimalPipe } from '@angular/common';
+import { ColDef, ColGroupDef } from 'ag-grid-community';
 import { AgGridUtils } from './AgGridUtils';
 import { priceFormatter, moneyFormatter, PercentageFormatter } from 'src/shared/utils/Shared';
 

@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using LP.Finance.Common.Model;
 using System.Globalization;
 using System.Net.Mail;
+using System.Collections.Concurrent;
 
 namespace LP.Finance.Common
 {
@@ -556,7 +557,7 @@ namespace LP.Finance.Common
 
     public class SQLBulkHelper
     {
-        private static Dictionary<string, DataTable> cachedMetaData = new Dictionary<string, DataTable>();
+        private static ConcurrentDictionary<string, DataTable> cachedMetaData = new ConcurrentDictionary<string, DataTable>();
 
         public void Insert(string tablename, IDbModel[] models, SqlConnection connection, SqlTransaction transaction,
             bool fireTriggers = false, bool checkConstraints = false)
@@ -573,7 +574,7 @@ namespace LP.Finance.Common
             else
             {
                 table = models[0].MetaData(connection);
-                cachedMetaData.Add(tablename, table.Clone());
+                cachedMetaData.TryAdd(tablename, table.Clone());
             }
 
             foreach (var model in models)

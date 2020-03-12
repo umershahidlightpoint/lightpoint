@@ -474,6 +474,7 @@ export const CommonCols = (isJournalGrid, filters = null) => {
     {
       field: 'debit',
       aggFunc: 'sum',
+      enableValue: true,
       headerName: '$Debit',
       filter: isJournalGrid ? 'agNumberColumnFilter' : true,
       valueFormatter: moneyFormatter,
@@ -495,6 +496,7 @@ export const CommonCols = (isJournalGrid, filters = null) => {
     {
       field: 'credit',
       aggFunc: 'sum',
+      enableValue: true,
       headerName: '$Credit',
       valueFormatter: moneyFormatter,
       width: 100,
@@ -523,6 +525,7 @@ export const CommonCols = (isJournalGrid, filters = null) => {
     {
       field: 'balance',
       aggFunc: 'sum',
+      enableValue: true,
       headerName: '$Balance',
       valueFormatter: BracketFormatter,
       width: 100,
@@ -565,6 +568,7 @@ export const CommonCols = (isJournalGrid, filters = null) => {
     {
       field: 'local_debit',
       aggFunc: 'sum',
+      enableValue: true,
       headerName: 'Debit',
       filter: isJournalGrid ? 'agNumberColumnFilter' : true,
       valueFormatter: moneyFormatter,
@@ -586,6 +590,7 @@ export const CommonCols = (isJournalGrid, filters = null) => {
     {
       field: 'local_credit',
       aggFunc: 'sum',
+      enableValue: true,
       headerName: 'Credit',
       valueFormatter: moneyFormatter,
       width: 100,
@@ -614,6 +619,7 @@ export const CommonCols = (isJournalGrid, filters = null) => {
     {
       field: 'local_balance',
       aggFunc: 'sum',
+      enableValue: true,
       headerName: 'Balance',
       valueFormatter: BracketFormatter,
       width: 100,

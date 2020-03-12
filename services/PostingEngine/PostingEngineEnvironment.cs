@@ -108,8 +108,10 @@ namespace PostingEngine
                     transaction.Commit();
                 }
 
-            } catch (Exception ex )
+            } 
+            catch (Exception ex )
             {
+                Logger.Error(ex, ex.Message);
                 Logger.Error(ex, $"Unable to save journals {this.ValueDate.ToString("yyyy-MM-dd")}");
             }
             //Logger.Info($"Completed :: Commiting Journals to the database {journals.Count()}");

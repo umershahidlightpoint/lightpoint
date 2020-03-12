@@ -1,15 +1,15 @@
-<!-- Hide Grid Div -->
+<!-- Hide Grid -->
 <div *ngIf="hideGrid" [ngStyle]="containerDiv">
   <div class="d-flex align-items-center justify-content-center">
     <h1> Posting Engine is Running. Please Wait. </h1>
   </div>
 </div>
-<!-- Hide Grid Div Ends -->
+<!-- Hide Grid Ends -->
 
-<!-- Main Div Starts -->
+<!-- Main Container -->
 <div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
 
-  <!-- Tab View Tag Starts -->
+  <!-- Tab Set -->
   <tabset class="tab-color">
 
     <!-- Fund Theoretical Tab Starts -->
@@ -41,20 +41,22 @@
             <!-- Generate Rows Div Ends -->
 
             <!-- Action Buttons Div Starts -->
-            <div class="ml-auto mr-2">
+            <div class="ml-auto mr-3">
+
               <button class="btn btn-pa ml-2" type="button" [disabled]="disableCommit || commitLoader"
                 (click)="commitPerformanceData()">
                 Commit
                 <span *ngIf="commitLoader" class="spinner-border spinner-border-sm" role="status"
                   aria-hidden="true"></span>
               </button>
-              <ng-template #tooltipTemplate>{{actionFundTheoretical.chartsView ? 'Hide Graph' : 'View Graph'}}
-              </ng-template>
-              <button [disabled]="disableCharts"
-                (click)="actionFundTheoretical.chartsView = !actionFundTheoretical.chartsView" class="btn btn-pa ml-2"
-                [tooltip]="tooltipTemplate" placement="top">
-                <i class="fa fa-line-chart"></i>
+
+              <ng-template #tooltipTemplate>{{fundTheoreticalConfig.chartsView ? 'Expand' : 'Collapse'}}</ng-template>
+              <button class="btn btn-pa ml-2" [disabled]="disableCharts" [tooltip]="tooltipTemplate" placement="top"
+                (click)="onToggleChartsView()">
+                <i class="fa"
+                  [ngClass]="{'fa-arrow-right': fundTheoreticalConfig.chartsView, 'fa-arrow-left': !fundTheoreticalConfig.chartsView}"></i>
               </button>
+
             </div>
             <!-- Action Buttons Div Ends -->
 
@@ -72,12 +74,12 @@
 
             <!-- AS Split Main Container -->
             <as-split class="pl-15 pr-15" disabled="false" direction="horizontal"
-              [useTransition]="actionFundTheoretical.useTransition"
-              (dragEnd)="actionFundTheoretical.fundTheoreticalSize=$event.sizes[0]; actionFundTheoretical.chartsSize=$event.sizes[1];">
+              [useTransition]="fundTheoreticalConfig.useTransition" (dragEnd)="applyPageLayout($event)"
+              (transitionEnd)="applyPageLayout($event)">
 
               <!-- Fund Theoretical Split Area -->
-              <as-split-area [visible]="actionFundTheoretical.fundTheoreticalView"
-                [size]="actionFundTheoretical.fundTheoreticalSize" order="1">
+              <as-split-area [visible]="fundTheoreticalConfig.fundTheoreticalView"
+                [size]="fundTheoreticalConfig.fundTheoreticalSize" order="1">
 
                 <!-- Fund Theoretical Grid -->
                 <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="fundTheoreticalGrid">
@@ -87,10 +89,11 @@
               <!-- Fund Theoretical Split Area Ends -->
 
               <!-- Charts Split Area -->
-              <as-split-area [visible]="actionFundTheoretical.chartsView" [size]="actionFundTheoretical.chartsSize"
+              <as-split-area [visible]="fundTheoreticalConfig.chartsView" [size]="fundTheoreticalConfig.chartsSize"
                 order="2">
 
-                <app-calculation-graphs class="w-50 h-50" [chartObject]="graphObject" [mode]="'many'">
+                <app-calculation-graphs *ngIf="fundTheoreticalConfig.chartsView" class="w-50 h-50"
+                  [chartObject]="graphObject" [mode]="'many'">
                 </app-calculation-graphs>
 
               </as-split-area>
@@ -144,20 +147,21 @@
     </tab>
 
   </tabset>
-  <!-- Tab View Tag Ends -->
+  <!-- Tab Set Ends -->
 
 </div>
-<!-- Main Div Ends -->
+<!-- Main Container Ends -->
 
-<!-- Data Grid Modal Component Selector Starts -->
+<!-- Data Grid Modal -->
 <app-data-grid-modal #dataGridModal [gridTitle]="title">
 </app-data-grid-modal>
 
-<!-- Confirmation Modal Component -->
-<app-confirmation-modal #confirmationModal (confirmDeletion)="confirmReset()" [modalTitle]="'Reset Performance'"
-  [modalDescription]="'All your changes will be lost.\nAre you sure you want to reset performance?'">
+<!-- Confirmation Modal -->
+<app-confirmation-modal #confirmationModal [title]="'Reset Performance'"
+  [description]="'All your changes will be lost.\nAre you sure you want to reset performance?'"
+  (confirmed)="confirmReset()">
 </app-confirmation-modal>
 
-<!-- Date Picker Modal Component -->
+<!-- Date Picker Modal -->
 <app-date-picker-modal #datePickerModal (dateSelected)="addCustom($event)" [modalTitle]="'Select a Date'">
 </app-date-picker-modal>

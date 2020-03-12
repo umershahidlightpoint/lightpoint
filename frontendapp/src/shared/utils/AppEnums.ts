@@ -4,7 +4,10 @@ export enum LayoutConfig {
   costBasisConfigKey = 'Cost Basis',
   taxLotStatusHorizontalConfigKey = 'Tax Lot Status Horizontal',
   taxLotStatusVerticalConfigKey = 'Tax Lot Status Vertical',
+  fundTheoreticalConfigKey = 'Fund Theoretical',
   dailyPnLConfigKey = 'Daily PnL',
+  marketPricesConfigKey = 'Market Prices',
+  fxRatesConfigKey = 'FX Rates',
   dividendConfigKey = 'Dividend',
   stockSplitsConfigKey = 'Stock Splits'
 }

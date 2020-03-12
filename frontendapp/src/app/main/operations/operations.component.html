@@ -92,7 +92,7 @@
 
     </div>
     <!-- Confirmation Modal Selector -->
-    <app-confirmation-modal #confirmModal (confirmDeletion)="clearJournal()" [modalTitle]="'Clear Journal'">
+    <app-confirmation-modal #confirmModal [title]="'Clear Journal'" (confirmed)="clearJournal()">
     </app-confirmation-modal>
     <!-- Confirmation Modal Selector Ends -->
 

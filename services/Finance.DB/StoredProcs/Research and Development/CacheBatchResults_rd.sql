@@ -2,12 +2,12 @@
 exec [CacheBatchResults_rd] 100000
 */
 
-
 CREATE PROCEDURE [dbo].[CacheBatchResults_rd]
   @BatchSize int
 AS
 
 DECLARE @From INT
+DECLARE @rowCount INT
 DECLARE @To INT
 DECLARE @TotalCount INT
 DECLARE @TotalNumberOfRecords INT
@@ -76,7 +76,7 @@ RAISERROR (@message, 0, 1) WITH NOWAIT
 ALTER TABLE [dbo].[current_journal_full] ADD  DEFAULT ((1)) FOR [is_account_to]
 
 	RAISERROR ('Populating current_journal_full', 0, 1) WITH NOWAIT
-	WHILE @From < @TotalCount
+	WHILE @TotalProcessed < @TotalNumberOfRecords
 	
 		BEGIN
 			insert into current_journal_full
@@ -95,10 +95,13 @@ ALTER TABLE [dbo].[current_journal_full] ADD  DEFAULT ((1)) FOR [is_account_to]
 			left outer join current_trade_state t on t.LpOrderId = vw.source
 			where vw.id >= @From and vw.id < @To
 
-			SET @TotalProcessed = @TotalProcessed + @BatchSize
+			SET @rowCount = @@ROWCOUNT
+
+			SET @TotalProcessed = @TotalProcessed + @rowCount
+
 			SET @Percentage = (Convert(numeric(22,9), @TotalProcessed) / Convert(numeric(22,9), @TotalNumberOfRecords)) * 100
 
-			set @Message = '[' + Convert(varchar(100), @Step) + '] [' + Convert(varchar(100), ROUND(@Percentage, 2))+ '] inserting ranges: ' + Convert(varchar(100), @From) + ' to ' + Convert(varchar(100), @To)
+			set @Message = '[' + Convert(varchar(100), @Step) + '] [' + Convert(varchar(100), @rowCount) + '] [' + Convert(varchar(100), ROUND(@Percentage, 2))+ '] inserting ranges: ' + Convert(varchar(100), @From) + ' to ' + Convert(varchar(100), @To)
 
 			RAISERROR (@message, 0,1) with nowait
 			SET @From = @To

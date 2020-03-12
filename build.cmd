@@ -51,7 +51,9 @@ xcopy /q scripts /s distribution\APP\services
 
 REM Web UI
 cd ./frontendapp
-call npm install && call npm run lib:build && call npm run build && call npm run deploy
+rmdir /s /q node_modules\lp-toolkit
+rmdir /s /q node_modules\lp-toolkit
+call npm install && call npm run build && call npm run deploy
 
 cd ../node
 call npm install && call npm run deploy
