@@ -18,6 +18,7 @@
            ,[currency]
            ,[withholding_rate]
            ,[fx_rate]
-           ,[active_flag])
+           ,[active_flag]
+		   ,[maturity_date])
 		select * from inserted
 	END
