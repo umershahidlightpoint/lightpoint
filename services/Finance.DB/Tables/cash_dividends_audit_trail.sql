@@ -16,4 +16,5 @@
 	[withholding_rate] numeric(18,9) NOT NULL,
 	[fx_rate] numeric(22,9) NOT NULL, 
 	[active_flag] bit NOT NULL DEFAULT 1,
+	[maturity_date] datetime null
     CONSTRAINT [FK_cash_dividends_audit_trail_To_cash_dividends] FOREIGN KEY ([cash_dividend_id]) REFERENCES [cash_dividends]([id]))
