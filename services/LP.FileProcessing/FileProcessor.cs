@@ -187,127 +187,147 @@ namespace LP.FileProcessing
         private Tuple<List<dynamic>, List<Row>, bool> ExtractDelimited(string path, SilverFileFormat properties,
             char v = ',', bool firstLineHasHeadings = false)
         {
-            var recordDictionary = properties.record.Select((s, i) => new {s, i})
-                .ToDictionary(x => x.i, x => x.s);
-            var headerDictionary = properties.header.Select((s, i) => new {s, i})
-                .ToDictionary(x => x.i, x => x.s);
-            var trailerDictionary = properties.trailer.Select((s, i) => new {s, i})
-                .ToDictionary(x => x.i, x => x.s);
-
-            List<Row> failedFieldsList = new List<Row>();
-            bool successful = true;
-
-            //string test = "a|b||c|||d";
-            int index = 0;
-            var headerProperties = properties.header;
-            int recordOffset = headerProperties.FindIndex(x => x.Source == "RECORD_COUNT");
-            int? totalRecords = null;
-            string message = null;
-            List<dynamic> record = new List<dynamic>();
-            List<dynamic> trailer = new List<dynamic>();
-            List<dynamic> header = new List<dynamic>();
-            foreach (var line in System.IO.File.ReadLines(path))
+            try
             {
-                if (firstLineHasHeadings && index == 0)
-                {
-                    index++;
-                    continue;
-                }
+                var recordDictionary = properties.record.Select((s, i) => new { s, i })
+                    .ToDictionary(x => x.i, x => x.s);
+                var headerDictionary = properties.header.Select((s, i) => new { s, i })
+                    .ToDictionary(x => x.i, x => x.s);
+                var trailerDictionary = properties.trailer.Select((s, i) => new { s, i })
+                    .ToDictionary(x => x.i, x => x.s);
 
-                int dictionaryIndex = 0;
-                dynamic obj = new ExpandoObject();
-                List<IField> failedRecords = new List<IField>();
-                var delimited = line.Split(v);
-                bool isValid = true;
-                foreach (var item in delimited)
+                List<Row> failedFieldsList = new List<Row>();
+                bool successful = true;
+
+                //string test = "a|b||c|||d";
+                int index = 0;
+                var headerProperties = properties.header;
+                int recordOffset = headerProperties.FindIndex(x => x.Source == "RECORD_COUNT");
+                int? totalRecords = null;
+                string message = null;
+                List<dynamic> record = new List<dynamic>();
+                List<dynamic> trailer = new List<dynamic>();
+                List<dynamic> header = new List<dynamic>();
+                foreach (var line in System.IO.File.ReadLines(path))
                 {
-                    if (index == 0 && headerDictionary.Count > 0)
+                    if (firstLineHasHeadings && index == 0)
                     {
-                        if (dictionaryIndex == recordOffset)
+                        index++;
+                        continue;
+                    }
+
+                    int dictionaryIndex = 0;
+                    dynamic obj = new ExpandoObject();
+                    List<IField> failedRecords = new List<IField>();
+                    var delimited = line.Split(v);
+                    bool isValid = true;
+                    foreach (var item in delimited)
+                    {
+                        if (index == 0 && headerDictionary.Count > 0)
                         {
-                            totalRecords = Convert.ToInt32(item);
+                            if (dictionaryIndex == recordOffset)
+                            {
+                                totalRecords = Convert.ToInt32(item);
+                            }
+
+                            AddProperty(obj, headerDictionary[dictionaryIndex].Destination, item);
+                        }
+                        else if (totalRecords.HasValue && index == totalRecords - 1)
+                        {
+                            AddProperty(obj, trailerDictionary[dictionaryIndex].Destination, item);
+                        }
+                        else
+                        {
+                            if (String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Type))
+                            {
+                                isValid = false;
+                                message = "Type not specified in meta data definition";
+                            }
+                            else if (!string.IsNullOrEmpty(recordDictionary[dictionaryIndex].Required) && recordDictionary[dictionaryIndex].Required.Equals("true") && string.IsNullOrEmpty(item))
+                            {
+                                isValid = false;
+                                message = "This is a required field";
+                            }
+                            else if (!String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Function) &&
+                                     !String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Format))
+                            {
+                                Type thisType = this.GetType();
+                                MethodInfo theMethod = thisType.GetMethod(recordDictionary[dictionaryIndex].Function);
+                                object[] parametersArray =
+                                {
+                                    item, recordDictionary[dictionaryIndex].Format, recordDictionary[dictionaryIndex].Type
+                                };
+                                var val = (Tuple<object, bool, string>)theMethod.Invoke(this, parametersArray);
+                                isValid = val.Item2;
+                                message = val.Item3;
+                            }
+                            else if (!String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Function))
+                            {
+                                Type thisType = this.GetType();
+                                MethodInfo theMethod = thisType.GetMethod(recordDictionary[dictionaryIndex].Function);
+                                object[] parametersArray =
+                                {
+                                    item
+                                };
+                                var val = (Tuple<object, bool, string>)theMethod.Invoke(this, parametersArray);
+                                isValid = val.Item2;
+                                message = val.Item3;
+                            }
+
+
+                            AddProperty(obj, recordDictionary[dictionaryIndex].Destination, item);
                         }
 
-                        AddProperty(obj, headerDictionary[dictionaryIndex].Destination, item);
+                        if (!isValid)
+                        {
+                            successful = false;
+                            isValid = true;
+                            Field failedField = new Field()
+                            {
+                                Name = recordDictionary[dictionaryIndex].Destination,
+                                Message = message,
+                                Value = item,
+                                MetaData = recordDictionary[dictionaryIndex]
+                            };
+                            failedRecords.Add(failedField);
+                        }
+
+                        dictionaryIndex++;
+                    }
+
+                    if (index == 0 && headerDictionary.Count > 0)
+                    {
+                        header.Add(obj);
                     }
                     else if (totalRecords.HasValue && index == totalRecords - 1)
                     {
-                        AddProperty(obj, trailerDictionary[dictionaryIndex].Destination, item);
+                        trailer.Add(obj);
                     }
                     else
                     {
-                        if (String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Type))
-                        {
-                            isValid = false;
-                            message = "Type not specified in meta data definition";
-                        }
-                        else if (!String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Function) &&
-                                 !String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Format))
-                        {
-                            Type thisType = this.GetType();
-                            MethodInfo theMethod = thisType.GetMethod(recordDictionary[dictionaryIndex].Function);
-                            object[] parametersArray =
-                            {
-                                item, recordDictionary[dictionaryIndex].Format, recordDictionary[dictionaryIndex].Type
-                            };
-                            var val = (Tuple<object, bool, string>) theMethod.Invoke(this, parametersArray);
-                            isValid = val.Item2;
-                            message = val.Item3;
-                        }
-                        else if (!string.IsNullOrEmpty(recordDictionary[dictionaryIndex].Required) && recordDictionary[dictionaryIndex].Required.Equals("true") && string.IsNullOrEmpty(item))
-                        {
-                            isValid = false;
-                            message = "This is a required field";
-                        }
-
-                        AddProperty(obj, recordDictionary[dictionaryIndex].Destination, item);
+                        record.Add(obj);
                     }
 
-                    if (!isValid)
+                    if (failedRecords.Count > 0)
                     {
-                        successful = false;
-                        isValid = true;
-                        Field failedField = new Field()
+                        Row failedRow = new Row()
                         {
-                            Name = recordDictionary[dictionaryIndex].Destination,
-                            Message = message,
-                            Value = item,
-                            MetaData = recordDictionary[dictionaryIndex]
+                            Fields = failedRecords,
+                            RowNumber = index
                         };
-                        failedRecords.Add(failedField);
+
+                        failedFieldsList.Add(failedRow);
                     }
 
-                    dictionaryIndex++;
+                    index++;
                 }
 
-                if (index == 0 && headerDictionary.Count > 0)
-                {
-                    header.Add(obj);
-                }
-                else if (totalRecords.HasValue && index == totalRecords - 1)
-                {
-                    trailer.Add(obj);
-                }
-                else
-                {
-                    record.Add(obj);
-                }
-
-                if (failedRecords.Count > 0)
-                {
-                    Row failedRow = new Row()
-                    {
-                        Fields = failedRecords,
-                        RowNumber = index
-                    };
-
-                    failedFieldsList.Add(failedRow);
-                }
-
-                index++;
+                return new Tuple<List<dynamic>, List<Row>, bool>(record, failedFieldsList, successful);
             }
-
-            return new Tuple<List<dynamic>, List<Row>, bool>(record, failedFieldsList, successful);
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public void WriteDelimited(IEnumerable<dynamic> items, IEnumerable<dynamic> header,
@@ -452,12 +472,61 @@ namespace LP.FileProcessing
             return new Tuple<object, bool, string>(value, valid, exception);
         }
 
-        public void IsValidCurrency()
+        public Tuple<object, bool, string> IsValidSymbol(object value)
+        {
+            var symbolMap = AppStartCache.GetCachedData("symbol");
+            var exception = "";
+            var valid = true;
+            var symbol = (string)value;
+            if (symbolMap.Item1)
+            {
+                var currency = (Dictionary<string, int>)symbolMap.Item2;
+                if (currency.ContainsKey(symbol))
+                {
+                    valid = true;
+                    return new Tuple<object, bool, string>(value, valid, exception);
+                }
+                else
+                {
+                    valid = false;
+                    exception = "Invalid symbol";
+                    return new Tuple<object, bool, string>(value, valid, exception);
+                }
+            }
+            else
+            {
+                valid = false;
+                exception = "Data not found to validate symbol";
+                return new Tuple<object, bool, string>(value, valid, exception);
+            }
+        }
+
+        public Tuple<object, bool, string> IsValidCurrency(object value)
         {
             var currencyMap = AppStartCache.GetCachedData("currency");
+            var exception = "";
+            var valid = true;
+            var symbol = (string)value;
             if (currencyMap.Item1)
             {
                 var currency = (Dictionary<string, string>)currencyMap.Item2;
+                if (currency.ContainsKey(symbol))
+                {
+                    valid = true;
+                    return new Tuple<object, bool, string>(value, valid, exception);
+                }
+                else
+                {
+                    valid = false;
+                    exception = "Invalid currency";
+                    return new Tuple<object, bool, string>(value, valid, exception);
+                }
+            }
+            else
+            {
+                valid = false;
+                exception = "Data not found to validate currency";
+                return new Tuple<object, bool, string>(value, valid, exception);
             }
         }
 
