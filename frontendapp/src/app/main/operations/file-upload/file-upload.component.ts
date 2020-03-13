@@ -327,9 +327,9 @@ export class FileUploadComponent implements OnInit {
           this.displayGrid = false;
 
           this.disableCommit = !response.payload.EnableCommit;
-          this.previewData = response.payload;
+          this.previewData = response.payload.Data;
           this.previewGrid.api.setColumnDefs(this.getColDefs('Trades'));
-          this.previewGrid.api.setRowData(response.payload);
+          this.previewGrid.api.setRowData(this.previewData);
 
           this.toastrService.success('Trades uploaded successfully!');
         } else {
