@@ -344,7 +344,7 @@ export class FileUploadComponent implements OnInit {
 
           this.toastrService.success('Trades uploaded successfully!');
         } else {
-          this.toastrService.error('Something went wrong! Try Again.');
+          this.toastrService.error(response.ExceptionMessage);
         }
       },
       error => {
