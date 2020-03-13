@@ -117,13 +117,22 @@ export class FileUploadComponent implements OnInit {
       onFirstDataRendered: params => {
         GridUtils.autoSizeAllColumns(params);
       },
-      onRowClicked: params => {
+      onCellClicked: params => {
+        const exception = JSON.parse(params.data.UploadException);
         if (params.data.UploadException) {
-          this.exceptionContent = JSON.parse(params.data.UploadException);
+          this.exceptionContent =
+            exception.Fields.find(element => element.Name === params.colDef.headerName) || {};
         } else {
           this.exceptionContent = {};
         }
       },
+      // onRowClicked: params => {
+      //   if (params.data.UploadException) {
+      //     this.exceptionContent = JSON.parse(params.data.UploadException);
+      //   } else {
+      //     this.exceptionContent = {};
+      //   }
+      // },
       // getRowStyle: params => {
       //   if (params.data.IsUploadInValid) {
       //     return LegendColors.nonZeroStyle;
@@ -162,6 +171,8 @@ export class FileUploadComponent implements OnInit {
   }
 
   onUploadFile() {
+    this.exceptionContent = '';
+
     if (this.fileType === 'Monthly Performance') {
       this.uploadLoader = true;
       this.fundTheoreticalApiService.getMonthlyPerformanceStatus().subscribe(

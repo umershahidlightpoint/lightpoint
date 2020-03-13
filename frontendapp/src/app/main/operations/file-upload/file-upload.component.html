@@ -78,7 +78,7 @@
     <as-split class="pl-15 pr-15" disabled="false" direction="horizontal" [useTransition]="true">
 
       <!-- Review Grid Split Area -->
-      <as-split-area [visible]="true" [size]="60" order="1">
+      <as-split-area [visible]="true" [size]="70" order="1">
 
         <!-- Review Grid -->
         <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="previewGrid">
@@ -89,9 +89,14 @@
       <!-- Review Grid Split Area Ends -->
 
       <!-- Content Viewer Split Area -->
-      <as-split-area [visible]="true" [size]="40" order="2">
+      <as-split-area [visible]="true" [size]="30" order="2">
 
-        <lp-content-viewer class="h-100" [content]="exceptionContent" contentType="json"></lp-content-viewer>
+        <div *ngIf="!exceptionContent" class="w-100 h-100 d-flex justify-content-center align-items-center">
+          <p class="text-center h4 font-weight-light">Please click on a cell to view exception details</p>
+        </div>
+
+        <lp-content-viewer *ngIf="exceptionContent" class="h-100" [content]="exceptionContent" contentType="json">
+        </lp-content-viewer>
 
       </as-split-area>
       <!-- Content Viewer Split Area Ends -->
