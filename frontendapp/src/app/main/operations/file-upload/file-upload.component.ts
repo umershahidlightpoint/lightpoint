@@ -377,10 +377,6 @@ export class FileUploadComponent implements OnInit {
           headerName: 'TransactionType'
         },
         {
-          field: 'ParentSymbol',
-          headerName: 'ParentSymbol'
-        },
-        {
           field: 'Status',
           headerName: 'Status'
         },
@@ -425,24 +421,13 @@ export class FileUploadComponent implements OnInit {
           headerName: 'LPOrderId'
         },
         {
-          field: 'AccrualId',
-          headerName: 'AccrualId'
-        },
-        {
           field: 'TradeId',
           headerName: 'TradeId'
         },
         {
           field: 'SecurityId',
-          headerName: 'SecurityId'
-        },
-        {
-          field: 'ParentOrderId',
-          headerName: 'ParentOrderId'
-        },
-        {
-          field: 'UpdatedOn',
-          headerName: 'UpdatedOn'
+          headerName: 'SecurityId',
+          hide: true
         },
         {
           field: 'Reason',

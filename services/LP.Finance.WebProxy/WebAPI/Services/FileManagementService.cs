@@ -401,30 +401,30 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var path = uploadedResult.Item2;
                 var filename = uploadedResult.Item3;
 
-                var symbolCache = AppStartCache.GetCachedData("symbol");
-                var currencyCache = AppStartCache.GetCachedData("currency");
-                Dictionary<string, int> symbols;
-                Dictionary<string, string> currency;
+                //var symbolCache = AppStartCache.GetCachedData("symbol");
+                //var currencyCache = AppStartCache.GetCachedData("currency");
+                //Dictionary<string, int> symbols;
+                //Dictionary<string, string> currency;
 
-                if (symbolCache.Item1)
-                {
-                    symbols = (Dictionary<string, int>)symbolCache.Item2;
-                }
-                else
-                {
-                    symbols = GetSymbols();
-                    AppStartCache.CacheData("symbol", symbols);
-                }
+                //if (symbolCache.Item1)
+                //{
+                //    symbols = (Dictionary<string, int>)symbolCache.Item2;
+                //}
+                //else
+                //{
+                //    symbols = GetSymbols();
+                //    AppStartCache.CacheData("symbol", symbols);
+                //}
 
-                if (currencyCache.Item1)
-                {
-                    currency = (Dictionary<string, string>)currencyCache.Item2;
-                }
-                else
-                {
-                    currency = GetCurrencies();
-                    AppStartCache.CacheData("currency", currency);
-                }
+                //if (currencyCache.Item1)
+                //{
+                //    currency = (Dictionary<string, string>)currencyCache.Item2;
+                //}
+                //else
+                //{
+                //    currency = GetCurrencies();
+                //    AppStartCache.CacheData("currency", currency);
+                //}
 
                
 

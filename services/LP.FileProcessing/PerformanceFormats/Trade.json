@@ -232,15 +232,6 @@
       "rule": ""
     },
     {
-      "source": "ParentSymbol",
-      "destination": "ParentSymbol",
-      "function": null,
-      "format": "",
-      "type": "char",
-      "offset": 25,
-      "rule": ""
-    },
-    {
       "source": "Status",
       "destination": "Status",
       "function": null,
@@ -340,48 +331,12 @@
       "rule": ""
     },
     {
-      "source": "AccrualId",
-      "destination": "AccrualId",
-      "function": null,
-      "format": "",
-      "type": "char",
-      "offset": 37,
-      "rule": ""
-    },
-    {
       "source": "TradeId",
       "destination": "TradeId",
       "function": null,
       "format": "",
       "type": "decimal",
-      "offset": 38,
-      "rule": ""
-    },
-    {
-      "source": "SecurityId",
-      "destination": "SecurityId",
-      "function": null,
-      "format": "",
-      "type": "decimal",
-      "offset": 39,
-      "rule": ""
-    },
-    {
-      "source": "ParentOrderId",
-      "destination": "ParentOrderId",
-      "function": null,
-      "format": "",
-      "type": "decimal",
-      "offset": 40,
-      "rule": ""
-    },
-    {
-      "source": "UpdatedOn",
-      "destination": "UpdatedOn",
-      "function": null,
-      "format": "",
-      "type": "datetime",
-      "offset": 41,
+      "offset": 37,
       "rule": ""
     },
     {
@@ -391,7 +346,7 @@
       "required": "true",
       "format": "",
       "type": "char",
-      "offset": 42,
+      "offset": 38,
       "rule": ""
     }
   ]
