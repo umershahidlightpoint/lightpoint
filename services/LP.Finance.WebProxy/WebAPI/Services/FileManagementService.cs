@@ -401,32 +401,32 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var path = uploadedResult.Item2;
                 var filename = uploadedResult.Item3;
 
-                //var symbolCache = AppStartCache.GetCachedData("symbol");
-                //var currencyCache = AppStartCache.GetCachedData("currency");
-                //Dictionary<string, int> symbols;
-                //Dictionary<string, string> currency;
+                var symbolCache = AppStartCache.GetCachedData("symbol");
+                var currencyCache = AppStartCache.GetCachedData("currency");
+                Dictionary<string, int> symbols;
+                Dictionary<string, string> currency;
 
-                //if (symbolCache.Item1)
-                //{
-                //    symbols = (Dictionary<string, int>)symbolCache.Item2;
-                //}
-                //else
-                //{
-                //    symbols = GetSymbols();
-                //    AppStartCache.CacheData("symbol", symbols);
-                //}
+                if (symbolCache.Item1)
+                {
+                    symbols = (Dictionary<string, int>)symbolCache.Item2;
+                }
+                else
+                {
+                    symbols = GetSymbols();
+                    AppStartCache.CacheData("symbol", symbols);
+                }
 
-                //if (currencyCache.Item1)
-                //{
-                //    currency = (Dictionary<string, string>)currencyCache.Item2;
-                //}
-                //else
-                //{
-                //    currency = GetCurrencies();
-                //    AppStartCache.CacheData("currency", currency);
-                //}
+                if (currencyCache.Item1)
+                {
+                    currency = (Dictionary<string, string>)currencyCache.Item2;
+                }
+                else
+                {
+                    currency = GetCurrencies();
+                    AppStartCache.CacheData("currency", currency);
+                }
 
-               
+
 
                 var recordBody = _fileProcessor.ImportFile(path, "Trade", "PerformanceFormats", ',', true);
 
@@ -444,12 +444,18 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var failedRecords = new Dictionary<object, Row>();
                 var key = 0;
+                var enableCommit = true;
                 foreach (var item in recordBody.Item2)
                 {
                     failedRecords.Add(key++, item);
                     var tradeElement = trades.ElementAt(item.RowNumber - 1);
                     tradeElement.IsUploadInValid = true;
                     tradeElement.UploadException = JsonConvert.SerializeObject(item);
+                }
+
+                if(failedRecords.Count > 0)
+                {
+                    enableCommit = false;
                 }
 
                 var failedTradeList =
@@ -464,7 +470,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 };
 
                 _fileManager.InsertActivityAndPositionFiles(fileList);
-                return Utils.Wrap(true, trades, HttpStatusCode.OK);
+                var data = new
+                {
+                    EnableCommit = enableCommit,
+                    Data = trades
+                };
+                return Utils.Wrap(true, data, HttpStatusCode.OK);
 
                 //bool insertinto = InsertData(trades.ToArray(), "current_trade_state");
                 //if (insertinto)
@@ -484,7 +495,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public Dictionary<string, int> GetSymbols()
         {
-            var query = $@"select securityid as SecurityId, securitycode as SecurityCode from [SecurityMaster]..security";
+            var query = $@"select s.SecurityCode, s.SecurityId from ( select securitycode, securityid, 
+                            ROW_NUMBER() OVER (PARTITION BY securitycode ORDER BY securityid) 
+                            row_num from [SecurityMaster]..security ) s where s.row_num = 1";
+
             var dataTable = new SqlHelper(connectionString).GetDataTable(query, CommandType.Text);
             var jsonResult = JsonConvert.SerializeObject(dataTable);
             var symbols = JsonConvert.DeserializeObject<List<SymbolDto>>(jsonResult);
