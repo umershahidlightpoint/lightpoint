@@ -313,7 +313,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
       },
       getRowStyle: params => {
         let style = {};
-        if (params.data.exclude === 'Y') {
+        if (!params.node.group && params.data.exclude === 'Y') {
           style = LegendColors.nonZeroStyle;
         }
         return style;
