@@ -73,8 +73,8 @@
 
 </div>
 
-<!-- Main Split Row Starts -->
-<div [hidden]="isLoading" class="row h-100" style="margin-top: 20px;">
+  <!-- Main Split Row Starts -->
+<div [hidden]="isLoading" class="row h-100" style="margin-top: 20px; margin-left: 0 !important;">
 
   <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions" (rowSelected)="onRowSelected($event)"
     [rowData]="rowData">

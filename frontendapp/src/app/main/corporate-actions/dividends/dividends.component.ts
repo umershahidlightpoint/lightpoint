@@ -220,6 +220,14 @@ export class DividendsComponent implements OnInit, AfterViewInit {
           valueFormatter: dateFormatter
         },
         {
+          field: 'maturity_date',
+          headerName: 'Maturity Date',
+          width: 100,
+          filter: true,
+          sortable: true,
+          valueFormatter: dateFormatter
+        },
+        {
           field: 'rate',
           headerName: 'Rate',
           width: 100,
@@ -893,9 +901,12 @@ function currencyFormatter(params) {
 }
 
 function dateFormatter(params) {
-  if (params.value === undefined) {
+  if (params.value === undefined || params.value === '' || params.value === null || !isNaN(params.value)) {
     return;
   }
+  if (isNaN(params.value)) {
+    return;
+   }
   return DateFormatter(params.value);
 }
 
