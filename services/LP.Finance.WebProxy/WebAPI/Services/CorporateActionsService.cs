@@ -62,6 +62,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("executionDate", obj.ExecutionDate),
                     new SqlParameter("recordDate", obj.RecordDate),
                     new SqlParameter("payDate", obj.PayDate),
+                    new SqlParameter("maturityDate", obj.MaturityDate.HasValue ? (object)obj.MaturityDate : DBNull.Value),
                     new SqlParameter("rate", obj.Rate),
                     new SqlParameter("currency", obj.Currency),
                     new SqlParameter("withholdingRate", obj.WithholdingRate),
@@ -76,6 +77,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                            ,[execution_date]
                            ,[record_date]
                            ,[pay_date]
+                           ,[maturity_date]
                            ,[rate]
                            ,[currency]
                            ,[withholding_rate]
@@ -88,6 +90,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                            ,@executionDate
                            ,@recordDate
                            ,@payDate
+                           ,@maturityDate
                            ,@rate
                            ,@currency
                            ,@withholdingRate
@@ -163,6 +166,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("noticeDate", obj.NoticeDate),
                     new SqlParameter("executionDate", obj.ExecutionDate),
                     new SqlParameter("recordDate", obj.RecordDate),
+                    new SqlParameter("maturityDate", obj.MaturityDate.HasValue ? (object)obj.MaturityDate : DBNull.Value),
                     new SqlParameter("payDate", obj.PayDate),
                     new SqlParameter("rate", obj.Rate),
                     new SqlParameter("currency", obj.Currency),
@@ -178,6 +182,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                               ,[execution_date] = @executionDate
                               ,[record_date] = @recordDate
                               ,[pay_date] = @payDate
+                              ,[maturity_date] = @maturityDate
                               ,[rate] = @rate
                               ,[currency] = @currency
                               ,[withholding_rate] = @withholdingRate

@@ -1,5 +1,8 @@
 ﻿using LP.Finance.Common.Dtos;
+using LP.Finance.Common.Model;
 using LP.Finance.WebProxy.WebAPI.Services;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace LP.Finance.WebProxy.WebAPI
@@ -67,6 +70,18 @@ namespace LP.Finance.WebProxy.WebAPI
         public object FileException()
         {
             return controller.GetInvalidExportRecords();
+        }
+
+        [HttpPost, Route("uploadTrade")]
+        public async Task<object> Upload()
+        {
+            return await controller.UploadTrade(Request);
+        }
+
+        [HttpPost, Route("commitTrade")]
+        public object CommitTrade(List<Trade> trades)
+        {
+            return controller.CommitTrade(trades);
         }
     }
 }

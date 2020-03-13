@@ -17,16 +17,22 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Amazon.S3;
 using LP.Finance.Common.FileMetaData;
+using LP.Finance.Common.IO;
+using System.Net;
+using LP.Finance.Common.Cache;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
     public class FileManagementService : IFileManagementService
     {
         private static readonly string
-            connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+            connectionString = "Persist Security Info=True;" + ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
         private static readonly string tradesURL = "http://localhost:9091/api/trade/data?period=";
         private static readonly string positionsURL = "http://localhost:9091/api/positions?period=2019-09-24";
+
+        public SqlHelper SqlHelper = new SqlHelper(connectionString);
+        private readonly FileProcessor _fileProcessor = new FileProcessor();
 
         public object GetFiles(string name)
         {
@@ -381,6 +387,220 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             //var jsonResult = JsonConvert.SerializeObject(dataTable);
             //dynamic json = JsonConvert.DeserializeObject(jsonResult);
             return Utils.Wrap(true, groupedExceptions);
+        }
+
+        public async Task<object> UploadTrade(HttpRequestMessage requestMessage)
+        {
+            try
+            {
+                FileManager _fileManager = new FileManager(connectionString);
+                var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "Trades");
+                if (!uploadedResult.Item1)
+                    return Utils.Wrap(false);
+
+                var path = uploadedResult.Item2;
+                var filename = uploadedResult.Item3;
+
+                var symbolCache = AppStartCache.GetCachedData("symbol");
+                var currencyCache = AppStartCache.GetCachedData("currency");
+                Dictionary<string, int> symbols;
+                Dictionary<string, string> currency;
+
+                if (symbolCache.Item1)
+                {
+                    symbols = (Dictionary<string, int>)symbolCache.Item2;
+                }
+                else
+                {
+                    symbols = GetSymbols();
+                    AppStartCache.CacheData("symbol", symbols);
+                }
+
+                if (currencyCache.Item1)
+                {
+                    currency = (Dictionary<string, string>)currencyCache.Item2;
+                }
+                else
+                {
+                    currency = GetCurrencies();
+                    AppStartCache.CacheData("currency", currency);
+                }
+
+
+
+                var recordBody = _fileProcessor.ImportFile(path, "Trade", "PerformanceFormats", ',', true);
+
+                var records = JsonConvert.SerializeObject(recordBody.Item1);
+                var trades = JsonConvert.DeserializeObject<List<Trade>>(records);
+
+                foreach (var i in trades)
+                {
+                    var guid = Guid.NewGuid().ToString().ToLower();
+                    i.TradeId = guid;
+                    i.LPOrderId = guid;
+                    i.ParentOrderId = guid;
+                    i.TradeType = "manual";
+
+                    if (symbols.ContainsKey(i.SecurityCode))
+                    {
+                        i.SecurityId = symbols[i.SecurityCode];
+                    }
+                }
+
+                var failedRecords = new Dictionary<object, Row>();
+                var key = 0;
+                var enableCommit = true;
+                foreach (var item in recordBody.Item2)
+                {
+                    failedRecords.Add(key++, item);
+                    var tradeElement = trades.ElementAt(item.RowNumber - 1);
+                    tradeElement.IsUploadInValid = true;
+                    tradeElement.UploadException = JsonConvert.SerializeObject(item);
+                }
+
+                if(failedRecords.Count > 0)
+                {
+                    enableCommit = false;
+                }
+
+                var failedTradeList =
+                    _fileManager.MapFailedRecords(failedRecords, DateTime.Now, uploadedResult.Item3);
+
+                List<FileInputDto> fileList = new List<FileInputDto>
+                {
+                    new FileInputDto(path, filename, trades.Count, "Trade",
+                        "Upload",
+                        failedTradeList,
+                        DateTime.Now)
+                };
+
+                _fileManager.InsertActivityAndPositionFiles(fileList);
+                var data = new
+                {
+                    EnableCommit = enableCommit,
+                    Data = trades
+                };
+                return Utils.Wrap(true, data, HttpStatusCode.OK);
+
+                //bool insertinto = InsertData(trades.ToArray(), "current_trade_state");
+                //if (insertinto)
+                //{
+                //    return Utils.Wrap(true, trades, HttpStatusCode.OK);
+                //}
+                //else
+                //{
+                //    return Utils.Wrap(false);
+                //}
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public Dictionary<string, int> GetSymbols()
+        {
+            var query = $@"select s.SecurityCode, s.SecurityId from ( select securitycode, securityid, 
+                            ROW_NUMBER() OVER (PARTITION BY securitycode ORDER BY securityid) 
+                            row_num from [SecurityMaster]..security ) s where s.row_num = 1";
+
+            var dataTable = new SqlHelper(connectionString).GetDataTable(query, CommandType.Text);
+            var jsonResult = JsonConvert.SerializeObject(dataTable);
+            var symbols = JsonConvert.DeserializeObject<List<SymbolDto>>(jsonResult);
+            var symbolDict = symbols.ToDictionary(x => x.SecurityCode, x => x.SecurityId);
+            return symbolDict;
+        }
+
+        public Dictionary<string, string> GetCurrencies()
+        {
+            var query = $@"select currencycode as CurrencyCode from [SecurityMaster]..currency";
+            var dataTable = new SqlHelper(connectionString).GetDataTable(query, CommandType.Text);
+            var jsonResult = JsonConvert.SerializeObject(dataTable);
+            var currency = JsonConvert.DeserializeObject<List<CurrencyDto>>(jsonResult);
+            var currencyDict = currency.ToDictionary(x => x.CurrencyCode, x => x.CurrencyCode);
+            return currencyDict;
+        }
+
+        private bool InsertData(IDbModel[] obj, string table)
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+            try
+            {
+                sqlHelper.VerifyConnection();
+                sqlHelper.SqlBeginTransaction();
+
+                new SQLBulkHelper().Insert(table, obj, sqlHelper.GetConnection(),
+                    sqlHelper.GetTransaction(), true);
+
+                sqlHelper.SqlCommitTransaction();
+                sqlHelper.CloseConnection();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                sqlHelper.SqlRollbackTransaction();
+                sqlHelper.CloseConnection();
+                return false;
+            }
+        }
+
+        private bool InsertData(Dictionary<string, IDbModel[]> bulkContainer)
+        {
+            SqlHelper sqlHelper = new SqlHelper(connectionString);
+            try
+            {
+                sqlHelper.VerifyConnection();
+                sqlHelper.SqlBeginTransaction();
+
+                foreach (var item in bulkContainer)
+                {
+                    new SQLBulkHelper().Insert(item.Key, item.Value, sqlHelper.GetConnection(),
+                        sqlHelper.GetTransaction(), true);
+                }
+
+                sqlHelper.SqlCommitTransaction();
+                sqlHelper.CloseConnection();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                sqlHelper.SqlRollbackTransaction();
+                sqlHelper.CloseConnection();
+                return false;
+            }
+        }
+
+        public object CommitTrade(List<Trade> trades)
+        {
+            try
+            {
+                var tradeReason = trades.Select(x => new TradeReason
+                {
+                    CreatedBy = "user",
+                    CreatedDate = DateTime.Now,
+                    LPOrderId = x.LPOrderId,
+                    Reason = x.Reason
+                }).ToList();
+
+                var bulkContainer = new Dictionary<string, IDbModel[]>();
+                bulkContainer.Add("current_trade_state", trades.ToArray());
+                bulkContainer.Add("trade_reason", tradeReason.ToArray());
+
+                var insertSuccessful = InsertData(bulkContainer);
+                if (insertSuccessful)
+                {
+                    return Utils.Wrap(true, null, HttpStatusCode.OK);
+                }
+                else
+                {
+                    return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
         }
     }
 }

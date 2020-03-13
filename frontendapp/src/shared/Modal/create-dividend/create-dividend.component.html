@@ -231,6 +231,28 @@
             </div>
             <!-- PayDate Div End -->
         </div>
+                <!-- MaturityDate Div Starts -->
+                <div class="form-group">
+                    <div class="row m-0">
+                        <div class="col-sm-3">
+                        <label> Maturity Date </label>
+                        </div>
+                        <div class="col-sm-9">
+                        <input ngxDaterangepickerMd
+                            formControlName="maturityDate"
+                            class="form-control bc-white"
+                            type="text"
+                            placeholder="Select maturity date"
+                            name="maturityDate"
+                            [singleDatePicker]="true"
+                            [autoApply]="true"
+                            autocomplete="off"
+                            readonly
+                        />
+                        </div>
+                    </div>
+                    <!-- Maturity Div End -->
+                </div>
 
         </fieldset>
 

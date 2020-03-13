@@ -67,12 +67,14 @@
     <Compile Include="Dtos\OpenTaxLot.cs" />
     <Compile Include="Dtos\ProspectiveTradeDto.cs" />
     <Compile Include="Dtos\SecurityDetailsInputDto.cs" />
+    <Compile Include="Dtos\CurrencyDto.cs" />
     <Compile Include="Dtos\SecurityTypeFormConfig.cs" />
     <Compile Include="Dtos\SecurityTypeFormFieldNames.cs" />
     <Compile Include="Dtos\SettingInputDto.cs" />
     <Compile Include="Dtos\SettingInputPatchDto.cs" />
     <Compile Include="Dtos\SettingTagInputDto.cs" />
     <Compile Include="Dtos\StockSplitInputDto.cs" />
+    <Compile Include="Dtos\SymbolDto.cs" />
     <Compile Include="Dtos\TaxLotReversalDto.cs" />
     <Compile Include="Dtos\TaxRateOutputDto.cs" />
     <Compile Include="Dtos\TaxRateInputDto.cs" />
@@ -142,6 +144,8 @@
     <Compile Include="Model\TaxLot.cs" />
     <Compile Include="Model\TaxLotStatus.cs" />
     <Compile Include="Model\TaxRate.cs" />
+    <Compile Include="Model\Trade.cs" />
+    <Compile Include="Model\TradeReason.cs" />
     <Compile Include="Model\ValueCols.cs" />
     <Compile Include="Model\Wrap.cs" />
     <Compile Include="Model\PayLoad.cs" />

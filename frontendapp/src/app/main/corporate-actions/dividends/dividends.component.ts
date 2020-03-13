@@ -840,6 +840,13 @@ export class DividendsComponent implements OnInit, AfterViewInit {
         sortable: true
       },
       {
+        field: 'maturity_date',
+        headerName: 'Maturity Date',
+        width: 100,
+        filter: true,
+        sortable: true
+      },
+      {
         field: 'rate',
         headerName: 'Rate',
         width: 100,
