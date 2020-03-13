@@ -1,10 +1,10 @@
-<!-- Main Container -->
+<!-- Actions Container -->
 <div class="row mt-2">
 
   <!-- File Type Dropdown -->
   <div class="col-auto">
 
-    <select class="form-control" [(ngModel)]="fileType" (ngModelChange)="changeFileType($event)">
+    <select class="form-control" [(ngModel)]="fileType" (ngModelChange)="onChangeFileType($event)">
       <option [disabled]="true">Select a File Type</option>
       <option *ngFor="let fileType of fileTypes">
         {{ fileType }}
@@ -19,7 +19,7 @@
 
     <!-- Download Template -->
     <button class="btn btn-pa mr-2" type="button" [disabled]="fileType === 'Select a File Type'"
-      (click)="downloadTemplate()">
+      (click)="onDownloadTemplate()">
       Download Template
     </button>
     <!-- Download Template Ends -->
@@ -29,16 +29,19 @@
     <!-- File Input Ends -->
 
     <!-- Upload File -->
-    <button class="btn btn-pa" type="button" [disabled]="disableFileUpload || uploadLoader" (click)="uploadRows()">
+    <button class="btn btn-pa mr-2" type="button" [disabled]="disableFileUpload || uploadLoader"
+      (click)="onUploadFile()">
       Upload
       <span *ngIf="uploadLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
     </button>
-
-    <button class="btn btn-pa" type="button" (click)="commitData()">
-      Commit
-      <!-- <span *ngIf="commitLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> -->
-    </button>
     <!-- Upload File Ends -->
+
+    <!-- Commit File -->
+    <button class="btn btn-pa" type="button" [hidden]="fileType !== 'Trades' || !previewData" (click)="onCommitData()">
+      Commit
+      <span *ngIf="commitLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    </button>
+    <!-- Commit File Ends -->
 
   </div>
   <!-- File Upload Actions Ends -->
@@ -53,19 +56,19 @@
   <!-- Expand/Collapse Button Ends -->
 
 </div>
-<!-- Main Container Ends -->
+<!-- Actions Container Ends -->
 
 <!-- File Upload AG Grid -->
-<div [ngStyle]="styleForLogsHeight" [ngClass]="{'w-100' : displayGrid, 'd-none' : !displayGrid}">
+<!-- <div [ngClass]="{'w-100' : displayGrid, 'd-none' : !displayGrid}" [ngStyle]="styleForLogsHeight">
 
   <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="uploadGrid">
   </ag-grid-angular>
 
-</div>
+</div> -->
 <!-- File Upload AG Grid Ends -->
 
 <!-- Review Grid Container -->
-<div [hidden]="!displayTradeGrid" [ngStyle]="styleForLogsHeight">
+<div [hidden]="!displayPreviewGrid" [ngStyle]="styleForLogsHeight">
 
   <!-- Main Split Row Starts -->
   <div class="split-area row h-100">
@@ -77,7 +80,7 @@
       <as-split-area [visible]="true" [size]="60" order="1">
 
         <!-- Review Grid -->
-        <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="tradesGridPreview">
+        <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="previewGrid">
         </ag-grid-angular>
         <!-- Review Grid Ends -->
 
@@ -104,7 +107,7 @@
 <!-- File Template Grids -->
 <div [hidden]="true">
 
-  <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="monthlyPerformanceGridPreview">
+  <!-- <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="monthlyPerformanceGridPreview">
   </ag-grid-angular>
 
   <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="dailyPnLGridPreview">
@@ -114,7 +117,7 @@
   </ag-grid-angular>
 
   <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="fxratesGridPreview">
-  </ag-grid-angular>
+  </ag-grid-angular> -->
 
 </div>
 <!-- File Template Grids Ends -->
