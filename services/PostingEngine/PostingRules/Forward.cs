@@ -228,11 +228,11 @@ namespace PostingEngine.PostingRules
 
                     if (originalAccount.Contains("(Liabilities)"))
                     {
-                        CommonRules.GenerateJournalEntries(env, element, listOfTags, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", realizedPnl);
+                        CommonRules.GenerateJournalEntries(env, Event.DAILY_UNREALIZED_PNL, element, listOfTags, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", realizedPnl);
                     }
                     else
                     {
-                        CommonRules.GenerateJournalEntries(env, element, listOfTags, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", realizedPnl * -1);
+                        CommonRules.GenerateJournalEntries(env, Event.DAILY_UNREALIZED_PNL, element, listOfTags, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", realizedPnl * -1);
                     }
 
                     
@@ -284,11 +284,11 @@ namespace PostingEngine.PostingRules
 
                     if (originalAccount.Contains("(Liabilities)"))
                     {
-                        CommonRules.GenerateJournalEntries(env, element, listOfTags, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", realizedPnl);
+                        CommonRules.GenerateJournalEntries(env, Event.DAILY_UNREALIZED_PNL, element, listOfTags, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", realizedPnl);
                     }
                     else
                     {
-                        CommonRules.GenerateJournalEntries(env, element, listOfTags, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", realizedPnl * -1);
+                        CommonRules.GenerateJournalEntries(env, Event.DAILY_UNREALIZED_PNL, element, listOfTags, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", realizedPnl * -1);
                     }
                 }
 

@@ -3,9 +3,13 @@ Examples:
 
 select * from tax_lot_status
 
-select * from fnTaxLotReport('2019-12-31') where Symbol = 'BGA AU SWAP'
+SET STATISTICS TIME ON
+SET STATISTICS IO ON
+
+select * from fnTaxLotReport('2019-12-31') 
+order by symbol
 */
-CREATE FUNCTION [dbo].[fnTaxLotReport]
+CREATE   FUNCTION [dbo].[fnTaxLotReport]
 (
 	@bDate Date
 )
@@ -30,15 +34,16 @@ RETURNS @returntable TABLE
 	unrealized numeric(22,9),
 	net numeric(22,9),
 	original_investment_at_cost numeric(22,9),
-	residual_investment_at_cost numeric(22,9)
+	residual_investment_at_cost numeric(22,9),
+	report_date DATE
 )
 AS
 BEGIN
 
-WITH taxlot (business_date, open_lot_id, realized_pnl)
+WITH taxlot (business_date, open_lot_id, realized_pnl, quantity)
 AS
 (
-select @bDate as business_date, open_lot_id, sum(realized_pnl) as realized_pnl
+select @bDate as business_date, open_lot_id, sum(realized_pnl) as realized_pnl, sum(quantity) as quantity
 from tax_lot 
 where trade_date <= @bDate
 group by open_lot_id
@@ -67,9 +72,16 @@ AS
 		group by source
 )
 
-
 	INSERT @returntable
-		select tls.*, 
+		select tls.id, tls.open_id, tls.symbol, tls.side, 
+		case
+			when tls.original_quantity + coalesce(tl.quantity,0) = 0 then 'Closed'
+			when coalesce(tl.quantity,0) = 0 then 'Open'
+			else 'Partially Closed'
+		end as status,
+		tls.original_quantity, 
+		tls.original_quantity + coalesce(tl.quantity,0), 
+		tls.business_date, tls.generated_on, tls.trade_date, tls.investment_at_cost, tls.fx_rate, tls.fund,tls.trade_price,
 		-- PRICE
 		case
 			when cts.TradeCurrency = 'GBX' or cts.TradeCurrency = 'GBP' then coalesce(lp.price, 0) / 100.0
@@ -86,7 +98,8 @@ AS
 			else coalesce(tl.realized_pnl,0)
 		end as net,
 		(tls.original_quantity * tls.trade_price) * -1,
-		(tls.quantity * tls.trade_price) * -1
+		(tls.quantity * tls.trade_price) * -1,
+		@bDate as report_date
 		from tax_lot_status tls
 		-- inner join taxlotstatus taxls on taxls.open_id = tls.open_id		
 		inner join current_trade_state cts on cts.LPOrderId = tls.open_id
@@ -97,4 +110,3 @@ AS
 		where tls.trade_date <= @bDate
 	RETURN
 END
-
