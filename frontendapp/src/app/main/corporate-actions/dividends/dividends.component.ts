@@ -508,6 +508,9 @@ export class DividendsComponent implements OnInit, AfterViewInit {
     this.dividendConfig.detailsView = true;
     this.dividendDetailsGrid.api.showLoadingOverlay();
     this.corporateActionsApiService.getDividendDetails(executionDate, id).subscribe(response => {
+
+      debugger
+
       if(response.statusCode === 200){
         let dividendDetail = response.payload;
         this.dividendDetailsGrid.api.sizeColumnsToFit();
@@ -515,7 +518,7 @@ export class DividendsComponent implements OnInit, AfterViewInit {
         this.dividendDetailsGrid.api.setRowData(dividendDetail);
         this.dividendDetailsGrid.api.expandAll();
       } else {
-        this.toastrService.error(response.Message);
+        this.toastrService.error(response.ExceptionMessage);
       }
     }, err=> {
       this.dividendDetailsGrid.api.hideOverlay();
@@ -538,6 +541,9 @@ export class DividendsComponent implements OnInit, AfterViewInit {
   }
 
   rowSelected(row) {
+
+    debugger;
+
      const { id } = row.data;
      const { execution_date} = row.data;
     // let node;
@@ -744,6 +750,7 @@ export class DividendsComponent implements OnInit, AfterViewInit {
       }
     ];
     const addCustomItems = [];
+    debugger
     return GetContextMenu(false, addDefaultItems, false, addCustomItems, params);
   }
 

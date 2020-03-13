@@ -412,7 +412,7 @@ namespace PostingEngine.PostingRules
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <param name="value"></param>
-        internal static void GenerateJournalEntries(PostingEngineEnvironment env, Transaction element, List<Tag> tags, string from, string to, double value)
+        internal static void GenerateJournalEntries(PostingEngineEnvironment env, string journalEvent, Transaction element, List<Tag> tags, string from, string to, double value)
         {
             var fromAccount = new AccountUtils().CreateAccount(AccountType.Find(from), tags, element);
             var toAccount = new AccountUtils().CreateAccount(AccountType.Find(to), tags, element);
@@ -429,7 +429,7 @@ namespace PostingEngine.PostingRules
                 CreditDebit = env.DebitOrCredit(fromAccount, value),
                 Value = AccountCategory.SignedValue(fromAccount, toAccount, true, value),
                 FxRate = element.FactoredTradePrice(),
-                Event = Event.REALIZED_PNL,
+                Event = journalEvent,
                 Fund = env.GetFund(element),
             };
 

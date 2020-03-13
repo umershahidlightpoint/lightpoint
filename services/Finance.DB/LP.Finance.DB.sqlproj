@@ -23,6 +23,7 @@
     <IncludeCompositeObjects>True</IncludeCompositeObjects>
     <TargetDatabaseSet>True</TargetDatabaseSet>
     <TargetDatabase>Finance.DB</TargetDatabase>
+    <IncludeSchemaNameInFileName>False</IncludeSchemaNameInFileName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -172,6 +173,7 @@
     <Build Include="StoredProcs\Reports\HistoricPerformance.sql" />
     <Build Include="StoredProcs\SettledCash.sql" />
     <Build Include="StoredProcs\DividendDetails.sql" />
+    <None Include="StoredProcs\addHocScripts\AccountTypes.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">
