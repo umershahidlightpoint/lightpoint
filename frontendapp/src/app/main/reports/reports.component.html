@@ -37,6 +37,12 @@
       </div>
     </tab>
 
+    <tab heading="Historic Performance" (selectTab)="activateHistoricReport()">
+      <div [ngStyle]="style">
+        <app-historical-performance *ngIf="historicPerformanceActive"></app-historical-performance>
+      </div>
+    </tab>
+
   </tabset>
   <!-- Tab View Ends -->
 

@@ -17,6 +17,7 @@ import { TaxLotStatusComponent } from './taxlotstatus/taxlotstatus.component';
 import { TrialBalanceComponent } from './trial-balance/trial-balance.component';
 import { BalanceReportComponent } from './balance-report/balance-report.component';
 import { PositionMarketValueAppraisalComponent } from './position-market-value-appraisal/position-market-value-appraisal.component';
+import { HistoricalPerformanceComponent } from './historical-performance/historical-performance.component';
 
 import { ReportsRoutes } from './reports.routes';
 import { SharedModule } from '../../shared.module';
@@ -28,7 +29,8 @@ const reportComponents = [
   TaxLotStatusComponent,
   TrialBalanceComponent,
   BalanceReportComponent,
-  PositionMarketValueAppraisalComponent
+  PositionMarketValueAppraisalComponent,
+  HistoricalPerformanceComponent
 ];
 
 @NgModule({

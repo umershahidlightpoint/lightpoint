@@ -1736,6 +1736,43 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
+        public object GetHistoricPerformanceReport(DateTime? from, DateTime? to)
+        {
+            try
+            {
+                dynamic postingEngine = new PostingEngineService().GetProgress();
+                if (postingEngine.IsRunning)
+                {
+                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                }
+
+                var businessDateFrom = System.DateTime.Now.PrevBusinessDate();
+                var businessDateTo = System.DateTime.Now.PrevBusinessDate();
+
+                if (from.HasValue)
+                {
+                    businessDateFrom = from.Value.Date;
+                }
+
+                if (to.HasValue)
+                {
+                    businessDateTo = to.Value.Date;
+                }
+
+                List<SqlParameter> sqlParams = new List<SqlParameter>();
+                sqlParams.Add(new SqlParameter("@From", businessDateFrom));
+                sqlParams.Add(new SqlParameter("@Now", businessDateTo));
+                var dataTable = sqlHelper.GetDataTable("HistoricPerformance", CommandType.StoredProcedure,
+                    sqlParams.ToArray());
+                var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                return reportObject;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public object ExcludeTrade(TradeExclusionInputDto trade)
         {
             try

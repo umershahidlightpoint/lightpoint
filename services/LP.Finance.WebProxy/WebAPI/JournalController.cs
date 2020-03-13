@@ -194,6 +194,13 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.GetMarketValueAppraisalReport(date);
         }
 
+        [Route("historicPerformanceReport")]
+        [HttpGet]
+        public object GetHistoricPerformanceReport(DateTime from, DateTime to)
+        {
+            return controller.GetHistoricPerformanceReport(from, to);
+        }
+
         [Route("excludeTrade")]
         [HttpPost]
         public object ExcludeTrade(TradeExclusionInputDto obj)
