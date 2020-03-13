@@ -235,7 +235,8 @@ export class TradesComponent implements OnInit, AfterViewInit {
             name: 'Extend',
             action: () => {
               this.isLoading = true;
-              this.securityApiService.getDataForSecurityModal(params.node.data.Symbol).subscribe(
+
+              this.securityApiService.getDataForSecurityModal(params.node.data.symbol).subscribe(
                 ([config, securityDetails]: [any, any]) => {
                   this.isLoading = false;
                   if (!config.isSuccessful) {
@@ -244,7 +245,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
                   }
                   if (securityDetails.payload.length === 0) {
                     this.securityModal.openSecurityModalFromOutside(
-                      params.node.data.Symbol,
+                      params.node.data.symbol,
                       config.payload[0].SecurityType,
                       config.payload[0].Fields,
                       null,
@@ -252,7 +253,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
                     );
                   } else {
                     this.securityModal.openSecurityModalFromOutside(
-                      params.node.data.Symbol,
+                      params.node.data.symbol,
                       config.payload[0].SecurityType,
                       config.payload[0].Fields,
                       securityDetails.payload[0],
@@ -312,7 +313,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
       },
       getRowStyle: params => {
         let style = {};
-        if (!params.node.group && params.data.exclude === 'Y') {
+        if (params.data.exclude === 'Y') {
           style = LegendColors.nonZeroStyle;
         }
         return style;

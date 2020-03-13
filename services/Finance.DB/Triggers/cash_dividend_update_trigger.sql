@@ -18,7 +18,6 @@
            ,[currency]
            ,[withholding_rate]
            ,[fx_rate]
-           ,[active_flag]
-		   ,[maturity_date])
+           ,[active_flag])
 		select * from deleted
 	END

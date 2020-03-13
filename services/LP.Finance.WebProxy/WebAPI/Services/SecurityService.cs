@@ -42,7 +42,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 if (!id.HasValue)
                 {
-                    message = "No security type found against the selected symbol!";
+                    message = "Security id not found against this symbol";
                     return Utils.Wrap(false, null, HttpStatusCode.Forbidden);
                 }
 
@@ -253,7 +253,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 if (securityType == "")
                 {
                     message = "Security Type not found against this symbol";
-                    return Utils.Wrap(false, null, HttpStatusCode.Forbidden, message);
+                    return Utils.Wrap(false, null, HttpStatusCode.Forbidden);
                 }
 
                 var schema = Utils.GetFile<List<SecurityTypeFormConfig>>("security_details", "MockData");

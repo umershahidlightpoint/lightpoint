@@ -57,7 +57,6 @@ export class CreateDividendComponent implements OnInit, OnChanges {
       exDate: ['', Validators.required],
       recordDate: ['', Validators.required],
       payDate: ['', [Validators.required]],
-      maturityDate: [''],
       ratio: ['', Validators.required],
       currency: ['', Validators.required],
       holdingRate: ['', Validators.required],
@@ -130,8 +129,6 @@ export class CreateDividendComponent implements OnInit, OnChanges {
           ExecutionDate: moment(this.dividentForm.value.exDate.startDate).format('YYYY-MM-DD'),
           RecordDate: moment(this.dividentForm.value.recordDate.startDate).format('YYYY-MM-DD'),
           PayDate: moment(this.dividentForm.value.payDate.startDate).format('YYYY-MM-DD'),
-          maturityDate: this.dividentForm.value.maturityDate ?
-          moment(this.dividentForm.value.maturityDate.startDate).format('YYYY-MM-DD') : null,
           Rate: this.dividentForm.value.ratio,
           Currency: this.dividentForm.value.currency,
           WithholdingRate: this.dividentForm.value.holdingRate,
@@ -171,8 +168,6 @@ export class CreateDividendComponent implements OnInit, OnChanges {
           ExecutionDate: moment(this.dividentForm.value.exDate.startDate).format('YYYY-MM-DD'),
           RecordDate: moment(this.dividentForm.value.recordDate.startDate).format('YYYY-MM-DD'),
           PayDate: moment(this.dividentForm.value.payDate.startDate).format('YYYY-MM-DD'),
-          maturityDate: this.dividentForm.value.maturityDate ?
-          moment(this.dividentForm.value.maturityDate.startDate).format('YYYY-MM-DD') : null,
           Rate: this.dividentForm.value.ratio,
           Currency: this.dividentForm.value.currency,
           WithholdingRate: this.dividentForm.value.holdingRate,
@@ -226,7 +221,6 @@ export class CreateDividendComponent implements OnInit, OnChanges {
         exDate: { startDate: moment(data.execution_date), endDate: moment(data.execution_date) },
         recordDate: { startDate: moment(data.record_date), endDate: moment(data.record_date) },
         payDate: { startDate: moment(data.pay_date), endDate: moment(data.pay_date) },
-        maturityDate: data.maturity_date ? moment(data.maturity_date) : null,
         ratio: data.rate,
         currency: data.currency,
         holdingRate: data.withholding_rate,
