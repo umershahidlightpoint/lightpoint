@@ -112,7 +112,7 @@ namespace LP.Finance.Common.Model
             // read the table structure from the database
             var localconnection = new SqlConnection(connection.ConnectionString +";Password=ggtuser");
             localconnection.Open();
-            var query = $@"SELECT [LPOrderId]
+            var query = $@"SELECT TOP 0 [LPOrderId]
                       ,[AccrualId]
                       ,[Action]
                       ,[Symbol]
