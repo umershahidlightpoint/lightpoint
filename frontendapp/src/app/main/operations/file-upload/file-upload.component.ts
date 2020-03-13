@@ -1,6 +1,7 @@
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { GridOptions, ColGroupDef, ColDef } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
+import { GridUtils } from 'lp-toolkit';
 /* Services/Components Imports */
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 import { FinanceServiceProxy } from 'src/services/service-proxies';
@@ -19,26 +20,20 @@ export class FileUploadComponent implements OnInit {
   @ViewChild('fileInput', { static: false }) fileInput: ElementRef;
 
   previewGrid: GridOptions;
-  // uploadGrid: GridOptions;
-  // monthlyPerformanceGridPreview: GridOptions;
-  // dailyPnLGridPreview: GridOptions;
-  // marketPricesGridPreview: GridOptions;
-  // fxratesGridPreview: GridOptions;
-  // tradesGridPreview: GridOptions;
-
+  previewData: any[] = [];
+  exceptionContent: any;
+  uploadGrid: GridOptions;
   columns: Array<ColDef | ColGroupDef>;
-  ignoreFields = IgnoreFields;
   rowData: any[] = [];
+
+  ignoreFields = IgnoreFields;
   fileToUpload: File = null;
 
-  previewData: any = null;
-  exceptionContent: any;
-  fxRateDupList: any;
-
   displayPreviewGrid = false;
-  // displayGrid = false;
+  displayGrid = false;
   disableFileUpload = true;
   uploadLoader = false;
+  disableCommit = true;
   commitLoader = false;
   confirmStatus = false;
 
@@ -60,57 +55,25 @@ export class FileUploadComponent implements OnInit {
   }
 
   initGrid() {
-    // this.uploadGrid = {
-    //   rowData: [],
-    //   rowSelection: 'single',
-    //   rowGroupPanelShow: 'after',
-    //   pivotPanelShow: 'after',
-    //   pivotColumnGroupTotals: 'after',
-    //   pivotRowTotals: 'after',
-    //   animateRows: true,
-    //   singleClickEdit: true,
-    //   onGridReady: params => {
-    //     params.api.sizeColumnsToFit();
-    //   },
-    //   onFirstDataRendered: params => {
-    //     params.api.sizeColumnsToFit();
-    //   },
-    //   defaultColDef: {
-    //     resizable: true
-    //   }
-    // };
-
-    // this.monthlyPerformanceGridPreview = {
-    //   rowData: [],
-    //   columnDefs: this.getColDefs('Monthly Performance'),
-    //   onGridReady: params => {
-    //     this.monthlyPerformanceGridPreview.excelStyles = ExcelStyle;
-    //   }
-    // };
-
-    // this.dailyPnLGridPreview = {
-    //   rowData: [],
-    //   columnDefs: this.getColDefs('Daily PnL'),
-    //   onGridReady: params => {
-    //     this.dailyPnLGridPreview.excelStyles = ExcelStyle;
-    //   }
-    // };
-
-    // this.marketPricesGridPreview = {
-    //   rowData: [],
-    //   columnDefs: this.getColDefs('Market Prices'),
-    //   onGridReady: params => {
-    //     this.marketPricesGridPreview.excelStyles = ExcelStyle;
-    //   }
-    // };
-
-    // this.fxratesGridPreview = {
-    //   rowData: [],
-    //   columnDefs: this.getColDefs('FxRates'),
-    //   onGridReady: params => {
-    //     this.fxratesGridPreview.excelStyles = ExcelStyle;
-    //   }
-    // };
+    this.uploadGrid = {
+      rowData: [],
+      rowSelection: 'single',
+      rowGroupPanelShow: 'after',
+      pivotPanelShow: 'after',
+      pivotColumnGroupTotals: 'after',
+      pivotRowTotals: 'after',
+      animateRows: true,
+      singleClickEdit: true,
+      onGridReady: params => {
+        params.api.sizeColumnsToFit();
+      },
+      onFirstDataRendered: params => {
+        params.api.sizeColumnsToFit();
+      },
+      defaultColDef: {
+        resizable: true
+      }
+    };
 
     this.previewGrid = {
       rowData: [],
@@ -148,7 +111,11 @@ export class FileUploadComponent implements OnInit {
         }
       },
       onGridReady: params => {
+        GridUtils.autoSizeAllColumns(params);
         this.previewGrid.excelStyles = ExcelStyle;
+      },
+      onFirstDataRendered: params => {
+        GridUtils.autoSizeAllColumns(params);
       },
       onRowClicked: params => {
         if (params.data.UploadException) {
@@ -175,27 +142,17 @@ export class FileUploadComponent implements OnInit {
   }
 
   onDownloadTemplate() {
-    const template = this.fileType
-      .split(' ')
-      .map((word, i) => {
-        if (i === 0) {
-          return word.toLowerCase();
-        }
-        return word.charAt(0).toUpperCase() + word.slice(1);
-      })
-      .join('');
-
-    this.excelTemplate(this.fileType, `${this.fileType} Sheet`, template);
+    this.excelTemplate(this.fileType, `${this.fileType} Sheet`);
   }
 
-  excelTemplate(fileName, sheetName, template) {
+  excelTemplate(fileName, sheetName) {
     const params = {
       fileName,
       sheetName
     };
+
     this.previewGrid.api.setColumnDefs(this.getColDefs(this.fileType));
     this.previewGrid.api.exportDataAsCsv(params);
-    // this[`${template}GridPreview`].api.exportDataAsCsv(params);
     this.downloadExcelUtils.ToastrMessage();
   }
 
@@ -210,9 +167,11 @@ export class FileUploadComponent implements OnInit {
       this.fundTheoreticalApiService.getMonthlyPerformanceStatus().subscribe(
         response => {
           this.uploadLoader = false;
+
           if (response.isSuccessful) {
             if (response.payload) {
               this.confirmStatus = true;
+
               this.confirmationModal.showModal();
             } else {
               this.uploadMonthlyPerformance();
@@ -247,8 +206,11 @@ export class FileUploadComponent implements OnInit {
       response => {
         this.uploadLoader = false;
         this.confirmStatus = false;
+
         if (response.isSuccessful) {
-          // this.displayGrid = false;
+          this.displayPreviewGrid = false;
+          this.displayGrid = false;
+
           this.clearForm();
           this.toastrService.success('File uploaded successfully!');
         } else {
@@ -268,8 +230,11 @@ export class FileUploadComponent implements OnInit {
     this.fundTheoreticalApiService.uploadDailyUnofficialPnl(this.fileToUpload).subscribe(
       response => {
         this.uploadLoader = false;
+
         if (response.isSuccessful) {
-          // this.displayGrid = false;
+          this.displayPreviewGrid = false;
+          this.displayGrid = false;
+
           this.clearForm();
           this.toastrService.success('File uploaded successfully!');
         } else {
@@ -288,16 +253,22 @@ export class FileUploadComponent implements OnInit {
     this.fundTheoreticalApiService.uploadMarketPriceData(this.fileToUpload).subscribe(
       response => {
         this.uploadLoader = false;
+
         if (response.isSuccessful && response.statusCode === 200) {
-          // this.displayGrid = false;
+          this.displayPreviewGrid = false;
+          this.displayGrid = false;
+
           this.clearForm();
           this.toastrService.success('File uploaded successfully!');
         } else if (response.isSuccessful && response.statusCode === 403) {
-          // this.displayGrid = true;
+          this.displayPreviewGrid = false;
+          this.displayGrid = true;
+
           this.columns = response.meta;
           this.rowData = response.payload;
           this.customizeColumns(this.columns);
-          // this.uploadGrid.api.setRowData(this.rowData);
+          this.uploadGrid.api.setRowData(this.rowData);
+
           this.clearForm();
           this.toastrService.error('Error: Duplication Detected!');
         } else {
@@ -316,16 +287,22 @@ export class FileUploadComponent implements OnInit {
     this.fundTheoreticalApiService.uploadFxData(this.fileToUpload).subscribe(
       response => {
         this.uploadLoader = false;
-        // this.displayGrid = false;
+
         if (response.isSuccessful && response.statusCode === 200) {
+          this.displayPreviewGrid = false;
+          this.displayGrid = false;
+
           this.clearForm();
           this.toastrService.success('File uploaded successfully!');
         } else if (response.isSuccessful && response.statusCode === 403) {
-          // this.displayGrid = true;
+          this.displayPreviewGrid = false;
+          this.displayGrid = true;
+
           this.columns = response.meta;
           this.rowData = response.payload;
           this.customizeColumns(this.columns);
-          // this.uploadGrid.api.setRowData(this.rowData);
+          this.uploadGrid.api.setRowData(this.rowData);
+
           this.clearForm();
           this.toastrService.error('Error: Duplication Detected!');
         } else {
@@ -344,13 +321,16 @@ export class FileUploadComponent implements OnInit {
     this.fundTheoreticalApiService.uploadTradeData(this.fileToUpload).subscribe(
       response => {
         this.uploadLoader = false;
+
         if (response.isSuccessful && response.statusCode === 200) {
-          // this.displayGrid = false;
           this.displayPreviewGrid = true;
+          this.displayGrid = false;
+
+          this.disableCommit = !response.payload.EnableCommit;
           this.previewData = response.payload;
           this.previewGrid.api.setColumnDefs(this.getColDefs('Trades'));
           this.previewGrid.api.setRowData(response.payload);
-          // this.clearForm();
+
           this.toastrService.success('Trades uploaded successfully!');
         } else {
           this.toastrService.error('Something went wrong! Try Again.');
@@ -368,11 +348,14 @@ export class FileUploadComponent implements OnInit {
     this.fundTheoreticalApiService.commitTradeData(this.previewData).subscribe(
       response => {
         this.commitLoader = false;
+
         if (response.isSuccessful && response.statusCode === 200) {
-          // this.displayGrid = false;
           this.displayPreviewGrid = false;
+          this.displayGrid = false;
+
           this.previewGrid.api.setRowData([]);
           this.clearForm();
+
           this.toastrService.success('Trades committed successfully!');
         } else {
           this.toastrService.error('Something went wrong! Try Again.');
@@ -390,7 +373,7 @@ export class FileUploadComponent implements OnInit {
     for (let i = 1; i < columns.length; i++) {
       storeColumns.push(this.dataDictionary.column(columns[i].field, true));
     }
-    // this.uploadGrid.api.setColumnDefs(storeColumns);
+    this.uploadGrid.api.setColumnDefs(storeColumns);
   }
 
   getColDefs(fileType: string) {

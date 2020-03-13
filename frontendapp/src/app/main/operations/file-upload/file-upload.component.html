@@ -37,7 +37,7 @@
     <!-- Upload File Ends -->
 
     <!-- Commit File -->
-    <button class="btn btn-pa" type="button" [hidden]="fileType !== 'Trades' || !previewData" [disabled]="commitLoader"
+    <button class="btn btn-pa" type="button" [hidden]="fileType !== 'Trades'" [disabled]="commitLoader || disableCommit"
       (click)="onCommitData()">
       Commit
       <span *ngIf="commitLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -60,12 +60,12 @@
 <!-- Actions Container Ends -->
 
 <!-- File Upload AG Grid -->
-<!-- <div [ngClass]="{'w-100' : displayGrid, 'd-none' : !displayGrid}" [ngStyle]="styleForLogsHeight">
+<div [ngClass]="{'w-100' : displayGrid, 'd-none' : !displayGrid}" [ngStyle]="styleForLogsHeight">
 
   <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="uploadGrid">
   </ag-grid-angular>
 
-</div> -->
+</div>
 <!-- File Upload AG Grid Ends -->
 
 <!-- Review Grid Container -->
@@ -104,24 +104,6 @@
 
 </div>
 <!-- Review Grid Container Ends -->
-
-<!-- File Template Grids -->
-<div [hidden]="true">
-
-  <!-- <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="monthlyPerformanceGridPreview">
-  </ag-grid-angular>
-
-  <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="dailyPnLGridPreview">
-  </ag-grid-angular>
-
-  <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="marketPricesGridPreview">
-  </ag-grid-angular>
-
-  <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="fxratesGridPreview">
-  </ag-grid-angular> -->
-
-</div>
-<!-- File Template Grids Ends -->
 
 <!-- Confirmation Modal Component -->
 <app-confirmation-modal #confirmationModal [title]="'Reset Performance'"
