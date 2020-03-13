@@ -176,9 +176,9 @@
     {
       "source": "TradeDate",
       "destination": "TradeDate",
-      "function": null,
-      "required":  "true",
-      "format": "",
+      "function": "GetDate",
+      "required": "true",
+      "format": "MM-dd-yyyy",
       "type": "datetime",
       "offset": 18,
       "rule": ""
@@ -205,9 +205,9 @@
     {
       "source": "SettleDate",
       "destination": "SettleDate",
-      "function": null,
-      "required":  true,
-      "format": "",
+      "function": "GetDate",
+      "required": true,
+      "format": "MM-dd-yyyy",
       "type": "date",
       "offset": 21,
       "rule": ""

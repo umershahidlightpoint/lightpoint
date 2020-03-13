@@ -477,11 +477,11 @@ namespace LP.FileProcessing
             var symbolMap = AppStartCache.GetCachedData("symbol");
             var exception = "";
             var valid = true;
-            var symbol = (string)value;
+            var symbolValue = (string)value;
             if (symbolMap.Item1)
             {
-                var currency = (Dictionary<string, int>)symbolMap.Item2;
-                if (currency.ContainsKey(symbol))
+                var symbol = (Dictionary<string, int>)symbolMap.Item2;
+                if (symbol.ContainsKey(symbolValue))
                 {
                     valid = true;
                     return new Tuple<object, bool, string>(value, valid, exception);
@@ -506,11 +506,11 @@ namespace LP.FileProcessing
             var currencyMap = AppStartCache.GetCachedData("currency");
             var exception = "";
             var valid = true;
-            var symbol = (string)value;
+            var currencyValue = (string)value;
             if (currencyMap.Item1)
             {
                 var currency = (Dictionary<string, string>)currencyMap.Item2;
-                if (currency.ContainsKey(symbol))
+                if (currency.ContainsKey(currencyValue))
                 {
                     valid = true;
                     return new Tuple<object, bool, string>(value, valid, exception);
