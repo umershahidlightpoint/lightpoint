@@ -440,6 +440,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     i.LPOrderId = guid;
                     i.ParentOrderId = guid;
                     i.TradeType = "manual";
+
+                    if (symbols.ContainsKey(i.SecurityCode))
+                    {
+                        i.SecurityId = symbols[i.SecurityCode];
+                    }
                 }
 
                 var failedRecords = new Dictionary<object, Row>();
