@@ -190,6 +190,10 @@
       <Link>PerformanceFormats\Performance.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="..\LP.FileProcessing\PerformanceFormats\Trade.json">
+      <Link>PerformanceFormats\Trade.json</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="App.config" />
     <None Include="Docs\README.md" />
     <None Include="MockData\all.json">

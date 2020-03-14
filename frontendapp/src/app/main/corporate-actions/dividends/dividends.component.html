@@ -69,7 +69,7 @@
 
 
       <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions"
-        (rowSelected)="onRowSelected($event)" [rowData]="rowData">
+        [rowData]="rowData">
       </ag-grid-angular>
 
     </as-split-area>
@@ -80,7 +80,7 @@
         <tabset class="w-100 h-100">
           <tab class="h-100" heading="Details" (selectTab)="activeStockSplits()">
             <ag-grid-angular class="w-100 h-100 mt-3 ag-theme-balham" [gridOptions]="dividendDetailsGrid"
-              (rowSelected)="onRowSelected($event)" [rowData]="rowData">
+              (rowSelected)="rowSelected($event)" [rowData]="rowData">
             </ag-grid-angular>
           </tab>
 

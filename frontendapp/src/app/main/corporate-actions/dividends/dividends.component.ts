@@ -220,6 +220,14 @@ export class DividendsComponent implements OnInit, AfterViewInit {
           valueFormatter: dateFormatter
         },
         {
+          field: 'maturity_date',
+          headerName: 'Maturity Date',
+          width: 100,
+          filter: true,
+          sortable: true,
+          valueFormatter: dateFormatter
+        },
+        {
           field: 'rate',
           headerName: 'Rate',
           width: 100,
@@ -508,6 +516,9 @@ export class DividendsComponent implements OnInit, AfterViewInit {
     this.dividendConfig.detailsView = true;
     this.dividendDetailsGrid.api.showLoadingOverlay();
     this.corporateActionsApiService.getDividendDetails(executionDate, id).subscribe(response => {
+
+      debugger
+
       if(response.statusCode === 200){
         let dividendDetail = response.payload;
         this.dividendDetailsGrid.api.sizeColumnsToFit();
@@ -515,7 +526,7 @@ export class DividendsComponent implements OnInit, AfterViewInit {
         this.dividendDetailsGrid.api.setRowData(dividendDetail);
         this.dividendDetailsGrid.api.expandAll();
       } else {
-        this.toastrService.error(response.Message);
+        this.toastrService.error(response.ExceptionMessage);
       }
     }, err=> {
       this.dividendDetailsGrid.api.hideOverlay();
@@ -538,6 +549,9 @@ export class DividendsComponent implements OnInit, AfterViewInit {
   }
 
   rowSelected(row) {
+
+    debugger;
+
      const { id } = row.data;
      const { execution_date} = row.data;
     // let node;
@@ -744,6 +758,7 @@ export class DividendsComponent implements OnInit, AfterViewInit {
       }
     ];
     const addCustomItems = [];
+    debugger
     return GetContextMenu(false, addDefaultItems, false, addCustomItems, params);
   }
 
@@ -809,28 +824,40 @@ export class DividendsComponent implements OnInit, AfterViewInit {
         headerName: 'Notice Date',
         sortable: true,
         filter: true,
-        width: 120
+        width: 120,
+        valueFormatter: dateFormatter
       },
       {
         field: 'execution_date',
         headerName: 'Execution Date',
         sortable: true,
         filter: true,
-        width: 100
+        width: 100,
+        valueFormatter: dateFormatter
       },
       {
         field: 'record_date',
         headerName: 'Record Date',
         width: 100,
         filter: true,
-        sortable: true
+        sortable: true,
+        valueFormatter: dateFormatter
       },
       {
         field: 'pay_date',
         headerName: 'Pay Date',
         width: 100,
         filter: true,
-        sortable: true
+        sortable: true,
+        valueFormatter: dateFormatter
+      },
+      {
+        field: 'maturity_date',
+        headerName: 'Maturity Date',
+        width: 100,
+        filter: true,
+        sortable: true,
+        valueFormatter: dateFormatter
       },
       {
         field: 'rate',
@@ -879,7 +906,7 @@ export class DividendsComponent implements OnInit, AfterViewInit {
 }
 
 function moneyFormatter(params) {
-  if (params.value === undefined) {
+  if (params.value === undefined || params.value === null) {
     return;
   }
   return MoneyFormat(params.value);
@@ -893,7 +920,7 @@ function currencyFormatter(params) {
 }
 
 function dateFormatter(params) {
-  if (params.value === undefined) {
+  if (params.value === undefined || params.value === null) {
     return;
   }
   return DateFormatter(params.value);

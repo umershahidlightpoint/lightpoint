@@ -15,6 +15,7 @@ namespace LP.Finance.Common.Dtos
         public DateTime RecordDate { get; set; }
         public DateTime PayDate { get; set; }
         public decimal Rate { get; set; }
+        public DateTime? MaturityDate { get; set; }
         public string Currency { get; set; }
         public decimal WithholdingRate { get; set; }
         public decimal FxRate { get; set; }

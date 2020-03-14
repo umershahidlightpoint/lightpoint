@@ -2,8 +2,9 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { TabsModule } from 'ngx-bootstrap';
+import { TabsModule, TooltipModule } from 'ngx-bootstrap';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import { AngularSplitModule } from 'angular-split';
 import { LpToolkitModule } from 'lp-toolkit';
 
 import { OperationsComponent } from './operations.component';
@@ -33,6 +34,7 @@ const operationsComponents = [
   imports: [
     CommonModule,
     TabsModule,
+    TooltipModule,
     FormsModule,
     ReactiveFormsModule,
     NgxDaterangepickerMd.forRoot({
@@ -40,6 +42,7 @@ const operationsComponents = [
       firstDay: 1
     }),
     RouterModule.forChild(OperationsRoutes),
+    AngularSplitModule,
     LpToolkitModule,
     SharedModule
   ]

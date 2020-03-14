@@ -36,6 +36,7 @@ CREATE VIEW [dbo].[vwJournal]
                                     [fund],
                                     [account_category].[name] as AccountCategory,  
                                     [account_type].[name] as AccountType,
+                                    [account_type].id as AccountTypeId,
 									[account].[name] as accountName, -- Changed to CamelCase
 									[account].[description] as accountDescription, -- Changed to CamelCase
                                     [value],

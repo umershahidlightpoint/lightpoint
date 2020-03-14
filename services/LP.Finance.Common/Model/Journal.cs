@@ -60,12 +60,15 @@ namespace LP.Finance.Common.Models
         }
     }
 
+    /// <summary>
+    /// Keeps track of both base(Reporting, i.e. USD) and local value
+    /// </summary>
     public class JournalValue
     {
         public JournalValue(double localValue, double baseValue)
         {
-            this.Base = baseValue;
             this.Local = localValue;
+            this.Base = baseValue;
         }
 
         public double Local

@@ -25,7 +25,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             try
             {
-                var query = $@"SELECT distinct TradeCurrency from current_trade_state";
+                var query = $@"SELECT distinct TradeCurrency from current_trade_state where TradeCurrency is not null";
 
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
 

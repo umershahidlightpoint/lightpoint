@@ -68,7 +68,23 @@ namespace PostingEngine
         {
             var fxRate = FxRates.Find(this, journal.When, journal.FxCurrency).Rate;
 
-            journal.JournalValue = new JournalValue(journal.Value / fxRate, journal.Value);
+            // For only the following events we need to no set the local_value
+            if (journal.Event.Equals("settled-cash-fx"))
+            {
+                journal.JournalValue = new JournalValue(0, journal.Value);
+            }
+            else
+            {
+                if (journal.JournalValue != null)
+                {
+                    journal.JournalValue = new JournalValue(journal.JournalValue.Base / fxRate, journal.JournalValue.Base);
+
+                }
+                else
+                {
+                    journal.JournalValue = new JournalValue(journal.Value / fxRate, journal.Value);
+                }
+            }
         }
 
         public int CollectData(List<Journal> journals)

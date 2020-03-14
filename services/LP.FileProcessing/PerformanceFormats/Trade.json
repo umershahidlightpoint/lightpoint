@@ -1,0 +1,363 @@
+{
+  "Header": [],
+  "Trailer": [],
+  "Record": [
+
+    {
+      "source": "Action",
+      "destination": "Action",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 0,
+      "rule": ""
+    },
+    {
+      "source": "Symbol",
+      "destination": "Symbol",
+      "function": "IsValidSymbol",
+      "required":  "true",
+      "format": "",
+      "type": "char",
+      "offset": 1,
+      "rule": ""
+    },
+    {
+      "source": "Side",
+      "destination": "Side",
+      "function": null,
+      "required":  "true",
+      "format": "",
+      "type": "char",
+      "offset": 2,
+      "rule": ""
+    },
+    {
+      "source": "Quantity",
+      "destination": "Quantity",
+      "function": null,
+      "required":  "true",
+      "format": "",
+      "type": "char",
+      "offset": 3,
+      "rule": ""
+    },
+    {
+      "source": "TimeInForce",
+      "destination": "TimeInForce",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 4,
+      "rule": ""
+    },
+    {
+      "source": "OrderType",
+      "destination": "OrderType",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 5,
+      "rule": ""
+    },
+    {
+      "source": "SecurityType",
+      "destination": "SecurityType",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 6,
+      "rule": ""
+    },
+    {
+      "source": "BloombergCode",
+      "destination": "BloombergCode",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 7,
+      "rule": ""
+    },
+    {
+      "source": "EzeTicker",
+      "destination": "EzeTicker",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 8,
+      "rule": ""
+    },
+    {
+      "source": "SecurityCode",
+      "destination": "SecurityCode",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 9,
+      "rule": ""
+    },
+    {
+      "source": "CustodianCode",
+      "destination": "CustodianCode",
+      "function": null,
+      "required":  true,
+      "format": "",
+      "type": "char",
+      "offset": 10,
+      "rule": ""
+    },
+    {
+      "source": "ExecutionBroker",
+      "destination": "ExecutionBroker",
+      "function": null,
+      "required":  "true",
+      "format": "",
+      "type": "char",
+      "offset": 11,
+      "rule": ""
+    },
+
+
+    {
+      "source": "Fund",
+      "destination": "Fund",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 12,
+      "rule": ""
+    },
+    {
+      "source": "PMCode",
+      "destination": "PMCode",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 13,
+      "rule": ""
+    },
+    {
+      "source": "PortfolioCode",
+      "destination": "PortfolioCode",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 14,
+      "rule": ""
+    },
+    {
+      "source": "Trader",
+      "destination": "Trader",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 15,
+      "rule": ""
+    },
+    {
+      "source": "TradeCurrency",
+      "destination": "TradeCurrency",
+      "function": "IsValidCurrency",
+      "required": true,
+      "format": "",
+      "type": "char",
+      "offset": 16,
+      "rule": ""
+    },
+    {
+      "source": "TradePrice",
+      "destination": "TradePrice",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 17,
+      "rule": ""
+    },
+    {
+      "source": "TradeDate",
+      "destination": "TradeDate",
+      "function": "GetDate",
+      "required": "true",
+      "format": "MM-dd-yyyy",
+      "type": "datetime",
+      "offset": 18,
+      "rule": ""
+    },
+    {
+      "source": "SettleCurrency",
+      "destination": "SettleCurrency",
+      "function": "IsValidCurrency",
+      "required":  true,
+      "format": "",
+      "type": "char",
+      "offset": 19,
+      "rule": ""
+    },
+    {
+      "source": "SettlePrice",
+      "destination": "SettlePrice",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 20,
+      "rule": ""
+    },
+    {
+      "source": "SettleDate",
+      "destination": "SettleDate",
+      "function": "GetDate",
+      "required": true,
+      "format": "MM-dd-yyyy",
+      "type": "date",
+      "offset": 21,
+      "rule": ""
+    },
+    {
+      "source": "TradeType",
+      "destination": "TradeType",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 22,
+      "rule": ""
+    },
+    {
+      "source": "TransactionCategory",
+      "destination": "TransactionCategory",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 23,
+      "rule": ""
+    },
+    {
+      "source": "TransactionType",
+      "destination": "TransactionType",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 24,
+      "rule": ""
+    },
+    {
+      "source": "Status",
+      "destination": "Status",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 26,
+      "rule": ""
+    },
+    {
+      "source": "NetMoney",
+      "destination": "NetMoney",
+      "function": null,
+      "required":  "true",
+      "format": "",
+      "type": "decimal",
+      "offset": 27,
+      "rule": ""
+    },
+    {
+      "source": "Commission",
+      "destination": "Commission",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 28,
+      "rule": ""
+    },
+    {
+      "source": "Fees",
+      "destination": "Fees",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 29,
+      "rule": ""
+    },
+    {
+      "source": "SettleNetMoney",
+      "destination": "SettleNetMoney",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 30,
+      "rule": ""
+    },
+    {
+      "source": "NetPrice",
+      "destination": "NetPrice",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 31,
+      "rule": ""
+    },
+    {
+      "source": "SettleNetPrice",
+      "destination": "SettleNetPrice",
+      "function": null,
+      "required":  "true",
+      "format": "",
+      "type": "decimal",
+      "offset": 32,
+      "rule": ""
+    },
+    {
+      "source": "OrderSource",
+      "destination": "OrderSource",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 33,
+      "rule": ""
+    },
+    {
+      "source": "LocalNetNotional",
+      "destination": "LocalNetNotional",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 34,
+      "rule": ""
+    },
+    {
+      "source": "TradeTime",
+      "destination": "TradeTime",
+      "function": null,
+      "format": "",
+      "type": "time",
+      "offset": 35,
+      "rule": ""
+    },
+    {
+      "source": "LPOrderId",
+      "destination": "LPOrderId",
+      "function": null,
+      "format": "",
+      "type": "char",
+      "offset": 36,
+      "rule": ""
+    },
+    {
+      "source": "TradeId",
+      "destination": "TradeId",
+      "function": null,
+      "format": "",
+      "type": "decimal",
+      "offset": 37,
+      "rule": ""
+    },
+    {
+      "source": "Reason",
+      "destination": "Reason",
+      "function": null,
+      "required": "true",
+      "format": "",
+      "type": "char",
+      "offset": 38,
+      "rule": ""
+    }
+  ]
+}

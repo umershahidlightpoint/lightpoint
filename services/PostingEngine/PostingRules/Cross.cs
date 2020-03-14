@@ -46,7 +46,7 @@ namespace PostingEngine.PostingRules
         /// Run for each day that the Tax Lot remains open / partially closed
         /// </summary>
         /// <param name="env"></param>
-        /// <param name="element">Trade we aee interested in</param>
+        /// <param name="element">Trade we are interested in</param>
         public void DailyEvent(PostingEngineEnvironment env, Transaction element)
         {
             // Calculate the unrealized PNL
@@ -231,7 +231,8 @@ namespace PostingEngine.PostingRules
                     // Realized Pnl to go along with the Settled Cash
                     CommonRules.GenerateJournalEntry(env, element, listOfTags, realizedAccountType, Event.REALIZED_PNL, realizedPnl);
 
-                    CommonRules.GenerateJournalEntries(env, element, listOfTags, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", realizedPnl * -1);
+                    // Now need to backout the accumulated unrealized PNL
+                    // CommonRules.GenerateJournalEntries(env, Event.DAILY_UNREALIZED_PNL, element, listOfTags, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", realizedPnl * -1);
                 }
                 else // SELL
                 {
@@ -287,7 +288,7 @@ namespace PostingEngine.PostingRules
                     // Realized Pnl to go along with the Settled Cash
                     CommonRules.GenerateJournalEntry(env, element, listOfTags, realizedAccountType, Event.REALIZED_PNL, realizedPnl);
 
-                    CommonRules.GenerateJournalEntries(env, element, listOfTags, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", realizedPnl * -1);
+                    //CommonRules.GenerateJournalEntries(env, Event.DAILY_UNREALIZED_PNL, element, listOfTags, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", realizedPnl * -1);
                 }
 
                 if (taxlot.Quantity != 0)

@@ -12,7 +12,7 @@ declare @Withdrawls numeric(32,16)
 declare @SODNAV numeric(32,16)
 
 -- Make sure its updated
-Exec PeriodPnl @Now, 1
+Exec PeriodPnl @Now
 
 select @CurrentNAV = sum(debit-credit) from current_journal_full
 where AccountCategory in ('Asset', 'Liability')
