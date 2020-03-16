@@ -68,6 +68,12 @@
     <Folder Include="StoredProcs\Reports" />
     <Folder Include="StoredProcs\addHocScripts" />
     <Folder Include="StoredProcs\Research and Development" />
+    <Folder Include="Triggers\cash_dividend" />
+    <Folder Include="Triggers\fx_rate" />
+    <Folder Include="Triggers\market_date_price" />
+    <Folder Include="Triggers\monthly_performance" />
+    <Folder Include="Triggers\stock_split" />
+    <Folder Include="Triggers\symbol_change" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\file.sql" />
@@ -89,8 +95,6 @@
     <Build Include="Tables\tax_lot_status.sql" />
     <Build Include="Tables\monthly_performance.sql" />
     <Build Include="Tables\monthly_performance_history.sql" />
-    <Build Include="Triggers\monthly_performance_update_trigger.sql" />
-    <Build Include="Triggers\monthly_performance_insert_trigger.sql" />
     <Build Include="StoredProcs\CostBasisCalculation.sql" />
     <Build Include="Tables\unofficial_daily_pnl.sql" />
     <Build Include="Tables\unofficial_daily_pnl_history.sql" />
@@ -103,12 +107,8 @@
     <Build Include="Tables\market_prices.sql" />
     <Build Include="StoredProcs\PullDailyMarketPrices.sql" />
     <Build Include="Tables\market_prices_history.sql" />
-    <Build Include="Triggers\market_data_price_insert_trigger.sql" />
-    <Build Include="Triggers\market_data_price_update_trigger.sql" />
     <Build Include="Tables\fx_rates.sql" />
     <Build Include="Tables\fx_rates_history.sql" />
-    <Build Include="Triggers\fx_rate_insert_trigger.sql" />
-    <Build Include="Triggers\fx_rate_update_trigger.sql" />
     <Build Include="StoredProcs\PullDailyFxPrices.sql" />
     <Build Include="Tables\settings.sql" />
     <Build Include="Views\vwTaxLots.sql" />
@@ -150,8 +150,6 @@
     <Build Include="StoredProcs\Research and Development\CacheBatchResults_rd.sql" />
     <Build Include="Tables\cash_dividends.sql" />
     <Build Include="Tables\cash_dividends_audit_trail.sql" />
-    <Build Include="Triggers\cash_dividend_insert_trigger.sql" />
-    <Build Include="Triggers\cash_dividend_update_trigger.sql" />
     <Build Include="Views\vwWorkingJOurnals.sql" />
     <Build Include="Functions\fnTaxLotReport.sql" />
     <Build Include="Views\vwDividendDetails.sql" />
@@ -160,8 +158,6 @@
     <Build Include="Tables\stock_splits.sql" />
     <Build Include="Tables\stock_splits_audit_trail.sql" />
     <Build Include="Views\vwStockSplitDetails.sql" />
-    <Build Include="Triggers\stock_split_insert_trigger.sql" />
-    <Build Include="Triggers\stock_split_update_trigger.sql" />
     <Build Include="Functions\fnSide.sql" />
     <Build Include="Tables\current_journal_full.sql" />
     <Build Include="Tables\security_details.sql" />
@@ -175,6 +171,20 @@
     <Build Include="StoredProcs\DividendDetails.sql" />
     <None Include="StoredProcs\addHocScripts\AccountTypes.sql" />
     <Build Include="Tables\trade_reason.sql" />
+    <Build Include="Tables\symbol_change.sql" />
+    <Build Include="Tables\symbol_change_audit.sql" />
+    <Build Include="Triggers\stock_split\stock_split_update_trigger.sql" />
+    <Build Include="Triggers\stock_split\stock_split_insert_trigger.sql" />
+    <Build Include="Triggers\monthly_performance\monthly_performance_update_trigger.sql" />
+    <Build Include="Triggers\monthly_performance\monthly_performance_insert_trigger.sql" />
+    <Build Include="Triggers\market_date_price\market_data_price_insert_trigger.sql" />
+    <Build Include="Triggers\market_date_price\market_data_price_update_trigger.sql" />
+    <Build Include="Triggers\fx_rate\fx_rate_update_trigger.sql" />
+    <Build Include="Triggers\fx_rate\fx_rate_insert_trigger.sql" />
+    <Build Include="Triggers\cash_dividend\cash_dividend_update_trigger.sql" />
+    <Build Include="Triggers\cash_dividend\cash_dividend_insert_trigger.sql" />
+    <Build Include="Triggers\symbol_change\symbol_change_insert_trigger.sql" />
+    <Build Include="Triggers\symbol_change\symbol_change_update_trigger.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">
