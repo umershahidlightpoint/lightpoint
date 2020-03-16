@@ -21,7 +21,6 @@ export class CreateSecurityComponent implements OnInit {
   @ViewChild('securityModal', { static: false }) securityModal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
 
-  showTrade = true;
   showFinancing = true;
 
   symbol$: Observable<[]>;
@@ -70,7 +69,6 @@ export class CreateSecurityComponent implements OnInit {
 
   ngOnInit() {
 
-    this.showTrade = false;
     this.initializeForm();
     this.getSymbols();
     this.onChanges();
@@ -122,7 +120,7 @@ export class CreateSecurityComponent implements OnInit {
       if (val === 'Date') {
         this.resetDate = true;
         this.securityForm.patchValue({
-          financingNoOfDays: null
+          financingNoOfDays: ''
         });
         this.fNoOfDays = false;
       }
@@ -130,7 +128,7 @@ export class CreateSecurityComponent implements OnInit {
       if (val === 'No of days' || val === 'Monthly' || val === 'Quarterly' || val === 'Yearly') {
         this.resetDate = false;
         this.securityForm.patchValue({
-          FinancingResetDate: null
+          FinancingResetDate: ''
         });
         this.fNoOfDays = true;
       }
@@ -145,7 +143,7 @@ export class CreateSecurityComponent implements OnInit {
       if (value === 'Date') {
         this.endDate = true;
         this.securityForm.patchValue({
-          nextFinancingNoOfDays: null
+          nextFinancingNoOfDays: ''
         });
         this.nextFinanceNoOfDays = false;
       }
@@ -153,7 +151,7 @@ export class CreateSecurityComponent implements OnInit {
       if (value === 'No of days' || value === 'Monthly' || value === 'Quarterly' || value === 'Yearly') {
         this.endDate = false;
         this.securityForm.patchValue({
-          nextFinancingEndDate: null
+          nextFinancingEndDate: ''
         });
         this.nextFinanceNoOfDays = true;
       }
@@ -541,7 +539,7 @@ export class CreateSecurityComponent implements OnInit {
    });
    }
     if (formData.financing_reset_date !== null ) {
-      if (formData.financing_reset_date_type === 'No of days') {
+      if (formData.financing_reset_date_type !== 'Date') {
         this.securityForm.patchValue({
           financingNoOfDays: formData.financing_reset_date
        });
@@ -557,11 +555,7 @@ export class CreateSecurityComponent implements OnInit {
    });
    }
     if (formData.next_financing_end_date !== null) {
-      if (formData.next_financing_end_date_type === 'No of days' ||
-          formData.next_financing_end_date_type === 'Monthly' ||
-          formData.next_financing_end_date_type === 'Quarterly' ||
-          formData.next_financing_end_date_type === 'Yearly'
-          ) {
+      if (formData.next_financing_end_date_type !== 'Date') {
         this.securityForm.patchValue({
           nextFinancingNoOfDays: formData.next_financing_end_date
        });

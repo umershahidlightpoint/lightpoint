@@ -580,17 +580,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   getContextMenuItems(params): Array<ContextMenu> {
     const addDefaultItems = [];
 
-    if (params.node.data.event === 'manual') {
-      addDefaultItems.push({
-        name: 'Edit',
-        action: () => {
-          this.isJournalModalActive = true;
-
-          setTimeout(() => {
-            this.openEditModal(params.node.data, false);
-          }, 250);
-        }
-      },
+    addDefaultItems.push(
       {
         name: 'Security Details',
         subMenu: [
@@ -623,7 +613,20 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
             },
           }
         ]
-      },);
+      });
+
+    if (params.node.data.event === 'manual') {
+      addDefaultItems.push({
+        name: 'Edit',
+        action: () => {
+          this.isJournalModalActive = true;
+
+          setTimeout(() => {
+            this.openEditModal(params.node.data, false);
+          }, 250);
+        }
+      }
+      );
     }
     const addCustomItems = [
       {

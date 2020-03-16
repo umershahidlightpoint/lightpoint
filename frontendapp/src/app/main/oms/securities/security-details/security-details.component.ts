@@ -1,29 +1,21 @@
 
 import { Component, OnInit, ViewChild } from '@angular/core';
 import {
-  Style,
-  SideBar,
   SetDateRange,
   ExcelStyle,
-  FormatNumber4,
   MoneyFormat,
-  CommaSeparatedFormat,
-  HeightStyle,
   DateFormatter
 } from 'src/shared/utils/Shared';
-import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
+import { GridOptions } from 'ag-grid-community';
 import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { ToastrService } from 'ngx-toastr';
 import { ContextMenu } from 'src/shared/Models/common';
 import * as moment from 'moment';
-import { debounce, finalize } from 'rxjs/operators';
+import { finalize } from 'rxjs/operators';
 import { SecurityApiService } from 'src/services/security-api.service';
 import { CreateSecurityComponent } from '../../../../../shared/Modal/create-security/create-security.component';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
-import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
-
 
 @Component({
   selector: 'app-security-details',
@@ -448,10 +440,7 @@ export class SecurityDetailsComponent implements OnInit {
 
     refreshReport() {
       this.gridOptions.api.showLoadingOverlay();
-      // this.dividendScreenRatio.detailsView = false;
-      // this.dividendDetailsGrid.api.showLoadingOverlay();
       this.getSecurities();
-      // this.getDividendDetails();
     }
 
     clearFilters() {
@@ -491,26 +480,9 @@ function moneyFormatter(params) {
   return MoneyFormat(params.value);
 }
 
-function currencyFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  return CommaSeparatedFormat(params.value);
-}
-
 function dateFormatter(params) {
   if (params.value === undefined || params.value === '' || params.value === null || !isNaN(params.value)) {
     return;
   }
-  if (isNaN(params.value)) {
-    return;
-   }
   return DateFormatter(params.value);
-}
-
-function priceFormatter(params) {
-  if (params.value === undefined) {
-    return;
-  }
-  return FormatNumber4(params.value);
 }
