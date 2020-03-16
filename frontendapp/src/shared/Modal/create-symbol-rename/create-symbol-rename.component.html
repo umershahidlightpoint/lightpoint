@@ -1,0 +1,161 @@
+<!-- Modal Div Starts -->
+<div bsModal #symbolRenameModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true"
+  [config]="{backdrop: 'static'}">
+
+  <!-- Modal Dialog Div Starts -->
+  <div class="modal-dialog modal-dialog-centered modal-lg" id="modal-lg">
+    <!-- Modal Content Starts -->
+    <div class="modal-content">
+        <!------ Form Starts------>
+
+        <form [formGroup]="symbolRenameForm" (ngSubmit)="onSubmit()">
+
+        <!-- Modal Header -->
+        <div class="modal-header color-primary">
+          <h3>Change Symbol</h3>
+          <button type="button" class="close" data-dismiss="modal" (click)="close()">&times;</button>
+          <!--End Modal Header -->
+        </div>
+
+        <!-- No Result Alert -->
+        <alert *ngIf="noResult" type="danger" [dismissible]="true">
+            <strong>Warning!</strong> Please, only select values from the dropdown!
+        </alert>
+        <!-- No Result Alert Ends -->
+
+         <!-- Modal Body Starts-->
+        <div class="modal-body">
+
+        <!-- New Symbol Div Starts -->
+        <div class="form-group">
+            <div class="row m-0">
+                <div class="col-sm-3 text-align-right">
+                    <label>Old Symbol *</label>
+                  </div>
+                  <!-- newSymbol Drop Down -->
+                  <div class="col-sm-3">
+                    <input class="form-control"
+                    placeholder="Select New Symbol"
+                    formControlName="oldSymbol"
+                    [ngClass]="{ 'is-invalid': formFields.newSymbol.errors && formFields.newSymbol.invalid && formFields.newSymbol.touched }"
+                    autocomplete="off"
+                    typeaheadWaitMs="500"
+                    [isAnimated]="true"
+                    [typeaheadScrollable]="true"
+                    [typeaheadIsFirstItemActive]="true"
+                    [typeaheadMinLength]="0"
+                    [typeaheadOptionsInScrollableView]="15"
+                    [typeahead]="ticker$"
+                    (typeaheadNoResults)="typeaheadNoResults($event)"
+                    />
+                    <span *ngIf="formFields.newSymbol.invalid  && formFields.newSymbol.touched" class="invalid-feedback">Symbol is required</span>
+                  </div>
+
+                <div class="col-sm-3 text-right">
+                    <label>New Symbol *</label>
+                </div>
+                <!-- newSymbol Drop Down -->
+                <div class="col-sm-3">
+                    <input class="form-control"
+                        type="text"
+                        formControlName="oldSymbol"
+                        autocomplete="off"
+                />
+                <span *ngIf="formFields.oldSymbol.invalid  && formFields.oldSymbol.touched" class="invalid-feedback">Please enter symbol</span>
+                </div>
+            </div>
+
+            </div>
+            <!-- New Symbol Div Ends -->    
+
+        <!-- New Symbol Div Starts -->
+        
+          <!-- New Symbol Div Ends -->
+
+        <fieldset class="wrap-dates">
+            <legend class="dates-heading">Dates</legend>
+
+        <!-- Notice Date Div Starts -->
+        <div class="form-group">
+        <div class="row m-0">
+            <div class="col-sm-3">
+            <label> Notice Date * </label>
+            </div>
+            <div class="col-sm-9">
+            <input
+                ngxDaterangepickerMd
+                formControlName="noticeDate"
+                class="form-control bc-white cursor-pointer"
+                [ngClass]="{ 'is-invalid': formFields.noticeDate.errors && formFields.noticeDate.invalid && formFields.noticeDate.touched }"
+                type="text"
+                placeholder="Select notice date"
+                [singleDatePicker]="true"
+                [autoApply]="true"
+                autocomplete="off"
+                readonly
+                 />
+                 <span *ngIf="formFields.noticeDate.invalid  && formFields.noticeDate.touched" class="invalid-feedback">Notice Date is required</span>
+            </div>
+        </div>
+        <!-- Notice Date Div End -->
+        </div>
+
+        <!-- ExDate Div Starts -->
+        <div class="form-group">
+            <div class="row m-0">
+                <div class="col-sm-3">
+                <label> Ex-Date * </label>
+                </div>
+                <div class="col-sm-9">
+                <input
+                    ngxDaterangepickerMd
+                    formControlName="executionDate"
+                    class="form-control bc-white"
+                    [ngClass]="{ 'is-invalid': formFields.executionDate.errors && formFields.executionDate.invalid && formFields.executionDate.touched}"
+                    type="text"
+                    placeholder="Select ex-Date"
+                    [singleDatePicker]="true"
+                    [autoApply]="true"
+                    autocomplete="off"
+                    readonly
+                />
+                <span *ngIf="formFields.executionDate.invalid  && formFields.executionDate.touched" class="invalid-feedback">Execution Date is required</span>
+                </div>
+            </div>
+            <!-- ExDate Div End -->
+        </div>
+
+        </fieldset>
+
+        <!-- Modal Footer Starts -->
+        <div class="modal-footer">
+
+            <button *ngIf="editStockSplit" type="button" class="btn btn-danger mr-auto" [disabled]="isDeleting"
+            (click)="deleteStockSplit()"><i class="fa fa-trash"></i> Delete
+            <span *ngIf="isDeleting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            </button>
+    
+            <button type="button" class="btn btn-secondary" (click)="close()">
+                <i class="fa fa-times" aria-hidden="true"></i> Cancel
+            </button>
+    
+            <button type="submit" class="btn btn-pa" [ngClass]="{'cursor-not-allowed': !symbolRenameForm.valid}"
+            [disabled]="!symbolRenameForm.valid || isSaving">
+            <i class="fa" [ngClass]=" {'fa-edit':editStockSplit, 'fa-save':!editStockSplit}"></i>
+            {{editStockSplit ? "Update" : "Save"}}
+            <span *ngIf="isSaving" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          </button>
+            <!-- Modal Footer Ends -->
+            </div>
+
+        </div>
+         <!------ Form End------>
+          </form>
+        
+        </div>
+
+    </div>
+    <!-- Modal Dialog Div Ends -->
+
+</div>
+<!-- Modal Div Starts Ends -->

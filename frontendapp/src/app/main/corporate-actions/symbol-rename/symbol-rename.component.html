@@ -1,0 +1,111 @@
+<div class="row">
+
+    <!-- Symbol Filter -->
+    <div class="col-auto">
+      <input type="text" autocomplete="off" placeholder="Filter by Symbol" name="symbol" [(ngModel)]="filterBySymbol"
+        (ngModelChange)="ngModelChangeSymbol($event)" (keyup)="onSymbolKey($event)" class="form-control" />
+    </div>
+    <!-- Symbol Filter Ends -->
+  
+    <!-- Date Picker Div Starts -->
+    <div class="col-auto">
+      <form>
+        <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date" [(ngModel)]="selected"
+          (ngModelChange)="ngModelChangeDates($event)" name=" selected" [autoApply]="true" [alwaysShowCalendars]="true"
+          [keepCalendarOpeningWithRange]="true" />
+      </form>
+    </div>
+    <!-- Date Picker Div Ends -->
+  
+    <!-- Clear Button Div Starts -->
+    <div class="col-auto">
+      <button (click)="clearFilters()" class="btn btn-pa" value="clear" tooltip="Clear" placement="top">
+        <i class="fa fa-remove"></i>
+      </button>
+    </div>
+    <!-- Clear Button Div Ends -->
+  
+    <!-- Util Buttons Div Starts -->
+    <div class="col-auto ml-auto">
+  
+      <!-- Refresh Button Div Starts -->
+      <div class="mr-2 d-inline-block">
+        <button (click)="refreshReport()" class="btn btn-pa" value="refresh" tooltip="Refresh" placement="top">
+          <i class="fa fa-refresh"></i></button>
+      </div>
+      <!-- Refresh Button Div Ends -->
+  
+      <div class="mr-2 d-inline-block">
+        <button class="btn btn-pa" type="button" value="showModal" (click)="openStockSplitModal()"
+          tooltip="Create StockSplits" placement="top">
+          <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>
+      </div>
+  
+      <!-- Expand/Collapse Button -->
+      <div class="mr-3 d-inline-block">
+        <ng-template #tooltipTemplate>{{stockSplitConfig.detailsView ? 'Expand' : 'Collapse'}}</ng-template>
+        <button (click)="stockSplitConfig.detailsView = !stockSplitConfig.detailsView" class="btn btn-pa"
+          [tooltip]="tooltipTemplate" placement="top">
+          <i class="fa"
+            [ngClass]="{'fa-arrow-down': stockSplitConfig.detailsView, 'fa-arrow-up': !stockSplitConfig.detailsView}"></i>
+        </button>
+      </div>
+  
+    </div>
+    <!-- Util Buttons Div Ends -->
+  
+  </div>
+  
+  <!-- Main Split Row Starts -->
+  <div class="split-area row h-100" style="margin-top: 20px;">
+  
+    <!-- AS Split Main Container -->
+    <as-split class="pl-15 pr-15" disabled="false" direction="vertical" [useTransition]="stockSplitConfig.useTransition"
+      (dragEnd)="applyPageLayout($event)" (transitionEnd)="applyPageLayout($event)">
+  
+      <!-- Cost Basis Split Area -->
+      <as-split-area [visible]="stockSplitConfig.stockSplitView" [size]="stockSplitConfig.stockSplitSize" order="1">
+  
+  
+        <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions"
+          (rowSelected)="onRowSelected($event)" [rowData]="rowData">
+        </ag-grid-angular>
+  
+      </as-split-area>
+  
+      <!-- Charts Split Area -->
+      <as-split-area [visible]="stockSplitConfig.detailsView" [size]="stockSplitConfig.detailsSize" order="2">
+        <div class="w-100 h-100 mt-3 tabset-wrapper grid-height">
+          <tabset class="w-100 height-45 mt-3">
+            <tab class="h-100" heading="Details" (selectTab)="activeStockSplits()">
+              <ag-grid-angular class="w-100 h-100 ag-theme-balham" style="margin-top: 20px;"
+                [gridOptions]="stockSplitDetailsGrid" (rowSelected)="onRowSelected($event)" [rowData]="rowData">
+              </ag-grid-angular>
+            </tab>
+  
+            <tab heading="Preview">
+              <app-stock-splits-preview></app-stock-splits-preview>
+            </tab>
+          </tabset>
+        </div>
+      </as-split-area>
+  
+    </as-split>
+  
+  </div>
+  
+  <app-create-symbol-rename #symbolRenameModal (modalClose)="closeStockSplitModal()">
+  </app-create-symbol-rename>
+  
+  <!-- Data Grid Modal Component Selector Starts -->
+  <app-data-grid-modal #dataGridModal [gridTitle]="title">
+  </app-data-grid-modal>
+  <!-- Data Grid Modal Component Selector Ends -->
+  
+  <app-create-security #securityModal (modalClose)="closeSecurityModal()"></app-create-security>
+  
+  <!-- Confirmation Modal Selector -->
+  <app-confirmation-modal #confirmationModal [title]="'Delete Stock Split'" (confirmed)="deleteStockSplit()">
+  </app-confirmation-modal>
+  <!-- Confirmation Modal Selector Ends -->

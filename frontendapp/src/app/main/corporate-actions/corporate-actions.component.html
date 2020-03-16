@@ -15,4 +15,12 @@
         </div>
       </div>
     </tab>
+
+    <tab heading="Symbol Rename" (selectTab)="activeSymbolRename()">
+      <div [ngStyle]="style">
+        <div [ngStyle]="styleForHeight">
+          <app-symbol-rename *ngIf="symbolRename"></app-symbol-rename>
+        </div>
+      </div>
+    </tab>
   </tabset>
