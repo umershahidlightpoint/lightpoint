@@ -51,6 +51,7 @@ RAISERROR (@message, 0, 1) WITH NOWAIT
 	[fund] [varchar](50) NULL,
 	[AccountCategory] [varchar](50) NULL,
 	[AccountType] [varchar](100) NULL,
+	[AccountTypeId] [int] NULL,
 	[accountName] [varchar](100) NULL,
 	[accountDescription] [varchar](100) NULL,
 	[value] [numeric](22, 9) NULL,
