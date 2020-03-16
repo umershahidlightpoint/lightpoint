@@ -91,6 +91,41 @@ export class CorporateActionsApiService {
   return this.http.get(url).pipe(map((response: any) => response), retry(1));
   }
 
+  // Symbol Rename
+
+  createSymbolRename(payload) {
+    const url = this.baseUrl + '/corporateAction/symbolRename';
+    return this.http.post(url, payload).pipe(map((response: any) => response));
+  }
+
+  updateSymbolRename(payload) {
+    const url = this.baseUrl + '/corporateAction/symbolRename';
+    return this.http.put(url, payload).pipe(map((response: any) => response));
+  }
+
+  deleteSymbolRename(id) {
+    const obj = {
+      Id: id
+    };
+    const url = this.baseUrl + '/corporateAction/deleteSymbolRename';
+    return this.http.put(url, obj).pipe(map((response: any) => response));
+  }
+
+  getSymbolsRename() {
+    const url = this.baseUrl + '/corporateAction/symbolsRename';
+    return this.http.get(url).pipe(map((response: any) => response), retry(1));
+  }
+
+  // getStockSplitAudit(id) {
+  //   const url = this.baseUrl + '/corporateAction/stockSplitAudit?id=' + id;
+  //   return this.http.get(url).pipe(map((response: any) => response), retry(1));
+  // }
+
+  // getStockSplitDetails(id) {
+  // const url = this.baseUrl + '/corporateAction/stockSplitDetails?id=' + id;
+  // return this.http.get(url).pipe(map((response: any) => response), retry(1));
+  // }
+
   handleError(error) {
     let errorMessage = '';
     if (error.error instanceof ErrorEvent) {

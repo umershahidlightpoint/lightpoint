@@ -58,10 +58,10 @@
                 <div class="col-sm-3">
                     <input class="form-control"
                         type="text"
-                        formControlName="oldSymbol"
+                        formControlName="newSymbol"
                         autocomplete="off"
                 />
-                <span *ngIf="formFields.oldSymbol.invalid  && formFields.oldSymbol.touched" class="invalid-feedback">Please enter symbol</span>
+                <span *ngIf="formFields.newSymbol.invalid  && formFields.newSymbol.touched" class="invalid-feedback">Please enter symbol</span>
                 </div>
             </div>
 
@@ -74,6 +74,31 @@
 
         <fieldset class="wrap-dates">
             <legend class="dates-heading">Dates</legend>
+
+         <!-- ExDate Div Starts -->
+        <div class="form-group">
+            <div class="row m-0">
+                <div class="col-sm-3">
+                <label> Ex-Date * </label>
+                </div>
+                <div class="col-sm-9">
+                <input
+                    ngxDaterangepickerMd
+                    formControlName="executionDate"
+                    class="form-control bc-white"
+                    [ngClass]="{ 'is-invalid': formFields.executionDate.errors && formFields.executionDate.invalid && formFields.executionDate.touched}"
+                    type="text"
+                    placeholder="Select ex-Date"
+                    [singleDatePicker]="true"
+                    [autoApply]="true"
+                    autocomplete="off"
+                    readonly
+                />
+                <span *ngIf="formFields.executionDate.invalid  && formFields.executionDate.touched" class="invalid-feedback">Execution Date is required</span>
+                </div>
+            </div>
+            <!-- ExDate Div End -->
+        </div>
 
         <!-- Notice Date Div Starts -->
         <div class="form-group">
@@ -100,40 +125,10 @@
         <!-- Notice Date Div End -->
         </div>
 
-        <!-- ExDate Div Starts -->
-        <div class="form-group">
-            <div class="row m-0">
-                <div class="col-sm-3">
-                <label> Ex-Date * </label>
-                </div>
-                <div class="col-sm-9">
-                <input
-                    ngxDaterangepickerMd
-                    formControlName="executionDate"
-                    class="form-control bc-white"
-                    [ngClass]="{ 'is-invalid': formFields.executionDate.errors && formFields.executionDate.invalid && formFields.executionDate.touched}"
-                    type="text"
-                    placeholder="Select ex-Date"
-                    [singleDatePicker]="true"
-                    [autoApply]="true"
-                    autocomplete="off"
-                    readonly
-                />
-                <span *ngIf="formFields.executionDate.invalid  && formFields.executionDate.touched" class="invalid-feedback">Execution Date is required</span>
-                </div>
-            </div>
-            <!-- ExDate Div End -->
-        </div>
-
         </fieldset>
 
         <!-- Modal Footer Starts -->
         <div class="modal-footer">
-
-            <button *ngIf="editStockSplit" type="button" class="btn btn-danger mr-auto" [disabled]="isDeleting"
-            (click)="deleteStockSplit()"><i class="fa fa-trash"></i> Delete
-            <span *ngIf="isDeleting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            </button>
     
             <button type="button" class="btn btn-secondary" (click)="close()">
                 <i class="fa fa-times" aria-hidden="true"></i> Cancel
@@ -141,8 +136,8 @@
     
             <button type="submit" class="btn btn-pa" [ngClass]="{'cursor-not-allowed': !symbolRenameForm.valid}"
             [disabled]="!symbolRenameForm.valid || isSaving">
-            <i class="fa" [ngClass]=" {'fa-edit':editStockSplit, 'fa-save':!editStockSplit}"></i>
-            {{editStockSplit ? "Update" : "Save"}}
+            <i class="fa" [ngClass]=" {'fa-edit':editSymbolRename, 'fa-save':!editSymbolRename}"></i>
+            {{editSymbolRename ? "Update" : "Save"}}
             <span *ngIf="isSaving" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
           </button>
             <!-- Modal Footer Ends -->

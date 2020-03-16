@@ -236,8 +236,6 @@ export class JournalsSummaryComponent implements OnInit {
 
       // this.gridOptions.api.setColumnDefs(this.colDefs);
 
-      debugger;
-
       const metaColumns = result.payload.Columns;
       const commonColDefs = CommonCols(true, result.payload.Filters);
       const colDefs = [...commonColDefs, this.dataDictionary.column('fxrate', true)];

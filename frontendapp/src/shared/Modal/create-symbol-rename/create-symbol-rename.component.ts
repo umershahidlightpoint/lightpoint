@@ -25,17 +25,15 @@ import * as moment from 'moment';
 export class CreateSymbolRenameComponent implements OnInit, OnChanges {
 
   symbolRenameForm: FormGroup;
-  editStockSplit = false;
+  editSymbolRename = false;
   selectedRow;
 
   @ViewChild('symbolRenameModal', { static: false }) symbolRenameModal: ModalDirective;
   @Output() modalClose = new EventEmitter<any>();
-  stockSplits: any;
 
   ticker$: Observable<[]>;
   noResult = false;
   isSaving = false;
-  isDeleting = false;
 
   constructor(
      private formBuilder: FormBuilder,
@@ -64,12 +62,6 @@ export class CreateSymbolRenameComponent implements OnInit, OnChanges {
     });
   }
 
-  getStockSplits() {
-    this.corporateActionsApiService.getStockSplits().subscribe(response => {
-      this.stockSplits = response.payload;
-    });
-  }
-
   onSubmit() {
       this.isSaving = true;
       // stop here if form is invalid
@@ -77,7 +69,7 @@ export class CreateSymbolRenameComponent implements OnInit, OnChanges {
           return;
       }
 
-      if (this.editStockSplit) { // For Update symbol rename
+      if (this.editSymbolRename) { // For Update symbol rename
         const payload = {
           Id: this.selectedRow.id,
           OldSymbol : this.symbolRenameForm.value.oldSymbol,
@@ -86,7 +78,7 @@ export class CreateSymbolRenameComponent implements OnInit, OnChanges {
           ExecutionDate: moment(this.symbolRenameForm.value.executionDate.startDate).format('YYYY-MM-DD')
         };
 
-        this.corporateActionsApiService.updateStockSplit(payload)
+        this.corporateActionsApiService.updateSymbolRename(payload)
         .pipe(
           tap(data => {
             this.toastrService.success('Symbol update successfully!');
@@ -109,11 +101,10 @@ export class CreateSymbolRenameComponent implements OnInit, OnChanges {
           ExecutionDate: moment(this.symbolRenameForm.value.executionDate.startDate).format('YYYY-MM-DD')
         };
 
-        this.corporateActionsApiService.createStockSplit(payload)
+        this.corporateActionsApiService.createSymbolRename(payload)
         .pipe(
           tap(data => {
             this.toastrService.success('Symbol renamed successfully!');
-            this.getStockSplits();
             this.isSaving = false,
             this.modalClose.emit(true);
             this.onReset();
@@ -140,7 +131,7 @@ export class CreateSymbolRenameComponent implements OnInit, OnChanges {
 
       this.selectedRow = {};
       this.selectedRow = data;
-      this.editStockSplit = true;
+      this.editSymbolRename = true;
       this.symbolRenameForm.setValue({
         oldSymbol: data.symbol,
         newSymbol: data.newSymbol,
@@ -149,16 +140,6 @@ export class CreateSymbolRenameComponent implements OnInit, OnChanges {
       });
       this.symbolRenameModal.show();
     }
-    this.getStockSplits();
-  }
-
-  openStockSplitModalFromOutside(data) {
-    const symbol = data;
-    this.symbolRenameForm.patchValue({
-      ticker: symbol
-    });
-
-    this.symbolRenameModal.show();
   }
 
   close() {
@@ -167,8 +148,7 @@ export class CreateSymbolRenameComponent implements OnInit, OnChanges {
   }
 
   onReset() {
-    this.editStockSplit = false;
-    this.isDeleting = false;
+    this.editSymbolRename = false;
     this.symbolRenameForm.reset();
   }
 

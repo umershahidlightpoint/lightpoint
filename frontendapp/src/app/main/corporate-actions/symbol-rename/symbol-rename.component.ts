@@ -5,7 +5,6 @@ import { GridLayoutMenuComponent } from 'src/shared/Component/grid-layout-menu/g
 import { GridId, GridName, LayoutConfig } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
-import { CreateStockSplitsComponent } from 'src/shared/Modal/create-stock-splits/create-stock-splits.component';
 import { CreateSymbolRenameComponent } from 'src/shared/Modal/create-symbol-rename/create-symbol-rename.component';
 import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
@@ -139,7 +138,7 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
   getStockSplits() {
     this.corporateActionsApiService.getStockSplits().subscribe(response => {
       this.gridOptions.api.hideOverlay();
-      if(response.statusCode === 200){
+      if (response.statusCode === 200){
         this.data = response.payload.map(obj => ({
           ...obj,
           ratio: obj.top_ratio + '' + '/' + obj.bottom_ratio
@@ -216,21 +215,22 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
           hide: true
         },
         {
-          field: 'symbol',
+          field: 'old_symbol',
           width: 120,
-          headerName: 'Symbol',
+          headerName: 'Old Symbol',
           rowGroup: true,
           enableRowGroup: true,
           sortable: true,
           filter: true
         },
         {
-          field: 'notice_date',
-          headerName: 'Notice Date',
-          sortable: true,
-          filter: true,
+          field: 'new_symbol',
           width: 120,
-          valueFormatter: dateFormatter
+          headerName: 'New Symbol',
+          rowGroup: true,
+          enableRowGroup: true,
+          sortable: true,
+          filter: true
         },
         {
           field: 'execution_date',
@@ -241,49 +241,12 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
           valueFormatter: dateFormatter
         },
         {
-          field: 'top_ratio',
-          headerName: 'Top Ratio',
-          width: 100,
-          filter: true,
+          field: 'notice_date',
+          headerName: 'Notice Date',
           sortable: true,
-          cellClass: 'rightAlign',
-          valueFormatter: moneyFormatter,
-          hide: true
-        },
-        {
-          field: 'bottom_ratio',
-          headerName: 'Bottom Ratio',
-          width: 100,
           filter: true,
-          sortable: true,
-          cellClass: 'rightAlign',
-          hide: true,
-          valueFormatter: moneyFormatter
-        },
-        {
-          field: 'ratio',
-          headerName: 'Ratio',
-          width: 100,
-          filter: true,
-          sortable: true,
-          cellClass: 'rightAlign'
-        },
-        {
-          field: 'adjustment_factor',
-          headerName: 'Adjustment Factor',
-          width: 100,
-          filter: true,
-          sortable: true,
-          cellClass: 'rightAlign',
-          valueFormatter: moneyFormatter
-        },
-        {
-          field: 'active_flag',
-          headerName: 'Active Flag',
-          width: 100,
-          filter: true,
-          sortable: true,
-          hide: true
+          width: 120,
+          valueFormatter: dateFormatter
         }
       ],
       defaultColDef: {
@@ -640,7 +603,7 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
       const modifiedCols = columns.map(col => {
         return { ...col, editable: false };
       });
-      this.title = 'Stock Split Audit Trail';
+      this.title = 'Symbol Rename Audit Trail';
       this.dataGridModal.openModal(modifiedCols, payload);
     });
   }
@@ -656,20 +619,22 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
         hide: true
       },
       {
-        field: 'symbol',
+        field: 'old_symbol',
         width: 120,
-        headerName: 'Symbol',
+        headerName: 'Old Symbol',
         rowGroup: true,
         enableRowGroup: true,
         sortable: true,
         filter: true
       },
       {
-        field: 'notice_date',
-        headerName: 'Notice Date',
+        field: 'new_symbol',
+        width: 120,
+        headerName: 'New Symbol',
+        rowGroup: true,
+        enableRowGroup: true,
         sortable: true,
-        filter: true,
-        width: 120
+        filter: true
       },
       {
         field: 'execution_date',
@@ -679,27 +644,11 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
         width: 100
       },
       {
-        field: 'top_ratio',
-        headerName: 'Top Ratio',
-        width: 100,
-        filter: true,
-        sortable: true
-      },
-      {
-        field: 'bottom_ratio',
-        headerName: 'Bottom Ratio',
-        width: 100,
-        filter: true,
-        sortable: true
-      },
-      {
-        field: 'adjustment_factor',
-        headerName: 'Adjustment Factor',
-        width: 100,
-        filter: true,
+        field: 'notice_date',
+        headerName: 'Notice Date',
         sortable: true,
-        cellClass: 'rightAlign',
-        valueFormatter: moneyFormatter
+        filter: true,
+        width: 120
       },
       {
         field: 'active_flag',
