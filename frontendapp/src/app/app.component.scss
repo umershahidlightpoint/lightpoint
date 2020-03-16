@@ -1,3 +1,7 @@
 .navigation-progress {
   z-index: 99999;
 }
+
+::ng-deep .mat-drawer-content {
+  padding: 1rem 1.4rem 0;
+}
