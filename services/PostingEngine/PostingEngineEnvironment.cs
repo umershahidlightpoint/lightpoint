@@ -379,6 +379,25 @@ namespace PostingEngine
 
         public class PnlData
         {
+            public PnlData(SqlDataReader reader)
+            {
+                var offset = 0;
+                When = reader.GetFieldValue<DateTime>(offset++);
+                Credit = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++));
+                Debit = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++));
+                LocalCredit = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++));
+                LocalDebit = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++));
+                Symbol = reader.GetFieldValue<string>(offset++);
+                Quantity = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++));
+                Currency = reader.GetFieldValue<string>(offset++);
+                Fund = reader.GetFieldValue<string>(offset++);
+                Source = reader.GetFieldValue<string>(offset++);
+                FxRate = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++));
+                SecurityId = reader.GetFieldValue<int>(offset++);
+                SecurityType = reader.GetFieldValue<string>(offset++);
+
+            }
+
             public DateTime When { get; set; }
             public double Credit { get; set; }
             public double Debit { get; set; }
@@ -420,24 +439,14 @@ namespace PostingEngine
                 while (reader.Read())
                 {
                     var offset = 0;
-                    var unsettledPnl = new PnlData
+                    try
                     {
-                        When = reader.GetFieldValue<DateTime>(offset++),
-                        Credit = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++)),
-                        Debit = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++)),
-                        LocalCredit = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++)),
-                        LocalDebit = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++)),
-                        Symbol = reader.GetFieldValue<string>(offset++),
-                        Quantity = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++)),
-                        Currency = reader.GetFieldValue<string>(offset++),
-                        Fund = reader.GetFieldValue<string>(offset++),
-                        Source = reader.GetFieldValue<string>(offset++),
-                        FxRate = Convert.ToDouble(reader.GetFieldValue<decimal>(offset++)),
-                        SecurityId = reader.GetFieldValue<int>(offset++),
-                        SecurityType = reader.GetFieldValue<string>(offset++),
-                    };
-
-                    this.UnsettledPnl.Add(unsettledPnl);
+                        var unsettledPnl = new PnlData(reader);
+                        this.UnsettledPnl.Add(unsettledPnl);
+                    } catch ( Exception ex )
+                    {
+                        throw ex;
+                    }
                 }
 
                 reader.Close();
