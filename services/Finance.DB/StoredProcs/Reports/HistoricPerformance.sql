@@ -35,7 +35,7 @@ WTD Calcs, need to ensure that the pnl_summary table is populated
 */
 
 select @Now as AsOf, sum(DayPnl) as DayPnl, @CurrentNAV as EodNav, coalesce(@Withdrawls,0) as Withdrawls, coalesce(@Contributions,0) as Contributions, 
-sum(DayPnl) / @SODNAV as DayPnlPer, Sum(MtdPnl) / @SODNAV as MtdPnlPer, Sum(QtdPnl) / @SODNAV as QtdPnlPer, Sum(YtdPnl) / @SODNAV as YtdPnlPer, Sum(ItdPnl) / @SODNAV as ItdPnlPer,
+sum(DayPnl) / NULLIF(@SODNAV,0) as DayPnlPer, Sum(MtdPnl) / NULLIF(@SODNAV,0) as MtdPnlPer, Sum(QtdPnl) / NULLIF(@SODNAV,0) as QtdPnlPer, Sum(YtdPnl) / NULLIF(@SODNAV,0) as YtdPnlPer, Sum(ItdPnl) / NULLIF(@SODNAV,0) as ItdPnlPer,
 Sum(MtdPnl) MtdPnl, Sum(QtdPnl) as QtdPnl, Sum(YtdPnl) YtdPnl, Sum(ItdPnl) as ItdPnl
 from pnl_summary where BusDate = @Now
 
