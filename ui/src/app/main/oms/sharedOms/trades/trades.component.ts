@@ -140,12 +140,12 @@ export class TradesComponent implements OnInit, AfterViewInit {
     }
   };
 
-  ngModelChangeExcluded(event){
+  ngModelChangeExcluded(event) {
     this.filterByExcludedTrades = event;
     this.gridOptions.api.onFilterChanged();
   }
 
-  ngModelChangeManual(event){
+  ngModelChangeManual(event) {
     this.filterByUploadedTrades = event;
     this.gridOptions.api.onFilterChanged();
   }
@@ -366,7 +366,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
   isExternalFilterPassed(object) {
     const { symbolFilter } = object;
     const { excludeFilter } = object;
-    const { manualFilter } = object; 
+    const { manualFilter } = object;
     this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
     this.filterByExcludedTrades = excludeFilter !== undefined ? excludeFilter : false;
     this.filterByUploadedTrades = manualFilter !== undefined ? manualFilter : false;
@@ -384,26 +384,33 @@ export class TradesComponent implements OnInit, AfterViewInit {
     const tradeType = node.data.TradeType === null ? '' : node.data.TradeType;
     const excluded = node.data.exclude === null ? '' : node.data.exclude;
     if (this.filterBySymbol !== '' && this.filterByExcludedTrades && this.filterByUploadedTrades) {
-      return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) &&
-      tradeType === 'manual' &&
-      excluded === 'Y';
-    } 
-    if(this.filterBySymbol !== '' && this.filterByUploadedTrades){
-      return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) &&
-      tradeType === 'manual';
+      return (
+        cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) &&
+        tradeType === 'manual' &&
+        excluded === 'Y'
+      );
     }
-    if(this.filterBySymbol !== '' && this.filterByExcludedTrades){
-      return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) &&
-      excluded === 'Y';
+    if (this.filterBySymbol !== '' && this.filterByUploadedTrades) {
+      return (
+        cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) &&
+        tradeType === 'manual'
+      );
     }
-    if(this.filterByUploadedTrades && this.filterByExcludedTrades){
-      return tradeType === 'manual' &&
-      excluded === 'Y';
+    if (this.filterBySymbol !== '' && this.filterByExcludedTrades) {
+      return (
+        cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) && excluded === 'Y'
+      );
     }
-    if(this.filterByUploadedTrades){
+    if (this.filterByUploadedTrades && this.filterByExcludedTrades) {
+      return tradeType === 'manual' && excluded === 'Y';
+    }
+    if (this.filterBySymbol !== '') {
+      return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase());
+    }
+    if (this.filterByUploadedTrades) {
       return tradeType === 'manual';
     }
-    if(this.filterByExcludedTrades){
+    if (this.filterByExcludedTrades) {
       return excluded === 'Y';
     }
     return true;
