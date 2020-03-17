@@ -1,6 +1,6 @@
 
 <!-- LP Modal -->
-<lp-modal #symbolRenameModal size="large" [title]="editSymbolRename ? 'Edit Symbol' : 'Create Symbol'"
+<lp-modal #symbolRenameModal size="large" [title]="editSymbolRename ? 'Edit Symbol' : 'Change Symbol'"
     (closed)="onCloseModal()" [showFooter]="false" (canceled)="onCloseModal()" (confirmed)="form.ngSubmit.emit()">
 
         <form [formGroup]="symbolRenameForm" (ngSubmit)="onSubmit()">
