@@ -613,7 +613,7 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
         field: 'old_symbol',
         width: 120,
         headerName: 'Old Symbol',
-        rowGroup: true,
+        // rowGroup: true,
         // enableRowGroup: true,
         sortable: true,
         filter: true
@@ -622,7 +622,7 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
         field: 'new_symbol',
         width: 120,
         headerName: 'New Symbol',
-        rowGroup: true,
+        // rowGroup: true,
         // enableRowGroup: true,
         sortable: true,
         filter: true
