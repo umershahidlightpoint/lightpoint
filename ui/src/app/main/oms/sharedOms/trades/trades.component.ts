@@ -67,6 +67,8 @@ export class TradesComponent implements OnInit, AfterViewInit {
   filterBySymbol = '';
   toBeReversedLpOrderId: string;
   isLoading = false;
+  filterByExcludedTrades = false;
+  filterByUploadedTrades = false;
 
   // Process Trade state
   key: string;
@@ -137,6 +139,16 @@ export class TradesComponent implements OnInit, AfterViewInit {
       return;
     }
   };
+
+  ngModelChangeExcluded(event){
+    this.filterByExcludedTrades = event;
+    this.gridOptions.api.onFilterChanged();
+  }
+
+  ngModelChangeManual(event){
+    this.filterByUploadedTrades = event;
+    this.gridOptions.api.onFilterChanged();
+  }
 
   getTrades() {
     // align scroll of grid and footer grid
@@ -353,32 +365,62 @@ export class TradesComponent implements OnInit, AfterViewInit {
 
   isExternalFilterPassed(object) {
     const { symbolFilter } = object;
+    const { excludeFilter } = object;
+    const { manualFilter } = object; 
     this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
+    this.filterByExcludedTrades = excludeFilter !== undefined ? excludeFilter : false;
+    this.filterByUploadedTrades = manualFilter !== undefined ? manualFilter : false;
     this.gridOptions.api.onFilterChanged();
   }
 
   isExternalFilterPresent() {
-    if (this.filterBySymbol !== '') {
+    if (this.filterBySymbol !== '' || this.filterByExcludedTrades || this.filterByUploadedTrades) {
       return true;
     }
   }
 
   doesExternalFilterPass(node: any) {
-    if (this.filterBySymbol !== '') {
-      const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
-      return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase());
+    const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
+    const tradeType = node.data.TradeType === null ? '' : node.data.TradeType;
+    const excluded = node.data.exclude === null ? '' : node.data.exclude;
+    if (this.filterBySymbol !== '' && this.filterByExcludedTrades && this.filterByUploadedTrades) {
+      return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) &&
+      tradeType === 'manual' &&
+      excluded === 'Y';
+    } 
+    if(this.filterBySymbol !== '' && this.filterByUploadedTrades){
+      return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) &&
+      tradeType === 'manual';
+    }
+    if(this.filterBySymbol !== '' && this.filterByExcludedTrades){
+      return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) &&
+      excluded === 'Y';
+    }
+    if(this.filterByUploadedTrades && this.filterByExcludedTrades){
+      return tradeType === 'manual' &&
+      excluded === 'Y';
+    }
+    if(this.filterByUploadedTrades){
+      return tradeType === 'manual';
+    }
+    if(this.filterByExcludedTrades){
+      return excluded === 'Y';
     }
     return true;
   }
 
   getExternalFilterState() {
     return {
-      symbolFilter: this.filterBySymbol
+      symbolFilter: this.filterBySymbol,
+      excludeFilter: this.filterByExcludedTrades,
+      manualFilter: this.filterByUploadedTrades
     };
   }
 
   clearExternalFilter() {
     this.filterBySymbol = '';
+    this.filterByExcludedTrades = false;
+    this.filterByUploadedTrades = false;
     this.gridOptions.api.onFilterChanged();
   }
 
