@@ -13,7 +13,6 @@ msbuild -t:restore ReferenceData.sln
 msbuild -t:restore PostingEngine.sln
 
 msbuild Finance.sln
-msbuild Finance.sln
 msbuild ReferenceData.sln
 msbuild PostingEngine.sln
 
@@ -50,7 +49,7 @@ xcopy /q services\PostingEngineApp\bin\Debug /s distribution\XA\Tools\PostingEng
 xcopy /q scripts /s distribution\APP\services
 
 REM Web UI
-cd ./frontendapp
+cd ./ui
 rmdir /s /q node_modules\lp-toolkit
 rmdir /s /q node_modules\lp-toolkit
 call npm install && call npm run build && call npm run deploy

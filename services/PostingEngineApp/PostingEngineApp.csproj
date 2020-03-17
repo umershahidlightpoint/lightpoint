@@ -59,7 +59,7 @@
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -113,7 +113,7 @@
       <Version>4.6.8</Version>
     </PackageReference>
     <PackageReference Include="System.Data.SqlClient">
-      <Version>4.6.1</Version>
+      <Version>4.8.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
