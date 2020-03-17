@@ -457,5 +457,183 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 throw ex;
             }
         }
+
+        // Symbol Change
+
+        public object CreateSymbolChange(SymbolChangeInputDto obj)
+        {
+            try
+            {
+                SqlHelper.VerifyConnection();
+                var createdDate = DateTime.UtcNow;
+                var createdBy = "user";
+
+                List<SqlParameter> symbolChangeParams = new List<SqlParameter>
+                {
+                    new SqlParameter("createdBy", createdBy),
+                    new SqlParameter("createdDate", createdDate),
+                    new SqlParameter("oldSymbol", obj.OldSymbol),
+                    new SqlParameter("newSymbol", obj.NewSymbol),
+                    new SqlParameter("noticeDate", obj.NoticeDate),
+                    new SqlParameter("executionDate", obj.ExecutionDate),
+                };
+
+                var query = $@"INSERT INTO [symbol_change]
+                           ([created_by]
+                           ,[created_date]
+                           ,[old_symbol]
+                           ,[new_symbol]
+                           ,[notice_date]
+                           ,[execution_date]
+                     VALUES
+                           (@createdBy
+                           ,@createdDate
+                           ,@oldSymbol
+                           ,@newSymbol
+                           ,@noticeDate
+                           ,@executionDate)";
+
+                SqlHelper.SqlBeginTransaction();
+                SqlHelper.Insert(query, CommandType.Text, symbolChangeParams.ToArray());
+                SqlHelper.SqlCommitTransaction();
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
+
+            }
+            catch (Exception ex)
+            {
+                SqlHelper.SqlRollbackTransaction();
+                throw ex;
+            }
+            finally
+            {
+                SqlHelper.CloseConnection();
+            }
+        }
+
+        public object DeleteSymbolChange(int id)
+        {
+            try
+            {
+                SqlHelper.VerifyConnection();
+                var lastUpdatedDate = DateTime.UtcNow;
+                var lastUpdatedBy = "user";
+
+                List<SqlParameter> symbolChangeParams = new List<SqlParameter>
+                {
+                    new SqlParameter("id", id),
+                    new SqlParameter("lastUpdatedBy", lastUpdatedBy),
+                    new SqlParameter("lastUpdatedDate", lastUpdatedDate)
+                };
+
+                var query = $@"UPDATE [dbo].[symbol_change]
+                           SET [last_updated_by] = @lastUpdatedBy
+                              ,[last_updated_date] = @lastUpdatedDate
+                              ,[active_flag] = 0
+                         WHERE id = @id";
+
+                SqlHelper.SqlBeginTransaction();
+                SqlHelper.Update(query, CommandType.Text, symbolChangeParams.ToArray());
+                SqlHelper.SqlCommitTransaction();
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                SqlHelper.SqlRollbackTransaction();
+                throw ex;
+            }
+            finally
+            {
+                SqlHelper.CloseConnection();
+            }
+        }
+
+        public object EditSymbolChange(SymbolChangeInputDto obj)
+        {
+            try
+            {
+                SqlHelper.VerifyConnection();
+                var lastUpdatedDate = DateTime.UtcNow;
+                var lastUpdatedBy = "user";
+
+                List<SqlParameter> symbolChangeParams = new List<SqlParameter>
+                {
+                    new SqlParameter("id", obj.Id),
+                    new SqlParameter("lastUpdatedBy", lastUpdatedBy),
+                    new SqlParameter("lastUpdatedDate", lastUpdatedDate),
+                    new SqlParameter("oldSymbol", obj.OldSymbol),
+                    new SqlParameter("newSymbol", obj.NewSymbol),
+                    new SqlParameter("noticeDate", obj.NoticeDate),
+                    new SqlParameter("executionDate", obj.ExecutionDate)
+                };
+
+                var query = $@"UPDATE [dbo].[symbol_change]
+                           SET [last_updated_by] = @lastUpdatedBy
+                              ,[last_updated_date] = @lastUpdatedDate
+                              ,[old_symbol] = @oldSymbol
+                              ,[new_symbol] = @newSymbol
+                              ,[notice_date] = @noticeDate
+                              ,[execution_date] = @executionDate
+                         WHERE id = @id";
+
+                SqlHelper.SqlBeginTransaction();
+                SqlHelper.Update(query, CommandType.Text, symbolChangeParams.ToArray());
+                SqlHelper.SqlCommitTransaction();
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                SqlHelper.SqlRollbackTransaction();
+                throw ex;
+            }
+            finally
+            {
+                SqlHelper.CloseConnection();
+            }
+        }
+
+        public object GetSymbolsChange()
+        {
+            try
+            {
+                var query = $@"select * from symbol_change where active_flag = 1";
+
+                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text);
+
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+
+                var json = JsonConvert.DeserializeObject(jsonResult);
+
+                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "Symbols change fetched successfully");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public object SymbolChangeAudit(int id)
+        {
+            try
+            {
+                List<SqlParameter> symbolChangeAuditParams = new List<SqlParameter>
+                {
+                    new SqlParameter("id", id)
+                };
+
+                var query = $@"select * from symbol_change_audit where symbol_change_id = @id";
+
+                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text, symbolChangeAuditParams.ToArray());
+
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+
+                var json = JsonConvert.DeserializeObject(jsonResult);
+
+                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "SymbolChange audit trail fetched successfully");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }
