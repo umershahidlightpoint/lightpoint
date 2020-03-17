@@ -8,6 +8,7 @@ using LP.Finance.Common;
 using LP.Core;
 using System.Diagnostics;
 using LP.Finance.Common.Cache;
+using LP.Shared.Core;
 
 namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 {
@@ -23,7 +24,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            var result = Utils.GetString($"allocations_{symbol}");
+            var result = LP.Shared.WebApi.GetString($"allocations_{symbol}");
             
             return new
             {
@@ -70,7 +71,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
                 payload = result
             };
 
-            Utils.SaveString(result, $"allocations-{symbol}");
+            LP.Shared.WebApi.SaveString(result, $"allocations-{symbol}");
 
             return returnValue;
         }

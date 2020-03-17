@@ -16,7 +16,7 @@ namespace LP.Finance.WebProxy.WebAPI
             {
                 case "ALL":
                     result = AllData();
-                    Utils.Save(result, "ledgers");
+                    Shared.WebApi.Save(result, "ledgers");
                     break;
             }
 
@@ -27,7 +27,7 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             var query = $@"SELECT * FROM [ledger]";
 
-            return Utils.RunQuery(connectionString, query);
+            return Shared.WebApi.RunQuery(connectionString, query);
         }
     }
 }

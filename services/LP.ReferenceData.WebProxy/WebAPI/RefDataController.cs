@@ -2,8 +2,9 @@
 using Newtonsoft.Json;
 using System.Configuration;
 using LP.Finance.Common;
-using LP.Core;
 using LP.Finance.Common.Cache;
+using LP.Shared.Core;
+using LP.Shared;
 
 namespace LP.ReferenceData.WebProxy.WebAPI
 {
@@ -36,7 +37,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI
     {
         public object Data(string refdata)
         {
-            return Utils.GetFile(refdata);
+            return LP.Shared.WebApi.GetFile(refdata);
         }
     }
 
@@ -63,31 +64,31 @@ namespace LP.ReferenceData.WebProxy.WebAPI
                 case "all":
                     result = new
                     {
-                        funds = Utils.RunQuery(connectionString, "select * from fund where ActiveFlag = 1"),
-                        custodians = Utils.GetTable(connectionString, "custodian"),
-                        brokers = Utils.GetTable(connectionString, "broker"),
+                        funds = LP.Shared.WebApi.RunQuery(connectionString, "select * from fund where ActiveFlag = 1"),
+                        custodians = LP.Shared.WebApi.GetTable(connectionString, "custodian"),
+                        brokers = LP.Shared.WebApi.GetTable(connectionString, "broker"),
                     };
-                    Utils.Save(result, "all");
+                    LP.Shared.WebApi.Save(result, "all");
                     break;
                 case "fund":
-                    result = Utils.RunQuery(connectionString, "select * from fund where ActiveFlag = 1");
-                    Utils.Save(result, "fund");
+                    result = LP.Shared.WebApi.RunQuery(connectionString, "select * from fund where ActiveFlag = 1");
+                    LP.Shared.WebApi.Save(result, "fund");
                     break;
                 case "custodian":
-                    result = Utils.GetTable(connectionString, "custodian");
-                    Utils.Save(result, "custodian");
+                    result = LP.Shared.WebApi.GetTable(connectionString, "custodian");
+                    LP.Shared.WebApi.Save(result, "custodian");
                     break;
                 case "portfolio":
-                    result = Utils.GetTable(connectionString, "portfolio");
-                    Utils.Save(result, "portfolio");
+                    result = LP.Shared.WebApi.GetTable(connectionString, "portfolio");
+                    LP.Shared.WebApi.Save(result, "portfolio");
                     break;
                 case "broker":
-                    result = Utils.GetTable(connectionString, "broker");
-                    Utils.Save(result, "broker");
+                    result = LP.Shared.WebApi.GetTable(connectionString, "broker");
+                    LP.Shared.WebApi.Save(result, "broker");
                     break;
                 case "symbol":
-                    result = Utils.RunQuery(connectionStringTradeMaster, "select distinct symbol from trade");
-                    Utils.Save(result, "symbol");
+                    result = LP.Shared.WebApi.RunQuery(connectionStringTradeMaster, "select distinct symbol from trade");
+                    LP.Shared.WebApi.Save(result, "symbol");
                     break;
             }
 

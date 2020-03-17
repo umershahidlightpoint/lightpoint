@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>LP.Finance.Common</RootNamespace>
     <AssemblyName>LP.Finance.Common</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,10 +32,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LP.Shared">
-      <HintPath>..\LP.Shared\bin\Debug\netstandard2.0\LP.Shared.dll</HintPath>
-    </Reference>
-    <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
@@ -47,9 +44,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Cache\AppStartCache.cs" />
-    <Compile Include="Cache\DataCache.cs" />
-    <Compile Include="Cache\DataCacheElement.cs" />
     <Compile Include="Calculators\DailyPnlCalculator.cs" />
     <Compile Include="CustomValidators\MinimumElementsAttribute.cs" />
     <Compile Include="DateFunctions.cs" />
@@ -109,15 +103,10 @@
     <Compile Include="Dtos\TrialBalanceReportOutPutDto.cs" />
     <Compile Include="Dtos\TrialBalanceTileOutputDto.cs" />
     <Compile Include="IO\FileManager.cs" />
-    <Compile Include="FileMetaData\Field.cs" />
-    <Compile Include="FileMetaData\FileProperties.cs" />
-    <Compile Include="FileMetaData\IField.cs" />
-    <Compile Include="FileMetaData\IRow.cs" />
-    <Compile Include="FileMetaData\Row.cs" />
+    <Compile Include="MathFnc.cs" />
     <Compile Include="Model\AccountToThirdPartyAccountMapping.cs" />
     <Compile Include="Model\CashDividends.cs" />
     <Compile Include="Model\Event.cs" />
-    <Compile Include="Model\FilterValues.cs" />
     <Compile Include="Model\FxRate.cs" />
     <Compile Include="Model\GraphQLQuery.cs" />
     <Compile Include="Mappers\EntityMapper.cs" />
@@ -129,11 +118,7 @@
     <Compile Include="Model\AccountToFrom.cs" />
     <Compile Include="Model\Accrual.cs" />
     <Compile Include="Model\CostBasis.cs" />
-    <Compile Include="Model\DBActions.cs" />
     <Compile Include="Model\FileException.cs" />
-    <Compile Include="Model\GridColDef.cs" />
-    <Compile Include="Model\GridLayout.cs" />
-    <Compile Include="Model\IDbAction.cs" />
     <Compile Include="Model\Journal.cs" />
     <Compile Include="Model\JournalLog.cs" />
     <Compile Include="Model\Ledger.cs" />
@@ -141,26 +126,19 @@
     <Compile Include="Model\MarketDataPrice.cs" />
     <Compile Include="Model\MonthlyPerformance.cs" />
     <Compile Include="Model\Position.cs" />
-    <Compile Include="Model\RowGroupCols.cs" />
-    <Compile Include="Model\ServerRowModel.cs" />
     <Compile Include="Model\ServerSideFilterConfig.cs" />
-    <Compile Include="Model\SortModel.cs" />
     <Compile Include="Model\TaxLot.cs" />
     <Compile Include="Model\TaxLotStatus.cs" />
     <Compile Include="Model\TaxRate.cs" />
     <Compile Include="Model\Trade.cs" />
     <Compile Include="Model\TradeReason.cs" />
-    <Compile Include="Model\ValueCols.cs" />
-    <Compile Include="Model\Wrap.cs" />
-    <Compile Include="Model\PayLoad.cs" />
     <Compile Include="Model\Tag.cs" />
     <Compile Include="Model\Transaction.cs" />
     <Compile Include="GraphQLTypes\PerformanceType.cs" />
-    <Compile Include="ServerSideRowModelHelper.cs" />
     <Compile Include="SqlHelper.cs" />
     <Compile Include="TradeApi.cs" />
-    <Compile Include="Utils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="GraphQL">
@@ -178,6 +156,15 @@
     <PackageReference Include="NLog.Config">
       <Version>4.6.8</Version>
     </PackageReference>
+    <PackageReference Include="System.Data.SqlClient">
+      <Version>4.6.1</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LP.Shared\LP.Shared.csproj">
+      <Project>{fdf1b56a-cde2-4945-9dbc-313461be3446}</Project>
+      <Name>LP.Shared</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -21,7 +21,7 @@ namespace LP.FileProcessing
             object trailerObj, string path,
             string fileName, string identifierForFailedRecords)
         {
-            var schema = Utils.GetFile<SilverFileFormat>(fileName, "FileFormats");
+            var schema = LP.Shared.Utils.GetFile<SilverFileFormat>(fileName, "FileFormats");
             var record = MapFileRecord(recordList, schema.record, identifierForFailedRecords);
             var header = MapFileSection(headerObj, schema.header, record.Item3 + 2);
             var trailer = MapFileSection(trailerObj, schema.trailer, record.Item3 + 2);
@@ -32,7 +32,7 @@ namespace LP.FileProcessing
         public Tuple<List<dynamic>, List<Row>, bool> ImportFile(string path, string fileName, string folderName,
             char delim, bool firstLineHasHeadings = false)
         {
-            var schema = Utils.GetFile<SilverFileFormat>(fileName, folderName);
+            var schema = LP.Shared.Utils.GetFile<SilverFileFormat>(fileName, folderName);
             var resp = ExtractPipe(path, schema, delim, firstLineHasHeadings);
             return resp;
         }
@@ -139,7 +139,7 @@ namespace LP.FileProcessing
                 else
                 {
                     successful = false;
-                    Field record = new Field()
+                    var record = new Field()
                     {
                         Name = map.Destination,
                         Message = message,

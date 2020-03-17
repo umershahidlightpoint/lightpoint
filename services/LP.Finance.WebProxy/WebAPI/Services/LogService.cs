@@ -35,11 +35,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     sw.Stop();
                     Logger.Info(
                         $"finished GetLogFiles at {DateTime.UtcNow} in {sw.ElapsedMilliseconds} ms | {sw.ElapsedMilliseconds / 1000} s");
-                    return Utils.Wrap(true, fileNames, HttpStatusCode.OK);
+                    return Shared.WebApi.Wrap(true, fileNames, HttpStatusCode.OK);
                 }
                 else
                 {
-                    return Utils.Wrap(false, null);
+                    return Shared.WebApi.Wrap(false, null);
                 }
             }
             catch (Exception ex)

@@ -22,6 +22,7 @@ using System.Configuration;
 using System.Data;
 using LP.Finance.Common;
 using LP.Core;
+using LP.Shared.Core;
 
 namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 {
@@ -48,12 +49,12 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
     {
         public object Data(string symbol)
         {
-            return Utils.GetFile("accruals_" + symbol);
+            return LP.Shared.WebApi.GetFile("accruals_" + symbol);
         }
 
         public object Allocations(string accrualId)
         {
-            return Utils.GetFile("accruals_allocations_" + accrualId);
+            return LP.Shared.WebApi.GetFile("accruals_allocations_" + accrualId);
         }
 
     }
@@ -91,7 +92,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
                     break;
             }
 
-            Utils.Save(result, "accruals_" + period);
+            LP.Shared.WebApi.Save(result, "accruals_" + period);
 
             return result;
         }
@@ -128,7 +129,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 
             dynamic json = JsonConvert.DeserializeObject(content);
 
-            return Utils.GridWrap(json, metaData);
+            return LP.Shared.WebApi.GridWrap(json, metaData);
         }
 
         private object Only(string orderId)
@@ -196,7 +197,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 
             dynamic json = JsonConvert.DeserializeObject(content);
 
-            return Utils.GridWrap(json, metaData);
+            return LP.Shared.WebApi.GridWrap(json, metaData);
         }
 
     }

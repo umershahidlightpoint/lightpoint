@@ -58,7 +58,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.SqlCommitTransaction();
                 sqlHelper.CloseConnection();
 
-                return Utils.Wrap(true, null, HttpStatusCode.OK);
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
@@ -218,7 +218,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 UpdateTaxLotStatus(obj.OpenTaxLots, sqlHelper);
                 sqlHelper.SqlCommitTransaction();
                 sqlHelper.CloseConnection();
-                return Utils.Wrap(true, null, HttpStatusCode.OK, message);
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK, message);
             }
             catch(Exception ex)
             {
@@ -268,7 +268,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
                 var serialized = JsonConvert.SerializeObject(dataTable);
                 var resp = JsonConvert.DeserializeObject(serialized);
-                return Utils.Wrap(true, resp, HttpStatusCode.OK);
+                return Shared.WebApi.Wrap(true, resp, HttpStatusCode.OK);
             }
             catch(Exception ex)
             {

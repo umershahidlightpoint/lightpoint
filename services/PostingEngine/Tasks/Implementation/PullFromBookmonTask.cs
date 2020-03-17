@@ -52,7 +52,8 @@ namespace PostingEngine.Tasks
                 command.ExecuteNonQuery();
                 env.CallBack?.Invoke("[End] PullDailyFxPrices");
 
-                sql = @"truncate table current_trade_state";
+                // no not want to remove the manual trades
+                sql = @"delete from current_trade_state where TradeType not in ('manual')";
                 command = new SqlCommand(sql, connection)
                 {
                     CommandTimeout = 60 // 1 Mins, shoudl not take this long.

@@ -8,10 +8,11 @@
     <OutputType>Library</OutputType>
     <RootNamespace>PostingEngine</RootNamespace>
     <AssemblyName>PostingEngine</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -36,13 +37,6 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LP.FileProcessing">
-      <HintPath>..\LP.FileProcessing\bin\Debug\netstandard2.0\LP.FileProcessing.dll</HintPath>
-    </Reference>
-    <Reference Include="LP.Shared">
-      <HintPath>..\LP.Shared\bin\Debug\netstandard2.0\LP.Shared.dll</HintPath>
-    </Reference>
-    <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -111,7 +105,6 @@
     <Compile Include="PostingRules\CommonStock.cs" />
     <Compile Include="PostingRules\FakeJournals.cs" />
     <Compile Include="PostingRules\IPostingRule.cs" />
-    <Compile Include="Utilities\Utils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -129,11 +122,22 @@
     <PackageReference Include="NLog.Config">
       <Version>4.6.8</Version>
     </PackageReference>
+    <PackageReference Include="System.Data.SqlClient">
+      <Version>4.6.1</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\LP.FileProcessing\LP.FileProcessing.csproj">
+      <Project>{68cd12a8-b8fb-45cb-86ed-c40bb33df1ad}</Project>
+      <Name>LP.FileProcessing</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LP.Finance.Common\LP.Finance.Common.csproj">
       <Project>{D2E48A0E-449A-4FE7-B0EA-40474FE455B0}</Project>
       <Name>LP.Finance.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LP.Shared\LP.Shared.csproj">
+      <Project>{f4eed4c4-00e7-43a0-a7f4-c493b146862f}</Project>
+      <Name>LP.Shared</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

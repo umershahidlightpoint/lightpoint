@@ -50,7 +50,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlConnection.Close();
             }
 
-            return Utils.Wrap(true, accountCategories,HttpStatusCode.OK,null, meta);
+            return Shared.WebApi.Wrap(true, accountCategories,HttpStatusCode.OK,null, meta);
         }
     }
 }

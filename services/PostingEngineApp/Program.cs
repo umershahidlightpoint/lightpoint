@@ -44,7 +44,10 @@ namespace PostingEngineCmd
                 period = args[1];
             }
 
-            Logger.Info($"Running Posting Engine for Period {period} and ValueDate {date}");
+            var dbEngine = ConfigurationManager.ConnectionStrings["FinanceDB"];
+            Logger.Info($"Running Posting Engine for Period {period} and ValueDate {date.ToString("yyyy-MM-dd")}");
+            Logger.Info($"Using Database {dbEngine}");
+            
 
             new PostingEngineEx().RunForPeriod(date, period);
             //new PostingEngineEx().RunSettledCashBalances(date, period);

@@ -29,7 +29,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 case "ALL":
                     result = AllData();
-                    Utils.Save(result, "accounts");
+                    Shared.WebApi.Save(result, "accounts");
                     break;
                 case "Search":
                     result = Search(search);
@@ -45,7 +45,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             if (postingEngine.IsRunning)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
             }
 
             SqlHelper sqlHelper = new SqlHelper(connectionString);
@@ -100,7 +100,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
 
             Logger.Info($"GetAccounts Executed at {DateTime.Now}");
-            return Utils.Wrap(true, accounts, HttpStatusCode.OK, null, meta);
+            return Shared.WebApi.Wrap(true, accounts, HttpStatusCode.OK, null, meta);
         }
 
         public object GetDummyAccount()
@@ -154,11 +154,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     Category = data.Rows[0]["category"].ToString()
                 };
 
-                return new Tuple<bool, object>(true,Utils.Wrap(true, dummyAccount, HttpStatusCode.OK));
+                return new Tuple<bool, object>(true,Shared.WebApi.Wrap(true, dummyAccount, HttpStatusCode.OK));
             }
             else
             {
-                return new Tuple<bool, object>(false, Utils.Wrap(false, null, HttpStatusCode.OK));
+                return new Tuple<bool, object>(false, Shared.WebApi.Wrap(false, null, HttpStatusCode.OK));
             }
         }
 
@@ -253,7 +253,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             if (postingEngine.IsRunning)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
             }
 
             try
@@ -308,7 +308,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     .ToList();
 
                 Logger.Info($"GetMappedAccounts Executed at {DateTime.Now}");
-                return Utils.Wrap(true, result, HttpStatusCode.OK, null, null);
+                return Shared.WebApi.Wrap(true, result, HttpStatusCode.OK, null, null);
             }
             catch (Exception e)
             {
@@ -375,7 +375,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 .ToList();
 
             Logger.Info($"GetAccount Executed at {DateTime.Now}");
-            return Utils.Wrap(true, result, null);
+            return Shared.WebApi.Wrap(true, result, null);
         }
 
         public object CreateAccount(AccountInputDto account)
@@ -436,10 +436,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.SqlRollbackTransaction();
                 sqlHelper.CloseConnection();
                 Console.WriteLine($"SQL Rollback Transaction Exception: {ex}");
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
 
-            return Utils.Wrap(true);
+            return Shared.WebApi.Wrap(true);
         }
 
         public object UpdateAccount(int id, AccountInputDto account)
@@ -448,7 +448,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             if (AccountHasJournal(id))
             {
-                return Utils.Wrap(false, null, HttpStatusCode.OK, "An Account having Journal cannot be Edited");
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "An Account having Journal cannot be Edited");
             }
 
             try
@@ -512,10 +512,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.SqlRollbackTransaction();
                 sqlHelper.CloseConnection();
                 Console.WriteLine($"SQL Rollback Transaction Exception: {ex}");
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
 
-            return Utils.Wrap(true);
+            return Shared.WebApi.Wrap(true);
         }
 
         public object PatchAccount(int id, AccountInputPatchDto account)
@@ -542,10 +542,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.CloseConnection();
 
                 Console.WriteLine($"Patch Account Exception: {ex}");
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
 
-            return Utils.Wrap(true);
+            return Shared.WebApi.Wrap(true);
         }
 
         public object DeleteAccount(int id)
@@ -554,7 +554,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             if (AccountHasJournal(id))
             {
-                return Utils.Wrap(false, null, HttpStatusCode.OK, "An Account having Journal cannot be Deleted");
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "An Account having Journal cannot be Deleted");
             }
 
             try
@@ -589,10 +589,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.SqlRollbackTransaction();
                 sqlHelper.CloseConnection();
                 Console.WriteLine($"SQL Rollback Transaction Exception: {ex}");
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
 
-            return Utils.Wrap(true);
+            return Shared.WebApi.Wrap(true);
         }
 
         public object GetThirdPartyOrganizationAccounts()
@@ -645,7 +645,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     })
                     .ToList();
 
-                return Utils.Wrap(true, result, HttpStatusCode.OK, null, null);
+                return Shared.WebApi.Wrap(true, result, HttpStatusCode.OK, null, null);
             }
             catch (Exception e)
             {
@@ -704,14 +704,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             var query = $@"SELECT * FROM [account]";
 
-            return Utils.GetTable(connectionString, "account");
+            return Shared.WebApi.GetTable(connectionString, "account");
         }
 
         private object Search(string search)
         {
             var query = $@"SELECT * FROM [account] where [name] like '%" + search + "%'";
 
-            return Utils.GetTable(connectionString, "account");
+            return Shared.WebApi.GetTable(connectionString, "account");
         }
 
         public object CreateOrUpdateChartOfAccountMapping(List<ChartOfAccountMappingDto> obj)
@@ -748,7 +748,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 sqlHelper.SqlCommitTransaction();
                 sqlHelper.CloseConnection();
-                return Utils.Wrap(true, null, HttpStatusCode.OK);
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {

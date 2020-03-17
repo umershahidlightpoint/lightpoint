@@ -8,7 +8,7 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
         public object Data(string symbol, int pageNumber, int pageSize, string sortColumn = "id",
             string sortDirection = "asc", int accountId = 0, int value = 0)
         {
-            return Utils.GetFile("journallogs");
+            return Shared.WebApi.GetFile("journallogs");
         }
     }
 }

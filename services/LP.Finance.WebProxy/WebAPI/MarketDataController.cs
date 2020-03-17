@@ -52,11 +52,11 @@ namespace LP.Finance.WebProxy.WebAPI
 
                 var json = JsonConvert.DeserializeObject<List<MarketDataPrice>>(jsonResult);
 
-                return Utils.Wrap(true, json, HttpStatusCode.OK, "Market Prices fetched successfully");
+                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "Market Prices fetched successfully");
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
                     "An error occured while fetching Market Prices");
             }
         }
@@ -99,14 +99,14 @@ namespace LP.Finance.WebProxy.WebAPI
                 sqlHelper.SqlCommitTransaction();
                 sqlHelper.CloseConnection();
 
-                return Utils.Wrap(true, null, HttpStatusCode.OK, "Prices updated successfully");
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK, "Prices updated successfully");
             }
             catch (Exception ex)
             {
                 sqlHelper.SqlRollbackTransaction();
                 sqlHelper.CloseConnection();
 
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
                     "An error occured while updating prices");
             }
         }
@@ -117,7 +117,7 @@ namespace LP.Finance.WebProxy.WebAPI
             {
                 var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "MarketDataPrices");
                 if (!uploadedResult.Item1)
-                    return Utils.Wrap(false);
+                    return Shared.WebApi.Wrap(false);
 
                 var path = uploadedResult.Item2;
                 var filename = uploadedResult.Item3;
@@ -169,21 +169,21 @@ namespace LP.Finance.WebProxy.WebAPI
                     {
                         Console.WriteLine(item);
                     }
-                    return Utils.Wrap(true, items, HttpStatusCode.Forbidden, null, metaData.Columns);
+                    return Shared.WebApi.Wrap(true, items, HttpStatusCode.Forbidden, null, metaData.Columns);
                 }
 
                 if (insertinto)
                 {
-                    return Utils.Wrap(true, null, HttpStatusCode.OK);
+                    return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
                 }
                 else
                 {
-                    return Utils.Wrap(false);
+                    return Shared.WebApi.Wrap(false);
                 }
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
         }
 
@@ -234,11 +234,11 @@ namespace LP.Finance.WebProxy.WebAPI
 
                 var json = JsonConvert.DeserializeObject<List<MarketDataPrice>>(jsonResult);
 
-                return Utils.Wrap(true, json, HttpStatusCode.OK, "Market Prices Audit Trail fetched successfully");
+                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "Market Prices Audit Trail fetched successfully");
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
                     "An error occured while fetching Market Prices Audit Trail");
             }
         }
@@ -271,11 +271,11 @@ namespace LP.Finance.WebProxy.WebAPI
 
                 var json = JsonConvert.DeserializeObject<List<MarketDataPrice>>(jsonResult);
 
-                return Utils.Wrap(true, json, HttpStatusCode.OK, "Market Price for Particular Symbol fetched successfully");
+                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "Market Price for Particular Symbol fetched successfully");
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError, "An error occured while fetching Market Prices of Particular Symbol");
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError, "An error occured while fetching Market Prices of Particular Symbol");
             }
         }
     }

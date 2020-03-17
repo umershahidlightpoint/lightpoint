@@ -21,7 +21,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             if (postingEngine.IsRunning)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
             }
 
             SqlHelper sqlHelper = new SqlHelper(connectionString);
@@ -67,7 +67,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             taxRates = ValidateTaxPeriods(taxRates);
 
-            return Utils.Wrap(true, taxRates);
+            return Shared.WebApi.Wrap(true, taxRates);
         }
 
         public object CreateTaxRate(TaxRateInputDto taxRate)
@@ -117,10 +117,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.CloseConnection();
 
                 Console.WriteLine($"SQL Exception: {ex}");
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
 
-            return Utils.Wrap(true);
+            return Shared.WebApi.Wrap(true);
         }
 
         public object EditTaxRate(int id, TaxRateInputDto taxRate)
@@ -160,10 +160,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.CloseConnection();
 
                 Console.WriteLine($"Edit Tax Rate Exception: {ex}");
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
 
-            return Utils.Wrap(true);
+            return Shared.WebApi.Wrap(true);
         }
 
         public object DeleteTaxRate(int id)
@@ -192,10 +192,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.CloseConnection();
 
                 Console.WriteLine($"SQL Exception: {ex}");
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
 
-            return Utils.Wrap(true);
+            return Shared.WebApi.Wrap(true);
         }
 
         private List<TaxRateOutputDto> ValidateTaxPeriods(List<TaxRateOutputDto> taxRates)

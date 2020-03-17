@@ -24,7 +24,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 case "ALL":
                     result = AllData(pageNumber, pageSize, sortColumn, sortDirection, accountId, value);
-                    Utils.Save(result, "journallogs");
+                    Shared.WebApi.Save(result, "journallogs");
                     break;
 
                 default:
@@ -45,7 +45,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var jsonResult = JsonConvert.SerializeObject(dataTable);
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
-            return Utils.Wrap(true, json);
+            return Shared.WebApi.Wrap(true, json);
         }
 
         private object Only(string orderId)

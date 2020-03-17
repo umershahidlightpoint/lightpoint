@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SqlDAL.Core;
 using System.Data.SqlClient;
-using LP.Finance.Common.FileMetaData;
+using LP.Finance.Common;
 
 namespace LP.Finance.Common.IO
 {
@@ -22,7 +22,7 @@ namespace LP.Finance.Common.IO
             ConnectionString = connectionString;
         }
 
-        public List<FileException> MapFailedRecords(Dictionary<object, Row> failedRecords, DateTime businessDate,
+        public List<FileException> MapFailedRecords(Dictionary<object, LP.Finance.Common.FileMetaData.Row> failedRecords, DateTime businessDate,
     string fileName)
         {
             var records = failedRecords.Select(x => new FileException

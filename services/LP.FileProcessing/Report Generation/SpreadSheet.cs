@@ -21,7 +21,7 @@ namespace LP.FileProcessing.Report_Generation
                 ws.Cells["A1"].LoadFromDataTable(dt, true);
                 ms = new MemoryStream(pck.GetAsByteArray());
                 //Task.Run(() => {});
-                Utils.SendEmailWithSpreadSheet(fromEmail, fromName, recepeintList, null, null, header, content, ms, false);
+                LP.Shared.Utils.SendEmailWithSpreadSheet(fromEmail, fromName, recepeintList, null, null, header, content, ms, false);
             }
         }        
     }

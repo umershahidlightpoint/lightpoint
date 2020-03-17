@@ -37,7 +37,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var json = JsonConvert.DeserializeObject(jsonResult);
 
-                return Utils.Wrap(true, json, HttpStatusCode.OK, "Dividends fetched successfully");
+                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "Dividends fetched successfully");
             }
             catch (Exception ex)
             {
@@ -98,7 +98,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 SqlHelper.SqlBeginTransaction();
                 SqlHelper.Insert(query, CommandType.Text, cashDividendParams.ToArray());
                 SqlHelper.SqlCommitTransaction();
-                return Utils.Wrap(true, null, HttpStatusCode.OK);
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
 
             }
             catch (Exception ex)
@@ -136,7 +136,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 SqlHelper.SqlBeginTransaction();
                 SqlHelper.Update(query, CommandType.Text, cashDividendParams.ToArray());
                 SqlHelper.SqlCommitTransaction();
-                return Utils.Wrap(true, null, HttpStatusCode.OK);
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
@@ -192,7 +192,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 SqlHelper.SqlBeginTransaction();
                 SqlHelper.Update(query, CommandType.Text, cashDividendParams.ToArray());
                 SqlHelper.SqlCommitTransaction();
-                return Utils.Wrap(true, null, HttpStatusCode.OK);
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
@@ -217,7 +217,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var json = JsonConvert.DeserializeObject(jsonResult);
 
-                return Utils.Wrap(true, json, HttpStatusCode.OK, "Dividends fetched successfully");
+                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "Dividends fetched successfully");
             }
             catch (Exception ex)
             {
@@ -238,7 +238,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var dataTable = SqlHelper.GetDataTable("DividendDetails", CommandType.StoredProcedure, dividendDetailsParam.ToArray());
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
                 var json = JsonConvert.DeserializeObject(jsonResult);
-                return Utils.Wrap(true, json, HttpStatusCode.OK, "Dividend details fetched successfully");
+                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "Dividend details fetched successfully");
             }
             catch (Exception ex)
             {
@@ -265,7 +265,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var json = JsonConvert.DeserializeObject(jsonResult);
 
-                return Utils.Wrap(true, json, HttpStatusCode.OK, "StockSplits audit trail fetched successfully");
+                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "StockSplits audit trail fetched successfully");
             }
             catch (Exception ex)
             {
@@ -315,7 +315,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 SqlHelper.SqlBeginTransaction();
                 SqlHelper.Insert(query, CommandType.Text, stockSplitParams.ToArray());
                 SqlHelper.SqlCommitTransaction();
-                return Utils.Wrap(true, null, HttpStatusCode.OK);
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
 
             }
             catch (Exception ex)
@@ -353,7 +353,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 SqlHelper.SqlBeginTransaction();
                 SqlHelper.Update(query, CommandType.Text, stockSplitParams.ToArray());
                 SqlHelper.SqlCommitTransaction();
-                return Utils.Wrap(true, null, HttpStatusCode.OK);
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
@@ -401,7 +401,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 SqlHelper.SqlBeginTransaction();
                 SqlHelper.Update(query, CommandType.Text, stockSplitParams.ToArray());
                 SqlHelper.SqlCommitTransaction();
-                return Utils.Wrap(true, null, HttpStatusCode.OK);
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
@@ -426,7 +426,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var json = JsonConvert.DeserializeObject(jsonResult);
 
-                return Utils.Wrap(true, json, HttpStatusCode.OK, "StockSplits fetched successfully");
+                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "StockSplits fetched successfully");
             }
             catch (Exception ex)
             {
@@ -450,7 +450,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var json = JsonConvert.DeserializeObject(jsonResult);
 
-                return Utils.Wrap(true, json, HttpStatusCode.OK, "Stock split details fetched successfully");
+                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "Stock split details fetched successfully");
             }
             catch (Exception ex)
             {

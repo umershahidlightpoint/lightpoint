@@ -41,7 +41,7 @@ namespace PostingEngine.ClientSpecifics
                     //"FORWARD",
                     //"Common Stock",
                     //"Equity Swap",
-                    "CROSS"
+                    //"CROSS"
                     //"Journals",
                     //"Cash"
                     };
@@ -55,6 +55,8 @@ namespace PostingEngine.ClientSpecifics
                     //"GNS LN",
                     //"CWK LN",
                     //"ROST",
+                    "STAF",
+                    "STAF LN",
                     //"AEO",
                     //"OSW",
                     //"TOY CN",

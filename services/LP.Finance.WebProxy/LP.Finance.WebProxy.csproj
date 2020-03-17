@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>LP.Finance.WebProxy</RootNamespace>
     <AssemblyName>LP.Finance.WebProxy</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
@@ -27,6 +27,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -51,10 +52,6 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LP.FileProcessing">
-      <HintPath>..\LP.FileProcessing\bin\Debug\netstandard2.0\LP.FileProcessing.dll</HintPath>
-    </Reference>
-    <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Configuration.Install" />
@@ -247,20 +244,24 @@
       <Version>12.0.2</Version>
     </PackageReference>
     <PackageReference Include="NLog">
-      <Version>4.6.6</Version>
+      <Version>4.6.8</Version>
     </PackageReference>
     <PackageReference Include="NLog.Config">
-      <Version>4.6.6</Version>
+      <Version>4.6.8</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\SharedLibs\LP.Common\LP.Common.csproj">
-      <Project>{ACB1BD38-50E3-4A93-A247-5088B3E21473}</Project>
-      <Name>LP.Common</Name>
+    <ProjectReference Include="..\LP.FileProcessing\LP.FileProcessing.csproj">
+      <Project>{68cd12a8-b8fb-45cb-86ed-c40bb33df1ad}</Project>
+      <Name>LP.FileProcessing</Name>
     </ProjectReference>
     <ProjectReference Include="..\LP.Finance.Common\LP.Finance.Common.csproj">
       <Project>{D2E48A0E-449A-4FE7-B0EA-40474FE455B0}</Project>
       <Name>LP.Finance.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LP.Shared\LP.Shared.csproj">
+      <Project>{f4eed4c4-00e7-43a0-a7f4-c493b146862f}</Project>
+      <Name>LP.Shared</Name>
     </ProjectReference>
     <ProjectReference Include="..\PostingEngine\PostingEngine.csproj">
       <Project>{d8d81d4b-4d9b-4d3b-9321-00dba39455ec}</Project>

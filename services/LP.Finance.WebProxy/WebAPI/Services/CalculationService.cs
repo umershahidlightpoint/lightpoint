@@ -88,7 +88,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
-            return Utils.Wrap(true, json);
+            return Shared.WebApi.Wrap(true, json);
         }
 
         public object CalculateMonthlyPerformance(List<MonthlyPerformance> obj)
@@ -273,12 +273,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     priorDataForInception = null;
                 }
 
-                // return Utils.Wrap(true, groupedByYear.SelectMany(x => x.Select(y => y).ToList()), HttpStatusCode.OK, "Performance calculated successfully");
-                return Utils.Wrap(true, sorted, HttpStatusCode.OK, "Performance calculated successfully");
+                // return Shared.WebApi.Wrap(true, groupedByYear.SelectMany(x => x.Select(y => y).ToList()), HttpStatusCode.OK, "Performance calculated successfully");
+                return Shared.WebApi.Wrap(true, sorted, HttpStatusCode.OK, "Performance calculated successfully");
             }
             catch
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
                     "An error occured during calculation");
             }
         }
@@ -416,14 +416,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.SqlCommitTransaction();
                 sqlHelper.CloseConnection();
 
-                return Utils.Wrap(true, null, HttpStatusCode.OK, "Calculations saved successfully");
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK, "Calculations saved successfully");
             }
             catch (Exception ex)
             {
                 sqlHelper.SqlRollbackTransaction();
                 sqlHelper.CloseConnection();
 
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
                     "An error occured while saving calculations");
             }
         }
@@ -434,12 +434,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 if (!ClearMonthlyPerformance())
                 {
-                    return Utils.Wrap(false, "Monthly Performance data could not be deleted! Please try again.");
+                    return Shared.WebApi.Wrap(false, "Monthly Performance data could not be deleted! Please try again.");
                 }
 
                 var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "PerformanceData");
                 if (!uploadedResult.Item1)
-                    return Utils.Wrap(false);
+                    return Shared.WebApi.Wrap(false);
 
                 var performancePath = uploadedResult.Item2;
                 var performanceFileName = uploadedResult.Item3;
@@ -480,14 +480,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 if (insertStatus)
                 {
-                    return Utils.Wrap(true, monthlyPerformance, HttpStatusCode.OK);
+                    return Shared.WebApi.Wrap(true, monthlyPerformance, HttpStatusCode.OK);
                 }
 
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
             catch (Exception e)
             {
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
         }
 
@@ -502,7 +502,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             var status = hasMonthlyPerformance != null;
 
-            return Utils.Wrap(true, status, HttpStatusCode.OK);
+            return Shared.WebApi.Wrap(true, status, HttpStatusCode.OK);
         }
 
         private bool ClearMonthlyPerformance()
@@ -587,7 +587,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var jsonResult = JsonConvert.SerializeObject(dataTable);
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
-            return Utils.Wrap(true, json);
+            return Shared.WebApi.Wrap(true, json);
         }
 
         public object GetDailyUnofficialPnl(DateTime? from, DateTime? to)
@@ -665,7 +665,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var json = JsonConvert.DeserializeObject<List<DailyPnL>>(jsonResult);
 
-                return Utils.Wrap(true, json, HttpStatusCode.OK, "Daily Unofficial Pnl fetched successfully");
+                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "Daily Unofficial Pnl fetched successfully");
             }
             catch (Exception ex)
             {
@@ -749,7 +749,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "PerformanceData");
                 if (!uploadedResult.Item1)
-                    return Utils.Wrap(false);
+                    return Shared.WebApi.Wrap(false);
 
                 var dailyPnlPath = uploadedResult.Item2;
                 var dailyPnlFileName = uploadedResult.Item3;
@@ -789,16 +789,16 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 bool insertDailyPnl = InsertDailyPnl((List<DailyPnL>) dailyPerformance);
                 if (insertDailyPnl)
                 {
-                    return Utils.Wrap(true, dailyPerformance, null);
+                    return Shared.WebApi.Wrap(true, dailyPerformance, null);
                 }
                 else
                 {
-                    return Utils.Wrap(false);
+                    return Shared.WebApi.Wrap(false);
                 }
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
         }
 
@@ -841,7 +841,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             var status = hasDailyPnl != null;
 
-            return Utils.Wrap(true, status, HttpStatusCode.OK);
+            return Shared.WebApi.Wrap(true, status, HttpStatusCode.OK);
         }
 
         public object GetDailyUnofficialPnlAudit(int id)
@@ -879,12 +879,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
                 dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
-                return Utils.Wrap(true, json, HttpStatusCode.OK,
+                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK,
                     "Daily Unofficial Pnl Audit Trail fetched successfully");
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
                     "An error occured while fetching Daily Unofficial Pnl Audit Trail");
             }
         }

@@ -62,7 +62,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 })
                 .ToList();
 
-            return Utils.Wrap(true, result, HttpStatusCode.OK, null, meta);
+            return Shared.WebApi.Wrap(true, result, HttpStatusCode.OK, null, meta);
         }
     }
 }

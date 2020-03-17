@@ -48,7 +48,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 };
             }
 
-            return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is Already Running!");
+            return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is Already Running!");
         }
 
         public object StartPostingEngineSingleOrder(string orderId)
@@ -76,7 +76,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 };
             }
 
-            return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is Already Running!");
+            return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is Already Running!");
         }
 
         public void LogMessagesCallBack(string log, int totalRecords = 0, int recordsProcessed = 0)
@@ -153,10 +153,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 sqlHelper.CloseConnection();
                 Console.WriteLine($"SQL Exception: {ex}");
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
 
-            return Utils.Wrap(true);
+            return Shared.WebApi.Wrap(true);
         }
     }
 }

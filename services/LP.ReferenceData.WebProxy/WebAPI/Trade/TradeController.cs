@@ -7,6 +7,7 @@ using System.Data;
 using LP.Finance.Common;
 using LP.Core;
 using LP.Finance.Common.Cache;
+using LP.Shared.Core;
 
 namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 {
@@ -19,7 +20,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
     {
         public object Data(string symbol)
         {
-            return Utils.GetFile("trades_" + symbol);
+            return LP.Shared.WebApi.GetFile("trades_" + symbol);
         }
     }
 
@@ -51,7 +52,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
                     break;
             }
 
-            Utils.Save(result, "trades-" + symbol);
+            LP.Shared.WebApi.Save(result, "trades-" + symbol);
 
             return result;
         }

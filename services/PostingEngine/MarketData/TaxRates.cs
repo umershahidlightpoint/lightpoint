@@ -18,7 +18,7 @@ namespace PostingEngine.MarketData
         {
             if (Mock)
             {
-                return Utils.GetFile<TaxRate>("taxrates");
+                return LP.Shared.Utils.GetFile<TaxRate>("taxrates");
             }
 
             var businessdate = now.Date;

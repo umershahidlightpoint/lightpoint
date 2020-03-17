@@ -5,8 +5,11 @@ using PostingEngine.Extensions;
 using PostingEngine.MarketData;
 using PostingEngine.PostingRules.Utilities;
 using PostingEngine.TaxLotMethods;
+using SqlDAL.Core;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 
 namespace PostingEngine.PostingRules
@@ -289,6 +292,32 @@ namespace PostingEngine.PostingRules
                     CommonRules.GenerateJournalEntry(env, element, listOfTags, realizedAccountType, Event.REALIZED_PNL, realizedPnl);
 
                     //CommonRules.GenerateJournalEntries(env, Event.DAILY_UNREALIZED_PNL, element, listOfTags, originalAccount, "Change in Unrealized Derivatives Contracts at Fair Value", realizedPnl * -1);
+                }
+
+                DataTableCollection dataTable = null;
+                //if (!env.BaseCurrency.Equals(element.SettleCurrency))
+                {
+                    List<SqlParameter> sqlParams = new List<SqlParameter>
+                    {
+                        new SqlParameter("@busDate", env.ValueDate),
+                        new SqlParameter("@LpOrderId", element.LpOrderId)
+                    };
+
+                    // This gets passed values, we also need to get anything that posts for this valuedate
+                    dataTable = new SqlHelper(env.ConnectionString).GetDataTables("[ClosingTaxLot-Derivatives]", CommandType.StoredProcedure, sqlParams.ToArray());
+
+                    // Sno now what so we do with these numbers ?
+                    var liabilities = dataTable[0];
+                    var assets = dataTable[1];
+
+                    var liabilitiesValue = liabilities.Rows.Count > 0 ? Convert.ToDouble(liabilities.Rows[0][3]) : 0.0;
+                    var assetValue = assets.Rows.Count > 0 ? Convert.ToDouble(assets.Rows[0][3]) : 0.0;
+
+                    if (liabilitiesValue != 0.0)
+                        CommonRules.GenerateJournalEntries(env, Event.DAILY_UNREALIZED_PNL, element, listOfTags, "Change in Unrealized Derivatives Contracts at Fair Value", "Mark to Market Derivatives Contracts at Fair Value (Liabilities)", liabilitiesValue * -1);
+
+                    if (assetValue != 0.0)
+                        CommonRules.GenerateJournalEntries(env, Event.DAILY_UNREALIZED_PNL, element, listOfTags, "Change in Unrealized Derivatives Contracts at Fair Value", "Mark to Market Derivatives Contracts at Fair Value (Assets)", assetValue * -1);
                 }
 
                 if (taxlot.Quantity != 0)

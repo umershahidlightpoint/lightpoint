@@ -88,7 +88,7 @@ namespace PostingEngine.MarketData
 
             if (Mock)
             {
-                _all = Utils.GetFile<Dictionary<string, FxRate>>("all_fxrates");
+                _all = LP.Shared.Utils.GetFile<Dictionary<string, FxRate>>("all_fxrates");
             }
 
             var sql = $@"select business_date, currency, price from fx_rates
@@ -121,7 +121,7 @@ namespace PostingEngine.MarketData
                 con.Close();
             }
 
-            Utils.Save(list, "all_fxrates");
+            LP.Shared.Utils.Save(list, "all_fxrates");
 
             _all = list;
         }
@@ -137,7 +137,7 @@ namespace PostingEngine.MarketData
         {
             if (Mock)
             {
-                return Utils.GetFile<Dictionary<string, FxRate>>("fxrates");
+                return LP.Shared.Utils.GetFile<Dictionary<string, FxRate>>("fxrates");
             }
 
             var maxdate = now.ToString("yyyy-MM-dd");
@@ -169,7 +169,7 @@ namespace PostingEngine.MarketData
                 con.Close();
             }
 
-            Utils.Save(list, "fxrates");
+            LP.Shared.Utils.Save(list, "fxrates");
 
             return list;
         }

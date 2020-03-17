@@ -99,10 +99,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.SqlRollbackTransaction();
                 sqlHelper.CloseConnection();
                 Console.WriteLine($"SQL Rollback Transaction Exception: {ex}");
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
 
-            return Utils.Wrap(true);
+            return Shared.WebApi.Wrap(true);
         }
 
         public object GetDataGridStatus(int id)
@@ -139,7 +139,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlConnection.Close();
             }
 
-            return Utils.Wrap(true, oDataGridStatusDto, HttpStatusCode.OK, null, meta);
+            return Shared.WebApi.Wrap(true, oDataGridStatusDto, HttpStatusCode.OK, null, meta);
         }
 
         public object GetDataGridLayouts(int gridId, int userId)
@@ -183,7 +183,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlConnection.Close();
             }
 
-            return Utils.Wrap(true, lDataGridStatusDto, HttpStatusCode.OK, null, meta);
+            return Shared.WebApi.Wrap(true, lDataGridStatusDto, HttpStatusCode.OK, null, meta);
         }
 
         public object GetAGridLayout(int id)
@@ -225,7 +225,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlConnection.Close();
             }
 
-            return Utils.Wrap(true, oDataGridStatusDto, HttpStatusCode.OK, null, meta);
+            return Shared.WebApi.Wrap(true, oDataGridStatusDto, HttpStatusCode.OK, null, meta);
         }
 
         public object DeleteGridLayout(int id)
@@ -246,14 +246,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.Delete(query, CommandType.Text, Parameters.ToArray());
                 sqlHelper.CloseConnection();
 
-                return Utils.Wrap(true);
+                return Shared.WebApi.Wrap(true);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"SQL Exception: {ex}");
                 sqlHelper.CloseConnection();
 
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
         }
 
@@ -315,7 +315,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlConnection.Close();
             }
 
-            return Utils.Wrap(true, dataGridStatus, HttpStatusCode.OK, null, metaData);
+            return Shared.WebApi.Wrap(true, dataGridStatus, HttpStatusCode.OK, null, metaData);
         }
     }
 }

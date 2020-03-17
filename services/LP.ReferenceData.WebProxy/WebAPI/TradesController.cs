@@ -5,10 +5,11 @@ using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
 using LP.Finance.Common;
-using LP.Core;
 using SqlDAL.Core;
 using System.Collections.Generic;
 using System.Net;
+using LP.Shared.Core;
+using LP.Shared;
 
 namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 {
@@ -39,17 +40,17 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
     {
         public object Data(string period, bool journals)
         {
-            return Utils.GetFile($"trades_{period}_{journals}");
+            return LP.Shared.WebApi.GetFile($"trades_{period}_{journals}");
         }
 
         public object Allocations(string orderId)
         {
-            return Utils.GetFile("trades_allocations_" + orderId);
+            return LP.Shared.WebApi.GetFile("trades_allocations_" + orderId);
         }
 
         public object Journals(string orderId = null, DateTime? when = null, string symbol = null)
         {
-            return Utils.GetFile("trades_journals_" + orderId);
+            return LP.Shared.WebApi.GetFile("trades_journals_" + orderId);
         }
 
         public object ProspectiveTradesForTaxLotAlleviation(string symbol, string side)
@@ -99,7 +100,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
                     break;
             }
 
-            Utils.Save(result, $"trades_{period}_{journals}");
+            LP.Shared.WebApi.Save(result, $"trades_{period}_{journals}");
 
             return result;
         }
@@ -144,7 +145,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 
             dynamic json = JsonConvert.DeserializeObject(content);
 
-            return Utils.GridWrap(json, metaData);
+            return LP.Shared.WebApi.GridWrap(json, metaData);
         }
 
         private object Only(string orderId)
@@ -211,7 +212,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 
             dynamic json = JsonConvert.DeserializeObject(content);
 
-            return Utils.GridWrap(json, metaData);
+            return LP.Shared.WebApi.GridWrap(json, metaData);
         }
 
         private object OnlyJournals(string orderId = null, DateTime? when = null, string symbol = null)
@@ -265,7 +266,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 
             dynamic json = JsonConvert.DeserializeObject(content);
 
-            return Utils.GridWrap(json, metaData);
+            return WebApi.GridWrap(json, metaData);
         }
 
         public object ProspectiveTradesForTaxLotAlleviation(string symbol, string side)
@@ -300,7 +301,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             var serialized = JsonConvert.SerializeObject(dataTable);
             var resp = JsonConvert.DeserializeObject(serialized);
 
-            return Utils.Wrap(true, resp, HttpStatusCode.OK);
+            return LP.Shared.WebApi.Wrap(true, resp, HttpStatusCode.OK);
         }
     }
 

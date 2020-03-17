@@ -24,7 +24,7 @@ namespace PostingEngine.MarketData
 
             if (Mock)
             {
-                _all = Utils.GetFile<Dictionary<string, MarketPrice>>("all_marketprices");
+                _all = LP.Shared.Utils.GetFile<Dictionary<string, MarketPrice>>("all_marketprices");
             }
 
             var sql = $@"select business_date, symbol, MAX(price) from FundAccounting..market_prices group by business_date, symbol";
@@ -56,7 +56,7 @@ namespace PostingEngine.MarketData
                 con.Close();
             }
 
-            Utils.Save(list, "all_marketprices");
+            LP.Shared.Utils.Save(list, "all_marketprices");
 
             _all = list;
         }
@@ -147,7 +147,7 @@ namespace PostingEngine.MarketData
         {
             if (Mock)
             {
-                return Utils.GetFile<Dictionary<string, MarketPrice>>("marketprices");
+                return LP.Shared.Utils.GetFile<Dictionary<string, MarketPrice>>("marketprices");
             }
 
             var busdate = now.ToString("MM-dd-yyyy");
@@ -186,7 +186,7 @@ namespace PostingEngine.MarketData
                 con.Close();
             }
 
-            Utils.Save(list, "marketprices");
+            LP.Shared.Utils.Save(list, "marketprices");
 
             return list;
         }

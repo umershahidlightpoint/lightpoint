@@ -44,7 +44,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 case "ALL":
                     result = AllData(pageNumber, pageSize, sortColumn, sortDirection, accountId, value);
-                    Utils.SaveAsync(result, "journal_for_ui");
+                    Shared.WebApi.SaveAsync(result, "journal_for_ui");
                     break;
 
                 default:
@@ -61,13 +61,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             try
             {
                 // Get the Data, We will Get the Results Later
-                var transactionResults = Utils.GetWebApiData(allocationsURL);
+                var transactionResults = Shared.WebApi.GetWebApiData(allocationsURL, ConfigurationManager.AppSettings[""]);
 
                 dynamic postingEngine = new PostingEngineService().GetProgress();
 
                 if (postingEngine.IsRunning)
                 {
-                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
 
                 journalStats journalStats = new journalStats();
@@ -231,13 +231,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
                 dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
-                var returnResult = Utils.Wrap(true, json, HttpStatusCode.OK, null, metaData, journalStats);
+                var returnResult = Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, null, metaData, journalStats);
 
                 return returnResult;
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
         }
 
@@ -317,7 +317,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 AccountTo = journal[0]?.AccountTo ?? (journal.Count > 1 ? journal[1]?.AccountTo : null)
             };
 
-            return Utils.Wrap(true, payload, HttpStatusCode.OK);
+            return Shared.WebApi.Wrap(true, payload, HttpStatusCode.OK);
         }
 
         private int? CheckIfAccountExists(string name, SqlHelper sqlHelper)
@@ -498,10 +498,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 Console.WriteLine($"SQL Rollback Transaction Exception: {ex}");
 
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
 
-            return Utils.Wrap(true);
+            return Shared.WebApi.Wrap(true);
         }
 
         private double GetSingleSidedJournalValue(JournalInputDto journal)
@@ -620,7 +620,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             if (!IsModifiable(source))
             {
-                return Utils.Wrap(false, null, HttpStatusCode.OK, "System Generated Journals are not Editable");
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "System Generated Journals are not Editable");
             }
 
             try
@@ -726,10 +726,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 Console.WriteLine($"SQL Rollback Transaction Exception: {ex}");
 
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
 
-            return Utils.Wrap(true);
+            return Shared.WebApi.Wrap(true);
         }
 
         private Tuple<string, string> GetAccountsName(JournalInputDto journal)
@@ -776,7 +776,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             if (!IsModifiable(source))
             {
-                return Utils.Wrap(false, null, HttpStatusCode.OK, "System Generated Journals are not Editable");
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "System Generated Journals are not Editable");
             }
 
             try
@@ -822,10 +822,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.SqlRollbackTransaction();
                 sqlHelper.CloseConnection();
                 Console.WriteLine($"SQL Exception: {ex}");
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
 
-            return Utils.Wrap(true);
+            return Shared.WebApi.Wrap(true);
         }
 
         private int GetJournalCommentId(Guid source)
@@ -874,7 +874,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 dynamic postingEngine = new PostingEngineService().GetProgress();
                 if (postingEngine.IsRunning)
                 {
-                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
 
                 var businessDate = System.DateTime.Now.PrevBusinessDate();
@@ -894,13 +894,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
 
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
-                var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                var reportObject = Shared.WebApi.Wrap(true, dataTable, HttpStatusCode.OK);
 
                 return reportObject;
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
         }
 
@@ -912,7 +912,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 if (postingEngine.IsRunning)
                 {
-                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
 
                 List<SqlParameter> sqlParams = new List<SqlParameter>
@@ -925,13 +925,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         order BY business_date asc";
 
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
-                var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                var reportObject = Shared.WebApi.Wrap(true, dataTable, HttpStatusCode.OK);
 
                 return reportObject;
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
         }
 
@@ -942,7 +942,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 dynamic postingEngine = new PostingEngineService().GetProgress();
                 if (postingEngine.IsRunning)
                 {
-                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
 
                 bool whereAdded = false;
@@ -980,13 +980,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 query += " ORDER BY symbol, trade_date ASC";
 
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
-                var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                var reportObject = Shared.WebApi.Wrap(true, dataTable, HttpStatusCode.OK);
 
                 return reportObject;
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(true, null, HttpStatusCode.InternalServerError);
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.InternalServerError);
             }
         }
 
@@ -997,7 +997,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 dynamic postingEngine = new PostingEngineService().GetProgress();
                 if (postingEngine.IsRunning)
                 {
-                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
 
                 var query = $@"select *, (cost_basis - trade_price)*quantity as realized_pnl from tax_lot";
@@ -1006,13 +1006,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
 
-                var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                var reportObject = Shared.WebApi.Wrap(true, dataTable, HttpStatusCode.OK);
 
                 return reportObject;
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
         }
 
@@ -1023,7 +1023,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 dynamic postingEngine = new PostingEngineService().GetProgress();
                 if (postingEngine.IsRunning)
                 {
-                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
 
                 if (!string.IsNullOrEmpty(orderid) && to.HasValue)
@@ -1032,7 +1032,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         $@"select * from tax_lot where open_lot_id='{orderid}' and active_flag = 1 and trade_date <='{to?.ToString("yyyy-MM-dd")}'";
                     List<SqlParameter> sqlParams = new List<SqlParameter>();
                     var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, sqlParams.ToArray());
-                    var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                    var reportObject = Shared.WebApi.Wrap(true, dataTable, HttpStatusCode.OK);
                     return reportObject;
                 }
                 else
@@ -1040,7 +1040,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     var query =
                         $@"select * from tax_lot where active_flag = 1";
                     var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
-                    var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                    var reportObject = Shared.WebApi.Wrap(true, dataTable, HttpStatusCode.OK);
                     return reportObject;
                 }
             }
@@ -1071,7 +1071,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 dynamic postingEngine = new PostingEngineService().GetProgress();
                 if (postingEngine.IsRunning)
                 {
-                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
 
                 var businessDate = System.DateTime.Now.PrevBusinessDate();
@@ -1082,13 +1082,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlParams.Add(new SqlParameter("@businessDate", businessDate));
 
                 var dataTable = sqlHelper.GetDataTables(query, CommandType.StoredProcedure, sqlParams.ToArray());
-                var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                var reportObject = Shared.WebApi.Wrap(true, dataTable, HttpStatusCode.OK);
 
                 return reportObject;
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
         }
 
@@ -1100,7 +1100,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 if (postingEngine.IsRunning)
                 {
-                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
 
                 bool whereAdded = false;
@@ -1203,11 +1203,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     trialBalanceReport.Add(trialBalance);
                 }
 
-                return Utils.Wrap(true, trialBalanceReport, HttpStatusCode.OK, null, null, stats);
+                return Shared.WebApi.Wrap(true, trialBalanceReport, HttpStatusCode.OK, null, null, stats);
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
         }
 
@@ -1229,7 +1229,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 if (postingEngine.IsRunning)
                 {
-                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
 
                 bool whereAdded = false;
@@ -1319,12 +1319,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     Accounts = y.SelectMany(z => z.Accounts).ToList()
                 }).ToList();
 
-                var tileObject = Utils.Wrap(true, tileData, HttpStatusCode.OK);
+                var tileObject = Shared.WebApi.Wrap(true, tileData, HttpStatusCode.OK);
                 return tileObject;
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
         }
 
@@ -1442,18 +1442,18 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                     var jsonResult = JsonConvert.SerializeObject(dataTable);
                     dynamic json = JsonConvert.DeserializeObject(jsonResult);
-                    var result = Utils.Wrap(true, json, HttpStatusCode.OK, null, metaData);
+                    var result = Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, null, metaData);
 
                     return result;
                 }
                 else
                 {
-                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Grouping is not Present in this Layout");
+                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "Grouping is not Present in this Layout");
                 }
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError, "Something Bad Happened!");
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError, "Something Bad Happened!");
             }
         }
 
@@ -1490,7 +1490,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
                 dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
-                var returnResult = Utils.Wrap(true, json, HttpStatusCode.OK, sql.Item2, metaData, journalStats);
+                var returnResult = Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, sql.Item2, metaData, journalStats);
                 sw.Stop();
                 Logger.Info($"{count} finished serverSideJournals in {sw.ElapsedMilliseconds} ms");
                 return returnResult;
@@ -1522,7 +1522,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var resp = JsonConvert.SerializeObject(dataTable);
                 var stats = JsonConvert.DeserializeObject(resp);
 
-                return Utils.Wrap(true, stats, HttpStatusCode.OK);
+                return Shared.WebApi.Wrap(true, stats, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
@@ -1556,7 +1556,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     environment
                 };
 
-                return Utils.Wrap(true, response, HttpStatusCode.OK);
+                return Shared.WebApi.Wrap(true, response, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
@@ -1643,11 +1643,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                             new FilterValues() {ColumnName = filters[i].ColumnName, Values = filterValues});
                     }
 
-                    return Utils.Wrap(true, meta, HttpStatusCode.OK);
+                    return Shared.WebApi.Wrap(true, meta, HttpStatusCode.OK);
                 }
                 else
                 {
-                    return Utils.Wrap(true, meta, HttpStatusCode.NotFound);
+                    return Shared.WebApi.Wrap(true, meta, HttpStatusCode.NotFound);
                 }
             }
             catch (Exception e)
@@ -1665,7 +1665,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var serialized = JsonConvert.SerializeObject(dataTable);
             var resp = JsonConvert.DeserializeObject(serialized);
 
-            return Utils.Wrap(true, resp, HttpStatusCode.OK);
+            return Shared.WebApi.Wrap(true, resp, HttpStatusCode.OK);
         }
 
         public object GetPeriodJournals(string symbol, DateTime now, string period)
@@ -1683,7 +1683,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var serialized = JsonConvert.SerializeObject(dataTable);
                 var data = JsonConvert.DeserializeObject(serialized);
 
-                return Utils.Wrap(true, data, HttpStatusCode.OK, "Journals fetched successfully", meta);
+                return Shared.WebApi.Wrap(true, data, HttpStatusCode.OK, "Journals fetched successfully", meta);
             }
 
             catch (Exception ex)
@@ -1703,7 +1703,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 dates.Add((DateTime) dr["business_date"]);
             }
 
-            return Utils.Wrap(true, dates, HttpStatusCode.OK);
+            return Shared.WebApi.Wrap(true, dates, HttpStatusCode.OK);
         }
 
         public object GetMarketValueAppraisalReport(DateTime? date)
@@ -1713,7 +1713,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 dynamic postingEngine = new PostingEngineService().GetProgress();
                 if (postingEngine.IsRunning)
                 {
-                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
 
                 var businessDate = System.DateTime.Now.PrevBusinessDate();
@@ -1727,7 +1727,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlParams.Add(new SqlParameter("date", businessDate));
                 var dataTable = sqlHelper.GetDataTable("MarketValueAppraisalReport", CommandType.StoredProcedure,
                     sqlParams.ToArray());
-                var reportObject = Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                var reportObject = Shared.WebApi.Wrap(true, dataTable, HttpStatusCode.OK);
                 return reportObject;
             }
             catch (Exception ex)
@@ -1755,7 +1755,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 sqlHelper.Insert(query, CommandType.Text, exclusionParams.ToArray());
                 sqlHelper.CloseConnection();
-                return Utils.Wrap(true, null, HttpStatusCode.OK);
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
@@ -1782,7 +1782,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 sqlHelper.Update(query, CommandType.Text, exclusionParams.ToArray());
                 sqlHelper.CloseConnection();
-                return Utils.Wrap(true, null, HttpStatusCode.OK);
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
@@ -1801,7 +1801,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 dynamic postingEngine = new PostingEngineService().GetProgress();
                 if (postingEngine.IsRunning)
                 {
-                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
 
                 List<SqlParameter> sqlParams = new List<SqlParameter>()
@@ -1818,7 +1818,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var dataTable =
                     sqlHelper.GetDataTable("DetailPnlToDate", CommandType.StoredProcedure, sqlParams.ToArray());
 
-                return Utils.Wrap(true, dataTable, HttpStatusCode.OK);
+                return Shared.WebApi.Wrap(true, dataTable, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {

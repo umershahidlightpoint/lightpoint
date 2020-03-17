@@ -1,4 +1,5 @@
 ﻿using LP.Finance.Common.Model;
+using LP.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -187,7 +188,7 @@ namespace LP.Finance.Common.Calculators
                 priorDataQuarterlyPnl = null;
             }
 
-            return Utils.Wrap(true, sorted, HttpStatusCode.OK, "Performance calculated successfully");
+            return WebApi.Wrap(true, sorted, HttpStatusCode.OK, "Performance calculated successfully");
         }
 
         public decimal CalculateDailyITD(DailyPnL current, DailyPnL prior)

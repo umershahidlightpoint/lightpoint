@@ -43,7 +43,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 if (!id.HasValue)
                 {
                     message = "Security id not found against this symbol";
-                    return Utils.Wrap(false, null, HttpStatusCode.Forbidden);
+                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.Forbidden);
                 }
 
 
@@ -136,7 +136,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.SqlBeginTransaction();
                 sqlHelper.Insert(securityDetailsQuery, CommandType.Text, securityDetailsParams.ToArray());
                 sqlHelper.SqlCommitTransaction();
-                return Utils.Wrap(true, null, HttpStatusCode.OK);
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
 
             }
             catch (Exception ex)
@@ -218,12 +218,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.SqlBeginTransaction();
                 sqlHelper.Update(query, CommandType.Text, securityDetailParams.ToArray());
                 sqlHelper.SqlCommitTransaction();
-                return Utils.Wrap(true, null, HttpStatusCode.OK);
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
                 sqlHelper.SqlRollbackTransaction();
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
             finally
             {
@@ -253,14 +253,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 if (securityType == "")
                 {
                     message = "Security Type not found against this symbol";
-                    return Utils.Wrap(false, null, HttpStatusCode.Forbidden);
+                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.Forbidden);
                 }
 
-                var schema = Utils.GetFile<List<SecurityTypeFormConfig>>("security_details", "MockData");
+                var schema = Shared.WebApi.GetFile<List<SecurityTypeFormConfig>>("security_details", "MockData");
 
                 var results = schema.Where(o => o.SecurityType == securityType);
 
-                return Utils.Wrap(true, results, HttpStatusCode.OK, "Security Details fetched successfully");
+                return Shared.WebApi.Wrap(true, results, HttpStatusCode.OK, "Security Details fetched successfully");
 
             }
             catch (Exception ex)
@@ -281,11 +281,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var json = JsonConvert.DeserializeObject(jsonResult);
 
-                return Utils.Wrap(true, json, HttpStatusCode.OK, "Securities fetched successfully");
+                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "Securities fetched successfully");
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
                     "An error occured while fetching securities");
             }
         }
@@ -314,12 +314,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.SqlBeginTransaction();
                 sqlHelper.Update(query, CommandType.Text, securityDetailParams.ToArray());
                 sqlHelper.SqlCommitTransaction();
-                return Utils.Wrap(true, null, HttpStatusCode.OK);
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
                 sqlHelper.SqlRollbackTransaction();
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
             finally
             {
@@ -344,11 +344,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var json = JsonConvert.DeserializeObject(jsonResult);
 
-                return Utils.Wrap(true, json, HttpStatusCode.OK, "Security Detail fetched successfully");
+                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "Security Detail fetched successfully");
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
                     "An error occured while fetching security detail");
             }
         }

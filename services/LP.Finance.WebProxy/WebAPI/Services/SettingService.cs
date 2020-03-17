@@ -35,11 +35,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     currencyCodes.Add((string) dr["TradeCurrency"]);
                 }
 
-                return Utils.Wrap(true, currencyCodes, HttpStatusCode.OK);
+                return Shared.WebApi.Wrap(true, currencyCodes, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
         }
 
@@ -76,13 +76,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.Insert(query, CommandType.Text, settingParameters.ToArray());
                 sqlHelper.CloseConnection();
 
-                return Utils.Wrap(true, null, HttpStatusCode.OK);
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
                 sqlHelper.CloseConnection();
 
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
         }
 
@@ -126,13 +126,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.CloseConnection();
 
 
-                return Utils.Wrap(true, null, HttpStatusCode.OK);
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
                 sqlHelper.CloseConnection();
 
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
         }
 
@@ -157,11 +157,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var status = dataTable.Rows.Count > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
 
-                return Utils.Wrap(true, dataTable, status);
+                return Shared.WebApi.Wrap(true, dataTable, status);
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
         }
     }

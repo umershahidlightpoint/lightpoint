@@ -17,7 +17,7 @@ namespace PostingEngine.MarketData
         {
             if (Mock)
             {
-                return Utils.GetFile<Dictionary<string, CostBasisDto>>("costbasis");
+                return LP.Shared.Utils.GetFile<Dictionary<string, CostBasisDto>>("costbasis");
             }
 
             var busdate = now.ToString("MM-dd-yyyy");

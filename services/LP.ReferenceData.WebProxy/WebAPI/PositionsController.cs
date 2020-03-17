@@ -1,5 +1,6 @@
 ﻿using LP.Core;
 using LP.Finance.Common;
+using LP.Shared.Core;
 using Newtonsoft.Json;
 using System;
 using System.Configuration;
@@ -18,7 +19,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI
     {
         public object Get(DateTime busDate)
         {
-            return Utils.GetFile("positions_" + busDate.ToString("MM-dd-yyyy"));
+            return LP.Shared.WebApi.GetFile("positions_" + busDate.ToString("MM-dd-yyyy"));
         }
     }
 
@@ -30,7 +31,7 @@ namespace LP.ReferenceData.WebProxy.WebAPI
         {
             dynamic result = AllData(busDate);
 
-            Utils.Save(result, "positions_" + busDate.ToString("MM-dd-yyyy"));
+            LP.Shared.WebApi.Save(result, "positions_" + busDate.ToString("MM-dd-yyyy"));
 
             return result;
         }
@@ -66,7 +67,7 @@ where p.BusDate = '{BusDate}'
 
             dynamic json = JsonConvert.DeserializeObject(content);
 
-            return Utils.GridWrap(json, metaData);
+            return LP.Shared.WebApi.GridWrap(json, metaData);
         }
     }
 

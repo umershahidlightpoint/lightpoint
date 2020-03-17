@@ -28,13 +28,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             try
             {
                 // Get the Data, We will Get the Results Later
-                var transactionResults = Utils.GetWebApiData(allocationsURL);
+                var transactionResults = Shared.WebApi.GetWebApiData(allocationsURL, ConfigurationManager.AppSettings[""]);
 
                 dynamic postingEngine = new PostingEngineService().GetProgress();
 
                 if (postingEngine.IsRunning)
                 {
-                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
+                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "Posting Engine is currently Running");
                 }
 
                 journalStats journalStats = new journalStats();
@@ -149,13 +149,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
                 dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
-                var returnResult = Utils.Wrap(true, json, HttpStatusCode.OK, null, metaData, journalStats);
+                var returnResult = Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, null, metaData, journalStats);
 
                 return returnResult;
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError);
             }
         }
 
@@ -217,17 +217,17 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                     var jsonResult = JsonConvert.SerializeObject(dataTable);
                     dynamic json = JsonConvert.DeserializeObject(jsonResult);
-                    var result = Utils.Wrap(true, json, HttpStatusCode.OK, null, metaData);
+                    var result = Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, null, metaData);
                     return result;
                 }
                 else
                 {
-                    return Utils.Wrap(false, null, HttpStatusCode.OK, "Grouping is not Present in this Layout");
+                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "Grouping is not Present in this Layout");
                 }
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError, "Something Bad Happened!");
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError, "Something Bad Happened!");
             }
         }
     }

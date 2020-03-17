@@ -16,7 +16,7 @@ namespace PostingEngine.MarketData
         {
             if (Mock)
             {
-                return Utils.GetFile<Dictionary<string, SecurityDetail>>("securitydetails");
+                return LP.Shared.Utils.GetFile<Dictionary<string, SecurityDetail>>("securitydetails");
             }
 
             var sql = $@"select SecurityCode, BbergCode, EzeTicker, coalesce(sd.Multiplier, sf.ContractSize) as Multiplier from Security s
@@ -51,7 +51,7 @@ where coalesce(sd.Multiplier, sf.ContractSize) is not null";
                 con.Close();
             }
 
-            Utils.Save(list, "securitydetails");
+            LP.Shared.Utils.Save(list, "securitydetails");
 
             return list;
         }

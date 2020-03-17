@@ -33,7 +33,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var payload = JsonConvert.DeserializeObject(JsonConvert.SerializeObject(dataTable));
 
-                return Utils.Wrap(true, payload, HttpStatusCode.OK, "Configurations Fetched Successfully.");
+                return Shared.WebApi.Wrap(true, payload, HttpStatusCode.OK, "Configurations Fetched Successfully.");
             }
             catch (Exception ex)
             {
@@ -85,7 +85,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 SqlHelper.Insert(query, CommandType.Text, configParams.ToArray());
 
-                return Utils.Wrap(true, null, HttpStatusCode.OK, "Configurations Saved Successfully.");
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK, "Configurations Saved Successfully.");
             }
             catch (Exception ex)
             {
@@ -123,7 +123,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 SqlHelper.Update(query, CommandType.Text, configParams.ToArray());
 
-                return Utils.Wrap(true, null, HttpStatusCode.OK, "Configurations Updated Successfully.");
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK, "Configurations Updated Successfully.");
             }
             catch (Exception ex)
             {

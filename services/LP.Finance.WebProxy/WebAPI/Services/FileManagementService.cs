@@ -43,7 +43,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var dataTable = new SqlHelper(connectionString).GetDataTable(query, CommandType.Text);
             var jsonResult = JsonConvert.SerializeObject(dataTable);
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
-            return Utils.Wrap(true, json);
+            return Shared.WebApi.Wrap(true, json);
         }
 
         public object UploadFiles()
@@ -57,7 +57,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             var status = s3Endpoint.UploadFileToS3(path);
 
-            return Utils.Wrap(status);
+            return Shared.WebApi.Wrap(status);
         }
 
         public object DownloadFiles()
@@ -71,7 +71,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             var status = s3Endpoint.DownloadFileFromS3(path);
 
-            return Utils.Wrap(status);
+            return Shared.WebApi.Wrap(status);
         }
 
         public object GetS3Files()
@@ -81,7 +81,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             var status = s3Endpoint.ListS3Files();
 
-            return status.Count != 0 ? Utils.Wrap(true, status) : Utils.Wrap(false);
+            return status.Count != 0 ? Shared.WebApi.Wrap(true, status) : Shared.WebApi.Wrap(false);
         }
 
         public object ImportFilesFromSilver()
@@ -159,7 +159,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 businessDate));
 
             InsertActivityAndPositionFilesForSilver(fileList);
-            return Utils.Wrap(true);
+            return Shared.WebApi.Wrap(true);
         }
 
         public List<FileException> MapFailedRecords(Dictionary<object, Row> failedRecords, DateTime businessDate,
@@ -326,10 +326,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             catch (Exception ex)
             {
                 sqlHelper.CloseConnection();
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
 
-            return Utils.Wrap(true);
+            return Shared.WebApi.Wrap(true);
         }
 
 
@@ -386,7 +386,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }).ToList();
             //var jsonResult = JsonConvert.SerializeObject(dataTable);
             //dynamic json = JsonConvert.DeserializeObject(jsonResult);
-            return Utils.Wrap(true, groupedExceptions);
+            return Shared.WebApi.Wrap(true, groupedExceptions);
         }
 
         public async Task<object> UploadTrade(HttpRequestMessage requestMessage)
@@ -396,7 +396,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 FileManager _fileManager = new FileManager(connectionString);
                 var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "Trades");
                 if (!uploadedResult.Item1)
-                    return Utils.Wrap(false);
+                    return Shared.WebApi.Wrap(false);
 
                 var path = uploadedResult.Item2;
                 var filename = uploadedResult.Item3;
@@ -439,6 +439,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     i.TradeId = guid;
                     i.LPOrderId = guid;
                     i.ParentOrderId = guid;
+                    i.Status = "Executed";
                     i.TradeType = "manual";
 
                     if (symbols.ContainsKey(i.SecurityCode))
@@ -480,16 +481,16 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     EnableCommit = enableCommit,
                     Data = trades
                 };
-                return Utils.Wrap(true, data, HttpStatusCode.OK);
+                return Shared.WebApi.Wrap(true, data, HttpStatusCode.OK);
 
                 //bool insertinto = InsertData(trades.ToArray(), "current_trade_state");
                 //if (insertinto)
                 //{
-                //    return Utils.Wrap(true, trades, HttpStatusCode.OK);
+                //    return Shared.WebApi.Wrap(true, trades, HttpStatusCode.OK);
                 //}
                 //else
                 //{
-                //    return Utils.Wrap(false);
+                //    return Shared.WebApi.Wrap(false);
                 //}
             }
             catch (Exception ex)
@@ -589,11 +590,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var insertSuccessful = InsertData(bulkContainer);
                 if (insertSuccessful)
                 {
-                    return Utils.Wrap(true, null, HttpStatusCode.OK);
+                    return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
                 }
                 else
                 {
-                    return Utils.Wrap(false, null, HttpStatusCode.InternalServerError);
+                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError);
                 }
             }
             catch (Exception ex)

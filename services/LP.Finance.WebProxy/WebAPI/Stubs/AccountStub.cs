@@ -9,12 +9,12 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
     {
         public object Data(string symbol, string search = "")
         {
-            return Utils.GetFile("accounts");
+            return Shared.WebApi.GetFile("accounts");
         }
 
         public object GetAccounts(int pageNumber, int pageSize, string accountName, string accountCategory)
         {
-            return Utils.GetFile("accounts");
+            return Shared.WebApi.GetFile("accounts");
         }
 
         public object GetDummyAccount()

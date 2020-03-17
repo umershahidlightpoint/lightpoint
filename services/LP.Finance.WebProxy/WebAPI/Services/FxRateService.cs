@@ -43,11 +43,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var json = JsonConvert.DeserializeObject<List<FxRate>>(jsonResult);
 
-                return Utils.Wrap(true, json, HttpStatusCode.OK, "FxRates Audit Trail fetched successfully");
+                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "FxRates Audit Trail fetched successfully");
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
                     "An error occured while fetching FxRates Audit Trail");
             }
         }
@@ -70,11 +70,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var json = JsonConvert.DeserializeObject<List<FxRate>>(jsonResult);
 
-                return Utils.Wrap(true, json, HttpStatusCode.OK, "FxRates fetched successfully");
+                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "FxRates fetched successfully");
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
                     "An error occured while fetching Fx Rates");
             }
         }
@@ -117,14 +117,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.SqlCommitTransaction();
                 sqlHelper.CloseConnection();
 
-                return Utils.Wrap(true, null, HttpStatusCode.OK, "Prices updated successfully");
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK, "Prices updated successfully");
             }
             catch (Exception ex)
             {
                 sqlHelper.SqlRollbackTransaction();
                 sqlHelper.CloseConnection();
 
-                return Utils.Wrap(false, null, HttpStatusCode.InternalServerError,
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
                     "An error occured while updating prices");
             }
         }
@@ -136,7 +136,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "FxRates");
                 if (!uploadedResult.Item1)
-                    return Utils.Wrap(false);
+                    return Shared.WebApi.Wrap(false);
 
                 var path = uploadedResult.Item2;
                 var filename = uploadedResult.Item3;
@@ -185,21 +185,21 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     {
                         Console.WriteLine(item);
                     }
-                    return Utils.Wrap(true, items, HttpStatusCode.Forbidden,null, metaData.Columns);
+                    return Shared.WebApi.Wrap(true, items, HttpStatusCode.Forbidden,null, metaData.Columns);
                 }
 
                 if (insertinto)
                 {
-                    return Utils.Wrap(true, fxRates, HttpStatusCode.OK);
+                    return Shared.WebApi.Wrap(true, fxRates, HttpStatusCode.OK);
                 }
                 else
                 {
-                    return Utils.Wrap(false);
+                    return Shared.WebApi.Wrap(false);
                 }
             }
             catch (Exception ex)
             {
-                return Utils.Wrap(false);
+                return Shared.WebApi.Wrap(false);
             }
         }
 

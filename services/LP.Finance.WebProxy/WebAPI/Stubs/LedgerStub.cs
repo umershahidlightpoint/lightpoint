@@ -6,7 +6,7 @@ namespace LP.Finance.WebProxy.WebAPI
     {
         public object Data(string symbol)
         {
-            return Utils.GetFile("ledgers");
+            return Shared.WebApi.GetFile("ledgers");
         }
     }
 }
