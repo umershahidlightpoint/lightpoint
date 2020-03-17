@@ -325,6 +325,9 @@ export class TradesComponent implements OnInit, AfterViewInit {
       },
       getRowStyle: params => {
         let style = {};
+        if (!params.node.group && params.data.TradeType === 'manual') {
+          style = LegendColors.notInBookMonStyle;
+        }
         if (!params.node.group && params.data.exclude === 'Y') {
           style = LegendColors.nonZeroStyle;
         }
