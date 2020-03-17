@@ -3,7 +3,6 @@ import {
   Component,
   OnInit,
   ViewChild,
-  Input,
   Output,
   EventEmitter,
   OnChanges,
@@ -11,8 +10,8 @@ import {
 } from '@angular/core';
 import { FinanceServiceProxy } from './../../../services/service-proxies'; // for get symbols
 import { CorporateActionsApiService } from './../../../services/corporate-actions.api.service';
-import { ModalDirective } from 'ngx-bootstrap';
 import { ToastrService } from 'ngx-toastr';
+import { ModalComponent } from 'lp-toolkit';
 import { Observable, noop } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import * as moment from 'moment';
@@ -28,7 +27,7 @@ export class CreateSymbolRenameComponent implements OnInit, OnChanges {
   editSymbolRename = false;
   selectedRow;
 
-  @ViewChild('symbolRenameModal', { static: false }) symbolRenameModal: ModalDirective;
+  @ViewChild('symbolRenameModal', { static: false }) symbolRenameModal: ModalComponent;
   @Output() modalClose = new EventEmitter<any>();
 
   ticker$: Observable<[]>;
@@ -83,7 +82,7 @@ export class CreateSymbolRenameComponent implements OnInit, OnChanges {
           tap(data => {
             this.toastrService.success('Symbol update successfully!');
             this.isSaving = false;
-            this.symbolRenameModal.hide();
+            this.symbolRenameModal.hideModal();
             this.modalClose.emit(true);
             this.onReset();
           })
@@ -126,7 +125,7 @@ export class CreateSymbolRenameComponent implements OnInit, OnChanges {
   openModal(data) {
 
     if (data === undefined || !data || data == null) {
-      this.symbolRenameModal.show();
+      this.symbolRenameModal.showModal();
     } else {
 
       this.selectedRow = {};
@@ -138,12 +137,16 @@ export class CreateSymbolRenameComponent implements OnInit, OnChanges {
         executionDate: {startDate: moment(data.execution_date), endDate: moment(data.execution_date)},
         noticeDate: {startDate: moment(data.notice_date), endDate: moment(data.notice_date)}
       });
-      this.symbolRenameModal.show();
+      this.symbolRenameModal.showModal();
     }
   }
 
   close() {
-    this.symbolRenameModal.hide();
+    this.symbolRenameModal.hideModal();
+    this.onReset();
+  }
+
+  onCloseModal() {
     this.onReset();
   }
 

@@ -133,4 +133,9 @@ export class ReportsApiService {
     const url = this.baseUrl + '/journal/marketValueAppraisalReport?date=' + date;
     return this.http.get(url).pipe(map((response: any) => response));
   }
+
+  getHistoricPerformanceReport(fromDate, toDate) {
+    const url = this.baseUrl + '/journal/historicPerformanceReport?from=' + fromDate + '&to=' + toDate;
+    return this.http.get(url).pipe(map((response: any) => response));
+  }
 }

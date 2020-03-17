@@ -1,21 +1,9 @@
-<!-- Modal Div Starts -->
-<div bsModal #symbolRenameModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true"
-  [config]="{backdrop: 'static'}">
 
-  <!-- Modal Dialog Div Starts -->
-  <div class="modal-dialog modal-dialog-centered modal-lg" id="modal-lg">
-    <!-- Modal Content Starts -->
-    <div class="modal-content">
-        <!------ Form Starts------>
+<!-- LP Modal -->
+<lp-modal #symbolRenameModal size="large" [title]="editSymbolRename ? 'Edit Symbol' : 'Create Symbol'"
+    (closed)="onCloseModal()" [showFooter]="false" (canceled)="onCloseModal()" (confirmed)="form.ngSubmit.emit()">
 
         <form [formGroup]="symbolRenameForm" (ngSubmit)="onSubmit()">
-
-        <!-- Modal Header -->
-        <div class="modal-header color-primary">
-          <h3>Change Symbol</h3>
-          <button type="button" class="close" data-dismiss="modal" (click)="close()">&times;</button>
-          <!--End Modal Header -->
-        </div>
 
         <!-- No Result Alert -->
         <alert *ngIf="noResult" type="danger" [dismissible]="true">
@@ -147,11 +135,7 @@
         </div>
          <!------ Form End------>
           </form>
+
+</lp-modal>
         
-        </div>
-
-    </div>
-    <!-- Modal Dialog Div Ends -->
-
-</div>
-<!-- Modal Div Starts Ends -->
+<!-- lp-modal Ends -->
