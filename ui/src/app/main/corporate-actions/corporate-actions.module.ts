@@ -13,6 +13,7 @@ import { LpToolkitModule } from 'lp-toolkit';
 import { CorporateActionsComponent } from './corporate-actions.component';
 import { DividendsComponent } from './dividends/dividends.component';
 import { StockSplitsComponent } from './stock-splits/stock-splits.component';
+import { SymbolRenameComponent } from './symbol-rename/symbol-rename.component';
 import { PreviewComponent } from './dividends/preview/preview.component';
 
 import { CorporateActionsRoutes } from './corporate-actions.route';
@@ -25,7 +26,8 @@ const corporateActionsComponents = [
   DividendsComponent,
   StockSplitsComponent,
   PreviewComponent,
-  StockSplitsPreviewComponent
+  StockSplitsPreviewComponent,
+  SymbolRenameComponent
 ];
 
 @NgModule({

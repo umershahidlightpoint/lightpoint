@@ -10,6 +10,7 @@ export class CorporateActionsComponent implements OnInit {
 
   corporateActions = true;
   stockSplits = false;
+  symbolRename = false;
 
   style = Style;
   styleForHeight = HeightStyle(206);
@@ -25,5 +26,9 @@ export class CorporateActionsComponent implements OnInit {
 
   activeStockSplits() {
     this.stockSplits = true;
+  }
+
+  activeSymbolRename() {
+    this.symbolRename = true;
   }
 }

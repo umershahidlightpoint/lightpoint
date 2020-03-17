@@ -27,6 +27,7 @@ import { JournalsComponent } from '../shared/Component/journals/journals.compone
 import { CreateDividendComponent } from './../shared/Modal/create-dividend/create-dividend.component';
 import { CreateStockSplitsComponent } from './../shared/Modal/create-stock-splits/create-stock-splits.component';
 import { CreateSecurityComponent } from './../shared/Modal/create-security/create-security.component';
+import { CreateSymbolRenameComponent } from './../shared/Modal/create-symbol-rename/create-symbol-rename.component';
 import { ExcludeTradeComponent } from './../shared/Modal/exclude-trade/exclude-trade.component';
 
 const sharedComponents = [
@@ -44,6 +45,7 @@ const sharedComponents = [
   CreateDividendComponent,
   CreateStockSplitsComponent,
   CreateSecurityComponent,
+  CreateSymbolRenameComponent,
   ExcludeTradeComponent
 ];
 

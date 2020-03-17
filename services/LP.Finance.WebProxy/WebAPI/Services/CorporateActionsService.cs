@@ -484,9 +484,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                            ,[old_symbol]
                            ,[new_symbol]
                            ,[notice_date]
-                           ,[execution_date]
-                     VALUES
-                           (@createdBy
+                           ,[execution_date])
+                            VALUES
+                            (@createdBy
                            ,@createdDate
                            ,@oldSymbol
                            ,@newSymbol
@@ -628,7 +628,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var json = JsonConvert.DeserializeObject(jsonResult);
 
-                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "SymbolChange audit trail fetched successfully");
+                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "Symbol audit trail fetched successfully");
             }
             catch (Exception ex)
             {
