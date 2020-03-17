@@ -1,5 +1,8 @@
 ﻿/*
+select min(id), max(id) from vwJournal where event != 'manual'
+
 exec [CacheBatchResults_rd] 100000
+
 */
 
 CREATE PROCEDURE [dbo].[CacheBatchResults_rd]
@@ -26,8 +29,8 @@ set @Message = 'Batch Size ' + Convert(varchar(10), @BatchSize);
 
 RAISERROR (@message, 0, 1) WITH NOWAIT
 
-	SELECT @TotalNumberOfRecords = count(*) FROM vwJournal
-	SELECT @TotalCount = MAX(id), @From = MIN(id)  FROM vwJournal
+	SELECT @TotalNumberOfRecords = count(*) FROM vwJournal where event != 'manual'
+	SELECT @TotalCount = MAX(id), @From = MIN(id)  FROM vwJournal where event != 'manual'
 	SET @To = @From + @BatchSize
 	SET @TotalProcessed = 0
 
@@ -51,7 +54,6 @@ RAISERROR (@message, 0, 1) WITH NOWAIT
 	[fund] [varchar](50) NULL,
 	[AccountCategory] [varchar](50) NULL,
 	[AccountType] [varchar](100) NULL,
-	[AccountTypeId] [int] NULL,
 	[accountName] [varchar](100) NULL,
 	[accountDescription] [varchar](100) NULL,
 	[value] [numeric](22, 9) NULL,
@@ -75,6 +77,23 @@ RAISERROR (@message, 0, 1) WITH NOWAIT
 
 
 ALTER TABLE [dbo].[current_journal_full] ADD  DEFAULT ((1)) FOR [is_account_to]
+
+	RAISERROR ('Populating current_journal_full with manual entries', 0, 1) WITH NOWAIT
+			insert into current_journal_full
+			select top 100 vw.*, 
+			t.TradeDate,
+			t.SettleDate,
+			t.TradeId, 
+			t.Action, 
+			t.Status, 
+			t.CustodianCode, 
+			t.SecurityType,
+			t.Side,
+			t.TradeCurrency,
+			t.SettleCurrency
+			from vwJournal vw
+			left outer join current_trade_state t on t.LpOrderId = vw.source
+			where event = 'manual'
 
 	RAISERROR ('Populating current_journal_full', 0, 1) WITH NOWAIT
 	WHILE @TotalProcessed < @TotalNumberOfRecords
@@ -104,7 +123,11 @@ ALTER TABLE [dbo].[current_journal_full] ADD  DEFAULT ((1)) FOR [is_account_to]
 
 			set @Message = '[' + Convert(varchar(100), @Step) + '] [' + Convert(varchar(100), @rowCount) + '] [' + Convert(varchar(100), ROUND(@Percentage, 2))+ '] inserting ranges: ' + Convert(varchar(100), @From) + ' to ' + Convert(varchar(100), @To)
 
-			RAISERROR (@message, 0,1) with nowait
+			if @rowCount != 0 
+			begin
+				RAISERROR (@message, 0,1) with nowait
+			end
+			
 			SET @From = @To
 			SET @To = @To + @BatchSize
 			Set @Step = @Step + 1
