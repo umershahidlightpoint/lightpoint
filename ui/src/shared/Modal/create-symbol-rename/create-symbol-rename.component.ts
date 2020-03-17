@@ -68,6 +68,12 @@ export class CreateSymbolRenameComponent implements OnInit, OnChanges {
           return;
       }
 
+      if (this.symbolRenameForm.value.oldSymbol === this.symbolRenameForm.value.newSymbol) {
+        this.isSaving = false;
+        this.toastrService.error('Please Select different symbol!');
+        return;
+      }
+
       if (this.editSymbolRename) { // For Update symbol rename
         const payload = {
           Id: this.selectedRow.id,
