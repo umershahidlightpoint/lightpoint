@@ -13,6 +13,9 @@ namespace LP.Finance.Common.Models
         public DateTime ActionOn { get; set; }
         public DateTime RunDate { get; set; }
         public Guid Key { get; set; }
+
+        // A description of type of error
+        public string ErrorLevel { get; set; }
         public KeyValuePair<string, SqlParameter[]> Insert
         {
             get

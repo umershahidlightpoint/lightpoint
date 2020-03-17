@@ -82,7 +82,7 @@ namespace PostingEngine.PostingRules
 
             if (accountToFrom.To == null || accountToFrom.From == null)
             {
-                env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
+                env.AddMessage("Error", $"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
                 return;
             }
 

@@ -226,7 +226,7 @@ namespace PostingEngine.PostingRules
                     if (!env.TaxLotStatus.ContainsKey(lot.Trade.LpOrderId))
                     {
                         // TODO: For this open lot there should be a corresponding open to 
-                        env.AddMessage($"Unable to Find Tax Lot for {lot.Trade.Symbol}::{lot.Trade.Side}::{lot.Trade.Status}");
+                        env.AddMessage("Error", $"Unable to Find Tax Lot for {lot.Trade.Symbol}::{lot.Trade.Side}::{lot.Trade.Status}");
                         //Logger.Warn($"Unable to Find Tax Lot for {element.Symbol}::{element.Side}::{element.Status}");
                         continue;
                     }

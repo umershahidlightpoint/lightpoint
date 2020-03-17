@@ -213,6 +213,7 @@ namespace PostingEngine
                     Key = Key,
                     RunDate = postingEnv.RunDate,
                     Action = "Starting Single Trade Posting Engine",
+                    ErrorLevel = "Info",
                     ActionOn = DateTime.Now
                 }.Save(connection, transaction);
 
@@ -230,15 +231,19 @@ namespace PostingEngine
                 var journalLogs = new List<JournalLog>();
 
                 // Save the messages accumulated during the Run
-                foreach (var message in postingEnv.Messages)
+                foreach (var messages in postingEnv.Messages)
                 {
-                    journalLogs.Add(new JournalLog()
+                    foreach (var message in messages.Value)
                     {
-                        Key = Key,
-                        RunDate = postingEnv.RunDate,
-                        Action = $" Error : {message.Key}, Count : {message.Value}",
-                        ActionOn = DateTime.Now
-                    });
+                        journalLogs.Add(new JournalLog()
+                        {
+                            Key = Key,
+                            RunDate = postingEnv.RunDate,
+                            ErrorLevel = message.ErrorLevel,
+                            Action = $"{messages.Key}",
+                            ActionOn = message.When
+                        });
+                    }
                 }
 
                 new SQLBulkHelper().Insert("journal_log", journalLogs.ToArray(), connection, transaction);
@@ -247,6 +252,7 @@ namespace PostingEngine
                 {
                     Key = Key,
                     RunDate = postingEnv.RunDate,
+                    ErrorLevel = "Info",
                     Action =
                         $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms / {sw.ElapsedMilliseconds / 1000} s",
                     ActionOn = DateTime.Now
@@ -338,7 +344,10 @@ namespace PostingEngine
 
                 new JournalLog()
                 {
-                    Key = Key, RunDate = tradingPostingEnv.RunDate, Action = "Starting Batch Posting Engine -- Trades",
+                    Key = Key, 
+                    RunDate = tradingPostingEnv.RunDate, 
+                    ErrorLevel = "Info",
+                    Action = "Starting Batch Posting Engine -- Trades",
                     ActionOn = DateTime.Now
                 }.Save(tradingPostingEnv.Connection, tradingPostingEnv.Transaction);
 
@@ -377,25 +386,34 @@ namespace PostingEngine
                 var journalLogs = new List<JournalLog>();
 
                 // Save the messages accumulated during the Run
-                foreach (var message in tradingPostingEnv.Messages)
+                foreach (var messages in tradingPostingEnv.Messages)
                 {
-                    journalLogs.Add(new JournalLog()
+                    foreach (var message in messages.Value)
                     {
-                        Key = Key,
-                        RunDate = tradingPostingEnv.RunDate,
-                        Action = $" Error : {message.Key}, Count : {message.Value}", ActionOn = DateTime.Now
-                    });
+                        journalLogs.Add(new JournalLog()
+                        {
+                            Key = Key,
+                            RunDate = tradingPostingEnv.RunDate,
+                            ErrorLevel = message.ErrorLevel,
+                            Action = $"{messages.Key}",
+                            ActionOn = message.When
+                        });
+                    }
                 }
 
-                foreach (var message in journalPostingEnv.Messages)
+                foreach (var messages in journalPostingEnv.Messages)
                 {
-                    journalLogs.Add(new JournalLog()
+                    foreach (var message in messages.Value)
                     {
-                        Key = Key,
-                        RunDate = tradingPostingEnv.RunDate,
-                        Action = $" Error : {message.Key}, Count : {message.Value}",
-                        ActionOn = DateTime.Now
-                    });
+                        journalLogs.Add(new JournalLog()
+                        {
+                            Key = Key,
+                            RunDate = journalPostingEnv.RunDate,
+                            ErrorLevel = message.ErrorLevel,
+                            Action = $"{messages.Key}",
+                            ActionOn = message.When
+                        });
+                    }
                 }
 
                 new SQLBulkHelper().Insert("journal_log", journalLogs.ToArray(), tradingPostingEnv.Connection, tradingPostingEnv.Transaction);
@@ -403,6 +421,7 @@ namespace PostingEngine
                 new JournalLog()
                 {
                     Key = Key, RunDate = tradingPostingEnv.RunDate,
+                    ErrorLevel = "Info",
                     Action =
                         $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms / {sw.ElapsedMilliseconds / 1000} s",
                     ActionOn = DateTime.Now
@@ -511,6 +530,7 @@ namespace PostingEngine
                 {
                     Key = Key,
                     RunDate = postingEnv.RunDate,
+                    ErrorLevel = "Info",
                     Action = "Starting Batch Posting Engine -- Trades",
                     ActionOn = DateTime.Now
                 }.Save(connection, transaction);
@@ -555,15 +575,19 @@ namespace PostingEngine
                 var journalLogs = new List<JournalLog>();
 
                 // Save the messages accumulated during the Run
-                foreach (var message in postingEnv.Messages)
+                foreach (var messages in postingEnv.Messages)
                 {
-                    journalLogs.Add(new JournalLog()
+                    foreach (var message in messages.Value)
                     {
-                        Key = Key,
-                        RunDate = postingEnv.RunDate,
-                        Action = $" Error : {message.Key}, Count : {message.Value}",
-                        ActionOn = DateTime.Now
-                    });
+                        journalLogs.Add(new JournalLog()
+                        {
+                            Key = Key,
+                            RunDate = postingEnv.RunDate,
+                            ErrorLevel = message.ErrorLevel,
+                            Action = $"{messages.Key}",
+                            ActionOn = message.When
+                        });
+                    }
                 }
 
                 new SQLBulkHelper().Insert("journal_log", journalLogs.ToArray(), connection, transaction);
@@ -572,6 +596,7 @@ namespace PostingEngine
                 {
                     Key = Key,
                     RunDate = postingEnv.RunDate,
+                    ErrorLevel = "Info",
                     Action =
                         $"Completed Batch Posting Engine {sw.ElapsedMilliseconds} ms / {sw.ElapsedMilliseconds / 1000} s",
                     ActionOn = DateTime.Now
@@ -671,7 +696,7 @@ namespace PostingEngine
                 }
                 catch (Exception exe)
                 {
-                    postingEnv.AddMessage(exe.Message);
+                    postingEnv.AddMessage("Error", exe.Message);
 
                     Error(exe, trade);
                 }
@@ -694,6 +719,8 @@ namespace PostingEngine
             {
                 Key = Key,
                 RunDate = postingEnv.RunDate,
+                ErrorLevel = "Info",
+
                 Action = $"Processed #1 transactions",
                 ActionOn = DateTime.Now
             }.Save(connection, transaction);
@@ -715,6 +742,8 @@ namespace PostingEngine
             {
                 Key = Key,
                 RunDate = postingEnv.RunDate,
+                ErrorLevel = "Info",
+
                 Action = $"Completed {label} Processing {sw.ElapsedMilliseconds} ms / {sw.ElapsedMilliseconds / 1000} s",
                 ActionOn = DateTime.Now
             }.Save(postingEnv.Connection, postingEnv.Transaction);
@@ -815,7 +844,7 @@ namespace PostingEngine
                         }
                         catch (Exception exe)
                         {
-                            postingEnv.AddMessage(exe.Message);
+                            postingEnv.AddMessage("Error", exe.Message);
 
                             Error(exe, trade);
                         }
@@ -843,7 +872,7 @@ namespace PostingEngine
                         }
                         catch (Exception exe)
                         {
-                            postingEnv.AddMessage(exe.Message);
+                            postingEnv.AddMessage("Error", exe.Message);
 
                             Error(exe, trade);
                         }
@@ -870,7 +899,7 @@ namespace PostingEngine
                     }
                     catch (Exception exe)
                     {
-                        postingEnv.AddMessage(exe.Message);
+                        postingEnv.AddMessage("Error", exe.Message);
 
                         Error(exe, trade);
                     }
@@ -897,7 +926,7 @@ namespace PostingEngine
                     }
                     catch (Exception exe)
                     {
-                        postingEnv.AddMessage(exe.Message);
+                        postingEnv.AddMessage("Error", exe.Message);
 
                         Error(exe, element);
                     }
@@ -954,6 +983,8 @@ namespace PostingEngine
             new JournalLog()
             {
                 Key = Key, RunDate = postingEnv.RunDate,
+                ErrorLevel = "Info",
+
                 Action = $"Processed # {label}::{postingEnv.Trades.Count()} transactions", ActionOn = DateTime.Now
             }.Save(connection, transaction);
 
@@ -1020,7 +1051,7 @@ namespace PostingEngine
             // Identify which entries to skip
             if (element.Status.Equals("Cancelled"))
             {
-                env.AddMessage($"Trade has been cancelled || expired {element.LpOrderId} -- {element.Status}");
+                env.AddMessage("Warning", $"Trade has been cancelled || expired {element.LpOrderId} -- {element.Status}");
                 // TODO: if there is already a Journal entry for this trade we need to back out the entries
                 return false;
             }
@@ -1029,7 +1060,7 @@ namespace PostingEngine
             var rule = env.Rules.Where(i => i.Key.Equals(element.SecurityType)).FirstOrDefault().Value;
             if (rule == null)
             {
-                env.AddMessage($"No rule associated with {element.SecurityType}");
+                env.AddMessage("Warning", $"No rule associated with {element.SecurityType}");
                 return false;
             }
 
@@ -1049,12 +1080,12 @@ namespace PostingEngine
                 catch (Exception ex)
                 {
                     Logger.Error(ex, $"Unable to process the Event for Trade Date {ex.Message}");
-                    env.AddMessage($"Unable to process the Event for Trade Date {ex.Message}");
+                    env.AddMessage("Error", $"Unable to process the Event for Trade Date {ex.Message}");
                 }
             }
             else
             {
-                env.AddMessage($"Unable to process this trade TradeDate does not match ValueDate");
+                env.AddMessage("Error", $"Unable to process this trade TradeDate does not match ValueDate");
             }
 
             return true;
@@ -1070,7 +1101,7 @@ namespace PostingEngine
             // Identify which entries to skip
             if ( element.Status.Equals("Cancelled"))
             {
-                env.AddMessage($"Trade has been cancelled {element.LpOrderId} -- {element.Status}");
+                env.AddMessage("Info", $"Trade has been cancelled {element.LpOrderId} -- {element.Status}");
                 // TODO: if there is already a Journal entry for this trade we need to back out the entries
                 return false;
             }
@@ -1094,7 +1125,7 @@ namespace PostingEngine
             var rule = env.Rules.Where(i => i.Key.Equals(element.SecurityType)).FirstOrDefault().Value;
             if (rule == null)
             {
-                env.AddMessage($"No rule associated with {element.SecurityType}");
+                env.AddMessage("Warning", $"No rule associated with {element.SecurityType}");
                 return false;
             }
 
@@ -1116,7 +1147,7 @@ namespace PostingEngine
                 {
                     var message = $"Daily/Settlement Event Failed for {element.Symbol}::{element.SecurityType}::{element.Side}::{ex.Message}";
                     Logger.Debug(ex, message);
-                    env.AddMessage(message);
+                    env.AddMessage("Error", message);
                 }
             }
             else if (env.ValueDate >= element.TradeDate.Date)
@@ -1128,7 +1159,7 @@ namespace PostingEngine
                 catch (Exception ex)
                 {
                     Logger.Debug(ex, $"Daily Event Failed for {element.Symbol}::{element.Side}::{ex.Message}");
-                    env.AddMessage($"Unable to process the Event for Daily Event {ex.Message}");
+                    env.AddMessage("Error", $"Unable to process the Event for Daily Event {ex.Message}");
                 }
             }
             else

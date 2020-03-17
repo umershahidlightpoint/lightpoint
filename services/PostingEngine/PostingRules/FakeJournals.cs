@@ -40,7 +40,7 @@ namespace PostingEngine.PostingRules
 
             if (element.Status.Equals("Cancelled"))
             {
-                env.AddMessage($"Entry has been cancelled {element.LpOrderId} :: {element.Side}");
+                env.AddMessage("Info", $"Entry has been cancelled {element.LpOrderId} :: {element.Side}");
                 return;
             }
 
@@ -55,7 +55,7 @@ namespace PostingEngine.PostingRules
 
             if (accountToFrom.To == null)
             {
-                env.AddMessage($"Settlement Date : Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
+                env.AddMessage("Error", $"Settlement Date : Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
                 return;
             }
 
@@ -228,14 +228,14 @@ namespace PostingEngine.PostingRules
             // Pre validation test
             if (element.Status.Equals("Cancelled"))
             {
-                env.AddMessage($"Entry has been cancelled {element.LpOrderId} :: {element.Side}");
+                env.AddMessage("Warning", $"Entry has been cancelled {element.LpOrderId} :: {element.Side}");
                 return;
             }
 
             // Need to consider both
             if (element.TradeDate.Date != element.SettleDate.Date)
             {
-                env.AddMessage($"Journal needs to be checked {element.LpOrderId}::{element.TradeDate}::{element.SettleDate}");
+                env.AddMessage("Error", $"Journal needs to be checked {element.LpOrderId}::{element.TradeDate}::{element.SettleDate}");
                 return;
             }
 
@@ -247,7 +247,7 @@ namespace PostingEngine.PostingRules
 
             if (accountToFrom.To == null)
             {
-                env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
+                env.AddMessage("Error", $"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
                 return;
             }
 
@@ -300,7 +300,7 @@ namespace PostingEngine.PostingRules
 
             if ( !validAccrual)
             {
-                env.AddMessage($"trade does not tie back to a valid accrual {element.AccrualId}");
+                env.AddMessage("Error", $"trade does not tie back to a valid accrual {element.AccrualId}");
             }
             return validAccrual ;
         }

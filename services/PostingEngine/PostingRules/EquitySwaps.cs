@@ -191,7 +191,7 @@ namespace PostingEngine.PostingRules
                     var t1 = env.GenerateOpenTaxLotStatus(element, fxrate);
                     // Whats going on here?
                     // We are skipping anything that does not get an OpenLot
-                    env.AddMessage($"There should be for a sell {element.Symbol} have at least one open lot, non found");
+                    env.AddMessage("Warning", $"There should be for a sell {element.Symbol} have at least one open lot, non found");
                 }
                 else
                 {
@@ -205,7 +205,7 @@ namespace PostingEngine.PostingRules
                         if ( !env.TaxLotStatus.ContainsKey(lot.Trade.LpOrderId))
                         {
                             // TODO: For this open lot there should be a corresponding open to 
-                            env.AddMessage($"Unable to Find Tax Lot for {lot.Trade.Symbol}::{lot.Trade.Side}::{lot.Trade.Status}");
+                            env.AddMessage("Error", $"Unable to Find Tax Lot for {lot.Trade.Symbol}::{lot.Trade.Side}::{lot.Trade.Status}");
                             continue;
                         }
 
