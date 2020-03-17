@@ -155,7 +155,7 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
     this.stockSplitConfig.detailsView = true;
     this.stockSplitDetailsGrid.api.showLoadingOverlay();
     this.corporateActionsApiService.getStockSplitDetails(id).subscribe(response => {
-      if(response.statusCode === 200){
+      if (response.statusCode === 200){
         let stockSplitDetail = response.payload;
         this.stockSplitDetailsGrid.api.setRowData(stockSplitDetail);
         this.stockSplitDetailsGrid.api.sizeColumnsToFit();
@@ -190,12 +190,6 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
         this.gridOptions.excelStyles = ExcelStyle;
       },
       onFirstDataRendered: params => {
-        params.api.forEachNode(node => {
-          node.expanded = true;
-        });
-        params.api.onGroupExpandedOrCollapsed();
-
-        // AutoSizeAllColumns(params);
         params.api.sizeColumnsToFit();
       },
       enableFilter: true,
@@ -215,8 +209,8 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
           field: 'old_symbol',
           width: 120,
           headerName: 'Old Symbol',
-          rowGroup: true,
-          enableRowGroup: true,
+          // rowGroup: true,
+          // enableRowGroup: true,
           sortable: true,
           filter: true
         },
@@ -224,7 +218,7 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
           field: 'new_symbol',
           width: 120,
           headerName: 'New Symbol',
-          rowGroup: true,
+          // rowGroup: true,
           // enableRowGroup: true,
           sortable: true,
           filter: true
@@ -620,7 +614,7 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
         width: 120,
         headerName: 'Old Symbol',
         rowGroup: true,
-        enableRowGroup: true,
+        // enableRowGroup: true,
         sortable: true,
         filter: true
       },
