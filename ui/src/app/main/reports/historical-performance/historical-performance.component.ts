@@ -169,106 +169,84 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
         },
         {
           field: 'DayPnl',
-          headerName: 'DayPnl'
+          headerName: 'DayPnl',
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
         },
         {
           field: 'EodNav',
           headerName: 'EodNav',
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
           // rowGroup: true,
           // enableRowGroup: true
         },
         {
           field: 'Withdrawls',
-          headerName: 'WithDrawls'
+          headerName: 'WithDrawls',
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
         },
         {
           field: 'Contributions',
-          headerName: 'Contributions'
+          headerName: 'Contributions',
+          cellClass: 'rightAlign',
         },
         {
           field: 'DayPnlPer',
-          headerName: 'DayPnlPer'
+          headerName: 'DayPnlPer',
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
         },
         {
           field: 'MtdPnlPer',
-          headerName: 'MtdPnlPer'
+          headerName: 'MtdPnlPer',
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
         },
         {
           field: 'QtdPnlPer',
           headerName: 'QtdPnlPer',
           // aggFunc: 'sum',
           cellClass: 'rightAlign',
-          // valueFormatter: currencyFormatter
+          valueFormatter: currencyFormatter
         },
         {
           field: 'YtdPnlPer',
           headerName: 'YtdPnlPer',
           cellClass: 'rightAlign',
-          // valueFormatter: dateFormatter
+          valueFormatter: currencyFormatter
         },
         {
           field: 'ItdPnlPer',
           headerName: 'ItdPnlPer',
-          cellClass: 'rightAlign'
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
         },
         {
           field: 'MtdPnl',
           headerName: 'MtdPnl',
-          cellClass: 'rightAlign'
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
         },
         {
           field: 'QtdPnl',
           headerName: 'QtdPnl',
-          cellClass: 'rightAlign'
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
         },
         {
           field: 'YtdPnl',
-          headerName: 'YtdPnl'
+          headerName: 'YtdPnl',
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
         },
         {
           field: 'ItdPnl',
-          headerName: 'ItdPnl'
-        },
-        // {
-        //   field: 'cost_local',
-        //   headerName: 'Cost(Local)',
-        //   cellClass: 'rightAlign',
-        //   valueFormatter: currencyFormatter
-        // },
-        // {
-        //   field: 'unrealized_pnl_local',
-        //   headerName: 'Unrealized PnL(Local)',
-        //   cellClass: 'rightAlign',
-        //   valueFormatter: currencyFormatter
-        // },
-        // {
-        //   field: 'end_market_value_local',
-        //   headerName: 'End Market Value(Local)',
-        //   cellClass: 'rightAlign',
-        //   valueFormatter: currencyFormatter
-        // },
-        // {
-        //   field: 'cost_basis_reporting',
-        //   headerName: 'Cost(Reporting))',
-        //   cellClass: 'rightAlign',
-        //   aggFunc: 'sum',
-        //   valueFormatter: currencyFormatter
-        // }
-        // ,
-        // {
-        //   field: 'unrealized_pnl_reporting',
-        //   headerName: 'Unrealized PnL(Reporting)',
-        //   aggFunc: 'sum',
-        //   cellClass: 'rightAlign',
-        //   valueFormatter: currencyFormatter
-        // },
-        // {
-        //   field: 'end_market_value_reporting',
-        //   headerName: 'End Market Value(Reporting)',
-        //   aggFunc: 'sum',
-        //   cellClass: 'rightAlign',
-        //   valueFormatter: currencyFormatter
-        // }
+          headerName: 'ItdPnl',
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
+        }
       ],
       defaultColDef: {
         resizable: true,

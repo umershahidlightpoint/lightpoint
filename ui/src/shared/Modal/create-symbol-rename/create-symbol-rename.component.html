@@ -25,7 +25,7 @@
                     <input class="form-control"
                     placeholder="Select Symbol"
                     formControlName="oldSymbol"
-                    [ngClass]="{ 'is-invalid': formFields.newSymbol.errors && formFields.newSymbol.invalid && formFields.newSymbol.touched }"
+                    [ngClass]="{ 'is-invalid': formFields.oldSymbol.errors && formFields.oldSymbol.invalid && formFields.oldSymbol.touched }"
                     autocomplete="off"
                     typeaheadWaitMs="500"
                     [isAnimated]="true"
@@ -36,7 +36,7 @@
                     [typeahead]="ticker$"
                     (typeaheadNoResults)="typeaheadNoResults($event)"
                     />
-                    <span *ngIf="formFields.newSymbol.invalid  && formFields.newSymbol.touched" class="invalid-feedback">Symbol is required</span>
+                    <span *ngIf="formFields.oldSymbol.invalid  && formFields.oldSymbol.touched" class="invalid-feedback">Symbol is required</span>
                   </div>
 
                 <div class="col-sm-3 text-right">
@@ -46,9 +46,17 @@
                 <div class="col-sm-3">
                     <input class="form-control"
                         placeholder="Add New Symbol"
-                        type="text"
                         formControlName="newSymbol"
+                        [ngClass]="{ 'is-invalid': formFields.newSymbol.errors && formFields.newSymbol.invalid && formFields.newSymbol.touched }"
                         autocomplete="off"
+                        typeaheadWaitMs="500"
+                        [isAnimated]="true"
+                        [typeaheadScrollable]="true"
+                        [typeaheadIsFirstItemActive]="true"
+                        [typeaheadMinLength]="0"
+                        [typeaheadOptionsInScrollableView]="15"
+                        [typeahead]="ticker$"
+                        (typeaheadNoResults)="typeaheadNoResults($event)"
                 />
                 <span *ngIf="formFields.newSymbol.invalid  && formFields.newSymbol.touched" class="invalid-feedback">Please enter symbol</span>
                 </div>
