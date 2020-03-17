@@ -34,7 +34,7 @@ namespace PostingEngine.ClientSpecifics
             update = finalTradeList.Where(t => t.Symbol.Equals("DUE GR")).ToArray();
             foreach (var t in update) { t.Symbol = sec.Symbol; t.SecurityId = sec.SecurityId; }
 
-            const bool DEBUG_TRADE_LIST = false;
+            const bool DEBUG_TRADE_LIST = true;
             if (DEBUG_TRADE_LIST)
             {
                 var securityTypeTags = new List<string> {

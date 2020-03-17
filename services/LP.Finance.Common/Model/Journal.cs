@@ -12,7 +12,7 @@ namespace LP.Finance.Common.Models
     /// </summary>
     public static class JournalExtensions
     {
-        public static double Unrealized(this IEnumerable<Journal> journals)
+        public static double Unrealized(this IEnumerable<Journal> journals, bool isDerivative = false)
         {
             var list = new string[]
             {
@@ -24,7 +24,7 @@ namespace LP.Finance.Common.Models
         }
 
 
-        public static double UnrealizedFxTranslation(this IEnumerable<Journal> journals)
+        public static double UnrealizedFxTranslation(this IEnumerable<Journal> journals, bool isDerivative = false)
         {
             var list = new string[]
             {
@@ -36,7 +36,7 @@ namespace LP.Finance.Common.Models
             return toSum.Sum(i => i.Debit - i.Credit);
         }
 
-        public static double AssetDailyUnrealizedFx(this IEnumerable<Journal> journals)
+        public static double AssetDailyUnrealizedFx(this IEnumerable<Journal> journals, bool isDerivative = false)
         {
             var list = new string[]
             {
@@ -48,7 +48,7 @@ namespace LP.Finance.Common.Models
             return toSum.Sum(i => i.Debit - i.Credit);
         }
 
-        public static double RevenueDailyUnrealizedFx(this IEnumerable<Journal> journals)
+        public static double RevenueDailyUnrealizedFx(this IEnumerable<Journal> journals, bool isDerivative = false)
         {
             var list = new string[]
             {
@@ -58,6 +58,29 @@ namespace LP.Finance.Common.Models
             var toSum = journals.Where(i => list.Contains(i.Account.Type.Name));
             return toSum.Sum(i => i.Debit - i.Credit);
         }
+
+        public static double AssetDailyUnrealizedDerivatives(this IEnumerable<Journal> journals)
+        {
+            var list = new string[]
+            {
+                "Mark to Market Derivatives Contracts at Fair Value (Assets)"
+            };
+
+            var toSum = journals.Where(i => list.Contains(i.Account.Type.Name));
+            return toSum.Sum(i => i.Debit - i.Credit);
+        }
+
+        public static double LiabilitiesDailyUnrealizedDerivatives(this IEnumerable<Journal> journals, bool isDerivative = false)
+        {
+            var list = new string[]
+            {
+                "Mark to Market Derivatives Contracts at Fair Value (Liabilities)",
+            };
+
+            var toSum = journals.Where(i => list.Contains(i.Account.Type.Name));
+            return toSum.Sum(i => i.Debit - i.Credit);
+        }
+
     }
 
     /// <summary>
@@ -91,7 +114,13 @@ namespace LP.Finance.Common.Models
         public double Credit {
             get
             {
-                if ( _assetExpences.Contains(Account.Type.Category.Id) && Value < 0)
+                if (JournalValue != null && _assetExpences.Contains(Account.Type.Category.Id) && JournalValue.Base < 0)
+                    return Math.Abs(JournalValue.Base);
+
+                if (JournalValue != null &&  !_assetExpences.Contains(Account.Type.Category.Id) && JournalValue.Base > 0)
+                    return Math.Abs(JournalValue.Base);
+
+                if (_assetExpences.Contains(Account.Type.Category.Id) && Value < 0)
                     return Math.Abs(Value);
 
                 if (!_assetExpences.Contains(Account.Type.Category.Id) && Value > 0)
@@ -105,6 +134,12 @@ namespace LP.Finance.Common.Models
         {
             get
             {
+                if (JournalValue != null && _assetExpences.Contains(Account.Type.Category.Id) && JournalValue.Base > 0)
+                    return Math.Abs(JournalValue.Base);
+
+                if (JournalValue != null && !_assetExpences.Contains(Account.Type.Category.Id) && JournalValue.Base < 0)
+                    return Math.Abs(JournalValue.Base);
+
                 if (_assetExpences.Contains(Account.Type.Category.Id) && Value > 0)
                     return Math.Abs(Value);
 

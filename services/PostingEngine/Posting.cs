@@ -1140,6 +1140,10 @@ namespace PostingEngine
             {
                 try
                 {
+                    if (element.Symbol.Equals("GBPUSD"))
+                    {
+
+                    }
                     rule.DailyEvent(env, element);
                     rule.SettlementDateEvent(env, element);
                 }

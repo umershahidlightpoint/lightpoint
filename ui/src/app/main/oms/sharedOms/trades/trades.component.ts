@@ -386,11 +386,10 @@ export class TradesComponent implements OnInit, AfterViewInit {
     const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
     const tradeType = node.data.TradeType === null ? '' : node.data.TradeType;
     const excluded = node.data.exclude === null ? '' : node.data.exclude;
-    if (this.filterBySymbol !== '' && this.filterByExcludedTrades && this.filterByUploadedTrades) {
+    if (this.filterBySymbol !== '' && (this.filterByExcludedTrades || this.filterByUploadedTrades)) {
       return (
         cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) &&
-        tradeType === 'manual' &&
-        excluded === 'Y'
+        (tradeType === 'manual' || excluded === 'Y')
       );
     }
     if (this.filterBySymbol !== '' && this.filterByUploadedTrades) {
@@ -404,8 +403,8 @@ export class TradesComponent implements OnInit, AfterViewInit {
         cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) && excluded === 'Y'
       );
     }
-    if (this.filterByUploadedTrades && this.filterByExcludedTrades) {
-      return tradeType === 'manual' && excluded === 'Y';
+    if (this.filterByUploadedTrades || this.filterByExcludedTrades) {
+      return tradeType === 'manual' || excluded === 'Y';
     }
     if (this.filterBySymbol !== '') {
       return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase());
