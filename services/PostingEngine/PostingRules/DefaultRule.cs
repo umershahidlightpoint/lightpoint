@@ -193,7 +193,7 @@ namespace PostingEngine.PostingRules
                     var t1 = env.GenerateOpenTaxLotStatus(element, fxrate);
                     // Whats going on here?
                     // We are skipping anything that does not get an OpenLot
-                    env.AddMessage($"There should be for a sell {element.Symbol} have at least one open lot, non found");
+                    env.AddMessage("Error", $"There should be for a sell {element.Symbol} have at least one open lot, non found");
                 }
                 else
                 {

@@ -67,7 +67,7 @@ namespace PostingEngine.MarketData
 
             if (!eodMarketPrice.Valid)
             {
-                env.AddMessage(eodMarketPrice.Error);
+                env.AddMessage("Error", eodMarketPrice.Error);
             }
 
             return eodMarketPrice;
@@ -79,7 +79,7 @@ namespace PostingEngine.MarketData
 
             if (!eodMarketPrice.Valid && !fxrate)
             {
-                env.AddMessage(eodMarketPrice.Error);
+                env.AddMessage("Error", eodMarketPrice.Error);
             }
 
             return eodMarketPrice;

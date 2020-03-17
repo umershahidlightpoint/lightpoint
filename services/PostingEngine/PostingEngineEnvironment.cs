@@ -32,13 +32,19 @@ namespace PostingEngine
         string ConnectionString { get; set; }
     }
 
+    public class MessageDetails
+    {
+        public  int Count { get; set; }
+        public String ErrorLevel { get; set; }
+        public DateTime When { get; set; }
+    }
     public class PostingEngineEnvironment : IPostingEngineEnvironment
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public PostingEngineEnvironment()
         {
-            Messages = new Dictionary<string, int>();
+            Messages = new Dictionary<string, List<MessageDetails>>();
 
             Journals = new List<Journal>();
 
@@ -267,19 +273,20 @@ namespace PostingEngine
         public SqlTransaction Transaction { get; private set; }
 
 
-        public void AddMessage(string message)
+        public void AddMessage(string errorLevel, string message)
         {
             Logger.Warn(message);
 
             if ( Messages.ContainsKey(message))
             {
-                Messages[message] = Messages[message] + 1;
+                Messages[message].Add(new MessageDetails { Count = 1, ErrorLevel = errorLevel, When = System.DateTime.Now });
             } else
             {
-                Messages.Add(message, 1);
+                Messages.Add(message, new List<MessageDetails>());
+                Messages[message].Add(new MessageDetails { Count = 1, ErrorLevel = errorLevel, When = System.DateTime.Now });
             }
         }
-        public Dictionary<string, int> Messages { get; private set; }
+        public Dictionary<string, List<MessageDetails>> Messages { get; private set; }
 
         public ITaxLotMethodology Methodology { get; set; }
         public Dictionary<string, SecurityDetail> SecurityDetails { get; internal set; }

@@ -99,7 +99,7 @@ namespace PostingEngine.PostingRules
 
                 if (!eodMarketPrice.Valid)
                 {
-                    env.AddMessage(eodMarketPrice.Error);
+                    env.AddMessage("Error", eodMarketPrice.Error);
                 }
 
                 eodPrice = eodMarketPrice.Price;
@@ -182,7 +182,7 @@ namespace PostingEngine.PostingRules
 
             if (accountToFrom.To == null || accountToFrom.From == null)
             {
-                env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
+                env.AddMessage("Error", $"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
                 return;
             }
 
@@ -239,7 +239,7 @@ namespace PostingEngine.PostingRules
 
             if (accountToFrom.To == null || accountToFrom.From == null)
             {
-                env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
+                env.AddMessage("Error", $"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
                 return;
             }
 
@@ -754,7 +754,7 @@ namespace PostingEngine.PostingRules
             var accountToFrom = GetFromToAccount(env, element);
             if (accountToFrom.To == null || accountToFrom.From == null)
             {
-                env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
+                env.AddMessage("Error", $"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
                 return;
             }
 
@@ -809,7 +809,7 @@ namespace PostingEngine.PostingRules
             // Retrieve Allocation Objects for this trade
             if (tradeAllocations.Count() > 2)
             {
-                env.AddMessage($"#of allocations > 2 please investigate {element.LpOrderId}");
+                env.AddMessage("Error", $"#of allocations > 2 please investigate {element.LpOrderId}");
                 return;
             }
 
@@ -818,7 +818,7 @@ namespace PostingEngine.PostingRules
                 var debitEntry = tradeAllocations[0].Side == element.Side ? tradeAllocations[0] : tradeAllocations[1];
                 if (debitEntry.Symbol.Equals("@CASHUSD"))
                 {
-                    env.AddMessage($"Unexpected Cash allocation please investigate {element.LpOrderId}");
+                    env.AddMessage("Error", $"Unexpected Cash allocation please investigate {element.LpOrderId}");
                     return;
                 }
             }
@@ -826,7 +826,7 @@ namespace PostingEngine.PostingRules
             var accountToFrom = GetFromToAccount(env, element);
             if (accountToFrom.To == null || accountToFrom.From == null)
             {
-                env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
+                env.AddMessage("Error", $"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
                 return;
             }
 
@@ -892,7 +892,7 @@ namespace PostingEngine.PostingRules
 
             if (accountToFrom.To == null || accountToFrom.From == null)
             {
-                env.AddMessage($"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
+                env.AddMessage("Warning", $"Unable to identify From/To accounts for trade {element.OrderSource} :: {element.Side}");
                 return;
             }
 

@@ -121,9 +121,14 @@ namespace LP.ReferenceData.WebProxy.WebAPI.Trade
             }
             else
             {
+                // this gives me the raw trades, but need to inlcude the manual trades as well.
                 query = $@"select s.*, e.exclude from FundAccounting..vwCurrentStateTrades s
                         left join FundAccounting..trade_exclusion e on s.lporderid = e.lporderid and e.exclude = 'Y'
                         where SecurityType not in ('Journals')
+                        union 
+                        select s.*, e.exclude from FundAccounting..current_trade_state s
+                        left join FundAccounting..trade_exclusion e on s.lporderid = e.lporderid and e.exclude = 'Y'
+                        where TradeType in ('manual')
                         order by TradeDate desc";
             }
 
