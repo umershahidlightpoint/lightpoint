@@ -124,6 +124,11 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
             throw new NotImplementedException();
         }
 
+        public object GetHistoricPerformanceReport(DateTime? from, DateTime? to)
+        {
+            throw new NotImplementedException();
+        }
+
         public object ExcludeTrade(TradeExclusionInputDto obj)
          {
             throw new NotImplementedException();

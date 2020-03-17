@@ -22,5 +22,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object DeleteStockSplit(int id);
         object StockSplitAudit(int id);
         object GetStockSplitDetails(int id);
+        // SymbolChange
+        object GetSymbolsChange();
+        object CreateSymbolChange(SymbolChangeInputDto obj);
+        object EditSymbolChange(SymbolChangeInputDto obj);
+        object DeleteSymbolChange(int id);
+        object SymbolChangeAudit(int id);
+        //object GetSymbolChangeDetails(int id);
     }
 }

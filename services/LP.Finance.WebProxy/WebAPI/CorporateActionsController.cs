@@ -99,5 +99,50 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return controller.GetStockSplitDetails(id);
         }
+
+        // Symbol Change Controller
+
+        [HttpGet]
+        [Route("symbolsChange")]
+        public object GetSymbolsChange()
+        {
+            return controller.GetSymbolsChange();
+        }
+
+        [HttpPost]
+        [Route("symbolChange")]
+        public object CreateSymbolChange(SymbolChangeInputDto obj)
+        {
+            return controller.CreateSymbolChange(obj);
+        }
+
+        [HttpPut]
+        [Route("symbolChange")]
+        public object EditSymbolChange(SymbolChangeInputDto obj)
+        {
+            return controller.EditSymbolChange(obj);
+        }
+
+        [HttpPut]
+        [Route("deleteSymbolChange")]
+        public object DeleteSymbolChange(DeleteSymbolChangeInputDto obj)
+        {
+            return controller.DeleteSymbolChange(obj.Id);
+        }
+
+        [HttpGet]
+        [Route("symbolChangeAudit")]
+        public object GetSymbolChangeAudit(int id)
+        {
+            return controller.SymbolChangeAudit(id);
+        }
+
+        //[HttpGet]
+        //[Route("symbolChangeDetails")]
+        //public object GetSymbolChangeDetails(int id)
+        //{
+        //    return controller.GetSymbolChangeDetails(id);
+        //}
+
     }
 }

@@ -29,6 +29,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object GetPeriodJournals(string symbol, DateTime now, string period);
         object GetValidDates(string columnName, string source);
         object GetMarketValueAppraisalReport(DateTime? date);
+        object GetHistoricPerformanceReport(DateTime? from, DateTime? to);
         object ExcludeTrade(TradeExclusionInputDto obj);
         object GetDetailPnLToDateReport(DateTime from, DateTime to, string symbol);
         object ReverseTradeExclusion(TradeExclusionInputDto obj);
