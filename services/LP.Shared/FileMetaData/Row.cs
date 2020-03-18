@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace LP.Finance.Common.FileMetaData
+namespace LP.Shared.FileMetaData
 {
     public class Row : IRow
     {

@@ -19,19 +19,4 @@
     <ProjectReference Include="..\LP.Shared\LP.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="MetaData\ActivityXML.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="PerformanceFormats\MarketDataPrices.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="PerformanceFormats\DailyPnl.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="PerformanceFormats\Performance.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

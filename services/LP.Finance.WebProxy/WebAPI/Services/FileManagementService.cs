@@ -16,10 +16,10 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Amazon.S3;
-using LP.Finance.Common.FileMetaData;
 using LP.Finance.Common.IO;
 using System.Net;
 using LP.Shared.Cache;
+using LP.Shared.FileMetaData;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
@@ -87,9 +87,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         public object ImportFilesFromSilver()
         {
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
-            var extractPath = currentDir + Path.DirectorySeparatorChar + "FileFormats" + Path.DirectorySeparatorChar +
+            var extractPath = currentDir + Path.DirectorySeparatorChar + "ExportFormats" + Path.DirectorySeparatorChar +
                               "Transaction_Extract.txt";
-            var recordBody = new FileProcessor().ImportFile(extractPath, "Transaction", "FileFormats", '|');
+            var recordBody = new FileProcessor().ImportFile(extractPath, "Transaction", "ExportFormats", '|');
             return new
             {
                 ImportedRecords = recordBody.Item1,
@@ -142,9 +142,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var positionTrailer = GetTrailer("TRL", "SMGOpenLotPosition ", convertedBusinessDate);
 
             var activityResult = new FileProcessor().ExportFile(tradeList, activityHeader, activityTrailer,
-                activityPath, "Activity_json", "LpOrderId");
+                activityPath, "Activity", "LpOrderId");
             var positionResult = new FileProcessor().ExportFile(positionList, positionHeader, positionTrailer,
-                positionPath, "Position_json", "IntraDayPositionId");
+                positionPath, "Position", "IntraDayPositionId");
 
             var failedActivityList = MapFailedRecords(activityResult.Item1, businessDate, activityFileName);
             var failedPositionList = MapFailedRecords(positionResult.Item1, businessDate, positionFileName);
@@ -428,7 +428,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
 
 
-                var recordBody = _fileProcessor.ImportFile(path, "Trade", "PerformanceFormats", ',', true);
+                var recordBody = _fileProcessor.ImportFile(path, "Trade", "ImportFormats", ',', true);
 
                 var records = JsonConvert.SerializeObject(recordBody.Item1);
                 var trades = JsonConvert.DeserializeObject<List<Trade>>(records);

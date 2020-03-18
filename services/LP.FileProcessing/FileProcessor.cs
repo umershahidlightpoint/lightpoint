@@ -1,12 +1,10 @@
-﻿using LP.FileProcessing.MetaData;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using LP.Finance.Common.FileMetaData;
-using LP.Shared.FileProcessing;
+using LP.Shared.FileMetaData;
 
 /*
 * Start of a common library for generating and consuming files
@@ -20,7 +18,7 @@ namespace LP.FileProcessing
             object trailerObj, string path,
             string fileName, string identifierForFailedRecords)
         {
-            var schema = LP.Shared.Utils.GetFile<SilverFileFormat>(fileName, "FileFormats");
+            var schema = LP.Shared.Utils.GetFile<FileFormat>(fileName, "ExportFormats");
             var record = MapFileRecord(recordList, schema.record, identifierForFailedRecords);
             var header = MapFileSection(headerObj, schema.header, record.Item3 + 2);
             var trailer = MapFileSection(trailerObj, schema.trailer, record.Item3 + 2);
@@ -31,7 +29,7 @@ namespace LP.FileProcessing
         public Tuple<List<dynamic>, List<Row>, bool> ImportFile(string path, string fileName, string folderName,
             char delim, bool firstLineHasHeadings = false)
         {
-            var schema = LP.Shared.Utils.GetFile<SilverFileFormat>(fileName, folderName);
+            var schema = LP.Shared.Utils.GetFile<FileFormat>(fileName, folderName);
             var resp = ExtractPipe(path, schema, delim, firstLineHasHeadings);
             return resp;
         }
@@ -167,23 +165,23 @@ namespace LP.FileProcessing
         }
 
         public void WriteCSV(IEnumerable<dynamic> items, IEnumerable<dynamic> header, IEnumerable<dynamic> trailer,
-            string path, SilverFileFormat properties)
+            string path, FileFormat properties)
         {
             WriteDelimited(items, header, trailer, path, properties);
         }
 
         public void WritePipe(IEnumerable<dynamic> items, IEnumerable<dynamic> header, IEnumerable<dynamic> trailer,
-            string path, SilverFileFormat properties)
+            string path, FileFormat properties)
         {
             WriteDelimited(items, header, trailer, path, properties, '|');
         }
 
-        public Tuple<List<dynamic>, List<Row>, bool> ExtractPipe(string path, SilverFileFormat properties, char delim, bool firstLineHasHeadings = false)
+        public Tuple<List<dynamic>, List<Row>, bool> ExtractPipe(string path, FileFormat properties, char delim, bool firstLineHasHeadings = false)
         {
             return ExtractDelimited(path, properties, delim, firstLineHasHeadings);
         }
 
-        private Tuple<List<dynamic>, List<Row>, bool> ExtractDelimited(string path, SilverFileFormat properties,
+        private Tuple<List<dynamic>, List<Row>, bool> ExtractDelimited(string path, FileFormat properties,
             char v = ',', bool firstLineHasHeadings = false)
         {
             try
@@ -330,7 +328,7 @@ namespace LP.FileProcessing
         }
 
         public void WriteDelimited(IEnumerable<dynamic> items, IEnumerable<dynamic> header,
-            IEnumerable<dynamic> trailer, string path, SilverFileFormat properties, char delim = ',')
+            IEnumerable<dynamic> trailer, string path, FileFormat properties, char delim = ',')
         {
             using (var writer = new StreamWriter(path))
             {

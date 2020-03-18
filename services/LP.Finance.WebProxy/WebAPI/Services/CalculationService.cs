@@ -2,7 +2,6 @@
 using LP.Finance.Common.IO;
 using LP.Finance.Common;
 using LP.Finance.Common.Calculators;
-using LP.Finance.Common.FileMetaData;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Model;
 using Newtonsoft.Json;
@@ -17,6 +16,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using LP.Shared.FileMetaData;
 using static System.String;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
@@ -444,7 +444,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var performancePath = uploadedResult.Item2;
                 var performanceFileName = uploadedResult.Item3;
 
-                var recordBody = new FileProcessor().ImportFile(performancePath, "Performance", "PerformanceFormats", ',');
+                var recordBody = new FileProcessor().ImportFile(performancePath, "Performance", "ImportFormats", ',');
 
                 var records = JsonConvert.SerializeObject(recordBody.Item1);
                 var performanceRecords = JsonConvert.DeserializeObject<List<MonthlyPerformance>>(records);
@@ -753,7 +753,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var dailyPnlPath = uploadedResult.Item2;
                 var dailyPnlFileName = uploadedResult.Item3;
-                var recordBody = new FileProcessor().ImportFile(dailyPnlPath, "DailyPnl", "PerformanceFormats", ',');
+                var recordBody = new FileProcessor().ImportFile(dailyPnlPath, "DailyPnl", "ImportFormats", ',');
 
                 var records = JsonConvert.SerializeObject(recordBody.Item1);
                 var performanceRecords = JsonConvert.DeserializeObject<List<DailyPnL>>(records);

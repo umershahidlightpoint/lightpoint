@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace LP.Finance.Common.FileMetaData
+﻿namespace LP.Shared.FileMetaData
 {
     public class FileProperties
     {

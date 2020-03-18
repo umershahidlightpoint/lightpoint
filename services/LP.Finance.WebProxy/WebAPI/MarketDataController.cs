@@ -15,7 +15,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using LP.FileProcessing;
 using LP.Finance.Common.IO;
-using LP.Finance.Common.FileMetaData;
+using LP.Shared.FileMetaData;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -121,7 +121,7 @@ namespace LP.Finance.WebProxy.WebAPI
 
                 var path = uploadedResult.Item2;
                 var filename = uploadedResult.Item3;
-                var recordBody = new FileProcessor().ImportFile(path, "MarketDataPrices", "PerformanceFormats", ',');
+                var recordBody = new FileProcessor().ImportFile(path, "MarketDataPrices", "ImportFormats", ',');
 
                 var records = JsonConvert.SerializeObject(recordBody.Item1);
                 var performanceRecords = JsonConvert.DeserializeObject<List<MarketDataPrice>>(records);

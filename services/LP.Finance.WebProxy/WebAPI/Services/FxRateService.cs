@@ -13,8 +13,8 @@ using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Model;
 using Newtonsoft.Json;
 using SqlDAL.Core;
-using LP.Finance.Common.FileMetaData;
 using LP.Finance.Common.IO;
+using LP.Shared.FileMetaData;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
@@ -140,7 +140,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var path = uploadedResult.Item2;
                 var filename = uploadedResult.Item3;
-                var recordBody = _fileProcessor.ImportFile(path, "FxRates", "PerformanceFormats", ',');
+                var recordBody = _fileProcessor.ImportFile(path, "FxRates", "ImportFormats", ',');
 
                 var records = JsonConvert.SerializeObject(recordBody.Item1);
                 var fxRates = JsonConvert.DeserializeObject<List<FxRate>>(records);

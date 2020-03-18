@@ -159,40 +159,23 @@
     <Compile Include="WebAPI\Stubs\AccountStub.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\LP.FileProcessing\Formats\Activity_json.json">
-      <Link>FileFormats\Activity_json.json</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\LP.FileProcessing\Formats\Position_json.json">
-      <Link>FileFormats\Position_json.json</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\LP.FileProcessing\Formats\Transaction.json">
-      <Link>FileFormats\Transaction.json</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\LP.FileProcessing\PerformanceFormats\DailyPnl.json">
-      <Link>PerformanceFormats\DailyPnl.json</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\LP.FileProcessing\PerformanceFormats\FxRates.json">
-      <Link>PerformanceFormats\FxRates.json</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\LP.FileProcessing\PerformanceFormats\MarketDataPrices.json">
-      <Link>PerformanceFormats\MarketDataPrices.json</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\LP.FileProcessing\PerformanceFormats\Performance.json">
-      <Link>PerformanceFormats\Performance.json</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\LP.FileProcessing\PerformanceFormats\Trade.json">
-      <Link>PerformanceFormats\Trade.json</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="App.config" />
     <None Include="Docs\README.md" />
+    <None Include="ExportFormats\Activity.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ExportFormats\ClosedLots.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ExportFormats\OpenLots.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ExportFormats\Position.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ExportFormats\Transaction.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="MockData\all.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -213,6 +196,21 @@
     </None>
     <None Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ImportFormats\DailyPnl.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ImportFormats\FxRates.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ImportFormats\MarketDataPrices.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ImportFormats\Performance.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ImportFormats\Trade.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -284,8 +282,13 @@
     <Folder Include="Hubs\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\LP.FileProcessing\Sample Extracts\Transaction_Extract.txt">
-      <Link>FileFormats\Transaction_Extract.txt</Link>
+    <Content Include="ExportFormats\ClosedLots.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExportFormats\OpenLots.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExportFormats\Transaction.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
