@@ -5,9 +5,8 @@ using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
 using LP.Finance.Common;
-using LP.Core;
-using LP.Finance.Common.Cache;
-using LP.Shared.Core;
+using LP.Shared.Controller;
+using LP.Shared.Cache;
 
 namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 {

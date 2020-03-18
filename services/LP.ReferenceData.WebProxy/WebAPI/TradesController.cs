@@ -5,11 +5,11 @@ using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
 using LP.Finance.Common;
-using SqlDAL.Core;
 using System.Collections.Generic;
 using System.Net;
-using LP.Shared.Core;
 using LP.Shared;
+using LP.Shared.FileMetaData;
+using LP.Shared.Controller;
 
 namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 {

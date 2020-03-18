@@ -21,8 +21,8 @@ using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
 using LP.Finance.Common;
-using LP.Core;
-using LP.Shared.Core;
+using LP.Shared.FileMetaData;
+using LP.Shared.Controller;
 
 namespace LP.ReferenceData.WebProxy.WebAPI.Trade
 {

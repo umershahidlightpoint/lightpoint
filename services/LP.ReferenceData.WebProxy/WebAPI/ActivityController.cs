@@ -1,6 +1,6 @@
-﻿using LP.Core;
-using LP.Finance.Common;
-using LP.Shared.Core;
+﻿using LP.Finance.Common;
+using LP.Shared.Controller;
+using LP.Shared.FileMetaData;
 using Newtonsoft.Json;
 using System;
 using System.Configuration;
