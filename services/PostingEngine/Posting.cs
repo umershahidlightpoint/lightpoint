@@ -154,6 +154,13 @@ namespace PostingEngine
                 var result = PostingTasks.RunTask(env, calc);
                 result.Wait();
             }
+            else if (calculation.Equals("HistoricPerformance"))
+            {
+                var calc = PostingTasks.Get("HistoricPerformance");
+                var result = PostingTasks.RunTask(env, calc);
+                result.Wait();
+            }
+
         }
 
         /// <summary>

@@ -30,8 +30,10 @@ namespace PostingEngine.MarketData
             using (var con = new SqlConnection(connectionString))
             {
                 con.Open();
-                var query = new SqlCommand(sql, con);
-                query.CommandType = CommandType.StoredProcedure;
+                var query = new SqlCommand(sql, con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
                 query.Parameters.Add("@businessDate", SqlDbType.VarChar).Value = businessdate;
 
                 var reader = query.ExecuteReader(System.Data.CommandBehavior.SingleResult);

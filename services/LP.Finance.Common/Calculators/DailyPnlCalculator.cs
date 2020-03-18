@@ -207,8 +207,8 @@ namespace LP.Finance.Common.Calculators
         }
         public decimal CalculateDailyPnl(decimal? current, decimal? prior)
         {
-            var currentMeasure = current.HasValue ? current.Value : 0;
-            var priorMeasure = prior.HasValue ? prior.Value : 0;
+            var currentMeasure = current ?? 0;
+            var priorMeasure = prior ?? 0;
             return currentMeasure + priorMeasure;
         }
 

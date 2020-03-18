@@ -27,6 +27,17 @@ namespace PostingEngine.Tasks
                 return new SettledCashTask();
             if (name.Equals("cleanup"))
                 return new CleanupTask();
+            if (name.Equals("HistoricPerformance"))
+            {
+                var task = new RunStoredProcTask()
+                {
+                    StoredProc = "HistoricPerformance",
+                    Module = "HistoricPerformance"
+                };
+
+                return task;
+
+            }
 
             return null;
         }

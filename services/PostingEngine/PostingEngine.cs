@@ -87,7 +87,7 @@ namespace PostingEngine
 
         internal static void RunAction(Guid key, string action, DateTime valueDate, string period, PostingEngineCallBack callback = null)
         {
-            PostingEngine.RunCalculation(action, period, valueDate, key, callback != null ? callback : LogProcess);
+            PostingEngine.RunCalculation(action, period, valueDate, key, callback ?? LogProcess);
         }
 
         internal static void NonDesructive(Guid key, DateTime businesssdate)
