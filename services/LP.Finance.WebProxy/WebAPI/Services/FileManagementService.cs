@@ -19,7 +19,7 @@ using Amazon.S3;
 using LP.Finance.Common.FileMetaData;
 using LP.Finance.Common.IO;
 using System.Net;
-using LP.Finance.Common.Cache;
+using LP.Shared.Cache;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {

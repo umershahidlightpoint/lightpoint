@@ -2,7 +2,7 @@
 using System.Web.Http;
 using LP.Finance.Common.Dtos;
 using LP.Finance.WebProxy.WebAPI.Services;
-using LP.Finance.Common.Cache;
+using LP.Shared.Cache;
 using LP.Finance.Common.Model;
 
 namespace LP.Finance.WebProxy.WebAPI

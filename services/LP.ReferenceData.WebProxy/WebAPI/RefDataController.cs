@@ -1,10 +1,8 @@
 ﻿using System.Web.Http;
 using Newtonsoft.Json;
 using System.Configuration;
-using LP.Finance.Common;
-using LP.Finance.Common.Cache;
 using LP.Shared.Core;
-using LP.Shared;
+using LP.Shared.Cache;
 
 namespace LP.ReferenceData.WebProxy.WebAPI
 {

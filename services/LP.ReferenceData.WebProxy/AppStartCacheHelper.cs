@@ -1,4 +1,4 @@
-﻿using LP.Finance.Common.Cache;
+﻿using LP.Shared.Cache;
 using LP.ReferenceData.WebProxy.WebAPI;
 using System;
 using System.Collections.Generic;
