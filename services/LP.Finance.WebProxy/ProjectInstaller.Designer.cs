@@ -1,4 +1,4 @@
-﻿namespace LP.BookMon.WebProxy
+﻿namespace LP.Finance.WebProxy
 {
     partial class ProjectInstaller
     {

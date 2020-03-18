@@ -1,9 +1,9 @@
-﻿using LP.Finance.Common.Models;
-using PostingEngine.MarketData;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using LP.Finance.Common.Model;
+using PostingEngine.MarketData;
 
-namespace PostingEngine.Extensions
+namespace PostingEngine.Contracts
 {
     /// <summary>
     /// Helper functions to make determining the side of the transaction easier

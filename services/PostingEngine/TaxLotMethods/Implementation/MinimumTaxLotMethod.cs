@@ -1,12 +1,11 @@
-﻿using LP.Finance.Common.Models;
-using PostingEngine.Contracts;
-using PostingEngine.Extensions;
-using PostingEngine.MarketData;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LP.Finance.Common.Model;
+using PostingEngine.Contracts;
+using PostingEngine.MarketData;
 
-namespace PostingEngine.TaxLotMethods
+namespace PostingEngine.TaxLotMethods.Implementation
 {
     /// <summary>
     /// Need to calculate a tax liability and then sort the Open Tax lots in ascending order, so that we close out tax lots according to min tax liability

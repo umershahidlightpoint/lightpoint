@@ -3,9 +3,7 @@ using LP.FileProcessing.S3;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Model;
-using LP.Finance.Common.Models;
 using Newtonsoft.Json;
-using SqlDAL.Core;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -16,17 +14,19 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Amazon.S3;
-using LP.Finance.Common.FileMetaData;
 using LP.Finance.Common.IO;
 using System.Net;
-using LP.Finance.Common.Cache;
+using LP.Shared.Cache;
+using LP.Shared.FileMetaData;
+using LP.Shared.Sql;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
     public class FileManagementService : IFileManagementService
     {
         private static readonly string
-            connectionString = "Persist Security Info=True;" + ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+            connectionString = "Persist Security Info=True;" +
+                               ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
         private static readonly string tradesURL = "http://localhost:9091/api/trade/data?period=";
         private static readonly string positionsURL = "http://localhost:9091/api/positions?period=2019-09-24";
@@ -87,9 +87,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         public object ImportFilesFromSilver()
         {
             var currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
-            var extractPath = currentDir + Path.DirectorySeparatorChar + "FileFormats" + Path.DirectorySeparatorChar +
+            var extractPath = currentDir + Path.DirectorySeparatorChar + "ExportFormats" + Path.DirectorySeparatorChar +
                               "Transaction_Extract.txt";
-            var recordBody = new FileProcessor().ImportFile(extractPath, "Transaction", "FileFormats", '|');
+            var recordBody = new FileProcessor().ImportFile(extractPath, "Transaction", "ExportFormats", '|');
             return new
             {
                 ImportedRecords = recordBody.Item1,
@@ -142,9 +142,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             var positionTrailer = GetTrailer("TRL", "SMGOpenLotPosition ", convertedBusinessDate);
 
             var activityResult = new FileProcessor().ExportFile(tradeList, activityHeader, activityTrailer,
-                activityPath, "Activity_json", "LpOrderId");
+                activityPath, "Activity", "LpOrderId");
             var positionResult = new FileProcessor().ExportFile(positionList, positionHeader, positionTrailer,
-                positionPath, "Position_json", "IntraDayPositionId");
+                positionPath, "Position", "IntraDayPositionId");
 
             var failedActivityList = MapFailedRecords(activityResult.Item1, businessDate, activityFileName);
             var failedPositionList = MapFailedRecords(positionResult.Item1, businessDate, positionFileName);
@@ -408,7 +408,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 if (symbolCache.Item1)
                 {
-                    symbols = (Dictionary<string, int>)symbolCache.Item2;
+                    symbols = (Dictionary<string, int>) symbolCache.Item2;
                 }
                 else
                 {
@@ -418,7 +418,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 if (currencyCache.Item1)
                 {
-                    currency = (Dictionary<string, string>)currencyCache.Item2;
+                    currency = (Dictionary<string, string>) currencyCache.Item2;
                 }
                 else
                 {
@@ -427,8 +427,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
 
 
-
-                var recordBody = _fileProcessor.ImportFile(path, "Trade", "PerformanceFormats", ',', true);
+                var recordBody = _fileProcessor.ImportFile(path, "Trade", "ImportFormats", ',', true);
 
                 var records = JsonConvert.SerializeObject(recordBody.Item1);
                 var trades = JsonConvert.DeserializeObject<List<Trade>>(records);
@@ -459,7 +458,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     tradeElement.UploadException = JsonConvert.SerializeObject(item);
                 }
 
-                if(failedRecords.Count > 0)
+                if (failedRecords.Count > 0)
                 {
                     enableCommit = false;
                 }
@@ -601,7 +600,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 throw ex;
             }
-
         }
     }
 }

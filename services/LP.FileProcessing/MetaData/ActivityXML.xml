@@ -1,7 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<Activity>
-  <Column source="TradeId" required="true" function="">Security_ID</Column>
-  <Column source="Symbol" required="true" function="">Symbol</Column>
-  <Column source="CUSIP" required="false" function="">CUSIP</Column>
-  <Column source="SettleDate" required="true" function="GetDate" format="yyyy-mm-dd">Settlement_Date</Column>
-</Activity>

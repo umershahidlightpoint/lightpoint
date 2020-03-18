@@ -1,8 +1,7 @@
-﻿using Newtonsoft.Json;
-using System.Configuration;
-using LP.Finance.Common;
+﻿using System.Configuration;
+using Newtonsoft.Json;
 
-namespace LP.Finance.WebProxy.WebAPI
+namespace LP.Finance.WebProxy.WebAPI.Services
 {
     public class LedgerService : ILedgerService
     {

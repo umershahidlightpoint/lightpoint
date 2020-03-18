@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using LP.Shared.Sql;
 
-namespace LP.Finance.Common.Models
+namespace LP.Finance.Common.Model
 {
     public class JournalLog : IDbAction, IDbModel
     {

@@ -1,10 +1,10 @@
 ﻿using LP.Finance.Common;
-using LP.Finance.Common.Models;
-using PostingEngine.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
+using LP.Finance.Common.Model;
+using PostingEngine.Contracts;
 
 namespace PostingEngine.MarketData
 {

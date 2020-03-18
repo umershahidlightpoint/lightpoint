@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace LP.Finance.Common.Cache
+namespace LP.Shared.Cache
 {
     public class DataCache
     {

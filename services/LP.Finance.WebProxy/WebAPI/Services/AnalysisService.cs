@@ -1,8 +1,6 @@
 ﻿using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
-using LP.Finance.Common.Models;
 using Newtonsoft.Json;
-using SqlDAL.Core;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -11,6 +9,10 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Text;
+using LP.Finance.Common.Model;
+using LP.Shared;
+using LP.Shared.FileMetaData;
+using LP.Shared.Model;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
@@ -28,7 +30,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             try
             {
                 // Get the Data, We will Get the Results Later
-                var transactionResults = Shared.WebApi.GetWebApiData(allocationsURL, ConfigurationManager.AppSettings[""]);
+                var transactionResults =
+                    Shared.WebApi.GetWebApiData(allocationsURL, ConfigurationManager.AppSettings[""]);
 
                 dynamic postingEngine = new PostingEngineService().GetProgress();
 
@@ -141,7 +144,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var metaData = MetaData.ToMetaData(dataTable);
 
                 metaData.Total = dataTable.Rows.Count > 0 ? dataTable.Rows.Count : 0;
-                metaData.TotalRecords = obj.pageNumber == 1 && dataTable.Rows.Count > 0 ? Convert.ToInt32(dataTable.Rows[0][0]) : 0;
+                metaData.TotalRecords = obj.pageNumber == 1 && dataTable.Rows.Count > 0
+                    ? Convert.ToInt32(dataTable.Rows[0][0])
+                    : 0;
 
                 journalStats.totalCredit = 0;
                 journalStats.totalDebit = 0;
@@ -186,7 +191,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                     string mainSelect = dynamicMainSelect.ToString();
                     string grouping = dynamicGrouping.ToString().TrimEnd(',');
-                    
+
                     var query = $@"select 
                         {mainSelect}
                         count(*) as groupCount,

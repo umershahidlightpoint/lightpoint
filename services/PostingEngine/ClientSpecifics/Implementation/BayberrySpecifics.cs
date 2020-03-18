@@ -1,9 +1,9 @@
-﻿using LP.Finance.Common.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LP.Finance.Common.Model;
 
-namespace PostingEngine.ClientSpecifics
+namespace PostingEngine.ClientSpecifics.Implementation
 {
     /// <summary>
     /// Used to isolate the trades that are to be processed, this will depend on client.  Each client will need to implement

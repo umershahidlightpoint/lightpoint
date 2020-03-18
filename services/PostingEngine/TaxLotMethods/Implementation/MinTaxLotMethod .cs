@@ -1,12 +1,11 @@
-﻿using LP.Finance.Common.Models;
-using PostingEngine.Contracts;
-using PostingEngine.Extensions;
-using PostingEngine.MarketData;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LP.Finance.Common.Model;
+using PostingEngine.Contracts;
+using PostingEngine.MarketData;
 
-namespace PostingEngine.TaxLotMethods
+namespace PostingEngine.TaxLotMethods.Implementation
 {
     /// <summary>
     /// Order by Potential Pnl, Losses first and then gains, and also order by the lowest cost basis, i.e. the trade price, lowest first

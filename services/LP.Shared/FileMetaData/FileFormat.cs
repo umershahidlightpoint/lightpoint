@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using LP.Finance.Common.FileMetaData;
+﻿using System.Collections.Generic;
 
-namespace LP.FileProcessing.MetaData
+namespace LP.Shared.FileMetaData
 {
-    public class SilverFileFormat
+    public class FileFormat
     {
         public List<FileProperties> header { get; set; }
         public List<FileProperties> trailer { get; set; }

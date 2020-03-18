@@ -1,6 +1,6 @@
-﻿using LP.Finance.Common;
+﻿using LP.Finance.WebProxy.WebAPI.Services;
 
-namespace LP.Finance.WebProxy.WebAPI
+namespace LP.Finance.WebProxy.WebAPI.Stubs
 {
     public class LedgerStub : ILedgerService
     {

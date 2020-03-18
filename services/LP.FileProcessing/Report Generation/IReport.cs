@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
-using System.Text;
 
-namespace LP.FileProcessing
+namespace LP.FileProcessing.Report_Generation
 {
     public interface IReport
     {

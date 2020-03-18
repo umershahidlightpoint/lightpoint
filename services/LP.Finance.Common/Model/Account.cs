@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.SqlClient;
-using LP.Finance.Common.Models;
+using LP.Shared.Sql;
 
-namespace LP.Finance.Common.Models
+namespace LP.Finance.Common.Model
 {
     public class AccountDefTag : IDbAction
     {
@@ -74,7 +74,7 @@ namespace LP.Finance.Common.Models
                 {
                     new SqlParameter("name", Name),
                     new SqlParameter("description", Description),
-                    new SqlParameter("type", Type.Id),
+                    new SqlParameter("type", Id),
             };
 
                 return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);
@@ -89,7 +89,7 @@ namespace LP.Finance.Common.Models
                     new SqlParameter("id", Id),
                     new SqlParameter("name", Name),
                     new SqlParameter("description", Description),
-                    new SqlParameter("category", Type.Id),
+                    new SqlParameter("category", Id),
                 };
 
                 return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams); }
@@ -107,7 +107,7 @@ namespace LP.Finance.Common.Models
                     new SqlParameter("id", Id),
                     new SqlParameter("name", Name),
                     new SqlParameter("description", Description),
-                    new SqlParameter("type", Type.Id),
+                    new SqlParameter("type", Id),
             };
 
                 return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);
@@ -122,7 +122,7 @@ namespace LP.Finance.Common.Models
                 var sqlParams = new SqlParameter[]
                 {
                     new SqlParameter("name", Name),
-                    new SqlParameter("type", Type.Id),
+                    new SqlParameter("type", Id),
                 };
 
                 return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);

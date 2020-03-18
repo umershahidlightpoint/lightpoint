@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LP.Finance.Common.Cache
+namespace LP.Shared.Cache
 {
     internal class DataCacheElement
     {

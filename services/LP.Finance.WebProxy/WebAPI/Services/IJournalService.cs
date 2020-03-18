@@ -1,6 +1,6 @@
 ﻿using System;
 using LP.Finance.Common.Dtos;
-using LP.Finance.Common.Model;
+using LP.Shared.Model;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {

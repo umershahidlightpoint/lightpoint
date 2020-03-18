@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace LP.Finance.Common.Model
+namespace LP.Shared
 {
     public class FilterValues
     {

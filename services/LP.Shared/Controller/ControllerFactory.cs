@@ -1,6 +1,4 @@
-﻿using System.Configuration;
-
-namespace LP.Shared.Core
+﻿namespace LP.Shared.Controller
 {
     /// <summary>
     /// Used by the controllers to make it simple to switch between Mock and Service
@@ -19,5 +17,4 @@ namespace LP.Shared.Core
             return new M();
         }
     }
-
 }

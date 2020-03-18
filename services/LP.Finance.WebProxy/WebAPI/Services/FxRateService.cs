@@ -12,19 +12,21 @@ using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Model;
 using Newtonsoft.Json;
-using SqlDAL.Core;
-using LP.Finance.Common.FileMetaData;
 using LP.Finance.Common.IO;
+using LP.Shared.FileMetaData;
+using LP.Shared.Sql;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
     public class FxRateService : IFxRateService
     {
-        private static readonly string ConnectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+        private static readonly string
+            ConnectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
         public SqlHelper SqlHelper = new SqlHelper(ConnectionString);
         private readonly FileProcessor _fileProcessor = new FileProcessor();
         private readonly FileManager _fileManager = new FileManager(ConnectionString);
+
         public object AuditTrail(int id)
         {
             try
@@ -140,7 +142,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var path = uploadedResult.Item2;
                 var filename = uploadedResult.Item3;
-                var recordBody = _fileProcessor.ImportFile(path, "FxRates", "PerformanceFormats", ',');
+                var recordBody = _fileProcessor.ImportFile(path, "FxRates", "ImportFormats", ',');
 
                 var records = JsonConvert.SerializeObject(recordBody.Item1);
                 var fxRates = JsonConvert.DeserializeObject<List<FxRate>>(records);
@@ -164,7 +166,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 };
 
                 _fileManager.InsertActivityAndPositionFiles(fileList);
-                
+
                 foreach (var i in fxRates)
                 {
                     i.Event = "upload";
@@ -175,7 +177,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 bool insertinto = InsertData(fxRates);
 
-                var dupesTemp = fxRates.GroupBy(x => new { x.BusinessDate, x.Currency }).ToList();
+                var dupesTemp = fxRates.GroupBy(x => new {x.BusinessDate, x.Currency}).ToList();
                 var dupes = dupesTemp.Where(x => x.Skip(1).Any()).ToList();
                 if (dupes.Any())
                 {
@@ -185,7 +187,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     {
                         Console.WriteLine(item);
                     }
-                    return Shared.WebApi.Wrap(true, items, HttpStatusCode.Forbidden,null, metaData.Columns);
+
+                    return Shared.WebApi.Wrap(true, items, HttpStatusCode.Forbidden, null, metaData.Columns);
                 }
 
                 if (insertinto)

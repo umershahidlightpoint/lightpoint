@@ -12,7 +12,7 @@ using System.Net.Mail;
 using System.Collections.Concurrent;
 using System.Data.SqlClient;
 using System.Data;
-using LP.Finance.Common;
+using LP.Shared.FileMetaData;
 
 namespace LP.Shared
 {

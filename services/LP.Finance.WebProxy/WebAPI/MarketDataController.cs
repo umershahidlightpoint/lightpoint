@@ -6,7 +6,6 @@ using System.Net.Http;
 using LP.Finance.Common;
 using System;
 using System.Configuration;
-using SqlDAL.Core;
 using Newtonsoft.Json;
 using LP.Finance.Common.Dtos;
 using System.Data;
@@ -15,7 +14,8 @@ using System.Data.SqlClient;
 using System.Linq;
 using LP.FileProcessing;
 using LP.Finance.Common.IO;
-using LP.Finance.Common.FileMetaData;
+using LP.Shared.FileMetaData;
+using LP.Shared.Sql;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -26,12 +26,12 @@ namespace LP.Finance.WebProxy.WebAPI
         object SetPrices(List<MarketPriceInputDto> obj);
         object AuditTrail(int id);
         object GetSymbolPrice(string symbol);
-
     }
 
     internal class MarketDataService : IMarketDataService
     {
-        private static readonly string ConnectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+        private static readonly string
+            ConnectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
         public object GetPrices()
         {
@@ -121,7 +121,7 @@ namespace LP.Finance.WebProxy.WebAPI
 
                 var path = uploadedResult.Item2;
                 var filename = uploadedResult.Item3;
-                var recordBody = new FileProcessor().ImportFile(path, "MarketDataPrices", "PerformanceFormats", ',');
+                var recordBody = new FileProcessor().ImportFile(path, "MarketDataPrices", "ImportFormats", ',');
 
                 var records = JsonConvert.SerializeObject(recordBody.Item1);
                 var performanceRecords = JsonConvert.DeserializeObject<List<MarketDataPrice>>(records);
@@ -134,7 +134,8 @@ namespace LP.Finance.WebProxy.WebAPI
                 }
 
                 var failedPerformanceList =
-                    new FileManager(ConnectionString).MapFailedRecords(failedRecords, DateTime.Now, uploadedResult.Item3);
+                    new FileManager(ConnectionString).MapFailedRecords(failedRecords, DateTime.Now,
+                        uploadedResult.Item3);
 
                 List<FileInputDto> fileList = new List<FileInputDto>
                 {
@@ -159,7 +160,7 @@ namespace LP.Finance.WebProxy.WebAPI
 
                 bool insertinto = InsertData(performanceRecords);
 
-                var dupesTemp = performanceRecords.GroupBy(x => new { x.BusinessDate, x.Symbol }).ToList();
+                var dupesTemp = performanceRecords.GroupBy(x => new {x.BusinessDate, x.Symbol}).ToList();
                 var dupes = dupesTemp.Where(x => x.Skip(1).Any()).ToList();
                 if (dupes.Any())
                 {
@@ -169,6 +170,7 @@ namespace LP.Finance.WebProxy.WebAPI
                     {
                         Console.WriteLine(item);
                     }
+
                     return Shared.WebApi.Wrap(true, items, HttpStatusCode.Forbidden, null, metaData.Columns);
                 }
 
@@ -234,7 +236,8 @@ namespace LP.Finance.WebProxy.WebAPI
 
                 var json = JsonConvert.DeserializeObject<List<MarketDataPrice>>(jsonResult);
 
-                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "Market Prices Audit Trail fetched successfully");
+                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK,
+                    "Market Prices Audit Trail fetched successfully");
             }
             catch (Exception ex)
             {
@@ -251,7 +254,7 @@ namespace LP.Finance.WebProxy.WebAPI
 
                 List<SqlParameter> symbolPriceParamter = new List<SqlParameter>
                 {
-                    new SqlParameter("symbol",symbol)
+                    new SqlParameter("symbol", symbol)
                 };
 
                 listOfParameters.Add(symbolPriceParamter);
@@ -265,21 +268,24 @@ namespace LP.Finance.WebProxy.WebAPI
                                 last_updated_by as LastUpdatedBy,
                                 last_updated_on as LastUpdatedOn FROM [dbo].[market_prices_history] history where [symbol] = @symbol order by business_date desc";
 
-                var dataTable = new SqlHelper(ConnectionString).GetDataTable(query, CommandType.Text, symbolPriceParamter.ToArray());
+                var dataTable =
+                    new SqlHelper(ConnectionString).GetDataTable(query, CommandType.Text,
+                        symbolPriceParamter.ToArray());
 
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
 
                 var json = JsonConvert.DeserializeObject<List<MarketDataPrice>>(jsonResult);
 
-                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "Market Price for Particular Symbol fetched successfully");
+                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK,
+                    "Market Price for Particular Symbol fetched successfully");
             }
             catch (Exception ex)
             {
-                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError, "An error occured while fetching Market Prices of Particular Symbol");
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    "An error occured while fetching Market Prices of Particular Symbol");
             }
         }
     }
-
 
 
     [RoutePrefix("api/marketdata")]
@@ -316,6 +322,5 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return controller.GetSymbolPrice(symbol);
         }
-
     }
 }

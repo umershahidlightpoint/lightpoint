@@ -1,15 +1,16 @@
 ﻿using LP.Finance.Common;
-using LP.Finance.Common.Models;
 using PostingEngine.Contracts;
-using PostingEngine.Extensions;
 using PostingEngine.MarketData;
 using PostingEngine.PostingRules;
-using PostingEngine.PostingRules.Utilities;
 using PostingEngine.TaxLotMethods;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using LP.Finance.Common.Model;
+using LP.Shared.Sql;
+using PostingEngine.Utilities;
+using TaxRate = PostingEngine.MarketData.TaxRate;
 
 namespace PostingEngine
 {

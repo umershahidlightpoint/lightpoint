@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Threading.Tasks;
+using PostingEngine.Tasks.Implementation;
 
 namespace PostingEngine.Tasks
 {

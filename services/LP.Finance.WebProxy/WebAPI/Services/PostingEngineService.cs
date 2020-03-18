@@ -8,7 +8,6 @@ using System.Net;
 using System.Threading.Tasks;
 using LP.Finance.Common;
 using PostingEngine;
-using SqlDAL.Core;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {

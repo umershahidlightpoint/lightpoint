@@ -1,4 +1,4 @@
-﻿namespace LP.Finance.WebProxy.WebAPI
+﻿namespace LP.Finance.WebProxy.WebAPI.Services
 {
     public interface ILedgerService
     {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 
-namespace LP.Finance.Common
+namespace LP.Shared
 {
     public static class HelperFunctions
     {

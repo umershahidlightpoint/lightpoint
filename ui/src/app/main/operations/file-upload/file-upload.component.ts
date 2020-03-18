@@ -349,7 +349,7 @@ export class FileUploadComponent implements OnInit {
       },
       error => {
         this.uploadLoader = false;
-        this.toastrService.error('Something went wrong! Try Again.');
+        this.toastrService.error(error.ExceptionMessage);
       }
     );
   }

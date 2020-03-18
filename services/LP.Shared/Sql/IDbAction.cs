@@ -2,7 +2,7 @@
 using System.Data;
 using System.Data.SqlClient;
 
-namespace LP.Finance.Common.Models
+namespace LP.Shared.Sql
 {
     public interface IDbModel
     {
@@ -27,5 +27,4 @@ namespace LP.Finance.Common.Models
     {
         KeyValuePair<string, SqlParameter[]> Identity { get; }
     }
-
 }

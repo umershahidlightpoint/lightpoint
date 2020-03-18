@@ -1,8 +1,7 @@
 ﻿using System;
-using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
-using LP.Finance.Common.Model;
 using LP.Finance.WebProxy.WebAPI.Services;
+using LP.Shared.Model;
 
 namespace LP.Finance.WebProxy.WebAPI.Stubs
 {
@@ -130,9 +129,10 @@ namespace LP.Finance.WebProxy.WebAPI.Stubs
         }
 
         public object ExcludeTrade(TradeExclusionInputDto obj)
-         {
+        {
             throw new NotImplementedException();
         }
+
         public object GetDetailPnLToDateReport(DateTime @from, DateTime to, string symbol)
         {
             throw new NotImplementedException();

@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using LP.Shared.Sql;
 
-namespace LP.Finance.Common.Models
+namespace LP.Finance.Common.Model
 {
     public class AccountType : IDbAction, IDbActionIdentity
     {

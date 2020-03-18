@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data.SqlClient;
 
-namespace LP.Finance.Common.Models
+namespace LP.Shared.Sql
 {
     public static class DBActions
     {

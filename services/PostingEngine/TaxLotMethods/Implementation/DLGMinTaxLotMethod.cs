@@ -1,12 +1,11 @@
-﻿using LP.Finance.Common.Models;
-using PostingEngine.Contracts;
-using PostingEngine.Extensions;
-using PostingEngine.MarketData;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LP.Finance.Common.Model;
+using PostingEngine.Contracts;
+using PostingEngine.MarketData;
 
-namespace PostingEngine.TaxLotMethods
+namespace PostingEngine.TaxLotMethods.Implementation
 {
     /// <summary>
     /// DLG implementation, this is not what citco has implemented

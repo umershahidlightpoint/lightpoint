@@ -1,9 +1,9 @@
-﻿using LP.Finance.Common;
-using SqlDAL.Core;
-using System.Configuration;
+﻿using System.Configuration;
 using System.Data.SqlClient;
+using LP.Finance.Common;
+using LP.Shared.Sql;
 
-namespace PostingEngine.Tasks
+namespace PostingEngine.Tasks.Implementation
 {
     public class PullFromBookmonTask : IPostingTask
     {

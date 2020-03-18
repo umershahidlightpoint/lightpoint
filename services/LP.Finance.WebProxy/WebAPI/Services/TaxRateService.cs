@@ -7,7 +7,6 @@ using System.Net;
 using System.Text;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
-using SqlDAL.Core;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {

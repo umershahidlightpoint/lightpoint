@@ -1,4 +1,5 @@
 ﻿using System.Web.Http;
+using LP.Finance.WebProxy.WebAPI.Services;
 
 namespace LP.Finance.WebProxy.WebAPI
 {

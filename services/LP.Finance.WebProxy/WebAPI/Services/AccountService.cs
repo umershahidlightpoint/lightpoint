@@ -10,8 +10,9 @@ using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Mappers;
 using LP.Finance.Common.Model;
+using LP.Shared.FileMetaData;
+using LP.Shared.Sql;
 using Newtonsoft.Json;
-using SqlDAL.Core;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
@@ -109,7 +110,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             try
             {
                 var data = FetchDummyAccount(sqlHelper);
-                if(data.Item1)
+                if (data.Item1)
                 {
                     return data.Item2;
                 }
@@ -125,7 +126,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        private static Tuple<bool,object> FetchDummyAccount(SqlHelper sqlHelper)
+        private static Tuple<bool, object> FetchDummyAccount(SqlHelper sqlHelper)
         {
             var query = new StringBuilder($@"SELECT [account].[id] AS 'account_id'
                         ,[account].[name]
@@ -154,7 +155,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     Category = data.Rows[0]["category"].ToString()
                 };
 
-                return new Tuple<bool, object>(true,Shared.WebApi.Wrap(true, dummyAccount, HttpStatusCode.OK));
+                return new Tuple<bool, object>(true, Shared.WebApi.Wrap(true, dummyAccount, HttpStatusCode.OK));
             }
             else
             {
@@ -186,7 +187,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
 
 
-
                 s.VerifyConnection();
                 s.SqlBeginTransaction();
 
@@ -199,7 +199,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                      VALUES
                            (0
                            ,N'Dummy')";
-                    s.Insert(q, CommandType.Text, null,out int accCatId);
+                    s.Insert(q, CommandType.Text, null, out int accCatId);
                     accountCategoryId = 0;
                 }
 
@@ -232,11 +232,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                     s.Insert(q, CommandType.Text, null, out int accId);
                 }
-                s.SqlCommitTransaction();
-                
 
+                s.SqlCommitTransaction();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 s.SqlRollbackTransaction();
                 throw ex;
@@ -554,7 +553,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             if (AccountHasJournal(id))
             {
-                return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "An Account having Journal cannot be Deleted");
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK,
+                    "An Account having Journal cannot be Deleted");
             }
 
             try

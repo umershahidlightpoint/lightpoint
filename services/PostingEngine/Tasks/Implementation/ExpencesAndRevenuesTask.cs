@@ -1,15 +1,13 @@
-﻿using LP.Finance.Common;
-using LP.Finance.Common.Models;
-using PostingEngine.MarketData;
-using PostingEngine.PostingRules.Utilities;
-using SqlDAL.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using LP.Finance.Common;
+using LP.Finance.Common.Model;
+using PostingEngine.Utilities;
 
-namespace PostingEngine.Tasks
+namespace PostingEngine.Tasks.Implementation
 {
     public class ExpencesAndRevenuesTask : IPostingTask
     {

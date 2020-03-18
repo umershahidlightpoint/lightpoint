@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
 
-namespace LP.Finance.Common.Models
+namespace LP.Finance.Common.Model
 {
     public class Accrual
     {

@@ -1,7 +1,7 @@
-﻿using LP.Finance.Common.Models;
-using System.Linq;
+﻿using System.Linq;
+using LP.Finance.Common.Model;
 
-namespace PostingEngine.ClientSpecifics
+namespace PostingEngine.ClientSpecifics.Implementation
 {
     public class BaseSpecifics : IClientSpecifics
     {

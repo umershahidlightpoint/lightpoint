@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
-using System.Runtime.InteropServices.WindowsRuntime;
 
-namespace SqlDAL.Core
+namespace LP.Finance.Common
 {
     public static class SQLConnectionHelper
     {
