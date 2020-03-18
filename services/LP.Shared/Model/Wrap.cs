@@ -1,4 +1,4 @@
-﻿namespace LP.Finance.Common.Models
+﻿namespace LP.Shared.Model
 {
     public class Wrap<T> where T : class
     {

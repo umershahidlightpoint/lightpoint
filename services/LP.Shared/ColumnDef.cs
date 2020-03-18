@@ -1,4 +1,4 @@
-﻿namespace LP.Finance.Common
+﻿namespace LP.Shared
 {
     public class ColumnDef
     {

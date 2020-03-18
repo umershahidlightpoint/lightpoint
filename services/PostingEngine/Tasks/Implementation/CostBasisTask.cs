@@ -1,10 +1,10 @@
-﻿using LP.Finance.Common;
-using LP.Finance.Common.Models;
-using System;
+﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using LP.Finance.Common;
+using LP.Finance.Common.Model;
 
-namespace PostingEngine.Tasks
+namespace PostingEngine.Tasks.Implementation
 {
     class CostBasisTask : IPostingTask
     {

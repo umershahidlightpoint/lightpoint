@@ -4,7 +4,6 @@ using System.Data;
 using System.Data.SqlClient;
 using LP.Finance.Common;
 using Newtonsoft.Json;
-using SqlDAL.Core;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {

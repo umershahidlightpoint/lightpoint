@@ -1,7 +1,6 @@
-﻿using LP.Finance.Common.Models;
-using System;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using LP.Finance.Common.Model;
+using PostingEngine.ClientSpecifics.Implementation;
 
 namespace PostingEngine.ClientSpecifics
 {

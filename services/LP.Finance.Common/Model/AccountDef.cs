@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using LP.Shared.Sql;
 
-namespace LP.Finance.Common.Models
+namespace LP.Finance.Common.Model
 {
     /// <summary>
     /// Definition of Account Structure
@@ -21,7 +22,7 @@ namespace LP.Finance.Common.Models
                 {
                     new AccountDef
                     {
-                        AccountCategory = LP.Finance.Common.Models.AccountCategory.AC_ASSET, // Asset
+                        AccountCategory = LP.Finance.Common.Model.AccountCategory.AC_ASSET, // Asset
                         Tags = new Tag[]
                         {
                             Tag.Tags.Where(t=>t.PropertyName.Equals("SecurityType")).First(),
@@ -32,7 +33,7 @@ namespace LP.Finance.Common.Models
                     },
                     new AccountDef
                     {
-                        AccountCategory = LP.Finance.Common.Models.AccountCategory.AC_LIABILITY, // Liability
+                        AccountCategory = LP.Finance.Common.Model.AccountCategory.AC_LIABILITY, // Liability
                         Tags = new Tag[]
                         {
                             Tag.Tags.Where(t=>t.PropertyName.Equals("SecurityType")).First(),
@@ -42,7 +43,7 @@ namespace LP.Finance.Common.Models
                     },
                     new AccountDef
                     {
-                        AccountCategory = LP.Finance.Common.Models.AccountCategory.AC_EQUITY, // Equity
+                        AccountCategory = LP.Finance.Common.Model.AccountCategory.AC_EQUITY, // Equity
                         Tags = new Tag[]
                         {
                             Tag.Tags.Where(t=>t.PropertyName.Equals("SecurityType")).First(),
@@ -52,7 +53,7 @@ namespace LP.Finance.Common.Models
                     },
                     new AccountDef
                     {
-                        AccountCategory = LP.Finance.Common.Models.AccountCategory.AC_REVENUES, // Revenues
+                        AccountCategory = LP.Finance.Common.Model.AccountCategory.AC_REVENUES, // Revenues
                         Tags = new Tag[]
                         {
                             Tag.Tags.Where(t=>t.PropertyName.Equals("SecurityType")).First(),
@@ -62,7 +63,7 @@ namespace LP.Finance.Common.Models
                     },
                     new AccountDef
                     {
-                        AccountCategory = LP.Finance.Common.Models.AccountCategory.AC_EXPENCES, // Expences
+                        AccountCategory = LP.Finance.Common.Model.AccountCategory.AC_EXPENCES, // Expences
                         Tags = new Tag[]
                         {
                             Tag.Tags.Where(t=>t.PropertyName.Equals("SecurityType")).First(),

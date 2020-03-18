@@ -5,7 +5,6 @@ using LP.Finance.Common.Calculators;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Model;
 using Newtonsoft.Json;
-using SqlDAL.Core;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -17,6 +16,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using LP.Shared.FileMetaData;
+using LP.Shared.Sql;
 using static System.String;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
@@ -434,7 +434,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 if (!ClearMonthlyPerformance())
                 {
-                    return Shared.WebApi.Wrap(false, "Monthly Performance data could not be deleted! Please try again.");
+                    return Shared.WebApi.Wrap(false,
+                        "Monthly Performance data could not be deleted! Please try again.");
                 }
 
                 var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "PerformanceData");
@@ -457,7 +458,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
 
                 var failedPerformanceList =
-                    new FileManager(ConnectionString).MapFailedRecords(failedRecords, DateTime.Now, performanceFileName);
+                    new FileManager(ConnectionString).MapFailedRecords(failedRecords, DateTime.Now,
+                        performanceFileName);
 
                 List<FileInputDto> fileList = new List<FileInputDto>
                 {
@@ -583,7 +585,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 new SqlParameter("id", id)
             };
 
-            var dataTable = new SqlHelper(ConnectionString).GetDataTable(query, CommandType.Text, auditTrailParams.ToArray());
+            var dataTable =
+                new SqlHelper(ConnectionString).GetDataTable(query, CommandType.Text, auditTrailParams.ToArray());
             var jsonResult = JsonConvert.SerializeObject(dataTable);
             dynamic json = JsonConvert.DeserializeObject(jsonResult);
 
@@ -659,7 +662,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 query += " ORDER BY business_date ASC, id ASC";
 
-                var dataTable = new SqlHelper(ConnectionString).GetDataTable(query, CommandType.Text, sqlParams.ToArray());
+                var dataTable =
+                    new SqlHelper(ConnectionString).GetDataTable(query, CommandType.Text, sqlParams.ToArray());
 
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
 
@@ -673,7 +677,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        public Tuple<bool,List<DailyPnL>> GetLatestDailyPnlPerPortfolio()
+        public Tuple<bool, List<DailyPnL>> GetLatestDailyPnlPerPortfolio()
         {
             try
             {
@@ -718,14 +722,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 	                        where a.rn = 1";
 
 
-
                 var dataTable = new SqlHelper(ConnectionString).GetDataTable(query, CommandType.Text);
 
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
 
                 var dailyPnlList = JsonConvert.DeserializeObject<List<DailyPnL>>(jsonResult);
 
-                foreach(var item in dailyPnlList)
+                foreach (var item in dailyPnlList)
                 {
                     item.ExistingRecord = true;
                 }
@@ -766,7 +769,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
 
                 var failedPerformanceList =
-                    new FileManager(ConnectionString).MapFailedRecords(failedRecords, DateTime.Now, uploadedResult.Item3);
+                    new FileManager(ConnectionString).MapFailedRecords(failedRecords, DateTime.Now,
+                        uploadedResult.Item3);
 
                 List<FileInputDto> fileList = new List<FileInputDto>
                 {
@@ -783,6 +787,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 {
                     performanceRecords = performanceRecords.Concat(previousList).ToList();
                 }
+
                 var dailyPerformanceResult = new DailyPnlCalculator().CalculateDailyPerformance(performanceRecords);
                 var dailyPerformance = dailyPerformanceResult.GetType().GetProperty("payload")
                     ?.GetValue(dailyPerformanceResult, null);
@@ -815,7 +820,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 //sqlHelper.Delete(monthlyPerformanceQuery, CommandType.Text);
 
-                new SQLBulkHelper().Insert("unofficial_daily_pnl", recordsToBeInserted.ToArray(), sqlHelper.GetConnection(),
+                new SQLBulkHelper().Insert("unofficial_daily_pnl", recordsToBeInserted.ToArray(),
+                    sqlHelper.GetConnection(),
                     sqlHelper.GetTransaction());
 
                 sqlHelper.SqlCommitTransaction();
@@ -875,7 +881,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("id", id)
                 };
 
-                var dataTable = new SqlHelper(ConnectionString).GetDataTable(query, CommandType.Text, auditTrailParams.ToArray());
+                var dataTable =
+                    new SqlHelper(ConnectionString).GetDataTable(query, CommandType.Text, auditTrailParams.ToArray());
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
                 dynamic json = JsonConvert.DeserializeObject(jsonResult);
 

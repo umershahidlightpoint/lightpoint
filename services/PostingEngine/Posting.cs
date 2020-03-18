@@ -1,17 +1,13 @@
 ﻿using LP.Finance.Common;
 using LP.Finance.Common.Calculators;
-using LP.Finance.Common.Model;
-using LP.Finance.Common.Models;
+using LP.Shared.Model;
 using Newtonsoft.Json;
 using PostingEngine.Contracts;
 using PostingEngine.CorporateActions;
-using PostingEngine.Extensions;
 using PostingEngine.MarketData;
 using PostingEngine.PostingRules;
-using PostingEngine.PostingRules.Utilities;
 using PostingEngine.Tasks;
 using PostingEngine.TaxLotMethods;
-using SqlDAL.Core;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -24,6 +20,9 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using LP.Finance.Common.Model;
+using LP.Shared.Sql;
+using PostingEngine.Tasks.Implementation;
 
 namespace PostingEngine
 {

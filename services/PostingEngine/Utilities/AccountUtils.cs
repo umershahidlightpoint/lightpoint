@@ -1,10 +1,11 @@
-﻿using LP.Finance.Common.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using LP.Finance.Common.Model;
+using LP.Shared.Sql;
 
-namespace PostingEngine.PostingRules.Utilities
+namespace PostingEngine.Utilities
 {
     class AccountUtils
     {

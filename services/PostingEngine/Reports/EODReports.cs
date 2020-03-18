@@ -1,15 +1,15 @@
-﻿using SqlDAL.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using LP.FileProcessing;
 using LP.FileProcessing.Report_Generation;
 using LP.Finance.Common.Dtos;
-using LP.Finance.Common.Model;
 using Newtonsoft.Json;
 using LP.Finance.Common;
 using System.Dynamic;
+using LP.Shared.Model;
+using LP.Shared.Sql;
 
 namespace PostingEngine.Reports
 {

@@ -1,9 +1,8 @@
-﻿using LP.Finance.Common.Models;
-using PostingEngine.Contracts;
-using PostingEngine.PostingRules.Utilities;
+﻿using PostingEngine.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using LP.Finance.Common.Model;
 
 namespace PostingEngine.PostingRules
 {

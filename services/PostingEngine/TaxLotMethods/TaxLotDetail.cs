@@ -1,4 +1,4 @@
-﻿using LP.Finance.Common.Models;
+﻿using LP.Finance.Common.Model;
 using PostingEngine.MarketData;
 
 namespace PostingEngine.TaxLotMethods

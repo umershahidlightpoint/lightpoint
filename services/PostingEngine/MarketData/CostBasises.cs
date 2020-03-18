@@ -1,9 +1,9 @@
 ﻿using LP.Finance.Common;
-using LP.Finance.Common.Models;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
+using LP.Finance.Common.Model;
 
 namespace PostingEngine.MarketData
 {

@@ -1,8 +1,5 @@
-﻿using LP.Finance.Common;
-using LP.Finance.Common.Dtos;
-using LP.Finance.Common.Models;
+﻿using LP.Finance.Common.Dtos;
 using Newtonsoft.Json;
-using SqlDAL.Core;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -10,15 +7,16 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+using LP.Finance.Common;
+using LP.Finance.Common.Model;
+using LP.Shared.Sql;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
     public class TaxLotMaintenanceService : ITaxLotMaintenanceService
     {
         private static readonly string
-           connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+            connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
         public SqlHelper sqlHelper = new SqlHelper(connectionString);
 
@@ -47,7 +45,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     {
                         taxLotStatus.Status = "Partially Closed";
                     }
-
                 }
 
                 SqlHelper sqlHelper = new SqlHelper(connectionString);
@@ -72,12 +69,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             foreach (var item in obj)
             {
                 List<SqlParameter> taxLotStatusParams = new List<SqlParameter>
-                    {
-                        new SqlParameter("id", item.Id),
-                        new SqlParameter("status", item.Status),
-                        new SqlParameter("quantity", item.RemainingQuantity)
-
-                    };
+                {
+                    new SqlParameter("id", item.Id),
+                    new SqlParameter("status", item.Status),
+                    new SqlParameter("quantity", item.RemainingQuantity)
+                };
 
                 listOfTaxLotStatusParameters.Add(taxLotStatusParams);
             }
@@ -90,7 +86,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             foreach (var item in listOfTaxLotStatusParameters)
             {
                 sqlHelper.Update(taxLotStatusQuery, CommandType.Text, item.ToArray());
-
             }
         }
 
@@ -100,10 +95,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             foreach (var item in obj.ClosingLots)
             {
                 List<SqlParameter> closingLotParams = new List<SqlParameter>
-                    {
-                        new SqlParameter("id", item.Id)
-
-                    };
+                {
+                    new SqlParameter("id", item.Id)
+                };
 
                 listOfClosingLotParameters.Add(closingLotParams);
             }
@@ -114,14 +108,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             foreach (var item in listOfClosingLotParameters)
             {
                 sqlHelper.Update(taxLotQuery, CommandType.Text, item.ToArray());
-
             }
         }
 
         private static void InsertTaxLot(List<TaxLot> obj, SqlHelper sqlHelper)
         {
-            new SQLBulkHelper().Insert("tax_lot",obj.ToArray(),
-                        sqlHelper.GetConnection(), sqlHelper.GetTransaction());
+            new SQLBulkHelper().Insert("tax_lot", obj.ToArray(),
+                sqlHelper.GetConnection(), sqlHelper.GetTransaction());
         }
 
         public object AlleviateTaxLot(AlleviateTaxLotDto obj)
@@ -161,25 +154,24 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 foreach (var item in obj.OpenTaxLots)
                 {
                     TaxLot t = new TaxLot();
-                    if(prospectiveTradeQuantity == 0)
+                    if (prospectiveTradeQuantity == 0)
                     {
                         break;
                     }
                     else if (Math.Abs(item.RemainingQuantity) <= prospectiveTradeQuantity)
                     {
                         item.Status = "Closed";
-                        if(Math.Abs(item.RemainingQuantity) < prospectiveTradeQuantity)
+                        if (Math.Abs(item.RemainingQuantity) < prospectiveTradeQuantity)
                         {
                             t.Quantity = Math.Abs(item.RemainingQuantity);
                         }
                         else
                         {
-                           t.Quantity = prospectiveTradeQuantity;
+                            t.Quantity = prospectiveTradeQuantity;
                         }
 
                         prospectiveTradeQuantity -= Math.Abs(item.RemainingQuantity);
                         item.RemainingQuantity = 0;
-
                     }
                     else if (Math.Abs(item.RemainingQuantity) > prospectiveTradeQuantity)
                     {
@@ -220,11 +212,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.CloseConnection();
                 return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK, message);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
-
         }
 
         public object ProspectiveTradesForTaxLotAlleviation(string symbol, string side)
@@ -246,10 +237,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
 
                 List<SqlParameter> sqlParams = new List<SqlParameter>()
-            {
-                new SqlParameter("side", correspondingSide),
-                new SqlParameter("symbol", symbol)
-            };
+                {
+                    new SqlParameter("side", correspondingSide),
+                    new SqlParameter("symbol", symbol)
+                };
 
                 var query = $@"select tr.LPOrderId, tr.Symbol, tr.Side, tr.Quantity, tr.TradePrice,
                             (case when tr.side = 'SELL' then coalesce((abs(tr.Quantity) - gt.lot_quantity) * -1,tr.Quantity)
@@ -270,7 +261,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var resp = JsonConvert.DeserializeObject(serialized);
                 return Shared.WebApi.Wrap(true, resp, HttpStatusCode.OK);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -287,7 +278,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 default:
                     return value;
             }
-
         }
     }
 }

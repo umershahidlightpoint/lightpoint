@@ -3,9 +3,7 @@ using LP.FileProcessing.S3;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Model;
-using LP.Finance.Common.Models;
 using Newtonsoft.Json;
-using SqlDAL.Core;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -20,13 +18,15 @@ using LP.Finance.Common.IO;
 using System.Net;
 using LP.Shared.Cache;
 using LP.Shared.FileMetaData;
+using LP.Shared.Sql;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
     public class FileManagementService : IFileManagementService
     {
         private static readonly string
-            connectionString = "Persist Security Info=True;" + ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+            connectionString = "Persist Security Info=True;" +
+                               ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
         private static readonly string tradesURL = "http://localhost:9091/api/trade/data?period=";
         private static readonly string positionsURL = "http://localhost:9091/api/positions?period=2019-09-24";
@@ -408,7 +408,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 if (symbolCache.Item1)
                 {
-                    symbols = (Dictionary<string, int>)symbolCache.Item2;
+                    symbols = (Dictionary<string, int>) symbolCache.Item2;
                 }
                 else
                 {
@@ -418,14 +418,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 if (currencyCache.Item1)
                 {
-                    currency = (Dictionary<string, string>)currencyCache.Item2;
+                    currency = (Dictionary<string, string>) currencyCache.Item2;
                 }
                 else
                 {
                     currency = GetCurrencies();
                     AppStartCache.CacheData("currency", currency);
                 }
-
 
 
                 var recordBody = _fileProcessor.ImportFile(path, "Trade", "ImportFormats", ',', true);
@@ -459,7 +458,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     tradeElement.UploadException = JsonConvert.SerializeObject(item);
                 }
 
-                if(failedRecords.Count > 0)
+                if (failedRecords.Count > 0)
                 {
                     enableCommit = false;
                 }
@@ -601,7 +600,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 throw ex;
             }
-
         }
     }
 }

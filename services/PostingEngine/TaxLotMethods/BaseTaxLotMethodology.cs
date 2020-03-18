@@ -1,9 +1,9 @@
-﻿using LP.Finance.Common.Models;
-using PostingEngine.Contracts;
-using PostingEngine.Extensions;
+﻿using PostingEngine.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using LP.Finance.Common.Model;
+using PostingEngine.TaxLotMethods.Implementation;
 
 namespace PostingEngine.TaxLotMethods
 {

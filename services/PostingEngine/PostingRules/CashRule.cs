@@ -1,13 +1,12 @@
 ﻿using LP.Finance.Common.Model;
-using LP.Finance.Common.Models;
-using PostingEngine.Extensions;
 using PostingEngine.MarketData;
-using PostingEngine.PostingRules.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PostingEngine.Contracts;
+using PostingEngine.Utilities;
 
 namespace PostingEngine.PostingRules
 {

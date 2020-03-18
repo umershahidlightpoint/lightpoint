@@ -1,10 +1,9 @@
-﻿using LP.Shared.Cache;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using LP.Shared.Cache;
 
-namespace LP.Shared.FileProcessing
+namespace LP.Shared
 {
     public class FileProcessingUtils
     {

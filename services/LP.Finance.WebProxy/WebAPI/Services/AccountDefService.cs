@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net;
 using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
-using SqlDAL.Core;
+using LP.Shared.FileMetaData;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {

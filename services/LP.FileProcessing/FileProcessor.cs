@@ -108,7 +108,7 @@ namespace LP.FileProcessing
                     if (!String.IsNullOrEmpty(map.Function) && !String.IsNullOrEmpty(map.Format) &&
                         !String.IsNullOrEmpty(map.Type))
                     {
-                        Type thisType = Type.GetType("LP.Shared.FileProcessing.FileProcessingUtils,LP.Shared"); ;
+                        Type thisType = Type.GetType("LP.Shared.FileProcessingUtils,LP.Shared"); ;
                         MethodInfo theMethod = thisType.GetMethod(map.Function);
                         object[] parametersArray = {value, map.Format, map.Type};
                         var val = (Tuple<object, bool, string>) theMethod.Invoke(this, parametersArray);
@@ -248,7 +248,7 @@ namespace LP.FileProcessing
                             else if (!String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Function) &&
                                      !String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Format))
                             {
-                                Type thisType = Type.GetType("LP.Shared.FileProcessing.FileProcessingUtils,LP.Shared");
+                                Type thisType = Type.GetType("LP.Shared.FileProcessingUtils,LP.Shared");
                                 MethodInfo theMethod = thisType.GetMethod(recordDictionary[dictionaryIndex].Function);
                                 object[] parametersArray =
                                 {
@@ -260,7 +260,7 @@ namespace LP.FileProcessing
                             }
                             else if (!String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Function))
                             {
-                                Type thisType = Type.GetType("LP.Shared.FileProcessing.FileProcessingUtils,LP.Shared");
+                                Type thisType = Type.GetType("LP.Shared.FileProcessingUtils,LP.Shared");
                                 MethodInfo theMethod = thisType.GetMethod(recordDictionary[dictionaryIndex].Function);
                                 object[] parametersArray =
                                 {

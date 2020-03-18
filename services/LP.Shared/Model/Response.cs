@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LP.Finance.Common
+namespace LP.Shared.Model
 {
     public class Response
     {

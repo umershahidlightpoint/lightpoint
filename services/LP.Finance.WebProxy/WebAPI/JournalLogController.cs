@@ -1,6 +1,7 @@
 ﻿using System.Web.Http;
 using LP.Finance.WebProxy.WebAPI.Services;
 using LP.Finance.WebProxy.WebAPI.Stubs;
+using LP.Shared.Controller;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -11,7 +12,7 @@ namespace LP.Finance.WebProxy.WebAPI
     {
         // Mock Service
         // private IJournalLogService controller = new JournalStub();
-        private readonly IJournalLogService controller = Shared.Core.ControllerFactory
+        private readonly IJournalLogService controller = ControllerFactory
             .Get<IJournalLogService, JournalLogStub, JournalLogService>();
 
         [HttpGet]

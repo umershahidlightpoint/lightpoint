@@ -1,10 +1,9 @@
-﻿using LP.Finance.Common.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
 
-namespace LP.Finance.Common
+namespace LP.Shared.FileMetaData
 {
     public class MetaData
     {

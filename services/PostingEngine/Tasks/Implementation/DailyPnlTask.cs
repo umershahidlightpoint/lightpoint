@@ -1,9 +1,9 @@
-﻿using LP.Finance.Common.Calculators;
-using LP.Finance.Common.Model;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.SqlClient;
+using LP.Finance.Common.Calculators;
+using LP.Finance.Common.Model;
 
-namespace PostingEngine.Tasks
+namespace PostingEngine.Tasks.Implementation
 {
     public class DailyPnlTask : IPostingTask
     {

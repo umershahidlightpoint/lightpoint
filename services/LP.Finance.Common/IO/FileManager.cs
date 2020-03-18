@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Data;
-using SqlDAL.Core;
 using System.Data.SqlClient;
 using LP.Shared.FileMetaData;
+using LP.Shared.Sql;
 
 namespace LP.Finance.Common.IO
 {
@@ -72,7 +72,7 @@ namespace LP.Finance.Common.IO
 
                     sqlHelper.Insert(query, CommandType.Text, fileParams.ToArray(), out int fileId);
                     file.failedRecords.ForEach(x => x.fileId = fileId);
-                    new Finance.Common.SQLBulkHelper().Insert("file_exception", file.failedRecords.ToArray(),
+                    new SQLBulkHelper().Insert("file_exception", file.failedRecords.ToArray(),
                         sqlHelper.GetConnection(), sqlHelper.GetTransaction());
 
                     List<SqlParameter> fileActionParams = new List<SqlParameter>()

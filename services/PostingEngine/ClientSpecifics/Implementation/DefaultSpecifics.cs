@@ -1,6 +1,6 @@
-﻿using LP.Finance.Common.Models;
+﻿using LP.Finance.Common.Model;
 
-namespace PostingEngine.ClientSpecifics
+namespace PostingEngine.ClientSpecifics.Implementation
 {
     public class DefaultSpecifics : IClientSpecifics
     {

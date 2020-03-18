@@ -1,4 +1,4 @@
-﻿namespace LP.Core
+﻿namespace LP.Shared.Controller
 {
     public class ServiceFactory
     {

@@ -11,10 +11,11 @@ using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Mappers;
 using LP.Finance.Common.Model;
-using LP.Finance.Common.Models;
+using LP.Shared;
+using LP.Shared.FileMetaData;
+using LP.Shared.Model;
+using LP.Shared.Sql;
 using Newtonsoft.Json;
-using PostingEngine;
-using SqlDAL.Core;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
@@ -61,7 +62,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             try
             {
                 // Get the Data, We will Get the Results Later
-                var transactionResults = Shared.WebApi.GetWebApiData(allocationsURL, ConfigurationManager.AppSettings[""]);
+                var transactionResults =
+                    Shared.WebApi.GetWebApiData(allocationsURL, ConfigurationManager.AppSettings[""]);
 
                 dynamic postingEngine = new PostingEngineService().GetProgress();
 
@@ -516,7 +518,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     }
                 }
             };
-          
+
             double accountToValue;
 
             if (journal.AccountTo.EntryType.Equals("debit"))
@@ -578,7 +580,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 accountToValue = AccountCategory.GetInitialSignedValue(accountTo, false, journal.Value);
             }
 
-                return new Tuple<double, double>(accountToValue, accountFromValue);
+            return new Tuple<double, double>(accountToValue, accountFromValue);
         }
 
         private string GetBaseCurrency()
@@ -1781,7 +1783,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 List<SqlParameter> exclusionParams = new List<SqlParameter>
                 {
                     new SqlParameter("lpOrderId", trade.LpOrderId),
-                    new SqlParameter("reason", string.IsNullOrEmpty(trade.Reason) ? DBNull.Value : (object)trade.Reason)
+                    new SqlParameter("reason",
+                        string.IsNullOrEmpty(trade.Reason) ? DBNull.Value : (object) trade.Reason)
                 };
                 var query = $@"INSERT INTO [dbo].[trade_exclusion]
                                ([lporderid]

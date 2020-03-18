@@ -1,13 +1,13 @@
-﻿using LP.Finance.Common.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Dynamic;
 using System.Linq;
 using System.Text;
+using LP.Shared.Model;
 
-namespace LP.Finance.Common
+namespace LP.Shared.Sql
 {
     public class ServerSideRowModelHelper
     {
@@ -694,7 +694,8 @@ namespace LP.Finance.Common
                 if (obj.valueCols.Any(x => x.field == "debit") && obj.valueCols.Any(x => x.field == "credit") &&
                     obj.valueCols.Any(x => x.field == "balance"))
                 {
-                    return "select cast(round((abs(debit)) - (abs(credit)), 2) as numeric(22, 2)) as balance, cast(round((abs(local_debit)) - (abs(local_credit)), 2) as numeric(22, 2)) as local_balance, * ";
+                    return
+                        "select cast(round((abs(debit)) - (abs(credit)), 2) as numeric(22, 2)) as balance, cast(round((abs(local_debit)) - (abs(local_credit)), 2) as numeric(22, 2)) as local_balance, * ";
                 }
                 else
                 {

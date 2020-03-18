@@ -11,10 +11,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using LP.Finance.Common.Model;
 using System.Globalization;
 using System.Net.Mail;
-using LP.Finance.Common;
+using LP.Shared.FileMetaData;
 
 namespace LP.Shared
 {

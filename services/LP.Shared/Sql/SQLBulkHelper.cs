@@ -1,14 +1,16 @@
-﻿using System.Data;
+﻿using System.Collections.Concurrent;
+using System.Data;
 using System.Data.SqlClient;
-using System.Collections.Concurrent;
 
-namespace LP.Finance.Common
+namespace LP.Shared.Sql
 {
     public class SQLBulkHelper
     {
-        private static ConcurrentDictionary<string, DataTable> cachedMetaData = new ConcurrentDictionary<string, DataTable>();
+        private static ConcurrentDictionary<string, DataTable> cachedMetaData =
+            new ConcurrentDictionary<string, DataTable>();
 
-        public void Insert(string tablename, Models.IDbModel[] models, SqlConnection connection, SqlTransaction transaction,
+        public void Insert(string tablename, IDbModel[] models, SqlConnection connection,
+            SqlTransaction transaction,
             bool fireTriggers = false, bool checkConstraints = false)
         {
             if (models.Length == 0)
@@ -16,7 +18,7 @@ namespace LP.Finance.Common
 
             DataTable table = null;
 
-            if ( cachedMetaData.ContainsKey(tablename))
+            if (cachedMetaData.ContainsKey(tablename))
             {
                 table = cachedMetaData[tablename].Clone();
             }
@@ -56,7 +58,7 @@ namespace LP.Finance.Common
             using (var bulk = new SqlBulkCopy(connection.ConnectionString,
                 options))
             {
-                bulk.BulkCopyTimeout = 60*10;
+                bulk.BulkCopyTimeout = 60 * 10;
                 bulk.BatchSize = 100000;
                 bulk.DestinationTableName = tablename;
 
@@ -108,6 +110,5 @@ namespace LP.Finance.Common
                 bulk.WriteToServer(sourceData);
             }
         }
-
     }
 }

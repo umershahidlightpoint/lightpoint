@@ -1,16 +1,13 @@
-﻿using LP.Finance.Common.Model;
-using LP.Finance.Common.Models;
-using PostingEngine.PostingRules.Utilities;
-using SqlDAL.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using LP.Finance.Common;
+using LP.Finance.Common.Model;
+using PostingEngine.Utilities;
 
-namespace PostingEngine.Tasks
+namespace PostingEngine.Tasks.Implementation
 {
     /// <summary>
     /// Grab all of the Items to create contra journal entries for each of the line items

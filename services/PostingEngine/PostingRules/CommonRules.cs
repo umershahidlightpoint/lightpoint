@@ -1,10 +1,7 @@
 ﻿using LP.Finance.Common.Model;
-using LP.Finance.Common.Models;
 using NLog;
 using PostingEngine.Contracts;
-using PostingEngine.Extensions;
 using PostingEngine.MarketData;
-using PostingEngine.PostingRules.Utilities;
 using PostingEngine.TaxLotMethods;
 using System;
 using System.Collections.Generic;
@@ -12,6 +9,8 @@ using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LP.Shared.Sql;
+using PostingEngine.Utilities;
 
 namespace PostingEngine.PostingRules
 {
