@@ -121,10 +121,10 @@ export class CorporateActionsApiService {
       return this.http.get(url).pipe(map((response: any) => response), retry(1));
     }
 
-    // getStockSplitDetails(id) {
-    // const url = this.baseUrl + '/corporateAction/stockSplitDetails?id=' + id;
-    // return this.http.get(url).pipe(map((response: any) => response), retry(1));
-    // }
+    getSymbolTradeDetails(symbol) {
+      const url = this.baseUrl + '/corporateAction/symbolChangeDetails?symbol=' + symbol;
+      return this.http.get(url).pipe(map((response: any) => response), retry(1));
+    }
 
   handleError(error) {
     let errorMessage = '';

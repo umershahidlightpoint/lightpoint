@@ -28,6 +28,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object EditSymbolChange(SymbolChangeInputDto obj);
         object DeleteSymbolChange(int id);
         object SymbolChangeAudit(int id);
-        //object GetSymbolChangeDetails(int id);
+        object GetSymbolChangeDetails(string symbol);
     }
 }

@@ -8,6 +8,7 @@ import { ContextMenu } from 'src/shared/Models/common';
 import { CreateSymbolRenameComponent } from 'src/shared/Modal/create-symbol-rename/create-symbol-rename.component';
 import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
+import { AgGridUtils } from '../../../../shared/utils/AgGridUtils';
 import * as moment from 'moment';
 import { CacheService } from 'src/services/common/cache.service';
 import { CorporateActionsApiService } from './../../../../services/corporate-actions.api.service';
@@ -39,7 +40,8 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
 
   pinnedBottomRowData;
   gridOptions: GridOptions;
-  stockSplitDetailsGrid: GridOptions;
+  changeSymbolDetailsGrid: GridOptions;
+  rowData: [];
   data: any;
 
   isLoading = false;
@@ -53,19 +55,18 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
   endDate: any;
   createDividend = false;
 
-  toBeDeletedStockSplit : number = null;
+  toBeDeletedStockSplit: number = null;
 
-
-  stockSplitConfig: {
-    stockSplitSize: number;
+  symbolChangeConfig: {
+    symbolChangeSize: number;
     detailsSize: number;
-    stockSplitView: boolean;
+    symbolChangeView: boolean;
     detailsView: boolean;
     useTransition: boolean;
   } = {
-    stockSplitSize: 50,
+    symbolChangeSize: 50,
     detailsSize: 50,
-    stockSplitView: true,
+    symbolChangeView: true,
     detailsView: false,
     useTransition: true
   };
@@ -76,6 +77,7 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
     private corporateActionsApiService: CorporateActionsApiService,
     private securityApiService: SecurityApiService,
     private toastrService: ToastrService,
+    private agGridUtils: AgGridUtils
   ) {
     this.hideGrid = false;
   }
@@ -97,7 +99,7 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
 
     const config = this.cacheService.getConfigByKey(LayoutConfig.stockSplitsConfigKey);
     if (config) {
-      this.stockSplitConfig = JSON.parse(config.value);
+      this.symbolChangeConfig = JSON.parse(config.value);
     }
 
     this.cdRef.detectChanges();
@@ -105,8 +107,8 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
 
   applyPageLayout(event) {
     if (event.sizes) {
-      this.stockSplitConfig.stockSplitSize = event.sizes[0];
-      this.stockSplitConfig.detailsSize = event.sizes[1];
+      this.symbolChangeConfig.symbolChangeSize = event.sizes[0];
+      this.symbolChangeConfig.detailsSize = event.sizes[1];
     }
 
     const persistUIState = this.cacheService.getConfigByKey(LayoutConfig.persistUIState);
@@ -120,7 +122,7 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
       project: LayoutConfig.projectName,
       uom: 'JSON',
       key: LayoutConfig.stockSplitsConfigKey,
-      value: JSON.stringify(this.stockSplitConfig),
+      value: JSON.stringify(this.symbolChangeConfig),
       description: LayoutConfig.stockSplitsConfigKey
     };
 
@@ -151,21 +153,55 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
     });
   }
 
+  getSymbolChangeDetails(symbol) {
+    this.symbolChangeConfig.detailsView = true;
+    this.changeSymbolDetailsGrid.api.showLoadingOverlay();
+    this.corporateActionsApiService.getSymbolTradeDetails(symbol).subscribe(result => {
+      console.log(result);
+      if (result.stats === 200){
+        let stockSplitDetail;
+        stockSplitDetail = null;
+        stockSplitDetail = result;
+        this.changeSymbolDetailsGrid.api.hideOverlay();
+        this.rowData = [];
+        const someArray = this.agGridUtils.columizeData(
+          stockSplitDetail.data,
+          stockSplitDetail.meta.Columns
+        );
+        const cdefs = this.agGridUtils.customizeColumns(
+          [],
+          stockSplitDetail.meta.Columns,
+          [],
+          false
+        );
+        this.changeSymbolDetailsGrid.api.setColumnDefs(cdefs);
+        this.rowData = someArray as [];
+
+        console.log(this.gridOptions.api)
+      } else {
+        this.toastrService.error(result.Message);
+      }
+    }, err => {
+      this.toastrService.error("The request failed");
+      this.changeSymbolDetailsGrid.api.hideOverlay();
+    });
+  }
+
   getStockSplitDetails(id) {
-    this.stockSplitConfig.detailsView = true;
-    this.stockSplitDetailsGrid.api.showLoadingOverlay();
+    this.symbolChangeConfig.detailsView = true;
+    this.changeSymbolDetailsGrid.api.showLoadingOverlay();
     this.corporateActionsApiService.getStockSplitDetails(id).subscribe(response => {
       if (response.statusCode === 200){
         let stockSplitDetail = response.payload;
-        this.stockSplitDetailsGrid.api.setRowData(stockSplitDetail);
-        this.stockSplitDetailsGrid.api.sizeColumnsToFit();
-        this.stockSplitDetailsGrid.api.expandAll();
+        this.changeSymbolDetailsGrid.api.setRowData(stockSplitDetail);
+        this.changeSymbolDetailsGrid.api.sizeColumnsToFit();
+        this.changeSymbolDetailsGrid.api.expandAll();
       } else {
         this.toastrService.error(response.Message);
       }
     }, err => {
       this.toastrService.error("The request failed");
-      this.stockSplitDetailsGrid.api.hideOverlay();
+      this.changeSymbolDetailsGrid.api.hideOverlay();
     });
   }
 
@@ -209,8 +245,6 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
           field: 'old_symbol',
           width: 120,
           headerName: 'Old Symbol',
-          // rowGroup: true,
-          // enableRowGroup: true,
           sortable: true,
           filter: true
         },
@@ -218,8 +252,6 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
           field: 'new_symbol',
           width: 120,
           headerName: 'New Symbol',
-          // rowGroup: true,
-          // enableRowGroup: true,
           sortable: true,
           filter: true
         },
@@ -247,7 +279,7 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
       }
     } as GridOptions;
 
-    this.stockSplitDetailsGrid = {
+    this.changeSymbolDetailsGrid = {
       rowData: null,
       pinnedBottomRowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
@@ -256,117 +288,19 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
       suppressColumnVirtualisation: true,
       getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
-        this.stockSplitDetailsGrid.excelStyles = ExcelStyle;
+        this.changeSymbolDetailsGrid.excelStyles = ExcelStyle;
       },
       onFirstDataRendered: params => {
         params.api.forEachNode(node => {
           node.expanded = true;
         });
         params.api.onGroupExpandedOrCollapsed();
-
-        // AutoSizeAllColumns(params);
-        params.api.sizeColumnsToFit();
       },
       enableFilter: true,
       animateRows: true,
       alignedGrids: [],
       suppressHorizontalScroll: false,
-      columnDefs: [
-        {
-          field: 'id',
-          width: 120,
-          headerName: 'Id',
-          sortable: true,
-          filter: true,
-          hide: true
-        },
-        {
-          field: 'fund',
-          headerName: 'Portfolio',
-          width: 100,
-          rowGroup: true,
-          enableRowGroup: true,
-          filter: true,
-          sortable: true
-        },
-        {
-          field: 'symbol',
-          width: 120,
-          headerName: 'Symbol',
-          rowGroup: true,
-          enableRowGroup: true,
-          sortable: true,
-          filter: true
-        },
-        {
-          field: 'pre_split_quantity',
-          width: 120,
-          headerName: 'Pre-Split-Quantity',
-          sortable: true,
-          filter: true,
-          cellClass: 'rightAlign',
-          valueFormatter: moneyFormatter
-        },
-        {
-          field: 'post_split_quantity',
-          headerName: 'Post-Split-Quantity',
-          sortable: true,
-          filter: true,
-          width: 100,
-          cellClass: 'rightAlign',
-          valueFormatter: moneyFormatter
-        },
-        {
-          field: 'cost_basis_pre_split',
-          headerName: 'Cost Basis(Pre-Split)',
-          width: 100,
-          filter: true,
-          sortable: true,
-          cellClass: 'rightAlign',
-          valueFormatter: moneyFormatter
-        },
-        {
-          field: 'cost_basis_post_split',
-          headerName: 'Cost Basis(Post-Split)',
-          width: 100,
-          filter: true,
-          sortable: true,
-          cellClass: 'rightAlign',
-          valueFormatter: moneyFormatter
-        },
-        {
-          field: 'pre_split_investment_at_cost',
-          headerName: 'Pre-Split Investment at cost',
-          width: 100,
-          filter: true,
-          sortable: true,
-          cellClass: 'rightAlign',
-          valueFormatter: moneyFormatter,
-          aggFunc: 'sum'
-        },
-        {
-          field: 'post_split_investment_at_cost',
-          headerName: 'Post-Spli Investment at Cost',
-          width: 100,
-          filter: true,
-          sortable: true,
-          cellClass: 'rightAlign',
-          valueFormatter: moneyFormatter,
-          aggFunc: 'sum'
-        }
-      ],
-      defaultColDef: {
-        sortable: true,
-        resizable: true,
-        filter: true
-      }
     } as GridOptions;
-
-    this.gridOptions.sideBar = SideBar(
-      GridId.stockSplitsId,
-      GridName.stockSplits,
-      this.gridOptions
-    );
   }
 
   openEditModal(data) {
@@ -380,7 +314,7 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
   closeSymbolChangeModal() {
     this.gridOptions.api.showLoadingOverlay();
     this.getSymbolsChange();
-    this.stockSplitDetailsGrid.api.setRowData([]);
+    this.changeSymbolDetailsGrid.api.setRowData([]);
   }
 
   deleteStockSplit() {
@@ -400,21 +334,8 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
   }
 
   rowSelected(row) {
-    const { id } = row.data;
-    // let node;
-    // this.stockSplitDetailsGrid.api.forEachLeafNode(rowNode => {
-    //   if (rowNode.data.id === id) {
-    //     rowNode.setSelected(true);
-    //     node = rowNode;
-    //   } else {
-    //     rowNode.setSelected(false);
-    //   }
-    // });
-    // if (node) {
-    //   this.stockSplitConfig.detailsView = true;
-    //   this.stockSplitDetailsGrid.api.ensureIndexVisible(node.rowIndex);
-    // }
-    this.getStockSplitDetails(id);
+    const { old_symbol } = row.data;
+    this.getSymbolChangeDetails(old_symbol);
   }
 
   /////////// External Filters Code //////////////
@@ -429,7 +350,6 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
   }
 
   onFilterChanged() {
-    // this.pinnedBottomRowData = CalTotalRecords(this.gridOptions);
     this.gridOptions.api.setPinnedBottomRowData(this.pinnedBottomRowData);
   }
 
@@ -506,20 +426,20 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
 
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
-    this.stockSplitDetailsGrid.api.showLoadingOverlay();
+    this.changeSymbolDetailsGrid.api.showLoadingOverlay();
     this.getSymbolsChange();
-    this.stockSplitDetailsGrid.api.setRowData([]);
-    this.stockSplitConfig.detailsView = false;
+    this.changeSymbolDetailsGrid.api.setRowData([]);
+    this.symbolChangeConfig.detailsView = false;
   }
 
   clearFilters() {
     this.selected = null;
     this.filterBySymbol = '';
-    this.stockSplitConfig.detailsView = false;
+    this.symbolChangeConfig.detailsView = false;
     this.startDate = moment('01-01-1901', 'MM-DD-YYYY');
     this.endDate = moment();
     this.gridOptions.api.setRowData([]);
-    this.stockSplitDetailsGrid.api.setRowData([]);
+    this.changeSymbolDetailsGrid.api.setRowData([]);
   }
 
   /////////// End External Filters Code //////////////

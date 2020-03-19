@@ -517,8 +517,6 @@ export class DividendsComponent implements OnInit, AfterViewInit {
     this.dividendDetailsGrid.api.showLoadingOverlay();
     this.corporateActionsApiService.getDividendDetails(executionDate, id).subscribe(response => {
 
-      debugger
-
       if(response.statusCode === 200){
         let dividendDetail = response.payload;
         this.dividendDetailsGrid.api.sizeColumnsToFit();
