@@ -233,46 +233,48 @@ namespace LP.FileProcessing
                     bool isValid = true;
                     foreach (var item in delimited)
                     {
+                        string value = item;
                         if (index == 0 && headerDictionary.Count > 0)
                         {
                             if (dictionaryIndex == recordOffset)
                             {
-                                totalRecords = Convert.ToInt32(item);
+                                totalRecords = Convert.ToInt32(value);
                             }
 
-                            AddProperty(obj, headerDictionary[dictionaryIndex].Destination, item);
+                            AddProperty(obj, headerDictionary[dictionaryIndex].Destination, value);
                         }
                         else if (totalRecords.HasValue && index == totalRecords - 1)
                         {
-                            AddProperty(obj, trailerDictionary[dictionaryIndex].Destination, item);
+                            AddProperty(obj, trailerDictionary[dictionaryIndex].Destination, value);
                         }
                         else
                         {
-                            if (!string.IsNullOrEmpty(item) && !string.IsNullOrEmpty(recordDictionary[dictionaryIndex].Type))
+                            if (!string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(recordDictionary[dictionaryIndex].Type))
                             {
                                 Type thisType = Type.GetType("LP.Shared.FileProcessingUtils,LP.Shared");
                                 MethodInfo theMethod = thisType.GetMethod("IsValidDataType");
                                 object[] parametersArray =
                                 {
-                                            item, recordDictionary[dictionaryIndex].Type
+                                            value, recordDictionary[dictionaryIndex].Type
                                         };
                                 var val = (Tuple<object, bool, string>)theMethod.Invoke(this, parametersArray);
+                                value = (string)val.Item1;
                                 isValid = val.Item2;
                                 message = val.Item3;
                             }
-                            else if (String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Type))
+
+                            if (String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Type))
                             {
                                 isValid = false;
                                 message = "Type not specified in meta data definition";
                             }
-                            else if (!string.IsNullOrEmpty(recordDictionary[dictionaryIndex].Required) && recordDictionary[dictionaryIndex].Required.Equals("true") && string.IsNullOrEmpty(item))
+                            else if (!string.IsNullOrEmpty(recordDictionary[dictionaryIndex].Required) && recordDictionary[dictionaryIndex].Required.Equals("true") && string.IsNullOrEmpty(value))
                             {
                                 isValid = false;
                                 message = "This is a required field";
                             }
                             
-                            else if (recordDictionary[dictionaryIndex].Function.Count > 0 &&
-                                     !String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Format))
+                            else if (recordDictionary[dictionaryIndex].Function.Count > 0)
                             {
                                 foreach (var func in recordDictionary[dictionaryIndex].Function)
                                 {
@@ -282,9 +284,10 @@ namespace LP.FileProcessing
                                         MethodInfo theMethod = thisType.GetMethod(func.Name);
                                         object[] parametersArray =
                                         {
-                                            item, recordDictionary[dictionaryIndex].Format, recordDictionary[dictionaryIndex].Type
+                                            value, recordDictionary[dictionaryIndex].Format, recordDictionary[dictionaryIndex].Type
                                         };
                                         var val = (Tuple<object, bool, string>)theMethod.Invoke(this, parametersArray);
+                                        value = (string)val.Item1;
                                         isValid = val.Item2;
                                         message = val.Item3;
                                     }
@@ -298,10 +301,20 @@ namespace LP.FileProcessing
                                         isValid = false;
                                         message = "Function name not specified";
                                     }
+
+                                    //continue execution of the next function only if the previous function returns true.
+                                    if (isValid)
+                                    {
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
                                 }
                             }
                           
-                            AddProperty(obj, recordDictionary[dictionaryIndex].Destination, item);
+                            AddProperty(obj, recordDictionary[dictionaryIndex].Destination, value);
                         }
 
                         if (!isValid)
@@ -312,7 +325,7 @@ namespace LP.FileProcessing
                             {
                                 Name = recordDictionary[dictionaryIndex].Destination,
                                 Message = message,
-                                Value = item,
+                                Value = value,
                                 MetaData = recordDictionary[dictionaryIndex]
                             };
                             failedRecords.Add(failedField);

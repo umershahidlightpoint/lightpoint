@@ -131,7 +131,7 @@ namespace LP.Shared
             return new Tuple<object, bool, string>(value, valid, exception);
         }
 
-        public static Tuple<object, bool, string> IsValidSymbol(object value, string format, string type)
+        public static Tuple<object, bool, string> IsValidSymbol(object value, string format = null, string type = null)
         {
             var symbolMap = AppStartCache.GetCachedData("symbol");
             var exception = "";
