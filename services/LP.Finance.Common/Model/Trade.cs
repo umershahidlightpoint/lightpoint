@@ -35,6 +35,7 @@ namespace LP.Finance.Common.Model
         public string TradeCurrency { get; set; }
         public double? TradePrice { get; set; }
         public DateTime? TradeDate { get; set; }
+        public DateTime? TradeTime { get; set; }
         public string SettleCurrency { get; set; }
         public double? SettlePrice { get; set; }
         public DateTime? SettleDate { get; set; }
@@ -84,6 +85,7 @@ namespace LP.Finance.Common.Model
             row["TradeCurrency"] = string.IsNullOrEmpty(this.TradeCurrency) ? DBNull.Value : (object)this.TradeCurrency;
             row["TradePrice"] = !this.TradePrice.HasValue ? DBNull.Value : (object)this.TradePrice;
             row["TradeDate"] = !this.TradeDate.HasValue ? DBNull.Value : (object)this.TradeDate;
+            row["TradeTime"] = !this.TradeTime.HasValue ? DBNull.Value : (object)this.TradeTime;
             row["SettleCurrency"] = string.IsNullOrEmpty(this.SettleCurrency) ? DBNull.Value : (object)this.SettleCurrency;
             row["SettlePrice"] = !this.SettlePrice.HasValue ? DBNull.Value : (object)this.SettlePrice;
             row["SettleDate"] = !this.SettleDate.HasValue ? DBNull.Value : (object)this.SettleDate;

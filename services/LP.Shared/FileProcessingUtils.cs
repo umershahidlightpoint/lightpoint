@@ -5,6 +5,13 @@ using LP.Shared.Cache;
 
 namespace LP.Shared
 {
+    public interface IElement
+    {
+        bool Find(object value);
+
+        int Id { get; }
+    }
+
     public class FileProcessingUtils
     {
         public static Tuple<object, bool, string> GetDate(object value, string format, string type)
@@ -132,8 +139,10 @@ namespace LP.Shared
             var symbolValue = (string)value;
             if (symbolMap.Item1)
             {
-                var symbol = (Dictionary<string, int>)symbolMap.Item2;
-                if (symbol.ContainsKey(symbolValue))
+                var symbol = (Dictionary<IElement, int>)symbolMap.Item2;
+                var find = symbol.Keys.Where(i => i.Find(symbolValue));
+
+                if (find.Count() > 0)
                 {
                     valid = true;
                     return new Tuple<object, bool, string>(value, valid, exception);
