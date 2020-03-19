@@ -2,7 +2,7 @@ import { Component, OnInit, AfterViewInit, ViewChild, TemplateRef } from '@angul
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { take } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
-import { GridLayoutMenuComponent } from 'lp-toolkit';
+import { GridLayoutMenuComponent } from '@lightpointfinancialtechnology/lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import * as moment from 'moment';
 import { TemplateRendererComponent } from 'src/app/template-renderer/template-renderer.component';

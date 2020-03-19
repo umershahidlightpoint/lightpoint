@@ -10,7 +10,7 @@ import { TabsModule, ModalModule, AlertModule, TooltipModule } from 'ngx-bootstr
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { ToastrModule } from 'ngx-toastr';
 import { NgcatalystModule } from 'ngcatalyst';
-import { LpToolkitModule } from 'lp-toolkit';
+import { LpToolkitModule } from '@lightpointfinancialtechnology/lp-toolkit';
 
 import { GridLayoutMenuComponent } from '../shared/Component/grid-layout-menu/grid-layout-menu.component';
 import { TemplateRendererComponent } from './template-renderer/template-renderer.component';

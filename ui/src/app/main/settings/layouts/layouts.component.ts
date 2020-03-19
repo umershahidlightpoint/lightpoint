@@ -2,7 +2,7 @@ import { Component, OnInit, AfterViewInit, TemplateRef, ViewChild } from '@angul
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { TemplateRendererComponent } from 'src/app/template-renderer/template-renderer.component';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
-import { GridLayoutMenuComponent } from 'lp-toolkit';
+import { GridLayoutMenuComponent } from '@lightpointfinancialtechnology/lp-toolkit';
 import { ToastrService } from 'ngx-toastr';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { SideBar, HeightStyle, AutoSizeAllColumns } from 'src/shared/utils/Shared';

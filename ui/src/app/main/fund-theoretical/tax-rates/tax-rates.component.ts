@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit, ViewChild, TemplateRef } from '@angular/core';
 import { TaxRateModalComponent } from './tax-rate-modal/tax-rate-modal.component';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
-import { GridLayoutMenuComponent } from 'lp-toolkit';
+import { GridLayoutMenuComponent } from '@lightpointfinancialtechnology/lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { HeightStyle, SideBar, AutoSizeAllColumns, DateFormatter } from 'src/shared/utils/Shared';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';

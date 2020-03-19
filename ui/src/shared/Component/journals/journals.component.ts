@@ -1,7 +1,7 @@
 import { Component, OnInit, OnChanges, Input, SimpleChanges } from '@angular/core';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
 import { Observable } from 'rxjs';
-import { GridLayoutMenuComponent } from 'lp-toolkit';
+import { GridLayoutMenuComponent } from '@lightpointfinancialtechnology/lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataService } from 'src/services/common/data.service';
 import { FinanceServiceProxy } from '../../../services/service-proxies';

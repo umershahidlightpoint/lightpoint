@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { GridOptions } from 'ag-grid-community';
-import { GridLayoutMenuComponent } from 'lp-toolkit';
+import { GridLayoutMenuComponent } from '@lightpointfinancialtechnology/lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataService } from 'src/services/common/data.service';
 import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
@@ -30,7 +30,7 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
     private securityApiService: SecurityApiService,
     private dataService: DataService,
     private agGridUtils: AgGridUtils,
-    private toasterService: ToastrService,
+    private toasterService: ToastrService
   ) {
     this.initGrid();
   }
@@ -106,29 +106,39 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
 
               this.securityApiService.getDataForSecurityModal(params.node.data.symbol).subscribe(
                 ([config, securityDetails]: [any, any]) => {
-
                   this.isLoading = false;
                   if (!config.isSuccessful) {
-                  this.toasterService.error('No security type found against the selected symbol!');
-                  return;
-                }
+                    this.toasterService.error(
+                      'No security type found against the selected symbol!'
+                    );
+                    return;
+                  }
                   if (securityDetails.payload.length === 0) {
-                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
-                    config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
-                } else {
-                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
-                    config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
-                }
-
+                    this.securityModal.openSecurityModalFromOutside(
+                      params.node.data.symbol,
+                      config.payload[0].SecurityType,
+                      config.payload[0].Fields,
+                      null,
+                      'extend'
+                    );
+                  } else {
+                    this.securityModal.openSecurityModalFromOutside(
+                      params.node.data.symbol,
+                      config.payload[0].SecurityType,
+                      config.payload[0].Fields,
+                      securityDetails.payload[0],
+                      'extend'
+                    );
+                  }
                 },
                 error => {
                   this.isLoading = false;
                 }
               );
-            },
+            }
           }
         ]
-      },
+      }
     ];
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(false, addDefaultItems, true, null, params);

@@ -3,7 +3,10 @@ import { GridOptions, RowDoubleClickedEvent } from 'ag-grid-community';
 import { timer, Subject } from 'rxjs';
 import { debounce, finalize } from 'rxjs/operators';
 import * as moment from 'moment';
-import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
+import {
+  GridLayoutMenuComponent,
+  CustomGridOptions
+} from '@lightpointfinancialtechnology/lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
@@ -565,20 +568,28 @@ export class DayPnlComponent implements OnInit, AfterViewInit {
 
               this.securityApiService.getDataForSecurityModal(params.node.data.Symbol).subscribe(
                 ([config, securityDetails]: [any, any]) => {
-
                   this.isLoading = false;
                   if (!config.isSuccessful) {
-                  this.toastrService.error('No security type found against the selected symbol!');
-                  return;
-                }
+                    this.toastrService.error('No security type found against the selected symbol!');
+                    return;
+                  }
                   if (securityDetails.payload.length === 0) {
-                  this.securityModal.openSecurityModalFromOutside(params.node.data.Symbol,
-                    config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
-                } else {
-                  this.securityModal.openSecurityModalFromOutside(params.node.data.Symbol,
-                    config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
-                }
-
+                    this.securityModal.openSecurityModalFromOutside(
+                      params.node.data.Symbol,
+                      config.payload[0].SecurityType,
+                      config.payload[0].Fields,
+                      null,
+                      'extend'
+                    );
+                  } else {
+                    this.securityModal.openSecurityModalFromOutside(
+                      params.node.data.Symbol,
+                      config.payload[0].SecurityType,
+                      config.payload[0].Fields,
+                      securityDetails.payload[0],
+                      'extend'
+                    );
+                  }
                 },
                 error => {
                   this.isLoading = false;

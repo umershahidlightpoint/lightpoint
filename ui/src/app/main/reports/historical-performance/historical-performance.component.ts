@@ -3,7 +3,7 @@ import { timer, Subject } from 'rxjs';
 import { debounce } from 'rxjs/operators';
 import * as moment from 'moment';
 import { ToastrService } from 'ngx-toastr';
-import { GridUtils } from 'lp-toolkit';
+import { GridUtils } from '@lightpointfinancialtechnology/lp-toolkit';
 import { DataService } from '../../../../services/common/data.service';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { ReportsApiService } from 'src/services/reports-api.service';
@@ -24,7 +24,10 @@ import {
   DateFormatter
 } from 'src/shared/utils/Shared';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
-import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
+import {
+  GridLayoutMenuComponent,
+  CustomGridOptions
+} from '@lightpointfinancialtechnology/lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
@@ -33,9 +36,8 @@ import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create
 @Component({
   selector: 'app-historical-performance',
   templateUrl: './historical-performance.component.html',
-  styleUrls: ['./historical-performance.component.scss'],
+  styleUrls: ['./historical-performance.component.scss']
 })
-
 export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('securityModal', { static: false }) securityModal: CreateSecurityComponent;
 
@@ -190,7 +192,7 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
         {
           field: 'Contributions',
           headerName: 'Contributions',
-          cellClass: 'rightAlign',
+          cellClass: 'rightAlign'
         },
         {
           field: 'DayPnlPer',
@@ -273,17 +275,15 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
   getReport(startDate, endDate) {
     this.isLoading = true;
     this.gridOptions.api.showLoadingOverlay();
-    this.reportsApiService
-      .getHistoricPerformanceReport(startDate, endDate)
-      .subscribe(response => {
-        this.reportData = response.payload;
+    this.reportsApiService.getHistoricPerformanceReport(startDate, endDate).subscribe(response => {
+      this.reportData = response.payload;
 
-        this.gridOptions.api.setRowData(this.reportData);
-        this.gridOptions.api.sizeColumnsToFit();
+      this.gridOptions.api.setRowData(this.reportData);
+      this.gridOptions.api.sizeColumnsToFit();
 
-        this.isLoading = false;
-        this.gridOptions.api.hideOverlay();
-      });
+      this.isLoading = false;
+      this.gridOptions.api.hideOverlay();
+    });
   }
 
   rowSelected(row) {}
@@ -342,20 +342,28 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
 
               this.securityApiService.getDataForSecurityModal(params.node.data.EzeTicker).subscribe(
                 ([config, securityDetails]: [any, any]) => {
-
                   this.isLoading = false;
                   if (!config.isSuccessful) {
-                  this.toastrService.error('No security type found against the selected symbol!');
-                  return;
-                }
+                    this.toastrService.error('No security type found against the selected symbol!');
+                    return;
+                  }
                   if (securityDetails.payload.length === 0) {
-                  this.securityModal.openSecurityModalFromOutside(params.node.data.EzeTicker,
-                    config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
-                } else {
-                  this.securityModal.openSecurityModalFromOutside(params.node.data.EzeTicker,
-                    config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
-                }
-
+                    this.securityModal.openSecurityModalFromOutside(
+                      params.node.data.EzeTicker,
+                      config.payload[0].SecurityType,
+                      config.payload[0].Fields,
+                      null,
+                      'extend'
+                    );
+                  } else {
+                    this.securityModal.openSecurityModalFromOutside(
+                      params.node.data.EzeTicker,
+                      config.payload[0].SecurityType,
+                      config.payload[0].Fields,
+                      securityDetails.payload[0],
+                      'extend'
+                    );
+                  }
                 },
                 error => {
                   this.isLoading = false;
@@ -455,7 +463,7 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
     this.downloadExcelUtils.ToastrMessage();
   }
 
-  ngOnDestroy() { }
+  ngOnDestroy() {}
 }
 
 function dateFormatter(params): string {
@@ -499,4 +507,3 @@ function absCurrencyFormatter(params) {
   }
   return CommaSeparatedFormat(Math.abs(params.value));
 }
-

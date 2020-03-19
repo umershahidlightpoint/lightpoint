@@ -33,7 +33,7 @@
     "core-js": "^3.4.1",
     "font-awesome": "^4.7.0",
     "intl": "^1.2.5",
-    "lp-toolkit": "git+https://github.com/LightPointFinancialTechnology/lpToolkit.git",
+    "@lightpointfinancialtechnology/lp-toolkit": "0.0.16",
     "moment": "^2.24.0",
     "ngcatalyst": "^1.0.12",
     "ngx-bootstrap": "^5.2.0",

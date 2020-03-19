@@ -1,9 +1,8 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { ViewChild } from '@angular/core';
-import { ModalComponent, ModalFooterConfig } from 'lp-toolkit';
+import { ModalComponent, ModalFooterConfig } from '@lightpointfinancialtechnology/lp-toolkit';
 import { FinanceServiceProxy } from './../../../services/service-proxies';
 import { catchError } from 'rxjs/operators';
-
 
 @Component({
   selector: 'app-exclude-trade',
@@ -11,17 +10,15 @@ import { catchError } from 'rxjs/operators';
   styleUrls: ['./exclude-trade.component.scss']
 })
 export class ExcludeTradeComponent implements OnInit {
-
   @ViewChild('lpModal', { static: false }) lpModal: ModalComponent;
   @Output() refreshData = new EventEmitter<any>();
 
-  constructor(private financeService: FinanceServiceProxy) { }
+  constructor(private financeService: FinanceServiceProxy) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
-  reason : string;
-  lpOrderId : string;
+  reason: string;
+  lpOrderId: string;
   public isSaveState = true;
   public footerConfig: ModalFooterConfig = {
     showConfirmButton: true,
@@ -39,64 +36,65 @@ export class ExcludeTradeComponent implements OnInit {
     deleteButtonIcon: 'fa-trash',
     deleteButtonDisabledState: false,
     deleteButtonLoadingState: false
-};
+  };
 
-onClose() {
-  this.resetForm();
-}
+  onClose() {
+    this.resetForm();
+  }
 
-onConfirm() {
+  onConfirm() {
     this.hideModal();
-}
+  }
 
-onCancel() {
-}
+  onCancel() {}
 
-onDelete() {
+  onDelete() {
     this.hideModal();
-}
+  }
 
-showModal(lpOrderId) {
+  showModal(lpOrderId) {
     this.lpOrderId = lpOrderId;
     this.lpModal.showModal();
-}
+  }
 
-hideModal() {
+  hideModal() {
     this.resetForm();
     this.lpModal.hideModal();
-}
-
-resetForm(){
-  this.lpOrderId = null;
-  this.reason = null;
-}
-
-excludeTrade(){
-  this.footerConfig = {
-    confirmButtonDisabledState: true,
-    confirmButtonLoadingState: true
-  };
-  let payload = {
-    LpOrderId : this.lpOrderId,
-    Reason: this.reason
   }
-  this.financeService.excludeTrade(payload).subscribe( resp => {
-    if(resp.statusCode === 200){
-      this.footerConfig = {
-        confirmButtonDisabledState: false,
-        confirmButtonLoadingState: false
-      };
-      this.refreshData.emit(true);
-      this.hideModal();
-    } else {
-      this.hideModal();
-    }
-  },err => {
-    this.footerConfig = {
-      confirmButtonDisabledState: false,
-      confirmButtonLoadingState: false
-    };
-  })
-}
 
+  resetForm() {
+    this.lpOrderId = null;
+    this.reason = null;
+  }
+
+  excludeTrade() {
+    this.footerConfig = {
+      confirmButtonDisabledState: true,
+      confirmButtonLoadingState: true
+    };
+    let payload = {
+      LpOrderId: this.lpOrderId,
+      Reason: this.reason
+    };
+    this.financeService.excludeTrade(payload).subscribe(
+      resp => {
+        if (resp.statusCode === 200) {
+          this.footerConfig = {
+            confirmButtonDisabledState: false,
+            confirmButtonLoadingState: false
+          };
+          this.refreshData.emit(true);
+          this.hideModal();
+        } else {
+          this.hideModal();
+        }
+      },
+      err => {
+        this.footerConfig = {
+          confirmButtonDisabledState: false,
+          confirmButtonLoadingState: false
+        };
+      }
+    );
+  }
 }

@@ -9,7 +9,7 @@ import {
 import { Router } from '@angular/router';
 import { GridOptions } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { GridLayoutMenuComponent } from 'lp-toolkit';
+import { GridLayoutMenuComponent } from '@lightpointfinancialtechnology/lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { TemplateRendererComponent } from '../../template-renderer/template-renderer.component';
 import { CreateAccountComponent } from './create-account/create-account.component';

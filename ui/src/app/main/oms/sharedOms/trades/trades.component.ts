@@ -8,7 +8,10 @@ import {
   EventEmitter
 } from '@angular/core';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
-import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
+import {
+  GridLayoutMenuComponent,
+  CustomGridOptions
+} from '@lightpointfinancialtechnology/lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataModalComponent } from '../../../../../shared/Component/data-modal/data-modal.component';
 import { CreateDividendComponent } from 'src/shared/Modal/create-dividend/create-dividend.component';
@@ -31,7 +34,7 @@ import {
   LegendColors
 } from 'src/shared/utils/Shared';
 import { ExcludeTradeComponent } from 'src/shared/Modal/exclude-trade/exclude-trade.component';
-import { ConfirmationModalComponent } from 'lp-toolkit';
+import { ConfirmationModalComponent } from '@lightpointfinancialtechnology/lp-toolkit';
 
 @Component({
   selector: 'app-trades',
@@ -386,7 +389,10 @@ export class TradesComponent implements OnInit, AfterViewInit {
     const cellSymbol = node.data.Symbol === null ? '' : node.data.Symbol;
     const tradeType = node.data.TradeType === null ? '' : node.data.TradeType;
     const excluded = node.data.exclude === null ? '' : node.data.exclude;
-    if (this.filterBySymbol !== '' && (this.filterByExcludedTrades || this.filterByUploadedTrades)) {
+    if (
+      this.filterBySymbol !== '' &&
+      (this.filterByExcludedTrades || this.filterByUploadedTrades)
+    ) {
       return (
         cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) &&
         (tradeType === 'manual' || excluded === 'Y')

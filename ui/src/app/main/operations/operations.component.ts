@@ -3,7 +3,7 @@ import { FormGroup, FormControl } from '@angular/forms';
 import { GridOptions } from 'ag-grid-community';
 import * as moment from 'moment';
 import { ToastrService } from 'ngx-toastr';
-import { GridLayoutMenuComponent } from 'lp-toolkit';
+import { GridLayoutMenuComponent } from '@lightpointfinancialtechnology/lp-toolkit';
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { SideBar, Style, AutoSizeAllColumns, HeightStyle } from 'src/shared/utils/Shared';

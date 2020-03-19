@@ -1,7 +1,7 @@
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { GridOptions, ColGroupDef, ColDef } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
-import { GridUtils } from 'lp-toolkit';
+import { GridUtils } from '@lightpointfinancialtechnology/lp-toolkit';
 /* Services/Components Imports */
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
 import { FinanceServiceProxy } from 'src/services/service-proxies';

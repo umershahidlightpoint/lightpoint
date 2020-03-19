@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
-import { ModalComponent, ModalFooterConfig } from 'lp-toolkit';
+import { ModalComponent, ModalFooterConfig } from '@lightpointfinancialtechnology/lp-toolkit';
 
 @Component({
   selector: 'app-confirmation-modal',

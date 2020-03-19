@@ -3,7 +3,7 @@ import { timer, Subject } from 'rxjs';
 import { debounce } from 'rxjs/operators';
 import * as moment from 'moment';
 import { ToastrService } from 'ngx-toastr';
-import { GridUtils } from 'lp-toolkit';
+import { GridUtils } from '@lightpointfinancialtechnology/lp-toolkit';
 import { DataService } from '../../../../services/common/data.service';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { ReportsApiService } from 'src/services/reports-api.service';
@@ -24,7 +24,10 @@ import {
   DateFormatter
 } from 'src/shared/utils/Shared';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
-import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
+import {
+  GridLayoutMenuComponent,
+  CustomGridOptions
+} from '@lightpointfinancialtechnology/lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
@@ -175,7 +178,7 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
           field: 'EzeTicker',
           headerName: 'Symbol',
           enableRowGroup: true,
-          rowGroup: true,
+          rowGroup: true
         },
         {
           field: 'ISIN',
@@ -270,8 +273,7 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
           aggFunc: 'sum',
           enableValue: true,
           valueFormatter: currencyFormatter
-        }
-        ,
+        },
         {
           field: 'unrealized_pnl_reporting',
           headerName: 'Unrealized PnL(Reporting)',
@@ -374,20 +376,28 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
 
               this.securityApiService.getDataForSecurityModal(params.node.data.EzeTicker).subscribe(
                 ([config, securityDetails]: [any, any]) => {
-
                   this.isLoading = false;
                   if (!config.isSuccessful) {
-                  this.toastrService.error('No security type found against the selected symbol!');
-                  return;
-                }
+                    this.toastrService.error('No security type found against the selected symbol!');
+                    return;
+                  }
                   if (securityDetails.payload.length === 0) {
-                  this.securityModal.openSecurityModalFromOutside(params.node.data.EzeTicker,
-                    config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
-                } else {
-                  this.securityModal.openSecurityModalFromOutside(params.node.data.EzeTicker,
-                    config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
-                }
-
+                    this.securityModal.openSecurityModalFromOutside(
+                      params.node.data.EzeTicker,
+                      config.payload[0].SecurityType,
+                      config.payload[0].Fields,
+                      null,
+                      'extend'
+                    );
+                  } else {
+                    this.securityModal.openSecurityModalFromOutside(
+                      params.node.data.EzeTicker,
+                      config.payload[0].SecurityType,
+                      config.payload[0].Fields,
+                      securityDetails.payload[0],
+                      'extend'
+                    );
+                  }
                 },
                 error => {
                   this.isLoading = false;

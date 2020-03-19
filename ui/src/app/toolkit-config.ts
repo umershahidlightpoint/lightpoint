@@ -1,4 +1,4 @@
-import { LPToolkitConfig } from 'lp-toolkit';
+import { LPToolkitConfig } from '@lightpointfinancialtechnology/lp-toolkit';
 
 export const toolkitConfig: LPToolkitConfig = {
   themes: [
