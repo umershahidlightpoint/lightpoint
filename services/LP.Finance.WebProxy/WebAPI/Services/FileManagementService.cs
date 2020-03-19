@@ -405,6 +405,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var currencyCache = AppStartCache.GetCachedData("currency");
                 Dictionary<string, int> symbols;
                 Dictionary<string, string> currency;
+                List<Trade> trades = new List<Trade>();
 
                 if (symbolCache.Item1)
                 {
@@ -430,7 +431,26 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var recordBody = _fileProcessor.ImportFile(path, "Trade", "ImportFormats", ',', true);
 
                 var records = JsonConvert.SerializeObject(recordBody.Item1);
-                var trades = JsonConvert.DeserializeObject<List<Trade>>(records);
+
+                try
+                {
+                    trades = JsonConvert.DeserializeObject<List<Trade>>(records);
+                }
+                catch (Exception ex)
+                {
+                    foreach (var item in recordBody.Item2)
+                    {
+                        var tradeElement = recordBody.Item1.ElementAt(item.RowNumber - 1);
+                        tradeElement.IsUploadInValid = true;
+                        tradeElement.UploadException = JsonConvert.SerializeObject(item);
+                    }
+                    var d = new
+                    {
+                        EnableCommit = false,
+                        Data = recordBody.Item1
+                    };
+                    return Shared.WebApi.Wrap(true, d, HttpStatusCode.OK);
+                }
 
                 foreach (var i in trades)
                 {
@@ -474,7 +494,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         DateTime.Now)
                 };
 
-                _fileManager.InsertActivityAndPositionFiles(fileList);
+                _fileManager.InsertFiles(fileList);
                 var data = new
                 {
                     EnableCommit = enableCommit,

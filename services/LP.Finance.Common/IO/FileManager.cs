@@ -34,7 +34,7 @@ namespace LP.Finance.Common.IO
             return records;
         }
 
-        public void InsertActivityAndPositionFiles(List<FileInputDto> files)
+        public void InsertFiles(List<FileInputDto> files)
         {
             SqlHelper sqlHelper = new SqlHelper(ConnectionString);
             try
