@@ -246,7 +246,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, p.ToArray());
                 foreach (DataRow dr in dataTable.Rows)
                 {
-                    securityType = (string)dr["SecurityType"];
+                    securityType = (object)dr["SecurityType"] == DBNull.Value ? "" : (string)dr["SecurityType"];
                 }
 
                 if (securityType == "")
