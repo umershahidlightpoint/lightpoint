@@ -1,15 +1,6 @@
 ﻿using LP.Finance.Common;
-using LP.Finance.Common.Models;
-using Newtonsoft.Json;
-using PostingEngine;
-using PostingEngine.MarketData;
 using System;
 using System.Configuration;
-using System.Data.SqlClient;
-using System.Diagnostics;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace PostingEngineCmd
 {
@@ -45,16 +36,36 @@ namespace PostingEngineCmd
             }
 
             var dbEngine = ConfigurationManager.ConnectionStrings["FinanceDB"];
-            Logger.Info($"Running Posting Engine for Period {period} and ValueDate {date.ToString("yyyy-MM-dd")}");
+            Logger.Info($"Running Posting Engine for Period {period} and ValueDate {date:yyyy-MM-dd}");
             Logger.Info($"Using Database {dbEngine}");
-            
 
-            new PostingEngineEx().RunForPeriod(date, period);
+
+            //new PostingEngineEx().RunForPeriod(date, period);
             //new PostingEngineEx().RunSettledCashBalances(date, period);
+
+            PostingEngine.PostingEngine.RunCalculation("HistoricPerformance", period, date, Guid.NewGuid(), LogProcess);
+
         }
 
-        
-     
+        internal static void LogProcess(string message, int totalRows, int rowsDone)
+        {
+            if (message.StartsWith("Processing"))
+            {
+                // Do nothing
+                return;
+            }
+            if (message.StartsWith("Completed"))
+            {
+                var completed = (rowsDone * 1.0 / (totalRows != 0 ? totalRows : 1)) * 100;
+
+                Logger.Info($"{message}, % Completed {completed}");
+                return;
+            }
+
+            Logger.Info($"{message}");
+        }
+
+
         static void SingleTrade()
         {
             var key = System.Guid.NewGuid();

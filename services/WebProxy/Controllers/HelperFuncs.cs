@@ -10,12 +10,12 @@ namespace WebProxy.Controllers
 {
     internal class HelperFuncs
     {
-        internal static Task Redirect(ControllerBase controller, string path)
+        internal static Task Redirect(ControllerBase controller, string path, string root)
         {
             var localPath = controller.Request.Path;
             var query = controller.Request.QueryString.ToString();
 
-            return controller.HttpProxyAsync($"http://sit01:9092/api/" + path + (!String.IsNullOrEmpty(query) ? query : ""));
+            return controller.HttpProxyAsync($"{root}{path}" + (!String.IsNullOrEmpty(query) ? query : ""));
         }
     }
 }

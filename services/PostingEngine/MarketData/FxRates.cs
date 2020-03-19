@@ -21,7 +21,7 @@ namespace PostingEngine.MarketData
 
         private static Dictionary<string, FxRate> _all { get; set; }
 
-        private static FxRate USD = new FxRate { Rate = 1.0 };
+        private static readonly FxRate USD = new FxRate { Rate = 1.0 };
 
         public static FxRate Find(PostingEngineEnvironment env, DateTime busDate, string currency)
         {

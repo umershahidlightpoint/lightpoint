@@ -4,26 +4,25 @@ if %ERRORLEVEL% NEQ 0 GOTO Failed
 
 cd services
 
-msbuild -t:clean Finance.sln
-msbuild -t:clean ReferenceData.sln
-msbuild -t:clean PostingEngine.sln
+msbuild -t:clean;restore Finance.sln
+msbuild -t:clean;restore ReferenceData.sln
+msbuild -t:clean;restore PostingEngine.sln
 
-msbuild -t:restore Finance.sln
-msbuild -t:restore ReferenceData.sln
-msbuild -t:restore PostingEngine.sln
+rem msbuild -t:restore Finance.sln
+rem msbuild -t:restore ReferenceData.sln
+rem msbuild -t:restore PostingEngine.sln
 
 msbuild Finance.sln
 msbuild ReferenceData.sln
 msbuild PostingEngine.sln
 
-cd ..\..\
+REM cd ..\..\container
 
-cd container
-msbuild -t:clean LightPointApp.sln
-msbuild -t:restore LightPointApp.sln
-msbuild LightPointApp.sln
+REM msbuild -t:clean LightPointApp.sln
+REM msbuild -t:restore LightPointApp.sln
+REM msbuild LightPointApp.sln
 
-cd ..\finance
+cd ..\
 
 IF exist distribution/nul ( rmdir /s /q distribution )
 mkdir distribution\APP\Services
@@ -32,9 +31,9 @@ mkdir distribution\XA\UI
 mkdir distribution\XA\Tools
 
 REM Container
-xcopy /q ..\container\LightpointApp\bin\Debug /s distribution\XA\UI
-rename distribution\XA\UI\LightPointApp.exe PortfolioAccounting.exe
-rename distribution\XA\UI\LightPointApp.exe.config PortfolioAccounting.exe.config
+REM xcopy /q ..\container\LightpointApp\bin\Debug /s distribution\XA\UI
+REM rename distribution\XA\UI\LightPointApp.exe PortfolioAccounting.exe
+REM rename distribution\XA\UI\LightPointApp.exe.config PortfolioAccounting.exe.config
 
 REM Services
 mkdir distribution\APP\services\LP.Finance.WebProxy

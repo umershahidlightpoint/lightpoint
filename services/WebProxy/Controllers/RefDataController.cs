@@ -16,7 +16,7 @@ namespace WebProxy.Controllers
         [Route("{*path}")]
         public Task GetWildcard(string path)
         {
-            return HelperFuncs.Redirect(this, path);
+            return HelperFuncs.Redirect(this, path, "http://localhost:9091/api/");
         }
 
     }
