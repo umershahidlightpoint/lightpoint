@@ -37,7 +37,7 @@
     <!-- Upload File Ends -->
 
     <!-- Commit File -->
-    <button class="btn btn-pa" type="button" [hidden]="fileType !== 'Trades'" [disabled]="commitLoader || disableCommit"
+    <button class="btn btn-pa" type="button" [hidden]="fileType !== 'Trades' || previewData.length === 0" [disabled]="commitLoader || disableCommit"
       (click)="onCommitData()">
       Commit
       <span *ngIf="commitLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>

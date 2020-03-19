@@ -740,5 +740,6 @@ export class FileUploadComponent implements OnInit {
     this.fileToUpload = null;
     this.fileInput.nativeElement.value = '';
     this.disableFileUpload = true;
+    this.disableCommit = true;
   }
 }
