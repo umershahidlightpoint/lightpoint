@@ -252,7 +252,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 if (securityType == "")
                 {
                     message = "Security Type not found against this symbol";
-                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.Forbidden);
+                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.Forbidden, message);
                 }
 
                 var schema = Shared.WebApi.GetFile<List<SecurityTypeFormConfig>>("security_details", "MockData");
