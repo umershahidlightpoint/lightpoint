@@ -445,7 +445,7 @@ export class CreateSecurityComponent implements OnInit {
         }
 
         if (!config.isSuccessful) {
-        this.toastrService.error('No security type found against the selected symbol!');
+          this.toastrService.error(config.message);
         return;
         }
 

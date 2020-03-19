@@ -137,12 +137,12 @@ namespace LP.Finance.WebProxy.WebAPI
             return controller.SymbolChangeAudit(id);
         }
 
-        //[HttpGet]
-        //[Route("symbolChangeDetails")]
-        //public object GetSymbolChangeDetails(int id)
-        //{
-        //    return controller.GetSymbolChangeDetails(id);
-        //}
+        [HttpGet]
+        [Route("symbolChangeDetails")]
+        public object GetSymbolChangeDetails(string symbol)
+        {
+            return controller.GetSymbolChangeDetails(symbol);
+        }
 
     }
 }
