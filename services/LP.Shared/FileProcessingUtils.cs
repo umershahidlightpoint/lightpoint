@@ -5,13 +5,6 @@ using LP.Shared.Cache;
 
 namespace LP.Shared
 {
-    public interface IElement
-    {
-        bool Find(object value);
-
-        int Id { get; }
-    }
-
     public class FileProcessingUtils
     {
         public static Tuple<object, bool, string> GetDate(object value, string format, string type)
@@ -129,66 +122,6 @@ namespace LP.Shared
             }
 
             return new Tuple<object, bool, string>(value, valid, exception);
-        }
-
-        public static Tuple<object, bool, string> IsValidSymbol(object value, string format = null, string type = null)
-        {
-            var symbolMap = AppStartCache.GetCachedData("symbol");
-            var exception = "";
-            var valid = true;
-            var symbolValue = (string)value;
-            if (symbolMap.Item1)
-            {
-                var symbol = (Dictionary<IElement, int>)symbolMap.Item2;
-                var find = symbol.Keys.Where(i => i.Find(symbolValue));
-
-                if (find.Count() > 0)
-                {
-                    valid = true;
-                    return new Tuple<object, bool, string>(value, valid, exception);
-                }
-                else
-                {
-                    valid = false;
-                    exception = "Invalid symbol";
-                    return new Tuple<object, bool, string>(value, valid, exception);
-                }
-            }
-            else
-            {
-                valid = false;
-                exception = "Data not found to validate symbol";
-                return new Tuple<object, bool, string>(value, valid, exception);
-            }
-        }
-
-        public static Tuple<object, bool, string> IsValidCurrency(object value, string format, string type)
-        {
-            var currencyMap = AppStartCache.GetCachedData("currency");
-            var exception = "";
-            var valid = true;
-            var currencyValue = (string)value;
-            if (currencyMap.Item1)
-            {
-                var currency = (Dictionary<string, string>)currencyMap.Item2;
-                if (currency.ContainsKey(currencyValue))
-                {
-                    valid = true;
-                    return new Tuple<object, bool, string>(value, valid, exception);
-                }
-                else
-                {
-                    valid = false;
-                    exception = "Invalid currency";
-                    return new Tuple<object, bool, string>(value, valid, exception);
-                }
-            }
-            else
-            {
-                valid = false;
-                exception = "Data not found to validate currency";
-                return new Tuple<object, bool, string>(value, valid, exception);
-            }
         }
 
         public static Tuple<object, bool, string> IsValidDataType(object value, string type)
