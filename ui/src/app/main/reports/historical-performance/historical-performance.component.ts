@@ -1,4 +1,12 @@
-import { Component, ViewChild, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { 
+    Component,
+    ViewChild,
+    OnInit, 
+    OnDestroy, 
+    AfterViewInit,   
+    ChangeDetectorRef
+} from '@angular/core';
+
 import { timer, Subject } from 'rxjs';
 import { debounce } from 'rxjs/operators';
 import * as moment from 'moment';
@@ -80,7 +88,8 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
     private financeService: FinanceServiceProxy,
     private reportsApiService: ReportsApiService,
     private securityApiService: SecurityApiService,
-    private downloadExcelUtils: DownloadExcelUtils
+    private downloadExcelUtils: DownloadExcelUtils,
+    private cdRef: ChangeDetectorRef,
   ) {
     this.hideGrid = false;
   }
@@ -276,13 +285,16 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
     this.reportsApiService
       .getHistoricPerformanceReport(startDate, endDate)
       .subscribe(response => {
-        this.reportData = response.payload;
 
-        this.gridOptions.api.setRowData(this.reportData);
-        this.gridOptions.api.sizeColumnsToFit();
+        this.reportData = response.payload;
 
         this.isLoading = false;
         this.gridOptions.api.hideOverlay();
+
+        this.gridOptions.api.setRowData(response.payload);
+        this.gridOptions.api.sizeColumnsToFit();
+
+        this.cdRef.detectChanges();
       });
   }
 
