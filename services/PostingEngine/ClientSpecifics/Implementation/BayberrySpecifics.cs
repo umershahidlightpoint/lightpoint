@@ -41,7 +41,7 @@ namespace PostingEngine.ClientSpecifics.Implementation
                     //"FORWARD",
                     //"Common Stock",
                     //"Equity Swap",
-                    "CROSS"
+                    //"CROSS"
                     //"Journals",
                     //"Cash"
                     };
@@ -51,7 +51,7 @@ namespace PostingEngine.ClientSpecifics.Implementation
                     //"TWE AU 05/30/19 P16.5",
                     //"NLFSK DC",
                     //"WTE CN",
-                    //"ALD FP",
+                    "ALD FP",
                     //"GNS LN",
                     //"CWK LN",
                     //"ROST",

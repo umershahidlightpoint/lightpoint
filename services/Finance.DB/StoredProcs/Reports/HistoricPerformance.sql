@@ -1,6 +1,13 @@
 ﻿/*
-select * from pnl_summary
-exec [HistoricPerformance] '2019-12-31', '2019-04-01'
+truncate table pnl_summary
+select busdate, count(*) from pnl_summary with(nolock)
+group by busDate
+order by busDate desc
+
+exec [HistoricPerformance] '2020-03-18', '2019-04-01'
+select * from pnl_summary where BusDate = '2020-03-18'
+
+select count(*) from current_journal_full
 */
 CREATE PROCEDURE [dbo].[HistoricPerformance]
 	@Now Date,
@@ -9,6 +16,8 @@ AS
 
 -- Make sure its updated
 Exec PeriodPnl @Now
+
+RAISERROR('Completed', 0,1) with nowait
 
 select [when], sum(coalesce(credit,0) - coalesce(debit,0)) as balance 
 into #contributed
@@ -47,7 +56,7 @@ select BusDate as AsOf,
 from pnl_summary with(nolock) 
 left outer join #contributed c on c.[when] = BusDate
 left outer join #withdraw w on w.[when] = BusDate
-where BusDate <= @Now
+where BusDate between @From and @Now
 group by BusDate
 order by BusDate desc
 

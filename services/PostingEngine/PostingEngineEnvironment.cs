@@ -76,7 +76,7 @@ namespace PostingEngine
             var fxRate = FxRates.Find(this, journal.When, journal.FxCurrency).Rate;
 
             // For only the following events we need to no set the local_value
-            if (journal.Event.Equals("settled-cash-fx"))
+            if (journal.Event.Equals("settled-cash-fx") || journal.Event.Equals("unrealized-fx-translation"))
             {
                 journal.JournalValue = new JournalValue(0, journal.Value);
             }

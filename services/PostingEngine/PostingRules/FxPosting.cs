@@ -278,6 +278,9 @@ namespace PostingEngine.PostingRules
 
                     from = m2mtranslation;
                     to = "change in unrealized do to fx translation";
+
+                    if (element.IsShort())
+                        fxCash *= -1;
                 }
 
                 // Get accounts
@@ -326,106 +329,6 @@ namespace PostingEngine.PostingRules
             env.Journals.AddRange(journals);
 
             return fxChange;
-        }
-
-        /// <summary>
-        /// Create Fx entries for unrealizedpnl entries
-        /// </summary>
-        /// <param name="env"></param>
-        /// <returns></returns>
-        [Obsolete]
-        internal void CreateFxUnsettled(PostingEngineEnvironment env)
-        {
-            var sql = $@"select credit, debit, symbol, quantity, fx_currency, fund, source, fxrate, security_id, side from vwWorkingJournals 
-                         where [event] = 'unrealizedpnl' 
-                         and AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'Change in Unrealized Derivatives Contracts at Fair Value')
-                         and fx_currency != '{env.BaseCurrency}'
-                         and [when] < '{env.ValueDate.ToString("MM-dd-yyyy")}'";
-
-            env.CallBack?.Invoke("FX for Mark to Market Calculation Started");
-
-            var connection = new SqlConnection(env.ConnectionString);
-            connection.Open();
-            var command = new SqlCommand(sql, connection)
-            {
-                Transaction = env.Transaction
-            };
-            var reader = command.ExecuteReader(System.Data.CommandBehavior.SingleResult);
-
-            while (reader.Read())
-            {
-                var unsettledPnl = new
-                {
-                    Credit = Convert.ToDouble(reader.GetFieldValue<decimal>(0)),
-                    Debit = Convert.ToDouble(reader.GetFieldValue<decimal>(1)),
-                    Symbol = reader.GetFieldValue<string>(2),
-                    Quantity = Convert.ToDouble(reader.GetFieldValue<decimal>(3)),
-                    Currency = reader.GetFieldValue<string>(4),
-                    Fund = reader.GetFieldValue<string>(5),
-                    Source = reader.GetFieldValue<string>(6),
-                    FxRate = Convert.ToDouble(reader.GetFieldValue<decimal>(7)),
-                    SecurityId = reader.GetFieldValue<int>(8),
-                    Side = reader.GetFieldValue<string>(9),
-                };
-
-                if (unsettledPnl.Currency.Equals(env.BaseCurrency))
-                    continue;
-
-                var prevRate = FxRates.Find(env, env.PreviousValueDate, unsettledPnl.Currency).Rate;
-                var eodRate = FxRates.Find(env, env.ValueDate, unsettledPnl.Currency).Rate;
-
-                var change = eodRate - prevRate;
-                var fxCashCredit = change * (unsettledPnl.Credit / unsettledPnl.FxRate);
-                var fxCashDebit = change * (unsettledPnl.Debit / unsettledPnl.FxRate);
-                var fxCash = fxCashCredit - fxCashDebit;
-
-                var m2mtranslation = "Mark to Market longs fx translation gain or loss";
-
-                if (unsettledPnl.Side.ToLowerInvariant().Equals("short") || unsettledPnl.Side.ToLowerInvariant().Equals("cover"))
-                    m2mtranslation = "Mark to Market shorts fx translation gain or loss";
-
-                // Get accounts
-                var fromTo = new AccountUtils().GetAccounts(env, m2mtranslation, "change in unrealized do to fx translation", new string[] { unsettledPnl.Currency }.ToList());
-
-                var debit = new Journal(fromTo.From, Event.UNREALIZED_FX_TRANSLATION, env.ValueDate)
-                {
-                    Source = unsettledPnl.Source,
-                    Fund = unsettledPnl.Fund,
-                    FxCurrency = unsettledPnl.Currency,
-                    Symbol = unsettledPnl.Symbol,
-                    SecurityId = unsettledPnl.SecurityId,
-                    Quantity = Convert.ToDouble(unsettledPnl.Quantity),
-
-                    FxRate = change,
-                    StartPrice = prevRate,
-                    EndPrice = eodRate,
-
-                    Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, true, fxCash),
-                    CreditDebit = env.DebitOrCredit(fromTo.From, fxCash),
-                };
-
-                var credit = new Journal(fromTo.To, Event.UNREALIZED_FX_TRANSLATION, env.ValueDate)
-                {
-                    Source = unsettledPnl.Source,
-                    Fund = unsettledPnl.Fund,
-                    FxCurrency = unsettledPnl.Currency,
-                    Symbol = unsettledPnl.Symbol,
-                    SecurityId = unsettledPnl.SecurityId,
-                    Quantity = Convert.ToDouble(unsettledPnl.Quantity),
-
-                    FxRate = change,
-                    StartPrice = prevRate,
-                    EndPrice = eodRate,
-
-                    Value = AccountCategory.SignedValue(fromTo.From, fromTo.To, false, fxCash),
-                    CreditDebit = env.DebitOrCredit(fromTo.To, fxCash),
-                };
-                env.Journals.AddRange(new List<Journal>(new[] { debit, credit }));
-
-
-            }
-
-            connection.Close();
         }
     }
 }
