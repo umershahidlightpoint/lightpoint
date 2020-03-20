@@ -5,7 +5,7 @@
     {
       "source": "Date",
       "destination": "BusinessDate",
-      "function": null,
+      "function": [],
       "format": "",
       "type": "date",
       "offset": 0,
@@ -14,7 +14,7 @@
     {
       "source": "Price",
       "destination": "Price",
-      "function": null,
+      "function": [],
       "format": "",
       "type": "char",
       "offset": 1,
@@ -23,7 +23,7 @@
     {
       "source": "CCY",
       "destination": "Currency",
-      "function": null,
+      "function": [],
       "format": "",
       "type": "decimal",
       "offset": 2,
