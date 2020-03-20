@@ -44,11 +44,11 @@
   
       <!-- Expand/Collapse Button -->
       <div class="mr-3 d-inline-block">
-        <ng-template #tooltipTemplate>{{stockSplitConfig.detailsView ? 'Expand' : 'Collapse'}}</ng-template>
-        <button (click)="stockSplitConfig.detailsView = !stockSplitConfig.detailsView" class="btn btn-pa"
+        <ng-template #tooltipTemplate>{{symbolChangeConfig.detailsView ? 'Expand' : 'Collapse'}}</ng-template>
+        <button (click)="symbolChangeConfig.detailsView = !symbolChangeConfig.detailsView" class="btn btn-pa"
           [tooltip]="tooltipTemplate" placement="top">
           <i class="fa"
-            [ngClass]="{'fa-arrow-down': stockSplitConfig.detailsView, 'fa-arrow-up': !stockSplitConfig.detailsView}"></i>
+            [ngClass]="{'fa-arrow-down': symbolChangeConfig.detailsView, 'fa-arrow-up': !symbolChangeConfig.detailsView}"></i>
         </button>
       </div>
   
@@ -61,27 +61,27 @@
   <div class="split-area row h-100" style="margin-top: 20px;">
   
     <!-- AS Split Main Container -->
-    <as-split class="pl-15 pr-15" disabled="false" direction="vertical" [useTransition]="stockSplitConfig.useTransition"
+    <as-split class="pl-15 pr-15" disabled="false" direction="vertical" [useTransition]="symbolChangeConfig.useTransition"
       (dragEnd)="applyPageLayout($event)" (transitionEnd)="applyPageLayout($event)">
   
       <!-- Cost Basis Split Area -->
-      <as-split-area [visible]="stockSplitConfig.stockSplitView" [size]="stockSplitConfig.stockSplitSize" order="1">
+      <as-split-area [visible]="symbolChangeConfig.symbolChangeView" [size]="symbolChangeConfig.symbolChangeSize" order="1">
   
   
         <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions"
-          (rowSelected)="onRowSelected($event)" [rowData]="rowData">
+          (rowSelected)="onRowSelected($event)">
         </ag-grid-angular>
   
       </as-split-area>
   
       <!-- Charts Split Area -->
-      <as-split-area [visible]="stockSplitConfig.detailsView" [size]="stockSplitConfig.detailsSize" order="2">
+      <as-split-area [visible]="symbolChangeConfig.detailsView" [size]="symbolChangeConfig.detailsSize" order="2">
         <div class="w-100 h-100 mt-3 tabset-wrapper grid-height">
           <tabset class="w-100 height-45 mt-3">
             <tab class="h-100" heading="Details" (selectTab)="activeStockSplits()">
-              <!-- <ag-grid-angular class="w-100 h-100 ag-theme-balham" style="margin-top: 20px;"
-                [gridOptions]="stockSplitDetailsGrid" (rowSelected)="onRowSelected($event)" [rowData]="rowData">
-              </ag-grid-angular> -->
+              <ag-grid-angular class="w-100 h-100 ag-theme-balham" style="margin-top: 20px;"
+                [gridOptions]="changeSymbolDetailsGrid" (rowSelected)="onRowSelected($event)" [rowData]="rowData">
+              </ag-grid-angular>
             </tab>
   
             <!-- <tab heading="Preview">

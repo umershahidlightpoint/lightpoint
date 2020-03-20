@@ -1,6 +1,7 @@
 ﻿using LP.Finance.Common;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Model;
+using LP.Shared.FileMetaData;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -628,6 +629,35 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var json = JsonConvert.DeserializeObject(jsonResult);
 
                 return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "Symbol audit trail fetched successfully");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public object GetSymbolChangeDetails(string symbol)
+        {
+            try
+            {
+                List<SqlParameter> symbolChangeAuditParams = new List<SqlParameter>
+                {
+                    new SqlParameter("symbol", symbol)
+                };
+
+                var query = $@"select * from vwCurrentStateTrades where Symbol = @symbol";
+
+                var dataTable = SqlHelper.GetDataTable(query, CommandType.Text, symbolChangeAuditParams.ToArray());
+
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+
+                MetaData metaData = null;
+
+                metaData = MetaData.ToMetaData(dataTable);
+
+                dynamic json = JsonConvert.DeserializeObject(jsonResult);
+
+                return LP.Shared.WebApi.GridWrap(json, metaData, HttpStatusCode.OK, "Symbol trades fetched successfully");
             }
             catch (Exception ex)
             {
