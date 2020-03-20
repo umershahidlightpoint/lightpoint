@@ -4,7 +4,7 @@
     <!-- Date Picker -->
     <div class="col-auto">
         <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date" [singleDatePicker]="true"
-            [autoApply]="true" [(ngModel)]="selectedDate" (ngModelChange)="onDateChange($event)" />
+            [autoApply]="true" [maxDate]="maxDate" [(ngModel)]="selectedDate" (ngModelChange)="onDateChange($event)" />
     </div>
     <!-- Date Picker Ends -->
 
@@ -25,7 +25,7 @@
 <!-- Grid Actions Row Ends -->
 
 <!-- Options Grids Container -->
-<div [ngStyle]="styleForHeight">
+<div [ngStyle]="styleForHeight" class="mt-2">
 
     <!-- Buys to Open Title -->
     <div class="row mx-0 mb-2">

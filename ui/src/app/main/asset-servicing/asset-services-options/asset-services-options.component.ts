@@ -1,9 +1,14 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
+import { ToastrService } from 'ngx-toastr';
 import * as moment from 'moment';
-import { GridLayoutMenuComponent } from 'lp-toolkit';
+import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
+import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { ReportsApiService } from 'src/services/reports-api.service';
 import { AssetServicesService } from 'src/services/asset-services.service';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { ContextMenu } from 'src/shared/Models/common';
 import {
   HeightStyle,
   SideBar,
@@ -12,7 +17,6 @@ import {
   moneyFormatter,
   dateFormatter
 } from 'src/shared/utils/Shared';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
 
 @Component({
   selector: 'app-asset-services-options',
@@ -22,26 +26,32 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
 export class AssetServicesOptionsComponent implements OnInit {
   @ViewChild('dataGridModal', { static: false }) dataGridModal: DataGridModalComponent;
 
-  buysOpenGridOptions: GridOptions;
+  buysOpenGridOptions: CustomGridOptions;
   sellsOpenGridOptions: GridOptions;
 
-  selectedDate: { startDate: moment.Moment; endDate: moment.Moment } = {
-    startDate: moment('2020-03-14'),
-    endDate: moment('2020-03-14')
-  };
+  selectedDate: { startDate: moment.Moment; endDate: moment.Moment };
+  maxDate: moment.Moment;
 
-  styleForHeight = HeightStyle(260);
+  styleForHeight = HeightStyle(270);
 
-  constructor(private assetServicesService: AssetServicesService) {}
+  constructor(
+    private toastrService: ToastrService,
+    private reportsApiService: ReportsApiService,
+    private assetServicesService: AssetServicesService
+  ) {}
 
   ngOnInit() {
+    this.maxDate = moment();
     this.initGrid();
-    this.getOptions();
+    this.getLatestJournalDate();
   }
 
   initGrid() {
     this.buysOpenGridOptions = {
-      rowData: [],
+      /* Custom Method Binding for External Filters from Grid Layout Component */
+      getExternalFilterState: this.getExternalFilterState.bind(this),
+      clearExternalFilter: this.clearExternalFilter.bind(this),
+      setExternalFilter: this.setExternalFilter.bind(this),
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       animateRows: true,
       enableFilter: true,
@@ -49,6 +59,7 @@ export class AssetServicesOptionsComponent implements OnInit {
       suppressHorizontalScroll: false,
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
+      getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
         this.buysOpenGridOptions.excelStyles = ExcelStyle;
       },
@@ -67,7 +78,6 @@ export class AssetServicesOptionsComponent implements OnInit {
     );
 
     this.sellsOpenGridOptions = {
-      rowData: [],
       frameworkComponents: { customToolPanel: GridLayoutMenuComponent },
       animateRows: true,
       enableFilter: true,
@@ -75,6 +85,7 @@ export class AssetServicesOptionsComponent implements OnInit {
       suppressHorizontalScroll: false,
       rowSelection: 'single',
       rowGroupPanelShow: 'after',
+      getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
         this.sellsOpenGridOptions.excelStyles = ExcelStyle;
       },
@@ -232,22 +243,91 @@ export class AssetServicesOptionsComponent implements OnInit {
     ];
   }
 
+  getExternalFilterState() {
+    return {
+      dateFilter: {
+        startDate: !this.selectedDate.startDate ? this.selectedDate.startDate : '',
+        endDate: !this.selectedDate.endDate ? this.selectedDate.endDate : ''
+      }
+    };
+  }
+
+  setExternalFilter(object) {
+    const { dateFilter } = object;
+    this.selectedDate = {
+      startDate: moment(dateFilter.startDate, 'YYYY-MM-DD'),
+      endDate: moment(dateFilter.startDate, 'YYYY-MM-DD')
+    };
+  }
+
+  clearExternalFilter() {}
+
+  getContextMenuItems(params): Array<ContextMenu> {
+    const defaultItems = [
+      {
+        name: 'Exercise',
+        action: () => {}
+      },
+      {
+        name: 'Assign',
+        action: () => {}
+      },
+      {
+        name: 'Expire',
+        action: () => {}
+      }
+    ];
+
+    return GetContextMenu(false, defaultItems, true, null, params);
+  }
+
+  getLatestJournalDate() {
+    this.reportsApiService.getLatestJournalDate().subscribe(
+      response => {
+        if (response.isSuccessful && response.statusCode === 200) {
+          this.selectedDate = {
+            startDate: moment(response.payload[0].when, 'YYYY-MM-DD'),
+            endDate: moment(response.payload[0].when, 'YYYY-MM-DD')
+          };
+        }
+      },
+      error => {
+        this.toastrService.error(
+          `The server is not responding, Please check your internet connection or contact support.`
+        );
+      }
+    );
+  }
+
   getOptions(): void {
+    if (this.buysOpenGridOptions && this.sellsOpenGridOptions) {
+      this.buysOpenGridOptions.api.showLoadingOverlay();
+      this.sellsOpenGridOptions.api.showLoadingOverlay();
+    }
     this.assetServicesService
       .getOptions(moment(this.selectedDate.startDate).format('YYYY-MM-DD'))
       .subscribe(
         response => {
-          this.buysOpenGridOptions.api.setRowData(response.payload[0]);
-
-          this.sellsOpenGridOptions.api.setRowData(response.payload[1]);
+          const [buysOpen, sellsOpen] = response.payload;
+          this.buysOpenGridOptions.api.setRowData(buysOpen);
+          this.sellsOpenGridOptions.api.setRowData(sellsOpen);
         },
-        error => {}
+        error => {
+          this.buysOpenGridOptions.api.hideOverlay();
+          this.sellsOpenGridOptions.api.hideOverlay();
+        }
       );
   }
 
+  onDateChange(selectedDate) {
+    if (!selectedDate.startDate) {
+      return;
+    }
+
+    this.getOptions();
+  }
+
   onRefreshOptions(): void {
-    this.buysOpenGridOptions.api.showLoadingOverlay();
-    this.sellsOpenGridOptions.api.showLoadingOverlay();
     this.getOptions();
   }
 }
