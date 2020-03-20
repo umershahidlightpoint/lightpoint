@@ -6,11 +6,11 @@ CREATE PROCEDURE [dbo].[PnlToDate]
 	@From Date
 AS
 
-select security_id, AccountType, SecurityType, Symbol, Fund, SUM(credit-debit) as GG 
+select security_id, AccountType, coalesce(SecurityType, 'Journals') as SecurityType, Symbol, Fund, SUM(credit-debit) as GG 
 into #tempdata
 from current_journal_full
 where [when] >= @From and [when] <= @Now
-group by AccountType, security_id, SecurityType, Symbol, Fund
+group by AccountType, security_id, coalesce(SecurityType, 'Journals'), Symbol, Fund
 
 -- Get the Base data we need
 select business_date as BusDate, SecurityCode as SecurityCode, SecurityId, Fund, st.SecurityTypeCode as SecurityType, pos.currency, 
@@ -21,6 +21,14 @@ from fnPositions(@Now) pos
 inner join SecurityMaster..Security s on s.SecurityId = pos.security_id
 inner join SecurityMaster..SecurityType st on st.SecurityTypeId = s.SecurityTypeId
 group by business_date, SecurityCode, SecurityId, Fund, st.SecurityTypeCode, pos.currency
+
+insert into #results
+select @Now as BusDate, Symbol, security_id, Fund, 'Journals', '', 
+0 as quantity,
+0 as realizedPnl, 0 as unrealizedPnl, 0 as Pnl, 0 as Nav
+from #tempdata
+where Symbol like 'ZZ_%' or Symbol like '@CASH%'
+group by Symbol, security_id, Fund
 
 -- 'fx gain or loss on unsettled balance'
 update #results

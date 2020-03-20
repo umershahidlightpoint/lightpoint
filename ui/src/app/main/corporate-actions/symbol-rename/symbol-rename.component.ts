@@ -286,7 +286,6 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
       rowSelection: 'multiple',
       rowGroupPanelShow: 'after',
       suppressColumnVirtualisation: true,
-      getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
         this.changeSymbolDetailsGrid.excelStyles = ExcelStyle;
       },

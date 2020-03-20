@@ -1,4 +1,5 @@
 ﻿using LP.Finance.Common;
+using PostingEngine;
 using System;
 using System.Configuration;
 
@@ -39,11 +40,11 @@ namespace PostingEngineCmd
             Logger.Info($"Running Posting Engine for Period {period} and ValueDate {date:yyyy-MM-dd}");
             Logger.Info($"Using Database {dbEngine}");
 
+            new PostingEngineEx().RunForPeriod(date, period);
 
-            //new PostingEngineEx().RunForPeriod(date, period);
             //new PostingEngineEx().RunSettledCashBalances(date, period);
 
-            PostingEngine.PostingEngine.RunCalculation("HistoricPerformance", period, date, Guid.NewGuid(), LogProcess);
+            //PostingEngine.PostingEngine.RunCalculation("HistoricPerformance", period, date, Guid.NewGuid(), LogProcess);
 
         }
 

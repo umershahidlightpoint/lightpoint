@@ -472,7 +472,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         i.TradeTime = i.TradeDate;
                     }
 
-                    var found = symbols.Keys.Where(item => item.Find(i.SecurityCode));
+                    var found = symbols.Keys.Where(item => item.Find(i.Symbol));
 
                     if (found.Count() > 0)
                     {
