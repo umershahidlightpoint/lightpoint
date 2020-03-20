@@ -16,8 +16,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 {
     public class SecurityService : ISecurityService
     {
-        private static readonly string
-          connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+        private static readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
         public SqlHelper sqlHelper = new SqlHelper(connectionString);
 
@@ -55,6 +54,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("createdBy", createdBy),
                     new SqlParameter("createdDate", createdDate),
                     new SqlParameter("symbol", details.Symbol),
+                    new SqlParameter("securityType", details.SecurityType),
                     new SqlParameter("securityId", id.Value),
                     new SqlParameter("maturityDate", details.MaturityDate.HasValue ? (object)details.MaturityDate : DBNull.Value),
                     new SqlParameter("valuationDate", details.ValuationDate.HasValue ? (object)details.ValuationDate: DBNull.Value),
@@ -82,6 +82,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var securityDetailsQuery = $@"INSERT INTO [security_details]
                             ([security_id]
                            ,[symbol]
+                           ,[security_type]
                            ,[created_by]
                            ,[created_date]
                            ,[maturity_date]
@@ -108,6 +109,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                      VALUES
                            (@securityId
                            ,@symbol
+                           ,@securityType
                            ,@createdBy
                            ,@createdDate
                            ,@maturityDate
@@ -164,6 +166,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("lastUpdatedBy", lastUpdatedBy),
                     new SqlParameter("lastUpdatedDate", lastUpdatedDate),
                     new SqlParameter("symbol", details.Symbol),
+                    new SqlParameter("securityType", details.SecurityType),
                     new SqlParameter("maturityDate", details.MaturityDate.HasValue ? (object)details.MaturityDate : DBNull.Value),
                     new SqlParameter("valuationDate", details.ValuationDate.HasValue ? (object)details.ValuationDate: DBNull.Value),
                     new SqlParameter("spread", details.Spread.HasValue ? (object)details.Spread : DBNull.Value),
@@ -191,6 +194,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                            SET [last_updated_by] = @lastUpdatedBy
                               ,[last_updated_date] = @lastUpdatedDate
                               ,[symbol] = @symbol
+                              ,[security_type] = @securityType
                               ,[maturity_date] = @maturityDate
                               ,[valuation_date] = @valuationDate
                               ,[spread] = @spread
@@ -260,6 +264,44 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var results = schema.Where(o => o.SecurityType == securityType);
 
                 return Shared.WebApi.Wrap(true, results, HttpStatusCode.OK, "Security Details fetched successfully");
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public object GetAllConfig(string securityType)
+        {
+            try
+            {
+
+                //string securityType = "";
+                //string message;
+                //var query = $"select top 1 SecurityType from current_trade_state where symbol = @symbol";
+                //List<SqlParameter> p = new List<SqlParameter>
+                //{
+                //   new SqlParameter("symbol", symbol)
+                //};
+
+                //var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, p.ToArray());
+                //foreach (DataRow dr in dataTable.Rows)
+                //{
+                //    securityType = (object)dr["SecurityType"] == DBNull.Value ? "" : (string)dr["SecurityType"];
+                //}
+
+                //if (securityType == "")
+                //{
+                //    message = "Security Type not found against this symbol";
+                //    return Shared.WebApi.Wrap(false, null, HttpStatusCode.Forbidden, message);
+                //}
+
+                var schema = Shared.WebApi.GetFile<List<SecurityTypeFormConfig>>("security_details", "MockData");
+
+                var results = schema.Where(o => o.SecurityType == securityType);
+
+                return Shared.WebApi.Wrap(true, results, HttpStatusCode.OK, "Security type fetched successfully");
 
             }
             catch (Exception ex)
@@ -349,6 +391,28 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
                     "An error occured while fetching security detail");
+            }
+        }
+
+        public object GetSecurityType()
+        {
+            try
+            {
+                var query = $@"select distinct SecurityTypeCode from [SecurityMaster]..SecurityType";
+                // select distinct SecurityType from current_trade_state
+                //var query = $@"select distinct SecurityType from current_trade_state";
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
+
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+
+                var json = JsonConvert.DeserializeObject(jsonResult);
+
+                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "Security type fetched successfully");
+            }
+            catch (Exception ex)
+            {
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    "An error occured while fetching securities");
             }
         }
 
