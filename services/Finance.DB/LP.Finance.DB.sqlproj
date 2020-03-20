@@ -179,6 +179,7 @@
     <Build Include="Tables\symbol_change_audit.sql" />
     <Build Include="Triggers\symbol_change_insert_trigger.sql" />
     <Build Include="Triggers\symbol_change_update_trigger.sql" />
+    <Build Include="StoredProcs\AssetServicesOptions.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">
