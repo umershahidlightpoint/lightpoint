@@ -107,7 +107,7 @@ namespace PostingEngine
 
             // Driven by calculation
 
-            if (calculation.Equals("CostBasisAndDayPnl"))
+            if (calculation.ToLowerInvariant().Equals("CostBasisAndDayPnl".ToLowerInvariant()))
             {
                 var taskList = new List<Task<bool>>();
 
@@ -116,7 +116,7 @@ namespace PostingEngine
 
                 Task.WaitAll(taskList.ToArray());
             }
-            else if (calculation.Equals("PullFromBookmon"))
+            else if (calculation.ToLowerInvariant().Equals("PullFromBookmon".ToLowerInvariant()))
             {
                 Logger.Info("Pulling Data from Legacy System");
 
@@ -124,7 +124,7 @@ namespace PostingEngine
                 var result = PostingTasks.RunTask(env, calc);
                 result.Wait();
             }
-            else if ( calculation.Equals("ExpencesAndRevenues"))
+            else if (calculation.ToLowerInvariant().Equals("ExpencesAndRevenues".ToLowerInvariant()))
             {
                 var taskList = new List<Task<bool>>();
 
@@ -141,12 +141,12 @@ namespace PostingEngine
 
                 Task.WaitAll(taskList.ToArray());
             }
-            else if (calculation.Equals("CacheData"))
+            else if (calculation.ToLowerInvariant().Equals("CacheData".ToLowerInvariant()))
             {
                 Logger.Info("CachingData");
                 CacheData();
             }
-            else if (calculation.Equals("EndOfYear"))
+            else if (calculation.ToLowerInvariant().Equals("EndOfYear".ToLowerInvariant()) )
             {
                 var calc = PostingTasks.Get("endofyear");
                 env.ValueDate = new DateTime(2020, 1, 1);
@@ -154,7 +154,7 @@ namespace PostingEngine
                 var result = PostingTasks.RunTask(env, calc);
                 result.Wait();
             }
-            else if (calculation.Equals("HistoricPerformance"))
+            else if (calculation.ToLowerInvariant().Equals("HistoricPerformance".ToLowerInvariant()))
             {
                 var calc = PostingTasks.Get("HistoricPerformance");
                 var result = PostingTasks.RunTask(env, calc);
