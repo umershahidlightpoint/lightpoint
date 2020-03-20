@@ -165,7 +165,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         DateTime.Now)
                 };
 
-                _fileManager.InsertActivityAndPositionFiles(fileList);
+                _fileManager.InsertFiles(fileList);
 
                 foreach (var i in fxRates)
                 {

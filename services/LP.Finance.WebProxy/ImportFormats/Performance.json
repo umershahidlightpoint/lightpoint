@@ -5,7 +5,7 @@
     {
       "source": "PerformanceDate",
       "destination": "PerformanceDate",
-      "function": null,
+      "function": [],
       "format": "",
       "type": "date",
       "offset": 0,
@@ -14,7 +14,7 @@
     {
       "source": "Fund",
       "destination": "Fund",
-      "function": null,
+      "function": [],
       "format": "",
       "type": "char",
       "offset": 1,
@@ -23,7 +23,7 @@
     {
       "source": "Portfolio",
       "destination": "Portfolio",
-      "function": null,
+      "function": [],
       "format": "",
       "type": "char",
       "offset": 2,
@@ -32,7 +32,7 @@
     {
       "source": "StartOfMonthEstimateNav",
       "destination": "StartOfMonthEstimateNav",
-      "function": null,
+      "function": [],
       "format": "",
       "type": "decimal",
       "offset": 3,
@@ -41,7 +41,7 @@
     {
       "source": "Performance",
       "destination": "Performance",
-      "function": null,
+      "function": [],
       "format": "",
       "type": "decimal",
       "offset": 4,
@@ -50,7 +50,7 @@
     {
       "source": "MonthEndNav",
       "destination": "MonthEndNav",
-      "function": null,
+      "function": [],
       "format": "",
       "type": "decimal",
       "offset": 5,
@@ -59,7 +59,7 @@
     {
       "source": "MTD",
       "destination": "MTD",
-      "function": null,
+      "function": [],
       "format": "",
       "type": "decimal",
       "offset": 6,
