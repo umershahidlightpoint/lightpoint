@@ -1,0 +1,70 @@
+<!-- Grid Actions Row -->
+<div class="row">
+
+    <!-- Date Picker -->
+    <div class="col-auto">
+        <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date" [singleDatePicker]="true"
+            [autoApply]="true" [(ngModel)]="selectedDate" (ngModelChange)="onDateChange($event)" />
+    </div>
+    <!-- Date Picker Ends -->
+
+    <!-- Grid Util Column -->
+    <div class="col-auto ml-auto mr-2">
+
+        <!-- Refresh Grid Button -->
+        <div class="d-inline-block mr-2">
+            <button class="btn btn-pa" tooltip="Refresh" placement="top" (click)="onRefreshOptions()">
+                <i class="fa fa-refresh"></i></button>
+        </div>
+        <!-- Refresh Grid Button Ends -->
+
+    </div>
+    <!-- Grid Util Column Ends -->
+
+</div>
+<!-- Grid Actions Row Ends -->
+
+<!-- Options Grids Container -->
+<div [ngStyle]="styleForHeight">
+
+    <!-- Buys to Open Title -->
+    <div class="row mx-0 mb-2">
+        <div class="font-weight-bold">Buys to Open</div>
+    </div>
+    <!-- Buys to Open Title Ends -->
+
+    <!-- Buys to Open Row -->
+    <div class="row h-50 mx-0">
+
+        <!-- Buys to Open Grid -->
+        <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="buysOpenGridOptions">
+        </ag-grid-angular>
+        <!-- Buys to Open Grid Ends -->
+
+    </div>
+    <!-- Buys to Open Row Ends -->
+
+    <!-- Sells to Open Title -->
+    <div class="row mx-0 mb-2">
+        <div class="font-weight-bold">Sells to Open</div>
+    </div>
+    <!-- Sells to Open Title Ends -->
+
+    <!-- Sells to Open Row -->
+    <div class="row h-50 mx-0">
+
+        <!-- Sells to Open Grid -->
+        <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="sellsOpenGridOptions">
+        </ag-grid-angular>
+        <!-- Sells to Open Grid Ends -->
+
+    </div>
+    <!-- Sells to Open Row Ends -->
+
+</div>
+<!-- Options Grids Container Ends -->
+
+<!-- Data Grid Modal Starts -->
+<app-data-grid-modal #dataGridModal [gridTitle]="''">
+</app-data-grid-modal>
+<!-- Data Grid Modal Ends -->

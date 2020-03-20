@@ -47,7 +47,9 @@ export enum GridId {
   fundAdminReconcileId,
   allocationsId,
   positionMarketValueAppraisalId,
-  detailPnlDateId
+  detailPnlDateId,
+  buysOpenOptionsId,
+  sellsOpenOptionsId
 }
 
 export enum GridName {
@@ -85,5 +87,7 @@ export enum GridName {
   fundAdminReconcile = 'FundAdmin Reconcile',
   allocations = 'Allocations',
   positionMarketValueAppraisal = 'Position Market Value Appraisal',
-  detailPnlDate = 'Detail PnL To Date'
+  detailPnlDate = 'Detail PnL To Date',
+  buysOpenOptions = 'Buys to Open Options',
+  sellsOpenOptions = 'Sells to Open Options'
 }
