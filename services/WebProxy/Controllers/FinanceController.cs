@@ -32,7 +32,7 @@ namespace WebProxy.Controllers
             var localPath = Request.Path;
             var query = Request.QueryString.ToString();
 
-            return null;
+            return HelperFuncs.Redirect(this, path, "http://localhost:9092/api/");
         }
 
         [HttpDelete]
@@ -42,8 +42,7 @@ namespace WebProxy.Controllers
             var localPath = Request.Path;
             var query = Request.QueryString.ToString();
 
-            return null;
-
+            return HelperFuncs.Redirect(this, path, "http://localhost:9092/api/");
         }
 
         [HttpPost]
@@ -63,8 +62,7 @@ namespace WebProxy.Controllers
             var localPath = Request.Path;
             var query = Request.QueryString.ToString();
 
-            return null;
-
+            return HelperFuncs.Redirect(this, path, "http://localhost:9092/api/");
         }
 
     }

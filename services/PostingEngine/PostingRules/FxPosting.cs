@@ -261,23 +261,27 @@ namespace PostingEngine.PostingRules
 
                 if (element.IsDerivative())
                 {
-                    from = fxCash > 0 ? "Mark to Market Derivatives Contracts due to FX Translation (Assets)" : "Mark to Market Derivatives Contracts due to FX  Translation (Liabilities)";
+                    if (element.IsShort())
+                        fxCash *= -1;
+
+                    from = fxCash > 0 ? AccountType.M2M_DERIVATIVES_FXTRANSLATION_ASSETS : AccountType.M2M_DERIVATIVES_FXTRANSLATION_LIABILITIES;
 
                     if (from.Contains("(Liabilities)"))
                     {
                         fxCash *= -1;
                     }
 
-                    to = "Change in Unrealized Derivatives Contracts due to FX Translation";
+                    to = AccountType.CUDCFX_TRANSLATION;
+
                 }
                 else
                 {
-                    var m2mtranslation = "Mark to Market longs fx translation gain or loss";
+                    var m2mtranslation = AccountType.M2M_LONGS_FXTRANSLATION;
                     if (element.IsShort() || element.IsCover())
-                        m2mtranslation = "Mark to Market shorts fx translation gain or loss";
+                        m2mtranslation = AccountType.M2M_SHORTS_FXTRANSLATION;
 
                     from = m2mtranslation;
-                    to = "change in unrealized do to fx translation";
+                    to = AccountType.CHANGE_UNREALIZED_FXTRANSLATION;
 
                     if (element.IsShort())
                         fxCash *= -1;
