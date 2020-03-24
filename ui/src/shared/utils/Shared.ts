@@ -36,9 +36,11 @@ export const SideBar = (
 };
 
 export const Ranges: any = {
-  // ITD: [moment('01-01-1901', 'MM-DD-YYYY'), moment()],
+  ITD: [moment('01-01-1901', 'MM-DD-YYYY'), moment()],
   YTD: [moment().startOf('year'), moment()],
+  QTD: [moment().startOf('quarter'), moment()],
   MTD: [moment().startOf('month'), moment()],
+  WTD: [moment().startOf('isoWeek'), moment()],
   Today: [moment(), moment()],
   Custom: [
     moment()
@@ -239,11 +241,27 @@ export const GetDateRangeLabel = (startDate, endDate): string => {
   }
   if (
     moment()
+      .startOf('quarter')
+      .diff(startDate, 'days') === 0 &&
+    moment().diff(endDate, 'days') === 0
+  ) {
+    return 'QTD';
+  }
+  if (
+    moment()
       .startOf('month')
       .diff(startDate, 'days') === 0 &&
     moment().diff(endDate, 'days') === 0
   ) {
     return 'MTD';
+  }
+  if (
+    moment()
+      .startOf('isoWeek')
+      .diff(startDate, 'days') === 0 &&
+    moment().diff(endDate, 'days') === 0
+  ) {
+    return 'WTD';
   }
   if (moment().diff(startDate, 'days') === 0 && moment().diff(endDate, 'days') === 0) {
     return 'Today';
@@ -262,12 +280,20 @@ export const SetDateRange = (dateFilter, startDate, endDate) => {
       startDate = moment('01-01-1901', 'MM-DD-YYYY');
       endDate = moment();
       break;
+    case 'QTD':
+      startDate = moment().startOf('quarter');
+      endDate = moment();
+      break;
     case 'YTD':
       startDate = moment().startOf('year');
       endDate = moment();
       break;
     case 'MTD':
       startDate = moment().startOf('month');
+      endDate = moment();
+      break;
+    case 'WTD':
+      startDate = moment().startOf('isoWeek');
       endDate = moment();
       break;
     case 'Today':
