@@ -24,8 +24,14 @@ export class CreateSecurityComponent implements OnInit {
   showFinancing = true;
 
   symbol$: Observable<[]>;
+  securityType$;
+  selectSymbol;
+  displayFields;
+
   noResult = false;
+  noSecurityType = false;
   isSaving = false;
+  isLoading = false;
 
   editSecurity = false;
   // isDeleting = false;
@@ -71,13 +77,14 @@ export class CreateSecurityComponent implements OnInit {
 
     this.initializeForm();
     this.getSymbols();
+    this.getSecurityTypes();
     this.onChanges();
   }
 
   initializeForm() {
     this.securityForm = this.formBuilder.group({
       symbol: ['', Validators.required],
-      securityType: [''],
+      securityType: ['', Validators.required],
       maturityDate: [''],
       valuationDate: [''],
       securityReturnDesc: [''],
@@ -107,6 +114,12 @@ export class CreateSecurityComponent implements OnInit {
   getSymbols() {
     this.financePocServiceProxy.getSymbol().subscribe(symbol => {
       this.symbol$ = symbol.payload.map(item => item.symbol);
+    });
+  }
+
+  getSecurityTypes() {
+    this.securityApiService.getSecurityTypes().subscribe(securityType => {
+        this.securityType$ = securityType.payload.map(item => item.SecurityTypeCode);
     });
   }
 
@@ -202,19 +215,23 @@ export class CreateSecurityComponent implements OnInit {
   }
 
   openEditModal(data, securityType, secFields, FormData, EntryPoint) {
-    this.selectedRow = null;
-    const fields = secFields;
+
+    this.selectedRow = {};
     this.selectedRow = data;
+    let secType;
+    secType = null;
+    secType = data.security_type ? data.security_type : securityType;
+    const fields = secFields;
     this.editSecurity = true;
     this.showFields(fields);
-    this.patchValues(data.symbol, securityType, FormData);
+    this.patchValues(data.symbol, secType, FormData);
     this.securityModal.show();
   }
 
   onSubmit() {
     this.isSaving = true;
     // stop here if form is invalid
-    if (this.securityForm.invalid && !this.noResult) {
+    if (this.securityForm.invalid && !this.noResult && !this.noSecurityType) {
         return;
     }
 
@@ -249,10 +266,10 @@ export class CreateSecurityComponent implements OnInit {
           moment(this.securityForm.value.nextFinancingEndDate.startDate).format('YYYY-MM-DD') : null;
       }
       // End NextFinanceDateType
-
       const payload = {
         Id: this.selectedRow.id,
         Symbol : this.securityForm.value.symbol,
+        SecurityType : this.securityForm.value.securityType,
         MaturityDate:  this.securityForm.value.maturityDate ?
                        moment(this.securityForm.value.maturityDate.startDate).format('YYYY-MM-DD') : null,
         ValuationDate: this.securityForm.value.valuationDate ?
@@ -328,19 +345,20 @@ export class CreateSecurityComponent implements OnInit {
       let nextFnoOfdays = null;
       let nextFresetDate = null;
 
-      if (this.securityForm.value.nextFinancingEndDateType === 'No of days') {
+      if (this.securityForm.value.nextFinancingEndDateType !== 'Date') {
         nextFnoOfdays = this.securityForm.value.nextFinancingNoOfDays;
         nextFresetDate = null;
       }
 
-      if (this.securityForm.value.nextFinancingEndDateType !== 'No of days') {
+      if (this.securityForm.value.nextFinancingEndDateType === 'Date') {
         nextFnoOfdays = null;
-        nextFresetDate = this.securityForm.value.NextFinancingEndDate ?
-          moment(this.securityForm.value.NextFinancingEndDate.startDate).format('YYYY-MM-DD') : null;
+        nextFresetDate = this.securityForm.value.nextFinancingEndDate ?
+          moment(this.securityForm.value.nextFinancingEndDate.startDate).format('YYYY-MM-DD') : null;
       }
 
       const payload = {
         Symbol : this.securityForm.value.symbol,
+        SecurityType: this.securityForm.value.securityType,
         MaturityDate:  this.securityForm.value.maturityDate ?
                        moment(this.securityForm.value.maturityDate.startDate).format('YYYY-MM-DD') : null,
         ValuationDate: this.securityForm.value.valuationDate ?
@@ -398,68 +416,59 @@ export class CreateSecurityComponent implements OnInit {
 
   }
 
-  // deleteSecurity() {
-  //   this.isDeleting = true;
-  //   this.securityApiService.deleteSecurity(this.selectedRow.id).subscribe(
-  //     response => {
-  //       if (response.isSuccessful) {
-  //         this.toastrService.success('Security details deleted successfully!');
-
-  //         this.securityModal.hide();
-  //         this.modalClose.emit(true);
-
-  //         setTimeout(() => this.resetFields(), 500);
-  //       } else {
-  //         this.toastrService.error('Failed to delete security details!');
-  //       }
-
-  //       this.isDeleting = false;
-  //     },
-  //     error => {
-  //       this.toastrService.error('Something went wrong. Try again later!');
-
-  //       this.isDeleting = false;
-  //     }
-  //   );
-  // }
-
   close() {
     this.securityModal.hide();
     this.resetFields();
+    this.selectSymbol = null;
   }
 
   selectedSymbol(event: TypeaheadMatch): void {
+    this.isLoading = true;
+    this.selectSymbol = event.value;
+    this.selectedRow = {};
     this.resetFields();
 
     this.securityApiService.getDataForSecurityModal(event.item).subscribe(
       ([config, securityDetails]: [any, any]) => {
+        // config : contains securityType and fields related to securityType
+        // securityDetails : fetch details or populate fields related to the securityType
 
         if (config.statusCode !== 200) {
+          this.isLoading = false;
           this.toastrService.error(config.message);
           return;
         }
 
         if (securityDetails.statusCode !== 200) {
+          this.isLoading = false;
           this.toastrService.error(securityDetails.message);
           return;
         }
 
         if (!config.isSuccessful) {
+          this.isLoading = false;
           this.toastrService.error(config.message);
-        return;
+          return;
         }
 
         if (securityDetails.payload.length === 0) {
-
+          this.isLoading = false;
           this.securityForm.patchValue({
             symbol: event.item,
             securityType: config.payload[0].SecurityType
           });
           this.showFields(config.payload[0].Fields);
       } else {
-        this.editSecurity = true;
-        this.showFields(config.payload[0].Fields);
-        this.patchValues(event.item, config.payload[0].SecurityType, securityDetails.payload[0]);
+        this.resetSpecificFields();
+        this.selectedRow = securityDetails.payload[0];
+        this.securityApiService.getSecurityType(securityDetails.payload[0].security_type).subscribe( data => {
+          this.displayFields = data.payload[0].Fields;
+          this.isLoading = false;
+          this.editSecurity = true;
+          this.showFields(this.displayFields);
+          this.patchValues(event.item, securityDetails.payload[0].security_type, securityDetails.payload[0]);
+          this.displayFields = {};
+        });
       }
 
       },
@@ -467,6 +476,61 @@ export class CreateSecurityComponent implements OnInit {
         this.toastrService.error('The request failed');
       }
     );
+  }
+
+  selectedSecurityType(event: TypeaheadMatch): void {
+    this.displayFields = null;
+    this.securityApiService.getSecurityType(event.item).subscribe(data => {
+      this.displayFields = data.payload[0].Fields;
+    });
+
+    this.fNoOfDays = false;
+    this.nextFinanceNoOfDays = false;
+    this.resetSpecificFields();
+    this.onChanges();
+
+    if (this.securityForm.value.symbol === null || this.securityForm.value.symbol === '' || this.securityForm.value.symbol === undefined) {
+
+      this.securityApiService.getSecurityType(event.item).subscribe(data => {
+
+        this.showFields(data.payload[0].Fields);
+      });
+
+    } else {
+      this.resetSpecificFields();
+      this.securityApiService.getDataForSecurityModal(this.securityForm.value.symbol).subscribe(
+        ([config, securityDetails]: [any, any]) => {
+
+          if (securityDetails.payload.length === 0 && this.securityForm.value.securityType !== config.payload[0].SecurityType) {
+            this.securityForm.patchValue({
+              symbol: this.securityForm.value.symbol,
+              securityType: this.securityForm.value.securityType
+            });
+            this.showFields(this.displayFields);
+          }
+
+          if (securityDetails.payload.length === 0 && this.securityForm.value.securityType === config.payload[0].SecurityType) {
+            this.securityForm.patchValue({
+              symbol: this.securityForm.value.symbol,
+              securityType: config.payload[0].SecurityType
+            });
+            this.showFields(config.payload[0].Fields);
+
+        } else {
+          if (this.securityForm.value.securityType === securityDetails.payload[0].security_type) {
+            this.editSecurity = true;
+            this.showFields(config.payload[0].Fields);
+            this.patchValues(this.securityForm.value.symbol, this.securityForm.value.securityType, securityDetails.payload[0]);
+          } else {
+            this.editSecurity = true;
+            this.showFields(this.displayFields);
+            this.displayFields = null;
+          }
+        }
+        }
+
+      )
+    }
   }
 
   showFields(fields) {
@@ -622,6 +686,7 @@ export class CreateSecurityComponent implements OnInit {
 
     // this.isDeleting = false;
     this.editSecurity = false;
+    // this.selectSymbol = null;
 
     this.MaturityDate = false;
     this.ValuationDate = false;
@@ -648,8 +713,64 @@ export class CreateSecurityComponent implements OnInit {
     this.securityForm.reset();
   }
 
+  resetSpecificFields(){
+    this.editSecurity = false;
+
+    this.MaturityDate = false;
+    this.ValuationDate = false;
+
+    this.Spread = false;
+    this.SecurityReturnDescription = false;
+    this.FinancingLeg = false;
+    this.FinancingEndDate = false;
+    this.FinancingPaymentDate = false;
+    this.resetDate = false;
+    this.endDate = false;
+    this.FinancingResetDate = false;
+    this.NextFinancingEndDate = false;
+    this.FixedRate = false;
+    this.DCCFixedRate = false;
+    this.FloatingRate = false;
+    this.DCCFloatingRate = false;
+    this.PrimaryMarket = false;
+    this.ReferenceEquity = false;
+    this.ReferenceObligation = false;
+    this.Upfront = false;
+    this.PremiumRate = false;
+    this.PremiumFrequency = false;
+
+    this.securityForm.patchValue({
+      maturityDate: '',
+      valuationDate: '',
+      securityReturnDesc: '',
+      spread: '',
+      financingLeg: '',
+      financingEndDate: '',
+      financingPayDate: '',
+      financingResetDateType: '',
+      financingNoOfDays: '',
+      financingResetDate: '',
+      nextFinancingEndDateType: '',
+      nextFinancingNoOfDays: '',
+      nextFinancingEndDate: '',
+      fixedRate: '',
+      dccFixedRate: '',
+      floatingRate: '',
+      dccFloatingRate: '',
+      primaryMarket: '',
+      referenceEquity: '',
+      referenceObligation: '',
+      upfront: '',
+      premiumRate: '',
+      frequencyRate: '',
+   });
+  }
+
   typeaheadNoResults(event: boolean): void {
     this.noResult = event;
+  }
+  typeaheadNoSecurityFound(event: boolean): void {
+    this.noSecurityType = event;
   }
 
 }

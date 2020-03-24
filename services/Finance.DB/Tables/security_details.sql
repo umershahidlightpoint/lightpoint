@@ -3,6 +3,7 @@
 	[id] INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
 	[security_id] INT NOT NULL,
 	[symbol] VARCHAR(100) NOT NULL,
+	[security_type] VARCHAR(100) NULL,
 	[created_by] VARCHAR(100) NOT NULL, 
     [created_date] DATETIME NOT NULL, 
     [last_updated_by] VARCHAR(100) NULL, 

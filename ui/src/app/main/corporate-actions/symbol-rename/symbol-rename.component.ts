@@ -469,21 +469,29 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
           name: 'Extend',
           action: () => {
             this.isLoading = true;
+            let displayFields = {};
 
             this.securityApiService.getDataForSecurityModal(params.node.data.old_symbol).subscribe(
               ([config, securityDetails]: [any, any]) => {
 
-                this.isLoading = false;
                 if (!config.isSuccessful) {
+                this.isLoading = false;
                 this.toastrService.error('No security type found against the selected symbol!');
                 return;
-              }
+                }
+
                 if (securityDetails.payload.length === 0) {
-                this.securityModal.openSecurityModalFromOutside(params.node.data.old_symbol,
+                  this.isLoading = false;
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.old_symbol,
                   config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
-              } else {
-                this.securityModal.openSecurityModalFromOutside(params.node.data.old_symbol,
-                  config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
+                } else {
+                  this.securityApiService.getSecurityType(securityDetails.payload[0].security_type).subscribe( data => {
+                  displayFields = data.payload[0].Fields;
+                  this.isLoading = false;
+                  this.securityModal.openSecurityModalFromOutside(params.node.data.old_symbol,
+                  securityDetails.payload[0].security_type, displayFields, securityDetails.payload[0], 'extend');
+                  displayFields = {};
+                });
               }
 
               },
@@ -491,7 +499,7 @@ export class SymbolRenameComponent implements OnInit, AfterViewInit {
                 this.isLoading = false;
               }
             );
-          },
+          }
         }
       ]
       },

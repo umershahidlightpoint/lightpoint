@@ -2,6 +2,7 @@
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Model;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -16,8 +17,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 {
     public class SecurityService : ISecurityService
     {
-        private static readonly string
-          connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+        private static readonly string connectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
 
         public SqlHelper sqlHelper = new SqlHelper(connectionString);
 
@@ -55,6 +55,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("createdBy", createdBy),
                     new SqlParameter("createdDate", createdDate),
                     new SqlParameter("symbol", details.Symbol),
+                    new SqlParameter("securityType", details.SecurityType),
                     new SqlParameter("securityId", id.Value),
                     new SqlParameter("maturityDate", details.MaturityDate.HasValue ? (object)details.MaturityDate : DBNull.Value),
                     new SqlParameter("valuationDate", details.ValuationDate.HasValue ? (object)details.ValuationDate: DBNull.Value),
@@ -82,6 +83,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var securityDetailsQuery = $@"INSERT INTO [security_details]
                             ([security_id]
                            ,[symbol]
+                           ,[security_type]
                            ,[created_by]
                            ,[created_date]
                            ,[maturity_date]
@@ -108,6 +110,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                      VALUES
                            (@securityId
                            ,@symbol
+                           ,@securityType
                            ,@createdBy
                            ,@createdDate
                            ,@maturityDate
@@ -164,6 +167,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("lastUpdatedBy", lastUpdatedBy),
                     new SqlParameter("lastUpdatedDate", lastUpdatedDate),
                     new SqlParameter("symbol", details.Symbol),
+                    new SqlParameter("securityType", details.SecurityType),
                     new SqlParameter("maturityDate", details.MaturityDate.HasValue ? (object)details.MaturityDate : DBNull.Value),
                     new SqlParameter("valuationDate", details.ValuationDate.HasValue ? (object)details.ValuationDate: DBNull.Value),
                     new SqlParameter("spread", details.Spread.HasValue ? (object)details.Spread : DBNull.Value),
@@ -191,6 +195,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                            SET [last_updated_by] = @lastUpdatedBy
                               ,[last_updated_date] = @lastUpdatedDate
                               ,[symbol] = @symbol
+                              ,[security_type] = @securityType
                               ,[maturity_date] = @maturityDate
                               ,[valuation_date] = @valuationDate
                               ,[spread] = @spread
@@ -260,6 +265,23 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var results = schema.Where(o => o.SecurityType == securityType);
 
                 return Shared.WebApi.Wrap(true, results, HttpStatusCode.OK, "Security Details fetched successfully");
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public object GetAllConfig(string securityType)
+        {
+            try
+            {
+                var schema = Shared.WebApi.GetFile<List<SecurityTypeFormConfig>>("security_details", "MockData");
+
+                var results = schema.Where(o => o.SecurityType == securityType);
+
+                return Shared.WebApi.Wrap(true, results, HttpStatusCode.OK, "Security type fetched successfully");
 
             }
             catch (Exception ex)
@@ -349,6 +371,34 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
                     "An error occured while fetching security detail");
+            }
+        }
+
+        public object GetSecurityType()
+        {
+            try
+            {
+                var query = $@"select distinct SecurityTypeCode from [SecurityMaster]..SecurityType where SecurityTypeCode in ('Common Stock', 'Equity Swap', 'Journals', 'Credit Default Swap', 'Index Swap', 'Corporate Bond')";
+                var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
+
+                var jsonResult = JsonConvert.SerializeObject(dataTable);
+                JArray securityTypes = JArray.Parse(jsonResult);
+
+                var securityTypeList = securityTypes.Select(p => new
+                {
+                    SecurityTypeCode = (string)p["SecurityTypeCode"]
+                }).ToList();
+
+                if(!securityTypeList.Any(x=> x.SecurityTypeCode.Equals("Corporate Bond")))
+                {
+                    securityTypeList.Add(new { SecurityTypeCode = "Corporate Bond" });
+                }
+                return Shared.WebApi.Wrap(true, securityTypeList, HttpStatusCode.OK, "Security type fetched successfully");
+            }
+            catch (Exception ex)
+            {
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    "An error occured while fetching securities");
             }
         }
 

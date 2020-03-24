@@ -1,114 +1,224 @@
-﻿
-  [
-    {
-      "SecurityType": "Common Stock",
-      "Fields": [
-        {
-          "FieldName": "MaturityDate"
-        },
-        {
-          "FieldName": "ValuationDate"
-        },
-        {
-          "FieldName": "FixedRate"
-        },
-        {
-          "FieldName": "NextFinancingEndDateType"
-        },
-        {
-          "FieldName": "NextFinancingEndDate"
-        },
-        {
-          "FieldName": "DCCFixedRate"
-        }
-      ]
-    },
+﻿[
+  {
+    "SecurityType": "Common Stock",
+    "Fields": [
+      {
+        "FieldName": "MaturityDate"
+      },
+      {
+        "FieldName": "ValuationDate"
+      },
+      {
+        "FieldName": "FixedRate"
+      },
+      {
+        "FieldName": "NextFinancingEndDateType"
+      },
+      {
+        "FieldName": "NextFinancingEndDate"
+      },
+      {
+        "FieldName": "DCCFixedRate"
+      }
+    ]
+  },
+  {
+    "SecurityType": "Journals",
+    "Fields": [
+      {
+        "FieldName": "MaturityDate"
+      },
+      {
+        "FieldName": "ValuationDate"
+      },
+      {
+        "FieldName": "SecurityReturnDescription"
+      },
+      {
+        "FieldName": "Spread"
+      },
+      {
+        "FieldName": "FinancingLeg"
+      },
+      {
+        "FieldName": "FixedRate"
+      },
+      {
+        "FieldName": "FinancingResetDateType"
+      },
+      {
+        "FieldName": "FinancingResetDate"
+      },
+      {
+        "FieldName": "DCCFixedRate"
+      },
+      {
+        "FieldName": "FloatingRate"
+      }
+    ]
+  },
+  {
+    "SecurityType": "Corporate Bond",
+    "Fields": [
+      {
+        "FieldName": "MaturityDate"
+      },
+      {
+        "FieldName": "ValuationDate"
+      },
+      {
+        "FieldName": "SecurityReturnDescription"
+      },
+      {
+        "FieldName": "Spread"
+      },
+      {
+        "FieldName": "FinancingLeg"
+      },
+      {
+        "FieldName": "FixedRate"
+      },
+      {
+        "FieldName": "FinancingResetDateType"
+      },
+      {
+        "FieldName": "FinancingResetDate"
+      },
+      {
+        "FieldName": "NextFinancingEndDateType"
+      },
+      {
+        "FieldName": "NextFinancingEndDate"
+      },
+      {
+        "FieldName": "DCCFixedRate"
+      },
+      {
+        "FieldName": "Upfront"
+      },
+      {
+        "FieldName": "PremiumRate"
+      },
+      {
+        "FieldName": "PremiumFrequency"
+      },
+      {
+        "FieldName": "DCCFloatingRate"
+      }
+    ]
 
-    {
-      "SecurityType": "Journals",
-      "Fields": [
-        {
-          "FieldName": "MaturityDate"
-        },
-        {
-          "FieldName": "ValuationDate"
-        },
-        {
-          "FieldName": "SecurityReturnDescription"
-        },
-        {
-          "FieldName": "Spread"
-        },
-        {
-          "FieldName": "FinancingLeg"
-        },
-        {
-          "FieldName": "FixedRate"
-        },
-        {
-          "FieldName": "FinancingResetDateType"
-        },
-        {
-          "FieldName": "FinancingResetDate"
-        },
-        {
-          "FieldName": "DCCFixedRate"
-        },
-        {
-          "FieldName": "FloatingRate"
-        }
-      ]
-    },
-    {
-      "SecurityType": "Corporate Bond",
-      "Fields": [
-        {
-          "FieldName": "MaturityDate"
-        },
-        {
-          "FieldName": "ValuationDate"
-        },
-        {
-          "FieldName": "SecurityReturnDescription"
-        },
-        {
-          "FieldName": "Spread"
-        },
-        {
-          "FieldName": "FinancingLeg"
-        },
-        {
-          "FieldName": "FixedRate"
-        },
-        {
-          "FieldName": "FinancingResetDateType"
-        },
-        {
-          "FieldName": "FinancingResetDate"
-        },
-        {
-          "FieldName": "NextFinancingEndDateType"
-        },
-        {
-          "FieldName": "NextFinancingEndDate"
-        },
-        {
-          "FieldName": "DCCFixedRate"
-        },
-        {
-          "FieldName": "Upfront"
-        },
-        {
-          "FieldName": "PremiumRate"
-        },
-        {
-          "FieldName": "PremiumFrequency"
-        },
-        {
-          "FieldName": "DCCFloatingRate"
-        }
-      ]
+  },
+  {
+    "SecurityType": "Credit Default Swap",
+    "Fields": [
+      {
+        "FieldName": "MaturityDate"
+      },
+      {
+        "FieldName": "ValuationDate"
+      },
+      {
+        "FieldName": "SecurityReturnDescription"
+      },
+      {
+        "FieldName": "Spread"
+      },
+      {
+        "FieldName": "FinancingLeg"
+      },
+      {
+        "FieldName": "FixedRate"
+      },
+      {
+        "FieldName": "FinancingResetDateType"
+      },
+      {
+        "FieldName": "FinancingResetDate"
+      },
+      {
+        "FieldName": "NextFinancingEndDateType"
+      },
+      {
+        "FieldName": "NextFinancingEndDate"
+      },
+      {
+        "FieldName": "DCCFixedRate"
+      },
+      {
+        "FieldName": "Upfront"
+      },
+      {
+        "FieldName": "PremiumRate"
+      },
+      {
+        "FieldName": "PremiumFrequency"
+      },
+      {
+        "FieldName": "DCCFloatingRate"
+      }
+    ]
 
-    }
+  },
+  {
+    "SecurityType": "Equity Swap",
+    "Fields": [
+      {
+        "FieldName": "MaturityDate"
+      },
+      {
+        "FieldName": "ValuationDate"
+      },
+      {
+        "FieldName": "SecurityReturnDescription"
+      },
+      {
+        "FieldName": "Spread"
+      },
+      {
+        "FieldName": "FinancingLeg"
+      },
+      {
+        "FieldName": "FixedRate"
+      },
+      {
+        "FieldName": "FinancingResetDateType"
+      },
+      {
+        "FieldName": "FinancingResetDate"
+      },
+      {
+        "FieldName": "DCCFixedRate"
+      },
+      {
+        "FieldName": "FloatingRate"
+      }
+    ]
+  },
+  {
+    "SecurityType": "Index Swap",
+    "Fields": [
+      {
+        "FieldName": "MaturityDate"
+      },
+      {
+        "FieldName": "ValuationDate"
+      },
+      {
+        "FieldName": "FixedRate"
+      },
+      {
+        "FieldName": "NextFinancingEndDateType"
+      },
+      {
+        "FieldName": "NextFinancingEndDate"
+      },
+      {
+        "FieldName": "DCCFixedRate"
+      },
+      {
+        "FieldName": "FloatingRate"
+      }
+    ]
+  }
 
-  ]
+]

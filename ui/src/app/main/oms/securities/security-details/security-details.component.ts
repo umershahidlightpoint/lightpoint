@@ -115,6 +115,13 @@ export class SecurityDetailsComponent implements OnInit {
           hide: true
         },
         {
+          field: 'security_type',
+          width: 120,
+          headerName: 'SecurityType',
+          sortable: true,
+          filter: true,
+        },
+        {
           field: 'maturity_date',
           headerName: 'Maturity Date',
           sortable: true,
@@ -305,12 +312,12 @@ export class SecurityDetailsComponent implements OnInit {
           action: () => {
             this.isLoading = true;
             this.securityApiService
-              .getSecurityConfig(params.node.data.symbol)
+              .getSecurityType(params.node.data.security_type)
               .pipe(finalize(() => (this.isLoading = false)))
               .subscribe(
                 response => {
                   this.securityModal.openEditModal(params.node.data,
-                     response.payload[0].SecurityType, response.payload[0].Fields, params.node.data, 'edit');
+                    params.node.data.security_type, response.payload[0].Fields, params.node.data, 'edit');
                 },
                 error => {}
               );
