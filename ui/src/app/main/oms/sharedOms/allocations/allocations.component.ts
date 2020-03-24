@@ -103,21 +103,29 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
             name: 'Extend',
             action: () => {
               this.isLoading = true;
+              let displayFields = {};
 
               this.securityApiService.getDataForSecurityModal(params.node.data.symbol).subscribe(
                 ([config, securityDetails]: [any, any]) => {
 
-                  this.isLoading = false;
                   if (!config.isSuccessful) {
-                  this.toasterService.error('No security type found against the selected symbol!');
+                  this.isLoading = false;
+                  this.toastrService.error('No security type found against the selected symbol!');
                   return;
-                }
+                  }
+
                   if (securityDetails.payload.length === 0) {
-                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
+                    this.isLoading = false;
+                    this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
                     config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
-                } else {
-                  this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
-                    config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
+                  } else {
+                    this.securityApiService.getSecurityType(securityDetails.payload[0].security_type).subscribe( data => {
+                    displayFields = data.payload[0].Fields;
+                    this.isLoading = false;
+                    this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
+                    securityDetails.payload[0].security_type, displayFields, securityDetails.payload[0], 'extend');
+                    displayFields = {};
+                  });
                 }
 
                 },
@@ -125,7 +133,7 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
                   this.isLoading = false;
                 }
               );
-            },
+            }
           }
         ]
       },

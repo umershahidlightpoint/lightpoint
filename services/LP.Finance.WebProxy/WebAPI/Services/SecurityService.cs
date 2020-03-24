@@ -276,27 +276,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             try
             {
-
-                //string securityType = "";
-                //string message;
-                //var query = $"select top 1 SecurityType from current_trade_state where symbol = @symbol";
-                //List<SqlParameter> p = new List<SqlParameter>
-                //{
-                //   new SqlParameter("symbol", symbol)
-                //};
-
-                //var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, p.ToArray());
-                //foreach (DataRow dr in dataTable.Rows)
-                //{
-                //    securityType = (object)dr["SecurityType"] == DBNull.Value ? "" : (string)dr["SecurityType"];
-                //}
-
-                //if (securityType == "")
-                //{
-                //    message = "Security Type not found against this symbol";
-                //    return Shared.WebApi.Wrap(false, null, HttpStatusCode.Forbidden, message);
-                //}
-
                 var schema = Shared.WebApi.GetFile<List<SecurityTypeFormConfig>>("security_details", "MockData");
 
                 var results = schema.Where(o => o.SecurityType == securityType);
@@ -399,8 +378,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             try
             {
                 var query = $@"select distinct SecurityTypeCode from [SecurityMaster]..SecurityType";
-                // select distinct SecurityType from current_trade_state
-                //var query = $@"select distinct SecurityType from current_trade_state";
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
 
                 var jsonResult = JsonConvert.SerializeObject(dataTable);

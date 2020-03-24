@@ -792,29 +792,37 @@ export class FundAdminReconcileComponent implements OnInit, AfterViewInit {
           {
             name: 'Extend',
             action: () => {
-            this.isLoading = true;
+              this.isLoading = true;
+              let displayFields = {};
 
-            this.securityApiService.getDataForSecurityModal(params.node.data.Symbol).subscribe(
-              ([config, securityDetails]: [any, any]) => {
+              this.securityApiService.getDataForSecurityModal(params.node.data.Symbol).subscribe(
+                ([config, securityDetails]: [any, any]) => {
 
-                this.isLoading = false;
-                if (!config.isSuccessful) {
-                this.toastrService.error('No security type found against the selected symbol!');
-                return;
-              }
-                if (securityDetails.payload.length === 0) {
-                this.securityModal.openSecurityModalFromOutside(params.node.data.Symbol,
-                  config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
-              } else {
-                this.securityModal.openSecurityModalFromOutside(params.node.data.Symbol,
-                  config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
-              }
+                  if (!config.isSuccessful) {
+                  this.isLoading = false;
+                  this.toastrService.error('No security type found against the selected symbol!');
+                  return;
+                  }
 
-              },
-              error => {
-                this.isLoading = false;
-              }
-            );
+                  if (securityDetails.payload.length === 0) {
+                    this.isLoading = false;
+                    this.securityModal.openSecurityModalFromOutside(params.node.data.Symbol,
+                    config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
+                  } else {
+                    this.securityApiService.getSecurityType(securityDetails.payload[0].security_type).subscribe( data => {
+                    displayFields = data.payload[0].Fields;
+                    this.isLoading = false;
+                    this.securityModal.openSecurityModalFromOutside(params.node.data.Symbol,
+                    securityDetails.payload[0].security_type, displayFields, securityDetails.payload[0], 'extend');
+                    displayFields = {};
+                  });
+                }
+
+                },
+                error => {
+                  this.isLoading = false;
+                }
+              );
             }
           }
         ]
