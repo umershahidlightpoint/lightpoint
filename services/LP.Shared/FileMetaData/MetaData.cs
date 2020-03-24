@@ -11,6 +11,7 @@ namespace LP.Shared.FileMetaData
         public int TotalRecords { get; set; }
         public List<FilterValues> Filters { get; set; }
         public object FundsRange { get; set; }
+        public object JournalMinDate { get; set; }
         public int? LastRow { get; set; }
         public bool FooterSum { get; set; }
         public List<ColumnDef> Columns { get; set; }

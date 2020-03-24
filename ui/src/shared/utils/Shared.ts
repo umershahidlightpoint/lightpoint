@@ -36,7 +36,7 @@ export const SideBar = (
 };
 
 export const Ranges: any = {
-  ITD: [moment('01-01-1901', 'MM-DD-YYYY'), moment()],
+  // ITD: [moment('01-01-1901', 'MM-DD-YYYY'), moment()],
   YTD: [moment().startOf('year'), moment()],
   QTD: [moment().startOf('quarter'), moment()],
   MTD: [moment().startOf('month'), moment()],

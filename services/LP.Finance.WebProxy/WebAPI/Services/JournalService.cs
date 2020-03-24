@@ -378,7 +378,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.SqlBeginTransaction();
 
                 var commentsId = InsertJournalComment(journal, sqlHelper);
-                var fxCurrency = GetBaseCurrency();
 
                 var accountsName = GetAccountsName(journal);
                 var accountToName = accountsName.Item1;
@@ -436,7 +435,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         new SqlParameter("value", accountFromValue),
                         new SqlParameter("source", source),
                         new SqlParameter("when", journal.AsOf),
-                        new SqlParameter("fxCurrency", fxCurrency),
+                        new SqlParameter("fxCurrency", journal.AccountFrom.AccountCurrency),
                         new SqlParameter("fxRate", fxRate),
                         new SqlParameter("fund", journal.Fund),
                         new SqlParameter("generatedBy", generatedBy),
@@ -470,7 +469,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("value", accountToValue),
                     new SqlParameter("source", source),
                     new SqlParameter("when", journal.AsOf),
-                    new SqlParameter("fxCurrency", fxCurrency),
+                    new SqlParameter("fxCurrency", journal.AccountTo.AccountCurrency),
                     new SqlParameter("fxRate", fxRate),
                     new SqlParameter("fund", journal.Fund),
                     new SqlParameter("generatedBy", generatedBy),
@@ -632,7 +631,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.SqlBeginTransaction();
 
                 UpdateJournalComment(journal, sqlHelper);
-                var fxCurrency = GetBaseCurrency();
 
                 var accountsName = GetAccountsName(journal);
                 var accountToName = accountsName.Item1;
@@ -679,7 +677,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         new SqlParameter("accountId", journal.AccountFrom.AccountId),
                         new SqlParameter("value", accountFromValue),
                         new SqlParameter("when", journal.AsOf),
-                        new SqlParameter("fxCurrency", fxCurrency),
+                        new SqlParameter("fxCurrency", journal.AccountFrom.AccountCurrency),
                         new SqlParameter("fund", journal.Fund),
                         new SqlParameter("lastModifiedOn", lastModifiedOn),
                         new SqlParameter("symbol", journal.AccountFrom.AccountSymbol),
@@ -705,7 +703,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     new SqlParameter("accountId", journal.AccountTo.AccountId),
                     new SqlParameter("value", accountToValue),
                     new SqlParameter("when", journal.AsOf),
-                    new SqlParameter("fxCurrency", fxCurrency),
+                    new SqlParameter("fxCurrency", journal.AccountTo.AccountCurrency),
                     new SqlParameter("fund", journal.Fund),
                     new SqlParameter("lastModifiedOn", lastModifiedOn),
                     new SqlParameter("symbol", journal.AccountTo.AccountSymbol),
@@ -1612,6 +1610,8 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var fundRanges = JsonConvert.DeserializeObject(fundRangeSerialized);
 
                 meta.FundsRange = fundRanges;
+
+                meta.JournalMinDate = sqlHelper.GetScalarValue($@"SELECT MIN([when]) AS MinDate FROM {metaInfo}", CommandType.Text);
 
                 var filtersQueries = new List<string>();
                 if (filters.Count > 0)
