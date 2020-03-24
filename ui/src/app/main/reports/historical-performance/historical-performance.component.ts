@@ -29,7 +29,8 @@ import {
   SetDateRange,
   CommaSeparatedFormat,
   HeightStyle,
-  DateFormatter
+  DateFormatter,
+  PercentageFormatter
 } from 'src/shared/utils/Shared';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
@@ -37,6 +38,7 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
 import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
+import { DataDictionary } from 'src/shared/utils/DataDictionary';
 
 @Component({
   selector: 'app-historical-performance',
@@ -90,6 +92,7 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
     private securityApiService: SecurityApiService,
     private downloadExcelUtils: DownloadExcelUtils,
     private cdRef: ChangeDetectorRef,
+    public dataDictionary: DataDictionary
   ) {
     this.hideGrid = false;
   }
@@ -183,12 +186,16 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
           valueFormatter: currencyFormatter
         },
         {
+          field: 'SodNav',
+          headerName: 'SodNav',
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
+        },
+        {
           field: 'EodNav',
           headerName: 'EodNav',
           cellClass: 'rightAlign',
           valueFormatter: currencyFormatter
-          // rowGroup: true,
-          // enableRowGroup: true
         },
         {
           field: 'Withdrawls',
@@ -200,37 +207,38 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
           field: 'Contributions',
           headerName: 'Contributions',
           cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
         },
         {
           field: 'DayPnlPer',
           headerName: 'DayPnlPer',
           cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          //valueFormatter: params => this.dataDictionary.numberFormatter(params.node.data.DayPnlPer, true)
         },
         {
           field: 'MtdPnlPer',
           headerName: 'MtdPnlPer',
           cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          //valueFormatter: params => this.dataDictionary.numberFormatter(params.node.data.MtdPnlPer, true)
         },
         {
           field: 'QtdPnlPer',
           headerName: 'QtdPnlPer',
           // aggFunc: 'sum',
           cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          //valueFormatter: currencyFormatter
         },
         {
           field: 'YtdPnlPer',
           headerName: 'YtdPnlPer',
           cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          //valueFormatter: currencyFormatter
         },
         {
           field: 'ItdPnlPer',
           headerName: 'ItdPnlPer',
           cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          //valueFormatter: currencyFormatter
         },
         {
           field: 'MtdPnl',

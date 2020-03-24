@@ -1,10 +1,10 @@
 var config = {
     "port": "3000",
-    //"remoteServerUrl": 'https://localhost:5001/finance',
-    //"referenceDataUrl": 'https://localhost:5001/refdata',
+    //"remoteServerUrl": 'http://sit01:3000/finance',
+    "referenceDataUrl": 'http://sit01:3000/refdata',
 
    "remoteServerUrl": 'http://localhost:9092/api',
-   "referenceDataUrl": 'http://localhost:9091/api'
+   //"referenceDataUrl": 'http://localhost:9091/api'
   };
   
 module.exports = config;
