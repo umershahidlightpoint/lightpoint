@@ -425,6 +425,7 @@ export class CreateSecurityComponent implements OnInit {
   selectedSymbol(event: TypeaheadMatch): void {
     this.isLoading = true;
     this.selectSymbol = event.value;
+    this.selectedRow = {};
     this.resetFields();
 
     this.securityApiService.getDataForSecurityModal(event.item).subscribe(
@@ -459,6 +460,7 @@ export class CreateSecurityComponent implements OnInit {
           this.showFields(config.payload[0].Fields);
       } else {
         this.resetSpecificFields();
+        this.selectedRow = securityDetails.payload[0];
         this.securityApiService.getSecurityType(securityDetails.payload[0].security_type).subscribe( data => {
           this.displayFields = data.payload[0].Fields;
           this.isLoading = false;
