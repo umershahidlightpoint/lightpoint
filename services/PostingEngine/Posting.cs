@@ -154,9 +154,9 @@ namespace PostingEngine
                 var result = PostingTasks.RunTask(env, calc);
                 result.Wait();
             }
-            else if (calculation.ToLowerInvariant().Equals("HistoricPerformance".ToLowerInvariant()))
+            else if (calculation.ToLowerInvariant().Equals("PeriodPnl".ToLowerInvariant()))
             {
-                var calc = PostingTasks.Get("HistoricPerformance");
+                var calc = PostingTasks.Get("PeriodPnl");
                 var result = PostingTasks.RunTask(env, calc);
                 result.Wait();
             }

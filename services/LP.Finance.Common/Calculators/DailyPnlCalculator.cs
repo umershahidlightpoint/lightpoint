@@ -169,7 +169,7 @@ namespace LP.Finance.Common.Calculators
                                 priorDataForQuarter = item;
                                 priorDataForInception = item;
                             }
-                            
+
                             monthIndex++;
                         }
 

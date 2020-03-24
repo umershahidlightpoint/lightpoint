@@ -8,7 +8,7 @@ select * from market_prices
 select * from tax_lot
 */
 
-CREATE FUNCTION [dbo].[fnPositions]
+CREATE   FUNCTION [dbo].[fnPositions]
 (
 	@bDate Date
 )
@@ -20,6 +20,7 @@ RETURNS @returntable TABLE
 	security_id int,
 	fund varchar(100),
 	security_type varchar(100),
+	custodianCode varchar(100),
 	trade_currency varchar(5),
 	currency varchar(5),
 	quantity numeric(22,9),
@@ -33,7 +34,7 @@ RETURNS @returntable TABLE
 AS
 BEGIN
 
-WITH taxlotstatus (business_date, open_id, symbol, side, security_id, fund, trade_currency, currency, quantity, investment_at_cost, price, comissions, fees, security_type)
+WITH taxlotstatus (business_date, open_id, symbol, side, security_id, fund, trade_currency, currency, quantity, investment_at_cost, price, comissions, fees, security_type, CustodianCode)
 AS
 (
 select @bDate as business_date, open_id, tax_lot_status.symbol, tax_lot_status.side, t.SecurityId, tax_lot_status.Fund, t.TradeCurrency, t.SettleCurrency,
@@ -42,11 +43,12 @@ Sum(investment_at_cost * -1) as investment_at_cost,
 Max(trade_price) as price,
 SUM(t.Commission) as commission,
 SUM(t.fees) as fees,
-t.SecurityType
+t.SecurityType,
+t.CustodianCode
 from tax_lot_status 
 inner join current_trade_state t on t.LpOrderId = tax_lot_status.open_id
 where tax_lot_status.trade_date <= @bDate
-group by open_id, tax_lot_status.symbol, tax_lot_status.side, t.SecurityId, tax_lot_status.Fund, t.TradeCurrency, t.SettleCurrency, t.SecurityType
+group by open_id, tax_lot_status.symbol, tax_lot_status.side, t.SecurityId, tax_lot_status.Fund, t.TradeCurrency, t.SettleCurrency, t.SecurityType, t.CustodianCode
 )
 ,
 taxlot (business_date, open_lot_id, quantity, investment_at_cost)
@@ -69,7 +71,7 @@ where coalesce(sd.Multiplier, sf.ContractSize) is not null
 
 
 	INSERT @returntable
-		select tls.business_date, tls.symbol, side, tls.security_id, fund, security_type, trade_currency, currency, 
+		select tls.business_date, tls.symbol, side, tls.security_id, fund, security_type, CustodianCode, trade_currency, currency, 
 		case 
 			When Side = 'BUY' then SUM(coalesce(tls.quantity,0) + coalesce(tl.quantity,0))       
 			else SUM(coalesce(tls.quantity,0) + coalesce(tl.quantity,0))
@@ -98,8 +100,7 @@ where coalesce(sd.Multiplier, sf.ContractSize) is not null
 		left outer join market_prices mp on mp.security_id = tls.security_id and mp.business_date = @bDate
 		left outer join market_prices fx on fx.symbol = '@CASH'+tls.currency and fx.business_date = @bDate
 		left outer join security_details sd on sd.security_id = tls.security_id
-		group by tls.business_date, tls.symbol, side, tls.security_id, fund, trade_currency, currency, security_type
+		group by tls.business_date, tls.symbol, side, tls.security_id, fund, trade_currency, currency, security_type, CustodianCode
 		order by tls.symbol
 	RETURN
 END
-

@@ -239,8 +239,8 @@ namespace PostingEngine.PostingRules
                 
 
                 var change = eodRate - prevRate;
-                var fxCashCredit = change * (unsettledPnl.Credit / unsettledPnl.FxRate);
-                var fxCashDebit = change * (unsettledPnl.Debit / unsettledPnl.FxRate);
+                var fxCashCredit = change * (unsettledPnl.LocalCredit);
+                var fxCashDebit = change * (unsettledPnl.LocalDebit);
                 var fxCash = fxCashCredit - fxCashDebit;
 
                 if (element.SecurityType.Equals("FORWARD") || element.SecurityType.Equals("CROSS"))
@@ -253,7 +253,7 @@ namespace PostingEngine.PostingRules
 
                     fxCashCredit = change * (unsettledPnl.Credit / price);
                     fxCashDebit = change * (unsettledPnl.Debit / price);
-                    fxCash = fxCashCredit - fxCashDebit;
+                    fxCash = fxCashDebit - fxCashCredit;
                 }
 
                 var from = "";
@@ -261,9 +261,6 @@ namespace PostingEngine.PostingRules
 
                 if (element.IsDerivative())
                 {
-                    if (element.IsShort())
-                        fxCash *= -1;
-
                     from = fxCash > 0 ? AccountType.M2M_DERIVATIVES_FXTRANSLATION_ASSETS : AccountType.M2M_DERIVATIVES_FXTRANSLATION_LIABILITIES;
 
                     if (from.Contains("(Liabilities)"))

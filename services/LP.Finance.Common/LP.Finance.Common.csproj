@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Calculators\DailyPnlCalculator.cs" />
+    <Compile Include="Calculators\PnlReturnsCalculator.cs" />
     <Compile Include="CustomValidators\MinimumElementsAttribute.cs" />
     <Compile Include="DateFunctions.cs" />
     <Compile Include="Dtos\AlleviateTaxLotDto.cs" />

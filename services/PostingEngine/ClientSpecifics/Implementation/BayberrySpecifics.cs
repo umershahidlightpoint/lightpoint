@@ -34,7 +34,7 @@ namespace PostingEngine.ClientSpecifics.Implementation
             update = finalTradeList.Where(t => t.Symbol.Equals("DUE GR")).ToArray();
             foreach (var t in update) { t.Symbol = sec.Symbol; t.SecurityId = sec.SecurityId; }
 
-            const bool DEBUG_TRADE_LIST = false;
+            const bool DEBUG_TRADE_LIST = false ;
             if (DEBUG_TRADE_LIST)
             {
                 var securityTypeTags = new List<string> {
@@ -51,7 +51,7 @@ namespace PostingEngine.ClientSpecifics.Implementation
                     //"TWE AU 05/30/19 P16.5",
                     //"NLFSK DC",
                     //"WTE CN",
-                    "ALD FP",
+                    //"ALD FP",
                     //"GNS LN",
                     //"CWK LN",
                     //"ROST",
