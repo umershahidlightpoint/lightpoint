@@ -118,13 +118,7 @@ export class CreateSecurityComponent implements OnInit {
 
   getSecurityTypes() {
     this.securityApiService.getSecurityTypes().subscribe(securityType => {
-      this.securityType$ = securityType.payload.map(item => item.SecurityTypeCode).filter(items =>
-         items === 'Common Stock' || items === 'Equity Swap' ||
-         items === 'Journals' || items === 'Credit Default Swap' ||
-         items === 'Index Swap'
-         );
-      this.securityType$.unshift('Corporate Bond');
-
+      this.securityType$ = securityType.payload.map(item => item.SecurityTypeCode);
     });
   }
 

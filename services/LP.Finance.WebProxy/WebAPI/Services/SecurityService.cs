@@ -378,7 +378,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             try
             {
-                var query = $@"select distinct SecurityTypeCode from [SecurityMaster]..SecurityType";
+                var query = $@"select distinct SecurityTypeCode from [SecurityMaster]..SecurityType where SecurityTypeCode in ('Common Stock', 'Equity Swap', 'Journals', 'Credit Default Swap', 'Index Swap', 'Corporate Bond')";
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
 
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
@@ -389,6 +389,10 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     SecurityTypeCode = (string)p["SecurityTypeCode"]
                 }).ToList();
 
+                if(!securityTypeList.Any(x=> x.SecurityTypeCode.Equals("Corporate Bond")))
+                {
+                    securityTypeList.Add(new { SecurityTypeCode = "Corporate Bond" });
+                }
                 return Shared.WebApi.Wrap(true, securityTypeList, HttpStatusCode.OK, "Security type fetched successfully");
             }
             catch (Exception ex)
