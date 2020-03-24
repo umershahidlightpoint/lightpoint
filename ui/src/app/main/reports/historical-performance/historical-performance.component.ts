@@ -4,9 +4,10 @@ import {
     OnInit, 
     OnDestroy, 
     AfterViewInit,   
-    ChangeDetectorRef
+    ChangeDetectorRef,
 } from '@angular/core';
 
+import { DecimalPipe } from '@angular/common';
 import { timer, Subject } from 'rxjs';
 import { debounce } from 'rxjs/operators';
 import * as moment from 'moment';
@@ -94,6 +95,7 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
     private securityApiService: SecurityApiService,
     private downloadExcelUtils: DownloadExcelUtils,
     private cdRef: ChangeDetectorRef,
+    public decimalPipe: DecimalPipe,
     public dataDictionary: DataDictionary
   ) {
     this.hideGrid = false;
@@ -153,7 +155,7 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
       rowGroupPanelShow: 'after',
       groupIncludeFooter: true,
       suppressAggFuncInHeader: true,
-      groupIncludeTotalFooter: true,
+      groupIncludeTotalFooter: false,
       animateRows: true,
       enableFilter: true,
       suppressHorizontalScroll: false,
@@ -215,32 +217,32 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
           field: 'DayPnlPer',
           headerName: 'DayPnlPer',
           cellClass: 'rightAlign',
-          //valueFormatter: params => this.dataDictionary.numberFormatter(params.node.data.DayPnlPer, true)
+          valueFormatter: params => numberFormatter(params, true, this.decimalPipe)
         },
         {
           field: 'MtdPnlPer',
           headerName: 'MtdPnlPer',
           cellClass: 'rightAlign',
-          //valueFormatter: params => this.dataDictionary.numberFormatter(params.node.data.MtdPnlPer, true)
+          valueFormatter: params => numberFormatter(params, true, this.decimalPipe)
         },
         {
           field: 'QtdPnlPer',
           headerName: 'QtdPnlPer',
           // aggFunc: 'sum',
           cellClass: 'rightAlign',
-          //valueFormatter: currencyFormatter
+          valueFormatter: params => numberFormatter(params, true, this.decimalPipe)
         },
         {
           field: 'YtdPnlPer',
           headerName: 'YtdPnlPer',
           cellClass: 'rightAlign',
-          //valueFormatter: currencyFormatter
+          valueFormatter: params => numberFormatter(params, true, this.decimalPipe)
         },
         {
           field: 'ItdPnlPer',
           headerName: 'ItdPnlPer',
           cellClass: 'rightAlign',
-          //valueFormatter: currencyFormatter
+          valueFormatter: params => numberFormatter(params, true, this.decimalPipe)
         },
         {
           field: 'MtdPnl',
@@ -301,10 +303,13 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
         this.isLoading = false;
         this.gridOptions.api.hideOverlay();
 
-        this.gridOptions.api.setRowData(response.payload);
+        // this line is added so that we don't duplicate data in the UI
+        this.gridOptions.api.setRowData([]);
+        this.gridOptions.api.setRowData(this.reportData);
+
         this.gridOptions.api.sizeColumnsToFit();
 
-        this.cdRef.detectChanges();
+        //this.cdRef.detectChanges();
       });
   }
 
@@ -488,6 +493,20 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
   ngOnDestroy() {}
 }
 
+function numberFormatter(params, isInPercentage, decimalPipe): string {
+  let per = params.value;
+  if ( per == null || per === undefined)
+  {
+    debugger
+    per = 0.0;
+  }
+  if (isInPercentage) {
+    per = PercentageFormatter(per);
+  }
+  const formattedValue = decimalPipe.transform(per, '1.4-4');
+  return formattedValue.toString();
+}
+
 function dateFormatter(params): string {
   if (params.value === undefined) {
     return;
@@ -529,3 +548,4 @@ function absCurrencyFormatter(params) {
   }
   return CommaSeparatedFormat(Math.abs(params.value));
 }
+
