@@ -304,7 +304,9 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   checkIfASingleFilterIsAppliedOnAccountCategory(params: IServerSideGetRowsParams, rowData: any) {
     let filteredCategory;
     if (params.request.filterModel.hasOwnProperty('AccountCategory')) {
+      // tslint:disable-next-line: no-string-literal
       const obj = params.request.filterModel['AccountCategory'];
+      // tslint:disable-next-line: no-string-literal
       const filterList: Array<string>[] = obj['values'];
       if (filterList.length === 1) {
         filteredCategory = filterList[0];
@@ -688,7 +690,11 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.startDate = e.startDate;
     this.endDate = e.endDate;
 
-    this.getRangeLabel();
+    if (e.startDate === null && e.endDate === null) {
+      this.DateRangeLabel = '';
+    }
+
+    // this.getRangeLabel();
     this.gridOptions.api.onFilterChanged();
   }
 
@@ -706,7 +712,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
 
     this.setDateRange(dateFilter);
-    //this.gridOptions.api.onFilterChanged();
+    // this.gridOptions.api.onFilterChanged();
   }
 
   isExternalFilterPresent(): boolean {
@@ -767,6 +773,11 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   getRangeLabel() {
     this.DateRangeLabel = '';
     this.DateRangeLabel = GetDateRangeLabel(this.startDate, this.endDate);
+  }
+
+  rangeClicked(range) {
+    this.DateRangeLabel = '';
+    this.DateRangeLabel = range.label;
   }
 
   setDateRange(dateFilter: any) {

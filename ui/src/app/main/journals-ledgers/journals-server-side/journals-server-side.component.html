@@ -50,13 +50,13 @@
             <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off" placeholder="Choose date"
                 [(ngModel)]="selected" name="selectedDaterange" [ranges]="ranges" [showClearButton]="true"
                 [alwaysShowCalendars]="true" (ngModelChange)="ngModelChange($event)"
-                [keepCalendarOpeningWithRange]="true" />
+                [keepCalendarOpeningWithRange]="true" (rangeClicked)="rangeClicked($event)" />
         </div>
         <!-- Date Picker Div Ends -->
 
         <!-- Clear Button  Div Starts -->
         <div class="mr-auto">
-            <button (click)="clearFilters()" class="btn btn-pa" tooltip="Clear" placement="top">
+            <button (click)="clearExternalFilter()" class="btn btn-pa" tooltip="Clear" placement="top">
                 <i class="fa fa-remove"></i>
             </button>
         </div>
