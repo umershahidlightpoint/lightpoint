@@ -22,6 +22,13 @@ namespace LP.Finance.WebProxy.WebAPI
         }
 
         [HttpGet]
+        [Route("configuration")] // Get single security type configurations
+        public object GetAllConfig(string securityType)
+        {
+            return controller.GetAllConfig(securityType);
+        }
+
+        [HttpGet]
         [Route("details")]
         public object GetSecurityDetails()
         {
@@ -54,6 +61,13 @@ namespace LP.Finance.WebProxy.WebAPI
         public object DeleteSecurityDetail(SecurityDetailsInputDto details)
         {
             return controller.DeleteSecurityDetail(details.Id);
+        }
+
+        [HttpGet]
+        [Route("securityType")]
+        public object GetSecurityType()
+        {
+            return controller.GetSecurityType();
         }
     }
 }

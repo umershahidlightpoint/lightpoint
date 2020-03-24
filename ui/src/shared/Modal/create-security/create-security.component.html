@@ -1,7 +1,13 @@
 <div bsModal #securityModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true"
   [config]="{backdrop: 'static'}">
 
-  <div class="modal-dialog modal-dialog-centered modal-xl" id="modal-xl">
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="d-flex justify-content-center align-items-center height-50vh">
+    <lp-loading></lp-loading>
+  </div>
+  <!-- Loading Spinner Ends -->
+
+  <div [hidden]="isLoading" class="modal-dialog modal-dialog-centered modal-xl" id="modal-xl">
     <div class="modal-content">
 
         <div class="modal-header color-primary">
@@ -10,7 +16,7 @@
         </div>
 
         <!-- No Result Alert -->
-        <alert *ngIf="noResult" type="danger" [dismissible]="true">
+        <alert *ngIf="noResult || noSecurityType" type="danger" [dismissible]="true">
             <strong>Warning!</strong> Please, only select values from the dropdown!
         </alert>
         <!-- No Result Alert Ends -->
@@ -53,12 +59,22 @@
                 </div>
 
                 <div class="col-sm-4 pl-1 pr-1">
-                    <input
-                        type="text"
-                        class="form-control"
+
+                        <input class="form-control"
+                        placeholder="Select security type"
                         formControlName="securityType"
-                        readonly
-                    />
+                        [ngClass]="{ 'is-invalid': formFields.securityType.errors && formFields.securityType.invalid && formFields.securityType.touched }"
+                        autocomplete="off"
+                        typeaheadWaitMs="500"
+                        [isAnimated]="true"
+                        [typeaheadScrollable]="true"
+                        [typeaheadIsFirstItemActive]="true"
+                        [typeaheadMinLength]="0"
+                        [typeaheadOptionsInScrollableView]="15"
+                        (typeaheadOnSelect)="selectedSecurityType($event)"
+                        [typeahead]="securityType$"
+                        (typeaheadNoResults)="typeaheadNoSecurityFound($event)"
+                        />
                 </div>
             </div>
 
@@ -121,7 +137,7 @@
                     <label> Spread </label>
                     </div>
                     <div class="col-sm-2 pl-1 pr-1" *ngIf="Spread">
-                        <input class="form-control" formControlName="spread" type="number" >
+                        <input class="form-control"  placeholder="Enter Spread" formControlName="spread" type="number" >
                     </div>
 
                 <div class="col-sm-2 pl-3 pr-1" *ngIf="FinancingLeg">
@@ -210,6 +226,7 @@
                      class="form-control"
                      formControlName="financingNoOfDays"
                      type="text"
+                     placeholder="Enter no of Days"
                      (keypress)="numberOnly($event)"
                      autocomplete="off"
                     >
@@ -288,7 +305,7 @@
                     <label> Fixed Rate </label>
                     </div>
                     <div class="col-sm-2 pl-1 pr-1" *ngIf="FixedRate">
-                        <input class="form-control" formControlName="fixedRate" type="number" >
+                        <input class="form-control" placeholder="Fixed Rate" formControlName="fixedRate" type="number" >
                     </div>
 
                 <div class="col-sm-2 pl-3 pr-1" *ngIf="DCCFixedRate">
@@ -368,7 +385,7 @@
                 <label> Reference Equity </label>
                 </div>
                 <div class="col-sm-2 pl-1 pr-1" *ngIf="ReferenceEquity">
-                    <input class="form-control" formControlName="referenceEquity" type="number">
+                    <input class="form-control" placeholder="Reference Equity" formControlName="referenceEquity" type="number">
                 </div>
 
             </div>
@@ -386,14 +403,14 @@
                     <label> Upfront </label>
                 </div>
                 <div class="col-sm-2 pl-1 pr-1" *ngIf="Upfront">
-                     <input class="form-control" formControlName="upfront" type="number">
+                     <input class="form-control" placeholder="Enter Upfront" formControlName="upfront" type="number">
                 </div>
 
                 <div class="col-sm-2 pl-3 pr-1" *ngIf="PremiumRate" >
                 <label> Premium Rate </label>
                 </div>
                 <div class="col-sm-2 pl-1 pr-1" *ngIf="PremiumRate">
-                    <input class="form-control" formControlName="premiumRate" type="number">
+                    <input class="form-control" placeholder="Enter Premium Rate" formControlName="premiumRate" type="number">
                 </div>
 
             </div>
@@ -404,7 +421,7 @@
                     <label> Frequency Rate </label>
                 </div>
                 <div class="col-sm-2 pl-1 pr-1" *ngIf="PremiumFrequency">
-                     <input class="form-control" formControlName="frequencyRate" type="number">
+                     <input class="form-control"  placeholder="Enter Frequency Rate" formControlName="frequencyRate" type="number">
                 </div>
 
             </div>

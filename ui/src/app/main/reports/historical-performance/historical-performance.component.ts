@@ -165,7 +165,7 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
       getRowNodeId: data => {
         return data.id;
       },
-      getContextMenuItems: params => this.getContextMenuItems(params),
+      // getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
         this.gridOptions.excelStyles = ExcelStyle;
       },

@@ -55,12 +55,26 @@ export class SecurityApiService {
     return this.http.put(url, obj).pipe(map((response: any) => response));
   }
 
+  getSecurityTypes() { // For get multiple securityTypes eg common stock, journal etc
+    const url = this.baseUrl + '/security/securityType';
+
+    return this.http.get(url).pipe(map((response: any) => response), retry(1), catchError(this.handleError));
+  }
+
+  getSecurityType(securityType) { // For get single securityType
+    const url = this.baseUrl + '/security/configuration?securityType=' + securityType;
+
+    return this.http.get(url).pipe(map((response: any) => response), retry(1), catchError(this.handleError));
+  }
+
   getDataForSecurityModal(symbol) {
     const config = this.getSecurityConfig(symbol);
     const securityDetails = this.getSecurityDetail(symbol);
+    // const getSecurityTypes = this.getSecurityTypes();
     return forkJoin([
       config,
-      securityDetails
+      securityDetails,
+      // getSecurityTypes
     ]);
   }
 

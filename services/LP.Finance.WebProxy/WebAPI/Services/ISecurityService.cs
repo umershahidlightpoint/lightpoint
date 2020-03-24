@@ -10,10 +10,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
     interface ISecurityService
     {
         object GetSecurityConfig(string symbol);
+        object GetAllConfig(string securityType);
         object GetSecurityDetails();
         object GetSecurityDetail(string symbol);
-        object DeleteSecurityDetail(int id);
         object AddSecurityDetails(SecurityDetailsInputDto details);
         object EditSecurityDetails(SecurityDetailsInputDto details);
+        object DeleteSecurityDetail(int id);
+        object GetSecurityType();
+
     }
 }

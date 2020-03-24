@@ -10,6 +10,7 @@ namespace LP.Finance.Common.Dtos
     {
         public int Id { get; set; }
         public string Symbol { get; set; }
+        public string SecurityType { get; set; }
         public DateTime? MaturityDate { get; set; }
         public DateTime? ValuationDate { get; set; }
         public decimal? Spread { get; set; }
