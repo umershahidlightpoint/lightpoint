@@ -110,7 +110,7 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
 
                   if (!config.isSuccessful) {
                   this.isLoading = false;
-                  this.toastrService.error('No security type found against the selected symbol!');
+                  this.toasterService.error('No security type found against the selected symbol!');
                   return;
                   }
 

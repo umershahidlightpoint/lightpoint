@@ -2,6 +2,7 @@
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Model;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -381,10 +382,14 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
 
                 var jsonResult = JsonConvert.SerializeObject(dataTable);
+                JArray securityTypes = JArray.Parse(jsonResult);
 
-                var json = JsonConvert.DeserializeObject(jsonResult);
+                var securityTypeList = securityTypes.Select(p => new
+                {
+                    SecurityTypeCode = (string)p["SecurityTypeCode"]
+                }).ToList();
 
-                return Shared.WebApi.Wrap(true, json, HttpStatusCode.OK, "Security type fetched successfully");
+                return Shared.WebApi.Wrap(true, securityTypeList, HttpStatusCode.OK, "Security type fetched successfully");
             }
             catch (Exception ex)
             {
