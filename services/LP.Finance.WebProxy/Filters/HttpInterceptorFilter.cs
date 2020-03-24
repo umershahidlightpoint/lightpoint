@@ -21,5 +21,17 @@ namespace LP.Finance.WebProxy.Filters
             var requestBody = actionContext.ActionArguments.Select(x=> x.Value).FirstOrDefault();
             Logger.Info("Request Payload : {payload}", JsonConvert.SerializeObject(requestBody));
         }
+
+        public override void OnActionExecuted(HttpActionExecutedContext actionExecutedContext)
+        {
+            if(actionExecutedContext.Exception != null)
+            {
+                Logger.Error(actionExecutedContext.Exception, "Exception message: ");
+            }
+            else
+            {
+                Logger.Info("Finished");
+            }
+        }
     }
 }

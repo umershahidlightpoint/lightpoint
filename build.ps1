@@ -1,14 +1,14 @@
-Import-Module "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
-Enter-VsDevShell a0e1530e -StartInPath "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\"
+Import-Module "C:\Program Files (x86)\Microsoft Visual Studio\2019\Preview\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+Enter-VsDevShell -VsInstallPath "C:\Program Files (x86)\Microsoft Visual Studio\2019\Preview\"
 Set-Location $psscriptRoot
 
 @(
-    "services\LP.FileProcessing\LP.FileProcessing.sln"
-    "services\LP.Finance.WebProxy"
-    "services\LP.ReferenceData.WebProxy"
+    "services\Finance.sln"
+    "services\ReferenceData.sln"
     "services\PostingEngine.sln"
+    "services\WebProxy.sln"
 ) | Foreach-Object {
-    msbuild $_ /t:"restore;build"
+    msbuild $_ /t:"clean;restore;build"
     if (!$?) {
         Write-Error "Build failed while building item : $_"
     }
@@ -33,11 +33,12 @@ Function rCopy {
     if($LASTEXITCODE -ge 8){throw ("An error occured while copying. [RoboCopyCode: $($LASTEXITCODE)]")}else{$global:LASTEXITCODE = 0}
 }
 
-rCopy -src "$psscriptRoot\services\LP.Finance.WebProxy\bin\Debug" -dst "$psscriptRoot\distribution\services\LP.Finance.WebProxy"
-rCopy -src "$psscriptRoot\services\LP.ReferenceData.WebProxy\bin\Debug" -dst "$psscriptRoot\distribution\services\LP.ReferenceData.WebProxy"
-rCopy -src "$psscriptRoot\services\PostingEngineApp\bin\Debug" -dst "$psscriptRoot\distribution\services\PostingEngine"
+rCopy -src "$psscriptRoot\services\LP.Finance.WebProxy\bin\Debug" -dst "$psscriptRoot\distribution\APP\Services\LP.Finance.WebProxy"
+rCopy -src "$psscriptRoot\services\LP.ReferenceData.WebProxy\bin\Debug" -dst "$psscriptRoot\distribution\APP\services\LP.ReferenceData.WebProxy"
+rCopy -src "$psscriptRoot\services\PostingEngineApp\bin\Debug" -dst "$psscriptRoot\distribution\XA\Tools\PostingEngine"
+rCopy -src "$psscriptRoot\scripts" -dst "$psscriptRoot\distribution\APP\Services"
 
-Set-Location "$psscriptRoot\frontendapp"
+Set-Location "$psscriptRoot\ui"
 npm install 
 npm run build 
 npm run deploy
