@@ -29,6 +29,7 @@ export class CreateSecurityComponent implements OnInit {
   displayFields;
 
   noResult = false;
+  noSecurityType = false;
   isSaving = false;
   isLoading = false;
 
@@ -83,7 +84,7 @@ export class CreateSecurityComponent implements OnInit {
   initializeForm() {
     this.securityForm = this.formBuilder.group({
       symbol: ['', Validators.required],
-      securityType: [''],
+      securityType: ['', Validators.required],
       maturityDate: [''],
       valuationDate: [''],
       securityReturnDesc: [''],
@@ -118,7 +119,7 @@ export class CreateSecurityComponent implements OnInit {
 
   getSecurityTypes() {
     this.securityApiService.getSecurityTypes().subscribe(securityType => {
-      this.securityType$ = securityType.payload.map(item => item.SecurityTypeCode);
+        this.securityType$ = securityType.payload.map(item => item.SecurityTypeCode);
     });
   }
 
@@ -230,7 +231,7 @@ export class CreateSecurityComponent implements OnInit {
   onSubmit() {
     this.isSaving = true;
     // stop here if form is invalid
-    if (this.securityForm.invalid && !this.noResult) {
+    if (this.securityForm.invalid && !this.noResult && !this.noSecurityType) {
         return;
     }
 
@@ -765,6 +766,9 @@ export class CreateSecurityComponent implements OnInit {
 
   typeaheadNoResults(event: boolean): void {
     this.noResult = event;
+  }
+  typeaheadNoSecurityFound(event: boolean): void {
+    this.noSecurityType = event;
   }
 
 }

@@ -16,7 +16,7 @@
         </div>
 
         <!-- No Result Alert -->
-        <alert *ngIf="noResult" type="danger" [dismissible]="true">
+        <alert *ngIf="noResult || noSecurityType" type="danger" [dismissible]="true">
             <strong>Warning!</strong> Please, only select values from the dropdown!
         </alert>
         <!-- No Result Alert Ends -->
@@ -73,6 +73,7 @@
                         [typeaheadOptionsInScrollableView]="15"
                         (typeaheadOnSelect)="selectedSecurityType($event)"
                         [typeahead]="securityType$"
+                        (typeaheadNoResults)="typeaheadNoSecurityFound($event)"
                         />
                 </div>
             </div>
