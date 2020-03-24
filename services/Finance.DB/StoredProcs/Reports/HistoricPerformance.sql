@@ -1,32 +1,35 @@
 ﻿/*
-exec [HistoricPerformance] '2019-12-31', '2019-01-01'
+truncate table pnl_summary
+select busdate, count(*) from pnl_summary with(nolock)
+group by busDate
+order by busDate desc
+
+exec [HistoricPerformance] '2020-03-18', '2019-04-01'
+select * from pnl_summary where BusDate = '2020-03-18'
+
+select count(*) from current_journal_full
 */
 CREATE PROCEDURE [dbo].[HistoricPerformance]
 	@Now Date,
 	@From Date
 AS
 
-declare @CurrentNAV numeric(32,16)
-declare @Contributions numeric(32,16)
-declare @Withdrawls numeric(32,16)
-declare @SODNAV numeric(32,16)
-
 -- Make sure its updated
 Exec PeriodPnl @Now
 
-select @CurrentNAV = sum(debit-credit) from current_journal_full
-where AccountCategory in ('Asset', 'Liability')
-and [when] >= @From and [when] <= @Now
+RAISERROR('Completed', 0,1) with nowait
 
-select @Contributions = sum(coalesce(credit,0) - coalesce(debit,0)) from current_journal_full 
+select [when], sum(coalesce(credit,0) - coalesce(debit,0)) as balance 
+into #contributed
+from current_journal_full 
 where AccountType in ('CONTRIBUTED CAPITAL')
-and [when] = @now
+group by [when]
 
-select @Withdrawls = sum(coalesce(credit,0) - coalesce(debit,0)) from current_journal_full 
+select [when], sum(coalesce(credit,0) - coalesce(debit,0)) as balance
+into #withdraw
+from current_journal_full 
 where AccountType in ('WITHDRAWN CAPITAL')
-and [when] = @now
-
-set @SODNAV = @CurrentNAV + coalesce(@Contributions,0) + coalesce(@Withdrawls,0)
+group by [when]
 
 /*
 WTD Calcs, need to ensure that the pnl_summary table is populated
@@ -34,9 +37,27 @@ WTD Calcs, need to ensure that the pnl_summary table is populated
 0 as WtdPnlr, 
 */
 
-select @Now as AsOf, sum(DayPnl) as DayPnl, @CurrentNAV as EodNav, coalesce(@Withdrawls,0) as Withdrawls, coalesce(@Contributions,0) as Contributions, 
-sum(DayPnl) / NULLIF(@SODNAV,0) as DayPnlPer, Sum(MtdPnl) / NULLIF(@SODNAV,0) as MtdPnlPer, Sum(QtdPnl) / NULLIF(@SODNAV,0) as QtdPnlPer, Sum(YtdPnl) / NULLIF(@SODNAV,0) as YtdPnlPer, Sum(ItdPnl) / NULLIF(@SODNAV,0) as ItdPnlPer,
-Sum(MtdPnl) MtdPnl, Sum(QtdPnl) as QtdPnl, Sum(YtdPnl) YtdPnl, Sum(ItdPnl) as ItdPnl
-from pnl_summary where BusDate = @Now
+select BusDate as AsOf, 
+	sum(DayPnl) as DayPnl, 
+	Sum(Nav) as EodNav, 
+	sum(coalesce(w.balance,0)) as Withdrawls, 
+	sum(coalesce(c.balance,0)) as Contributions, 
+	sum(DayPnl) / Sum(Nav) as DayPnlPer, 
+	Sum(WtdPnl) / Sum(Nav) as WtdPnlPer, 
+	Sum(MtdPnl) / Sum(Nav) as MtdPnlPer, 
+	Sum(QtdPnl) / Sum(Nav) as QtdPnlPer, 
+	Sum(YtdPnl) / Sum(Nav) as YtdPnlPer, 
+	Sum(ItdPnl) / Sum(Nav) as ItdPnlPer,
+	Sum(WtdPnl) WtdPnl, 
+	Sum(MtdPnl) MtdPnl, 
+	Sum(QtdPnl) QtdPnl, 
+	Sum(YtdPnl) YtdPnl, 
+	Sum(ItdPnl) ItdPnl
+from pnl_summary with(nolock) 
+left outer join #contributed c on c.[when] = BusDate
+left outer join #withdraw w on w.[when] = BusDate
+where BusDate between @From and @Now
+group by BusDate
+order by BusDate desc
 
 RETURN 0

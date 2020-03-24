@@ -1,8 +1,5 @@
 ﻿/*
-select min(id), max(id) from vwJournal where event != 'manual'
-
 exec [CacheBatchResults_rd] 100000
-
 */
 
 CREATE PROCEDURE [dbo].[CacheBatchResults_rd]
@@ -54,6 +51,7 @@ RAISERROR (@message, 0, 1) WITH NOWAIT
 	[fund] [varchar](50) NULL,
 	[AccountCategory] [varchar](50) NULL,
 	[AccountType] [varchar](100) NULL,
+	[AccountTypeId] int NULL,
 	[accountName] [varchar](100) NULL,
 	[accountDescription] [varchar](100) NULL,
 	[value] [numeric](22, 9) NULL,
@@ -80,7 +78,7 @@ ALTER TABLE [dbo].[current_journal_full] ADD  DEFAULT ((1)) FOR [is_account_to]
 
 	RAISERROR ('Populating current_journal_full with manual entries', 0, 1) WITH NOWAIT
 			insert into current_journal_full
-			select top 100 vw.*, 
+			select vw.*, 
 			t.TradeDate,
 			t.SettleDate,
 			t.TradeId, 

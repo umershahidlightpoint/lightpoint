@@ -1,0 +1,25 @@
+<!-- Posting Engine Process Container -->
+<div *ngIf="hideGrid" [ngStyle]="processingMsgDiv">
+    <div class="d-flex align-items-center justify-content-center">
+        <h1> Posting Engine is Running. Please Wait. </h1>
+    </div>
+</div>
+<!-- Posting Engine Process Container Ends -->
+
+<!-- Asset Services Tabs -->
+<div [ngStyle]="{ 'display': hideGrid ? 'none' : 'initial' } ">
+
+    <!-- Tab View Starts -->
+    <tabset class="tab-color">
+
+        <tab heading="Options" (selectTab)="activateOptions()">
+            <div [ngStyle]="style">
+                <app-asset-services-options *ngIf="optionsActive"></app-asset-services-options>
+            </div>
+        </tab>
+
+    </tabset>
+    <!-- Tab View Ends -->
+
+</div>
+<!-- Asset Services Tabs Ends -->

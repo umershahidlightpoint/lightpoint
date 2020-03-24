@@ -485,7 +485,7 @@ namespace PostingEngine.PostingRules
         {
             var fromTo = new AccountUtils().GetAccounts(env, fromAccount, toAccount, new string[] { element.SettleCurrency }.ToList());
 
-            var debit = new Journal(fromTo.From, "reversal-unrealized-cash-fx", env.ValueDate)
+            var debit = new Journal(fromTo.From, Event.REVERSE_UNREALIZED_CASH_FX, env.ValueDate)
             {
                 Source = element.LpOrderId,
                 Fund = env.GetFund(element),
@@ -501,7 +501,7 @@ namespace PostingEngine.PostingRules
                 CreditDebit = env.DebitOrCredit(fromTo.From, reversalAmount),
             };
 
-            var credit = new Journal(fromTo.To, "reversal-unrealized-cash-fx", env.ValueDate)
+            var credit = new Journal(fromTo.To, Event.REVERSE_UNREALIZED_CASH_FX, env.ValueDate)
             {
                 Source = element.LpOrderId,
                 Fund = env.GetFund(element),
@@ -532,9 +532,9 @@ namespace PostingEngine.PostingRules
         /// <param name="fxrate"></param>
         private void ReverseUnrealizedFxGain(PostingEngineEnvironment env, Transaction element, double fxTranslationPnl, double start, double end, double fxrate)
         {
-            var m2mtranslation = element.IsShort() ? "Mark to Market shorts fx translation gain or loss" : "Mark to Market longs fx translation gain or loss";
+            var m2mtranslation = element.IsShort() ? AccountType.M2M_SHORTS_FXTRANSLATION : AccountType.M2M_LONGS_FXTRANSLATION;
 
-            var fromTo = new AccountUtils().GetAccounts(env, m2mtranslation, "change in unrealized do to fx translation", new string[] { element.SettleCurrency }.ToList());
+            var fromTo = new AccountUtils().GetAccounts(env, m2mtranslation, AccountType.CHANGE_UNREALIZED_FXTRANSLATION, new string[] { element.SettleCurrency }.ToList());
 
             var debit = new Journal(fromTo.From, Event.UNREALIZED_FX_TRANSLATION, env.ValueDate)
             {

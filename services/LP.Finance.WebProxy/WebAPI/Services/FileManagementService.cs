@@ -19,6 +19,8 @@ using System.Net;
 using LP.Shared.Cache;
 using LP.Shared.FileMetaData;
 using LP.Shared.Sql;
+using LP.Shared;
+using Utils = LP.Finance.Common.Utils;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
@@ -403,12 +405,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var symbolCache = AppStartCache.GetCachedData("symbol");
                 var currencyCache = AppStartCache.GetCachedData("currency");
-                Dictionary<string, int> symbols;
+                Dictionary<IElement, int> symbols;
                 Dictionary<string, string> currency;
+                List<Trade> trades = new List<Trade>();
 
                 if (symbolCache.Item1)
                 {
-                    symbols = (Dictionary<string, int>) symbolCache.Item2;
+                    symbols = (Dictionary<IElement, int>) symbolCache.Item2;
                 }
                 else
                 {
@@ -430,7 +433,26 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var recordBody = _fileProcessor.ImportFile(path, "Trade", "ImportFormats", ',', true);
 
                 var records = JsonConvert.SerializeObject(recordBody.Item1);
-                var trades = JsonConvert.DeserializeObject<List<Trade>>(records);
+
+                try
+                {
+                    trades = JsonConvert.DeserializeObject<List<Trade>>(records);
+                }
+                catch (Exception ex)
+                {
+                    foreach (var item in recordBody.Item2)
+                    {
+                        var tradeElement = recordBody.Item1.ElementAt(item.RowNumber - 1);
+                        tradeElement.IsUploadInValid = true;
+                        tradeElement.UploadException = JsonConvert.SerializeObject(item);
+                    }
+                    var d = new
+                    {
+                        EnableCommit = false,
+                        Data = recordBody.Item1
+                    };
+                    return Shared.WebApi.Wrap(true, d, HttpStatusCode.OK);
+                }
 
                 foreach (var i in trades)
                 {
@@ -438,12 +460,30 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     i.TradeId = guid;
                     i.LPOrderId = guid;
                     i.ParentOrderId = guid;
+
                     i.Status = "Executed";
                     i.TradeType = "manual";
-
-                    if (symbols.ContainsKey(i.SecurityCode))
+                    i.ParentSymbol = String.Empty;
+                    i.UpdatedOn = System.DateTime.Now;
+                    i.OrderSource = "Manual-Upload";
+                    i.TransactionCategory = "Tax Lot";
+                    if ( i.TradeTime == null )
                     {
-                        i.SecurityId = symbols[i.SecurityCode];
+                        i.TradeTime = i.TradeDate;
+                    }
+
+                    var found = symbols.Keys.Where(item => item.Find(i.Symbol));
+
+                    if (found.Count() > 0)
+                    {
+                        i.SecurityId = found.FirstOrDefault().Id;
+                        var foundSymbol = found.FirstOrDefault() as SymbolDto;
+                        if (foundSymbol != null )
+                        {
+                            i.BloombergCode = foundSymbol.BbergCode;
+                            i.SecurityCode = foundSymbol.SecurityCode;
+                            i.EzeTicker = foundSymbol.EzeTicker;
+                        }
                     }
                 }
 
@@ -474,7 +514,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         DateTime.Now)
                 };
 
-                _fileManager.InsertActivityAndPositionFiles(fileList);
+                _fileManager.InsertFiles(fileList);
                 var data = new
                 {
                     EnableCommit = enableCommit,
@@ -498,16 +538,16 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        public Dictionary<string, int> GetSymbols()
+        public Dictionary<IElement, int> GetSymbols()
         {
-            var query = $@"select s.SecurityCode, s.SecurityId from ( select securitycode, securityid, 
-                            ROW_NUMBER() OVER (PARTITION BY securitycode ORDER BY securityid) 
+            var query = $@"select s.SecurityCode, EzeTicker, BbergCode, s.PricingSymbol, s.SecurityId  from ( select securitycode, EzeTicker, BbergCode, PricingSymbol, securityid, 
+                            ROW_NUMBER() OVER (PARTITION BY securitycode, EzeTicker, BbergCode, PricingSymbol ORDER BY securityid) 
                             row_num from [SecurityMaster]..security ) s where s.row_num = 1";
 
             var dataTable = new SqlHelper(connectionString).GetDataTable(query, CommandType.Text);
             var jsonResult = JsonConvert.SerializeObject(dataTable);
             var symbols = JsonConvert.DeserializeObject<List<SymbolDto>>(jsonResult);
-            var symbolDict = symbols.ToDictionary(x => x.SecurityCode, x => x.SecurityId);
+            var symbolDict = symbols.ToDictionary(x => x as IElement, x => x.SecurityId);
             return symbolDict;
         }
 

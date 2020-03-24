@@ -1,4 +1,12 @@
-import { Component, ViewChild, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { 
+    Component,
+    ViewChild,
+    OnInit, 
+    OnDestroy, 
+    AfterViewInit,   
+    ChangeDetectorRef
+} from '@angular/core';
+
 import { timer, Subject } from 'rxjs';
 import { debounce } from 'rxjs/operators';
 import * as moment from 'moment';
@@ -21,7 +29,8 @@ import {
   SetDateRange,
   CommaSeparatedFormat,
   HeightStyle,
-  DateFormatter
+  DateFormatter,
+  PercentageFormatter
 } from 'src/shared/utils/Shared';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import {
@@ -32,6 +41,7 @@ import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
 import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
+import { DataDictionary } from 'src/shared/utils/DataDictionary';
 
 @Component({
   selector: 'app-historical-performance',
@@ -82,7 +92,9 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
     private financeService: FinanceServiceProxy,
     private reportsApiService: ReportsApiService,
     private securityApiService: SecurityApiService,
-    private downloadExcelUtils: DownloadExcelUtils
+    private downloadExcelUtils: DownloadExcelUtils,
+    private cdRef: ChangeDetectorRef,
+    public dataDictionary: DataDictionary
   ) {
     this.hideGrid = false;
   }
@@ -176,12 +188,16 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
           valueFormatter: currencyFormatter
         },
         {
+          field: 'SodNav',
+          headerName: 'SodNav',
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
+        },
+        {
           field: 'EodNav',
           headerName: 'EodNav',
           cellClass: 'rightAlign',
           valueFormatter: currencyFormatter
-          // rowGroup: true,
-          // enableRowGroup: true
         },
         {
           field: 'Withdrawls',
@@ -192,38 +208,39 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
         {
           field: 'Contributions',
           headerName: 'Contributions',
-          cellClass: 'rightAlign'
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
         },
         {
           field: 'DayPnlPer',
           headerName: 'DayPnlPer',
           cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          //valueFormatter: params => this.dataDictionary.numberFormatter(params.node.data.DayPnlPer, true)
         },
         {
           field: 'MtdPnlPer',
           headerName: 'MtdPnlPer',
           cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          //valueFormatter: params => this.dataDictionary.numberFormatter(params.node.data.MtdPnlPer, true)
         },
         {
           field: 'QtdPnlPer',
           headerName: 'QtdPnlPer',
           // aggFunc: 'sum',
           cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          //valueFormatter: currencyFormatter
         },
         {
           field: 'YtdPnlPer',
           headerName: 'YtdPnlPer',
           cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          //valueFormatter: currencyFormatter
         },
         {
           field: 'ItdPnlPer',
           headerName: 'ItdPnlPer',
           cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          //valueFormatter: currencyFormatter
         },
         {
           field: 'MtdPnl',
@@ -275,15 +292,20 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
   getReport(startDate, endDate) {
     this.isLoading = true;
     this.gridOptions.api.showLoadingOverlay();
-    this.reportsApiService.getHistoricPerformanceReport(startDate, endDate).subscribe(response => {
-      this.reportData = response.payload;
+    this.reportsApiService
+      .getHistoricPerformanceReport(startDate, endDate)
+      .subscribe(response => {
 
-      this.gridOptions.api.setRowData(this.reportData);
-      this.gridOptions.api.sizeColumnsToFit();
+        this.reportData = response.payload;
 
-      this.isLoading = false;
-      this.gridOptions.api.hideOverlay();
-    });
+        this.isLoading = false;
+        this.gridOptions.api.hideOverlay();
+
+        this.gridOptions.api.setRowData(response.payload);
+        this.gridOptions.api.sizeColumnsToFit();
+
+        this.cdRef.detectChanges();
+      });
   }
 
   rowSelected(row) {}

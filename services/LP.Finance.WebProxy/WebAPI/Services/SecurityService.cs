@@ -246,13 +246,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var dataTable = sqlHelper.GetDataTable(query, CommandType.Text, p.ToArray());
                 foreach (DataRow dr in dataTable.Rows)
                 {
-                    securityType = (string)dr["SecurityType"];
+                    securityType = (object)dr["SecurityType"] == DBNull.Value ? "" : (string)dr["SecurityType"];
                 }
 
                 if (securityType == "")
                 {
                     message = "Security Type not found against this symbol";
-                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.Forbidden);
+                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.Forbidden, message);
                 }
 
                 var schema = Shared.WebApi.GetFile<List<SecurityTypeFormConfig>>("security_details", "MockData");

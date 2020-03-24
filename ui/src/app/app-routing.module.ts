@@ -41,6 +41,10 @@ export const routes: Routes = [
     loadChildren: './main/corporate-actions/corporate-actions.module#CorporateActionsModule'
   },
   {
+    path: 'asset-servicing',
+    loadChildren: './main/asset-servicing/asset-servicing.module#AssetServicingModule'
+  },
+  {
     path: 'settings',
     loadChildren: './main/settings/settings.module#SettingsModule'
   },

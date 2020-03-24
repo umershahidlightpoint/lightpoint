@@ -82,6 +82,11 @@ export class AppComponent implements OnInit {
       icon: 'fa-group'
     },
     {
+      name: 'Asset Servicing',
+      routerLink: 'asset-servicing',
+      icon: 'fa-money'
+    },
+    {
       name: 'Securities',
       routerLink: 'oms/security',
       icon: 'fa-lock'

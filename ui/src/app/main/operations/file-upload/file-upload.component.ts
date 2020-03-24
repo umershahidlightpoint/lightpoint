@@ -80,6 +80,7 @@ export class FileUploadComponent implements OnInit {
       defaultColDef: {
         resizable: true,
         cellStyle: params => {
+          if(params.data.UploadException !== undefined) {
           const exception = JSON.parse(params.data.UploadException);
           if (exception) {
             const invalid = exception.Fields.some(
@@ -91,8 +92,10 @@ export class FileUploadComponent implements OnInit {
           } else {
             return null;
           }
-        },
+        }
+      },
         tooltipValueGetter: params => {
+          if(params.data.UploadException !== undefined) {
           const exception = JSON.parse(params.data.UploadException);
           if (exception) {
             let message = '';
@@ -109,7 +112,8 @@ export class FileUploadComponent implements OnInit {
             return '';
           }
         }
-      },
+      }
+    },
       onGridReady: params => {
         GridUtils.autoSizeAllColumns(params);
         this.previewGrid.excelStyles = ExcelStyle;
@@ -118,6 +122,7 @@ export class FileUploadComponent implements OnInit {
         GridUtils.autoSizeAllColumns(params);
       },
       onCellClicked: params => {
+        if(params.data.UploadException !== undefined) {
         const exception = JSON.parse(params.data.UploadException);
         if (params.data.UploadException) {
           this.exceptionContent =
@@ -125,7 +130,8 @@ export class FileUploadComponent implements OnInit {
         } else {
           this.exceptionContent = {};
         }
-      },
+      }
+    },
       // onRowClicked: params => {
       //   if (params.data.UploadException) {
       //     this.exceptionContent = JSON.parse(params.data.UploadException);

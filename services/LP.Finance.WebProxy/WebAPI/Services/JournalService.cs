@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using LP.Finance.Common;
+using LP.Finance.Common.Calculators;
 using LP.Finance.Common.Dtos;
 using LP.Finance.Common.Mappers;
 using LP.Finance.Common.Model;
@@ -1761,12 +1762,20 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                     businessDateTo = to.Value.Date;
                 }
 
+                var calculator = new PnlReturnsCalculator();
+                var data = calculator.Calculate(PnlReturn.GetList(connectionString, from, to));
+
+                /*
                 List<SqlParameter> sqlParams = new List<SqlParameter>();
                 sqlParams.Add(new SqlParameter("@From", businessDateFrom));
                 sqlParams.Add(new SqlParameter("@Now", businessDateTo));
                 var dataTable = sqlHelper.GetDataTable("HistoricPerformance", CommandType.StoredProcedure,
                     sqlParams.ToArray());
                 var reportObject = Shared.WebApi.Wrap(true, dataTable, HttpStatusCode.OK);
+                return reportObject;
+                */
+
+                var reportObject = Shared.WebApi.Wrap(true, data, HttpStatusCode.OK);
                 return reportObject;
             }
             catch (Exception ex)

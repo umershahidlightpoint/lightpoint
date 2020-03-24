@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using iText.IO.Font;
 using LP.Shared.Sql;
 
 namespace LP.Finance.Common.Model
@@ -115,5 +116,18 @@ namespace LP.Finance.Common.Model
                 return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);
             }
         }
+
+        /*
+         * Account Type Literals
+         */
+
+        public static readonly string CUDCFX_TRANSLATION = "Change in Unrealized Derivatives Contracts due to FX Translation";
+        public static readonly string CHANGE_UNREALIZED_FXTRANSLATION = "change in unrealized do to fx translation";
+
+        // FX TRANSLATION
+        public static readonly string M2M_LONGS_FXTRANSLATION = "Mark to Market longs fx translation gain or loss";
+        public static readonly string M2M_SHORTS_FXTRANSLATION = "Mark to Market shorts fx translation gain or loss";
+        public static readonly string M2M_DERIVATIVES_FXTRANSLATION_ASSETS = "Mark to Market Derivatives Contracts due to FX Translation (Assets)";
+        public static readonly string M2M_DERIVATIVES_FXTRANSLATION_LIABILITIES = "Mark to Market Derivatives Contracts due to FX  Translation (Liabilities)";
     }
 }

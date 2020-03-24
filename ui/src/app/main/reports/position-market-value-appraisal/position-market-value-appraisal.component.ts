@@ -165,34 +165,48 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
         {
           field: 'position',
           headerName: 'Position',
+          aggFunc: 'last',
+          enableValue: true,
           rowGroup: true,
           enableRowGroup: true
         },
         {
           field: 'SecurityType',
           headerName: 'SecurityType',
+          aggFunc: 'last',
+          enableValue: true,
           rowGroup: true,
           enableRowGroup: true
         },
         {
           field: 'EzeTicker',
           headerName: 'Symbol',
+          aggFunc: 'last',
+          enableValue: true,
           enableRowGroup: true,
           rowGroup: true
         },
         {
+          aggFunc: 'last',
+          enableValue: true,
           field: 'ISIN',
           headerName: 'ISIN'
         },
         {
+          aggFunc: 'last',
+          enableValue: true,
           field: 'Sedol',
           headerName: 'Sedol'
         },
         {
+          aggFunc: 'last',
+          enableValue: true,
           field: 'Cusip',
           headerName: 'Cusip'
         },
         {
+          aggFunc: 'last',
+          enableValue: true,
           field: 'SecurityDesc',
           headerName: 'Instrument Name'
         },
@@ -218,12 +232,16 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
         {
           field: 'end_price',
           headerName: 'End Price(Local)',
-          cellClass: 'rightAlign'
+          cellClass: 'rightAlign',
+          aggFunc: 'max',
+          enableValue: true,
         },
         {
           field: 'end_price_reporting',
           headerName: 'End Price(Reporting)',
-          cellClass: 'rightAlign'
+          cellClass: 'rightAlign',
+          aggFunc: 'max',
+          enableValue: true,
         },
         {
           field: 'price_percent_change',
@@ -233,28 +251,39 @@ export class PositionMarketValueAppraisalComponent implements OnInit, AfterViewI
         },
         {
           field: 'local_currency',
-          headerName: 'Local Currency'
+          headerName: 'Local Currency',
+          aggFunc: 'last',
+          enableValue: true,
         },
         {
           field: 'fx_rate_to_reporting_currency',
           headerName: 'FX Rate to Reporting Currency',
-          valueFormatter: decimnalFormatter4
+          valueFormatter: decimnalFormatter4,
+          aggFunc: 'max',
+          enableValue: true,
+          cellClass: 'rightAlign',
         },
         {
           field: 'end_market_value_local',
           headerName: 'End Market Value(Local)',
+          aggFunc: 'sum',
+          enableValue: true,
           cellClass: 'rightAlign',
           valueFormatter: currencyFormatter
         },
         {
           field: 'cost_local',
           headerName: 'Cost(Local)',
+          aggFunc: 'sum',
+          enableValue: true,
           cellClass: 'rightAlign',
           valueFormatter: currencyFormatter
         },
         {
           field: 'unrealized_pnl_local',
           headerName: 'Unrealized PnL(Local)',
+          aggFunc: 'sum',
+          enableValue: true,
           cellClass: 'rightAlign',
           valueFormatter: currencyFormatter
         },

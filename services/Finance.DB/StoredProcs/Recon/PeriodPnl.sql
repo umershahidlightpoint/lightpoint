@@ -1,7 +1,12 @@
 ﻿/*
-exec PeriodPnl '2019-12-31', 1
+exec PeriodPnl '2019-04-28', 1
+
+select sum(nav) from pnl_summary where busDate = '2019-12-31'
+select * from pnl_summary where busDate = '2019-12-31'
+order by SecurityCode
 
 exec PnlToDate '2019-12-31', '2019-01-01'
+
 */
 CREATE   PROCEDURE [dbo].[PeriodPnl]
 	@Now Date,
@@ -26,6 +31,8 @@ Set @QTD = DATEADD(qq, DATEDIFF(qq, 0, @Now), 0)
 Set @YTD = DATEFROMPARTS(YEAR(@Now),1,1)
 select @ITD = MIN([when]) from journal with(nolock)
 
+RAISError('Determing Dates', 0, 1) with nowait
+
 print '==> Dates'
 print @Now
 print @WTD
@@ -45,7 +52,8 @@ DECLARE @PnlData TABLE (
 	Quantity numeric(22,9),
 	realizedPnl numeric(22,9), 
 	unrealizedPnl numeric(22,9), 
-	Pnl numeric(22,9)
+	Pnl numeric(22,9),
+	Nav numeric(22,9)
 )
 
 INSERT INTO @PnlData(
@@ -58,13 +66,15 @@ INSERT INTO @PnlData(
 	Quantity, 
 	realizedPnl, 
 	unrealizedPnl, 
-	Pnl
+	Pnl,
+	Nav
 )
 Exec PnlToDate @Now, @Now
 select * 
 into #daypnl
 from @PnlData
 delete from @PnlData
+RAISError('Completed day', 0, 1) with nowait
 
 INSERT INTO @PnlData(
 	BusDate,
@@ -76,13 +86,15 @@ INSERT INTO @PnlData(
 	Quantity, 
 	realizedPnl, 
 	unrealizedPnl, 
-	Pnl
+	Pnl,
+	Nav
 )
 Exec PnlToDate @Now, @WTD
 select * 
 into #wtdpnl
 from @PnlData
 delete from @PnlData
+RAISError('Completed week', 0, 1) with nowait
 
 INSERT INTO @PnlData(
 	BusDate,
@@ -94,13 +106,15 @@ INSERT INTO @PnlData(
 	Quantity, 
 	realizedPnl, 
 	unrealizedPnl, 
-	Pnl
+	Pnl,
+	Nav
 )
 Exec PnlToDate @Now, @MTD
 select * 
 into #mtdpnl
 from @PnlData
 delete from @PnlData
+RAISError('Completed month', 0, 1) with nowait
 
 INSERT INTO @PnlData(
 	BusDate,
@@ -112,13 +126,15 @@ INSERT INTO @PnlData(
 	Quantity, 
 	realizedPnl, 
 	unrealizedPnl, 
-	Pnl
+	Pnl,
+	Nav
 )
 Exec PnlToDate @Now, @QTD
 select * 
 into #qtdpnl
 from @PnlData
 delete from @PnlData
+RAISError('Completed quarter', 0, 1) with nowait
 
 INSERT INTO @PnlData(
 	BusDate,
@@ -130,13 +146,15 @@ INSERT INTO @PnlData(
 	Quantity, 
 	realizedPnl, 
 	unrealizedPnl, 
-	Pnl
+	Pnl,
+	Nav
 )
 Exec PnlToDate @Now, @YTD
 select * 
 into #ytdpnl
 from @PnlData
 delete from @PnlData
+RAISError('Completed year', 0, 1) with nowait
 
 INSERT INTO @PnlData(
 	BusDate,
@@ -148,23 +166,46 @@ INSERT INTO @PnlData(
 	Quantity, 
 	realizedPnl, 
 	unrealizedPnl, 
-	Pnl
+	Pnl,
+	Nav
 )
 Exec PnlToDate @Now, @ITD
 select * 
 into #itdpnl
 from @PnlData
 delete from @PnlData
+RAISError('Completed inception', 0, 1) with nowait
+
+select distinct v.BusDate, v.Fund, v.SecurityCode, v.SecurityId, v.SecurityType , v.currency
+into #distinctSet
+from (
+select BusDate, Fund, SecurityCode, SecurityId, SecurityType, currency from #daypnl
+union 
+select BusDate, Fund, SecurityCode, SecurityId, SecurityType , currency from #wtdpnl
+union 
+select BusDate, Fund, SecurityCode, SecurityId, SecurityType , currency from #mtdpnl
+union 
+select BusDate, Fund, SecurityCode, SecurityId, SecurityType, currency from #qtdpnl
+union 
+select BusDate, Fund, SecurityCode, SecurityId, SecurityType , currency from #itdpnl
+) v
+RAISError('Completed distinct', 0, 1) with nowait
 
 delete from pnl_summary where BusDate = @Now
+RAISError('Completed delete', 0, 1) with nowait
 
-insert into pnl_summary (BusDate, SecurityCode, SecurityId, SecurityType, Quantity, currency, DayPnl, MtdPnl, QtdPnl, YtdPnl, ItdPnl)
-select day.BusDate, day.SecurityCode, day.SecurityId, day.SecurityType, day.Quantity, day.currency, day.Pnl as DayPnl, mtd.Pnl as MTDPnl, qtd.Pnl as QTDPnl, ytd.Pnl as YTDPnl, itd.Pnl as ITDPnl 
-from #daypnl day
-inner join #wtdpnl wtd on wtd.SecurityId = day.SecurityId and wtd.Fund = day.Fund and Wtd.SecurityType = day.SecurityType and wtd.currency = day.currency
-inner join #mtdpnl mtd on mtd.SecurityId = day.SecurityId and mtd.Fund = day.Fund and mtd.SecurityType = day.SecurityType and mtd.currency = day.currency
-inner join #qtdpnl qtd on qtd.SecurityId = day.SecurityId and qtd.Fund = day.Fund and qtd.SecurityType = day.SecurityType and qtd.currency = day.currency
-inner join #ytdpnl ytd on ytd.SecurityId = day.SecurityId and ytd.Fund = day.Fund and ytd.SecurityType = day.SecurityType and ytd.currency = day.currency
-inner join #itdpnl itd on itd.SecurityId = day.SecurityId and itd.Fund = day.Fund and itd.SecurityType = day.SecurityType and itd.currency = day.currency
+insert into pnl_summary (BusDate, Fund, SecurityCode, SecurityId, SecurityType, currency, Quantity, DayPnl, WtdPnl, MtdPnl, QtdPnl, YtdPnl, ItdPnl, Nav)
+select distinctSet.BusDate, distinctSet.Fund, distinctSet.SecurityCode, distinctSet.SecurityId, distinctSet.SecurityType, distinctSet.currency, 
+itd.Quantity, day.Pnl as DayPnl, wtd.Pnl as WtdPnl, mtd.Pnl as MTDPnl, qtd.Pnl as QTDPnl, ytd.Pnl as YTDPnl, itd.Pnl as ITDPnl, itd.Nav 
+from #distinctSet distinctSet
+left outer join #daypnl day on day.SecurityCode = distinctSet.SecurityCode and day.BusDate = distinctSet.BusDate and day.SecurityId = distinctSet.SecurityId and day.Fund = distinctSet.Fund and day.SecurityType = distinctSet.SecurityType and day.currency = distinctSet.currency
+left outer join #wtdpnl wtd on wtd.SecurityCode = distinctSet.SecurityCode and wtd.BusDate = distinctSet.BusDate and wtd.SecurityId = distinctSet.SecurityId and wtd.Fund = distinctSet.Fund and Wtd.SecurityType = distinctSet.SecurityType and wtd.currency = distinctSet.currency
+left outer join #mtdpnl mtd on mtd.SecurityCode = distinctSet.SecurityCode and mtd.BusDate = distinctSet.BusDate and mtd.SecurityId = distinctSet.SecurityId and mtd.Fund = distinctSet.Fund and mtd.SecurityType = distinctSet.SecurityType and mtd.currency = distinctSet.currency
+left outer join #qtdpnl qtd on qtd.SecurityCode = distinctSet.SecurityCode and qtd.BusDate = distinctSet.BusDate and qtd.SecurityId = distinctSet.SecurityId and qtd.Fund = distinctSet.Fund and qtd.SecurityType = distinctSet.SecurityType and qtd.currency = distinctSet.currency
+left outer join #ytdpnl ytd on ytd.SecurityCode = distinctSet.SecurityCode and ytd.BusDate = distinctSet.BusDate and ytd.SecurityId = distinctSet.SecurityId and ytd.Fund = distinctSet.Fund and ytd.SecurityType = distinctSet.SecurityType and ytd.currency = distinctSet.currency
+left outer join #itdpnl itd on itd.SecurityCode = distinctSet.SecurityCode and itd.BusDate = distinctSet.BusDate and itd.SecurityId = distinctSet.SecurityId and itd.Fund = distinctSet.Fund and itd.SecurityType = distinctSet.SecurityType and itd.currency = distinctSet.currency
+-- where distinctSet.SecurityCode like '@CASH%'
+
+RAISError('Completed', 0, 1) with nowait
 
 RETURN 0

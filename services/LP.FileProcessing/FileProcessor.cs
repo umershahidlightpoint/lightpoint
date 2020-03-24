@@ -25,7 +25,17 @@ namespace LP.FileProcessing
             WritePipe(record.Item1, header, trailer, path, schema);
             return new Tuple<Dictionary<object, Row>, int>(record.Item2, record.Item1.Count());
         }
-
+        /// <summary>Used to import contents of a file.
+        /// <para>A meta data json file is required which defines the data that is being uploaded.</para>
+        /// The param <paramref name="path"/> takes in the complete path of the uploaded file.
+        /// The param <paramref name="fileName"/> takes in name of the meta data json file. For e.g if the file name is Trade.json, you will pass in Trade.
+        /// The param <paramref name="folderName"/> takes in name of the folder which contains the meta data json file.
+        /// The param <paramref name="delim"/> takes in a character which represents the delimited file for e.g in case it is a csv file, you will pass in ','.
+        /// The param <paramref name="firstLineHasHeadings"/> takes in a boolean which siginifies if the uploaded file contains headings or not. Default value is false.
+        /// </summary>
+        /// <returns>Returns a tuple with the first item being list of uploaded content, 
+        /// second item contains a list of exceptions for each row,
+        /// and the last item is a boolean tells whether the whole import process was successful or not</returns>
         public Tuple<List<dynamic>, List<Row>, bool> ImportFile(string path, string fileName, string folderName,
             char delim, bool firstLineHasHeadings = false)
         {
@@ -105,16 +115,19 @@ namespace LP.FileProcessing
                 else if (!String.IsNullOrEmpty(map.Type))
                 {
                     // for format validation and data conversion
-                    if (!String.IsNullOrEmpty(map.Function) && !String.IsNullOrEmpty(map.Format) &&
+                    if (map.Function.Count > 0 && !String.IsNullOrEmpty(map.Format) &&
                         !String.IsNullOrEmpty(map.Type))
                     {
-                        Type thisType = Type.GetType("LP.Shared.FileProcessingUtils,LP.Shared"); ;
-                        MethodInfo theMethod = thisType.GetMethod(map.Function);
-                        object[] parametersArray = {value, map.Format, map.Type};
-                        var val = (Tuple<object, bool, string>) theMethod.Invoke(this, parametersArray);
-                        isValid = val.Item2;
-                        message = val.Item3;
-                        value = val.Item1;
+                        foreach (var func in map.Function)
+                        {
+                            Type thisType = Type.GetType(func.Assembly); ;
+                            MethodInfo theMethod = thisType.GetMethod(func.Name);
+                            object[] parametersArray = { value, map.Format, map.Type };
+                            var val = (Tuple<object, bool, string>)theMethod.Invoke(this, parametersArray);
+                            isValid = val.Item2;
+                            message = val.Item3;
+                            value = val.Item1;
+                        }
                     }
                 }
                 else
@@ -220,59 +233,88 @@ namespace LP.FileProcessing
                     bool isValid = true;
                     foreach (var item in delimited)
                     {
+                        string value = item;
                         if (index == 0 && headerDictionary.Count > 0)
                         {
                             if (dictionaryIndex == recordOffset)
                             {
-                                totalRecords = Convert.ToInt32(item);
+                                totalRecords = Convert.ToInt32(value);
                             }
 
-                            AddProperty(obj, headerDictionary[dictionaryIndex].Destination, item);
+                            AddProperty(obj, headerDictionary[dictionaryIndex].Destination, value);
                         }
                         else if (totalRecords.HasValue && index == totalRecords - 1)
                         {
-                            AddProperty(obj, trailerDictionary[dictionaryIndex].Destination, item);
+                            AddProperty(obj, trailerDictionary[dictionaryIndex].Destination, value);
                         }
                         else
                         {
+                            if (!string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(recordDictionary[dictionaryIndex].Type))
+                            {
+                                Type thisType = Type.GetType("LP.Shared.FileProcessingUtils,LP.Shared");
+                                MethodInfo theMethod = thisType.GetMethod("IsValidDataType");
+                                object[] parametersArray =
+                                {
+                                            value, recordDictionary[dictionaryIndex].Type
+                                        };
+                                var val = (Tuple<object, bool, string>)theMethod.Invoke(this, parametersArray);
+                                value = (string)val.Item1;
+                                isValid = val.Item2;
+                                message = val.Item3;
+                            }
+
                             if (String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Type))
                             {
                                 isValid = false;
                                 message = "Type not specified in meta data definition";
                             }
-                            else if (!string.IsNullOrEmpty(recordDictionary[dictionaryIndex].Required) && recordDictionary[dictionaryIndex].Required.Equals("true") && string.IsNullOrEmpty(item))
+                            else if (!string.IsNullOrEmpty(recordDictionary[dictionaryIndex].Required) && recordDictionary[dictionaryIndex].Required.Equals("true") && string.IsNullOrEmpty(value))
                             {
                                 isValid = false;
                                 message = "This is a required field";
                             }
-                            else if (!String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Function) &&
-                                     !String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Format))
+                            
+                            else if (recordDictionary[dictionaryIndex].Function.Count > 0)
                             {
-                                Type thisType = Type.GetType("LP.Shared.FileProcessingUtils,LP.Shared");
-                                MethodInfo theMethod = thisType.GetMethod(recordDictionary[dictionaryIndex].Function);
-                                object[] parametersArray =
+                                foreach (var func in recordDictionary[dictionaryIndex].Function)
                                 {
-                                    item, recordDictionary[dictionaryIndex].Format, recordDictionary[dictionaryIndex].Type
-                                };
-                                var val = (Tuple<object, bool, string>)theMethod.Invoke(this, parametersArray);
-                                isValid = val.Item2;
-                                message = val.Item3;
-                            }
-                            else if (!String.IsNullOrEmpty(recordDictionary[dictionaryIndex].Function))
-                            {
-                                Type thisType = Type.GetType("LP.Shared.FileProcessingUtils,LP.Shared");
-                                MethodInfo theMethod = thisType.GetMethod(recordDictionary[dictionaryIndex].Function);
-                                object[] parametersArray =
-                                {
-                                    item
-                                };
-                                var val = (Tuple<object, bool, string>)theMethod.Invoke(this, parametersArray);
-                                isValid = val.Item2;
-                                message = val.Item3;
-                            }
+                                    if (!string.IsNullOrEmpty(func.Assembly) && !string.IsNullOrEmpty(func.Name))
+                                    {
+                                        Type thisType = Type.GetType(func.Assembly);
+                                        MethodInfo theMethod = thisType.GetMethod(func.Name);
+                                        object[] parametersArray =
+                                        {
+                                            value, recordDictionary[dictionaryIndex].Format, recordDictionary[dictionaryIndex].Type
+                                        };
+                                        var val = (Tuple<object, bool, string>)theMethod.Invoke(this, parametersArray);
+                                        value = (string)val.Item1;
+                                        isValid = val.Item2;
+                                        message = val.Item3;
+                                    }
+                                    else if (string.IsNullOrEmpty(func.Assembly))
+                                    {
+                                        isValid = false;
+                                        message = "Assemmbly name not specified";
+                                    }
+                                    else
+                                    {
+                                        isValid = false;
+                                        message = "Function name not specified";
+                                    }
 
-
-                            AddProperty(obj, recordDictionary[dictionaryIndex].Destination, item);
+                                    //continue execution of the next function only if the previous function returns true.
+                                    if (isValid)
+                                    {
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                          
+                            AddProperty(obj, recordDictionary[dictionaryIndex].Destination, value);
                         }
 
                         if (!isValid)
@@ -283,7 +325,7 @@ namespace LP.FileProcessing
                             {
                                 Name = recordDictionary[dictionaryIndex].Destination,
                                 Message = message,
-                                Value = item,
+                                Value = value,
                                 MetaData = recordDictionary[dictionaryIndex]
                             };
                             failedRecords.Add(failedField);

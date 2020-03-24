@@ -84,7 +84,7 @@ namespace LP.Shared
         {
             bool valid = true;
             string exception = "";
-            if (type == "decimal")
+            if (type == "decimal" || type == "double")
             {
                 string val = Convert.ToString(value);
                 string[] parsedVal = val.Split('.');
@@ -106,7 +106,7 @@ namespace LP.Shared
                                 $"{parsedVal.ElementAt(1).Length} digit(s). Only {decimalNumberLength} digit(s) are allowed";
                 }
             }
-            else if (type == "char")
+            else if (type == "char" || type == "string")
             {
                 string val = (string)value;
                 if (val != null)
@@ -124,62 +124,50 @@ namespace LP.Shared
             return new Tuple<object, bool, string>(value, valid, exception);
         }
 
-        public static Tuple<object, bool, string> IsValidSymbol(object value)
+        public static Tuple<object, bool, string> IsValidDataType(object value, string type)
         {
-            var symbolMap = AppStartCache.GetCachedData("symbol");
-            var exception = "";
-            var valid = true;
-            var symbolValue = (string)value;
-            if (symbolMap.Item1)
+            bool isValid = true;
+            string message = "";
+            string v = (string)value;
+            if (type.Equals("int"))
             {
-                var symbol = (Dictionary<string, int>)symbolMap.Item2;
-                if (symbol.ContainsKey(symbolValue))
+                isValid = int.TryParse(v, out int result);
+                if (!isValid)
                 {
-                    valid = true;
-                    return new Tuple<object, bool, string>(value, valid, exception);
-                }
-                else
-                {
-                    valid = false;
-                    exception = "Invalid symbol";
-                    return new Tuple<object, bool, string>(value, valid, exception);
+                    message = "Value is not a valid integer";
                 }
             }
-            else
+            else if (type.Equals("double"))
             {
-                valid = false;
-                exception = "Data not found to validate symbol";
-                return new Tuple<object, bool, string>(value, valid, exception);
+                isValid = double.TryParse(v, out double result);
+                if (!isValid)
+                {
+                    message = "Value is not a valid double";
+                }
             }
+            else if (type.Equals("decimal"))
+            {
+                isValid = decimal.TryParse(v, out decimal result);
+                if (!isValid)
+                {
+                    message = "Value is not a valid decimal";
+                }
+            }
+            else if (type.Equals("date") || type.Equals("datetime"))
+            {
+                isValid = DateTime.TryParse(v, out DateTime result);
+                if (!isValid)
+                {
+                    message = "Value is not a valid date";
+                }
+            }
+            else if(type.Equals("string") || type.Equals("char"))
+            {
+                isValid = true;
+            }
+
+            return new Tuple<object, bool, string>(value, isValid, message);
         }
 
-        public static Tuple<object, bool, string> IsValidCurrency(object value)
-        {
-            var currencyMap = AppStartCache.GetCachedData("currency");
-            var exception = "";
-            var valid = true;
-            var currencyValue = (string)value;
-            if (currencyMap.Item1)
-            {
-                var currency = (Dictionary<string, string>)currencyMap.Item2;
-                if (currency.ContainsKey(currencyValue))
-                {
-                    valid = true;
-                    return new Tuple<object, bool, string>(value, valid, exception);
-                }
-                else
-                {
-                    valid = false;
-                    exception = "Invalid currency";
-                    return new Tuple<object, bool, string>(value, valid, exception);
-                }
-            }
-            else
-            {
-                valid = false;
-                exception = "Data not found to validate currency";
-                return new Tuple<object, bool, string>(value, valid, exception);
-            }
-        }
     }
 }
