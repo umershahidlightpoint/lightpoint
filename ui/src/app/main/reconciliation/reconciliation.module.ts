@@ -8,7 +8,7 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { AngularSplitModule } from 'angular-split';
 import { NgcatalystModule } from 'ngcatalyst';
-import { LpToolkitModule } from 'lp-toolkit';
+import { LpToolkitModule } from '@lightpointfinancialtechnology/lp-toolkit';
 
 import { ReconciliationComponent } from './reconciliation.component';
 import { DayPnlComponent } from '../reconciliation/daypnl-reconcile/daypnl-reconcile.component';

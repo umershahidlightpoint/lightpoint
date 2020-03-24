@@ -76,7 +76,7 @@ namespace PostingEngine
             var fxRate = FxRates.Find(this, journal.When, journal.FxCurrency).Rate;
 
             // For only the following events we need to no set the local_value
-            if (journal.Event.Equals("settled-cash-fx"))
+            if (journal.Event.Equals("settled-cash-fx") || journal.Event.Equals("unrealized-fx-translation"))
             {
                 journal.JournalValue = new JournalValue(0, journal.Value);
             }
@@ -428,7 +428,7 @@ namespace PostingEngine
                          and AccountCategory = 'Revenues'
                          -- and AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'Change in Unrealized Derivatives Contracts at Fair Value') 
                          and fx_currency != '{BaseCurrency}'
-                         and [when] = '{valueDate.ToString("MM-dd-yyyy")}'";
+                         and [when] = '{valueDate:MM-dd-yyyy}'";
 
             using (var _connection = new SqlConnection(ConnectionString))
             {
@@ -439,7 +439,6 @@ namespace PostingEngine
 
                 while (reader.Read())
                 {
-                    var offset = 0;
                     try
                     {
                         var unsettledPnl = new PnlData(reader);

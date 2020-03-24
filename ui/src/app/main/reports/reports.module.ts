@@ -8,7 +8,7 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { AngularSplitModule } from 'angular-split';
 import { NgcatalystModule } from 'ngcatalyst';
-import { LpToolkitModule } from 'lp-toolkit';
+import { LpToolkitModule } from '@lightpointfinancialtechnology/lp-toolkit';
 
 import { ReportsComponent } from './reports.component';
 import { CostBasisComponent } from './costbasis/costbasis.component';

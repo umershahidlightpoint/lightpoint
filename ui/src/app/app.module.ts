@@ -10,7 +10,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { MaterialModule } from './material.module';
 import { ToastrModule } from 'ngx-toastr';
 import { TooltipModule } from 'ngx-bootstrap';
-import { LpToolkitModule } from 'lp-toolkit';
+import { LpToolkitModule } from '@lightpointfinancialtechnology/lp-toolkit';
 import { SharedModule } from './shared.module';
 import { AngularSplitModule } from 'angular-split';
 

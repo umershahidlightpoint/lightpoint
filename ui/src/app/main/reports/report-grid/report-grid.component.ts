@@ -12,7 +12,10 @@ import {
   SimpleChanges
 } from '@angular/core';
 import { GridOptions, ColDef, ColGroupDef } from 'ag-grid-community';
-import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
+import {
+  GridLayoutMenuComponent,
+  CustomGridOptions
+} from '@lightpointfinancialtechnology/lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';

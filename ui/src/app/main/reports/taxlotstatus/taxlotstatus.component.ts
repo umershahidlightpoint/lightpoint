@@ -15,7 +15,10 @@ import {
   TrialBalanceReport,
   TrialBalanceReportStats
 } from '../../../../shared/Models/trial-balance';
-import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
+import {
+  GridLayoutMenuComponent,
+  CustomGridOptions
+} from '@lightpointfinancialtechnology/lp-toolkit';
 import { GridId, GridName, LayoutConfig } from 'src/shared/utils/AppEnums';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 import { CreateDividendComponent } from 'src/shared/Modal/create-dividend/create-dividend.component';
@@ -357,7 +360,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           cellClass: 'rightAlign',
           valueFormatter: currencyFormatter,
           aggFunc: 'sum',
-          enableValue: true,
+          enableValue: true
         },
         {
           field: 'quantity',
@@ -368,7 +371,7 @@ export class TaxLotStatusComponent implements OnInit, AfterViewInit {
           cellClass: 'rightAlign',
           valueFormatter: currencyFormatter,
           aggFunc: 'sum',
-          enableValue: true,
+          enableValue: true
         },
         {
           field: 'investment_at_cost',

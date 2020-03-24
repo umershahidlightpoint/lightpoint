@@ -8,7 +8,7 @@ import {
   Output,
   EventEmitter
 } from '@angular/core';
-import { ModalComponent } from 'lp-toolkit';
+import { ModalComponent } from '@lightpointfinancialtechnology/lp-toolkit';
 
 @Component({
   selector: 'app-data-modal',

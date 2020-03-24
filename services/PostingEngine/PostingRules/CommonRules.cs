@@ -792,7 +792,7 @@ namespace PostingEngine.PostingRules
 
         internal static void GenerateTradeDateJournals(PostingEngineEnvironment env, Transaction element)
         {
-            Logger.Info($"tradedate event :: {element.LpOrderId}");
+            //Logger.Info($"tradedate event :: {element.LpOrderId}");
 
             var multiplier = element.Multiplier(env);
             double fxrate = 1.0;

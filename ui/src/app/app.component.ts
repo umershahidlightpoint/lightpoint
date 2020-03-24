@@ -8,7 +8,7 @@ import {
   NavigationError
 } from '@angular/router';
 import { Observable, forkJoin } from 'rxjs';
-import { ThemeService, Page } from 'lp-toolkit';
+import { ThemeService, Page } from '@lightpointfinancialtechnology/lp-toolkit';
 import { CacheService } from 'src/services/common/cache.service';
 import { SettingApiService } from 'src/services/setting-api.service';
 import { ServicesStatusApiService } from 'src/services/services-status-api.service';
@@ -80,6 +80,11 @@ export class AppComponent implements OnInit {
       name: 'Corporate Actions',
       routerLink: 'corporate-actions',
       icon: 'fa-group'
+    },
+    {
+      name: 'Asset Servicing',
+      routerLink: 'asset-servicing',
+      icon: 'fa-money'
     },
     {
       name: 'Securities',

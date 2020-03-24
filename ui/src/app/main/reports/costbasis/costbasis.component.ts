@@ -32,7 +32,11 @@ import {
   DateFormatter
 } from 'src/shared/utils/Shared';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
-import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
+import {
+  GridLayoutMenuComponent,
+  CustomGridOptions,
+  GridUtils
+} from '@lightpointfinancialtechnology/lp-toolkit';
 import { LayoutConfig, GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';

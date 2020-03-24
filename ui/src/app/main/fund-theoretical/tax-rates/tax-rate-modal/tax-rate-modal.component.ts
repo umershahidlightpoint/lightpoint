@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
-import { ModalComponent, ModalFooterConfig } from 'lp-toolkit';
+import { ModalComponent, ModalFooterConfig } from '@lightpointfinancialtechnology/lp-toolkit';
 import { ToastrService } from 'ngx-toastr';
 import * as moment from 'moment';
 import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.service';

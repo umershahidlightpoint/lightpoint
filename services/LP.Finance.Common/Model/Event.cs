@@ -12,6 +12,8 @@ namespace LP.Finance.Common.Model
 
         public static readonly string REALIZED_CASH_FX = "realized-cash-fx";
 
+        public static readonly string REVERSE_UNREALIZED_CASH_FX = "reversal-unrealized-cash-fx";
+
         public static readonly string UNREALIZED_FX_TRANSLATION = "unrealized-fx-translation";
 
         public static readonly string TRADE_DATE = "tradedate";

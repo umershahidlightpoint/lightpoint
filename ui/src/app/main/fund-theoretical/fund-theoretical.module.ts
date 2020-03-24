@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { NgcatalystModule } from 'ngcatalyst';
 import { RouterModule } from '@angular/router';
-import { LpToolkitModule } from 'lp-toolkit';
+import { LpToolkitModule } from '@lightpointfinancialtechnology/lp-toolkit';
 import { AngularSplitModule } from 'angular-split';
 
 import { FundTheoreticalComponent } from './fund-theoretical.component';

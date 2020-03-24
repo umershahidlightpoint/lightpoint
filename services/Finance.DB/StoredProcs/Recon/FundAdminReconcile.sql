@@ -1,6 +1,7 @@
 ﻿/*
 Compare FundAdmin Numbers to PA Numbers
 
+truncate table pnl_summary
 exec FundAdminReconcile '2019-12-31'
 Exec PeriodPnl '2019-12-31'
 */
@@ -9,10 +10,12 @@ CREATE PROCEDURE [dbo].[FundAdminReconcile]
 AS
 
 /*
-Grab Data from PA first
+Grab Data from PA first, if not populated generate the data first
 */
 
-Exec PeriodPnl @businessDate, 1
+Exec PeriodPnl @businessDate
+
+RAISError('Security', 0, 1) with nowait
 
 select @businessDate as busDate, s.SecurityCode, pnl.SecurityId, Sum(Amount) as Quantity, Sum(PLBaseRealizedPnl + PLBaseUnRealizedPnl) as DayPnl, Sum(MTDBaseRealizedPnl + MTDBaseUnRealizedPnl) as MTDPnl, Sum(YTDBaseRealizedPnl + YTDBaseUnRealizedPnl) as YTDPnl 
 into #fundadmin
@@ -21,6 +24,7 @@ inner join SecurityMaster..Security s on s.SecurityId = pnl.SecurityId
 where BusDate = @businessDate and Symbol is not null and pnl.SecurityId != 0
 group by s.SecurityCode, pnl.SecurityId
 
+RAISError('Get from pnl_summary', 0, 1) with nowait
 -- select * from pnl_summary
 select @businessDate as BusDate, Currency, SecurityCode, SecurityType, Sum(Quantity) as Quantity, SUm(DayPnl) as DayPnl, SUm(MtdPnl) as MtdPnl, SUm(QtdPnl) as QtdPnl, SUm(YtdPnl) as YtdPnl, SUm(ItdPnl) as ItdPnl
 into #pnl_summary
@@ -28,6 +32,7 @@ from pnl_summary
 where BusDate =  @businessDate
 group by Currency, SecurityCode, SecurityType
 
+RAISError('Reconcile', 0, 1) with nowait
 -- Reconcile
 select 
 coalesce(p.BusDate, b.BusDate) as BusDate, 

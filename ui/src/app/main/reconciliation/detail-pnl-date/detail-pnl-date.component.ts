@@ -9,7 +9,11 @@ import { ReportsApiService } from 'src/services/reports-api.service';
 import { SecurityApiService } from 'src/services/security-api.service';
 import { ToastrService } from 'ngx-toastr';
 import { Fund } from '../../../../shared/Models/account';
-import { GridLayoutMenuComponent, CustomGridOptions, GridUtils } from 'lp-toolkit';
+import {
+  GridLayoutMenuComponent,
+  CustomGridOptions,
+  GridUtils
+} from '@lightpointfinancialtechnology/lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { CreateDividendComponent } from 'src/shared/Modal/create-dividend/create-dividend.component';
 import { CreateStockSplitsComponent } from 'src/shared/Modal/create-stock-splits/create-stock-splits.component';
@@ -83,7 +87,7 @@ export class DetailPnlDateComponent implements OnInit, AfterViewInit {
     private dataDictionary: DataDictionary,
     private downloadExcelUtils: DownloadExcelUtils,
     private securityApiService: SecurityApiService,
-    private toastrService: ToastrService,
+    private toastrService: ToastrService
   ) {
     this.hideGrid = false;
   }

@@ -9,7 +9,10 @@ import {
 import { ColDef, ColGroupDef } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import * as moment from 'moment';
-import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
+import {
+  GridLayoutMenuComponent,
+  CustomGridOptions
+} from '@lightpointfinancialtechnology/lp-toolkit';
 import { GridId, GridName, LayoutConfig } from 'src/shared/utils/AppEnums';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';

@@ -11,7 +11,7 @@ import { timer, Subject } from 'rxjs';
 import { debounce } from 'rxjs/operators';
 import * as moment from 'moment';
 import { ToastrService } from 'ngx-toastr';
-import { GridUtils } from 'lp-toolkit';
+import { GridUtils } from '@lightpointfinancialtechnology/lp-toolkit';
 import { DataService } from '../../../../services/common/data.service';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
 import { ReportsApiService } from 'src/services/reports-api.service';
@@ -29,21 +29,25 @@ import {
   SetDateRange,
   CommaSeparatedFormat,
   HeightStyle,
-  DateFormatter
+  DateFormatter,
+  PercentageFormatter
 } from 'src/shared/utils/Shared';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
-import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
+import {
+  GridLayoutMenuComponent,
+  CustomGridOptions
+} from '@lightpointfinancialtechnology/lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
 import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
+import { DataDictionary } from 'src/shared/utils/DataDictionary';
 
 @Component({
   selector: 'app-historical-performance',
   templateUrl: './historical-performance.component.html',
-  styleUrls: ['./historical-performance.component.scss'],
+  styleUrls: ['./historical-performance.component.scss']
 })
-
 export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('securityModal', { static: false }) securityModal: CreateSecurityComponent;
 
@@ -90,6 +94,7 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
     private securityApiService: SecurityApiService,
     private downloadExcelUtils: DownloadExcelUtils,
     private cdRef: ChangeDetectorRef,
+    public dataDictionary: DataDictionary
   ) {
     this.hideGrid = false;
   }
@@ -183,12 +188,16 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
           valueFormatter: currencyFormatter
         },
         {
+          field: 'SodNav',
+          headerName: 'SodNav',
+          cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
+        },
+        {
           field: 'EodNav',
           headerName: 'EodNav',
           cellClass: 'rightAlign',
           valueFormatter: currencyFormatter
-          // rowGroup: true,
-          // enableRowGroup: true
         },
         {
           field: 'Withdrawls',
@@ -200,37 +209,38 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
           field: 'Contributions',
           headerName: 'Contributions',
           cellClass: 'rightAlign',
+          valueFormatter: currencyFormatter
         },
         {
           field: 'DayPnlPer',
           headerName: 'DayPnlPer',
           cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          //valueFormatter: params => this.dataDictionary.numberFormatter(params.node.data.DayPnlPer, true)
         },
         {
           field: 'MtdPnlPer',
           headerName: 'MtdPnlPer',
           cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          //valueFormatter: params => this.dataDictionary.numberFormatter(params.node.data.MtdPnlPer, true)
         },
         {
           field: 'QtdPnlPer',
           headerName: 'QtdPnlPer',
           // aggFunc: 'sum',
           cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          //valueFormatter: currencyFormatter
         },
         {
           field: 'YtdPnlPer',
           headerName: 'YtdPnlPer',
           cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          //valueFormatter: currencyFormatter
         },
         {
           field: 'ItdPnlPer',
           headerName: 'ItdPnlPer',
           cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          //valueFormatter: currencyFormatter
         },
         {
           field: 'MtdPnl',
@@ -354,20 +364,28 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
 
               this.securityApiService.getDataForSecurityModal(params.node.data.EzeTicker).subscribe(
                 ([config, securityDetails]: [any, any]) => {
-
                   this.isLoading = false;
                   if (!config.isSuccessful) {
-                  this.toastrService.error('No security type found against the selected symbol!');
-                  return;
-                }
+                    this.toastrService.error('No security type found against the selected symbol!');
+                    return;
+                  }
                   if (securityDetails.payload.length === 0) {
-                  this.securityModal.openSecurityModalFromOutside(params.node.data.EzeTicker,
-                    config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
-                } else {
-                  this.securityModal.openSecurityModalFromOutside(params.node.data.EzeTicker,
-                    config.payload[0].SecurityType, config.payload[0].Fields, securityDetails.payload[0], 'extend');
-                }
-
+                    this.securityModal.openSecurityModalFromOutside(
+                      params.node.data.EzeTicker,
+                      config.payload[0].SecurityType,
+                      config.payload[0].Fields,
+                      null,
+                      'extend'
+                    );
+                  } else {
+                    this.securityModal.openSecurityModalFromOutside(
+                      params.node.data.EzeTicker,
+                      config.payload[0].SecurityType,
+                      config.payload[0].Fields,
+                      securityDetails.payload[0],
+                      'extend'
+                    );
+                  }
                 },
                 error => {
                   this.isLoading = false;
@@ -467,7 +485,7 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
     this.downloadExcelUtils.ToastrMessage();
   }
 
-  ngOnDestroy() { }
+  ngOnDestroy() {}
 }
 
 function dateFormatter(params): string {
@@ -511,4 +529,3 @@ function absCurrencyFormatter(params) {
   }
   return CommaSeparatedFormat(Math.abs(params.value));
 }
-

@@ -4,7 +4,7 @@ import { TabsModule, ModalModule, TooltipModule } from 'ngx-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
-import { LpToolkitModule } from 'lp-toolkit';
+import { LpToolkitModule } from '@lightpointfinancialtechnology/lp-toolkit';
 
 // Journal Allocation
 import { JournalAllocationComponent } from './journal-allocation/journal-allocation.component';
@@ -25,16 +25,15 @@ import { RouterModule } from '@angular/router';
 import { SharedModule } from '../../shared.module';
 import { OmsRoutes } from './oms.route';
 
-
 const omsComponents = [
-     JournalAllocationComponent,
-     TradesComponent,
-     AllocationsComponent,
-     TradeAllocationComponent,
-     AccrualsComponent,
-     SecuritiesComponent,
-     SecurityDetailsComponent
-  ];
+  JournalAllocationComponent,
+  TradesComponent,
+  AllocationsComponent,
+  TradeAllocationComponent,
+  AccrualsComponent,
+  SecuritiesComponent,
+  SecurityDetailsComponent
+];
 
 @NgModule({
   declarations: [...omsComponents],
@@ -53,7 +52,7 @@ const omsComponents = [
     }),
     LpToolkitModule,
     SharedModule,
-    RouterModule.forChild(OmsRoutes),
+    RouterModule.forChild(OmsRoutes)
   ]
 })
-export class OmsModule { }
+export class OmsModule {}

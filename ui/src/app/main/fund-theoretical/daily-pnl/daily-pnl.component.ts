@@ -10,7 +10,10 @@ import { DecimalPipe } from '@angular/common';
 import { ColDef, ColGroupDef } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import * as moment from 'moment';
-import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
+import {
+  GridLayoutMenuComponent,
+  CustomGridOptions
+} from '@lightpointfinancialtechnology/lp-toolkit';
 import { GridId, GridName, LayoutConfig } from 'src/shared/utils/AppEnums';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { CacheService } from 'src/services/common/cache.service';
@@ -493,27 +496,48 @@ export class DailyPnlComponent implements OnInit, AfterViewInit {
       {
         headerName: 'P/L %',
         field: 'pnLPercentage',
-        valueFormatter: params => this.returnsFormatter(params.node.data.pnLPercentage, true, this.returnsFormatString)
+        valueFormatter: params =>
+          this.returnsFormatter(params.node.data.pnLPercentage, true, this.returnsFormatString)
       },
       {
         headerName: 'MTD % Return',
         field: 'mtdPercentageReturn',
-        valueFormatter: params => this.returnsFormatter(params.node.data.mtdPercentageReturn, true, this.returnsFormatString)
+        valueFormatter: params =>
+          this.returnsFormatter(
+            params.node.data.mtdPercentageReturn,
+            true,
+            this.returnsFormatString
+          )
       },
       {
         headerName: 'QTD % Return',
         field: 'qtdPercentageReturn',
-        valueFormatter: params => this.returnsFormatter(params.node.data.qtdPercentageReturn, true, this.returnsFormatString)
+        valueFormatter: params =>
+          this.returnsFormatter(
+            params.node.data.qtdPercentageReturn,
+            true,
+            this.returnsFormatString
+          )
       },
       {
         headerName: 'YTD % Return',
         field: 'ytdPercentageReturn',
-        valueFormatter: params => this.returnsFormatter(params.node.data.ytdPercentageReturn, true, this.returnsFormatString)
+        valueFormatter: params =>
+          this.returnsFormatter(
+            params.node.data.ytdPercentageReturn,
+            true,
+            this.returnsFormatString
+          )
       },
       {
         headerName: 'ITD % Return',
         field: 'itdPercentageReturn',
-        valueFormatter: params => this.returnsFormatter(params.node.data.itdPercentageReturn, true, this.returnsFormatString)
+        valueFormatter: params =>
+          this.returnsFormatter(
+            params.node.data.itdPercentageReturn,
+            true,
+            this.returnsFormatString
+          )
       },
       {
         headerName: 'MTD PnL',
@@ -583,18 +607,17 @@ export class DailyPnlComponent implements OnInit, AfterViewInit {
       {
         name: 'Decimal Places 2',
         action: () => {
-          this.returnsFormatString = '1.2-2'
+          this.returnsFormatString = '1.2-2';
           this.refreshGrid();
         }
       },
       {
         name: 'Decimal Places 16',
         action: () => {
-          this.returnsFormatString = '1.16-16'
+          this.returnsFormatString = '1.16-16';
           this.refreshGrid();
         }
       }
-
     ];
     return GetContextMenu(false, addDefaultItems, true, null, params);
   }

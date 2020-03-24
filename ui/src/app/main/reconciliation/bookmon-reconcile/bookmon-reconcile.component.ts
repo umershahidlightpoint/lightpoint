@@ -2,7 +2,10 @@ import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { GridOptions, ColDef, ColGroupDef, RowDoubleClickedEvent } from 'ag-grid-community';
 import { finalize } from 'rxjs/operators';
 import * as moment from 'moment';
-import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
+import {
+  GridLayoutMenuComponent,
+  CustomGridOptions
+} from '@lightpointfinancialtechnology/lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 import { DataService } from '../../../../services/common/data.service';

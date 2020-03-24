@@ -6,113 +6,119 @@
     {
       "source": "Action",
       "destination": "Action",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 0,
       "rule": ""
     },
     {
       "source": "Symbol",
       "destination": "Symbol",
-      "function": "IsValidSymbol",
-      "required":  "true",
+      "function": [
+        {
+          "Name": "IsValidSymbol",
+          "Assembly": "LP.Finance.Common.Dtos.SymbolDto,LP.Finance.Common"
+        }
+
+      ],
+      "required": "true",
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 1,
       "rule": ""
     },
     {
       "source": "Side",
       "destination": "Side",
-      "function": null,
+      "function": [],
       "required":  "true",
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 2,
       "rule": ""
     },
     {
       "source": "Quantity",
       "destination": "Quantity",
-      "function": null,
+      "function": [],
       "required":  "true",
       "format": "",
-      "type": "char",
+      "type": "int",
       "offset": 3,
       "rule": ""
     },
     {
       "source": "TimeInForce",
       "destination": "TimeInForce",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 4,
       "rule": ""
     },
     {
       "source": "OrderType",
       "destination": "OrderType",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 5,
       "rule": ""
     },
     {
       "source": "SecurityType",
       "destination": "SecurityType",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 6,
       "rule": ""
     },
     {
       "source": "BloombergCode",
       "destination": "BloombergCode",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 7,
       "rule": ""
     },
     {
       "source": "EzeTicker",
       "destination": "EzeTicker",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 8,
       "rule": ""
     },
     {
       "source": "SecurityCode",
       "destination": "SecurityCode",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 9,
       "rule": ""
     },
     {
       "source": "CustodianCode",
       "destination": "CustodianCode",
-      "function": null,
+      "function": [],
       "required":  true,
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 10,
       "rule": ""
     },
     {
       "source": "ExecutionBroker",
       "destination": "ExecutionBroker",
-      "function": null,
+      "function": [],
       "required":  "true",
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 11,
       "rule": ""
     },
@@ -121,62 +127,74 @@
     {
       "source": "Fund",
       "destination": "Fund",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 12,
       "rule": ""
     },
     {
       "source": "PMCode",
       "destination": "PMCode",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 13,
       "rule": ""
     },
     {
       "source": "PortfolioCode",
       "destination": "PortfolioCode",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 14,
       "rule": ""
     },
     {
       "source": "Trader",
       "destination": "Trader",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 15,
       "rule": ""
     },
     {
-      "source": "TradeCurrency",
       "destination": "TradeCurrency",
-      "function": "IsValidCurrency",
-      "required": true,
       "format": "",
-      "type": "char",
+      "function": [
+        {
+          "Name": "IsValidCurrency",
+          "Assembly": "LP.Finance.Common.Dtos.SymbolDto,LP.Finance.Common"
+
+        }
+
+      ],
       "offset": 16,
-      "rule": ""
+      "required": true,
+      "rule": "",
+      "source": "TradeCurrency",
+      "type": "string"
     },
     {
       "source": "TradePrice",
       "destination": "TradePrice",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "decimal",
+      "type": "double",
       "offset": 17,
       "rule": ""
     },
     {
       "source": "TradeDate",
       "destination": "TradeDate",
-      "function": "GetDate",
+      "function": [
+        {
+          "Name": "GetDate",
+          "Assembly": "LP.Shared.FileProcessingUtils,LP.Shared"
+        }
+      ],
       "required": "true",
       "format": "MM-dd-yyyy",
       "type": "datetime",
@@ -186,26 +204,40 @@
     {
       "source": "SettleCurrency",
       "destination": "SettleCurrency",
-      "function": "IsValidCurrency",
-      "required":  true,
+      "function": [
+        {
+          "Name": "IsValidCurrency",
+          "Assembly": "LP.Finance.Common.Dtos.SymbolDto,LP.Finance.Common"
+
+        }
+
+      ],
+      "required": true,
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 19,
       "rule": ""
     },
     {
       "source": "SettlePrice",
       "destination": "SettlePrice",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "decimal",
+      "type": "double",
       "offset": 20,
       "rule": ""
     },
     {
       "source": "SettleDate",
       "destination": "SettleDate",
-      "function": "GetDate",
+      "function": [
+        {
+          "Name": "GetDate",
+          "Assembly": "LP.Shared.FileProcessingUtils,LP.Shared"
+
+        }
+
+      ],
       "required": true,
       "format": "MM-dd-yyyy",
       "type": "date",
@@ -215,117 +247,117 @@
     {
       "source": "TradeType",
       "destination": "TradeType",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 22,
       "rule": ""
     },
     {
       "source": "TransactionCategory",
       "destination": "TransactionCategory",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 23,
       "rule": ""
     },
     {
       "source": "TransactionType",
       "destination": "TransactionType",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 24,
       "rule": ""
     },
     {
       "source": "Status",
       "destination": "Status",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 26,
       "rule": ""
     },
     {
       "source": "NetMoney",
       "destination": "NetMoney",
-      "function": null,
+      "function": [],
       "required":  "true",
       "format": "",
-      "type": "decimal",
+      "type": "double",
       "offset": 27,
       "rule": ""
     },
     {
       "source": "Commission",
       "destination": "Commission",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "decimal",
+      "type": "double",
       "offset": 28,
       "rule": ""
     },
     {
       "source": "Fees",
       "destination": "Fees",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "decimal",
+      "type": "double",
       "offset": 29,
       "rule": ""
     },
     {
       "source": "SettleNetMoney",
       "destination": "SettleNetMoney",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "decimal",
+      "type": "double",
       "offset": 30,
       "rule": ""
     },
     {
       "source": "NetPrice",
       "destination": "NetPrice",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "decimal",
+      "type": "double",
       "offset": 31,
       "rule": ""
     },
     {
       "source": "SettleNetPrice",
       "destination": "SettleNetPrice",
-      "function": null,
+      "function": [],
       "required":  "true",
       "format": "",
-      "type": "decimal",
+      "type": "double",
       "offset": 32,
       "rule": ""
     },
     {
       "source": "OrderSource",
       "destination": "OrderSource",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 33,
       "rule": ""
     },
     {
       "source": "LocalNetNotional",
       "destination": "LocalNetNotional",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "decimal",
+      "type": "double",
       "offset": 34,
       "rule": ""
     },
     {
       "source": "TradeTime",
       "destination": "TradeTime",
-      "function": null,
+      "function": [],
       "format": "",
       "type": "time",
       "offset": 35,
@@ -334,28 +366,28 @@
     {
       "source": "LPOrderId",
       "destination": "LPOrderId",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 36,
       "rule": ""
     },
     {
       "source": "TradeId",
       "destination": "TradeId",
-      "function": null,
+      "function": [],
       "format": "",
-      "type": "decimal",
+      "type": "double",
       "offset": 37,
       "rule": ""
     },
     {
       "source": "Reason",
       "destination": "Reason",
-      "function": null,
+      "function": [],
       "required": "true",
       "format": "",
-      "type": "char",
+      "type": "string",
       "offset": 38,
       "rule": ""
     }

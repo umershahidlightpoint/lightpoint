@@ -6,7 +6,7 @@ import { TabsModule, ModalModule, TooltipModule } from 'ngx-bootstrap';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
-import { LpToolkitModule } from 'lp-toolkit';
+import { LpToolkitModule } from '@lightpointfinancialtechnology/lp-toolkit';
 
 import { MaintenanceComponent } from './maintenance.component';
 import { TaxlotsMaintenanceComponent } from './taxlots-maintenance/taxlots-maintenance.component';

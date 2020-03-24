@@ -3,7 +3,10 @@ import { GridOptions, RowDoubleClickedEvent } from 'ag-grid-community';
 import { timer, Subject } from 'rxjs';
 import { debounce, finalize } from 'rxjs/operators';
 import * as moment from 'moment';
-import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
+import {
+  GridLayoutMenuComponent,
+  CustomGridOptions
+} from '@lightpointfinancialtechnology/lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataGridModalComponent } from 'src/shared/Component/data-grid-modal/data-grid-modal.component';
 import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';

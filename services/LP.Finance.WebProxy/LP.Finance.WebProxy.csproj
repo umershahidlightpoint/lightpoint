@@ -105,14 +105,17 @@
     <Compile Include="WebAPI\Services\ISecurityService.cs" />
     <Compile Include="WebAPI\Services\ISettingService.cs" />
     <Compile Include="WebAPI\Services\ITaxLotMaintenanceService.cs" />
+    <Compile Include="WebAPI\Services\IAssetServicingService.cs" />
     <Compile Include="WebAPI\Services\LogService.cs" />
     <Compile Include="WebAPI\Services\SecurityService.cs" />
     <Compile Include="WebAPI\Services\SettingService.cs" />
     <Compile Include="WebAPI\Services\TaxLotMaintenanceService.cs" />
+    <Compile Include="WebAPI\Services\AssetServicingService.cs" />
     <Compile Include="WebAPI\Services\TaxRateService.cs" />
     <Compile Include="WebAPI\Services\ITaxRateService.cs" />
     <Compile Include="WebAPI\SettingController.cs" />
     <Compile Include="WebAPI\TaxLotMaintenanceController.cs" />
+    <Compile Include="WebAPI\AssetServicingController.cs" />
     <Compile Include="WebAPI\TaxRateController.cs" />
     <Compile Include="WebAPI\AccountTagController.cs" />
     <Compile Include="WebAPI\AccountTypeController.cs" />

@@ -27,7 +27,10 @@ import { JournalModalComponent } from '../journals-client-side/journal-modal/jou
 import { ReportModalComponent } from 'src/shared/Component/report-modal/report-modal.component';
 import { DataModalComponent } from '../../../../shared/Component/data-modal/data-modal.component';
 import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
-import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
+import {
+  GridLayoutMenuComponent,
+  CustomGridOptions
+} from '@lightpointfinancialtechnology/lp-toolkit';
 import { GetContextMenu, ViewChart } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
 import { AgGridUtils } from '../../../../shared/utils/AgGridUtils';
@@ -259,7 +262,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
     this.resetFieldsSum();
     this.initGird();
-    if(!this.defaultView){
+    if (!this.defaultView) {
       this.getJournalsTotal({ filterModel: {}, externalFilterModel: {} });
     }
   }
@@ -508,9 +511,9 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       },
       getMainMenuItems: this.getMainMenuItems.bind(this),
       onGridReady: params => {
-        if(this.defaultView){
+        if (this.defaultView) {
           params.api.setServerSideDatasource(null);
-        } else{
+        } else {
           params.api.setServerSideDatasource(this.datasource);
         }
         this.gridOptions.excelStyles = ExcelStyle;
@@ -538,33 +541,32 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
 
   onFilterChanged(event) {
     try {
-      if(event.api.serverSideRowModel.cacheParams){
+      if (event.api.serverSideRowModel.cacheParams) {
         this.payloadForJournalTotals(event.api.serverSideRowModel.cacheParams);
       }
-    } catch (ex) {
-    }
+    } catch (ex) {}
   }
 
-  payloadForJournalTotals(cacheParams){
+  payloadForJournalTotals(cacheParams) {
     this.resetBottomRowData();
     const havingColumns = this.havingColumns;
     if (cacheParams) {
-        const { filterModel, valueCols } = cacheParams;
-        const { fund, symbol, when, balance } = this.getServerSideExternalFilter();
-        const payload = {
-          filterModel,
-          valueCols,
-          havingColumns,
-          externalFilterModel: {
-            ...(fund && { fund }),
-            ...(symbol && { symbol }),
-            ...(when && { when }),
-            ...(balance && { balance })
-          }
-        };
+      const { filterModel, valueCols } = cacheParams;
+      const { fund, symbol, when, balance } = this.getServerSideExternalFilter();
+      const payload = {
+        filterModel,
+        valueCols,
+        havingColumns,
+        externalFilterModel: {
+          ...(fund && { fund }),
+          ...(symbol && { symbol }),
+          ...(when && { when }),
+          ...(balance && { balance })
+        }
+      };
 
-        this.getJournalsTotal(payload);
-      }
+      this.getJournalsTotal(payload);
+    }
   }
 
   onSortChanged() {
@@ -620,8 +622,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
               );
             }
           }
-        ]
-      });
+      ]
+    });
 
     if (params.node.data.event === 'manual') {
       addDefaultItems.push({
@@ -633,8 +635,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
             this.openEditModal(params.node.data, false);
           }, 250);
         }
-      }
-      );
+      });
     }
     const addCustomItems = [
       {

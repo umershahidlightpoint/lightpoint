@@ -1,7 +1,7 @@
 import { environment } from '../../environments/environment.prod';
 import * as moment from 'moment';
 import { GridOptions } from 'ag-grid-community';
-import { GridUtils, LayoutServices } from 'lp-toolkit';
+import { GridUtils, LayoutServices } from '@lightpointfinancialtechnology/lp-toolkit';
 
 export const SideBar = (
   gridId: number,
@@ -12,8 +12,8 @@ export const SideBar = (
 ) => {
   // tslint:disable-next-line: no-string-literal
   const baseUrl = window['config']
-    // tslint:disable-next-line: no-string-literal
-    ? window['config'].remoteServerUrl
+    ? // tslint:disable-next-line: no-string-literal
+      window['config'].remoteServerUrl
     : environment.testCaseRemoteServerUrl;
 
   const layoutServices: LayoutServices = {
@@ -686,23 +686,23 @@ export const CommonCols = (isJournalGrid, filters = null) => {
           debounceMs: 1000
         }
       })
-     },
-     {
-       field: 'SettleCurrency',
-       headerName: 'Settle Ccy',
-       sortable: true,
-       enableRowGroup: true,
-       filter: filters !== null ? 'agSetColumnFilter' : true,
-       width: 100,
-       colId: 'SettleCurrency',
-       ...(filters !== null && {
+    },
+    {
+      field: 'SettleCurrency',
+      headerName: 'Settle Ccy',
+      sortable: true,
+      enableRowGroup: true,
+      filter: filters !== null ? 'agSetColumnFilter' : true,
+      width: 100,
+      colId: 'SettleCurrency',
+      ...(filters !== null && {
         filterParams: {
           cellHeight: 20,
           values: filters.find(item => item.ColumnName === 'SettleCurrency').Values,
           debounceMs: 1000
         }
       })
-     },
+    },
     {
       field: 'symbol',
       headerName: 'Symbol',

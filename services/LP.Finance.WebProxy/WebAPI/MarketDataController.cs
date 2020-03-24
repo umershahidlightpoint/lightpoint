@@ -145,7 +145,7 @@ namespace LP.Finance.WebProxy.WebAPI
                         DateTime.Now)
                 };
 
-                new FileManager(ConnectionString).InsertActivityAndPositionFiles(fileList);
+                new FileManager(ConnectionString).InsertFiles(fileList);
                 /*
                 var dailyPerformanceResult = new DailyPnlCalculator().CalculateDailyPerformance(performanceRecords);
                 var dailyPerformance = dailyPerformanceResult.GetType().GetProperty("payload")

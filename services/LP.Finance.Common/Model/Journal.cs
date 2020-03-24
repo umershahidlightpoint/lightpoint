@@ -28,8 +28,8 @@ namespace LP.Finance.Common.Model
         {
             var list = new string[]
             {
-                "Mark to Market longs fx translation gain or loss",
-                "Mark to Market shorts fx translation gain or loss"
+                AccountType.M2M_LONGS_FXTRANSLATION,
+                AccountType.M2M_SHORTS_FXTRANSLATION
             };
 
             var toSum = journals.Where(i => list.Contains(i.Account.Type.Name));

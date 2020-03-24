@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { GridOptions } from 'ag-grid-community';
-import { GridLayoutMenuComponent } from 'lp-toolkit';
+import { GridLayoutMenuComponent } from '@lightpointfinancialtechnology/lp-toolkit';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DataService } from 'src/services/common/data.service';
 import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
@@ -30,7 +30,7 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
     private securityApiService: SecurityApiService,
     private dataService: DataService,
     private agGridUtils: AgGridUtils,
-    private toasterService: ToastrService,
+    private toasterService: ToastrService
   ) {
     this.initGrid();
   }
@@ -136,7 +136,7 @@ export class AllocationsComponent implements OnInit, AfterViewInit {
             }
           }
         ]
-      },
+      }
     ];
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(false, addDefaultItems, true, null, params);

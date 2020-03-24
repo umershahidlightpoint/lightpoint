@@ -26,7 +26,10 @@ import {
   DateFormatter
 } from 'src/shared/utils/Shared';
 import { GridOptions, RowNode } from 'ag-grid-community';
-import { GridLayoutMenuComponent, CustomGridOptions } from 'lp-toolkit';
+import {
+  GridLayoutMenuComponent,
+  CustomGridOptions
+} from '@lightpointfinancialtechnology/lp-toolkit';
 import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { GridId, GridName } from 'src/shared/utils/AppEnums';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
@@ -648,7 +651,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
             }
           }
         ]
-      },
+      }
     ];
     return GetContextMenu(false, addDefaultItems, true, null, params);
   }

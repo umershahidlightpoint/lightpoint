@@ -55,7 +55,7 @@ namespace PostingEngine.Tasks.Implementation
                             command.CommandTimeout = 120; // 2 Mins
                             command.CommandType = CommandType.StoredProcedure;
                             command.Parameters.Add("@Now", SqlDbType.VarChar).Value = busDate;
-                            command.Parameters.Add("@From", SqlDbType.VarChar).Value = busDate;
+                            //command.Parameters.Add("@From", SqlDbType.VarChar).Value = busDate;
                             try
                             {
                                 command.ExecuteNonQuery();

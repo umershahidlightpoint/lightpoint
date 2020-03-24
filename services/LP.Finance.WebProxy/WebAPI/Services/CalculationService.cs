@@ -470,7 +470,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         DateTime.Now)
                 };
 
-                new FileManager(ConnectionString).InsertActivityAndPositionFiles(fileList);
+                new FileManager(ConnectionString).InsertFiles(fileList);
                 var monthlyPerformanceResult = CalculateMonthlyPerformance(performanceRecords);
                 var monthlyPerformance = monthlyPerformanceResult.GetType().GetProperty("payload")
                     ?.GetValue(monthlyPerformanceResult, null);
@@ -780,7 +780,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         DateTime.Now)
                 };
 
-                new FileManager(ConnectionString).InsertActivityAndPositionFiles(fileList);
+                new FileManager(ConnectionString).InsertFiles(fileList);
                 var previousData = GetLatestDailyPnlPerPortfolio();
                 var previousList = previousData.Item2;
                 if (previousData.Item1)
