@@ -802,8 +802,9 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       if (dateFilter === 'ITD') {
         this.DateRangeLabel = 'ITD';
         dates = SetDateRange(dateFilter, this.journalMinDate, this.endDate);
+      } else {
+        dates = SetDateRange(dateFilter, this.startDate, this.endDate);
       }
-      dates = SetDateRange(dateFilter, this.startDate, this.endDate);
       this.startDate = dates[0];
       this.endDate = dates[1];
 
