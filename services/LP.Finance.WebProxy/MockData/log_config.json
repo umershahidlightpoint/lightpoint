@@ -1,0 +1,14 @@
+[
+  {
+    "LogName": "Finance",
+    "LogLocation": "c:\\temp\\ErrorLog\\Services\\Finance"
+  },
+  {
+    "LogName": "ReferenceData",
+    "LogLocation": "c:\\temp\\ErrorLog\\Services\\ReferenceData"
+  },
+  {
+    "LogName": "PostingEngine",
+    "LogLocation": "c:\\temp\\ErrorLog\\Services\\PostingEngine"
+  }
+]

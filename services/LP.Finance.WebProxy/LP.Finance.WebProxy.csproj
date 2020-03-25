@@ -194,6 +194,7 @@
     <None Include="MockData\journal_for_ui.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="MockData\log_config.json" />
     <None Include="MockData\security_details.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
