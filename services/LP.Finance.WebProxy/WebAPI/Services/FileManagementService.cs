@@ -21,9 +21,61 @@ using LP.Shared.FileMetaData;
 using LP.Shared.Sql;
 using LP.Shared;
 using Utils = LP.Finance.Common.Utils;
+using PostingEngine;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
 {
+    /// <summary>
+    /// Support for loading Journal Entries, represents the minimum set of fields required
+    /// </summary>
+    public class RawJournal : RowException
+    {
+        public int IsAccountTo { get; set; }
+        public DateTime When { get; set; }
+        public string Event { get; set; }
+        public double Credit { get; set; }
+        public double Debit { get; set; }
+        public string Symbol { get; set; }
+        public string Currency { get; set; }
+        public string Fund { get; set; }
+        public string AccountCategory { get; set; }
+        public string AccountType { get; set; }
+        public string AccountDescription { get; set; }
+        public string Source { get; set; }
+        public double Value { get; set; }
+        public string Comment { get; set; }
+
+        public Journal toJournal(string connectionString)
+        {
+            // If the account does not exist then we need to create, if the Type does not exist then we add as well.
+
+            var account = Account.FindOrCreate(connectionString, AccountCategory, AccountType, AccountDescription);
+
+            return new Journal()
+            {
+                When = this.When,
+                Event = this.Event,
+                FxCurrency = this.Currency,
+                Fund = this.Fund,
+                Symbol = this.Symbol,
+                JournalValue = new JournalValue(this.Value, 0),
+                Source = this.Source,
+                IsAccountTo = this.IsAccountTo,
+
+                // Additional Items to be added
+                Account = account,
+                CreditDebit = "",
+                EndPrice = 0,
+                FxRate = 0,
+                GeneratedBy = "upload",
+                Quantity = 0,
+                StartPrice = 0,
+                SecurityId = -1,
+                //Value = this.Value
+            };
+        }
+    }
+
     public class FileManagementService : IFileManagementService
     {
         private static readonly string
@@ -538,6 +590,146 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
+        public async Task<object> UploadJournal(HttpRequestMessage requestMessage)
+        {
+            try
+            {
+                FileManager _fileManager = new FileManager(connectionString);
+                var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "Journals");
+                if (!uploadedResult.Item1)
+                    return Shared.WebApi.Wrap(false);
+
+                var path = uploadedResult.Item2;
+                var filename = uploadedResult.Item3;
+
+                var symbolCache = AppStartCache.GetCachedData("symbol");
+                var currencyCache = AppStartCache.GetCachedData("currency");
+                Dictionary<IElement, int> symbols;
+                Dictionary<string, string> currency;
+                List<RawJournal> items = new List<RawJournal>();
+
+                if (symbolCache.Item1)
+                {
+                    symbols = (Dictionary<IElement, int>)symbolCache.Item2;
+                }
+                else
+                {
+                    symbols = GetSymbols();
+                    AppStartCache.CacheData("symbol", symbols);
+                }
+
+                if (currencyCache.Item1)
+                {
+                    currency = (Dictionary<string, string>)currencyCache.Item2;
+                }
+                else
+                {
+                    currency = GetCurrencies();
+                    AppStartCache.CacheData("currency", currency);
+                }
+
+
+                var recordBody = _fileProcessor.ImportFile(path, "Journal", "ImportFormats", ',', true);
+
+                var records = JsonConvert.SerializeObject(recordBody.Item1);
+
+                try
+                {
+                    items = JsonConvert.DeserializeObject<List<RawJournal>>(records);
+                }
+                catch (Exception ex)
+                {
+                    foreach (var item in recordBody.Item2)
+                    {
+                        var tradeElement = recordBody.Item1.ElementAt(item.RowNumber - 1);
+                        tradeElement.IsUploadInValid = true;
+                        tradeElement.UploadException = JsonConvert.SerializeObject(item);
+                    }
+                    var d = new
+                    {
+                        EnableCommit = false,
+                        Data = recordBody.Item1
+                    };
+                    return Shared.WebApi.Wrap(true, d, HttpStatusCode.OK);
+                }
+
+                foreach (var i in items)
+                {
+                    var guid = Guid.NewGuid().ToString().ToLower();
+
+                    /*
+                    i.TradeId = guid;
+                    i.LPOrderId = guid;
+                    i.ParentOrderId = guid;
+
+                    i.Status = "Executed";
+                    i.TradeType = "manual";
+                    i.ParentSymbol = String.Empty;
+                    i.UpdatedOn = System.DateTime.Now;
+                    i.OrderSource = "Manual-Upload";
+                    i.TransactionCategory = "Tax Lot";
+                    if (i.TradeTime == null)
+                    {
+                        i.TradeTime = i.TradeDate;
+                    }
+
+                    var found = symbols.Keys.Where(item => item.Find(i.Symbol));
+
+                    if (found.Count() > 0)
+                    {
+                        i.SecurityId = found.FirstOrDefault().Id;
+                        var foundSymbol = found.FirstOrDefault() as SymbolDto;
+                        if (foundSymbol != null)
+                        {
+                            i.BloombergCode = foundSymbol.BbergCode;
+                            i.SecurityCode = foundSymbol.SecurityCode;
+                            i.EzeTicker = foundSymbol.EzeTicker;
+                        }
+                    }
+                    */
+                }
+
+                var failedRecords = new Dictionary<object, Row>();
+                var key = 0;
+                var enableCommit = true;
+                foreach (var item in recordBody.Item2)
+                {
+                    failedRecords.Add(key++, item);
+                    var tradeElement = items.ElementAt(item.RowNumber - 1);
+                    tradeElement.IsUploadInValid = true;
+                    tradeElement.UploadException = JsonConvert.SerializeObject(item);
+                }
+
+                if (failedRecords.Count > 0)
+                {
+                    enableCommit = false;
+                }
+
+                var failedTradeList =
+                    _fileManager.MapFailedRecords(failedRecords, DateTime.Now, uploadedResult.Item3);
+
+                List<FileInputDto> fileList = new List<FileInputDto>
+                {
+                    new FileInputDto(path, filename, items.Count, "Journal",
+                        "Upload",
+                        failedTradeList,
+                        DateTime.Now)
+                };
+
+                _fileManager.InsertFiles(fileList);
+                var data = new
+                {
+                    EnableCommit = enableCommit,
+                    Data = items
+                };
+                return Shared.WebApi.Wrap(true, data, HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public Dictionary<IElement, int> GetSymbols()
         {
             var query = $@"select s.SecurityCode, EzeTicker, BbergCode, s.PricingSymbol, s.SecurityId  from ( select securitycode, EzeTicker, BbergCode, PricingSymbol, securityid, 
@@ -641,5 +833,34 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 throw ex;
             }
         }
+
+        public object CommitJournal(List<RawJournal> items)
+        {
+            // Lets make sure that we preload the data to determine accounts
+            SetupEnvironment.LoadAccounts(connectionString);
+
+            try
+            {
+                var journals = items.Select(i => i.toJournal(connectionString)).ToArray();
+
+                var bulkContainer = new Dictionary<string, IDbModel[]>();
+                bulkContainer.Add("journal", journals);
+
+                var insertSuccessful = InsertData(bulkContainer);
+                if (insertSuccessful)
+                {
+                    return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
+                }
+                else
+                {
+                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }

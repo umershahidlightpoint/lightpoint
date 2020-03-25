@@ -209,6 +209,7 @@ namespace LP.Finance.Common.Model
         public double FxRate { get; set; }
         public string FxCurrency { get; set; }
 
+        public int IsAccountTo { get; set; }
         public String Fund { get; set; }
         public String Source { get; set; }
 
@@ -288,7 +289,7 @@ namespace LP.Finance.Common.Model
             // read the table structure from the database
             var localconnection = new SqlConnection(connection.ConnectionString + ";Password=ggtuser");
             localconnection.Open();
-            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 id, source, account_id, value, [when], generated_by, fund, fx_currency, fxrate, quantity, symbol, event, start_price, end_price, credit_debit, security_id, local_value FROM Journal", localconnection))
+            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 id, source, account_id, value, [when], generated_by, fund, fx_currency, fxrate, quantity, symbol, event, start_price, end_price, credit_debit, security_id, local_value, [is_account_to] FROM Journal", localconnection))
             {
                 adapter.Fill(table);
             };
@@ -303,6 +304,8 @@ namespace LP.Finance.Common.Model
 
             row["source"] = this.Source;
             row["account_id"] = this.Account.Id;
+            row["is_account_to"] = this.IsAccountTo;
+
             try
             {
                 if (this.JournalValue != null)

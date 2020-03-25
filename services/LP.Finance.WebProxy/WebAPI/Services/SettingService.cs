@@ -38,7 +38,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
             catch (Exception ex)
             {
-                return Shared.WebApi.Wrap(false);
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError, $"An error occured:{ex.Message}");
             }
         }
 
@@ -81,7 +81,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 sqlHelper.CloseConnection();
 
-                return Shared.WebApi.Wrap(false);
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError, $"An error occured:{ex.Message}");
             }
         }
 
@@ -131,7 +131,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             {
                 sqlHelper.CloseConnection();
 
-                return Shared.WebApi.Wrap(false);
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError, $"An error occured:{ex.Message}");
             }
         }
 

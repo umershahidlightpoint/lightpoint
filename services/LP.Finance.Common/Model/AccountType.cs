@@ -27,6 +27,12 @@ namespace LP.Finance.Common.Model
         {
             return All.Where(i => i.Id == id).FirstOrDefault();
         }
+
+        public static AccountType FindByName(string name)
+        {
+            return All.Where(i => i.Name.Equals(name)).FirstOrDefault();
+        }
+
         public static AccountType Find(string key)
         {
             var accountType = All.Where(i => i.Name.Equals(key)).FirstOrDefault();
@@ -34,6 +40,18 @@ namespace LP.Finance.Common.Model
                 return accountType;
 
             throw new ApplicationException($"AccountType [{key}] does not exist");
+        }
+
+        public static AccountType Find(string accountCategory, string key, bool raiseError = true)
+        {
+            var accountType = All.Where(i => i.Name.Equals(key) && i.Category.Name.Equals(accountCategory)).FirstOrDefault();
+            if (accountType != null)
+                return accountType;
+
+            if (raiseError)
+                throw new ApplicationException($"AccountType [{key}] does not exist");
+
+            return null;
         }
 
         public static AccountType Find(int id, string key, bool raiseError = true)
@@ -91,6 +109,19 @@ namespace LP.Finance.Common.Model
         public KeyValuePair<string, SqlParameter[]> Delete => throw new NotImplementedException();
 
         public static AccountType FindOrCreate(int category, string AccountTypeName)
+        {
+            var accountType = new AccountType
+            {
+                Category = AccountCategory.Find(category),
+                Name = AccountTypeName
+            };
+
+            All.Add(accountType);
+
+            return accountType;
+        }
+
+        public static AccountType FindOrCreate(string category, string AccountTypeName)
         {
             var accountType = new AccountType
             {

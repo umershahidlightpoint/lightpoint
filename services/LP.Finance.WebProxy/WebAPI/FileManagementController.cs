@@ -83,5 +83,18 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             return controller.CommitTrade(trades);
         }
+
+        [HttpPost, Route("uploadJournal")]
+        public async Task<object> UploadJournal()
+        {
+            return await controller.UploadJournal(Request);
+        }
+
+        [HttpPost, Route("commitJournal")]
+        public object CommitJournal(List<RawJournal> items)
+        {
+            return controller.CommitJournal(items);
+        }
+
     }
 }

@@ -57,7 +57,7 @@ namespace LP.Finance.WebProxy.WebAPI
             catch (Exception ex)
             {
                 return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
-                    "An error occured while fetching Market Prices");
+                    $"An error occured while fetching Market Prices:{ex.Message}");
             }
         }
 
@@ -107,7 +107,7 @@ namespace LP.Finance.WebProxy.WebAPI
                 sqlHelper.CloseConnection();
 
                 return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
-                    "An error occured while updating prices");
+                    $"An error occured while updating prices:{ex.Message}");
             }
         }
 
@@ -185,7 +185,7 @@ namespace LP.Finance.WebProxy.WebAPI
             }
             catch (Exception ex)
             {
-                return Shared.WebApi.Wrap(false);
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError, $"An error occured:{ex.Message}");
             }
         }
 
@@ -242,7 +242,7 @@ namespace LP.Finance.WebProxy.WebAPI
             catch (Exception ex)
             {
                 return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
-                    "An error occured while fetching Market Prices Audit Trail");
+                    $"An error occured while fetching Market Prices Audit Trail:{ex.Message}");
             }
         }
 

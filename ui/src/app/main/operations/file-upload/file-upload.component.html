@@ -42,6 +42,11 @@
       Commit
       <span *ngIf="commitLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
     </button>
+    <button class="btn btn-pa" type="button" [hidden]="fileType !== 'Journals' || previewData.length === 0" [disabled]="commitLoader || disableCommit"
+      (click)="onCommitData()">
+      Commit
+      <span *ngIf="commitLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    </button>
     <!-- Commit File Ends -->
 
   </div>

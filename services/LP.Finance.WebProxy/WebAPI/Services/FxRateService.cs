@@ -50,7 +50,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             catch (Exception ex)
             {
                 return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
-                    "An error occured while fetching FxRates Audit Trail");
+                    $"An error occured while fetching FxRates Audit Trail:{ex.Message}");
             }
         }
 
@@ -77,7 +77,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             catch (Exception ex)
             {
                 return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
-                    "An error occured while fetching Fx Rates");
+                    $"An error occured while fetching Fx Rates:{ex.Message}");
             }
         }
 
@@ -127,7 +127,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 sqlHelper.CloseConnection();
 
                 return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
-                    "An error occured while updating prices");
+                    $"An error occured while updating prices:{ex.Message}");
             }
         }
 

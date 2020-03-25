@@ -901,7 +901,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
             catch (Exception ex)
             {
-                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError);
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError, $"An error occured:{ex.Message}");
             }
         }
 
@@ -1449,12 +1449,12 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
                 else
                 {
-                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, "Grouping is not Present in this Layout");
+                    return Shared.WebApi.Wrap(false, null, HttpStatusCode.OK, $"Grouping is not Present in this Layout");
                 }
             }
             catch (Exception ex)
             {
-                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError, "Something Bad Happened!");
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError, $"Something Bad Happened:{ex.Message}");
             }
         }
 

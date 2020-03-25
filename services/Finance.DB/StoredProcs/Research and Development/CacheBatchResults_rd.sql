@@ -140,6 +140,17 @@ RAISERROR ('Creating Non Clustered Indexes', 0, 1) WITH NOWAIT
 create nonclustered index Ix_current_journal_full_covering_index
 ON current_journal_full ([when],accountcategory, accounttype, fund, accountname) INCLUDE (source,[event], credit,debit,symbol,security_id, quantity, id, account_id, fx_currency,accountdescription,[value], start_price, end_price,fxrate,is_account_to,tradedate,settledate,tradeid,[action],[status],custodiancode,securitytype,side);
 
+RAISERROR ('Creating Non Clustered ColumnStore Index', 0, 1) WITH NOWAIT
+CREATE NONCLUSTERED COLUMNSTORE INDEX CSI_current_journal_full
+ON dbo.current_journal_full 
+(
+	AccountType,
+	AccountCategory,
+	id,
+	[when],
+	event
+)
+
 RAISERROR ('Completed', 0, 1) WITH NOWAIT
 
 	select count(*), 'journal entries' from vwJournal

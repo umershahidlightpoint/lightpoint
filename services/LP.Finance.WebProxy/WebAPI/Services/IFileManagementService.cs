@@ -18,5 +18,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object GetInvalidExportRecords();
         Task<object> UploadTrade(HttpRequestMessage requestMessage);
         object CommitTrade(List<Trade> trades);
+
+        Task<object> UploadJournal(HttpRequestMessage requestMessage);
+        object CommitJournal(List<RawJournal> trades);
+
     }
 }

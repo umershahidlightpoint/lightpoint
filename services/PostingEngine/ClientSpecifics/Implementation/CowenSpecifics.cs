@@ -8,13 +8,7 @@ namespace PostingEngine.ClientSpecifics.Implementation
     {
         public Transaction[] Transform(Transaction[] trades)
         {
-            // This is specific to BayBerry
-            //var finalTradeList = trades.Where(t => t.TradeDate >= new DateTime(2019, 11, 1)).ToArray();
-
             var finalTradeList = trades;
-
-            // Do not exclude the TEST BROKER TRades for the moment
-            // finalTradeList = finalTradeList.Where(t => !t.ExecutionBroker.Equals("TEST BROKER")).ToArray();
 
             const bool DEBUG_TRADE_LIST = false;
             if (DEBUG_TRADE_LIST)

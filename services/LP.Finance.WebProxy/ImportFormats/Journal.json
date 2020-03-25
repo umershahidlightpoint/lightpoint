@@ -1,0 +1,146 @@
+{
+  "Header": [],
+  "Trailer": [],
+  "Record": [
+    {
+      "source": "when",
+      "destination": "When",
+      "function": [
+        {
+          "Name": "GetDate",
+          "Assembly": "LP.Shared.FileProcessingUtils,LP.Shared"
+        }
+      ],
+      "required": "true",
+      "format": "MM-dd-yyyy",
+      "type": "datetime",
+      "offset": 18,
+      "rule": ""
+    },
+    {
+      "source": "event",
+      "destination": "Event",
+      "function": [],
+      "format": "",
+      "type": "string",
+      "offset": 0,
+      "rule": ""
+    },
+    {
+      "source": "credit",
+      "destination": "Credit",
+      "function": [],
+      "format": "",
+      "type": "double",
+      "offset": 17,
+      "rule": ""
+    },
+    {
+      "source": "debit",
+      "destination": "Debit",
+      "function": [],
+      "format": "",
+      "type": "double",
+      "offset": 17,
+      "rule": ""
+    },
+    {
+      "source": "symbol",
+      "destination": "Symbol",
+      "function": [],
+      "required": "true",
+      "format": "",
+      "type": "string",
+      "offset": 1,
+      "rule": ""
+    },
+    {
+      "source": "fx_currency",
+      "destination": "Currency",
+      "format": "",
+      "function": [
+        {
+          "Name": "IsValidCurrency",
+          "Assembly": "LP.Finance.Common.Dtos.SymbolDto,LP.Finance.Common"
+        }
+      ],
+      "offset": 16,
+      "required": true,
+      "rule": "",
+      "type": "string"
+    },
+    {
+      "source": "Fund",
+      "destination": "Fund",
+      "function": [],
+      "format": "",
+      "type": "string",
+      "offset": 12,
+      "rule": ""
+    },
+    {
+      "source": "AccountCategory",
+      "destination": "AccountCategory",
+      "function": [],
+      "format": "",
+      "type": "string",
+      "offset": 12,
+      "rule": ""
+    },
+    {
+      "source": "AccountType",
+      "destination": "AccountType",
+      "function": [],
+      "format": "",
+      "type": "string",
+      "offset": 12,
+      "rule": ""
+    },
+    {
+      "source": "accountDescription",
+      "destination": "AccountDescription",
+      "function": [],
+      "format": "",
+      "type": "string",
+      "offset": 12,
+      "rule": ""
+    },
+    {
+      "source": "value",
+      "destination": "Value",
+      "function": [],
+      "format": "",
+      "type": "double",
+      "offset": 17,
+      "rule": ""
+    },
+    {
+      "source": "source",
+      "destination": "Source",
+      "function": [],
+      "format": "",
+      "type": "string",
+      "offset": 17,
+      "rule": ""
+    },
+    {
+      "source": "is_account_to",
+      "destination": "IsAccountTo",
+      "function": [],
+      "format": "",
+      "type": "int",
+      "offset": 17,
+      "rule": ""
+    },
+    {
+      "source": "comment",
+      "destination": "Comment",
+      "function": [],
+      "format": "",
+      "type": "string",
+      "offset": 17,
+      "rule": ""
+    }
+
+  ]
+}
