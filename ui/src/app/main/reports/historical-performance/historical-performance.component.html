@@ -67,6 +67,15 @@
             </div>
             <!-- Export to Excel Button Ends -->
 
+               <!-- Expand/Collapse Button -->
+      <ng-template #tooltipTemplate>{{historicalPerformanceConfig.chartsView ? 'Expand' : 'Collapse'}}</ng-template>
+      <button class="btn btn-pa" [disabled]="disableCharts" [tooltip]="tooltipTemplate" placement="top"
+        (click)="historicalPerformanceConfig.chartsView = !historicalPerformanceConfig.chartsView">
+        <i class="fa"
+          [ngClass]="{'fa-arrow-right': historicalPerformanceConfig.chartsView, 'fa-arrow-left': !historicalPerformanceConfig.chartsView}"></i>
+      </button>
+      <!-- Expand/Collapse Button Ends -->
+
         </div>
         <!-- Util Buttons Div Ends -->
 
@@ -80,10 +89,11 @@
         <div class="split-area row h-100">
 
             <!-- AS Split Main Container -->
-            <as-split class="pl-15 pr-15" disabled="false" direction="horizontal" [useTransition]="true">
+            <as-split class="pl-15 pr-15" disabled="false" direction="horizontal" [useTransition]="historicalPerformanceConfig.useTransition" (dragEnd)="applyPageLayout($event)"
+            (transitionEnd)="applyPageLayout($event)">
 
                 <!-- Cost Basis Split Area -->
-                <as-split-area [visible]="true" [size]="50" order="1">
+                <as-split-area [visible]="historicalPerformanceConfig.historicalPerformanceView" [size]="historicalPerformanceConfig.historicalPerformanceSize" order="1">
 
                     <!-- Cost Basis Grid -->
                     <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions">
@@ -93,9 +103,13 @@
                 <!-- Cost Basis Split Area Ends -->
 
                 <!-- Charts Split Area -->
-                <as-split-area [visible]="false" [size]="50" order="2">
+                <as-split-area [visible]="historicalPerformanceConfig.chartsView" [size]="historicalPerformanceConfig.chartsSize" order="2">
 
-                </as-split-area>
+                    <app-calculation-graphs *ngIf="historicalPerformanceConfig.chartsView" class="w-100 h-100" [chartObject]="graphObject"
+                      [mode]="'single'">
+                    </app-calculation-graphs>
+            
+                  </as-split-area>
                 <!-- Charts Split Area Ends -->
 
             </as-split>

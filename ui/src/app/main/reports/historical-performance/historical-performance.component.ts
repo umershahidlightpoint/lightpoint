@@ -43,6 +43,7 @@ import { GetContextMenu } from 'src/shared/utils/ContextMenu';
 import { ContextMenu } from 'src/shared/Models/common';
 import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
 import { DataDictionary } from 'src/shared/utils/DataDictionary';
+import { GraphObject } from 'src/shared/Models/graph-object';
 
 @Component({
   selector: 'app-historical-performance',
@@ -77,6 +78,22 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
   style = Style;
 
   styleForHeight = HeightStyle(220);
+  historicalPerformanceConfig: {
+    historicalPerformanceSize: number;
+    chartsSize: number;
+    historicalPerformanceView: boolean;
+    chartsView: boolean;
+    useTransition: boolean;
+  } = {
+    historicalPerformanceSize: 50,
+    chartsSize: 50,
+    historicalPerformanceView: true,
+    chartsView: false,
+    useTransition: true
+  };
+
+  graphObject: GraphObject = null;
+  disableCharts = true;
 
   processingMsgDiv = {
     border: '1px solid #eee',
@@ -165,7 +182,7 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
       getRowNodeId: data => {
         return data.id;
       },
-      // getContextMenuItems: params => this.getContextMenuItems(params),
+      getContextMenuItems: params => this.getContextMenuItems(params),
       onGridReady: params => {
         this.gridOptions.excelStyles = ExcelStyle;
       },
@@ -360,50 +377,52 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
   getContextMenuItems(params): Array<ContextMenu> {
     const addDefaultItems = [
       {
-        name: 'Security Details',
-        subMenu: [
-          {
-            name: 'Extend',
-            action: () => {
-              this.isLoading = true;
-
-              this.securityApiService.getDataForSecurityModal(params.node.data.EzeTicker).subscribe(
-                ([config, securityDetails]: [any, any]) => {
-                  this.isLoading = false;
-                  if (!config.isSuccessful) {
-                    this.toastrService.error('No security type found against the selected symbol!');
-                    return;
-                  }
-                  if (securityDetails.payload.length === 0) {
-                    this.securityModal.openSecurityModalFromOutside(
-                      params.node.data.EzeTicker,
-                      config.payload[0].SecurityType,
-                      config.payload[0].Fields,
-                      null,
-                      'extend'
-                    );
-                  } else {
-                    this.securityModal.openSecurityModalFromOutside(
-                      params.node.data.EzeTicker,
-                      config.payload[0].SecurityType,
-                      config.payload[0].Fields,
-                      securityDetails.payload[0],
-                      'extend'
-                    );
-                  }
-                },
-                error => {
-                  this.isLoading = false;
-                }
-              );
-            }
-          }
-        ]
-      }
+        name: 'Visualize',
+        action: () => {
+          this.visualizeData();
+        }
+      },
     ];
 
     // (isDefaultItems, addDefaultItem, isCustomItems, addCustomItems, params)
     return GetContextMenu(false, addDefaultItems, true, null, params);
+  }
+
+  applyPageLayout(event){
+    this.cdRef.detectChanges();
+  }
+
+  visualizeData() {
+    const data = {};
+    const focusedCell = this.gridOptions.api.getFocusedCell();
+    const selectedRow = this.gridOptions.api.getDisplayedRowAtIndex(focusedCell.rowIndex).data;
+    const column = focusedCell.column.getColDef().field;
+    const columnLabel = focusedCell.column.getUserProvidedColDef().headerName;
+    data[columnLabel] = [];
+    const toDate = moment(selectedRow.AsOf);
+    const fromDate = moment(selectedRow.AsOf).subtract(30, 'days');
+    this.gridOptions.api.forEachNodeAfterFilter((rowNode, index) => {
+      const currentDate = moment(rowNode.data.AsOf).format("YYYY-MM-DD");
+        data[columnLabel].push({
+          date: currentDate,
+          value: rowNode.data[column]
+        });
+    });
+
+    this.graphObject = {
+      xAxisLabel: 'Date',
+      yAxisLabel: columnLabel,
+      lineColors: ['#ff6960', '#00bd9a'],
+      height: 410,
+      width: '95%',
+      chartTitle: columnLabel,
+      propId: 'lineHistoricPerformance',
+      graphData: data,
+      dateTimeFormat: 'YYYY-MM-DD',
+      referenceDate: toDate
+    };
+    this.historicalPerformanceConfig.chartsView = true;
+    this.disableCharts = false;
   }
 
   setDateRange(dateFilter: any) {
