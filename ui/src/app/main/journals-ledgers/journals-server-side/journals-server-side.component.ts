@@ -87,7 +87,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   selected: { startDate: moment.Moment; endDate: moment.Moment };
   startDate: moment.Moment;
   endDate: moment.Moment;
-  minDate: moment.Moment;
+  journalMinDate: moment.Moment;
   accountSearch = { id: undefined };
   valueFilter = 0;
   sortColum = '';
@@ -415,7 +415,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     };
     this.cacheService.getServerSideJournalsMeta(payload).subscribe(result => {
       this.fundsRange = result.payload.FundsRange;
-      this.minDate = result.payload.JournalMinDate;
+      this.journalMinDate = result.payload.JournalMinDate;
       this.ranges = getRange(this.getCustomFundRange());
       this.cdRef.detectChanges();
 
@@ -822,7 +822,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       }
     });
 
-    customRange.ITD = [moment(this.minDate, 'YYYY-MM-DD'), moment()];
+    customRange.ITD = [moment(this.journalMinDate, 'YYYY-MM-DD'), moment()];
 
     return customRange;
   }
@@ -837,7 +837,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         sortingOn: this.absoluteSorting
       },
       dateFilter:
-        this.DateRangeLabel !== ''
+        this.DateRangeLabel !== '' || 'ITD'
           ? this.DateRangeLabel
           : {
               startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',

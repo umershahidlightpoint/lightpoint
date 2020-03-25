@@ -1,16 +1,31 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
-import { FinanceServiceProxy } from '../../../../services/service-proxies';
-import { SecurityApiService } from 'src/services/security-api.service';
-import { debounce, finalize } from 'rxjs/operators';
+import { Component, OnInit, AfterViewInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { GridOptions, RowNode } from 'ag-grid-community';
+import { BehaviorSubject } from 'rxjs';
 import { timer, Subject } from 'rxjs';
+import { debounce, finalize } from 'rxjs/operators';
+import { ToastrService } from 'ngx-toastr';
+import * as moment from 'moment';
+import { DataModalComponent } from 'src/shared/Component/data-modal/data-modal.component';
+import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
+import {
+  GridLayoutMenuComponent,
+  CustomGridOptions
+} from '@lightpointfinancialtechnology/lp-toolkit';
+import { GridId, GridName } from 'src/shared/utils/AppEnums';
+import { CacheService } from 'src/services/common/cache.service';
+import { DataService } from '../../../../services/common/data.service';
+import { FinanceServiceProxy } from '../../../../services/service-proxies';
+import { MaintenanceApiService } from 'src/services/maintenance-api.service';
+import { SecurityApiService } from 'src/services/security-api.service';
 import { Fund } from '../../../../shared/Models/account';
 import {
   TrialBalanceReport,
   TrialBalanceReportStats
 } from '../../../../shared/Models/trial-balance';
-import { DataService } from '../../../../services/common/data.service';
-import * as moment from 'moment';
-import { BehaviorSubject } from 'rxjs';
+import { DataDictionary } from 'src/shared/utils/DataDictionary';
+import { GetContextMenu } from 'src/shared/utils/ContextMenu';
+import { ContextMenu } from 'src/shared/Models/common';
+import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import {
   Ranges,
   Style,
@@ -23,22 +38,9 @@ import {
   MoneyFormat,
   CommaSeparatedFormat,
   HeightStyle,
-  DateFormatter
+  DateFormatter,
+  getRange
 } from 'src/shared/utils/Shared';
-import { GridOptions, RowNode } from 'ag-grid-community';
-import {
-  GridLayoutMenuComponent,
-  CustomGridOptions
-} from '@lightpointfinancialtechnology/lp-toolkit';
-import { GetContextMenu } from 'src/shared/utils/ContextMenu';
-import { GridId, GridName } from 'src/shared/utils/AppEnums';
-import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
-import { ContextMenu } from 'src/shared/Models/common';
-import { MaintenanceApiService } from 'src/services/maintenance-api.service';
-import { DataModalComponent } from 'src/shared/Component/data-modal/data-modal.component';
-import { CreateSecurityComponent } from 'src/shared/Modal/create-security/create-security.component';
-import { ToastrService } from 'ngx-toastr';
-import { DataDictionary } from 'src/shared/utils/DataDictionary';
 
 @Component({
   selector: 'app-taxlots-maintenance',
@@ -54,10 +56,12 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
   closingTaxLots: GridOptions;
   fund: any = 'All Funds';
   funds: Fund;
+  fundsRange: any;
   DateRangeLabel: string;
   startDate: any;
   endDate: any;
   selected: { startDate: moment.Moment; endDate: moment.Moment };
+  journalMinDate: moment.Moment;
   data: Array<TrialBalanceReport>;
   stats: TrialBalanceReportStats;
   isLoading = false;
@@ -90,13 +94,15 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
   };
 
   constructor(
+    private cdRef: ChangeDetectorRef,
+    private cacheService: CacheService,
+    private dataService: DataService,
     private financeService: FinanceServiceProxy,
     private maintenanceApiService: MaintenanceApiService,
     private securityApiService: SecurityApiService,
-    private dataService: DataService,
-    private downloadExcelUtils: DownloadExcelUtils,
     private toasterService: ToastrService,
-    public dataDictionary: DataDictionary
+    public dataDictionary: DataDictionary,
+    private downloadExcelUtils: DownloadExcelUtils
   ) {
     this.hideGrid = false;
   }
@@ -105,11 +111,50 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
     this.initGrid();
     this.getLatestJournalDate();
     this.getFunds();
+    this.initRanges();
     this.onTaxLotSelection();
     // In case we need to enable filter by symbol from server side
     // this.filterSubject.pipe(debounce(() => timer(1000))).subscribe(() => {
     //   this.getReport(this.startDate, this.endDate, this.filterBySymbol, this.fund === 'All Funds' ? 'ALL' : this.fund);
     // });
+  }
+
+  initRanges() {
+    const payload = {
+      GridName: GridName.journalsLedgers
+    };
+    this.cacheService.getServerSideJournalsMeta(payload).subscribe(result => {
+      this.fundsRange = result.payload.FundsRange;
+      this.journalMinDate = result.payload.JournalMinDate;
+      this.ranges = getRange(this.getCustomFundRange());
+      this.cdRef.detectChanges();
+    });
+  }
+
+  getCustomFundRange(fund = 'All Funds') {
+    const customRange: any = {};
+
+    this.fundsRange.forEach(element => {
+      if (fund === 'All Funds' && moment().year() !== element.Year) {
+        [customRange[element.Year]] = [
+          [
+            moment(`${element.Year}-01-01`).startOf('year'),
+            moment(`${element.Year}-01-01`).endOf('year')
+          ]
+        ];
+      } else if (fund === element.fund && moment().year() !== element.Year) {
+        [customRange[element.Year]] = [
+          [
+            moment(`${element.Year}-01-01`).startOf('year'),
+            moment(`${element.Year}-01-01`).endOf('year')
+          ]
+        ];
+      }
+    });
+
+    customRange.ITD = [moment(this.journalMinDate, 'YYYY-MM-DD'), moment()];
+
+    return customRange;
   }
 
   getLatestJournalDate() {
@@ -622,27 +667,39 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
 
               this.securityApiService.getDataForSecurityModal(params.node.data.symbol).subscribe(
                 ([config, securityDetails]: [any, any]) => {
-
                   if (!config.isSuccessful) {
-                  this.isLoading = false;
-                  this.toasterService.error('No security type found against the selected symbol!');
-                  return;
+                    this.isLoading = false;
+                    this.toasterService.error(
+                      'No security type found against the selected symbol!'
+                    );
+                    return;
                   }
 
                   if (securityDetails.payload.length === 0) {
                     this.isLoading = false;
-                    this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
-                    config.payload[0].SecurityType, config.payload[0].Fields, null, 'extend');
+                    this.securityModal.openSecurityModalFromOutside(
+                      params.node.data.symbol,
+                      config.payload[0].SecurityType,
+                      config.payload[0].Fields,
+                      null,
+                      'extend'
+                    );
                   } else {
-                    this.securityApiService.getSecurityType(securityDetails.payload[0].security_type).subscribe( data => {
-                    displayFields = data.payload[0].Fields;
-                    this.isLoading = false;
-                    this.securityModal.openSecurityModalFromOutside(params.node.data.symbol,
-                    securityDetails.payload[0].security_type, displayFields, securityDetails.payload[0], 'extend');
-                    displayFields = {};
-                  });
-                }
-
+                    this.securityApiService
+                      .getSecurityType(securityDetails.payload[0].security_type)
+                      .subscribe(data => {
+                        displayFields = data.payload[0].Fields;
+                        this.isLoading = false;
+                        this.securityModal.openSecurityModalFromOutside(
+                          params.node.data.symbol,
+                          securityDetails.payload[0].security_type,
+                          displayFields,
+                          securityDetails.payload[0],
+                          'extend'
+                        );
+                        displayFields = {};
+                      });
+                  }
                 },
                 error => {
                   this.isLoading = false;
@@ -817,6 +874,11 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
     this.DateRangeLabel = GetDateRangeLabel(this.startDate, this.endDate);
   }
 
+  rangeClicked(range) {
+    this.DateRangeLabel = '';
+    this.DateRangeLabel = range.label;
+  }
+
   refreshReport() {
     this.gridOptions.api.showLoadingOverlay();
     this.onTaxLotSelection();
@@ -860,12 +922,19 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
     return {
       fundFilter: this.fund,
       symbolFilter: this.filterBySymbol,
-      dateFilter: { startDate: this.startDate, endDate: this.endDate }
+      dateFilter:
+        this.DateRangeLabel !== '' || 'ITD'
+          ? this.DateRangeLabel
+          : {
+              startDate: this.startDate !== null ? this.startDate : '',
+              endDate: this.endDate !== null ? this.endDate : ''
+            }
     };
   }
 
   changeDate(selectedDate) {
     if (!selectedDate.startDate) {
+      this.DateRangeLabel = '';
       return;
     }
     this.startDate = selectedDate.startDate.format('YYYY-MM-DD');
@@ -876,11 +945,13 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
       this.filterBySymbol,
       this.fund === 'All Funds' ? 'ALL' : this.fund
     );
-    this.getRangeLabel();
+    // this.getRangeLabel();
   }
 
   changeFund(selectedFund) {
     this.fund = selectedFund;
+    this.ranges = getRange(this.getCustomFundRange(selectedFund));
+    this.cdRef.detectChanges();
     this.getReport(
       this.startDate,
       this.endDate,

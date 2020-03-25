@@ -11,8 +11,8 @@
   <div class="col-auto">
     <form>
       <input ngxDaterangepickerMd class="form-control" type="text" placeholder="Choose date" [(ngModel)]="selected"
-        (ngModelChange)="ngModelChangeDates($event)" name=" selected" [autoApply]="true" [alwaysShowCalendars]="true"
-        [keepCalendarOpeningWithRange]="true" />
+        (ngModelChange)="ngModelChangeDates($event)" name=" selected" [showClearButton]="true"
+        [alwaysShowCalendars]="true" [keepCalendarOpeningWithRange]="true" />
     </form>
   </div>
   <!-- Date Picker Div Ends -->
@@ -68,8 +68,7 @@
     <as-split-area [visible]="dividendConfig.dividendView" [size]="dividendConfig.dividendSize" order="1">
 
 
-      <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions"
-        [rowData]="rowData">
+      <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="gridOptions" [rowData]="rowData">
       </ag-grid-angular>
 
     </as-split-area>
