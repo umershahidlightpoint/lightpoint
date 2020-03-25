@@ -41,7 +41,7 @@
         <div class="col-auto">
             <form>
                 <input ngxDaterangepickerMd class="form-control" type="text" autocomplete="off"
-                    placeholder="Choose date" [(ngModel)]="selected" name="selectedDaterange"
+                    placeholder="Choose date" [(ngModel)]="selected" name="selectedDaterange" [showClearButton]="true"
                     (ngModelChange)="changeDate($event)" [maxDate]="maxDate" />
             </form>
         </div>

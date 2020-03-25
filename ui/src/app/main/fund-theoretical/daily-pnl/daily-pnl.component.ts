@@ -71,6 +71,7 @@ export class DailyPnlComponent implements OnInit, AfterViewInit {
   selected: { startDate: moment.Moment; endDate: moment.Moment };
   startDate: moment.Moment;
   endDate: moment.Moment;
+  journalMinDate: moment.Moment;
   ranges: any;
   fundsRange: any;
 
@@ -159,6 +160,7 @@ export class DailyPnlComponent implements OnInit, AfterViewInit {
     this.cacheService.getServerSideJournalsMeta(payload).subscribe(
       result => {
         this.fundsRange = result.payload.FundsRange;
+        this.journalMinDate = result.payload.JournalMinDate;
         this.ranges = getRange(this.getCustomFundRange());
       },
       err => {}
@@ -191,6 +193,8 @@ export class DailyPnlComponent implements OnInit, AfterViewInit {
         ];
       }
     });
+
+    customRange.ITD = [moment(this.journalMinDate, 'YYYY-MM-DD'), moment()];
 
     return customRange;
   }
@@ -342,7 +346,7 @@ export class DailyPnlComponent implements OnInit, AfterViewInit {
   getExternalFilterState() {
     return {
       dateFilter:
-        this.DateRangeLabel !== ''
+        this.DateRangeLabel !== '' || 'ITD'
           ? this.DateRangeLabel
           : {
               startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',

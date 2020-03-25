@@ -87,7 +87,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   selected: { startDate: moment.Moment; endDate: moment.Moment };
   startDate: moment.Moment;
   endDate: moment.Moment;
-  minDate: moment.Moment;
+  journalMinDate: moment.Moment;
   accountSearch = { id: undefined };
   valueFilter = 0;
   sortColum = '';
@@ -415,7 +415,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     };
     this.cacheService.getServerSideJournalsMeta(payload).subscribe(result => {
       this.fundsRange = result.payload.FundsRange;
-      this.minDate = result.payload.JournalMinDate;
+      this.journalMinDate = result.payload.JournalMinDate;
       this.ranges = getRange(this.getCustomFundRange());
       this.cdRef.detectChanges();
 
@@ -793,12 +793,24 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   }
 
   setDateRange(dateFilter: any) {
-    const dates = SetDateRange(dateFilter, this.startDate, this.endDate);
-    this.startDate = dates[0];
-    this.endDate = dates[1];
+    const payload = {
+      GridName: GridName.journalsLedgers
+    };
+    this.cacheService.getServerSideJournalsMeta(payload).subscribe(result => {
+      this.journalMinDate = result.payload.JournalMinDate;
+      let dates = [];
+      if (dateFilter === 'ITD') {
+        this.DateRangeLabel = 'ITD';
+        dates = SetDateRange(dateFilter, this.journalMinDate, this.endDate);
+      } else {
+        dates = SetDateRange(dateFilter, this.startDate, this.endDate);
+      }
+      this.startDate = dates[0];
+      this.endDate = dates[1];
 
-    this.selected =
-      dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
+      this.selected =
+        dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
+    });
   }
 
   getCustomFundRange(fund = 'All Funds') {
@@ -822,7 +834,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       }
     });
 
-    customRange.ITD = [moment(this.minDate, 'YYYY-MM-DD'), moment()];
+    customRange.ITD = [moment(this.journalMinDate, 'YYYY-MM-DD'), moment()];
 
     return customRange;
   }

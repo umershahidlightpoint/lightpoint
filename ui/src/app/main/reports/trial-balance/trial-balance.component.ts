@@ -1,23 +1,26 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import * as moment from 'moment';
+import { ReportGridComponent } from '../report-grid/report-grid.component';
+import { CacheService } from 'src/services/common/cache.service';
+import { DataService } from '../../../../services/common/data.service';
 import { FinanceServiceProxy } from '../../../../services/service-proxies';
+import { ReportsApiService } from 'src/services/reports-api.service';
 import { Fund } from '../../../../shared/Models/account';
 import {
   TrialBalanceReport,
   TrialBalanceReportStats
 } from '../../../../shared/Models/trial-balance';
-import { DataService } from '../../../../services/common/data.service';
-import * as moment from 'moment';
+import { GridName } from 'src/shared/utils/AppEnums';
+import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
 import {
   Ranges,
   Style,
   HeightStyle,
   GetDateRangeLabel,
   SetDateRange,
-  FormatNumber2
+  FormatNumber2,
+  getRange
 } from 'src/shared/utils/Shared';
-import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
-import { ReportGridComponent } from '../report-grid/report-grid.component';
-import { ReportsApiService } from 'src/services/reports-api.service';
 
 @Component({
   selector: 'rep-trial-balance',
@@ -30,17 +33,19 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
 
   fund: any = 'All Funds';
   funds: Fund;
+  fundsRange: any;
   DateRangeLabel = '';
   startDate: any = '';
   endDate: any = '';
   selected: { startDate: moment.Moment; endDate: moment.Moment };
   maxDate: moment.Moment;
+  journalMinDate: moment.Moment;
   title = 'Account Name';
   trialBalanceReport: Array<TrialBalanceReport>;
   trialBalanceReportStats: TrialBalanceReportStats;
-  isDataLoaded = false;
   externalFilters: any;
   hideGrid: boolean;
+  isDataLoaded = false;
 
   ranges: any = Ranges;
 
@@ -58,9 +63,11 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
   };
 
   constructor(
+    private cdRef: ChangeDetectorRef,
+    private cacheService: CacheService,
+    private dataService: DataService,
     private financeService: FinanceServiceProxy,
     private reportsApiService: ReportsApiService,
-    private dataService: DataService,
     private downloadExcelUtils: DownloadExcelUtils
   ) {
     this.hideGrid = false;
@@ -68,7 +75,6 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.getFunds();
     this.maxDate = moment();
   }
 
@@ -77,6 +83,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
       this.hideGrid = obj;
       if (!this.hideGrid) {
         this.getFunds();
+        this.initRanges();
         this.getReport(null, null, 'ALL');
       }
     });
@@ -89,6 +96,44 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
         fundCode: item.FundCode
       }));
     });
+  }
+
+  initRanges() {
+    const payload = {
+      GridName: GridName.journalsLedgers
+    };
+    this.cacheService.getServerSideJournalsMeta(payload).subscribe(result => {
+      this.fundsRange = result.payload.FundsRange;
+      this.journalMinDate = result.payload.JournalMinDate;
+      this.ranges = getRange(this.getCustomFundRange());
+      this.cdRef.detectChanges();
+    });
+  }
+
+  getCustomFundRange(fund = 'All Funds') {
+    const customRange: any = {};
+
+    this.fundsRange.forEach(element => {
+      if (fund === 'All Funds' && moment().year() !== element.Year) {
+        [customRange[element.Year]] = [
+          [
+            moment(`${element.Year}-01-01`).startOf('year'),
+            moment(`${element.Year}-01-01`).endOf('year')
+          ]
+        ];
+      } else if (fund === element.fund && moment().year() !== element.Year) {
+        [customRange[element.Year]] = [
+          [
+            moment(`${element.Year}-01-01`).startOf('year'),
+            moment(`${element.Year}-01-01`).endOf('year')
+          ]
+        ];
+      }
+    });
+
+    customRange.ITD = [moment(this.journalMinDate, 'YYYY-MM-DD'), moment()];
+
+    return customRange;
   }
 
   getReport(toDate, fromDate, fund) {
@@ -111,12 +156,24 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
   }
 
   setDateRange(dateFilter: any) {
-    const dates = SetDateRange(dateFilter, this.startDate, this.endDate);
-    this.startDate = dates[0];
-    this.endDate = dates[1];
+    const payload = {
+      GridName: GridName.journalsLedgers
+    };
+    this.cacheService.getServerSideJournalsMeta(payload).subscribe(result => {
+      this.journalMinDate = result.payload.JournalMinDate;
+      let dates = [];
+      if (dateFilter === 'ITD') {
+        this.DateRangeLabel = 'ITD';
+        dates = SetDateRange(dateFilter, this.journalMinDate, this.endDate);
+      } else {
+        dates = SetDateRange(dateFilter, this.startDate, this.endDate);
+      }
+      this.startDate = dates[0];
+      this.endDate = dates[1];
 
-    this.selected =
-      dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
+      this.selected =
+        dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
+    });
   }
 
   getRangeLabel() {
@@ -124,19 +181,28 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
     this.DateRangeLabel = GetDateRangeLabel(this.startDate, this.endDate);
   }
 
+  rangeClicked(range) {
+    this.DateRangeLabel = '';
+    this.DateRangeLabel = range.label;
+  }
+
   changeDate(selectedDate) {
     if (!selectedDate.startDate) {
+      this.DateRangeLabel = '';
       return;
     }
     this.startDate = selectedDate.startDate.format('YYYY-MM-DD');
     this.endDate = selectedDate.endDate.format('YYYY-MM-DD');
     this.getReport(this.startDate, this.endDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
-    this.getRangeLabel();
+    // this.getRangeLabel();
     this.getExternalFilters();
   }
 
   changeFund(selectedFund) {
     this.fund = selectedFund;
+
+    this.ranges = getRange(this.getCustomFundRange(selectedFund));
+    this.cdRef.detectChanges();
     this.getReport(this.startDate, this.endDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
     this.getExternalFilters();
   }
