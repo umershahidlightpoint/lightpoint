@@ -274,9 +274,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 						,[end_price]
 						,[credit_debit]
 						,[security_id]
-						,[comment_id]
+						,coalesce([comment_id],-1) as comment_id
 						,[is_account_to],
-						[comment]
+						coalesce([comment], 'Not provided') as comment
                         FROM [journal]
 						LEFT JOIN [journal_comments]
 						ON [journal].[comment_id] = [journal_comments].[id] 

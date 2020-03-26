@@ -31,6 +31,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
     public class RawJournal : RowException
     {
         public int IsAccountTo { get; set; }
+        public string CreditDebit { get; set; }
         public DateTime When { get; set; }
         public string Event { get; set; }
         public double Credit { get; set; }
@@ -51,6 +52,27 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
             var account = Account.FindOrCreate(connectionString, AccountCategory, AccountType, AccountDescription);
 
+            var symbolMap = AppStartCache.GetCachedData("symbol");
+            if ( !symbolMap.Item1 )
+            {
+                var symbols = CacheManager.GetSymbols(connectionString);
+                AppStartCache.CacheData("symbol", symbols);
+            }
+
+            var exception = "";
+            var valid = true;
+            var symbolValue = this.Symbol;
+            var securityId = -1;
+
+            if (symbolMap.Item1)
+            {
+                var symbol = (Dictionary<IElement, int>)symbolMap.Item2;
+                var find = symbol.Keys.Where(i => i.Find(symbolValue));
+                if (find.Count() > 0)
+                    securityId = find.FirstOrDefault().Id;
+            }
+
+
             return new Journal()
             {
                 When = this.When,
@@ -58,19 +80,19 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 FxCurrency = this.Currency,
                 Fund = this.Fund,
                 Symbol = this.Symbol,
-                JournalValue = new JournalValue(this.Value, 0),
+                JournalValue = new JournalValue(0, this.Value),
                 Source = this.Source,
                 IsAccountTo = this.IsAccountTo,
 
                 // Additional Items to be added
                 Account = account,
-                CreditDebit = "",
+                CreditDebit = this.CreditDebit,
                 EndPrice = 0,
                 FxRate = 0,
                 GeneratedBy = "upload",
                 Quantity = 0,
                 StartPrice = 0,
-                SecurityId = -1,
+                SecurityId = securityId,
                 //Value = this.Value
             };
         }
@@ -467,7 +489,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
                 else
                 {
-                    symbols = GetSymbols();
+                    symbols = CacheManager.GetSymbols(connectionString);
                     AppStartCache.CacheData("symbol", symbols);
                 }
 
@@ -477,7 +499,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
                 else
                 {
-                    currency = GetCurrencies();
+                    currency = CacheManager.GetCurrencies(connectionString);
                     AppStartCache.CacheData("currency", currency);
                 }
 
@@ -614,7 +636,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
                 else
                 {
-                    symbols = GetSymbols();
+                    symbols = CacheManager.GetSymbols(connectionString);
                     AppStartCache.CacheData("symbol", symbols);
                 }
 
@@ -624,7 +646,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 }
                 else
                 {
-                    currency = GetCurrencies();
+                    currency = CacheManager.GetCurrencies(connectionString);
                     AppStartCache.CacheData("currency", currency);
                 }
 
@@ -729,30 +751,6 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 throw ex;
             }
         }
-
-        public Dictionary<IElement, int> GetSymbols()
-        {
-            var query = $@"select s.SecurityCode, EzeTicker, BbergCode, s.PricingSymbol, s.SecurityId  from ( select securitycode, EzeTicker, BbergCode, PricingSymbol, securityid, 
-                            ROW_NUMBER() OVER (PARTITION BY securitycode, EzeTicker, BbergCode, PricingSymbol ORDER BY securityid) 
-                            row_num from [SecurityMaster]..security ) s where s.row_num = 1";
-
-            var dataTable = new SqlHelper(connectionString).GetDataTable(query, CommandType.Text);
-            var jsonResult = JsonConvert.SerializeObject(dataTable);
-            var symbols = JsonConvert.DeserializeObject<List<SymbolDto>>(jsonResult);
-            var symbolDict = symbols.ToDictionary(x => x as IElement, x => x.SecurityId);
-            return symbolDict;
-        }
-
-        public Dictionary<string, string> GetCurrencies()
-        {
-            var query = $@"select currencycode as CurrencyCode from [SecurityMaster]..currency";
-            var dataTable = new SqlHelper(connectionString).GetDataTable(query, CommandType.Text);
-            var jsonResult = JsonConvert.SerializeObject(dataTable);
-            var currency = JsonConvert.DeserializeObject<List<CurrencyDto>>(jsonResult);
-            var currencyDict = currency.ToDictionary(x => x.CurrencyCode, x => x.CurrencyCode);
-            return currencyDict;
-        }
-
         private bool InsertData(IDbModel[] obj, string table)
         {
             SqlHelper sqlHelper = new SqlHelper(connectionString);
@@ -861,6 +859,34 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 throw ex;
             }
         }
+
+    }
+
+    public static class CacheManager
+    {
+        public static Dictionary<IElement, int> GetSymbols(string connectionString)
+        {
+            var query = $@"select s.SecurityCode, EzeTicker, BbergCode, s.PricingSymbol, s.SecurityId  from ( select securitycode, EzeTicker, BbergCode, PricingSymbol, securityid, 
+                            ROW_NUMBER() OVER (PARTITION BY securitycode, EzeTicker, BbergCode, PricingSymbol ORDER BY securityid) 
+                            row_num from [SecurityMaster]..security ) s where s.row_num = 1";
+
+            var dataTable = new SqlHelper(connectionString).GetDataTable(query, CommandType.Text);
+            var jsonResult = JsonConvert.SerializeObject(dataTable);
+            var symbols = JsonConvert.DeserializeObject<List<SymbolDto>>(jsonResult);
+            var symbolDict = symbols.ToDictionary(x => x as IElement, x => x.SecurityId);
+            return symbolDict;
+        }
+
+        public static Dictionary<string, string> GetCurrencies(string connectionString)
+        {
+            var query = $@"select currencycode as CurrencyCode from [SecurityMaster]..currency";
+            var dataTable = new SqlHelper(connectionString).GetDataTable(query, CommandType.Text);
+            var jsonResult = JsonConvert.SerializeObject(dataTable);
+            var currency = JsonConvert.DeserializeObject<List<CurrencyDto>>(jsonResult);
+            var currencyDict = currency.ToDictionary(x => x.CurrencyCode, x => x.CurrencyCode);
+            return currencyDict;
+        }
+
 
     }
 }

@@ -1,4 +1,6 @@
 ﻿/*
+truncate table pnl_summary
+select * from fnPositions('2019-12-31')
 exec [PnlToDate] '2019-12-31', '2019-04-01'
 */
 CREATE PROCEDURE [dbo].[PnlToDate]
@@ -8,19 +10,19 @@ AS
 
 select security_id, AccountType, coalesce(SecurityType, 'Journals') as SecurityType, Symbol, Fund, SUM(credit-debit) as GG 
 into #tempdata
-from current_journal_full
+from current_journal_full with(nolock)
 where [when] >= @From and [when] <= @Now
 group by AccountType, security_id, coalesce(SecurityType, 'Journals'), Symbol, Fund
+-- OPTION (MAXDOP 1)
 
 -- Get the Base data we need
-select business_date as BusDate, SecurityCode as SecurityCode, SecurityId, Fund, st.SecurityTypeCode as SecurityType, pos.currency, 
+select business_date as BusDate, SecurityCode as SecurityCode, SecurityId, Fund, security_type as SecurityType, pos.currency, 
 Sum(pos.quantity) as quantity,
 0 as realizedPnl, 0 as unrealizedPnl, 0 as Pnl, 0 as Nav
 into #results
 from fnPositions(@Now) pos
 inner join SecurityMaster..Security s on s.SecurityId = pos.security_id
-inner join SecurityMaster..SecurityType st on st.SecurityTypeId = s.SecurityTypeId
-group by business_date, SecurityCode, SecurityId, Fund, st.SecurityTypeCode, pos.currency
+group by business_date, SecurityCode, SecurityId, Fund, security_type , pos.currency
 
 insert into #results
 select @Now as BusDate, Symbol, security_id, Fund, 'Journals', '', 

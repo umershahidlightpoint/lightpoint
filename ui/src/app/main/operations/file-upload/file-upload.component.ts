@@ -665,8 +665,12 @@ export class FileUploadComponent implements OnInit {
               headerName: 'FX Currency'
             },
             {
-              field: 'Reason',
-              headerName: 'Reason'
+              field: 'Comment',
+              headerName: 'Comment'
+            },
+            {
+              field: 'CreditDebit',
+              headerName: 'Credit/Debit'
             },
             {
               field: 'IsUploadInValid',

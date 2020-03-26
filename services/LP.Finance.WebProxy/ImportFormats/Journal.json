@@ -140,7 +140,15 @@
       "type": "string",
       "offset": 17,
       "rule": ""
+    },
+    {
+      "source": "CreditDebit",
+      "destination": "CreditDebit",
+      "function": [],
+      "format": "",
+      "type": "string",
+      "offset": 17,
+      "rule": ""
     }
-
   ]
 }
