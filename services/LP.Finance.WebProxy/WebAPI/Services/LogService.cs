@@ -1,5 +1,7 @@
 ﻿using LP.Finance.Common;
+using LP.Shared.Model;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
@@ -20,22 +22,34 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             try
             {
                 Logger.Info($"started GetLogFiles at {DateTime.UtcNow}");
-                var logFolder = ConfigurationManager.AppSettings["logLocation"];
-                if (String.IsNullOrEmpty(logFolder))
-                    logFolder = System.AppDomain.CurrentDomain.BaseDirectory;
-
-                if (Directory.Exists(logFolder))
+                //var logFolder = ConfigurationManager.AppSettings["logLocation"];
+                var schema = Shared.WebApi.GetFile<List<Logs>>("log_config", "MockData");
+                var files = new List<LogInfo>();
+                foreach (var item in schema) 
                 {
-                    var fileList = Directory.GetFiles(logFolder).ToList();
-                    var fileNames = fileList.Select(x => new
-                    {
-                        FileName = System.IO.Path.GetFileName(x)
-                    }).OrderByDescending(x => x.FileName).Take(30).ToList();
+                    var logFolder = item.LogLocation;
+                    if (String.IsNullOrEmpty(logFolder))
+                        logFolder = System.AppDomain.CurrentDomain.BaseDirectory;
 
-                    sw.Stop();
-                    Logger.Info(
-                        $"finished GetLogFiles at {DateTime.UtcNow} in {sw.ElapsedMilliseconds} ms | {sw.ElapsedMilliseconds / 1000} s");
-                    return Shared.WebApi.Wrap(true, fileNames, HttpStatusCode.OK);
+                    if (Directory.Exists(logFolder))
+                    {
+                        var fileList = Directory.GetFiles(logFolder).ToList();
+                        var fileNames = fileList.Select(x => new LogInfo
+                        {
+                            Project = item.LogName,
+                            FileName = System.IO.Path.GetFileName(x)
+                        }).OrderByDescending(x => x.FileName).Take(30).ToList();
+
+                        files.AddRange(fileNames);
+                    }
+                }
+                sw.Stop();
+                Logger.Info(
+                    $"finished GetLogFiles at {DateTime.UtcNow} in {sw.ElapsedMilliseconds} ms | {sw.ElapsedMilliseconds / 1000} s");
+
+                if(files.Count > 0)
+                {
+                    return Shared.WebApi.Wrap(true, files, HttpStatusCode.OK);
                 }
                 else
                 {
@@ -51,23 +65,29 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
         }
 
-        public object ViewLog(string fileName, int numberOfLines)
+        public object ViewLog(string fileName, string project, int numberOfLines)
         {
-            var logFolder = ConfigurationManager.AppSettings["logLocation"];
+            try
+            {
+                var schema = Shared.WebApi.GetFile<List<Logs>>("log_config", "MockData");
+                var logFolder = schema.Where(x => x.LogName == project).Select(x => x.LogLocation).FirstOrDefault();
+                if (string.IsNullOrEmpty(logFolder))
+                    logFolder = AppDomain.CurrentDomain.BaseDirectory;
 
-            if (string.IsNullOrEmpty(logFolder))
-                logFolder = AppDomain.CurrentDomain.BaseDirectory;
-
-            logFolder = logFolder + Path.DirectorySeparatorChar + fileName;
-
-            var lines = File.ReadLines(logFolder).ToArray();
-
-            return lines.Skip(lines.Length - numberOfLines);
+                logFolder = logFolder + Path.DirectorySeparatorChar + fileName;
+                var lines = File.ReadLines(logFolder).ToArray();
+                return Shared.WebApi.Wrap(true, lines.Skip(lines.Length - numberOfLines), HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
-        public object DownloadLog(string fileName)
+        public object DownloadLog(string fileName, string project)
         {
-            var logFolder = ConfigurationManager.AppSettings["logLocation"];
+            var schema = Shared.WebApi.GetFile<List<Logs>>("log_config", "MockData");
+            var logFolder = schema.Where(x => x.LogName == project).Select(x => x.LogLocation).FirstOrDefault();
 
             if (string.IsNullOrEmpty(logFolder))
                 logFolder = AppDomain.CurrentDomain.BaseDirectory;

@@ -15,15 +15,15 @@ namespace LP.Finance.WebProxy.WebAPI
         }
 
         [HttpGet, Route("view")]
-        public object ViewLogFile(string fileName, int numberOfLines)
+        public object ViewLogFile(string fileName, string project, int numberOfLines)
         {
-            return service.ViewLog(fileName, numberOfLines);
+            return service.ViewLog(fileName, project, numberOfLines);
         }
 
         [HttpGet, Route("download")]
-        public object DownloadLogFile(string fileName)
+        public object DownloadLogFile(string fileName, string project)
         {
-            return service.DownloadLog(fileName);
+            return service.DownloadLog(fileName, project);
         }
     }
 }

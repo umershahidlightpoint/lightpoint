@@ -3,7 +3,7 @@
     interface ILogService
     {
         object GetLogFiles();
-        object ViewLog(string fileName, int numberOfLines);
-        object DownloadLog(string fileName);
+        object ViewLog(string fileName, string project, int numberOfLines);
+        object DownloadLog(string fileName, string project);
     }
 }
