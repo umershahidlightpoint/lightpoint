@@ -1,4 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[AssetServicesOptions]
+﻿/*
+exec [AssetServicesOptions] '2019-12-31'
+*/
+CREATE PROCEDURE [dbo].[AssetServicesOptions]
 @date date
 AS
 begin tran
@@ -48,7 +51,7 @@ inner join [SecurityMaster]..security s on tl.symbol = s.ezeticker
 inner join current_trade_state cts on cts.LPOrderId = tl.open_id
 left join market_prices mp on mp.security_id = s.SecurityId and mp.business_date = @date and mp.event = 'eod'
 left join cost_basis c on c.symbol = tl.symbol and c.business_date = tl.business_date
-where cts.Side in ('BUY', 'SELL')
+where cts.Side in ('BUY', 'SELL') and cts.SecurityType in ('Equity Option')
 -- and cts.SecurityType = 'Equity Option'
 
 select * from #assetservices where side = 'BUY'
