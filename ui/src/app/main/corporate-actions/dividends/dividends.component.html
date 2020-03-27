@@ -79,13 +79,15 @@
         <tabset class="w-100 h-100">
           <tab class="h-100" heading="Details" (selectTab)="activeStockSplits()">
             <ag-grid-angular class="w-100 h-100 mt-3 ag-theme-balham" [gridOptions]="dividendDetailsGrid"
-              (rowSelected)="rowSelected($event)" [rowData]="rowData">
+              [rowData]="rowData">
             </ag-grid-angular>
           </tab>
 
+          <!--
           <tab heading="Preview">
             <app-preview></app-preview>
           </tab>
+          -->
         </tabset>
       </div>
     </as-split-area>

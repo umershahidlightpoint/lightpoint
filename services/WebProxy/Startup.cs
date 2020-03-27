@@ -45,11 +45,13 @@ namespace WebProxy
 
             app.UseStaticFiles();
 
+            /*
             app.UseStaticFiles(new StaticFileOptions()
             {
                 FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "admin")),
                 RequestPath = new PathString("/admin")
             });
+            */
 
             app.UseHttpsRedirection();
 

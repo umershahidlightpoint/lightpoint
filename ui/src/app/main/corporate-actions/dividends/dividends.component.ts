@@ -345,6 +345,15 @@ export class DividendsComponent implements OnInit, AfterViewInit {
           valueFormatter: moneyFormatter
         },
         {
+          field: 'trade_date',
+          headerName: 'Trade Date',
+          sortable: true,
+          sort: 'asc',
+          filter: true,
+          width: 100,
+          valueFormatter: dateFormatter
+        },
+        {
           field: 'execution_date',
           headerName: 'Execution Date',
           sortable: true,
