@@ -6,6 +6,7 @@
     "start": "ng serve -o",
     "dev": "concurrently \" npm start\" \"cd.. && cd node && npm start\" ",
     "build": "ng build",
+    "postinstall": "tsc -p builders/tsconfig.builders.json",
     "deploy": "copyfiles dist/AccountApp/**/* ../distribution/XA/Web/server/",
     "test": "ng test",
     "lint": "ng lint",
