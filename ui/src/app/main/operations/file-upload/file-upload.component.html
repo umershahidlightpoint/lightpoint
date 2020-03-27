@@ -37,13 +37,8 @@
     <!-- Upload File Ends -->
 
     <!-- Commit File -->
-    <button class="btn btn-pa" type="button" [hidden]="fileType !== 'Trades' || previewData.length === 0" [disabled]="commitLoader || disableCommit"
-      (click)="onCommitData()">
-      Commit
-      <span *ngIf="commitLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-    </button>
-    <button class="btn btn-pa" type="button" [hidden]="fileType !== 'Journals' || previewData.length === 0" [disabled]="commitLoader || disableCommit"
-      (click)="onCommitData()">
+    <button class="btn btn-pa" type="button" [hidden]="previewData.length === 0"
+      [disabled]="commitLoader || disableCommit" (click)="onCommitData()">
       Commit
       <span *ngIf="commitLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
     </button>
@@ -51,15 +46,6 @@
 
   </div>
   <!-- File Upload Actions Ends -->
-
-  <!-- Expand/Collapse Button -->
-  <!-- <ng-template #tooltipTemplate>{{marketPricesConfig.chartsView ? 'Expand' : 'Collapse'}}</ng-template>
-  <button class="btn btn-pa" [tooltip]="tooltipTemplate" placement="top"
-    (click)="marketPricesConfig.chartsView = !marketPricesConfig.chartsView">
-    <i class="fa"
-      [ngClass]="{'fa-arrow-right': marketPricesConfig.chartsView, 'fa-arrow-left': !marketPricesConfig.chartsView}"></i>
-  </button> -->
-  <!-- Expand/Collapse Button Ends -->
 
 </div>
 <!-- Actions Container Ends -->

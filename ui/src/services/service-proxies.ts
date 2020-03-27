@@ -13,8 +13,12 @@ export class FinanceServiceProxy {
 
   constructor(http: HttpClient) {
     this.http = http;
-    this.baseUrl = window['config'] ? window['config'].remoteServerUrl : environment.testCaseRemoteServerUrl;
-    this.refDataUrl = window['config'] ? window['config'].referenceDataUrl : environment.testCaseReferenceDataUrl;
+    this.baseUrl = window['config']
+      ? window['config'].remoteServerUrl
+      : environment.testCaseRemoteServerUrl;
+    this.refDataUrl = window['config']
+      ? window['config'].referenceDataUrl
+      : environment.testCaseReferenceDataUrl;
   }
 
   /*
@@ -125,6 +129,11 @@ export class FinanceServiceProxy {
     const formData: FormData = new FormData();
     formData.append('fileKey', file, file.name);
     return this.http.post(url, formData);
+  }
+
+  commitMonthlyPerformance(data: any): Observable<any> {
+    const url = this.baseUrl + '/calculation/monthlyPerformance/commit';
+    return this.http.post(url, data);
   }
 
   getMarketPriceForSymbol(symbol) {

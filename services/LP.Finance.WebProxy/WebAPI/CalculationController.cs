@@ -39,6 +39,12 @@ namespace LP.Finance.WebProxy.WebAPI
             return await controller.UploadMonthlyPerformance(Request);
         }
 
+        [HttpPost, Route("monthlyPerformance/commit")]
+        public object CommitMonthlyPerformance(List<MonthlyPerformance> monthlyPerformances)
+        {
+            return controller.CommitMonthlyPerformance(monthlyPerformances);
+        }
+
         [HttpGet, Route("monthlyPerformance/status")]
         public object GetMonthlyPerformanceStatus()
         {
@@ -81,6 +87,12 @@ namespace LP.Finance.WebProxy.WebAPI
         public async Task<object> UploadDailyUnofficialPnl()
         {
             return await controller.UploadDailyUnofficialPnl(Request);
+        }
+
+        [HttpPost, Route("dailyUnofficialPnlAudit/commit")]
+        public object CommitDailyUnofficialPnl(List<DailyPnL> dailyPnLs)
+        {
+            return controller.CommitDailyUnofficialPnl(dailyPnLs);
         }
 
         [HttpGet, Route("dailyUnofficialPnl/status")]

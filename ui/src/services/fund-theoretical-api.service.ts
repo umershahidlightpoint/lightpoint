@@ -103,6 +103,11 @@ export class FundTheoreticalApiService {
     return this.http.post(url, formData);
   }
 
+  commitDailyUnofficialPnl(data: any): Observable<any> {
+    const url = this.baseUrl + '/calculation/dailyUnofficialPnlAudit/commit';
+    return this.http.post(url, data);
+  }
+
   /*
   Fx Rate
   */

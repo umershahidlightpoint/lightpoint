@@ -5,8 +5,13 @@
     {
       "source": "PerformanceDate",
       "destination": "PerformanceDate",
-      "function": [],
-      "format": "",
+      "function": [
+        {
+          "Name": "GetDate",
+          "Assembly": "LP.Shared.FileProcessingUtils,LP.Shared"
+        }
+      ],
+      "format": "yyyy-MM-dd",
       "type": "date",
       "offset": 0,
       "rule": ""

@@ -17,6 +17,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using LP.Shared.FileMetaData;
 using LP.Shared.Sql;
+using Newtonsoft.Json.Converters;
 using static System.String;
 
 namespace LP.Finance.WebProxy.WebAPI.Services
@@ -27,6 +28,9 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         private static readonly string
             ConnectionString = ConfigurationManager.ConnectionStrings["FinanceDB"].ToString();
+
+        public SqlHelper SqlHelper = new SqlHelper(ConnectionString);
+        private readonly FileProcessor _fileProcessor = new FileProcessor();
 
         public object GetMonthlyPerformance(DateTime? dateFrom = null, DateTime? dateTo = null, string fund = null,
             string portfolio = null)
@@ -438,6 +442,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         "Monthly Performance data could not be deleted! Please try again.");
                 }
 
+                FileManager fileManager = new FileManager(ConnectionString);
                 var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "PerformanceData");
                 if (!uploadedResult.Item1)
                     return Shared.WebApi.Wrap(false);
@@ -445,52 +450,98 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                 var performancePath = uploadedResult.Item2;
                 var performanceFileName = uploadedResult.Item3;
 
-                var recordBody = new FileProcessor().ImportFile(performancePath, "Performance", "ImportFormats", ',');
+                List<MonthlyPerformance> performanceRecords;
+
+                var recordBody = _fileProcessor.ImportFile(performancePath, "Performance", "ImportFormats", ',', true);
 
                 var records = JsonConvert.SerializeObject(recordBody.Item1);
-                var performanceRecords = JsonConvert.DeserializeObject<List<MonthlyPerformance>>(records);
+
+                try
+                {
+                    performanceRecords = JsonConvert.DeserializeObject<List<MonthlyPerformance>>(records);
+                }
+                catch (Exception ex)
+                {
+                    foreach (var item in recordBody.Item2)
+                    {
+                        var performanceElement = recordBody.Item1.ElementAt(item.RowNumber - 1);
+                        performanceElement.IsUploadInValid = true;
+                        performanceElement.UploadException = JsonConvert.SerializeObject(item);
+                    }
+
+                    var payload = new
+                    {
+                        EnableCommit = false,
+                        Data = recordBody.Item1
+                    };
+
+                    return Shared.WebApi.Wrap(true, payload, HttpStatusCode.OK);
+                }
 
                 var failedRecords = new Dictionary<object, Row>();
                 var key = 0;
+                var enableCommit = true;
                 foreach (var item in recordBody.Item2)
                 {
                     failedRecords.Add(key++, item);
+                    var performanceElement = performanceRecords.ElementAt(item.RowNumber - 1);
+                    performanceElement.IsUploadInValid = true;
+                    performanceElement.UploadException = JsonConvert.SerializeObject(item);
                 }
 
-                var failedPerformanceList =
-                    new FileManager(ConnectionString).MapFailedRecords(failedRecords, DateTime.Now,
-                        performanceFileName);
+                if (failedRecords.Count > 0)
+                {
+                    enableCommit = false;
+                }
+
+                var failedMonthlyPerformanceList =
+                    fileManager.MapFailedRecords(failedRecords, DateTime.Now, uploadedResult.Item3);
 
                 List<FileInputDto> fileList = new List<FileInputDto>
                 {
                     new FileInputDto(performancePath, performanceFileName, performanceRecords.Count,
                         "MonthlyPerformance",
                         "Upload",
-                        failedPerformanceList,
+                        failedMonthlyPerformanceList,
                         DateTime.Now)
                 };
 
-                new FileManager(ConnectionString).InsertFiles(fileList);
-                var monthlyPerformanceResult = CalculateMonthlyPerformance(performanceRecords);
-                var monthlyPerformance = monthlyPerformanceResult.GetType().GetProperty("payload")
-                    ?.GetValue(monthlyPerformanceResult, null);
+                fileManager.InsertFiles(fileList);
 
-                var insertedMonthlyPerformance =
-                    AddOrUpdateMonthlyPerformance((List<MonthlyPerformance>) monthlyPerformance);
-                var insertStatus = (bool) insertedMonthlyPerformance.GetType().GetProperty("isSuccessful")
-                    ?.GetValue(insertedMonthlyPerformance, null);
-
-                if (insertStatus)
+                var data = new
                 {
-                    return Shared.WebApi.Wrap(true, monthlyPerformance, HttpStatusCode.OK);
-                }
+                    EnableCommit = enableCommit,
+                    Data = performanceRecords
+                };
 
-                return Shared.WebApi.Wrap(false);
+                return Shared.WebApi.Wrap(true, data, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
-                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError, $"An error occured:{ex.Message}");
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    $"An error occured:{ex.Message}");
             }
+        }
+
+        public object CommitMonthlyPerformance(List<MonthlyPerformance> monthlyPerformances)
+        {
+            var monthlyPerformanceResult = CalculateMonthlyPerformance(monthlyPerformances);
+
+            var monthlyPerformance = monthlyPerformanceResult.GetType().GetProperty("payload")
+                ?.GetValue(monthlyPerformanceResult, null);
+
+            var insertedMonthlyPerformance =
+                AddOrUpdateMonthlyPerformance((List<MonthlyPerformance>) monthlyPerformance);
+
+            var insertStatus = (bool) insertedMonthlyPerformance.GetType().GetProperty("isSuccessful")
+                ?.GetValue(insertedMonthlyPerformance, null);
+
+            if (insertStatus)
+            {
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
+            }
+
+            return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError);
         }
 
         public object GetMonthlyPerformanceStatus()
@@ -750,61 +801,109 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             try
             {
+                FileManager fileManager = new FileManager(ConnectionString);
                 var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "PerformanceData");
                 if (!uploadedResult.Item1)
                     return Shared.WebApi.Wrap(false);
 
                 var dailyPnlPath = uploadedResult.Item2;
                 var dailyPnlFileName = uploadedResult.Item3;
-                var recordBody = new FileProcessor().ImportFile(dailyPnlPath, "DailyPnl", "ImportFormats", ',');
+
+                List<DailyPnL> performanceRecords;
+
+                var recordBody = new FileProcessor().ImportFile(dailyPnlPath, "DailyPnl", "ImportFormats", ',', true);
 
                 var records = JsonConvert.SerializeObject(recordBody.Item1);
-                var performanceRecords = JsonConvert.DeserializeObject<List<DailyPnL>>(records);
+
+                try
+                {
+                    performanceRecords = JsonConvert.DeserializeObject<List<DailyPnL>>(records);
+                }
+                catch (Exception ex)
+                {
+                    foreach (var item in recordBody.Item2)
+                    {
+                        var performanceElement = recordBody.Item1.ElementAt(item.RowNumber - 1);
+                        performanceElement.IsUploadInValid = true;
+                        performanceElement.UploadException = JsonConvert.SerializeObject(item);
+                    }
+
+                    var payload = new
+                    {
+                        EnableCommit = false,
+                        Data = recordBody.Item1
+                    };
+
+                    return Shared.WebApi.Wrap(true, payload, HttpStatusCode.OK);
+                }
 
                 var failedRecords = new Dictionary<object, Row>();
                 var key = 0;
+                var enableCommit = true;
                 foreach (var item in recordBody.Item2)
                 {
                     failedRecords.Add(key++, item);
+                    var performanceElement = performanceRecords.ElementAt(item.RowNumber - 1);
+                    performanceElement.IsUploadInValid = true;
+                    performanceElement.UploadException = JsonConvert.SerializeObject(item);
                 }
 
-                var failedPerformanceList =
-                    new FileManager(ConnectionString).MapFailedRecords(failedRecords, DateTime.Now,
-                        uploadedResult.Item3);
+                if (failedRecords.Count > 0)
+                {
+                    enableCommit = false;
+                }
+
+                var failedDailyPnLList =
+                    fileManager.MapFailedRecords(failedRecords, DateTime.Now, uploadedResult.Item3);
 
                 List<FileInputDto> fileList = new List<FileInputDto>
                 {
-                    new FileInputDto(dailyPnlPath, dailyPnlFileName, performanceRecords.Count, "DailyUnofficialPnl",
+                    new FileInputDto(dailyPnlPath, dailyPnlFileName, performanceRecords.Count, "DailyPnL",
                         "Upload",
-                        failedPerformanceList,
+                        failedDailyPnLList,
                         DateTime.Now)
                 };
 
-                new FileManager(ConnectionString).InsertFiles(fileList);
-                var previousData = GetLatestDailyPnlPerPortfolio();
-                var previousList = previousData.Item2;
-                if (previousData.Item1)
-                {
-                    performanceRecords = performanceRecords.Concat(previousList).ToList();
-                }
+                fileManager.InsertFiles(fileList);
 
-                var dailyPerformanceResult = new DailyPnlCalculator().CalculateDailyPerformance(performanceRecords);
-                var dailyPerformance = dailyPerformanceResult.GetType().GetProperty("payload")
-                    ?.GetValue(dailyPerformanceResult, null);
-                bool insertDailyPnl = InsertDailyPnl((List<DailyPnL>) dailyPerformance);
-                if (insertDailyPnl)
+                var data = new
                 {
-                    return Shared.WebApi.Wrap(true, dailyPerformance, null);
-                }
-                else
-                {
-                    return Shared.WebApi.Wrap(false);
-                }
+                    EnableCommit = enableCommit,
+                    Data = performanceRecords
+                };
+
+                return Shared.WebApi.Wrap(true, data, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
-                return Shared.WebApi.Wrap(false);
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    $"An error occured:{ex.Message}");
             }
+        }
+
+        public object CommitDailyUnofficialPnl(List<DailyPnL> dailyPnLs)
+        {
+            var previousData = GetLatestDailyPnlPerPortfolio();
+
+            var previousList = previousData.Item2;
+            if (previousData.Item1)
+            {
+                dailyPnLs = dailyPnLs.Concat(previousList).ToList();
+            }
+
+            var dailyPerformanceResult = new DailyPnlCalculator().CalculateDailyPerformance(dailyPnLs);
+
+            var dailyPerformance = dailyPerformanceResult.GetType().GetProperty("payload")
+                ?.GetValue(dailyPerformanceResult, null);
+
+            bool insertStatus = InsertDailyPnl((List<DailyPnL>) dailyPerformance);
+
+            if (insertStatus)
+            {
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
+            }
+
+            return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError);
         }
 
         private bool InsertDailyPnl(List<DailyPnL> obj)

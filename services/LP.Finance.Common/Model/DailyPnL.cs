@@ -6,7 +6,7 @@ using LP.Shared.Sql;
 
 namespace LP.Finance.Common.Model
 {
-    public class DailyPnL : IDbModel
+    public class DailyPnL : RowException, IDbModel
     {
         public DailyPnL(DataRow row)
         {
@@ -52,14 +52,14 @@ namespace LP.Finance.Common.Model
             this.QTDPnL = Convert.ToDecimal(row["qtd_pnl"]);
             this.YTDPnL = Convert.ToDecimal(row["ytd_pnl"]);
             this.ITDPnL = Convert.ToDecimal(row["itd_pnl"]);
-
         }
 
         public DailyPnL()
         {
         }
 
-        public DailyPnL(DateTime businessDate, string portfolio, string fund, decimal tradePnL, decimal day, decimal dailyPercentageReturn)
+        public DailyPnL(DateTime businessDate, string portfolio, string fund, decimal tradePnL, decimal day,
+            decimal dailyPercentageReturn)
         {
             this.BusinessDate = businessDate;
             this.PortFolio = portfolio;
@@ -118,12 +118,14 @@ namespace LP.Finance.Common.Model
             var localconnection = new SqlConnection(connection.ConnectionString + ";Password=ggtuser");
             localconnection.Open();
             //var query = $"SELECT TOP 0 created_by, created_date, last_updated_by, last_updated_date, business_date, portfolio, fund, trade_pnl,day, daily_percentage_return, long_pnl, long_percentage_change, short_pnl, short_percentage_change, long_exposure, short_exposure, gross_exposure, net_exposure, six_md_beta_net_exposure, two_yw_beta_net_exposure, six_md_beta_short_exposure, nav_market, dividend_usd, comm_usd, fee_taxes_usd, financing_usd, other_usd, pnl_percentage, mtd_percentage_return, qtd_percentage_return, ytd_percentage_return, itd_percentage_return, mtd_pnl, qtd_pnl, ytd_pnl, itd_pnl FROM unofficial_daily_pnl";
-            var query = $"SELECT TOP 0 created_by, created_date, last_updated_by, last_updated_date, business_date, portfolio, fund , trade_pnl, day, daily_percentage_return, long_pnl, long_percentage_change, short_pnl, short_percentage_change, long_exposure, short_exposure, gross_exposure, net_exposure, six_md_beta_net_exposure, two_yw_beta_net_exposure, six_md_beta_short_exposure, nav_market, dividend_usd, comm_usd, fee_taxes_usd, financing_usd, other_usd, pnl_percentage, mtd_percentage_return, qtd_percentage_return, ytd_percentage_return, itd_percentage_return, mtd_pnl, qtd_pnl, ytd_pnl, itd_pnl FROM unofficial_daily_pnl";
+            var query =
+                $"SELECT TOP 0 created_by, created_date, last_updated_by, last_updated_date, business_date, portfolio, fund , trade_pnl, day, daily_percentage_return, long_pnl, long_percentage_change, short_pnl, short_percentage_change, long_exposure, short_exposure, gross_exposure, net_exposure, six_md_beta_net_exposure, two_yw_beta_net_exposure, six_md_beta_short_exposure, nav_market, dividend_usd, comm_usd, fee_taxes_usd, financing_usd, other_usd, pnl_percentage, mtd_percentage_return, qtd_percentage_return, ytd_percentage_return, itd_percentage_return, mtd_pnl, qtd_pnl, ytd_pnl, itd_pnl FROM unofficial_daily_pnl with(nolock)";
 
             using (var adapter = new SqlDataAdapter(query, localconnection))
             {
                 adapter.Fill(table);
-            };
+            }
+
             localconnection.Close();
 
             return table;
@@ -171,7 +173,8 @@ namespace LP.Finance.Common.Model
 
         public static List<DailyPnL> GetList(string connectionString)
         {
-            var query = "SELECT id, created_by, created_date, last_updated_by, last_updated_date, business_date, portfolio, fund , trade_pnl, day, daily_percentage_return, long_pnl, long_percentage_change, short_pnl, short_percentage_change, long_exposure, short_exposure, gross_exposure, net_exposure, six_md_beta_net_exposure, two_yw_beta_net_exposure, six_md_beta_short_exposure, nav_market, dividend_usd, comm_usd, fee_taxes_usd, financing_usd, other_usd, pnl_percentage, mtd_percentage_return, qtd_percentage_return, ytd_percentage_return, itd_percentage_return, mtd_pnl, qtd_pnl, ytd_pnl, itd_pnl FROM unofficial_daily_pnl";
+            var query =
+                "SELECT id, created_by, created_date, last_updated_by, last_updated_date, business_date, portfolio, fund , trade_pnl, day, daily_percentage_return, long_pnl, long_percentage_change, short_pnl, short_percentage_change, long_exposure, short_exposure, gross_exposure, net_exposure, six_md_beta_net_exposure, two_yw_beta_net_exposure, six_md_beta_short_exposure, nav_market, dividend_usd, comm_usd, fee_taxes_usd, financing_usd, other_usd, pnl_percentage, mtd_percentage_return, qtd_percentage_return, ytd_percentage_return, itd_percentage_return, mtd_pnl, qtd_pnl, ytd_pnl, itd_pnl FROM unofficial_daily_pnl";
             var table = new DataTable();
             var connection = new SqlConnection(connectionString);
             connection.Open();
@@ -179,11 +182,11 @@ namespace LP.Finance.Common.Model
             using (var adapter = new SqlDataAdapter(query, connection))
             {
                 adapter.Fill(table);
-            };
+            }
 
             var list = new List<DailyPnL>();
 
-            foreach( DataRow row in table.Rows)
+            foreach (DataRow row in table.Rows)
             {
                 list.Add(new DailyPnL(row));
             }
@@ -191,5 +194,4 @@ namespace LP.Finance.Common.Model
             return list;
         }
     }
-
 }

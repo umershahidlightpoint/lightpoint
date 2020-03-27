@@ -15,7 +15,6 @@ export class DownloadExcelUtils {
         'Downloaded',
         {
           positionClass: 'toast-bottom-left',
-          disableTimeOut: true,
           closeButton: true
         }
       );

@@ -14,11 +14,13 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         object CalculateMonthlyPerformance(List<MonthlyPerformance> dto);
         object AddOrUpdateMonthlyPerformance(List<MonthlyPerformance> dto);
         Task<object> UploadMonthlyPerformance(HttpRequestMessage requestMessage);
+        object CommitMonthlyPerformance(List<MonthlyPerformance> monthlyPerformances);
         object GetMonthlyPerformanceStatus();
         object GetMonthlyPerformanceAudit(int id);
         object GetDailyUnofficialPnl(DateTime? from, DateTime? to);
         object CalculateDailyUnofficialPnl(List<DailyPnL> obj);
         Task<object> UploadDailyUnofficialPnl(HttpRequestMessage requestMessage);
+        object CommitDailyUnofficialPnl(List<DailyPnL> dailyPnLs);
         object GetDailyUnofficialPnlStatus();
         object GetDailyUnofficialPnlAudit(int id);
     }

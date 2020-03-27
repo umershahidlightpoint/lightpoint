@@ -1,33 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LP.Shared.Sql;
 
 namespace LP.Finance.Common.Model
 {
-    public class MonthlyPerformance : IDbModel
+    public class MonthlyPerformance : RowException, IDbModel
     {
         public MonthlyPerformance()
         {
-
         }
 
         public MonthlyPerformance(int id, decimal monthEndNav, decimal startOfMonthEstimateNav, bool estimated,
-            decimal performance, decimal mtd, string fund, string portfolio, DateTime performanceDate )
+            decimal performance, decimal mtd, string fund, string portfolio, DateTime performanceDate)
         {
-            this.Id = id;
-            this.MonthEndNav = monthEndNav;
-            this.StartOfMonthEstimateNav = startOfMonthEstimateNav;
-            this.Estimated = estimated;
-            this.Performance = performance;
-            this.MTD = mtd;
-            this.Fund = fund;
-            this.PortFolio = portfolio;
-            this.PerformanceDate = performanceDate;
+            Id = id;
+            MonthEndNav = monthEndNav;
+            StartOfMonthEstimateNav = startOfMonthEstimateNav;
+            Estimated = estimated;
+            Performance = performance;
+            MTD = mtd;
+            Fund = fund;
+            PortFolio = portfolio;
+            PerformanceDate = performanceDate;
         }
 
         public int Id { get; set; }
@@ -50,18 +45,36 @@ namespace LP.Finance.Common.Model
         public string CreatedDate { get; set; }
         public string LastUpdatedDate { get; set; }
 
-
         public DataTable MetaData(SqlConnection connection)
         {
             var table = new DataTable();
 
             // read the table structure from the database
-            var localconnection = new SqlConnection(connection.ConnectionString + ";Password=ggtuser") ;
+            var localconnection = new SqlConnection(connection.ConnectionString + ";Password=ggtuser");
             localconnection.Open();
-            using (var adapter = new SqlDataAdapter($"SELECT TOP 0 created_date, last_updated_date, created_by, performance_date, fund,portfolio, monthly_end_nav, performance, mtd, ytd_net_performance, qtd_net_perc, ytd_net_perc,  itd_net_perc, estimated, start_month_estimate_nav FROM monthly_performance", localconnection))
+            using (var adapter = new SqlDataAdapter(
+                $@"SELECT TOP 0 
+                                created_date, 
+                                last_updated_date, 
+                                created_by, 
+                                performance_date, 
+                                fund, 
+                                portfolio, 
+                                monthly_end_nav, 
+                                performance, 
+                                mtd, 
+                                ytd_net_performance, 
+                                qtd_net_perc, 
+                                ytd_net_perc, 
+                                itd_net_perc, 
+                                estimated, 
+                                start_month_estimate_nav 
+                                FROM monthly_performance with(nolock)",
+                localconnection))
             {
                 adapter.Fill(table);
-            };
+            }
+
             localconnection.Close();
 
             return table;
