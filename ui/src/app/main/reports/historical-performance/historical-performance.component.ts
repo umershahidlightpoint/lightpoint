@@ -143,8 +143,8 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
       date => {
         if (date.isSuccessful && date.statusCode === 200) {
           this.journalDate = date.payload[0].when;
-          this.startDate = this.journalDate;
           this.endDate = this.journalDate;
+          this.startDate =  date.payload[0].inceptionDate;
           this.selectedDate = {
             startDate: moment(this.startDate, 'YYYY-MM-DD'),
             endDate: moment(this.endDate, 'YYYY-MM-DD')

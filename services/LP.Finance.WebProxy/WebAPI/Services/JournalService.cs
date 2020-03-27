@@ -787,31 +787,28 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
                 var commentId = GetJournalCommentId(source);
 
-                List<SqlParameter> journalParameters = new List<SqlParameter>
-                {
-                    new SqlParameter("source", source.ToString())
-                };
-
                 List<SqlParameter> currentJournalParameters = new List<SqlParameter>
                 {
                     new SqlParameter("source", source.ToString())
                 };
-
-                var journalQuery = $@"DELETE FROM [journal]
-                                    WHERE [journal].[source] = @source";
-
-                var currentJournalQuery = $@"DELETE FROM [current_journal_full]
-                                    WHERE [current_journal_full].[source] = @source";
 
                 List<SqlParameter> commentParameters = new List<SqlParameter>
                 {
                     new SqlParameter("commentId", commentId)
                 };
 
-                var commentQuery = $@"DELETE FROM [journal_comments] 
-                                    WHERE [journal_comments].[id] = @commentId";
+                var journalQuery = $@"DELETE FROM [journal] WHERE [journal].[source] = @source";
 
-                sqlHelper.Delete(journalQuery, CommandType.Text, journalParameters.ToArray());
+                var currentJournalQuery = $@"DELETE FROM [current_journal_full] WHERE [current_journal_full].[source] = @source";
+
+                var commentQuery = $@"DELETE FROM [journal_comments] WHERE [journal_comments].[id] = @commentId";
+
+                sqlHelper.Delete(journalQuery, CommandType.Text, 
+                    new List<SqlParameter>
+                    {
+                        new SqlParameter("source", source.ToString())
+                    }.ToArray());
+
                 sqlHelper.Delete(currentJournalQuery, CommandType.Text, currentJournalParameters.ToArray());
                 sqlHelper.Delete(commentQuery, CommandType.Text, commentParameters.ToArray());
 
@@ -843,7 +840,11 @@ namespace LP.Finance.WebProxy.WebAPI.Services
                         FROM [journal] 
                         WHERE [journal].[source] = @source";
 
-            return Convert.ToInt32(sqlHelper.GetScalarValue(query, CommandType.Text, sqlParameters.ToArray()));
+            var scalar = sqlHelper.GetScalarValue(query, CommandType.Text, sqlParameters.ToArray());
+            if (scalar == DBNull.Value)
+                return -1;
+
+            return Convert.ToInt32(scalar);
         }
 
         private bool IsModifiable(Guid source)
@@ -856,7 +857,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             };
 
             var query = $@"SELECT
-                        CASE WHEN [journal].[generated_by] = 'user'
+                        CASE WHEN [journal].[generated_by] = 'user' or [journal].[event] = 'manual'
 	                    THEN 'true'
 	                    ELSE 'false'
 	                    END AS 'is_modifiable'
@@ -1662,7 +1663,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
 
         public object GetLastJournalPostedDate()
         {
-            var query = "select top 1 [when] from journal where [event] != 'manual' order by [when] desc";
+            var query = "select max([when]) as [when], min([when]) as inceptionDate from FundAccounting..journal where [event] != 'manual' ";
 
             var dataTable = sqlHelper.GetDataTable(query, CommandType.Text);
             var serialized = JsonConvert.SerializeObject(dataTable);

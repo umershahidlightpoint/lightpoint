@@ -10,11 +10,12 @@ namespace PostingEngine.ClientSpecifics.Implementation
         {
             var finalTradeList = trades;
 
-            const bool DEBUG_TRADE_LIST = false;
+            const bool DEBUG_TRADE_LIST = true;
             if (DEBUG_TRADE_LIST)
             {
                 var securityTypeTags = new List<string> {
-                    "FORWARD",
+                    //"FORWARD",
+                    "Journals",
                     //"Equity Swap"
                     };
 

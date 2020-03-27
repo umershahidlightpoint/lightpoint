@@ -298,7 +298,7 @@ namespace LP.Finance.Common.Calculators
                 priorDataQuarterlyPnl = null;
             }
 
-            return sorted;
+            return sorted.OrderByDescending(i => i.AsOf).ToList();
         }
 
         public decimal CalculateDailyITD(PnlReturn current, PnlReturn prior)
