@@ -204,7 +204,12 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
           field: 'DayPnl',
           headerName: 'DayPnl',
           cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          valueFormatter: currencyFormatter,
+          cellClassRules: {
+            redFont(params) {
+                return params.value < 0;
+            }
+          }
         },
         {
           field: 'SodNav',
@@ -234,12 +239,22 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
           field: 'DayPnlPer',
           headerName: 'DayPnlPer',
           cellClass: 'rightAlign',
-          valueFormatter: params => numberFormatter(params, true, this.decimalPipe)
+          valueFormatter: params => numberFormatter(params, true, this.decimalPipe),
+          cellClassRules: {
+            redFont(params) {
+                return params.value < 0;
+            }
+          }
         },
         {
           field: 'MtdPnlPer',
           headerName: 'MtdPnlPer',
           cellClass: 'rightAlign',
+          cellClassRules: {
+            redFont(params) {
+                return params.value < 0;
+            }
+          },
           valueFormatter: params => numberFormatter(params, true, this.decimalPipe)
         },
         {
@@ -247,43 +262,78 @@ export class HistoricalPerformanceComponent implements OnInit, OnDestroy, AfterV
           headerName: 'QtdPnlPer',
           // aggFunc: 'sum',
           cellClass: 'rightAlign',
-          valueFormatter: params => numberFormatter(params, true, this.decimalPipe)
+          valueFormatter: params => numberFormatter(params, true, this.decimalPipe),
+          cellClassRules: {
+            redFont(params) {
+                return params.value < 0;
+            }
+          }
         },
         {
           field: 'YtdPnlPer',
           headerName: 'YtdPnlPer',
           cellClass: 'rightAlign',
-          valueFormatter: params => numberFormatter(params, true, this.decimalPipe)
+          valueFormatter: params => numberFormatter(params, true, this.decimalPipe),
+          cellClassRules: {
+            redFont(params) {
+                return params.value < 0;
+            }
+          }
         },
         {
           field: 'ItdPnlPer',
           headerName: 'ItdPnlPer',
           cellClass: 'rightAlign',
-          valueFormatter: params => numberFormatter(params, true, this.decimalPipe)
+          valueFormatter: params => numberFormatter(params, true, this.decimalPipe),
+          cellClassRules: {
+            redFont(params) {
+                return params.value < 0;
+            }
+          }
         },
         {
           field: 'MtdPnl',
           headerName: 'MtdPnl',
           cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          valueFormatter: currencyFormatter,
+          cellClassRules: {
+            redFont(params) {
+                return params.value < 0;
+            }
+          }
         },
         {
           field: 'QtdPnl',
           headerName: 'QtdPnl',
           cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          valueFormatter: currencyFormatter,
+          cellClassRules: {
+            redFont(params) {
+                return params.value < 0;
+            }
+          }
         },
         {
           field: 'YtdPnl',
           headerName: 'YtdPnl',
           cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          valueFormatter: currencyFormatter,
+          cellClassRules: {
+            redFont(params) {
+                return params.value < 0;
+            }
+          }
         },
         {
           field: 'ItdPnl',
           headerName: 'ItdPnl',
           cellClass: 'rightAlign',
-          valueFormatter: currencyFormatter
+          valueFormatter: currencyFormatter,
+          cellClassRules: {
+            redFont(params) {
+                return params.value < 0;
+            }
+          }
         }
       ],
       defaultColDef: {
@@ -523,6 +573,11 @@ function numberFormatter(params, isInPercentage, decimalPipe): string {
     per = PercentageFormatter(per);
   }
   const formattedValue = decimalPipe.transform(per, '1.4-4');
+
+  if (isInPercentage) {
+    return formattedValue.toString() + '%'
+  }
+
   return formattedValue.toString();
 }
 
