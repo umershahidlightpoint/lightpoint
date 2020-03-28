@@ -187,6 +187,9 @@ namespace PostingEngine
         }
 
         public Dictionary<string, TaxLotStatus> TaxLotStatus { get; private set; }
+
+        public List<TaxLotManualLink> ManualTaxLots { get { return TaxLotManualLink.All; } }
+
         public List<TaxLot> TaxLot { get; private set; }
 
         internal TradeTaxRate TradeTaxRate(Transaction i)
@@ -465,7 +468,7 @@ namespace PostingEngine
             var taxlotStatus = new TaxLotStatus
             {
                 Trade = element,
-                InvestmentAtCost = element.NetMoney * fxrate,
+                InvestmentAtCost = element.SettleNetMoney * fxrate,
                 FxRate = fxrate,
                 TradeDate = element.TradeDate,
                 BusinessDate = element.TradeDate,
