@@ -75,8 +75,11 @@ namespace PostingEngine
         {
             var fxRate = FxRates.Find(this, journal.When, journal.FxCurrency).Rate;
 
-            // For only the following events we need to no set the local_value
-            if (journal.Event.Equals("settled-cash-fx") || journal.Event.Equals("unrealized-fx-translation"))
+            if ( journal.Account.Type.Name.Equals("FX MARK TO MARKET ON STOCK COST (SHORTS)"))
+                journal.JournalValue = new JournalValue(0, journal.Value);
+            else if (journal.Account.Type.Name.Equals("fx gain or loss on unsettled balance"))
+                journal.JournalValue = new JournalValue(0, journal.Value);
+            else if (journal.Event.Equals("settled-cash-fx") || journal.Event.Equals("unrealized-fx-translation")) // For only the following events we need to no set the local_value
             {
                 journal.JournalValue = new JournalValue(0, journal.Value);
             }
