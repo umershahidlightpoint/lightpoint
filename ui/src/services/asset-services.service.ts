@@ -23,6 +23,13 @@ export class AssetServicesService {
       ? // tslint:disable-next-line: no-string-literal
         window['config'].referenceDataUrl
       : environment.testCaseReferenceDataUrl;
+
+      let root = window.document.location.origin;
+
+      if ( !this.refDataUrl.startsWith("http"))
+        this.refDataUrl = root + this.refDataUrl;
+
+      debugger
   }
 
   /*

@@ -126,7 +126,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
     this.cacheService.getServerSideJournalsMeta(payload).subscribe(result => {
       this.fundsRange = result.payload.FundsRange;
       this.journalMinDate = result.payload.JournalMinDate;
-      this.ranges = getRange(this.getCustomFundRange());
+      this.ranges = getRange(this.getCustomFundRange(), this.journalMinDate);
       this.cdRef.detectChanges();
     });
   }
@@ -151,8 +151,6 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
         ];
       }
     });
-
-    customRange.ITD = [moment(this.journalMinDate, 'YYYY-MM-DD'), moment()];
 
     return customRange;
   }
@@ -861,12 +859,24 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
   }
 
   setDateRange(dateFilter: any) {
-    const dates = SetDateRange(dateFilter, this.startDate, this.endDate);
-    this.startDate = dates[0];
-    this.endDate = dates[1];
+    const payload = {
+      GridName: GridName.journalsLedgers
+    };
+    this.cacheService.getServerSideJournalsMeta(payload).subscribe(result => {
+      this.journalMinDate = result.payload.JournalMinDate;
+      let dates = [];
+      if (dateFilter === 'ITD') {
+        this.DateRangeLabel = 'ITD';
+        dates = SetDateRange(dateFilter, this.journalMinDate, this.endDate);
+      } else {
+        dates = SetDateRange(dateFilter, this.startDate, this.endDate);
+      }
+      this.startDate = dates[0];
+      this.endDate = dates[1];
 
-    this.selected =
-      dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
+      this.selected =
+        dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
+    });
   }
 
   getRangeLabel() {
@@ -923,7 +933,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
       fundFilter: this.fund,
       symbolFilter: this.filterBySymbol,
       dateFilter:
-        this.DateRangeLabel !== '' || 'ITD'
+        this.DateRangeLabel !== ''
           ? this.DateRangeLabel
           : {
               startDate: this.startDate !== null ? this.startDate : '',
@@ -950,7 +960,7 @@ export class TaxlotsMaintenanceComponent implements OnInit, AfterViewInit {
 
   changeFund(selectedFund) {
     this.fund = selectedFund;
-    this.ranges = getRange(this.getCustomFundRange(selectedFund));
+    this.ranges = getRange(this.getCustomFundRange(selectedFund), this.journalMinDate);
     this.cdRef.detectChanges();
     this.getReport(
       this.startDate,

@@ -16,11 +16,17 @@ namespace PostingEngine
         /// <param name="connection"></param>
         internal static void Setup(SqlConnection connection)
         {
+            // Account information
             AccountCategory.Load(connection);
             AccountType.Load(connection);
             Account.Load(connection);
             Tag.Load(connection);
+
+            // TaxLotStatus
             TaxLotStatus.Load(connection);
+
+            // TaxLotManualLink
+            TaxLotManualLink.Load(connection);
         }
 
         internal static void Setup(string ConnectionString)

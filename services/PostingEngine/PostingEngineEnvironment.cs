@@ -75,8 +75,11 @@ namespace PostingEngine
         {
             var fxRate = FxRates.Find(this, journal.When, journal.FxCurrency).Rate;
 
-            // For only the following events we need to no set the local_value
-            if (journal.Event.Equals("settled-cash-fx") || journal.Event.Equals("unrealized-fx-translation"))
+            if ( journal.Account.Type.Name.Equals("FX MARK TO MARKET ON STOCK COST (SHORTS)"))
+                journal.JournalValue = new JournalValue(0, journal.Value);
+            else if (journal.Account.Type.Name.Equals("fx gain or loss on unsettled balance"))
+                journal.JournalValue = new JournalValue(0, journal.Value);
+            else if (journal.Event.Equals("settled-cash-fx") || journal.Event.Equals("unrealized-fx-translation")) // For only the following events we need to no set the local_value
             {
                 journal.JournalValue = new JournalValue(0, journal.Value);
             }
@@ -187,6 +190,9 @@ namespace PostingEngine
         }
 
         public Dictionary<string, TaxLotStatus> TaxLotStatus { get; private set; }
+
+        public List<TaxLotManualLink> ManualTaxLots { get { return TaxLotManualLink.All; } }
+
         public List<TaxLot> TaxLot { get; private set; }
 
         internal TradeTaxRate TradeTaxRate(Transaction i)
@@ -465,7 +471,7 @@ namespace PostingEngine
             var taxlotStatus = new TaxLotStatus
             {
                 Trade = element,
-                InvestmentAtCost = element.NetMoney * fxrate,
+                InvestmentAtCost = element.SettleNetMoney * fxrate,
                 FxRate = fxrate,
                 TradeDate = element.TradeDate,
                 BusinessDate = element.TradeDate,

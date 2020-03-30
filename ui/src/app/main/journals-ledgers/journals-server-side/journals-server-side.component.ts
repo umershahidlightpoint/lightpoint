@@ -416,7 +416,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.cacheService.getServerSideJournalsMeta(payload).subscribe(result => {
       this.fundsRange = result.payload.FundsRange;
       this.journalMinDate = result.payload.JournalMinDate;
-      this.ranges = getRange(this.getCustomFundRange());
+      this.ranges = getRange(this.getCustomFundRange(), this.journalMinDate);
       this.cdRef.detectChanges();
 
       const metaColumns = result.payload.Columns;
@@ -676,7 +676,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   ngModelChangeFund(e) {
     this.fund = e;
 
-    this.ranges = getRange(this.getCustomFundRange(e));
+    this.ranges = getRange(this.getCustomFundRange(e), this.journalMinDate);
     this.cdRef.detectChanges();
     this.gridOptions.api.onFilterChanged();
   }
@@ -833,8 +833,6 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
         ];
       }
     });
-
-    customRange.ITD = [moment(this.journalMinDate, 'YYYY-MM-DD'), moment()];
 
     return customRange;
   }

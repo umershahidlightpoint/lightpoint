@@ -125,6 +125,8 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
   graphObject: GraphObject = null;
   marketPriceChart = false;
   validDates: Array<string> = null;
+  filterByClosedPositions = false;
+
 
   constructor(
     private cdRef: ChangeDetectorRef,
@@ -304,6 +306,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
           width: 120,
           headerName: 'Symbol',
           sortable: true,
+          sort: 'asc',
           filter: true
         },
         {
@@ -577,6 +580,11 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     });
   }
 
+  ngModelChangeClosedPositions(event) {
+    this.filterByClosedPositions = event;
+    this.gridOptions.api.onFilterChanged();
+  }
+
   getMarketPriceData(symbol) {
     this.financeService.getMarketPriceForSymbol(symbol).subscribe(response => {
       this.mapMarketPriceChartData(response.payload, symbol);
@@ -685,23 +693,36 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     const { fundFilter } = object;
     const { symbolFilter } = object;
     const { dateFilter } = object;
+    const { filterByClosedPositions } = object;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
     this.filterBySymbol = symbolFilter !== undefined ? symbolFilter : this.filterBySymbol;
+    this.filterByClosedPositions = filterByClosedPositions !== undefined ? filterByClosedPositions : false;
     this.setDateRange(dateFilter);
     this.getReport(this.startDate, this.filterBySymbol, this.fund);
     this.gridOptions.api.onFilterChanged();
   }
 
   isExternalFilterPresent() {
-    if (this.fund !== 'All Funds' || this.startDate || this.filterBySymbol !== '') {
+    if (this.fund !== 'All Funds' || this.startDate || this.filterBySymbol !== '' || this.filterByClosedPositions != undefined) {
       return true;
     }
   }
 
   doesExternalFilterPass(node: any) {
-    if (this.filterBySymbol !== '') {
-      const cellSymbol = node.data.symbol === null ? '' : node.data.symbol;
+    const cellSymbol = node.data.symbol === null ? '' : node.data.symbol;
+    const quantity = node.data.quantity === null ? '' : node.data.quantity;
+
+    if (this.filterBySymbol !== '' && this.filterByClosedPositions) {
       return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase());
+    } 
+    if(this.filterBySymbol !== '' && !this.filterByClosedPositions){
+      return cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) && quantity !== 0;
+    }
+    if(this.filterByClosedPositions){
+      return true;
+    }
+    if(!this.filterByClosedPositions){
+      return quantity !== 0;
     }
     return true;
   }
@@ -782,6 +803,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     return {
       fundFilter: this.fund,
       symbolFilter: this.filterBySymbol,
+      filterByClosedPositions : this.filterByClosedPositions,
       dateFilter: {
         startDate: this.startDate !== undefined ? this.startDate : '',
         endDate: this.endDate !== undefined ? this.endDate : ''
@@ -825,6 +847,7 @@ export class CostBasisComponent implements OnInit, AfterViewInit {
     this.DateRangeLabel = '';
     this.endDate = undefined;
     this.filterBySymbol = '';
+    this.filterByClosedPositions = false;
     this.gridOptions.api.setRowData([]);
     this.timeseriesOptions.api.setRowData([]);
     this.costBasisConfig.chartsView = false;

@@ -6,7 +6,73 @@ using LP.Shared.Sql;
 
 namespace LP.Finance.Common.Model
 {
-    public class TaxLotStatus : IDbAction, IDbModel
+    public interface IReader
+    {
+        void Populate(SqlDataReader reader);
+    }
+
+    public static class ReadTable 
+    {
+        public static List<T> Load<T>(SqlConnection connection, string tablename) where T : IReader, new()
+        {
+            var list = new List<T>();
+
+            SqlCommand query;
+            if ( !tablename.StartsWith("select"))
+                query = new SqlCommand($"select * from {tablename} with(nolock)", connection);
+            else
+                query = new SqlCommand(tablename, connection);
+
+            var reader = query.ExecuteReader(System.Data.CommandBehavior.SingleResult);
+
+            while (reader.Read())
+            {
+                var item = new T();
+
+                try
+                {
+                    item.Populate(reader);
+                    list.Add(item);
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+            reader.Close();
+
+
+            return list;
+        }
+    }
+
+    public class TaxLotManualLink : IReader
+    {
+        public int Id { get; set; }
+        public string OpenLotId { get; set; }
+        public string ClosingLotId { get; set; }
+
+        public static List<TaxLotManualLink> All { get; private set; }
+
+        public TaxLotManualLink() { }
+
+        public static TaxLotManualLink[] Load(SqlConnection connection)
+        {
+            All = ReadTable.Load<TaxLotManualLink>(connection, "select id, open_lot_id, closing_lot_id from tax_lot_manual_link with(nolock)");
+
+            return All.ToArray();
+        }
+
+        public void Populate(SqlDataReader reader)
+        {
+            var offset = 0;
+
+            this.Id = reader.GetFieldValue<int>(offset++);
+            this.OpenLotId = reader.GetFieldValue<string>(offset++);
+            this.ClosingLotId = reader.GetFieldValue<string>(offset++);
+        }
+    }
+
+    public class TaxLotStatus : IDbAction, IDbModel, IReader
     {
         public static List<TaxLotStatus> All { get; private set; }
 
@@ -17,7 +83,7 @@ namespace LP.Finance.Common.Model
 
         }
 
-        private TaxLotStatus(SqlDataReader reader)
+        public void Populate(SqlDataReader reader)
         {
             var offset = 0;
 
@@ -39,27 +105,7 @@ namespace LP.Finance.Common.Model
 
         public static TaxLotStatus[] Load(SqlConnection connection)
         {
-            All = new List<TaxLotStatus>();
-
-            var list = new List<TaxLotStatus>();
-
-            var query = new SqlCommand("select * from tax_lot_status with(nolock)", connection);
-            var reader = query.ExecuteReader(System.Data.CommandBehavior.SingleResult);
-
-            while (reader.Read())
-            {
-                try
-                {
-                    list.Add(new TaxLotStatus(reader));
-                } catch ( Exception ex )
-                {
-
-                }
-            }
-            reader.Close();
-
-            All.AddRange(list);
-
+            All = ReadTable.Load<TaxLotStatus>(connection, "tax_lot_status");
             return All.ToArray();
         }
 

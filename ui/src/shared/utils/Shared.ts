@@ -40,17 +40,22 @@ export const Ranges: any = {
   QTD: [moment().startOf('quarter'), moment()],
   MTD: [moment().startOf('month'), moment()],
   WTD: [moment().startOf('isoWeek'), moment()],
-  Today: [moment(), moment()],
-  Custom: [
-    moment()
-      .startOf('month')
-      .subtract(1, 'month'),
-    moment()
-  ]
+  Today: [moment(), moment()]
 };
 
-export const getRange = (customRange: any = {}) => {
-  let defaultRange = { ...Ranges };
+export const getAllRanges = (customDate: moment.Moment) => {
+  const range = [moment(customDate, 'YYYY-MM-DD'), moment()];
+
+  return { ITD: range, ...Ranges, Custom: range };
+};
+
+export const getRange = (
+  customRange: any = {},
+  customDate: moment.Moment = moment()
+    .startOf('month')
+    .subtract(1, 'month')
+) => {
+  let defaultRange = { ...getAllRanges(customDate) };
 
   if (Object.keys(customRange).length > 0) {
     defaultRange = {

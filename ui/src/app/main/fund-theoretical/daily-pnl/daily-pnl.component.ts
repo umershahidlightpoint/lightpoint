@@ -161,7 +161,7 @@ export class DailyPnlComponent implements OnInit, AfterViewInit {
       result => {
         this.fundsRange = result.payload.FundsRange;
         this.journalMinDate = result.payload.JournalMinDate;
-        this.ranges = getRange(this.getCustomFundRange());
+        this.ranges = getRange(this.getCustomFundRange(), this.journalMinDate);
       },
       err => {}
     );
@@ -193,8 +193,6 @@ export class DailyPnlComponent implements OnInit, AfterViewInit {
         ];
       }
     });
-
-    customRange.ITD = [moment(this.journalMinDate, 'YYYY-MM-DD'), moment()];
 
     return customRange;
   }
@@ -335,18 +333,30 @@ export class DailyPnlComponent implements OnInit, AfterViewInit {
   }
 
   setDateRange(dateFilter: any) {
-    const dates = SetDateRange(dateFilter, this.startDate, this.endDate);
-    this.startDate = dates[0];
-    this.endDate = dates[1];
+    const payload = {
+      GridName: GridName.journalsLedgers
+    };
+    this.cacheService.getServerSideJournalsMeta(payload).subscribe(result => {
+      this.journalMinDate = result.payload.JournalMinDate;
+      let dates = [];
+      if (dateFilter === 'ITD') {
+        this.DateRangeLabel = 'ITD';
+        dates = SetDateRange(dateFilter, this.journalMinDate, this.endDate);
+      } else {
+        dates = SetDateRange(dateFilter, this.startDate, this.endDate);
+      }
+      this.startDate = dates[0];
+      this.endDate = dates[1];
 
-    this.selected =
-      dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
+      this.selected =
+        dateFilter.startDate !== '' ? { startDate: this.startDate, endDate: this.endDate } : null;
+    });
   }
 
   getExternalFilterState() {
     return {
       dateFilter:
-        this.DateRangeLabel !== '' || 'ITD'
+        this.DateRangeLabel !== ''
           ? this.DateRangeLabel
           : {
               startDate: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
