@@ -105,7 +105,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
     this.cacheService.getServerSideJournalsMeta(payload).subscribe(result => {
       this.fundsRange = result.payload.FundsRange;
       this.journalMinDate = result.payload.JournalMinDate;
-      this.ranges = getRange(this.getCustomFundRange());
+      this.ranges = getRange(this.getCustomFundRange(), this.journalMinDate);
       this.cdRef.detectChanges();
     });
   }
@@ -130,8 +130,6 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
         ];
       }
     });
-
-    customRange.ITD = [moment(this.journalMinDate, 'YYYY-MM-DD'), moment()];
 
     return customRange;
   }
@@ -201,7 +199,7 @@ export class TrialBalanceComponent implements OnInit, AfterViewInit {
   changeFund(selectedFund) {
     this.fund = selectedFund;
 
-    this.ranges = getRange(this.getCustomFundRange(selectedFund));
+    this.ranges = getRange(this.getCustomFundRange(selectedFund), this.journalMinDate);
     this.cdRef.detectChanges();
     this.getReport(this.startDate, this.endDate, this.fund === 'All Funds' ? 'ALL' : this.fund);
     this.getExternalFilters();
