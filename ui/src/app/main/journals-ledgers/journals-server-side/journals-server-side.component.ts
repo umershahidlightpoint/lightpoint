@@ -100,6 +100,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
   isDataStreaming = false;
   infiniteCount = null;
   filterByZeroBalance = 0;
+  filterManualJournals = false;
   havingColumns = ['balance'];
   absoluteSorting: string[] = [];
   absoluteSortingAsc = false;
@@ -140,12 +141,12 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     getRows: (params: IServerSideGetRowsParams) => {
       this.pageNumber = params.request.endRow / this.pageSize;
       const havingColumns = this.havingColumns;
-      const { fund, symbol, when, balance } = this.getServerSideExternalFilter();
+      const { fund, symbol, when, balance, event } = this.getServerSideExternalFilter();
       const payload = {
         ...params.request,
         havingColumns,
         absoluteSorting: this.absoluteSorting,
-        externalFilterModel: { fund, symbol, when, balance },
+        externalFilterModel: { fund, symbol, when, balance, event },
         pageNumber: this.pageNumber,
         pageSize: this.pageSize
       };
@@ -556,7 +557,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     const havingColumns = this.havingColumns;
     if (cacheParams) {
       const { filterModel, valueCols } = cacheParams;
-      const { fund, symbol, when, balance } = this.getServerSideExternalFilter();
+      const { fund, symbol, when, balance, event } = this.getServerSideExternalFilter();
       const payload = {
         filterModel,
         valueCols,
@@ -565,7 +566,8 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
           ...(fund && { fund }),
           ...(symbol && { symbol }),
           ...(when && { when }),
-          ...(balance && { balance })
+          ...(balance && { balance }),
+          ...(event && { event })
         }
       };
 
@@ -690,6 +692,11 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.gridOptions.api.onFilterChanged();
   }
 
+  onModelChangeManualJournals(e) {
+    this.filterManualJournals = e;
+    this.gridOptions.api.onFilterChanged();
+  }
+
   onSymbolKey(e) {
     this.filterSubject.next(e.srcElement.value);
 
@@ -715,9 +722,11 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     const { symbolFilter } = object;
     const { dateFilter } = object;
     const { zeroBalanceFilter } = object;
+    const { manualJournalsFilter } = object;
     const { absoluteSortingModel } = object;
 
     this.filterByZeroBalance = zeroBalanceFilter;
+    this.filterManualJournals = manualJournalsFilter;
     this.absoluteSorting = absoluteSortingModel.sortingOn;
     this.absoluteSortingAsc = absoluteSortingModel.sortingApplied;
     this.fund = fundFilter !== undefined ? fundFilter : this.fund;
@@ -842,6 +851,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       fundFilter: this.fund,
       symbolFilter: this.filterBySymbol,
       zeroBalanceFilter: this.filterByZeroBalance,
+      manualJournalsFilter: this.filterManualJournals,
       absoluteSortingModel: {
         sortingApplied: this.absoluteSortingAsc,
         sortingOn: this.absoluteSorting
@@ -867,6 +877,9 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
       ...(this.filterByZeroBalance === 1 && {
         balance: { values: 0, filterType: 'number', type: 'notEqual' }
       }),
+      ...(this.filterManualJournals && {
+        event: { values: 'manual', filterType: 'set' }
+      }),
       ...(this.startDate !== null && {
         when: {
           dateFrom: this.startDate !== null ? this.startDate.format('YYYY-MM-DD') : '',
@@ -882,6 +895,7 @@ export class JournalsServerSideComponent implements OnInit, AfterViewInit {
     this.fund = 'All Funds';
     this.filterBySymbol = '';
     this.filterByZeroBalance = 0;
+    this.filterManualJournals = false;
     this.DateRangeLabel = '';
     this.selected = null;
     this.startDate = moment('01-01-1901', 'MM-DD-YYYY');

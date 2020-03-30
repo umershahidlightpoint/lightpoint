@@ -33,11 +33,21 @@
 
         <!-- Zero Balance Filter -->
         <div class="col-auto mt-6">
-            <label><input type="checkbox" id="zeroBalanceCheckBox" [(ngModel)]="filterByZeroBalance"
-                    (ngModelChange)="ngModelChangeZeroBalance($event)">
-                Exclude zero balance</label>
+            <label>
+                <input type="checkbox" id="zeroBalanceCheckBox" [(ngModel)]="filterByZeroBalance"
+                    (ngModelChange)="ngModelChangeZeroBalance($event)"> Exclude Zero Balance
+            </label>
         </div>
         <!-- Zero Balance Filter Ends -->
+
+        <!-- Manual Journal Enteries -->
+        <div class="col-auto mt-6">
+            <label>
+                <input type="checkbox" id="manualJournalsCheckBox" [(ngModel)]="filterManualJournals"
+                    (ngModelChange)="onModelChangeManualJournals($event)"> Manual Journals
+            </label>
+        </div>
+        <!-- Manual Journal Enteries Ends -->
 
         <!-- Date Range Label Div Starts -->
         <div class="font-weight-bold mt-6">
