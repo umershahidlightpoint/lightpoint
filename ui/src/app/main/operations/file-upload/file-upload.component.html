@@ -37,7 +37,7 @@
     <!-- Upload File Ends -->
 
     <!-- Commit File -->
-    <button class="btn btn-pa" type="button" [hidden]="previewData.length === 0"
+    <button class="btn btn-pa" type="button" [hidden]="reviewGridData.length === 0"
       [disabled]="commitLoader || disableCommit" (click)="onCommitData()">
       Commit
       <span *ngIf="commitLoader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -50,17 +50,8 @@
 </div>
 <!-- Actions Container Ends -->
 
-<!-- File Upload AG Grid -->
-<div [ngClass]="{'w-100' : displayGrid, 'd-none' : !displayGrid}" [ngStyle]="styleForLogsHeight">
-
-  <ag-grid-angular class="w-100 h-100 ag-theme-balham" [gridOptions]="uploadGrid">
-  </ag-grid-angular>
-
-</div>
-<!-- File Upload AG Grid Ends -->
-
 <!-- Review Grid Container -->
-<div [hidden]="!displayPreviewGrid" [ngStyle]="styleForLogsHeight">
+<div [hidden]="!displayReviewGrid" [ngStyle]="styleForLogsHeight">
 
   <!-- Main Split Row Starts -->
   <div class="split-area row h-100">
@@ -72,7 +63,7 @@
       <as-split-area [visible]="true" [size]="70" order="1">
 
         <!-- Review Grid -->
-        <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="previewGrid">
+        <ag-grid-angular class="h-100 ag-theme-balham" [gridOptions]="dataReviewGrid">
         </ag-grid-angular>
         <!-- Review Grid Ends -->
 

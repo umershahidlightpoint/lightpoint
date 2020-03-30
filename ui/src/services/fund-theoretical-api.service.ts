@@ -12,6 +12,7 @@ export class FundTheoreticalApiService {
   constructor(private http: HttpClient) {
     this.baseUrl = window['config'].remoteServerUrl;
   }
+
   /*
   Monthly Performance
   */
@@ -38,6 +39,38 @@ export class FundTheoreticalApiService {
   getMonthlyPerformanceStatus(): Observable<any> {
     const url = this.baseUrl + '/calculation/monthlyPerformance/status';
     return this.http.get(url);
+  }
+
+  uploadMonthlyPerformance(file: File): Observable<any> {
+    const url = this.baseUrl + '/calculation/monthlyPerformance/upload';
+    const formData: FormData = new FormData();
+    formData.append('fileKey', file, file.name);
+    return this.http.post(url, formData);
+  }
+
+  commitMonthlyPerformanceData(data: any): Observable<any> {
+    const url = this.baseUrl + '/calculation/monthlyPerformance/commit';
+    return this.http.post(url, data);
+  }
+
+  /*
+  Daily PnL
+  */
+  getDailyUnofficialPnL(from, to): Observable<any> {
+    const url = this.baseUrl + '/calculation/dailyUnofficialPnl?from=' + from + '&to=' + to;
+    return this.http.get(url);
+  }
+
+  uploadDailyUnofficialPnl(file: File): Observable<any> {
+    const url = this.baseUrl + '/calculation/dailyUnofficialPnlAudit/upload';
+    const formData: FormData = new FormData();
+    formData.append('fileKey', file, file.name);
+    return this.http.post(url, formData);
+  }
+
+  commitDailyUnofficialPnl(data: any): Observable<any> {
+    const url = this.baseUrl + '/calculation/dailyUnofficialPnlAudit/commit';
+    return this.http.post(url, data);
   }
 
   /*
@@ -88,23 +121,8 @@ export class FundTheoreticalApiService {
     return this.http.post(url, formData);
   }
 
-  /* 
-  Daily PnL
-  */
-  getDailyUnofficialPnL(from, to): Observable<any> {
-    const url = this.baseUrl + '/calculation/dailyUnofficialPnl?from=' + from + '&to=' + to;
-    return this.http.get(url);
-  }
-
-  uploadDailyUnofficialPnl(file: File): Observable<any> {
-    const url = this.baseUrl + '/calculation/dailyUnofficialPnlAudit/upload';
-    const formData: FormData = new FormData();
-    formData.append('fileKey', file, file.name);
-    return this.http.post(url, formData);
-  }
-
-  commitDailyUnofficialPnl(data: any): Observable<any> {
-    const url = this.baseUrl + '/calculation/dailyUnofficialPnlAudit/commit';
+  commitMarketPriceData(data: any): Observable<any> {
+    const url = this.baseUrl + '/marketdata/prices/commit';
     return this.http.post(url, data);
   }
 
@@ -133,6 +151,14 @@ export class FundTheoreticalApiService {
     return this.http.post(url, formData);
   }
 
+  commitFxRateData(data: any): Observable<any> {
+    const url = this.baseUrl + '/fxRates/commit';
+    return this.http.post(url, data);
+  }
+
+  /*
+  Trade
+  */
   uploadTradeData(file: File): Observable<any> {
     const url = this.baseUrl + '/fileManagement/uploadTrade';
     const formData: FormData = new FormData();
@@ -140,6 +166,14 @@ export class FundTheoreticalApiService {
     return this.http.post(url, formData);
   }
 
+  commitTradeData(data): Observable<any> {
+    const url = this.baseUrl + '/fileManagement/commitTrade';
+    return this.http.post(url, data);
+  }
+
+  /*
+  Journal
+  */
   uploadJournalData(file: File): Observable<any> {
     const url = this.baseUrl + '/fileManagement/uploadJournal';
     const formData: FormData = new FormData();
@@ -149,11 +183,6 @@ export class FundTheoreticalApiService {
 
   commitJournalData(data): Observable<any> {
     const url = this.baseUrl + '/fileManagement/commitJournal';
-    return this.http.post(url, data);
-  }
-
-  commitTradeData(data): Observable<any> {
-    const url = this.baseUrl + '/fileManagement/commitTrade';
     return this.http.post(url, data);
   }
 }

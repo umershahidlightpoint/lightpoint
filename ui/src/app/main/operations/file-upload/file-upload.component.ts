@@ -1,14 +1,13 @@
+/* Angular/Packages Imports */
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
-import { GridOptions, ColGroupDef, ColDef } from 'ag-grid-community';
+import { GridOptions } from 'ag-grid-community';
 import { ToastrService } from 'ngx-toastr';
 import { GridUtils } from '@lightpointfinancialtechnology/lp-toolkit';
-/* Services/Components Imports */
+/* Components/Services Imports */
 import { ConfirmationModalComponent } from 'src/shared/Component/confirmation-modal/confirmation-modal.component';
-import { FinanceServiceProxy } from 'src/services/service-proxies';
 import { FundTheoreticalApiService } from 'src/services/fund-theoretical-api.service';
-import { DataDictionary } from '../../../../shared/utils/DataDictionary';
 import { DownloadExcelUtils } from 'src/shared/utils/DownloadExcelUtils';
-import { IgnoreFields, HeightStyle, ExcelStyle, LegendColors } from 'src/shared/utils/Shared';
+import { HeightStyle, ExcelStyle, LegendColors } from 'src/shared/utils/Shared';
 
 enum FILES {
   MonthlyPerformance = 'Monthly Performance',
@@ -28,21 +27,16 @@ export class FileUploadComponent implements OnInit {
   @ViewChild('confirmationModal', { static: false }) confirmationModal: ConfirmationModalComponent;
   @ViewChild('fileInput', { static: false }) fileInput: ElementRef;
 
-  previewGrid: GridOptions;
-  previewData: any[] = [];
+  dataReviewGrid: GridOptions;
+  reviewGridData: any[] = [];
   exceptionContent: any;
-  uploadGrid: GridOptions;
-  columns: Array<ColDef | ColGroupDef>;
-  rowData: any[] = [];
 
-  ignoreFields = IgnoreFields;
   fileToUpload: File = null;
 
-  displayPreviewGrid = false;
-  displayGrid = false;
+  displayReviewGrid = false;
   disableFileUpload = true;
-  uploadLoader = false;
   disableCommit = true;
+  uploadLoader = false;
   commitLoader = false;
   confirmStatus = false;
 
@@ -53,9 +47,7 @@ export class FileUploadComponent implements OnInit {
 
   constructor(
     private toastrService: ToastrService,
-    private financeService: FinanceServiceProxy,
     private fundTheoreticalApiService: FundTheoreticalApiService,
-    private dataDictionary: DataDictionary,
     private downloadExcelUtils: DownloadExcelUtils
   ) {}
 
@@ -73,27 +65,7 @@ export class FileUploadComponent implements OnInit {
   }
 
   initGrid() {
-    this.uploadGrid = {
-      rowData: [],
-      rowSelection: 'single',
-      rowGroupPanelShow: 'after',
-      pivotPanelShow: 'after',
-      pivotColumnGroupTotals: 'after',
-      pivotRowTotals: 'after',
-      animateRows: true,
-      singleClickEdit: true,
-      onGridReady: params => {
-        params.api.sizeColumnsToFit();
-      },
-      onFirstDataRendered: params => {
-        params.api.sizeColumnsToFit();
-      },
-      defaultColDef: {
-        resizable: true
-      }
-    };
-
-    this.previewGrid = {
+    this.dataReviewGrid = {
       rowData: [],
       defaultColDef: {
         resizable: true,
@@ -134,7 +106,7 @@ export class FileUploadComponent implements OnInit {
       },
       onGridReady: params => {
         GridUtils.autoSizeAllColumns(params);
-        this.previewGrid.excelStyles = ExcelStyle;
+        this.dataReviewGrid.excelStyles = ExcelStyle;
       },
       onFirstDataRendered: params => {
         GridUtils.autoSizeAllColumns(params);
@@ -184,8 +156,8 @@ export class FileUploadComponent implements OnInit {
       sheetName
     };
 
-    this.previewGrid.api.setColumnDefs(this.getColDefs(this.fileType));
-    this.previewGrid.api.exportDataAsCsv(params);
+    this.dataReviewGrid.api.setColumnDefs(this.getColDefs(this.fileType));
+    this.dataReviewGrid.api.exportDataAsCsv(params);
     this.downloadExcelUtils.ToastrMessage();
   }
 
@@ -197,313 +169,110 @@ export class FileUploadComponent implements OnInit {
   onUploadFile() {
     this.exceptionContent = '';
 
-    if (this.fileType === FILES.MonthlyPerformance) {
-      this.uploadLoader = true;
-      this.fundTheoreticalApiService.getMonthlyPerformanceStatus().subscribe(
-        response => {
-          this.uploadLoader = false;
-
-          if (response.isSuccessful) {
-            if (response.payload) {
-              this.confirmStatus = true;
-
-              this.confirmationModal.showModal();
-            } else {
-              this.uploadMonthlyPerformance();
-            }
-          } else {
-            this.toastrService.error('Something went wrong! Try Again.');
-          }
-        },
-        error => {
-          this.uploadLoader = false;
-          this.toastrService.error('Something went wrong! Try Again.');
-        }
-      );
-    } else if (this.fileType === FILES.DailyPnL) {
-      this.uploadDailyUnofficialPnl();
-    } else if (this.fileType === FILES.MarketPrices) {
-      this.uploadMarketData();
-    } else if (this.fileType === FILES.FxRates) {
-      this.uploadFxRatesData();
-    } else if (this.fileType === FILES.Trades) {
-      this.uploadTradeData();
-    } else if (this.fileType === FILES.Journals) {
-      this.uploadJournalData();
-    }
-  }
-
-  onCommitData() {
     switch (this.fileType) {
       case FILES.MonthlyPerformance:
-        this.commitMonthlyPerformanceData();
+        this.confirmUploadMonthlyPerformance();
         break;
       case FILES.DailyPnL:
-        this.commitDailyUnofficialPnlData();
+        this.uploadData('uploadDailyUnofficialPnl', FILES.DailyPnL);
         break;
       case FILES.MarketPrices:
+        this.uploadData('uploadMarketPriceData', FILES.MarketPrices);
         break;
       case FILES.FxRates:
+        this.uploadData('uploadFxData', FILES.FxRates);
         break;
       case FILES.Trades:
-        this.commitTradeData();
+        this.uploadData('uploadTradeData', FILES.Trades);
         break;
       case FILES.Journals:
-        this.commitJournalData();
+        this.uploadData('uploadJournalData', FILES.Journals);
         break;
       default:
         break;
     }
   }
 
-  uploadMonthlyPerformance() {
-    this.uploadLoader = true;
-    this.financeService.uploadMonthlyPerformance(this.fileToUpload).subscribe(
-      response => {
-        this.uploadLoader = false;
-        this.confirmStatus = false;
-
-        if (response.isSuccessful && response.statusCode === 200) {
-          this.showPreviewGrid(response, FILES.MonthlyPerformance);
-        } else {
-          this.toastrService.error(response.ExceptionMessage);
-        }
-      },
-      error => {
-        this.uploadLoader = false;
-        this.confirmStatus = false;
-        this.toastrService.error(error.ExceptionMessage);
-      }
-    );
-  }
-
-  uploadDailyUnofficialPnl() {
-    this.uploadLoader = true;
-    this.fundTheoreticalApiService.uploadDailyUnofficialPnl(this.fileToUpload).subscribe(
-      response => {
-        this.uploadLoader = false;
-
-        if (response.isSuccessful && response.statusCode === 200) {
-          this.showPreviewGrid(response, FILES.DailyPnL);
-        } else {
-          this.toastrService.error(response.ExceptionMessage);
-        }
-      },
-      error => {
-        this.uploadLoader = false;
-        this.toastrService.error(error.ExceptionMessage);
-      }
-    );
-  }
-
-  uploadMarketData() {
-    this.uploadLoader = true;
-    this.fundTheoreticalApiService.uploadMarketPriceData(this.fileToUpload).subscribe(
-      response => {
-        this.uploadLoader = false;
-
-        if (response.isSuccessful && response.statusCode === 200) {
-          this.displayPreviewGrid = false;
-          this.displayGrid = false;
-
-          this.clearForm();
-          this.toastrService.success('File uploaded successfully!');
-        } else if (response.isSuccessful && response.statusCode === 403) {
-          this.displayPreviewGrid = false;
-          this.displayGrid = true;
-
-          this.columns = response.meta;
-          this.rowData = response.payload;
-          this.customizeColumns(this.columns);
-          this.uploadGrid.api.setRowData(this.rowData);
-
-          this.clearForm();
-          this.toastrService.error('Error: Duplication Detected!');
-        } else {
-          this.toastrService.error('Something went wrong! Try Again.');
-        }
-      },
-      error => {
-        this.uploadLoader = false;
-        this.toastrService.error('Something went wrong! Try Again.');
-      }
-    );
-  }
-
-  uploadFxRatesData() {
-    this.uploadLoader = true;
-    this.fundTheoreticalApiService.uploadFxData(this.fileToUpload).subscribe(
-      response => {
-        this.uploadLoader = false;
-
-        if (response.isSuccessful && response.statusCode === 200) {
-          this.displayPreviewGrid = false;
-          this.displayGrid = false;
-
-          this.clearForm();
-          this.toastrService.success('File uploaded successfully!');
-        } else if (response.isSuccessful && response.statusCode === 403) {
-          this.displayPreviewGrid = false;
-          this.displayGrid = true;
-
-          this.columns = response.meta;
-          this.rowData = response.payload;
-          this.customizeColumns(this.columns);
-          this.uploadGrid.api.setRowData(this.rowData);
-
-          this.clearForm();
-          this.toastrService.error('Error: Duplication Detected!');
-        } else {
-          this.toastrService.error('Something went wrong! Try Again.');
-        }
-      },
-      error => {
-        this.uploadLoader = false;
-        this.toastrService.error('Something went wrong! Try Again.');
-      }
-    );
-  }
-
-  uploadTradeData() {
-    this.uploadLoader = true;
-    this.fundTheoreticalApiService.uploadTradeData(this.fileToUpload).subscribe(
-      response => {
-        this.uploadLoader = false;
-
-        if (response.isSuccessful && response.statusCode === 200) {
-          this.showPreviewGrid(response, FILES.Trades);
-        } else {
-          this.toastrService.error(response.ExceptionMessage);
-        }
-      },
-      error => {
-        this.uploadLoader = false;
-        this.toastrService.error(error.ExceptionMessage);
-      }
-    );
-  }
-
-  uploadJournalData() {
-    this.uploadLoader = true;
-    this.fundTheoreticalApiService.uploadJournalData(this.fileToUpload).subscribe(
-      response => {
-        this.uploadLoader = false;
-
-        if (response.isSuccessful && response.statusCode === 200) {
-          this.showPreviewGrid(response, FILES.Journals);
-        } else {
-          this.toastrService.error(response.ExceptionMessage);
-        }
-      },
-      error => {
-        this.uploadLoader = false;
-        this.toastrService.error(error.ExceptionMessage);
-      }
-    );
-  }
-
-  commitMonthlyPerformanceData() {
-    this.commitLoader = true;
-    this.financeService.commitMonthlyPerformance(this.previewData).subscribe(
-      response => {
-        this.commitLoader = false;
-
-        if (response.isSuccessful && response.statusCode === 200) {
-          this.hidePreviewGrid(FILES.MonthlyPerformance);
-        } else {
-          this.toastrService.error('Something went wrong! Try Again.');
-        }
-      },
-      error => {
-        this.commitLoader = false;
-        this.toastrService.error('Something went wrong! Try Again.');
-      }
-    );
-  }
-
-  commitDailyUnofficialPnlData() {
-    this.commitLoader = true;
-    this.fundTheoreticalApiService.commitDailyUnofficialPnl(this.previewData).subscribe(
-      response => {
-        this.commitLoader = false;
-
-        if (response.isSuccessful && response.statusCode === 200) {
-          this.hidePreviewGrid(FILES.DailyPnL);
-        } else {
-          this.toastrService.error('Something went wrong! Try Again.');
-        }
-      },
-      error => {
-        this.commitLoader = false;
-        this.toastrService.error('Something went wrong! Try Again.');
-      }
-    );
-  }
-
-  commitTradeData() {
-    this.commitLoader = true;
-    this.fundTheoreticalApiService.commitTradeData(this.previewData).subscribe(
-      response => {
-        this.commitLoader = false;
-
-        if (response.isSuccessful && response.statusCode === 200) {
-          this.hidePreviewGrid(FILES.Trades);
-        } else {
-          this.toastrService.error('Something went wrong! Try Again.');
-        }
-      },
-      error => {
-        this.commitLoader = false;
-        this.toastrService.error('Something went wrong! Try Again.');
-      }
-    );
-  }
-
-  commitJournalData() {
-    this.commitLoader = true;
-    this.fundTheoreticalApiService.commitJournalData(this.previewData).subscribe(
-      response => {
-        this.commitLoader = false;
-
-        if (response.isSuccessful && response.statusCode === 200) {
-          this.hidePreviewGrid(FILES.Journals);
-        } else {
-          this.toastrService.error('Something went wrong! Try Again.');
-        }
-      },
-      error => {
-        this.commitLoader = false;
-        this.toastrService.error('Something went wrong! Try Again.');
-      }
-    );
-  }
-
-  customizeColumns(columns: any) {
-    const storeColumns = [];
-    for (let i = 1; i < columns.length; i++) {
-      storeColumns.push(this.dataDictionary.column(columns[i].field, true));
+  onCommitData() {
+    switch (this.fileType) {
+      case FILES.MonthlyPerformance:
+        this.commitData('commitMonthlyPerformanceData', FILES.MonthlyPerformance);
+        break;
+      case FILES.DailyPnL:
+        this.commitData('commitDailyUnofficialPnl', FILES.DailyPnL);
+        break;
+      case FILES.MarketPrices:
+        this.commitData('commitMarketPriceData', FILES.MarketPrices);
+        break;
+      case FILES.FxRates:
+        this.commitData('commitFxRateData', FILES.FxRates);
+        break;
+      case FILES.Trades:
+        this.commitData('commitTradeData', FILES.Trades);
+        break;
+      case FILES.Journals:
+        this.commitData('commitJournalData', FILES.Journals);
+        break;
+      default:
+        break;
     }
-    this.uploadGrid.api.setColumnDefs(storeColumns);
   }
 
-  showPreviewGrid(response: any, fileType: string) {
-    this.displayPreviewGrid = true;
-    this.displayGrid = false;
+  uploadData(functionName: string, fileType: string) {
+    this.uploadLoader = true;
+    this.fundTheoreticalApiService[functionName](this.fileToUpload).subscribe(
+      response => {
+        this.uploadLoader = false;
+        this.confirmStatus = false;
+        if (response.isSuccessful && response.statusCode === 200) {
+          this.showReviewGrid(response, fileType);
+        } else {
+          this.toastrService.error(response.ExceptionMessage);
+        }
+      },
+      error => {
+        this.uploadLoader = false;
+        this.confirmStatus = false;
+        this.toastrService.error(error.ExceptionMessage);
+      }
+    );
+  }
+
+  commitData(functionName: string, fileType: string) {
+    this.commitLoader = true;
+    this.fundTheoreticalApiService[functionName](this.reviewGridData).subscribe(
+      response => {
+        this.commitLoader = false;
+
+        if (response.isSuccessful && response.statusCode === 200) {
+          this.hideReviewGrid(fileType);
+        } else {
+          this.toastrService.error('Something went wrong! Try Again.');
+        }
+      },
+      error => {
+        this.commitLoader = false;
+        this.toastrService.error('Something went wrong! Try Again.');
+      }
+    );
+  }
+
+  showReviewGrid(response: any, fileType: string) {
+    this.displayReviewGrid = true;
 
     this.disableCommit = !response.payload.EnableCommit;
-    this.previewData = response.payload.Data;
+    this.reviewGridData = response.payload.Data;
 
-    this.previewGrid.api.setColumnDefs(this.getColDefs(fileType));
-    this.previewGrid.api.setRowData(this.previewData);
+    this.dataReviewGrid.api.setColumnDefs(this.getColDefs(fileType));
+    this.dataReviewGrid.api.setRowData(this.reviewGridData);
 
     this.toastrService.success(`${fileType} uploaded successfully!`);
   }
 
-  hidePreviewGrid(fileType: string) {
-    this.displayPreviewGrid = false;
-    this.displayGrid = false;
+  hideReviewGrid(fileType: string) {
+    this.displayReviewGrid = false;
 
-    this.previewGrid.api.setRowData([]);
+    this.dataReviewGrid.api.setRowData([]);
     this.clearForm();
 
     this.toastrService.success(`${fileType} committed successfully!`);
@@ -664,20 +433,20 @@ export class FileUploadComponent implements OnInit {
       case FILES.MarketPrices:
         return [
           {
-            field: 'Date',
+            field: 'BusinessDate',
             headerName: 'Date'
           },
           {
-            field: 'SecurityId',
-            headerName: 'SecurityId'
+            field: 'Symbol',
+            headerName: 'Symbol'
           },
           {
             field: 'Price',
             headerName: 'Price'
           },
           {
-            field: 'CCY',
-            headerName: 'CCY'
+            field: 'Currency',
+            headerName: 'Currency'
           },
           {
             field: 'IsUploadInValid',
@@ -693,7 +462,7 @@ export class FileUploadComponent implements OnInit {
       case FILES.FxRates:
         return [
           {
-            field: 'Date',
+            field: 'BusinessDate',
             headerName: 'Date'
           },
           {
@@ -701,8 +470,8 @@ export class FileUploadComponent implements OnInit {
             headerName: 'Price'
           },
           {
-            field: 'CCY',
-            headerName: 'CCY'
+            field: 'Currency',
+            headerName: 'Currency'
           },
           {
             field: 'IsUploadInValid',
@@ -955,9 +724,32 @@ export class FileUploadComponent implements OnInit {
     }
   }
 
+  confirmUploadMonthlyPerformance() {
+    this.uploadLoader = true;
+    this.fundTheoreticalApiService.getMonthlyPerformanceStatus().subscribe(
+      response => {
+        this.uploadLoader = false;
+        if (response.isSuccessful) {
+          if (response.payload) {
+            this.confirmStatus = true;
+            this.confirmationModal.showModal();
+          } else {
+            this.uploadData('uploadMonthlyPerformance', FILES.MonthlyPerformance);
+          }
+        } else {
+          this.toastrService.error('Something went wrong! Try Again.');
+        }
+      },
+      error => {
+        this.uploadLoader = false;
+        this.toastrService.error('Something went wrong! Try Again.');
+      }
+    );
+  }
+
   confirmReset() {
     if (this.confirmStatus) {
-      this.uploadMonthlyPerformance();
+      this.uploadData('uploadMonthlyPerformance', FILES.MonthlyPerformance);
     }
   }
 

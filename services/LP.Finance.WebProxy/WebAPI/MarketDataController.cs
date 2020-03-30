@@ -21,9 +21,10 @@ namespace LP.Finance.WebProxy.WebAPI
 {
     public interface IMarketDataService
     {
-        Task<object> Upload(HttpRequestMessage requestMessage);
         object GetPrices();
         object SetPrices(List<MarketPriceInputDto> obj);
+        Task<object> Upload(HttpRequestMessage requestMessage);
+        object CommitMarketPrice(List<MarketDataPrice> marketDataPrices);
         object AuditTrail(int id);
         object GetSymbolPrice(string symbol);
     }
@@ -115,78 +116,125 @@ namespace LP.Finance.WebProxy.WebAPI
         {
             try
             {
+                FileManager fileManager = new FileManager(ConnectionString);
                 var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "MarketDataPrices");
                 if (!uploadedResult.Item1)
                     return Shared.WebApi.Wrap(false);
 
                 var path = uploadedResult.Item2;
                 var filename = uploadedResult.Item3;
-                var recordBody = new FileProcessor().ImportFile(path, "MarketDataPrices", "ImportFormats", ',');
+
+                List<MarketDataPrice> marketDataPrices;
+
+                var recordBody = new FileProcessor().ImportFile(path, "MarketDataPrices", "ImportFormats", ',', true);
 
                 var records = JsonConvert.SerializeObject(recordBody.Item1);
-                var performanceRecords = JsonConvert.DeserializeObject<List<MarketDataPrice>>(records);
 
-                var failedRecords = new Dictionary<object, Row>();
-                var key = 0;
-                foreach (var item in recordBody.Item2)
+                try
                 {
-                    failedRecords.Add(key++, item);
+                    marketDataPrices = JsonConvert.DeserializeObject<List<MarketDataPrice>>(records);
+                }
+                catch (Exception ex)
+                {
+                    foreach (var item in recordBody.Item2)
+                    {
+                        var marketDataElement = recordBody.Item1.ElementAt(item.RowNumber - 1);
+                        marketDataElement.IsUploadInValid = true;
+                        marketDataElement.UploadException = JsonConvert.SerializeObject(item);
+                    }
+
+                    var payload = new
+                    {
+                        EnableCommit = false,
+                        Data = recordBody.Item1
+                    };
+
+                    return Shared.WebApi.Wrap(true, payload, HttpStatusCode.OK);
                 }
 
-                var failedPerformanceList =
-                    new FileManager(ConnectionString).MapFailedRecords(failedRecords, DateTime.Now,
-                        uploadedResult.Item3);
-
-                List<FileInputDto> fileList = new List<FileInputDto>
-                {
-                    new FileInputDto(path, filename, performanceRecords.Count, "MarketDataPrices",
-                        "Upload",
-                        failedPerformanceList,
-                        DateTime.Now)
-                };
-
-                new FileManager(ConnectionString).InsertFiles(fileList);
-                /*
-                var dailyPerformanceResult = new DailyPnlCalculator().CalculateDailyPerformance(performanceRecords);
-                var dailyPerformance = dailyPerformanceResult.GetType().GetProperty("payload")
-                    ?.GetValue(dailyPerformanceResult, null);
-                */
-                foreach (var i in performanceRecords)
+                foreach (var i in marketDataPrices)
                 {
                     i.Event = "upload";
                     i.LastUpdatedOn = DateTime.Now;
-                    i.LastUpdatedBy = "webservice";
+                    i.LastUpdatedBy = "WebService";
                 }
 
-                bool insertinto = InsertData(performanceRecords);
-
-                var dupesTemp = performanceRecords.GroupBy(x => new {x.BusinessDate, x.Symbol}).ToList();
-                var dupes = dupesTemp.Where(x => x.Skip(1).Any()).ToList();
-                if (dupes.Any())
+                var failedRecords = new Dictionary<object, Row>();
+                var key = 0;
+                var enableCommit = true;
+                foreach (var item in recordBody.Item2)
                 {
-                    var items = dupes.SelectMany(x => x.Select(y => y)).ToList();
-                    var metaData = MetaData.ToMetaData(items[0]);
-                    foreach (var item in metaData.Columns)
-                    {
-                        Console.WriteLine(item);
-                    }
-
-                    return Shared.WebApi.Wrap(true, items, HttpStatusCode.Forbidden, null, metaData.Columns);
+                    failedRecords.Add(key++, item);
+                    var marketDataElement = marketDataPrices.ElementAt(item.RowNumber - 1);
+                    marketDataElement.IsUploadInValid = true;
+                    marketDataElement.UploadException = JsonConvert.SerializeObject(item);
                 }
 
-                if (insertinto)
+                if (failedRecords.Count > 0)
                 {
-                    return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
+                    enableCommit = false;
                 }
-                else
+
+                var failedMarketDataList =
+                    fileManager.MapFailedRecords(failedRecords, DateTime.Now, uploadedResult.Item3);
+
+                List<FileInputDto> fileList = new List<FileInputDto>
                 {
-                    return Shared.WebApi.Wrap(false);
-                }
+                    new FileInputDto(path, filename, marketDataPrices.Count, "MarketDataPrices",
+                        "Upload",
+                        failedMarketDataList,
+                        DateTime.Now)
+                };
+
+                fileManager.InsertFiles(fileList);
+
+                var data = new
+                {
+                    EnableCommit = enableCommit,
+                    Data = marketDataPrices
+                };
+
+                return Shared.WebApi.Wrap(true, data, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
-                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError, $"An error occured:{ex.Message}");
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    $"An error occured:{ex.Message}");
             }
+        }
+
+        public object CommitMarketPrice(List<MarketDataPrice> marketDataPrices)
+        {
+            /*
+            var dailyPerformanceResult = new DailyPnlCalculator().CalculateDailyPerformance(performanceRecords);
+                var dailyPerformance = dailyPerformanceResult.GetType().GetProperty("payload")
+                    ?.GetValue(dailyPerformanceResult, null);
+            */
+
+            var insertionStatus = InsertData(marketDataPrices);
+
+            /*
+            var duplicates = marketDataPrices.GroupBy(x => new {x.BusinessDate, x.Symbol}).ToList();
+            var duplicateList = duplicates.Where(x => x.Skip(1).Any()).ToList();
+            if (duplicateList.Any())
+            {
+                var items = duplicateList.SelectMany(x => x.Select(y => y)).ToList();
+                var metaData = MetaData.ToMetaData(items[0]);
+                foreach (var item in metaData.Columns)
+                {
+                    Console.WriteLine(item);
+                }
+
+                return Shared.WebApi.Wrap(true, items, HttpStatusCode.Forbidden, null, metaData.Columns);
+            }
+            */
+
+            if (insertionStatus)
+            {
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
+            }
+
+            return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError);
         }
 
         private bool InsertData(List<MarketDataPrice> obj)
@@ -315,6 +363,12 @@ namespace LP.Finance.WebProxy.WebAPI
         public async Task<object> Upload()
         {
             return await controller.Upload(Request);
+        }
+
+        [HttpPost, Route("prices/commit")]
+        public object CommitMarketPrice(List<MarketDataPrice> marketDataPrices)
+        {
+            return controller.CommitMarketPrice(marketDataPrices);
         }
 
         [HttpGet, Route("getSymbolPrices")]

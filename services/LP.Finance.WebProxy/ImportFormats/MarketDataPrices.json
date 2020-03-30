@@ -34,7 +34,7 @@
       "destination": "Currency",
       "function": [],
       "format": "",
-      "type": "decimal",
+      "type": "string",
       "offset": 3,
       "rule": ""
     }

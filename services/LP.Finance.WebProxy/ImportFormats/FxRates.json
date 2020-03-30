@@ -25,7 +25,7 @@
       "destination": "Currency",
       "function": [],
       "format": "",
-      "type": "decimal",
+      "type": "string",
       "offset": 2,
       "rule": ""
     }

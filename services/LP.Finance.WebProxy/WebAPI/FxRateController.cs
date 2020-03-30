@@ -1,11 +1,9 @@
 ﻿using LP.Finance.Common.Dtos;
 using LP.Finance.WebProxy.WebAPI.Services;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
+using LP.Finance.Common.Model;
 
 namespace LP.Finance.WebProxy.WebAPI
 {
@@ -36,6 +34,12 @@ namespace LP.Finance.WebProxy.WebAPI
         public async Task<object> Upload()
         {
             return await controller.Upload(Request);
+        }
+
+        [HttpPost, Route("commit")]
+        public object CommitFxRate(List<FxRate> fxRates)
+        {
+            return controller.CommitFxRate(fxRates);
         }
     }
 }

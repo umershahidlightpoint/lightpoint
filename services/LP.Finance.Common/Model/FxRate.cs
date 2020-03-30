@@ -2,14 +2,11 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LP.Shared.Sql;
 
 namespace LP.Finance.Common.Model
 {
-    public class FxRate : IDbModel
+    public class FxRate : RowException, IDbModel
     {
         public int Id { get; set; }
         public DateTime BusinessDate { get; set; }
@@ -19,7 +16,9 @@ namespace LP.Finance.Common.Model
         public string LastUpdatedBy { get; set; }
         public DateTime LastUpdatedOn { get; set; }
 
-        public FxRate() { }
+        public FxRate()
+        {
+        }
 
         public FxRate(DataRow row)
         {
@@ -32,7 +31,6 @@ namespace LP.Finance.Common.Model
             this.LastUpdatedBy = row["last_updated_by"].ToString();
             if (row["last_updated_on"] != DBNull.Value)
                 this.LastUpdatedOn = Convert.ToDateTime(row["last_updated_on"]);
-
         }
 
         public void PopulateRow(DataRow row)
@@ -44,6 +42,7 @@ namespace LP.Finance.Common.Model
             row["last_updated_by"] = this.LastUpdatedBy;
             row["last_updated_on"] = this.LastUpdatedOn;
         }
+
         public static List<MarketDataPrice> GetList(string connectionString)
         {
             var query = "SELECT * FROM fx_rates";
@@ -54,7 +53,9 @@ namespace LP.Finance.Common.Model
             using (var adapter = new SqlDataAdapter(query, connection))
             {
                 adapter.Fill(table);
-            };
+            }
+
+            ;
 
             var list = new List<MarketDataPrice>();
 
@@ -73,16 +74,18 @@ namespace LP.Finance.Common.Model
             // read the table structure from the database
             var localconnection = new SqlConnection(connection.ConnectionString);
             localconnection.Open();
-            var query = $"SELECT TOP 0 business_date, currency, event, price, last_updated_on, last_updated_by FROM fx_rates with(nolock)";
+            var query =
+                $"SELECT TOP 0 business_date, currency, event, price, last_updated_on, last_updated_by FROM fx_rates with(nolock)";
 
             using (var adapter = new SqlDataAdapter(query, localconnection))
             {
                 adapter.Fill(table);
-            };
+            }
+
+            ;
             localconnection.Close();
 
             return table;
         }
-
     }
 }

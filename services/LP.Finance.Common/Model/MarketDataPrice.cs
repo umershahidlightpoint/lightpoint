@@ -2,16 +2,15 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LP.Shared.Sql;
 
 namespace LP.Finance.Common.Model
 {
-    public class MarketDataPrice : IDbModel
+    public class MarketDataPrice : RowException, IDbModel
     {
-        public MarketDataPrice() { }
+        public MarketDataPrice()
+        {
+        }
 
         public void PopulateRow(DataRow row)
         {
@@ -31,12 +30,15 @@ namespace LP.Finance.Common.Model
             // read the table structure from the database
             var localconnection = new SqlConnection(connection.ConnectionString + ";Password=ggtuser");
             localconnection.Open();
-            var query = $"SELECT TOP 0 business_date, security_id, symbol, event, price, last_updated_on, last_updated_by FROM market_prices with(nolock)";
+            var query =
+                $"SELECT TOP 0 business_date, security_id, symbol, event, price, last_updated_on, last_updated_by FROM market_prices with(nolock)";
 
             using (var adapter = new SqlDataAdapter(query, localconnection))
             {
                 adapter.Fill(table);
-            };
+            }
+
+            ;
             localconnection.Close();
 
             return table;
@@ -52,7 +54,9 @@ namespace LP.Finance.Common.Model
             using (var adapter = new SqlDataAdapter(query, connection))
             {
                 adapter.Fill(table);
-            };
+            }
+
+            ;
 
             var list = new List<MarketDataPrice>();
 
@@ -86,8 +90,6 @@ namespace LP.Finance.Common.Model
             this.LastUpdatedBy = row["last_updated_by"].ToString();
             if (row["last_updated_on"] != DBNull.Value)
                 this.LastUpdatedOn = Convert.ToDateTime(row["last_updated_on"]);
-
         }
-
     }
 }

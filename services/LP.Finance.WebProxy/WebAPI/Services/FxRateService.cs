@@ -136,74 +136,119 @@ namespace LP.Finance.WebProxy.WebAPI.Services
         {
             try
             {
+                FileManager fileManager = new FileManager(ConnectionString);
                 var uploadedResult = await Utils.SaveFileToServerAsync(requestMessage, "FxRates");
                 if (!uploadedResult.Item1)
                     return Shared.WebApi.Wrap(false);
 
                 var path = uploadedResult.Item2;
                 var filename = uploadedResult.Item3;
-                var recordBody = _fileProcessor.ImportFile(path, "FxRates", "ImportFormats", ',');
+
+                List<FxRate> fxRates;
+
+                var recordBody = _fileProcessor.ImportFile(path, "FxRates", "ImportFormats", ',', true);
 
                 var records = JsonConvert.SerializeObject(recordBody.Item1);
-                var fxRates = JsonConvert.DeserializeObject<List<FxRate>>(records);
 
-                var failedRecords = new Dictionary<object, Row>();
-                var key = 0;
-                foreach (var item in recordBody.Item2)
+                try
                 {
-                    failedRecords.Add(key++, item);
+                    fxRates = JsonConvert.DeserializeObject<List<FxRate>>(records);
                 }
-
-                var failedPerformanceList =
-                    _fileManager.MapFailedRecords(failedRecords, DateTime.Now, uploadedResult.Item3);
-
-                List<FileInputDto> fileList = new List<FileInputDto>
+                catch (Exception ex)
                 {
-                    new FileInputDto(path, filename, fxRates.Count, "FxRates",
-                        "Upload",
-                        failedPerformanceList,
-                        DateTime.Now)
-                };
+                    foreach (var item in recordBody.Item2)
+                    {
+                        var fxRateElement = recordBody.Item1.ElementAt(item.RowNumber - 1);
+                        fxRateElement.IsUploadInValid = true;
+                        fxRateElement.UploadException = JsonConvert.SerializeObject(item);
+                    }
 
-                _fileManager.InsertFiles(fileList);
+                    var payload = new
+                    {
+                        EnableCommit = false,
+                        Data = recordBody.Item1
+                    };
+
+                    return Shared.WebApi.Wrap(true, payload, HttpStatusCode.OK);
+                }
 
                 foreach (var i in fxRates)
                 {
                     i.Event = "upload";
                     i.LastUpdatedOn = DateTime.Now;
-                    i.LastUpdatedBy = "webservice";
+                    i.LastUpdatedBy = "WebService";
                 }
 
-
-                bool insertinto = InsertData(fxRates);
-
-                var dupesTemp = fxRates.GroupBy(x => new {x.BusinessDate, x.Currency}).ToList();
-                var dupes = dupesTemp.Where(x => x.Skip(1).Any()).ToList();
-                if (dupes.Any())
+                var failedRecords = new Dictionary<object, Row>();
+                var key = 0;
+                var enableCommit = true;
+                foreach (var item in recordBody.Item2)
                 {
-                    var items = dupes.SelectMany(x => x.Select(y => y)).ToList();
-                    var metaData = MetaData.ToMetaData(items[0]);
-                    foreach (var item in metaData.Columns)
-                    {
-                        Console.WriteLine(item);
-                    }
-
-                    return Shared.WebApi.Wrap(true, items, HttpStatusCode.Forbidden, null, metaData.Columns);
+                    failedRecords.Add(key++, item);
+                    var fxRateElement = fxRates.ElementAt(item.RowNumber - 1);
+                    fxRateElement.IsUploadInValid = true;
+                    fxRateElement.UploadException = JsonConvert.SerializeObject(item);
                 }
 
-                if (insertinto)
+                if (failedRecords.Count > 0)
                 {
-                    return Shared.WebApi.Wrap(true, fxRates, HttpStatusCode.OK);
+                    enableCommit = false;
                 }
-                else
+
+                var failedFxRateList =
+                    fileManager.MapFailedRecords(failedRecords, DateTime.Now, uploadedResult.Item3);
+
+                List<FileInputDto> fileList = new List<FileInputDto>
                 {
-                    return Shared.WebApi.Wrap(false);
-                }
+                    new FileInputDto(path, filename, fxRates.Count, "FxRates",
+                        "Upload",
+                        failedFxRateList,
+                        DateTime.Now)
+                };
+
+                fileManager.InsertFiles(fileList);
+
+                var data = new
+                {
+                    EnableCommit = enableCommit,
+                    Data = fxRates
+                };
+
+                return Shared.WebApi.Wrap(true, data, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
-                return Shared.WebApi.Wrap(false);
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError,
+                    $"An error occured:{ex.Message}");
             }
+        }
+
+        public object CommitFxRate(List<FxRate> fxRates)
+        {
+            var insertionStatus = InsertData(fxRates);
+
+            /*
+            var duplicates = fxRates.GroupBy(x => new { x.BusinessDate, x.Currency }).ToList();
+            var duplicateList = duplicates.Where(x => x.Skip(1).Any()).ToList();
+            if (duplicateList.Any())
+            {
+                var items = duplicateList.SelectMany(x => x.Select(y => y)).ToList();
+                var metaData = MetaData.ToMetaData(items[0]);
+                foreach (var item in metaData.Columns)
+                {
+                    Console.WriteLine(item);
+                }
+
+                return Shared.WebApi.Wrap(true, items, HttpStatusCode.Forbidden, null, metaData.Columns);
+            }
+            */
+
+            if (insertionStatus)
+            {
+                return Shared.WebApi.Wrap(true, null, HttpStatusCode.OK);
+            }
+
+            return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError);
         }
 
         private bool InsertData(List<FxRate> obj)
