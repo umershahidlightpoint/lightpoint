@@ -391,7 +391,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
     const excluded = node.data.exclude === null ? '' : node.data.exclude;
     if (
       this.filterBySymbol !== '' &&
-      (this.filterByExcludedTrades || this.filterByUploadedTrades)
+      (this.filterByExcludedTrades && this.filterByUploadedTrades)
     ) {
       return (
         cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) &&
@@ -409,7 +409,7 @@ export class TradesComponent implements OnInit, AfterViewInit {
         cellSymbol.toLowerCase().includes(this.filterBySymbol.toLowerCase()) && excluded === 'Y'
       );
     }
-    if (this.filterByUploadedTrades || this.filterByExcludedTrades) {
+    if (this.filterByUploadedTrades && this.filterByExcludedTrades) {
       return tradeType === 'manual' || excluded === 'Y';
     }
     if (this.filterBySymbol !== '') {

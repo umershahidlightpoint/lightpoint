@@ -179,6 +179,9 @@
     <None Include="ExportFormats\Transaction.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="ImportFormats\Journal.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="MockData\all.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

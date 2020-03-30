@@ -58,7 +58,7 @@
     ]
   },
   {
-    "SecurityType": "Corporate Bond",
+    "SecurityType": "Equity Option",
     "Fields": [
       {
         "FieldName": "MaturityDate"
@@ -109,7 +109,7 @@
 
   },
   {
-    "SecurityType": "Credit Default Swap",
+    "SecurityType": "Cash",
     "Fields": [
       {
         "FieldName": "MaturityDate"
@@ -195,7 +195,85 @@
     ]
   },
   {
-    "SecurityType": "Index Swap",
+    "SecurityType": "FORWARD",
+    "Fields": [
+      {
+        "FieldName": "MaturityDate"
+      },
+      {
+        "FieldName": "ValuationDate"
+      },
+      {
+        "FieldName": "FixedRate"
+      },
+      {
+        "FieldName": "NextFinancingEndDateType"
+      },
+      {
+        "FieldName": "NextFinancingEndDate"
+      },
+      {
+        "FieldName": "DCCFixedRate"
+      },
+      {
+        "FieldName": "FloatingRate"
+      }
+    ]
+  },
+  {
+    "SecurityType": "Open-End Fund",
+    "Fields": [
+      {
+        "FieldName": "MaturityDate"
+      },
+      {
+        "FieldName": "ValuationDate"
+      },
+      {
+        "FieldName": "FixedRate"
+      },
+      {
+        "FieldName": "NextFinancingEndDateType"
+      },
+      {
+        "FieldName": "NextFinancingEndDate"
+      },
+      {
+        "FieldName": "DCCFixedRate"
+      },
+      {
+        "FieldName": "FloatingRate"
+      }
+    ]
+  },
+  {
+    "SecurityType": "CROSS",
+    "Fields": [
+      {
+        "FieldName": "MaturityDate"
+      },
+      {
+        "FieldName": "ValuationDate"
+      },
+      {
+        "FieldName": "FixedRate"
+      },
+      {
+        "FieldName": "NextFinancingEndDateType"
+      },
+      {
+        "FieldName": "NextFinancingEndDate"
+      },
+      {
+        "FieldName": "DCCFixedRate"
+      },
+      {
+        "FieldName": "FloatingRate"
+      }
+    ]
+  },
+  {
+    "SecurityType": "Unit",
     "Fields": [
       {
         "FieldName": "MaturityDate"

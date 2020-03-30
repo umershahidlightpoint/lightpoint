@@ -1,6 +1,7 @@
 ﻿/*
 Run after the Start up process, all changes are made to the current_trade_view, this will vary by client
 
+select SecurityType, count(*) from current_trade_state group by SecurityType
 exec PreProcessETL
 
 */
@@ -9,6 +10,7 @@ AS
 -- Update's to the SecurityTyoe
 	update current_trade_state set SecurityType = 'Open-End Fund' where Symbol = 'MSUXX'
 	update current_trade_state set SecurityType = 'Common Stock' where SecurityType = 'REIT'
+	update current_trade_state set SecurityType = 'Common Stock' where SecurityType = 'Unit'
 
 	DECLARE @Symbol Varchar(20)
 	Declare @SecurityId int

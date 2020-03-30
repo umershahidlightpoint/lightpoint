@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.SqlClient;
+using System.Linq;
 using LP.Shared.Sql;
 
 namespace LP.Finance.Common.Model
@@ -23,6 +24,85 @@ namespace LP.Finance.Common.Model
     public class Account : IDbAction, IDbActionSaveUpdate, IDbActionIdentity
     {
         public static List<Account> All { private set;  get; }
+
+        private static void Save(string connectionString, AccountType accountType)
+        {
+            if (!accountType.Exists)
+            {
+                var connection = new SqlConnection(connectionString);
+                connection.Open();
+                var transaction = connection.BeginTransaction();
+
+                accountType.Save(connection, transaction);
+                accountType.Id = accountType.Identity(connection, transaction);
+                accountType.Exists = true;
+
+                transaction.Commit();
+                connection.Close();
+            }
+        }
+
+        public static Account FindOrCreate(string connectionString, string accountCategory, string accountType, string accountName)
+        {
+            var found = All.Where(i => i.Name.Equals(accountName)).FirstOrDefault();
+            if (found != null) return found;
+
+
+            var category = AccountCategory.Find(accountCategory);
+
+            var acType = AccountType.Find(accountCategory, accountType, false);
+
+            if (acType == null)
+            {
+                // Need to create the Account Type
+                acType = AccountType.FindOrCreate(accountCategory, accountType);
+                AccountType.Add(acType);
+                Save(connectionString, acType);
+            }
+
+            if (acType == null )
+            {
+                // Should exist now as we checked to make sure it's valid
+            }
+
+            var account = new Account()
+            {
+                Name = accountName,
+                Description = accountName,
+                Type = acType,
+                Tags = new List<AccountTag>()
+            };
+
+            account.SaveAccountDetails(connectionString);
+
+            All.Add(account);
+
+            // We need to do some additional lifting
+            return account;
+        }
+
+        public void SaveAccountDetails(string connectionString)
+        {
+            if (!this.Exists)
+            {
+                var connection = new SqlConnection(connectionString);
+                connection.Open();
+
+                var transaction = connection.BeginTransaction();
+
+                this.SaveUpdate(connection, transaction);
+                this.Id = this.Identity(connection, transaction);
+                foreach (var tag in this.Tags)
+                {
+                    tag.Account = this;
+                    //tag.Tag.Save(_connection, _transaction);
+                    tag.Save(connection, transaction);
+                }
+                this.Exists = true;
+
+                transaction.Commit();
+            }
+        }
 
         public static Account[] Load(SqlConnection connection)
         {
@@ -74,7 +154,7 @@ namespace LP.Finance.Common.Model
                 {
                     new SqlParameter("name", Name),
                     new SqlParameter("description", Description),
-                    new SqlParameter("type", Id),
+                    new SqlParameter("type", Type.Id),
             };
 
                 return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);
@@ -107,7 +187,7 @@ namespace LP.Finance.Common.Model
                     new SqlParameter("id", Id),
                     new SqlParameter("name", Name),
                     new SqlParameter("description", Description),
-                    new SqlParameter("type", Id),
+                    new SqlParameter("type", Type.Id),
             };
 
                 return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);
@@ -122,7 +202,7 @@ namespace LP.Finance.Common.Model
                 var sqlParams = new SqlParameter[]
                 {
                     new SqlParameter("name", Name),
-                    new SqlParameter("type", Id),
+                    new SqlParameter("type", Type.Id),
                 };
 
                 return new KeyValuePair<string, SqlParameter[]>(sql, sqlParams);

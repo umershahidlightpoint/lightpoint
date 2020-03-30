@@ -14,12 +14,15 @@ namespace PostingEngine.PostingRules
         AccountType _settledCash;
         AccountType _paidAccount;
         AccountType _payableAccount;
+        AccountType _contributedCapital;
 
         private void SetupAccounts()
         {
             _settledCash = AccountType.Find("Settled Cash");
             _paidAccount = AccountType.Find("Expenses Paid");
             _payableAccount = AccountType.Find("ACCRUED EXPENSES");
+
+            _contributedCapital = AccountType.Find("CONTRIBUTED CAPITAL");
 
         }
 
@@ -169,18 +172,12 @@ namespace PostingEngine.PostingRules
                     {
                         if (element.Symbol.Equals("ZZ_INVESTOR_WITHDRAWALS"))
                         {
-                            fromAccount = au.CreateAccount(AccountType.Find("CONTRIBUTED CAPITAL"), tags, element);
+                            fromAccount = au.CreateAccount(_contributedCapital, tags, element);
                             toAccount = au.CreateAccount(_settledCash, tags, element);
-                        }
-                        else if (element.Symbol.Equals("ZZ_CASH_DIVIDENDS"))
-                        {
-                            fromAccount = au.CreateAccount(AccountType.Find("DIVIDENDS RECEIVABLE"), tags, element);
-                            toAccount = au.CreateAccount(AccountType.Find("DIVIDEND INCOME"), tags, element);
                         }
                         else
                         {
-                            var symbol = element.Symbol;
-                            symbol = env.CodeMap(symbol);
+                            var symbol = env.CodeMap(element.Symbol);
 
                             fromAccount = new AccountUtils().CreateAccount(_paidAccount, symbol + " Paid", element);
                             toAccount = new AccountUtils().CreateAccount(_payableAccount, symbol + " Payable", element);
@@ -192,19 +189,14 @@ namespace PostingEngine.PostingRules
                     if (element.Symbol.Equals("ZZ_INVESTOR_CONTRIBUTIONS"))
                     {
                         fromAccount = new AccountUtils().CreateAccount(_settledCash, tags, element);
-                        toAccount = new AccountUtils().CreateAccount(AccountType.Find("CONTRIBUTED CAPITAL"), tags, element);
-                    }
-                    else if (element.Symbol.Equals("ZZ_CASH_DIVIDENDS"))
-                    {
-                        fromAccount = new AccountUtils().CreateAccount(AccountType.Find("DIVIDENDS RECEIVABLE"), tags, element);
-                        toAccount = new AccountUtils().CreateAccount(AccountType.Find("DIVIDEND INCOME"), tags, element);
+                        toAccount = new AccountUtils().CreateAccount(_contributedCapital, tags, element);
                     }
                     else // Default Action
                     {
                         var symbol = env.CodeMap(element.Symbol);
 
-                        fromAccount = new AccountUtils().CreateAccount(_paidAccount, symbol + " Paid", element);
-                        toAccount = new AccountUtils().CreateAccount(_payableAccount, symbol + " Payable", element);
+                        fromAccount = new AccountUtils().CreateAccount(_payableAccount, symbol + " Payable", element);
+                        toAccount = new AccountUtils().CreateAccount(_paidAccount, symbol + " Paid", element);
                     }
                     break;
             }
@@ -221,14 +213,21 @@ namespace PostingEngine.PostingRules
 
         public void TradeDateEvent(PostingEngineEnvironment env, Transaction element)
         {
-            SetupAccounts();
+            if ( element.Symbol.Equals("ZZ_CASH_DIVIDENDS") )
+            {
+                env.AddMessage("Warning", $"CASH DIVIDENDS Will be handled by Corporate Action UI");
+                return;  
+            }
 
-            // Pre validation test
             if (element.Status.Equals("Cancelled"))
             {
                 env.AddMessage("Warning", $"Entry has been cancelled {element.LpOrderId} :: {element.Side}");
                 return;
             }
+
+            SetupAccounts();
+
+            // Pre validation test
 
             // Need to consider both
             if (element.TradeDate.Date != element.SettleDate.Date)

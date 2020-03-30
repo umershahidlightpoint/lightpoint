@@ -35,7 +35,7 @@ namespace LP.Finance.WebProxy.WebAPI.Services
             }
             catch (Exception ex)
             {
-                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError);
+                return Shared.WebApi.Wrap(false, null, HttpStatusCode.InternalServerError, $"An error occured:{ex.Message}");
             }
         }
     }

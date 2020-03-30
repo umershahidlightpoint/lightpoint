@@ -50,7 +50,7 @@ namespace PostingEngine.PostingRules
 
             var closingTrade = env.FindTrade(closingTaxLot.ClosingLotId);
 
-            var usdEquivalent = Math.Abs(closingTrade.NetMoney) * Math.Abs(effectiveRate);
+            var usdEquivalent = Math.Abs(closingTrade.SettleNetMoney) * Math.Abs(effectiveRate);
 
             if (element.IsBuy())
             {
@@ -68,11 +68,11 @@ namespace PostingEngine.PostingRules
             }
             else if (element.IsCover())
             {
-                usdEquivalent = element.NetMoney * effectiveRate;
+                usdEquivalent = element.SettleNetMoney * effectiveRate;
             }
             else // SELL
             {
-                usdEquivalent = element.NetMoney * effectiveRate;
+                usdEquivalent = element.SettleNetMoney * effectiveRate;
             }
 
             // We are inverting so
@@ -146,7 +146,7 @@ namespace PostingEngine.PostingRules
             var eodFxRate = Convert.ToDouble(FxRates.Find(env, env.ValueDate, currency).Rate);
             var effectiveRate = eodFxRate - prevEodFxRate;
 
-            var usdEquivalent = Math.Abs(element.NetMoney) * Math.Abs(effectiveRate);
+            var usdEquivalent = Math.Abs(element.SettleNetMoney) * Math.Abs(effectiveRate);
 
             if ( element.IsBuy())
             {
@@ -172,7 +172,7 @@ namespace PostingEngine.PostingRules
                 // No Idea
                 if ( element.IsSell() || element.IsCover())
                 {
-                    usdEquivalent = element.NetMoney * effectiveRate * -1;
+                    usdEquivalent = element.SettleNetMoney * effectiveRate * -1;
                 }
             }
 

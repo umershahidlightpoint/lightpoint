@@ -19,11 +19,9 @@ namespace LP.Finance.Common.Model
         public string OrderSource { get; set; }
         public double TradePrice { get; set; }
         public double NetPrice { get; set; }
-        public double SettleNetPrice { get; set; }
         public double NetMoney { get; set; }
-
-        //public double ContractSize { get; set; }
-
+        public double SettleNetPrice { get; set; }
+        public double SettleNetMoney { get; set; }
         public string Symbol { get; set; }
         public string ParentSymbol { get; set; }
         public int SecurityId { get; set; }

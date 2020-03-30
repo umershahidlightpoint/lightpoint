@@ -106,8 +106,21 @@ namespace PostingEngine.TaxLotMethods
                 }));
             }
 
+            var manualTaxLots = env.ManualTaxLots.Where(i => i.ClosingLotId.Equals(element.LpOrderId));
+            if (manualTaxLots.Count() == 0)
+            {
+                return openLots;
+            }
 
-            return openLots;
+            var openLotIds = manualTaxLots.Select(i => i.OpenLotId).ToList();
+
+            // Now we need to place the Trades in order
+            var top = openLots.Where( i=> openLotIds.Contains(i.Trade.LpOrderId));
+            var rest = openLots.Where(i => !openLotIds.Contains(i.Trade.LpOrderId));
+
+            var items = top.Concat(rest).ToList();
+
+            return items;
         }
 
         static internal void Log(NLog.Logger Logger, List<TaxLotDetail> taxlots)

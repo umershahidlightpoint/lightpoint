@@ -190,7 +190,7 @@ namespace PostingEngine.PostingRules
             var percentage = closeQuantity / openQuantity;
 
             // This is the fully loaded value to tbe posting
-            var backoutLocal = Math.Abs(closingTaxLot.Trade.NetMoney) * multiplier * percentage;
+            var backoutLocal = Math.Abs(closingTaxLot.Trade.SettleNetMoney) * multiplier * percentage;
 
             // BUY -- Debit
             // SELL -- Credit
@@ -757,9 +757,9 @@ namespace PostingEngine.PostingRules
                 return;
             }
 
-            if (closingTaxLot.Trade.NetMoney != 0.0)
+            if (closingTaxLot.Trade.SettleNetMoney != 0.0)
             {
-                var moneyUSD = Math.Abs(closingTaxLot.Trade.NetMoney) * fxrate * percentage;
+                var moneyUSD = Math.Abs(closingTaxLot.Trade.SettleNetMoney) * fxrate * percentage;
 
                 // BUY -- Debit
                 // SELL -- Credit
@@ -829,9 +829,9 @@ namespace PostingEngine.PostingRules
                 return;
             }
 
-            if (element.NetMoney != 0.0)
+            if (element.SettleNetMoney != 0.0)
             {
-                var moneyUSD = Math.Abs(element.NetMoney) * fxrate;
+                var moneyUSD = Math.Abs(element.SettleNetMoney) * fxrate;
 
                 // BUY -- Debit
                 // SELL -- Credit
@@ -897,9 +897,9 @@ namespace PostingEngine.PostingRules
 
             // This is the fully loaded value to tbe posting
 
-            if (element.NetMoney != 0.0)
+            if (element.SettleNetMoney != 0.0)
             {
-                var moneyUSD = Math.Abs(element.NetMoney) * fxrate;
+                var moneyUSD = Math.Abs(element.SettleNetMoney) * fxrate;
 
                 // BUY -- Debit
                 // SELL -- Credit

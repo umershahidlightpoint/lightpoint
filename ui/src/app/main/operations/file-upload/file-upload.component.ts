@@ -38,7 +38,7 @@ export class FileUploadComponent implements OnInit {
   confirmStatus = false;
 
   fileType = 'Select a File Type';
-  fileTypes = ['Monthly Performance', 'Daily PnL', 'Market Prices', 'FxRates', 'Trades'];
+  fileTypes = ['Monthly Performance', 'Daily PnL', 'Market Prices', 'FxRates', 'Trades', 'Journals'];
 
   styleForLogsHeight = HeightStyle(220);
 
@@ -210,11 +210,17 @@ export class FileUploadComponent implements OnInit {
       this.uploadFxRatesData();
     } else if (this.fileType === 'Trades') {
       this.uploadTradeData();
+    } else if (this.fileType === 'Journals') {
+      this.uploadJournalData();
     }
   }
 
   onCommitData() {
-    this.commitTradeData();
+    if (this.fileType === 'Trades') {
+      this.commitTradeData();
+    } else if (this.fileType === 'Journals') {
+      this.commitJournalData();
+    }
   }
 
   uploadMonthlyPerformance() {
@@ -360,6 +366,33 @@ export class FileUploadComponent implements OnInit {
     );
   }
 
+  uploadJournalData() {
+    this.uploadLoader = true;
+    this.fundTheoreticalApiService.uploadJournalData(this.fileToUpload).subscribe(
+      response => {
+        this.uploadLoader = false;
+
+        if (response.isSuccessful && response.statusCode === 200) {
+          this.displayPreviewGrid = true;
+          this.displayGrid = false;
+
+          this.disableCommit = !response.payload.EnableCommit;
+          this.previewData = response.payload.Data;
+          this.previewGrid.api.setColumnDefs(this.getColDefs('Journals'));
+          this.previewGrid.api.setRowData(this.previewData);
+
+          this.toastrService.success('Journals uploaded successfully!');
+        } else {
+          this.toastrService.error(response.ExceptionMessage);
+        }
+      },
+      error => {
+        this.uploadLoader = false;
+        this.toastrService.error(error.ExceptionMessage);
+      }
+    );
+  }
+
   commitTradeData() {
     this.commitLoader = true;
     this.fundTheoreticalApiService.commitTradeData(this.previewData).subscribe(
@@ -374,6 +407,31 @@ export class FileUploadComponent implements OnInit {
           this.clearForm();
 
           this.toastrService.success('Trades committed successfully!');
+        } else {
+          this.toastrService.error('Something went wrong! Try Again.');
+        }
+      },
+      error => {
+        this.commitLoader = false;
+        this.toastrService.error('Something went wrong! Try Again.');
+      }
+    );
+  }
+
+  commitJournalData() {
+    this.commitLoader = true;
+    this.fundTheoreticalApiService.commitJournalData(this.previewData).subscribe(
+      response => {
+        this.commitLoader = false;
+
+        if (response.isSuccessful && response.statusCode === 200) {
+          this.displayPreviewGrid = false;
+          this.displayGrid = false;
+
+          this.previewGrid.api.setRowData([]);
+          this.clearForm();
+
+          this.toastrService.success('Journals committed successfully!');
         } else {
           this.toastrService.error('Something went wrong! Try Again.');
         }
@@ -560,6 +618,71 @@ export class FileUploadComponent implements OnInit {
             headerName: 'CCY'
           }
         ];
+        case 'Journals':
+          return [
+            {
+              field: 'When',
+              headerName: 'When'
+            },
+            {
+              field: 'Credit',
+              headerName: 'Credit'
+            },
+            {
+              field: 'Debit',
+              headerName: 'Debit'
+            },
+            {
+              field: 'Value',
+              headerName: 'Value'
+            },
+            {
+              field: 'Symbol',
+              headerName: 'Symbol'
+            },
+            {
+              field: 'AccountCategory',
+              headerName: 'AccountCategory'
+            },
+            {
+              field: 'AccountType',
+              headerName: 'AccountType'
+            },
+            {
+              field: 'AccountDescription',
+              headerName: 'AccountDescription'
+            },
+            {
+              field: 'Source',
+              headerName: 'Source'
+            },
+            {
+              field: 'Fund',
+              headerName: 'Fund'
+            },
+            {
+              field: 'Currency',
+              headerName: 'FX Currency'
+            },
+            {
+              field: 'Comment',
+              headerName: 'Comment'
+            },
+            {
+              field: 'CreditDebit',
+              headerName: 'Credit/Debit'
+            },
+            {
+              field: 'IsUploadInValid',
+              headerName: 'IsUploadInValid',
+              hide: true
+            },
+            {
+              field: 'UploadException',
+              headerName: 'UploadException',
+              hide: true
+            }
+          ];        
       case 'Trades':
         return [
           {

@@ -10,6 +10,12 @@ using LP.Shared.Sql;
 
 namespace LP.Finance.Common.Model
 {
+    public class RowException
+    {
+        public bool IsUploadInValid { get; set; }
+        public string UploadException { get; set; }
+    }
+
     public class Trade : IDbModel
     {
         public string LPOrderId { get; set; }

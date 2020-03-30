@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using LP.Finance.Common.Dtos;
+using LP.Finance.Common.Model;
 
 namespace LP.Finance.Common.Mappers
 {
@@ -83,6 +84,38 @@ namespace LP.Finance.Common.Mappers
 
         public JournalOutputDto MapJournal(IDataReader reader)
         {
+            var accountFrom = !Convert.ToBoolean(reader["is_account_to"])
+                ? new JournalAccountOutputDto
+                {
+                    JournalId = Convert.ToInt32(reader["id"]),
+                    AccountId = Convert.ToInt32(reader["account_id"]),
+                    AccountCategoryId = Convert.ToInt32(reader["account_category_id"]),
+                    AccountCategory = reader["account_category"].ToString(),
+                    AccountTypeId = Convert.ToInt32(reader["account_type_id"]),
+                    AccountType = reader["account_type"].ToString(),
+                    Symbol = reader["symbol"].ToString(),
+                    FxCurrency = reader["fx_currency"].ToString(),
+                    Value = Convert.ToDecimal(reader["value"]),
+                    CreditDebit = reader["credit_debit"].ToString()
+                }
+                : null;
+
+            var accountTo = Convert.ToBoolean(reader["is_account_to"])
+                ? new JournalAccountOutputDto
+                {
+                    JournalId = Convert.ToInt32(reader["id"]),
+                    AccountId = Convert.ToInt32(reader["account_id"]),
+                    AccountCategoryId = Convert.ToInt32(reader["account_category_id"]),
+                    AccountCategory = reader["account_category"].ToString(),
+                    AccountTypeId = Convert.ToInt32(reader["account_type_id"]),
+                    AccountType = reader["account_type"].ToString(),
+                    Symbol = reader["symbol"].ToString(),
+                    FxCurrency = reader["fx_currency"].ToString(),
+                    Value = Convert.ToDecimal(reader["value"]),
+                    CreditDebit = reader["credit_debit"].ToString()
+                }
+                : null;
+
             var journalOutputDto = new JournalOutputDto
             {
                 Source = reader["source"].ToString(),
@@ -98,36 +131,8 @@ namespace LP.Finance.Common.Mappers
                 SecurityId = Convert.ToInt32(reader["security_id"]),
                 CommentId = Convert.ToInt32(reader["comment_id"]),
                 Comment = reader["comment"].ToString(),
-                AccountFrom = !Convert.ToBoolean(reader["is_account_to"])
-                    ? new JournalAccountOutputDto
-                    {
-                        JournalId = Convert.ToInt32(reader["id"]),
-                        AccountId = Convert.ToInt32(reader["account_id"]),
-                        AccountCategoryId = Convert.ToInt32(reader["account_category_id"]),
-                        AccountCategory = reader["account_category"].ToString(),
-                        AccountTypeId = Convert.ToInt32(reader["account_type_id"]),
-                        AccountType = reader["account_type"].ToString(),
-                        Symbol = reader["symbol"].ToString(),
-                        FxCurrency = reader["fx_currency"].ToString(),
-                        Value = Convert.ToDecimal(reader["value"]),
-                        CreditDebit = reader["credit_debit"].ToString()
-                    }
-                    : null,
-                AccountTo = Convert.ToBoolean(reader["is_account_to"])
-                    ? new JournalAccountOutputDto
-                    {
-                        JournalId = Convert.ToInt32(reader["id"]),
-                        AccountId = Convert.ToInt32(reader["account_id"]),
-                        AccountCategoryId = Convert.ToInt32(reader["account_category_id"]),
-                        AccountCategory = reader["account_category"].ToString(),
-                        AccountTypeId = Convert.ToInt32(reader["account_type_id"]),
-                        AccountType = reader["account_type"].ToString(),
-                        Symbol = reader["symbol"].ToString(),
-                        FxCurrency = reader["fx_currency"].ToString(),
-                        Value = Convert.ToDecimal(reader["value"]),
-                        CreditDebit = reader["credit_debit"].ToString()
-                    }
-                    : null
+                AccountFrom = accountFrom,
+                AccountTo = accountTo
             };
 
             return journalOutputDto;

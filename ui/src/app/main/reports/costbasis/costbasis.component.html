@@ -40,6 +40,12 @@
     </div>
     <!-- Date Picker Div Ends -->
 
+    <div class="col-auto mt-2">
+      <label class="mr-3"><input type="checkbox" id="closedPositionCheckBox" [(ngModel)]="filterByClosedPositions"
+              (ngModelChange)="ngModelChangeClosedPositions($event)">
+          Closed Positions</label>
+    </div>
+
     <!-- Clear Button Div Starts -->
     <div class="col-auto">
       <button (click)="clearFilters()" class="btn btn-pa" tooltip="Clear" placement="top">

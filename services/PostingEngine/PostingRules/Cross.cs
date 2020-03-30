@@ -316,8 +316,8 @@ namespace PostingEngine.PostingRules
                     var liabilities = dataTable[0];
                     var assets = dataTable[1];
 
-                    var liabilitiesValue = liabilities.Rows.Count > 0 ? Convert.ToDouble(liabilities.Rows[0][3]) : 0.0;
-                    var assetValue = assets.Rows.Count > 0 ? Convert.ToDouble(assets.Rows[0][3]) : 0.0;
+                    var liabilitiesValue = liabilities.Rows.Count > 0 ? Convert.ToDouble(liabilities.Rows[0]["balance"]) : 0.0;
+                    var assetValue = assets.Rows.Count > 0 ? Convert.ToDouble(assets.Rows[0]["balance"]) : 0.0;
 
                     liabilitiesValue += liabilityUnrealisedPnl;
                     assetValue += assetUnrealisedPnl;

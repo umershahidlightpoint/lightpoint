@@ -16,11 +16,17 @@ namespace PostingEngine
         /// <param name="connection"></param>
         internal static void Setup(SqlConnection connection)
         {
+            // Account information
             AccountCategory.Load(connection);
             AccountType.Load(connection);
             Account.Load(connection);
             Tag.Load(connection);
+
+            // TaxLotStatus
             TaxLotStatus.Load(connection);
+
+            // TaxLotManualLink
+            TaxLotManualLink.Load(connection);
         }
 
         internal static void Setup(string ConnectionString)
@@ -35,6 +41,30 @@ namespace PostingEngine
                 }
                 catch (Exception ex )
                 {
+                    throw ex;
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+        }
+
+        public static void LoadAccounts(string ConnectionString)
+        {
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+
+                try
+                {
+                    AccountCategory.Load(connection);
+                    AccountType.Load(connection);
+                    Account.Load(connection);
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
                 }
                 finally
                 {

@@ -1,6 +1,6 @@
 ﻿/* Examples
 select * from account_type where name like 'DIV%'
-exec CostBasisCalculation '2020-01-10'
+exec CostBasisCalculation '2020-03-27', 'BYD CN'
 
 select * from cost_basis where business_date = '2019-12-31'
 select * from vwCostBasis where business_date = '2019-12-31'
@@ -93,78 +93,82 @@ select '#costbasis_all', * from #costbasis_all where symbol = @symbol
 
 RAISERROR('Completed #costbasis_all', 0, 1) with nowait
 
-SELECT @bDate as busdate, J.symbol, j.SecurityType, j.LongShort as side,sum(credit-debit) as unrealized_pnl
-into #unrealized_pnl
+SELECT @bDate as busdate, AccountType, J.symbol, j.SecurityType, j.LongShort as side, sum(credit-debit) as balance
+into #raw_pnl_data
 FROM vwFullJournal j
 where
 AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'Change in Unrealized Derivatives Contracts at Fair Value', 'Change in Unrealized Derivatives Contracts due to FX Translation', 'change in unrealized do to fx translation')
 and j.[when] <= @bDate
-group by j.symbol, j.LongShort ,j.SecurityType
+group by AccountType, j.symbol, j.LongShort ,j.SecurityType
+
+
+
+SELECT @bDate as busdate, J.symbol, j.SecurityType, j.Side as side,sum(balance) as unrealized_pnl
+into #unrealized_pnl
+FROM #raw_pnl_data j
+where
+AccountType in ('CHANGE IN UNREALIZED GAIN/(LOSS)', 'Change in Unrealized Derivatives Contracts at Fair Value', 'Change in Unrealized Derivatives Contracts due to FX Translation', 'change in unrealized do to fx translation')
+group by j.symbol, j.side ,j.SecurityType
 order by j.Symbol
 
 select '#unrealized_pnl', * from #unrealized_pnl where symbol = @symbol
 
 RAISERROR('Completed #unrealized_pnl', 0, 1) with nowait
 
-SELECT @bDate as busdate, J.symbol, j.SecurityType, j.LongShort as side, sum(credit - debit) as unrealized_pnl_fx
+SELECT @bDate as busdate, J.symbol, j.SecurityType, j.side as side, sum(balance) as unrealized_pnl_fx
 into #unrealized_pnl_fx
-FROM vwFullJournal j
+FROM #raw_pnl_data j
 where 
 AccountType in ('Change in unrealized due to fx on original Cost', 'change in unrealized do to fx translation')
-and j.[when] <= @bDate
-group by j.symbol, j.LongShort,j.SecurityType
+group by j.symbol, j.side,j.SecurityType
 order by j.Symbol
 
 select '#unrealized_pnl_fx', * from #unrealized_pnl_fx where symbol = @symbol
 
 RAISERROR('Completed #unrealized_pnl_fx', 0, 1) with nowait
 
-SELECT @bDate as busdate, J.symbol, j.SecurityType, j.LongShort as side, sum(credit - debit) as realized_pnl
+SELECT @bDate as busdate, J.symbol, j.SecurityType, j.Side as side, sum(balance) as realized_pnl
 into #realized_pnl
-FROM vwFullJournal j
+FROM #raw_pnl_data j
 where 
 AccountType in ('REALIZED GAIN/(LOSS)')
-and j.[when] <= @bDate
-group by j.symbol, j.LongShort ,j.SecurityType
+group by j.symbol, j.Side ,j.SecurityType
 order by j.Symbol
 
 select '#realized_pnl', * from #realized_pnl where symbol = @symbol
 
 RAISERROR('Completed #realized_pnl', 0, 1) with nowait
 
-SELECT @bDate as busdate, J.symbol, j.SecurityType, j.LongShort as side, sum(credit - debit) as realized_pnl_fx
+SELECT @bDate as busdate, J.symbol, j.SecurityType, j.Side as side, sum(balance) as realized_pnl_fx
 into #realized_pnl_fx
-FROM vwFullJournal j
+FROM #raw_pnl_data j
 where 
 AccountType in ('REALIZED GAIN/(LOSS) DUE TO FX')
-and j.[when] <= @bDate
-group by j.symbol, j.LongShort,j.SecurityType
+group by j.symbol, j.side,j.SecurityType
 order by j.Symbol
 
 select '#realized_pnl_fx', * from #realized_pnl_fx where symbol = @symbol
 
 RAISERROR('Completed #realized_pnl_fx', 0, 1) with nowait
 
-SELECT @bDate as busdate, J.symbol, j.SecurityType, j.LongShort as side, sum(credit - debit) as balance
+SELECT @bDate as busdate, J.symbol, j.SecurityType, j.Side as side, sum(balance) as balance
 into #dividend
-FROM vwFullJournal j
+FROM #raw_pnl_data j
 where 
 AccountType in ('DIVIDEND EXPENSE', 'DIVIDEND INCOME')
-and j.[when] <= @bDate
-group by j.symbol, j.LongShort,j.SecurityType
+group by j.symbol, j.Side,j.SecurityType
 order by j.Symbol
 
 select '#dividend', * from #dividend where symbol = @symbol
 
 RAISERROR('Completed #dividend', 0, 1) with nowait
 
-SELECT @bDate as busdate, J.symbol, j.SecurityType, j.LongShort as side, sum(credit - debit) as balance
+SELECT @bDate as busdate, J.symbol, j.SecurityType, j.Side as side, sum(balance) as balance
 into #dividend_withholding
-FROM vwFullJournal j
+FROM #raw_pnl_data j
 where 
 AccountType in ('DIVIDENDS WITHHOLDING EXPENSE')
-and j.[when] <= @bDate
-group by j.symbol, j.LongShort,j.SecurityType
+group by j.symbol, j.Side,j.SecurityType
 order by j.Symbol
 
 select '#dividend_withholding', * from #dividend_withholding where symbol = @symbol

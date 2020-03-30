@@ -27,6 +27,11 @@ namespace LP.Finance.Common.Model
             return Categories.Where(i => i.Id == id).FirstOrDefault();
         }
 
+        public static AccountCategory Find(string name)
+        {
+            return Categories.Where(i => i.Name.Equals(name)).FirstOrDefault();
+        }
+
         public static AccountCategory[] Categories { get; private set; }
         public int Id { get; set; }
         public string Name { get; set; }

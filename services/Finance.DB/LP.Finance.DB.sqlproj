@@ -180,6 +180,7 @@
     <Build Include="Triggers\symbol_change_insert_trigger.sql" />
     <Build Include="Triggers\symbol_change_update_trigger.sql" />
     <Build Include="StoredProcs\AssetServicesOptions.sql" />
+    <Build Include="Views\vwManualJournal.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="Snapshots\TradeMaster.dacpac">

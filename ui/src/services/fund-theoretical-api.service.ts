@@ -135,6 +135,18 @@ export class FundTheoreticalApiService {
     return this.http.post(url, formData);
   }
 
+  uploadJournalData(file: File): Observable<any> {
+    const url = this.baseUrl + '/fileManagement/uploadJournal';
+    const formData: FormData = new FormData();
+    formData.append('fileKey', file, file.name);
+    return this.http.post(url, formData);
+  }
+
+  commitJournalData(data): Observable<any> {
+    const url = this.baseUrl + '/fileManagement/commitJournal';
+    return this.http.post(url, data);
+  }
+
   commitTradeData(data): Observable<any> {
     const url = this.baseUrl + '/fileManagement/commitTrade';
     return this.http.post(url, data);
